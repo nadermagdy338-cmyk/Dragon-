@@ -249,7 +249,7 @@
     <string name="str_app_info">Forritaupplýsingar</string>
     <string name="str_app_specific_settings_will_ove">Sérstillingar forrits yfirskrifa alþjóðlegt stillingar; ef haldið sjálfgefið, erfir alþjóðlega stillingu</string>
     <string name="str_apply_add_on_configurations_ta">Nota viðbótar fínstillingar sem passa við tæki; ef frammistaða leiks lækkar, reyndu að slökkva á samsvarandi fínstillingum</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Höfundur</string>
     <string name="str_auto_mode">Sjálfvirk stilling</string>
     <string name="str_available_nodes">Tiltæk markhnút (%1$d)</string>

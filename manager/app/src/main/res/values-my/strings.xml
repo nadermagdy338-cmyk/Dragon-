@@ -249,7 +249,7 @@
     <string name="str_app_info">အက်ပ်အချက်အလက်</string>
     <string name="str_app_specific_settings_will_ove">အက်ပ်သီးသန့်ဆက်တင်များသည် ကမ္ဘာလုံးဆိုင်ရာဆက်တင်များကို ကျော်လွှားမည်၊ ပုံသေထားရှိပါက ကမ္ဘာလုံးဆိုင်ရာပြင်ဆင်မှုကို အမွေဆက်ခံမည်</string>
     <string name="str_apply_add_on_configurations_ta">စက်နှင့်လိုက်ဖက်သော ထပ်ဆောင်းအကောင်းဆုံးပြင်ဆင်မှုများကို အသုံးချပါ။ ဂိမ်းတွင် စွမ်းဆောင်ရည်ကျဆင်းပါက သက်ဆိုင်ရာအကောင်းဆုံးပြင်ဆင်မှုကို ပိတ်ကြည့်ပါ</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">ရေးသားသူ</string>
     <string name="str_auto_mode">အလိုအလျောက်မုဒ်</string>
     <string name="str_available_nodes">ရရှိနိုင်သော ရည်မှန်းချက် node များ (%1$d)</string>

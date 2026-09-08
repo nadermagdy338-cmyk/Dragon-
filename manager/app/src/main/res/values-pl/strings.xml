@@ -249,7 +249,7 @@
     <string name="str_app_info">Informacje o aplikacji</string>
     <string name="str_app_specific_settings_will_ove">Ustawienia specyficzne dla aplikacji zastąpią ustawienia globalne. Pozostawienie domyślnych powoduje dziedziczenie konfiguracji globalnej.</string>
     <string name="str_apply_add_on_configurations_ta">Zastosuj dodatkowe optymalizacje dostosowane do urządzenia. Jeśli wydajność gry spada, spróbuj wyłączyć odpowiednie opcje.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autor</string>
     <string name="str_auto_mode">Tryb automatyczny</string>
     <string name="str_available_nodes">Dostępne węzły docelowe (%1$d)</string>

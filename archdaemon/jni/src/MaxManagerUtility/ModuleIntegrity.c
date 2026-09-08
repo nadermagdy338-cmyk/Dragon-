@@ -24,7 +24,7 @@ void is_kanged(void) {
         goto doorprize;
     }
 
-    if (systemv("grep -q '^author=Nader$' %s", MODULE_PROP) != 0) [[clang::unlikely]] {
+    if (systemv("grep -q '^author=MaxManager Project$' %s", MODULE_PROP) != 0) [[clang::unlikely]] {
         goto doorprize;
     }
 

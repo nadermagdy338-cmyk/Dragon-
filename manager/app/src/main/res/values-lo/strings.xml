@@ -249,7 +249,7 @@
     <string name="str_app_info">ຂໍ້ມູນແອັບ</string>
     <string name="str_app_specific_settings_will_ove">ການຕັ້ງຄ່າສະເພາະຂອງແອັບຈະມີກວມການຕັ້ງຄ່າທົ່ວໄປ, ສ່ວນການປະຖິ້ມຄ່າເລີ່ມຕົ້ນຈະສືບທອດການຕັ້ງຄ່າທົ່ວໄປ</string>
     <string name="str_apply_add_on_configurations_ta">ນຳໃຊ້ການປັບປຸງເພີ້ມເຕີມທີ່ປັບໃຫ້ເໝາະກັບອຸປະກອນ; ຖ້າເກມມີປະສິດທິພາບຕ່ຳລົງ, ສາມາດລອງປິດລາຍການນັ້ນ</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">ຜູ້ສ້າງ</string>
     <string name="str_auto_mode">ໂໝດອັດຕະໂນມັດ</string>
     <string name="str_available_nodes">ໂນດເປົ້າໝາຍທີ່ໃຊ້ງານໄດ້ (%1$d)</string>

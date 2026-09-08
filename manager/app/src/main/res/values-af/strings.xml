@@ -249,7 +249,7 @@
     <string name="str_app_info">Program inligting</string>
     <string name="str_app_specific_settings_will_ove">Programspesifieke instellings sal globale instellings oorheers; hou standaard om globale konfigurasie te erf</string>
     <string name="str_apply_add_on_configurations_ta">Pas bykomende optimaliserings aan wat by toestel pas; indien speletjie prestasie daal, probeer om ooreenstemmende optimalisering te deaktiveer</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Skrywer</string>
     <string name="str_auto_mode">Outomatiese modus</string>
     <string name="str_available_nodes">Beskikbare teiken nodusse (%1$d)</string>

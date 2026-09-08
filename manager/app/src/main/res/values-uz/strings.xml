@@ -249,7 +249,7 @@
     <string name="str_app_info">Ilova ma’lumoti</string>
     <string name="str_app_specific_settings_will_ove">Ilovaga xos sozlamalar global sozlamalarni bekor qiladi; standart holatida global konfiguratsiya meros qilib olinadi</string>
     <string name="str_apply_add_on_configurations_ta">Qurilmaga mos qo‘shimcha optimallashtirish konfiguratsiyalarini qo‘llash; agar o‘yinda ishlash pasayishi kuzatilsa, tegishli optimallashtirishni o‘chirib ko‘ring</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Muallif</string>
     <string name="str_auto_mode">Avtomatik rejim</string>
     <string name="str_available_nodes">Mavjud maqsadli tugunlar (%1$d)</string>

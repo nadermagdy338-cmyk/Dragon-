@@ -249,7 +249,7 @@
     <string name="str_app_info">एप जानकारी</string>
     <string name="str_app_specific_settings_will_ove">एप-विशिष्ट सेटिङहरूले ग्लोबल सेटिङहरू ओभरराइड गर्नेछ, पूर्वनिर्धारित राख्दा ग्लोबल कन्फिगरेसन विरासतमा लिनेछ</string>
     <string name="str_apply_add_on_configurations_ta">यन्त्रमा अनुकूलित अतिरिक्त अनुकूलन कन्फिगरेसनहरू लागू गर्नुहोस्; यदि खेलमा प्रदर्शन घटेमा, सम्बन्धित अनुकूलन वस्तु बन्द गर्न प्रयास गर्नुहोस्</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">लेखक</string>
     <string name="str_auto_mode">स्वचालित मोड</string>
     <string name="str_available_nodes">उपलब्ध लक्ष्य नोडहरू (%1$d)</string>

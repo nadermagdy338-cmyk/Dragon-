@@ -249,7 +249,7 @@
     <string name="str_app_info">Informace o aplikaci</string>
     <string name="str_app_specific_settings_will_ove">Nastavení specifická pro aplikaci přepíší globální nastavení. Ponecháním výchozích hodnot se převezme globální konfigurace.</string>
     <string name="str_apply_add_on_configurations_ta">Použít doplňková nastavení optimalizovaná pro zařízení. Pokud hra vykazuje nižší výkon, zkuste příslušnou optimalizaci vypnout.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autor</string>
     <string name="str_auto_mode">Automatický režim</string>
     <string name="str_available_nodes">Dostupné cílové uzly (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">Πληροφορίες εφαρμογής</string>
     <string name="str_app_specific_settings_will_ove">Οι ρυθμίσεις ανά εφαρμογή παρακάμπτουν τις καθολικές. Κρατώντας την προεπιλογή κληρονομείτε τις καθολικές ρυθμίσεις.</string>
     <string name="str_apply_add_on_configurations_ta">Εφαρμογή πρόσθετων βελτιστοποιήσεων για τη συσκευή. Αν η απόδοση του παιχνιδιού μειωθεί, δοκιμάστε να απενεργοποιήσετε την αντίστοιχη βελτιστοποίηση.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Συγγραφέας</string>
     <string name="str_auto_mode">Αυτόματη λειτουργία</string>
     <string name="str_available_nodes">Διαθέσιμοι κόμβοι στόχοι (%1$d)</string>

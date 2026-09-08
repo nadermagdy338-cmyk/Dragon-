@@ -249,7 +249,7 @@
     <string name="str_app_info">Информации за апликацијата</string>
     <string name="str_app_specific_settings_will_ove">Поставките специфични за апликацијата ќе ги заменат глобалните поставки. Ако ги оставите стандардни, ќе се наследат глобалните поставки.</string>
     <string name="str_apply_add_on_configurations_ta">Применете дополнителни оптимизирани поставки за уредот. Ако играта има намалени перформанси, обидете се да ги исклучите соодветните оптимизации.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Автор</string>
     <string name="str_auto_mode">Автоматски режим</string>
     <string name="str_available_nodes">Достапни целни јазли (%1$d)</string>

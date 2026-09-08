@@ -4,11 +4,11 @@ plugins {
 
 android {
     namespace 'com.termux.view' // Namespace wajib
-    compileSdk 37               // Samakan dengan App utama
+    compileSdk 36               // Samakan dengan App utama
 
     defaultConfig {
         minSdk 24
-        targetSdk 37
+        targetSdk 36
     }
 
     buildTypes {

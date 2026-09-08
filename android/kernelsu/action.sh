@@ -3,7 +3,7 @@
 MODDIR=${0%/*}
 MAXMANAGER_CTL="$MODDIR/bin/maxmanager_ctl"
 
-echo "MaxManager Essential"
+echo "MaxManager"
 echo ""
 
 if [ -f "$MODDIR/rom-native-mode" ]; then

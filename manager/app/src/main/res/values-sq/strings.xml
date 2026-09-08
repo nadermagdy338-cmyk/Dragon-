@@ -249,7 +249,7 @@
     <string name="str_app_info">Informacion për aplikacionin</string>
     <string name="str_app_specific_settings_will_ove">Cilësimet specifike për aplikacionin do të mbishkruajnë cilësimet globale; lënia e default-it trashëgon konfigurimin global</string>
     <string name="str_apply_add_on_configurations_ta">Aplikoni konfigurime shtesë të optimizuara për pajisjen; nëse loja ka performancë të ulët, provoni të çaktivizoni optimizimet përkatëse</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autori</string>
     <string name="str_auto_mode">Modaliteti automatik</string>
     <string name="str_available_nodes">Nyje të disponueshme (%1$d)</string>

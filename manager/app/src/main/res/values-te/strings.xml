@@ -249,7 +249,7 @@
     <string name="str_app_info">యాప్ సమాచారం</string>
     <string name="str_app_specific_settings_will_ove">యాప్-నిర్దిష్ట సెట్టింగ్‌లు గ్లోబల్ సెట్టింగ్‌లను ఓవర్రైడ్ చేస్తాయి, డిఫాల్ట్‌గా ఉంచితే గ్లోబల్ కాన్ఫిగరేషన్ వారసత్వంగా వస్తుంది</string>
     <string name="str_apply_add_on_configurations_ta">పరికరానికి అనుకూలమైన అదనపు ఆప్టిమైజేషన్ కాన్ఫిగరేషన్‌ను వర్తించండి; గేమ్ పనితీరు తగ్గితే, సంబంధిత ఆప్టిమైజేషన్ అంశాన్ని ఆఫ్ చేయడానికి ప్రయత్నించండి</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">రచయిత</string>
     <string name="str_auto_mode">ఆటో మోడ్</string>
     <string name="str_available_nodes">అందుబాటులో ఉన్న లక్ష్య నోడ్‌లు (%1$d)</string>

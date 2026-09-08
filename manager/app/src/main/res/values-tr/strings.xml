@@ -249,7 +249,7 @@
     <string name="str_app_info">Uygulama bilgisi</string>
     <string name="str_app_specific_settings_will_ove">Uygulamaya özel ayarlar genel ayarları geçersiz kılar; varsayılan bırakılırsa genel yapılandırma devralınır</string>
     <string name="str_apply_add_on_configurations_ta">Cihaza uygun ek optimizasyon yapılandırmalarını uygulayın; oyunda performans düşüşü yaşanırsa ilgili optimizasyonu kapatmayı deneyin.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Yazar</string>
     <string name="str_auto_mode">Otomatik mod</string>
     <string name="str_available_nodes">Kullanılabilir hedef düğümler (%1$d)</string>

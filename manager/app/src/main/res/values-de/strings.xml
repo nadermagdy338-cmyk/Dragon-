@@ -249,7 +249,7 @@
     <string name="str_app_info">App-Informationen</string>
     <string name="str_app_specific_settings_will_ove">App-spezifische Einstellungen überschreiben globale Einstellungen; Standard beibehält die globale Konfiguration</string>
     <string name="str_apply_add_on_configurations_ta">Zusätzliche Optimierungskonfigurationen anwenden, die an das Gerät angepasst sind; bei Leistungsproblemen im Spiel können entsprechende Optimierungen deaktiviert werden</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autor</string>
     <string name="str_auto_mode">Automatikmodus</string>
     <string name="str_available_nodes">Verfügbare Zielknoten (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">Sovellustiedot</string>
     <string name="str_app_specific_settings_will_ove">Sovelluskohtaiset asetukset ohittavat yleiset asetukset; jos pidät oletusarvot, ne periytyvät yleisestä määrityksestä</string>
     <string name="str_apply_add_on_configurations_ta">Käytä laitteen mukautettuja lisäoptimointiasetuksia; jos pelin suorituskyky heikkenee, yritä poistaa vastaava optimointi käytöstä</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Tekijä</string>
     <string name="str_auto_mode">Automaattitila</string>
     <string name="str_available_nodes">Käytettävissä olevat kohdesolmut (%1$d)</string>

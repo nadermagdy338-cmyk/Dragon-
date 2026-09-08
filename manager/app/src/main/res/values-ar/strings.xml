@@ -252,7 +252,7 @@
     <string name="str_app_info">معلومات التطبيق</string>
     <string name="str_app_specific_settings_will_ove">الإعدادات الخاصة بالتطبيق ستتجاوز الإعدادات العامة، إذا تركتها افتراضية فستورث التهيئة العامة</string>
     <string name="str_apply_add_on_configurations_ta">تطبيق التهيئات الإضافية المحسنة المتوافقة مع الجهاز؛ إذا لاحظت انخفاضًا في أداء اللعبة، حاول إيقاف عناصر التحسين المقابلة</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">المؤلف</string>
     <string name="str_auto_mode">الوضع التلقائي</string>
     <string name="str_available_nodes">العقد المتاحة (%1$d)</string>

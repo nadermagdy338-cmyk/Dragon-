@@ -18,7 +18,7 @@ android {
     // Do not change this namespace - the app module's KernelFlasherScreen.kt /
     // MtkScreen.kt import classes from com.github.capntrips.kernelflasher.*
     namespace = "com.github.capntrips.kernelflasher"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 29

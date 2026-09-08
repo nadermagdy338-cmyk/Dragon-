@@ -23,10 +23,11 @@ need_integrity=(
 	"mainfiles/action.sh"
 	"mainfiles/uninstall.sh"
 	"mainfiles/module.prop"
-    "mainfiles/module.banner.avif"
-	"mainfiles/maxmanagerApplist.json"
-    "mainfiles/MaxManager.apk"
-	"mainfiles/props.sh"
+	"mainfiles/module.banner.avif"
+    "mainfiles/maxmanagerApplist.json"
+    "mainfiles/system/product/priv-app/MaxManager/MaxManager.apk"
+    "mainfiles/system/product/etc/permissions/privapp-permissions-nd.max.xml"
+    "mainfiles/props.sh"
 )
 
 # Version info
@@ -66,18 +67,30 @@ cp maxmanagerApplist.json mainfiles/
 cp LICENSE mainfiles/ 2>/dev/null
 cp NOTICE.md mainfiles/ 2>/dev/null
 
-# Copy Manager APK
+# Copy Manager APK as a systemless priv-app. The module system tree is
+# overlaid on /product by Magisk (OverlayFS/magic mount) so the APK is
+# scanned as a real priv-app with privileged permission grants from the
+# permissions XML at boot — no pm install, no user-data install.
+# Image modders use these exact paths when repacking super.img.
+PRIVAPP_DIR="mainfiles/system/product/priv-app/MaxManager"
+PERMS_DIR="mainfiles/system/product/etc/permissions"
+mkdir -p "$PRIVAPP_DIR" "$PERMS_DIR"
+
 APK_PATH=$(find manager/app/build/outputs/apk/release -name "*.apk" | head -n 1)
 APK_PATH_DEBUG=$(find manager/app/build/outputs/apk/debug -name "*.apk" | head -n 1)
 if [ -n "$APK_PATH" ]; then
-    cp "$APK_PATH" "mainfiles/MaxManager.apk"
-    echo "APK found at $APK_PATH and copied to mainfiles successfully."
+    cp "$APK_PATH" "$PRIVAPP_DIR/MaxManager.apk"
+    echo "APK found at $APK_PATH and installed at $PRIVAPP_DIR successfully."
 elif [ -n "$APK_PATH_DEBUG" ]; then
-    cp "$APK_PATH_DEBUG" "mainfiles/MaxManager.apk"
-    echo "APK found at $APK_PATH_DEBUG and copied to mainfiles successfully."
+    cp "$APK_PATH_DEBUG" "$PRIVAPP_DIR/MaxManager.apk"
+    echo "APK found at $APK_PATH_DEBUG and installed at $PRIVAPP_DIR successfully."
 else
     echo "ERROR: No APK found!"
+    exit 1
 fi
+
+# Single-source privileged permissions (shared with the developer bundle)
+cp android/overlay/product/etc/permissions/privapp-permissions-nd.max.xml "$PERMS_DIR/"
 
 # Parse version info to module prop
 zipName="MaxManager-$version-$release_code.zip"

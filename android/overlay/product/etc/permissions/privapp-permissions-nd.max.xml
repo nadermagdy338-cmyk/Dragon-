@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Single source of truth for MaxManager privileged permissions.
+
+  Consumed by three integration paths that must stay identical:
+    1. Magisk module: overlaid at /product/etc/permissions/ via the
+       module system tree (systemless priv-app).
+    2. Image modders (super.img unpack/repack): copied to the same
+       path inside the product partition image.
+    3. AOSP source builds: PRODUCT_COPY_FILES into
+       $(TARGET_COPY_OUT_PRODUCT)/etc/permissions/.
+
+  Only permissions with a "privileged" component belong here.
+  WRITE_SECURE_SETTINGS is signature|privileged: the allowlist grants
+  it to a non-platform-signed priv-app. WRITE_SETTINGS and
+  SYSTEM_ALERT_WINDOW are appop permissions handled at runtime by
+  service.sh (appops set), not by this file.
+-->
+<permissions>
+    <privapp-permissions package="nd.max">
+        <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
+    </privapp-permissions>
+</permissions>

@@ -1,9 +1,9 @@
 # KernelSU Next module for MaxManager
 # ====================================
 
-id=nees_maxmanager_essential
-name=MaxManager Essential
+id=nees_maxmanager
+name=MaxManager
 version=v1.0.0-rc
 versionCode=10000
-author=ZCode & DeepSeek V4 Pro
-description=MaxManager Essential - Intelligent device performance management with Digital Twin and RL Agent. Provides kernel-level optimization and adaptive performance profiles.
+author=MaxManager Project
+description=MaxManager - Intelligent device performance management with Digital Twin and RL Agent. Provides kernel-level optimization and adaptive performance profiles.

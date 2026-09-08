@@ -249,7 +249,7 @@
     <string name="str_app_info">Информация о приложении</string>
     <string name="str_app_specific_settings_will_ove">Настройки для конкретного приложения переопределяют глобальные; оставьте по умолчанию для наследования глобальной конфигурации</string>
     <string name="str_apply_add_on_configurations_ta">Применение дополнительных оптимизаций, совместимых с устройством; при снижении производительности в игре попробуйте отключить соответствующую оптимизацию</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Автор</string>
     <string name="str_auto_mode">Автоматический режим</string>
     <string name="str_available_nodes">Доступные целевые узлы (%1$d)</string>

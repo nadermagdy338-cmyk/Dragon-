@@ -249,7 +249,7 @@
     <string name="str_app_info">Інформація про застосунок</string>
     <string name="str_app_specific_settings_will_ove">Налаштування для конкретного застосунку перекривають глобальні; залишення типових значень використовує глобальну конфігурацію</string>
     <string name="str_apply_add_on_configurations_ta">Застосування додаткових оптимізацій, адаптованих до пристрою; якщо продуктивність гри знижується, спробуйте вимкнути відповідні оптимізації</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Автор</string>
     <string name="str_auto_mode">Автоматичний режим</string>
     <string name="str_available_nodes">Доступні цільові вузли (%1$d)</string>

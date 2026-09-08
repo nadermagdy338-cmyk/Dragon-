@@ -249,7 +249,7 @@
     <string name="str_app_info">பயன்பாட்டுத் தகவல்</string>
     <string name="str_app_specific_settings_will_ove">பயன்பாட்டு-குறிப்பிட்ட அமைப்புகள் உலகளாவிய அமைப்புகளை மேலெழுதும், இயல்புநிலையை வைத்திருந்தால் உலகளாவிய கட்டமைப்பைப் பெறும்</string>
     <string name="str_apply_add_on_configurations_ta">சாதனத்திற்கான கூடுதல் உகந்த கட்டமைப்புகளைப் பயன்படுத்தவும்; விளையாட்டில் செயல்திறன் குறைந்தால், தொடர்புடைய உகந்த பொருளை முடக்க முயற்சிக்கவும்</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">ஆசிரியர்</string>
     <string name="str_auto_mode">தானியங்கி முறை</string>
     <string name="str_available_nodes">கிடைக்கக்கூடிய இலக்கு முனைகள் (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">Колдонмо маалыматы</string>
     <string name="str_app_specific_settings_will_ove">Колдонмого тиешелүү жөндөөлөр жалпы жөндөөлөрдү алмаштырат, демейки калтыруу глобалдык конфигурацияны мурастайт</string>
     <string name="str_apply_add_on_configurations_ta">Түзмөккө ылайыкталган кошумча оптималдаштыруу конфигурацияларын колдонуу; эгерде оюндун иштөөсү төмөндөсө, тиешелүү оптималдаштыруу опциясын өчүрүүгө аракет кылыңыз</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Автор</string>
     <string name="str_auto_mode">Автоматтык режим</string>
     <string name="str_available_nodes">Жеткиликтүү максаттуу түйүндөр (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">অ্যাপ তথ্য</string>
     <string name="str_app_specific_settings_will_ove">অ্যাপ-নির্দিষ্ট সেটিংস গ্লোবাল সেটিংস ওভাররাইট করবে, ডিফল্ট রাখলে গ্লোবাল কনফিগারেশন উত্তরাধিকার পাবে</string>
     <string name="str_apply_add_on_configurations_ta">ডিভাইসের জন্য উপযুক্ত অতিরিক্ত অপ্টিমাইজেশন কনফিগারেশন প্রয়োগ করুন; গেমের পারফরম্যান্স কমে গেলে সংশ্লিষ্ট অপ্টিমাইজেশন বন্ধ করার চেষ্টা করুন</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">লেখক</string>
     <string name="str_auto_mode">অটো মোড</string>
     <string name="str_available_nodes">উপলব্ধ টার্গেট নোড (%1$d)</string>

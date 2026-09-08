@@ -249,7 +249,7 @@
     <string name="str_app_info">Appinformation</string>
     <string name="str_app_specific_settings_will_ove">Appspecifika inställningar åsidosätter globala inställningar; behåll standard för att ärva global konfiguration</string>
     <string name="str_apply_add_on_configurations_ta">Tillämpa ytterligare optimeringskonfigurationer som är anpassade till enheten; om spelet presterar sämre, försök stänga av motsvarande optimeringsalternativ</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Författare</string>
     <string name="str_auto_mode">Automatiskt läge</string>
     <string name="str_available_nodes">Tillgängliga mål noder (%1$d)</string>

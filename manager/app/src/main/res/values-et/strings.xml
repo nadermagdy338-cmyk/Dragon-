@@ -249,7 +249,7 @@
     <string name="str_app_info">Rakenduse teave</string>
     <string name="str_app_specific_settings_will_ove">Rakendusepõhised seaded alistavad globaalsed seaded; vaikimisi jätmine pärib globaalse konfiguratsiooni</string>
     <string name="str_apply_add_on_configurations_ta">Rakenda seadmele kohandatud optimeerimiskonfiguratsioonid; kui mängu jõudlus langeb, proovi vastav optimeering keelata</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autor</string>
     <string name="str_auto_mode">Automaatrežiim</string>
     <string name="str_available_nodes">Saadaval olevad sihtsõlmed (%1$d)</string>

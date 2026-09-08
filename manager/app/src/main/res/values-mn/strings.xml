@@ -249,7 +249,7 @@
     <string name="str_app_info">Програмын мэдээлэл</string>
     <string name="str_app_specific_settings_will_ove">Програмын тусгай тохиргоо нь ерөнхий тохиргоог дарах болно. Анхдагчаар үлдээвэл ерөнхий тохиргоог өвлөнө</string>
     <string name="str_apply_add_on_configurations_ta">Төхөөрөмжид тохирсон нэмэлт оновчтой тохиргоог хэрэглэх. Хэрэв тоглоомын гүйцэтгэл муудвал холбогдох оновчлолыг унтрааж үзнэ үү</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Зохиогч</string>
     <string name="str_auto_mode">Автомат горим</string>
     <string name="str_available_nodes">Боломжтой зорилтот цэгүүд (%1$d)</string>

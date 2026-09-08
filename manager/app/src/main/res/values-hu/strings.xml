@@ -249,7 +249,7 @@
     <string name="str_app_info">Alkalmazás adatai</string>
     <string name="str_app_specific_settings_will_ove">Az alkalmazásspecifikus beállítások felülírják a globális beállításokat; az alapértelmezett érték meghagyásával a globális konfiguráció öröklődik</string>
     <string name="str_apply_add_on_configurations_ta">Az eszközhöz igazított kiegészítő optimalizálások alkalmazása; ha a játék teljesítménye romlik, próbálja meg kikapcsolni a megfelelő optimalizálást</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Szerző</string>
     <string name="str_auto_mode">Automatikus mód</string>
     <string name="str_available_nodes">Elérhető célcsomópontok (%1$d)</string>

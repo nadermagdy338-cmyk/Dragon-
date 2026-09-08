@@ -249,7 +249,7 @@
     <string name="str_app_info">Қолданба ақпараты</string>
     <string name="str_app_specific_settings_will_ove">Қолданбаға арналған параметрлер жалпы параметрлерді жабады, әдепкі күйде қалдыру жалпы конфигурацияны мұра етеді</string>
     <string name="str_apply_add_on_configurations_ta">Құрылғыға бейімделген қосымша оңтайландыру конфигурацияларын қолдану; егер ойын өнімділігі нашарласа, сәйкес оңтайландыруды өшіріп көріңіз</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Автор</string>
     <string name="str_auto_mode">Автоматты режим</string>
     <string name="str_available_nodes">Қолжетімді мақсатты түйіндер (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">Info aplikasi</string>
     <string name="str_app_specific_settings_will_ove">Pengaturan khusus aplikasi akan menimpa pengaturan global, biarkan default untuk mewarisi konfigurasi global</string>
     <string name="str_apply_add_on_configurations_ta">Terapkan konfigurasi optimasi tambahan yang sesuai dengan perangkat; jika game mengalami penurunan performa, coba nonaktifkan item optimasi terkait</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Penulis</string>
     <string name="str_auto_mode">Mode otomatis</string>
     <string name="str_available_nodes">Node target tersedia (%1$d)</string>

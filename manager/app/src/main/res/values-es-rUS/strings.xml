@@ -249,7 +249,7 @@
     <string name="str_app_info">Información de la aplicación</string>
     <string name="str_app_specific_settings_will_ove">La configuración específica de la aplicación anulará la configuración global. Mantener el valor predeterminado hereda la configuración global.</string>
     <string name="str_apply_add_on_configurations_ta">Aplica configuraciones de optimización adicionales adaptadas al dispositivo. Si el rendimiento del juego disminuye, intente desactivar la optimización correspondiente.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autor</string>
     <string name="str_auto_mode">Modo automático</string>
     <string name="str_available_nodes">Nodos objetivo disponibles (%1$d)</string>

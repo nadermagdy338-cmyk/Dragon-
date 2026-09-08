@@ -249,7 +249,7 @@
     <string name="str_app_info">App info</string>
     <string name="str_app_specific_settings_will_ove">App-specific settings override global settings; keep default to inherit global configuration</string>
     <string name="str_apply_add_on_configurations_ta">Apply additional optimizations for your device. If games experience performance drops, try disabling corresponding options.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Author</string>
     <string name="str_auto_mode">Auto mode</string>
     <string name="str_available_nodes">Available target nodes (%1$d)</string>

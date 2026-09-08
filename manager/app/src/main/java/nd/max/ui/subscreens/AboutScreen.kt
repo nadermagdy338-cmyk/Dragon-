@@ -187,12 +187,12 @@ fun AboutScreen(navController: NavController) {
                     content = listOf(
                         {
                             ExpressiveListItem(
-                                headlineContent = { Text(text = "Nader", fontWeight = FontWeight.SemiBold) },
+                                headlineContent = { Text(text = "MaxManager Project", fontWeight = FontWeight.SemiBold) },
                                 supportingContent = { Text(stringResource(R.string.str_creator_maintainer)) },
                                 leadingContent = {
                                     Image(
                                         painter = painterResource(R.drawable.avatar),
-                                        contentDescription = "Nader",
+                                        contentDescription = "MaxManager Project",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier.size(48.dp).clip(CircleShape)
                                     )

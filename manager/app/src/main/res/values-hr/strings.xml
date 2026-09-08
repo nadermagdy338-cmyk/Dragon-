@@ -249,7 +249,7 @@
     <string name="str_app_info">Informacije o aplikaciji</string>
     <string name="str_app_specific_settings_will_ove">Postavke specifične za aplikaciju će nadjačati globalne postavke, ako ostavite zadano, naslijedit će globalnu konfiguraciju</string>
     <string name="str_apply_add_on_configurations_ta">Primijeni dodatne optimizacijske konfiguracije prilagođene uređaju; ako igra ima smanjenje performansi, pokušajte onemogućiti odgovarajuće optimizacijske stavke</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autor</string>
     <string name="str_auto_mode">Automatski način</string>
     <string name="str_available_nodes">Dostupni ciljni čvorovi (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">ข้อมูลแอป</string>
     <string name="str_app_specific_settings_will_ove">การตั้งค่าเฉพาะแอปจะแทนที่การตั้งค่าทั่วโลก หากปล่อยเป็นค่าเริ่มต้นจะใช้การกำหนดค่าส่วนกลาง</string>
     <string name="str_apply_add_on_configurations_ta">ใช้การกำหนดค่าเพิ่มเติมที่เหมาะสมกับอุปกรณ์ หากเกมมีประสิทธิภาพลดลง ลองปิดรายการปรับแต่งที่เกี่ยวข้อง</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">ผู้เขียน</string>
     <string name="str_auto_mode">โหมดอัตโนมัติ</string>
     <string name="str_available_nodes">โหนดเป้าหมายที่ใช้ได้ (%1$d)</string>

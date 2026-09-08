@@ -249,7 +249,7 @@
     <string name="str_app_info">Appinformasjon</string>
     <string name="str_app_specific_settings_will_ove">App-spesifikke innstillinger overstyrer globale innstillinger; behold standard for å arve global konfigurasjon</string>
     <string name="str_apply_add_on_configurations_ta">Bruk tilleggsoptimaliseringer for enheten. Hvis spillet opplever ytelsesfall, prøv å deaktivere tilsvarende optimaliseringer.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Forfatter</string>
     <string name="str_auto_mode">Automatisk modus</string>
     <string name="str_available_nodes">Tilgjengelige målnoder (%1$d)</string>

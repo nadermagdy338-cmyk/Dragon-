@@ -5,8 +5,8 @@
 ### بيئة التطوير
 1. **Android Studio Koala (2024.1.1)** أو أحدث
 2. **JDK 17**: [تنزيل](https://adoptium.net/temurin/releases/?version=17)
-3. **Android SDK 37**: مثبت عبر Android Studio SDK Manager
-4. **NDK 26.3.11579262**: مثبت عبر SDK Manager (Tab SDK Tools)
+3. **Android SDK 36**: مثبت عبر Android Studio SDK Manager
+4. **NDK r29**: مثبت عبر SDK Manager (Tab SDK Tools) — نفس إصدار CI
 
 ### إعداد Rust
 ```bash
@@ -33,8 +33,8 @@ export PATH=$PATH:~/.cargo/bin
 
 ### 1. بناء مكتبة Rust
 ```bash
-cd app/src/main/rust
-cargo ndk -t armeabi-v7a -t arm64-v8a -o ../jniLibs build --release
+cd manager/src/main/rust
+cargo ndk -t armeabi-v7a -t arm64-v8a -o ../../../app/src/main/jniLibs build --release
 ```
 
 ### 2. بناء التطبيق

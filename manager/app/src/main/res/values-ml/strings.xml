@@ -249,7 +249,7 @@
     <string name="str_app_info">ആപ്പ് വിവരം</string>
     <string name="str_app_specific_settings_will_ove">ആപ്പ്-നിർദ്ദിഷ്ട ക്രമീകരണങ്ങൾ ഗ്ലോബൽ ക്രമീകരണങ്ങളെ മറികടക്കും; ഡിഫോൾട്ട് നിലനിർത്തിയാൽ ഗ്ലോബൽ കോൺഫിഗറേഷൻ പാരമ്പര്യമായി ലഭിക്കും</string>
     <string name="str_apply_add_on_configurations_ta">ഉപകരണത്തിന് അനുയോജ്യമായ അധിക ഒപ്റ്റിമൈസേഷൻ കോൺഫിഗറേഷനുകൾ പ്രയോഗിക്കുക; ഗെയിമിൽ പ്രകടനം കുറയുകയാണെങ്കിൽ, അനുബന്ധ ഒപ്റ്റിമൈസേഷൻ ഓപ്ഷൻ ഓഫാക്കാൻ ശ്രമിക്കുക</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">രചയിതാവ്</string>
     <string name="str_auto_mode">ഓട്ടോ മോഡ്</string>
     <string name="str_available_nodes">ലഭ്യമായ ടാർഗറ്റ് നോഡുകൾ (%1$d)</string>

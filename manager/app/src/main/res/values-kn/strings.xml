@@ -249,7 +249,7 @@
     <string name="str_app_info">ಅಪ್ಲಿಕೇಶನ್ ಮಾಹಿತಿ</string>
     <string name="str_app_specific_settings_will_ove">ಅಪ್ಲಿಕೇಶನ್-ನಿರ್ದಿಷ್ಟ ಸೆಟ್ಟಿಂಗ್ಗಳು ಜಾಗತಿಕ ಸೆಟ್ಟಿಂಗ್ಗಳನ್ನು ಅತಿಕ್ರಮಿಸುತ್ತವೆ, ಡೀಫಾಲ್ಟ್ ಅನ್ನು ಇಟ್ಟುಕೊಳ್ಳುವುದು ಜಾಗತಿಕ ಸಂರಚನೆಯನ್ನು ಆನುವಂಶಿಕವಾಗಿ ಪಡೆಯುತ್ತದೆ</string>
     <string name="str_apply_add_on_configurations_ta">ಸಾಧನಕ್ಕೆ ಸೂಕ್ತವಾದ ಹೆಚ್ಚುವರಿ ಆಪ್ಟಿಮೈಸೇಶನ್ ಸಂರಚನೆಗಳನ್ನು ಅನ್ವಯಿಸಿ; ಆಟದಲ್ಲಿ ಕಾರ್ಯಕ್ಷಮತೆ ಇಳಿಮುಖವಾದರೆ, ಅನುಗುಣವಾದ ಆಪ್ಟಿಮೈಸೇಶನ್ ಐಟಂಗಳನ್ನು ಆಫ್ ಮಾಡಲು ಪ್ರಯತ್ನಿಸಿ</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">ಲೇಖಕ</string>
     <string name="str_auto_mode">ಸ್ವಯಂ ಮೋಡ್</string>
     <string name="str_available_nodes">ಲಭ್ಯವಿರುವ ಗುರಿ ನೋಡ್‌ಗಳು (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">Հավելվածի տեղեկություն</string>
     <string name="str_app_specific_settings_will_ove">Հավելվածի հատուկ կարգավորումները կփոխարինեն գլոբալ կարգավորումները, լռելյայն պահելու դեպքում կժառանգվի գլոբալ կոնֆիգուրացիան</string>
     <string name="str_apply_add_on_configurations_ta">Կիրառել սարքին հարմարեցված լրացուցիչ օպտիմիզացիաներ; Եթե խաղի կատարումը վատանում է, փորձեք անջատել համապատասխան օպտիմիզացիան</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Հեղինակ</string>
     <string name="str_auto_mode">Ավտոմատ ռեժիմ</string>
     <string name="str_available_nodes">Հասանելի թիրախային հանգույցներ (%1$d)</string>

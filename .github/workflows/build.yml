@@ -15,7 +15,6 @@ on:
       - ".github/scripts/**"
       - "manager/**"
       - "archdaemon/**"
-      - "tweakfls/**"
       - "mainfiles/**"
       - "preloadbin/**"
       - "thermalcore/**"
@@ -148,6 +147,11 @@ jobs:
           java-version: "17"
           distribution: temurin
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
+
       - name: Verify Gradle Wrapper Jar
         working-directory: ./manager
         run: |
@@ -191,12 +195,113 @@ jobs:
         id: compileZip
         run: bash .github/scripts/compile_zip.sh
 
-      # Upload the generated ZIP to GitHub Actions Artifacts
+      # Developer bundle: the same APK, the same privileged permissions, the
+      # same /product paths as the module — plus Soong definitions so AOSP
+      # builders can integrate it as a first-class prebuilt. Closed-source
+      # friendly: everything needed ships as prebuilt, no app sources.
+      - name: Package developer integration bundle
+        run: |
+          set -e
+          rm -rf developer-bundle
+          # Prefer the release APK; fall back to debug only for experimental
+          # builds or when release was not produced — mirrors compile_zip.sh.
+          apk_path=""
+          if [ "$V_TYPE" != "experimental" ]; then
+            apk_path="$(find manager/app/build/outputs/apk/release -type f -name '*.apk' 2>/dev/null | sort | head -n 1)"
+          fi
+          [ -n "$apk_path" ] || apk_path="$(find manager/app/build/outputs/apk/debug -type f -name '*.apk' 2>/dev/null | sort | head -n 1)"
+          test -n "$apk_path" || { echo "No APK was produced" >&2; exit 1; }
+
+          # Path 1 — image modders (super.img unpack/repack, HyperOS ports):
+          # mirror of the module system tree, minus root-specific scripts.
+          mkdir -p developer-bundle/overlay/product/priv-app/MaxManager
+          mkdir -p developer-bundle/overlay/product/etc/permissions
+          cp "$apk_path" developer-bundle/overlay/product/priv-app/MaxManager/MaxManager.apk
+          cp android/overlay/product/etc/permissions/privapp-permissions-nd.max.xml \
+             developer-bundle/overlay/product/etc/permissions/
+
+          # Path 2 — AOSP source builds: Soong import of the same prebuilt.
+          mkdir -p developer-bundle/aosp/prebuilt
+          cp "$apk_path" developer-bundle/aosp/prebuilt/MaxManager.apk
+          cp android/overlay/product/etc/permissions/privapp-permissions-nd.max.xml developer-bundle/aosp/
+          {
+            printf '%s\n' 'android_app_import {'
+            printf '%s\n' '    name: "MaxManager",' '    apk: "prebuilt/MaxManager.apk",' '    certificate: "platform",' '    privileged: true,' '    product_specific: true,' '    dex_preopt: { enabled: true },' '}'
+          } > developer-bundle/aosp/Android.bp
+          {
+            printf '%s\n' 'PRODUCT_PACKAGES += MaxManager'
+            printf '%s\n' 'PRODUCT_COPY_FILES += \'
+            printf '%s\n' '    device/maxmanager/privapp-permissions-nd.max.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/privapp-permissions-nd.max.xml'
+          } > developer-bundle/aosp/product-inclusion.mk
+
+          printf '%s\n' \
+            'MaxManager developer integration bundle' \
+            '' \
+            'The APK already contains the JNI native libraries built by CI.' \
+            '' \
+            'A) Image modders (super.img unpack/repack, HyperOS ports):' \
+            '   copy overlay/product/* into the product partition image at the' \
+            '   same paths. Owner root:root, mode 644. The APK is presigned, so' \
+            '   privileged permissions come from privapp-permissions-nd.max.xml.' \
+            '   These are the exact paths the flashable module overlays via' \
+            '   OverlayFS, so behavior matches the rooted install.' \
+            '' \
+            'B) AOSP source builds:' \
+            '   1. Copy the aosp/ directory to device/maxmanager/ (any path).' \
+            '   2. Include product-inclusion.mk from your product makefile.' \
+            '   3. Soong re-signs the APK with certificate: "platform" and the' \
+            '      permission XML is copied to product/etc/permissions.' \
+            '' \
+            'C) Rooted users: use MaxManager-<version>.zip (the module) instead.' \
+            '' \
+            'This bundle ships prebuilts only: no app sources, no init service,' \
+            'no SELinux policy. SELinux contexts are inherited from the' \
+            'priv-app directory conventions of the target build.' \
+            > developer-bundle/README.txt
+          (cd developer-bundle && zip -r ../MaxManager-developer-bundle.zip .)
+
+      - name: Validate artifacts
+        run: |
+          set -e
+          module_zip="${{ steps.compileZip.outputs.zipName }}"
+          test -n "$module_zip" || { echo "module zip name missing from compileZip step"; exit 1; }
+          test -f "$module_zip" || { echo "module zip file missing: $module_zip"; exit 1; }
+          unzip -t "$module_zip" > /dev/null
+          unzip -l "$module_zip" | grep -q "system/product/priv-app/MaxManager/MaxManager.apk" \
+            || { echo "module zip: priv-app APK missing"; exit 1; }
+          unzip -l "$module_zip" | grep -q "system/product/priv-app/MaxManager/MaxManager.apk.sha256" \
+            || { echo "module zip: priv-app APK checksum missing"; exit 1; }
+          unzip -l "$module_zip" | grep -q "system/product/etc/permissions/privapp-permissions-nd.max.xml" \
+            || { echo "module zip: permissions XML missing"; exit 1; }
+          unzip -l "$module_zip" | grep -q "system/product/etc/permissions/privapp-permissions-nd.max.xml.sha256" \
+            || { echo "module zip: permissions XML checksum missing"; exit 1; }
+          unzip -l "$module_zip" | grep -q "system/bin/sys.maxmanager-service" \
+            || { echo "module zip: service binary missing"; exit 1; }
+          unzip -t MaxManager-developer-bundle.zip > /dev/null
+          unzip -l MaxManager-developer-bundle.zip | grep -q "overlay/product/priv-app/MaxManager/MaxManager.apk" \
+            || { echo "developer bundle: overlay APK missing"; exit 1; }
+          unzip -l MaxManager-developer-bundle.zip | grep -q "overlay/product/etc/permissions/privapp-permissions-nd.max.xml" \
+            || { echo "developer bundle: permissions XML missing"; exit 1; }
+          unzip -l MaxManager-developer-bundle.zip | grep -q "aosp/Android.bp" \
+            || { echo "developer bundle: Android.bp missing"; exit 1; }
+          unzip -l MaxManager-developer-bundle.zip | grep -q "aosp/product-inclusion.mk" \
+            || { echo "developer bundle: product-inclusion.mk missing"; exit 1; }
+          echo "All artifact validations passed."
+
+      # Upload only after validation passed, so a broken package never
+      # surfaces as a downloadable artifact.
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MaxManager
+          name: MaxManager-module
           path: ${{ steps.compileZip.outputs.zipName }}
+          if-no-files-found: error
+
+      - name: Upload developer integration artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MaxManager-developer-bundle
+          path: MaxManager-developer-bundle.zip
           if-no-files-found: error
 
       - name: Upload To Telegram

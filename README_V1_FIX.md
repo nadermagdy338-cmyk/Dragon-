@@ -11,7 +11,7 @@
    - `#define MODULE_VERSION ".placeholder"` → `#define MODULE_VERSION "V1"`
 
 3. `archdaemon/jni/src/MaxManagerUtility/ModuleIntegrity.c`
-   - فحص `is_kanged()` بقى بيطابق `name=Max Manager` و `author=Nader` (بدل القيم الأصلية `MaxManager火` / `ArchHaven Developers`)
+   - فحص `is_kanged()` بقى بيطابق `name=Max Manager` و `author=MaxManager Project` (بدل القيم الأصلية `MaxManager火` / `ArchHaven Developers`)
 
 دلوقتي الثلاثة مصادر (`module.prop`, `MODULE_VERSION`, وفحص `is_kanged`) متطابقين، فالـ daemon مفروض يعدّي الفحصين ويكمل شغله عادي.
 

@@ -249,7 +249,7 @@
     <string name="str_app_info">Информация за приложението</string>
     <string name="str_app_specific_settings_will_ove">Специфичните настройки за приложението ще заменят глобалните настройки. Ако оставите по подразбиране, ще се наследят глобалните конфигурации.</string>
     <string name="str_apply_add_on_configurations_ta">Приложете допълнителни оптимизирани конфигурации, съобразени с устройството. Ако играта покаже спад в производителността, опитайте да изключите съответните оптимизации.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Автор</string>
     <string name="str_auto_mode">Автоматичен режим</string>
     <string name="str_available_nodes">Налични целеви възли (%1$d)</string>

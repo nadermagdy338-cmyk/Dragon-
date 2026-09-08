@@ -249,7 +249,7 @@
     <string name="str_app_info">ایپ کی معلومات</string>
     <string name="str_app_specific_settings_will_ove">ایپ مخصوص ترتیبات عالمی ترتیبات کو اوور رائڈ کریں گی، ڈیفالٹ رکھنے پر عالمی کنفیگریشن استعمال ہوگی</string>
     <string name="str_apply_add_on_configurations_ta">ڈیوائس کے لیے موزوں اضافی اصلاحات لاگو کریں؛ اگر گیم میں کارکردگی کم ہو تو متعلقہ آپشن کو بند کرنے کی کوشش کریں</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">مصنف</string>
     <string name="str_auto_mode">آٹو موڈ</string>
     <string name="str_available_nodes">دستیاب ہدف نوڈس (%1$d)</string>

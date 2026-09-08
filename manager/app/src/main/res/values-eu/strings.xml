@@ -249,7 +249,7 @@
     <string name="str_app_info">Aplikazioaren informazioa</string>
     <string name="str_app_specific_settings_will_ove">Aplikazio bakoitzaren ezarpenek ezarpen orokorrak gaindituko dituzte; lehenetsia utziz gero, konfigurazio orokorra heredatuko da</string>
     <string name="str_apply_add_on_configurations_ta">Aplikatu gailura egokitutako optimizazio gehigarriak; jokoan errendimendu jaitsiera gertatzen bada, saiatu dagokion optimizazioa desgaitzen</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Egilea</string>
     <string name="str_auto_mode">Modu automatikoa</string>
     <string name="str_available_nodes">Nodo erabilgarriak (%1$d)</string>

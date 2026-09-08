@@ -249,7 +249,7 @@
     <string name="str_app_info">Tətbiq məlumatı</string>
     <string name="str_app_specific_settings_will_ove">Tətbiqə xas parametrlər qlobal parametrləri əvəz edəcək, varsayılan saxlanarsa qlobal konfiqurasiya miras alınır</string>
     <string name="str_apply_add_on_configurations_ta">Cihaza uyğunlaşdırılmış əlavə optimallaşdırma konfiqurasiyalarını tətbiq edin; oyunda performans düşməsi olarsa, müvafiq optimallaşdırmanı söndürməyə cəhd edin</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Müəllif</string>
     <string name="str_auto_mode">Avtomatik rejim</string>
     <string name="str_available_nodes">Mövcud hədəf qovşaqları (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">App-oplysninger</string>
     <string name="str_app_specific_settings_will_ove">App-specifikke indstillinger tilsidesætter globale indstillinger; behold standard for at arve global konfiguration</string>
     <string name="str_apply_add_on_configurations_ta">Anvend yderligere optimeringskonfiguration tilpasset enheden; hvis spillet oplever ydeevnefald, prøv at deaktivere tilsvarende optimeringer</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Forfatter</string>
     <string name="str_auto_mode">Automatisk tilstand</string>
     <string name="str_available_nodes">Tilgængelige målknudepunkter (%1$d)</string>

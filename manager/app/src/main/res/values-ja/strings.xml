@@ -249,7 +249,7 @@
     <string name="str_app_info">アプリ情報</string>
     <string name="str_app_specific_settings_will_ove">アプリ固有の設定はグローバル設定を上書きします。デフォルトのままにするとグローバル構成が継承されます</string>
     <string name="str_apply_add_on_configurations_ta">デバイスに適合する追加の最適化設定を適用します。ゲームのパフォーマンスが低下した場合は、対応する最適化を無効にしてみてください</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">作者</string>
     <string name="str_auto_mode">自動モード</string>
     <string name="str_available_nodes">利用可能なターゲットノード (%1$d)</string>

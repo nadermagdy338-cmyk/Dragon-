@@ -249,7 +249,7 @@
     <string name="str_app_info">Lietotnes informācija</string>
     <string name="str_app_specific_settings_will_ove">Lietotnei specifiskie iestatījumi pārraksta globālos iestatījumus; atstājot noklusējumu, tiek izmantota globālā konfigurācija</string>
     <string name="str_apply_add_on_configurations_ta">Lietot ierīcei pielāgotas papildu optimizācijas konfigurācijas. Ja spēles veiktspēja pasliktinās, mēģiniet atspējot atbilstošo optimizāciju.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autors</string>
     <string name="str_auto_mode">Automātiskais režīms</string>
     <string name="str_available_nodes">Pieejamie mērķa mezgli (%1$d)</string>

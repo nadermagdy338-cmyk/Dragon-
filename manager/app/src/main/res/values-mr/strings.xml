@@ -249,7 +249,7 @@
     <string name="str_app_info">अ‍ॅप माहिती</string>
     <string name="str_app_specific_settings_will_ove">अ‍ॅप-विशिष्ट सेटिंग्ज जागतिक सेटिंग्ज ओव्हरराइड करतील, डीफॉल्ट ठेवल्यास जागतिक रचना वारसा मिळेल</string>
     <string name="str_apply_add_on_configurations_ta">उपकरणासाठी अतिरिक्त ऑप्टिमायझेशन रचना लागू करा; गेम कार्यक्षमता कमी झाल्यास, संबंधित ऑप्टिमायझेशन बंद करून पहा</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">लेखक</string>
     <string name="str_auto_mode">स्वयं मोड</string>
     <string name="str_available_nodes">उपलब्ध लक्ष्य नोड्स (%1$d)</string>

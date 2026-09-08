@@ -249,7 +249,7 @@
     <string name="str_app_info">የመተግበሪያ መረጃ</string>
     <string name="str_app_specific_settings_will_ove">የመተግበሪያ-ተኮር ቅንብሮች አለምአቀፍ ቅንብሮችን ይተካሉ፤ ነባሪ ላይ ሲቀመጡ ከአለምአቀፍ ውቅር ይወርሳሉ</string>
     <string name="str_apply_add_on_configurations_ta">ለመሣሪያው የሚስማሙ ተጨማሪ ማመቻቸት ውቅሮችን ተግብር፤ ጨዋታ የአፈጻጸም ማሽቆልቆል ካሳየ የሚመለከተውን ማመቻቸት መጥፋት ይችላሉ</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">ደራሲ</string>
     <string name="str_auto_mode">ራስ-ሰር ሁነታ</string>
     <string name="str_available_nodes">የሚገኙ ዒላማ ኖዶች (%1$d)</string>

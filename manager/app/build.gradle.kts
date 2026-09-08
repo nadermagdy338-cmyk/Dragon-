@@ -15,8 +15,10 @@ plugins {
 
 android {
     namespace = "nd.max"
-    // API 37 is not available from the stable GitHub Actions SDK repository.
-    compileSdk = 35
+    // API 37 is not published on the GitHub-hosted SDK repository; API 36
+    // is the newest stable level available there and satisfies the AAR
+    // metadata floor of the current androidx alphas.
+    compileSdk = 36
 
     // كلمة مرور مخزن المفاتيح من سر CI (KS_PWD / KEYSTORE_PASSWORD).
     // null محليًا وفي CI قبل ضبط السر — التوقيع يتراجع لغير موقّع
@@ -26,7 +28,7 @@ android {
     defaultConfig {
         applicationId = "nd.max"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
         vectorDrawables.useSupportLibrary = true

@@ -249,7 +249,7 @@
     <string name="str_app_info">應用程式資訊</string>
     <string name="str_app_specific_settings_will_ove">應用程式專屬設定將覆蓋全域設定，保持預設則繼承全域配置</string>
     <string name="str_apply_add_on_configurations_ta">套用適配裝置的附加最佳化配置；若遊戲中出現效能下降，可嘗試關閉對應最佳化項目</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">作者</string>
     <string name="str_auto_mode">自動模式</string>
     <string name="str_available_nodes">可用目標節點 (%1$d)</string>

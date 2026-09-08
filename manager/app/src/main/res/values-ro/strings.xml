@@ -249,7 +249,7 @@
     <string name="str_app_info">Informații aplicație</string>
     <string name="str_app_specific_settings_will_ove">Setările specifice aplicației vor suprascrie setările globale. Păstrarea valorilor implicite moștenește configurația globală.</string>
     <string name="str_apply_add_on_configurations_ta">Aplică configurațiile suplimentare adaptate pentru dispozitiv. Dacă jocul are performanțe scăzute, încercați să dezactivați opțiunile de optimizare corespunzătoare.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autor</string>
     <string name="str_auto_mode">Mod automat</string>
     <string name="str_available_nodes">Noduri țintă disponibile (%1$d)</string>

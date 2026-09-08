@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
 ui_print "***************************************"
-ui_print "        MaxManager Essential"
+ui_print "        MaxManager"
 ui_print "   KernelSU Next / Magisk Module"
 ui_print "   Intelligent Performance Management"
 ui_print "***************************************"

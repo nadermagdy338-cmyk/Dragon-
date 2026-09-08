@@ -4,8 +4,8 @@
 
 Reported symptoms: several App Settings knobs appear to do nothing, the
 thermal/GPU profile picker specifically doesn't seem to hold, and the Apps
-list didn't look right either. To investigate, I read through **Rodin
-Essential** (a separate, unrelated root-tuning project the user pointed me
+list didn't look right either. To investigate, I read through **Rodin**
+(a separate, unrelated root-tuning project the user pointed me
 at as a reference) to see how a project solving the *same class of problem*
 — per-app CPU/GPU/thermal overrides on Xiaomi/MediaTek hardware — is
 architected, specifically to find out what MaxManager might be structurally

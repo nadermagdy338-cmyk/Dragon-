@@ -249,7 +249,7 @@
     <string name="str_app_info">Thông tin ứng dụng</string>
     <string name="str_app_specific_settings_will_ove">Cài đặt riêng cho ứng dụng sẽ ghi đè cài đặt chung, giữ mặc định sẽ kế thừa cấu hình chung</string>
     <string name="str_apply_add_on_configurations_ta">Áp dụng cấu hình tối ưu bổ sung phù hợp với thiết bị; nếu trò chơi giảm hiệu suất, hãy thử tắt mục tối ưu tương ứng</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Tác giả</string>
     <string name="str_auto_mode">Chế độ tự động</string>
     <string name="str_available_nodes">Nút mục tiêu khả dụng (%1$d)</string>

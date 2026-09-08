@@ -249,7 +249,7 @@
     <string name="str_app_info">App-informatie</string>
     <string name="str_app_specific_settings_will_ove">App-specifieke instellingen overschrijven globale instellingen; standaard laten om globale configuratie over te nemen</string>
     <string name="str_apply_add_on_configurations_ta">Pas extra optimalisaties voor apparaat aan; als game-prestaties afnemen, probeer betreffende optimalisaties uit te schakelen</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Auteur</string>
     <string name="str_auto_mode">Automatische modus</string>
     <string name="str_available_nodes">Beschikbare doelknooppunten (%1$d)</string>

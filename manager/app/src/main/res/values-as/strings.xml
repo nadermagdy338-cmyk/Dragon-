@@ -249,7 +249,7 @@
     <string name="str_app_info">এপ তথ্য</string>
     <string name="str_app_specific_settings_will_ove">এপ-নিৰ্দিষ্ট ছেটিংছ গ্ল\'বেল ছেটিংছক অগ্ৰাধিকাৰ দিব, ডিফল্ট ৰাখিলে গ্ল\'বেল কনফিগাৰেচন উত্তৰাধিকাৰী হ\'ব</string>
     <string name="str_apply_add_on_configurations_ta">ডিভাইচৰ বাবে সাধাৰণ অপ্টিমাইজেচন কনফিগাৰেচন প্ৰয়োগ কৰক; যদি গেমৰ কাৰ্য্যদক্ষতা হ্ৰাস পায়, সংশ্লিষ্ট অপ্টিমাইজেচন বিকল্প বন্ধ কৰিবলৈ চেষ্টা কৰক</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">লেখক</string>
     <string name="str_auto_mode">স্বয়ংক্ৰিয় ম\'ড</string>
     <string name="str_available_nodes">উপলব্ধ লক্ষ্য ন\'ড (%1$d)</string>

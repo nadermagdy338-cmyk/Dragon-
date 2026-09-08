@@ -249,7 +249,7 @@
     <string name="str_app_info">ଆପ୍ ସୂଚନା</string>
     <string name="str_app_specific_settings_will_ove">ଆପ୍-ନିର୍ଦ୍ଦିଷ୍ଟ ସେଟିଂସ୍ ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍କୁ ପୁନର୍ଧାରଣ କରିବ, ଡିଫଲ୍ଟ ରଖିଲେ ଗ୍ଲୋବାଲ୍ ବିନ୍ୟାସ ଉତ୍ତରାଧିକାର ହେବ</string>
     <string name="str_apply_add_on_configurations_ta">ଡିଭାଇସ୍ ପାଇଁ ଉପଯୁକ୍ତ ଅତିରିକ୍ତ ଅପ୍ଟିମାଇଜେସନ୍ ବିନ୍ୟାସ ପ୍ରୟୋଗ କରନ୍ତୁ; ଯଦି ଖେଳରେ କାର୍ଯ୍ୟଦକ୍ଷତା ହ୍ରାସ ପାଏ, ସମ୍ପୃକ୍ତ ଅପ୍ଟିମାଇଜେସନ୍ ଆଇଟମ୍ ବନ୍ଦ କରିବାକୁ ଚେଷ୍ଟା କରନ୍ତୁ</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">ଲେଖକ</string>
     <string name="str_auto_mode">ସ୍ୱୟଂଚାଳିତ ମୋଡ୍</string>
     <string name="str_available_nodes">ଉପଲବ୍ଧ ଲକ୍ଷ୍ୟ ନୋଡ୍ (%1$d)</string>

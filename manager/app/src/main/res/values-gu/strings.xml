@@ -249,7 +249,7 @@
     <string name="str_app_info">એપ માહિતી</string>
     <string name="str_app_specific_settings_will_ove">એપ-વિશિષ્ટ સેટિંગ્સ ગ્લોબલ સેટિંગ્સને ઓવરરાઇડ કરશે, ડિફૉલ્ટ રાખવાથી ગ્લોબલ રૂપરેખાંકન વારસામાં મળશે</string>
     <string name="str_apply_add_on_configurations_ta">ઉપકરણ માટે અનુકૂળ વધારાની ઑપ્ટિમાઇઝેશન રૂપરેખાંકન લાગુ કરો; જો ગેમમાં પ્રદર્શન ઘટે, તો સંબંધિત ઑપ્ટિમાઇઝેશન આઇટમ બંધ કરવાનો પ્રયાસ કરો</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">લેખક</string>
     <string name="str_auto_mode">ઓટો મોડ</string>
     <string name="str_available_nodes">ઉપલબ્ધ લક્ષ્ય નોડ (%1$d)</string>

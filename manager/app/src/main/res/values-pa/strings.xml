@@ -249,7 +249,7 @@
     <string name="str_app_info">ਐਪ ਜਾਣਕਾਰੀ</string>
     <string name="str_app_specific_settings_will_ove">ਐਪ-ਵਿਸ਼ੇਸ਼ ਸੈਟਿੰਗਾਂ ਗਲੋਬਲ ਸੈਟਿੰਗਾਂ ਨੂੰ ਓਵਰਰਾਈਡ ਕਰਦੀਆਂ ਹਨ; ਡਿਫੌਲਟ \'ਤੇ ਛੱਡਣ \'ਤੇ ਗਲੋਬਲ ਕੌਂਫਿਗ ਲਾਗੂ</string>
     <string name="str_apply_add_on_configurations_ta">ਡਿਵਾਈਸ-ਅਨੁਕੂਲ ਵਾਧੂ ਆਪਟੀਮਾਈਜੇਸ਼ਨ ਲਾਗੂ ਕਰੋ; ਜੇ ਗੇਮ ਪ੍ਰਦਰਸ਼ਨ ਵਿਚ ਕਮੀ ਹੋਵੇ, ਸੰਬੰਧਿਤ ਆਪਸ਼ਨ ਬੰਦ ਕਰੋ</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">ਲੇਖਕ</string>
     <string name="str_auto_mode">ਆਟੋ ਮੋਡ</string>
     <string name="str_available_nodes">ਉਪਲਬਧ ਟਾਰਗਿਟ ਨੋਡ (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">Informació de l\'aplicació</string>
     <string name="str_app_specific_settings_will_ove">La configuració específica de l\'aplicació substituirà la configuració global; si es manté per defecte, hereta la configuració global</string>
     <string name="str_apply_add_on_configurations_ta">Aplica configuracions d\'optimització addicionals adaptades al dispositiu; si el joc mostra baixada de rendiment, proveu de desactivar l\'optimització corresponent</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autor</string>
     <string name="str_auto_mode">Mode automàtic</string>
     <string name="str_available_nodes">Nodes objectiu disponibles (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">Programos informacija</string>
     <string name="str_app_specific_settings_will_ove">Programai būdingi nustatymai pakeis visuotinius nustatymus; palikite numatytuosius, kad paveldėtų visuotinę konfigūraciją</string>
     <string name="str_apply_add_on_configurations_ta">Taikyti papildomas optimizacijas, pritaikytas prie įrenginio; jei žaidime sumažėja našumas, pabandykite išjungti atitinkamą optimizaciją</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Autorius</string>
     <string name="str_auto_mode">Automatinis režimas</string>
     <string name="str_available_nodes">Prieinami mazgai (%1$d)</string>

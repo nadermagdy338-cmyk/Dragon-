@@ -249,7 +249,7 @@
     <string name="str_app_info">앱 정보</string>
     <string name="str_app_specific_settings_will_ove">앱별 설정이 전역 설정을 덮어씁니다. 기본값을 유지하면 전역 구성을 상속합니다</string>
     <string name="str_apply_add_on_configurations_ta">기기에 맞는 추가 최적화 구성을 적용합니다. 게임 성능이 저하되면 해당 최적화 항목을 비활성화해 보세요.</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">저자</string>
     <string name="str_auto_mode">자동 모드</string>
     <string name="str_available_nodes">사용 가능한 대상 노드 (%1$d)</string>

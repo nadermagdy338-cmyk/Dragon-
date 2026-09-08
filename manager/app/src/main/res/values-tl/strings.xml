@@ -249,7 +249,7 @@
     <string name="str_app_info">Impormasyon ng app</string>
     <string name="str_app_specific_settings_will_ove">Ang mga app-specific setting ay mag-o-override sa global settings; manatili sa default para manahin ang global configuration</string>
     <string name="str_apply_add_on_configurations_ta">Ilapat ang mga karagdagang optimization configuration na angkop sa device; kung bumaba ang performance ng laro, subukang i-off ang kaukulang optimization item</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">May-akda</string>
     <string name="str_auto_mode">Auto mode</string>
     <string name="str_available_nodes">Mga available na target node (%1$d)</string>

@@ -23,9 +23,7 @@ chip=$(getprop ro.hardware)
 HM_DIR="/data/adb/hybrid-mount"
 HM_CONFIG="$HM_DIR/config.toml"
 API_LEVEL=$(getprop ro.build.version.sdk)
-readonly APK_COMP="$MODPATH/MaxManager.apk"
-readonly TMP_DIR="/data/local/tmp"
-readonly TMP_APK="$TMP_DIR/MaxManager_install.apk"
+readonly APK_COMP="$MODPATH/system/product/priv-app/MaxManager/MaxManager.apk"
 
 # Create File
 make_node() {
@@ -42,90 +40,6 @@ set_default_prop() {
 	key="$1"
 	val="$2"
 	[ -z "$(getprop "$key")" ] && setprop "$key" "$val"
-}
-
-
-# Prepare app files
-_prepare_apk() {
-    if [ ! -f "$APK_COMP" ]; then
-        echo "[!] APK not found at $APK_COMP" >&2
-        return 1
-    fi    
-    echo "- Preparing APK for installation..."
-    cp "$APK_COMP" "$TMP_APK" || return 1
-    chmod 644 "$TMP_APK" || return 1  
-    return 0
-}
-
-# Cleanup temporary APK
-_cleanup_apk() {
-    [ -f "$TMP_APK" ] && rm -f "$TMP_APK"
-}
-
-# Install APK
-install_manager() {
-    local apk_path="$1"
-    local app_name="$2"
-    local tmp_log="$TMP_DIR/install_log.txt"
-
-    local MAX_TIMEOUT=100
-
-    (
-        local install_output
-        install_output=$(pm install -r -d --user 0 "$apk_path" 2>&1)    
-        if ! echo "$install_output" | grep -iq "Success"; then
-            install_output=$(cmd package install -r -d --user 0 "$apk_path" 2>&1)
-        fi
-        echo "$install_output" > "$tmp_log"
-    ) &
-    local pid=$!
-
-    local i=0
-    while kill -0 $pid 2>/dev/null; do
-        clear
-        case $((i % 4)) in
-            0) echo "[-] Installing $app_name..." ;;
-            1) echo "[/] Installing $app_name..." ;;
-            2) echo "[|] Installing $app_name..." ;;
-            3) echo "[\] Installing $app_name..." ;;
-        esac
-        sleep 0.1
-        i=$((i + 1))
-
-        if [ $i -ge $MAX_TIMEOUT ]; then
-            echo "[!] Installation took too long. Stopping..."
-            kill -9 $pid 2>/dev/null
-            echo "Timeout: Installation exceeded 10 seconds" > "$tmp_log"
-            break
-        fi
-    done
-
-    wait $pid 2>/dev/null
-    clear
-
-    local result
-    [ -f "$tmp_log" ] && result=$(cat "$tmp_log")
-    rm -f "$tmp_log"
-
-    if echo "$result" | grep -iq "Success"; then
-        echo "[✓] $app_name installed successfully"
-		echo ""
-        return 0
-    else
-        echo "[!] Failed to install $app_name"
-        if echo "$result" | grep -iq "Timeout"; then
-            echo "  Error: Installation failed due to Timeout"
-            echo "  Possible reason: Your Rom blocking background install."
-        else
-            echo "  Error log: $(echo "$result" | head -n 2)"
-        fi
-        echo "! Run module Action"
-        echo "! Or unzip the module file, and"
-        echo "! Install it manually"
-        echo "- Continuing module installation..."
-        sleep 3
-        return 1
-    fi
 }
 
 
@@ -266,9 +180,10 @@ fi
 
 # Use Symlink for APatch / KernelSU
 if [ "$KSU" = "true" ] || [ "$APATCH" = "true" ]; then
-	# skip mount on APatch / KernelSU
-	touch "$MODPATH/skip_mount"
-	echo "- KSU/AP Detected, skipping module mount (skip_mount)"
+	# IMPORTANT: system/product/priv-app is the delivery mechanism for the
+	# manager APK on every root solution — it must be overlay-mounted, so
+	# no skip_mount here. Only the bin/ symlinks are KSU/AP-specific.
+	echo "- KSU/AP detected, keeping module mount for system tree"
 	# symlink ourselves on $PATH
 	manager_paths="/data/adb/ap/bin /data/adb/ksu/bin"
 	BIN_PATH="/data/adb/modules/MaxManager/system/bin"
@@ -405,30 +320,21 @@ for prop in $props; do
 	set_default_prop "$prop" 0
 done
 
-extract "$ZIPFILE" MaxManager.apk "$MODPATH"
-
 # Install Apps
-APP_INSTALLED=false
+# The APK ships as a systemless priv-app under system/product/priv-app:
+# on Magisk the module tree is overlaid on /product, so the app appears
+# as a real privileged system app at next boot. KernelSU/APatch users
+# get the same tree via overlayfs magic mount. No pm install is needed
+# on either path; runtime appop permissions are granted in service.sh
+# after boot so they survive without a user-data install.
+echo "- Extracting priv-app APK (checksum-verified)..."
+extract "$ZIPFILE" "system/product/priv-app/MaxManager/MaxManager.apk" "$MODPATH"
+echo "- Extracting privileged permissions whitelist..."
+extract "$ZIPFILE" "system/product/etc/permissions/privapp-permissions-nd.max.xml" "$MODPATH"
+[ -f "$MODPATH/system/product/etc/permissions/privapp-permissions-nd.max.xml" ] || abort_corrupted
 
-if ! _prepare_apk; then
-    echo "[!] Failed to prepare APK. Continuing without installing manager..." >&2
-else
-    if install_manager "$TMP_APK" "MaxManager"; then
-        APP_INSTALLED=true
-    fi
-    _cleanup_apk
-fi
-
-# Enable Launcher and grant permissions ONLY if app installed successfully
-if [ "$APP_INSTALLED" = "true" ]; then
-    echo "- Enabling Launcher..."
-    pm enable --user 0 nd.max/.Launcher > /dev/null 2>&1
-    
-    echo "- Setting Permissions..."
-    pm grant nd.max android.permission.READ_EXTERNAL_STORAGE
-    pm grant nd.max android.permission.POST_NOTIFICATIONS
-    pm grant nd.max android.permission.READ_MEDIA_IMAGES
-fi
+# Remove old user-data install from previous versions, if any
+pm uninstall --user 0 nd.max >/dev/null 2>&1 || true
 
 # Remove old module files if available
 echo "- Cleaning old files..."
@@ -439,5 +345,9 @@ if pm list packages | grep -q "maxmanager.toast"; then
 fi
 
 set_perm_recursive "$MODPATH/system/bin" 0 0 0755 0755
+
+# priv-app tree needs system ownership and read-only modes, exactly like
+# a real /product/priv-app entry the framework scans at boot.
+set_perm_recursive "$MODPATH/system/product" 0 0 0755 0644
 
 installation_complete

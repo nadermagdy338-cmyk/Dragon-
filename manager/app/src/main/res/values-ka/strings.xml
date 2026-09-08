@@ -249,7 +249,7 @@
     <string name="str_app_info">აპლიკაციის ინფორმაცია</string>
     <string name="str_app_specific_settings_will_ove">აპლიკაციის სპეციფიკური პარამეტრები გადაფარავს გლობალურ პარამეტრებს; ნაგულისხმევის შენარჩუნებით მემკვიდრეობით გადაეცემა გლობალური კონფიგურაცია</string>
     <string name="str_apply_add_on_configurations_ta">დამატებითი ოპტიმიზაციის კონფიგურაციის გამოყენება მოწყობილობის ადაპტაციისთვის; თუ თამაშში შესრულების დაქვეითება შეინიშნება, სცადეთ შესაბამისი ოპტიმიზაციის გამორთვა</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">ავტორი</string>
     <string name="str_auto_mode">ავტომატური რეჟიმი</string>
     <string name="str_available_nodes">ხელმისაწვდომი სამიზნე კვანძები (%1$d)</string>

@@ -249,7 +249,7 @@
     <string name="str_app_info">اطلاعات برنامه</string>
     <string name="str_app_specific_settings_will_ove">تنظیمات اختصاصی برنامه تنظیمات سراسری را بازنویسی می‌کند؛ در صورت نگه داشتن پیش‌فرض، از پیکربندی سراسری استفاده می‌شود</string>
     <string name="str_apply_add_on_configurations_ta">اعمال پیکربندی‌های بهینه اضافی متناسب با دستگاه؛ اگر بازی دچار افت عملکرد شد، می‌توانید موارد بهینه‌سازی مربوطه را غیرفعال کنید</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">نویسنده</string>
     <string name="str_auto_mode">حالت خودکار</string>
     <string name="str_available_nodes">گره‌های هدف موجود (%1$d)</string>

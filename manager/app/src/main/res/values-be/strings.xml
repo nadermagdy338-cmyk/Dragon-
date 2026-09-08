@@ -249,7 +249,7 @@
     <string name="str_app_info">Інфармацыя пра прыкладанне</string>
     <string name="str_app_specific_settings_will_ove">Настройкі для канкрэтнага прыкладання перакрываюць глабальныя; калі пакінуць па змаўчанні, будзе выкарыстана глабальная канфігурацыя</string>
     <string name="str_apply_add_on_configurations_ta">Прымяніць дадатковыя аптымізацыі, адаптаваныя да прылады; калі ў гульні зніжаецца прадукцыйнасць, паспрабуйце адключыць адпаведныя пункты</string>
-    <string name="str_archhaven_devs">Nader</string>
+    <string name="str_archhaven_devs">MaxManager Project</string>
     <string name="str_author">Аўтар</string>
     <string name="str_auto_mode">Аўтаматычны рэжым</string>
     <string name="str_available_nodes">Даступныя мэтавыя вузлы (%1$d)</string>
