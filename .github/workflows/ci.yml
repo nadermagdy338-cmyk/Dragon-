@@ -66,11 +66,9 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          # setup-android passes this input to sdkmanager as one argument.
-          # Keep the package IDs space-separated so each package is resolved
-          # independently instead of treating the YAML newlines as part of
-          # one invalid package name.
-          packages: "platform-tools platforms;android-37 build-tools;37.0.0"
+          # API 37 is not published on the GitHub-hosted SDK repository yet.
+          # Use the latest stable platform/build-tools pair available there.
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
 
       - name: Grant execute permission to gradlew
         run: chmod +x manager/gradlew
@@ -149,7 +147,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: "platform-tools platforms;android-37 build-tools;37.0.0"
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
 
       - name: Grant execute permission to gradlew
         run: chmod +x manager/gradlew
