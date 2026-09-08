@@ -352,7 +352,7 @@ private fun LoadingDialog(visible: Boolean) {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                CircularWavyProgressIndicator()
+                CircularProgressIndicator()
             }
         }
     }
@@ -680,7 +680,7 @@ private fun InstallingDialog(visible: Boolean) {
                     Spacer(modifier = Modifier.height(32.dp))
                     
 
-                    LinearWavyProgressIndicator(
+                    LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))

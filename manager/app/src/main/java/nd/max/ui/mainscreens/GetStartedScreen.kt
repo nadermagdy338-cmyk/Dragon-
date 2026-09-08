@@ -523,7 +523,7 @@ fun GetStartedScreen(navController: NavController) {
                                     }
                             ) {
                                 if (isCheckingRoot) {
-                                    LoadingIndicator(
+                                    CircularProgressIndicator(
                                         color = MaterialTheme.colorScheme.onTertiary,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -699,7 +699,7 @@ fun GetStartedScreen(navController: NavController) {
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        LoadingIndicator(
+                        CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(56.dp)
                         )

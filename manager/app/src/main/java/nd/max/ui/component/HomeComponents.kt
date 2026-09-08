@@ -135,7 +135,7 @@ fun MediaBannerRenderer(
 
         Box(modifier = modifier) {
             if (!isVideoReady) {
-                CircularWavyProgressIndicator(
+                CircularProgressIndicator(
                     modifier = Modifier
                         .size(48.dp)
                         .align(Alignment.Center),
@@ -1049,7 +1049,7 @@ fun RunningGameCard(
             ) {
                 if (!isNoApp) {
 
-                    CircularWavyProgressIndicator(
+                    CircularProgressIndicator(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -1079,7 +1079,7 @@ fun RunningGameCard(
                         }
                     }
                 } else {
-                    ContainedLoadingIndicator()
+                    CircularProgressIndicator()
                     
                 }
             }

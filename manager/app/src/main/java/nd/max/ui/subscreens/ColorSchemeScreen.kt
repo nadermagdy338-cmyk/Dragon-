@@ -172,7 +172,7 @@ fun ColorSchemeSettings(navController: NavController) {
     ) { innerPadding ->
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                LoadingIndicator(modifier = Modifier.size(32.dp))
+                CircularProgressIndicator(modifier = Modifier.size(32.dp))
             }
         } else {
             LazyColumn(

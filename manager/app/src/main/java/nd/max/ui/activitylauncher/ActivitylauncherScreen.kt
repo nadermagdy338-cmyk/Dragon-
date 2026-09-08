@@ -871,7 +871,7 @@ fun WavyDonutChart(
     val density = LocalDensity.current
     val strokeWidthPx = with(density) { 16.dp.toPx() }
 
-    CircularWavyProgressIndicator(
+    CircularProgressIndicator(
         progress = { progress },
         modifier = Modifier.size(size),
         color = color,

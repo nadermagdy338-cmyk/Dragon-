@@ -174,7 +174,7 @@ private fun LoadingPanel() {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularWavyProgressIndicator(modifier = Modifier.size(48.dp))
+            CircularProgressIndicator(modifier = Modifier.size(48.dp))
             Spacer(Modifier.height(12.dp))
             Text(stringResource(R.string.detail_live_device_data), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }

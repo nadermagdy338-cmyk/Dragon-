@@ -348,7 +348,7 @@ fun PreferenceTweakScreen(navController: NavController) {
                         modifier = Modifier.fillMaxWidth().height(180.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        LoadingIndicator(modifier = Modifier.size(32.dp))
+                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
                     }
                 }
             }
