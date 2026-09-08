@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace 'com.termux.view' // Namespace wajib
+    compileSdk 37               // Samakan dengan App utama
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 37
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // TerminalView's public API (attachSession(), getCurrentSession(), mTermSession)
+    // exposes TerminalSession/TerminalSessionClient directly, so this must be `api`
+    // rather than `implementation` — otherwise consumers of :terminal-view (like
+    // :app) don't get terminal-emulator's classes on their compile classpath even
+    // though they need to reference TerminalSession/TerminalSessionClient themselves.
+    api project(':terminal-emulator')
+
+    implementation "androidx.annotation:annotation:1.9.1"
+}

@@ -1,0 +1,20 @@
+# Prevent Git from touching binary files (no CRLF/LF conversion, no diffing).
+# Missing this file is a common cause of "Invalid or corrupt jarfile" errors
+# in CI: without it, Git may treat these as text and mangle them on commit
+# depending on the committer's core.autocrlf setting.
+
+*.jar       binary -diff -text
+*.jks       binary -diff -text
+*.keystore  binary -diff -text
+*.apk       binary -diff -text
+*.aab       binary -diff -text
+*.so        binary -diff -text
+*.zip       binary -diff -text
+
+*.png       binary -diff -text
+*.jpg       binary -diff -text
+*.jpeg      binary -diff -text
+*.webp      binary -diff -text
+
+gradlew     text eol=lf
+*.sh        text eol=lf

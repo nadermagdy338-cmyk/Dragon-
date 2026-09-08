@@ -1,0 +1,68 @@
+// Android.bp لدمج MaxManager في شجرة AOSP
+// =========================================
+// هذا الملف يسمح ببناء MaxManager كتطبيق نظام (System App)
+// مع خادم (Daemon) يعمل كخدمة نظام، وجميع المكونات مدمجة في ROM
+
+android_app {
+    name: "MaxManager",
+    srcs: [
+        "manager/app/src/main/java/**/*.kt",
+    ],
+    resource_dirs: [
+        "manager/app/src/main/res",
+    ],
+    manifest: "manager/app/src/main/AndroidManifest.xml",
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    product_specific: true,
+    dex_preopt: {
+        enabled: true,
+    },
+    optimize: {
+        proguard_flags_files: ["manager/app/proguard-rules.pro"],
+    },
+    static_libs: [
+        "androidx-constraintlayout-constraintlayout",
+        "androidx-core-core-ktx",
+        "androidx-lifecycle-lifecycle-runtime-ktx",
+        "androidx-lifecycle-lifecycle-viewmodel-ktx",
+        "com.google.android.material-material",
+    ],
+}
+
+cc_binary {
+    name: "maxmanager_daemon",
+    srcs: [
+        "runtime/daemon-rust/src/**/*.rs",
+    ],
+    rustflags: [
+        "-Copt-level=3",
+        "-Cpanic=abort",
+    ],
+    shared_libs: [
+        "libc++",
+        "liblog",
+        "libdl",
+    ],
+    static_libs: [
+        "libmaxmanager_native",
+    ],
+    product_specific: true,
+    vendor: true,
+}
+
+cc_library_shared {
+    name: "libmaxmanager_native",
+    srcs: [
+        "runtime/daemon-rust/src/lib.rs",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    product_specific: true,
+    vendor: true,
+}
+
+// وحدة KernelSU (اختيارية، تُبنى كحزمة منفصلة)
+// يمكن إضافتها كـ "prebuilt" إذا كانت موجودة مسبقاً

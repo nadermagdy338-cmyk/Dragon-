@@ -1,0 +1,25 @@
+[package]
+name = "maxmanager_native"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# التبعيات المستخدمة فعليًا فقط — أزيلت tokio (لا async هنا)،
+# rand (الوكيل حتمي بالكامل)، rustfft/num-complex (تحليل FFT الميت)،
+# و ndarray-rand (كانت لمسار LSTM المحذوف). serde صارت مستخدمة
+# فعلًا لاستمرارية نموذج الوكيل.
+jni = "0.21.1"
+ndarray = "0.15"
+lazy_static = "1.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[features]
+default = []
+
+[profile.release]
+lto = true
+opt-level = 3

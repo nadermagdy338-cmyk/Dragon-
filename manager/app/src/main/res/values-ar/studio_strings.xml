@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="studio_performance">استوديو الأداء</string>
+    <string name="studio_cpu_frequency">تردد المعالج</string>
+    <string name="studio_load_history">نشاط المعالج الأخير</string>
+    <string name="studio_waiting_samples">جارٍ جمع القراءات المباشرة…</string>
+    <string name="studio_automatic_profile">يتحكم الوضع التلقائي في ملف الأداء النشط.</string>
+    <string name="studio_temperature">الحرارة</string>
+    <string name="studio_display">الشاشة</string>
+    <string name="studio_power">خيارات الطاقة</string>
+    <string name="studio_settings">الإعدادات</string>
+</resources>

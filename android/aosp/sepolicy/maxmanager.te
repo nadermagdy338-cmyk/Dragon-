@@ -1,0 +1,53 @@
+# SELinux policy for MaxManager daemon
+# =====================================
+
+type maxmanager, domain;
+type maxmanager_exec, exec_type, file_type, vendor_file_type;
+type maxmanager_tmpfs, file_type;
+type maxmanager_data_file, file_type, data_file_type;
+
+init_daemon_domain(maxmanager)
+
+# Allow the daemon to communicate with the system
+allow maxmanager self:capability { sys_admin net_admin sys_resource };
+allow maxmanager self:process { setrlimit };
+
+# Access to sysfs and proc
+allow maxmanager sysfs:file { read write open getattr };
+allow maxmanager proc:file { read write open getattr };
+allow maxmanager proc_net:file { read };
+
+# Access to thermal and battery devices
+allow maxmanager thermal_device:chr_file { read write open ioctl };
+allow maxmanager battery_device:chr_file { read write open ioctl };
+allow maxmanager gpu_device:chr_file { read write open ioctl };
+
+# Access to system properties
+allow maxmanager property_socket:sock_file { write };
+allow maxmanager system_prop:property_service { set };
+allow maxmanager shell_prop:property_service { set };
+
+# Allow execution of shell commands (if needed)
+allow maxmanager shell_exec:file { read execute open getattr };
+allow maxmanager toolbox_exec:file { read execute open getattr };
+
+# Allow logging
+allow maxmanager logd:unix_dgram_socket { sendto };
+allow maxmanager logd:fd { use };
+
+# Allow access to /data partition for storing state
+allow maxmanager maxmanager_data_file:dir { create read write search open getattr };
+allow maxmanager maxmanager_data_file:file { create read write open getattr unlink };
+
+# Allow binder communication with the app
+allow maxmanager appdomain:binder { call transfer };
+allow maxmanager system_app:binder { call transfer };
+allow maxmanager platform_app:binder { call transfer };
+
+# Allow reading from rootfs for device info
+allow maxmanager rootfs:file { read open getattr };
+
+# Allow access to /dev/urandom for entropy
+allow maxmanager urandom_device:chr_file { read open };
+
+# This file must be added to BOARD_SEPOLICY_DIRS in BoardConfig.mk

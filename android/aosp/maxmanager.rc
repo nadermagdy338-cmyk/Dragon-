@@ -1,0 +1,17 @@
+# service definition for maxmanager daemon
+service maxmanager_daemon /system/bin/maxmanager_daemon
+    class main
+    user root
+    group root system
+    capabilities NET_ADMIN SYS_ADMIN
+    seclabel u:r:maxmanager:s0
+    disabled
+
+on property:sys.boot_completed=1
+    start maxmanager_daemon
+
+on property:maxmanager.enable=1
+    start maxmanager_daemon
+
+on property:maxmanager.enable=0
+    stop maxmanager_daemon

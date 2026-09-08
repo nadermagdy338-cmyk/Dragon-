@@ -1,0 +1,216 @@
+name: MaxManager
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build.yml"
+      - ".github/scripts/**"
+      - "manager/**"
+      - "archdaemon/**"
+      - "tweakfls/**"
+      - "mainfiles/**"
+      - "preloadbin/**"
+      - "thermalcore/**"
+      - "binprofiles/**"
+      - "binutils/**"
+      - "maxmanagerApplist.json"
+      - "version"
+      - "version_type"
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build MaxManager
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Verify Module
+        run: bash .github/scripts/verify.sh
+
+      - name: Copy changelog file
+        run: bash .github/scripts/changelog.sh
+
+      - name: Determine Build Type
+        id: build_type
+        run: |
+          # Membaca isi file dan menghapus spasi/newline tersembunyi
+          V_TYPE=$(cat version_type | tr -d '\n\r ')
+          echo "V_TYPE=$V_TYPE" >> "$GITHUB_ENV"
+          echo "Build mode set to: $V_TYPE"
+
+      - name: Sync Daemon Version String
+        run: |
+          # MUST run before the daemon is compiled. check_module_version()
+          # in the daemon compares its baked-in MODULE_VERSION against the
+          # "version=" line compile_zip.sh later writes into module.prop.
+          # If they don't match byte-for-byte, the daemon exits on startup
+          # (see ModuleIntegrity.c -> "MaxManager version mismatch").
+          # This step computes the exact same string compile_zip.sh computes
+          # and bakes it into AZenith.h first, so both sides always agree.
+          version="$(cat version)"
+          version_type="$(cat version_type | tr -d '\n\r ')"
+          release_code="$(git rev-list HEAD --count)-$(git rev-parse --short HEAD)-$version_type"
+          sed -i "s/#define MODULE_VERSION .*/#define MODULE_VERSION \"$version ($release_code)\"/" archdaemon/jni/include/AZenith.h
+          echo "Baked MODULE_VERSION: $version ($release_code)"
+
+      - name: NDK Setup
+        uses: nttld/setup-ndk@v1.6.0
+        with:
+          ndk-version: r29
+
+      - name: Compile Daemon
+        working-directory: ./archdaemon
+        run: |
+          if [ "$V_TYPE" == "experimental" ]; then
+            ndk-build NDK_DEBUG=1
+          else
+            ndk-build
+          fi
+
+      - name: Compile Preload Binary
+        working-directory: ./preloadbin
+        run: |
+          if [ "$V_TYPE" == "experimental" ]; then
+            ndk-build NDK_DEBUG=1
+          else
+            ndk-build
+          fi
+
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android, armv7-linux-androideabi
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk
+
+      - name: Build MaxManager Thermalcore
+        working-directory: ./thermalcore
+        run: |
+          if [ "$V_TYPE" == "experimental" ]; then
+            cargo ndk -t arm64-v8a -t armeabi-v7a build
+          else
+            cargo ndk -t arm64-v8a -t armeabi-v7a build --release
+          fi
+
+      - name: Compile MaxManager Profilesettings
+        working-directory: ./binprofiles
+        run: |
+          if [ "$V_TYPE" == "experimental" ]; then
+            cargo ndk -t arm64-v8a -t armeabi-v7a build
+          else
+            cargo ndk -t arm64-v8a -t armeabi-v7a build --release
+          fi
+
+      - name: Compile MaxManager Utility
+        working-directory: ./binutils
+        run: |
+          if [ "$V_TYPE" == "experimental" ]; then
+            cargo ndk -t arm64-v8a -t armeabi-v7a build
+          else
+            cargo ndk -t arm64-v8a -t armeabi-v7a build --release
+          fi
+
+      # ── المكتبة الأصلية للتطبيق (JNI) ──
+      # crate maxmanager_native هو الذي يوفر: وكيل التعلم المعزز،
+      # المتنبئ، التوأم الرقمي، ومحرك السياق. بدونه يعمل التطبيق في
+      # وضع الاحتياط الدائم (nativeAvailable=false) فتُشحن كل ميزات
+      # المكوّن الأصلي ميتة. هذا الخط كانت مفقودة من خط الإنتاج
+      # (ci.yml فقط كان يبنيها دون أن تستهلكها حزمة الإصدار).
+      - name: Build Manager Native Library (JNI)
+        working-directory: ./manager/src/main/rust
+        run: |
+          if [ "$V_TYPE" == "experimental" ]; then
+            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build
+          else
+            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build --release
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: "17"
+          distribution: temurin
+
+      - name: Verify Gradle Wrapper Jar
+        working-directory: ./manager
+        run: |
+          if ! unzip -tq gradle/wrapper/gradle-wrapper.jar > /dev/null 2>&1; then
+            echo "❌ gradle-wrapper.jar is missing or corrupt in the repo (size: $(wc -c < gradle/wrapper/gradle-wrapper.jar 2>/dev/null || echo 0) bytes)."
+            echo "   Regenerate it locally with: gradle wrapper --gradle-version <version> --distribution-type bin"
+            echo "   Then commit it as a real binary (see .gitattributes) and push again."
+            exit 1
+          fi
+
+          echo "✅ gradle-wrapper.jar is a valid archive."
+
+      # ── بوابة الاختبارات ──
+      # اختبار يفشل = لا حزمة إصدار. عقد نصوص التوصيات (الاختبار
+      # الوحدوي الأول في المشروع) يمنع انزياح الصياغة بين مصادر
+      # النصوص (Rust/Kotlin) والمصنِّف — الحشرة التي تكررت ثلاث مرات
+      # قبل وجود هذا القفل.
+      - name: Run Unit Tests (contract gate)
+        working-directory: ./manager
+        run: |
+          # git on Windows drops the +x bit on gradlew — self-heal before
+          # the first invocation instead of relying on how it was committed.
+          chmod +x ./gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon
+
+      - name: Build Manager APK
+        working-directory: ./manager
+        run: |
+          chmod +x ./gradlew
+
+          if [ "$V_TYPE" == "experimental" ]; then
+            ./gradlew clean assembleDebug
+          else
+            ./gradlew clean assembleRelease
+          fi
+
+        env:
+          KS_PWD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Compile Flashable Zip
+        id: compileZip
+        run: bash .github/scripts/compile_zip.sh
+
+      # Upload the generated ZIP to GitHub Actions Artifacts
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MaxManager
+          path: ${{ steps.compileZip.outputs.zipName }}
+          if-no-files-found: error
+
+      - name: Upload To Telegram
+        env:
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TITLE: MaxManager
+        run: |
+          if [ -n "$CHAT_ID" ] && [ -n "$BOT_TOKEN" ]; then
+            export VERSION=$(git rev-list --count HEAD)
+            bash .github/scripts/telebot.sh "${{ steps.compileZip.outputs.zipName }}"
+          else
+            echo "⚠️ Telegram bot token or chat id is undefined, skipping upload."
+          fi

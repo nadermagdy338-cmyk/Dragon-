@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <!--
+      Gates ZenithReceiver (notifications/toasts) and RefreshRateReceiver
+      (nd.max.SET_FPS, which forces a real SurfaceFlinger refresh-rate
+      change) so only components signed with the same certificate as this
+      app can trigger them via Intent — otherwise ANY installed app, with
+      zero declared permissions, could broadcast either custom action and
+      have MaxManager act on it. protectionLevel="signature" is the correct
+      level here: the daemon reaches both receivers exclusively through a
+      root-shell `am broadcast` (root/shell bypasses this check entirely,
+      same as before), and the app's own in-app sendBroadcast() calls are
+      auto-granted this permission at install time since they're signed
+      with the same key — so this only closes the door on other apps,
+      nothing MaxManager itself does changes.
+    -->
+    <permission
+        android:name="nd.max.permission.MANAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="nd.max.permission.MANAGE" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+        
+    <application
+        android:name=".MaxManagerApplication"
+        android:enableOnBackInvokedCallback="true"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MaxManager"> 
+        
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        
+        <service
+            android:name=".TileService.BypassChgTileService"
+            android:icon="@drawable/bypasschgicon"
+            android:label="Bypass Charge"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+                
+        <service
+            android:name=".TileService.ProfileTileService"
+            android:icon="@drawable/ic_profile_icon" android:label="@string/current_profile"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".service.FpsOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Displays a live FPS/performance overlay while gaming" />
+        </service>
+
+        <service
+            android:name=".service.ProcessOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Displays a floating top-processes CPU/RAM monitor" />
+        </service>
+
+        <service
+            android:name=".ui.terminal.FloatingTerminalService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Displays a floating terminal window" />
+        </service>
+
+        <service
+            android:name=".service.MtkRootService"
+            android:exported="false"
+            tools:ignore="Instantiatable" />
+
+        
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask" 
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+        </activity>
+        
+        <receiver android:name=".receiver.ZenithReceiver" android:exported="true" android:permission="nd.max.permission.MANAGE">
+            <intent-filter>
+                <action android:name="nd.max.ACTION_MANAGE" />
+            </intent-filter>
+        </receiver>
+   
+        <activity-alias
+            android:name=".Launcher"
+            android:enabled="false" 
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <receiver
+            android:name=".RefreshRateReceiver"
+            android:exported="true"
+            android:permission="nd.max.permission.MANAGE">
+            <intent-filter>
+                <action android:name="nd.max.SET_FPS" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

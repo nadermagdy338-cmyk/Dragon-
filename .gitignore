@@ -1,0 +1,24 @@
+# ── Rust ──
+target/
+sys.maxmanager-service
+
+# المكتبة الأصلية للتطبيق: تولّدها CI في كل بناء (build.yml → JNI step).
+# الالتزام بها في المستودع سيتجاوز الشيفرة المصدرية بشيفرة مجمّعة قديمة
+# (مصيدة وقعنا فيها: كانت السيرة تبنى في ci.yml دون أن تستهلكها حزمة
+# الإصدار). libtermux.so مستثناة — تبعية مرفقة عمدًا.
+manager/app/src/main/jniLibs/*/libmaxmanager_native.so
+
+# ── Android / Gradle ──
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+.kotlin/
+*.iml
+captures/
+.cxx/
+
+# ── نظام التشغيل ──
+.DS_Store
+Thumbs.db

@@ -1,0 +1,8 @@
+# SELinux file contexts for MaxManager
+# =====================================
+
+/system/bin/maxmanager_daemon              u:object_r:maxmanager_exec:s0
+/system/app/MaxManager/MaxManager.apk      u:object_r:system_app_file:s0
+/data/misc/maxmanager(/.*)?                u:object_r:maxmanager_data_file:s0
+/data/data/nd.max(/.*)?                    u:object_r:app_data_file:s0
+/vendor/bin/maxmanager_daemon              u:object_r:maxmanager_exec:s0

@@ -1,0 +1,2 @@
+# This file tells KernelSU to skip mounting this module as a filesystem overlay.
+# MaxManager does not modify system partitions; it only installs files to /data/adb.
