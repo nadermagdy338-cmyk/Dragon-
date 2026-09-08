@@ -4,7 +4,9 @@ agp = "9.2.0"
 kotlin = "2.3.10"
 ksp = "2.3.10"
 hiddenapibypass = "6.1"
-compose-bom = "2025.01.00"
+# Compose 1.9 stable line — the 1.12.0-alpha03 chain (dragged in by the old
+# material3/lifecycle alphas) requires compileSdk 37, unavailable in CI.
+compose-bom = "2025.10.01"
 kotlinxSerialization = "1.11.0"
 library = "1.2.1"
 junit = "4.13.2"
@@ -13,15 +15,18 @@ composeMarkdown = "0.7.2"
 hilt = "2.59.2"
 
 # UI & Library
-material3 = "1.5.0-alpha23"
-activity-compose = "1.13.0-alpha01"
-lifecycle = "2.11.0-beta02"
-navigation = "2.10.0-alpha06"
+# SDK-36 ceiling: 1.5.0-alpha23 / 2.11.0-beta02 chains demand compileSdk 37,
+# which is not published on the GitHub-hosted SDK repository. These are the
+# newest versions whose AAR metadata accepts android-36.
+material3 = "1.4.0-alpha15"
+activity-compose = "1.11.0"
+lifecycle = "2.9.4"
+navigation = "2.9.4"
 
 # Security & Glassmorphism
 stringfog = "5.1.0"
 stringfogXor = "5.0.0"
-haze = "2.0.0-alpha02"
+haze = "2.0.0-alpha02"  # builds against compose 1.9; monitor for SDK-37 metadata
 
 # Media
 coil = "2.7.0"
@@ -30,12 +35,12 @@ appiconloader-coil = "1.5.0"
 ucrop = "2.2.11-native"
 
 # Tools & Core
-appcompat = "1.8.0-alpha01"
+appcompat = "1.7.1"
 androidx-transition = "1.7.0"
-lifecycleViewModel = "2.11.0-beta02"
+lifecycleViewModel = "2.9.4"
 libsu = "6.0.0"
 documentfile = "1.1.0"
-material = "1.14.0-alpha09"
+material = "1.13.0"
 coreSplashscreen = "1.2.0"
 
 [libraries]
