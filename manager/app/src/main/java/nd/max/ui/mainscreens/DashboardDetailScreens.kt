@@ -24,6 +24,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -104,7 +105,13 @@ private fun LiveHeader(
     icon: ImageVector,
     modifier: Modifier = Modifier
 ) {
-    nd.max.ui.component.MaxSurface(modifier = modifier.fillMaxWidth(), accent = accent) {
+    val shape = RoundedCornerShape(26.dp)
+    nd.max.ui.component.MaxSurface(
+        modifier = modifier
+            .fillMaxWidth()
+            .border(1.dp, accent.copy(alpha = 0.18f), shape),
+        accent = accent
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             nd.max.ui.component.ScreenAccentGlyph(icon, accent, size = 36.dp)
             Column(Modifier.weight(1f)) {
@@ -116,7 +123,10 @@ private fun LiveHeader(
         Spacer(Modifier.height(16.dp))
         Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(20.dp))
-        Surface(shape = RoundedCornerShape(18.dp), color = accent.copy(alpha = .08f)) {
+        Surface(
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = .72f)
+        ) {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
                 Text(valueLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(4.dp))
@@ -133,7 +143,7 @@ private fun DetailStatCard(
     accent: Color,
     modifier: Modifier = Modifier
 ) {
-    DashCardWrapper(modifier = modifier, accent = accent) {
+    DashCardWrapper(modifier = modifier.heightIn(min = 76.dp), accent = accent) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconBadge(icon = icon, tint = accent, size = 32)
             Spacer(Modifier.width(10.dp))
@@ -861,7 +871,9 @@ fun BatteryDetailScreen(navController: NavController) {
         }
     ) { innerPadding ->
         if (data == null) {
-            LoadingPanel()
+            Box(Modifier.fillMaxSize().padding(innerPadding)) {
+                LoadingPanel()
+            }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
