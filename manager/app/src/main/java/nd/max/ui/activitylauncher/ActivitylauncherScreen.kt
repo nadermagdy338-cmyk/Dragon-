@@ -5,7 +5,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 
 package nd.max.ui.activitylauncher
 
@@ -76,7 +76,6 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -84,7 +83,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -860,7 +858,6 @@ fun ActivityStatsDashboard(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WavyDonutChart(
     progress: Float,
@@ -868,18 +865,14 @@ fun WavyDonutChart(
     color: Color,
     trackColor: Color
 ) {
-    val density = LocalDensity.current
-    val strokeWidthPx = with(density) { 16.dp.toPx() }
-
     CircularProgressIndicator(
         progress = { progress },
         modifier = Modifier.size(size),
         color = color,
         trackColor = trackColor,
-        stroke = Stroke(width = strokeWidthPx, cap = StrokeCap.Round),
-        trackStroke = Stroke(width = strokeWidthPx), 
-        gapSize = 0.dp, 
-        amplitude = { 1.5f } 
+        strokeWidth = 16.dp,
+        strokeCap = StrokeCap.Round,
+        gapSize = 0.dp
     )
 }
 

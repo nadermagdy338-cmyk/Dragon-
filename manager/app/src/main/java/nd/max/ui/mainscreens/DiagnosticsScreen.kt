@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
 
@@ -42,7 +42,6 @@ import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.rounded.HelpOutline
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold

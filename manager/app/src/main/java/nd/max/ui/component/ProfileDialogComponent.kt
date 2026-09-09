@@ -64,7 +64,6 @@ private fun getProfileOptions(): List<ProfileOption> {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProfileDialog(
     show: Boolean,

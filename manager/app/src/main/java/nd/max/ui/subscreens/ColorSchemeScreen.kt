@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.subscreens
 
@@ -488,7 +488,7 @@ fun SchemeSectionTitle(text: String) {
     MaxManagerSectionTitle(text = text, accent = MaterialTheme.colorScheme.primary)
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ColorSchemeTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {
     MaxManagerSubScreenTopBar(

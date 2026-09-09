@@ -112,7 +112,6 @@ object ThemeController {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MaxManagerTheme(
     content: @Composable () -> Unit
@@ -170,11 +169,10 @@ fun MaxManagerTheme(
         controller.isAppearanceLightNavigationBars = !darkTheme
     }
 
-    MaterialExpressiveTheme(
+    MaterialTheme(
         colorScheme = animatedColorScheme,
         typography = Typography,
         shapes = Shapes,
-        motionScheme = MotionScheme.expressive(),
         content = content
     )
 }

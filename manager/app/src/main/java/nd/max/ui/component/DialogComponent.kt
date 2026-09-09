@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.component
 
@@ -612,7 +612,6 @@ fun InstallingDialogHost(handle: InstallingDialogHandle) {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun InstallingDialog(visible: Boolean) {
     val context = LocalContext.current

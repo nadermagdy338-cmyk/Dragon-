@@ -365,9 +365,9 @@ fun MainScreen(fromTileType: String? = null) {
                             if (isBlurEnabled) Modifier.hazeSource(state = hazeState) else Modifier
                         ),
                     enterTransition = {
-                        if (initialState().destination.route == "get_started" && targetState().destination.route in bottomBarRoutes) {
+                        if (initialState.destination.route == "get_started" && targetState.destination.route in bottomBarRoutes) {
                             fadeIn(animationSpec = tween(700)) 
-                        } else if (targetState().destination.route !in bottomBarRoutes) {
+                        } else if (targetState.destination.route !in bottomBarRoutes) {
                             // Navigation must not imply a left-to-right reading direction.
                             // A small scale/fade works equally well in RTL and LTR locales.
                             fadeIn(animationSpec = tween(260, easing = FastOutSlowInEasing)) +
@@ -381,9 +381,9 @@ fun MainScreen(fromTileType: String? = null) {
                         }
                     },
                     exitTransition = {
-                        if (initialState().destination.route == "get_started" && targetState().destination.route in bottomBarRoutes) {
+                        if (initialState.destination.route == "get_started" && targetState.destination.route in bottomBarRoutes) {
                             fadeOut(animationSpec = tween(700))
-                        } else if (initialState().destination.route in bottomBarRoutes && targetState().destination.route !in bottomBarRoutes) {
+                        } else if (initialState.destination.route in bottomBarRoutes && targetState.destination.route !in bottomBarRoutes) {
                             fadeOut(animationSpec = tween(200, easing = FastOutSlowInEasing)) +
                                 scaleOut(targetScale = 0.98f, animationSpec = tween(200, easing = FastOutSlowInEasing))
                         } else {
@@ -391,7 +391,7 @@ fun MainScreen(fromTileType: String? = null) {
                         }
                     },
                     popEnterTransition = {
-                        if (initialState().destination.route !in bottomBarRoutes && targetState().destination.route in bottomBarRoutes) {
+                        if (initialState.destination.route !in bottomBarRoutes && targetState.destination.route in bottomBarRoutes) {
                             fadeIn(animationSpec = tween(260, easing = FastOutSlowInEasing)) +
                                 scaleIn(initialScale = 0.98f, animationSpec = tween(260, easing = FastOutSlowInEasing))
                         } else {
@@ -403,27 +403,7 @@ fun MainScreen(fromTileType: String? = null) {
                         }
                     },
                     popExitTransition = {
-                        if (initialState().destination.route !in bottomBarRoutes) {
-                            fadeOut(animationSpec = tween(200, easing = FastOutSlowInEasing)) +
-                                scaleOut(targetScale = 0.98f, animationSpec = tween(200, easing = FastOutSlowInEasing))
-                        } else {
-                            fadeOut(animationSpec = tween(150))
-                        }
-                    },
-                    predictivePopEnterTransition = {
-                        if (initialState().destination.route !in bottomBarRoutes && targetState().destination.route in bottomBarRoutes) {
-                            fadeIn(animationSpec = tween(260, easing = FastOutSlowInEasing)) +
-                                scaleIn(initialScale = 0.98f, animationSpec = tween(260, easing = FastOutSlowInEasing))
-                        } else {
-                            fadeIn(animationSpec = tween(220, easing = LinearOutSlowInEasing)) +
-                            scaleIn(
-                                initialScale = 0.96f,
-                                animationSpec = tween(220, easing = FastOutSlowInEasing)
-                            )
-                        }
-                    },
-                    predictivePopExitTransition = {
-                        if (initialState().destination.route !in bottomBarRoutes) {
+                        if (initialState.destination.route !in bottomBarRoutes) {
                             fadeOut(animationSpec = tween(200, easing = FastOutSlowInEasing)) +
                                 scaleOut(targetScale = 0.98f, animationSpec = tween(200, easing = FastOutSlowInEasing))
                         } else {

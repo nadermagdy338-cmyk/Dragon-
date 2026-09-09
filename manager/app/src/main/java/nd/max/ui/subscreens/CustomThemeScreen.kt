@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.subscreens
 
@@ -395,7 +395,6 @@ fun ColorPaletteScreen(navController: NavController) {
 }
 
 // ─── Lazy list items ──────────────────────────────────────────────────────────
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
     currentColorMode: ColorMode,
     currentKeyColor: Int,
@@ -500,37 +499,30 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
             ColorMode.DARK to (Icons.Filled.Brightness3 to "Dark"),
             ColorMode.DARKAMOLED to (Icons.Filled.Brightness1 to "AMOLED"),
         )
-        Row(
+        SingleChoiceSegmentedButtonRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                .padding(horizontal = 16.dp)
         ) {
             options.forEachIndexed { index, (mode, iconAndLabel) ->
                 val (icon, label) = iconAndLabel
-                ToggleButton(
-                    checked = currentColorMode == mode,
-                    onCheckedChange = { checked ->
-                        if (checked) {
-                            onColorModeChange(mode)
-                            EventLog.userAction(screen = "CustomTheme", field = "color_mode", old = currentColorMode.value.toString(), new = mode.value.toString())
-                            prefs.edit { putInt("color_mode", mode.value) }
-                        }
+                SegmentedButton(
+                    selected = currentColorMode == mode,
+                    onClick = {
+                        onColorModeChange(mode)
+                        EventLog.userAction(screen = "CustomTheme", field = "color_mode", old = currentColorMode.value.toString(), new = mode.value.toString())
+                        prefs.edit { putInt("color_mode", mode.value) }
                     },
                     modifier = Modifier
                         .weight(1f)
                         .semantics { role = Role.RadioButton },
-                    shapes = when (index) {
-                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                        options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                    },
-                    colors = ToggleButtonDefaults.toggleButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-                    )
-                ) {
-                    Icon(imageVector = icon, contentDescription = label)
-                }
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    colors = SegmentedButtonDefaults.colors(
+                        inactiveContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+                    ),
+                    icon = { Icon(imageVector = icon, contentDescription = label) },
+                    label = {}
+                )
             }
         }
     }
@@ -548,40 +540,34 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
 
     item {
         val specOptions = ColorSpec.SpecVersion.entries
-        Row(
+        SingleChoiceSegmentedButtonRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                .padding(horizontal = 16.dp)
         ) {
             specOptions.forEachIndexed { index, spec ->
-                ToggleButton(
-                    checked = currentColorSpec == spec,
-                    onCheckedChange = { checked ->
-                        if (checked) {
-                            onColorSpecChange(spec)
-                            EventLog.userAction(screen = "CustomTheme", field = "color_spec", old = currentColorSpec.name, new = spec.name)
-                            prefs.edit { putString("color_spec", spec.name) }
-                        }
+                SegmentedButton(
+                    selected = currentColorSpec == spec,
+                    onClick = {
+                        onColorSpecChange(spec)
+                        EventLog.userAction(screen = "CustomTheme", field = "color_spec", old = currentColorSpec.name, new = spec.name)
+                        prefs.edit { putString("color_spec", spec.name) }
                     },
                     modifier = Modifier
                         .weight(1f)
                         .semantics { role = Role.RadioButton },
-                    shapes = when (index) {
-                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                        specOptions.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                    },
-                    colors = ToggleButtonDefaults.toggleButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-                    )
-                ) {
-                    Text(
-                        spec.name.replace("_", " "),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = specOptions.size),
+                    colors = SegmentedButtonDefaults.colors(
+                        inactiveContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+                    ),
+                    label = {
+                        Text(
+                            spec.name.replace("_", " "),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                )
             }
         }
     }
@@ -622,9 +608,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Row(
-                                    horizontalArrangement = Arrangement.spacedBy(
-                                        ButtonGroupDefaults.ConnectedSpaceBetween
-                                    )
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
                                     nd.max.ui.component.StudioOutlinedButton(
                                         onClick = {
@@ -968,7 +952,7 @@ private fun ThemePreviewCard(
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
                 if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             else ->
-                if (isDark) darkColorScheme() else expressiveLightColorScheme()
+                if (isDark) darkColorScheme() else lightColorScheme()
         }
         rememberDynamicColorScheme(
             seedColor = base.primary,
@@ -1211,7 +1195,7 @@ private fun ColorSwatch(
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
                 if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             else ->
-                if (isDark) darkColorScheme() else expressiveLightColorScheme()
+                if (isDark) darkColorScheme() else lightColorScheme()
         }
         rememberDynamicColorScheme(
             seedColor = base.primary, isDark = isDark, specVersion = colorSpec,

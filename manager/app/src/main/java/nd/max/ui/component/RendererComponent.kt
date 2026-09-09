@@ -69,7 +69,6 @@ private fun getRendererOptions(context: Context): List<RendererOption> {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RendererDialog(
     show: Boolean,

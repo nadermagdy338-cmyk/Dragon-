@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.component
 
@@ -261,7 +261,7 @@ fun HomeTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onRebootClick: () -> 
             .background(smoothGradient)
             .statusBarsPadding()
     ) {
-        LargeFlexibleTopAppBar(
+        LargeTopAppBar(
             navigationIcon = {
                 Box(
                     modifier = Modifier

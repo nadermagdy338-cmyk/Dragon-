@@ -58,10 +58,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -169,7 +168,7 @@ fun ScreenAccentGlyph(
  * shortcuts) pass them through `actions`; screens with nothing special just
  * omit it.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MaxManagerSubScreenTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
@@ -206,7 +205,7 @@ fun MaxManagerSubScreenTopBar(
     )
 
     MaxManagerTopBarScrim {
-        LargeFlexibleTopAppBar(
+        LargeTopAppBar(
             title = {
                 AnimatedVisibility(
                     visible = titleVisible,

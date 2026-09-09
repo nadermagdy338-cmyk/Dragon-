@@ -8,7 +8,6 @@
  */
 @file:OptIn(
     androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
     androidx.compose.animation.ExperimentalAnimationApi::class,
     androidx.compose.ui.unit.ExperimentalUnitApi::class,
     kotlinx.serialization.ExperimentalSerializationApi::class

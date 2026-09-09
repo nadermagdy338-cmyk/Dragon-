@@ -78,7 +78,6 @@ private fun getRefreshRatePickerOptions(context: Context): List<RefreshRatePicke
 }
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RefreshRatePickerDialog(
     show: Boolean,

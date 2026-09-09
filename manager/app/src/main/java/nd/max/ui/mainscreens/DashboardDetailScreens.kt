@@ -2,7 +2,7 @@
  * Copyright (C) 2026-2027 Zexshia
  * Licensed under the Apache License, Version 2.0
  */
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
 
