@@ -152,6 +152,9 @@ jobs:
         with:
           packages: "platform-tools platforms;android-36 build-tools;36.0.0"
 
+      - name: Add Android Build Tools to PATH
+        run: echo "$ANDROID_SDK_ROOT/build-tools/36.0.0" >> "$GITHUB_PATH"
+
       - name: Verify Gradle Wrapper Jar
         working-directory: ./manager
         run: |
@@ -209,10 +212,10 @@ jobs:
           version_code="$(printf '%s\n' "$badging" | sed -n "s/.* versionCode='\([^']*\)'.*/\1/p")"
           version_name="$(printf '%s\n' "$badging" | sed -n "s/.* versionName='\([^']*\)'.*/\1/p")"
           test "$package_name" = "nd.max" || { echo "Unexpected APK package: $package_name" >&2; exit 1; }
-          test "$version_code" = "1" \
-            || { echo "Unexpected APK versionCode: $version_code (expected 1)" >&2; exit 1; }
-          test "$version_name" = "1.0" \
-            || { echo "Unexpected APK versionName: $version_name (expected 1.0)" >&2; exit 1; }
+          test "$version_code" = "$EXPECTED_APK_VERSION_CODE" \
+            || { echo "Unexpected APK versionCode: $version_code (expected $EXPECTED_APK_VERSION_CODE)" >&2; exit 1; }
+          test "$version_name" = "$EXPECTED_APK_VERSION_NAME" \
+            || { echo "Unexpected APK versionName: $version_name (expected $EXPECTED_APK_VERSION_NAME)" >&2; exit 1; }
 
           if [ "$V_TYPE" != "experimental" ]; then
             test -n "$EXPECTED_RELEASE_SIGNER_SHA256" \

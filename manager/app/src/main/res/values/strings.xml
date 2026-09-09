@@ -1299,8 +1299,8 @@
     <string name="max_home_current_state">CURRENT STATE</string>
     <string name="max_home_state_engine_offline">Engine Offline</string>
     <string name="max_home_state_engine_offline_desc">MaxManager is not currently applying performance controls.</string>
-    <string name="max_home_state_thermal">Thermal Pressure</string>
-    <string name="max_home_state_thermal_desc">Temperature is elevated. Prefer cooling and stability over sustained peak performance.</string>
+    <string name="max_home_state_thermal">Battery Temperature High</string>
+    <string name="max_home_state_thermal_desc">Battery temperature is elevated. Prefer cooling and stability over sustained peak performance.</string>
     <string name="max_home_state_high_load">High CPU Load</string>
     <string name="max_home_state_high_load_desc">The processor is heavily loaded. Expect higher power draw and heat while this continues.</string>
     <string name="max_home_state_charging">Charging</string>
@@ -1319,14 +1319,13 @@
     <string name="max_home_engine_online">MaxManager system connected</string>
     <string name="max_home_engine_attention">System needs attention</string>
     <string name="max_home_cpu_load">CPU LOAD</string>
-    <string name="max_home_temp">TEMP</string>
+    <string name="max_home_temp">BATTERY TEMP</string>
     <string name="max_home_change_profile">Change profile</string>
     <string name="max_home_app_profiles">App profiles</string>
     <string name="max_home_active_app">ACTIVE APP</string>
     <string name="max_home_memory">Memory</string>
     <string name="max_home_graphics">graphics engine</string>
-    <string name="max_home_best_sensor">best available sensor</string>
-    <string name="max_home_cpu_sensor">CPU sensor</string>
+    <string name="max_home_battery_sensor">Battery sensor</string>
     <string name="max_home_cpu_control">CPU governor &amp; limits</string>
     <string name="max_home_cpu_control_desc">Policies, governors and core control</string>
     <string name="max_home_gpu_control">GPU control</string>

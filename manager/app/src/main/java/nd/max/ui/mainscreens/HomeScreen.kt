@@ -79,6 +79,7 @@ import nd.max.ui.component.RootAppDialog
 import nd.max.ui.util.getRealDeviceName
 import nd.max.ui.viewmodel.HomeDashboardViewModel
 import nd.max.ui.viewmodel.HomeViewModel
+import nd.max.ui.viewmodel.primaryBatteryTemperatureC
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -105,9 +106,10 @@ fun HomeScreen(
     val online = ui.rootStatus && ui.moduleInstalled
     val deviceName = remember(context) { getRealDeviceName(context) }
     val ramPercent = if (dash.ramTotalMb > 0) (dash.ramUsedMb * 100 / dash.ramTotalMb).coerceIn(0, 100) else 0
-    val temp = listOf(dash.cpuTempC, dash.gpuTempC, dash.skinTempC)
-        .filter { it > 0 }.maxOrNull() ?: dash.batteryTempC.toInt()
-    val tempText = if (temp > 0) "$temp°" else "—"
+    val batteryTempC = primaryBatteryTemperatureC(dash)
+    val batteryTempWarning = batteryTempC?.let { it >= 45f } == true
+    val batteryTempHigh = batteryTempC?.let { it >= 50f } == true
+    val tempText = batteryTempC?.let { "${it.formatOne()}°C" } ?: "—"
     val gpuText = when {
         dash.chipsetName.isBlank() || dash.chipsetName == "..." -> "—"
         dash.chipsetName.contains("Mali", true) -> "Mali GPU"
@@ -163,14 +165,14 @@ fun HomeScreen(
                 MaxReveal(delayMillis = 72) {
                     val state = when {
                         !online -> stringResource(R.string.max_home_state_engine_offline)
-                        temp >= 50 -> stringResource(R.string.max_home_state_thermal)
+                        batteryTempHigh -> stringResource(R.string.max_home_state_thermal)
                         dash.cpuLoadPercent >= 90 -> stringResource(R.string.max_home_state_high_load)
                         dash.isCharging -> stringResource(R.string.max_home_state_charging)
                         else -> stringResource(R.string.max_home_state_balanced)
                     }
                     val guidance = when {
                         !online -> stringResource(R.string.max_home_state_engine_offline_desc)
-                        temp >= 50 -> stringResource(R.string.max_home_state_thermal_desc)
+                        batteryTempHigh -> stringResource(R.string.max_home_state_thermal_desc)
                         dash.cpuLoadPercent >= 90 -> stringResource(R.string.max_home_state_high_load_desc)
                         dash.isCharging -> stringResource(R.string.max_home_state_charging_desc)
                         else -> stringResource(R.string.max_home_state_balanced_desc)
@@ -179,8 +181,8 @@ fun HomeScreen(
                         state = state,
                         guidance = guidance,
                         title = stringResource(R.string.max_home_current_state),
-                        icon = if (!online || temp >= 50) Icons.Rounded.Thermostat else Icons.Rounded.Speed,
-                        accent = if (!online || temp >= 50) colors.error else colors.tertiary
+                        icon = if (!online || batteryTempHigh) Icons.Rounded.Thermostat else Icons.Rounded.Speed,
+                        accent = if (!online || batteryTempHigh) colors.error else colors.tertiary
                     )
                 }
             }
@@ -221,13 +223,13 @@ fun HomeScreen(
                     }
                     StudioAdaptivePair {
                         MaxMetric(
-                            label = stringResource(R.string.studio_temperature),
+                            label = stringResource(R.string.max_home_temp),
                             value = tempText,
                             icon = Icons.Rounded.Thermostat,
-                            accent = if (temp >= 45) colors.error else colors.secondary,
+                            accent = if (batteryTempWarning) colors.error else colors.secondary,
                             modifier = Modifier.weight(1f),
-                            supporting = if (dash.cpuTempC > 0) stringResource(R.string.max_home_cpu_sensor) else stringResource(R.string.max_home_best_sensor),
-                            onClick = { navController.navigate("thermal_detail") }
+                            supporting = stringResource(R.string.max_home_battery_sensor),
+                            onClick = { navController.navigate("battery_detail") }
                         )
                         MaxMetric(
                             label = stringResource(R.string.studio_display),

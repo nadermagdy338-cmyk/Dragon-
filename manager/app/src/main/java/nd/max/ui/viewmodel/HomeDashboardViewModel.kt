@@ -52,6 +52,9 @@ data class DashboardState(
     val cpuLoadHistory: List<Float> = emptyList()
 )
 
+internal fun primaryBatteryTemperatureC(state: DashboardState): Float? =
+    state.batteryTempC.takeIf { it.isFinite() && it > 0f }
+
 class HomeDashboardViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context: Context = application.applicationContext

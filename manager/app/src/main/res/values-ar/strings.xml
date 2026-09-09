@@ -525,6 +525,8 @@
     <string name="home_android_device">جهاز Android</string>
     <string name="thermal_policy_unavailable">سياسة الحرارة غير متاحة</string>
     <string name="thermal_policy_unavailable_desc">هذه النواة لا تعرض عقدة قابلة للكتابة لسياسة الحرارة.</string>
+    <string name="max_home_state_thermal">حرارة البطارية مرتفعة</string>
+    <string name="max_home_state_thermal_desc">حرارة البطارية مرتفعة. أعطِ الأولوية للتبريد والاستقرار بدل الحفاظ على أقصى أداء.</string>
     <string name="max_home_command_center">مركز التحكم</string>
     <string name="max_home_live_overview">نظرة مباشرة على أداء الجهاز</string>
     <string name="max_home_live_hardware">العتاد المباشر</string>
@@ -536,14 +538,13 @@
     <string name="max_home_engine_online">نظام MaxManager متصل</string>
     <string name="max_home_engine_attention">النظام يحتاج إلى انتباه</string>
     <string name="max_home_cpu_load">استخدام المعالج</string>
-    <string name="max_home_temp">الحرارة</string>
+    <string name="max_home_temp">حرارة البطارية</string>
     <string name="max_home_change_profile">تغيير ملف الأداء</string>
     <string name="max_home_app_profiles">ملفات التطبيقات</string>
     <string name="max_home_active_app">التطبيق النشط</string>
     <string name="max_home_memory">الذاكرة</string>
     <string name="max_home_graphics">محرك الرسوميات</string>
-    <string name="max_home_best_sensor">أفضل حساس متاح</string>
-    <string name="max_home_cpu_sensor">حساس المعالج</string>
+    <string name="max_home_battery_sensor">حساس البطارية</string>
     <string name="max_home_cpu_control">سياسة المعالج والحدود</string>
     <string name="max_home_cpu_control_desc">السياسات والمحافظ والتحكم في الأنوية</string>
     <string name="max_home_gpu_control">التحكم في GPU</string>

@@ -29,6 +29,11 @@ echo "Starting version injection..."
 echo "Target Version: $FULL_VERSION"
 echo "Version Code  : $VERSION_CODE"
 
+{
+	printf 'EXPECTED_APK_VERSION_CODE=%s\n' "$VERSION_CODE"
+	printf 'EXPECTED_APK_VERSION_NAME=%s\n' "$FULL_VERSION"
+} >> "$GITHUB_ENV"
+
 sed -i "s|#define MODULE_VERSION \".*\"|#define MODULE_VERSION \"$FULL_VERSION\"|" "$HEADER_FILE"
 
 sed -i "s/versionCode =.*/versionCode = $VERSION_CODE/" "$GRADLE_FILE"
