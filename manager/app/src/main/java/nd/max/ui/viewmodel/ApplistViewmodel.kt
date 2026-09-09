@@ -30,8 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.topjohnwu.superuser.io.SuFile
-import com.topjohnwu.superuser.io.SuFileInputStream
 import java.text.Collator
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +39,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import nd.max.R
+import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.util.AppConfig
 import nd.max.ui.util.customizedFieldCount
 import nd.max.ui.util.EventLog
@@ -185,11 +184,8 @@ class ApplistViewmodel : ViewModel() {
 
     private fun getAppConfigs(): Map<String, AppConfig> {
         return try {
-            val file = SuFile(configPath)
-            if (file.exists()) {
-                val content = SuFileInputStream.open(file).bufferedReader().use { it.readText() }
-                if (content.isNotBlank()) jsonHandler.decodeFromString<Map<String, AppConfig>>(content) else emptyMap()
-            } else emptyMap()
+            val content = RootFileAccess.read(configPath)
+            if (!content.isNullOrBlank()) jsonHandler.decodeFromString<Map<String, AppConfig>>(content) else emptyMap()
         } catch (e: Exception) {
             EventLog.error("Applist", "read_config", e)
             emptyMap()

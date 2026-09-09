@@ -29,8 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
-import com.topjohnwu.superuser.io.SuFile
-import com.topjohnwu.superuser.io.SuFileOutputStream
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -39,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
 import nd.max.RefreshRateReceiver
+import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.util.BackupManager
 import nd.max.ui.util.PropertyUtils
 
@@ -222,14 +221,7 @@ class TweakViewModel : ViewModel() {
 
             if (restoreApplist && backupData.containsKey(APPLIST_BACKUP_KEY)) {
                 val applistContent = backupData[APPLIST_BACKUP_KEY]!!
-                val file = SuFile(APPLIST_PATH)
-                val parent = file.parentFile
-                if (parent != null && !parent.exists()) {
-                    parent.mkdirs()
-                }
-                SuFileOutputStream.open(file).use { outputStream ->
-                    outputStream.write(applistContent.toByteArray())
-                }
+                RootFileAccess.atomicWriteText(APPLIST_PATH, applistContent)
             }
             
             Shell.cmd("touch /data/adb/modules/MaxManager/reboot").exec()

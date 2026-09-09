@@ -22,7 +22,6 @@ import android.content.IntentFilter
 import android.net.TrafficStats
 import android.os.BatteryManager
 import android.os.PowerManager
-import com.topjohnwu.superuser.io.SuFile
 import nd.max.core.jni.PredictorBridge
 import nd.max.ui.util.FpsMonitorUtil
 import nd.max.ui.util.ThermalUtil
@@ -158,9 +157,7 @@ object DeviceStateCollector {
 
     /** يقرأ ملف الوحدة gameinfo — أول حقل اسم الحزمة أو NULL. */
     private fun isGameDetected(): Boolean = runCatching {
-        val file = SuFile(GAMEINFO_PATH)
-        if (!file.exists()) return@runCatching false
-        val firstLine = file.newInputStream().bufferedReader().use { it.readLine() }
+        val firstLine = RootFileAccess.read(GAMEINFO_PATH)?.lineSequence()?.firstOrNull()
             ?: return@runCatching false
         val pkg = firstLine.split(" ").firstOrNull()
         pkg != null && pkg != "NULL" && pkg.isNotBlank()

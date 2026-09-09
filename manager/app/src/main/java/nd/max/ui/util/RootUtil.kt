@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import nd.max.R
+import nd.max.core.hardware.RootFileAccess
 
 
 object RootUtils {
@@ -41,33 +42,33 @@ object RootUtils {
     private const val DAEMON_PROFILE_PATH = "/data/adb/.config/MaxManager/API/current_profile"
 
     private fun readRootFile(path: String): String? {
-        return try {
-            val file = SuFile(path)
-            if (!file.exists()) return null
-            file.newInputStream().bufferedReader().use { it.readText().trim() }
-        } catch (e: Exception) {
-            null
-        }
+        return RootFileAccess.read(path)
     }
 
     private fun writeRootFile(path: String, content: String) {
         try {
-            SuFile(path).newOutputStream().use { it.write(content.toByteArray()) }
+            val target = File(path)
+            val parent = target.parentFile
+            if (parent != null && (parent.exists() || parent.mkdirs()) && parent.canWrite()) {
+                target.writeText(content)
+                return
+            }
+            RootFileAccess.write(path, content)
         } catch (e: Exception) {
             EventLog.error("RootUtils", "write_root_file:$path", e)
         }
     }
 
     private fun syncProfileState() {
-        val apiDir = SuFile(API_DIR_PATH)
-        if (!apiDir.exists()) {
-            apiDir.mkdirs()
-        }
-
-        val daemonFile = SuFile(DAEMON_PROFILE_PATH)
-        if (daemonFile.exists()) {
-            val content = daemonFile.newInputStream().bufferedReader().use { it.readText() }
+        try {
+            val apiDir = File(API_DIR_PATH)
+            if (!apiDir.exists()) {
+                apiDir.mkdirs()
+            }
+            val content = RootFileAccess.read(DAEMON_PROFILE_PATH) ?: return
             writeRootFile(PROFILE_PATH, content)
+        } catch (e: Exception) {
+            EventLog.error("RootUtils", "sync_profile_state", e)
         }
     }
 
@@ -110,7 +111,7 @@ object RootUtils {
 
         val apiDir = File(API_DIR_PATH)
         if (!apiDir.exists()) {
-            SuFile(API_DIR_PATH).mkdirs()
+            apiDir.mkdirs()
         }
 
         val observer = object : FileObserver(apiDir, MODIFY or CREATE or MOVED_TO) {

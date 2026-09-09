@@ -94,10 +94,5 @@ object ProfileApplier {
     }
 
     /** الملف العام الحالي من ملف الوحدة، أو null عند تعذّر القراءة. */
-    fun currentProfile(): String? = runCatching {
-        val file = SuFile(DAEMON_PROFILE_PATH)
-        if (!file.exists()) return@runCatching null
-        file.newInputStream().bufferedReader().use { it.readText().trim() }
-            .takeIf { it.isNotEmpty() }
-    }.getOrNull()
+    fun currentProfile(): String? = RootFileAccess.read(DAEMON_PROFILE_PATH)
 }

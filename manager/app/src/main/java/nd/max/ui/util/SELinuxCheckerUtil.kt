@@ -19,25 +19,18 @@ package nd.max.ui.util
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import com.topjohnwu.superuser.io.SuFile
 import nd.max.R
+import nd.max.core.hardware.RootFileAccess
 
 
-fun getSELinuxStatus(context: Context): String = SuFile("/sys/fs/selinux/enforce").run {
-    when {
-        !exists() -> context.getString(R.string.selinux_disabled)
-        !isFile -> context.getString(R.string.status_unknown)
-        !canRead() -> context.getString(R.string.selinux_enforcing)
-        else -> {
-            val content = runCatching { 
-                newInputStream().bufferedReader().use { it.readLine()?.trim() } 
-            }.getOrNull()
-
-            when (content) {
-                "1" -> context.getString(R.string.selinux_enforcing)
-                "0" -> context.getString(R.string.selinux_permissive)
-                else -> context.getString(R.string.status_unknown)
-            }
+fun getSELinuxStatus(context: Context): String {
+    val enforcePath = "/sys/fs/selinux/enforce"
+    return when {
+        !RootFileAccess.exists(enforcePath) -> context.getString(R.string.selinux_disabled)
+        else -> when (RootFileAccess.read(enforcePath)) {
+            "1" -> context.getString(R.string.selinux_enforcing)
+            "0" -> context.getString(R.string.selinux_permissive)
+            else -> context.getString(R.string.status_unknown)
         }
     }
 }

@@ -68,13 +68,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.fox2code.androidansi.ktx.parseAsAnsiAnnotatedString
 import com.topjohnwu.superuser.CallbackList
-import com.topjohnwu.superuser.io.SuFile
-import com.topjohnwu.superuser.io.SuFileOutputStream
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
+import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.component.*
 import nd.max.ui.util.PropertyUtils
 
@@ -212,10 +211,10 @@ fun BypassChargeCheckScreen(navController: NavController) {
                         if (dialogResult == ConfirmResult.Confirmed) {
                             PropertyUtils.set(MaxManagerProps.Conf.BYPASS_PATH, successNode)
                             withContext(Dispatchers.IO) {
-                                val file = SuFile("/data/adb/.config/MaxManager/bypasschgconfig/bypasspath")
-                                SuFileOutputStream.open(file).writer().use { writer ->
-                                    writer.write(successNode)
-                                }
+                                RootFileAccess.write(
+                                    "/data/adb/.config/MaxManager/bypasschgconfig/bypasspath",
+                                    successNode
+                                )
                             }
                             activePath = successNode
                         }
@@ -468,12 +467,12 @@ fun BypassChargeCheckScreen(navController: NavController) {
                                                     )
                                                     if (result == ConfirmResult.Confirmed) {
                                                         PropertyUtils.set(MaxManagerProps.Conf.BYPASS_PATH, pathNode.first)
-                                                        withContext(Dispatchers.IO) {
-                                                            val file = SuFile("/data/adb/.config/MaxManager/bypasschgconfig/bypasspath")
-                                                            SuFileOutputStream.open(file).writer().use { writer ->
-                                                                writer.write(pathNode.first)
-                                                            }
-                                                        }
+                                        withContext(Dispatchers.IO) {
+                                            RootFileAccess.write(
+                                                "/data/adb/.config/MaxManager/bypasschgconfig/bypasspath",
+                                                pathNode.first
+                                            )
+                                        }
                                                         activePath = pathNode.first
                                                     }
                                                 }

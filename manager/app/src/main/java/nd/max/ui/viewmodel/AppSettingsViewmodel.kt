@@ -22,9 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.topjohnwu.superuser.io.SuFile
-import com.topjohnwu.superuser.io.SuFileInputStream
-import com.topjohnwu.superuser.io.SuFileOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +31,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.util.AppConfig
 import nd.max.ui.util.EventLog
 import nd.max.ui.util.PerAppKernelUtil
@@ -62,25 +60,22 @@ class AppSettingsViewModel : ViewModel() {
 
     fun loadConfig() {
         viewModelScope.launch(Dispatchers.IO) {
-            val file = SuFile(configPath)
-            if (file.exists()) {
-                try {
-                    val content = SuFileInputStream.open(file).bufferedReader().use { it.readText() }
-                    if (content.isNotEmpty()) {
-                        val decoded = jsonHandler.decodeFromString<Map<String, AppConfig>>(content)
-                        val migrated = decoded.mapValues { (_, cfg) ->
-                            if (cfg.gpu_profile == "default" && cfg.thermal_profile != "default") {
-                                cfg.copy(gpu_profile = when (cfg.thermal_profile.lowercase()) {
-                                    "powersave" -> "power"
-                                    else -> cfg.thermal_profile.lowercase()
-                                }, thermal_profile = "default")
-                            } else cfg
-                        }
-                        withContext(Dispatchers.Main) { fullConfig = migrated }
+            try {
+                val content = RootFileAccess.read(configPath)
+                if (!content.isNullOrEmpty()) {
+                    val decoded = jsonHandler.decodeFromString<Map<String, AppConfig>>(content)
+                    val migrated = decoded.mapValues { (_, cfg) ->
+                        if (cfg.gpu_profile == "default" && cfg.thermal_profile != "default") {
+                            cfg.copy(gpu_profile = when (cfg.thermal_profile.lowercase()) {
+                                "powersave" -> "power"
+                                else -> cfg.thermal_profile.lowercase()
+                            }, thermal_profile = "default")
+                        } else cfg
                     }
-                } catch (e: Exception) {
-                    EventLog.error("AppSettings", "load_config", e)
+                    withContext(Dispatchers.Main) { fullConfig = migrated }
                 }
+            } catch (e: Exception) {
+                EventLog.error("AppSettings", "load_config", e)
             }
         }
     }
@@ -94,15 +89,9 @@ class AppSettingsViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             saveMutex.withLock {
                 try {
-                    val file = SuFile(configPath)
-                    val parent = file.parentFile
-                    if (parent != null && !parent.exists()) {
-                        parent.mkdirs()
-                    }
-
                     val jsonString = jsonHandler.encodeToString(newMap)
-                    SuFileOutputStream.open(file).use { outputStream ->
-                        outputStream.write(jsonString.toByteArray())
+                    if (!RootFileAccess.atomicWriteText(configPath, jsonString)) {
+                        error("atomicWriteText failed for $configPath")
                     }
                 } catch (e: Exception) {
                     EventLog.error("AppSettings", "save_config", e)

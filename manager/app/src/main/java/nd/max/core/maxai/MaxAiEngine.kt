@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.topjohnwu.superuser.Shell
-import com.topjohnwu.superuser.io.SuFile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +23,7 @@ import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.DeviceStateCollector
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.ProfileApplier
+import nd.max.core.hardware.RootFileAccess
 import nd.max.core.jni.ContextBridge
 import nd.max.core.jni.PredictorBridge
 import nd.max.core.recommendation.RecommendationAction
@@ -581,11 +581,10 @@ class MaxAiEngine @Inject constructor(
      * يكتبه رفيق الوحدة (AppMonitor) — قيمة فعلية لا مؤقت.
      */
     private fun readAppProfileActive(): Boolean = runCatching {
-        val file = SuFile(APP_STATUS_PATH)
-        if (!file.exists()) return@runCatching false
-        file.newInputStream().bufferedReader().use { reader ->
-            reader.lineSequence().any { it.trim() == "perapp_active 1" }
-        }
+        RootFileAccess.read(APP_STATUS_PATH)
+            ?.lineSequence()
+            ?.any { it.trim() == "perapp_active 1" }
+            ?: false
     }.getOrDefault(false)
 
     private fun manualController(safetyNow: SafetyStatus): MaxAiController =
