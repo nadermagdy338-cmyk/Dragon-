@@ -191,6 +191,45 @@ jobs:
         env:
           KS_PWD: ${{ secrets.KEYSTORE_PASSWORD }}
 
+      - name: Validate Manager APK
+        env:
+          EXPECTED_RELEASE_SIGNER_SHA256: ${{ secrets.RELEASE_SIGNER_SHA256 }}
+        run: |
+          set -eu
+          if [ "$V_TYPE" = "experimental" ]; then
+            apk_path="manager/app/build/outputs/apk/debug/app-debug.apk"
+          else
+            apk_path="manager/app/build/outputs/apk/release/app-release.apk"
+          fi
+          test -f "$apk_path" || { echo "Expected APK is missing: $apk_path" >&2; exit 1; }
+          apksigner verify --verbose --print-certs "$apk_path"
+
+          badging="$(aapt dump badging "$apk_path" | grep -m1 '^package:')"
+          package_name="$(printf '%s\n' "$badging" | sed -n "s/.* name='\([^']*\)'.*/\1/p")"
+          version_code="$(printf '%s\n' "$badging" | sed -n "s/.* versionCode='\([^']*\)'.*/\1/p")"
+          version_name="$(printf '%s\n' "$badging" | sed -n "s/.* versionName='\([^']*\)'.*/\1/p")"
+          test "$package_name" = "nd.max" || { echo "Unexpected APK package: $package_name" >&2; exit 1; }
+          test "$version_code" = "1" \
+            || { echo "Unexpected APK versionCode: $version_code (expected 1)" >&2; exit 1; }
+          test "$version_name" = "1.0" \
+            || { echo "Unexpected APK versionName: $version_name (expected 1.0)" >&2; exit 1; }
+
+          if [ "$V_TYPE" != "experimental" ]; then
+            test -n "$EXPECTED_RELEASE_SIGNER_SHA256" \
+              || { echo "RELEASE_SIGNER_SHA256 secret is required" >&2; exit 1; }
+            actual_signer="$(apksigner verify --print-certs "$apk_path" \
+              | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
+            expected_signer="$(printf '%s' "$EXPECTED_RELEASE_SIGNER_SHA256" \
+              | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
+            test -n "$actual_signer" && test "$actual_signer" = "$expected_signer" \
+              || { echo "Release signer fingerprint mismatch" >&2; exit 1; }
+          fi
+
+          apk_sha256="$(sha256sum "$apk_path" | cut -d' ' -f1)"
+          echo "APK_PATH=$apk_path" >> "$GITHUB_ENV"
+          echo "APK_SHA256=$apk_sha256" >> "$GITHUB_ENV"
+          echo "Validated $package_name $version_name ($version_code), sha256=$apk_sha256"
+
       - name: Compile Flashable Zip
         id: compileZip
         run: bash .github/scripts/compile_zip.sh
@@ -203,14 +242,8 @@ jobs:
         run: |
           set -e
           rm -rf developer-bundle
-          # Prefer the release APK; fall back to debug only for experimental
-          # builds or when release was not produced — mirrors compile_zip.sh.
-          apk_path=""
-          if [ "$V_TYPE" != "experimental" ]; then
-            apk_path="$(find manager/app/build/outputs/apk/release -type f -name '*.apk' 2>/dev/null | sort | head -n 1)"
-          fi
-          [ -n "$apk_path" ] || apk_path="$(find manager/app/build/outputs/apk/debug -type f -name '*.apk' 2>/dev/null | sort | head -n 1)"
-          test -n "$apk_path" || { echo "No APK was produced" >&2; exit 1; }
+          test -f "$APK_PATH" || { echo "Validated APK is missing: $APK_PATH" >&2; exit 1; }
+          apk_path="$APK_PATH"
 
           # Path 1 — image modders (super.img unpack/repack, HyperOS ports):
           # mirror of the module system tree, minus root-specific scripts.
@@ -286,6 +319,18 @@ jobs:
             || { echo "developer bundle: Android.bp missing"; exit 1; }
           unzip -l MaxManager-developer-bundle.zip | grep -q "aosp/product-inclusion.mk" \
             || { echo "developer bundle: product-inclusion.mk missing"; exit 1; }
+
+          tmp_dir="$(mktemp -d)"
+          trap 'rm -rf "$tmp_dir"' EXIT
+          unzip -p "$module_zip" system/product/priv-app/MaxManager/MaxManager.apk > "$tmp_dir/module.apk"
+          unzip -p MaxManager-developer-bundle.zip overlay/product/priv-app/MaxManager/MaxManager.apk > "$tmp_dir/developer-overlay.apk"
+          unzip -p MaxManager-developer-bundle.zip aosp/prebuilt/MaxManager.apk > "$tmp_dir/developer-aosp.apk"
+          for artifact_apk in "$tmp_dir/module.apk" "$tmp_dir/developer-overlay.apk" "$tmp_dir/developer-aosp.apk"; do
+            artifact_sha256="$(sha256sum "$artifact_apk" | cut -d' ' -f1)"
+            test "$artifact_sha256" = "$APK_SHA256" \
+              || { echo "Artifact contains an APK different from the validated build: $artifact_apk" >&2; exit 1; }
+            apksigner verify "$artifact_apk"
+          done
           echo "All artifact validations passed."
 
       # Upload only after validation passed, so a broken package never

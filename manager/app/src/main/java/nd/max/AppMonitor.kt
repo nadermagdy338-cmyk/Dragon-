@@ -62,6 +62,7 @@ object AppMonitor {
     // than POLL_INTERVAL_MS: this is a safety net against vendor thermal
     // daemons undoing our writes, not a tight control loop.
     private const val DRIFT_CHECK_INTERVAL_MS = 10_000L
+    private val DRIFT_RETRY_DELAYS_MS = longArrayOf(10_000L, 60_000L, 300_000L, 900_000L)
     private const val PID_RETRY_INTERVAL_MS = 50L
     private const val UNKNOWN_APP = "unknown 0 0"
     private const val NONE_APP = "none 0 0"
@@ -291,6 +292,19 @@ object AppMonitor {
     }.getOrDefault(true)
 
     private var lastDriftCheckAt = 0L
+    private data class DriftRetry(var attempts: Int, var dueAtMs: Long)
+    private val driftRetries = mutableMapOf<String, DriftRetry>()
+
+    private fun canRetryDrift(key: String, now: Long): Boolean =
+        driftRetries[key]?.let { now >= it.dueAtMs } ?: true
+
+    private fun recordDriftFailure(key: String, now: Long) {
+        val previous = driftRetries[key]?.attempts ?: 0
+        val attempt = (previous + 1).coerceAtMost(DRIFT_RETRY_DELAYS_MS.size)
+        driftRetries[key] = DriftRetry(attempt, now + DRIFT_RETRY_DELAYS_MS[attempt - 1])
+    }
+
+    private fun clearDriftRetry(key: String): Boolean = driftRetries.remove(key) != null
 
     /**
      * applyPerAppConfig() only runs once, at the moment the foreground app
@@ -326,25 +340,35 @@ object AppMonitor {
             val explicitFreq = readAppConfigField(pkg, "gpu_max_freq").toLongOrNull()
             val target = explicitFreq ?: PerAppKernelUtil.pickProfileFrequency(caps.frequencies, profile, ProfilePresetStore.percentFor(systemContext, profile)) ?: return@runCatching
             val mtkIndex = PerAppKernelUtil.mtkOppIndexForFrequency(caps, target)
+            val retryKey = "$pkg|$node|$target|${mtkIndex ?: "devfreq"}"
             if (mtkIndex != null) {
-                // On Rodin the MTK OPP lock is authoritative; devfreq max_freq
-                // is only a mirrored/reporting value and must not be used as the
-                // drift signal.
                 val liveLock = PerAppKernelUtil.currentMtkGpuLockIndex()
-                if (liveLock != mtkIndex) {
-                    AppMonitorLogger.w("EVENT=APPLY_DRIFT knob=gpu_opp_lock pkg=$pkg expected_index=$mtkIndex live_index=${liveLock ?: "none"} expected_hz=$target sw=$currentSwitchId reassert=true")
-                    if (!PerAppKernelUtil.applyGpuFixedFrequency(node, caps, target)) {
-                        AppMonitorLogger.w("EVENT=APPLY_DRIFT_REASSERT_FAILED knob=gpu_opp_lock pkg=$pkg expected_index=$mtkIndex sw=$currentSwitchId")
+                if (liveLock != mtkIndex && canRetryDrift(retryKey, now)) {
+                    val applied = PerAppKernelUtil.applyGpuFixedFrequency(node, caps, target)
+                    val verified = applied && PerAppKernelUtil.currentMtkGpuLockIndex() == mtkIndex
+                    if (!verified) {
+                        if (!driftRetries.containsKey(retryKey)) {
+                            AppMonitorLogger.w("EVENT=APPLY_DRIFT_REASSERT_FAILED knob=gpu_opp_lock pkg=$pkg expected_index=$mtkIndex sw=$currentSwitchId")
+                        }
+                        recordDriftFailure(retryKey, now)
+                    } else if (clearDriftRetry(retryKey)) {
+                        AppMonitorLogger.i("EVENT=APPLY_DRIFT_RECOVERED knob=gpu_opp_lock pkg=$pkg expected_index=$mtkIndex sw=$currentSwitchId")
                     }
-                }
+                } else if (liveLock == mtkIndex) clearDriftRetry(retryKey)
             } else {
                 val liveMaxFreq = shellRead("cat '$node/max_freq' 2>/dev/null").toLongOrNull()
-                if (liveMaxFreq != null && liveMaxFreq != target) {
-                    AppMonitorLogger.w("EVENT=APPLY_DRIFT knob=gpu_profile pkg=$pkg expected=$target live=$liveMaxFreq sw=$currentSwitchId reassert=true")
-                    if (!PerAppKernelUtil.applyGpuFixedFrequency(node, caps, target)) {
-                        AppMonitorLogger.w("EVENT=APPLY_DRIFT_REASSERT_FAILED knob=gpu_profile pkg=$pkg expected=$target sw=$currentSwitchId")
+                if (liveMaxFreq != null && liveMaxFreq != target && canRetryDrift(retryKey, now)) {
+                    val applied = PerAppKernelUtil.applyGpuFixedFrequency(node, caps, target)
+                    val verified = applied && shellRead("cat '$node/max_freq' 2>/dev/null").toLongOrNull() == target
+                    if (!verified) {
+                        if (!driftRetries.containsKey(retryKey)) {
+                            AppMonitorLogger.w("EVENT=APPLY_DRIFT_REASSERT_FAILED knob=gpu_profile pkg=$pkg expected=$target live=$liveMaxFreq sw=$currentSwitchId")
+                        }
+                        recordDriftFailure(retryKey, now)
+                    } else if (clearDriftRetry(retryKey)) {
+                        AppMonitorLogger.i("EVENT=APPLY_DRIFT_RECOVERED knob=gpu_profile pkg=$pkg expected=$target sw=$currentSwitchId")
                     }
-                }
+                } else if (liveMaxFreq == target) clearDriftRetry(retryKey)
             }
         }.onFailure { AppMonitorLogger.e("EVENT=DRIFT_CHECK_FAILED knob=gpu_profile pkg=$pkg sw=$currentSwitchId", it) }
 
@@ -1397,6 +1421,7 @@ object AppMonitor {
         baselineCpuGovernors.clear()
         baselineCaptured = false
         lastDriftCheckAt = 0L
+        driftRetries.clear()
         // ملكية per-app انتهت: يُعاد الإعلان (perapp_active 0) في أول
         // writeStatus تالية، فيستأنف محرك MAX AI إدارته.
         perAppOverridesActive = false

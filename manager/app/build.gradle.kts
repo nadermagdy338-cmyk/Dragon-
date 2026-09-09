@@ -21,9 +21,14 @@ android {
     compileSdk = 36
 
     // كلمة مرور مخزن المفاتيح من سر CI (KS_PWD / KEYSTORE_PASSWORD).
-    // null محليًا وفي CI قبل ضبط السر — التوقيع يتراجع لغير موقّع
-    // بدل فشل البناء كله بعد 10 دقائق من التجميع.
+    // بناء release غير موقّع غير صالح كـ priv-app، لذلك نفشل مبكرًا عند طلبه.
     val ksPwd: String? = System.getenv("KS_PWD")
+    val releaseArtifactRequested = gradle.startParameter.taskNames.any { requestedTask ->
+        requestedTask.substringAfterLast(':') in setOf("assembleRelease", "bundleRelease")
+    }
+    if (releaseArtifactRequested && ksPwd.isNullOrEmpty()) {
+        throw GradleException("KS_PWD must be set to produce a signed release artifact")
+    }
 
     defaultConfig {
         applicationId = "nd.max"
@@ -35,6 +40,16 @@ android {
         buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
         ndk {
             abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
+        }
+    }
+
+    tasks.matching { task ->
+        task.name in setOf("packageRelease", "assembleRelease", "bundleRelease")
+    }.configureEach {
+        doFirst {
+            check(!ksPwd.isNullOrEmpty()) {
+                "KS_PWD must be set to produce a signed release artifact"
+            }
         }
     }
 
@@ -58,9 +73,6 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             vcsInfo.include = false
-            // بلا كلمة المرور: APK إصدار غير موقّع (يلتقطه compile_zip.sh
-            // عبر نمط *.apk) — يبقى خط الإنتاج قابلًا للاختبار قبل ضبط
-            // سر KEYSTORE_PASSWORD، ويوقَّع تلقائيًا فور ضبطه.
             signingConfig =
                 if (ksPwd.isNullOrEmpty()) null
                 else signingConfigs.getByName("release")

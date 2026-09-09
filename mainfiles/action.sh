@@ -19,6 +19,8 @@
 readonly MODDIR="${0%/*}"
 readonly BIN_SVC="$MODDIR/system/bin/sys.maxmanager-service"
 
+readonly APK_COMP="$MODDIR/system/product/priv-app/MaxManager/MaxManager.apk"
+
 # Check if app is installed
 _app_installed() {
 	pm path nd.max >/dev/null 2>&1
@@ -33,19 +35,27 @@ _service_exists() {
 # so installation is not an action concern anymore: just launch it.
 clear
 
-if _app_installed; then
-	if _service_exists; then
-		echo "[*] Launching MaxManager..."
-		exec "$BIN_SVC" --appactivity >/dev/null 2>&1
-	else
-		echo "[!] Service binary not found at $BIN_SVC" >&2
-		exit 1
-	fi
-else
-	echo "[*] App not scanned yet. Reboot once so the module tree mounts"
-	echo "    into /product and the package manager picks up the priv-app."
-	echo "[*] Launching anyway (fallback)..."
-	if _service_exists; then
-		exec "$BIN_SVC" --appactivity >/dev/null 2>&1
+if ! _service_exists; then
+	echo "[!] Service binary not found at $BIN_SVC" >&2
+	exit 1
+fi
+
+if ! _app_installed; then
+	if pm list packages -u 2>/dev/null | grep -qx 'package:nd.max'; then
+		echo "[*] Restoring MaxManager for user 0..."
+		cmd package install-existing --user 0 nd.max
 	fi
 fi
+
+if _app_installed; then
+	echo "[*] Launching MaxManager..."
+	exec "$BIN_SVC" --appactivity
+fi
+
+if [ -f "$APK_COMP" ]; then
+	echo "[!] MaxManager is present in the module but PackageManager has not scanned it." >&2
+	echo "[!] Reboot once so the module tree mounts into /product, then try Open again." >&2
+else
+	echo "[!] MaxManager APK is missing from the module tree." >&2
+fi
+exit 1

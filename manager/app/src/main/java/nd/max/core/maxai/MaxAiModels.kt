@@ -23,14 +23,20 @@ enum class MaxAiController {
 /** حالة محرك الأمان — درجات فعلية من قياس الحرارة والتنبؤ الأمامي. */
 enum class SafetyLevel { NORMAL, ENGAGED, CRITICAL }
 
+/** نتيجة التحقق الحي من تطبيق سقف الأمان، لا مجرد نية التطبيق. */
+enum class SafetyEnforcement { NOT_REQUIRED, APPLIED, PARTIAL, FAILED, UNAVAILABLE }
+
 data class SafetyStatus(
     val level: SafetyLevel = SafetyLevel.NORMAL,
     val thermalC: Float = 0f,
     val engaged: Boolean = false,
-    /** عدد تدخلات الأمان منذ التثبيت — عداد تراكمي حقيقي. */
+    /** عدد نوبات تدخل الأمان منذ التثبيت — لا عدد العينات الساخنة. */
     val interventions: Long = 0L,
     /** آخر سبب تدخل بلغة واضحة (قياسات، لا عموميات). */
     val lastReason: String = "",
+    /** نتيجة آخر محاولة موثقة لفرض السقف. */
+    val enforcement: SafetyEnforcement = SafetyEnforcement.NOT_REQUIRED,
+    val enforcementDetail: String = "",
 )
 
 /** سجل قرار واحد — يُعرض في "آخر إجراء" وفي عدادات النشاط. */
@@ -43,6 +49,13 @@ data class DecisionRecord(
 )
 
 enum class DecisionResult { EXECUTED, VERIFIED, ADJUSTED, BLOCKED_FOR_SAFETY, SKIPPED, FAILED }
+
+/** حالة طلب ملف يدوي واحد لتمكين الواجهة من منع النقر المتكرر. */
+data class ProfileRequestState(
+    val profileId: String? = null,
+    val inFlight: Boolean = false,
+    val result: DecisionResult? = null,
+)
 
 /** تعديل يدوي طلب أثناء إدارة Max AI — يُطبق عند إيقافه (لا يضيع). */
 data class PendingManualChange(

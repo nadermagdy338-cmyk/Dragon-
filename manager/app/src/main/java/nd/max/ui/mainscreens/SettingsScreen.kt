@@ -67,6 +67,7 @@ import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.BuildConfig
 import nd.max.R
@@ -80,6 +81,8 @@ import nd.max.ui.viewmodel.*
 // latter here avoids silently colliding with it.
 import nd.max.ui.settings.SettingsViewModel as PreferenceSettingsViewModel
 
+
+internal const val LAUNCHER_VISIBILITY_PATH = "/data/adb/.config/MaxManager/launcher_visibility"
 
 fun isLauncherIconEnabled(context: Context): Boolean {
     val pkg = context.packageManager
@@ -349,17 +352,28 @@ fun SettingsScreen(
                                         title = stringResource(R.string.show_icon),
                                         checked = isLauncherVisible,
                                         onCheckedChange = { isChecked ->
-                                            isLauncherVisible = isChecked
-                                            val pkg = context.packageManager
-                                            val componentName = ComponentName(context.packageName, "${context.packageName}.Launcher")
-
-                                            val newState = if (isChecked) {
-                                                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                                            } else {
-                                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                                            coroutineScope.launch {
+                                                val pkg = context.packageManager
+                                                val componentName = ComponentName(context.packageName, "${context.packageName}.Launcher")
+                                                val newState = if (isChecked) {
+                                                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                                                } else {
+                                                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                                                }
+                                                val applied = runCatching {
+                                                    pkg.setComponentEnabledSetting(componentName, newState, PackageManager.DONT_KILL_APP)
+                                                    isLauncherIconEnabled(context) == isChecked
+                                                }.getOrDefault(false)
+                                                if (applied) {
+                                                    isLauncherVisible = isChecked
+                                                    withContext(Dispatchers.IO) {
+                                                        RootFileAccess.atomicWriteText(
+                                                            LAUNCHER_VISIBILITY_PATH,
+                                                            if (isChecked) "shown\n" else "hidden\n"
+                                                        )
+                                                    }
+                                                }
                                             }
-
-                                            pkg.setComponentEnabledSetting(componentName, newState, PackageManager.DONT_KILL_APP)
                                         }
                                     )
                                 },

@@ -258,7 +258,7 @@ void print_bypass_path_list();
 void print_help();
 void clearlogs();
 void printversion();
-void openAppMainActivity();
+int openAppMainActivity(void);
 int require_daemon_running(void);
 int handle_profile(int argc, char** argv);
 int handle_log(int argc, char** argv);

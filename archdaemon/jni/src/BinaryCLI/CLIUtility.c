@@ -180,8 +180,8 @@ void printversion(void) {
 /**
  * @brief Directly launches the primary Android MainActivity of the MaxManager application interface.
  */
-void openAppMainActivity(void) {
-    systemv("/system/bin/am start -a android.intent.action.MAIN nd.max/.MainActivity");
+int openAppMainActivity(void) {
+    return systemv("/system/bin/am start --user 0 -a android.intent.action.MAIN -n nd.max/.MainActivity");
 }
 
 /**

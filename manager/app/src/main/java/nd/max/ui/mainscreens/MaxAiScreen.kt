@@ -63,6 +63,7 @@ import nd.max.core.maxai.DecisionResult
 import nd.max.core.maxai.MaxAiController
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.PendingManualStore
+import nd.max.core.maxai.SafetyEnforcement
 import nd.max.core.maxai.SafetyLevel
 import nd.max.core.maxai.SafetyStatus
 import nd.max.core.hardware.ProfileApplier
@@ -92,6 +93,7 @@ fun MaxAiScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val safety by viewModel.safety.collectAsStateWithLifecycle()
+    val profileRequest by viewModel.profileRequest.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val colors = MaterialTheme.colorScheme
 
@@ -122,7 +124,7 @@ fun MaxAiScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item { MasterSwitchCard(state, viewModel) }
-                item { ProfileModeCard(state, viewModel) }
+                item { ProfileModeCard(state, profileRequest, viewModel) }
                 item { EngineStatusCard(state) }
                 item { SafetyCard(safety) }
                 item { ActivityCountersCard(state) }
@@ -174,7 +176,11 @@ private fun MasterSwitchCard(state: MaxAiState, viewModel: MaxAiViewModel) {
 // ── الملفات: حرة عند الإيقاف، مقفلة عند التفعيل ─────────────────────
 
 @Composable
-private fun ProfileModeCard(state: MaxAiState, viewModel: MaxAiViewModel) {
+private fun ProfileModeCard(
+    state: MaxAiState,
+    profileRequest: nd.max.core.maxai.ProfileRequestState,
+    viewModel: MaxAiViewModel,
+) {
     val colors = MaterialTheme.colorScheme
     val profiles = listOf(
         Triple(ProfileApplier.PROFILE_PERFORMANCE, stringResource(R.string.profile_performance), Icons.Rounded.Bolt),
@@ -253,6 +259,7 @@ private fun ProfileModeCard(state: MaxAiState, viewModel: MaxAiViewModel) {
                         val selected = state.currentProfile == id
                         androidx.compose.material3.OutlinedButton(
                             onClick = { viewModel.requestProfile(id, label) },
+                            enabled = !profileRequest.inFlight,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
                             colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
@@ -366,6 +373,20 @@ private fun SafetyCard(safety: SafetyStatus) {
                     safety.lastReason,
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.onSurfaceVariant
+                )
+            }
+            if (safety.engaged) {
+                val enforcement = when (safety.enforcement) {
+                    SafetyEnforcement.APPLIED -> "مطبق ومتحقق"
+                    SafetyEnforcement.PARTIAL -> "مطبق جزئيًا"
+                    SafetyEnforcement.FAILED -> "فشل التحقق — ستُعاد المحاولة تلقائيًا"
+                    SafetyEnforcement.UNAVAILABLE -> "غير متاح على هذا الجهاز"
+                    SafetyEnforcement.NOT_REQUIRED -> "غير مطلوب"
+                }
+                Text(
+                    "$enforcement${safety.enforcementDetail.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (safety.enforcement == SafetyEnforcement.APPLIED) colors.secondary else danger
                 )
             }
             // شريط الموقع الحراري من 30 إلى 60 درجة — قياس فعل واحد

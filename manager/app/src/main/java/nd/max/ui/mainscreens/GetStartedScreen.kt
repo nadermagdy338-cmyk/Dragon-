@@ -68,9 +68,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.topjohnwu.superuser.Shell
 import kotlin.system.exitProcess
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nd.max.R
+import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.component.ExpressiveList
 import nd.max.ui.component.ExpressiveSwitchItem
 import nd.max.ui.component.ScreenAccentGlyph
@@ -613,11 +616,24 @@ fun GetStartedScreen(navController: NavController) {
                                                 checked = isLauncherVisible,
                                                 onCheckedChange = { isChecked ->
                                                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                                    isLauncherVisible = isChecked
-                                                    val pkg = context.packageManager
-                                                    val componentName = ComponentName(context.packageName, "${context.packageName}.Launcher")
-                                                    val newState = if (isChecked) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                                                    pkg.setComponentEnabledSetting(componentName, newState, PackageManager.DONT_KILL_APP)
+                                                    coroutineScope.launch {
+                                                        val pkg = context.packageManager
+                                                        val componentName = ComponentName(context.packageName, "${context.packageName}.Launcher")
+                                                        val newState = if (isChecked) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                                                        val applied = runCatching {
+                                                            pkg.setComponentEnabledSetting(componentName, newState, PackageManager.DONT_KILL_APP)
+                                                            isLauncherIconEnabled(context) == isChecked
+                                                        }.getOrDefault(false)
+                                                        if (applied) {
+                                                            isLauncherVisible = isChecked
+                                                            withContext(Dispatchers.IO) {
+                                                                RootFileAccess.atomicWriteText(
+                                                                    LAUNCHER_VISIBILITY_PATH,
+                                                                    if (isChecked) "shown\n" else "hidden\n"
+                                                                )
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             )
                                         },

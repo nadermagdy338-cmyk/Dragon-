@@ -333,8 +333,14 @@ echo "- Extracting privileged permissions whitelist..."
 extract "$ZIPFILE" "system/product/etc/permissions/privapp-permissions-nd.max.xml" "$MODPATH"
 [ -f "$MODPATH/system/product/etc/permissions/privapp-permissions-nd.max.xml" ] || abort_corrupted
 
-# Remove old user-data install from previous versions, if any
-pm uninstall --user 0 nd.max >/dev/null 2>&1 || true
+# Remove only a legacy /data/app install. Never mark an already-mounted
+# system package as uninstalled for user 0 during an update.
+case "$(pm path nd.max 2>/dev/null)" in
+    *package:/data/app/*)
+        echo "- Removing legacy user-data app before priv-app migration"
+        pm uninstall --user 0 nd.max >/dev/null 2>&1 || true
+        ;;
+esac
 
 # Remove old module files if available
 echo "- Cleaning old files..."

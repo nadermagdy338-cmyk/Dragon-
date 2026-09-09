@@ -34,8 +34,7 @@ int main(int argc, char* argv[]) {
     char* cmd = argv[1];
 
     if (IS_CMD(cmd, "--appactivity", "-actv")) {
-        openAppMainActivity();
-        return 0;
+        return openAppMainActivity();
     }
     if (IS_CMD(cmd, "--run", "-r")) {
         main_daemon();

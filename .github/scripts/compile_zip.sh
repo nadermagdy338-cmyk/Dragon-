@@ -76,18 +76,20 @@ PRIVAPP_DIR="mainfiles/system/product/priv-app/MaxManager"
 PERMS_DIR="mainfiles/system/product/etc/permissions"
 mkdir -p "$PRIVAPP_DIR" "$PERMS_DIR"
 
-APK_PATH=$(find manager/app/build/outputs/apk/release -name "*.apk" | head -n 1)
-APK_PATH_DEBUG=$(find manager/app/build/outputs/apk/debug -name "*.apk" | head -n 1)
-if [ -n "$APK_PATH" ]; then
-    cp "$APK_PATH" "$PRIVAPP_DIR/MaxManager.apk"
-    echo "APK found at $APK_PATH and installed at $PRIVAPP_DIR successfully."
-elif [ -n "$APK_PATH_DEBUG" ]; then
-    cp "$APK_PATH_DEBUG" "$PRIVAPP_DIR/MaxManager.apk"
-    echo "APK found at $APK_PATH_DEBUG and installed at $PRIVAPP_DIR successfully."
-else
-    echo "ERROR: No APK found!"
+case "$version_type" in
+    experimental)
+        APK_PATH="manager/app/build/outputs/apk/debug/app-debug.apk"
+        ;;
+    *)
+        APK_PATH="manager/app/build/outputs/apk/release/app-release.apk"
+        ;;
+esac
+if [ ! -f "$APK_PATH" ]; then
+    echo "ERROR: Expected $version_type APK is missing: $APK_PATH" >&2
     exit 1
 fi
+cp "$APK_PATH" "$PRIVAPP_DIR/MaxManager.apk"
+echo "Copied verified build output $APK_PATH to $PRIVAPP_DIR."
 
 # Single-source privileged permissions (shared with the developer bundle)
 cp android/overlay/product/etc/permissions/privapp-permissions-nd.max.xml "$PERMS_DIR/"

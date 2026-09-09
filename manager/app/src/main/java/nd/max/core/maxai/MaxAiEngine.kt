@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import nd.max.MaxManagerProps
 import nd.max.core.diagnostics.DiagnosticCenter
@@ -31,6 +33,7 @@ import nd.max.core.recommendation.RecommendationTextClassifier
 import nd.max.ui.util.EventLog
 import nd.max.ui.util.PropertyUtils
 import java.io.File
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -107,6 +110,12 @@ class MaxAiEngine @Inject constructor(
 
     val safety: StateFlow<SafetyStatus> = safetyEngine.status
 
+    private val _profileRequest = MutableStateFlow(ProfileRequestState())
+    val profileRequest: StateFlow<ProfileRequestState> = _profileRequest.asStateFlow()
+
+    private val cycleMutex = Mutex()
+    private val requestedGeneration = AtomicLong(0L)
+
     /** آخر ملف طبّقه المحرك — يمنع إعادة تطبيق نفس الملف كل دورة. */
     @Volatile private var lastAppliedProfile: String? = null
 
@@ -137,7 +146,7 @@ class MaxAiEngine @Inject constructor(
             // تحميل التعديلات المعلقة المحفوظة من جلسة سابقة.
             cachedPending = runCatching { pendingStore.all() }.getOrDefault(emptyList())
             while (isActive) {
-                runCatching { cycle() }
+                runCatching { runCycleSingleFlight() }
                     .onFailure {
                         Log.w(TAG, "engine cycle failed", it)
                         DiagnosticCenter.record(
@@ -151,6 +160,17 @@ class MaxAiEngine @Inject constructor(
     }
 
     // ── الدورة الواحدة ───────────────────────────────────────────────
+
+    private suspend fun runCycleSingleFlight() {
+        val requested = requestedGeneration.incrementAndGet()
+        cycleMutex.withLock {
+            var handled = requested - 1L
+            while (handled < requestedGeneration.get()) {
+                handled = requestedGeneration.get()
+                cycle()
+            }
+        }
+    }
 
     private suspend fun cycle() = withContext(Dispatchers.IO) {
         val aiEnabled = readAiEnabled()
@@ -499,8 +519,8 @@ class MaxAiEngine @Inject constructor(
      * دورة فورية عند الطلب (دخول الشاشة مثلًا) كي تعكس الحالة القياسات
      * الحالية بلا انتظار دورة الثلاثين ثانية القادمة.
      */
-    fun requestRefresh() {
-        scope.launch(Dispatchers.IO) { runCatching { cycle() } }
+    suspend fun requestRefresh() = withContext(Dispatchers.IO) {
+        runCatching { runCycleSingleFlight() }
     }
 
     /**
@@ -524,38 +544,46 @@ class MaxAiEngine @Inject constructor(
             } else {
                 lastAppliedProfile = null
             }
-            // دورة فورية كي تعكس الحالة الجديدة بلا انتظار الثلاثين ثانية.
-            runCatching { cycle() }
+            runCatching { runCycleSingleFlight() }
         }
     }
 
-    /**
-     * طلب ملف يدوي من أي مدخل (شاشة MAX AI، الزر الرئيسي، البلاطة):
-     * - AI مطفأ → تنفيذ فوري عبر مسار الوحدة.
-     * - AI مفعل → يُحفظ معلقًا ولا يُفقد؛ يُطبق لحظة الإيقاف.
-     * @return true إذا نُفِّذ فورًا، false إذا حُفظ معلقًا.
-     */
-    fun requestManualProfile(profileId: String, label: String): Boolean {
-        val aiOn = readAiEnabled()
-        if (aiOn) {
-            scope.launch(Dispatchers.IO) {
-                pendingStore.add(
-                    PendingManualChange(
-                        PendingManualStore.KEY_PROFILE, profileId, label,
-                        System.currentTimeMillis()
+    /** ينفذ الطلب على IO ويعيد true فقط عند تطبيق الملف الآن بنجاح. */
+    suspend fun requestManualProfile(profileId: String, label: String): Boolean =
+        withContext(Dispatchers.IO) {
+            if (_profileRequest.value.inFlight) return@withContext false
+            _profileRequest.value = ProfileRequestState(profileId = profileId, inFlight = true)
+            try {
+                if (readAiEnabled()) {
+                    pendingStore.add(
+                        PendingManualChange(
+                            PendingManualStore.KEY_PROFILE, profileId, label,
+                            System.currentTimeMillis()
+                        )
                     )
-                )
-                cachedPending = runCatching { pendingStore.all() }.getOrDefault(cachedPending)
-                EventLog.userAction("MaxAiEngine", "manual_profile", "executed", "pending:$profileId")
-                publish(aiEnabled = true, controller = MaxAiController.MAX_AI)
+                    cachedPending = runCatching { pendingStore.all() }.getOrDefault(cachedPending)
+                    EventLog.userAction("MaxAiEngine", "manual_profile", "executed", "pending:$profileId")
+                    publish(aiEnabled = true, controller = MaxAiController.MAX_AI)
+                    _profileRequest.value = ProfileRequestState(profileId, false, DecisionResult.SKIPPED)
+                    false
+                } else {
+                    val ok = ProfileApplier.apply(profileId)
+                    EventLog.userAction(
+                        "MaxAiEngine", "manual_profile", "pending",
+                        "$profileId:${if (ok) "ok" else "failed"}"
+                    )
+                    _profileRequest.value = ProfileRequestState(
+                        profileId, false,
+                        if (ok) DecisionResult.VERIFIED else DecisionResult.FAILED
+                    )
+                    runCatching { runCycleSingleFlight() }
+                    ok
+                }
+            } catch (t: Throwable) {
+                _profileRequest.value = ProfileRequestState(profileId, false, DecisionResult.FAILED)
+                throw t
             }
-            return false
         }
-        val ok = ProfileApplier.apply(profileId)
-        EventLog.userAction("MaxAiEngine", "manual_profile", "pending", "$profileId:${if (ok) "ok" else "failed"}")
-        scope.launch(Dispatchers.IO) { runCatching { cycle() } }
-        return ok
-    }
 
     private suspend fun applyPendingManualChangesIfAny() {
         val pending = pendingStore.pendingProfile() ?: return

@@ -2,6 +2,7 @@ package nd.max.core.maxai
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.SystemClock
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,7 +53,20 @@ class SafetyEngine @Inject constructor(
         const val CRITICAL_CAP_FRACTION = 0.35f
 
         private const val PREF_INTERVENTIONS = "interventions"
+        private val RETRY_DELAYS_MS = longArrayOf(120_000L, 600_000L, 1_800_000L)
     }
+
+    private data class RetryState(
+        val level: SafetyLevel,
+        val capFraction: Float,
+        val attempt: Int,
+        val dueAtMs: Long,
+    )
+
+    private var retry: RetryState? = null
+
+    /** قابلة للاستبدال في اختبارات JVM دون انتظار فعلي. */
+    internal var monotonicNowMs: () -> Long = { SystemClock.elapsedRealtime() }
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences("maxai_safety", Context.MODE_PRIVATE)
@@ -76,60 +90,60 @@ class SafetyEngine @Inject constructor(
     fun evaluate(thermalC: Float, predictedThermalC: Float?): SafetyStatus {
         val predicted = predictedThermalC ?: thermalC
         val current = _status.value
-
-        // بلا قياس صالح (0 = تعذر قراءة المناطق): لا نتصرف على عمى.
         if (thermalC <= 0f) return current
 
-        val next = when {
+        val desired = when {
             thermalC >= CRITICAL_TEMP_C || predicted >= CRITICAL_TEMP_C + 2f ->
-                engage(
-                    thermalC, predicted,
-                    capFraction = CRITICAL_CAP_FRACTION,
-                    reason = "حرارة ${thermalC.toInt()}°م " +
-                        (if (predicted >= CRITICAL_TEMP_C + 2f) "(والتنبؤ ${predicted.toInt()}°م) " else "") +
-                        "تجاوزت الحد الحرج ${CRITICAL_TEMP_C.toInt()}°م — سقف أمان صارم + ملف توفير"
-                )
+                SafetyLevel.CRITICAL
             thermalC >= ENGAGE_TEMP_C || predicted >= PREDICTED_ENGAGE_C ->
-                engage(
-                    thermalC, predicted,
-                    capFraction = ENGAGE_CAP_FRACTION,
-                    reason = "حرارة ${thermalC.toInt()}°م " +
-                        (if (predicted >= PREDICTED_ENGAGE_C) "(والتنبؤ ${predicted.toInt()}°م) " else "") +
-                        "تجاوزت عتبة الأمان ${ENGAGE_TEMP_C.toInt()}°م — سقف أداء آمن"
-                )
-            current.engaged && thermalC >= RELEASE_TEMP_C ->
-                current // بين التراجع والبداية: نبقى متدخلين (هستيريسيس)
-            current.engaged && thermalC < RELEASE_TEMP_C ->
-                release(thermalC, "انخفضت الحرارة إلى ${thermalC.toInt()}°م تحت عتبة التراجع ${RELEASE_TEMP_C.toInt()}°م")
-            else ->
-                SafetyStatus(
-                    level = SafetyLevel.NORMAL,
-                    thermalC = thermalC,
-                    engaged = false,
-                    interventions = current.interventions,
-                    lastReason = current.lastReason,
-                )
+                SafetyLevel.ENGAGED
+            current.engaged && thermalC >= RELEASE_TEMP_C -> current.level
+            else -> SafetyLevel.NORMAL
         }
 
-        if (next !== current) _status.value = next
+        val now = monotonicNowMs()
+        val scheduledRetry = retry?.takeIf {
+            it.level == desired && now >= it.dueAtMs
+        }
+        val next = when {
+            desired == SafetyLevel.NORMAL && current.engaged -> {
+                retry = null
+                release(
+                    thermalC,
+                    "انخفضت الحرارة إلى ${thermalC.toInt()}°م تحت عتبة التراجع ${RELEASE_TEMP_C.toInt()}°م"
+                )
+            }
+            desired == SafetyLevel.NORMAL -> current.copy(thermalC = thermalC)
+            !current.engaged || desired != current.level -> {
+                retry = null
+                engage(thermalC, predicted, desired, isRetry = false)
+            }
+            scheduledRetry != null -> engage(thermalC, predicted, desired, isRetry = true)
+            else -> current.copy(thermalC = thermalC)
+        }
+
+        if (next != current) _status.value = next
         return next
     }
 
     private fun engage(
         thermalC: Float,
         predictedC: Float,
-        capFraction: Float,
-        reason: String,
+        level: SafetyLevel,
+        isRetry: Boolean,
     ): SafetyStatus {
+        val capFraction = if (level == SafetyLevel.CRITICAL) {
+            CRITICAL_CAP_FRACTION
+        } else {
+            ENGAGE_CAP_FRACTION
+        }
         val outcome = ceilingKnobs.cap(
             capFraction,
             ControlOwnership.Owner.SAFETY,
             TOKEN,
         )
-        val critical = thermalC >= CRITICAL_TEMP_C
-        if (critical) {
-            // المستوى الآمن عند الحرج: ملف توفير الطاقة عبر مسار AI
-            // المصرَّح به (يحترم بوابة الوحدة ولا يدهس ملكية أعلى).
+        val critical = level == SafetyLevel.CRITICAL
+        if (critical && !isRetry) {
             runCatching { nd.max.core.hardware.ProfileApplier.applyFromAi("3") }
                 .onFailure {
                     DiagnosticCenter.record(
@@ -139,21 +153,55 @@ class SafetyEngine @Inject constructor(
                 }
         }
 
-        val count = prefs.getLong(PREF_INTERVENTIONS, 0L) + 1L
-        prefs.edit().putLong(PREF_INTERVENTIONS, count).apply()
+        val enforcement = when {
+            outcome.applied > 0 && outcome.failed == 0 && outcome.blocked == 0 -> SafetyEnforcement.APPLIED
+            outcome.applied > 0 -> SafetyEnforcement.PARTIAL
+            outcome.failed > 0 || outcome.blocked > 0 -> SafetyEnforcement.FAILED
+            else -> SafetyEnforcement.UNAVAILABLE
+        }
+        if (enforcement == SafetyEnforcement.APPLIED) {
+            retry = null
+        } else {
+            val previousAttempt = retry?.takeIf {
+                it.level == level && it.capFraction == capFraction
+            }?.attempt ?: 0
+            val nextAttempt = (previousAttempt + 1).coerceAtMost(RETRY_DELAYS_MS.size)
+            retry = RetryState(
+                level = level,
+                capFraction = capFraction,
+                attempt = nextAttempt,
+                dueAtMs = monotonicNowMs() + RETRY_DELAYS_MS[nextAttempt - 1],
+            )
+        }
 
-        val level = if (critical) SafetyLevel.CRITICAL else SafetyLevel.ENGAGED
+        val count = if (isRetry) {
+            _status.value.interventions
+        } else {
+            prefs.getLong(PREF_INTERVENTIONS, 0L) + 1L
+        }
+        if (!isRetry) prefs.edit().putLong(PREF_INTERVENTIONS, count).apply()
+
+        val reason = when (level) {
+            SafetyLevel.CRITICAL -> "حرارة ${thermalC.toInt()}°م " +
+                (if (predictedC >= CRITICAL_TEMP_C + 2f) "(والتنبؤ ${predictedC.toInt()}°م) " else "") +
+                "تجاوزت الحد الحرج ${CRITICAL_TEMP_C.toInt()}°م — سقف أمان صارم + ملف توفير"
+            else -> "حرارة ${thermalC.toInt()}°م " +
+                (if (predictedC >= PREDICTED_ENGAGE_C) "(والتنبؤ ${predictedC.toInt()}°م) " else "") +
+                "تجاوزت عتبة الأمان ${ENGAGE_TEMP_C.toInt()}°م — سقف أداء آمن"
+        }
         DiagnosticCenter.record(
             "safety",
-            "SAFETY_ENGAGED level=$level temp=${thermalC.toInt()}C predicted=${predictedC.toInt()}C " +
+            "SAFETY_${if (isRetry) "RETRY" else "ENGAGED"} level=$level " +
                 "applied=${outcome.applied} blocked=${outcome.blocked} failed=${outcome.failed} :: ${outcome.detail}"
         )
-        EventLog.userAction(
-            screen = "SafetyEngine",
-            field = "thermal_guard",
-            old = "normal",
-            new = "$level@${thermalC.toInt()}C",
-        )
+        if (!isRetry) {
+            EventLog.userAction(
+                screen = "SafetyEngine",
+                field = "thermal_guard",
+                old = if (_status.value.engaged) _status.value.level.name else "normal",
+                new = "$level@${thermalC.toInt()}C",
+            )
+        }
 
         return SafetyStatus(
             level = level,
@@ -161,10 +209,13 @@ class SafetyEngine @Inject constructor(
             engaged = true,
             interventions = count,
             lastReason = reason,
+            enforcement = enforcement,
+            enforcementDetail = "applied=${outcome.applied}, blocked=${outcome.blocked}, failed=${outcome.failed}",
         )
     }
 
     private fun release(thermalC: Float, reason: String): SafetyStatus {
+        retry = null
         ceilingKnobs.leaveAll(TOKEN)
         DiagnosticCenter.record(
             "safety",

@@ -36,7 +36,9 @@ package nd.max
  */
 object MaxManagerPaths {
     const val MODULE_CONFIG = "/data/adb/.config/MaxManager"
+    const val MODULE_DIR = "/data/adb/modules/MaxManager"
     const val APPLIST_JSON = "$MODULE_CONFIG/gamelist/maxmanagerApplist.json"
-    const val SERVICE_BIN = "/data/adb/modules/MaxManager/system/bin/sys.maxmanager-service"
+    const val SERVICE_BIN = "$MODULE_DIR/system/bin/sys.maxmanager-service"
+    const val MODULE_APK = "$MODULE_DIR/system/product/priv-app/MaxManager/MaxManager.apk"
     const val MAXMANAGER_LOG = "$MODULE_CONFIG/debug/MaxManager.log"
 }

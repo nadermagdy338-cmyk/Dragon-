@@ -259,12 +259,15 @@ fun MainScreen(fromTileType: String? = null) {
     
     val pendingReboot by RebootManager.pendingReboot.collectAsState()
 
-    val refreshStatus = {
-        rootStatus = RootUtils.requestRootAccess()
-        moduleInstalled = RootUtils.isModuleInstalled()
+    val refreshStatus: suspend () -> Unit = {
+        val status = withContext(Dispatchers.IO) {
+            RootUtils.requestRootAccess() to RootUtils.isModuleInstalled()
+        }
+        rootStatus = status.first
+        moduleInstalled = status.second
         isBlurEnabled = settingsPrefs.getBoolean("expressive_blur_ui", false)
         useScrollAnimation = settingsPrefs.getBoolean("use_scroll_animation", false)
-        coroutineScope.launch { RebootManager.refreshModuleFlag() }
+        RebootManager.refreshModuleFlag()
     }
     
     LaunchedEffect(rawRoute, pagerState.currentPage) {
@@ -278,7 +281,7 @@ fun MainScreen(fromTileType: String? = null) {
                 installingDialog.withInstalling {
                     val result = kotlinx.coroutines.withContext(Dispatchers.IO) {
                         Shell.cmd(
-                            "cp /data/adb/modules/MaxManager/MaxManager.apk /data/local/tmp/MaxManager_tmp.apk",
+                            "cp ${MaxManagerPaths.MODULE_APK} /data/local/tmp/MaxManager_tmp.apk",
                             "sleep 5 && pm install -r /data/local/tmp/MaxManager_tmp.apk",
                             "rm -f /data/local/tmp/MaxManager_tmp.apk"
                         ).exec()
@@ -302,7 +305,13 @@ fun MainScreen(fromTileType: String? = null) {
     
     LaunchedEffect(rootStatus) {
         if (rootStatus) {
-            val moduleVC = RootUtils.getModuleVersionCode()
+            val (moduleVC, apkAvailable, rebootPending) = withContext(Dispatchers.IO) {
+                Triple(
+                    RootUtils.getModuleVersionCode(),
+                    RootUtils.isUpdateApkAvailable(),
+                    RootUtils.isModuleUpdatePendingReboot(),
+                )
+            }
             val appVC = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                 context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode.toInt()
             } else {
@@ -310,7 +319,7 @@ fun MainScreen(fromTileType: String? = null) {
                 context.packageManager.getPackageInfo(context.packageName, 0).versionCode
             }
 
-            if (appVC < moduleVC && RootUtils.isUpdateApkAvailable()) {
+            if (appVC < moduleVC && apkAvailable) {
                 updateDialog.showConfirm(
                     title = context.getString(R.string.dialog_update_available_title),
                     content = context.getString(R.string.dialog_update_available_content, appVC, moduleVC),
@@ -319,7 +328,7 @@ fun MainScreen(fromTileType: String? = null) {
                 )
             }
 
-            if (RootUtils.isModuleUpdatePendingReboot()) {
+            if (rebootPending) {
                 rebootDialog.showConfirm(
                     title = context.getString(R.string.dialog_module_update_title),
                     content = context.getString(R.string.dialog_module_update_content),

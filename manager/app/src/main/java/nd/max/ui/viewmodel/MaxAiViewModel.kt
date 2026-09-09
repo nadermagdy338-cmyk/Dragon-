@@ -3,9 +3,11 @@ package nd.max.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nd.max.core.maxai.MaxAiEngine
 import nd.max.core.maxai.MaxAiState
+import nd.max.core.maxai.ProfileRequestState
 import nd.max.core.maxai.SafetyStatus
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -25,6 +27,7 @@ class MaxAiViewModel @Inject constructor(
 
     val state: StateFlow<MaxAiState> = engine.state
     val safety: StateFlow<SafetyStatus> = engine.safety
+    val profileRequest: StateFlow<ProfileRequestState> = engine.profileRequest
 
     /** المفتاح الرئيسي: تفعيل/إيقاف Max AI (قرار المستخدم وحده). */
     fun setAiEnabled(enabled: Boolean) {
@@ -35,11 +38,14 @@ class MaxAiViewModel @Inject constructor(
      * طلب ملف يدوي. AI مطفأ → تنفيذ فوري. AI مفعل → يُحفظ معلقًا
      * ويُطبق لحظة الإيقاف (يعيد true إذا نُفِّذ فورًا).
      */
-    fun requestProfile(profileId: String, label: String): Boolean =
-        engine.requestManualProfile(profileId, label)
+    fun requestProfile(profileId: String, label: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            engine.requestManualProfile(profileId, label)
+        }
+    }
 
     /** إجبار دورة محرك فورية لتحديث الحالة المعروضة بلا انتظار. */
     fun refresh() {
-        viewModelScope.launch { engine.requestRefresh() }
+        viewModelScope.launch(Dispatchers.IO) { engine.requestRefresh() }
     }
 }

@@ -43,46 +43,97 @@ echo "BOOTCOUNT=0" > "$MODDIR/count.sh"
 # Clear Old Logs
 "$BIN_SVC" --clearlogs
 
-# Grant runtime appop permissions to the priv-app. The privileged
-# allowlist (WRITE_SECURE_SETTINGS) is granted by the framework at boot
-# from the overlaid privapp-permissions XML; these appops cannot be
-# part of that file, so they are set here — after the package is
-# scanned — and survive reboots because the module re-runs each boot.
-GRANT_PKGS="nd.max"
-for pkg in $GRANT_PKGS; do
-    pm grant "$pkg" android.permission.POST_NOTIFICATIONS >/dev/null 2>&1
-    pm grant "$pkg" android.permission.READ_EXTERNAL_STORAGE >/dev/null 2>&1
-    pm grant "$pkg" android.permission.READ_MEDIA_IMAGES >/dev/null 2>&1
-    appops set "$pkg" SYSTEM_ALERT_WINDOW allow >/dev/null 2>&1
-    appops set "$pkg" WRITE_SETTINGS allow >/dev/null 2>&1
+readonly LAUNCHER_STATE="$MODULE_CONFIG/launcher_visibility"
+readonly LEGACY_LAUNCHER_MARKER="$MODULE_CONFIG/.launcher_enabled"
+readonly RECOVERY_LOG="$MODULE_CONFIG/package-recovery.log"
+
+log_recovery() {
+    printf '%s %s\n' "$(date '+%Y-%m-%dT%H:%M:%S%z')" "$*" >> "$RECOVERY_LOG"
+}
+
+package_installed() {
+    pm path nd.max >/dev/null 2>&1
+}
+
+package_known() {
+    pm list packages -u 2>/dev/null | grep -qx 'package:nd.max'
+}
+
+# PackageManager may finish scanning product apps after boot_completed. Keep
+# mount state separate from package state so a mounted but rejected APK does
+# not suppress recovery.
+PACKAGE_READY=0
+attempt=0
+while [ "$attempt" -lt 30 ]; do
+    if package_installed; then
+        PACKAGE_READY=1
+        break
+    fi
+    attempt=$((attempt + 1))
+    sleep 2
 done
 
-# Reveal the launcher alias exactly once per install lifecycle. The
-# alias is disabled by default in the manifest and the app manages it
-# itself (SettingsScreen/GetStartedScreen "hide icon" toggles), so an
-# unconditional per-boot enable would override the user's choice. The
-# marker lives in $MODULE_CONFIG, which persists across module updates
-# and is wiped on uninstall — in lockstep with the persisted component
-# state.
-if [ ! -f "$MODULE_CONFIG/.launcher_enabled" ]; then
-    pm enable --user 0 nd.max/.Launcher >/dev/null 2>&1 \
-        && touch "$MODULE_CONFIG/.launcher_enabled"
+if [ "$PACKAGE_READY" -eq 0 ]; then
+    if [ -f /product/priv-app/MaxManager/MaxManager.apk ]; then
+        log_recovery "product APK mounted but package unavailable after scan wait"
+    else
+        log_recovery "product APK not mounted after scan wait"
+    fi
+
+    if package_known; then
+        log_recovery "package known; attempting install-existing for user 0"
+        cmd package install-existing --user 0 nd.max >> "$RECOVERY_LOG" 2>&1
+        package_installed && PACKAGE_READY=1
+    fi
 fi
 
-# Safety net for root managers that do not overlay the module system
-# tree onto /product (older KernelSU/APatch builds): install the APK as
-# a plain user app instead. Degraded mode — WRITE_SECURE_SETTINGS stays
-# ungranted since the privapp XML is not read for user apps — but the
-# app and all root-driven features keep working. Idempotent: skipped
-# when the overlay worked or the package already exists.
-if [ ! -f /product/priv-app/MaxManager/MaxManager.apk ] \
-   && ! pm path nd.max >/dev/null 2>&1; then
-    if [ -f "$APK_COMP" ]; then
-        cp "$APK_COMP" /data/local/tmp/MaxManager.apk
-        chmod 644 /data/local/tmp/MaxManager.apk
-        pm install -r -d --user 0 /data/local/tmp/MaxManager.apk >/dev/null 2>&1
-        rm -f /data/local/tmp/MaxManager.apk
-    fi
+if [ "$PACKAGE_READY" -eq 0 ] && [ -f "$APK_COMP" ]; then
+    log_recovery "installing degraded user-app fallback"
+    cp "$APK_COMP" /data/local/tmp/MaxManager.apk
+    chmod 644 /data/local/tmp/MaxManager.apk
+    pm install -r -d --user 0 /data/local/tmp/MaxManager.apk >> "$RECOVERY_LOG" 2>&1
+    rm -f /data/local/tmp/MaxManager.apk
+    package_installed && PACKAGE_READY=1
+fi
+
+if [ "$PACKAGE_READY" -eq 1 ]; then
+    log_recovery "package available path=$(pm path nd.max 2>/dev/null | tr '\n' ' ')"
+
+    # The privileged allowlist is framework-owned. These runtime permissions
+    # and appops are applied only after package recovery succeeds.
+    pm grant nd.max android.permission.POST_NOTIFICATIONS >/dev/null 2>&1
+    pm grant nd.max android.permission.READ_EXTERNAL_STORAGE >/dev/null 2>&1
+    pm grant nd.max android.permission.READ_MEDIA_IMAGES >/dev/null 2>&1
+    appops set nd.max SYSTEM_ALERT_WINDOW allow >/dev/null 2>&1
+    appops set nd.max WRITE_SETTINGS allow >/dev/null 2>&1
+
+    # Persist explicit user intent rather than trusting a marker that can drift
+    # away from PackageManager's component state. Missing state migrates to the
+    # visible default; hidden is always respected.
+    launcher_visibility=$(cat "$LAUNCHER_STATE" 2>/dev/null)
+    case "$launcher_visibility" in
+        hidden)
+            if pm disable --user 0 nd.max/.Launcher >/dev/null 2>&1; then
+                rm -f "$LEGACY_LAUNCHER_MARKER"
+            fi
+            ;;
+        shown)
+            if pm enable --user 0 nd.max/.Launcher >/dev/null 2>&1; then
+                rm -f "$LEGACY_LAUNCHER_MARKER"
+            fi
+            ;;
+        *)
+            if pm enable --user 0 nd.max/.Launcher >/dev/null 2>&1; then
+                printf '%s\n' shown > "$LAUNCHER_STATE"
+                chmod 600 "$LAUNCHER_STATE" 2>/dev/null
+                rm -f "$LEGACY_LAUNCHER_MARKER"
+            else
+                log_recovery "launcher migration failed"
+            fi
+            ;;
+    esac
+else
+    log_recovery "package recovery failed; app companion not started"
 fi
 
 # Remove reboot flag
@@ -97,12 +148,14 @@ STATE=$(getprop "$PROP_STATE")
     setprop "$PROP_SERVICE" ""
 }
 
-# Exec Java Companion Daemon
-nohup app_process -Djava.class.path="$APK_MOUNTED" / \
-    --nice-name=sys.maxmanager-appmonitoring nd.max.AppMonitor \
-    "$MODULE_CONFIG/app_status" \
-    "$MODULE_CONFIG/background_apps" \
-    "$MODULE_CONFIG/java.lock" >"$MODULE_CONFIG/sysmon.log" 2>&1 &
+# Exec Java Companion Daemon only when PackageManager can resolve the app.
+if [ "$PACKAGE_READY" -eq 1 ]; then
+    nohup app_process -Djava.class.path="$APK_MOUNTED" / \
+        --nice-name=sys.maxmanager-appmonitoring nd.max.AppMonitor \
+        "$MODULE_CONFIG/app_status" \
+        "$MODULE_CONFIG/background_apps" \
+        "$MODULE_CONFIG/java.lock" >"$MODULE_CONFIG/sysmon.log" 2>&1 &
+fi
 
 # Run MaxManager service
 sleep 1 && exec "$BIN_SVC" --run

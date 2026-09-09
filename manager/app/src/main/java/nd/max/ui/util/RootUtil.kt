@@ -16,6 +16,7 @@
 
 package nd.max.ui.util
 
+import nd.max.MaxManagerPaths
 import nd.max.MaxManagerProps
 
 
@@ -184,7 +185,7 @@ object RootUtils {
     }
 
     fun isUpdateApkAvailable(): Boolean {
-        return SuFile("/data/adb/modules/MaxManager/MaxManager.apk").exists()
+        return SuFile(MaxManagerPaths.MODULE_APK).exists()
     }
 
     fun isModuleUpdatePendingReboot(): Boolean {
