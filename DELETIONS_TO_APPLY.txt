@@ -1,0 +1,4 @@
+Files deleted from the cumulative project and intentionally not included in the overlay:
+CHANGED_FILES_UX.md
+mainfiles/xiaomi-extras.sh
+manager/app/src/main/java/nd/max/ui/util/VendorThermalUtil.kt
