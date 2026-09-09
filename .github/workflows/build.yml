@@ -275,7 +275,7 @@ jobs:
             || { echo "module zip: permissions XML missing"; exit 1; }
           unzip -l "$module_zip" | grep -q "system/product/etc/permissions/privapp-permissions-nd.max.xml.sha256" \
             || { echo "module zip: permissions XML checksum missing"; exit 1; }
-          unzip -l "$module_zip" | grep -q "system/bin/sys.maxmanager-service" \
+          unzip -l "$module_zip" | grep -Eq "libs/(arm64-v8a|armeabi-v7a)/sys\.maxmanager-service" \
             || { echo "module zip: service binary missing"; exit 1; }
           unzip -t MaxManager-developer-bundle.zip > /dev/null
           unzip -l MaxManager-developer-bundle.zip | grep -q "overlay/product/priv-app/MaxManager/MaxManager.apk" \
