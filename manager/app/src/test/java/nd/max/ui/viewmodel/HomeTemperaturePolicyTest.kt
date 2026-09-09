@@ -3,6 +3,7 @@ package nd.max.ui.viewmodel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import nd.max.ui.mainscreens.gpuRouteForChipset
 
 class HomeTemperaturePolicyTest {
 
@@ -23,5 +24,13 @@ class HomeTemperaturePolicyTest {
         assertNull(primaryBatteryTemperatureC(DashboardState(batteryTempC = 0f, cpuTempC = 60)))
         assertNull(primaryBatteryTemperatureC(DashboardState(batteryTempC = -1f, gpuTempC = 55)))
         assertNull(primaryBatteryTemperatureC(DashboardState(batteryTempC = Float.NaN)))
+    }
+
+    @Test
+    fun `gpu route follows known family and disables unknown hardware`() {
+        assertEquals("adrenogpufreq", gpuRouteForChipset("Qualcomm Snapdragon 8 Gen 3 Adreno"))
+        assertEquals("maligpufreq", gpuRouteForChipset("MediaTek Dimensity 9300 Mali"))
+        assertNull(gpuRouteForChipset("Samsung Exynos Xclipse"))
+        assertNull(gpuRouteForChipset("..."))
     }
 }

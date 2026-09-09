@@ -196,7 +196,8 @@ jobs:
 
       - name: Validate Manager APK
         env:
-          EXPECTED_RELEASE_SIGNER_SHA256: ${{ secrets.RELEASE_SIGNER_SHA256 }}
+          # Public certificate identity, not a credential. Keep validation self-contained.
+          EXPECTED_RELEASE_SIGNER_SHA256: 9dfd87e1f3e036517c274041c16a5b535157282a4c1e637cf5a01ee356215275
         run: |
           set -eu
           if [ "$V_TYPE" = "experimental" ]; then
@@ -219,7 +220,7 @@ jobs:
 
           if [ "$V_TYPE" != "experimental" ]; then
             test -n "$EXPECTED_RELEASE_SIGNER_SHA256" \
-              || { echo "RELEASE_SIGNER_SHA256 secret is required" >&2; exit 1; }
+              || { echo "Expected release signer fingerprint is not configured" >&2; exit 1; }
             actual_signer="$(apksigner verify --print-certs "$apk_path" \
               | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
             expected_signer="$(printf '%s' "$EXPECTED_RELEASE_SIGNER_SHA256" \

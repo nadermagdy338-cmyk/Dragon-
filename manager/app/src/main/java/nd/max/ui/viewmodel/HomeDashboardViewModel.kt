@@ -18,6 +18,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,7 +48,7 @@ data class DashboardState(
     val uploadSpeedKbps: Long = 0L,
     val displayWidth: Int = 0,
     val displayHeight: Int = 0,
-    val displayRefreshHz: Int = 60,
+    val displayRefreshHz: Int = 0,
     val displayDensityDpi: Int = 0,
     val cpuLoadHistory: List<Float> = emptyList()
 )
@@ -64,6 +65,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
 
     private var lastRxBytes = TrafficStats.getTotalRxBytes()
     private var lastTxBytes = TrafficStats.getTotalTxBytes()
+    private var pollingJob: Job? = null
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -75,11 +77,18 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 displayRefreshHz = dispInfo[2], displayDensityDpi = dispInfo[3]
             )
         }
-        startPolling()
     }
 
-    private fun startPolling() {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun setPollingActive(active: Boolean) {
+        if (!active) {
+            pollingJob?.cancel()
+            pollingJob = null
+            return
+        }
+        if (pollingJob?.isActive == true) return
+        lastRxBytes = TrafficStats.getTotalRxBytes()
+        lastTxBytes = TrafficStats.getTotalTxBytes()
+        pollingJob = viewModelScope.launch(Dispatchers.IO) {
             while (true) {
                 val ram = FpsMonitorUtil.getRamInfo(context)
                 val cpuLoad = FpsMonitorUtil.getCpuLoad()
@@ -111,6 +120,8 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 )
                 delay(2000)
             }
+        }.also { job ->
+            job.invokeOnCompletion { if (pollingJob === job) pollingJob = null }
         }
     }
 
@@ -183,6 +194,6 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
             val metrics = DisplayMetrics()
             display.getRealMetrics(metrics)
             intArrayOf(metrics.widthPixels, metrics.heightPixels, display.refreshRate.toInt(), metrics.densityDpi)
-        } catch (e: Exception) { intArrayOf(0, 0, 60, 0) }
+        } catch (e: Exception) { intArrayOf(0, 0, 0, 0) }
     }
 }

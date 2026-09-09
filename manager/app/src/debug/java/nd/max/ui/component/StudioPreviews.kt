@@ -16,6 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import nd.max.core.maxai.MaxAiState
+import nd.max.core.maxai.ProfileRequestState
+import nd.max.ui.mainscreens.HomeDashboardContent
+import nd.max.ui.viewmodel.DashboardState
+import nd.max.ui.viewmodel.HomeUiState
 import com.materialkolor.rememberDynamicColorScheme
 import nd.max.R
 import nd.max.ui.theme.MaxManagerBrandSeed
@@ -34,7 +39,7 @@ private fun StudioDarkPreview() = StudioPreviewContent(dark = true)
 @Composable
 private fun StudioArabicPreview() = StudioPreviewContent(dark = false)
 
-@Preview(name = "Aurora • large text", fontScale = 1.5f, widthDp = 360, heightDp = 1600, showBackground = true)
+@Preview(name = "Aurora • large text", fontScale = 2.0f, widthDp = 360, heightDp = 1600, showBackground = true)
 @Composable
 private fun StudioLargeTextPreview() = StudioPreviewContent(dark = true)
 
@@ -99,5 +104,41 @@ private fun StudioPreviewContent(dark: Boolean) {
                 }
             }
         }
+    }
+}
+
+
+@Preview(name = "Home • phone", widthDp = 393, heightDp = 1500, showBackground = true)
+@Composable
+private fun HomePhonePreview() = HomeCommandPreview()
+
+@Preview(name = "Home • wide", widthDp = 1100, heightDp = 1200, showBackground = true)
+@Composable
+private fun HomeWidePreview() = HomeCommandPreview()
+
+@Preview(name = "Home • RTL", locale = "ar", widthDp = 393, heightDp = 1600, showBackground = true)
+@Composable
+private fun HomeRtlPreview() = HomeCommandPreview()
+
+@Preview(name = "Home • large text", fontScale = 2f, widthDp = 393, heightDp = 2200, showBackground = true)
+@Composable
+private fun HomeLargeTextPreview() = HomeCommandPreview()
+
+@Preview(name = "Home • missing data", widthDp = 393, heightDp = 1500, showBackground = true)
+@Composable
+private fun HomeMissingPreview() = HomeCommandPreview(missing = true)
+
+@Composable
+private fun HomeCommandPreview(missing: Boolean = false) {
+    val colors = rememberDynamicColorScheme(seedColor = MaxManagerBrandSeed, isDark = true, primary = MaxManagerBrandSeed, secondary = androidx.compose.ui.graphics.Color(0xFF00B7C7), tertiary = androidx.compose.ui.graphics.Color(0xFF9B7BFF))
+    MaterialTheme(colorScheme = colors, typography = Typography, shapes = Shapes) {
+        HomeDashboardContent(
+            ui = HomeUiState(rootStatus = true, moduleInstalled = true, autoMode = "0"),
+            dashboard = if (missing) DashboardState(chipsetName = "Unknown SoC") else DashboardState(ramUsedMb = 4300, ramTotalMb = 8192, cpuLoadPercent = 48, cpuFreqMhz = 2400, chipsetName = "Snapdragon 8 Gen 3", batteryPercent = 74, batteryTempC = 37.4f, batteryStatus = "Discharging", storageUsedGb = 128f, storageTotalGb = 256f, downloadSpeedKbps = 850, uploadSpeedKbps = 120, displayWidth = 1440, displayHeight = 3200, displayRefreshHz = 120, cpuLoadHistory = listOf(18f, 34f, 29f, 52f, 48f)),
+            maxAi = MaxAiState(aiEnabled = true, strategyLabel = "Balanced"),
+            profileRequest = ProfileRequestState(),
+            deviceName = "MAX Preview Device",
+            onNavigate = {}, onProfile = {}, onReboot = {}, onAiRetry = {}
+        )
     }
 }

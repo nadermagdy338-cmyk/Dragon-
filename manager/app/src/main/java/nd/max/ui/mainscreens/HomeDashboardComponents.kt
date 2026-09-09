@@ -1,585 +1,357 @@
-/*
- * Copyright (C) 2026-2027 Zexshia
- * Licensed under the Apache License, Version 2.0
- */
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import nd.max.ui.component.LivePulseDot
-import nd.max.ui.component.maxSemanticColors
-import nd.max.ui.component.maxButtonSemantics
-import nd.max.ui.component.MiniSparkline
-import nd.max.ui.theme.MonoValueStyleLarge
-import nd.max.ui.theme.MonoValueStyleMedium
-import nd.max.ui.theme.MonoValueStyleSmall
-
-// =========================================================================
-// HELPERS
-// =========================================================================
+import nd.max.R
+import nd.max.core.maxai.DecisionResult
+import nd.max.core.maxai.MaxAiState
+import nd.max.core.maxai.ProfileRequestState
+import nd.max.ui.component.*
+import nd.max.ui.viewmodel.DashboardState
+import nd.max.ui.viewmodel.primaryBatteryTemperatureC
+import java.util.Locale
 
 fun formatNetSpeed(kbps: Long): String = when {
-    kbps >= 1024 -> String.format("%.1f MB/s", kbps / 1024f)
+    kbps >= 1024 -> String.format(Locale.US, "%.1f MB/s", kbps / 1024f)
     else -> "$kbps KB/s"
 }
 
+private fun Float.oneDecimal(): String = String.format(Locale.US, "%.1f", this)
+
+
 @Composable
 fun DashSectionLabel(text: String) {
-    Text(
-        text = text.uppercase(),
-        style = MaterialTheme.typography.labelSmall,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-        letterSpacing = 1.5.sp,
-        modifier = Modifier.padding(start = 4.dp, bottom = 8.dp, top = 20.dp)
-    )
+    Text(text.uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, letterSpacing = 1.5.sp, modifier = Modifier.padding(start = 4.dp, top = 20.dp, bottom = 8.dp))
 }
 
-/**
- * Icon badge with a soft outer glow instead of a flat tinted circle -- two
- * wider, fainter rings stacked under the crisp inner circle, the same
- * cheap-blur-substitute technique RadialGaugeCard uses for its value arc.
- * What actually reads as "glowing" on a phone screen is layered alpha, not a
- * real blur, and this keeps the whole dashboard visually related to the
- * gauge-based tuning screens elsewhere in the app instead of a flatter,
- * unrelated style living only here.
- */
 @Composable
 fun IconBadge(icon: ImageVector, tint: Color, size: Int = 40) {
-    // A single instrument-like surface. The previous three concentric circles
-    // made every control look like a floating target and became especially
-    // noisy on dense settings screens. One rounded chassis gives the icon a
-    // clear silhouette while keeping the accent visible.
-    val shape = RoundedCornerShape((size * 0.34f).dp)
-    Surface(
-        modifier = Modifier.size(size.dp),
-        shape = shape,
-        color = tint.copy(alpha = 0.12f),
-        border = BorderStroke(1.dp, tint.copy(alpha = 0.12f))
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = tint,
-                modifier = Modifier.size((size * 0.52f).dp)
-            )
-        }
+    Surface(modifier = Modifier.size(size.dp), shape = RoundedCornerShape((size * .34f).dp), color = tint.copy(alpha = .12f)) {
+        Box(contentAlignment = Alignment.Center) { Icon(icon, null, tint = tint, modifier = Modifier.size((size * .52f).dp)) }
     }
 }
 
-/**
- * A small tinted pill for a short status word or count -- e.g. a badge count
- * on a tab, or a "System" / "Frozen" tag on an app row. Same tint-on-tint
- * treatment as [IconBadge] so the two read as part of the same family when
- * they appear together.
- */
 @Composable
 fun LabelText(text: String, color: Color) {
-    Surface(
-        shape = RoundedCornerShape(6.dp),
-        color = color.copy(alpha = 0.14f)
+    Surface(shape = RoundedCornerShape(6.dp), color = color.copy(alpha = .14f)) {
+        Text(text, color = color, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
+    }
+}
+
+@Composable
+fun DashCardWrapper(modifier: Modifier = Modifier, accent: Color? = null, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
+    MaxSurface(modifier = modifier, accent = accent, onClick = onClick, content = content)
+}
+
+@Composable
+fun GlowLinearBar(fraction: Float, accent: Color, modifier: Modifier = Modifier, height: androidx.compose.ui.unit.Dp = 7.dp) {
+    val progress by animateFloatAsState(fraction.coerceIn(0f, 1f), label = "dashboardProgress")
+    LinearProgressIndicator(
+        progress = { progress },
+        modifier = modifier.fillMaxWidth().height(height).clip(RoundedCornerShape(50)).semantics { progressBarRangeInfo = ProgressBarRangeInfo(progress, 0f..1f) },
+        color = accent,
+        trackColor = accent.copy(alpha = .1f)
+    )
+}
+
+@Composable
+fun CommandHero(
+    deviceName: String,
+    chipset: String?,
+    online: Boolean,
+    profile: String,
+    temperatureC: Float?,
+    onProfile: () -> Unit,
+    onThermal: () -> Unit,
+    onSettings: () -> Unit,
+    onReboot: () -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    MaxSurfaceBox(
+        modifier = Modifier.fillMaxWidth(),
+        accent = colors.primary,
+        containerColor = colors.surfaceContainerLow.copy(alpha = .92f),
+        shape = RoundedCornerShape(30.dp)
     ) {
-        Text(
-            text = text,
-            color = color,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-        )
-    }
-}
-
-/**
- * A metric card's shell: a faint diagonal wash of [accent] into
- * surfaceContainerLow (same gradient technique CpuHeaderCard already
- * established for the Core Grid screen) plus a hairline accent-tinted
- * border for edge definition, rather than one flat surfaceContainer fill
- * shared by every card on the screen regardless of what it represents.
- * [accent] stays optional (null = the old flat neutral fill) so anything
- * reusing this shell for a non-metric purpose isn't forced to pick a color.
- */
-@Composable
-fun DashCardWrapper(
-    modifier: Modifier = Modifier,
-    accent: Color? = null,
-    onClick: (() -> Unit)? = null,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    nd.max.ui.component.MaxSurface(
-        modifier = modifier,
-        accent = accent,
-        onClick = onClick,
-        content = content
-    )
-}
-
-/**
- * A linear meter with the same soft-glow treatment as [IconBadge] -- a
- * wider, faint bar glowing behind a crisp gradient-filled bar on top --
- * instead of a bare stock LinearProgressIndicator. [animated] drives the
- * fraction through a spring so it settles with a touch of real-instrument
- * overshoot rather than a flat linear tween, matching the app's expressive
- * motion scheme.
- */
-@Composable
-fun GlowLinearBar(
-    fraction: Float,
-    accent: Color,
-    modifier: Modifier = Modifier,
-    height: androidx.compose.ui.unit.Dp = 7.dp
-) {
-    val animated by animateFloatAsState(
-        targetValue = fraction.coerceIn(0f, 1f),
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-        label = "glowBarFraction"
-    )
-    Box(modifier = modifier.height(height + 6.dp), contentAlignment = Alignment.CenterStart) {
-        // Glow layer: wider + fainter, only under the filled portion.
-        if (animated > 0.02f) {
-            Box(
-                Modifier
-                    .fillMaxWidth(animated)
-                    .height(height + 6.dp)
-                    .clip(CircleShape)
-                    .background(accent.copy(alpha = 0.18f))
-            )
-        }
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(height)
-                .clip(CircleShape)
-                .background(accent.copy(alpha = 0.14f))
-        )
-        Box(
-            Modifier
-                .fillMaxWidth(animated)
-                .height(height)
-                .clip(CircleShape)
-                .background(Brush.horizontalGradient(listOf(accent.copy(alpha = 0.75f), accent)))
-        )
-    }
-}
-
-// =========================================================================
-// CPU CARD — Read-only
-// =========================================================================
-
-@Composable
-fun CpuDashCard(
-    loadPercent: Int,
-    freqMhz: Int,
-    chipsetName: String,
-    modifier: Modifier = Modifier
-) {
-    val cpuColor = maxSemanticColors().info
-    DashCardWrapper(modifier = modifier, accent = cpuColor, onClick = null) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(Icons.Rounded.Memory, cpuColor)
-            Spacer(modifier = Modifier.width(10.dp))
-            Column {
-                Text("CPU", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(
-                    text = chipsetName,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+        Canvas(Modifier.matchParentSize()) {
+            drawCircle(colors.primary.copy(alpha = .12f), size.minDimension * .46f, Offset(size.width * .88f, size.height * .18f))
+            drawCircle(colors.tertiary.copy(alpha = .08f), size.minDimension * .34f, Offset(size.width * .62f, size.height * .88f))
+            val chip = Path().apply {
+                moveTo(size.width * .72f, size.height * .22f)
+                lineTo(size.width * .92f, size.height * .34f)
+                lineTo(size.width * .84f, size.height * .72f)
+                lineTo(size.width * .64f, size.height * .60f)
+                close()
             }
+            drawPath(chip, Brush.linearGradient(listOf(colors.primary.copy(.24f), colors.tertiary.copy(.08f))), style = Stroke(2.dp.toPx()))
         }
-        Spacer(modifier = Modifier.height(14.dp))
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(text = "$loadPercent", style = MonoValueStyleLarge, color = cpuColor)
-            Text(
-                text = "%",
-                style = MonoValueStyleMedium,
-                color = cpuColor.copy(alpha = 0.7f),
-                modifier = Modifier.padding(bottom = 3.dp, start = 1.dp)
-            )
-        }
-        Text(
-            text = if (freqMhz > 0) "$freqMhz MHz" else "\u2014",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        GlowLinearBar(fraction = loadPercent / 100f, accent = cpuColor)
-    }
-}
-
-// =========================================================================
-// RAM CARD — Read-only
-// =========================================================================
-
-@Composable
-fun RamDashCard(
-    usedMb: Int,
-    totalMb: Int,
-    modifier: Modifier = Modifier
-) {
-    val ramColor = maxSemanticColors().positive
-    val pct = if (totalMb > 0) usedMb * 100 / totalMb else 0
-    val usedGb = usedMb / 1024f
-    val totalGb = totalMb / 1024f
-    DashCardWrapper(modifier = modifier, accent = ramColor, onClick = null) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(Icons.Rounded.Memory, ramColor)
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("RAM", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Spacer(modifier = Modifier.height(14.dp))
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(text = "$pct", style = MonoValueStyleLarge, color = ramColor)
-            Text(
-                text = "%",
-                style = MonoValueStyleMedium,
-                color = ramColor.copy(alpha = 0.7f),
-                modifier = Modifier.padding(bottom = 3.dp, start = 1.dp)
-            )
-        }
-        Text(
-            text = "${String.format("%.1f", usedGb)} / ${String.format("%.1f", totalGb)} GB",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        GlowLinearBar(fraction = pct / 100f, accent = ramColor)
-    }
-}
-
-// =========================================================================
-// BATTERY CARD — Clickable
-// =========================================================================
-
-@Composable
-fun BatteryDashCard(
-    percent: Int,
-    voltageV: Float,
-    tempC: Float,
-    isCharging: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val semantic = maxSemanticColors()
-    val chargingGreen = semantic.positive
-    val battColor by animateColorAsState(
-        targetValue = when {
-            isCharging -> chargingGreen
-            percent <= 15 -> semantic.critical
-            percent <= 35 -> semantic.warning
-            else -> semantic.warning
-        },
-        label = "battColor"
-    )
-    val infiniteTransition = rememberInfiniteTransition(label = "bat")
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 1f, targetValue = 0.4f,
-        animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing), RepeatMode.Reverse),
-        label = "pulse"
-    )
-    DashCardWrapper(modifier = modifier, accent = battColor, onClick = onClick) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.alpha(if (isCharging) pulseAlpha else 1f)) {
-                IconBadge(
-                    icon = if (isCharging) Icons.Rounded.BatteryChargingFull else Icons.Rounded.BatteryFull,
-                    tint = battColor
-                )
-            }
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("Battery", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(Icons.Rounded.ChevronRight, null, tint = battColor.copy(alpha = 0.6f), modifier = Modifier.size(18.dp))
-        }
-        Spacer(modifier = Modifier.height(14.dp))
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(text = "$percent", style = MonoValueStyleLarge, color = battColor)
-            Text(
-                text = "%",
-                style = MonoValueStyleMedium,
-                color = battColor.copy(alpha = 0.7f),
-                modifier = Modifier.padding(bottom = 3.dp, start = 1.dp)
-            )
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (isCharging) {
-                Icon(Icons.Rounded.Bolt, null, tint = chargingGreen, modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(2.dp))
-            }
-            Text(
-                text = if (isCharging) "Charging" else "Discharging",
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isCharging) chargingGreen else MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Text(
-            text = "${String.format("%.2f", voltageV)} V  \u2022  ${String.format("%.1f", tempC)}\u00b0C",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.7f)
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        GlowLinearBar(fraction = percent / 100f, accent = battColor)
-    }
-}
-
-// =========================================================================
-// TEMPERATURE CARD — Clickable
-// =========================================================================
-
-@Composable
-fun TempDashCard(
-    cpuTempC: Int,
-    gpuTempC: Int,
-    skinTempC: Int,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    tempHistory: List<Float> = emptyList()
-) {
-    val semantic = maxSemanticColors()
-    val tempColor by animateColorAsState(
-        targetValue = when {
-            cpuTempC >= 70 -> semantic.critical
-            cpuTempC >= 50 -> semantic.warning
-            else -> semantic.positive
-        },
-        label = "tempColor"
-    )
-    DashCardWrapper(modifier = modifier, accent = tempColor, onClick = onClick) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(Icons.Rounded.Thermostat, tempColor)
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("Temperature", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(Icons.Rounded.ChevronRight, null, tint = tempColor.copy(alpha = 0.6f), modifier = Modifier.size(18.dp))
-        }
-        Spacer(modifier = Modifier.height(14.dp))
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = if (cpuTempC > 0) "$cpuTempC" else "\u2014",
-                style = MonoValueStyleLarge,
-                color = tempColor
-            )
-            Text(
-                text = "\u00b0C",
-                style = MonoValueStyleMedium,
-                color = tempColor.copy(alpha = 0.7f),
-                modifier = Modifier.padding(bottom = 3.dp, start = 1.dp)
-            )
-        }
-        Text("CPU", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.7f))
-        if (tempHistory.size >= 2) {
-            Spacer(modifier = Modifier.height(8.dp))
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                MiniSparkline(
-                    samples = tempHistory,
-                    lineColor = tempColor,
-                    width = maxWidth,
-                    height = 28.dp
-                )
-            }
-        }
-        if (gpuTempC > 0 || skinTempC > 0) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                if (gpuTempC > 0) {
-                    Column {
-                        Text("$gpuTempC\u00b0", style = MonoValueStyleSmall, color = MaterialTheme.colorScheme.onSurface)
-                        Text("GPU", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        BoxWithConstraints(Modifier.fillMaxWidth().padding(20.dp)) {
+            val wide = maxWidth >= 600.dp
+            val content: @Composable RowScope.() -> Unit = {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        MaxStatusPill(
+                            if (online) stringResource(R.string.max_home_live) else stringResource(R.string.max_home_offline),
+                            online,
+                            if (online) colors.tertiary else colors.error
+                        )
+                        Spacer(Modifier.weight(1f))
+                        IconButton(onClick = onReboot) { Icon(Icons.Rounded.PowerSettingsNew, stringResource(R.string.max_home_power)) }
+                        IconButton(onClick = onSettings) { Icon(Icons.Rounded.Settings, stringResource(R.string.max_home_settings)) }
+                    }
+                    Text(stringResource(R.string.max_home_command_center).uppercase(), style = MaterialTheme.typography.labelMedium, color = colors.primary, letterSpacing = 2.sp)
+                    Text(deviceName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(chipset ?: stringResource(R.string.max_home_unavailable), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        HeroReadout(stringResource(R.string.max_home_profile), profile, colors.primary)
+                        HeroReadout(stringResource(R.string.max_home_temp), temperatureC?.let { "${it.oneDecimal()}°C" } ?: stringResource(R.string.max_home_unavailable), colors.tertiary)
+                    }
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Button(onClick = onProfile, modifier = Modifier.heightIn(min = 48.dp)) { Icon(Icons.Rounded.Speed, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.max_home_change_profile)) }
+                        OutlinedButton(onClick = onThermal, modifier = Modifier.heightIn(min = 48.dp)) { Icon(Icons.Rounded.Thermostat, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.max_home_thermal)) }
                     }
                 }
-                if (skinTempC > 0) {
-                    Column {
-                        Text("$skinTempC\u00b0", style = MonoValueStyleSmall, color = MaterialTheme.colorScheme.onSurface)
-                        Text("Skin", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (wide) { Spacer(Modifier.width(24.dp)); ChipSchematic(Modifier.width(180.dp).height(220.dp), colors.primary) }
+            }
+            if (wide) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, content = content)
+            else Row(Modifier.fillMaxWidth(), content = content)
+        }
+    }
+}
+
+@Composable
+private fun HeroReadout(label: String, value: String, accent: Color) {
+    Surface(shape = RoundedCornerShape(12.dp), color = accent.copy(alpha = .08f)) {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 9.dp)) {
+            Text(label, style = MaterialTheme.typography.labelSmall, color = accent)
+            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+private fun ChipSchematic(modifier: Modifier, accent: Color) {
+    Canvas(modifier) {
+        val inset = 24.dp.toPx()
+        drawRoundRect(accent.copy(.08f), Offset(inset, inset), androidx.compose.ui.geometry.Size(size.width - inset * 2, size.height - inset * 2), CornerRadius(28f, 28f))
+        drawRoundRect(accent.copy(.6f), Offset(inset, inset), androidx.compose.ui.geometry.Size(size.width - inset * 2, size.height - inset * 2), CornerRadius(28f, 28f), style = Stroke(2.dp.toPx()))
+        repeat(6) { i ->
+            val y = inset + (i + 1) * (size.height - inset * 2) / 7
+            drawLine(accent.copy(.32f), Offset(0f, y), Offset(inset, y), 2.dp.toPx())
+            drawLine(accent.copy(.32f), Offset(size.width - inset, y), Offset(size.width, y), 2.dp.toPx())
+        }
+    }
+}
+
+@Composable
+fun LivePerformance(dashboard: DashboardState, gpuName: String?, onGpu: (() -> Unit)?) {
+    val colors = MaterialTheme.colorScheme
+    val cpuReady = dashboard.cpuLoadHistory.isNotEmpty()
+    val ram = dashboard.ramTotalMb.takeIf { it > 0 }
+        ?.let { (dashboard.ramUsedMb.toFloat() / it * 100).toInt().coerceIn(0, 100) }
+    DashboardSection(
+        stringResource(R.string.max_home_live_overview),
+        stringResource(R.string.max_home_hardware_desc),
+        colors.primary
+    ) {
+        MaxSurface(accent = colors.primary) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.max_home_cpu_activity), style = MaterialTheme.typography.labelLarge, color = colors.primary)
+                    Text(if (cpuReady) "${dashboard.cpuLoadPercent.coerceIn(0, 100)}%" else stringResource(R.string.max_home_unavailable), style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Black)
+                }
+                Text(dashboard.cpuFreqMhz.takeIf { cpuReady && it > 0 }?.let { "$it MHz" } ?: stringResource(R.string.max_home_unavailable), style = MaterialTheme.typography.titleMedium, color = colors.onSurfaceVariant)
+            }
+            Spacer(Modifier.height(12.dp))
+            if (dashboard.cpuLoadHistory.size >= 2) PerformanceGraph(dashboard.cpuLoadHistory.takeLast(36), colors.primary, Modifier.fillMaxWidth().height(120.dp))
+            else Box(Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) { Text(stringResource(R.string.max_home_waiting_samples), color = colors.onSurfaceVariant) }
+        }
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val stacked = maxWidth < 700.dp || androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
+            val cardWidth = if (stacked) maxWidth else (maxWidth - 12.dp) / 2
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                TelemetryGauge(stringResource(R.string.max_home_memory), ram, if (ram != null) "${(dashboard.ramUsedMb / 1024f).oneDecimal()} / ${(dashboard.ramTotalMb / 1024f).oneDecimal()} GB" else null, Icons.Rounded.Storage, colors.secondary, Modifier.width(cardWidth))
+                TelemetryMetric(stringResource(R.string.max_home_battery_temperature), primaryBatteryTemperatureC(dashboard)?.let { "${it.oneDecimal()}°C" }, stringResource(R.string.max_home_battery_sensor), Icons.Rounded.Thermostat, colors.tertiary, Modifier.width(cardWidth))
+                TelemetryMetric(stringResource(R.string.max_home_gpu_identity), gpuName, if (onGpu == null) stringResource(R.string.max_home_gpu_unknown_desc) else stringResource(R.string.max_home_graphics), Icons.Rounded.DeveloperBoard, colors.primary, Modifier.width(cardWidth), onGpu)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TelemetryGauge(label: String, percent: Int?, supporting: String?, icon: ImageVector, accent: Color, modifier: Modifier = Modifier) {
+    MaxSurface(modifier = modifier, accent = accent) {
+        Row(verticalAlignment = Alignment.CenterVertically) { Icon(icon, null, tint = accent); Spacer(Modifier.width(10.dp)); Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold) }
+        Spacer(Modifier.height(14.dp))
+        Text(percent?.let { "$it%" } ?: stringResource(R.string.max_home_unavailable), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+        if (supporting != null) Text(supporting, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(12.dp))
+        val progress = percent?.coerceIn(0, 100)?.div(100f)
+        LinearProgressIndicator(
+            progress = { progress ?: 0f },
+            modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(50)).then(if (progress != null) Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(progress, 0f..1f) } else Modifier),
+            color = accent,
+            trackColor = accent.copy(alpha = .1f)
+        )
+    }
+}
+
+@Composable
+private fun TelemetryMetric(label: String, value: String?, supporting: String, icon: ImageVector, accent: Color, modifier: Modifier = Modifier, onClick: (() -> Unit)? = null) {
+    MaxSurface(modifier = modifier, accent = accent, onClick = onClick) {
+        Row(verticalAlignment = Alignment.CenterVertically) { Icon(icon, null, tint = accent); Spacer(Modifier.width(10.dp)); Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold); if (onClick != null) { Spacer(Modifier.weight(1f)); Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = accent) } }
+        Spacer(Modifier.height(14.dp))
+        Text(value ?: stringResource(R.string.max_home_unavailable), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+        Text(supporting, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+
+@Composable
+private fun DashboardSection(title: String, subtitle: String, accent: Color, content: @Composable () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        MaxSectionHeader(title, subtitle, accent = accent)
+        content()
+    }
+}
+
+@Composable
+private fun PerformanceGraph(values: List<Float>, accent: Color, modifier: Modifier) {
+    val secondary = MaterialTheme.colorScheme.secondary
+    val grid = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .35f)
+    Canvas(modifier) {
+        repeat(4) { index ->
+            val y = size.height * index / 3f
+            drawLine(grid, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
+        }
+        if (values.size < 2) return@Canvas
+        val step = size.width / values.lastIndex
+        val line = Path(); val area = Path()
+        values.forEachIndexed { i, raw ->
+            val x = i * step; val y = size.height - raw.coerceIn(0f, 100f) / 100f * size.height
+            if (i == 0) { line.moveTo(x, y); area.moveTo(x, size.height); area.lineTo(x, y) } else { line.lineTo(x, y); area.lineTo(x, y) }
+        }
+        area.lineTo(size.width, size.height); area.close()
+        drawPath(area, Brush.verticalGradient(listOf(accent.copy(.28f), accent.copy(0f))))
+        drawPath(line, Brush.horizontalGradient(listOf(secondary, accent)), style = Stroke(2.5.dp.toPx(), cap = StrokeCap.Round))
+    }
+}
+
+@Composable
+fun ControlDeck(
+    dashboard: DashboardState,
+    profile: String,
+    profileEnabled: Boolean,
+    profilePending: Boolean,
+    gpuName: String?,
+    onRoute: (String) -> Unit,
+    onGpu: () -> Unit,
+    onProfile: () -> Unit,
+    onReboot: () -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    DashboardSection(
+        stringResource(R.string.max_home_control_center),
+        stringResource(R.string.max_home_control_desc),
+        colors.tertiary
+    ) {
+        MaxSurface(accent = colors.tertiary) {
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val stacked = maxWidth < 440.dp || androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
+                val details: @Composable (Modifier) -> Unit = { modifier ->
+                    Column(modifier) {
+                        Text(stringResource(R.string.max_home_active_profile), style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
+                        Text(profile, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text(if (profilePending) stringResource(R.string.max_home_profile_managed) else stringResource(R.string.max_home_profile_ready), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
                     }
+                }
+                if (stacked) Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    details(Modifier.fillMaxWidth())
+                    Button(onClick = onProfile, enabled = profileEnabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.max_home_change)) }
+                } else Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    details(Modifier.weight(1f))
+                    Button(onClick = onProfile, enabled = profileEnabled, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.max_home_change)) }
                 }
             }
         }
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val stacked = maxWidth < 700.dp || androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
+            val itemWidth = if (stacked) maxWidth else (maxWidth - 12.dp) / 2
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                ControlAction(stringResource(R.string.max_home_battery), stringResource(R.string.max_home_battery_desc), dashboard.batteryPercent.takeIf { dashboard.batteryStatus.isNotBlank() }?.let { "$it%" }, Icons.Rounded.BatteryChargingFull, colors.tertiary, Modifier.width(itemWidth)) { onRoute("battery_detail") }
+                ControlAction(stringResource(R.string.max_home_storage), stringResource(R.string.max_home_storage_desc), dashboard.storageTotalGb.takeIf { it > 0f }?.let { "${dashboard.storageUsedGb.oneDecimal()} / ${it.oneDecimal()} GB" }, Icons.Rounded.Storage, colors.secondary, Modifier.width(itemWidth)) { onRoute("storage_detail") }
+                ControlAction(stringResource(R.string.max_home_thermal), stringResource(R.string.max_home_thermal_desc), primaryBatteryTemperatureC(dashboard)?.let { "${it.oneDecimal()}°C" }, Icons.Rounded.Thermostat, colors.error, Modifier.width(itemWidth)) { onRoute("thermal_detail") }
+                ControlAction(stringResource(R.string.max_home_network), stringResource(R.string.max_home_network_desc), "↓ ${formatNetSpeed(dashboard.downloadSpeedKbps)}  ↑ ${formatNetSpeed(dashboard.uploadSpeedKbps)}", Icons.Rounded.NetworkCheck, colors.primary, Modifier.width(itemWidth)) { onRoute("network_detail") }
+                ControlAction(stringResource(R.string.studio_display), stringResource(R.string.max_home_resources_desc), dashboard.displayWidth.takeIf { it > 0 }?.let { "${dashboard.displayWidth}×${dashboard.displayHeight} · ${dashboard.displayRefreshHz} Hz" }, Icons.Rounded.DisplaySettings, colors.secondary, Modifier.width(itemWidth)) { onRoute("displaystudio") }
+                if (gpuName != null) ControlAction(stringResource(R.string.max_home_gpu_control), stringResource(R.string.max_home_gpu_control_desc), gpuName, Icons.Rounded.DeveloperBoard, colors.tertiary, Modifier.width(itemWidth), onGpu)
+                ControlAction(stringResource(R.string.max_home_reboot), stringResource(R.string.max_home_reboot_desc), null, Icons.Rounded.RestartAlt, colors.error, Modifier.width(itemWidth), onReboot)
+            }
+        }
     }
 }
 
-// =========================================================================
-// STORAGE CARD — Clickable
-// =========================================================================
-
 @Composable
-fun StorageDashCard(
-    usedGb: Float,
-    totalGb: Float,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val storColor = Color(0xFF9B59B6)
-    val pct = if (totalGb > 0f) usedGb / totalGb else 0f
-    DashCardWrapper(modifier = modifier, accent = storColor, onClick = onClick) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(Icons.Rounded.Storage, storColor)
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("Storage", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(Icons.Rounded.ChevronRight, null, tint = storColor.copy(alpha = 0.6f), modifier = Modifier.size(18.dp))
-        }
-        Spacer(modifier = Modifier.height(14.dp))
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(text = "${String.format("%.0f", pct * 100)}", style = MonoValueStyleLarge, color = storColor)
-            Text(
-                text = "%",
-                style = MonoValueStyleMedium,
-                color = storColor.copy(alpha = 0.7f),
-                modifier = Modifier.padding(bottom = 3.dp, start = 1.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "used",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 6.dp)
-            )
-        }
-        Text(
-            text = "${String.format("%.1f", usedGb)} / ${String.format("%.1f", totalGb)} GB",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        GlowLinearBar(fraction = pct, accent = storColor)
-    }
+private fun ControlAction(title: String, subtitle: String, value: String?, icon: ImageVector, accent: Color, modifier: Modifier, onClick: () -> Unit) {
+    MaxActionRow(title = title, subtitle = subtitle, icon = icon, accent = accent, value = value, modifier = modifier, onClick = onClick)
 }
 
-// =========================================================================
-// NETWORK CARD — Clickable with sparkline
-// =========================================================================
-
 @Composable
-fun NetworkDashCard(
-    downloadKbps: Long,
-    uploadKbps: Long,
-    speedHistory: List<Long>,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val netColor = Color(0xFF00BCD4)
-    DashCardWrapper(modifier = modifier, accent = netColor, onClick = onClick) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(Icons.Rounded.NetworkCheck, netColor)
-            Spacer(modifier = Modifier.width(10.dp))
+fun MaxAiConsole(state: MaxAiState, request: ProfileRequestState, failed: Boolean, onOpen: () -> Unit, onRetry: () -> Unit) {
+    val purple = Color(0xFF9B7BFF)
+    DashboardSection(stringResource(R.string.max_home_ai_console), stringResource(R.string.max_home_smart_section_desc), purple) {
+        MaxSurface(accent = purple, onClick = onOpen) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Network Speed", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(modifier = Modifier.width(6.dp))
-                LivePulseDot(color = netColor)
+                Icon(Icons.Rounded.Psychology, null, tint = purple, modifier = Modifier.size(28.dp)); Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) { Text("MAX AI", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black); Text(state.strategyLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                MaxStatusPill(if (state.aiEnabled) stringResource(R.string.max_home_ai_on) else stringResource(R.string.max_home_ai_off), state.aiEnabled, purple)
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(Icons.Rounded.ChevronRight, null, tint = netColor.copy(alpha = 0.6f), modifier = Modifier.size(18.dp))
-        }
-        Spacer(modifier = Modifier.height(14.dp))
-        Row(verticalAlignment = Alignment.Bottom) {
-            Icon(Icons.Rounded.ArrowDownward, null, tint = netColor, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(2.dp))
-            Text(text = formatNetSpeed(downloadKbps), style = MonoValueStyleMedium, color = MaterialTheme.colorScheme.onSurface)
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Rounded.ArrowUpward, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
-            Spacer(modifier = Modifier.width(2.dp))
-            Text(text = formatNetSpeed(uploadKbps), style = MonoValueStyleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        if (speedHistory.size >= 2) {
-            val maxVal = speedHistory.maxOrNull()?.coerceAtLeast(1L) ?: 1L
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(netColor.copy(alpha = 0.07f))
-            ) {
-                val w = size.width
-                val h = size.height
-                val step = w / (speedHistory.size - 1).toFloat()
-                val fillPath = Path()
-                val linePath = Path()
-                speedHistory.forEachIndexed { index, value ->
-                    val x = index * step
-                    val y = h - (value.toFloat() / maxVal * h * 0.9f)
-                    if (index == 0) { fillPath.moveTo(x, h); fillPath.lineTo(x, y); linePath.moveTo(x, y) }
-                    else { fillPath.lineTo(x, y); linePath.lineTo(x, y) }
+            Spacer(Modifier.height(16.dp))
+            when {
+                request.inFlight -> Row(verticalAlignment = Alignment.CenterVertically) { CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp); Spacer(Modifier.width(10.dp)); Text(stringResource(R.string.max_home_ai_working)) }
+                failed -> {
+                    Text(stringResource(R.string.max_home_ai_failed), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                    state.lastDecision?.reason?.takeIf { it.isNotBlank() }?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    Spacer(Modifier.height(8.dp)); OutlinedButton(onClick = onRetry) { Text(stringResource(R.string.max_home_retry)) }
                 }
-                fillPath.lineTo((speedHistory.size - 1) * step, h)
-                fillPath.close()
-                drawPath(fillPath, brush = Brush.verticalGradient(
-                    listOf(netColor.copy(alpha = 0.5f), netColor.copy(alpha = 0.0f))
-                ), style = Fill)
-                drawPath(linePath, color = netColor, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round))
-            }
-        }
-    }
-}
-
-// =========================================================================
-// DISPLAY CARD — Clickable
-// =========================================================================
-
-@Composable
-fun DisplayDashCard(
-    width: Int,
-    height: Int,
-    refreshHz: Int,
-    densityDpi: Int,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val dispColor = Color(0xFF009688)
-    DashCardWrapper(modifier = modifier, accent = dispColor, onClick = onClick) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(Icons.Rounded.Smartphone, dispColor)
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("Display", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(Icons.Rounded.ChevronRight, null, tint = dispColor.copy(alpha = 0.6f), modifier = Modifier.size(18.dp))
-        }
-        Spacer(modifier = Modifier.height(14.dp))
-        Text(
-            text = if (width > 0 && height > 0) "${width}\u00d7${height}" else "\u2014",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black,
-            color = dispColor
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-            Column {
-                Text("$refreshHz Hz", style = MonoValueStyleSmall, color = MaterialTheme.colorScheme.onSurface)
-                Text("Refresh", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Column {
-                Text("$densityDpi", style = MonoValueStyleSmall, color = MaterialTheme.colorScheme.onSurface)
-                Text("DPI", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                state.lastDecision != null -> { Text(state.lastDecision.label, fontWeight = FontWeight.Bold); Text(state.lastDecision.reason, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                else -> Text(stringResource(R.string.max_home_ai_idle), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

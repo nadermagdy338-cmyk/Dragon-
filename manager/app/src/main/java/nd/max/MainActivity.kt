@@ -429,7 +429,7 @@ fun MainScreen(fromTileType: String? = null) {
                             modifier = Modifier.fillMaxSize()
                         ) { page ->
                             when (pagerRoutes[page]) {
-                                "home" -> HomeScreen(navController)
+                                "home" -> HomeScreen(navController, isVisible = pagerState.currentPage == page)
                                 "applist" -> ApplistScreen(navController)
                                 "tweaks" -> TweakScreen(navController)
                                 "settings" -> SettingsScreen(navController)
