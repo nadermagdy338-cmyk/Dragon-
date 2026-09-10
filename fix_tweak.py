@@ -207,14 +207,6 @@ new_block = """                item {
                                 },
                                 {
                                     ExpressiveListItem(
-                                        leadingContent = { LeadingIcon(icon = Icons.Outlined.Tune) },
-                                        onClick = { navController.navigate("advancedconfig") },
-                                        headlineContent = { Text(stringResource(R.string.advanced_config_title)) },
-                                        supportingContent = { Text(stringResource(R.string.advanced_config_desc)) },
-                                    )
-                                },
-                                {
-                                    ExpressiveListItem(
                                         leadingContent = { LeadingIcon(icon = Icons.Outlined.DeleteSweep) },
                                         onClick = { navController.navigate("debloatfreeze") },
                                         headlineContent = { Text(stringResource(R.string.debloat_freeze_title)) },

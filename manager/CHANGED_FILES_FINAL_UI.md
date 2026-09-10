@@ -9,7 +9,6 @@
 - `app/src/main/java/nd/max/ui/mainscreens/TweakScreen.kt`
 - `app/src/main/java/nd/max/ui/subscreens/AboutScreen.kt`
 - `app/src/main/java/nd/max/ui/subscreens/AdrenoGpuScreen.kt`
-- `app/src/main/java/nd/max/ui/subscreens/AdvancedConfigurationScreen.kt`
 - `app/src/main/java/nd/max/ui/subscreens/BypassCheckScreen.kt`
 - `app/src/main/java/nd/max/ui/subscreens/ChargingScreen.kt`
 - `app/src/main/java/nd/max/ui/subscreens/ColorSchemeScreen.kt`

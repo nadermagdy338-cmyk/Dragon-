@@ -48,6 +48,7 @@ import nd.max.ui.util.EventLog
 class ApplistViewmodel : ViewModel() {
 
     enum class AppFilter { ALL, CUSTOMIZED, RECOMMENDED, SYSTEM }
+    enum class AppSort { SMART, NAME, CUSTOMIZATION }
 
     companion object {
         private const val TAG = "ApplistViewmodel"
@@ -77,9 +78,8 @@ class ApplistViewmodel : ViewModel() {
 
     var isRefreshing by mutableStateOf(false)
     var loadError by mutableStateOf<String?>(null)
-    var showSystemApps by mutableStateOf(false)
-
     var appFilter by mutableStateOf(AppFilter.ALL)
+    var appSort by mutableStateOf(AppSort.SMART)
     
     var searchTextFieldValue by mutableStateOf(TextFieldValue(""))
         private set
@@ -100,24 +100,33 @@ class ApplistViewmodel : ViewModel() {
     private val jsonHandler = Json { ignoreUnknownKeys = true }
 
     val filteredApps by derivedStateOf {
-        val query = searchQueryString.lowercase()
+        val query = searchQueryString.trim().lowercase(Locale.getDefault())
+        val labelCollator = Collator.getInstance(Locale.getDefault())
         synchronized(appsLock) {
-            apps.filter { app ->
-                val matchesSearch = app.label.lowercase().contains(query) || 
-                                  app.packageName.lowercase().contains(query)
-                val matchesSystem = showSystemApps || !app.isSystem || appFilter == AppFilter.SYSTEM
+            val matching = apps.filter { app ->
+                val matchesSearch = query.isEmpty() ||
+                    app.label.lowercase(Locale.getDefault()).contains(query) ||
+                    app.packageName.lowercase(Locale.ROOT).contains(query)
                 val matchesFilter = when (appFilter) {
                     AppFilter.ALL -> true
                     AppFilter.CUSTOMIZED -> app.isEnabledInConfig
                     AppFilter.RECOMMENDED -> app.isRecommended
                     AppFilter.SYSTEM -> app.isSystem
                 }
-                matchesSearch && matchesSystem && matchesFilter
-            }.sortedWith(
-                compareByDescending<AppInfo> { it.isEnabledInConfig }
-                    .thenByDescending { it.isRecommended }
-                    .thenBy(Collator.getInstance(Locale.getDefault())) { it.label }
-            )
+                matchesSearch && matchesFilter
+            }
+            when (appSort) {
+                AppSort.SMART -> matching.sortedWith(
+                    compareByDescending<AppInfo> { it.isEnabledInConfig }
+                        .thenByDescending { it.isRecommended }
+                        .thenBy(labelCollator) { it.label }
+                )
+                AppSort.NAME -> matching.sortedWith(compareBy(labelCollator) { it.label })
+                AppSort.CUSTOMIZATION -> matching.sortedWith(
+                    compareByDescending<AppInfo> { it.customizedCount }
+                        .thenBy(labelCollator) { it.label }
+                )
+            }
         }
     }
 
@@ -125,32 +134,30 @@ class ApplistViewmodel : ViewModel() {
         if (!forceRefresh && apps.isNotEmpty()) return
 
         viewModelScope.launch(Dispatchers.IO) {
-            isRefreshing = true
-            loadError = null
+            withContext(Dispatchers.Main) {
+                isRefreshing = true
+                loadError = null
+            }
             try {
                 val pm = context.packageManager
-
                 val configs = getAppConfigs()
                 val installed = pm.getInstalledPackages(PackageManager.GET_META_DATA)
-
                 val loadedApps = installed.map { pkg ->
-                val appInfo = pkg.applicationInfo
-                
+                    val appInfo = pkg.applicationInfo
+                    @Suppress("DEPRECATION")
+                    val isGame = appInfo != null && (
+                        appInfo.category == ApplicationInfo.CATEGORY_GAME ||
+                            (appInfo.flags and ApplicationInfo.FLAG_IS_GAME) != 0
+                        )
 
-                @Suppress("DEPRECATION")
-                val isGame = appInfo != null && (
-                    appInfo.category == ApplicationInfo.CATEGORY_GAME ||
-                    (appInfo.flags and ApplicationInfo.FLAG_IS_GAME) != 0
-                )
-
-                AppInfo(
-                    label = appInfo?.loadLabel(pm)?.toString() ?: context.getString(R.string.status_unknown),
-                    packageInfo = pkg,
-                    isRecommended = isGame,
-                    isEnabledInConfig = configs.containsKey(pkg.packageName),
-                    customizedCount = configs[pkg.packageName]?.customizedFieldCount() ?: 0
-                )
-            }
+                    AppInfo(
+                        label = appInfo?.loadLabel(pm)?.toString() ?: context.getString(R.string.status_unknown),
+                        packageInfo = pkg,
+                        isRecommended = isGame,
+                        isEnabledInConfig = configs.containsKey(pkg.packageName),
+                        customizedCount = configs[pkg.packageName]?.customizedFieldCount() ?: 0
+                    )
+                }
 
                 withContext(Dispatchers.Main) {
                     synchronized(appsLock) {
@@ -160,7 +167,8 @@ class ApplistViewmodel : ViewModel() {
             } catch (e: Exception) {
                 EventLog.error("Applist", "load_apps", e)
                 withContext(Dispatchers.Main) {
-                    loadError = e.message?.takeIf { it.isNotBlank() } ?: "Unable to read installed applications."
+                    loadError = e.message?.takeIf { it.isNotBlank() }
+                        ?: context.getString(R.string.applist_error_desc)
                 }
             } finally {
                 withContext(Dispatchers.Main) { isRefreshing = false }
@@ -171,12 +179,17 @@ class ApplistViewmodel : ViewModel() {
     fun refreshAppConfigStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             val configs = getAppConfigs()
-            synchronized(appsLock) {
-                apps = apps.map {
+            val refreshed = synchronized(appsLock) {
+                apps.map {
                     it.copy(
                         isEnabledInConfig = configs.containsKey(it.packageName),
                         customizedCount = configs[it.packageName]?.customizedFieldCount() ?: 0
                     )
+                }
+            }
+            withContext(Dispatchers.Main) {
+                synchronized(appsLock) {
+                    apps = refreshed
                 }
             }
         }

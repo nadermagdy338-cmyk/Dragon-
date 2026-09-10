@@ -208,7 +208,17 @@ fun TweakScreen(
         ) {
         
             item {
-                Spacer(modifier = Modifier.height(MaxUiMetrics.screenTopPadding))
+                ControlScreenIntro(
+                    icon = Icons.Rounded.Tune,
+                    title = stringResource(R.string.tweaks_workspace_title),
+                    description = stringResource(R.string.tweaks_workspace_guidance),
+                    status = stringResource(
+                        if (isFullModeEnabled) R.string.tweaks_workspace_state_full
+                        else R.string.tweaks_workspace_state_lite
+                    ),
+                    accent = colorScheme.primary,
+                    modifier = Modifier.padding(top = MaxUiMetrics.screenTopPadding)
+                )
                 Spacer(modifier = Modifier.height(MaxUiMetrics.sectionGap))
             }
 
@@ -482,14 +492,6 @@ fun TweakScreen(
                                     onClick = { navController.navigate("networkscheduler") },
                                     headlineContent = { Text(stringResource(R.string.net_sched_title)) },
                                     supportingContent = { Text(stringResource(R.string.net_sched_menu_desc)) },
-                                )
-                            },
-                            {
-                                ExpressiveListItem(
-                                    leadingContent = { LeadingIcon(icon = Icons.Outlined.Tune) },
-                                    onClick = { navController.navigate("advancedconfig") },
-                                    headlineContent = { Text(stringResource(R.string.advanced_config_title)) },
-                                    supportingContent = { Text(stringResource(R.string.advanced_config_desc)) },
                                 )
                             },
                             {
@@ -837,17 +839,11 @@ private fun AdvancedToolTile(
 
 @Composable
 fun SectionLoadingIndicator() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(32.dp),
-            strokeWidth = 3.dp
-        )
-    }
+    MaxLoadingState(
+        title = stringResource(R.string.loading),
+        message = "",
+        compact = true
+    )
 }
 
 /**

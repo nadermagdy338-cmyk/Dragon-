@@ -243,12 +243,14 @@ fun SettingsScreen(
                 )
             ) {
                 item {
-                    StudioSectionHeader(
-                        title = stringResource(R.string.settings),
-                        subtitle = stringResource(R.string.settings_subtitle),
-                        modifier = Modifier.padding(bottom = 14.dp)
+                    ControlScreenIntro(
+                        icon = Icons.Rounded.Settings,
+                        title = stringResource(R.string.settings_workspace_title),
+                        description = stringResource(R.string.settings_workspace_guidance),
+                        status = stringResource(R.string.settings_workspace_state),
+                        accent = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = MaxUiMetrics.sectionGap)
                     )
-                    Spacer(modifier = Modifier.height(MaxUiMetrics.sectionGap))
                     
                     ExpressiveList(
                         content = listOf(

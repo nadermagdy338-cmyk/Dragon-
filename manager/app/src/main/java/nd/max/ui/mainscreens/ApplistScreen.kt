@@ -2,214 +2,231 @@
 
 package nd.max.ui.mainscreens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nd.max.R
 import nd.max.ui.component.AppIconImage
+import nd.max.ui.component.MaxEmptyState
+import nd.max.ui.component.MaxErrorState
+import nd.max.ui.component.MaxLoadingState
+import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.ui.viewmodel.ApplistViewmodel
 
 @Composable
 fun ApplistScreen(navController: NavController) {
     val viewModel: ApplistViewmodel = viewModel()
     val context = LocalContext.current
-    val focusRequester = remember { FocusRequester() }
-
-    // The ViewModel doesn't track search-mode itself (it only tracks the
-    // query text), so that bit of pure UI state lives locally in the screen.
-    var isSearchMode by remember { mutableStateOf(false) }
-
-    val filteredApps = viewModel.filteredApps
     val allApps = ApplistViewmodel.apps
+    val filteredApps = viewModel.filteredApps
     val totalApps = allApps.size
     val customizedApps = allApps.count { it.isEnabledInConfig }
-    val recommendedApps = allApps.count { it.isRecommended }
+    val gameApps = allApps.count { it.isRecommended }
     val systemApps = allApps.count { it.isSystem }
-
-    val pullToRefreshState = rememberPullToRefreshState()
     val listState = rememberLazyListState()
+    val pullToRefreshState = rememberPullToRefreshState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     LaunchedEffect(Unit) {
         viewModel.loadApps(context)
     }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (ApplistViewmodel.apps.isNotEmpty()) viewModel.refreshAppConfigStatus()
+    }
 
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            ApplistTopAppBar(
-                scrollBehavior = scrollBehavior,
-                isSearchMode = isSearchMode,
-                onSearchModeChange = { active ->
-                    isSearchMode = active
-                    if (!active) viewModel.clearSearch()
+            TopAppBar(
+                title = {
+                    Column {
+                        Text(stringResource(R.string.applist_title), fontWeight = FontWeight.Bold)
+                        if (totalApps > 0) {
+                            Text(
+                                stringResource(R.string.applist_app_count, totalApps),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 },
-                searchQuery = viewModel.searchTextFieldValue,
-                onSearchChange = { viewModel.updateSearch(it) },
-                showSystemApps = viewModel.showSystemApps,
-                onToggleSystem = { viewModel.showSystemApps = !viewModel.showSystemApps },
-                onRefresh = { viewModel.loadApps(context, forceRefresh = true) },
-                focusRequester = focusRequester
+                actions = {
+                    IconButton(
+                        onClick = { viewModel.loadApps(context, forceRefresh = true) },
+                        enabled = !viewModel.isRefreshing
+                    ) {
+                        Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.cd_refresh))
+                    }
+                },
+                scrollBehavior = scrollBehavior
             )
         }
-    ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            when {
-                viewModel.isRefreshing && filteredApps.isEmpty() -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
+    ) { padding ->
+        when {
+            viewModel.isRefreshing && allApps.isEmpty() -> {
+                MaxLoadingState(
+                    title = stringResource(R.string.applist_loading_title),
+                    message = stringResource(R.string.applist_loading_desc),
+                    modifier = Modifier.padding(padding)
+                )
+            }
+
+            viewModel.loadError != null -> {
+                MaxErrorState(
+                    title = stringResource(R.string.applist_error_title),
+                    message = viewModel.loadError ?: stringResource(R.string.applist_error_desc),
+                    retryLabel = stringResource(R.string.retry),
+                    onRetry = { viewModel.loadApps(context, forceRefresh = true) },
+                    modifier = Modifier.padding(padding)
+                )
+            }
+
+            else -> {
+                PullToRefreshBox(
+                    state = pullToRefreshState,
+                    isRefreshing = viewModel.isRefreshing,
+                    onRefresh = { viewModel.loadApps(context, forceRefresh = true) },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize().maxAdaptiveContentWidth(),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            top = 10.dp,
+                            end = 16.dp,
+                            bottom = 120.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator()
-                            Spacer(Modifier.height(16.dp))
-                            Text(
-                                stringResource(R.string.applist_loading_title),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                stringResource(R.string.applist_loading_desc),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        item {
+                            AppListHero(
+                                total = totalApps,
+                                customized = customizedApps,
+                                games = gameApps
                             )
                         }
-                    }
-                }
-                viewModel.loadError != null -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = stringResource(R.string.applist_error_title),
-                                style = MaterialTheme.typography.titleMedium
+                        item {
+                            AppSearchField(
+                                query = viewModel.searchTextFieldValue,
+                                onQueryChange = viewModel::updateSearch,
+                                onClear = viewModel::clearSearch
                             )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = viewModel.loadError ?: stringResource(R.string.applist_error_desc),
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodyMedium
+                        }
+                        item {
+                            AppFilterRow(
+                                selected = viewModel.appFilter,
+                                total = totalApps,
+                                customized = customizedApps,
+                                games = gameApps,
+                                system = systemApps,
+                                onSelected = { viewModel.appFilter = it }
                             )
-                            Spacer(Modifier.height(16.dp))
-                            Button(onClick = { viewModel.loadApps(context, forceRefresh = true) }) {
-                                Text(stringResource(R.string.retry))
+                        }
+                        item {
+                            AppResultsBar(
+                                count = filteredApps.size,
+                                sort = viewModel.appSort,
+                                onSort = { viewModel.appSort = it }
+                            )
+                        }
+
+                        if (filteredApps.isEmpty()) {
+                            item {
+                                MaxEmptyState(
+                                    title = stringResource(
+                                        if (viewModel.searchQuery.isNotBlank() || viewModel.appFilter != ApplistViewmodel.AppFilter.ALL) R.string.applist_no_results_title
+                                        else R.string.applist_empty_title
+                                    ),
+                                    message = stringResource(
+                                        if (viewModel.searchQuery.isNotBlank() || viewModel.appFilter != ApplistViewmodel.AppFilter.ALL) R.string.applist_no_results_desc
+                                        else R.string.applist_empty_desc
+                                    ),
+                                    actionLabel = if (viewModel.searchQuery.isNotBlank() || viewModel.appFilter != ApplistViewmodel.AppFilter.ALL) stringResource(R.string.applist_clear_filters) else null,
+                                    onAction = if (viewModel.searchQuery.isNotBlank() || viewModel.appFilter != ApplistViewmodel.AppFilter.ALL) {
+                                        {
+                                            viewModel.clearSearch()
+                                            viewModel.appFilter = ApplistViewmodel.AppFilter.ALL
+                                        }
+                                    } else null
+                                )
                             }
-                        }
-                    }
-                }
-                filteredApps.isEmpty() -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        val isFiltering = isSearchMode && viewModel.searchQuery.isNotEmpty()
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Rounded.SearchOff, contentDescription = null, modifier = Modifier.size(64.dp))
-                            Spacer(Modifier.height(16.dp))
-                            Text(
-                                text = stringResource(
-                                    if (isFiltering) R.string.applist_no_results_title else R.string.applist_empty_title
-                                ),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = stringResource(
-                                    if (isFiltering) R.string.applist_no_results_desc else R.string.applist_empty_desc
-                                ),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-                else -> {
-                    PullToRefreshBox(
-                        state = pullToRefreshState,
-                        isRefreshing = viewModel.isRefreshing,
-                        onRefresh = { viewModel.loadApps(context, forceRefresh = true) },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
-                    ) {
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            if (!isSearchMode) {
-                                item {
-                                    AppListOverview(
-                                        total = totalApps,
-                                        customized = customizedApps,
-                                        recommended = recommendedApps,
-                                        onClear = { viewModel.appFilter = ApplistViewmodel.AppFilter.ALL }
-                                    )
-                                }
-                                item {
-                                    AppFilterRow(
-                                        selected = viewModel.appFilter,
-                                        total = totalApps,
-                                        customized = customizedApps,
-                                        recommended = recommendedApps,
-                                        system = systemApps,
-                                        onSelected = { viewModel.appFilter = it }
-                                    )
-                                }
-                            }
-                            items(
-                                items = filteredApps,
-                                key = { it.packageName }
-                            ) { app ->
+                        } else {
+                            items(filteredApps, key = { it.packageName }) { app ->
                                 ApplistItem(
                                     app = app,
-                                    onClick = { navController.navigate("app_settings/${app.packageName}") }
+                                    onClick = {
+                                        navController.navigate("app_settings/${app.packageName}")
+                                    }
                                 )
                             }
                         }
@@ -220,131 +237,127 @@ fun ApplistScreen(navController: NavController) {
     }
 }
 
-@Composable
-private fun ApplistTopAppBar(
-    scrollBehavior: TopAppBarScrollBehavior,
-    isSearchMode: Boolean,
-    onSearchModeChange: (Boolean) -> Unit,
-    searchQuery: TextFieldValue,
-    onSearchChange: (TextFieldValue) -> Unit,
-    showSystemApps: Boolean,
-    onToggleSystem: () -> Unit,
-    onRefresh: () -> Unit,
-    focusRequester: FocusRequester
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
 
-    TopAppBar(
-        scrollBehavior = scrollBehavior,
-        title = {
-            if (isSearchMode) {
-                BasicTextField(
-                    value = searchQuery,
-                    onValueChange = onSearchChange,
-                    singleLine = true,
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = MaterialTheme.typography.titleMedium.fontSize
-                    ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    decorationBox = { innerTextField ->
-                        if (searchQuery.text.isEmpty()) {
-                            Text(
-                                text = stringResource(R.string.search_apps),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        innerTextField()
-                    }
-                )
-                LaunchedEffect(Unit) { focusRequester.requestFocus() }
-            } else {
-                Text(stringResource(R.string.applist_title), fontWeight = FontWeight.SemiBold)
-            }
-        },
-        navigationIcon = {
-            if (isSearchMode) {
-                IconButton(onClick = {
-                    onSearchModeChange(false)
-                    focusManager.clearFocus()
-                }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
-                }
-            }
-        },
-        actions = {
-            if (isSearchMode) {
-                if (searchQuery.text.isNotEmpty()) {
-                    IconButton(onClick = { onSearchChange(TextFieldValue("")) }) {
-                        Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.cd_clear))
-                    }
-                }
-            } else {
-                IconButton(onClick = { onSearchModeChange(true) }) {
-                    Icon(Icons.Filled.Search, contentDescription = stringResource(R.string.cd_search))
-                }
-                IconButton(onClick = onToggleSystem) {
-                    Icon(
-                        imageVector = if (showSystemApps) Icons.Filled.Check else Icons.Filled.Apps,
-                        contentDescription = stringResource(R.string.menu_show_system_apps),
-                        tint = if (showSystemApps) MaterialTheme.colorScheme.primary else LocalContentColor.current
+@Composable
+private fun AppListHero(total: Int, customized: Int, games: Int) {
+    val colors = MaterialTheme.colorScheme
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(26.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceContainerLow),
+        border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .55f))
+    ) {
+        Box(
+            Modifier.background(
+                Brush.linearGradient(
+                    listOf(
+                        colors.primary.copy(alpha = .14f),
+                        Color.Transparent,
+                        colors.tertiary.copy(alpha = .08f)
                     )
+                )
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconBadge(Icons.Rounded.Apps, colors.primary, 52)
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            stringResource(R.string.applist_hero_title),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            stringResource(R.string.applist_hero_desc),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colors.onSurfaceVariant
+                        )
+                    }
                 }
-                IconButton(onClick = onRefresh) {
-                    Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.cd_refresh))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    AppMetric(
+                        stringResource(R.string.applist_metric_installed),
+                        total,
+                        Modifier.weight(1f)
+                    )
+                    AppMetric(
+                        stringResource(R.string.applist_metric_customized),
+                        customized,
+                        Modifier.weight(1f)
+                    )
+                    AppMetric(
+                        stringResource(R.string.applist_metric_games),
+                        games,
+                        Modifier.weight(1f)
+                    )
                 }
             }
         }
-    )
+    }
 }
 
 @Composable
-private fun AppListOverview(
-    total: Int,
-    customized: Int,
-    recommended: Int,
-    onClear: () -> Unit
-) {
+private fun AppMetric(label: String, value: Int, modifier: Modifier = Modifier) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = .78f)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.applist_overview_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                TextButton(onClick = onClear) {
-                    Text(stringResource(R.string.applist_view_all))
-                }
-            }
-            Spacer(Modifier.height(4.dp))
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
             Text(
-                text = stringResource(R.string.applist_customized_summary, customized, total),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                value.toString(),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
-            Spacer(Modifier.height(8.dp))
             Text(
-                text = stringResource(R.string.applist_overview_summary, customized, recommended),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
             )
         }
     }
+}
+
+@Composable
+private fun AppSearchField(
+    query: TextFieldValue,
+    onQueryChange: (TextFieldValue) -> Unit,
+    onClear: () -> Unit
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = Modifier.fillMaxWidth(),
+        placeholder = { Text(stringResource(R.string.search_apps)) },
+        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+        trailingIcon = if (query.text.isNotEmpty()) {
+            {
+                IconButton(onClick = onClear) {
+                    Icon(
+                        Icons.Filled.Clear,
+                        contentDescription = stringResource(R.string.cd_clear)
+                    )
+                }
+            }
+        } else {
+            null
+        },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        shape = RoundedCornerShape(18.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    )
 }
 
 @Composable
@@ -352,15 +365,19 @@ private fun AppFilterRow(
     selected: ApplistViewmodel.AppFilter,
     total: Int,
     customized: Int,
-    recommended: Int,
+    games: Int,
     system: Int,
     onSelected: (ApplistViewmodel.AppFilter) -> Unit
 ) {
-    val entries = remember(total, customized, recommended, system) {
+    val entries = remember(total, customized, games, system) {
         listOf(
             Triple(ApplistViewmodel.AppFilter.ALL, R.string.applist_filter_all, total),
-            Triple(ApplistViewmodel.AppFilter.CUSTOMIZED, R.string.applist_filter_customized, customized),
-            Triple(ApplistViewmodel.AppFilter.RECOMMENDED, R.string.applist_filter_recommended, recommended),
+            Triple(ApplistViewmodel.AppFilter.RECOMMENDED, R.string.applist_filter_games, games),
+            Triple(
+                ApplistViewmodel.AppFilter.CUSTOMIZED,
+                R.string.applist_filter_customized,
+                customized
+            ),
             Triple(ApplistViewmodel.AppFilter.SYSTEM, R.string.applist_filter_system, system)
         )
     }
@@ -375,7 +392,24 @@ private fun AppFilterRow(
                 selected = selected == filter,
                 onClick = { onSelected(filter) },
                 label = {
-                    Text(stringResource(R.string.applist_filter_count, stringResource(labelRes), count))
+                    Text(
+                        stringResource(
+                            R.string.applist_filter_count,
+                            stringResource(labelRes),
+                            count
+                        )
+                    )
+                },
+                leadingIcon = if (selected == filter) {
+                    {
+                        Icon(
+                            Icons.Filled.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                } else {
+                    null
                 }
             )
         }
@@ -383,53 +417,148 @@ private fun AppFilterRow(
 }
 
 @Composable
-private fun ApplistItem(
-    app: ApplistViewmodel.AppInfo,
-    onClick: () -> Unit
+private fun AppResultsBar(
+    count: Int,
+    sort: ApplistViewmodel.AppSort,
+    onSort: (ApplistViewmodel.AppSort) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.applist_results_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                stringResource(R.string.applist_results_count, count),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Box {
+            TextButton(onClick = { expanded = true }) {
+                Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(sort.labelRes))
+            }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                ApplistViewmodel.AppSort.entries.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(stringResource(option.labelRes)) },
+                        leadingIcon = if (sort == option) {
+                            { Icon(Icons.Filled.Check, contentDescription = null) }
+                        } else {
+                            null
+                        },
+                        onClick = {
+                            onSort(option)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+private val ApplistViewmodel.AppSort.labelRes: Int
+    get() = when (this) {
+        ApplistViewmodel.AppSort.SMART -> R.string.applist_sort_smart
+        ApplistViewmodel.AppSort.NAME -> R.string.applist_sort_name
+        ApplistViewmodel.AppSort.CUSTOMIZATION -> R.string.applist_sort_customized
+    }
+
+
+@Composable
+private fun ApplistItem(app: ApplistViewmodel.AppInfo, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(18.dp),
+        color = colors.surfaceContainerLow,
+        border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .42f)),
         onClick = onClick
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(horizontal = 14.dp, vertical = 13.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AppIconImage(app = app, size = 40.dp)
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = app.label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            AppIconImage(app = app, size = 48.dp)
+            Spacer(Modifier.width(13.dp))
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = app.label,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    when {
+                        app.isRecommended -> {
+                            Spacer(Modifier.width(7.dp))
+                            AppTypeTag(stringResource(R.string.applist_tag_game), colors.tertiary)
+                        }
+
+                        app.isSystem -> {
+                            Spacer(Modifier.width(7.dp))
+                            AppTypeTag(stringResource(R.string.applist_tag_system), colors.secondary)
+                        }
+                    }
+                }
                 Text(
                     text = app.packageName,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = colors.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-            }
-            if (app.isEnabledInConfig) {
-                Spacer(Modifier.width(8.dp))
-                LabelText(text = "${app.customizedCount}", color = MaterialTheme.colorScheme.primary)
-            }
-            if (app.isRecommended) {
-                Spacer(Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.Rounded.Star,
-                    contentDescription = stringResource(R.string.applist_filter_recommended),
-                    tint = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.size(18.dp)
+                Text(
+                    text = if (app.isEnabledInConfig) {
+                        stringResource(R.string.applist_overrides_count, app.customizedCount)
+                    } else {
+                        stringResource(R.string.applist_default_settings)
+                    },
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (app.isEnabledInConfig) colors.primary else colors.onSurfaceVariant
                 )
             }
+            Spacer(Modifier.width(10.dp))
+            Icon(
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                contentDescription = null,
+                tint = colors.onSurfaceVariant
+            )
         }
+    }
+}
+
+@Composable
+private fun AppTypeTag(text: String, color: Color) {
+    Box(
+        Modifier
+            .clip(RoundedCornerShape(7.dp))
+            .background(color.copy(alpha = .12f))
+            .padding(horizontal = 7.dp, vertical = 2.dp)
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.labelSmall,
+            color = color,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }

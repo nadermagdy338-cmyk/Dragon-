@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.NetworkCheck
@@ -23,6 +22,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -39,6 +39,9 @@ import nd.max.ui.component.ExpressiveList
 import nd.max.ui.component.ExpressiveListItem
 import nd.max.ui.component.ExpressiveSwitchItem
 import nd.max.ui.component.LeadingIcon
+import nd.max.ui.component.MaxManagerSubScreenTopBar
+import nd.max.ui.component.ScreenAccentProvider
+import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.mainscreens.TweaksSectionTitle
 import nd.max.ui.viewmodel.NetworkSchedulerViewModel
@@ -56,38 +59,26 @@ fun NetworkSchedulerScreen(
     viewModel: NetworkSchedulerViewModel = viewModel()
 ) {
     val listState = rememberLazyListState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val accent = MaterialTheme.colorScheme.primary
 
     LaunchedEffect(Unit) { viewModel.loadState() }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.net_sched_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "TCP/IP · Scheduler",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = stringResource(R.string.cd_back)
-                        )
-                    }
-                }
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
+    ScreenAccentProvider(accent) {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                MaxManagerSubScreenTopBar(
+                    scrollBehavior = scrollBehavior,
+                    title = stringResource(R.string.net_sched_title),
+                    subtitle = "TCP/IP · Scheduler",
+                    onBack = { navController.popBackStack() },
+                    accentIcon = Icons.Outlined.SettingsEthernet,
+                    accent = accent
+                )
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) { innerPadding ->
         when (viewModel.isAvailable) {
             null -> Box(
                 Modifier.fillMaxSize().padding(innerPadding),
@@ -110,7 +101,7 @@ fun NetworkSchedulerScreen(
 
             true -> LazyColumn(
                 state = listState,
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier.fillMaxSize().maxAdaptiveContentWidth(),
                 contentPadding = PaddingValues(
                     start = MaxUiMetrics.screenHorizontalPadding,
                     end = MaxUiMetrics.screenHorizontalPadding,
@@ -167,6 +158,7 @@ fun NetworkSchedulerScreen(
                 }
             }
         }
+    }
     }
 }
 

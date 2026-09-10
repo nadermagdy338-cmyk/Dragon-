@@ -29,14 +29,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -47,6 +43,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -403,19 +400,8 @@ private fun ObservatoryHero(
     isArabic: Boolean,
     onInspectorClick: () -> Unit
 ) {
-    val transition = rememberInfiniteTransition(label = "observatory_motion")
-    val pulse by transition.animateFloat(
-        initialValue = 0.94f,
-        targetValue = 1.06f,
-        animationSpec = infiniteRepeatable(tween(1800, easing = EaseOutCubic), RepeatMode.Reverse),
-        label = "hero_pulse"
-    )
-    val rotation by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(18000, easing = LinearEasing)),
-        label = "hero_rotation"
-    )
+    val pulse = 1f
+    val rotation = 0f
     Card(
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
@@ -518,7 +504,7 @@ private fun AnimatedAppRow(app: AppData, onClick: () -> Unit, isArabic: Boolean)
                     Text("${app.activityCount} ${if (isArabic) "نشاط" else "activities"}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
-            Icon(Icons.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -617,7 +603,7 @@ fun AppDetailScreen(packageName: String, onBack: () -> Unit) {
                                 Text(activity.label, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold)
                                 Text(activity.name, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            Icon(Icons.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -809,22 +795,11 @@ fun ActivityStatsDashboard(
             
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 Box(contentAlignment = Alignment.Center) {
-                    // Soft breathing halo behind the ring — echoes the donut's
-                    // own color instead of sitting on a flat card background.
-                    val haloTransition = rememberInfiniteTransition(label = "donut_halo")
-                    val haloAlpha by haloTransition.animateFloat(
-                        initialValue = 0.12f, targetValue = 0.28f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(2000, easing = LinearEasing),
-                            repeatMode = RepeatMode.Reverse
-                        ),
-                        label = "donut_halo_alpha"
-                    )
                     Box(
                         modifier = Modifier
                             .size(140.dp)
                             .background(
-                                Brush.radialGradient(listOf(userColor.copy(alpha = haloAlpha), Color.Transparent)),
+                                Brush.radialGradient(listOf(userColor.copy(alpha = 0.18f), Color.Transparent)),
                                 CircleShape
                             )
                     )

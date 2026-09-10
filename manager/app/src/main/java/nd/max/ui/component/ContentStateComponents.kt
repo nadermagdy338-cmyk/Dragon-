@@ -87,8 +87,24 @@ fun MaxContentState(
 }
 
 @Composable
-fun MaxLoadingState(title: String, message: String, modifier: Modifier = Modifier) {
-    MaxContentState(title, message, Icons.Rounded.HourglassTop, modifier)
+fun MaxLoadingState(
+    title: String,
+    message: String,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
+) {
+    if (compact) {
+        Column(
+            modifier = modifier.fillMaxWidth().padding(vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            androidx.compose.material3.CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
+            Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    } else {
+        MaxContentState(title, message, Icons.Rounded.HourglassTop, modifier)
+    }
 }
 
 @Composable

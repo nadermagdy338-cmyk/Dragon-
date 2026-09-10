@@ -85,20 +85,23 @@ fun MaxReveal(
     content: @Composable () -> Unit
 ) {
     val entrance = remember { Animatable(0f) }
-    LaunchedEffect(Unit) {
-        entrance.animateTo(
-            1f,
-            tween( MaxMotion.standard, delayMillis.coerceIn(0, 160), FastOutSlowInEasing)
-        )
+    LaunchedEffect(visible) {
+        if (visible) {
+            entrance.animateTo(
+                1f,
+                tween(MaxMotion.standard, delayMillis.coerceIn(0, 160), FastOutSlowInEasing)
+            )
+        } else {
+            entrance.snapTo(0f)
+        }
     }
-    // Keep initially visible lazy items measured while their entrance fades in.
     AnimatedVisibility(
         visible = visible,
         modifier = modifier.graphicsLayer {
             alpha = entrance.value
             translationY = (1f - entrance.value) * 12.dp.toPx()
         },
-        enter = MaxMotion.enter(),
+        enter = EnterTransition.None,
         exit = MaxMotion.exit
     ) {
         content()

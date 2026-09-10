@@ -189,7 +189,7 @@ fun MainScreen(fromTileType: String? = null) {
     // STATE: Apakah scroll animation nyala atau nggak? (Default false)
     var useScrollAnimation by remember { mutableStateOf(settingsPrefs.getBoolean("use_scroll_animation", false)) }
 
-    val pagerRoutes = remember { listOf("home", "tweaks", "applist", "settings") }
+    val pagerRoutes = remember { listOf("home", "applist", "tweaks", "settings") }
     val pagerState = rememberPagerState(initialPage = 0) { pagerRoutes.size }
     
     // Bottom bar routes dinamis tergantung setting
@@ -251,8 +251,8 @@ fun MainScreen(fromTileType: String? = null) {
     val navItems = remember {
         listOf(
             NavItem("home", R.string.nav_home, Icons.Rounded.Home),
-            NavItem("tweaks", R.string.nav_tweaks, Icons.Rounded.SettingsInputComponent),
             NavItem("applist", R.string.nav_applist, Icons.Rounded.Widgets),
+            NavItem("tweaks", R.string.nav_tweaks, Icons.Rounded.SettingsInputComponent),
             NavItem("settings", R.string.nav_settings, Icons.Rounded.Settings)
         )
     }
@@ -463,7 +463,6 @@ fun MainScreen(fromTileType: String? = null) {
                     composable("touchboost") { nd.max.ui.subscreens.TouchBoostScreen(navController) }
                     composable("displaystudio") { nd.max.ui.subscreens.DisplayStudioScreen(navController) }
                     composable("chargingscreen") { nd.max.ui.subscreens.ChargingScreen(navController) }
-                    composable("advancedconfig") { nd.max.ui.subscreens.AdvancedConfigurationScreen(navController) }
                     composable("debloatfreeze") { nd.max.ui.subscreens.DebloatFreezeScreen(navController) }
                     composable("dex2oat") { nd.max.ui.subscreens.Dex2oatScreen(navController) }
                     composable("fpsoverlay") { nd.max.ui.subscreens.FpsOverlayScreen(navController) }

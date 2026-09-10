@@ -27,13 +27,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -89,16 +84,6 @@ fun RadialGaugeCard(
             stiffness = Spring.StiffnessLow
         ),
         label = "gaugeFraction"
-    )
-    val tipPulseTransition = rememberInfiniteTransition(label = "gaugeTipPulse")
-    val tipPulse by tipPulseTransition.animateFloat(
-        initialValue = 0.85f,
-        targetValue = 1.15f,
-        animationSpec = infiniteRepeatable<Float>(
-            animation = tween<Float>(1100),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "gaugeTipPulseValue"
     )
     val secondaryTone = Color(
         red = (accentColor.red + MaterialTheme.colorScheme.tertiary.red) / 2f,
@@ -226,7 +211,7 @@ fun RadialGaugeCard(
                         center.x + cos(tipAngleRad) * radius,
                         center.y + sin(tipAngleRad) * radius
                     )
-                    val pulseScale = if (isLive) tipPulse else 1f
+                    val pulseScale = 1f
                     drawCircle(
                         color = accentColor.copy(alpha = 0.25f),
                         radius = (strokeWidth / 2f + 6.dp.toPx()) * pulseScale,
@@ -265,23 +250,12 @@ fun RadialGaugeCard(
     }
 }
 
-/** A small breathing dot used once per screen next to a gauge's title to mark it as polling live hardware data. */
+/** Static live-data marker; polling values already provide visible motion. */
 @Composable
 fun LivePulseDot(color: Color = LocalScreenAccent.current ?: MaterialTheme.colorScheme.primary) {
-    val transition = rememberInfiniteTransition(label = "livePulse")
-    val alpha by transition.animateFloat(
-        initialValue = 0.35f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable<Float>(
-            animation = tween<Float>(900),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "livePulseAlpha"
-    )
     Box(
         modifier = Modifier
             .size(8.dp)
-            .alpha(alpha)
             .clip(MaterialTheme.shapes.small)
             .background(color)
     )

@@ -21,15 +21,11 @@ package nd.max
  *
  * Before this file existed, the same key — e.g.
  * `"persist.sys.maxmanagerconf.AIenabled"` — was hand-typed independently in
- * roughly 20 different screens/ViewModels (GetStartedScreen, HomeViewmodel,
- * SettingViewmodel, AppSettingsViewmodel, GovSettingsScreen,
- * FpsGoSettingsScreen, AdvancedConfigViewModel, ...). A typo in any one of
- * those copies silently created a dead property that PropertyUtils would
- * write to (or read from) without ever matching what the daemon/binaries
- * actually use. Centralising it here means a rename only needs one edit,
- * and new code has one obvious place to reuse instead of copy-pasting the
- * string again — see PROJECT_NOTES.md rule #3 ("متكررش منطق موجود"), the
- * same reasoning [MaxManagerPaths] was created for.
+ * SettingViewmodel, AppSettingsViewmodel, GovSettingsScreen, and related
+ * hardware controls. A typo in any one of those copies silently created a
+ * dead property that PropertyUtils would write to (or read from) without ever
+ * matching what the daemon/binaries actually use. Centralising it here gives
+ * callers one source of truth, for the same reason [MaxManagerPaths] exists.
  *
  * The shell scripts (`mainfiles/props.sh`) and the Rust binaries
  * (`binprofiles/src/props.rs`, `binutils/src/utils/mod.rs`) mirror this same
@@ -128,13 +124,6 @@ object MaxManagerProps {
         const val MALIGPU_CUSTOM_PERFORMANCE = "persist.sys.maxmanager.custom_performance_maligpu_gov"
         const val MALIGPU_CUSTOM_POWERSAVE = "persist.sys.maxmanager.custom_powersave_maligpu_gov"
 
-        const val CUSTOM_GPU_GOVERNOR = "persist.sys.maxmanager.custom_gpu_governor"
-
-        /** Prefix for the per-cluster custom governor keys; append the cluster index. */
-        const val CUSTOM_CLUSTER_PREFIX = "persist.sys.maxmanager.custom_gov_cluster_"
-
-        /** Builds the per-cluster custom governor key, e.g. `customCluster(0)`. */
-        fun customCluster(cluster: Int): String = "$CUSTOM_CLUSTER_PREFIX$cluster"
     }
 
     // ------------------------------------------------------------------
@@ -219,7 +208,6 @@ object MaxManagerProps {
         const val ZRAM_PRESET = "persist.sys.maxmanager.custom_zram_preset"
         const val ZRAM_SIZE_MB = "persist.sys.maxmanager.custom_zram_size_mb"
         const val SWAPPINESS = "persist.sys.maxmanager.custom_swappiness"
-        const val UFS_SCHEDULER = "persist.sys.maxmanager.custom_ufs_scheduler"
     }
 
     // ------------------------------------------------------------------
