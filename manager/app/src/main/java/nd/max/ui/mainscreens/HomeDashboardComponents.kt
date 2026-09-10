@@ -286,7 +286,6 @@ private fun PerformanceGraph(values: List<Float>, accent: Color, modifier: Modif
     }
 }
 
-@Composable
 /**
  * Quick access — pure shortcuts, not controls in themselves. Every tile here
  * either opens a detail/read-more screen or hands off to a dedicated screen
