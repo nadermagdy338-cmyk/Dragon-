@@ -18,7 +18,9 @@ package nd.max.ui.viewmodel
 
 import nd.max.MaxManagerProps
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
