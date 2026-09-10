@@ -548,6 +548,11 @@
     <string name="max_home_state_thermal">حرارة البطارية مرتفعة</string>
     <string name="max_home_state_thermal_desc">حرارة البطارية مرتفعة. أعطِ الأولوية للتبريد والاستقرار بدل الحفاظ على أقصى أداء.</string>
     <string name="max_home_command_center">مركز التحكم</string>
+    <string name="max_home_dashboard_eyebrow">مراقبة النظام</string>
+    <string name="max_home_uptime">مدة التشغيل</string>
+    <string name="max_home_frequency">التردد</string>
+    <string name="max_home_quick_access">الوصول السريع</string>
+    <string name="max_home_quick_access_desc">انتقل إلى الإعدادات التفصيلية</string>
     <string name="max_home_live_overview">نظرة مباشرة على أداء الجهاز</string>
     <string name="max_home_live_hardware">العتاد المباشر</string>
     <string name="max_home_hardware_desc">ما يفعله الجهاز الآن</string>

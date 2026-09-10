@@ -1310,6 +1310,11 @@
     <string name="max_home_state_balanced_desc">The live dashboard is within a normal operating range.</string>
 
     <string name="max_home_command_center">Command Center</string>
+    <string name="max_home_dashboard_eyebrow">System monitor</string>
+    <string name="max_home_uptime">Uptime</string>
+    <string name="max_home_frequency">Frequency</string>
+    <string name="max_home_quick_access">Quick access</string>
+    <string name="max_home_quick_access_desc">Jump to detailed controls</string>
     <string name="max_home_live_overview">Live performance overview</string>
     <string name="max_home_live_hardware">Live hardware</string>
     <string name="max_home_hardware_desc">What the device is doing right now</string>

@@ -155,10 +155,10 @@ fun HomeDashboardContent(
                     deviceName = deviceName,
                     chipset = dashboard.chipsetName.takeUnless { it.isBlank() || it == "..." },
                     online = online,
-                    profile = profile,
+                    batteryPercent = dashboard.batteryPercent,
+                    cpuFreqMhz = dashboard.cpuFreqMhz,
+                    uptimeMinutes = dashboard.uptimeMinutes,
                     temperatureC = nd.max.ui.viewmodel.primaryBatteryTemperatureC(dashboard),
-                    onProfile = onProfile,
-                    onThermal = { onNavigate("thermal_detail") },
                     onSettings = { onNavigate("settings") },
                     onReboot = onReboot
                 )
@@ -174,13 +174,11 @@ fun HomeDashboardContent(
                 ControlDeck(
                     dashboard = dashboard,
                     profile = profile,
-                    profileEnabled = ui.autoMode == "0",
                     profilePending = ui.autoMode != "0",
                     gpuName = gpuName,
                     onRoute = onNavigate,
                     onGpu = { gpuRoute?.let(onNavigate) },
-                    onProfile = onProfile,
-                    onReboot = onReboot
+                    onProfile = onProfile
                 )
             }
             item {

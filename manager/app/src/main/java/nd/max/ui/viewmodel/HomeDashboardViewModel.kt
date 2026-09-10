@@ -12,6 +12,7 @@ import android.content.IntentFilter
 import android.net.TrafficStats
 import android.os.BatteryManager
 import android.os.StatFs
+import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.view.WindowManager
 import androidx.lifecycle.AndroidViewModel
@@ -50,7 +51,8 @@ data class DashboardState(
     val displayHeight: Int = 0,
     val displayRefreshHz: Int = 0,
     val displayDensityDpi: Int = 0,
-    val cpuLoadHistory: List<Float> = emptyList()
+    val cpuLoadHistory: List<Float> = emptyList(),
+    val uptimeMinutes: Long = 0L
 )
 
 internal fun primaryBatteryTemperatureC(state: DashboardState): Float? =
@@ -116,7 +118,8 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     },
                     cpuTempC = thermal[0], gpuTempC = thermal[1], skinTempC = thermal[2],
                     storageUsedGb = storage[0], storageTotalGb = storage[1],
-                    downloadSpeedKbps = network[0], uploadSpeedKbps = network[1]
+                    downloadSpeedKbps = network[0], uploadSpeedKbps = network[1],
+                    uptimeMinutes = SystemClock.elapsedRealtime() / 60_000L
                 )
                 delay(2000)
             }

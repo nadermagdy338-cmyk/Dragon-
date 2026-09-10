@@ -49,6 +49,19 @@ fun formatNetSpeed(kbps: Long): String = when {
 
 private fun Float.oneDecimal(): String = String.format(Locale.US, "%.1f", this)
 
+private fun formatFreq(mhz: Int): String = when {
+    mhz <= 0 -> "—"
+    mhz >= 1000 -> "${(mhz / 1000f).oneDecimal()} GHz"
+    else -> "$mhz MHz"
+}
+
+private fun formatUptime(minutes: Long): String {
+    if (minutes <= 0) return "—"
+    val h = minutes / 60
+    val m = minutes % 60
+    return if (h > 0) "${h}h ${m}m" else "${m}m"
+}
+
 
 @Composable
 fun DashSectionLabel(text: String) {
@@ -85,15 +98,23 @@ fun GlowLinearBar(fraction: Float, accent: Color, modifier: Modifier = Modifier,
     )
 }
 
+/**
+ * Home's identity/status readout — a pure display surface. It states what the
+ * device is and how it's doing (name, chipset, live stat quad) with no inline
+ * controls; the only two icon actions here (settings, reboot) are utility
+ * shortcuts tucked in the header, not headline calls to action. Anything that
+ * actually changes device behavior (profile, tuning) lives in Quick access
+ * below or in the Tweaks tab, never here.
+ */
 @Composable
 fun CommandHero(
     deviceName: String,
     chipset: String?,
     online: Boolean,
-    profile: String,
+    batteryPercent: Int,
+    cpuFreqMhz: Int,
+    uptimeMinutes: Long,
     temperatureC: Float?,
-    onProfile: () -> Unit,
-    onThermal: () -> Unit,
     onSettings: () -> Unit,
     onReboot: () -> Unit
 ) {
@@ -119,7 +140,7 @@ fun CommandHero(
         BoxWithConstraints(Modifier.fillMaxWidth().padding(20.dp)) {
             val wide = maxWidth >= 600.dp
             val content: @Composable RowScope.() -> Unit = {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         MaxStatusPill(
                             if (online) stringResource(R.string.max_home_live) else stringResource(R.string.max_home_offline),
@@ -130,38 +151,27 @@ fun CommandHero(
                         IconButton(onClick = onReboot) { Icon(Icons.Rounded.PowerSettingsNew, stringResource(R.string.max_home_power)) }
                         IconButton(onClick = onSettings) { Icon(Icons.Rounded.Settings, stringResource(R.string.max_home_settings)) }
                     }
-                    Text(stringResource(R.string.max_home_command_center).uppercase(), style = MaterialTheme.typography.labelMedium, color = colors.primary, letterSpacing = 2.sp)
-                    Text(deviceName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    Text(chipset ?: stringResource(R.string.max_home_unavailable), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        HeroReadout(stringResource(R.string.max_home_profile), profile, colors.primary)
-                        HeroReadout(stringResource(R.string.max_home_temp), temperatureC?.let { "${it.oneDecimal()}°C" } ?: stringResource(R.string.max_home_unavailable), colors.tertiary)
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(stringResource(R.string.max_home_dashboard_eyebrow).uppercase(), style = MaterialTheme.typography.labelMedium, color = colors.primary, letterSpacing = 2.sp)
+                        Text(deviceName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text(chipset ?: stringResource(R.string.max_home_unavailable), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
                     }
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Button(onClick = onProfile, modifier = Modifier.heightIn(min = 48.dp)) { Icon(Icons.Rounded.Speed, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.max_home_change_profile)) }
-                        OutlinedButton(onClick = onThermal, modifier = Modifier.heightIn(min = 48.dp)) { Icon(Icons.Rounded.Thermostat, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.max_home_thermal)) }
+                    Surface(shape = RoundedCornerShape(16.dp), color = colors.primary.copy(alpha = .07f)) {
+                        StatTickRow(
+                            stats = listOf(
+                                stringResource(R.string.max_home_temp) to (temperatureC?.let { "${it.oneDecimal()}°" } ?: stringResource(R.string.max_home_unavailable)),
+                                stringResource(R.string.max_home_battery) to "$batteryPercent%",
+                                stringResource(R.string.max_home_frequency) to formatFreq(cpuFreqMhz),
+                                stringResource(R.string.max_home_uptime) to formatUptime(uptimeMinutes)
+                            ),
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp)
+                        )
                     }
                 }
                 if (wide) { Spacer(Modifier.width(24.dp)); ChipSchematic(Modifier.width(180.dp).height(220.dp), colors.primary) }
             }
             if (wide) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, content = content)
             else Row(Modifier.fillMaxWidth(), content = content)
-        }
-    }
-}
-
-@Composable
-private fun HeroReadout(label: String, value: String, accent: Color) {
-    Surface(shape = RoundedCornerShape(12.dp), color = accent.copy(alpha = .08f)) {
-        Column(Modifier.padding(horizontal = 12.dp, vertical = 9.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = accent)
-            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -192,13 +202,15 @@ fun LivePerformance(dashboard: DashboardState, gpuName: String?, onGpu: (() -> U
         colors.primary
     ) {
         MaxSurface(accent = colors.primary) {
-            Row(verticalAlignment = Alignment.Bottom) {
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.max_home_cpu_activity), style = MaterialTheme.typography.labelLarge, color = colors.primary)
-                    Text(if (cpuReady) "${dashboard.cpuLoadPercent.coerceIn(0, 100)}%" else stringResource(R.string.max_home_unavailable), style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Black)
-                }
-                Text(dashboard.cpuFreqMhz.takeIf { cpuReady && it > 0 }?.let { "$it MHz" } ?: stringResource(R.string.max_home_unavailable), style = MaterialTheme.typography.titleMedium, color = colors.onSurfaceVariant)
-            }
+            RadialGaugeCard(
+                title = stringResource(R.string.max_home_cpu_activity),
+                valueText = if (cpuReady) dashboard.cpuLoadPercent.coerceIn(0, 100).toString() else "--",
+                unitText = "%",
+                fraction = if (cpuReady) dashboard.cpuLoadPercent.coerceIn(0, 100) / 100f else 0f,
+                subtitle = dashboard.cpuFreqMhz.takeIf { cpuReady && it > 0 }?.let { formatFreq(it) } ?: stringResource(R.string.max_home_unavailable),
+                isLive = cpuReady,
+                accentColor = colors.primary
+            )
             Spacer(Modifier.height(12.dp))
             if (dashboard.cpuLoadHistory.size >= 2) PerformanceGraph(dashboard.cpuLoadHistory.takeLast(36), colors.primary, Modifier.fillMaxWidth().height(120.dp))
             else Box(Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) { Text(stringResource(R.string.max_home_waiting_samples), color = colors.onSurfaceVariant) }
@@ -275,53 +287,39 @@ private fun PerformanceGraph(values: List<Float>, accent: Color, modifier: Modif
 }
 
 @Composable
+/**
+ * Quick access — pure shortcuts, not controls in themselves. Every tile here
+ * either opens a detail/read-more screen or hands off to a dedicated screen
+ * (Tweaks) where the actual change happens; nothing on Home executes a
+ * device change directly except Reboot, which stays in the header, not here.
+ */
+@Composable
 fun ControlDeck(
     dashboard: DashboardState,
     profile: String,
-    profileEnabled: Boolean,
     profilePending: Boolean,
     gpuName: String?,
     onRoute: (String) -> Unit,
     onGpu: () -> Unit,
-    onProfile: () -> Unit,
-    onReboot: () -> Unit
+    onProfile: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
     DashboardSection(
-        stringResource(R.string.max_home_control_center),
-        stringResource(R.string.max_home_control_desc),
+        stringResource(R.string.max_home_quick_access),
+        stringResource(R.string.max_home_quick_access_desc),
         colors.tertiary
     ) {
-        MaxSurface(accent = colors.tertiary) {
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val stacked = maxWidth < 440.dp || androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
-                val details: @Composable (Modifier) -> Unit = { modifier ->
-                    Column(modifier) {
-                        Text(stringResource(R.string.max_home_active_profile), style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
-                        Text(profile, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Text(if (profilePending) stringResource(R.string.max_home_profile_managed) else stringResource(R.string.max_home_profile_ready), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
-                    }
-                }
-                if (stacked) Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    details(Modifier.fillMaxWidth())
-                    Button(onClick = onProfile, enabled = profileEnabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.max_home_change)) }
-                } else Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    details(Modifier.weight(1f))
-                    Button(onClick = onProfile, enabled = profileEnabled, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.max_home_change)) }
-                }
-            }
-        }
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val stacked = maxWidth < 700.dp || androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
             val itemWidth = if (stacked) maxWidth else (maxWidth - 12.dp) / 2
             FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                ControlAction(stringResource(R.string.max_home_change_profile), if (profilePending) stringResource(R.string.max_home_profile_managed) else stringResource(R.string.max_home_profile_ready), profile, Icons.Rounded.Speed, colors.primary, Modifier.width(itemWidth), onProfile)
                 ControlAction(stringResource(R.string.max_home_battery), stringResource(R.string.max_home_battery_desc), dashboard.batteryPercent.takeIf { dashboard.batteryStatus.isNotBlank() }?.let { "$it%" }, Icons.Rounded.BatteryChargingFull, colors.tertiary, Modifier.width(itemWidth)) { onRoute("battery_detail") }
                 ControlAction(stringResource(R.string.max_home_storage), stringResource(R.string.max_home_storage_desc), dashboard.storageTotalGb.takeIf { it > 0f }?.let { "${dashboard.storageUsedGb.oneDecimal()} / ${it.oneDecimal()} GB" }, Icons.Rounded.Storage, colors.secondary, Modifier.width(itemWidth)) { onRoute("storage_detail") }
                 ControlAction(stringResource(R.string.max_home_thermal), stringResource(R.string.max_home_thermal_desc), primaryBatteryTemperatureC(dashboard)?.let { "${it.oneDecimal()}°C" }, Icons.Rounded.Thermostat, colors.error, Modifier.width(itemWidth)) { onRoute("thermal_detail") }
                 ControlAction(stringResource(R.string.max_home_network), stringResource(R.string.max_home_network_desc), "↓ ${formatNetSpeed(dashboard.downloadSpeedKbps)}  ↑ ${formatNetSpeed(dashboard.uploadSpeedKbps)}", Icons.Rounded.NetworkCheck, colors.primary, Modifier.width(itemWidth)) { onRoute("network_detail") }
                 ControlAction(stringResource(R.string.studio_display), stringResource(R.string.max_home_resources_desc), dashboard.displayWidth.takeIf { it > 0 }?.let { "${dashboard.displayWidth}×${dashboard.displayHeight} · ${dashboard.displayRefreshHz} Hz" }, Icons.Rounded.DisplaySettings, colors.secondary, Modifier.width(itemWidth)) { onRoute("displaystudio") }
                 if (gpuName != null) ControlAction(stringResource(R.string.max_home_gpu_control), stringResource(R.string.max_home_gpu_control_desc), gpuName, Icons.Rounded.DeveloperBoard, colors.tertiary, Modifier.width(itemWidth), onGpu)
-                ControlAction(stringResource(R.string.max_home_reboot), stringResource(R.string.max_home_reboot_desc), null, Icons.Rounded.RestartAlt, colors.error, Modifier.width(itemWidth), onReboot)
             }
         }
     }
