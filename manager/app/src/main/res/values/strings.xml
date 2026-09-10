@@ -657,6 +657,7 @@
     <string name="charging_battery_ready_desc">%1$d%% available · charging controls are ready when needed</string>
     <string name="charging_session_active">Charging session active</string>
     <string name="charging_session_power">%1$.1f W · %2$.2f A entering the battery</string>
+    <string name="charging_session_telemetry">%1$s · %2$s entering the battery</string>
     <string name="charging_limit_full">100% · no limit</string>
     <string name="charging_controls_title">Charging Controls</string>
     <string name="charging_fast_current">Fast Charging Current Limit</string>

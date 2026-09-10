@@ -18,9 +18,7 @@ package nd.max.ui.viewmodel
 
 import nd.max.MaxManagerProps
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
@@ -71,6 +69,7 @@ class ChargingViewModel : ViewModel() {
         private set
     var voltageMv by mutableStateOf(0)
         private set
+    /** Current into the battery in mA. Positive always means charging. */
     var currentMa by mutableStateOf(0)
         private set
     var temperatureC by mutableStateOf(0f)
@@ -191,10 +190,20 @@ class ChargingViewModel : ViewModel() {
         val dir = batteryDir ?: return
         capacityPercent = readInt("$dir/capacity") ?: capacityPercent
         voltageMv = (readLong("$dir/voltage_now")?.div(1000))?.toInt() ?: voltageMv
-        currentMa = (readLong("$dir/current_now")?.div(1000))?.toInt() ?: currentMa
         temperatureC = (readInt("$dir/temp")?.div(10f)) ?: temperatureC
         val status = Shell.cmd("cat $dir/status 2>/dev/null").exec().out.joinToString("").trim()
         isCharging = status.equals("Charging", ignoreCase = true) || status.equals("Full", ignoreCase = true)
+
+        // Kernels disagree on current_now polarity: many report a negative value
+        // while current enters the battery. The UI contract is intentionally
+        // direction-stable: positive means charging, negative means discharging.
+        val rawCurrentMa = (readLong("$dir/current_now")?.div(1000))?.toInt()
+        currentMa = rawCurrentMa?.let { current ->
+            when {
+                isCharging -> kotlin.math.abs(current)
+                else -> -kotlin.math.abs(current)
+            }
+        } ?: currentMa
 
         // USB type/online live under power_supply/usb, a sibling of the battery node.
         chargerType = Shell.cmd("cat /sys/class/power_supply/usb/type 2>/dev/null")

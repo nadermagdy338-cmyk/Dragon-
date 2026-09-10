@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 
 package nd.max.ui.subscreens
 
@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,6 +44,17 @@ import nd.max.R
 import nd.max.ui.component.*
 import nd.max.ui.mainscreens.TweaksSectionTitle
 import nd.max.ui.viewmodel.ChargingViewModel
+import java.util.Locale
+
+private const val LTR_MARK = "\u200E"
+
+private fun measurement(value: Float, unit: String, decimals: Int): String =
+    "$LTR_MARK${String.format(Locale.US, "%.${decimals}f", value)} $unit$LTR_MARK"
+
+private fun currentMeasurement(currentMa: Int): String = when {
+    kotlin.math.abs(currentMa) >= 1000 -> measurement(currentMa / 1000f, "A", 2)
+    else -> "$LTR_MARK$currentMa mA$LTR_MARK"
+}
 
 @Composable
 fun ChargingScreen(
@@ -77,24 +89,29 @@ fun ChargingScreen(
             item {
                 RadialGaugeCard(
                     title = stringResource(R.string.charging_gauge_title),
-                    valueText = viewModel.capacityPercent.toString(),
+                    valueText = "$LTR_MARK${viewModel.capacityPercent}$LTR_MARK",
                     unitText = "%",
                     fraction = viewModel.capacityPercent / 100f,
                     isLive = true,
                     accentColor = if (viewModel.isCharging) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                    tipMarkerMinFraction = 0.15f,
                     subtitle = if (viewModel.isCharging)
                         stringResource(R.string.charging_status_charging)
                     else
                         stringResource(R.string.charging_status_not_charging)
                 )
                 Spacer(Modifier.height(12.dp))
+                val voltage = viewModel.voltageMv / 1000f
+                val current = viewModel.currentMa / 1000f
+                val power = voltage * current
                 StatTickRow(
                     stats = listOf(
-                        stringResource(R.string.charging_voltage) to "${"%.2f".format(viewModel.voltageMv / 1000f)} V",
-                        stringResource(R.string.charging_current) to "${"%.2f".format(viewModel.currentMa / 1000f)} A",
-                        stringResource(R.string.charging_temp) to "${"%.1f".format(viewModel.temperatureC)}\u00b0C",
-                        stringResource(R.string.charging_power) to "${"%.1f".format((viewModel.voltageMv / 1000f) * (viewModel.currentMa / 1000f))} W"
-                    )
+                        stringResource(R.string.charging_voltage) to measurement(voltage, "V", 2),
+                        stringResource(R.string.charging_current) to currentMeasurement(viewModel.currentMa),
+                        stringResource(R.string.charging_temp) to measurement(viewModel.temperatureC, "°C", 1),
+                        stringResource(R.string.charging_power) to measurement(power, "W", 1)
+                    ),
+                    valueTextDirection = TextDirection.Ltr
                 )
             }
 
@@ -286,8 +303,8 @@ private fun ChargingReadinessCard(viewModel: ChargingViewModel) {
     val colors = MaterialTheme.colorScheme
     val accent = if (viewModel.isCharging) colors.tertiary else colors.primary
     val chargeLimitEnabled = viewModel.chargeLimitSupported && viewModel.chargeLimitPercent < 100
-    val currentAmps = viewModel.currentMa / 1000f
-    val powerWatts = (viewModel.voltageMv / 1000f) * currentAmps
+    val current = currentMeasurement(viewModel.currentMa)
+    val power = measurement((viewModel.voltageMv / 1000f) * (viewModel.currentMa / 1000f), "W", 1)
 
     MaxSurface(accent = accent) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -311,7 +328,7 @@ private fun ChargingReadinessCard(viewModel: ChargingViewModel) {
                 )
                 Text(
                     text = if (viewModel.isCharging) {
-                        stringResource(R.string.charging_session_power, powerWatts, currentAmps)
+                        stringResource(R.string.charging_session_telemetry, power, current)
                     } else {
                         stringResource(R.string.charging_battery_ready_desc, viewModel.capacityPercent)
                     },
@@ -330,8 +347,13 @@ private fun ChargingReadinessCard(viewModel: ChargingViewModel) {
             }
         }
 
-        Spacer(Modifier.height(16.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Spacer(Modifier.height(14.dp))
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            maxItemsInEachRow = 2,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             ChargingReadinessMetric(
                 modifier = Modifier.weight(1f),
                 icon = Icons.Outlined.BatterySaver,
@@ -345,7 +367,7 @@ private fun ChargingReadinessCard(viewModel: ChargingViewModel) {
                 label = stringResource(R.string.charging_limit_title),
                 value = when {
                     !viewModel.chargeLimitSupported -> stringResource(R.string.home_sensor_unavailable)
-                    chargeLimitEnabled -> "${viewModel.chargeLimitPercent}%"
+                    chargeLimitEnabled -> "$LTR_MARK${viewModel.chargeLimitPercent}%$LTR_MARK"
                     else -> stringResource(R.string.charging_limit_full)
                 },
                 accent = if (chargeLimitEnabled) colors.tertiary else colors.onSurfaceVariant
@@ -354,7 +376,7 @@ private fun ChargingReadinessCard(viewModel: ChargingViewModel) {
                 modifier = Modifier.weight(1f),
                 icon = Icons.Outlined.HealthAndSafety,
                 label = stringResource(R.string.charging_health),
-                value = viewModel.batteryHealthPercent?.let { "$it%" } ?: "—",
+                value = viewModel.batteryHealthPercent?.let { "$LTR_MARK$it%$LTR_MARK" } ?: "—",
                 accent = colors.primary
             )
         }
@@ -380,8 +402,8 @@ private fun ChargingReadinessMetric(
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-            Text(value, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 1)
+            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            Text(value, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
         }
     }
 }

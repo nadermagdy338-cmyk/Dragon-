@@ -705,6 +705,7 @@
     <string name="charging_battery_ready_desc">%1$d%% متاحة · عناصر تحكم الشحن جاهزة عند الحاجة</string>
     <string name="charging_session_active">جلسة الشحن نشطة</string>
     <string name="charging_session_power">%1$.1f واط · %2$.2f أمبير يدخلان البطارية</string>
+    <string name="charging_session_telemetry">%1$s · %2$s يدخلان البطارية</string>
     <string name="charging_limit_full">100٪ · بلا حد</string>
 
     <!-- لوحة النظام الحية -->
@@ -752,4 +753,38 @@
     <string name="home_available_swap">%1$s تبديل متاح</string>
     <string name="home_zram_unavailable">التبديل المضغوط غير متاح</string>
     <string name="home_available_storage">%1$s غيغابايت متاحة</string>
+
+    <!-- Charge Control -->
+    <string name="charging_title">التحكم بالشحن</string>
+    <string name="charging_desc">حدود تيار الشحن وقياسات الطاقة الحية</string>
+    <string name="charging_live_summary">%1$d%% · %2$s · %3$.2f فولت · %4$d ملي أمبير · %5$.1f°م</string>
+    <string name="charging_gauge_title">البطارية</string>
+    <string name="charging_status_charging">قيد الشحن</string>
+    <string name="charging_status_not_charging">لا يتم الشحن</string>
+    <string name="charging_controls_title">عناصر تحكم الشحن</string>
+    <string name="charging_fast_current">حد تيار الشحن السريع</string>
+    <string name="charging_fast_unavailable">شريحة الشحن لا تعرض عقدة لحد التيار على هذا الجهاز، لذلك لن يظهر هذا التحكم.</string>
+    <string name="charging_bypass_title">الشحن الجانبي</string>
+    <string name="charging_bypass_desc">تشغيل الجهاز مباشرةً والحفاظ على البطارية عند حد معيّن</string>
+    <string name="charging_live_details_title">تفاصيل حية</string>
+    <string name="charging_voltage">الجهد</string>
+    <string name="charging_current">التيار</string>
+    <string name="charging_temp">الحرارة</string>
+    <string name="charging_usb_type">نوع USB</string>
+    <string name="charging_connection">الاتصال</string>
+    <string name="charging_connected">متصل</string>
+    <string name="charging_disconnected">غير متصل</string>
+    <string name="charging_sic_boost_title">تسريع الشحن</string>
+    <string name="charging_sic_boost_desc">استخدام وضع الشحن المسرّع من Xiaomi</string>
+    <string name="charging_sic_boost_active">تسريع Xiaomi نشط · sic_mode %1$s</string>
+    <string name="charging_power">الطاقة</string>
+    <string name="charging_health">صحة البطارية</string>
+    <string name="charging_cycle_count">دورات الشحن</string>
+    <string name="charging_technology">التقنية</string>
+    <string name="charging_limit_title">حد الشحن</string>
+    <string name="charging_limit_desc">إيقاف الشحن عند نسبة محددة لتقليل تآكل البطارية</string>
+    <string name="charging_limit_active">يتوقف الشحن عند %1$d%%</string>
+    <string name="charging_limit_slider_title">نسبة حد الشحن</string>
+    <string name="charging_battery_saver_title">توفير البطارية</string>
+    <string name="charging_battery_saver_desc">تقليل النشاط الخلفي والأداء لتمديد عمر البطارية</string>
 </resources>

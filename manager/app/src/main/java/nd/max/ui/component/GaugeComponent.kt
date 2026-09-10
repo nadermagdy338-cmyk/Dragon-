@@ -36,10 +36,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import nd.max.ui.theme.MonoValueStyleLarge
 import nd.max.ui.theme.MonoValueStyleMedium
 import nd.max.ui.theme.MonoValueStyleSmall
@@ -73,7 +71,8 @@ fun RadialGaugeCard(
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     glowEnabled: Boolean = true,
     gradientStroke: Boolean = true,
-    tickCount: Int = 9
+    tickCount: Int = 9,
+    tipMarkerMinFraction: Float = 0f
 ) {
     // Slight spring overshoot gives the needle a bit of real-instrument "kick"
     // instead of a flat digital tween, matching the app's expressive motion scheme.
@@ -205,7 +204,7 @@ fun RadialGaugeCard(
 
                 // Bright pulsing tip marker at the current value's position, echoing
                 // a needle-tip on a real instrument.
-                if (sweepNow > 0.5f) {
+                if (sweepNow > 0.5f && animatedFraction >= tipMarkerMinFraction.coerceIn(0f, 1f)) {
                     val tipAngleRad = (GAUGE_START_ANGLE + sweepNow) * (PI / 180f).toFloat()
                     val tipCenter = Offset(
                         center.x + cos(tipAngleRad) * radius,
@@ -267,7 +266,11 @@ fun LivePulseDot(color: Color = LocalScreenAccent.current ?: MaterialTheme.color
  * secondary numbers read the same way as the primary gauge.
  */
 @Composable
-fun StatTickRow(stats: List<Pair<String, String>>, modifier: Modifier = Modifier) {
+fun StatTickRow(
+    stats: List<Pair<String, String>>,
+    modifier: Modifier = Modifier,
+    valueTextDirection: TextDirection? = null
+) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -276,7 +279,9 @@ fun StatTickRow(stats: List<Pair<String, String>>, modifier: Modifier = Modifier
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = value,
-                    style = MonoValueStyleMedium,
+                    style = MonoValueStyleMedium.copy(
+                        textDirection = valueTextDirection ?: MonoValueStyleMedium.textDirection
+                    ),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
