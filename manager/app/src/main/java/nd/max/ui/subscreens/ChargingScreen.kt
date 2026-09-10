@@ -19,11 +19,12 @@
 package nd.max.ui.subscreens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -31,7 +32,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -41,7 +41,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nd.max.R
 import nd.max.ui.component.*
-import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.mainscreens.TweaksSectionTitle
 import nd.max.ui.viewmodel.ChargingViewModel
 
@@ -100,12 +99,7 @@ fun ChargingScreen(
             }
 
             item {
-                MaxDecisionCard(
-                    state = if (viewModel.isCharging) "Charging at ${"%.1f".format((viewModel.voltageMv / 1000f) * (viewModel.currentMa / 1000f))} W" else "Not charging",
-                    guidance = if (viewModel.isCharging) "Live charging telemetry is available below. Use charging controls only when you understand the device's supported limits." else "Connect a charger to observe live charging telemetry and available charging controls.",
-                    icon = Icons.Outlined.BatteryChargingFull,
-                    accent = if (viewModel.isCharging) colorScheme.tertiary else colorScheme.primary
-                )
+                ChargingReadinessCard(viewModel)
                 Spacer(Modifier.height(12.dp))
             }
 
@@ -286,6 +280,111 @@ fun ChargingScreen(
     }
     }
 
+
+@Composable
+private fun ChargingReadinessCard(viewModel: ChargingViewModel) {
+    val colors = MaterialTheme.colorScheme
+    val accent = if (viewModel.isCharging) colors.tertiary else colors.primary
+    val chargeLimitEnabled = viewModel.chargeLimitSupported && viewModel.chargeLimitPercent < 100
+    val currentAmps = viewModel.currentMa / 1000f
+    val powerWatts = (viewModel.voltageMv / 1000f) * currentAmps
+
+    MaxSurface(accent = accent) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Surface(
+                shape = CircleShape,
+                color = accent.copy(alpha = 0.12f)
+            ) {
+                Icon(
+                    imageVector = if (viewModel.isCharging) Icons.Outlined.BatteryChargingFull else Icons.Outlined.BatteryStd,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.padding(12.dp).size(24.dp)
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    text = stringResource(if (viewModel.isCharging) R.string.charging_session_active else R.string.charging_battery_ready),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = if (viewModel.isCharging) {
+                        stringResource(R.string.charging_session_power, powerWatts, currentAmps)
+                    } else {
+                        stringResource(R.string.charging_battery_ready_desc, viewModel.capacityPercent)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+            }
+            Surface(shape = RoundedCornerShape(10.dp), color = accent.copy(alpha = 0.12f)) {
+                Text(
+                    text = if (viewModel.isCharging) stringResource(R.string.home_active) else stringResource(R.string.home_idle),
+                    color = accent,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp)
+                )
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            ChargingReadinessMetric(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Outlined.BatterySaver,
+                label = stringResource(R.string.charging_battery_saver_title),
+                value = if (viewModel.batterySaverEnabled) stringResource(R.string.label_enabled) else stringResource(R.string.disabled),
+                accent = if (viewModel.batterySaverEnabled) colors.tertiary else colors.onSurfaceVariant
+            )
+            ChargingReadinessMetric(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Outlined.BatteryChargingFull,
+                label = stringResource(R.string.charging_limit_title),
+                value = when {
+                    !viewModel.chargeLimitSupported -> stringResource(R.string.home_sensor_unavailable)
+                    chargeLimitEnabled -> "${viewModel.chargeLimitPercent}%"
+                    else -> stringResource(R.string.charging_limit_full)
+                },
+                accent = if (chargeLimitEnabled) colors.tertiary else colors.onSurfaceVariant
+            )
+            ChargingReadinessMetric(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Outlined.HealthAndSafety,
+                label = stringResource(R.string.charging_health),
+                value = viewModel.batteryHealthPercent?.let { "$it%" } ?: "—",
+                accent = colors.primary
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChargingReadinessMetric(
+    modifier: Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    value: String,
+    accent: Color
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        color = accent.copy(alpha = 0.07f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = 0.16f))
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
+            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            Text(value, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 1)
+        }
+    }
+}
 
 @Composable
 fun ChargingTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {

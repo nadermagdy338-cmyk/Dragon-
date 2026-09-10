@@ -653,6 +653,11 @@
     <string name="charging_live_summary">%1$d%% \u00b7 %2$s \u00b7 %3$.2f V \u00b7 %4$d mA \u00b7 %5$.1f\u00b0C</string>
     <string name="charging_status_charging">Charging</string>
     <string name="charging_status_not_charging">Not charging</string>
+    <string name="charging_battery_ready">Battery ready</string>
+    <string name="charging_battery_ready_desc">%1$d%% available · charging controls are ready when needed</string>
+    <string name="charging_session_active">Charging session active</string>
+    <string name="charging_session_power">%1$.1f W · %2$.2f A entering the battery</string>
+    <string name="charging_limit_full">100% · no limit</string>
     <string name="charging_controls_title">Charging Controls</string>
     <string name="charging_fast_current">Fast Charging Current Limit</string>
     <string name="charging_fast_unavailable">Your charging IC doesn\'t expose a current-limit node on this device, so this control isn\'t shown.</string>

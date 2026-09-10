@@ -700,6 +700,13 @@
     <string name="tweaks_workspace_guidance">تغيّر هذه الأدوات سلوك النظام بالكامل. تتقدم تخصيصات التطبيقات عند إعدادها.</string>
     <string name="loading">جارٍ التحميل…</string>
 
+    <!-- Charge Control -->
+    <string name="charging_battery_ready">البطارية جاهزة</string>
+    <string name="charging_battery_ready_desc">%1$d%% متاحة · عناصر تحكم الشحن جاهزة عند الحاجة</string>
+    <string name="charging_session_active">جلسة الشحن نشطة</string>
+    <string name="charging_session_power">%1$.1f واط · %2$.2f أمبير يدخلان البطارية</string>
+    <string name="charging_limit_full">100٪ · بلا حد</string>
+
     <!-- لوحة النظام الحية -->
     <string name="home_engine_ready">محرك الأداء متصل</string>
     <string name="home_engine_offline">محرك الأداء غير متصل</string>
