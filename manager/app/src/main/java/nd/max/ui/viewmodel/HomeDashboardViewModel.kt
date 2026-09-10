@@ -77,6 +77,7 @@ data class DashboardState(
     val displayHeight: Int = 0,
     val displayRefreshHz: Int = 0,
     val displayDensityDpi: Int = 0,
+    /** CPU load history reserved for the detailed telemetry view. */
     val cpuLoadHistory: List<Float> = emptyList(),
     val uptimeMinutes: Long = 0L,
     /** Per-core live frequencies; empty until the first poll resolves topology. */
@@ -166,9 +167,9 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     ramUsedMb = ram.usedMb, ramTotalMb = ram.totalMb,
                     cpuLoadPercent = cpuLoad, cpuFreqMhz = cpuFreq,
                     cpuLoadHistory = (previous.cpuLoadHistory + cpuLoad.toFloat()).takeLast(36),
+                    // Histories feed detailed telemetry only. The home dashboard
+                    // renders current, labeled values; no ambiguous animated lines.
                     ramLoadHistory = (previous.ramLoadHistory + ramPercent).takeLast(36),
-                    // Only accumulate GPU history when the kernel actually reports a
-                    // value; padding with zeros would draw a fake flatline.
                     gpuLoadHistory = gpu.first
                         ?.let { (previous.gpuLoadHistory + it.toFloat()).takeLast(36) }
                         ?: previous.gpuLoadHistory,

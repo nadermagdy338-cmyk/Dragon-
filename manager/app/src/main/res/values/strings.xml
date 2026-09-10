@@ -1485,4 +1485,12 @@
     <string name="home_active">ACTIVE</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">PROTECTED</string>
+    <string name="home_device_overview">OPEN DEVICE OVERVIEW</string>
+    <string name="home_live_performance">Live performance</string>
+    <string name="home_live_performance_desc">Current load and direct hardware controls</string>
+    <string name="home_open_details">Open detailed thermal data</string>
+    <string name="home_available_memory">%1$s available</string>
+    <string name="home_available_swap">%1$s swap free</string>
+    <string name="home_zram_unavailable">Compressed swap is unavailable</string>
+    <string name="home_available_storage">%1$s GB free</string>
 </resources>

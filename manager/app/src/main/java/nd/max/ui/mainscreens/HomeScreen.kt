@@ -120,14 +120,15 @@ fun HomeDashboardContent(
     onReboot: () -> Unit,
     onAiRetry: () -> Unit
 ) {
-    val backdrop = remember {
+    val colors = MaterialTheme.colorScheme
+    val backdrop = remember(colors.background, colors.primary, colors.tertiary) {
         Brush.radialGradient(
-            listOf(Color(0xFF183A6B).copy(alpha = .38f), Color.Transparent),
+            listOf(colors.primary.copy(alpha = .14f), colors.tertiary.copy(alpha = .05f), Color.Transparent),
             center = Offset(220f, 80f), radius = 900f
         )
     }
 
-    Box(Modifier.fillMaxSize().background(Color(0xFF03060B)).background(backdrop)) {
+    Box(Modifier.fillMaxSize().background(colors.background).background(backdrop)) {
         TechnicalBackdrop()
         LazyColumn(
             state = rememberLazyListState(),
@@ -146,6 +147,7 @@ fun HomeDashboardContent(
                     maxAi = maxAi,
                     profileRequest = profileRequest,
                     deviceName = deviceName,
+                    gpuRoute = gpuRouteForChipset(dashboard.chipsetName),
                     onNavigate = onNavigate,
                     onProfile = onProfile,
                     onReboot = onReboot,
