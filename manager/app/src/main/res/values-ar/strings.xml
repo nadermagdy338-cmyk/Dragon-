@@ -699,4 +699,42 @@
     <string name="tweaks_workspace_state_lite">وضع التحكم الأساسي</string>
     <string name="tweaks_workspace_guidance">تغيّر هذه الأدوات سلوك النظام بالكامل. تتقدم تخصيصات التطبيقات عند إعدادها.</string>
     <string name="loading">جارٍ التحميل…</string>
+
+    <!-- لوحة النظام الحية -->
+    <string name="home_engine_ready">محرك الأداء متصل</string>
+    <string name="home_engine_offline">محرك الأداء غير متصل</string>
+    <string name="home_system_stable">النظام مستقر</string>
+    <string name="home_system_attention">النظام يحتاج إلى انتباه</string>
+    <string name="home_system_vitals">مؤشرات النظام</string>
+    <string name="home_system_vitals_desc">الحمل الحي للمعالج والرسوميات والذاكرة والحرارة</string>
+    <string name="home_sensor_unavailable">الحساس غير متاح</string>
+    <string name="home_temperature_short">الحرارة</string>
+    <string name="home_cpu_cores">مصفوفة أنوية المعالج</string>
+    <string name="home_waiting_core_data">جارٍ قراءة بنية النواة وتردد كل نواة</string>
+    <string name="home_cpu_cores_online">%1$d من %2$d أنوية تعمل · تردد حي</string>
+    <string name="home_performance_monitor">مراقبة الأداء</string>
+    <string name="home_performance_monitor_desc">حمل الموارد خلال آخر 72 ثانية</string>
+    <string name="home_quick_actions">منصة التحكم</string>
+    <string name="home_quick_actions_desc">وصول مباشر إلى أهم عناصر التحكم</string>
+    <string name="home_action_boost">ملف الأداء</string>
+    <string name="home_action_boost_desc">تغيير سلوك النظام</string>
+    <string name="home_action_thermal">مركز الحرارة</string>
+    <string name="home_action_thermal_desc">فحص الحرارة والتبريد</string>
+    <string name="home_action_battery">مركز الطاقة</string>
+    <string name="home_action_battery_desc">بيانات البطارية والشحن</string>
+    <string name="home_action_advanced">تحكم متقدم</string>
+    <string name="home_action_advanced_desc">ضبط الجهاز بالكامل</string>
+    <string name="home_memory_storage">مصفوفة الذاكرة</string>
+    <string name="home_memory_storage_desc">ضغط RAM وZRAM والتخزين الداخلي</string>
+    <string name="home_details">التفاصيل</string>
+    <string name="home_device_resources">نسيج الجهاز</string>
+    <string name="home_device_resources_desc">الشاشة والشبكة واستهلاك الطاقة الحي</string>
+    <string name="home_power_draw">استهلاك الطاقة</string>
+    <string name="home_ai_center">مركز ذكاء MAX</string>
+    <string name="home_network_status">الشبكة</string>
+    <string name="home_engine_status">المحرك</string>
+    <string name="home_cores_status">الأنوية</string>
+    <string name="home_active">نشط</string>
+    <string name="home_idle">خامل</string>
+    <string name="home_protected">محمي</string>
 </resources>

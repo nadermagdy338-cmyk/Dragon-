@@ -1,0 +1,37 @@
+2026-09-09 16:12:23,536 [   2689]   INFO - #c.i.l.s.MainImpl - Server extensions loaded [5]:
+1. EditorConfigLanguageServerExtension
+2. JavaBaseLanguageServerExtension
+3. KotlinLanguageServerExtension
+4. KotlinDapServerExtension
+5. WorkspaceImportLanguageServerExtension
+2026-09-09 16:12:24,593 [   3746]   INFO - java.util.prefs - Created user preferences directory.
+2026-09-09 17:24:30,352 [   4247]   INFO - #c.i.l.s.MainImpl - Server extensions loaded [5]:
+1. EditorConfigLanguageServerExtension
+2. JavaBaseLanguageServerExtension
+3. KotlinLanguageServerExtension
+4. KotlinDapServerExtension
+5. WorkspaceImportLanguageServerExtension
+2026-09-09 17:33:28,775 [   3027]   INFO - #c.i.l.s.MainImpl - Server extensions loaded [5]:
+1. EditorConfigLanguageServerExtension
+2. JavaBaseLanguageServerExtension
+3. KotlinLanguageServerExtension
+4. KotlinDapServerExtension
+5. WorkspaceImportLanguageServerExtension
+2026-09-09 17:37:14,291 [   5459]   INFO - #c.i.l.s.MainImpl - Server extensions loaded [5]:
+1. EditorConfigLanguageServerExtension
+2. JavaBaseLanguageServerExtension
+3. KotlinLanguageServerExtension
+4. KotlinDapServerExtension
+5. WorkspaceImportLanguageServerExtension
+2026-09-09 18:34:41,959 [   2079]   INFO - #c.i.l.s.MainImpl - Server extensions loaded [5]:
+1. EditorConfigLanguageServerExtension
+2. JavaBaseLanguageServerExtension
+3. KotlinLanguageServerExtension
+4. KotlinDapServerExtension
+5. WorkspaceImportLanguageServerExtension
+2026-09-09 20:24:06,610 [   1778]   INFO - #c.i.l.s.MainImpl - Server extensions loaded [5]:
+1. EditorConfigLanguageServerExtension
+2. JavaBaseLanguageServerExtension
+3. KotlinLanguageServerExtension
+4. KotlinDapServerExtension
+5. WorkspaceImportLanguageServerExtension

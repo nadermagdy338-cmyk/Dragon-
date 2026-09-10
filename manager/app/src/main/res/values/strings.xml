@@ -1442,4 +1442,42 @@
     <string name="max_home_ai_failed">Last AI action failed</string>
     <string name="max_home_retry">Retry</string>
     <string name="max_home_ai_idle">No AI decision recorded yet</string>
+
+    <!-- Legendary live dashboard -->
+    <string name="home_engine_ready">Performance engine online</string>
+    <string name="home_engine_offline">Performance engine offline</string>
+    <string name="home_system_stable">SYSTEM STABLE</string>
+    <string name="home_system_attention">SYSTEM NEEDS ATTENTION</string>
+    <string name="home_system_vitals">System vitals</string>
+    <string name="home_system_vitals_desc">Live processor, graphics, memory and thermal load</string>
+    <string name="home_sensor_unavailable">Sensor unavailable</string>
+    <string name="home_temperature_short">TEMP</string>
+    <string name="home_cpu_cores">CPU core matrix</string>
+    <string name="home_waiting_core_data">Reading kernel topology and per-core clocks</string>
+    <string name="home_cpu_cores_online">%1$d of %2$d cores online · live frequency</string>
+    <string name="home_performance_monitor">Performance monitor</string>
+    <string name="home_performance_monitor_desc">Resource load over the last 72 seconds</string>
+    <string name="home_quick_actions">Command deck</string>
+    <string name="home_quick_actions_desc">Direct access to the controls that matter</string>
+    <string name="home_action_boost">Performance profile</string>
+    <string name="home_action_boost_desc">Change system behavior</string>
+    <string name="home_action_thermal">Thermal center</string>
+    <string name="home_action_thermal_desc">Inspect heat and cooling</string>
+    <string name="home_action_battery">Power center</string>
+    <string name="home_action_battery_desc">Battery and charging data</string>
+    <string name="home_action_advanced">Advanced controls</string>
+    <string name="home_action_advanced_desc">Full device tuning</string>
+    <string name="home_memory_storage">Memory matrix</string>
+    <string name="home_memory_storage_desc">RAM, ZRAM and internal storage pressure</string>
+    <string name="home_details">DETAILS</string>
+    <string name="home_device_resources">Device fabric</string>
+    <string name="home_device_resources_desc">Display, network and live power draw</string>
+    <string name="home_power_draw">Power draw</string>
+    <string name="home_ai_center">MAX intelligence center</string>
+    <string name="home_network_status">NETWORK</string>
+    <string name="home_engine_status">ENGINE</string>
+    <string name="home_cores_status">CORES</string>
+    <string name="home_active">ACTIVE</string>
+    <string name="home_idle">IDLE</string>
+    <string name="home_protected">PROTECTED</string>
 </resources>

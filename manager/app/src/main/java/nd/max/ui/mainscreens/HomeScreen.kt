@@ -7,8 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,7 +14,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,7 +22,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import nd.max.R
-import nd.max.core.maxai.DecisionResult
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.component.MaxSnackbarHost
@@ -124,70 +120,37 @@ fun HomeDashboardContent(
     onReboot: () -> Unit,
     onAiRetry: () -> Unit
 ) {
-    val colors = MaterialTheme.colorScheme
-    val online = ui.rootStatus && ui.moduleInstalled
-    val gpuRoute = gpuRouteForChipset(dashboard.chipsetName)
-    val gpuName = gpuFamilyForChipset(dashboard.chipsetName)
-    val profile = stringResource(ui.currentProfileRes)
-    val aiFailed = profileRequest.result == DecisionResult.FAILED ||
-        maxAi.lastDecision?.result == DecisionResult.FAILED
-    val backdrop = remember(colors) {
+    val backdrop = remember {
         Brush.radialGradient(
-            listOf(colors.primary.copy(alpha = .15f), colors.background.copy(alpha = 0f)),
-            center = Offset(180f, 120f), radius = 820f
+            listOf(Color(0xFF183A6B).copy(alpha = .38f), Color.Transparent),
+            center = Offset(220f, 80f), radius = 900f
         )
     }
 
-    Box(Modifier.fillMaxSize().background(colors.background).background(backdrop)) {
+    Box(Modifier.fillMaxSize().background(Color(0xFF03060B)).background(backdrop)) {
         TechnicalBackdrop()
         LazyColumn(
             state = rememberLazyListState(),
             modifier = Modifier.maxAdaptiveContentWidth(),
             contentPadding = PaddingValues(
-                start = 18.dp, end = 18.dp,
-                top = topPadding + 8.dp,
+                start = 18.dp,
+                end = 18.dp,
+                top = topPadding + 10.dp,
                 bottom = 124.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-            ),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+            )
         ) {
             item {
-                CommandHero(
+                LegendaryHomeDashboard(
+                    ui = ui,
+                    dashboard = dashboard,
+                    maxAi = maxAi,
+                    profileRequest = profileRequest,
                     deviceName = deviceName,
-                    chipset = dashboard.chipsetName.takeUnless { it.isBlank() || it == "..." },
-                    online = online,
-                    batteryPercent = dashboard.batteryPercent,
-                    cpuFreqMhz = dashboard.cpuFreqMhz,
-                    uptimeMinutes = dashboard.uptimeMinutes,
-                    temperatureC = nd.max.ui.viewmodel.primaryBatteryTemperatureC(dashboard),
+                    onNavigate = onNavigate,
+                    onProfile = onProfile,
+                    onReboot = onReboot,
                     onSettings = { onNavigate("settings") },
-                    onReboot = onReboot
-                )
-            }
-            item {
-                LivePerformance(
-                    dashboard = dashboard,
-                    gpuName = gpuName,
-                    onGpu = gpuRoute?.let { route -> { onNavigate(route) } }
-                )
-            }
-            item {
-                ControlDeck(
-                    dashboard = dashboard,
-                    profile = profile,
-                    profilePending = ui.autoMode != "0",
-                    gpuName = gpuName,
-                    onRoute = onNavigate,
-                    onGpu = { gpuRoute?.let(onNavigate) },
-                    onProfile = onProfile
-                )
-            }
-            item {
-                MaxAiConsole(
-                    state = maxAi,
-                    request = profileRequest,
-                    failed = aiFailed,
-                    onOpen = { onNavigate("maxai") },
-                    onRetry = onAiRetry
+                    onAiRetry = onAiRetry
                 )
             }
         }
