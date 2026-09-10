@@ -76,9 +76,7 @@ class AndroidContextDataSource(
             java.io.File("/proc/loadavg").readText().split(" ").firstOrNull()?.toFloatOrNull() ?: 0f
         }.getOrDefault(0f)
 
-        val maxTemp = runCatching {
-            ThermalUtil.readThermalZones().maxOfOrNull { it.temperatureC }?.toFloat() ?: 0f
-        }.getOrDefault(0f)
+        val maxTemp = ThermalUtil.readBatteryTemperatureC(context)
 
         ContextData(
             foregroundPackage = foregroundPkg,

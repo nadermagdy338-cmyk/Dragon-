@@ -27,6 +27,10 @@
 
 package nd.max.ui.util
 
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import com.topjohnwu.superuser.Shell
 import java.io.File
 import kotlin.math.abs
@@ -87,11 +91,40 @@ object ThermalUtil {
      * sensors through dumpsys thermalservice even when /sys/class/thermal is
      * hidden, unreadable, or uses vendor-specific names.
      */
-    /** Reads the battery temperature directly from the kernel power-supply node. */
-    fun readBatteryTemperatureC(): Int {
-        val raw = readAbsoluteNode("/sys/class/power_supply/battery/temp")?.toIntOrNull() ?: return 0
-        return sanitizeTemperature(raw)
+    /**
+     * Reads battery temperature from Android's sticky battery broadcast, then
+     * falls back to battery-specific kernel/ThermalService sensors. CPU/GPU
+     * zones are deliberately excluded: their much higher junction temperature
+     * is not a battery reading and must not drive battery safety policy.
+     */
+    fun readBatteryTemperatureC(context: Context): Float {
+        val broadcast = runCatching {
+            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            val raw = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, Int.MIN_VALUE)
+                ?: Int.MIN_VALUE
+            if (raw == Int.MIN_VALUE) null else (raw / 10f).takeIf(::isValidBatteryTemperature)
+        }.getOrNull()
+        if (broadcast != null) return broadcast
+
+        val powerSupply = readAbsoluteNode("/sys/class/power_supply/battery/temp")
+            ?.toIntOrNull()
+            ?.let(::sanitizeTemperature)
+            ?.toFloat()
+            ?.takeIf(::isValidBatteryTemperature)
+        if (powerSupply != null) return powerSupply
+
+        val batteryZone = readThermalZones().asSequence()
+            .filter { it.category == "Battery" }
+            .map { it.temperatureC.toFloat() }
+            .firstOrNull(::isValidBatteryTemperature)
+        if (batteryZone != null) return batteryZone
+
+        return readThermalServiceTemperatures()[3].toFloat()
+            .takeIf(::isValidBatteryTemperature) ?: 0f
     }
+
+    private fun isValidBatteryTemperature(value: Float): Boolean =
+        value.isFinite() && value in -20f..100f
 
     private fun listDirectoryNames(path: String): List<String> =
         nd.max.core.hardware.RootFileAccess.listDirectories(path)

@@ -106,7 +106,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     cpuLoadPercent = cpuLoad, cpuFreqMhz = cpuFreq,
                     cpuLoadHistory = (_dashboardState.value.cpuLoadHistory + cpuLoad.toFloat()).takeLast(36),
                     batteryPercent = battery[0].toInt(), batteryVoltageV = battery[1] / 1000f,
-                    batteryTempC = (if (battery[2] > 0f) battery[2] / 10f else ThermalUtil.readBatteryTemperatureC().toFloat()),
+                    batteryTempC = ThermalUtil.readBatteryTemperatureC(context),
                     isCharging = battery[3].toInt() == BatteryManager.BATTERY_STATUS_CHARGING ||
                                  battery[3].toInt() == BatteryManager.BATTERY_STATUS_FULL,
                     batteryStatus = when (battery[3].toInt()) {

@@ -93,7 +93,7 @@ open class HardwareDataSource(private val context: Context) {
         val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
         val percent = if (scale > 0) (level * 100 / scale) else 0
         val voltage = (intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0).toFloat() / 1000f
-        val tempC = (intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) ?: 0).toFloat() / 10f
+        val tempC = ThermalUtil.readBatteryTemperatureC(context)
         val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, 0) ?: 0
         val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL

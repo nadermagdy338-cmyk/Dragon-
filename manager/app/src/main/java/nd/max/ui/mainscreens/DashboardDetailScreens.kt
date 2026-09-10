@@ -809,7 +809,7 @@ private fun loadBatteryDetail(context: Context): BatteryDetail = try {
     val scale = i?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
     val pct = if (scale > 0) level * 100 / scale else 0
     val volt = (i?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0) / 1000f
-    val temp = (i?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) ?: 0) / 10f
+    val temp = ThermalUtil.readBatteryTemperatureC(context)
     val statusInt = i?.getIntExtra(BatteryManager.EXTRA_STATUS, 0) ?: 0
     val isChg = statusInt == BatteryManager.BATTERY_STATUS_CHARGING || statusInt == BatteryManager.BATTERY_STATUS_FULL
     val tech = i?.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY) ?: "Li-Ion"
@@ -923,7 +923,7 @@ fun BatteryDetailScreen(navController: NavController) {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         DetailStatCard(Icons.Rounded.ElectricBolt, stringResource(R.string.detail_voltage), String.format("%.2f V", data.voltageV), accent, Modifier.weight(1f))
-                        DetailStatCard(Icons.Rounded.Thermostat, stringResource(R.string.detail_temperature), "${data.tempC}°C", accent, Modifier.weight(1f))
+                        DetailStatCard(Icons.Rounded.Thermostat, stringResource(R.string.detail_temperature), data.tempC.takeIf { it > 0f }?.let { "${it}°C" } ?: stringResource(R.string.detail_system_unavailable), accent, Modifier.weight(1f))
                     }
                 }
                 item {

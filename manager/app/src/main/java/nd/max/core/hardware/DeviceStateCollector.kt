@@ -32,7 +32,7 @@ import nd.max.ui.util.ThermalUtil
  * الرقمي، كلها في النطاق [0, 1] ومن مصادر قياس حقيقية:
  *
  *  - cpuLoad      : دلتا /proc/stat عبر FpsMonitorUtil.getCpuLoad()
- *  - thermal      : أعلى حرارة CPU/GPU من مناطق thermal الحقيقية (°C/100)
+ *  - thermal      : حرارة البطارية الحقيقية من البث/عقدتها (°C/100)
  *  - battery      : نسبة البطارية من بث ACTION_BATTERY_CHANGED
  *  - appIntent    : لعبة مكتشفة من ملف الوحدة gameinfo = 1، شاشة مطفأة = 0، استخدام عادي = 0.5
  *  - screenOn     : PowerManager.isInteractive
@@ -68,12 +68,12 @@ object DeviceStateCollector {
         // حمل CPU الفعلي (دلتا بين قراءتين لـ /proc/stat)
         val cpuLoad = FpsMonitorUtil.getCpuLoad().coerceIn(0, 100) / 100f
 
-        // أعلى حرارة CPU/GPU من مناطق thermal الحقيقية
-        val thermal = runCatching {
-            ThermalUtil.readThermalZones()
-                .filter { it.category in setOf("CPU", "GPU") && it.temperatureC > 0 }
-                .maxOfOrNull { it.temperatureC }?.toFloat() ?: 0f
-        }.getOrDefault(0f) / 100f
+        // نفس حرارة البطارية التي تعرضها الواجهة. لا تستخدم حرارة وصلة
+        // CPU/GPU كبديل: قد تكون 60° طبيعيًا بينما البطارية باردة.
+        val thermal = ThermalUtil.readBatteryTemperatureC(context)
+            .takeIf { it > 0f }
+            ?.div(100f)
+            ?: 0f
 
         // البطارية من بث النظام
         val battery = readBatteryFraction(context)
