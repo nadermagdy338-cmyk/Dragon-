@@ -80,23 +80,19 @@ object CpuTopologyUtil {
      * rather than a fixed core count, so this works across 2/3/4-cluster designs.
      */
     fun detectClusters(): List<CpuCluster> {
-        val policyDirs = Shell.cmd(
-            "ls -d /sys/devices/system/cpu/cpufreq/policy* 2>/dev/null"
-        ).exec().out.filter { it.contains("policy") }.map { it.trim() }.sorted()
-
-        if (policyDirs.isEmpty()) return emptyList()
+        val policies = nd.max.core.hardware.CpuHardwareBackend.policies()
+        if (policies.isEmpty()) return emptyList()
 
         val rawClusters = mutableListOf<Pair<String, List<Int>>>()
-        for (policyPath in policyDirs) {
-            val relatedRaw = Shell.cmd(
-                "cat $policyPath/related_cpus 2>/dev/null || cat $policyPath/affected_cpus 2>/dev/null"
-            ).exec().out.joinToString(" ").trim()
+        for (policy in policies) {
+            val relatedRaw = nd.max.core.hardware.RootFileAccess.read("${policy.path}/related_cpus")
+                ?: nd.max.core.hardware.RootFileAccess.read("${policy.path}/affected_cpus")
+                ?: policy.name.removePrefix("cpu").takeIf { policy.name.startsWith("cpu") }
+                ?: ""
             val cores = relatedRaw.split(Regex("\\s+")).mapNotNull { it.toIntOrNull() }.sorted()
             if (cores.isEmpty()) continue
-            // Same cluster can show up under multiple policy dirs (one per core on
-            // some kernels) — dedupe by the cluster's first core.
             if (rawClusters.none { it.second.firstOrNull() == cores.first() }) {
-                rawClusters.add(policyPath to cores)
+                rawClusters.add(policy.path to cores)
             }
         }
 

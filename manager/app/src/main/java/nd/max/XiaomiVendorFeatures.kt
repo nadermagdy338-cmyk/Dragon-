@@ -75,7 +75,6 @@ object XiaomiVendorFeatures {
     private const val TOUCH_SERVICE = "$TOUCH_IFACE/default"
     private var touchProxy: Any? = null
     private var touchSetModeMethod: Method? = null
-    private var touchProbed = false
     private var lastTouchState = -1
 
     // ── Display color mode ──────────────────────────────────────────────
@@ -120,10 +119,9 @@ object XiaomiVendorFeatures {
 
     private fun getDeclaredBinder(serviceName: String): android.os.IBinder? = runCatching {
         val sm = Class.forName("android.os.ServiceManager")
-        runCatching {
-            sm.getMethod("waitForDeclaredService", String::class.java)
-                .invoke(null, serviceName) as? android.os.IBinder
-        }.getOrNull() ?: sm.getMethod("getService", String::class.java)
+        // Optional vendor services must not block the monitor while a device
+        // boots or on ROMs that never publish this interface.
+        sm.getMethod("getService", String::class.java)
             .invoke(null, serviceName) as? android.os.IBinder
     }.getOrNull()
 
@@ -155,15 +153,15 @@ object XiaomiVendorFeatures {
     }
 
     private fun ensureTouchBound(): Boolean {
-        if (touchProbed) return touchProxy != null
-        touchProbed = true
+        if (touchProxy != null && touchSetModeMethod != null) return true
+        // A missing service during boot is retryable; do not cache that absence.
         val bound = bind(
             "touchfeature", TOUCH_IFACE, TOUCH_SERVICE, "setTouchMode",
             arrayOf<Class<*>>(Int::class.javaPrimitiveType!!, Int::class.javaPrimitiveType!!, Int::class.javaPrimitiveType!!),
         )
         touchProxy = bound?.first
         touchSetModeMethod = bound?.second
-        return touchProxy != null
+        return bound != null
     }
 
     private fun ensureDisplayBound(): Boolean {
@@ -212,7 +210,22 @@ object XiaomiVendorFeatures {
         )
         var anySucceeded = false
         for ((a, b, c) in calls) {
-            runCatching { method.invoke(proxy, a, b, c) }.onSuccess { anySucceeded = true }
+            runCatching { method.invoke(proxy, a, b, c) }
+                .onSuccess { result ->
+                    // Vendor versions differ: some return Unit, others a status.
+                    // A negative or false acknowledgement is never accepted.
+                    val accepted = when (result) {
+                        is Boolean -> result
+                        is Int -> result >= 0
+                        else -> result == null
+                    }
+                    anySucceeded = anySucceeded || accepted
+                }
+                .onFailure {
+                    // Binder/service failure is retryable: discard stale proxy.
+                    touchProxy = null
+                    touchSetModeMethod = null
+                }
         }
         if (anySucceeded) {
             lastTouchState = state

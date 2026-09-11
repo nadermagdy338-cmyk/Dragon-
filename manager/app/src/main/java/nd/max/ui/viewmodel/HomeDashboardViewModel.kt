@@ -65,6 +65,8 @@ data class DashboardState(
     val batteryVoltageV: Float = 0f,
     val batteryTempC: Float = 0f,
     val isCharging: Boolean = false,
+    /** Battery current in mA; positive means charging and null means unavailable. */
+    val batteryCurrentMa: Int? = null,
     val batteryStatus: String = "",
     val cpuTempC: Int = 0,
     val gpuTempC: Int = 0,

@@ -59,6 +59,10 @@ import androidx.navigation.NavController
 import nd.max.R
 import nd.max.ui.component.*
 import nd.max.ui.util.AppConfig
+import nd.max.ui.util.PerAppCpuControlMode
+import nd.max.ui.util.PerAppCpuPolicyControl
+import nd.max.ui.util.decodePerAppCpuPolicyControls
+import nd.max.ui.util.encodePerAppCpuPolicyControls
 import nd.max.ui.util.getSupportedDownscaleFactors
 import nd.max.ui.util.getSupportedRefreshRates
 import nd.max.ui.util.PerAppKernelUtil
@@ -88,11 +92,14 @@ fun AppSettingsScreen(
     var showProfileEditor by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
-    LaunchedEffect(packageName) { viewModel.loadConfig(); viewModel.loadKernelCapabilities() }
+    LaunchedEffect(packageName) { viewModel.loadConfig(); viewModel.loadKernelCapabilities(packageName) }
 
     val config = viewModel.fullConfig[packageName]
     var localMasterOn by remember(config != null) { mutableStateOf(config != null) }
     var userToggled by remember { mutableStateOf(false) }
+    LaunchedEffect(packageName, localMasterOn) {
+        if (localMasterOn) viewModel.refreshCpuRuntimeStatus(packageName)
+    }
 
     val rawRefreshModes = remember { getSupportedRefreshRates(context) }
     val rawDownscaleSteps = remember { getSupportedDownscaleFactors() }
@@ -347,6 +354,13 @@ fun AppSettingsScreen(
                                     }
                                 }
                             )
+                            PerAppCpuControlSection(
+                                encodedControls = cfg.cpu_policy_controls,
+                                policies = viewModel.cpuPolicies,
+                                runtimeStatus = viewModel.cpuRuntimeStatus,
+                                onSave = { encoded -> packageName?.let { viewModel.updateSetting(it, "cpu_policy_controls", encoded) } },
+                                onRefreshStatus = { viewModel.refreshCpuRuntimeStatus(packageName) }
+                            )
                             Spacer(Modifier.height(8.dp))
                             nd.max.ui.component.StudioOutlinedButton(
                                 onClick = { showProfileEditor = true },
@@ -444,14 +458,21 @@ fun AppSettingsScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp),
                                 content = buildList {
                                     add {
-                                        ExpressiveDropdownItem(
-                                            icon = Icons.Rounded.TouchApp,
-                                            title = "Touch Responsiveness Boost",
-                                            summary = "Increase touch sampling rate for snappier touch input",
-                                            items = listOf(defaultLabel, stringResource(R.string.on_label), stringResource(R.string.off_label)),
-                                            selectedIndex = getBoolIndex(cfg.touch_boost),
-                                            onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "touch_boost", listOf("default","true","false")[i]) } }
-                                        )
+                                        run {
+                                            val touchProfiles = listOf(
+                                                "default" to "Follow ROM",
+                                                "true" to "Responsive",
+                                                "false" to "Battery aware"
+                                            )
+                                            ExpressiveDropdownItem(
+                                                icon = Icons.Rounded.TouchApp,
+                                                title = "Touch Response Profile",
+                                                summary = "Responsive enables the available touch boost while this app is focused; Battery aware keeps it off. Follow ROM respects the global setting and compatible game detection.",
+                                                items = touchProfiles.map { it.second },
+                                                selectedIndex = touchProfiles.indexOfFirst { it.first == cfg.touch_boost }.coerceAtLeast(0),
+                                                onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "touch_boost", touchProfiles[i].first) } }
+                                            )
+                                        }
                                     }
                                     add {
                                         ExpressiveDropdownItem(
@@ -555,6 +576,127 @@ fun AppSettingsScreen(
 // ────────────────────────────────────────────────────────────────────────────
 
 private fun getBoolIndex(v: String?): Int = when (v) { "true" -> 1; "false" -> 2; else -> 0 }
+
+@Composable
+private fun PerAppCpuControlSection(
+    encodedControls: String,
+    policies: List<nd.max.core.hardware.CpuHardwareBackend.Policy>,
+    runtimeStatus: nd.max.ui.util.PerAppCpuRuntimeStatus,
+    onSave: (String) -> Unit,
+    onRefreshStatus: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val saved = remember(encodedControls) { decodePerAppCpuPolicyControls(encodedControls).associateBy { it.policyName } }
+    val drafts = remember(encodedControls) { mutableStateMapOf<String, PerAppCpuPolicyControl>().apply { putAll(saved) } }
+    val configured = drafts.values.toList()
+    val summary = when {
+        configured.isEmpty() -> "CPU: الافتراضي"
+        configured.any { it.mode == PerAppCpuControlMode.EXACT_LOCK } -> "CPU: Exact Lock · ${configured.size}"
+        else -> "CPU: Dynamic Range · ${configured.size}"
+    }
+    val controllable = policies.filter { it.cpuFrequencyChoices().isNotEmpty() }
+
+    Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Surface(
+            modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded },
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = .22f))
+        ) {
+            Row(Modifier.padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Rounded.Memory, null, tint = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("خيارات متقدمة", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                IconButton(onClick = onRefreshStatus) { Icon(Icons.Rounded.Refresh, "Refresh status", tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                Icon(if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        AnimatedVisibility(visible = expanded) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (controllable.isEmpty()) {
+                    Text("CPU frequency control is unavailable on this kernel.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                controllable.forEach { policy ->
+                    val choices = policy.cpuFrequencyChoices()
+                    val draft = drafts[policy.name] ?: PerAppCpuPolicyControl(policy.name, PerAppCpuControlMode.DEFAULT, policy.minKHz ?: choices.first(), policy.maxKHz ?: choices.last())
+                    val modes = listOf(PerAppCpuControlMode.DEFAULT, PerAppCpuControlMode.DYNAMIC_RANGE, PerAppCpuControlMode.EXACT_LOCK)
+                    val labels = listOf("Default", "Dynamic Range", "Exact Lock")
+                    val minIndex = choices.cpuIndexFor(draft.minKHz)
+                    val maxIndex = choices.cpuIndexFor(draft.maxKHz).coerceAtLeast(minIndex)
+                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))) {
+                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(policy.name.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                            Text("${policy.governor ?: "Default"} · ${formatCpuKHz(policy.minKHz ?: choices.first())} – ${formatCpuKHz(policy.maxKHz ?: choices.last())}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            ExpressiveDropdownItem(
+                                icon = Icons.Rounded.Tune,
+                                title = "Mode",
+                                summary = labels[modes.indexOf(draft.mode)],
+                                items = labels,
+                                selectedIndex = modes.indexOf(draft.mode),
+                                onItemSelected = { index ->
+                                    when (val mode = modes[index]) {
+                                        PerAppCpuControlMode.DEFAULT -> drafts.remove(policy.name)
+                                        PerAppCpuControlMode.DYNAMIC_RANGE -> drafts[policy.name] = draft.copy(mode = mode, minKHz = choices[minIndex], maxKHz = choices[maxIndex])
+                                        PerAppCpuControlMode.EXACT_LOCK -> drafts[policy.name] = draft.copy(mode = mode, minKHz = choices[maxIndex], maxKHz = choices[maxIndex])
+                                    }
+                                }
+                            )
+                            if (draft.mode == PerAppCpuControlMode.DYNAMIC_RANGE) {
+                                CpuFrequencySelector("Minimum", choices, minIndex) { index -> drafts[policy.name] = draft.copy(minKHz = choices[index], maxKHz = choices[maxIndex.coerceAtLeast(index)]) }
+                                CpuFrequencySelector("Maximum", choices, maxIndex) { index -> drafts[policy.name] = draft.copy(minKHz = choices[minIndex.coerceAtMost(index)], maxKHz = choices[index]) }
+                            } else if (draft.mode == PerAppCpuControlMode.EXACT_LOCK) {
+                                CpuFrequencySelector("Locked frequency", choices, maxIndex) { index -> drafts[policy.name] = draft.copy(minKHz = choices[index], maxKHz = choices[index]) }
+                            }
+                        }
+                    }
+                }
+                if (runtimeStatus.isFailure || runtimeStatus.isApplied) {
+                    val color = if (runtimeStatus.isFailure) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+                    Surface(shape = RoundedCornerShape(14.dp), color = color.copy(alpha = .10f), border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = .24f))) {
+                        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(if (runtimeStatus.isFailure) Icons.Outlined.ErrorOutline else Icons.Rounded.CheckCircle, null, tint = color)
+                            Spacer(Modifier.width(9.dp))
+                            Text(runtimeStatus.message.ifBlank { if (runtimeStatus.isFailure) "CPU control could not be applied." else "CPU controls verified for the active app." }, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                            IconButton(onClick = onRefreshStatus) { Icon(Icons.Rounded.Refresh, "Refresh status") }
+                        }
+                    }
+                }
+                nd.max.ui.component.StudioOutlinedButton(onClick = { onSave(encodePerAppCpuPolicyControls(drafts.values)) }, modifier = Modifier.fillMaxWidth(), enabled = controllable.isNotEmpty()) {
+                    Icon(Icons.Rounded.Save, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Save CPU controls")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CpuFrequencySelector(label: String, choices: List<Long>, selectedIndex: Int, onSelect: (Int) -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        IconButton(onClick = { onSelect((selectedIndex - 1).coerceAtLeast(0)) }, enabled = selectedIndex > 0) { Icon(Icons.Rounded.Remove, "Lower") }
+        Text(formatCpuKHz(choices[selectedIndex]), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+        IconButton(onClick = { onSelect((selectedIndex + 1).coerceAtMost(choices.lastIndex)) }, enabled = selectedIndex < choices.lastIndex) { Icon(Icons.Rounded.Add, "Higher") }
+    }
+}
+
+private fun nd.max.core.hardware.CpuHardwareBackend.Policy.cpuFrequencyChoices(): List<Long> = when {
+    availableFrequenciesKHz.isNotEmpty() -> availableFrequenciesKHz
+    hwMinKHz != null && hwMaxKHz != null && hwMinKHz <= hwMaxKHz -> listOf(hwMinKHz, hwMaxKHz).distinct()
+    else -> emptyList()
+}
+
+private fun List<Long>.cpuIndexFor(value: Long): Int = indexOf(value).takeIf { it >= 0 } ?: indices.minByOrNull { kotlin.math.abs(this[it] - value) } ?: 0
+
+private fun formatCpuKHz(value: Long): String = when {
+    value <= 0L -> "—"
+    value >= 1_000_000L -> String.format(java.util.Locale.US, "%.2f GHz", value / 1_000_000.0)
+    else -> "${value / 1000} MHz"
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // Thermal Profile Chip Picker
@@ -986,7 +1128,7 @@ private fun AppSettingsTabRow(
 private fun AppConfig.performanceCustomizedCount(): Int = listOf(
     perf_lite_mode, cpu_boost, game_preload, app_priority, kill_bg_apps,
     gpu_profile, cpu_governor, gpu_governor, gpu_max_freq
-).count { it != "default" }
+).count { it != "default" } + if (cpu_policy_controls.isNotBlank()) 1 else 0
 
 private fun AppConfig.displayCustomizedCount(isGameApp: Boolean): Int {
     var count = listOf(refresh_rate, renderer, force_hw_ui).count { it != "default" }

@@ -1,3 +1,0 @@
-Files intentionally deleted in the repaired tree:
-mainfiles/xiaomi-extras.sh
-manager/app/src/main/java/nd/max/ui/util/VendorThermalUtil.kt

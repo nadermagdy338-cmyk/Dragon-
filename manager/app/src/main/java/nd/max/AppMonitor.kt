@@ -52,6 +52,8 @@ import nd.max.core.hardware.PerAppControlRegistry
 import nd.max.core.hardware.PerAppRecoveryStore
 import nd.max.core.hardware.PerAppFrequencyController
 import nd.max.core.hardware.VerifiedControl
+import nd.max.ui.util.decodePerAppCpuPolicyControls
+import nd.max.ui.viewmodel.TouchBoostViewModel
 
 
 @SuppressLint("StaticFieldLeak", "DiscouragedPrivateApi", "PrivateApi")
@@ -156,6 +158,7 @@ object AppMonitor {
     private var savedVendorRefreshSnapshot: PerAppRefreshRateController.Snapshot? = null
     private var wasZenSet = false
     private val hardwareControlRegistry = PerAppControlRegistry()
+    private var activePerAppCpuPackage = ""
 
 
     // ── App Settings fields (wired to backend here) ─────────────────────────
@@ -670,18 +673,18 @@ object AppMonitor {
             }
         }
 
-        // Xiaomi vendor extras (touch boost + AOD colour override).
-        // touch_boost per-app override wins when the user explicitly set it;
-        // "default" (never set, or field left at "default") falls back to
-        // the original auto-detect-known-game behavior so existing installs
-        // don't change behavior for apps nobody has configured.
+        // Per-app touch policy explicitly overrides the ROM default only while
+        // it is set. Otherwise the ROM-wide Touch Boost control remains the
+        // source of truth (with the legacy game heuristic as a compatibility
+        // fallback when that global property has not been configured yet).
+        val globalTouchBoost = shellRead("getprop persist.sys.maxmanager.custom_touch_boost") == "1"
         val touchBoostDecision = when (touchBoostOverride) {
             "true" -> true
             "false" -> false
-            else -> isKnownGameApp(pkgName)
+            else -> globalTouchBoost || isKnownGameApp(pkgName)
         }
         runCatching {
-            XiaomiVendorFeatures.applyTouchBoost(boost = screenAwake == 1 && touchBoostDecision)
+            TouchBoostViewModel.applyBestEffortBoost(screenAwake == 1 && touchBoostDecision)
             XiaomiVendorFeatures.applyAodColorOverride(
                 context = systemContext,
                 screenAwake = screenAwake == 1,
@@ -915,9 +918,91 @@ object AppMonitor {
         }.onFailure { AppMonitorLogger.e("ownership: governor registration failed for '$pkgName' sw=$currentSwitchId", it) }
 
         runCatching {
+            val encodedPolicyControls = readAppConfigField(pkgName, "cpu_policy_controls")
+            val policyControls = decodePerAppCpuPolicyControls(encodedPolicyControls)
+            if (encodedPolicyControls.isNotBlank() && policyControls.isEmpty()) {
+                activePerAppCpuPackage = pkgName
+                writePerAppCpuStatus(pkgName, "failed", "CPU controls are invalid")
+                AppMonitorLogger.w("EVENT=PERAPP_CPU_FAILED pkg=$pkgName reason=invalid-controls sw=$currentSwitchId")
+            } else if (policyControls.isNotEmpty()) {
+                activePerAppCpuPackage = pkgName
+                writePerAppCpuStatus(pkgName, "applying", "Applying CPU controls")
+                val policies = CpuHardwareBackend.policies().associateBy { it.name }
+                var firstFailure: String? = null
+                val validated = policyControls.mapNotNull { control ->
+                    val policy = policies[control.policyName]
+                    if (policy == null) {
+                        if (firstFailure == null) firstFailure = "${control.policyName} is unavailable"
+                        return@mapNotNull null
+                    }
+                    val supported = policy.availableFrequenciesKHz
+                    val provenMin = policy.hwMinKHz ?: supported.firstOrNull()
+                    val provenMax = policy.hwMaxKHz ?: supported.lastOrNull()
+                    when {
+                        supported.isNotEmpty() && (control.minKHz !in supported || control.maxKHz !in supported) -> {
+                            if (firstFailure == null) firstFailure = "${control.policyName} frequency is unavailable"
+                            null
+                        }
+                        provenMin == null || provenMax == null || control.minKHz < provenMin || control.maxKHz > provenMax -> {
+                            if (firstFailure == null) firstFailure = "${control.policyName} range is unsupported"
+                            null
+                        }
+                        else -> control to policy
+                    }
+                }
+                val acquiredKeys = mutableListOf<String>()
+                if (firstFailure == null && validated.size == policyControls.size) validated.forEach { (control, policy) ->
+                    if (firstFailure != null) return@forEach
+                    val requested = "${control.minKHz}:${control.maxKHz}"
+                    val liveRange = "${policy.minKHz ?: ""}:${policy.maxKHz ?: ""}"
+                    val key = "cpu_limits:${policy.name}"
+                    val owned = hardwareControlRegistry.ownValue(
+                        key = key,
+                        desired = requested,
+                        apply = { value ->
+                            val parts = value.split(":", limit = 2)
+                            CpuHardwareBackend.setPolicyLimits(policy.path, parts[0].toLongOrNull(), parts[1].toLongOrNull()).successful
+                        },
+                        read = {
+                            CpuHardwareBackend.policies().firstOrNull { it.name == policy.name }?.let {
+                                "${it.minKHz ?: ""}:${it.maxKHz ?: ""}"
+                            }
+                        },
+                        baseline = liveRange,
+                        restore = { value ->
+                            val parts = value.split(":", limit = 2)
+                            CpuHardwareBackend.setPolicyLimits(policy.path, parts[0].toLongOrNull(), parts[1].toLongOrNull()).successful
+                        },
+                    )
+                    val verified = CpuHardwareBackend.policies().firstOrNull { it.name == policy.name }?.let {
+                        "${it.minKHz ?: ""}:${it.maxKHz ?: ""}" == requested
+                    } == true
+                    if (owned && verified) {
+                        acquiredKeys += key
+                    } else if (firstFailure == null) {
+                        firstFailure = "${policy.name} was not verified"
+                    }
+                }
+                if (firstFailure != null) acquiredKeys.asReversed().forEach(hardwareControlRegistry::release)
+                if (firstFailure == null) {
+                    writePerAppCpuStatus(pkgName, "applied", "CPU controls verified")
+                    AppMonitorLogger.i("EVENT=PERAPP_CPU_APPLIED pkg=$pkgName policies=${policyControls.size} sw=$currentSwitchId")
+                } else {
+                    writePerAppCpuStatus(pkgName, "failed", firstFailure)
+                    AppMonitorLogger.w("EVENT=PERAPP_CPU_FAILED pkg=$pkgName reason=$firstFailure sw=$currentSwitchId")
+                }
+            }
+        }.onFailure {
+            activePerAppCpuPackage = pkgName
+            writePerAppCpuStatus(pkgName, "failed", "CPU control failed")
+            AppMonitorLogger.e("ownership: per-app CPU control failed for '$pkgName' sw=$currentSwitchId", it)
+        }
+
+        runCatching {
             val cpuMin = readAppConfigField(pkgName, "cpu_min_freq").toLongOrNull()
             val cpuMax = readAppConfigField(pkgName, "cpu_max_freq").toLongOrNull()
-            if (cpuMin != null || cpuMax != null) {
+            val hasPolicyControls = readAppConfigField(pkgName, "cpu_policy_controls").isNotBlank()
+            if (!hasPolicyControls && (cpuMin != null || cpuMax != null)) {
                 CpuHardwareBackend.policies().forEach { policy ->
                     val baseline = "${policy.minKHz ?: ""}:${policy.maxKHz ?: ""}"
                     val desired = "${cpuMin ?: ""}:${cpuMax ?: ""}"
@@ -1087,22 +1172,30 @@ object AppMonitor {
         // identical to the periodic drift-repair path. Vendor-specific OPP/thermal controls
         // remain outside this generic registry because their adapters own their own protocol.
         runCatching {
-            hardwareControlRegistry.verifyAndRepair().forEach { result ->
+            val commitResults = hardwareControlRegistry.verifyAndRepair()
+            commitResults.forEach { result ->
                 AppMonitorLogger.i(
                     "EVENT=PERAPP_COMMIT pkg=$pkgName knob=${result.key} requested=${result.requested} " +
                         "applied=${result.applied} verified=${result.verified} attempts=${result.attempts} " +
                         "live=${result.actual ?: "none"} error=${result.error ?: "none"} sw=$currentSwitchId"
                 )
             }
+            if (activePerAppCpuPackage == pkgName) {
+                val failure = commitResults.firstOrNull { it.key.startsWith("cpu_limits:") && !it.successful }
+                if (failure != null) {
+                    writePerAppCpuStatus(pkgName, "failed", "${failure.key.removePrefix("cpu_limits:")} was not verified")
+                    AppMonitorLogger.w("EVENT=PERAPP_CPU_FAILED pkg=$pkgName reason=${failure.error ?: "live-value-mismatch"} sw=$currentSwitchId")
+                }
+            }
         }.onFailure { AppMonitorLogger.e("ownership: verified commit failed for '$pkgName' sw=$currentSwitchId", it) }
 
-        // touch_boost: per-app override for the touchBoostOverride decision read
-        // every poll in buildStatus(). Empty/missing field -> "default", which
-        // means "fall back to the isKnownGameApp() auto-detect heuristic" so
-        // apps nobody has configured keep their existing behavior.
+        // touch_boost: per-app override. `default` deliberately follows the
+        // ROM's global touch-boost setting; explicit true/false wins only for
+        // this foreground app. This prevents the per-app screen from silently
+        // re-enabling a global feature the user intentionally turned off.
         runCatching {
             val touchBoost = readAppConfigField(pkgName, "touch_boost")
-            touchBoostOverride = if (touchBoost.isNotEmpty()) touchBoost else "default"
+            touchBoostOverride = if (touchBoost in setOf("true", "false")) touchBoost else "default"
         }.onFailure { AppMonitorLogger.e("touch_boost knob failed for '$pkgName' sw=$currentSwitchId", it) }
 
         // force_hw_ui: mirrors the "Force GPU rendering" developer option
@@ -1274,6 +1367,14 @@ object AppMonitor {
         }
     }
 
+    private fun writePerAppCpuStatus(pkgName: String, state: String, message: String) {
+        val safeMessage = message.replace('\n', ' ').replace('\r', ' ').take(140)
+        RootFileAccess.atomicWriteText(
+            MaxManagerPaths.PER_APP_CPU_STATUS,
+            "package=$pkgName\nstate=$state\nmessage=$safeMessage\n"
+        )
+    }
+
     private fun restoreGlobalMaxManagerProfile(): Boolean {
         val profile = shellRead("cat /data/adb/.config/MaxManager/API/current_profile 2>/dev/null")
         if (profile !in setOf("1", "2", "3")) return false
@@ -1332,6 +1433,10 @@ object AppMonitor {
                     sysfsWrite("$path/scaling_min_freq", min)
                 }
             }.onFailure { AppMonitorLogger.e("revert: baseline governor restore failed while leaving '$lastAppliedPkg' sw=$currentSwitchId", it) }
+        }
+        if (activePerAppCpuPackage.isNotBlank()) {
+            writePerAppCpuStatus(activePerAppCpuPackage, "restored", "CPU controls released")
+            activePerAppCpuPackage = ""
         }
 
         runCatching {

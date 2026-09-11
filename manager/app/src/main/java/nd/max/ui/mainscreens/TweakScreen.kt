@@ -222,6 +222,18 @@ fun TweakScreen(
                 Spacer(modifier = Modifier.height(MaxUiMetrics.sectionGap))
             }
 
+            item {
+                SystemPulseBoard(
+                    fullMode = isFullModeEnabled,
+                    touchState = viewModel.touchBoostState,
+                    thermalState = viewModel.thermalState,
+                    onTouchOpen = { navController.navigate("touchboost") },
+                    onCoreOpen = { navController.navigate("cpucorecontrol") },
+                    onThermalOpen = { navController.navigate("thermal_detail") }
+                )
+                Spacer(modifier = Modifier.height(MaxUiMetrics.sectionGap))
+            }
+
             item { TweaksSectionTitle(text = stringResource(R.string.section_performance)) }
             item {
                 var socType by remember { mutableStateOf<String?>(null) }
@@ -730,6 +742,115 @@ item {
     )
     }
 
+
+@Composable
+private fun SystemPulseBoard(
+    fullMode: Boolean,
+    touchState: Boolean?,
+    thermalState: Boolean?,
+    onTouchOpen: () -> Unit,
+    onCoreOpen: () -> Unit,
+    onThermalOpen: () -> Unit
+) {
+    val scheme = MaterialTheme.colorScheme
+    val liveCount = listOf(touchState, thermalState).count { it == true }
+    val accent = if (liveCount > 0) scheme.secondary else scheme.primary
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(30.dp),
+        color = scheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, accent.copy(alpha = .28f))
+    ) {
+        Column(
+            modifier = Modifier
+                .background(Brush.verticalGradient(listOf(accent.copy(alpha = .14f), Color.Transparent)))
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.Top) {
+                Surface(shape = RoundedCornerShape(18.dp), color = accent.copy(alpha = .13f)) {
+                    Icon(Icons.Rounded.AutoGraph, null, tint = accent, modifier = Modifier.padding(12.dp).size(28.dp))
+                }
+                Spacer(Modifier.width(13.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("SYSTEM PULSE", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = accent)
+                    Text("ROM response studio", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black, color = scheme.onSurface)
+                    Text(
+                        if (fullMode) "Advanced controls are available. Tap a lane to tune it safely." else "Balanced controls are active. Per-app choices always take priority.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant
+                    )
+                }
+                Surface(shape = RoundedCornerShape(99.dp), color = accent.copy(alpha = .11f)) {
+                    Text("$liveCount LIVE", modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Black, color = accent)
+                }
+            }
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                PulseLane(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Rounded.TouchApp,
+                    label = "Input lane",
+                    value = when (touchState) { true -> "Precision on"; false -> "Adaptive"; null -> "Checking" },
+                    active = touchState == true,
+                    accent = scheme.tertiary,
+                    onClick = onTouchOpen
+                )
+                PulseLane(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Outlined.Memory,
+                    label = "Core lane",
+                    value = "Topology",
+                    active = true,
+                    accent = scheme.primary,
+                    onClick = onCoreOpen
+                )
+                PulseLane(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Rounded.ThermostatAuto,
+                    label = "Thermal lane",
+                    value = when (thermalState) { true -> "Guarding"; false -> "Manual"; null -> "Checking" },
+                    active = thermalState == true,
+                    accent = scheme.secondary,
+                    onClick = onThermalOpen
+                )
+            }
+
+            Text(
+                "Pulse is a readiness map, not a one-tap performance mode. It shows which system lanes are managed and keeps deeper controls deliberate.",
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun PulseLane(
+    modifier: Modifier,
+    icon: ImageVector,
+    label: String,
+    value: String,
+    active: Boolean,
+    accent: Color,
+    onClick: () -> Unit
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        modifier = modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        color = accent.copy(alpha = if (active) .13f else .06f),
+        border = BorderStroke(1.dp, accent.copy(alpha = if (active) .27f else .13f))
+    ) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            Icon(icon, null, tint = accent, modifier = Modifier.size(20.dp))
+            Text(label, style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant, maxLines = 1)
+            Text(value, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = scheme.onSurface, maxLines = 1)
+            Text(if (active) "MANAGED" else "STANDBY", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = accent)
+        }
+    }
+}
 
 @Composable
 private fun AdvancedToolsGrid(navController: NavController) {

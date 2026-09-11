@@ -31,8 +31,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.util.AppConfig
+import nd.max.ui.util.PerAppCpuRuntimeStatus
+import nd.max.ui.util.readPerAppCpuRuntimeStatus
 import nd.max.ui.util.EventLog
 import nd.max.ui.util.PerAppKernelUtil
 
@@ -56,6 +59,10 @@ class AppSettingsViewModel : ViewModel() {
     var availableGpuFrequencies by mutableStateOf<List<Long>>(emptyList())
         private set
     var gpuNode by mutableStateOf<String?>(null)
+        private set
+    var cpuPolicies by mutableStateOf<List<CpuHardwareBackend.Policy>>(emptyList())
+        private set
+    var cpuRuntimeStatus by mutableStateOf(PerAppCpuRuntimeStatus())
         private set
 
     fun loadConfig() {
@@ -126,16 +133,27 @@ class AppSettingsViewModel : ViewModel() {
         saveAndRefresh(newMap)
     }
 
-    fun loadKernelCapabilities() {
+    fun loadKernelCapabilities(packageName: String? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             val cpu = PerAppKernelUtil.readCpuGovernors()
+            val cpuPolicyData = CpuHardwareBackend.policies()
             val gpu = PerAppKernelUtil.readGpuCapabilities()
+            val status = readPerAppCpuRuntimeStatus(packageName)
             withContext(Dispatchers.Main) {
                 availableCpuGovernors = cpu
+                cpuPolicies = cpuPolicyData
                 availableGpuGovernors = gpu.governors
                 availableGpuFrequencies = gpu.frequencies
                 gpuNode = gpu.node
+                cpuRuntimeStatus = status
             }
+        }
+    }
+
+    fun refreshCpuRuntimeStatus(packageName: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val status = readPerAppCpuRuntimeStatus(packageName)
+            withContext(Dispatchers.Main) { cpuRuntimeStatus = status }
         }
     }
 
@@ -148,6 +166,7 @@ class AppSettingsViewModel : ViewModel() {
             "app_priority" -> currentAppConfig.copy(app_priority = value)
             "game_preload" -> currentAppConfig.copy(game_preload = value)
             "cpu_boost" -> currentAppConfig.copy(cpu_boost = value)
+            "cpu_policy_controls" -> currentAppConfig.copy(cpu_policy_controls = value)
             "gpu_profile" -> currentAppConfig.copy(gpu_profile = value, thermal_profile = "default")
             "cpu_governor" -> currentAppConfig.copy(cpu_governor = value)
             "gpu_governor" -> currentAppConfig.copy(gpu_governor = value)
@@ -185,6 +204,7 @@ class AppSettingsViewModel : ViewModel() {
         "app_priority" -> config.app_priority
         "game_preload" -> config.game_preload
         "cpu_boost" -> config.cpu_boost
+        "cpu_policy_controls" -> config.cpu_policy_controls
         "gpu_profile" -> config.gpu_profile
         "cpu_governor" -> config.cpu_governor
         "gpu_governor" -> config.gpu_governor

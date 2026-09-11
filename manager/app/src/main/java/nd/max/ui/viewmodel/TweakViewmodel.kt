@@ -93,6 +93,7 @@ class TweakViewModel : ViewModel() {
     var currentRefreshRateReason by mutableStateOf("default")
         private set
     var thermalState by mutableStateOf<Boolean?>(null)
+    var touchBoostState by mutableStateOf<Boolean?>(null)
     
     var isRendererLoading by mutableStateOf(false)
         private set
@@ -249,6 +250,7 @@ class TweakViewModel : ViewModel() {
                 dndState = PropertyUtils.get(MaxManagerProps.Conf.DND) == "1"
                 fstrimState = PropertyUtils.get(MaxManagerProps.Conf.FSTRIM) == "1"
                 thermalState = PropertyUtils.get(MaxManagerProps.Conf.THERMAL_CORE) == "1"
+                touchBoostState = PropertyUtils.get(MaxManagerProps.Touch.BOOST) == "1"
 
                 val rawRenderer = PropertyUtils.get("debug.hwui.renderer")
                 val maxmanagerRenderer = PropertyUtils.get(MaxManagerProps.Conf.RENDERER)

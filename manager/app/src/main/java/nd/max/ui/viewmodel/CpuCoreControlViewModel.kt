@@ -27,6 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.ui.util.CpuTopologyUtil
 import nd.max.ui.util.getChipsetName
 
@@ -43,6 +44,30 @@ data class CpuQuickConfig(
     val labelRes: String,
     val descRes: String
 )
+
+/** The last request and read-back result for one cpufreq policy. */
+data class CpuFrequencyVerification(
+    val requestedMinKHz: Long,
+    val requestedMaxKHz: Long,
+    val actualMinKHz: Long?,
+    val actualMaxKHz: Long?,
+    val verified: Boolean
+)
+
+/** Live, per-cluster cpufreq snapshot used by the Core screen's controls. */
+data class CpuFrequencyControlState(
+    val policyPath: String,
+    val currentKHz: Long?,
+    val minKHz: Long?,
+    val maxKHz: Long?,
+    val hardwareMinKHz: Long?,
+    val hardwareMaxKHz: Long?,
+    val governor: String?,
+    val availableFrequenciesKHz: List<Long>,
+    val verification: CpuFrequencyVerification? = null
+) {
+    val canControl: Boolean get() = minKHz != null || maxKHz != null
+}
 
 /**
  * Live per-core hotplug control. Reads cluster grouping from CpuTopologyUtil
@@ -81,8 +106,19 @@ class CpuCoreControlViewModel : ViewModel() {
 
     var cpusetGroups by mutableStateOf<List<CpuTopologyUtil.CpusetGroup>>(emptyList())
         private set
+    var frequencyControls by mutableStateOf<Map<String, CpuFrequencyControlState>>(emptyMap())
+        private set
+    var frequencyActionMessage by mutableStateOf<String?>(null)
+        private set
+    private var sessionFrequencyBaseline: Map<String, Pair<Long, Long>> = emptyMap()
+    private var lastFrequencyVerification: Map<String, CpuFrequencyVerification> = emptyMap()
 
     val totalCores: Int get() = coreRows.size
+    val hasSessionFrequencyChanges: Boolean
+        get() = frequencyControls.any { (path, state) ->
+            val baseline = sessionFrequencyBaseline[path]
+            baseline != null && (state.minKHz != baseline.first || state.maxKHz != baseline.second)
+        }
     val onlineCores: Int get() = coreRows.count { it.online }
 
     private var pollJob: kotlinx.coroutines.Job? = null
@@ -99,6 +135,7 @@ class CpuCoreControlViewModel : ViewModel() {
             chipsetName = getChipsetName(context)
             isAvailable = true
             refreshRows()
+            refreshFrequencyControls(captureBaseline = true)
             cpusetGroups = CpuTopologyUtil.readCpusetGroups()
             startPolling()
         }
@@ -132,12 +169,39 @@ class CpuCoreControlViewModel : ViewModel() {
         coreRows = rows
     }
 
+    private fun refreshFrequencyControls(captureBaseline: Boolean = false) {
+        val policies = CpuHardwareBackend.policies().associateBy { it.path }
+        val next = clusters.associate { cluster ->
+            val policy = policies[cluster.policyPath]
+            cluster.policyPath to CpuFrequencyControlState(
+                policyPath = cluster.policyPath,
+                currentKHz = CpuHardwareBackend.readCurrentFrequencyKHz(cluster.policyPath),
+                minKHz = policy?.minKHz,
+                maxKHz = policy?.maxKHz,
+                hardwareMinKHz = policy?.provenMinKHz,
+                hardwareMaxKHz = policy?.provenMaxKHz,
+                governor = policy?.governor,
+                availableFrequenciesKHz = policy?.availableFrequenciesKHz.orEmpty(),
+                verification = lastFrequencyVerification[cluster.policyPath]
+            )
+        }
+        frequencyControls = next
+        if (captureBaseline && sessionFrequencyBaseline.isEmpty()) {
+            sessionFrequencyBaseline = next.mapNotNull { (path, state) ->
+                val min = state.minKHz
+                val max = state.maxKHz
+                if (min != null && max != null) path to (min to max) else null
+            }.toMap()
+        }
+    }
+
     private fun startPolling() {
         pollJob?.cancel()
         pollJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 delay(3000)
                 refreshRows()
+                refreshFrequencyControls()
             }
         }
     }
@@ -149,6 +213,90 @@ class CpuCoreControlViewModel : ViewModel() {
 
     fun setManualControlEnabled(enabled: Boolean) {
         manualControlEnabled = enabled
+    }
+
+    fun applyFrequencyLimits(policyPath: String, minKHz: Long, maxKHz: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = CpuHardwareBackend.setPolicyLimits(policyPath, minKHz, maxKHz)
+            val actual = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
+            lastFrequencyVerification = lastFrequencyVerification + (policyPath to CpuFrequencyVerification(
+                requestedMinKHz = minKHz,
+                requestedMaxKHz = maxKHz,
+                actualMinKHz = actual?.minKHz,
+                actualMaxKHz = actual?.maxKHz,
+                verified = result.verified
+            ))
+            refreshFrequencyControls()
+            withContext(Dispatchers.Main) {
+                frequencyActionMessage = if (result.verified) {
+                    "Frequency limits applied and verified"
+                } else {
+                    "The kernel kept different frequency limits"
+                }
+            }
+        }
+    }
+
+    fun restoreSessionFrequencyLimits() {
+        if (sessionFrequencyBaseline.isEmpty()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            var restored = 0
+            var allVerified = true
+            sessionFrequencyBaseline.forEach { (path, baseline) ->
+                val result = CpuHardwareBackend.setPolicyLimits(path, baseline.first, baseline.second)
+                val actual = CpuHardwareBackend.policies().firstOrNull { it.path == path }
+                lastFrequencyVerification = lastFrequencyVerification + (path to CpuFrequencyVerification(
+                    requestedMinKHz = baseline.first,
+                    requestedMaxKHz = baseline.second,
+                    actualMinKHz = actual?.minKHz,
+                    actualMaxKHz = actual?.maxKHz,
+                    verified = result.verified
+                ))
+                restored++
+                allVerified = allVerified && result.verified
+            }
+            refreshFrequencyControls()
+            withContext(Dispatchers.Main) {
+                frequencyActionMessage = if (allVerified) {
+                    "Session baseline restored for $restored policies"
+                } else {
+                    "Some policies could not be restored"
+                }
+            }
+        }
+    }
+
+    fun resetFrequencyLimits(policyPath: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val policy = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
+            val min = policy?.provenMinKHz
+            val max = policy?.provenMaxKHz
+            val result = if (min != null || max != null) {
+                CpuHardwareBackend.setPolicyLimits(policyPath, min, max)
+            } else null
+            val actual = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
+            if (min != null && max != null) {
+                lastFrequencyVerification = lastFrequencyVerification + (policyPath to CpuFrequencyVerification(
+                    requestedMinKHz = min,
+                    requestedMaxKHz = max,
+                    actualMinKHz = actual?.minKHz,
+                    actualMaxKHz = actual?.maxKHz,
+                    verified = result?.verified == true
+                ))
+            }
+            refreshFrequencyControls()
+            withContext(Dispatchers.Main) {
+                frequencyActionMessage = if (result?.verified == true) {
+                    "Hardware frequency range restored"
+                } else {
+                    "Could not restore the hardware range"
+                }
+            }
+        }
+    }
+
+    fun consumeFrequencyActionMessage() {
+        frequencyActionMessage = null
     }
 
     fun setCoreOnline(cpu: Int, online: Boolean) {

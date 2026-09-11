@@ -18,7 +18,72 @@ package nd.max.ui.util
 
 
 import kotlinx.serialization.Serializable
+import nd.max.MaxManagerPaths
+import nd.max.core.hardware.RootFileAccess
 
+/**
+ * Compact per-policy CPU control persisted inside [AppConfig]. The format stays
+ * flat because AppMonitor reads individual app fields from the existing JSON
+ * document without materialising the whole profile.
+ */
+enum class PerAppCpuControlMode(val token: String) {
+    DEFAULT("default"),
+    DYNAMIC_RANGE("range"),
+    EXACT_LOCK("lock");
+
+    companion object {
+        fun fromToken(value: String): PerAppCpuControlMode? = entries.firstOrNull { it.token == value }
+    }
+}
+
+data class PerAppCpuPolicyControl(
+    val policyName: String,
+    val mode: PerAppCpuControlMode,
+    val minKHz: Long,
+    val maxKHz: Long,
+)
+
+data class PerAppCpuRuntimeStatus(
+    val packageName: String = "",
+    val state: String = "idle",
+    val message: String = "",
+) {
+    val isFailure: Boolean get() = state == "failed"
+    val isApplied: Boolean get() = state == "applied"
+}
+
+fun readPerAppCpuRuntimeStatus(packageName: String?): PerAppCpuRuntimeStatus {
+    if (packageName.isNullOrBlank()) return PerAppCpuRuntimeStatus()
+    val values = runCatching {
+        RootFileAccess.read(MaxManagerPaths.PER_APP_CPU_STATUS)
+            .orEmpty()
+            .lineSequence()
+            .mapNotNull { line -> line.split('=', limit = 2).takeIf { it.size == 2 } }
+            .associate { it[0] to it[1] }
+    }.getOrDefault(emptyMap())
+    return if (values["package"] == packageName) {
+        PerAppCpuRuntimeStatus(packageName, values["state"].orEmpty().ifBlank { "idle" }, values["message"].orEmpty())
+    } else PerAppCpuRuntimeStatus()
+}
+
+fun decodePerAppCpuPolicyControls(encoded: String): List<PerAppCpuPolicyControl> = encoded
+    .split(';')
+    .mapNotNull { record ->
+        val parts = record.split('|')
+        if (parts.size != 4) return@mapNotNull null
+        val policy = parts[0].takeIf { it.matches(Regex("(?:policy|cpu)\\d+")) } ?: return@mapNotNull null
+        val mode = parts.getOrNull(1)?.let(PerAppCpuControlMode::fromToken) ?: return@mapNotNull null
+        val min = parts.getOrNull(2)?.toLongOrNull() ?: return@mapNotNull null
+        val max = parts.getOrNull(3)?.toLongOrNull() ?: return@mapNotNull null
+        if (mode == PerAppCpuControlMode.DEFAULT || min < 0L || max < min) null
+        else PerAppCpuPolicyControl(policy, mode, min, max)
+    }
+    .distinctBy { it.policyName }
+
+fun encodePerAppCpuPolicyControls(controls: Collection<PerAppCpuPolicyControl>): String = controls
+    .filter { it.mode != PerAppCpuControlMode.DEFAULT && it.policyName.matches(Regex("(?:policy|cpu)\\d+")) && it.minKHz >= 0L && it.maxKHz >= it.minKHz }
+    .sortedBy { it.policyName }
+    .joinToString(";") { "${it.policyName}|${it.mode.token}|${it.minKHz}|${it.maxKHz}" }
 
 @Serializable
 data class AppConfig(
@@ -27,6 +92,7 @@ data class AppConfig(
     val app_priority: String = "default",
     val game_preload: String = "default",
     val cpu_boost: String = "default",          // boost CPU clocks on app launch
+    val cpu_policy_controls: String = "",        // policy|range/lock|minKHz|maxKHz;...
 
     // ── Per-App GPU / Governor ────────────────────────────────
     // gpu_profile changes only the GPU frequency ceiling. Default means no GPU override.
@@ -66,4 +132,4 @@ fun AppConfig.customizedFieldCount(): Int = listOf(
     refresh_rate, renderer, resolution_downscale,
     dnd_on_gaming, bypass_charging, touch_boost, haptic_feedback,
     kill_bg_apps, force_hw_ui, disable_notifs, wifi_no_sleep
-).count { it != "default" }
+).count { it != "default" } + if (decodePerAppCpuPolicyControls(cpu_policy_controls).isNotEmpty()) 1 else 0

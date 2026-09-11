@@ -46,6 +46,8 @@ import nd.max.R
 import nd.max.core.maxai.DecisionResult
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
+import nd.max.ui.component.PowerCoreCard
+import nd.max.ui.component.PowerCoreInfo
 import nd.max.ui.theme.MonoValueStyleSmall
 import nd.max.ui.viewmodel.CpuCoreState
 import nd.max.ui.viewmodel.DashboardState

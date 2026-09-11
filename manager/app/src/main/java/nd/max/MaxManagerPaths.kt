@@ -41,4 +41,5 @@ object MaxManagerPaths {
     const val SERVICE_BIN = "$MODULE_DIR/system/bin/sys.maxmanager-service"
     const val MODULE_APK = "$MODULE_DIR/system/product/priv-app/MaxManager/MaxManager.apk"
     const val MAXMANAGER_LOG = "$MODULE_CONFIG/debug/MaxManager.log"
+    const val PER_APP_CPU_STATUS = "$MODULE_CONFIG/runtime/per_app_cpu_status"
 }

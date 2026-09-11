@@ -13,29 +13,83 @@ object CpuHardwareBackend {
         val maxKHz: Long?,
         val hwMinKHz: Long?,
         val hwMaxKHz: Long?,
-    )
+        val availableFrequenciesKHz: List<Long>,
+    ) {
+        val provenMinKHz: Long? get() = hwMinKHz ?: availableFrequenciesKHz.firstOrNull()
+        val provenMaxKHz: Long? get() = hwMaxKHz ?: availableFrequenciesKHz.lastOrNull()
+    }
 
-    fun policies(): List<Policy> = RootFileAccess.listDirectories(ROOT)
-        .filter { it.startsWith("policy") }
-        .mapNotNull { name ->
-            val path = "$ROOT/$name"
-            val gov = RootFileAccess.read("$path/scaling_governor")
-            val governors = RootFileAccess.read("$path/scaling_available_governors")
-                .orEmpty().split(Regex("\\s+")).filter(String::isNotBlank).distinct()
-            val min = RootFileAccess.read("$path/scaling_min_freq")?.toLongOrNull()
-            val max = RootFileAccess.read("$path/scaling_max_freq")?.toLongOrNull()
-            val hwMin = RootFileAccess.read("$path/cpuinfo_min_freq")?.toLongOrNull()
-            val hwMax = RootFileAccess.read("$path/cpuinfo_max_freq")?.toLongOrNull()
-            if (gov == null && governors.isEmpty() && min == null && max == null) null
-            else Policy(path, name, gov, governors, min, max, hwMin, hwMax)
-        }
-        .sortedBy { it.name }
+    private fun policyFrequencies(path: String): List<Long> {
+        val advertised = RootFileAccess.read("$path/scaling_available_frequencies")
+            .orEmpty()
+            .split(Regex("\\s+"))
+            .mapNotNull(String::toLongOrNull)
+        if (advertised.isNotEmpty()) return advertised.distinct().sorted()
+
+        // A number of modern kernels omit scaling_available_frequencies while
+        // retaining the cpufreq statistics table. It is still a kernel-reported
+        // OPP list, unlike a guessed range, so it is safe to expose in the UI.
+        return RootFileAccess.read("$path/stats/time_in_state")
+            .orEmpty()
+            .lineSequence()
+            .mapNotNull { line -> line.trim().split(Regex("\\s+")).firstOrNull()?.toLongOrNull() }
+            .filter { it > 0L }
+            .distinct()
+            .sorted()
+    }
+
+    private fun readPolicy(name: String, path: String): Policy? {
+        val gov = RootFileAccess.read("$path/scaling_governor")
+        val governors = RootFileAccess.read("$path/scaling_available_governors")
+            .orEmpty().split(Regex("\\s+")).filter(String::isNotBlank).distinct()
+        val min = RootFileAccess.read("$path/scaling_min_freq")?.toLongOrNull()
+        val max = RootFileAccess.read("$path/scaling_max_freq")?.toLongOrNull()
+        val hwMin = RootFileAccess.read("$path/cpuinfo_min_freq")?.toLongOrNull()
+        val hwMax = RootFileAccess.read("$path/cpuinfo_max_freq")?.toLongOrNull()
+        val availableFrequencies = policyFrequencies(path)
+        return if (gov == null && governors.isEmpty() && min == null && max == null) null
+        else Policy(path, name, gov, governors, min, max, hwMin, hwMax, availableFrequencies)
+    }
+
+    /**
+     * policy* is the canonical cpufreq API. Legacy rooted kernels may expose
+     * only cpuN/cpufreq, which we use only when policy directories are absent
+     * to avoid aliasing the same hardware policy twice.
+     */
+    fun policies(): List<Policy> {
+        val policyNodes = RootFileAccess.listDirectories(ROOT)
+            .filter { it.matches(Regex("policy\\d+")) }
+            .mapNotNull { name -> readPolicy(name, "$ROOT/$name") }
+            .sortedBy { it.name }
+        if (policyNodes.isNotEmpty()) return policyNodes
+
+        val legacyPolicies = RootFileAccess.listDirectories("/sys/devices/system/cpu")
+            .filter { it.matches(Regex("cpu\\d+")) }
+            .mapNotNull { cpu -> readPolicy(cpu, "/sys/devices/system/cpu/$cpu/cpufreq") }
+        // Older kernels often expose one cpuN/cpufreq symlink per core. Group
+        // aliases by related_cpus/affected_cpus so one hardware policy is never
+        // presented or written multiple times.
+        return legacyPolicies
+            .groupBy { policy ->
+                RootFileAccess.read("${policy.path}/related_cpus")
+                    ?: RootFileAccess.read("${policy.path}/affected_cpus")
+                    ?: policy.path
+            }
+            .values
+            .map { aliases -> aliases.minBy { it.name.removePrefix("cpu").toIntOrNull() ?: Int.MAX_VALUE } }
+            .sortedBy { it.name.removePrefix("cpu").toIntOrNull() ?: Int.MAX_VALUE }
+    }
 
     fun commonGovernors(): List<String> {
         val sets = policies().map { it.governors.toSet() }.filter(Set<String>::isNotEmpty)
         if (sets.isEmpty()) return emptyList()
         return sets.reduce { a, b -> a.intersect(b) }.sorted()
     }
+
+    /** Reads a policy's live clock, which may differ from its configured limits. */
+    fun readCurrentFrequencyKHz(policyPath: String): Long? =
+        RootFileAccess.read("$policyPath/scaling_cur_freq")?.toLongOrNull()
+            ?: RootFileAccess.read("$policyPath/cpuinfo_cur_freq")?.toLongOrNull()
 
     /** Apply a governor to exactly one policy, preserving heterogeneous policy setups. */
     fun setPolicyGovernor(policyPath: String, governor: String): VerificationResult<String> {
@@ -52,18 +106,45 @@ object CpuHardwareBackend {
         )
     }
 
+    /**
+     * Applies a global governor only when every discovered policy supports it.
+     * A partial cluster change is worse than a rejected request, so rollback to
+     * each live baseline if a write or final verification fails.
+     */
     fun setGovernor(governor: String): VerificationResult<String> {
-        val current = policies().filter { governor in it.governors }
-        if (current.isEmpty()) return VerificationResult(governor, null, false, false, "unsupported")
-        var attempted = 0
-        var writes = 0
-        current.forEach { policy ->
-            attempted++
-            if (RootFileAccess.write("${policy.path}/scaling_governor", governor)) writes++
+        val all = policies()
+        if (all.isEmpty() || all.any { governor !in it.governors }) {
+            return VerificationResult(governor, null, false, false, "unsupported-by-all-policies")
         }
-        val live = policies().mapNotNull { it.governor }.distinct()
-        val verified = attempted > 0 && writes == attempted && live.size == 1 && live.first() == governor
-        return VerificationResult(governor, live.joinToString(","), writes == attempted, verified, if (verified) null else "write-failed")
+        val baseline = all.associate { it.path to it.governor }
+        var writesOk = true
+        for (policy in all) {
+            if (!RootFileAccess.write("${policy.path}/scaling_governor", governor)) {
+                writesOk = false
+                break
+            }
+        }
+        val live = policies()
+        val verified = writesOk && live.size == all.size && live.all { it.governor == governor }
+        var rollbackVerified = true
+        val actualPolicies = if (!verified) {
+            baseline.forEach { (path, previous) ->
+                if (!previous.isNullOrBlank()) {
+                    val restored = RootFileAccess.write("$path/scaling_governor", previous) &&
+                        policies().firstOrNull { it.path == path }?.governor == previous
+                    rollbackVerified = rollbackVerified && restored
+                }
+            }
+            policies()
+        } else live
+        val actual = actualPolicies.joinToString(",") { "${it.name}=${it.governor ?: "?"}" }
+        return VerificationResult(
+            governor,
+            actual,
+            writesOk,
+            verified,
+            if (verified) null else if (rollbackVerified) "live governor differed; restored baseline" else "live governor differed; rollback failed"
+        )
     }
 
     /** Apply limits to one cpufreq policy only, preserving heterogeneous policies. */
@@ -71,19 +152,24 @@ object CpuHardwareBackend {
         if (minKHz == null && maxKHz == null) return VerificationResult("", null, false, false, "no-request")
         val policy = policies().firstOrNull { it.path == policyPath }
             ?: return VerificationResult("$minKHz:$maxKHz", null, false, false, "unsupported-policy")
-        val hwMin = policy.hwMinKHz ?: policy.minKHz ?: minKHz ?: 0L
-        val hwMax = policy.hwMaxKHz ?: policy.maxKHz ?: maxKHz ?: Long.MAX_VALUE
+        val hwMin = policy.provenMinKHz
+            ?: return VerificationResult("$minKHz:$maxKHz", null, false, false, "unknown-hardware-bounds")
+        val hwMax = policy.provenMaxKHz
+            ?: return VerificationResult("$minKHz:$maxKHz", null, false, false, "unknown-hardware-bounds")
         var targetMin = minKHz?.coerceIn(hwMin, hwMax)
         var targetMax = maxKHz?.coerceIn(hwMin, hwMax)
         if (targetMin != null && targetMax != null && targetMin > targetMax) targetMin = targetMax
 
         var ok = true
-        val currentMin = policy.minKHz
-        if (targetMax != null && currentMin != null && targetMax < currentMin) {
+        val currentMax = policy.maxKHz
+        // Keep min <= max after every write. When raising the floor above the
+        // current ceiling, raise max first; otherwise establish min first.
+        val mustRaiseMaxFirst = targetMin != null && currentMax != null && targetMin > currentMax && targetMax != null
+        if (mustRaiseMaxFirst) {
             ok = RootFileAccess.write("$policyPath/scaling_max_freq", targetMax.toString()) && ok
         }
         if (targetMin != null) ok = RootFileAccess.write("$policyPath/scaling_min_freq", targetMin.toString()) && ok
-        if (targetMax != null && !(currentMin != null && targetMax < currentMin)) {
+        if (targetMax != null && !mustRaiseMaxFirst) {
             ok = RootFileAccess.write("$policyPath/scaling_max_freq", targetMax.toString()) && ok
         }
         val live = policies().firstOrNull { it.path == policyPath }
@@ -99,46 +185,44 @@ object CpuHardwareBackend {
         )
     }
 
+    /**
+     * Applies identical global limits only when every policy has proven hardware
+     * bounds. A partial application is rolled back to the captured live range.
+     * Per-app policy control should prefer [setPolicyLimits] instead.
+     */
     fun setLimits(minKHz: Long? = null, maxKHz: Long? = null): VerificationResult<String> {
         val all = policies()
         if (all.isEmpty()) return VerificationResult("", null, false, false, "unsupported")
         if (minKHz == null && maxKHz == null) return VerificationResult("", null, false, false, "no-request")
-
-        var writesOk = true
-        all.forEach { p ->
-            val hwMin = p.hwMinKHz ?: p.minKHz ?: minKHz ?: 0L
-            val hwMax = p.hwMaxKHz ?: p.maxKHz ?: maxKHz ?: Long.MAX_VALUE
-            var targetMin = minKHz?.coerceIn(hwMin, hwMax)
-            var targetMax = maxKHz?.coerceIn(hwMin, hwMax)
-            if (targetMin != null && targetMax != null && targetMin > targetMax) {
-                // Keep the request valid for kernels that require min <= max.
-                targetMin = targetMax
-            }
-            // Kernels commonly require min <= max at every write. When lowering
-            // the ceiling below the current floor, lower max first; when raising
-            // the floor above the current ceiling, raise max first.
-            val currentMin = p.minKHz
-            if (targetMax != null && currentMin != null && targetMax < currentMin) {
-                writesOk = RootFileAccess.write("${p.path}/scaling_max_freq", targetMax.toString()) && writesOk
-            }
-            if (targetMin != null) writesOk = RootFileAccess.write("${p.path}/scaling_min_freq", targetMin.toString()) && writesOk
-            if (targetMax != null && !(currentMin != null && targetMax < currentMin)) {
-                writesOk = RootFileAccess.write("${p.path}/scaling_max_freq", targetMax.toString()) && writesOk
+        if (all.any { it.provenMinKHz == null || it.provenMaxKHz == null }) {
+            return VerificationResult("${minKHz ?: ""}:${maxKHz ?: ""}", null, false, false, "unknown-hardware-bounds")
+        }
+        val baseline = all.associate { it.path to (it.minKHz to it.maxKHz) }
+        val results = mutableListOf<VerificationResult<String>>()
+        for (policy in all) {
+            val result = setPolicyLimits(policy.path, minKHz, maxKHz)
+            results += result
+            if (!result.verified) break
+        }
+        val verified = results.size == all.size && results.all { it.verified }
+        var rollbackVerified = true
+        if (!verified) {
+            baseline.forEach { (path, range) ->
+                if (range.first != null || range.second != null) {
+                    rollbackVerified = setPolicyLimits(path, range.first, range.second).verified && rollbackVerified
+                }
             }
         }
-
-        val livePolicies = policies()
-        val verified = writesOk && livePolicies.isNotEmpty() && livePolicies.all { p ->
-            val hwMin = p.hwMinKHz ?: p.minKHz ?: minKHz ?: 0L
-            val hwMax = p.hwMaxKHz ?: p.maxKHz ?: maxKHz ?: Long.MAX_VALUE
-            var expectedMin = minKHz?.coerceIn(hwMin, hwMax)
-            val expectedMax = maxKHz?.coerceIn(hwMin, hwMax)
-            if (expectedMin != null && expectedMax != null && expectedMin > expectedMax) expectedMin = expectedMax
-            (expectedMin == null || p.minKHz == expectedMin) && (expectedMax == null || p.maxKHz == expectedMax)
-        }
+        val live = policies()
         val requested = "${minKHz ?: ""}:${maxKHz ?: ""}"
-        val actual = livePolicies.joinToString(",") { "${it.name}=${it.minKHz ?: "?"}-${it.maxKHz ?: "?"}" }
-        return VerificationResult(requested, actual, writesOk, verified, if (verified) null else "live limits differ from requested limits")
+        val actual = live.joinToString(",") { "${it.name}=${it.minKHz ?: "?"}-${it.maxKHz ?: "?"}" }
+        return VerificationResult(
+            requested = requested,
+            actual = actual,
+            writeSucceeded = results.size == all.size && results.all { it.writeSucceeded },
+            verified = verified,
+            error = if (verified) null else if (rollbackVerified) "one or more policy limits were not verified; restored baseline" else "one or more policy limits were not verified; rollback failed",
+        )
     }
 
     fun boostNode(): String? = listOf(
