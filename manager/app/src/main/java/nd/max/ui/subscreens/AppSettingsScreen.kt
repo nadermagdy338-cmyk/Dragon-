@@ -686,7 +686,8 @@ private fun CpuFrequencySelector(label: String, choices: List<Long>, selectedInd
 
 private fun nd.max.core.hardware.CpuHardwareBackend.Policy.cpuFrequencyChoices(): List<Long> = when {
     availableFrequenciesKHz.isNotEmpty() -> availableFrequenciesKHz
-    hwMinKHz != null && hwMaxKHz != null && hwMinKHz <= hwMaxKHz -> listOf(hwMinKHz, hwMaxKHz).distinct()
+    provenMinKHz != null && provenMaxKHz != null && provenMinKHz <= provenMaxKHz ->
+        listOfNotNull(provenMinKHz, provenMaxKHz).distinct()
     else -> emptyList()
 }
 
