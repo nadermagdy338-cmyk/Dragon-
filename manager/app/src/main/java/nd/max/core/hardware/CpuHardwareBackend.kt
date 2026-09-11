@@ -36,6 +36,7 @@ object CpuHardwareBackend {
             .filter { it > 0L }
             .distinct()
             .sorted()
+            .toList()
     }
 
     private fun readPolicy(name: String, path: String): Policy? {

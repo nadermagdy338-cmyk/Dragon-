@@ -684,11 +684,15 @@ private fun CpuFrequencySelector(label: String, choices: List<Long>, selectedInd
     }
 }
 
-private fun nd.max.core.hardware.CpuHardwareBackend.Policy.cpuFrequencyChoices(): List<Long> = when {
-    availableFrequenciesKHz.isNotEmpty() -> availableFrequenciesKHz
-    provenMinKHz != null && provenMaxKHz != null && provenMinKHz <= provenMaxKHz ->
-        listOfNotNull(provenMinKHz, provenMaxKHz).distinct()
-    else -> emptyList()
+private fun nd.max.core.hardware.CpuHardwareBackend.Policy.cpuFrequencyChoices(): List<Long> {
+    if (availableFrequenciesKHz.isNotEmpty()) return availableFrequenciesKHz
+    val minKHz = provenMinKHz
+    val maxKHz = provenMaxKHz
+    return if (minKHz != null && maxKHz != null && minKHz <= maxKHz) {
+        listOfNotNull(minKHz, maxKHz).distinct()
+    } else {
+        emptyList()
+    }
 }
 
 private fun List<Long>.cpuIndexFor(value: Long): Int = indexOf(value).takeIf { it >= 0 } ?: indices.minByOrNull { kotlin.math.abs(this[it] - value) } ?: 0
