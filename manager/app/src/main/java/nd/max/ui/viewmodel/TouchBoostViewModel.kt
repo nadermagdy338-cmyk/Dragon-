@@ -52,14 +52,10 @@ class TouchBoostViewModel : ViewModel() {
             TouchNode("/sys/touchpanel/game_switch_enable", "1", "0"),
             TouchNode("/proc/touch_boost/enable", "1", "0")
         )
-        // These explicit report-rate nodes are only offered after their current
-        // value is readable. Unknown touch nodes are never treated as generic
-        // boost controls because their command values are vendor-defined.
-        private val SAMPLE_RATE_CANDIDATES = listOf(
-            TouchNode("/proc/touchpanel/touch_sample_rate", "240", "120"),
-            TouchNode("/sys/class/touch/touch_dev/report_rate", "240", "120"),
-            TouchNode("/sys/devices/platform/goodix_ts.0/switch_report_rate", "480", "240")
-        )
+        // Report-rate command values are not standardized. They remain hidden
+        // until an adapter can obtain supported values from the driver without
+        // mutating user state.
+        private val SAMPLE_RATE_CANDIDATES = emptyList<TouchNode>()
         private val DOUBLE_TAP_CANDIDATES = listOf(
             TouchNode("/proc/touchpanel/double_tap_enable", "1", "0"),
             TouchNode("/sys/android_touch/doubletap2wake", "1", "0")
@@ -131,8 +127,6 @@ class TouchBoostViewModel : ViewModel() {
         }
     }
 
-    private fun nodeExists(path: String): Boolean =
-        RootFileAccess.exists(path) && RootFileAccess.read(path) != null
 
     fun setBoost(enabled: Boolean) {
         boostEnabled = enabled

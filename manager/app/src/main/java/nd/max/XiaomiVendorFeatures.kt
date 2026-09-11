@@ -26,38 +26,13 @@ import java.lang.reflect.Method
 /**
  * XiaomiVendorFeatures
  * ─────────────────────────────────────────────────────────────────────────
- * Ported from the "Xiaomi Parts" system app concept (TouchSamplingService /
- * ColorService), adapted to run safely inside MaxManager's headless companion
- * process (sys.maxmanager-appmonitoring) instead of as a privileged
- * platform_apis=true system app.
+ * Xiaomi display integration uses the ROM's own proprietary AIDL stub at
+ * runtime rather than guessing binder transaction numbers. Touch integration
+ * is deliberately unavailable: the transport can be discovered, but fixed
+ * touch mode IDs cannot be proven portable or verified across ROM versions.
  *
- * WHY REFLECTION INSTEAD OF A BUNDLED .aidl FILE:
- *   The real interfaces (vendor.xiaomi.hw.touchfeature.ITouchFeature and
- *   vendor.xiaomi.hardware.displayfeature_aidl.IDisplayFeature) are only
- *   distributed as prebuilt Java stubs inside Xiaomi's proprietary ROM
- *   source tree (Soong static_libs). They are NOT on the public Android
- *   SDK or any Maven repo, so a normal Gradle app cannot compile against
- *   them. Re-declaring a *local* copy of the .aidl file from scratch would
- *   be guessing at the exact method order/signature Xiaomi's compiler used
- *   for THIS specific ROM build — get it wrong and the binder transaction
- *   silently calls a different method than intended on real touch/display
- *   hardware, which is not an acceptable risk on someone's actual phone.
- *
- *   Instead, at runtime we look for the *real* on-device jar that already
- *   contains the ROM's own compiled Stub/Proxy class (same jar the system
- *   Settings app or the real Xiaomi Parts app would use, if present), load
- *   it with a PathClassLoader, and call its `setTouchMode` / `setFeature`
- *   method by reflection. Because we're invoking the ROM's own compiled
- *   Proxy object, the transaction code is always the one that ROM build
- *   actually uses — we never invent it ourselves.
- *
- * SAFETY / COMPATIBILITY:
- *   Every public entry point below degrades to a fast no-op the moment any
- *   expected jar, class, method, or service is missing. This keeps MaxManager
- *   safe to run unmodified on every non-Xiaomi device and on any Xiaomi
- *   device/kernel generation where these specific AIDL services don't
- *   exist (older HIDL-based touchfeature@1.0 devices are intentionally
- *   NOT handled here — see PROJECT_NOTES.md).
+ * Missing display jars, classes, methods, or services degrade to a no-op, so
+ * non-Xiaomi devices and unsupported Xiaomi ROMs remain unaffected.
  */
 object XiaomiVendorFeatures {
     private const val TAG = "XiaomiVendorFeatures"
@@ -69,13 +44,6 @@ object XiaomiVendorFeatures {
         "/product/framework",
         "/vendor/framework",
     )
-
-    // ── Touch sampling boost ────────────────────────────────────────────
-    private const val TOUCH_IFACE = "vendor.xiaomi.hw.touchfeature.ITouchFeature"
-    private const val TOUCH_SERVICE = "$TOUCH_IFACE/default"
-    private var touchProxy: Any? = null
-    private var touchSetModeMethod: Method? = null
-    private var lastTouchState = -1
 
     // ── Display color mode ──────────────────────────────────────────────
     private const val DISPLAY_IFACE = "vendor.xiaomi.hardware.displayfeature_aidl.IDisplayFeature"
@@ -152,18 +120,6 @@ object XiaomiVendorFeatures {
         }.getOrNull()
     }
 
-    private fun ensureTouchBound(): Boolean {
-        if (touchProxy != null && touchSetModeMethod != null) return true
-        // A missing service during boot is retryable; do not cache that absence.
-        val bound = bind(
-            "touchfeature", TOUCH_IFACE, TOUCH_SERVICE, "setTouchMode",
-            arrayOf<Class<*>>(Int::class.javaPrimitiveType!!, Int::class.javaPrimitiveType!!, Int::class.javaPrimitiveType!!),
-        )
-        touchProxy = bound?.first
-        touchSetModeMethod = bound?.second
-        return bound != null
-    }
-
     private fun ensureDisplayBound(): Boolean {
         if (displayProbed) return displayProxy != null
         displayProbed = true
@@ -183,55 +139,19 @@ object XiaomiVendorFeatures {
     // Touch sampling boost — mirrors TouchSamplingService.applyTouchSamplingRate
     // ─────────────────────────────────────────────────────────────────────
 
-    /** Returns true only when the real Xiaomi touch-feature AIDL can be bound. */
-    fun isTouchFeatureAvailable(): Boolean = ensureTouchBound()
+    /** Xiaomi touch transport is not exposed as a capability without a verified mode contract. */
+    fun isTouchFeatureAvailable(): Boolean = false
 
     /**
      * @param boost true = high polling rate / max sensitivity (game focused),
      *              false = return touch hardware to baseline.
      */
     fun applyTouchBoost(boost: Boolean): Boolean {
-        val state = if (boost) 1 else 0
-        if (state == lastTouchState) return true
-        if (!ensureTouchBound()) return false
-
-        val proxy = touchProxy ?: return false
-        val method = touchSetModeMethod ?: return false
-
-        // Same six calls as Xiaomi Parts' TouchSamplingService, each wrapped
-        // individually so one unsupported mode index doesn't block the rest.
-        val calls = listOf(
-            Triple(0, 0, state),
-            Triple(0, 202, state),
-            Triple(0, 1, state),
-            Triple(0, 3, if (state == 1) 34 else 0),
-            Triple(0, 2, if (state == 1) 99 else 0),
-            Triple(0, 7, if (state == 1) 0 else 1),
-        )
-        var anySucceeded = false
-        for ((a, b, c) in calls) {
-            runCatching { method.invoke(proxy, a, b, c) }
-                .onSuccess { result ->
-                    // Vendor versions differ: some return Unit, others a status.
-                    // A negative or false acknowledgement is never accepted.
-                    val accepted = when (result) {
-                        is Boolean -> result
-                        is Int -> result >= 0
-                        else -> result == null
-                    }
-                    anySucceeded = anySucceeded || accepted
-                }
-                .onFailure {
-                    // Binder/service failure is retryable: discard stale proxy.
-                    touchProxy = null
-                    touchSetModeMethod = null
-                }
-        }
-        if (anySucceeded) {
-            lastTouchState = state
-            if (DEBUG) Log.d(TAG, "Touch boost applied: state=$state")
-        }
-        return anySucceeded
+        // The Xiaomi AIDL transport alone does not prove the meaning of ROM-
+        // specific mode IDs. Keep this adapter unavailable until a ROM adapter
+        // can query supported modes and verify the resulting state.
+        if (DEBUG) Log.d(TAG, "Touch boost unavailable: unverified Xiaomi mode contract (requested=$boost)")
+        return false
     }
 
     // ─────────────────────────────────────────────────────────────────────
