@@ -121,7 +121,7 @@ pub fn manual_freq_session_active() -> bool {
 
 /// Logs and reports whether a manual frequency session blocked this call.
 /// Returns true when the caller must skip its frequency writes entirely.
-fn blocked_by_manual_session(caller: &str) -> bool {
+pub(crate) fn blocked_by_manual_session(caller: &str) -> bool {
     if manual_freq_session_active() {
         log_info(&format!(
             "Manual frequency session active: {} preserves user CPU limits",
