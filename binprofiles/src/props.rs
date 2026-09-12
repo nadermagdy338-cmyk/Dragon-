@@ -36,6 +36,14 @@ pub const SOC_TYPE: &str = "persist.sys.maxmanager.soctype";
 pub const DEBUG_MODE: &str = "persist.sys.maxmanager.debugmode";
 /// `"1"` when the user disabled all tweaks from the manager app.
 pub const DISABLE_TWEAK: &str = "persist.sys.maxmanager.disabletweak";
+/// `"1"` while the manager app's Core Grid screen holds a manual CPU frequency
+/// session. The global profiles re-apply on every Max AI decision and app
+/// switch; without this flag they would wipe the user's hand-applied limits
+/// within a minute and re-lock the `scaling_*_freq` nodes to 0444. The key is
+/// deliberately non-persistent (`sys.*`, not `persist.sys.*`): a crash can at
+/// worst leave it set until reboot, and the Java companion clears it on startup.
+/// The Kotlin mirror is `MaxManagerProps.CoreControl.MANUAL_FREQ_SESSION`.
+pub const MANUAL_FREQ_SESSION: &str = "sys.maxmanager.manual_freq_session";
 
 // ============================================================================
 // CONF (feature toggles, `persist.sys.maxmanagerconf.*`)

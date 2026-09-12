@@ -502,21 +502,31 @@ private fun CpuHeroMetric(
 @Composable
 private fun FrequencyActionBanner(message: String, onDismiss: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
+    // Failure wording gets failure colors; verified/success stays neutral-green.
+    val isError = listOf("رفض", "تعذّر", "تعارض", "أعاد ضبط", "كِيان خارجي").any(message::contains)
+    val container = if (isError) scheme.errorContainer else scheme.secondaryContainer
+    val content = if (isError) scheme.onErrorContainer else scheme.onSecondaryContainer
+    val border = if (isError) scheme.error else scheme.secondary
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = scheme.secondaryContainer,
-        border = androidx.compose.foundation.BorderStroke(1.dp, scheme.secondary.copy(alpha = .3f))
+        color = container,
+        border = androidx.compose.foundation.BorderStroke(1.dp, border.copy(alpha = .3f))
     ) {
         Row(
             modifier = Modifier.padding(start = 14.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Outlined.Info, null, tint = scheme.onSecondaryContainer, modifier = Modifier.size(19.dp))
+            Icon(
+                if (isError) Icons.Outlined.ErrorOutline else Icons.Outlined.Verified,
+                null,
+                tint = content,
+                modifier = Modifier.size(19.dp)
+            )
             Spacer(Modifier.width(10.dp))
-            Text(message, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = scheme.onSecondaryContainer)
+            Text(message, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = content)
             IconButton(onClick = onDismiss) {
-                Icon(Icons.Outlined.Close, contentDescription = "Dismiss", tint = scheme.onSecondaryContainer)
+                Icon(Icons.Outlined.Close, contentDescription = "Dismiss", tint = content)
             }
         }
     }
@@ -532,9 +542,9 @@ private fun CpuFrequencyControlSection(
     onRestoreSession: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        CpuSectionTitle("FREQUENCY ENVELOPES")
+        CpuSectionTitle("FREQUENCY CONTROL")
         Text(
-            text = "Tune each kernel policy independently. Changes are applied only after confirmation and are verified against the live policy.",
+            text = "اضبط حدود كل عنقود بنفسك أو ثبّته على تردد واحد. كل تطبيق يُتحقق منه فوراً من العتاد، وإن أعاد كِيان خارجي ضبط القيم نعيد تثبيتها تلقائياً.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 4.dp)
@@ -572,52 +582,12 @@ private fun SessionRestoreCard(onRestoreSession: () -> Unit) {
         ) {
             Icon(Icons.Outlined.History, null, tint = scheme.tertiary, modifier = Modifier.size(23.dp))
             Column(Modifier.weight(1f)) {
-                Text("Session changes detected", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = scheme.onTertiaryContainer)
-                Text("Restore every frequency policy to the values present when this screen opened.", style = MaterialTheme.typography.bodySmall, color = scheme.onTertiaryContainer)
+                Text("تغييرات جلسة قائمة", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = scheme.onTertiaryContainer)
+                Text("استعادة كل الحدود إلى ما كانت عليه عند فتح هذه الشاشة، وإعادة التحكم للنظام.", style = MaterialTheme.typography.bodySmall, color = scheme.onTertiaryContainer)
             }
             TextButton(onClick = onRestoreSession) {
-                Text("Restore", fontWeight = FontWeight.Bold)
+                Text("استعادة", fontWeight = FontWeight.Bold)
             }
-        }
-    }
-}
-
-@Composable
-private fun FrequencyControlPreview(
-    currentMin: Long?,
-    currentMax: Long?,
-    requestedMin: Long,
-    requestedMax: Long,
-    accent: Color
-) {
-    val scheme = MaterialTheme.colorScheme
-    val changed = currentMin != requestedMin || currentMax != requestedMax
-    val direction = when {
-        !changed -> "No change staged"
-        currentMin != null && requestedMin > currentMin -> "Raises the performance floor"
-        currentMax != null && requestedMax < currentMax -> "Lowers the thermal ceiling"
-        else -> "Adjusts the active frequency envelope"
-    }
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = accent.copy(alpha = .075f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = .17f))
-    ) {
-        Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.Preview, null, tint = accent, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("SAFE PREVIEW", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = accent)
-                Spacer(Modifier.weight(1f))
-                Text(if (changed) "PENDING" else "LIVE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = if (changed) accent else scheme.onSurfaceVariant)
-            }
-            Text(
-                text = "${currentMin?.let(::formatCpuFrequency) ?: "—"} – ${currentMax?.let(::formatCpuFrequency) ?: "—"}  →  ${formatCpuFrequency(requestedMin)} – ${formatCpuFrequency(requestedMax)}",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = scheme.onSurface
-            )
-            Text(direction, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
         }
     }
 }
@@ -625,10 +595,30 @@ private fun FrequencyControlPreview(
 @Composable
 private fun FrequencyVerificationStrip(
     verification: nd.max.ui.viewmodel.CpuFrequencyVerification,
-    accent: Color
+    accent: Color,
+    controlMin: Long?,
+    controlMax: Long?,
 ) {
     val scheme = MaterialTheme.colorScheme
-    val statusColor = if (verification.verified) scheme.secondary else scheme.error
+    val statusColor = when {
+        verification.verified -> scheme.secondary
+        verification.writeAccepted -> scheme.tertiary
+        else -> scheme.error
+    }
+    val headline = when {
+        verification.verified && verification.reassertions > 0 ->
+            "أعدنا التثبيت تلقائياً وتحققنا منه (محاولة ${verification.reassertions})"
+        verification.verified -> "التطبيق موثّق — العتاد قبل القيم"
+        verification.writeAccepted ->
+            "كِيان خارجي أعاد الضبط بعد الكتابة — نحاول إعادة التثبيت"
+        else -> "رفضت عقدة النظام الكتابة — القيم لم تتغير"
+    }
+    val explanation = when {
+        verification.verified -> null
+        verification.writeAccepted ->
+            "ملف MaxManager العام أو نظام الحرارة في الجهاز يفرض حدوداً مختلفة."
+        else -> "قد تكون العقدة محمية أو لا تقبل هذه القيمة."
+    }
     Surface(
         shape = RoundedCornerShape(15.dp),
         color = statusColor.copy(alpha = .09f),
@@ -637,30 +627,40 @@ private fun FrequencyVerificationStrip(
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    if (verification.verified) Icons.Outlined.Verified else Icons.Outlined.ErrorOutline,
+                    if (verification.verified) Icons.Outlined.Verified
+                    else if (verification.writeAccepted) Icons.Outlined.Sync
+                    else Icons.Outlined.ErrorOutline,
                     null,
                     tint = statusColor,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    if (verification.verified) "REQUEST VERIFIED" else "KERNEL RESPONSE DIFFERS",
+                    headline,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = statusColor
                 )
             }
             Text(
-                "Requested  ${formatCpuFrequency(verification.requestedMinKHz)} – ${formatCpuFrequency(verification.requestedMaxKHz)}",
+                "المطلوب: ${formatCpuFrequency(verification.requestedMinKHz)} – ${formatCpuFrequency(verification.requestedMaxKHz)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = scheme.onSurfaceVariant
             )
             Text(
-                "Verified  ${verification.actualMinKHz?.let(::formatCpuFrequency) ?: "—"} – ${verification.actualMaxKHz?.let(::formatCpuFrequency) ?: "—"}",
+                "القراءة لحظة التحقق: ${verification.actualMinKHz?.let(::formatCpuFrequency) ?: "—"} – ${verification.actualMaxKHz?.let(::formatCpuFrequency) ?: "—"}",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
                 color = if (verification.verified) accent else statusColor
             )
+            Text(
+                "القيم الحية الآن: ${controlMin?.let(::formatCpuFrequency) ?: "—"} – ${controlMax?.let(::formatCpuFrequency) ?: "—"}",
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.onSurfaceVariant
+            )
+            explanation?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+            }
         }
     }
 }
@@ -676,8 +676,11 @@ private fun CpuFrequencyControlCard(
     val accent = clusterAccent(cluster)
     val lower = control.hardwareMinKHz ?: control.minKHz ?: 0L
     val upper = control.hardwareMaxKHz ?: control.maxKHz ?: lower
-    var editMin by remember(control.policyPath, control.minKHz, lower) { mutableStateOf(control.minKHz ?: lower) }
-    var editMax by remember(control.policyPath, control.maxKHz, upper) { mutableStateOf(control.maxKHz ?: upper) }
+    // Edit state is deliberately keyed on the policy only: the 3s live poll
+    // updates control.minKHz/maxKHz, and keying remember() on those values
+    // reset the sliders mid-drag (the old "hard to use" behavior).
+    var editMin by remember(control.policyPath) { mutableStateOf(control.minKHz ?: lower) }
+    var editMax by remember(control.policyPath) { mutableStateOf(control.maxKHz ?: upper) }
     val allowed = remember(control.availableFrequenciesKHz, lower, upper) {
         control.availableFrequenciesKHz.filter { it in lower..upper }.ifEmpty {
             listOf(lower, upper).distinct().sorted()
@@ -688,6 +691,10 @@ private fun CpuFrequencyControlCard(
     val activeMin = editMin.coerceIn(lower, upper)
     val activeMax = editMax.coerceIn(activeMin, upper)
     val isModified = activeMin != control.minKHz || activeMax != control.maxKHz
+    var pinned by remember(control.policyPath) { mutableStateOf(false) }
+    var pinSelection by remember(control.policyPath) { mutableStateOf<Long?>(null) }
+    val effectivePin = pinSelection ?: activeMax
+    val pinModified = pinned && (effectivePin != control.maxKHz || effectivePin != control.minKHz)
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -727,14 +734,37 @@ private fun CpuFrequencyControlCard(
                         color = scheme.onSurfaceVariant
                     )
                 }
-                Surface(shape = RoundedCornerShape(99.dp), color = accent.copy(alpha = .11f)) {
-                    Text(
-                        text = current?.let(::formatCpuFrequency) ?: "LIVE —",
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = accent
-                    )
+                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Surface(shape = RoundedCornerShape(99.dp), color = accent.copy(alpha = .11f)) {
+                        Text(
+                            text = current?.let(::formatCpuFrequency) ?: "LIVE —",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = accent
+                        )
+                    }
+                    if (control.externalConflict) {
+                        Surface(shape = RoundedCornerShape(99.dp), color = scheme.errorContainer) {
+                            Text(
+                                text = "تعارض خارجي",
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = scheme.onErrorContainer
+                            )
+                        }
+                    } else if (control.sessionOwned) {
+                        Surface(shape = RoundedCornerShape(99.dp), color = scheme.secondaryContainer) {
+                            Text(
+                                text = "جلسة يدوية",
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = scheme.onSecondaryContainer
+                            )
+                        }
+                    }
                 }
             }
 
@@ -762,36 +792,75 @@ private fun CpuFrequencyControlCard(
                 }
             }
 
-            FrequencyControlPreview(
-                currentMin = control.minKHz,
-                currentMax = control.maxKHz,
-                requestedMin = activeMin,
-                requestedMax = activeMax,
-                accent = accent
-            )
+            control.verification?.let { FrequencyVerificationStrip(it, accent, control.minKHz, control.maxKHz) }
 
-            control.verification?.let { FrequencyVerificationStrip(it, accent) }
+            if (control.externalConflict) {
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = scheme.errorContainer.copy(alpha = .5f)
+                ) {
+                    Text(
+                        text = "تعارض مستمر: كِيان خارجي يفرض حدوداً مختلفة رغم إعادة التثبيت المتكررة. توقفت المحاولات التلقائية حفاظاً على الاستقرار.",
+                        modifier = Modifier.padding(11.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onErrorContainer
+                    )
+                }
+            }
 
-            if (editable) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                MaxSwitch(
+                    checked = pinned,
+                    onCheckedChange = { pinned = it }
+                )
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = "تثبيت التردد",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = scheme.onSurface
+                    )
+                    Text(
+                        text = if (pinned) "قفل العنقود على تردد واحد ثابت (أدنى = أعلى)"
+                        else "حد أدنى وحد أعلى — النظام يتحرك بينهما",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            if (!editable) {
+                Text(
+                    text = "هذا العنقود لا يعلن جدول ترددات قابل للاختيار؛ يبقى المدى الحي ظاهراً أعلاه.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurfaceVariant
+                )
+            } else if (pinned) {
                 FrequencyPointPicker(
-                    label = "Minimum",
+                    label = "التردد المثبّت",
+                    value = effectivePin,
+                    options = allowed,
+                    accent = accent,
+                    onValueChange = { selected -> pinSelection = selected }
+                )
+            } else {
+                FrequencyPointPicker(
+                    label = "الحد الأدنى",
                     value = activeMin,
                     options = allowed.filter { it <= activeMax },
                     accent = accent,
                     onValueChange = { selected -> editMin = selected.coerceAtMost(editMax) }
                 )
                 FrequencyPointPicker(
-                    label = "Maximum",
+                    label = "الحد الأقصى",
                     value = activeMax,
                     options = allowed.filter { it >= activeMin },
                     accent = accent,
                     onValueChange = { selected -> editMax = selected.coerceAtLeast(editMin) }
-                )
-            } else {
-                Text(
-                    text = "This policy does not expose a selectable frequency table. The live hardware range remains visible above.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurfaceVariant
                 )
             }
 
@@ -804,18 +873,25 @@ private fun CpuFrequencyControlCard(
                 ) {
                     Icon(Icons.Outlined.RestartAlt, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(7.dp))
-                    Text("Restore range")
+                    Text("مدى العتاد")
                 }
                 Button(
-                    onClick = { onApply(activeMin, activeMax) },
+                    onClick = { if (pinned) onApply(effectivePin, effectivePin) else onApply(activeMin, activeMax) },
                     modifier = Modifier.weight(1f),
-                    enabled = editable && isModified,
+                    enabled = editable && (if (pinned) pinModified else isModified),
                     colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = scheme.onPrimary)
                 ) {
                     Icon(Icons.Outlined.CheckCircle, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(7.dp))
-                    Text("Apply limits")
+                    Text(if (pinned) "تثبيت" else "تطبيق")
                 }
+            }
+            if (control.sessionOwned) {
+                Text(
+                    text = "حدودك محمية خلال هذه الجلسة: ملف MaxManager العام لن يعيدها للوضع الافتراضي حتى تستعيدها بنفسك.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = scheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -903,7 +979,7 @@ private fun CpuClusterSummaryCard(
     val scheme = MaterialTheme.colorScheme
     val accent = clusterAccent(cluster)
     val title = clusterDisplayName(cluster)
-    val frequency = if (maxFreqMhz > 0) String.format("%.2f GHz", maxFreqMhz / 1000f) else "—"
+    val frequency = if (maxFreqMhz > 0) String.format(java.util.Locale.US, "%.2f GHz", maxFreqMhz / 1000f) else "—"
 
     Surface(
         modifier = modifier,

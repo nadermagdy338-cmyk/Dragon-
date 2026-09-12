@@ -127,27 +127,29 @@ object MaxManagerProps {
     }
 
     // ------------------------------------------------------------------
-    // Mali / GPU
+    // Shared vendor property still consumed by Charging Studio
     // ------------------------------------------------------------------
     object Mali {
-        const val GED_BOOST = "persist.sys.maxmanager.custom_mali_ged_boost"
-        const val MAXFREQ = "persist.sys.maxmanager.custom_mali_maxfreq"
-        const val MINFREQ = "persist.sys.maxmanager.custom_mali_minfreq"
-        const val POWER_POLICY = "persist.sys.maxmanager.custom_mali_power_policy"
-        const val PRESET = "persist.sys.maxmanager.custom_mali_preset"
-        const val THROTTLE_BYPASS = "persist.sys.maxmanager.custom_mali_throttle_bypass"
         const val SIC_BOOST = "persist.sys.maxmanager.custom_sic_boost"
     }
 
-    // ------------------------------------------------------------------
-    // Adreno / GPU (Qualcomm Snapdragon — kgsl-3d0 devfreq node)
-    // ------------------------------------------------------------------
-    object Adreno {
-        const val MAXFREQ = "persist.sys.maxmanager.custom_adreno_maxfreq"
-        const val MINFREQ = "persist.sys.maxmanager.custom_adreno_minfreq"
-        const val PRESET = "persist.sys.maxmanager.custom_adreno_preset"
-        const val GOVERNOR = "persist.sys.maxmanager.custom_adreno_governor"
-        const val THROTTLE_BYPASS = "persist.sys.maxmanager.custom_adreno_throttle_bypass"
+    /** Unified GPU Studio persistence. Values are saved only after verified apply. */
+    object GpuStudio {
+        const val MIN_FREQ = "persist.sys.maxmanager.gpu_studio.min_freq"
+        const val MAX_FREQ = "persist.sys.maxmanager.gpu_studio.max_freq"
+        const val GOVERNOR = "persist.sys.maxmanager.gpu_studio.governor"
+        const val MODE = "persist.sys.maxmanager.gpu_studio.mode"
+    }
+
+    /**
+     * Core Grid manual frequency session flag. While "1", the module's profile
+     * binary skips its CPU frequency resets (they run on every Max AI decision
+     * and app switch and would otherwise wipe hand-applied limits within a
+     * minute). Non-persistent on purpose: reboot or the companion daemon
+     * startup clears it. Rust mirror: binprofiles/src/props.rs.
+     */
+    object CoreControl {
+        const val MANUAL_FREQ_SESSION = "sys.maxmanager.manual_freq_session"
     }
 
     // ------------------------------------------------------------------

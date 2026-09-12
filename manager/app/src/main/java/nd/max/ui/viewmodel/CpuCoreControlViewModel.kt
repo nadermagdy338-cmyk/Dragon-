@@ -27,8 +27,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nd.max.MaxManagerProps
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.ui.util.CpuTopologyUtil
+import nd.max.ui.util.PropertyUtils
 import nd.max.ui.util.getChipsetName
 
 data class CpuCoreRow(
@@ -51,7 +53,13 @@ data class CpuFrequencyVerification(
     val requestedMaxKHz: Long,
     val actualMinKHz: Long?,
     val actualMaxKHz: Long?,
-    val verified: Boolean
+    val verified: Boolean,
+    /** False when the node refused the write itself; true when the write went
+     *  through but an external manager (module profile / thermal daemon)
+     *  overwrote the limits before or after the read-back. */
+    val writeAccepted: Boolean = true,
+    /** How many automatic re-assertions were spent defending this request. */
+    val reassertions: Int = 0,
 )
 
 /** Live, per-cluster cpufreq snapshot used by the Core screen's controls. */
@@ -64,7 +72,12 @@ data class CpuFrequencyControlState(
     val hardwareMaxKHz: Long?,
     val governor: String?,
     val availableFrequenciesKHz: List<Long>,
-    val verification: CpuFrequencyVerification? = null
+    val verification: CpuFrequencyVerification? = null,
+    /** True when the user has hand-applied limits for this policy and an
+     *  external manager keeps overwriting them faster than we can re-assert. */
+    val externalConflict: Boolean = false,
+    /** True while a manual session owns this policy's limits. */
+    val sessionOwned: Boolean = false,
 ) {
     val canControl: Boolean get() = minKHz != null || maxKHz != null
 }
@@ -88,6 +101,10 @@ class CpuCoreControlViewModel : ViewModel() {
             CpuQuickConfig("balanced", "cpu_core_quick_balanced", "cpu_core_quick_balanced_desc"),
             CpuQuickConfig("power_saver", "cpu_core_quick_power_saver", "cpu_core_quick_power_saver_desc")
         )
+
+        /** Bounded defense: stop re-asserting after this many attempts and tell
+         *  the user an external manager is winning instead of fighting forever. */
+        const val MAX_REASSERTIONS_PER_POLICY = 3
     }
 
     var isAvailable by mutableStateOf<Boolean?>(null)
@@ -112,6 +129,23 @@ class CpuCoreControlViewModel : ViewModel() {
         private set
     private var sessionFrequencyBaseline: Map<String, Pair<Long, Long>> = emptyMap()
     private var lastFrequencyVerification: Map<String, CpuFrequencyVerification> = emptyMap()
+
+    /** The limits the user hand-applied during this session, per policy path. */
+    private var sessionApplied: Map<String, Pair<Long, Long>> = emptyMap()
+    /** Re-assertions already spent defending each policy against external overwrites. */
+    private var reassertionsSpent: Map<String, Int> = emptyMap()
+
+    private fun setManualSessionProp(enabled: Boolean) {
+        runCatching {
+            PropertyUtils.set(MaxManagerProps.CoreControl.MANUAL_FREQ_SESSION, if (enabled) "1" else "0")
+        }
+    }
+
+    /** The module's profile binary resets CPU limits on every AI decision and
+     *  app switch; while a manual session owns them it must stand down. */
+    private fun refreshManualSessionProp() {
+        setManualSessionProp(sessionApplied.isNotEmpty())
+    }
 
     val totalCores: Int get() = coreRows.size
     val hasSessionFrequencyChanges: Boolean
@@ -172,17 +206,25 @@ class CpuCoreControlViewModel : ViewModel() {
     private fun refreshFrequencyControls(captureBaseline: Boolean = false) {
         val policies = CpuHardwareBackend.policies().associateBy { it.path }
         val next = clusters.associate { cluster ->
-            val policy = policies[cluster.policyPath]
-            cluster.policyPath to CpuFrequencyControlState(
-                policyPath = cluster.policyPath,
-                currentKHz = CpuHardwareBackend.readCurrentFrequencyKHz(cluster.policyPath),
-                minKHz = policy?.minKHz,
-                maxKHz = policy?.maxKHz,
+            val path = cluster.policyPath
+            val policy = policies[path]
+            val desired = sessionApplied[path]
+            val liveMin = policy?.minKHz
+            val liveMax = policy?.maxKHz
+            val drifting = desired != null && (liveMin != desired.first || liveMax != desired.second)
+            val exhausted = (reassertionsSpent[path] ?: 0) >= MAX_REASSERTIONS_PER_POLICY
+            path to CpuFrequencyControlState(
+                policyPath = path,
+                currentKHz = CpuHardwareBackend.readCurrentFrequencyKHz(path),
+                minKHz = liveMin,
+                maxKHz = liveMax,
                 hardwareMinKHz = policy?.provenMinKHz,
                 hardwareMaxKHz = policy?.provenMaxKHz,
                 governor = policy?.governor,
                 availableFrequenciesKHz = policy?.availableFrequenciesKHz.orEmpty(),
-                verification = lastFrequencyVerification[cluster.policyPath]
+                verification = lastFrequencyVerification[path],
+                externalConflict = drifting && exhausted,
+                sessionOwned = desired != null,
             )
         }
         frequencyControls = next
@@ -195,12 +237,52 @@ class CpuCoreControlViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Defends the user's hand-applied limits against external rewrites. The
+     * module's own profile binary stands down via the manual-session property,
+     * but the vendor thermal daemon (HyperOS mi_thermald and friends) keeps
+     * publishing its own ceilings on a timer. We re-assert a bounded number of
+     * times, then stop and surface an honest conflict instead of fighting a
+     * system daemon in a tight loop.
+     */
+    private fun reassertDriftedLimits() {
+        if (sessionApplied.isEmpty()) return
+        var changed = false
+        sessionApplied.forEach { (path, desired) ->
+            val live = CpuHardwareBackend.policies().firstOrNull { it.path == path } ?: return@forEach
+            if (live.minKHz == desired.first && live.maxKHz == desired.second) {
+                if (reassertionsSpent[path] != null) {
+                    reassertionsSpent -= path
+                    changed = true
+                }
+                return@forEach
+            }
+            val spent = reassertionsSpent[path] ?: 0
+            if (spent >= MAX_REASSERTIONS_PER_POLICY) return@forEach
+            reassertionsSpent = reassertionsSpent + (path to spent + 1)
+            changed = true
+            val result = CpuHardwareBackend.setPolicyLimits(path, desired.first, desired.second)
+            val after = CpuHardwareBackend.policies().firstOrNull { it.path == path }
+            lastFrequencyVerification = lastFrequencyVerification + (path to CpuFrequencyVerification(
+                requestedMinKHz = desired.first,
+                requestedMaxKHz = desired.second,
+                actualMinKHz = after?.minKHz,
+                actualMaxKHz = after?.maxKHz,
+                verified = result.verified,
+                writeAccepted = result.writeSucceeded,
+                reassertions = spent + 1,
+            ))
+        }
+        if (changed) refreshFrequencyControls()
+    }
+
     private fun startPolling() {
         pollJob?.cancel()
         pollJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 delay(3000)
                 refreshRows()
+                reassertDriftedLimits()
                 refreshFrequencyControls()
             }
         }
@@ -209,6 +291,11 @@ class CpuCoreControlViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         pollJob?.cancel()
+        // The manual-session property deliberately survives leaving this
+        // screen: the user's limits must keep standing against the module's
+        // periodic profile resets. It is non-persistent and the companion
+        // daemon clears any stale copy at startup, so a crash cannot wedge
+        // the module forever.
     }
 
     fun setManualControlEnabled(enabled: Boolean) {
@@ -224,17 +311,27 @@ class CpuCoreControlViewModel : ViewModel() {
                 requestedMaxKHz = maxKHz,
                 actualMinKHz = actual?.minKHz,
                 actualMaxKHz = actual?.maxKHz,
-                verified = result.verified
+                verified = result.verified,
+                writeAccepted = result.writeSucceeded,
             ))
+            // The user's intent is now the defended session state for this policy.
+            sessionApplied = sessionApplied + (policyPath to (minKHz to maxKHz))
+            reassertionsSpent -= policyPath
+            refreshManualSessionProp()
             refreshFrequencyControls()
             withContext(Dispatchers.Main) {
-                frequencyActionMessage = if (result.verified) {
-                    "Frequency limits applied and verified"
-                } else {
-                    "The kernel kept different frequency limits"
+                frequencyActionMessage = when {
+                    result.verified -> "تم التطبيق والتحقق من العتاد ✓"
+                    !result.writeSucceeded -> "رفضت عقدة النظام الكتابة — القيم لم تتغير"
+                    else -> "كِيان خارجي أعاد ضبط الحدود بعد الكتابة؛ سنعيد تثبيتها تلقائياً"
                 }
             }
         }
+    }
+
+    /** Pins one policy to a single frequency (min = max). */
+    fun applyPinnedFrequency(policyPath: String, freqKHz: Long) {
+        applyFrequencyLimits(policyPath, freqKHz, freqKHz)
     }
 
     fun restoreSessionFrequencyLimits() {
@@ -250,17 +347,21 @@ class CpuCoreControlViewModel : ViewModel() {
                     requestedMaxKHz = baseline.second,
                     actualMinKHz = actual?.minKHz,
                     actualMaxKHz = actual?.maxKHz,
-                    verified = result.verified
+                    verified = result.verified,
+                    writeAccepted = result.writeSucceeded,
                 ))
                 restored++
                 allVerified = allVerified && result.verified
             }
+            sessionApplied = emptyMap()
+            reassertionsSpent = emptyMap()
+            refreshManualSessionProp()
             refreshFrequencyControls()
             withContext(Dispatchers.Main) {
                 frequencyActionMessage = if (allVerified) {
-                    "Session baseline restored for $restored policies"
+                    "تمت استعادة حدود بداية الجلسة وتوثيقها"
                 } else {
-                    "Some policies could not be restored"
+                    "تعذّرت استعادة بعض الحدود — راجع القيم الحية"
                 }
             }
         }
@@ -271,6 +372,18 @@ class CpuCoreControlViewModel : ViewModel() {
             val policy = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
             val min = policy?.provenMinKHz
             val max = policy?.provenMaxKHz
+            if (min == null || max == null) {
+                // Unknown hardware bounds: nothing can be written, and leaving
+                // any old session entry defended here would be misleading.
+                sessionApplied -= policyPath
+                reassertionsSpent -= policyPath
+                refreshManualSessionProp()
+                refreshFrequencyControls()
+                withContext(Dispatchers.Main) {
+                    frequencyActionMessage = "مدى العتاد غير معلن من الدرايفر — لا يمكن الاستعادة"
+                }
+                return@launch
+            }
             val result = if (min != null || max != null) {
                 CpuHardwareBackend.setPolicyLimits(policyPath, min, max)
             } else null
@@ -281,15 +394,21 @@ class CpuCoreControlViewModel : ViewModel() {
                     requestedMaxKHz = max,
                     actualMinKHz = actual?.minKHz,
                     actualMaxKHz = actual?.maxKHz,
-                    verified = result?.verified == true
+                    verified = result?.verified == true,
+                    writeAccepted = result?.writeSucceeded == true,
                 ))
+                // Choosing the full hardware range is still a manual decision:
+                // keep defending it against the periodic profile reset.
+                sessionApplied = sessionApplied + (policyPath to (min to max))
+                reassertionsSpent -= policyPath
+                refreshManualSessionProp()
             }
             refreshFrequencyControls()
             withContext(Dispatchers.Main) {
                 frequencyActionMessage = if (result?.verified == true) {
-                    "Hardware frequency range restored"
+                    "تم استعادة مدى العتاد الكامل والتحقق منه"
                 } else {
-                    "Could not restore the hardware range"
+                    "تعذّرت استعادة مدى العتاد"
                 }
             }
         }

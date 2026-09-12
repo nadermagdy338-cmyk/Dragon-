@@ -111,6 +111,28 @@ pub fn get_limiter() -> u64 {
     }
 }
 
+/// True while the manager app's Core Grid screen holds a manual CPU frequency
+/// session. Every CPU-frequency-writing function below must call this first:
+/// profile re-application runs on every Max AI decision and app switch, and
+/// without the guard it wipes hand-applied limits within a minute.
+pub fn manual_freq_session_active() -> bool {
+    getprop(MANUAL_FREQ_SESSION) == "1"
+}
+
+/// Logs and reports whether a manual frequency session blocked this call.
+/// Returns true when the caller must skip its frequency writes entirely.
+fn blocked_by_manual_session(caller: &str) -> bool {
+    if manual_freq_session_active() {
+        log_info(&format!(
+            "Manual frequency session active: {} preserves user CPU limits",
+            caller
+        ));
+        true
+    } else {
+        false
+    }
+}
+
 pub fn get_debugmode() -> bool {
     getprop(DEBUG_MODE) == "true"
 }
@@ -219,6 +241,9 @@ pub fn sets_io(scheduler: &str) {
 }
 
 pub fn setfreqppm() {
+    if blocked_by_manual_session("setfreqppm") {
+        return;
+    }
     if !Path::new("/proc/ppm").exists() {
         return;
     }
@@ -262,6 +287,9 @@ pub fn setfreqppm() {
 }
 
 pub fn setfreq() {
+    if blocked_by_manual_session("setfreq") {
+        return;
+    }
     let limiter = get_limiter();
     let curprofile = get_curprofile();
 
@@ -309,6 +337,9 @@ pub fn setfreq() {
 }
 
 pub fn setgamefreqppm() {
+    if blocked_by_manual_session("setgamefreqppm") {
+        return;
+    }
     if !Path::new("/proc/ppm").exists() {
         return;
     }
@@ -349,6 +380,9 @@ pub fn setgamefreqppm() {
 
 
 pub fn setgamefreq() {
+    if blocked_by_manual_session("setgamefreq") {
+        return;
+    }
     let litemode = get_litemode();
 
     if let Ok(paths) = glob::glob("/sys/devices/system/cpu/*/cpufreq") {
@@ -387,6 +421,9 @@ pub fn setgamefreq() {
 }
 
 pub fn dsetfreqppm() {
+    if blocked_by_manual_session("dsetfreqppm") {
+        return;
+    }
     if !Path::new("/proc/ppm").exists() {
         return;
     }
@@ -423,6 +460,9 @@ pub fn dsetfreqppm() {
 }
 
 pub fn dsetfreq() {
+    if blocked_by_manual_session("dsetfreq") {
+        return;
+    }
     let limiter = get_limiter();
     let curprofile = get_curprofile();
 
@@ -459,6 +499,9 @@ pub fn dsetfreq() {
 }
 
 pub fn dsetgamefreqppm() {
+    if blocked_by_manual_session("dsetgamefreqppm") {
+        return;
+    }
     if !Path::new("/proc/ppm").exists() {
         return;
     }
@@ -495,6 +538,9 @@ pub fn dsetgamefreqppm() {
 }
 
 pub fn dsetgamefreq() {
+    if blocked_by_manual_session("dsetgamefreq") {
+        return;
+    }
     let litemode = get_litemode();
 
     if let Ok(paths) = glob::glob("/sys/devices/system/cpu/*/cpufreq") {
@@ -649,6 +695,14 @@ pub fn read_freqs(path: &str) -> Vec<u64> {
 }
 
 pub fn ppm_fix_freq(target_index: &str) {
+    // A manual Core Grid session owns CPU limits: refuse both pins and
+    // releases here. The "-1" calls from mediatek_balance/powersave are part
+    // of profile re-application too, and refusing the whole function keeps
+    // the user's state authoritative on every path.
+    if blocked_by_manual_session("ppm_fix_freq") {
+        return;
+    }
+
     let ppm_path = "/proc/ppm/policy/ut_fix_freq_idx";
 
     if !Path::new(ppm_path).exists() {

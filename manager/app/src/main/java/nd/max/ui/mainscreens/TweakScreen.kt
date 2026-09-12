@@ -397,18 +397,10 @@ fun TweakScreen(
                         content = listOf(
                             {
                                 ExpressiveListItem(
-                                    leadingContent = { LeadingIcon(icon = Icons.Outlined.Memory) },
-                                    onClick = { navController.navigate("maligpufreq") },
-                                    headlineContent = { Text(stringResource(R.string.mali_freq_title)) },
-                                    supportingContent = { Text(stringResource(R.string.mali_freq_desc)) },
-                                )
-                            },
-                            {
-                                ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.DeveloperBoard) },
-                                    onClick = { navController.navigate("adrenogpufreq") },
-                                    headlineContent = { Text(stringResource(R.string.adreno_freq_title)) },
-                                    supportingContent = { Text(stringResource(R.string.adreno_menu_desc)) },
+                                    onClick = { navController.navigate("gpustudio") },
+                                    headlineContent = { Text("GPU Reality Studio") },
+                                    supportingContent = { Text("قراءة حية موثقة وتحكم يتكيف مع GPU الفعلي في جهازك") },
                                 )
                             }
                         )

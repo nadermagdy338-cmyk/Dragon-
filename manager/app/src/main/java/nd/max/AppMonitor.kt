@@ -47,11 +47,11 @@ import nd.max.ui.util.PerAppKernelUtil
 import nd.max.ui.util.ProfilePresetStore
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.GpuHardwareBackend
+import nd.max.core.hardware.GpuTweakPersistence
 import nd.max.core.hardware.RootFileAccess
 import nd.max.core.hardware.PerAppControlRegistry
 import nd.max.core.hardware.PerAppRecoveryStore
 import nd.max.core.hardware.PerAppFrequencyController
-import nd.max.core.hardware.VerifiedControl
 import nd.max.ui.util.decodePerAppCpuPolicyControls
 import nd.max.ui.viewmodel.TouchBoostViewModel
 
@@ -64,7 +64,6 @@ object AppMonitor {
     // than POLL_INTERVAL_MS: this is a safety net against vendor thermal
     // daemons undoing our writes, not a tight control loop.
     private const val DRIFT_CHECK_INTERVAL_MS = 10_000L
-    private val DRIFT_RETRY_DELAYS_MS = longArrayOf(10_000L, 60_000L, 300_000L, 900_000L)
     private const val PID_RETRY_INTERVAL_MS = 50L
     private const val UNKNOWN_APP = "unknown 0 0"
     private const val NONE_APP = "none 0 0"
@@ -206,6 +205,13 @@ object AppMonitor {
             return
         }
 
+        runCatching { GpuTweakPersistence.applySaved() }
+            .onFailure { AppMonitorLogger.e("startup: saved GPU Studio state failed", it) }
+        // A stale Core Grid manual-frequency session flag (set before a crash)
+        // would keep the module's profile binary from ever resetting CPU
+        // limits. The property is non-persistent, so this only matters when
+        // the companion restarts without a reboot.
+        runCatching { shellExec("setprop sys.maxmanager.manual_freq_session 0") }
         recoverStalePerAppState()
         AppMonitorLogger.i("AppMonitor companion started (pid=${android.os.Process.myPid()})")
 
@@ -295,19 +301,6 @@ object AppMonitor {
     }.getOrDefault(true)
 
     private var lastDriftCheckAt = 0L
-    private data class DriftRetry(var attempts: Int, var dueAtMs: Long)
-    private val driftRetries = mutableMapOf<String, DriftRetry>()
-
-    private fun canRetryDrift(key: String, now: Long): Boolean =
-        driftRetries[key]?.let { now >= it.dueAtMs } ?: true
-
-    private fun recordDriftFailure(key: String, now: Long) {
-        val previous = driftRetries[key]?.attempts ?: 0
-        val attempt = (previous + 1).coerceAtMost(DRIFT_RETRY_DELAYS_MS.size)
-        driftRetries[key] = DriftRetry(attempt, now + DRIFT_RETRY_DELAYS_MS[attempt - 1])
-    }
-
-    private fun clearDriftRetry(key: String): Boolean = driftRetries.remove(key) != null
 
     /**
      * applyPerAppConfig() only runs once, at the moment the foreground app
@@ -329,51 +322,13 @@ object AppMonitor {
     private fun reassertDriftedKnobs() {
         val pkg = lastAppliedPkg
         if (pkg.isBlank()) return
-        val now = System.currentTimeMillis()
-        if (now - lastDriftCheckAt < DRIFT_CHECK_INTERVAL_MS) return
-        lastDriftCheckAt = now
+        val checkAt = System.currentTimeMillis()
+        if (checkAt - lastDriftCheckAt < DRIFT_CHECK_INTERVAL_MS) return
+        lastDriftCheckAt = checkAt
 
-        runCatching {
-            val profile = readAppConfigField(pkg, "gpu_profile").ifEmpty {
-                val legacy = readAppConfigField(pkg, "thermal_profile")
-                when (legacy) { "powersave" -> "power"; else -> legacy }
-            }
-            val node = savedGpuNode.takeIf { it.isNotBlank() } ?: return@runCatching
-            val caps = PerAppKernelUtil.readGpuCapabilities()
-            val explicitFreq = readAppConfigField(pkg, "gpu_max_freq").toLongOrNull()
-            val target = explicitFreq ?: PerAppKernelUtil.pickProfileFrequency(caps.frequencies, profile, ProfilePresetStore.percentFor(systemContext, profile)) ?: return@runCatching
-            val mtkIndex = PerAppKernelUtil.mtkOppIndexForFrequency(caps, target)
-            val retryKey = "$pkg|$node|$target|${mtkIndex ?: "devfreq"}"
-            if (mtkIndex != null) {
-                val liveLock = PerAppKernelUtil.currentMtkGpuLockIndex()
-                if (liveLock != mtkIndex && canRetryDrift(retryKey, now)) {
-                    val applied = PerAppKernelUtil.applyGpuFixedFrequency(node, caps, target)
-                    val verified = applied && PerAppKernelUtil.currentMtkGpuLockIndex() == mtkIndex
-                    if (!verified) {
-                        if (!driftRetries.containsKey(retryKey)) {
-                            AppMonitorLogger.w("EVENT=APPLY_DRIFT_REASSERT_FAILED knob=gpu_opp_lock pkg=$pkg expected_index=$mtkIndex sw=$currentSwitchId")
-                        }
-                        recordDriftFailure(retryKey, now)
-                    } else if (clearDriftRetry(retryKey)) {
-                        AppMonitorLogger.i("EVENT=APPLY_DRIFT_RECOVERED knob=gpu_opp_lock pkg=$pkg expected_index=$mtkIndex sw=$currentSwitchId")
-                    }
-                } else if (liveLock == mtkIndex) clearDriftRetry(retryKey)
-            } else {
-                val liveMaxFreq = shellRead("cat '$node/max_freq' 2>/dev/null").toLongOrNull()
-                if (liveMaxFreq != null && liveMaxFreq != target && canRetryDrift(retryKey, now)) {
-                    val applied = PerAppKernelUtil.applyGpuFixedFrequency(node, caps, target)
-                    val verified = applied && shellRead("cat '$node/max_freq' 2>/dev/null").toLongOrNull() == target
-                    if (!verified) {
-                        if (!driftRetries.containsKey(retryKey)) {
-                            AppMonitorLogger.w("EVENT=APPLY_DRIFT_REASSERT_FAILED knob=gpu_profile pkg=$pkg expected=$target live=$liveMaxFreq sw=$currentSwitchId")
-                        }
-                        recordDriftFailure(retryKey, now)
-                    } else if (clearDriftRetry(retryKey)) {
-                        AppMonitorLogger.i("EVENT=APPLY_DRIFT_RECOVERED knob=gpu_profile pkg=$pkg expected=$target sw=$currentSwitchId")
-                    }
-                } else if (liveMaxFreq == target) clearDriftRetry(retryKey)
-            }
-        }.onFailure { AppMonitorLogger.e("EVENT=DRIFT_CHECK_FAILED knob=gpu_profile pkg=$pkg sw=$currentSwitchId", it) }
+        // GPU drift is owned exclusively by hardwareControlRegistry below.
+        // Keeping one owner avoids duplicate writes and gives every reassertion
+        // the same read-back and exact baseline restore contract.
 
         runCatching {
             val cpuGovernor = readAppConfigField(pkg, "cpu_governor")
@@ -396,20 +351,14 @@ object AppMonitor {
                     key = "gpu_governor",
                     desired = gpuGovernor,
                     apply = { value ->
-                        val generic = gpuNode?.let { path ->
-                            GpuHardwareBackend.devices().firstOrNull { it.path == path }
-                        }
-                        if (generic != null && value in generic.governors) {
+                        val generic = gpuNode?.let(GpuHardwareBackend::refresh)
+                            ?: GpuHardwareBackend.selection().device
+                        generic != null && value in generic.governors &&
                             GpuHardwareBackend.setGovernor(generic, value).successful
-                        } else {
-                            PerAppKernelUtil.applyGpuGovernor(gpuNode, value)
-                        }
                     },
                     read = {
-                        gpuNode?.let { path ->
-                            GpuHardwareBackend.devices().firstOrNull { it.path == path }?.governor
-                                ?: RootFileAccess.read("$path/governor")
-                        }?.takeIf { it.isNotBlank() }
+                        (gpuNode?.let(GpuHardwareBackend::refresh)
+                            ?: GpuHardwareBackend.selection().device)?.governor?.takeIf { it.isNotBlank() }
                     }
                 )
             } else hardwareControlRegistry.release("gpu_governor")
@@ -781,10 +730,11 @@ object AppMonitor {
         if (cachedGameListText?.contains("\"$pkgName\":") != true) return
 
         // Save the live kernel state before any per-app override.
-        savedGpuNode = PerAppKernelUtil.findGpuNode().orEmpty()
-        savedGpuGovernor = if (savedGpuNode.isNotBlank()) shellRead("cat '$savedGpuNode/governor' 2>/dev/null") else ""
-        savedGpuMinFreq = if (savedGpuNode.isNotBlank()) shellRead("cat '$savedGpuNode/min_freq' 2>/dev/null") else ""
-        savedGpuMaxFreq = if (savedGpuNode.isNotBlank()) shellRead("cat '$savedGpuNode/max_freq' 2>/dev/null") else ""
+        val gpu = GpuHardwareBackend.selection().device
+        savedGpuNode = gpu?.path.orEmpty()
+        savedGpuGovernor = gpu?.governor.orEmpty()
+        savedGpuMinFreq = gpu?.minFreq?.toString().orEmpty()
+        savedGpuMaxFreq = gpu?.maxFreq?.toString().orEmpty()
         savedCpuGovernors.clear()
         shellRead("for p in /sys/devices/system/cpu/cpufreq/policy*; do [ -f \"\$p/scaling_governor\" ] && echo \"\$p=\$(cat \$p/scaling_governor)\"; done").split("\n").forEach { line ->
             val eq = line.indexOf('=')
@@ -900,16 +850,15 @@ object AppMonitor {
             if (gpuGovernor.isNotBlank() && gpuGovernor != "default") {
                 val gpuNode = savedGpuNode.takeIf { it.isNotBlank() }
                     ?: PerAppKernelUtil.findGpuNode()
-                val generic = gpuNode?.let { path ->
-                    GpuHardwareBackend.devices().firstOrNull { it.path == path }
-                }
+                val generic = gpuNode?.let(GpuHardwareBackend::refresh)
+                    ?: GpuHardwareBackend.selection().device
                 if (generic != null && gpuGovernor in generic.governors) {
                     val baseline = generic.governor
                     hardwareControlRegistry.ownGovernor(
                         key = "gpu_governor:${generic.name}",
                         desired = gpuGovernor,
                         apply = { value -> GpuHardwareBackend.setGovernor(generic, value).successful },
-                        read = { GpuHardwareBackend.devices().firstOrNull { it.path == generic.path }?.governor },
+                        read = { GpuHardwareBackend.refresh(generic.path)?.governor },
                         baseline = baseline,
                         restore = { value -> GpuHardwareBackend.setGovernor(generic, value).successful },
                     )
@@ -1032,56 +981,35 @@ object AppMonitor {
             }
         }.onFailure { AppMonitorLogger.e("ownership: CPU frequency registration failed for '$pkgName' sw=$currentSwitchId", it) }
 
-        // Per-app GPU profile: frequency ceiling only. Default is a true no-op.
+        // One GPU frequency owner handles both named profiles and explicit caps.
         runCatching {
             val profile = readAppConfigField(pkgName, "gpu_profile").ifEmpty {
                 val legacy = readAppConfigField(pkgName, "thermal_profile")
                 when (legacy) { "powersave" -> "power"; else -> legacy }
             }
-            val node = savedGpuNode.takeIf { it.isNotBlank() }
-            val caps = PerAppKernelUtil.readGpuCapabilities()
-            val explicitFreq = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
-            val target = explicitFreq ?: PerAppKernelUtil.pickProfileFrequency(caps.frequencies, profile, ProfilePresetStore.percentFor(systemContext, profile))
-            if (target != null) {
-                PerAppKernelUtil.applyGpuFixedFrequency(node, caps, target)
-                val mtkIndex = PerAppKernelUtil.mtkOppIndexForFrequency(caps, target)
-                if (mtkIndex != null) {
-                    val liveLock = PerAppKernelUtil.currentMtkGpuLockIndex()
-                    if (liveLock != mtkIndex) {
-                        AppMonitorLogger.w("EVENT=APPLY_VERIFY_FAILED knob=gpu_opp_lock pkg=$pkgName expected_index=$mtkIndex live_index=${liveLock ?: "none"} expected_hz=$target sw=$currentSwitchId")
+            val device = GpuHardwareBackend.selection().device
+                ?.takeIf { it.rangeWritable || it.exactLockWritable }
+                ?: return@runCatching
+            val explicit = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
+            val target = explicit ?: PerAppKernelUtil.pickProfileFrequency(
+                device.frequencies,
+                profile,
+                ProfilePresetStore.percentFor(systemContext, profile),
+            ) ?: return@runCatching
+            val baseline = GpuHardwareBackend.captureBaseline(device)
+            val desired = target.toString()
+            hardwareControlRegistry.ownValue(
+                key = "gpu_frequency:${device.name}",
+                desired = desired,
+                apply = { value -> value.toLongOrNull()?.let { PerAppFrequencyController.applyGpuCeiling(it).verified } ?: false },
+                read = {
+                    GpuHardwareBackend.refresh(device.path)?.let { live ->
+                        (GpuHardwareBackend.currentExactLockFrequency(live) ?: live.maxFreq)?.toString()
                     }
-                } else {
-                    val liveMaxFreq = if (!node.isNullOrBlank()) shellRead("cat '$node/max_freq' 2>/dev/null").toLongOrNull() else null
-                    if (liveMaxFreq != null && liveMaxFreq != target) {
-                        AppMonitorLogger.w("EVENT=APPLY_VERIFY_FAILED knob=gpu_profile pkg=$pkgName expected=$target live=$liveMaxFreq sw=$currentSwitchId")
-                    }
-                }
-            }
-        }.onFailure { AppMonitorLogger.e("gpu_profile knob failed for '$pkgName' sw=$currentSwitchId", it) }
-
-        runCatching {
-            val explicitGpuMax = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
-            val caps = PerAppKernelUtil.readGpuCapabilities()
-            val mtkAuthoritative = explicitGpuMax != null && PerAppKernelUtil.mtkOppIndexForFrequency(caps, explicitGpuMax) != null
-            val generic = GpuHardwareBackend.devices().firstOrNull()
-            if (explicitGpuMax != null && generic != null && !mtkAuthoritative) {
-                val baseline = RootFileAccess.read("${generic.path}/max_freq")
-                hardwareControlRegistry.ownValue(
-                    key = "gpu_max_freq:${generic.name}",
-                    desired = explicitGpuMax.toString(),
-                    apply = { value -> value.toLongOrNull()?.let { PerAppFrequencyController.applyGpuCeiling(it).let { result -> result.applied && result.verified } } ?: false },
-                    read = { RootFileAccess.read("${generic.path}/max_freq")?.trim() },
-                    baseline = baseline,
-                    restore = { value ->
-                        val target = value.toLongOrNull()
-                        if (target == null) false else VerifiedControl.apply(
-                            requested = target,
-                            write = { RootFileAccess.write("${generic.path}/max_freq", it.toString()) },
-                            read = { RootFileAccess.read("${generic.path}/max_freq")?.toLongOrNull() },
-                        ).successful
-                    },
-                )
-            }
+                },
+                baseline = "captured",
+                restore = { GpuHardwareBackend.restoreBaseline(baseline) },
+            )
         }.onFailure { AppMonitorLogger.e("ownership: GPU frequency registration failed for '$pkgName' sw=$currentSwitchId", it) }
 
         // Governors are now applied by the ownership registry below. This keeps the
@@ -1344,7 +1272,8 @@ object AppMonitor {
             val gpuProfile = if (profile == "default") thermal else profile
             val appLabel = getAppName(pkg).ifBlank { pkg }
             val liveCpuGov = shellRead("cat /sys/devices/system/cpu/cpufreq/policy0/scaling_governor 2>/dev/null").ifBlank { "N/A" }
-            val liveGpuGov = savedGpuNode.takeIf { it.isNotBlank() }?.let { shellRead("cat '$it/governor' 2>/dev/null") }.orEmpty().ifBlank { "N/A" }
+            val liveGpuGov = savedGpuNode.takeIf { it.isNotBlank() }
+                ?.let(GpuHardwareBackend::refresh)?.governor.orEmpty().ifBlank { "N/A" }
             val body = "PID: $pid\nThermal/GPU: $gpuProfile\nCPU Governor: $cpuGov (live: $liveCpuGov)\nGPU Governor: $gpuGov (live: $liveGpuGov)\nGPU Frequency: $gpuFreq"
             val intent = Intent().setClassName("nd.max", "nd.max.MainActivity")
             val pi = PendingIntent.getActivity(context, 2409, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -1386,29 +1315,46 @@ object AppMonitor {
 
     @Synchronized
     private fun revertPerAppConfig() {
-        hardwareControlRegistry.releaseAll()
-        stopCpuBoostAndRestore()
-        // Always release any MediaTek gpufreqv2/legacy OPP-index lock first, unconditionally.
-        // restoreGlobalMaxManagerProfile() below only reapplies the Global Tweaks page state
-        // (devfreq nodes and props) - it doesn't know about the MTK proc interface, so
-        // skipping this would leave the GPU pinned at the app's fixed frequency indefinitely
-        // after the app closes, even once the "global restored" path succeeds.
+        // Always release any MediaTek gpufreqv2/legacy OPP-index lock FIRST, unconditionally.
+        // This runs before releaseAll() so the registry's exact baseline restore
+        // (which may re-establish the user's own pre-app GPU lock) has the final
+        // word. Releasing after it would silently wipe that restored lock.
+        // restoreGlobalMaxManagerProfile() below only reapplies the Global Tweaks
+        // page state (devfreq nodes and props) - it doesn't know about the MTK proc
+        // interface, so skipping this would leave the GPU pinned at the app's fixed
+        // frequency indefinitely after the app closes.
         runCatching { PerAppKernelUtil.releaseGpuFixedFrequency() }
             .onFailure { AppMonitorLogger.e("revert: releaseGpuFixedFrequency() failed while leaving '$lastAppliedPkg' sw=$currentSwitchId", it) }
+        hardwareControlRegistry.releaseAll()
+        stopCpuBoostAndRestore()
         // Reapply the current Global MaxManager profile first when possible.
         // This restores the state defined in the main Tweaks page instead of
         // blindly resetting nodes to hard-coded defaults.
+        // A verified GPU Studio snapshot is the canonical GPU override. Apply it
+        // after legacy profile replay so the older service cannot overwrite it.
         var globalRestored = false
-        runCatching { globalRestored = restoreGlobalMaxManagerProfile() }
+        runCatching {
+            val profileRestored = restoreGlobalMaxManagerProfile()
+            val studioResult = GpuTweakPersistence.applySaved()
+            globalRestored = when {
+                studioResult != null -> studioResult.verified
+                else -> profileRestored
+            }
+        }
             .onFailure { AppMonitorLogger.e("revert: restoreGlobalMaxManagerProfile() failed while leaving '$lastAppliedPkg' sw=$currentSwitchId", it) }
 
         // If the global profile cannot be re-applied, restore the exact live state snapshot.
         if (!globalRestored) {
             runCatching {
-                if (savedGpuNode.isNotBlank()) {
-                    if (savedGpuGovernor.isNotBlank()) sysfsWrite("$savedGpuNode/governor", savedGpuGovernor)
-                    if (savedGpuMinFreq.isNotBlank()) sysfsWrite("$savedGpuNode/min_freq", savedGpuMinFreq)
-                    if (savedGpuMaxFreq.isNotBlank()) sysfsWrite("$savedGpuNode/max_freq", savedGpuMaxFreq)
+                GpuHardwareBackend.refresh(savedGpuNode)?.let { live ->
+                    GpuHardwareBackend.restoreBaseline(
+                        GpuHardwareBackend.Baseline(
+                            devicePath = live.path,
+                            minFreq = savedGpuMinFreq.toLongOrNull(),
+                            maxFreq = savedGpuMaxFreq.toLongOrNull(),
+                            governor = savedGpuGovernor.takeIf(String::isNotBlank),
+                        )
+                    )
                 }
             }.onFailure { AppMonitorLogger.e("revert: GPU node snapshot restore failed while leaving '$lastAppliedPkg' sw=$currentSwitchId", it) }
         }
@@ -1421,7 +1367,9 @@ object AppMonitor {
         if (!globalRestored) {
             runCatching {
                 if (baselineGpuGovernor.isNotBlank() && savedGpuNode.isNotBlank()) {
-                    sysfsWrite("$savedGpuNode/governor", baselineGpuGovernor)
+                    GpuHardwareBackend.refresh(savedGpuNode)?.let { device ->
+                        GpuHardwareBackend.setGovernor(device, baselineGpuGovernor)
+                    }
                 }
                 baselineCpuGovernors.forEach { (path, gov) ->
                     sysfsWrite("$path/scaling_governor", gov)
@@ -1526,7 +1474,6 @@ object AppMonitor {
         baselineCpuGovernors.clear()
         baselineCaptured = false
         lastDriftCheckAt = 0L
-        driftRetries.clear()
         // ملكية per-app انتهت: يُعاد الإعلان (perapp_active 0) في أول
         // writeStatus تالية، فيستأنف محرك MAX AI إدارته.
         perAppOverridesActive = false

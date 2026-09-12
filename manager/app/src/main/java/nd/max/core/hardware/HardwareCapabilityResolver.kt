@@ -17,7 +17,6 @@ object HardwareCapabilityResolver {
     private const val THERMAL_ROOT = "/sys/class/thermal"
     private const val CPU_ROOT = "/sys/devices/system/cpu/cpufreq"
     private const val ZRAM_ROOT = "/sys/block/zram0"
-    private const val DEVFREQ_ROOT = "/sys/class/devfreq"
 
     fun resolve(context: Context? = null): HardwareCapabilitySnapshot {
         val platform = firstNonBlank(
@@ -87,24 +86,28 @@ object HardwareCapabilityResolver {
     }
 
     private fun gpuCapabilities(): List<FeatureCapability> {
-        val candidates = RootFileAccess.listDirectories(DEVFREQ_ROOT).filter {
-            it.contains("gpu", true) || it.contains("mali", true) || it.contains("kgsl", true) ||
-                RootFileAccess.exists("$DEVFREQ_ROOT/$it/governor")
+        val selection = GpuHardwareBackend.selection()
+        val device = selection.device
+        if (device == null) return emptyList()
+
+        val governorPaths = listOf("${device.path}/governor").filter(RootFileAccess::exists)
+        val frequencyPaths = listOf("${device.path}/min_freq", "${device.path}/max_freq")
+            .filter(RootFileAccess::exists)
+        val governorAccess = when {
+            device.governorWritable -> AccessLevel.READ_WRITE
+            device.governor != null || device.governors.isNotEmpty() -> AccessLevel.READ_ONLY
+            else -> AccessLevel.NONE
         }
-        val roots = candidates.map { "$DEVFREQ_ROOT/$it" }
-        val gov = roots.map { "$it/governor" }.filter(RootFileAccess::exists)
-        val min = roots.map { "$it/min_freq" }.filter(RootFileAccess::exists)
-        val max = roots.map { "$it/max_freq" }.filter(RootFileAccess::exists)
-        val govAccess = when { gov.any(RootFileAccess::writable) -> AccessLevel.READ_WRITE; gov.isNotEmpty() -> AccessLevel.READ_ONLY; else -> AccessLevel.NONE }
-        val freqAccess = when { (min + max).any(RootFileAccess::writable) -> AccessLevel.READ_WRITE; min.isNotEmpty() || max.isNotEmpty() -> AccessLevel.READ_ONLY; else -> AccessLevel.NONE }
-        val boostCandidates = roots.flatMap { root ->
-            listOf("$root/boost", "$root/force_boost", "$root/force_clk_on", "$root/force_bus_on")
-        }.distinct().filter(RootFileAccess::exists)
-        val boostAccess = when { boostCandidates.any(RootFileAccess::writable) -> AccessLevel.READ_WRITE; boostCandidates.isNotEmpty() -> AccessLevel.READ_ONLY; else -> AccessLevel.NONE }
+        val frequencyAccess = when {
+            device.rangeWritable || device.exactLockWritable -> AccessLevel.READ_WRITE
+            device.currentFreq != null || device.minFreq != null || device.maxFreq != null -> AccessLevel.READ_ONLY
+            else -> AccessLevel.NONE
+        }
         return listOf(
-            FeatureCapability(HardwareFeature.GPU_GOVERNOR, govAccess, "devfreq", gov),
-            FeatureCapability(HardwareFeature.GPU_FREQUENCY, freqAccess, "devfreq", min + max),
-            FeatureCapability(HardwareFeature.GPU_BOOST, boostAccess, "gpu-driver", boostCandidates)
+            FeatureCapability(HardwareFeature.GPU_GOVERNOR, governorAccess, "gpu-backend:${device.family.name.lowercase()}", governorPaths),
+            FeatureCapability(HardwareFeature.GPU_FREQUENCY, frequencyAccess, "gpu-backend:${device.family.name.lowercase()}", frequencyPaths),
+            // Boost semantics are deliberately unavailable until a verified vendor adapter owns them.
+            FeatureCapability(HardwareFeature.GPU_BOOST, AccessLevel.NONE, "not-proven", emptyList()),
         )
     }
 

@@ -33,7 +33,7 @@ object HardwareRuntime {
     fun snapshot(context: Context? = null): Snapshot {
         val capabilities = HardwareCapabilityResolver.resolve(context)
         val cpu = CpuHardwareBackend.policies()
-        val gpu = GpuHardwareBackend.devices()
+        val gpu = GpuHardwareBackend.selection().device?.let(::listOf).orEmpty()
         val zram = ZramHardwareBackend.readState()
         return Snapshot(
             generatedAtMs = System.currentTimeMillis(),

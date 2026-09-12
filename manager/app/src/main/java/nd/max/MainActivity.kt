@@ -454,8 +454,10 @@ fun MainScreen(fromTileType: String? = null) {
                     composable("diagnostics") { DiagnosticsScreen(navController) }
                     composable("fpsgoscreen") { FpsGoSettings(navController) }
                     composable("governorsettings") { GovSettings(navController) }
-                    composable("maligpufreq") { nd.max.ui.subscreens.MaliGpuFreqScreen(navController) }
-                    composable("adrenogpufreq") { nd.max.ui.subscreens.AdrenoGpuScreen(navController) }
+                    composable("gpustudio") { nd.max.ui.subscreens.GpuStudioScreen(navController) }
+                    // Bounded migration aliases: old callers open the single canonical studio.
+                    composable("maligpufreq") { nd.max.ui.subscreens.GpuStudioScreen(navController) }
+                    composable("adrenogpufreq") { nd.max.ui.subscreens.GpuStudioScreen(navController) }
                     composable("networkscheduler") { nd.max.ui.subscreens.NetworkSchedulerScreen(navController) }
                     composable("cpucorecontrol") { nd.max.ui.subscreens.CpuCoreControlScreen(navController) }
                     composable("resolutionscreen") { nd.max.ui.subscreens.ResolutionScreen(navController) }

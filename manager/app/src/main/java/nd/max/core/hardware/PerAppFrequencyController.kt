@@ -20,30 +20,28 @@ object PerAppFrequencyController {
     }
 
     fun applyGpuCeiling(maxHz: Long): Result {
-        val device = GpuHardwareBackend.devices().firstOrNull()
-            ?: return Result(maxHz.toString(), false, false, error = "unsupported")
-        val high = device.frequencies.lastOrNull() ?: device.maxFreq
-            ?: return Result(maxHz.toString(), false, false, error = "no-frequency-range")
-        val low = device.frequencies.firstOrNull() ?: device.minFreq ?: 0L
-        val target = maxHz.coerceIn(low, high)
-        if (target <= 0L) return Result(maxHz.toString(), false, false, error = "invalid-frequency")
-
-        val minPath = "${device.path}/min_freq"
-        val maxPath = "${device.path}/max_freq"
-        if (!RootFileAccess.exists(maxPath)) return Result(maxHz.toString(), false, false, error = "max_freq-unavailable")
-
-        // A kernel may reject max_freq below the current floor. Lower the floor
-        // first only when necessary; the per-app restore path owns the baseline.
-        if ((RootFileAccess.read(minPath)?.toLongOrNull() ?: low) > target && RootFileAccess.exists(minPath)) {
-            RootFileAccess.write(minPath, low.toString())
+        val selection = GpuHardwareBackend.selection()
+        val device = selection.device
+            ?: return Result(maxHz.toString(), false, false, error = selection.reason)
+        if (device.frequencies.isEmpty()) {
+            return Result(maxHz.toString(), false, false, error = "no-advertised-frequency-range")
         }
+        val low = device.frequencies.first()
+        val target = device.frequencies.lastOrNull { it <= maxHz }
+            ?: return Result(maxHz.toString(), false, false, error = "unsupported-frequency")
 
-        val result = VerifiedControl.apply(
-            requested = target,
-            write = { RootFileAccess.write(maxPath, it.toString()) },
-            read = { RootFileAccess.read(maxPath)?.toLongOrNull() },
-            equals = { expected, actual -> actual == expected },
+        val request = if (device.rangeWritable) {
+            GpuHardwareBackend.Request(minFreq = low, maxFreq = target)
+        } else {
+            GpuHardwareBackend.Request(minFreq = target, maxFreq = target)
+        }
+        val result = GpuHardwareBackend.apply(device, request)
+        return Result(
+            requested = maxHz.toString(),
+            applied = result.writeSucceeded,
+            verified = result.verified,
+            actual = result.actual?.maxFreq?.toString(),
+            error = result.error,
         )
-        return Result(maxHz.toString(), result.writeSucceeded, result.successful, result.actual?.toString(), result.error)
     }
 }

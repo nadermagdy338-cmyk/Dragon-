@@ -147,7 +147,7 @@ fun HomeDashboardContent(
                     maxAi = maxAi,
                     profileRequest = profileRequest,
                     deviceName = deviceName,
-                    gpuRoute = gpuRouteForChipset(dashboard.chipsetName),
+                    gpuRoute = "gpustudio",
                     onNavigate = onNavigate,
                     onProfile = onProfile,
                     onReboot = onReboot,
@@ -172,17 +172,14 @@ private fun TechnicalBackdrop() {
     }
 }
 
-internal fun gpuRouteForChipset(chipset: String): String? {
+internal fun gpuRouteForChipset(chipset: String): String? =
+    chipset.takeIf(String::isNotBlank)?.let { "gpustudio" }
+
+internal fun gpuFamilyForChipset(chipset: String): String? {
     val value = chipset.lowercase()
     return when {
-        listOf("adreno", "qualcomm", "snapdragon").any(value::contains) -> "adrenogpufreq"
-        listOf("mali", "mediatek", "dimensity").any(value::contains) -> "maligpufreq"
+        listOf("adreno", "qualcomm", "snapdragon").any(value::contains) -> "Adreno"
+        listOf("mali", "mediatek", "dimensity").any(value::contains) -> "Mali"
         else -> null
     }
-}
-
-internal fun gpuFamilyForChipset(chipset: String): String? = when (gpuRouteForChipset(chipset)) {
-    "adrenogpufreq" -> "Adreno"
-    "maligpufreq" -> "Mali"
-    else -> null
 }

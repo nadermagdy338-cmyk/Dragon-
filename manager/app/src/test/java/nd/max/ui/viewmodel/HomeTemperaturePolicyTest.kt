@@ -27,10 +27,10 @@ class HomeTemperaturePolicyTest {
     }
 
     @Test
-    fun `gpu route follows known family and disables unknown hardware`() {
-        assertEquals("adrenogpufreq", gpuRouteForChipset("Qualcomm Snapdragon 8 Gen 3 Adreno"))
-        assertEquals("maligpufreq", gpuRouteForChipset("MediaTek Dimensity 9300 Mali"))
-        assertNull(gpuRouteForChipset("Samsung Exynos Xclipse"))
-        assertNull(gpuRouteForChipset("..."))
+    fun `gpu route is canonical and capability neutral`() {
+        assertEquals("gpustudio", gpuRouteForChipset("Qualcomm Snapdragon 8 Gen 3 Adreno"))
+        assertEquals("gpustudio", gpuRouteForChipset("MediaTek Dimensity 9300 Mali"))
+        assertEquals("gpustudio", gpuRouteForChipset("Samsung Exynos Xclipse"))
+        assertNull(gpuRouteForChipset(""))
     }
 }

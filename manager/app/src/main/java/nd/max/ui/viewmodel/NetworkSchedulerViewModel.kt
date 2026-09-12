@@ -35,8 +35,7 @@ import nd.max.ui.util.PropertyUtils
  * SchedulerViewModel, but not a straight port: ZKM reads/writes through its
  * own `Utils.readFile`/`Utils.testFile`/`Utils.writeFile` helpers, which
  * don't exist in MaxManager. This targets the same nodes through direct
- * `Shell.cmd` calls (`test -e` / `cat` / `echo >`), the same convention
- * [AdrenoGpuViewModel] and [MaliFreqViewModel] already use, and persists
+ * `Shell.cmd` calls (`test -e` / `cat` / `echo >`) and persists
  * user overrides through [MaxManagerProps] instead of ZKM's SharedPreferences.
  *
  * Every toggle/value here is independently optional: a node not existing on

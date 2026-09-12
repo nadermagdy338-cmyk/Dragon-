@@ -117,8 +117,13 @@ pub fn mediatek_performance() {
     
     write_lock("1", "/sys/devices/platform/boot_dramboost/dramboost/dramboost");
 
-    write_lock("1", "/proc/cpufreq/cpufreq_cci_mode");
-    write_lock("3", "/proc/cpufreq/cpufreq_power_mode");
+    // Global DVFS mode toggles change effective CPU frequency behavior
+    // (power_mode=3 forces the fixed-clock path). They must not run over a
+    // manual Core Grid session, exactly like the frequency writers.
+    if !blocked_by_manual_session("mediatek_performance_dvfs_mode") {
+        write_lock("1", "/proc/cpufreq/cpufreq_cci_mode");
+        write_lock("3", "/proc/cpufreq/cpufreq_power_mode");
+    }
 
     if Path::new("/proc/gpufreq").exists() {
         if let Some(freq) = get_mtk_gpu_max_freq() {
