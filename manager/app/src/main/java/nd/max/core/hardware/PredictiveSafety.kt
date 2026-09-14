@@ -9,22 +9,27 @@ import javax.inject.Singleton
 
 /**
  * Safety predictor that fails safely and only uses existing HardwareControlArbiter.
+ *
+ * This is not mandatory: if SafetyGovernor isn't available (for testing), it just does nothing.
  */
 @Singleton
 class PredictiveSafety @Inject constructor(
     private val context: Context,
     private val arbiter: HardwareControlArbiter,
-    private val safetyGovernor: SafetyGovernor? = null // Optional, to avoid hard dependency
+    private val safetyGovernor: SafetyGovernor? = null // Optional to avoid hard dependency
 ) {
-    private val lastThermalSpike = AtomicLong(0)
+    private val lastThermalSpike = AtomicLong(0L)
     private val thermalHistory = mutableListOf<Float>()
 
     /**
-     * Predict a thermal spike, fails safely if any error occurs.
+     * Predict a thermal spike. Fails safely if any invalid data/assumptions are detected.
+     *
+     * @param currentThermalC Current measured thermal (°C)
+     * @return true if a spike is predicted, false otherwise (always false on any error)
      */
     fun predictThermalSpike(currentThermalC: Float, deviceState: DeviceSnapshot): Boolean {
         return try {
-            // Reject obviously invalid values
+            // Reject obviously invalid thermal values (sensor fault)
             if (currentThermalC < -20f || currentThermalC > 150f) {
                 return false
             }
@@ -34,27 +39,23 @@ class PredictiveSafety @Inject constructor(
                 thermalHistory.removeFirst()
             }
 
-            // Not enough data yet
-            if (thermalHistory.size < 10) {
-                return false
-            }
+            // Not enough data to predict
+            if (thermalHistory.size < 10) return false
 
             // Calculate thermal gradient
             val last10 = thermalHistory.takeLast(10)
             val gradient = (last10.last() - last10.first()) / 10f
 
-            // Reject invalid gradients
-            if (gradient < -2f || gradient > 5f) {
-                return false
-            }
+            // Reject invalid/non-physical gradient
+            if (gradient < -2f || gradient > 5f) return false
 
             // Predict if we'll hit the limit soon
-            val thermalLimit = 80f
-            val predictedThermal = currentThermalC + (gradient * 0.8f)
+            val thermalLimit = 52f
+            val predictedThermal = currentThermalC + (gradient * 0.8f) // ~800ms horizon
             if (predictedThermal >= thermalLimit) {
                 val now = System.currentTimeMillis()
-                val lastSpike = lastThermalSpike.get()
-                if (now - lastSpike > 2000L) { // At most one spike prediction every 2 seconds
+                val last = lastThermalSpike.get()
+                if (now - last > 2000L) { // At most one spike prediction every 2 seconds
                     lastThermalSpike.set(now)
                     true
                 } else {
@@ -64,12 +65,7 @@ class PredictiveSafety @Inject constructor(
                 false
             }
         } catch (e: Throwable) {
-            false // Fail safely
+            false // Fail safely: always assume no spike if any error
         }
     }
-
-    /**
-     * Get the current thermal history for debugging.
-     */
-    fun getThermalHistory(): List<Float> = thermalHistory.toList()
 }

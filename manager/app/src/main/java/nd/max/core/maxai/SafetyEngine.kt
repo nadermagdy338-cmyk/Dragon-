@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import nd.max.core.diagnostics.DiagnosticCenter
 import nd.max.core.hardware.ControlOwnership
+import nd.max.core.hardware.DeviceStateCollector
+import nd.max.core.hardware.PredictiveSafety
 import nd.max.core.jni.PredictorBridge
 import nd.max.ui.util.EventLog
 import javax.inject.Inject
@@ -23,13 +25,14 @@ import javax.inject.Singleton
  * العتبة)، ويعمل دائمًا — تشغيل AI أو إيقافه لا يوقف الأمان.
  *
  * مبدأ FDE.AI المُتبنى: الحرارة في الاعتبار دائمًا، والتدخل وقائي —
- * تنبؤ nativePredictThermal يُقيَّم مع القياس اللحظي كي يهبط السقف
+ * تنبؤ nativePredictThermal يُقيَّم مع القياسات اللحظي كي يهبط السقف
  * قبل تجاوز الحد لا بعده.
  */
 @Singleton
 class SafetyEngine @Inject constructor(
     @ApplicationContext private val context: Context,
     private val ceilingKnobs: CpuCeilingKnobs,
+    private val predictiveSafety: PredictiveSafety? = null // Optional predictive safety
 ) {
     companion object {
         const val TOKEN = "safety-engine"
@@ -83,12 +86,24 @@ class SafetyEngine @Inject constructor(
      * دورة تقييم واحدة — تُستدعى من حلقة MaxAiEngine الدائمة.
      *
      * @param thermalC أعلى حرارة CPU/GPU مقيسة الآن (°C).
+     * @param deviceState Optional device snapshot for predictive safety
      * @param predictedThermalC أعلى قيمة في التنبؤ الأمامي، أو null
      * إن لم يتوفر نصاب كافٍ (صادق: العمل على اللحظي فقط).
      * @return الحالة بعد التقييم.
      */
-    fun evaluate(thermalC: Float, predictedThermalC: Float?): SafetyStatus {
-        val predicted = predictedThermalC ?: thermalC
+    @JvmOverloads
+    fun evaluate(
+        thermalC: Float,
+        deviceState: DeviceStateCollector.DeviceSnapshot? = null,
+        predictedThermalC: Float? = null
+    ): SafetyStatus {
+        // Use PredictiveSafety if available
+        val fromPredictive = if (predictiveSafety != null && deviceState != null) {
+            val spikePredicted = predictiveSafety.predictThermalSpike(thermalC, deviceState)
+            if (spikePredicted) thermalC + 4f else null
+        } else null
+        val predicted = fromPredictive ?: predictedThermalC ?: thermalC
+
         val current = _status.value
         if (thermalC <= 0f) return current
 
@@ -125,6 +140,12 @@ class SafetyEngine @Inject constructor(
         if (next != current) _status.value = next
         return next
     }
+
+    /**
+     * Backward-compatible evaluate without deviceState for existing callers.
+     */
+    fun evaluate(thermalC: Float, predictedThermalC: Float?): SafetyStatus =
+        evaluate(thermalC, null, predictedThermalC)
 
     private fun engage(
         thermalC: Float,
@@ -173,10 +194,10 @@ class SafetyEngine @Inject constructor(
         val reason = when (level) {
             SafetyLevel.CRITICAL -> "حرارة ${thermalC.toInt()}°م " +
                 (if (predictedC >= CRITICAL_TEMP_C + 2f) "(والتنبؤ ${predictedC.toInt()}°م) " else "") +
-                "تجاوزت الحد الحرج ${CRITICAL_TEMP_C.toInt()}°م — خفض جراحي مباشر لسقف التردد"
+                "تجاوز الحد الحرج ${CRITICAL_TEMP_C.toInt()}°م — خفض جراحي مباشر لسقف التردد"
             else -> "حرارة ${thermalC.toInt()}°م " +
                 (if (predictedC >= PREDICTED_ENGAGE_C) "(والتنبؤ ${predictedC.toInt()}°م) " else "") +
-                "تجاوزت عتبة الأمان ${ENGAGE_TEMP_C.toInt()}°م — سقف أداء آمن"
+                "تجاوز عتبة الأمان ${ENGAGE_TEMP_C.toInt()}°م — سقف أداء آمن"
         }
         DiagnosticCenter.record(
             "safety",

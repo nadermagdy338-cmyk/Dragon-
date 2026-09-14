@@ -35,9 +35,9 @@ import nd.max.core.hardware.HardwareCapabilityResolver
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.RootFileAccess
 import nd.max.core.hardware.SharedHardwareOwnershipStore
-import nd.max.core.maxai.DynamicIntentLearner
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.jni.PredictorBridge
+import nd.max.core.maxai.DynamicIntentLearner
 
 /**
  * MAX AI PERFORMANCE ENGINE — المحرك الذكي الموحد.
@@ -68,6 +68,7 @@ class MaxAiEngine @Inject constructor(
     private val safetyEngine: SafetyEngine,
     private val safetyGovernor: SafetyGovernor,
     private val planner: MinimalPlanner,
+    private val dynamicIntentLearner: DynamicIntentLearner,
 ) {
     companion object {
         private const val TAG = "MaxAiEngine"
@@ -146,7 +147,7 @@ class MaxAiEngine @Inject constructor(
                 runCatching {
                     val snapshot = DeviceStateCollector.collect(appContext)
                     val predicted = PredictorBridge.predictThermal(THERMAL_FORECAST_STEPS)?.maxOrNull()
-                    safetyEngine.evaluate(snapshot.thermal * 100f, predicted)
+                    safetyEngine.evaluate(snapshot.thermal * 100f, snapshot, predicted)
                 }.onFailure {
                     Log.w(TAG, "fast safety cycle failed", it)
                     DiagnosticCenter.record(
@@ -187,7 +188,7 @@ class MaxAiEngine @Inject constructor(
         // 2) الأمان أولًا ودائمًا — قبل أي قرار ومن فوق أي مالك.
         val thermalC = (snapshot?.thermal ?: 0f) * 100f
         val predictedC = PredictorBridge.predictThermal(THERMAL_FORECAST_STEPS)?.maxOrNull()
-        val safetyNow = safetyEngine.evaluate(thermalC, predictedC)
+        val safetyNow = safetyEngine.evaluate(thermalC, snapshot, predictedC)
 
         // 3) AI مطفأ: تحكم يدوي. لا قرارات ولا كتابات على العتاد.
         if (!aiEnabled) {
@@ -209,6 +210,8 @@ class MaxAiEngine @Inject constructor(
 
         // 6) الهدف يتبع الحالة: الشاشة المطفأة هدف مختلف (طاقة+حرارة)
         //    لا "إيقاف" — أهم نافذة لإدارة الموارد لا تُهدر (قرار #11).
+        val appContextKey = currentAppContextKey()
+        val dynamicObjective = dynamicIntentLearner.dynamicObjective(snapshot, appContextKey, true, Objective.BALANCED)
         val objective = if (snapshot.screenOn < 0.5f) {
             Objective.SCREEN_OFF
         } else {
@@ -217,20 +220,18 @@ class MaxAiEngine @Inject constructor(
             // السلوك يعدّل الأوزان لاحقًا عبر مصداقية المقابض.
             val preference = PropertyUtils.get(MaxManagerProps.Conf.AI_OBJECTIVE)
                 .takeIf { it.isNotBlank() }
-                Objective.BALANCED
+            if (preference != null) {
                 Objective.fromPreference(preference)
             } else {
-                Objective.BALANCED
+                dynamicObjective
             }
         }
 
+        // Observe with DynamicIntentLearner
+        dynamicIntentLearner.observe(snapshot, appContextKey, true)
+
         // 7) الحالة → الهدف → أصغر تدخل كافٍ → تحقق → تعلّم.
-        // Learn from current state
-        val currentApp = currentAppContextKey()
-        val screenOn = true // TODO: Add screen state later
-        dynamicIntentLearner.observe(snapshot, currentApp, screenOn)
-        val dynamicObj = dynamicIntentLearner.dynamicObjective(snapshot, currentApp, screenOn, objective)
-        decisionCycle(snapshot, safetyNow, dynamicObj)
+        decisionCycle(snapshot, safetyNow, objective)
     }
 
     private suspend fun decisionCycle(
@@ -254,7 +255,9 @@ class MaxAiEngine @Inject constructor(
         }
         val appContextKey = currentAppContextKey()
 
+        // Prioritize controls with DynamicIntentLearner
         val prioritizedControls = dynamicIntentLearner.prioritizeControls(availableControls, appContextKey)
+
         val step = planner.plan(
             controls = prioritizedControls,
             state = before,
