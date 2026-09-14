@@ -1,7 +1,5 @@
 package nd.max.core.hardware
 
-import android.os.Process
-
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -158,7 +156,11 @@ object ManualControlLocks {
                     .put("lockedAt", lock.lockedAtMs)
             )
         }
-        val temp = File(file.parentFile, "$FILE_NAME.tmp.${Process.myPid()}")
+        // ProcessHandle (not android.os.Process) so this stays callable from
+        // plain JUnit unit tests, which run on the host JVM without any
+        // Android framework mocking; it reports the same real OS pid as
+        // Process.myPid() would on-device.
+        val temp = File(file.parentFile, "$FILE_NAME.tmp.${ProcessHandle.current().pid()}")
         val payload = rows.toString()
         FileOutputStream(temp).use { output ->
             output.write(payload.toByteArray(Charsets.UTF_8))
