@@ -31,6 +31,8 @@ import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 import nd.max.core.jni.PredictorBridge
+import nd.max.ui.util.EventLog
+import nd.max.ui.util.PropertyUtils
 
 /**
  * MAX AI PERFORMANCE ENGINE — المحرك الذكي الموحد.

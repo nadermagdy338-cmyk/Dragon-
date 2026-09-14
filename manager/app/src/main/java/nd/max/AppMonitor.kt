@@ -55,7 +55,6 @@ import nd.max.core.hardware.SharedHardwareOwnershipStore
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.hardware.PerAppControlRegistry
 import nd.max.core.hardware.PerAppRecoveryStore
-import nd.max.core.hardware.PerAppFrequencyController
 import nd.max.ui.util.decodePerAppCpuPolicyControls
 import nd.max.ui.viewmodel.TouchBoostViewModel
 
@@ -1039,7 +1038,19 @@ object AppMonitor {
             hardwareControlRegistry.ownValue(
                 key = HardwareControlKey.gpuFrequency(device.name),
                 desired = desired,
-                apply = { value -> value.toLongOrNull()?.let { PerAppFrequencyController.applyGpuCeiling(it).verified } ?: false },
+                apply = { value -> value.toLongOrNull()?.let { target ->
+                        val live = GpuHardwareBackend.refresh(device.path) ?: return@let false
+                        val low = live.frequencies.firstOrNull() ?: return@let false
+                        val capped = live.frequencies.lastOrNull { it <= target } ?: return@let false
+                        GpuHardwareBackend.apply(
+                            live,
+                            if (live.rangeWritable) {
+                                GpuHardwareBackend.Request(low, capped)
+                            } else {
+                                GpuHardwareBackend.Request(capped, capped)
+                            },
+                        ).verified
+                    } ?: false },
                 read = {
                     GpuHardwareBackend.refresh(device.path)?.let { live ->
                         GpuHardwareBackend.effectiveFrequency(live)?.toString()

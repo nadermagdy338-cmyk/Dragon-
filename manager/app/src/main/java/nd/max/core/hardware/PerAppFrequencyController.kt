@@ -20,30 +20,41 @@ class PerAppFrequencyController @Inject constructor(
     )
 
     fun applyCpuLimits(policyPath: String, minKHz: Long?, maxKHz: Long?): Result {
-        if (minKHz == null && maxKHz == null) {
-            return Result("default", true, true, "default")
-        }
+        if (minKHz == null && maxKHz == null) return Result("default", true, true, "default")
         val key = HardwareControlKey.cpuLimits(policyPath)
         val token = "per-app-cpu-${System.currentTimeMillis()}"
-        val baseline = CpuHardwareBackend.liveLimits(policyPath)
+        val baselinePolicy = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
+            ?: return Result("${minKHz ?: ""}:${maxKHz ?: ""}", false, false, error = "unsupported-policy")
+        val baseline = "${baselinePolicy.minKHz ?: ""}:${baselinePolicy.maxKHz ?: ""}"
         val desired = "${minKHz ?: ""}:${maxKHz ?: ""}"
-        val applyFunc = { value: String ->
-            val split = value.split(":")
-            val newMin = split[0].toLongOrNull()
-            val newMax = split[1].toLongOrNull()
-            val r = CpuHardwareBackend.setLimits(newMin, newMax)
-            r.successful
-        }
-        val readFunc = { CpuHardwareBackend.liveLimits(policyPath) }
+
         val r = arbiter.submit(
             key = key,
             owner = ControlOwnership.Owner.PER_APP,
             token = token,
             desired = desired,
-            apply = applyFunc,
-            read = readFunc,
+            apply = { value ->
+                val parts = value.split(":", limit = 2)
+                CpuHardwareBackend.setPolicyLimits(
+                    policyPath,
+                    parts.getOrNull(0)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                    parts.getOrNull(1)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                ).verified
+            },
+            read = {
+                CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }?.let {
+                    "${it.minKHz ?: ""}:${it.maxKHz ?: ""}"
+                }
+            },
             baseline = baseline,
-            restore = { applyFunc(baseline) },
+            restore = { value ->
+                val parts = value.split(":", limit = 2)
+                CpuHardwareBackend.setPolicyLimits(
+                    policyPath,
+                    parts.getOrNull(0)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                    parts.getOrNull(1)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                ).verified
+            },
         )
         return Result(desired, r.applied, r.verified, r.actual, r.error)
     }
@@ -67,32 +78,29 @@ class PerAppFrequencyController @Inject constructor(
         } else {
             GpuHardwareBackend.Request(minFreq = target, maxFreq = target)
         }
-        val applyFunc = { value: String ->
-            val split = value.split(":")
-            val newMin = split[0].toLongOrNull()
-            val newMax = split[1].toLongOrNull()
-            val r = GpuHardwareBackend.apply(
-                device,
-                GpuHardwareBackend.Request(newMin, newMax, request.governor)
-            )
-            r.successful
-        }
-        val readFunc = {
-            val current = GpuHardwareBackend.readCurrent(device)
-            "${current.minFreq}:${current.maxFreq}"
-        }
         val desired = "${request.minFreq}:${request.maxFreq}"
+
         val r = arbiter.submit(
             key = key,
             owner = ControlOwnership.Owner.PER_APP,
             token = token,
             desired = desired,
-            apply = applyFunc,
-            read = readFunc,
-            baseline = "${baseline.minFreq}:${baseline.maxFreq}",
-            restore = {
-                GpuHardwareBackend.restoreBaseline(baseline)
+            apply = { value ->
+                val split = value.split(":", limit = 2)
+                val min = split.getOrNull(0)?.takeIf { it.isNotBlank() }?.toLongOrNull()
+                val max = split.getOrNull(1)?.takeIf { it.isNotBlank() }?.toLongOrNull()
+                GpuHardwareBackend.apply(
+                    device,
+                    GpuHardwareBackend.Request(minFreq = min, maxFreq = max),
+                ).verified
             },
+            read = {
+                GpuHardwareBackend.refresh(device.path)?.let { live ->
+                    "${live.minFreq ?: ""}:${live.maxFreq ?: ""}"
+                }
+            },
+            baseline = "${baseline.minFreq ?: ""}:${baseline.maxFreq ?: ""}",
+            restore = { GpuHardwareBackend.restoreBaseline(baseline) },
         )
         return Result(desired, r.applied, r.verified, r.actual, r.error)
     }

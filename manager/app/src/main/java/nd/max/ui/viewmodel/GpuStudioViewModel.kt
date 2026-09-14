@@ -149,17 +149,38 @@ class GpuStudioViewModel @Inject constructor(
             val key = HardwareControlKey.gpuFrequency(device.name)
             val token = "gpu-studio-${System.currentTimeMillis()}"
             val baseline = GpuHardwareBackend.captureBaseline(device)
-            val result = arbiter.submit(
+            val desired = "${pending.minFreq ?: ""}:${pending.maxFreq ?: ""}"
+            val arbiterResult = arbiter.submit(
                 key = key,
                 owner = ControlOwnership.Owner.GLOBAL_PROFILE,
                 token = token,
-                desired = "${pending.minFreq ?: ""}:${pending.maxFreq ?: ""}",
-                apply = { GpuHardwareBackend.apply(device, pending).verified },
-                read = { GpuHardwareBackend.readCurrent(device) },
-                baseline = baseline,
+                desired = desired,
+                apply = { value ->
+                    val parts = value.split(":", limit = 2)
+                    val request = pending.copy(
+                        minFreq = parts.getOrNull(0)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                        maxFreq = parts.getOrNull(1)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                    )
+                    GpuHardwareBackend.apply(device, request).verified
+                },
+                read = {
+                    GpuHardwareBackend.refresh(device.path)?.let { live ->
+                        "${live.minFreq ?: ""}:${live.maxFreq ?: ""}"
+                    }
+                },
+                baseline = "${baseline.minFreq ?: ""}:${baseline.maxFreq ?: ""}",
                 restore = { GpuHardwareBackend.restoreBaseline(baseline) },
             )
             val refreshed = GpuHardwareBackend.selection()
+            val result = GpuHardwareBackend.TransactionResult(
+                requested = pending,
+                actual = refreshed.device,
+                writeSucceeded = arbiterResult.applied,
+                verified = arbiterResult.verified,
+                rollbackAttempted = arbiterResult.rollbackAttempted,
+                rollbackVerified = arbiterResult.rollbackVerified,
+                error = arbiterResult.error,
+            )
             state = state.copy(
                 applying = false,
                 selection = refreshed,
