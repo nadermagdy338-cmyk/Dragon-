@@ -76,6 +76,22 @@ class HardwareControlArbiter @Inject constructor() {
         list.removeAll { it.token == token }
         list += request
         journal.replaceToken(SharedHardwareOwnershipStore.newIntent(key, owner, token, desired, request.requestId))
+
+        // The request is still journaled even when a higher-priority contender
+        // already owns the physical knob. The caller must be told that its
+        // intent is blocked rather than receiving a misleading "verified"
+        // result for another owner's state. This also preserves the lower
+        // intent for deterministic handoff when the winner releases.
+        val winner = journal.winner(key)
+        if (winner == null || winner.token != token || winner.requestId != request.requestId) {
+            val actual = runCatching { read() }.getOrNull()
+            return@sharedTransaction Result(
+                key, winner?.owner, desired, actual,
+                applied = false, verified = false, blocked = true,
+                error = winner?.let { "preempted-by-${it.owner.name}" } ?: "no-winner",
+            )
+        }
+
         reconcileLocked(key, journal)
     }
 

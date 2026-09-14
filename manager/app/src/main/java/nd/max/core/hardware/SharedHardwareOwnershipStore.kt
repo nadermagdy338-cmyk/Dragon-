@@ -7,6 +7,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.RandomAccessFile
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /** OS-locked intent journal shared by the app and rooted AppMonitor processes. */
 object SharedHardwareOwnershipStore {
@@ -66,11 +68,17 @@ object SharedHardwareOwnershipStore {
         }
     }
 
+    // FileChannel.lock() coordinates across processes, while this lock also
+    // serializes overlapping lock attempts made by multiple test/service
+    // threads inside the same JVM. Without it, Java throws
+    // OverlappingFileLockException instead of waiting for the OS lock.
+    private val processLock = ReentrantLock()
+
     @Volatile private var directory: File? = null
     @Volatile private var applicationUid: Int? = null
     @Volatile private var localProcessId: Int = 1
 
-    fun configure(appFilesDir: File, appUid: Int, processId: Int) {
+    fun configure(appFilesDir: File, appUid: Int, processId: Int) = processLock.withLock {
         val root = File(appFilesDir, DIRECTORY_NAME)
         if (!root.exists() && !root.mkdirs()) error("cannot-create-shared-control-directory")
         applicationUid = appUid
@@ -83,10 +91,10 @@ object SharedHardwareOwnershipStore {
     fun isConfigured(): Boolean = directory != null
 
     /** Arbitration, mutation, readback and publication all run under this lock. */
-    fun <T> withExclusive(block: (Journal) -> T): T {
+    fun <T> withExclusive(block: (Journal) -> T): T = processLock.withLock {
         val root = directory ?: error("shared-control-store-not-configured")
         val lockFile = File(root, LOCK_NAME)
-        return RandomAccessFile(lockFile, "rw").channel.use { channel ->
+        RandomAccessFile(lockFile, "rw").channel.use { channel ->
             normalizeAccess(lockFile)
             channel.lock().use {
                 val intents = readState(root)

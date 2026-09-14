@@ -39,6 +39,7 @@ object ManualControlLocks {
     private var cache: List<Lock>? = null
 
     /** Shares the journaled control directory so both processes see one lock set. */
+    @Synchronized
     fun configure(appFilesDir: File) {
         val root = File(appFilesDir, DIRECTORY_NAME)
         if (!root.exists()) root.mkdirs()
