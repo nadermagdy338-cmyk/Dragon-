@@ -1,8 +1,6 @@
 package nd.max.core.hardware
 
-import android.content.Context
 import nd.max.core.hardware.DeviceStateCollector.DeviceSnapshot
-import nd.max.core.maxai.SafetyGovernor
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,11 +11,7 @@ import javax.inject.Singleton
  * This is not mandatory: if SafetyGovernor isn't available (for testing), it just does nothing.
  */
 @Singleton
-class PredictiveSafety @Inject constructor(
-    private val context: Context,
-    private val arbiter: HardwareControlArbiter,
-    private val safetyGovernor: SafetyGovernor? = null // Optional to avoid hard dependency
-) {
+class PredictiveSafety @Inject constructor() {
     private val lastThermalSpike = AtomicLong(0L)
     private val thermalHistory = mutableListOf<Float>()
 
