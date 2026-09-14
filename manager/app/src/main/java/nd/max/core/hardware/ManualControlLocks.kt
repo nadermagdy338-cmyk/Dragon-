@@ -6,6 +6,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Durable per-knob manual locks (spec decisions #3, #5, #24; INV-3).
