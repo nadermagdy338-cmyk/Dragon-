@@ -173,4 +173,7 @@ dependencies {
     // عقد نصوص التوصيات↔الأفعال (RecommendationTextClassifierTest) —
     // أول خط دفاع ضد انزياح الصياغة بين المصادر والمصنِّف
     testImplementation("junit:junit:4.13.2")
+    // Local JVM tests execute against the host JDK, so Android's framework
+    // org.json stubs must be replaced by the real JSON implementation.
+    testImplementation("org.json:json:20260814")
 }
