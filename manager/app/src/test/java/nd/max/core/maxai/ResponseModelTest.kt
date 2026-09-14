@@ -35,7 +35,7 @@ class ResponseModelTest {
 
     @Test
     fun `interactions capture device state conditionality`() {
-        val f = features(0.2f, cpuLoad = 0.8f, thermal = 0.4f, intent = 0.5f)
+        val f = features(0.2f, load =  0.8f, thermal = 0.4f, intent = 0.5f)
         assertEquals(0.2f, f[0], 0.0001f)          // الخطوة
         assertEquals(0.16f, f[1], 0.0001f)         // خطوة × حمل
         assertEquals(0.08f, f[2], 0.0001f)         // خطوة × حرارة
@@ -74,8 +74,8 @@ class ResponseModelTest {
     fun `low load cannot produce a large load interaction`() {
         // جوهر الذكاء الشرطي: نفس الخطوة تحت حمل منخفض تعطي تفاعلًا
         // أدنى بكثير — وهذا ما يجعل النموذج يميّز "الرفع لا ينفع الآن".
-        val idle = features(0.2f, cpuLoad = 0.05f, thermal = 0.3f, intent = 0.5f)
-        val busy = features(0.2f, cpuLoad = 0.95f, thermal = 0.3f, intent = 0.5f)
+        val idle = features(0.2f, load =  0.05f, thermal = 0.3f, intent = 0.5f)
+        val busy = features(0.2f, load =  0.95f, thermal = 0.3f, intent = 0.5f)
         assertTrue("تفاعل الحمل يجب أن يفصل الحالتين", busy[1] > idle[1] * 5f)
     }
 }
