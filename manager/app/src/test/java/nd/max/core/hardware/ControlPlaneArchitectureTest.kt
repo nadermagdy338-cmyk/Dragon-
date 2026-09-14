@@ -127,6 +127,26 @@ class ControlPlaneArchitectureTest {
     }
 
     @Test
+    fun maxAiDecisionPathContainsNoStubbedSuccessOrCorruptedSyntax() {
+        val engine = File(sourceRoot, "core/maxai/MaxAiEngine.kt")
+        assumeTrue("engine source missing", engine.isFile)
+        val text = contents(engine)
+        assertTrue("Max AI must never report a hard-coded successful profile result", !text.contains("val ok = true"))
+        assertTrue("Max AI source must not contain a dangling standalone null in publish", !text.contains("        null\n        val prev = _state.value"))
+        assertTrue("Max AI imports must remain in the file header", text.substringAfterLast("package nd.max.core.maxai").substringBefore("/**").trim().lines().none { it.startsWith("import ") && text.substringAfter("/**").contains(it) })
+    }
+
+    @Test
+    fun dynamicIntentLearnerDoesNotCreateASecondKnobCredibilityStore() {
+        val learner = File(sourceRoot, "core/maxai/DynamicIntentLearner.kt")
+        assumeTrue("dynamic learner source missing", learner.isFile)
+        val text = contents(learner)
+        assertTrue("knob credibility must have one canonical owner", !text.contains("knobSuccessCache"))
+        assertTrue("legacy duplicate knob persistence must stay retired", !text.contains("knobPriorities"))
+        assertTrue("learner must reuse the canonical credibility store", text.contains("credibility.credibility("))
+    }
+
+    @Test
     fun retiredOwnershipConceptsStayRetired() {
         val retired = listOf("PendingManualStore", "MaxAiController", "pendingChanges")
         val offenders = retired.flatMap { offenders(it) }.distinct()

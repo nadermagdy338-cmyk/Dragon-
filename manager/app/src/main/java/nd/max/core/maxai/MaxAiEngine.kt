@@ -18,16 +18,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import nd.max.MaxManagerProps
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import nd.max.MaxManagerProps
 import nd.max.core.diagnostics.DiagnosticCenter
 import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.DeviceStateCollector
@@ -36,8 +26,11 @@ import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.RootFileAccess
 import nd.max.core.hardware.SharedHardwareOwnershipStore
 import nd.max.core.hardware.ManualControlLocks
+import nd.max.core.hardware.ProfileApplier
+import java.util.concurrent.atomic.AtomicLong
+import javax.inject.Inject
+import javax.inject.Singleton
 import nd.max.core.jni.PredictorBridge
-import nd.max.core.maxai.DynamicIntentLearner
 
 /**
  * MAX AI PERFORMANCE ENGINE — المحرك الذكي الموحد.
@@ -157,7 +150,7 @@ class MaxAiEngine @Inject constructor(
                 delay(SAFETY_CYCLE_MS)
             }
         }
-        EventLog.userAction("MaxAiEngine", "engine", "stopped", "started")
+        EventLog.userAction("MaxAiEngine", "engine", "lifecycle", "started")
     }
 
     // ── الدورة الواحدة ───────────────────────────────────────────────
@@ -211,32 +204,31 @@ class MaxAiEngine @Inject constructor(
         // 6) الهدف يتبع الحالة: الشاشة المطفأة هدف مختلف (طاقة+حرارة)
         //    لا "إيقاف" — أهم نافذة لإدارة الموارد لا تُهدر (قرار #11).
         val appContextKey = currentAppContextKey()
-        val dynamicObjective = dynamicIntentLearner.dynamicObjective(snapshot, appContextKey, true, Objective.BALANCED)
+        val preference = PropertyUtils.get(MaxManagerProps.Conf.AI_OBJECTIVE)
+            .takeIf { it.isNotBlank() }
+        val dynamicObjective = dynamicIntentLearner.dynamicObjective(
+            snapshot,
+            appContextKey,
+            snapshot.screenOn >= 0.5f,
+            preference?.let(Objective::fromPreference) ?: Objective.BALANCED,
+        )
         val objective = if (snapshot.screenOn < 0.5f) {
             Objective.SCREEN_OFF
         } else {
             // ترتيب الأولوية (قرار #10): نية المستخدم الصريحة أولًا، ثم
-            // الملف الحالي كسابقة، ثم التوازن افتراضيًا. الاستنتاج من
-            // السلوك يعدّل الأوزان لاحقًا عبر مصداقية المقابض.
-            val preference = PropertyUtils.get(MaxManagerProps.Conf.AI_OBJECTIVE)
-                .takeIf { it.isNotBlank() }
-            if (preference != null) {
-                Objective.fromPreference(preference)
-            } else {
-                dynamicObjective
-            }
+            // الاستنتاج السلوكي عندما لا يوجد تفضيل صريح.
+            preference?.let(Objective::fromPreference) ?: dynamicObjective
         }
 
         // Observe with DynamicIntentLearner
-        dynamicIntentLearner.observe(snapshot, appContextKey, true)
+        dynamicIntentLearner.observe(snapshot, appContextKey, snapshot.screenOn >= 0.5f)
 
         // 7) الحالة → الهدف → أصغر تدخل كافٍ → تحقق → تعلّم.
-        decisionCycle(snapshot, safetyNow, objective)
+        decisionCycle(snapshot, objective)
     }
 
     private suspend fun decisionCycle(
         before: DeviceStateCollector.DeviceSnapshot,
-        safetyNow: SafetyStatus,
         objective: Objective,
     ) = withContext(Dispatchers.IO) {
         // المفردات تُبنى من قدرات هذا الجهاز في كل دورة: ما لا يُثبَت
@@ -256,7 +248,7 @@ class MaxAiEngine @Inject constructor(
         val appContextKey = currentAppContextKey()
 
         // Prioritize controls with DynamicIntentLearner
-        val prioritizedControls = dynamicIntentLearner.prioritizeControls(availableControls, appContextKey)
+        val prioritizedControls = dynamicIntentLearner.prioritizeControls(availableControls, appContextKey, objective.preferredDirection(before))
 
         val step = planner.plan(
             controls = prioritizedControls,
@@ -318,30 +310,50 @@ class MaxAiEngine @Inject constructor(
             }
             return@withContext
         }
-        if (after != null) {
-            val objectiveGain = objective.score(after) - objective.score(before)
-            planner.recordMeasuredOutcome(step, appContextKey, before, after, objective)
-            val improved = objectiveGain >= 0f
-            if (!improved && rollbackOnRegression(step, outcome)) {
-                // تراجع مقيس ⇒ استرجاع فوري لخط الأساس: العقل لا يترك
-                // الجهاز في حال أسوأ مما وجده (INV-4 + قرار #14).
-                publish(aiEnabled = true, snapshot = after) {
-                    copy(
-                        lastDecision = DecisionRecord(
-                            step.control.label, System.currentTimeMillis(),
-                            DecisionResult.ADJUSTED, "تراجع مقيس — استُرجع خط الأساس"
-                        )
+
+        if (after == null) {
+            DiagnosticCenter.record("maxai", "post-action measurement unavailable :: ${step.control.key}")
+            bumpCounter(PREF_ADJUSTED)
+            publish(aiEnabled = true, snapshot = before) {
+                copy(
+                    lastDecision = DecisionRecord(
+                        step.control.label, System.currentTimeMillis(),
+                        DecisionResult.FAILED, "تم التحقق من الكتابة لكن تعذّر قياس الأثر"
                     )
-                }
-                return@withContext
+                )
             }
-            // Knob-level outcome learning above is the canonical reward path.
-        } else {
+            return@withContext
+        }
+
+        val objectiveGain = objective.score(after) - objective.score(before)
+        planner.recordMeasuredOutcome(step, appContextKey, before, after, objective)
+        val improved = objectiveGain > 0f
+
+        if (!improved) {
+            val restored = rollbackOnRegression(step, outcome)
+            bumpCounter(PREF_ADJUSTED)
+            val result = if (restored) DecisionResult.ADJUSTED else DecisionResult.FAILED
+            val detail = if (restored) {
+                "تراجع مقيس (Δ%.3f) — استُرجع خط الأساس".format(objectiveGain)
+            } else {
+                "لا تحسن مقيس (Δ%.3f) — تعذر استرجاع خط الأساس".format(objectiveGain)
+            }
+            publish(aiEnabled = true, snapshot = after) {
+                copy(
+                    lastDecision = DecisionRecord(
+                        step.control.label, System.currentTimeMillis(), result, detail
+                    )
+                )
+            }
+            return@withContext
         }
 
         bumpCounter(PREF_SUCCESSFUL)
-        EventLog.userAction("MaxAiEngine", "decision", step.control.key, "verified:${outcome.actual}")
-        publish(aiEnabled = true, snapshot = after ?: before) {
+        EventLog.userAction(
+            "MaxAiEngine", "decision", step.control.key,
+            "verified:${outcome.actual} gain=%.4f".format(objectiveGain)
+        )
+        publish(aiEnabled = true, snapshot = after) {
             copy(
                 strategyLabel = step.control.label,
                 lastDecision = DecisionRecord(
@@ -442,10 +454,9 @@ class MaxAiEngine @Inject constructor(
 
     suspend fun requestManualProfile(profileId: String, label: String): Boolean =
         withContext(Dispatchers.IO) {
-                true
             _profileRequest.value = ProfileRequestState(profileId = profileId, inFlight = true)
             try {
-                val ok = true
+                val ok = ProfileApplier.apply(profileId)
                 EventLog.userAction(
                     "MaxAiEngine", "base_profile", label,
                     "$profileId:${if (ok) "ok" else "failed"}"
@@ -454,11 +465,16 @@ class MaxAiEngine @Inject constructor(
                     profileId, false,
                     if (ok) DecisionResult.VERIFIED else DecisionResult.FAILED
                 )
-                runCatching { runCycleSingleFlight() }
+                if (ok) runCatching { runCycleSingleFlight() }
                 ok
             } catch (t: Throwable) {
                 _profileRequest.value = ProfileRequestState(profileId, false, DecisionResult.FAILED)
-                throw t
+                DiagnosticCenter.record(
+                    "profile",
+                    "manual profile failed: ${t.message ?: t.javaClass.simpleName}",
+                    level = DiagnosticCenter.Level.ERROR,
+                )
+                false
             }
         }
 
@@ -484,10 +500,10 @@ class MaxAiEngine @Inject constructor(
         aiEnabled: Boolean,
         snapshot: DeviceStateCollector.DeviceSnapshot? = null,
         mutate: MaxAiState.() -> MaxAiState = { this },
-        null
+    ) {
         val prev = _state.value
         val safetyNow = safetyEngine.status.value
-        val profile = null
+        val profile = runCatching { ProfileApplier.currentProfile() }.getOrNull()
         val ownership = runCatching {
             SharedHardwareOwnershipStore.winnerSnapshot()
                 .sortedBy { it.key }

@@ -1,8 +1,7 @@
 package nd.max.core.maxai
 
 import android.content.Context
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import dagger.hilt.android.qualifiers.ApplicationContext
 import nd.max.core.hardware.DeviceStateCollector
 import org.json.JSONArray
 import org.json.JSONObject
@@ -10,23 +9,19 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * Device-aware adaptive strategy layer:
  * 1. Learns user patterns (e.g., "games 3pm-7pm")
  * 2. Learns app-specific preferences
- * 3. Prioritizes knobs that actually work (credibility)
- * 4. Adapts objective weights dynamically
+ * 3. Reuses canonical knob credibility for control ordering
+ * 4. Adapts objective weights dynamically from observed foreground context
  */
 @Singleton
 class DynamicIntentLearner @Inject constructor(
     @ApplicationContext private val context: Context,
     private val credibility: CredibilityStore,
 ) {
-    private val mutex = Mutex()
     private val stateDir: File by lazy {
         File(context.filesDir, "maxai-intent-learner").apply { mkdirs() }
     }
@@ -37,17 +32,9 @@ class DynamicIntentLearner @Inject constructor(
     private val timePatterns: File by lazy {
         File(stateDir, "time-patterns.json")
     }
-    private val knobPriorities: File by lazy {
-        File(stateDir, "knob-priorities.json")
-    }
-
     // In-memory caches
     private val appPreferenceCache = mutableMapOf<String, Float>() // packageName -> performance weight
     private val timePreferenceCache = mutableMapOf<Int, Float>() // hour (0-23) -> performance weight
-    private val knobSuccessCache = mutableMapOf<String, Float>() // knobKey -> success rate
-
-    // Screen off tracking
-    private var lastScreenOffTime: Long = 0L
 
     init {
         loadFromDisk()
@@ -61,21 +48,26 @@ class DynamicIntentLearner @Inject constructor(
         currentApp: String,
         screenOn: Boolean,
     ) {
+        // Background work must not be mistaken for user intent. Screen-off
+        // samples are handled by the explicit SCREEN_OFF objective instead of
+        // teaching the foreground preference model from system activity.
+        if (!screenOn) return
+
         val hourOfDay = java.time.LocalTime.now().hour
+        val cpuSignal = state.cpuLoad.coerceIn(0f, 1f)
+        val intentSignal = state.appIntent.coerceIn(0f, 1f)
+        val observedPerformance = (0.15f + intentSignal * 0.55f + cpuSignal * 0.30f)
+            .coerceIn(0.1f, 0.9f)
 
-        // Learn time pattern
-        val timePerfWeight = if (state.cpuLoad > 0.65f) 0.65f else 0.3f
-        timePreferenceCache[hourOfDay] = (timePreferenceCache[hourOfDay] ?: 0.5f) * 0.85f + timePerfWeight * 0.15f
+        // Learn time pattern from actual foreground/game intent plus load,
+        // rather than treating high background CPU as proof of user intent.
+        timePreferenceCache[hourOfDay] =
+            (timePreferenceCache[hourOfDay] ?: 0.5f) * 0.85f + observedPerformance * 0.15f
 
-        // Learn app pattern
-        if (currentApp.isNotBlank()) {
-            val appPerfWeight = if (state.cpuLoad > 0.7f) 0.75f else 0.3f
-            appPreferenceCache[currentApp] = (appPreferenceCache[currentApp] ?: 0.5f) * 0.9f + appPerfWeight * 0.1f
-        }
-
-        // Track screen off for special handling
-        if (!screenOn) {
-            lastScreenOffTime = System.currentTimeMillis()
+        // Learn app pattern only for a real foreground context.
+        if (currentApp.isNotBlank() && currentApp != "system") {
+            appPreferenceCache[currentApp] =
+                (appPreferenceCache[currentApp] ?: 0.5f) * 0.9f + observedPerformance * 0.1f
         }
 
         saveToDisk()
@@ -83,35 +75,28 @@ class DynamicIntentLearner @Inject constructor(
 
     /**
      * Prioritize controls by:
-     * 1. Credibility (did they work before?)
-     * 2. Cost (cheaper first)
-     * 3. App-specific patterns
+     * 1. Cost (cheaper first)
+     * 2. Canonical execution credibility for this knob/direction/context
+     * 3. Whether the knob can express the current direction
      */
     fun prioritizeControls(
         controls: List<ControlRegistry.Control>,
         currentApp: String,
+        direction: ControlRegistry.Direction,
     ): List<ControlRegistry.Control> {
-        val hour = java.time.LocalTime.now().hour
-        val timeWeight = timePreferenceCache[hour] ?: 0.5f
-        val appWeight = appPreferenceCache[currentApp] ?: 0.5f
-        val combinedPerfBias = (timeWeight * 0.6f + appWeight * 0.4f)
-
         return controls.sortedWith(
-            compareBy<ControlRegistry.Control> { control ->
-                // Lowest cost first
-                control.cost
-            }.thenByDescending { control ->
-                // Highest credibility first
-                knobSuccessCache[control.key] ?: 0.5f
-            }.thenByDescending { control ->
-                // Prefer performance knobs if perf bias is high, energy otherwise
-                val direction = if (combinedPerfBias > 0.55f)
-                    ControlRegistry.Direction.RAISE_PERFORMANCE
-                else
-                    ControlRegistry.Direction.SAVE_ENERGY
-                val stepAway = control.ladder.size / 2
-                if (control.step(control.ladder.first(), direction) != null) 1 else 0
-            }
+            compareBy<ControlRegistry.Control> { it.cost }
+                .thenByDescending { control ->
+                    // Reuse the canonical execution-credibility store; do not
+                    // maintain a second, conflicting success database here.
+                    credibility.credibility(control.key, direction, currentApp)
+                }
+                .thenByDescending { control ->
+                    val canMove = control.ladder.firstOrNull()?.let {
+                        control.step(it, direction) != null
+                    } == true
+                    if (canMove) 1 else 0
+                }
         )
     }
 
@@ -150,25 +135,6 @@ class DynamicIntentLearner @Inject constructor(
         )
     }
 
-    /**
-     * Record a knob attempt (success/failure) to update credibility.
-     */
-    fun recordKnobAttempt(
-        knobKey: String,
-        successful: Boolean,
-        verified: Boolean,
-    ) {
-        val currentSuccess = knobSuccessCache[knobKey] ?: 0.5f
-        val update = if (verified && successful) 0.1f else -0.05f
-        knobSuccessCache[knobKey] = (currentSuccess + update).coerceIn(0.05f, 0.95f)
-        saveToDisk()
-    }
-
-    /**
-     * Return success rate for a given knob (0.0-1.0).
-     */
-    fun knobSuccessRate(knobKey: String): Float = knobSuccessCache[knobKey] ?: 0.5f
-
     // --- Persistence helpers ---
 
     private fun saveToDisk() {
@@ -199,20 +165,6 @@ class DynamicIntentLearner @Inject constructor(
                 put("time_patterns", array)
             }
         }
-
-        trySave(knobPriorities) {
-            JSONObject().apply {
-                put("version", 1)
-                val array = JSONArray()
-                knobSuccessCache.forEach { (key, rate) ->
-                    array.put(JSONObject().apply {
-                        put("knob_key", key)
-                        put("success_rate", rate)
-                    })
-                }
-                put("knob_priorities", array)
-            }
-        }
     }
 
     private fun loadFromDisk() {
@@ -220,8 +172,8 @@ class DynamicIntentLearner @Inject constructor(
             val array = json.optJSONArray("app_patterns") ?: return@tryLoad
             for (i in 0 until array.length()) {
                 val obj = array.optJSONObject(i) ?: continue
-                val pkg = obj.optString("package") ?: continue
-                val weight = obj.optDouble("performance_weight", 0.5).toFloat()
+                val pkg = obj.optString("package").takeIf { it.isNotBlank() } ?: continue
+                val weight = obj.optDouble("performance_weight", 0.5).toFloat().coerceIn(0f, 1f)
                 appPreferenceCache[pkg] = weight
             }
         }
@@ -231,18 +183,8 @@ class DynamicIntentLearner @Inject constructor(
             for (i in 0 until array.length()) {
                 val obj = array.optJSONObject(i) ?: continue
                 val hour = obj.optInt("hour", -1).takeIf { it in 0..23 } ?: continue
-                val weight = obj.optDouble("performance_weight", 0.5).toFloat()
+                val weight = obj.optDouble("performance_weight", 0.5).toFloat().coerceIn(0f, 1f)
                 timePreferenceCache[hour] = weight
-            }
-        }
-
-        tryLoad(knobPriorities) { json ->
-            val array = json.optJSONArray("knob_priorities") ?: return@tryLoad
-            for (i in 0 until array.length()) {
-                val obj = array.optJSONObject(i) ?: continue
-                val key = obj.optString("knob_key") ?: continue
-                val rate = obj.optDouble("success_rate", 0.5).toFloat()
-                knobSuccessCache[key] = rate
             }
         }
     }

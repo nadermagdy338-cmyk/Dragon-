@@ -1,5 +1,8 @@
 package nd.max.core.hardware
 
+import javax.inject.Inject
+import javax.inject.Singleton
+
 /**
  * Frequency controls for per-app profiles. Requests are capability-driven and
  * are never silently substituted with an unsupported value.
