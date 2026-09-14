@@ -166,7 +166,7 @@ class GpuStudioViewModel @Inject constructor(
                 device = refreshed.device,
                 pending = if (result.verified) null else pending,
                 lastResult = result,
-                verifiedSnapshot = result.actual?.takeIf { result.verified },
+                verifiedSnapshot = refreshed.device.takeIf { result.verified },
                 message = when {
                     result.verified -> "تم التطبيق والتحقق من العتاد"
                     result.rollbackVerified == true -> "رفض العتاد التغيير وتمت استعادة الحالة السابقة"
