@@ -32,7 +32,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.HealthAndSafety
-import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Psychology
 import androidx.compose.material.icons.rounded.Verified
@@ -47,6 +46,9 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,9 +62,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import nd.max.R
 import nd.max.core.maxai.DecisionResult
-import nd.max.core.maxai.MaxAiController
 import nd.max.core.maxai.MaxAiState
-import nd.max.core.maxai.PendingManualStore
+import nd.max.core.maxai.OwnershipCommitState
 import nd.max.core.maxai.SafetyEnforcement
 import nd.max.core.maxai.SafetyLevel
 import nd.max.core.maxai.SafetyStatus
@@ -80,10 +81,8 @@ import nd.max.ui.viewmodel.MaxAiViewModel
  * (قرارات/ناجحة/معدلة/محجوبة/حرارة/حمل). لا رسوم بيانية زخرفية،
  * لا ثقة/عصر/مكافأة — هذه أرقام تشخيصية لا تخص المستخدم.
  *
- * الحالتان:
- *  - AI مطفأ (الافتراضي): الملفات الثلاثة قابلة للاختيار وتُطبق فورًا.
- *  - AI مفعل: الملفات مقفلة (🔒) وMax AI يدير الأداء تلقائيًا؛ أي طلب
- *    يدوي يُحفظ "معلقًا" ويُطبق لحظة الإيقاف — لا يضيع شيء.
+ * ملفات الأداء تبقى ملفات أساس يدوية قابلة للاختيار الفوري. ملكية
+ * العتاد تُعرض لكل مقبض من دفتر المُحكِّم المشترك، بلا وضع تحكم عالمي.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,13 +123,13 @@ fun MaxAiScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item { MasterSwitchCard(state, viewModel) }
+                if (state.aiEnabled) {
+                    item { ObjectivePreferenceCard(viewModel) }
+                }
                 item { ProfileModeCard(state, profileRequest, viewModel) }
                 item { EngineStatusCard(state) }
                 item { SafetyCard(safety) }
                 item { ActivityCountersCard(state) }
-                if (state.aiEnabled && state.pendingChanges.isNotEmpty()) {
-                    item { PendingChangesCard(state) }
-                }
             }
         }
     }
@@ -173,7 +172,56 @@ private fun MasterSwitchCard(state: MaxAiState, viewModel: MaxAiViewModel) {
     }
 }
 
-// ── الملفات: حرة عند الإيقاف، مقفلة عند التفعيل ─────────────────────
+// ── أولوية المستخدم (توجّه القرار لا تبدّل ملفًا) ──────────────────
+
+@Composable
+private fun ObjectivePreferenceCard(viewModel: MaxAiViewModel) {
+    val colors = MaterialTheme.colorScheme
+    var selected by remember { mutableStateOf(viewModel.objectivePreference()) }
+
+    MaxSurface(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                stringResource(R.string.maxai_objective_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                stringResource(R.string.maxai_objective_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf(
+                    "performance" to R.string.maxai_objective_performance,
+                    "balanced" to R.string.maxai_objective_balanced,
+                    "battery" to R.string.maxai_objective_battery,
+                ).forEach { (key, labelRes) ->
+                    val isSelected = selected == key
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = {
+                            selected = key
+                            viewModel.setObjectivePreference(key)
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                            containerColor = if (isSelected) colors.tertiary.copy(alpha = 0.12f) else colors.surface,
+                            contentColor = if (isSelected) colors.tertiary else colors.onSurfaceVariant
+                        )
+                    ) {
+                        Text(stringResource(labelRes), style = MaterialTheme.typography.labelMedium, maxLines = 1)
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ── ملفات الأساس اليدوية ─────────────────────────────────────────────
 
 @Composable
 private fun ProfileModeCard(
@@ -190,32 +238,19 @@ private fun ProfileModeCard(
 
     MaxSurface(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(R.string.maxai_profiles_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                if (state.aiEnabled) {
-                    Spacer(Modifier.width(6.dp))
-                    Icon(
-                        Icons.Rounded.Lock, null,
-                        tint = colors.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
             Text(
-                if (state.aiEnabled) stringResource(R.string.maxai_profiles_locked_desc)
-                else stringResource(R.string.maxai_profiles_free_desc),
+                stringResource(R.string.maxai_profiles_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                stringResource(R.string.maxai_profiles_free_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurfaceVariant
             )
 
             profiles.forEach { (id, label, icon) ->
                 val selected = state.currentProfile == id
-                val pending = state.aiEnabled &&
-                    state.pendingChanges.any { it.key == PendingManualStore.KEY_PROFILE && it.value == id }
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -230,19 +265,9 @@ private fun ProfileModeCard(
                         label,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f),
-                        color = if (state.aiEnabled) colors.onSurfaceVariant else colors.onSurface
+                        color = colors.onSurface
                     )
                     when {
-                        pending -> Text(
-                            stringResource(R.string.maxai_pending_tag),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colors.tertiary
-                        )
-                        state.aiEnabled -> Icon(
-                            Icons.Rounded.Lock, null,
-                            tint = colors.onSurfaceVariant.copy(alpha = 0.6f),
-                            modifier = Modifier.size(16.dp)
-                        )
                         selected -> Icon(
                             Icons.Rounded.Verified, null,
                             tint = colors.tertiary,
@@ -252,23 +277,20 @@ private fun ProfileModeCard(
                 }
             }
 
-            // عند الإيقاف: أزرار اختيار مباشرة (تطبيق فوري بلا انتظار)
-            if (!state.aiEnabled) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    profiles.forEach { (id, label, _) ->
-                        val selected = state.currentProfile == id
-                        androidx.compose.material3.OutlinedButton(
-                            onClick = { viewModel.requestProfile(id, label) },
-                            enabled = !profileRequest.inFlight,
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                                containerColor = if (selected) colors.tertiary.copy(alpha = 0.12f) else colors.surface,
-                                contentColor = if (selected) colors.tertiary else colors.onSurfaceVariant
-                            )
-                        ) {
-                            Text(label, style = MaterialTheme.typography.labelMedium, maxLines = 1)
-                        }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                profiles.forEach { (id, label, _) ->
+                    val selected = state.currentProfile == id
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = { viewModel.requestProfile(id, label) },
+                        enabled = !profileRequest.inFlight,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                            containerColor = if (selected) colors.tertiary.copy(alpha = 0.12f) else colors.surface,
+                            contentColor = if (selected) colors.tertiary else colors.onSurfaceVariant
+                        )
+                    ) {
+                        Text(label, style = MaterialTheme.typography.labelMedium, maxLines = 1)
                     }
                 }
             }
@@ -276,17 +298,10 @@ private fun ProfileModeCard(
     }
 }
 
-// ── حالة المحرك: استراتيجية/متحكم/آخر إجراء/سبب ────────────────────
+// ── حالة المحرك وملكية المقابض ─────────────────────────────────────
 
 @Composable
 private fun EngineStatusCard(state: MaxAiState) {
-    val controllerLabel = when (state.controller) {
-        MaxAiController.MANUAL -> stringResource(R.string.maxai_controller_manual)
-        MaxAiController.MAX_AI -> stringResource(R.string.maxai_controller_ai)
-        MaxAiController.APP_PROFILE -> stringResource(R.string.maxai_controller_app)
-        MaxAiController.SAFETY_OVERRIDE -> stringResource(R.string.maxai_controller_safety)
-    }
-
     MaxSurface(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
@@ -295,7 +310,45 @@ private fun EngineStatusCard(state: MaxAiState) {
                 fontWeight = FontWeight.SemiBold
             )
             StatusRow(stringResource(R.string.maxai_strategy), state.strategyLabel)
-            StatusRow(stringResource(R.string.maxai_controller), controllerLabel)
+            if (state.ownership.isEmpty()) {
+                StatusRow(stringResource(R.string.maxai_controller), "No owned controls")
+            } else {
+                state.ownership.forEach { ownership ->
+                    val publication = if (ownership.state == OwnershipCommitState.VERIFIED) {
+                        "verified"
+                    } else {
+                        "pending"
+                    }
+                    // A user lock is part of the truth about this knob: without it
+                    // the row would imply Max AI may still move the value.
+                    val lockMark = if (ownership.locked) {
+                        " · " + stringResource(R.string.maxai_locked_badge)
+                    } else {
+                        ""
+                    }
+                    StatusRow(
+                        ownership.key,
+                        "${ownership.owner.name} · ${ownership.desired} · $publication$lockMark"
+                    )
+                }
+            }
+            // Locks are rendered from their own durable store, not from the
+            // ownership list: they outlive the journal, so a locked knob must stay
+            // visible even when no intent survives (e.g. after a reboot).
+            if (state.lockedKnobs.isNotEmpty()) {
+                StatusRow(
+                    stringResource(R.string.maxai_manual_locks),
+                    stringResource(R.string.maxai_manual_locks_desc, state.lockedKnobs.size)
+                )
+                state.lockedKnobs.forEach { lock ->
+                    if (state.ownership.none { it.key == lock.key }) {
+                        StatusRow(
+                            lock.key,
+                            "${lock.desired} · ${stringResource(R.string.maxai_locked_badge)}"
+                        )
+                    }
+                }
+            }
             if (state.lastDecision != null) {
                 StatusRow(
                     stringResource(R.string.maxai_last_action),
@@ -303,16 +356,13 @@ private fun EngineStatusCard(state: MaxAiState) {
                 )
                 StatusRow(stringResource(R.string.maxai_reason), state.lastDecision!!.reason)
             }
-            // المراقبة الحية: قياسات لحظية فعلية لا تقديرات
             StatusRow(
                 stringResource(R.string.maxai_monitoring),
                 "CPU ${state.cpuLoadPercent}% · ${state.thermalC.toInt()}°C · " +
                     stringResource(R.string.maxai_battery_pct, state.batteryPercent) +
                     " · " +
-                    (
-                        if (state.screenOn) stringResource(R.string.maxai_screen_on)
-                        else stringResource(R.string.maxai_screen_off)
-                        )
+                    (if (state.screenOn) stringResource(R.string.maxai_screen_on)
+                    else stringResource(R.string.maxai_screen_off))
             )
         }
     }
@@ -436,9 +486,22 @@ private fun ActivityCountersCard(state: MaxAiState) {
                     Modifier.weight(1f)
                 )
             }
-            if (state.rlSteps > 0) {
+            // التعلّم الحقيقي يجري في نواة Kotlin على مستوى المقابض، لا
+            // في وكيل أصلي لم يعد يُستشار. نعرض ما تعلّمه فعلًا: كم مقبضًا
+            // صارت استجابته معروفة، وكم حكمًا مقيسًا تراكم.
+            if (state.learningSamples > 0) {
                 Text(
-                    stringResource(R.string.maxai_learning_steps, state.rlSteps),
+                    stringResource(
+                        R.string.maxai_learning_progress,
+                        state.learnedKnobs,
+                        state.learningSamples,
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                Text(
+                    stringResource(R.string.maxai_learning_early),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -461,34 +524,6 @@ private fun CounterCell(label: String, modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Medium
         )
-    }
-}
-
-// ── التعديلات المعلقة ──────────────────────────────────────────────
-
-@Composable
-private fun PendingChangesCard(state: MaxAiState) {
-    val colors = MaterialTheme.colorScheme
-    MaxSurface(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                stringResource(R.string.maxai_pending_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                stringResource(R.string.maxai_pending_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant
-            )
-            state.pendingChanges.forEach { change ->
-                Text(
-                    "• ${change.label}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.tertiary
-                )
-            }
-        }
     }
 }
 

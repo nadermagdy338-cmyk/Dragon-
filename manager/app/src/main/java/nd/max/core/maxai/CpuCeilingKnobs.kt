@@ -3,6 +3,7 @@ package nd.max.core.maxai
 import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.HardwareControlArbiter
+import nd.max.core.hardware.HardwareControlKey
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -65,7 +66,7 @@ class CpuCeilingKnobs @Inject constructor(
 
         policies.forEach { policy ->
             val desired = desiredFor(policy) ?: return@forEach
-            val key = "cpu_limits:${policy.name}"
+            val key = HardwareControlKey.cpuLimits(policy.name)
             val baseline = "${policy.minKHz ?: ""}:${policy.maxKHz ?: ""}"
 
             val result = arbiter.submit(

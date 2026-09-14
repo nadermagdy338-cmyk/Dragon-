@@ -20,6 +20,8 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import nd.max.core.maxai.MaxAiEngine
+import nd.max.core.hardware.ManualControlLocks
+import nd.max.core.hardware.SharedHardwareOwnershipStore
 
 /**
  * نقطة إقلاع التطبيق: تُنشئ مكون Hilt وتُقلع بمحرك MAX AI.
@@ -35,6 +37,10 @@ class MaxManagerApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        SharedHardwareOwnershipStore.configure(filesDir, applicationInfo.uid, android.os.Process.myPid())
+        // Same directory as the journal: the UI writes locks here, the companion
+        // process reads them, and both must agree on one durable lock set.
+        ManualControlLocks.configure(filesDir)
         maxAiEngine.start()
     }
 }

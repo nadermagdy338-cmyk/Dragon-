@@ -56,6 +56,12 @@ object MaxManagerProps {
     // ------------------------------------------------------------------
     object Conf {
         const val AI_ENABLED = "persist.sys.maxmanagerconf.AIenabled"
+        /**
+         * تفضيل المستخدم لوزن الهدف (قرار #10): أداء / توازن / بطارية.
+         * يُسأل مرة عند تفعيل Max AI، ثم يُعدَّل من السلوك (تصحيحات
+         * المستخدم إشارة تعلّم) — لا سؤال متكرر مزعج.
+         */
+        const val AI_OBJECTIVE = "persist.sys.maxmanagerconf.AIobjective"
         const val SHOW_TOAST = "persist.sys.maxmanagerconf.showtoast"
         const val AUTO_PRELOAD = "persist.sys.maxmanagerconf.APreload"
         const val DYNAMIC_THERMAL = "persist.sys.maxmanagerconf.DThermal"

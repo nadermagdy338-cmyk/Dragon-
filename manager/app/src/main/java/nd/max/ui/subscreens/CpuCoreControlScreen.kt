@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import nd.max.R
 import nd.max.ui.component.*
@@ -55,7 +55,7 @@ import nd.max.ui.viewmodel.CpuFrequencyControlState
 @Composable
 fun CpuCoreControlScreen(
     navController: NavController,
-    viewModel: CpuCoreControlViewModel = viewModel()
+    viewModel: CpuCoreControlViewModel = hiltViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val listState = rememberLazyListState()

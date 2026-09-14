@@ -6,9 +6,15 @@ package nd.max.core.hardware
  * owner priority and verified mutation callbacks.
  *
  * The ladder encodes the MAX AI priority contract:
- *   SAFETY > App Profile (PER_APP) > MAX AI > Manual/Global Profile > System
+ *   RECOVERY > SAFETY > App Profile (PER_APP) > MAX AI > Manual/Global Profile > System
  * Safety always wins over every other actor, including app profiles and the
  * AI engine itself — a thermal emergency must never be outvoted.
+ *
+ * Priority alone cannot express "the user set this by hand": a manual choice is
+ * a baseline (GLOBAL_PROFILE), so MAX_AI would legitimately outrank it. That is
+ * why a hand-applied knob is additionally recorded in [ManualControlLocks] — a
+ * durable exclusion the arbiter enforces for every automated owner, while
+ * SAFETY and RECOVERY stay above it.
  */
 object ControlOwnership {
     enum class Owner(val priority: Int) {

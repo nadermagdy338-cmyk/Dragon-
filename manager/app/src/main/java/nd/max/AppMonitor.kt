@@ -48,7 +48,11 @@ import nd.max.ui.util.ProfilePresetStore
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.GpuHardwareBackend
 import nd.max.core.hardware.GpuTweakPersistence
+import nd.max.core.hardware.HardwareControlArbiter
+import nd.max.core.hardware.HardwareControlKey
 import nd.max.core.hardware.RootFileAccess
+import nd.max.core.hardware.SharedHardwareOwnershipStore
+import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.hardware.PerAppControlRegistry
 import nd.max.core.hardware.PerAppRecoveryStore
 import nd.max.core.hardware.PerAppFrequencyController
@@ -156,7 +160,13 @@ object AppMonitor {
     private var savedMinRefreshRate = ""
     private var savedVendorRefreshSnapshot: PerAppRefreshRateController.Snapshot? = null
     private var wasZenSet = false
-    private val hardwareControlRegistry = PerAppControlRegistry()
+    /**
+     * This process's single ownership gate. One arbiter per process is what makes
+     * in-process priority arbitration real; coherence with the app process comes
+     * from the shared journal, never from a second gate instance.
+     */
+    private val mutationGate = HardwareControlArbiter()
+    private val hardwareControlRegistry = PerAppControlRegistry(mutationGate)
     private var activePerAppCpuPackage = ""
 
 
@@ -200,6 +210,21 @@ object AppMonitor {
             return
         }
 
+        val controlContext = runCatching {
+            systemContext!!.createPackageContext("nd.max", Context.CONTEXT_IGNORE_SECURITY)
+        }.getOrElse {
+            AppMonitorLogger.fatal("Cannot resolve nd.max package context for shared control plane: ${it.message}")
+            return
+        }
+        SharedHardwareOwnershipStore.configure(
+            controlContext.filesDir,
+            controlContext.applicationInfo.uid,
+            android.os.Process.myPid(),
+        )
+        // Same directory as the journal, so this process honours the exact locks
+        // the UI wrote: a per-app rule must never move a knob the user pinned.
+        ManualControlLocks.configure(controlContext.filesDir)
+
         if (!initializeServices()) {
             AppMonitorLogger.fatal("Failed to initialize services (ActivityTaskManager/PowerManager/etc.), exiting")
             return
@@ -211,7 +236,20 @@ object AppMonitor {
         // would keep the module's profile binary from ever resetting CPU
         // limits. The property is non-persistent, so this only matters when
         // the companion restarts without a reboot.
-        runCatching { shellExec("setprop sys.maxmanager.manual_freq_session 0") }
+        //
+        // Durable manual locks must survive that restart: if the user still holds
+        // a locked cpufreq knob, the stand-down flag is re-asserted from the lock
+        // store instead of being cleared, otherwise the module's coarse shell
+        // channel would reclaim knobs the user pinned (a lock the AI respects but
+        // the service ignores is not a lock). Only cpufreq locks set this flag —
+        // it is the CPU-limit channel's stand-down, not a global mode.
+        val lockedCpuKnobs = ManualControlLocks.lockedKeys().filter(HardwareControlKey::isCpuLimits)
+        if (lockedCpuKnobs.isNotEmpty()) {
+            runCatching { shellExec("setprop sys.maxmanager.manual_freq_session 1") }
+            AppMonitorLogger.i("startup: re-asserted manual session for ${lockedCpuKnobs.size} locked cpufreq knob(s)")
+        } else {
+            runCatching { shellExec("setprop sys.maxmanager.manual_freq_session 0") }
+        }
         recoverStalePerAppState()
         AppMonitorLogger.i("AppMonitor companion started (pid=${android.os.Process.myPid()})")
 
@@ -904,7 +942,7 @@ object AppMonitor {
                     if (firstFailure != null) return@forEach
                     val requested = "${control.minKHz}:${control.maxKHz}"
                     val liveRange = "${policy.minKHz ?: ""}:${policy.maxKHz ?: ""}"
-                    val key = "cpu_limits:${policy.name}"
+                    val key = HardwareControlKey.cpuLimits(policy.name)
                     val owned = hardwareControlRegistry.ownValue(
                         key = key,
                         desired = requested,
@@ -956,7 +994,7 @@ object AppMonitor {
                     val baseline = "${policy.minKHz ?: ""}:${policy.maxKHz ?: ""}"
                     val desired = "${cpuMin ?: ""}:${cpuMax ?: ""}"
                     hardwareControlRegistry.ownValue(
-                        key = "cpu_limits:${policy.name}",
+                        key = HardwareControlKey.cpuLimits(policy.name),
                         desired = desired,
                         apply = { value ->
                             val parts = value.split(":", limit = 2)
@@ -999,16 +1037,18 @@ object AppMonitor {
             val baseline = GpuHardwareBackend.captureBaseline(device)
             val desired = target.toString()
             hardwareControlRegistry.ownValue(
-                key = "gpu_frequency:${device.name}",
+                key = HardwareControlKey.gpuFrequency(device.name),
                 desired = desired,
                 apply = { value -> value.toLongOrNull()?.let { PerAppFrequencyController.applyGpuCeiling(it).verified } ?: false },
                 read = {
                     GpuHardwareBackend.refresh(device.path)?.let { live ->
-                        (GpuHardwareBackend.currentExactLockFrequency(live) ?: live.maxFreq)?.toString()
+                        GpuHardwareBackend.effectiveFrequency(live)?.toString()
                     }
                 },
-                baseline = "captured",
-                restore = { GpuHardwareBackend.restoreBaseline(baseline) },
+                baseline = GpuHardwareBackend.encodeBaseline(baseline),
+                restore = { value ->
+                    GpuHardwareBackend.decodeBaseline(value)?.let(GpuHardwareBackend::restoreBaseline) == true
+                },
             )
         }.onFailure { AppMonitorLogger.e("ownership: GPU frequency registration failed for '$pkgName' sw=$currentSwitchId", it) }
 
@@ -1021,7 +1061,7 @@ object AppMonitor {
             if (boostNode != null && readAppConfigField(pkgName, "cpu_boost").isNotBlank()) {
                 val baseline = RootFileAccess.read(boostNode)?.trim()
                 hardwareControlRegistry.ownValue(
-                    key = "cpu_boost",
+                    key = HardwareControlKey.CPU_BOOST,
                     desired = if (requestedBoost) "1" else "0",
                     apply = { value -> CpuHardwareBackend.setBoost(value == "1").successful },
                     read = { RootFileAccess.read(boostNode)?.trim() },
@@ -1065,13 +1105,6 @@ object AppMonitor {
         }.onFailure { AppMonitorLogger.e("dnd_on_gaming knob failed for '$pkgName' sw=$currentSwitchId", it) }
 
         runCatching {
-            val killBg = readAppConfigField(pkgName, "kill_bg_apps")
-            if (killBg == "true") {
-                shellExec("am kill-all")
-            }
-        }.onFailure { AppMonitorLogger.e("kill_bg_apps knob failed for '$pkgName' sw=$currentSwitchId", it) }
-
-        runCatching {
             val requestedRefresh = readAppConfigField(pkgName, "refresh_rate").toIntOrNull()
             val context = systemContext
             if (requestedRefresh != null && context != null) {
@@ -1109,10 +1142,24 @@ object AppMonitor {
                 )
             }
             if (activePerAppCpuPackage == pkgName) {
-                val failure = commitResults.firstOrNull { it.key.startsWith("cpu_limits:") && !it.successful }
-                if (failure != null) {
-                    writePerAppCpuStatus(pkgName, "failed", "${failure.key.removePrefix("cpu_limits:")} was not verified")
-                    AppMonitorLogger.w("EVENT=PERAPP_CPU_FAILED pkg=$pkgName reason=${failure.error ?: "live-value-mismatch"} sw=$currentSwitchId")
+                val failure = commitResults.firstOrNull { HardwareControlKey.isCpuLimits(it.key) && !it.successful }
+                // A knob refused at the gate never becomes an owned entry, so it
+                // is absent from commitResults. Reporting that list alone would
+                // turn "your rule was refused" into silence, and silence reads
+                // as success.
+                val refusal = hardwareControlRegistry.refusalReasons()
+                    .entries.firstOrNull { HardwareControlKey.isCpuLimits(it.key) }
+                when {
+                    failure != null -> {
+                        val policyName = HardwareControlKey.cpuLimitsPolicy(failure.key) ?: failure.key
+                        writePerAppCpuStatus(pkgName, "failed", "$policyName was not verified")
+                        AppMonitorLogger.w("EVENT=PERAPP_CPU_FAILED pkg=$pkgName reason=${failure.error ?: "live-value-mismatch"} sw=$currentSwitchId")
+                    }
+                    refusal != null -> {
+                        val policyName = HardwareControlKey.cpuLimitsPolicy(refusal.key) ?: refusal.key
+                        writePerAppCpuStatus(pkgName, "failed", "$policyName refused by the ownership gate (${refusal.value})")
+                        AppMonitorLogger.w("EVENT=PERAPP_CPU_BLOCKED pkg=$pkgName knob=${refusal.key} reason=${refusal.value} sw=$currentSwitchId")
+                    }
                 }
             }
         }.onFailure { AppMonitorLogger.e("ownership: verified commit failed for '$pkgName' sw=$currentSwitchId", it) }

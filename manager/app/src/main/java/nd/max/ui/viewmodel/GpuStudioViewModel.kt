@@ -12,7 +12,11 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.MaxManagerProps
+import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.GpuHardwareBackend
+import nd.max.core.hardware.HardwareControlArbiter
+import nd.max.core.hardware.HardwareControlKey
+import nd.max.core.hardware.ManualControlLocks
 import nd.max.ui.util.PropertyUtils
 
 data class GpuStudioUiState(
@@ -31,7 +35,9 @@ data class GpuStudioUiState(
 )
 
 /** Session orchestrator. Hardware discovery and mutation stay in GpuHardwareBackend. */
-class GpuStudioViewModel : ViewModel() {
+class GpuStudioViewModel @Inject constructor(
+    private val arbiter: HardwareControlArbiter,
+) : ViewModel() {
     var state by mutableStateOf(GpuStudioUiState())
         private set
 
@@ -138,7 +144,19 @@ class GpuStudioViewModel : ViewModel() {
         val pending = state.pending ?: return
         state = state.copy(applying = true, message = "جارٍ التطبيق والتحقق")
         viewModelScope.launch(Dispatchers.IO) {
-            val result = GpuHardwareBackend.apply(device, pending)
+            val key = HardwareControlKey.gpuFrequency(device.name)
+            val token = "gpu-studio-${System.currentTimeMillis()}"
+            val baseline = GpuHardwareBackend.captureBaseline(device)
+            val result = arbiter.submit(
+                key = key,
+                owner = ControlOwnership.Owner.GLOBAL_PROFILE,
+                token = token,
+                desired = "${pending.minFreq ?: ""}:${pending.maxFreq ?: ""}",
+                apply = { GpuHardwareBackend.apply(device, pending).verified },
+                read = { GpuHardwareBackend.readCurrent(device) },
+                baseline = baseline,
+                restore = { GpuHardwareBackend.restoreBaseline(baseline) },
+            )
             val refreshed = GpuHardwareBackend.selection()
             state = state.copy(
                 applying = false,

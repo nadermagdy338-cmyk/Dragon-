@@ -34,10 +34,7 @@ class MaxAiViewModel @Inject constructor(
         engine.setAiEnabled(enabled)
     }
 
-    /**
-     * طلب ملف يدوي. AI مطفأ → تنفيذ فوري. AI مفعل → يُحفظ معلقًا
-     * ويُطبق لحظة الإيقاف (يعيد true إذا نُفِّذ فورًا).
-     */
+    /** اختيار ملف أساس يدوي يُطبَّق فورًا عبر حد التوافق الخارجي. */
     fun requestProfile(profileId: String, label: String) {
         viewModelScope.launch(Dispatchers.IO) {
             engine.requestManualProfile(profileId, label)
@@ -48,4 +45,18 @@ class MaxAiViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch(Dispatchers.IO) { engine.requestRefresh() }
     }
+
+    /**
+     * تفضيل المستخدم لوزن الهدف (قرار #10): أداء / توازن / بطارية.
+     *
+     * يُسأل مرة عند التفعيل ثم يظل قابلًا للتعديل. الوزن يغيّر اتجاه
+     * القرار وترتيب المقابض — لا يبدّل ملفًا، فالمستخدم يحدد الأولوية
+     * والعقل يختار المقبض.
+     */
+    fun setObjectivePreference(preference: String) {
+        viewModelScope.launch(Dispatchers.IO) { engine.setObjectivePreference(preference) }
+    }
+
+    /** التفضيل الحالي لعرضه في الواجهة (توازن قبل أن يُسأل المستخدم). */
+    fun objectivePreference(): String = engine.objectivePreference()
 }

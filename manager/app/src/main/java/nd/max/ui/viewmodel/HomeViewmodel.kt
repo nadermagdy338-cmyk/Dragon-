@@ -135,11 +135,7 @@ class HomeViewModel @Inject constructor(
         else -> reason
     }
 
-    /**
-     * طلب ملف يدوي من الشاشة الرئيسية — عبر المحرك الموحد:
-     * AI مطفأ → تطبيق فوري، AI مفعل → يُحفظ معلقًا (لا يضيع).
-     * يعيد false عندما حُفظ معلقًا (الواجهة تعرض رسالة مختلفة).
-     */
+    /** اختيار ملف أساس يدوي من الشاشة الرئيسية وتطبيقه فورًا. */
     fun applyProfile(profileReason: String, onSuccess: (appliedNow: Boolean) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             EventLog.userAction(

@@ -1,12 +1,16 @@
 package nd.max.core.hardware
 
 /**
- * Per-app ownership registry. An entry contains the desired value and an
- * explicit baseline restore callback so ownership has a deterministic exit.
+ * Per-app policy adapter. The arbiter is the only ownership publisher and the
+ * only path allowed to repair drift or restore a baseline.
+ *
+ * The gate is injected, never constructed here: two arbiter instances inside one
+ * process would each keep their own request table, so an intent created by one
+ * would look ownerless to the other and be reported as a foreign preemption.
  */
 class PerAppControlRegistry(
+    private val mutationGate: HardwareControlArbiter,
     private val token: String = "per-app",
-    private val mutationGate: HardwareControlArbiter = HardwareControlArbiter(),
 ) {
     data class Entry(
         val key: String,
@@ -28,23 +32,24 @@ class PerAppControlRegistry(
     ) { val successful: Boolean get() = applied && verified }
 
     private val entries = linkedMapOf<String, Entry>()
+
+    /**
+     * Knobs the gate refused since [beginApp], with its own reason. A refused
+     * knob never becomes an entry, so without this record a per-app rule blocked
+     * by a manual lock or by safety would be reported as silence — and silence
+     * reads as success.
+     */
+    private val refusals = linkedMapOf<String, String>()
     @Volatile private var currentToken = token
 
     @Synchronized fun beginApp(packageName: String) {
-        // Never discard an owned entry without restoring its baseline. AppMonitor
-        // normally calls releaseAll() during a foreground switch, but this guard
-        // also makes beginApp() safe when it is called directly after an interrupted
-        // apply/revert sequence.
-        entries.values.toList().asReversed().forEach { entry ->
-            if (entry.baseline != null && entry.restore != null) {
-                runCatching { entry.restore.invoke(entry.baseline) }
-            }
-            mutationGate.release(entry.key, currentToken, restore = false)
-        }
-        mutationGate.releaseToken(currentToken, restore = false)
-        entries.clear()
+        releaseAll()
+        refusals.clear()
         currentToken = "per-app:$packageName"
     }
+
+    /** The gate's refusal reasons for the current app, keyed by control key. */
+    @Synchronized fun refusalReasons(): Map<String, String> = refusals.toMap()
 
     @Synchronized fun ownGovernor(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String? = null, restore: ((String) -> Boolean)? = null): Boolean =
         own(key, desired, apply, read, baseline, restore)
@@ -63,44 +68,47 @@ class PerAppControlRegistry(
             baseline = baseline,
             restore = restore,
         )
-        if (result.blocked) return false
-        entries[key] = Entry(key, desired, apply, read, baseline, restore)
-        return result.verified || result.applied
+        if (result.verified) {
+            entries[key] = Entry(key, desired, apply, read, baseline, restore)
+            refusals.remove(key)
+        } else if (result.error != null) {
+            refusals[key] = result.error!!
+        }
+        return result.verified
     }
 
     @Synchronized fun release(key: String) {
-        val entry = entries.remove(key)
-        if (entry != null && entry.baseline != null && entry.restore != null) {
-            runCatching { entry.restore.invoke(entry.baseline) }
-        }
-        mutationGate.release(key, currentToken, restore = false)
+        refusals.remove(key)
+        if (entries.remove(key) != null) mutationGate.release(key, currentToken, restore = true)
     }
 
     @Synchronized fun releaseAll() {
-        entries.values.toList().asReversed().forEach { entry ->
-            if (entry.baseline != null && entry.restore != null) runCatching { entry.restore.invoke(entry.baseline) }
-            mutationGate.release(entry.key, currentToken, restore = false)
+        entries.keys.toList().asReversed().forEach { key ->
+            mutationGate.release(key, currentToken, restore = true)
         }
+        mutationGate.releaseToken(currentToken, restore = true)
         entries.clear()
     }
 
     @Synchronized fun verifyAndRepair(): List<RepairResult> = entries.values.map { entry ->
-        var actual = runCatching { entry.read() }.getOrNull()
-        if (actual == entry.desired) return@map RepairResult(entry.key, entry.desired, actual, true, true, 0)
-        var applied = false
-        var verified = false
-        var attempts = 0
-        var error: String? = null
-        while (attempts < 3 && !verified) {
-            attempts++
-            applied = runCatching { entry.apply(entry.desired) }.getOrElse {
-                error = it.message ?: "apply-exception"
-                false
-            }
-            actual = runCatching { entry.read() }.getOrNull()
-            verified = applied && actual == entry.desired
-            if (!verified && error == null) error = "live-value-mismatch"
-        }
-        RepairResult(entry.key, entry.desired, actual, applied, verified, attempts, error)
+        val result = mutationGate.reconcile(entry.key) ?: mutationGate.submit(
+            key = entry.key,
+            owner = ControlOwnership.Owner.PER_APP,
+            token = currentToken,
+            desired = entry.desired,
+            apply = entry.apply,
+            read = entry.read,
+            baseline = entry.baseline,
+            restore = entry.restore,
+        )
+        RepairResult(
+            key = entry.key,
+            requested = entry.desired,
+            actual = result.actual,
+            applied = result.applied,
+            verified = result.verified,
+            attempts = if (result.applied) 1 else 0,
+            error = result.error,
+        )
     }
 }

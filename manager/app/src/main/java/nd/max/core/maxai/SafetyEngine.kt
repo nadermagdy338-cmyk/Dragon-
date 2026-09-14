@@ -142,17 +142,6 @@ class SafetyEngine @Inject constructor(
             ControlOwnership.Owner.SAFETY,
             TOKEN,
         )
-        val critical = level == SafetyLevel.CRITICAL
-        if (critical && !isRetry) {
-            runCatching { nd.max.core.hardware.ProfileApplier.applyFromAi("3") }
-                .onFailure {
-                    DiagnosticCenter.record(
-                        "safety",
-                        "safety eco profile apply failed: ${it.message}"
-                    )
-                }
-        }
-
         val enforcement = when {
             outcome.applied > 0 && outcome.failed == 0 && outcome.blocked == 0 -> SafetyEnforcement.APPLIED
             outcome.applied > 0 -> SafetyEnforcement.PARTIAL
@@ -184,7 +173,7 @@ class SafetyEngine @Inject constructor(
         val reason = when (level) {
             SafetyLevel.CRITICAL -> "حرارة ${thermalC.toInt()}°م " +
                 (if (predictedC >= CRITICAL_TEMP_C + 2f) "(والتنبؤ ${predictedC.toInt()}°م) " else "") +
-                "تجاوزت الحد الحرج ${CRITICAL_TEMP_C.toInt()}°م — سقف أمان صارم + ملف توفير"
+                "تجاوزت الحد الحرج ${CRITICAL_TEMP_C.toInt()}°م — خفض جراحي مباشر لسقف التردد"
             else -> "حرارة ${thermalC.toInt()}°م " +
                 (if (predictedC >= PREDICTED_ENGAGE_C) "(والتنبؤ ${predictedC.toInt()}°م) " else "") +
                 "تجاوزت عتبة الأمان ${ENGAGE_TEMP_C.toInt()}°م — سقف أداء آمن"

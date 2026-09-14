@@ -58,7 +58,10 @@ object HardwareCapabilityResolver {
         }
         val freqPaths = mins + maxs
         val freqAccess = when {
-            freqPaths.any(RootFileAccess::writable) -> AccessLevel.READ_WRITE
+            policies.isNotEmpty() && policies.all { policy ->
+                RootFileAccess.writable("$CPU_ROOT/$policy/scaling_min_freq") &&
+                    RootFileAccess.writable("$CPU_ROOT/$policy/scaling_max_freq")
+            } -> AccessLevel.READ_WRITE
             freqPaths.any(RootFileAccess::exists) -> AccessLevel.READ_ONLY
             else -> AccessLevel.NONE
         }

@@ -97,7 +97,7 @@ fun HomeScreen(
                         snackbar.showSnackbar(
                             context.getString(
                                 if (appliedNow) R.string.toast_applying_profile
-                                else R.string.toast_profile_pending
+                                else R.string.max_home_ai_failed
                             )
                         )
                     }

@@ -22,16 +22,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.MaxManagerProps
+import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.CpuHardwareBackend
+import nd.max.core.hardware.HardwareControlArbiter
+import nd.max.core.hardware.HardwareControlKey
+import nd.max.core.hardware.ManualControlLocks
 import nd.max.ui.util.CpuTopologyUtil
 import nd.max.ui.util.PropertyUtils
 import nd.max.ui.util.getChipsetName
+import javax.inject.Inject
 
 data class CpuCoreRow(
     val cpu: Int,
@@ -93,7 +99,10 @@ data class CpuFrequencyControlState(
  * starts fresh, matching real hotplug drivers, which is why the UI itself
  * flags this as "SESSION" rather than a saved setting.
  */
-class CpuCoreControlViewModel : ViewModel() {
+@HiltViewModel
+class CpuCoreControlViewModel @Inject constructor(
+    private val arbiter: HardwareControlArbiter,
+) : ViewModel() {
 
     companion object {
         val QUICK_CONFIGS = listOf(
@@ -105,6 +114,11 @@ class CpuCoreControlViewModel : ViewModel() {
         /** Bounded defense: stop re-asserting after this many attempts and tell
          *  the user an external manager is winning instead of fighting forever. */
         const val MAX_REASSERTIONS_PER_POLICY = 3
+
+        /** A hand-applied limit is journaled as a baseline-profile intent under
+         *  this token and durably locked, so neither Max AI nor a profile preset
+         *  can silently move the knob the user just set (INV-3). */
+        private const val MANUAL_TOKEN_PREFIX = "manual:"
     }
 
     var isAvailable by mutableStateOf<Boolean?>(null)
@@ -142,9 +156,38 @@ class CpuCoreControlViewModel : ViewModel() {
     }
 
     /** The module's profile binary resets CPU limits on every AI decision and
-     *  app switch; while a manual session owns them it must stand down. */
+     *  app switch; while a manual session owns them it must stand down.
+     *
+     *  The durable lock store is the source of truth, not this screen's session
+     *  map: a lock outlives the screen, the process and the companion restart,
+     *  and the flag must agree with it in all three cases. */
     private fun refreshManualSessionProp() {
-        setManualSessionProp(sessionApplied.isNotEmpty())
+        val lockedCpuKnobs = ManualControlLocks.lockedKeys().filter(HardwareControlKey::isCpuLimits)
+        setManualSessionProp(lockedCpuKnobs.isNotEmpty())
+    }
+
+    /** Canonical arbiter identity for one policy path — the very same key Max AI,
+     *  per-app policy and the safety engine contend on, so a hand-applied limit
+     *  is a real owner in one ledger instead of a private write. */
+    private fun controlKeyFor(policyPath: String): String? =
+        CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
+            ?.let { HardwareControlKey.cpuLimits(it.name) }
+
+    private fun manualToken(key: String): String = MANUAL_TOKEN_PREFIX + key
+
+    /** Live limits of one policy in the arbiter's "min:max" value schema. */
+    private fun liveLimits(policyPath: String): String? {
+        val policy = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath } ?: return null
+        val min = policy.minKHz ?: return null
+        val max = policy.maxKHz ?: return null
+        return "$min:$max"
+    }
+
+    private fun writeLimits(policyPath: String, value: String): Boolean {
+        val parts = value.split(":", limit = 2)
+        val min = parts.getOrNull(0)?.takeIf(String::isNotBlank)?.toLongOrNull()
+        val max = parts.getOrNull(1)?.takeIf(String::isNotBlank)?.toLongOrNull()
+        return CpuHardwareBackend.setPolicyLimits(policyPath, min, max).successful
     }
 
     val totalCores: Int get() = coreRows.size
@@ -241,9 +284,13 @@ class CpuCoreControlViewModel : ViewModel() {
      * Defends the user's hand-applied limits against external rewrites. The
      * module's own profile binary stands down via the manual-session property,
      * but the vendor thermal daemon (HyperOS mi_thermald and friends) keeps
-     * publishing its own ceilings on a timer. We re-assert a bounded number of
-     * times, then stop and surface an honest conflict instead of fighting a
-     * system daemon in a tight loop.
+     * publishing its own ceilings on a timer.
+     *
+     * The repair itself is the arbiter's job, not a private write: reconcile()
+     * re-applies only while our manual intent still wins the key and yields
+     * silently when safety or a per-app policy legitimately outranks it. We
+     * spend a bounded number of attempts, then stop and surface an honest
+     * conflict instead of fighting a system daemon in a tight loop.
      */
     private fun reassertDriftedLimits() {
         if (sessionApplied.isEmpty()) return
@@ -259,9 +306,17 @@ class CpuCoreControlViewModel : ViewModel() {
             }
             val spent = reassertionsSpent[path] ?: 0
             if (spent >= MAX_REASSERTIONS_PER_POLICY) return@forEach
-            reassertionsSpent = reassertionsSpent + (path to spent + 1)
+            val key = controlKeyFor(path) ?: return@forEach
+            // A null result means the winning intent lives in another process, so
+            // there is nothing for us to re-apply: not a failed repair, and it
+            // must not consume one of the bounded attempts.
+            val result = arbiter.reconcile(key) ?: return@forEach
             changed = true
-            val result = CpuHardwareBackend.setPolicyLimits(path, desired.first, desired.second)
+            if (result.verified) {
+                if (spent > 0) reassertionsSpent -= path
+            } else {
+                reassertionsSpent = reassertionsSpent + (path to spent + 1)
+            }
             val after = CpuHardwareBackend.policies().firstOrNull { it.path == path }
             lastFrequencyVerification = lastFrequencyVerification + (path to CpuFrequencyVerification(
                 requestedMinKHz = desired.first,
@@ -269,7 +324,7 @@ class CpuCoreControlViewModel : ViewModel() {
                 actualMinKHz = after?.minKHz,
                 actualMaxKHz = after?.maxKHz,
                 verified = result.verified,
-                writeAccepted = result.writeSucceeded,
+                writeAccepted = result.applied,
                 reassertions = spent + 1,
             ))
         }
@@ -303,30 +358,12 @@ class CpuCoreControlViewModel : ViewModel() {
     }
 
     fun applyFrequencyLimits(policyPath: String, minKHz: Long, maxKHz: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = CpuHardwareBackend.setPolicyLimits(policyPath, minKHz, maxKHz)
-            val actual = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
-            lastFrequencyVerification = lastFrequencyVerification + (policyPath to CpuFrequencyVerification(
-                requestedMinKHz = minKHz,
-                requestedMaxKHz = maxKHz,
-                actualMinKHz = actual?.minKHz,
-                actualMaxKHz = actual?.maxKHz,
-                verified = result.verified,
-                writeAccepted = result.writeSucceeded,
-            ))
-            // The user's intent is now the defended session state for this policy.
-            sessionApplied = sessionApplied + (policyPath to (minKHz to maxKHz))
-            reassertionsSpent -= policyPath
-            refreshManualSessionProp()
-            refreshFrequencyControls()
-            withContext(Dispatchers.Main) {
-                frequencyActionMessage = when {
-                    result.verified -> "تم التطبيق والتحقق من العتاد ✓"
-                    !result.writeSucceeded -> "رفضت عقدة النظام الكتابة — القيم لم تتغير"
-                    else -> "كِيان خارجي أعاد ضبط الحدود بعد الكتابة؛ سنعيد تثبيتها تلقائياً"
-                }
-            }
-        }
+        submitManualLimits(
+            policyPath = policyPath,
+            minKHz = minKHz,
+            maxKHz = maxKHz,
+            successMessage = "تم التطبيق والتحقق من العتاد ✓",
+        )
     }
 
     /** Pins one policy to a single frequency (min = max). */
@@ -334,13 +371,101 @@ class CpuCoreControlViewModel : ViewModel() {
         applyFrequencyLimits(policyPath, freqKHz, freqKHz)
     }
 
+    /**
+     * One hand-applied limit: written through the single ownership gate, then
+     * durably locked.
+     *
+     * The owner is GLOBAL_PROFILE because a manual choice is a baseline, not an
+     * AI command (decisions #9/#23). The durable lock is what makes it the
+     * user's: it keeps MAX_AI and preset writes off this knob from now on, while
+     * SAFETY/RECOVERY still override it — safety supremacy (INV-2) outranks
+     * every user preference (INV-3) by design.
+     */
+    private fun submitManualLimits(
+        policyPath: String,
+        minKHz: Long,
+        maxKHz: Long,
+        successMessage: String,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val key = controlKeyFor(policyPath)
+            if (key == null) {
+                withContext(Dispatchers.Main) {
+                    frequencyActionMessage = "عقدة cpufreq غير معروفة — لم يُكتب شيء"
+                }
+                return@launch
+            }
+            val token = manualToken(key)
+            val desired = "$minKHz:$maxKHz"
+            val baseline = liveLimits(policyPath)
+            val result = arbiter.submit(
+                key = key,
+                owner = ControlOwnership.Owner.GLOBAL_PROFILE,
+                token = token,
+                desired = desired,
+                apply = { writeLimits(policyPath, it) },
+                read = { liveLimits(policyPath) },
+                baseline = baseline,
+                restore = { writeLimits(policyPath, it) },
+            )
+            // Lock only an intent the ledger actually accepted: a verified write,
+            // or one journaled behind a higher-priority owner that will apply on
+            // release. A failed write is forgotten by the arbiter, so locking it
+            // would advertise a preference that was never set.
+            val accepted = result.verified || result.blocked
+            if (accepted) ManualControlLocks.lock(key, token, desired, baseline)
+
+            val actual = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
+            lastFrequencyVerification = lastFrequencyVerification + (policyPath to CpuFrequencyVerification(
+                requestedMinKHz = minKHz,
+                requestedMaxKHz = maxKHz,
+                actualMinKHz = actual?.minKHz,
+                actualMaxKHz = actual?.maxKHz,
+                verified = result.verified,
+                writeAccepted = result.applied,
+            ))
+            if (accepted) {
+                // The user's intent is now the defended session state for this policy.
+                sessionApplied = sessionApplied + (policyPath to (minKHz to maxKHz))
+                reassertionsSpent -= policyPath
+                refreshManualSessionProp()
+            }
+            refreshFrequencyControls()
+            withContext(Dispatchers.Main) {
+                frequencyActionMessage = when {
+                    result.verified -> successMessage
+                    result.blocked && result.winner == ControlOwnership.Owner.SAFETY ->
+                        "تدخل أمان حراري يملك هذا المقبض الآن — طلبك محفوظ ويُطبَّق عند انتهائه"
+                    result.blocked ->
+                        "مالك أعلى أولوية (${result.winner?.name ?: "غير معروف"}) يملك هذا المقبض — طلبك محفوظ"
+                    else -> "تعذّر التطبيق والتحقق من العتاد — القيم لم تتغير"
+                }
+            }
+        }
+    }
+
+    /**
+     * Gives every hand-applied knob back: the durable lock is dropped first,
+     * then the arbiter restores the baseline it captured before the manual write
+     * and verifies the readback (decision #6 — transactional restore of the
+     * recorded baseline, not a vague "last stable state").
+     */
     fun restoreSessionFrequencyLimits() {
         if (sessionFrequencyBaseline.isEmpty()) return
         viewModelScope.launch(Dispatchers.IO) {
-            var restored = 0
+            var attempted = 0
             var allVerified = true
             sessionFrequencyBaseline.forEach { (path, baseline) ->
-                val result = CpuHardwareBackend.setPolicyLimits(path, baseline.first, baseline.second)
+                val key = controlKeyFor(path) ?: return@forEach
+                // Drop our own lock before releasing, otherwise the restore write
+                // would be refused by the very preference we are retiring.
+                ManualControlLocks.unlock(key)
+                // A null result means we no longer hold a local intent for this
+                // key (another process won it), so there is honestly nothing we
+                // restored here — it must not be reported as a failed restore.
+                val result = arbiter.release(key, manualToken(key), restore = true) ?: return@forEach
+                attempted++
+                allVerified = allVerified && result.verified
                 val actual = CpuHardwareBackend.policies().firstOrNull { it.path == path }
                 lastFrequencyVerification = lastFrequencyVerification + (path to CpuFrequencyVerification(
                     requestedMinKHz = baseline.first,
@@ -348,25 +473,28 @@ class CpuCoreControlViewModel : ViewModel() {
                     actualMinKHz = actual?.minKHz,
                     actualMaxKHz = actual?.maxKHz,
                     verified = result.verified,
-                    writeAccepted = result.writeSucceeded,
+                    writeAccepted = result.applied,
                 ))
-                restored++
-                allVerified = allVerified && result.verified
             }
             sessionApplied = emptyMap()
             reassertionsSpent = emptyMap()
             refreshManualSessionProp()
             refreshFrequencyControls()
             withContext(Dispatchers.Main) {
-                frequencyActionMessage = if (allVerified) {
-                    "تمت استعادة حدود بداية الجلسة وتوثيقها"
-                } else {
-                    "تعذّرت استعادة بعض الحدود — راجع القيم الحية"
+                frequencyActionMessage = when {
+                    attempted == 0 -> "لا توجد نوايا يدوية مسجلة — لم يُستعد شيء"
+                    allVerified -> "تمت استعادة حدود بداية الجلسة وتوثيقها"
+                    else -> "تعذّرت استعادة بعض الحدود — راجع القيم الحية"
                 }
             }
         }
     }
 
+    /**
+     * Restores one policy to its full proven hardware range. Choosing the full
+     * range is still a manual decision, so it goes through the same ownership
+     * gate and durable lock as any other hand-applied limit.
+     */
     fun resetFrequencyLimits(policyPath: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val policy = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
@@ -384,33 +512,12 @@ class CpuCoreControlViewModel : ViewModel() {
                 }
                 return@launch
             }
-            val result = if (min != null || max != null) {
-                CpuHardwareBackend.setPolicyLimits(policyPath, min, max)
-            } else null
-            val actual = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
-            if (min != null && max != null) {
-                lastFrequencyVerification = lastFrequencyVerification + (policyPath to CpuFrequencyVerification(
-                    requestedMinKHz = min,
-                    requestedMaxKHz = max,
-                    actualMinKHz = actual?.minKHz,
-                    actualMaxKHz = actual?.maxKHz,
-                    verified = result?.verified == true,
-                    writeAccepted = result?.writeSucceeded == true,
-                ))
-                // Choosing the full hardware range is still a manual decision:
-                // keep defending it against the periodic profile reset.
-                sessionApplied = sessionApplied + (policyPath to (min to max))
-                reassertionsSpent -= policyPath
-                refreshManualSessionProp()
-            }
-            refreshFrequencyControls()
-            withContext(Dispatchers.Main) {
-                frequencyActionMessage = if (result?.verified == true) {
-                    "تم استعادة مدى العتاد الكامل والتحقق منه"
-                } else {
-                    "تعذّرت استعادة مدى العتاد"
-                }
-            }
+            submitManualLimits(
+                policyPath = policyPath,
+                minKHz = min,
+                maxKHz = max,
+                successMessage = "تم استعادة مدى العتاد الكامل والتحقق منه",
+            )
         }
     }
 

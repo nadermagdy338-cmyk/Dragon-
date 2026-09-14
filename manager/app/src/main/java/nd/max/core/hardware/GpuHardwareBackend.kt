@@ -136,6 +136,29 @@ object GpuHardwareBackend {
     fun refresh(path: String, io: Io = SystemIo): Device? =
         discoverCandidates(io).firstOrNull { it.device.path == path }?.device
 
+    fun effectiveFrequency(device: Device, io: Io = SystemIo): Long? =
+        currentExactLockFrequency(device, io) ?: device.maxFreq
+
+    fun encodeBaseline(baseline: Baseline): String = listOf(
+        baseline.devicePath,
+        baseline.minFreq?.toString().orEmpty(),
+        baseline.maxFreq?.toString().orEmpty(),
+        baseline.governor.orEmpty(),
+        baseline.fixedIndex.orEmpty(),
+    ).joinToString("\u001f")
+
+    fun decodeBaseline(value: String): Baseline? {
+        val parts = value.split('\u001f')
+        if (parts.size != 5 || parts[0].isBlank()) return null
+        return Baseline(
+            devicePath = parts[0],
+            minFreq = parts[1].toLongOrNull(),
+            maxFreq = parts[2].toLongOrNull(),
+            governor = parts[3].takeIf(String::isNotBlank),
+            fixedIndex = parts[4].takeIf(String::isNotBlank),
+        )
+    }
+
     fun captureBaseline(device: Device, io: Io = SystemIo): Baseline = Baseline(
         devicePath = device.path,
         minFreq = device.minFreq,

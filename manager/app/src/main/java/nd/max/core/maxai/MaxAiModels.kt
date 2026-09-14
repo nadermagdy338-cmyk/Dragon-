@@ -1,24 +1,38 @@
 package nd.max.core.maxai
 
+import nd.max.core.hardware.ControlOwnership
+
 /**
  * نماذج حالة MAX AI — كل قيمة قابلة للعرض مشتقة من قياس أو قرار
  * حقيقي؛ لا حقل واحد هنا يمكن توليده من العدم.
  */
 
-/** من يملك التحكم الآن — أولوية تنفيذية معلنة، لا عرض فقط. */
-enum class MaxAiController {
-    /** Max AI مطفأ: المستخدم يتحكم يدويًا (ملف + تعديلات مباشرة). */
-    MANUAL,
+/** Publication state of the winning intent for one physical control key. */
+enum class OwnershipCommitState { PENDING, VERIFIED }
 
-    /** Max AI مفعّل ويدير الأداء دوريًا (قرار → تنفيذ → قياس نتيجة). */
-    MAX_AI,
+/** UI-facing projection of the shared ownership journal, one winner per knob. */
+data class KnobOwnershipSnapshot(
+    val key: String,
+    val owner: ControlOwnership.Owner,
+    val desired: String,
+    val state: OwnershipCommitState,
+    /** True when the winner (or a safety override) holds a manual lock from the user. */
+    val locked: Boolean = false,
+)
 
-    /** تطبيق بملف خاص في المقدمة: Max AI في وضع المراقبة فقط. */
-    APP_PROFILE,
-
-    /** محرك الأمان متدخل (سقف حراري) — يتقدم على الكل. */
-    SAFETY_OVERRIDE,
-}
+/**
+ * UI-facing projection of one durable user lock.
+ *
+ * Locks are reported independently of [MaxAiState.ownership] because they outlive
+ * the journal: after a reboot no intent exists for the key, yet the knob is still
+ * closed to every automated owner. Deriving the lock view from journal winners
+ * would hide exactly the state the user must be able to see and undo.
+ */
+data class LockedKnobSnapshot(
+    val key: String,
+    val desired: String,
+    val lockedAtMs: Long,
+)
 
 /** حالة محرك الأمان — درجات فعلية من قياس الحرارة والتنبؤ الأمامي. */
 enum class SafetyLevel { NORMAL, ENGAGED, CRITICAL }
@@ -57,19 +71,10 @@ data class ProfileRequestState(
     val result: DecisionResult? = null,
 )
 
-/** تعديل يدوي طلب أثناء إدارة Max AI — يُطبق عند إيقافه (لا يضيع). */
-data class PendingManualChange(
-    val key: String,
-    val value: String,
-    val label: String,
-    val timestampMs: Long,
-)
-
 /** الحالة الكاملة التي تستهلكها الواجهة — أعداد حقيقية فقط. */
 data class MaxAiState(
     val aiEnabled: Boolean = false,
-    val controller: MaxAiController = MaxAiController.MANUAL,
-    /** الاستراتيجية الجارية: آخر قرار معتبر أو "يدوي". */
+    /** موجز مشتق من الملكية الفعلية/الأمان/حالة AI، وليس وضع تحكم عالميًا. */
     val strategyLabel: String = "يدوي",
     val lastDecision: DecisionRecord? = null,
     val safety: SafetyStatus = SafetyStatus(),
@@ -78,15 +83,30 @@ data class MaxAiState(
     val successfulDecisions: Long = 0L,
     val adjustedDecisions: Long = 0L,
     val blockedForSafety: Long = 0L,
-    /** خطوات التعلم الفعلية للوكيل الأصلي (0 بلا مكتبة — بلا تزييف). */
-    val rlSteps: Long = 0L,
+    /**
+     * تقدّم التعلّم الحقيقي — نواة Kotlin لا وكيل أصلي.
+     *
+     * كان الحقل السابق `rlSteps` يعدّ خطوات وكيل Rust الذي لم يعد
+     * يُستشار في القرار (قرار #17)، فكان يبقى صفرًا أبدًا بينما التعلّم
+     * الفعلي يجري على مستوى المقابض هنا. عرض رقم لا يتحرك كان سيُوهم
+     * المستخدم أن النظام لا يتعلّم.
+     */
+    val learnedKnobs: Int = 0,
+    /** إجمالي الأحكام المقيسة المتراكمة لكل المقابض. */
+    val learningSamples: Long = 0L,
     /** قياسات المراقبة الحية الأخيرة. */
     val cpuLoadPercent: Int = 0,
     val thermalC: Float = 0f,
     val batteryPercent: Int = 0,
     val screenOn: Boolean = false,
-    /** التغييرات اليدوية المعلقة (تُطبق عند إيقاف AI). */
-    val pendingChanges: List<PendingManualChange> = emptyList(),
-    /** الملف العام الحالي ("1" أداء / "2" متوازن / "3" توفير). */
+    /** الفائز الفعلي لكل مقبض من دفتر الملكية المشترك. */
+    val ownership: List<KnobOwnershipSnapshot> = emptyList(),
+    /**
+     * الأقفال اليدوية الدائمة — تُعرض مستقلة عن الملكية لأنها تبقى بعد إعادة
+     * التشغيل بينما تنتهي نوايا الدفتر مع عملياتها. إخفاؤها يجعل المستخدم
+     * يرى مقبضًا "حرًا" وهو في الحقيقة مغلق أمام كل مالك آلي.
+     */
+    val lockedKnobs: List<LockedKnobSnapshot> = emptyList(),
+    /** ملف الأساس الحالي ("1" أداء / "2" متوازن / "3" توفير). */
     val currentProfile: String? = null,
 )

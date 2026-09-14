@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "requestedOutcome": "Complete and verify the approved Max AI control-plane redesign",
+  "goal": "Complete and verify the approved Max AI control-plane redesign",
+  "successEvidence": [],
+  "stopCondition": "Stop when success evidence is satisfied or a blocker/risk requires pause.",
+  "nonGoals": [],
+  "scope": "manager Max AI planning, ownership, verified control, learning, safety integration",
+  "changeKinds": [
+    "architecture"
+  ],
+  "riskHints": []
+}
