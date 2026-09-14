@@ -156,11 +156,11 @@ object ManualControlLocks {
                     .put("lockedAt", lock.lockedAtMs)
             )
         }
-        // ProcessHandle (not android.os.Process) so this stays callable from
-        // plain JUnit unit tests, which run on the host JVM without any
-        // Android framework mocking; it reports the same real OS pid as
-        // Process.myPid() would on-device.
-        val temp = File(file.parentFile, "$FILE_NAME.tmp.${ProcessHandle.current().pid()}")
+        // A fixed temporary filename is sufficient because writes are
+        // serialized by this object's monitor. Avoid java.lang.ProcessHandle
+        // here: it is a host-JVM API and is not part of Android's runtime API,
+        // so referencing it makes R8 fail when building the release APK.
+        val temp = File(file.parentFile, "$FILE_NAME.tmp")
         val payload = rows.toString()
         FileOutputStream(temp).use { output ->
             output.write(payload.toByteArray(Charsets.UTF_8))
