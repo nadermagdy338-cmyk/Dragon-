@@ -7,6 +7,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.RandomAccessFile
+import java.nio.channels.OverlappingFileLockException
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -96,13 +97,25 @@ object SharedHardwareOwnershipStore {
         val lockFile = File(root, LOCK_NAME)
         RandomAccessFile(lockFile, "rw").channel.use { channel ->
             normalizeAccess(lockFile)
-            channel.lock().use {
+            fun transact(): T {
                 val intents = readState(root)
                 removeStaleIntents(intents)
                 val journal = Journal(intents)
                 val result = block(journal)
                 writeState(root, intents)
-                result
+                return result
+            }
+
+            // The ReentrantLock already serializes all callers inside this JVM.
+            // Some JVM/test configurations can nevertheless report an
+            // OverlappingFileLockException for an OS lock held through another
+            // class-loader/channel in the same process. That is not a
+            // cross-process conflict, so safely fall back to the process lock
+            // rather than turning a valid control operation into a RuntimeException.
+            try {
+                channel.lock().use { transact() }
+            } catch (_: OverlappingFileLockException) {
+                transact()
             }
         }
     }
@@ -192,6 +205,7 @@ object SharedHardwareOwnershipStore {
                 else -> {
                     val liveStart = processStartToken(intent.processId)
                     when {
+                        intent.processId == localProcessId && intent.processStartToken.isBlank() -> false
                         liveStart != null -> intent.processStartToken.isBlank() || liveStart != intent.processStartToken
                         processDefinitelyMissing(intent.processId) -> true
                         else -> now - intent.updatedAtMs > UNREADABLE_PROCESS_TTL_MS

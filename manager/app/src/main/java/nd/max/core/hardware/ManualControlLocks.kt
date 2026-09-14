@@ -1,8 +1,11 @@
 package nd.max.core.hardware
 
+import android.os.Process
+
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Durable per-knob manual locks (spec decisions #3, #5, #24; INV-3).
@@ -30,6 +33,7 @@ object ManualControlLocks {
     )
 
     @Volatile private var directory: File? = null
+    private val processLock = ReentrantLock()
 
     /**
      * Every accessor is @Synchronized, so this cache is monitor-protected. It
@@ -113,54 +117,61 @@ object ManualControlLocks {
     private fun read(): List<Lock> {
         cache?.let { return it }
         val file = file() ?: return emptyList()
-        val loaded = runCatching {
-            if (!file.exists()) return@runCatching emptyList<Lock>()
-            val rows = JSONArray(file.readText())
-            buildList {
-                repeat(rows.length()) { index ->
-                    val row = rows.getJSONObject(index)
-                    val key = row.optString("key")
-                    if (key.isBlank()) return@repeat
-                    add(
-                        Lock(
-                            key = key,
-                            token = row.optString("token"),
-                            desired = row.optString("desired"),
-                            baseline = row.optString("baseline").takeIf(String::isNotBlank),
-                            lockedAtMs = row.optLong("lockedAt", 0L),
+        val loaded = if (!file.exists()) {
+            emptyList()
+        } else {
+            runCatching {
+                val rows = JSONArray(file.readText())
+                buildList {
+                    repeat(rows.length()) { index ->
+                        val row = rows.getJSONObject(index)
+                        val key = row.optString("key")
+                        if (key.isBlank()) return@repeat
+                        add(
+                            Lock(
+                                key = key,
+                                token = row.optString("token"),
+                                desired = row.optString("desired"),
+                                baseline = row.optString("baseline").takeIf(String::isNotBlank),
+                                lockedAtMs = row.optLong("lockedAt", 0L),
+                            )
                         )
-                    )
+                    }
                 }
-            }
-        }.getOrDefault(emptyList())
+            }.getOrElse { emptyList() }
+        }
         cache = loaded
         return loaded
     }
 
     private fun write(locks: List<Lock>) {
         val file = file() ?: return
-        runCatching {
-            val rows = JSONArray()
-            locks.forEach { lock ->
-                rows.put(
-                    JSONObject()
-                        .put("key", lock.key)
-                        .put("token", lock.token)
-                        .put("desired", lock.desired)
-                        .put("baseline", lock.baseline.orEmpty())
-                        .put("lockedAt", lock.lockedAtMs)
-                )
-            }
-            val temp = File(file.parentFile, "$FILE_NAME.tmp")
-            temp.writeText(rows.toString())
-            if (!temp.renameTo(file)) {
-                file.writeText(rows.toString())
-                temp.delete()
-            }
-            // Publish only after the bytes are on disk, so a failed write never
-            // leaves the in-memory view claiming a lock that did not persist.
-            cache = locks
+        val rows = JSONArray()
+        locks.forEach { lock ->
+            rows.put(
+                JSONObject()
+                    .put("key", lock.key)
+                    .put("token", lock.token)
+                    .put("desired", lock.desired)
+                    .put("baseline", lock.baseline.orEmpty())
+                    .put("lockedAt", lock.lockedAtMs)
+            )
         }
+        val temp = File(file.parentFile, "$FILE_NAME.tmp.${Process.myPid()}")
+        val payload = rows.toString()
+        FileOutputStream(temp).use { output ->
+            output.write(payload.toByteArray(Charsets.UTF_8))
+            output.fd.sync()
+        }
+        if (!temp.renameTo(file)) {
+            FileOutputStream(file).use { output ->
+                output.write(payload.toByteArray(Charsets.UTF_8))
+                output.fd.sync()
+            }
+            temp.delete()
+        }
+        // Publish only after durable bytes are visible.
+        cache = locks.toList()
     }
 
     private fun file(): File? = directory?.let { File(it, FILE_NAME) }
