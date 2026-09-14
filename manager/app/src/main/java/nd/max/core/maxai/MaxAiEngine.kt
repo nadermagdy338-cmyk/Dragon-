@@ -35,6 +35,7 @@ import nd.max.core.hardware.HardwareCapabilityResolver
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.RootFileAccess
 import nd.max.core.hardware.SharedHardwareOwnershipStore
+import nd.max.core.maxai.DynamicIntentLearner
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.jni.PredictorBridge
 
@@ -224,7 +225,12 @@ class MaxAiEngine @Inject constructor(
         }
 
         // 7) الحالة → الهدف → أصغر تدخل كافٍ → تحقق → تعلّم.
-        decisionCycle(snapshot, safetyNow, objective)
+        // Learn from current state
+        val currentApp = currentAppContextKey()
+        val screenOn = true // TODO: Add screen state later
+        dynamicIntentLearner.observe(snapshot, currentApp, screenOn)
+        val dynamicObj = dynamicIntentLearner.dynamicObjective(snapshot, currentApp, screenOn, objective)
+        decisionCycle(snapshot, safetyNow, dynamicObj)
     }
 
     private suspend fun decisionCycle(
@@ -248,8 +254,9 @@ class MaxAiEngine @Inject constructor(
         }
         val appContextKey = currentAppContextKey()
 
+        val prioritizedControls = dynamicIntentLearner.prioritizeControls(availableControls, appContextKey)
         val step = planner.plan(
-            controls = availableControls,
+            controls = prioritizedControls,
             state = before,
             objective = objective,
             appContext = appContextKey,
