@@ -1,0 +1,157 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Calculating task graph as configuration cache cannot be reused because file 'app/build.gradle.kts' has changed.
+> Task :app:preBuild UP-TO-DATE
+> Task :kernel-flasher:preBuild UP-TO-DATE
+> Task :terminal-view:preBuild UP-TO-DATE
+> Task :terminal-emulator:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :terminal-view:preDebugBuild UP-TO-DATE
+> Task :terminal-emulator:preDebugBuild UP-TO-DATE
+> Task :kernel-flasher:preDebugBuild UP-TO-DATE
+> Task :terminal-emulator:extractDebugSupportedLocales UP-TO-DATE
+> Task :terminal-view:extractDebugSupportedLocales UP-TO-DATE
+> Task :terminal-emulator:processDebugNavigationResources UP-TO-DATE
+> Task :terminal-view:processDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :kernel-flasher:extractDebugSupportedLocales UP-TO-DATE
+> Task :kernel-flasher:processDebugNavigationResources UP-TO-DATE
+> Task :kernel-flasher:generateDebugResources UP-TO-DATE
+> Task :terminal-emulator:generateDebugResources UP-TO-DATE
+> Task :kernel-flasher:javaPreCompileDebug UP-TO-DATE
+> Task :terminal-emulator:javaPreCompileDebug UP-TO-DATE
+> Task :terminal-view:generateDebugResources UP-TO-DATE
+> Task :terminal-emulator:packageDebugResources UP-TO-DATE
+> Task :kernel-flasher:packageDebugResources UP-TO-DATE
+> Task :kernel-flasher:parseDebugLocalResources UP-TO-DATE
+> Task :kernel-flasher:generateDebugRFile UP-TO-DATE
+> Task :terminal-emulator:parseDebugLocalResources UP-TO-DATE
+> Task :terminal-view:javaPreCompileDebug UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths
+> Task :terminal-emulator:generateDebugRFile UP-TO-DATE
+> Task :terminal-view:packageDebugResources UP-TO-DATE
+> Task :app:generateDebugResources
+> Task :terminal-view:parseDebugLocalResources UP-TO-DATE
+> Task :terminal-view:generateDebugRFile UP-TO-DATE
+> Task :app:extractDebugSupportedLocales
+> Task :terminal-emulator:compileDebugKotlin NO-SOURCE
+> Task :app:generateDebugLocaleConfig UP-TO-DATE
+> Task :terminal-emulator:compileDebugJavaWithJavac UP-TO-DATE
+> Task :terminal-emulator:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :terminal-view:compileDebugKotlin NO-SOURCE
+> Task :terminal-view:compileDebugJavaWithJavac UP-TO-DATE
+> Task :terminal-view:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:packageDebugResources
+> Task :kernel-flasher:compileDebugAidl UP-TO-DATE
+> Task :app:compileDebugAidl UP-TO-DATE
+> Task :app:processDebugNavigationResources
+> Task :app:parseDebugLocalResources
+> Task :app:generateDebugRFile
+> Task :kernel-flasher:kspDebugKotlin UP-TO-DATE
+> Task :kernel-flasher:compileDebugKotlin UP-TO-DATE
+> Task :kernel-flasher:compileDebugJavaWithJavac
+> Task :kernel-flasher:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:kspDebugKotlin
+> Task :app:compileDebugKotlin
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:88:22 Type 'MutableState<HardwareCapabilitySnapshot?>' has no method 'setValue(Nothing?, KMutableProperty0<*>, ERROR CLASS: Ambiguity: getValue, [kotlin/getValue, kotlin/getValue, kotlin/getValue, kotlin/collections/getValue, kotlin/collections/getValue, kotlin/collections/getValue])', so it cannot serve as a delegate for var (read-write property).
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:88:22 Property delegate must have a 'getValue(Nothing?, KMutableProperty0<*>)' method. None of the following functions is applicable:
+fun <T> Lazy<T>.getValue(thisRef: Any?, property: KProperty<*>): T
+fun <V> KProperty0<V>.getValue(thisRef: Any?, property: KProperty<*>): V
+fun <T, V> KProperty1<T, V>.getValue(thisRef: T, property: KProperty<*>): V
+fun <K, V> Map<K, V>.getValue(key: K): V
+fun <V, V1 : V> Map<in String, V>.getValue(thisRef: Any?, property: KProperty<*>): V1
+fun <V, V1 : V> MutableMap<in String, out V>.getValue(thisRef: Any?, property: KProperty<*>): V1
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:89:17 Type 'MutableState<HardwareRuntime.Snapshot?>' has no method 'setValue(Nothing?, KMutableProperty0<*>, ERROR CLASS: Ambiguity: getValue, [kotlin/getValue, kotlin/getValue, kotlin/getValue, kotlin/collections/getValue, kotlin/collections/getValue, kotlin/collections/getValue])', so it cannot serve as a delegate for var (read-write property).
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:89:17 Property delegate must have a 'getValue(Nothing?, KMutableProperty0<*>)' method. None of the following functions is applicable:
+fun <T> Lazy<T>.getValue(thisRef: Any?, property: KProperty<*>): T
+fun <V> KProperty0<V>.getValue(thisRef: Any?, property: KProperty<*>): V
+fun <T, V> KProperty1<T, V>.getValue(thisRef: T, property: KProperty<*>): V
+fun <K, V> Map<K, V>.getValue(key: K): V
+fun <V, V1 : V> Map<in String, V>.getValue(thisRef: Any?, property: KProperty<*>): V1
+fun <V, V1 : V> MutableMap<in String, out V>.getValue(thisRef: Any?, property: KProperty<*>): V1
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:90:24 Type 'MutableState<Boolean>' has no method 'setValue(Nothing?, KMutableProperty0<*>, ERROR CLASS: Ambiguity: getValue, [kotlin/getValue, kotlin/getValue, kotlin/getValue, kotlin/collections/getValue, kotlin/collections/getValue, kotlin/collections/getValue])', so it cannot serve as a delegate for var (read-write property).
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:90:24 Property delegate must have a 'getValue(Nothing?, KMutableProperty0<*>)' method. None of the following functions is applicable:
+fun <T> Lazy<T>.getValue(thisRef: Any?, property: KProperty<*>): T
+fun <V> KProperty0<V>.getValue(thisRef: Any?, property: KProperty<*>): V
+fun <T, V> KProperty1<T, V>.getValue(thisRef: T, property: KProperty<*>): V
+fun <K, V> Map<K, V>.getValue(key: K): V
+fun <V, V1 : V> Map<in String, V>.getValue(thisRef: Any?, property: KProperty<*>): V1
+fun <V, V1 : V> MutableMap<in String, out V>.getValue(thisRef: Any?, property: KProperty<*>): V1
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:230:5 Unresolved reference 'MaxSurface'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:231:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:234:111 Unresolved reference 'FontWeight'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:237:29 Unresolved reference 'MaxTextRole'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:242:9 Unresolved reference 'Spacer'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:242:25 Unresolved reference 'height'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:250:13 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:252:91 Unresolved reference 'FontWeight'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:264:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:266:21 Unresolved reference 'MaxTextRole'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:266:68 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:274:5 Unresolved reference 'MaxSurface'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:275:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:275:60 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:275:97 Unresolved reference 'FontWeight'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:276:9 Unresolved reference 'Spacer'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:276:25 Unresolved reference 'height'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:277:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:280:21 Unresolved reference 'MaxTextRole'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:281:35 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:283:9 Unresolved reference 'Spacer'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:283:25 Unresolved reference 'height'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:285:13 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:286:137 Unresolved reference 'FontWeight'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:289:13 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:289:55 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:289:99 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:292:13 Unresolved reference 'Spacer'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:292:29 Unresolved reference 'height'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:293:13 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:295:39 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:296:39 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:306:5 Unresolved reference 'MaxSurface'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:307:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:307:64 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:307:101 Unresolved reference 'FontWeight'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:308:9 Unresolved reference 'Spacer'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:308:25 Unresolved reference 'height'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:309:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:312:21 Unresolved reference 'MaxTextRole'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:312:68 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:314:9 Unresolved reference 'Spacer'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:314:25 Unresolved reference 'height'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:316:13 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:318:95 Unresolved reference 'FontWeight'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:329:5 Unresolved reference 'MaxSurface'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:330:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:332:100 Unresolved reference 'FontWeight'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:333:98 Unresolved reference 'MaxTextRole'.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/LegendaryHomeDashboard.kt:350:58 Argument type mismatch: actual type is 'String?', but 'Any' was expected.
+e: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/LegendaryHomeDashboard.kt:650:88 Argument type mismatch: actual type is 'String?', but 'Any' was expected.
+
+> Task :app:compileDebugKotlin FAILED
+
+[Incubating] Problems report is available at: file:///mnt/sdcard/MaxManger/optmize-main/manager/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin' (registered by plugin 'com.android.internal.application').
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 5m 25s
+42 actionable tasks: 11 executed, 31 up-to-date
+Configuration cache entry stored.

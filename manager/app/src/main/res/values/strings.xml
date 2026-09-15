@@ -1589,6 +1589,22 @@
     <string name="max_role_network_detail">Inspect current network activity and detail signals.</string>
     <string name="max_role_open_screen">Open this focused control surface.</string>
 
+    <string name="home_passport_title">System passport</string>
+    <string name="home_passport_desc">One verdict from performance, app intent, Max AI and control safety.</string>
+    <string name="home_passport_guard">Guarding</string>
+    <string name="home_passport_verified">Verified</string>
+    <string name="home_passport_unsustainable">Unstable</string>
+    <string name="home_passport_limited">%1$s limited</string>
+    <string name="home_passport_baseline">Baseline</string>
+    <string name="home_passport_workload">Workload</string>
+    <string name="home_passport_limiter">Limiter</string>
+    <string name="home_passport_ai">Max AI</string>
+    <string name="home_passport_heat">Heat</string>
+    <string name="home_passport_story">Profile %1$s is active. Next safe action: %2$s</string>
+    <string name="home_passport_open_control">Control</string>
+    <string name="home_passport_open_apps">Apps</string>
+    <string name="home_passport_open_live">Live</string>
+
     <string name="home_session_title">Session report</string>
     <string name="home_session_subtitle">Before/after from the current live window</string>
     <string name="home_session_cpu_delta">CPU shift</string>
@@ -1606,5 +1622,54 @@
     <string name="home_session_summary_baseline">Current window is a useful baseline: CPU %1$d%% and RAM %2$d%% without a strong degradation signal.</string>
     <string name="home_session_corr_heat">Load ↔ heat</string>
     <string name="home_session_corr_stable">No strong link</string>
+
+    <string name="home_session_confidence">Performance Intelligence · %1$d%% confidence</string>
+    <string name="home_session_workload">Workload</string>
+    <string name="home_session_limiter">Limiter</string>
+    <string name="home_session_before_after">Before → now</string>
+    <string name="home_session_real_gain">Real gain?</string>
+    <string name="home_session_timeline">Timeline</string>
+    <string name="home_session_collecting">Collecting</string>
+    <string name="home_session_grade_real">Verified gain</string>
+    <string name="home_session_grade_not_real">Not sustainable</string>
+    <string name="home_session_real_yes">Yes</string>
+    <string name="home_session_real_no">No</string>
+    <string name="home_session_real_unknown">Watching</string>
+
+    <string name="app_settings_system_bridge">This app has %1$d custom signals in the %2$s context. When it becomes foreground, Max AI can read that intent while Control applies only the allowed lanes.</string>
+    <string name="app_settings_open_live">Live loop</string>
+    <string name="app_settings_open_control">Control map</string>
+
+    <string name="home_session_ai_bridge">Max AI: %1$s · profile %2$s</string>
+    <string name="apps_bridge_title">App behavior in the system</string>
+    <string name="apps_bridge_desc">Per-app choices are not isolated: they feed workload intent, profile behavior and the live control loop.</string>
+    <string name="apps_bridge_profiles_title">Configured apps affect sessions</string>
+    <string name="apps_bridge_profiles_desc">%1$d customized apps · %2$d game candidates can shape workload-aware tuning.</string>
+    <string name="apps_bridge_control_title">Open the control map</string>
+    <string name="apps_bridge_control_desc">Review the device lanes that apply app behavior through CPU, GPU, display, power and memory.</string>
+
+    <string name="max_live_automation_title">Smart control plan</string>
+    <string name="max_live_automation_desc">Shows what automation is allowed to do now, why, and how it can roll back.</string>
+    <string name="max_live_confidence">%1$d%% trust</string>
+    <string name="max_live_profile_hint">Profile behavior</string>
+    <string name="max_live_next_action">Next action</string>
+    <string name="max_live_reversible">Reversible</string>
+    <string name="max_live_not_reversible">One-way</string>
+
+    <string name="control_live_title">Live control lane</string>
+    <string name="control_live_desc">Start with the loop that explains ownership, learning, safety and rollback before opening raw tools.</string>
+    <string name="control_live_plan_desc">See what Max AI is allowed to change now, why, and whether it can revert.</string>
+    <string name="control_live_badge">Live</string>
+    <string name="control_group_performance">Performance lanes</string>
+    <string name="control_group_performance_desc">CPU, GPU, memory and responsiveness controls grouped by runtime pressure.</string>
+    <string name="control_group_environment">Thermal and power</string>
+    <string name="control_group_environment_desc">Heat, charging, display and power decisions that affect sustained performance.</string>
+    <string name="control_group_system">System paths</string>
+    <string name="control_group_system_desc">Storage and network paths that shape loading, updates and online workloads.</string>
+    <string name="control_advanced_tools_desc">High-risk utilities belong with Control, not Settings. They stay explicit, labeled and reversible where possible.</string>
+    <string name="max_role_terminal">Run direct commands only when a normal control cannot express the task.</string>
+    <string name="max_role_setedit">Inspect and edit Android settings with clear advanced-risk labeling.</string>
+    <string name="max_role_activity_launcher">Open hidden Android activities for debugging and vendor tools.</string>
+    <string name="max_role_kernel_flasher">Flash kernel packages; dangerous and intentionally kept away from preferences.</string>
 
 </resources>

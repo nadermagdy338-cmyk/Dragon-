@@ -290,18 +290,6 @@ fun SettingsScreen(
                     )
                 }
 
-                item { SettingsSectionTitle(stringResource(R.string.max_nav_advanced_tools)) }
-                item {
-                    ExpressiveList(
-                        content = listOf(
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Terminal) }, headlineContent = { Text(stringResource(R.string.max_tool_terminal)) }, supportingContent = { Text(stringResource(maxRiskLabel(MaxDestination.Terminal.risk))) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Terminal) }) },
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.SetEdit) }, headlineContent = { Text(stringResource(R.string.max_tool_setedit)) }, supportingContent = { Text(stringResource(maxRiskLabel(MaxDestination.SetEdit.risk))) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Edit) }) },
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ActivityLauncher) }, headlineContent = { Text(stringResource(R.string.max_tool_activity_launcher)) }, supportingContent = { Text(stringResource(maxRiskLabel(MaxDestination.ActivityLauncher.risk))) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Launch) }) },
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.KernelFlasher) }, headlineContent = { Text(stringResource(R.string.max_tool_kernel_flasher)) }, supportingContent = { Text(stringResource(maxRiskLabel(MaxDestination.KernelFlasher.risk))) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Build) }) },
-                        )
-                    )
-                }
-
                 item {
                     if (uiState.isLoaded) {
                         ExpressiveList(

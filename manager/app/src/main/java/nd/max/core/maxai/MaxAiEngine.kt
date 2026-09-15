@@ -1452,6 +1452,74 @@ class MaxAiEngine @Inject constructor(
         PropertyUtils.get(MaxManagerProps.Conf.AI_ENABLED, "0") == "1"
     }.getOrDefault(false)
 
+    private fun automationPlan(
+        aiEnabled: Boolean,
+        safety: SafetyStatus,
+        ownership: List<KnobOwnershipSnapshot>,
+        lockedKnobs: List<LockedKnobSnapshot>,
+        learning: MinimalPlanner.LearningProgress,
+        context: CycleContext?,
+        prev: MaxAiState,
+    ): AutomationPlan {
+        val score = context?.score
+        val objective = context?.objectiveSource ?: prev.objectiveSource
+        val app = context?.appContextKey ?: prev.appContext
+        val confidence = when {
+            learning.samples <= 0L -> 0
+            else -> ((learning.learnedKnobs.coerceAtMost(6) / 6f) * 55f + (learning.samples.coerceAtMost(80) / 80f) * 45f).toInt().coerceIn(0, 100)
+        }
+        return when {
+            safety.engaged -> AutomationPlan(
+                mode = "Safety guard",
+                profileHint = "Cool down",
+                reason = safety.lastReason.ifBlank { "Thermal safety owns the risky knobs now" },
+                nextAction = "Release heat first; normal owners resume automatically",
+                reversible = true,
+                confidencePercent = 100,
+            )
+            lockedKnobs.isNotEmpty() -> AutomationPlan(
+                mode = "User-locked",
+                profileHint = "Respect manual locks",
+                reason = "${lockedKnobs.size} knob(s) are excluded from automation",
+                nextAction = "Tune only unlocked controls; user can remove locks",
+                reversible = true,
+                confidencePercent = confidence,
+            )
+            !aiEnabled -> AutomationPlan(
+                mode = "Manual",
+                profileHint = ProfileApplier.currentProfile()?.let { "Profile $it" } ?: "Balanced",
+                reason = "Max AI is off, so no automatic leases are requested",
+                nextAction = "Enable Max AI for adaptive tuning",
+                reversible = true,
+                confidencePercent = confidence,
+            )
+            score != null && score >= MinimalPlanner.SATISFIED_SCORE -> AutomationPlan(
+                mode = "Hold",
+                profileHint = "Stable for $app",
+                reason = "Objective score %.0f%% already meets the %.0f%% target".format(score * 100f, MinimalPlanner.SATISFIED_SCORE * 100f),
+                nextAction = "Keep current leases; avoid unnecessary writes",
+                reversible = true,
+                confidencePercent = confidence,
+            )
+            ownership.any { it.owner == ControlOwnership.Owner.MAX_AI && it.state == OwnershipCommitState.VERIFIED } -> AutomationPlan(
+                mode = "Adaptive",
+                profileHint = "Context-aware $objective",
+                reason = "Verified Max AI leases are active for $app",
+                nextAction = "Measure outcome, then keep or roll back through the arbiter",
+                reversible = true,
+                confidencePercent = confidence,
+            )
+            else -> AutomationPlan(
+                mode = "Learning",
+                profileHint = "Probe safest useful knob",
+                reason = "Learning has ${learning.samples} measured outcome(s) across ${learning.learnedKnobs} knob(s)",
+                nextAction = "Use safety/credibility gates before any reversible lease",
+                reversible = true,
+                confidencePercent = confidence,
+            )
+        }
+    }
+
     // ── العدادات والنشر ──────────────────────────────────
 
     private fun bumpCounter(key: String) {
@@ -1540,6 +1608,7 @@ class MaxAiEngine @Inject constructor(
             forecastErrorC = forecastError(),
             trust = lastTrust,
             exploration = lastExploration,
+            automationPlan = automationPlan(aiEnabled, safetyNow, ownership, lockedKnobs, learning, context, prev),
         ).mutate()
     }
 

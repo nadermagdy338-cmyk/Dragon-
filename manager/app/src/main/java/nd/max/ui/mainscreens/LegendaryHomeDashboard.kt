@@ -135,6 +135,14 @@ internal fun LegendaryHomeDashboard(
             onProfile = onProfile,
             onDetails = { onNavigate(MaxDestination.Diagnostics.route) }
         )
+        SystemIntentCard(
+            dashboard = dashboard,
+            maxAi = maxAi,
+            palette = palette,
+            onOpenControl = { onNavigate(MaxDestination.Control.route) },
+            onOpenApps = { onNavigate(MaxDestination.Apps.route) },
+            onOpenLive = { onNavigate(MaxDestination.MaxLive.route) }
+        )
         LivePerformanceCard(
             dashboard = dashboard,
             palette = palette,
@@ -169,7 +177,7 @@ internal fun LegendaryHomeDashboard(
             onBoost = onProfile,
             onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
             onBattery = { onNavigate(MaxDestination.Charging.route) },
-            onAdvanced = { onNavigate(MaxDestination.AllTweaks.route) }
+            onAdvanced = { onNavigate(MaxDestination.Control.route) }
         )
         DeviceResourcesCard(dashboard, palette, onNavigate)
         AiCommandCard(maxAi, profileRequest, palette, { onNavigate(MaxDestination.MaxLive.route) }, onAiRetry)
@@ -284,6 +292,70 @@ private fun HeroMetricStrip(metrics: List<HeroMetric>, palette: HomePalette) {
                 }
                 if (index < metrics.lastIndex) Box(Modifier.width(1.dp).height(38.dp).background(palette.border))
             }
+        }
+    }
+}
+
+
+@Composable
+private fun SystemIntentCard(
+    dashboard: DashboardState,
+    maxAi: MaxAiState,
+    palette: HomePalette,
+    onOpenControl: () -> Unit,
+    onOpenApps: () -> Unit,
+    onOpenLive: () -> Unit,
+) {
+    val intelligence = dashboard.intelligence
+    val heat = primaryBatteryTemperatureC(dashboard)
+    val tone = when {
+        maxAi.automationPlan.mode == "Safety guard" -> palette.danger
+        intelligence.realImprovement == false -> palette.warning
+        intelligence.primaryLimiter != "Baseline" -> palette.warning
+        else -> palette.positive
+    }
+    val verdict = when {
+        maxAi.automationPlan.mode == "Safety guard" -> stringResource(R.string.home_passport_guard)
+        intelligence.realImprovement == true -> stringResource(R.string.home_passport_verified)
+        intelligence.realImprovement == false -> stringResource(R.string.home_passport_unsustainable)
+        intelligence.primaryLimiter != "Baseline" -> stringResource(R.string.home_passport_limited, intelligence.primaryLimiter ?: "—")
+        else -> stringResource(R.string.home_passport_baseline)
+    }
+    DashboardCard(tone, palette, padded = true) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            SectionTitle(
+                title = stringResource(R.string.home_passport_title),
+                subtitle = stringResource(R.string.home_passport_desc),
+                icon = Icons.Rounded.Hub,
+                accent = tone,
+                palette = palette,
+                modifier = Modifier.weight(1f)
+            )
+            StoryPill(verdict, tone, palette)
+        }
+        Spacer(Modifier.height(12.dp))
+        FlowRow(
+            Modifier.fillMaxWidth(),
+            maxItemsInEachRow = 2,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            StorySignal(stringResource(R.string.home_passport_workload), intelligence.samples.lastOrNull()?.workload ?: stringResource(R.string.home_session_collecting), palette.primary, palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_passport_limiter), intelligence.primaryLimiter, tone, palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_passport_ai), maxAi.automationPlan.mode, palette.secondary, palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_passport_heat), heat?.let { "${it.oneDecimal()}°C" } ?: "—", temperatureColor(heat?.roundToInt(), palette), palette, Modifier.weight(1f))
+        }
+        Spacer(Modifier.height(12.dp))
+        Text(
+            stringResource(R.string.home_passport_story, maxAi.currentProfile ?: "—", maxAi.automationPlan.nextAction),
+            color = palette.muted,
+            style = MaterialTheme.typography.bodySmall
+        )
+        Spacer(Modifier.height(10.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StoryButton(stringResource(R.string.home_passport_open_control), Icons.Rounded.Tune, palette.primary, palette, onOpenControl, Modifier.weight(1f))
+            StoryButton(stringResource(R.string.home_passport_open_apps), Icons.Rounded.Apps, palette.secondary, palette, onOpenApps, Modifier.weight(1f))
+            StoryButton(stringResource(R.string.home_passport_open_live), Icons.Rounded.Timeline, tone, palette, onOpenLive, Modifier.weight(1f))
         }
     }
 }
@@ -546,21 +618,39 @@ private fun PerformanceSessionCard(
     onOpenLive: () -> Unit,
     onOpenThermal: () -> Unit
 ) {
-    val report = rememberSessionReport(dashboard, maxAi)
-    DashboardCard(report.accent(palette), palette, padded = true) {
+    val intelligence = dashboard.intelligence
+    val latest = intelligence.samples.lastOrNull()
+    val baseline = intelligence.samples.firstOrNull()
+    val accent = when (intelligence.primaryLimiter) {
+        "Thermal", "Power/Thermal" -> palette.danger
+        "CPU", "GPU", "Memory", "Display/GPU" -> palette.warning
+        else -> palette.positive
+    }
+    val grade = when (intelligence.realImprovement) {
+        true -> stringResource(R.string.home_session_grade_real)
+        false -> stringResource(R.string.home_session_grade_not_real)
+        null -> intelligence.primaryLimiter
+    }
+    DashboardCard(accent, palette, padded = true) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             SectionTitle(
                 title = stringResource(R.string.home_session_title),
-                subtitle = report.subtitle,
+                subtitle = stringResource(R.string.home_session_confidence, intelligence.confidencePercent),
                 icon = Icons.Rounded.QueryStats,
-                accent = report.accent(palette),
+                accent = accent,
                 palette = palette,
                 modifier = Modifier.weight(1f)
             )
-            DetailPill(report.grade, report.accent(palette))
+            StoryPill(grade, accent, palette)
         }
         Spacer(Modifier.height(12.dp))
-        Text(report.summary, color = palette.text, style = MaterialTheme.typography.bodyMedium)
+        Text(intelligence.explanation, color = palette.text, style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.home_session_ai_bridge, maxAi.automationPlan.mode, maxAi.currentProfile ?: "—"),
+            color = palette.muted,
+            style = MaterialTheme.typography.labelMedium
+        )
         Spacer(Modifier.height(12.dp))
         FlowRow(
             Modifier.fillMaxWidth(),
@@ -568,10 +658,20 @@ private fun PerformanceSessionCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            StorySignal(stringResource(R.string.home_session_cpu_delta), report.cpuDelta, palette.primary, palette, Modifier.weight(1f))
-            StorySignal(stringResource(R.string.home_session_ram_delta), report.ramDelta, palette.positive, palette, Modifier.weight(1f))
-            StorySignal(stringResource(R.string.home_session_gpu_delta), report.gpuDelta, palette.secondary, palette, Modifier.weight(1f))
-            StorySignal(stringResource(R.string.home_session_correlation), report.correlation, report.accent(palette), palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_session_workload), latest?.workload ?: stringResource(R.string.home_session_collecting), palette.primary, palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_session_limiter), intelligence.primaryLimiter, accent, palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_session_before_after), beforeAfterText(baseline?.cpuPercent, latest?.cpuPercent), palette.secondary, palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_session_real_gain), realGainText(intelligence.realImprovement), accent, palette, Modifier.weight(1f))
+        }
+        if (intelligence.events.isNotEmpty()) {
+            Spacer(Modifier.height(12.dp))
+            Text(stringResource(R.string.home_session_timeline), color = palette.muted, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                intelligence.events.takeLast(3).asReversed().forEach { event ->
+                    TimelineRow(event.title, event.impact, accent, palette)
+                }
+            }
         }
         Spacer(Modifier.height(10.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -581,69 +681,33 @@ private fun PerformanceSessionCard(
     }
 }
 
-private data class SessionReport(
-    val subtitle: String,
-    val summary: String,
-    val grade: String,
-    val cpuDelta: String,
-    val ramDelta: String,
-    val gpuDelta: String,
-    val correlation: String,
-    val accent: (HomePalette) -> Color
-)
+@Composable
+private fun StoryPill(text: String, accent: Color, palette: HomePalette) {
+    Surface(shape = CircleShape, color = accent.copy(alpha = .10f), border = BorderStroke(1.dp, accent.copy(alpha = .22f))) {
+        Text(text, color = accent, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), maxLines = 1)
+    }
+}
 
 @Composable
-private fun rememberSessionReport(dashboard: DashboardState, maxAi: MaxAiState): SessionReport {
-    val cpuTrend = trendDelta(dashboard.cpuLoadHistory, dashboard.cpuLoadPercent.toFloat())
-    val ramNow = dashboard.ramTotalMb.takeIf { it > 0 }?.let { dashboard.ramUsedMb * 100f / it } ?: 0f
-    val ramTrend = trendDelta(dashboard.ramLoadHistory, ramNow)
-    val gpuTrend = trendDelta(dashboard.gpuLoadHistory, dashboard.gpuLoadPercent?.toFloat())
-    val temp = primaryBatteryTemperatureC(dashboard) ?: dashboard.cpuTempC.takeIf { it > 0 }?.toFloat() ?: 0f
-    val score = maxAi.objectiveScore?.let { (it * 100f).roundToInt() }
-    val heatRisingUnderLoad = temp >= 42f && dashboard.cpuLoadPercent >= 55
-    val pressureScore = listOf(
-        dashboard.cpuLoadPercent / 100f,
-        ramNow / 100f,
-        (temp / 55f).coerceIn(0f, 1f),
-        ((dashboard.gpuLoadPercent ?: 0) / 100f)
-    ).average().toFloat()
-
-    val grade = when {
-        temp >= 48f || pressureScore >= .78f -> stringResource(R.string.home_session_grade_hot)
-        pressureScore >= .58f -> stringResource(R.string.home_session_grade_busy)
-        else -> stringResource(R.string.home_session_grade_clean)
+private fun TimelineRow(title: String, impact: String, accent: Color, palette: HomePalette) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        StatusDot(accent, 7.dp)
+        Spacer(Modifier.width(9.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, color = palette.text, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+            Text(impact, color = palette.muted, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
     }
-    val summary = when {
-        heatRisingUnderLoad -> stringResource(R.string.home_session_summary_heat, dashboard.cpuLoadPercent, temp.roundToInt())
-        cpuTrend >= 18f && ramTrend >= 12f -> stringResource(R.string.home_session_summary_ramp, cpuTrend.roundToInt(), ramTrend.roundToInt())
-        score != null -> stringResource(R.string.home_session_summary_ai, score, maxAi.strategyLabel)
-        else -> stringResource(R.string.home_session_summary_baseline, dashboard.cpuLoadPercent, ramNow.roundToInt())
-    }
-    return SessionReport(
-        subtitle = stringResource(R.string.home_session_subtitle),
-        summary = summary,
-        grade = grade,
-        cpuDelta = signedPercent(cpuTrend),
-        ramDelta = signedPercent(ramTrend),
-        gpuDelta = gpuTrend?.let(::signedPercent) ?: stringResource(R.string.home_sensor_unavailable),
-        correlation = if (heatRisingUnderLoad) stringResource(R.string.home_session_corr_heat) else stringResource(R.string.home_session_corr_stable),
-        accent = if (temp >= 48f || heatRisingUnderLoad) ({ it.danger }) else if (pressureScore >= .58f) ({ it.warning }) else ({ it.positive })
-    )
 }
 
-private fun trendDelta(history: List<Float>, fallback: Float?): Float? {
-    val now = fallback ?: history.lastOrNull() ?: return null
-    val baseline = history.take(12).takeIf { it.size >= 3 }?.average()?.toFloat() ?: history.firstOrNull() ?: now
-    return now - baseline
-}
+private fun beforeAfterText(before: Int?, after: Int?): String = if (before != null && after != null) "$before% → $after%" else "—"
 
-private fun signedPercent(delta: Float?): String = delta?.let {
-    val rounded = it.roundToInt()
-    when {
-        rounded > 0 -> "+$rounded%"
-        else -> "$rounded%"
-    }
-} ?: "—"
+@Composable
+private fun realGainText(realImprovement: Boolean?): String = when (realImprovement) {
+    true -> stringResource(R.string.home_session_real_yes)
+    false -> stringResource(R.string.home_session_real_no)
+    null -> stringResource(R.string.home_session_real_unknown)
+}
 
 @Composable
 private fun CpuCoreMatrix(cores: List<CpuCoreState>, palette: HomePalette, onOpen: () -> Unit) {

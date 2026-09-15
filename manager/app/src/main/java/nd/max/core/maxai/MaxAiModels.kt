@@ -98,6 +98,17 @@ data class MaxAiForecastPoint(
  * هذا الحقل هو ما يمنع الاستكشاف من أن يكون صندوقًا أسود: المستخدم
  * يرى متى كان النطام سيجرّب ولماذا امتنع بالضبط.
  */
+
+/** Practical automation plan derived from current ownership/safety/learning state. */
+data class AutomationPlan(
+    val mode: String = "Manual",
+    val profileHint: String = "Balanced",
+    val reason: String = "Waiting for live context",
+    val nextAction: String = "Observe",
+    val reversible: Boolean = true,
+    val confidencePercent: Int = 0,
+)
+
 data class ExplorationState(
     /** null حين يُسمح بالتجربة؛ غير ذلك أحد ثوابت [TrustModel.Block]. */
     val blockReason: String? = null,
@@ -186,4 +197,6 @@ data class MaxAiState(
     val trust: List<TrustModel.KnobTrust> = emptyList(),
     /** بوابة الاستكشاف كما قُيّمت في الدورة الأخيرة. */
     val exploration: ExplorationState = ExplorationState(),
+    /** خطة automation مفهومة وقابلة للتراجع مشتقة من الملكية والسلامة والتعلّم. */
+    val automationPlan: AutomationPlan = AutomationPlan(),
 )

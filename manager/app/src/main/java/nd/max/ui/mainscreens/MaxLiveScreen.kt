@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.Psychology
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Timeline
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -128,6 +129,7 @@ fun MaxLiveScreen(
         PredictionErrorSection(episodes)
         KnowledgeSection(state)
         ExplorationSection(state)
+        AutomationPlanSection(state)
         LoopCountersSection(insights)
         OwnershipSection(state)
         ActionsSection(viewModel)
@@ -521,6 +523,59 @@ private fun ExplorationSection(state: MaxAiState) {
                     ),
                 )
             }
+        }
+    }
+}
+
+
+// ── خطة التحكم الذكي ─────────────────────────────────
+
+/**
+ * تحول الملكية/السلامة/التعلم إلى خطة مفهومة: ما الوضع، لماذا، وما الإجراء
+ * التالي. لا تنفذ مسارًا موازيًا؛ تعرض فقط قرار المحرك القابل للتراجع.
+ */
+@Composable
+private fun AutomationPlanSection(state: MaxAiState) {
+    val plan = state.automationPlan
+    val tone = when (plan.mode) {
+        "Safety guard" -> MaxTone.Critical
+        "User-locked" -> MaxTone.Caution
+        "Adaptive", "Hold" -> MaxTone.Positive
+        "Learning" -> MaxTone.Accent
+        else -> MaxTone.Neutral
+    }
+    MaxSection(
+        title = stringResource(R.string.max_live_automation_title),
+        description = stringResource(R.string.max_live_automation_desc),
+    ) {
+        MaxGroup {
+            MaxRow(
+                title = plan.mode,
+                subtitle = plan.reason,
+                icon = Icons.Rounded.Tune,
+                iconTone = tone,
+                trailing = { MaxCapsule(text = stringResource(R.string.max_live_confidence, plan.confidencePercent), tone = tone) },
+            )
+            MaxGroupDivider()
+            MaxRow(
+                title = stringResource(R.string.max_live_profile_hint),
+                subtitle = plan.profileHint,
+                icon = Icons.Rounded.Psychology,
+                iconTone = MaxTone.Accent,
+            )
+            MaxGroupDivider()
+            MaxRow(
+                title = stringResource(R.string.max_live_next_action),
+                subtitle = plan.nextAction,
+                icon = Icons.Rounded.Refresh,
+                iconTone = MaxTone.Positive,
+                trailing = {
+                    MaxCapsule(
+                        text = if (plan.reversible) stringResource(R.string.max_live_reversible) else stringResource(R.string.max_live_not_reversible),
+                        tone = if (plan.reversible) MaxTone.Positive else MaxTone.Critical,
+                    )
+                },
+            )
         }
     }
 }

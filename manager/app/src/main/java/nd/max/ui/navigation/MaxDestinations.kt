@@ -43,7 +43,7 @@ import nd.max.R
 
 /**
  * Risk classification for destinations that can wedge or brick a device.
- * Consumed by the Settings - Advanced tools gate (ADR-16).
+ * Consumed by Control and any advanced-tool gate that explains device risk.
  */
 enum class MaxRisk { Normal, Advanced, Dangerous }
 
@@ -156,11 +156,11 @@ sealed class MaxDestination(
     data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.Rounded.ListAlt, Settings)
     data object About : MaxDestination("aboutscreen", R.string.section_about, Icons.Rounded.Info, Settings)
 
-    // Settings - Advanced tools (ADR-16: gated, not featured)
-    data object Terminal : MaxDestination("terminal", R.string.max_title_terminal, Icons.Rounded.Terminal, Settings, MaxRisk.Dangerous)
-    data object SetEdit : MaxDestination("setedit", R.string.max_title_setedit, Icons.Rounded.Edit, Settings, MaxRisk.Advanced)
-    data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.Rounded.Launch, Settings, MaxRisk.Advanced)
-    data object KernelFlasher : MaxDestination("kernelflasher", R.string.max_title_kernel_flasher, Icons.Rounded.Build, Settings, MaxRisk.Dangerous)
+    // Control - Advanced tools (gated, not preferences)
+    data object Terminal : MaxDestination("terminal", R.string.max_title_terminal, Icons.Rounded.Terminal, Control, MaxRisk.Dangerous)
+    data object SetEdit : MaxDestination("setedit", R.string.max_title_setedit, Icons.Rounded.Edit, Control, MaxRisk.Advanced)
+    data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.Rounded.Launch, Control, MaxRisk.Advanced)
+    data object KernelFlasher : MaxDestination("kernelflasher", R.string.max_title_kernel_flasher, Icons.Rounded.Build, Control, MaxRisk.Dangerous)
 
     companion object {
         /** The four bottom-bar / nav-rail destinations (ADR-03). */

@@ -26,20 +26,16 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Memory
-import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material.icons.filled.Terminal
-import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.rounded.HelpOutline
 import androidx.compose.material.icons.outlined.Memory
@@ -51,28 +47,27 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.R
-import nd.max.ui.component.ExpressiveInfoCard
 import nd.max.ui.component.ExpressiveList
 import nd.max.ui.component.ExpressiveListItem
 import nd.max.ui.component.MaxManagerSubScreenTopBar
 import nd.max.ui.component.MaxScreenHelpDialog
 import nd.max.ui.component.MaxStatusPill
-import nd.max.ui.component.MaxSurface
-import nd.max.ui.component.MaxUiMetrics
 import nd.max.ui.theme.MaxTextRole
+import nd.max.ui.component.MaxSurface
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.height
 import nd.max.ui.component.StudioSectionHeader
 import nd.max.core.hardware.AccessLevel
 import nd.max.core.hardware.HardwareCapabilityResolver
@@ -145,43 +140,31 @@ fun DiagnosticsScreen(navController: NavHostController) {
             }
 
             item {
-                MaxSurface(
-                    modifier = Modifier.padding(top = MaxUiMetrics.sectionGap)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        IconBadge(Icons.Outlined.Analytics, MaterialTheme.colorScheme.primary, 38)
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                stringResource(R.string.diagnostics_workflow_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
+                ExpressiveList(
+                    content = listOf(
+                        {
+                            ExpressiveListItem(
+                                leadingContent = { IconBadge(Icons.Outlined.Analytics, MaterialTheme.colorScheme.primary, 36) },
+                                headlineContent = { Text(stringResource(R.string.diagnostics_workflow_title)) },
+                                supportingContent = { Text(stringResource(R.string.diagnostics_workflow_desc)) },
+                                trailingContent = {
+                                    MaxStatusPill(
+                                        text = stringResource(R.string.diagnostics_inspection_only),
+                                        active = true,
+                                        accent = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             )
-                            Text(
-                                stringResource(R.string.diagnostics_workflow_desc),
-                                style = MaxTextRole.description,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        {
+                            ExpressiveListItem(
+                                headlineContent = { Text(stringResource(R.string.diagnostics_step_processes)) },
+                                supportingContent = { Text(stringResource(R.string.diagnostics_step_logs) + " · " + stringResource(R.string.diagnostics_step_shell)) },
+                                leadingContent = { IconBadge(Icons.Filled.Dns, MaterialTheme.colorScheme.primary, 36) }
                             )
                         }
-                        MaxStatusPill(
-                            text = stringResource(R.string.diagnostics_inspection_only),
-                            active = true,
-                            accent = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    Spacer(Modifier.height(14.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        DiagnosticsStep(stringResource(R.string.diagnostics_step_01), stringResource(R.string.diagnostics_step_processes), Modifier.weight(1f))
-                        DiagnosticsStep(stringResource(R.string.diagnostics_step_02), stringResource(R.string.diagnostics_step_logs), Modifier.weight(1f))
-                        DiagnosticsStep(stringResource(R.string.diagnostics_step_03), stringResource(R.string.diagnostics_step_shell), Modifier.weight(1f))
-                    }
-                }
+                    )
+                )
             }
             item {
                 CapabilityMatrixCard(capabilities) {
@@ -247,14 +230,6 @@ fun DiagnosticsScreen(navController: NavHostController) {
 
 }
 
-
-@Composable
-private fun DiagnosticsStep(number: String, title: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(number, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-        Text(title, style = MaxTextRole.status, fontWeight = FontWeight.SemiBold)
-    }
-}
 
 
 @Composable

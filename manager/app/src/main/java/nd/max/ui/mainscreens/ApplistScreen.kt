@@ -180,6 +180,14 @@ fun ApplistScreen(navController: NavHostController) {
                                 games = gameApps
                             )
                         }
+                        item(key = "apps_product_bridge") {
+                            AppsProductBridge(
+                                customized = customizedApps,
+                                games = gameApps,
+                                onOpenControl = { MaxNavActions(navController).navigateTo(MaxDestination.Control) },
+                                onOpenLive = { MaxNavActions(navController).navigateTo(MaxDestination.MaxLive) }
+                            )
+                        }
                         item {
                             AppSearchField(
                                 query = viewModel.searchTextFieldValue,
@@ -332,6 +340,35 @@ private fun AppMetric(label: String, value: Int, modifier: Modifier = Modifier) 
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppsProductBridge(
+    customized: Int,
+    games: Int,
+    onOpenControl: () -> Unit,
+    onOpenLive: () -> Unit
+) {
+    MaxSection(
+        title = stringResource(R.string.apps_bridge_title),
+        description = stringResource(R.string.apps_bridge_desc)
+    ) {
+        MaxGroup {
+            MaxRow(
+                title = stringResource(R.string.apps_bridge_profiles_title),
+                subtitle = stringResource(R.string.apps_bridge_profiles_desc, customized, games),
+                icon = MaxDestination.MaxLive.icon,
+                onClick = onOpenLive,
+            )
+            MaxGroupDivider()
+            MaxRow(
+                title = stringResource(R.string.apps_bridge_control_title),
+                subtitle = stringResource(R.string.apps_bridge_control_desc),
+                icon = MaxDestination.Control.icon,
+                onClick = onOpenControl,
             )
         }
     }

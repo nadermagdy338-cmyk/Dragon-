@@ -30,7 +30,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -72,7 +71,7 @@ import nd.max.ui.viewmodel.AppSettingsViewModel
 import nd.max.ui.viewmodel.ApplistViewmodel
 import nd.max.ui.mainscreens.LabelText
 import nd.max.ui.mainscreens.IconBadge
-import nd.max.ui.mainscreens.GlowLinearBar
+import nd.max.ui.navigation.MaxDestination
 
 // ────────────────────────────────────────────────────────────────────────────
 // Main Screen
@@ -228,6 +227,14 @@ fun AppSettingsScreen(
                     ) {
                         val cfg = config ?: AppConfig()
                         Column {
+
+                            PerAppSystemBridge(
+                                customizedCount = cfg.customizedFieldCount(),
+                                isGameApp = isGameApp,
+                                onOpenLive = { navController.navigate(MaxDestination.MaxLive.route) },
+                                onOpenControl = { navController.navigate(MaxDestination.Control.route) }
+                            )
+                            Spacer(Modifier.height(10.dp))
 
                             AppSettingsTabRow(
                                 tabs = appTabs,
@@ -576,6 +583,39 @@ fun AppSettingsScreen(
 // ────────────────────────────────────────────────────────────────────────────
 
 private fun getBoolIndex(v: String?): Int = when (v) { "true" -> 1; "false" -> 2; else -> 0 }
+
+@Composable
+private fun PerAppSystemBridge(
+    customizedCount: Int,
+    isGameApp: Boolean,
+    onOpenLive: () -> Unit,
+    onOpenControl: () -> Unit,
+) {
+    MaxManagerInsight(
+        text = stringResource(
+            R.string.app_settings_system_bridge,
+            customizedCount,
+            if (isGameApp) stringResource(R.string.applist_filter_games) else stringResource(R.string.applist_filter_all)
+        ),
+        accent = MaterialTheme.colorScheme.tertiary,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+    Row(
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        nd.max.ui.component.StudioOutlinedButton(onClick = onOpenLive, modifier = Modifier.weight(1f)) {
+            Icon(Icons.Rounded.Timeline, contentDescription = null)
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(R.string.app_settings_open_live))
+        }
+        nd.max.ui.component.StudioOutlinedButton(onClick = onOpenControl, modifier = Modifier.weight(1f)) {
+            Icon(Icons.Rounded.Tune, contentDescription = null)
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(R.string.app_settings_open_control))
+        }
+    }
+}
 
 @Composable
 private fun PerAppCpuControlSection(
