@@ -150,12 +150,19 @@ internal fun LegendaryHomeDashboard(
             onOpenLive = { onNavigate(MaxDestination.MaxLive.route) },
             onOpenThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
         )
+        PerformanceSessionCard(
+            dashboard = dashboard,
+            maxAi = maxAi,
+            palette = palette,
+            onOpenLive = { onNavigate(MaxDestination.MaxLive.route) },
+            onOpenThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
+        )
         CpuCoreMatrix(dashboard.cores, palette) { onNavigate(MaxDestination.CpuCoreControl.route) }
         MemoryStorageCard(
             dashboard = dashboard,
             palette = palette,
             onMemory = { onNavigate(MaxDestination.ZramManager.route) },
-            onStorage = { onNavigate("storage_detail") }
+            onStorage = { onNavigate(MaxDestination.StorageDetail.route) }
         )
         QuickActionsGrid(
             palette = palette,
@@ -529,6 +536,114 @@ private fun StoryButton(text: String, icon: ImageVector, accent: Color, palette:
         }
     }
 }
+
+
+@Composable
+private fun PerformanceSessionCard(
+    dashboard: DashboardState,
+    maxAi: MaxAiState,
+    palette: HomePalette,
+    onOpenLive: () -> Unit,
+    onOpenThermal: () -> Unit
+) {
+    val report = rememberSessionReport(dashboard, maxAi)
+    DashboardCard(report.accent(palette), palette, padded = true) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            SectionTitle(
+                title = stringResource(R.string.home_session_title),
+                subtitle = report.subtitle,
+                icon = Icons.Rounded.QueryStats,
+                accent = report.accent(palette),
+                palette = palette,
+                modifier = Modifier.weight(1f)
+            )
+            DetailPill(report.grade, report.accent(palette))
+        }
+        Spacer(Modifier.height(12.dp))
+        Text(report.summary, color = palette.text, style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.height(12.dp))
+        FlowRow(
+            Modifier.fillMaxWidth(),
+            maxItemsInEachRow = 2,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            StorySignal(stringResource(R.string.home_session_cpu_delta), report.cpuDelta, palette.primary, palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_session_ram_delta), report.ramDelta, palette.positive, palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_session_gpu_delta), report.gpuDelta, palette.secondary, palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_session_correlation), report.correlation, report.accent(palette), palette, Modifier.weight(1f))
+        }
+        Spacer(Modifier.height(10.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StoryButton(stringResource(R.string.home_session_open_loop), Icons.Rounded.Timeline, palette.secondary, palette, onOpenLive, Modifier.weight(1f))
+            StoryButton(stringResource(R.string.home_session_open_heat), Icons.Rounded.Thermostat, palette.warning, palette, onOpenThermal, Modifier.weight(1f))
+        }
+    }
+}
+
+private data class SessionReport(
+    val subtitle: String,
+    val summary: String,
+    val grade: String,
+    val cpuDelta: String,
+    val ramDelta: String,
+    val gpuDelta: String,
+    val correlation: String,
+    val accent: (HomePalette) -> Color
+)
+
+@Composable
+private fun rememberSessionReport(dashboard: DashboardState, maxAi: MaxAiState): SessionReport {
+    val cpuTrend = trendDelta(dashboard.cpuLoadHistory, dashboard.cpuLoadPercent.toFloat())
+    val ramNow = dashboard.ramTotalMb.takeIf { it > 0 }?.let { dashboard.ramUsedMb * 100f / it } ?: 0f
+    val ramTrend = trendDelta(dashboard.ramLoadHistory, ramNow)
+    val gpuTrend = trendDelta(dashboard.gpuLoadHistory, dashboard.gpuLoadPercent?.toFloat())
+    val temp = primaryBatteryTemperatureC(dashboard) ?: dashboard.cpuTempC.takeIf { it > 0 }?.toFloat() ?: 0f
+    val score = maxAi.objectiveScore?.let { (it * 100f).roundToInt() }
+    val heatRisingUnderLoad = temp >= 42f && dashboard.cpuLoadPercent >= 55
+    val pressureScore = listOf(
+        dashboard.cpuLoadPercent / 100f,
+        ramNow / 100f,
+        (temp / 55f).coerceIn(0f, 1f),
+        ((dashboard.gpuLoadPercent ?: 0) / 100f)
+    ).average().toFloat()
+
+    val grade = when {
+        temp >= 48f || pressureScore >= .78f -> stringResource(R.string.home_session_grade_hot)
+        pressureScore >= .58f -> stringResource(R.string.home_session_grade_busy)
+        else -> stringResource(R.string.home_session_grade_clean)
+    }
+    val summary = when {
+        heatRisingUnderLoad -> stringResource(R.string.home_session_summary_heat, dashboard.cpuLoadPercent, temp.roundToInt())
+        cpuTrend >= 18f && ramTrend >= 12f -> stringResource(R.string.home_session_summary_ramp, cpuTrend.roundToInt(), ramTrend.roundToInt())
+        score != null -> stringResource(R.string.home_session_summary_ai, score, maxAi.strategyLabel)
+        else -> stringResource(R.string.home_session_summary_baseline, dashboard.cpuLoadPercent, ramNow.roundToInt())
+    }
+    return SessionReport(
+        subtitle = stringResource(R.string.home_session_subtitle),
+        summary = summary,
+        grade = grade,
+        cpuDelta = signedPercent(cpuTrend),
+        ramDelta = signedPercent(ramTrend),
+        gpuDelta = gpuTrend?.let(::signedPercent) ?: stringResource(R.string.home_sensor_unavailable),
+        correlation = if (heatRisingUnderLoad) stringResource(R.string.home_session_corr_heat) else stringResource(R.string.home_session_corr_stable),
+        accent = if (temp >= 48f || heatRisingUnderLoad) ({ it.danger }) else if (pressureScore >= .58f) ({ it.warning }) else ({ it.positive })
+    )
+}
+
+private fun trendDelta(history: List<Float>, fallback: Float?): Float? {
+    val now = fallback ?: history.lastOrNull() ?: return null
+    val baseline = history.take(12).takeIf { it.size >= 3 }?.average()?.toFloat() ?: history.firstOrNull() ?: now
+    return now - baseline
+}
+
+private fun signedPercent(delta: Float?): String = delta?.let {
+    val rounded = it.roundToInt()
+    when {
+        rounded > 0 -> "+$rounded%"
+        else -> "$rounded%"
+    }
+} ?: "—"
 
 @Composable
 private fun CpuCoreMatrix(cores: List<CpuCoreState>, palette: HomePalette, onOpen: () -> Unit) {
