@@ -85,8 +85,11 @@
     <string name="max_ai_deferred_verdict">deferred verdict: battery %1$s · thermal %2$s · satisfaction %3$s</string>
     <string name="max_ai_episode_safety">Safety intervention</string>
     <string name="max_ai_episode_drift">Drift: %1$s</string>
+    <string name="max_ai_episode_probe">Probe: %1$s</string>
     <string name="max_ai_verdict_safety">Safety</string>
     <string name="max_ai_verdict_drift">Drift</string>
+    <string name="max_ai_verdict_probe_reverted">Probe: reverted</string>
+    <string name="max_ai_verdict_probe_stuck">Probe: not reverted</string>
 
     <string name="max_ai_candidates_title">Candidates considered (%1$d)</string>
     <string name="max_ai_candidate_chosen">Chosen</string>
@@ -112,6 +115,8 @@
     <string name="max_ai_summary_write_failed">The write did not hold on the hardware, so no success is claimed.</string>
     <string name="max_ai_summary_unmeasured">Written and verified, but the effect could not be measured.</string>
     <string name="max_ai_summary_no_action">A gap was measured, but every available step looked worse than the gap.</string>
+    <string name="max_ai_summary_probe_reverted">The objective was already satisfied; this knob was unknown, so it was measured once and reverted to baseline as designed.</string>
+    <string name="max_ai_summary_probe_stuck">The objective was already satisfied; this knob was unknown and measured once, but it could not be reverted to baseline.</string>
 
     <string name="max_ai_direction_raise">raising performance</string>
     <string name="max_ai_direction_save">saving energy</string>

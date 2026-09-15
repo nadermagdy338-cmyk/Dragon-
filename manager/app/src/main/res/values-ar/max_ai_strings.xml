@@ -78,8 +78,11 @@
     <string name="max_ai_deferred_verdict">الحكم المؤجل: بطارية %1$s · حرارة %2$s · رضا %3$s</string>
     <string name="max_ai_episode_safety">تدخل سلامة</string>
     <string name="max_ai_episode_drift">انحراف: %1$s</string>
+    <string name="max_ai_episode_probe">تجربة: %1$s</string>
     <string name="max_ai_verdict_safety">سلامة</string>
     <string name="max_ai_verdict_drift">انحراف</string>
+    <string name="max_ai_verdict_probe_reverted">تجربة: استُرجعت</string>
+    <string name="max_ai_verdict_probe_stuck">تجربة: لم تُسترجع</string>
 
     <string name="max_ai_candidates_title">المرشحون المدروسون (%1$d)</string>
     <string name="max_ai_candidate_chosen">المختار</string>
@@ -105,6 +108,8 @@
     <string name="max_ai_summary_write_failed">لم تثبت الكتابة على العتاد، فلا ادعاء نجاح.</string>
     <string name="max_ai_summary_unmeasured">كُتب وتم التحقق منه، لكن تعذر قياس الأثر.</string>
     <string name="max_ai_summary_no_action">قيست فجوة، لكن كل خطوة متاحة بدت أسوأ من الفجوة نفسها.</string>
+    <string name="max_ai_summary_probe_reverted">كان الهدف مُشبَعًا بالفعل؛ هذا المقبض كان مجهولاً، فقيس مرة واحدة ثم استُرجع إلى خط الأساس كما هو مصمَّم.</string>
+    <string name="max_ai_summary_probe_stuck">كان الهدف مُشبَعًا بالفعل؛ هذا المقبض كان مجهولاً وقيس مرة واحدة، لكن تعذّر استرجاعه إلى خط الأساس.</string>
 
     <string name="max_ai_direction_raise">رفع الأداء</string>
     <string name="max_ai_direction_save">توفير الطاقة</string>

@@ -28,7 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.core.hardware.ProfileApplier
 import nd.max.core.maxai.ControlRegistry
@@ -85,7 +85,7 @@ import kotlin.math.abs
  */
 @Composable
 fun MaxAiScreen(
-    navController: NavController,
+    navController: NavHostController,
     viewModel: MaxAiViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -683,7 +683,7 @@ private fun InsightsSection(snapshot: MaxAiInsights.Snapshot) {
 // ── الملكية والأقفال ─────────────────────────────────
 
 @Composable
-private fun LiveCenterRow(navController: NavController) {
+private fun LiveCenterRow(navController: NavHostController) {
     MaxGroup {
         MaxRow(
             title = stringResource(R.string.max_live_open),
@@ -816,6 +816,15 @@ private fun episodeSummary(episode: MaxAiEpisode): String = when (episode.verdic
     MaxAiVerdict.UNMEASURED -> stringResource(R.string.max_ai_summary_unmeasured)
     MaxAiVerdict.NO_ACTION -> stringResource(R.string.max_ai_summary_no_action)
 }
+
+@Composable
+private fun probeSummary(episode: MaxAiEpisode): String = stringResource(
+    if (episode.reverted) {
+        R.string.max_ai_summary_probe_reverted
+    } else {
+        R.string.max_ai_summary_probe_stuck
+    },
+)
 
 @Composable
 private fun verdictDetail(episode: MaxAiEpisode): String =
