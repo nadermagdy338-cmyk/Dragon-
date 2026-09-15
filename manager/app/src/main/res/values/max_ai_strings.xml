@@ -131,6 +131,7 @@
     <string name="max_ai_insight_inconclusive">Inconclusive</string>
     <string name="max_ai_insight_learning">Still learning</string>
     <string name="max_ai_insights_summary">Improved %1$d · rolled back %2$d · blocked %3$d · unmeasured %4$d</string>
+    <string name="max_ai_insights_events_summary">Safety %1$d · drift %2$d · overridden %3$d · deferred measured %4$d</string>
     <string name="max_ai_insights_prediction">Mean prediction error %1$s over %2$d measured loops</string>
 
     <!-- Ownership -->

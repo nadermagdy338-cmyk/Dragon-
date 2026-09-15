@@ -666,6 +666,17 @@ private fun InsightsSection(snapshot: MaxAiInsights.Snapshot) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        Text(
+            text = stringResource(
+                R.string.max_ai_insights_events_summary,
+                snapshot.safetyEvents,
+                snapshot.driftEvents,
+                snapshot.userOverrides,
+                snapshot.deferredMeasured,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         snapshot.meanAbsPredictionError?.let { error ->
             Text(
                 text = stringResource(

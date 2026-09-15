@@ -123,6 +123,7 @@
     <string name="max_ai_insight_inconclusive">غير حاسم</string>
     <string name="max_ai_insight_learning">قيد التعلّم</string>
     <string name="max_ai_insights_summary">تحسن %1$d · استرجاع %2$d · حجب %3$d · بلا قياس %4$d</string>
+    <string name="max_ai_insights_events_summary">سلامة %1$d · انحراف %2$d · تجاوز %3$d · حكم مؤجل قيس %4$d</string>
     <string name="max_ai_insights_prediction">متوسط خطأ التنبؤ %1$s عبر %2$d حلقة مقيسة</string>
 
     <string name="max_ai_section_system">من يملك كل مقبض</string>
