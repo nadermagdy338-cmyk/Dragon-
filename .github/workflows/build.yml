@@ -185,7 +185,12 @@ jobs:
         run: |
           chmod +x ./gradlew
 
-          if [ "$V_TYPE" == "experimental" ]; then
+          # Pull requests (including ones opened from forks) never receive
+          # repo secrets, so KS_PWD is unavailable there regardless of how
+          # KEYSTORE_PASSWORD is configured. Fall back to an unsigned debug
+          # build so PR CI still validates the code without needing a
+          # signed release artifact.
+          if [ "$V_TYPE" == "experimental" ] || [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
             ./gradlew clean assembleDebug
           else
             ./gradlew clean assembleRelease
@@ -200,7 +205,7 @@ jobs:
           EXPECTED_RELEASE_SIGNER_SHA256: 9dfd87e1f3e036517c274041c16a5b535157282a4c1e637cf5a01ee356215275
         run: |
           set -eu
-          if [ "$V_TYPE" = "experimental" ]; then
+          if [ "$V_TYPE" = "experimental" ] || [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
             apk_path="manager/app/build/outputs/apk/debug/app-debug.apk"
           else
             apk_path="manager/app/build/outputs/apk/release/app-release.apk"
@@ -218,7 +223,7 @@ jobs:
           test "$version_name" = "$EXPECTED_APK_VERSION_NAME" \
             || { echo "Unexpected APK versionName: $version_name (expected $EXPECTED_APK_VERSION_NAME)" >&2; exit 1; }
 
-          if [ "$V_TYPE" != "experimental" ]; then
+          if [ "$V_TYPE" != "experimental" ] && [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
             test -n "$EXPECTED_RELEASE_SIGNER_SHA256" \
               || { echo "Expected release signer fingerprint is not configured" >&2; exit 1; }
             actual_signer="$(apksigner verify --print-certs "$apk_path" \

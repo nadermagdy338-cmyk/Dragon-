@@ -81,7 +81,14 @@ case "$version_type" in
         APK_PATH="manager/app/build/outputs/apk/debug/app-debug.apk"
         ;;
     *)
-        APK_PATH="manager/app/build/outputs/apk/release/app-release.apk"
+        # Pull requests build an unsigned debug APK instead (see
+        # "Build Manager APK" in build.yml) since KS_PWD/KEYSTORE_PASSWORD
+        # is never available to PR runs.
+        if [ "${GITHUB_EVENT_NAME:-}" == "pull_request" ]; then
+            APK_PATH="manager/app/build/outputs/apk/debug/app-debug.apk"
+        else
+            APK_PATH="manager/app/build/outputs/apk/release/app-release.apk"
+        fi
         ;;
 esac
 if [ ! -f "$APK_PATH" ]; then
