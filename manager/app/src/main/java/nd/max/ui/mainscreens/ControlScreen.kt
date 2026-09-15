@@ -9,6 +9,7 @@ import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxListScreen
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxSection
+import nd.max.ui.design.MaxDataTrust
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 import nd.max.ui.subscreens.hubs.maxHubDescription
@@ -24,16 +25,34 @@ fun ControlScreen(navController: NavHostController) {
 
     MaxListScreen(
         title = stringResource(R.string.max_nav_control),
+        subtitle = stringResource(R.string.control_workspace_subtitle),
         onBack = actions::back,
         accentIcon = MaxDestination.Control.icon,
+        header = {
+            MaxSection(
+                title = stringResource(R.string.control_map_title),
+                description = stringResource(R.string.control_map_desc),
+            ) {
+                MaxGroup {
+                    MaxRow(
+                        title = stringResource(R.string.control_map_how_title),
+                        subtitle = stringResource(R.string.control_map_how_desc),
+                        icon = MaxDestination.MaxLive.icon,
+                    )
+                }
+            }
+        }
     ) {
         hubs.forEach { hub ->
             item(key = hub.route) {
+                val profile = controlDomainProfile(hub)
                 MaxDomainCard(
                     title = stringResource(hub.titleRes),
                     subtitle = stringResource(maxHubDescription(hub)),
                     icon = hub.icon,
                     onClick = { actions.navigateTo(hub) },
+                    state = stringResource(profile.stateRes, controlDomainScreenCount(hub)),
+                    trust = MaxDataTrust.Snapshot,
                 )
             }
         }
@@ -51,3 +70,27 @@ fun ControlScreen(navController: NavHostController) {
         }
     }
 }
+
+
+private data class ControlDomainProfile(
+    @androidx.annotation.StringRes val stateRes: Int,
+)
+
+private fun controlDomainProfile(hub: MaxDestination): ControlDomainProfile = when (hub) {
+    MaxDestination.CpuHub -> ControlDomainProfile(R.string.control_domain_cpu_state)
+    MaxDestination.GpuHub -> ControlDomainProfile(R.string.control_domain_gpu_state)
+    MaxDestination.MemoryHub -> ControlDomainProfile(R.string.control_domain_memory_state)
+    MaxDestination.DisplayHub -> ControlDomainProfile(R.string.control_domain_display_state)
+    MaxDestination.ResponsivenessHub -> ControlDomainProfile(R.string.control_domain_responsiveness_state)
+    MaxDestination.ThermalHub -> ControlDomainProfile(R.string.control_domain_thermal_state)
+    MaxDestination.PowerHub -> ControlDomainProfile(R.string.control_domain_power_state)
+    MaxDestination.StorageHub -> ControlDomainProfile(R.string.control_domain_storage_state)
+    MaxDestination.NetworkHub -> ControlDomainProfile(R.string.control_domain_network_state)
+    else -> ControlDomainProfile(R.string.control_domain_generic_state)
+}
+
+private fun controlDomainScreenCount(hub: MaxDestination): Int =
+    MaxDestination.All.count { it.parent == hub } + when (hub) {
+        MaxDestination.GpuHub, MaxDestination.ThermalHub, MaxDestination.MemoryHub -> 1
+        else -> 0
+    }

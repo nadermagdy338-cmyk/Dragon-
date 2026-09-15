@@ -133,32 +133,39 @@ internal fun LegendaryHomeDashboard(
             engineOnline = ui.rootStatus && ui.moduleInstalled,
             palette = palette,
             onProfile = onProfile,
-            onDetails = { onNavigate("diagnostics") }
+            onDetails = { onNavigate(MaxDestination.Diagnostics.route) }
         )
         LivePerformanceCard(
             dashboard = dashboard,
             palette = palette,
-            onCpu = { onNavigate("cpucorecontrol") },
+            onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
             onGpu = gpuRoute?.let { route -> { onNavigate(route) } },
-            onMemory = { onNavigate("zrammanager") },
-            onThermal = { onNavigate("thermal_detail") }
+            onMemory = { onNavigate(MaxDestination.ZramManager.route) },
+            onThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
         )
-        CpuCoreMatrix(dashboard.cores, palette) { onNavigate("cpucorecontrol") }
+        PerformanceStoryCard(
+            dashboard = dashboard,
+            maxAi = maxAi,
+            palette = palette,
+            onOpenLive = { onNavigate(MaxDestination.MaxLive.route) },
+            onOpenThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
+        )
+        CpuCoreMatrix(dashboard.cores, palette) { onNavigate(MaxDestination.CpuCoreControl.route) }
         MemoryStorageCard(
             dashboard = dashboard,
             palette = palette,
-            onMemory = { onNavigate("zrammanager") },
+            onMemory = { onNavigate(MaxDestination.ZramManager.route) },
             onStorage = { onNavigate("storage_detail") }
         )
         QuickActionsGrid(
             palette = palette,
             onBoost = onProfile,
-            onThermal = { onNavigate("thermal_detail") },
-            onBattery = { onNavigate("chargingscreen") },
-            onAdvanced = { onNavigate("tweaks") }
+            onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
+            onBattery = { onNavigate(MaxDestination.Charging.route) },
+            onAdvanced = { onNavigate(MaxDestination.AllTweaks.route) }
         )
         DeviceResourcesCard(dashboard, palette, onNavigate)
-        AiCommandCard(maxAi, profileRequest, palette, { onNavigate(MaxDestination.MaxAi.route) }, onAiRetry)
+        AiCommandCard(maxAi, profileRequest, palette, { onNavigate(MaxDestination.MaxLive.route) }, onAiRetry)
         ConnectivityStrip(dashboard, ui.rootStatus && ui.moduleInstalled, palette)
     }
 }
@@ -379,6 +386,151 @@ private fun PerformanceMetric(
 }
 
 @Composable
+private fun PerformanceStoryCard(
+    dashboard: DashboardState,
+    maxAi: MaxAiState,
+    palette: HomePalette,
+    onOpenLive: () -> Unit,
+    onOpenThermal: () -> Unit
+) {
+    val story = rememberPerformanceStory(dashboard, maxAi)
+    DashboardCard(story.accent(palette), palette, padded = true) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            SectionTitle(
+                title = stringResource(R.string.home_story_title),
+                subtitle = story.headline,
+                icon = story.icon,
+                accent = story.accent(palette),
+                palette = palette,
+                modifier = Modifier.weight(1f)
+            )
+            StatusDot(story.accent(palette), 8.dp)
+        }
+        Spacer(Modifier.height(12.dp))
+        Surface(
+            shape = InnerShape,
+            color = story.accent(palette).copy(alpha = .08f),
+            border = BorderStroke(1.dp, story.accent(palette).copy(alpha = .18f))
+        ) {
+            Text(
+                story.explanation,
+                color = palette.text,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(13.dp)
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StorySignal(stringResource(R.string.home_story_pressure), story.pressure, story.accent(palette), palette, Modifier.weight(1f))
+            StorySignal(stringResource(R.string.home_story_bottleneck), story.bottleneck, story.accent(palette), palette, Modifier.weight(1f))
+        }
+        Spacer(Modifier.height(10.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StoryButton(stringResource(R.string.home_story_live_loop), Icons.Rounded.Timeline, palette.secondary, palette, onOpenLive, Modifier.weight(1f))
+            StoryButton(stringResource(R.string.home_story_heat_map), Icons.Rounded.Thermostat, palette.warning, palette, onOpenThermal, Modifier.weight(1f))
+        }
+    }
+}
+
+private data class PerformanceStory(
+    val headline: String,
+    val explanation: String,
+    val pressure: String,
+    val bottleneck: String,
+    val icon: ImageVector,
+    val accent: (HomePalette) -> Color
+)
+
+@Composable
+private fun rememberPerformanceStory(dashboard: DashboardState, maxAi: MaxAiState): PerformanceStory {
+    val ramPercent = dashboard.ramTotalMb.takeIf { it > 0 }?.let { dashboard.ramUsedMb * 100f / it } ?: 0f
+    val temp = primaryBatteryTemperatureC(dashboard) ?: dashboard.cpuTempC.takeIf { it > 0 }?.toFloat() ?: 0f
+    val storagePercent = dashboard.storageTotalGb.takeIf { it > 0f }?.let { dashboard.storageUsedGb * 100f / it } ?: 0f
+    val netKbps = dashboard.downloadSpeedKbps + dashboard.uploadSpeedKbps
+    val aiFresh = maxAi.lastSampleAtMs > 0L && System.currentTimeMillis() - maxAi.lastSampleAtMs <= 45_000L
+
+    return when {
+        temp >= 43f -> PerformanceStory(
+            headline = stringResource(R.string.home_story_heat_headline),
+            explanation = stringResource(R.string.home_story_heat_desc, temp.roundToInt(), dashboard.cpuLoadPercent),
+            pressure = stringResource(R.string.home_story_temp_value, temp.roundToInt()),
+            bottleneck = stringResource(R.string.home_story_thermal_limit),
+            icon = Icons.Rounded.Thermostat,
+            accent = { it.danger }
+        )
+        dashboard.cpuLoadPercent >= 78 -> PerformanceStory(
+            headline = stringResource(R.string.home_story_cpu_headline),
+            explanation = stringResource(R.string.home_story_cpu_desc, dashboard.cpuLoadPercent, compactFrequency(dashboard.cpuFreqMhz)),
+            pressure = stringResource(R.string.home_story_cpu_value, dashboard.cpuLoadPercent),
+            bottleneck = stringResource(R.string.home_story_compute_limit),
+            icon = Icons.Rounded.DeveloperBoard,
+            accent = { it.primary }
+        )
+        ramPercent >= 82f -> PerformanceStory(
+            headline = stringResource(R.string.home_story_memory_headline),
+            explanation = stringResource(R.string.home_story_memory_desc, ramPercent.roundToInt(), memoryValue(dashboard.ramTotalMb - dashboard.ramUsedMb)),
+            pressure = stringResource(R.string.home_story_ram_value, ramPercent.roundToInt()),
+            bottleneck = stringResource(R.string.home_story_memory_limit),
+            icon = Icons.Rounded.Memory,
+            accent = { it.positive }
+        )
+        storagePercent >= 88f -> PerformanceStory(
+            headline = stringResource(R.string.home_story_storage_headline),
+            explanation = stringResource(R.string.home_story_storage_desc, storagePercent.roundToInt(), (dashboard.storageTotalGb - dashboard.storageUsedGb).coerceAtLeast(0f).oneDecimal()),
+            pressure = stringResource(R.string.home_story_storage_value, storagePercent.roundToInt()),
+            bottleneck = stringResource(R.string.home_story_io_limit),
+            icon = Icons.Rounded.Storage,
+            accent = { it.secondary }
+        )
+        aiFresh && maxAi.objectiveScore != null -> PerformanceStory(
+            headline = stringResource(R.string.home_story_ai_headline),
+            explanation = stringResource(R.string.home_story_ai_desc, (maxAi.objectiveScore * 100f).roundToInt(), maxAi.strategyLabel),
+            pressure = stringResource(R.string.home_story_score_value, (maxAi.objectiveScore * 100f).roundToInt()),
+            bottleneck = maxAi.appContext.takeUnless { it.isBlank() } ?: "system",
+            icon = Icons.Rounded.Psychology,
+            accent = { it.secondary }
+        )
+        netKbps > 1024 -> PerformanceStory(
+            headline = stringResource(R.string.home_story_network_headline),
+            explanation = stringResource(R.string.home_story_network_desc, formatNetSpeed(dashboard.downloadSpeedKbps), formatNetSpeed(dashboard.uploadSpeedKbps)),
+            pressure = stringResource(R.string.home_story_net_value, formatNetSpeed(netKbps)),
+            bottleneck = stringResource(R.string.home_story_network_limit),
+            icon = Icons.Rounded.NetworkCheck,
+            accent = { it.primary }
+        )
+        else -> PerformanceStory(
+            headline = stringResource(R.string.home_story_stable_headline),
+            explanation = stringResource(R.string.home_story_stable_desc, dashboard.cpuLoadPercent, ramPercent.roundToInt(), temp.roundToInt()),
+            pressure = stringResource(R.string.home_story_stable_value),
+            bottleneck = stringResource(R.string.home_story_no_limit),
+            icon = Icons.Rounded.Insights,
+            accent = { it.positive }
+        )
+    }
+}
+
+@Composable
+private fun StorySignal(label: String, value: String, accent: Color, palette: HomePalette, modifier: Modifier) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(14.dp), color = palette.surfaceRaised, border = BorderStroke(1.dp, accent.copy(alpha = .14f))) {
+        Column(Modifier.padding(11.dp)) {
+            Text(label, color = palette.muted, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+            Text(value, color = palette.text, style = MonoValueStyleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+@Composable
+private fun StoryButton(text: String, icon: ImageVector, accent: Color, palette: HomePalette, onClick: () -> Unit, modifier: Modifier) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(14.dp), color = accent.copy(alpha = .1f), border = BorderStroke(1.dp, accent.copy(alpha = .18f)), onClick = onClick) {
+        Row(Modifier.padding(11.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            Icon(icon, null, tint = accent, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(7.dp))
+            Text(text, color = accent, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+@Composable
 private fun CpuCoreMatrix(cores: List<CpuCoreState>, palette: HomePalette, onOpen: () -> Unit) {
     DashboardCard(palette.primary, palette, padded = true, onClick = onOpen) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -567,11 +719,11 @@ private fun DeviceResourcesCard(dashboard: DashboardState, palette: HomePalette,
     DashboardCard(palette.warning, palette, padded = true) {
         SectionTitle(stringResource(R.string.home_device_resources), stringResource(R.string.home_device_resources_desc), Icons.Rounded.DisplaySettings, palette.warning, palette)
         Spacer(Modifier.height(14.dp))
-        ResourceLink(Icons.Rounded.DisplaySettings, stringResource(R.string.studio_display), if (dashboard.displayWidth > 0) "${dashboard.displayWidth}×${dashboard.displayHeight} · ${dashboard.displayRefreshHz} Hz · ${dashboard.displayDensityDpi} dpi" else "—", palette.primary, palette) { onNavigate("displaystudio") }
+        ResourceLink(Icons.Rounded.DisplaySettings, stringResource(R.string.studio_display), if (dashboard.displayWidth > 0) "${dashboard.displayWidth}×${dashboard.displayHeight} · ${dashboard.displayRefreshHz} Hz · ${dashboard.displayDensityDpi} dpi" else "—", palette.primary, palette) { onNavigate(MaxDestination.DisplayStudio.route) }
         Spacer(Modifier.height(9.dp))
-        ResourceLink(Icons.Rounded.NetworkCheck, stringResource(R.string.max_home_network), "↓ ${formatNetSpeed(dashboard.downloadSpeedKbps)}  ↑ ${formatNetSpeed(dashboard.uploadSpeedKbps)}", palette.positive, palette) { onNavigate("networkscheduler") }
+        ResourceLink(Icons.Rounded.NetworkCheck, stringResource(R.string.max_home_network), "↓ ${formatNetSpeed(dashboard.downloadSpeedKbps)}  ↑ ${formatNetSpeed(dashboard.uploadSpeedKbps)}", palette.positive, palette) { onNavigate(MaxDestination.NetworkScheduler.route) }
         Spacer(Modifier.height(9.dp))
-        ResourceLink(Icons.Rounded.Bolt, stringResource(R.string.home_power_draw), if (dashboard.powerWatt > 0f) "${dashboard.powerWatt.oneDecimal()} W · ${dashboard.batteryVoltageV.oneDecimal()} V" else "—", palette.warning, palette) { onNavigate("chargingscreen") }
+        ResourceLink(Icons.Rounded.Bolt, stringResource(R.string.home_power_draw), if (dashboard.powerWatt > 0f) "${dashboard.powerWatt.oneDecimal()} W · ${dashboard.batteryVoltageV.oneDecimal()} V" else "—", palette.warning, palette) { onNavigate(MaxDestination.Charging.route) }
     }
 }
 
