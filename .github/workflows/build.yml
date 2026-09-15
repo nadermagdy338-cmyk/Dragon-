@@ -202,7 +202,7 @@ jobs:
       - name: Validate Manager APK
         env:
           # Public certificate identity, not a credential. Keep validation self-contained.
-          EXPECTED_RELEASE_SIGNER_SHA256: 9dfd87e1f3e036517c274041c16a5b535157282a4c1e637cf5a01ee356215275
+          EXPECTED_RELEASE_SIGNER_SHA256: f0889f70f53fb610f8188bf02342bde42a3e5dc2cb88388435c5112c7bb363a7
         run: |
           set -eu
           if [ "$V_TYPE" = "experimental" ] || [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
