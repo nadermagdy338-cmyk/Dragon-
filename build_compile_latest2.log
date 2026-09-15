@@ -53,3 +53,119 @@ Reusing configuration cache.
 > Task :kernel-flasher:bundleLibCompileToJarDebug UP-TO-DATE
 > Task :app:kspDebugKotlin
 > Task :app:compileDebugKotlin
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/AppMonitor.kt:968:32 Condition is always 'true'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/AppMonitor.kt:1252:66 'static field WIFI_MODE_FULL_HIGH_PERF: Int' is deprecated. Deprecated in Java.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/PerAppRefreshRateController.kt:27:24 Unnecessary safe call on a non-null receiver of type 'Display'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/hardware/GpuHardwareBackend.kt:260:67 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Long'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/hardware/GpuHardwareBackend.kt:260:86 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Long'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/hardware/GpuHardwareBackend.kt:261:97 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/hardware/GpuHardwareBackend.kt:289:113 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/hardware/HardwareCapabilityResolver.kt:137:27 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/hardware/PerAppControlRegistry.kt:75:41 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/hardware/PerAppRecoveryStore.kt:195:32 No cast needed.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/maxai/ControlOutcomeModel.kt:31:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/maxai/CredibilityStore.kt:13:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/maxai/DynamicIntentLearner.kt:22:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/maxai/MaxAiEngine.kt:69:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/maxai/MaxAiEngine.kt:1574:59 Unnecessary non-null assertion (!!) on a non-null receiver of type 'DecisionRecord'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/maxai/MaxAiJournal.kt:237:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/maxai/ResponseModel.kt:41:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/core/maxai/SafetyEngine.kt:33:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/data/datasources/HardwareDataSourceImpl.kt:11:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/activitylauncher/ActivitylauncherScreen.kt:521:28 'val LocalClipboardManager: ProvidableCompositionLocal<ClipboardManager>' is deprecated. Use LocalClipboard instead which supports suspend functions.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/activitylauncher/ActivitylauncherScreen.kt:537:226 'field versionCode: Int' is deprecated. Deprecated in Java.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/activitylauncher/ActivitylauncherScreen.kt:602:77 'val Icons.Filled.Launch: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Launch.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/activitylauncher/ActivitylauncherScreen.kt:622:65 'val Icons.Filled.Launch: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Launch.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/activitylauncher/ActivitylauncherScreen.kt:653:14 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/activitylauncher/ActivitylauncherScreen.kt:704:14 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/activitylauncher/ActivitylauncherScreen.kt:833:52 'val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/activitylauncher/FloatingActivityService.kt:129:40 'static field TYPE_PHONE: Int' is deprecated. Deprecated in Java.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/component/DecisionHierarchy.kt:74:38 'val Icons.Outlined.HelpOutline: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.HelpOutline.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/flasher/KernelFlasherScreen.kt:383:39 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/flasher/KernelFlasherScreen.kt:844:14 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/flasher/KernelFlasherScreen.kt:949:14 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/ControlScreen.kt:103:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/ControlScreen.kt:127:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/ControlScreen.kt:128:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DashboardDetailScreens.kt:781:50 'val Icons.Rounded.TrendingDown: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.TrendingDown.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DashboardDetailScreens.kt:782:50 'val Icons.Rounded.TrendingUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.TrendingUp.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt:115:57 'val Icons.Rounded.HelpOutline: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.HelpOutline.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/LegendaryHomeDashboard.kt:321:129 Elvis operator (?:) always returns the left operand of non-nullable type 'String'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiScreen.kt:451:46 Unnecessary non-null assertion (!!) on a non-null receiver of type 'MaxAiReading'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiScreen.kt:467:58 Unnecessary non-null assertion (!!) on a non-null receiver of type 'MaxAiReading'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiScreen.kt:474:60 Unnecessary non-null assertion (!!) on a non-null receiver of type 'MaxAiReading'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiScreen.kt:481:60 Unnecessary non-null assertion (!!) on a non-null receiver of type 'MaxAiReading'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiScreen.kt:487:60 Unnecessary non-null assertion (!!) on a non-null receiver of type 'MaxAiReading'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/SettingsScreen.kt:288:250 'val Icons.Rounded.ListAlt: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ListAlt.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/SettingsScreen.kt:678:53 'val Icons.Rounded.HelpOutline: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.HelpOutline.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mainscreens/TweakScreen.kt:1207:53 'val Icons.Rounded.HelpOutline: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.HelpOutline.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mtk/tabs/MtkBoostTab.kt:44:18 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mtk/tabs/MtkCpuTab.kt:48:18 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mtk/tabs/MtkDramTab.kt:44:18 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mtk/tabs/MtkFreqTab.kt:51:18 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mtk/tabs/MtkPpmTab.kt:45:18 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/mtk/tabs/MtkThermalTab.kt:45:18 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/navigation/MaxDestinations.kt:62:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/navigation/MaxDestinations.kt:156:94 'val Icons.Rounded.ListAlt: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ListAlt.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/navigation/MaxDestinations.kt:162:123 'val Icons.Rounded.Launch: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Launch.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/subscreens/AppSettingsScreen.kt:1125:68 'val Icons.Rounded.HelpOutline: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.HelpOutline.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/subscreens/AppSettingsScreen.kt:1144:5 'fun TabRow(selectedTabIndex: Int, modifier: Modifier = ..., containerColor: Color = ..., contentColor: Color = ..., indicator: ComposableFunction1<List<TabPosition>, Unit> = ..., divider: ComposableFunction0<Unit> = ..., tabs: ComposableFunction0<Unit>): Unit' is deprecated. Replaced with PrimaryTabRow and SecondaryTabRow.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/subscreens/BypassCheckScreen.kt:556:35 'val Icons.Filled.FactCheck: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.FactCheck.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/subscreens/DebloatFreezeScreen.kt:171:5 'fun ScrollableTabRow(selectedTabIndex: Int, modifier: Modifier = ..., containerColor: Color = ..., contentColor: Color = ..., edgePadding: Dp = ..., indicator: ComposableFunction1<List<TabPosition>, Unit> = ..., divider: ComposableFunction0<Unit> = ..., tabs: ComposableFunction0<Unit>): Unit' is deprecated. Replaced with PrimaryScrollableTabRow and SecondaryScrollableTabRow tab variants.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/subscreens/SetEditScreen.kt:364:50 'val LocalClipboardManager: ProvidableCompositionLocal<ClipboardManager>' is deprecated. Use LocalClipboard instead which supports suspend functions.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/terminal/FloatingTerminalService.kt:100:44 'static field TYPE_PHONE: Int' is deprecated. Deprecated in Java.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/terminal/TerminalPreferences.kt:191:34 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/terminal/TerminalPreferences.kt:264:34 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/app/src/main/java/nd/max/ui/terminal/TerminalPreferences.kt:267:34 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+
+BUILD SUCCESSFUL in 4m 40s
+42 actionable tasks: 2 executed, 40 up-to-date
+Configuration cache entry reused.
