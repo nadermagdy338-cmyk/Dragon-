@@ -8,7 +8,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 
 package nd.max.ui.activitylauncher
-import nd.max.ui.navigation.MaxNavActions
 
 import nd.max.ui.settings.BgType
 import nd.max.ui.settings.WeatherEffect
@@ -149,6 +148,10 @@ enum class FilterOption { ALL, SYSTEM, USER }
 
 
 @Composable
+private const val ACTIVITY_LAUNCHER_LIST_ROUTE = "app_list"
+private const val ACTIVITY_LAUNCHER_DETAIL_ROUTE = "app_detail/"
+
+@Composable
 fun ActivityLauncherScreen(
     rootNavController: NavController,
     viewModel: ActivityLauncherViewModel = viewModel(),
@@ -157,18 +160,18 @@ fun ActivityLauncherScreen(
     val internalNavController = rememberNavController()
 
     NavHost(navController = internalNavController, startDestination = "app_list") {
-        composable("app_list") {
+        composable(ACTIVITY_LAUNCHER_LIST_ROUTE) {
             AppListScreen(
                 viewModel = viewModel,
                 
                 onBack = { rootNavController.popBackStack() },
                 onAppClick = { app ->
-                    MaxNavActions(internalNavController).openActivityDetail(app.packageName)
+                    internalNavController.navigate(ACTIVITY_LAUNCHER_DETAIL_ROUTE + app.packageName)
                 }
             )
         }
 
-        composable("app_detail/{packageName}") { backStackEntry ->
+        composable(ACTIVITY_LAUNCHER_DETAIL_ROUTE + "{packageName}") { backStackEntry ->
             val packageName = backStackEntry.arguments?.getString("packageName") ?: ""
             AppDetailScreen(
                 packageName = packageName,

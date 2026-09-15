@@ -19,6 +19,7 @@
 package nd.max.ui.mainscreens
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
+import nd.max.ui.navigation.MaxRisk
 
 
 import android.content.ComponentName
@@ -265,6 +266,14 @@ fun SettingsScreen(
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.Palette) },
                                     trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
                                 )
+                            },
+                            {
+                                ExpressiveListItem(
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ColorScheme) },
+                                    headlineContent = { Text(stringResource(R.string.color_scheme)) },
+                                    leadingContent = { LeadingIcon(icon = Icons.Filled.ColorLens) },
+                                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                                )
                             }
                         )
                     )
@@ -285,10 +294,10 @@ fun SettingsScreen(
                 item {
                     ExpressiveList(
                         content = listOf(
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Terminal) }, headlineContent = { Text(stringResource(R.string.max_tool_terminal)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Terminal) }) },
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.SetEdit) }, headlineContent = { Text(stringResource(R.string.max_tool_setedit)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Edit) }) },
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ActivityLauncher) }, headlineContent = { Text(stringResource(R.string.max_tool_activity_launcher)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Launch) }) },
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.KernelFlasher) }, headlineContent = { Text(stringResource(R.string.max_tool_kernel_flasher)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Build) }) },
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Terminal) }, headlineContent = { Text(stringResource(R.string.max_tool_terminal)) }, supportingContent = { Text(stringResource(maxRiskLabel(MaxDestination.Terminal.risk))) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Terminal) }) },
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.SetEdit) }, headlineContent = { Text(stringResource(R.string.max_tool_setedit)) }, supportingContent = { Text(stringResource(maxRiskLabel(MaxDestination.SetEdit.risk))) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Edit) }) },
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ActivityLauncher) }, headlineContent = { Text(stringResource(R.string.max_tool_activity_launcher)) }, supportingContent = { Text(stringResource(maxRiskLabel(MaxDestination.ActivityLauncher.risk))) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Launch) }) },
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.KernelFlasher) }, headlineContent = { Text(stringResource(R.string.max_tool_kernel_flasher)) }, supportingContent = { Text(stringResource(maxRiskLabel(MaxDestination.KernelFlasher.risk))) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Build) }) },
                         )
                     )
                 }
@@ -697,4 +706,10 @@ fun SettingsScreenTopAppBar(
             windowInsets = WindowInsets.statusBars
         )
     }
+}
+/** Risk label resource for the Settings -> Advanced tools gate (ADR-16). */
+internal fun maxRiskLabel(risk: MaxRisk): Int = when (risk) {
+    MaxRisk.Normal -> R.string.max_risk_normal
+    MaxRisk.Advanced -> R.string.max_risk_advanced
+    MaxRisk.Dangerous -> R.string.max_risk_dangerous
 }

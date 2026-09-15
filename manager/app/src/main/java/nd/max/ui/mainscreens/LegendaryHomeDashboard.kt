@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalLayoutApi::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.navigation.MaxDestination
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -157,7 +158,7 @@ internal fun LegendaryHomeDashboard(
             onAdvanced = { onNavigate("tweaks") }
         )
         DeviceResourcesCard(dashboard, palette, onNavigate)
-        AiCommandCard(maxAi, profileRequest, palette, { onNavigate("maxai") }, onAiRetry)
+        AiCommandCard(maxAi, profileRequest, palette, { onNavigate(MaxDestination.MaxAi.route) }, onAiRetry)
         ConnectivityStrip(dashboard, ui.rootStatus && ui.moduleInstalled, palette)
     }
 }

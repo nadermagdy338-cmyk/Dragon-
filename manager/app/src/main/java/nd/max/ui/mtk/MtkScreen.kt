@@ -14,8 +14,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,6 +21,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -79,8 +78,7 @@ fun MtkScreen(
     val hazeState = remember { HazeState() }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     
-    val pagerState = rememberPagerState(pageCount = { 6 })
-    val scope = rememberCoroutineScope()
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val context = LocalContext.current
     
     // THEME STATES (from SettingsViewModel)
@@ -258,15 +256,15 @@ fun MtkScreen(
                         )
                 ) {
                     ScrollableTabRow(
-                        selectedTabIndex = pagerState.currentPage,
+                        selectedTabIndex = selectedTab,
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.onSurface,
                         edgePadding = 8.dp,
                         indicator = { tabPositions ->
-                            if (pagerState.currentPage < tabPositions.size) {
+                            if (selectedTab < tabPositions.size) {
                                 Box(
                                     modifier = Modifier
-                                        .tabIndicatorOffset(tabPositions[pagerState.currentPage])
+                                        .tabIndicatorOffset(tabPositions[selectedTab])
                                         .padding(horizontal = 4.dp, vertical = 4.dp)
                                         .fillMaxSize()
                                         .clip(RoundedCornerShape(24.dp))
@@ -278,10 +276,10 @@ fun MtkScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         tabs.forEachIndexed { index, tab ->
-                            val selected = pagerState.currentPage == index
+                            val selected = selectedTab == index
                             Tab(
                                 selected = selected,
-                                onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                                onClick = { selectedTab = index },
                                 modifier = Modifier.height(56.dp),
                                 text = {
                                     Column(
@@ -312,12 +310,8 @@ fun MtkScreen(
                     }
                 }
 
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize(),
-                    beyondViewportPageCount = 2
-                ) { page ->
-                    when (page) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when (selectedTab) {
                         0 -> MtkFreqTab(
                             state = uiState.freqState,
                             hazeState = hazeState,

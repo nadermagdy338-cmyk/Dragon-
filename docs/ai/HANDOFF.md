@@ -74,3 +74,19 @@ Implemented the typed navigation registry, graph, actions, four primary destinat
 - Deferred safely: internal MTK feature pager remains feature-local; legacy TweakScreen remains reachable because its functional toggle rows have no hub home yet; compilation/device behavior still requires a real Android toolchain/device.
 - Next: NT-02 Max AI ownership/journal/session surface, after the compiler gate is available.
 
+### NT-01 audit pass — dead route fixed, gate results re-verified
+
+- Fixed a real defect: `LegendaryHomeDashboard` still navigated to the pre-refactor `"maxai"` route after the registry renamed it to `max_ai`; it now uses `MaxDestination.MaxAi.route`. A dead-target scan over every `onNavigate("...")` / `navigate("...")` call site now reports none.
+- Fixed a brace defect introduced while adding the Settings risk labels, and a trailing-blank-line diff error; `git diff --check` is clean and every changed Kotlin file balances.
+- Added: Settings Appearance row for `colorscheme`, risk-level labels for the four Advanced tools (sourced from `MaxDestination.risk`), and `max_risk_*` strings in `values/` and `values-ar/`.
+- Audit evidence: 50 registry objects = 50 graph routes; 34 declared `*Screen` functions with 0 unreferenced in the graph; design-language files 6 → 16 (adoption up); Scaffold files 33 → 31 (down); no route literals outside `ui/navigation/`; no `maligpufreq`/`adrenogpufreq`; no legacy `MaxDesignSystem` import; no `RootFileAccess`/`Shell.cmd` added under `ui/`; `core/**` contains no navigation fingerprint from this task.
+- Known residual, explicitly allowed by the plan: `MtkScreen` keeps its feature-local tab pager (NT-03 dissolves it); that is why gate 5(a) still prints a `HorizontalPager` hit for MTK only.
+- Build: still unverified — no `java`/`JAVA_HOME` in this environment, so compilation and on-device behaviour need a real Android toolchain.
+
+### NT-01 close-out — final acceptance criterion met
+
+- Removed the last `HorizontalPager` from `nd/max`: `MtkScreen` now drives its six tabs from `rememberSaveable { mutableIntStateOf(0) }` inside a plain `Box`, with the `ScrollableTabRow` indicator and clicks bound to that state. All six tab bodies (`MtkFreqTab`, `MtkDramTab`, `MtkBoostTab`, `MtkPpmTab`, `MtkCpuTab`, `MtkThermalTab`) are unchanged; no MTK feature was dropped.
+- Cleaned the now-unused `rememberCoroutineScope` binding and reworded a historical comment in `SetEditScreen` that named the removed pager.
+- Gate 5(a) now prints `pager removed OK`; the acceptance grep is empty across `nd/max`.
+- Verification: `git diff --check` clean; every changed Kotlin file balances; 0 added `Scaffold(`, 0 added literal `Text("`, 0 added `MaxDesignSystem` imports, 0 added `RootFileAccess`/`Shell.cmd`; registry 50 = graph 50 with no missing/extra; 34 declared `*Screen` functions and 0 unreferenced; no dead navigation targets; XML parses; Arabic parity 0 missing / 0 extra; bottom bar is exactly the four primary destinations.
+- Residual: compilation still unverified (no `java`/`JAVA_HOME` in this environment). `core/**` untouched by this task.

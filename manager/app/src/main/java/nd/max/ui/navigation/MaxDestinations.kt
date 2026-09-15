@@ -75,7 +75,7 @@ sealed class MaxDestination(
     data object Settings : MaxDestination("settings", R.string.max_nav_settings, Icons.Rounded.Settings)
 
     // Onboarding
-    data object GetStarted : MaxDestination("get_started", R.string.max_nav_now, Icons.Rounded.Home)
+    data object GetStarted : MaxDestination("get_started", R.string.max_title_get_started, Icons.Rounded.Home)
 
     // Control domain hubs (ADR-04)
     data object CpuHub : MaxDestination("hub_cpu", R.string.max_hub_cpu, Icons.Rounded.Memory, Control)
@@ -139,7 +139,7 @@ sealed class MaxDestination(
     // Feature screens: Apps destination
     data object ProcessManager : MaxDestination("processmanager", R.string.processmgr_title, Icons.Rounded.Timeline, Apps)
     data object DebloatFreeze : MaxDestination("debloatfreeze", R.string.debloat_freeze_title, Icons.Rounded.CleaningServices, Apps)
-    data object AppSettings : MaxDestination("app_settings/{pkg}", R.string.max_nav_apps, Icons.Rounded.AppSettingsAlt, Apps)
+    data object AppSettings : MaxDestination("app_settings/{pkg}", R.string.max_title_app_settings, Icons.Rounded.AppSettingsAlt, Apps)
 
     // Settings children
     data object ColorPalette : MaxDestination("color_palette", R.string.theme, Icons.Rounded.Palette, Settings)
@@ -149,10 +149,10 @@ sealed class MaxDestination(
     data object About : MaxDestination("aboutscreen", R.string.section_about, Icons.Rounded.Info, Settings)
 
     // Settings - Advanced tools (ADR-16: gated, not featured)
-    data object Terminal : MaxDestination("terminal", R.string.max_nav_advanced_tools, Icons.Rounded.Terminal, Settings, MaxRisk.Dangerous)
-    data object SetEdit : MaxDestination("setedit", R.string.max_nav_advanced_tools, Icons.Rounded.Edit, Settings, MaxRisk.Advanced)
-    data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_nav_advanced_tools, Icons.Rounded.Launch, Settings, MaxRisk.Advanced)
-    data object KernelFlasher : MaxDestination("kernelflasher", R.string.max_nav_advanced_tools, Icons.Rounded.Build, Settings, MaxRisk.Dangerous)
+    data object Terminal : MaxDestination("terminal", R.string.max_title_terminal, Icons.Rounded.Terminal, Settings, MaxRisk.Dangerous)
+    data object SetEdit : MaxDestination("setedit", R.string.max_title_setedit, Icons.Rounded.Edit, Settings, MaxRisk.Advanced)
+    data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.Rounded.Launch, Settings, MaxRisk.Advanced)
+    data object KernelFlasher : MaxDestination("kernelflasher", R.string.max_title_kernel_flasher, Icons.Rounded.Build, Settings, MaxRisk.Dangerous)
 
     companion object {
         /** The four bottom-bar / nav-rail destinations (ADR-03). */

@@ -31,9 +31,10 @@ fun MaxDomainHubScreen(navController: NavHostController, destination: MaxDestina
         onBack = actions::back,
         accentIcon = destination.icon,
     ) {
+        // MaxSection requires a title; the app bar already names the hub, so the
+        // section carries the scope description instead of repeating the name (F-07).
         MaxSection(
-            title = stringResource(destination.titleRes),
-            description = stringResource(maxHubDescription(destination)),
+            title = stringResource(maxHubDescription(destination)),
         ) {
             MaxGroup {
                 rows.forEachIndexed { index, row ->

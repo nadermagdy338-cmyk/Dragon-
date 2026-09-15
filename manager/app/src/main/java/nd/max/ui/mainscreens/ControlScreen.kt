@@ -6,7 +6,6 @@ import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.design.MaxDomainCard
 import nd.max.ui.design.MaxGroup
-import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxListScreen
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxSection
@@ -30,7 +29,12 @@ fun ControlScreen(navController: NavHostController) {
     ) {
         hubs.forEach { hub ->
             item(key = hub.route) {
-                MaxDomainCard(destination = hub, subtitle = stringResource(maxHubDescription(hub)), onClick = { actions.navigateTo(hub) })
+                MaxDomainCard(
+                    title = stringResource(hub.titleRes),
+                    subtitle = stringResource(maxHubDescription(hub)),
+                    icon = hub.icon,
+                    onClick = { actions.navigateTo(hub) },
+                )
             }
         }
         item(key = MaxDestination.AllTweaks.route) {

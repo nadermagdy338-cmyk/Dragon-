@@ -26,16 +26,16 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.MaxAi.route) { MaxAiScreen(navController) }
     composable(MaxDestination.Settings.route) { SettingsScreen(navController) }
 
-    // Control domain hubs
-    composable(MaxDestination.CpuHub.route) { CpuHubScreen(navController) }
-    composable(MaxDestination.GpuHub.route) { GpuHubScreen(navController) }
-    composable(MaxDestination.MemoryHub.route) { MemoryHubScreen(navController) }
-    composable(MaxDestination.DisplayHub.route) { DisplayHubScreen(navController) }
-    composable(MaxDestination.ResponsivenessHub.route) { ResponsivenessHubScreen(navController) }
-    composable(MaxDestination.ThermalHub.route) { ThermalHubScreen(navController) }
-    composable(MaxDestination.PowerHub.route) { PowerHubScreen(navController) }
-    composable(MaxDestination.StorageHub.route) { StorageHubScreen(navController) }
-    composable(MaxDestination.NetworkHub.route) { NetworkHubScreen(navController) }
+    // Control domain hubs: one parameterized entry per domain (F-07).
+    composable(MaxDestination.CpuHub.route) { MaxDomainHubScreen(navController, MaxDestination.CpuHub) }
+    composable(MaxDestination.GpuHub.route) { MaxDomainHubScreen(navController, MaxDestination.GpuHub) }
+    composable(MaxDestination.MemoryHub.route) { MaxDomainHubScreen(navController, MaxDestination.MemoryHub) }
+    composable(MaxDestination.DisplayHub.route) { MaxDomainHubScreen(navController, MaxDestination.DisplayHub) }
+    composable(MaxDestination.ResponsivenessHub.route) { MaxDomainHubScreen(navController, MaxDestination.ResponsivenessHub) }
+    composable(MaxDestination.ThermalHub.route) { MaxDomainHubScreen(navController, MaxDestination.ThermalHub) }
+    composable(MaxDestination.PowerHub.route) { MaxDomainHubScreen(navController, MaxDestination.PowerHub) }
+    composable(MaxDestination.StorageHub.route) { MaxDomainHubScreen(navController, MaxDestination.StorageHub) }
+    composable(MaxDestination.NetworkHub.route) { MaxDomainHubScreen(navController, MaxDestination.NetworkHub) }
 
     // Legacy flat tweaks workspace (see MaxDestination.AllTweaks kdoc)
     composable(MaxDestination.AllTweaks.route) { TweakScreen(navController) }

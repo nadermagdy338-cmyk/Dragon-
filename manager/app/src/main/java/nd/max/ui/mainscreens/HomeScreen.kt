@@ -1,6 +1,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.navigation.MaxNavActions
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -44,7 +46,7 @@ fun HomeScreen(
     maxAiViewModel: nd.max.ui.viewmodel.MaxAiViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val context = LocalContext.current
-    val navActions = nd.max.ui.navigation.MaxNavActions(navController)
+    val navActions = MaxNavActions(navController)
     val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
     val ui by homeViewModel.uiState.collectAsStateWithLifecycle()
     val dashboard by dashboardViewModel.dashboardState.collectAsStateWithLifecycle()
@@ -77,7 +79,7 @@ fun HomeScreen(
             onNavigate = navController::navigate,
             onProfile = { if (ui.autoMode == "0") showProfile = true },
             onReboot = { showReboot = true },
-            onSettings = { navActions.navigateTo(nd.max.ui.navigation.MaxDestination.Settings) },
+            onSettings = { navActions.navigateTo(MaxDestination.Settings) },
             onAiRetry = maxAiViewModel::refresh
         )
     }

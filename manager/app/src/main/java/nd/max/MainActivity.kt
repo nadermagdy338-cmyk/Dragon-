@@ -127,6 +127,9 @@ fun MainScreen(fromTileType: String? = null) {
     }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    // Primary destination currently selected, or null on hubs/feature screens.
+    // Used for cheap local state refreshes; never for device probing.
+    val currentPrimaryRoute = currentRoute?.takeIf { it in primaryRoutes }
     val coroutineScope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val useNavigationRail = configuration.screenWidthDp >= 840
@@ -139,6 +142,9 @@ fun MainScreen(fromTileType: String? = null) {
     }
     var isBlurEnabled by remember { mutableStateOf(settingsPrefs.getBoolean("expressive_blur_ui", false)) }
     val hazeState = remember { HazeState() }
+    // ADR-17 session state: probed ONCE at start and refreshed explicitly.
+    // The route space is ~50 destinations, so keying this on every route meant
+    // a root + module probe on every hub and feature entry (F-05).
     var rootStatus by remember { mutableStateOf(false) }
     var moduleInstalled by remember { mutableStateOf(false) }
     val navItems = remember {
@@ -154,8 +160,13 @@ fun MainScreen(fromTileType: String? = null) {
         isBlurEnabled = settingsPrefs.getBoolean("expressive_blur_ui", false)
         RebootManager.refreshModuleFlag()
     }
-    LaunchedEffect(currentRoute) {
+    LaunchedEffect(Unit) {
         refreshStatus()
+    }
+    // Cheap local preference re-read when a primary destination is entered.
+    // No device probe here: root/module state is owned by the session above.
+    LaunchedEffect(currentPrimaryRoute) {
+        isBlurEnabled = settingsPrefs.getBoolean("expressive_blur_ui", false)
     }
     val installingDialog = rememberInstallingDialog()
     val updateDialog = rememberConfirmDialog(

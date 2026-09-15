@@ -1,6 +1,11 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.design.MaxGroup
+import nd.max.ui.design.MaxGroupDivider
+import nd.max.ui.design.MaxRow
+import nd.max.ui.design.MaxSection
+import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 
 import androidx.compose.foundation.BorderStroke
@@ -198,6 +203,12 @@ fun ApplistScreen(navController: NavHostController) {
                                 count = filteredApps.size,
                                 sort = viewModel.appSort,
                                 onSort = { viewModel.appSort = it }
+                            )
+                        }
+
+                        item(key = "apps_workspace_links") {
+                            WorkspaceLinks(
+                                onOpen = { MaxNavActions(navController).navigateTo(it) }
                             )
                         }
 
@@ -561,5 +572,27 @@ private fun AppTypeTag(text: String, color: Color) {
             color = color,
             fontWeight = FontWeight.SemiBold
         )
+    }
+}
+/**
+ * Workspace rows for the Apps destination. Keeps Process manager and
+ * Debloat & freeze reachable from Apps itself instead of only through the
+ * legacy tweaks screen (F-04).
+ */
+@Composable
+private fun WorkspaceLinks(onOpen: (MaxDestination) -> Unit) {
+    val links = MaxDestination.All.filter { it.parent == MaxDestination.Apps && it != MaxDestination.AppSettings }
+    if (links.isEmpty()) return
+    MaxSection(title = stringResource(R.string.max_nav_apps)) {
+        MaxGroup {
+            links.forEachIndexed { index, destination ->
+                if (index > 0) MaxGroupDivider()
+                MaxRow(
+                    title = stringResource(destination.titleRes),
+                    icon = destination.icon,
+                    onClick = { onOpen(destination) },
+                )
+            }
+        }
     }
 }

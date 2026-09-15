@@ -1,7 +1,7 @@
 /*
  * Raw settings (global/secure/system) and system property editor. Adapted from
  * ZKM's ui/setedit/SetEditScreen.kt (a single 1400-line composable using Haze
- * glass cards, a HorizontalPager of tabs, and its own SettingsViewModel for
+ * glass cards, a paged tab container, and its own SettingsViewModel for
  * theme), rebuilt here on MaxManager's own SetEditViewModel + ExpressiveList /
  * ConfirmDialog / CustomBottomSheet components and the search+segmented-tabs
  * pattern already used by DozeModeScreen.
