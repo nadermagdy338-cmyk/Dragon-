@@ -52,3 +52,10 @@ Open problems as of 2026-09-15. `P1` blocks the redesign, `P2` degrades quality,
 | I-42 | P2 | `manager/FINAL_UI_AUDIT.md` references screens that no longer exist (`AdrenoGpuScreen`, `MaliGpuFreqScreen`, `ThermalDevicesScreen`) | file vs tree | superseded by docs/ai |
 | I-43 | P3 | `AppMonitor.kt` fails naive brace-balance checks (pre-existing lexer artifact, identical to HEAD) — do not “fix” in UI work | aegis checkpoint | ignore, baseline |
 | I-44 | P3 | `manager/kernel-flasher` is a vendored fork with its own theme/type files — duplicate-looking files are expected | package `com.github.capntrips.kernelflasher` | leave alone |
+
+## بعد NT-02 (Max AI)
+- I-45: تعذّر البناء محليًا (gradle 4.4.1 في PATH مقابل wrapper 9.5.1 وشبكة مغلقة) ⇒ التحقق ثابت فقط، لا ضمان تجميع.
+- I-46: `MaxAiInsights` يقرأ السياق العام `*` فقط؛ أحكام السياق لكل تطبيق غير معروضة بعد.
+- I-47: خط الزمن بلا فلترة/بحث؛ عند ٨٠ حلقة قد يطول التمرير.
+- I-48: لا زر لمسح الدفتر في الواجهة رغم وجود `MaxAiJournal.clear()`.
+- I-49: `MaxAiInsightsTest` (JVM) لم يُكتب بعد.

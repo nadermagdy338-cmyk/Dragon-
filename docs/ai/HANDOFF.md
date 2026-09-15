@@ -90,3 +90,8 @@ Implemented the typed navigation registry, graph, actions, four primary destinat
 - Gate 5(a) now prints `pager removed OK`; the acceptance grep is empty across `nd/max`.
 - Verification: `git diff --check` clean; every changed Kotlin file balances; 0 added `Scaffold(`, 0 added literal `Text("`, 0 added `MaxDesignSystem` imports, 0 added `RootFileAccess`/`Shell.cmd`; registry 50 = graph 50 with no missing/extra; 34 declared `*Screen` functions and 0 unreferenced; no dead navigation targets; XML parses; Arabic parity 0 missing / 0 extra; bottom bar is exactly the four primary destinations.
 - Residual: compilation still unverified (no `java`/`JAVA_HOME` in this environment). `core/**` untouched by this task.
+
+## الحالة بعد NT-02 (2026-09-15)
+منطق Max AI وواجهته أُنجزا معًا: دفتر حلقات + تتبّع مرشحين + استخلاص معرفة + شاشة سببية من ٨ مراحل.
+التحقق المنفذ: تطابق ١١٦ مفتاح نص EN/AR بلا تكرار أو نقص، تطابق وسائط `%n$`، توازن الأقواس المعقوفة في كل الملفات الجديدة، مطابقة أسماء حقول النماذج المستخدمة في الشاشة مع `MaxAiModels/MaxAiJournal/MaxAiInsights`.
+المطلوب من الـExecutor: تشغيل `assembleDebug` + `testDebugUnitTest`، ثم معالجة I-45…I-49.

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  نصوص تجربة Max AI السببية — مطابقة مفتاحًا بمفتاح لملف values/.
+  كل نص هنا يوصف قياسًا أو قرارًا أو نتيجة حقيقية من دفتر المحرك؛
+  لا عبارات تدّعي ذكاءً بلا دليل مقيس.
+-->
+<resources>
+
+    <string name="max_ai_title">Max AI</string>
+
+    <string name="max_ai_section_now">المقيس الآن</string>
+    <string name="max_ai_section_now_desc">قراءات من آخر دورة محرك. لا شيء هنا تقديري.</string>
+    <string name="max_ai_score_label">درجة رضا الهدف</string>
+    <string name="max_ai_score_desc">العتبة %1$s؛ دونها يبحف المخطِّط عن خطوة واحدة.</string>
+    <string name="max_ai_trend_label">تطور درجة الرضا عبر الدورات الأخيرة</string>
+    <string name="max_ai_metric_cpu">حمل المعالج</string>
+    <string name="max_ai_metric_thermal">الحرارة</string>
+    <string name="max_ai_metric_battery">البطارية</string>
+    <string name="max_ai_metric_memory">الذاكرة المستخدمة</string>
+    <string name="max_ai_context_title">السياق</string>
+    <string name="max_ai_context_system">النطام (لا تطبيق في المقدمة)</string>
+    <string name="max_ai_context_line">%1$s · %2$s · ملف الأساس %3$s</string>
+    <string name="max_ai_screen_on">الشاشة مفتوحة</string>
+    <string name="max_ai_screen_off">الشاشة مطفأة</string>
+    <string name="max_ai_profile_performance">أداء</string>
+    <string name="max_ai_profile_balanced">متوازن</string>
+    <string name="max_ai_profile_eco">توفير الطاقة</string>
+    <string name="max_ai_profile_unknown">غير معروف</string>
+
+    <string name="max_ai_section_objective">ما يوازنه الآن</string>
+    <string name="max_ai_objective_source_user">تفضيلك الصريح هو من يحدد الأوزان.</string>
+    <string name="max_ai_objective_source_learned">أوزان مستنتجة من استخدامك المقيس.</string>
+    <string name="max_ai_objective_source_screen_off">الشاشة مطفأة: طاقة وحرارة فقط.</string>
+    <string name="max_ai_weight_performance">الأداء</string>
+    <string name="max_ai_weight_battery">البطارية</string>
+    <string name="max_ai_weight_thermal">المتسع الحراري</string>
+
+    <string name="max_ai_section_timeline">الخط الزمني للقرارات</string>
+    <string name="max_ai_section_timeline_desc">مدخل واحد لكل حلقة تحكم حقيقية: ملاحطة، قرار، كتابة، قياس ثانٍ، حكم، تعلّم.</string>
+    <string name="max_ai_timeline_empty_title">لا حلقة مسجلة بعد</string>
+    <string name="max_ai_timeline_empty_on">Max AI مفعّل ويراقب. يطهر مدخل بمجرد أن تُنتج فجوة مقيسة قرارًا.</string>
+    <string name="max_ai_timeline_empty_off">Max AI مطفأ، لذا لا يتخذ أي قرار. فعّله كي يعمل ويسجل ما يحدث.</string>
+    <string name="max_ai_episode_no_action">فجوة مقيسة بلا خطوة آمنة</string>
+
+    <string name="max_ai_stage_observed">ما قاسه</string>
+    <string name="max_ai_observed_body">درجة الرضا %1$s مقابل العتبة %2$s، أي فجوة %3$s.</string>
+    <string name="max_ai_observed_technical">معالج %1$s · حرارة %2$s · بطارية %3$s · ذاكرة %4$s</string>
+    <string name="max_ai_stage_why">لماذا كان مهمًا</string>
+    <string name="max_ai_why_body">الهدف النشط كان %1$s، مقيسًا في السياق %2$s.</string>
+    <string name="max_ai_why_technical">الأوزان: أداء %1$s · بطارية %2$s · حرارة %3$s</string>
+    <string name="max_ai_stage_decided">ما قرره</string>
+    <string name="max_ai_decided_body">%1$s، %2$s، من %3$s إلى %4$s.</string>
+    <string name="max_ai_decided_none">لا مقبض مؤهل: كل المرشحين استُبعدوا قبل أي كتابة.</string>
+    <string name="max_ai_stage_changed">ما غيّره</string>
+    <string name="max_ai_changed_body">كُتب وتم التحقق منه بقراءة القيمة مرة أخرى: %1$s.</string>
+    <string name="max_ai_changed_none">لم تُكتب أي قيمة على العتاد.</string>
+    <string name="max_ai_stage_after">ماذا حدث بعده</string>
+    <string name="max_ai_after_body">قياس ثانٍ بعد نافدة الاستجابة: درجة الرضا %1$s.</string>
+    <string name="max_ai_after_unmeasured">تعذّر القياس بعد التغيير، لذلك لا يُدّعى أي أثر.</string>
+    <string name="max_ai_stage_verdict">الحكم</string>
+    <string name="max_ai_stage_impact">الأثر المقيس</string>
+    <string name="max_ai_impact_body">تغير الهدف %1$s.</string>
+    <string name="max_ai_impact_none">لا يوجد أثر مقيس متاح.</string>
+    <string name="max_ai_stage_learned">ما تعلّمه</string>
+    <string name="max_ai_learned_body">عينات هذا المقبض انتقلت من %1$d إلى %2$d؛ الثقة الآن %3$s.</string>
+    <string name="max_ai_learned_none">لم تُضف عينة جديدة لأن شيئًا لم يُقس.</string>
+
+    <string name="max_ai_prediction">المتوقع %1$s · حرارة %2$s · ثقة %3$s</string>
+    <string name="max_ai_prediction_error">خطأ التنبؤ %1$s</string>
+    <string name="max_ai_safety_level">مستوى الأمان %1$s</string>
+    <string name="max_ai_value_unknown">غير معروف</string>
+
+    <string name="max_ai_candidates_title">المرشحون المدروسون (%1$d)</string>
+    <string name="max_ai_candidate_chosen">المختار</string>
+    <string name="max_ai_candidate_metrics">الجدوى %1$s · المصداقية %2$s · %3$d عينة</string>
+    <string name="max_ai_rejected_measured_harm">ضرر مقيس</string>
+    <string name="max_ai_rejected_predicted_harm">ضرر متوقع</string>
+    <string name="max_ai_rejected_no_step">لا خطوة متاحة</string>
+    <string name="max_ai_rejected_unreadable">غير قابل للقراءة</string>
+    <string name="max_ai_rejected_other">لم يُختر</string>
+
+    <string name="max_ai_verdict_improved">تحسن مقيس</string>
+    <string name="max_ai_verdict_rolled_back">استُرجع الأساس</string>
+    <string name="max_ai_verdict_stuck">تراجع</string>
+    <string name="max_ai_verdict_blocked">حجبه الأمان</string>
+    <string name="max_ai_verdict_write_failed">فشلت الكتابة</string>
+    <string name="max_ai_verdict_unmeasured">بلا قياس</string>
+    <string name="max_ai_verdict_no_action">بلا تدخل</string>
+
+    <string name="max_ai_summary_improved">تم التحقق منه على العتاد وقيس أفضل: %1$s.</string>
+    <string name="max_ai_summary_rolled_back">قيس أسوأ (%1$s)، فاستُرجع خط الأساس.</string>
+    <string name="max_ai_summary_stuck">قيس أسوأ وتعذر استرجاع خط الأساس.</string>
+    <string name="max_ai_summary_blocked">الأمان رفض التغيير؛ سلطة الحرارة فوق أي مكسب.</string>
+    <string name="max_ai_summary_write_failed">لم تثبت الكتابة على العتاد، فلا ادعاء نجاح.</string>
+    <string name="max_ai_summary_unmeasured">كُتب وتم التحقق منه، لكن تعذر قياس الأثر.</string>
+    <string name="max_ai_summary_no_action">قيست فجوة، لكن كل خطوة متاحة بدت أسوأ من الفجوة نفسها.</string>
+
+    <string name="max_ai_direction_raise">رفع الأداء</string>
+    <string name="max_ai_direction_save">توفير الطاقة</string>
+
+    <string name="max_ai_section_insights">ما يعرفه عن هذا الجهاز</string>
+    <string name="max_ai_section_insights_desc">حكم لكل مقبض مشتق من نتائج مقيسة على هذا الجهاز وحده.</string>
+    <string name="max_ai_insight_empty">لا معرفة بعد: لم تُسجل أي نتيجة مقيسة.</string>
+    <string name="max_ai_insight_row">متوسط المكسب %1$s · حرارة %2$s · %3$d عينة · %4$s</string>
+    <string name="max_ai_insight_helpful">مفيد مُثبت</string>
+    <string name="max_ai_insight_costly">مكلف مُثبت</string>
+    <string name="max_ai_insight_inconclusive">غير حاسم</string>
+    <string name="max_ai_insight_learning">قيد التعلّم</string>
+    <string name="max_ai_insights_summary">تحسن %1$d · استرجاع %2$d · حجب %3$d · بلا قياس %4$d</string>
+    <string name="max_ai_insights_prediction">متوسط خطأ التنبؤ %1$s عبر %2$d حلقة مقيسة</string>
+
+    <string name="max_ai_section_system">من يملك كل مقبض</string>
+    <string name="max_ai_section_system_desc">فائز واحد لكل مقبض عتاد، من دفتر الملكية المشترك.</string>
+    <string name="max_ai_owner_none">لا مقبض مملوك حاليًا لأي متحكم آلي.</string>
+    <string name="max_ai_owner_row">المالك %1$s · النية %2$s</string>
+    <string name="max_ai_owner_verified">مُتحقق</string>
+    <string name="max_ai_owner_pending">معلق</string>
+    <string name="max_ai_locked_row">أقفلته عند القيمة %1$s — Max AI لن يمسه أبدًا.</string>
+
+    <string name="max_ai_section_controls">التحكم</string>
+    <string name="max_ai_master_title">Max AI</string>
+    <string name="max_ai_master_on">مفعّل: يقرر، يكتب عبر المُحكِّم، ثم يقيس النتيجة.</string>
+    <string name="max_ai_master_off">مطفأ: تحكم يدوي، صفر قرارات وصفر كتابات على العتاد.</string>
+    <string name="max_ai_objective_pick_performance">أولوية للأداء</string>
+    <string name="max_ai_objective_pick_balanced">حافط على التوازن</string>
+    <string name="max_ai_objective_pick_battery">أولوية للبطارية</string>
+    <string name="max_ai_profile_row_desc">ملفات الأساس تبقى يدوية وتُطبق فورًا؛ ليست مقابض للذكاء.</string>
+    <string name="max_ai_refresh">شغّل دورة الآن</string>
+    <string name="max_ai_refresh_desc">قس وخطِّط ونفّذ مرة بدل انتطار دورة الثلاثين ثانية.</string>
+    <string name="max_ai_counters">قرارات %1$d · مُتحقق %2$d · معدلة %3$d · محجوبة للأمان %4$d</string>
+
+    <string name="max_ai_safety_engaged_title">أمان حراري مُشتبك</string>
+    <string name="max_ai_safety_critical_title">حرارة حرجة</string>
+    <string name="max_ai_safety_detail">المقيس %1$s، و%2$d تدخل منذ التثبيت.</string>
+
+    <string name="max_ai_time_now">الآن</string>
+    <string name="max_ai_time_minutes">قبل %1$d دقيقة</string>
+    <string name="max_ai_time_hours">قبل %1$d ساعة</string>
+
+</resources>

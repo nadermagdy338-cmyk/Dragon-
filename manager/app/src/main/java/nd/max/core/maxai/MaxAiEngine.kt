@@ -30,6 +30,7 @@ import nd.max.core.hardware.ProfileApplier
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 import nd.max.core.jni.PredictorBridge
 import nd.max.ui.util.EventLog
 import nd.max.ui.util.PropertyUtils
@@ -50,10 +51,18 @@ import nd.max.ui.util.PropertyUtils
  *  - الأمان فوق الجميع دائمًا — حتى والمحرك مطفأ.
  *  - كل قرار يُنفَّذ عبر نقطة تحكم واحدة (المُحكِّم) ثم تُقاس نتيجته
  *    الفعلية؛ لا قرار بلا تنفيذ، ولا مكافأة بلا قياس.
- *  - الشاشة مطفأة → لا تدخل (مبدأ FDE.AI)، والدورة بطيئة (~30 ث)
+ *  - الشاشة مطفأة → هدف مختلف (طاقة+حرارة)، والدورة بطيئة (~30 ث)
  *    كي لا يتأرجح التحكم ولا يُستنزف قيدًا.
  *  - الواجهة ترى أعدادًا حقيقية فقط: قرارات/ناجحة/معدلة/محجوبة
  *    للأمان/خطوات تعلم — لا ثقة مصطنعة ولا عشوائية.
+ *
+ * مرحلة الشرّافية (هذا التعديل): كان المحرك يقرر ويتعلّم جيدًا ثم **يرمي
+ * كل تفكيره**: أربعة عدادات وسطر "آخر إجراء" يُستبدل بعد 30 ثانية.
+ * فالمستخدم لا يملك أي وسيلة ليرى لماذا تغير شيء ولا ماذا ترتّب عليه.
+ * الآن تُحفظ كل دورة قرار كحلقة كاملة في [MaxAiJournal] مع قياسات قبل/بعد،
+ * وكل المرشحين وأسباب استبعادهم، والتنبؤ مقابل المقيس، وما تحرك في
+ * التعلّم بعدها. لا يتغير القرار نفسه ولا تُضاف سلطة تحكم جديدة —
+ * المُحكِّم والأمان ونماذج التعلّم هي نفسها؛ المضاف هو إمكانية التفسير.
  */
 @Singleton
 class MaxAiEngine @Inject constructor(
@@ -64,6 +73,7 @@ class MaxAiEngine @Inject constructor(
     private val safetyGovernor: SafetyGovernor,
     private val planner: MinimalPlanner,
     private val dynamicIntentLearner: DynamicIntentLearner,
+    private val journal: MaxAiJournal,
 ) {
     companion object {
         private const val TAG = "MaxAiEngine"
@@ -89,6 +99,18 @@ class MaxAiEngine @Inject constructor(
 
         /** ملف حالة الرفيق الذي يكتبه AppMonitor (نفس مسار service.sh). */
         private const val APP_STATUS_PATH = "/data/adb/.config/MaxManager/app_status"
+
+        /** طول شريط التطور المحفوظ في الذاكرة (~ساعة من دورات 30 ث). */
+        private const val TREND_CAPACITY = 120
+
+        /**
+         * أقل مسافة زمنية بين حلقتي "فجوة بلا مرشح مؤهل".
+         *
+         * هذه الحالة تتكرر كل 30 ثانية ما دام السبب قائمًا، وتسجيلها كل
+         * دورة كان سيغرق الدفتر بمائة حلقة متطابقة ويدفع القرارات الحقيقية
+         * خارج السجل. تُسجل مرة كل خمس دقائق كإشارة حالة لا كسجل مستمر.
+         */
+        private const val NO_ACTION_MIN_INTERVAL_MS = 300_000L
     }
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -100,6 +122,9 @@ class MaxAiEngine @Inject constructor(
 
     val safety: StateFlow<SafetyStatus> = safetyEngine.status
 
+    /** دفتر الحلقات الحقيقية — مصدر الخط الزمني في الواجهة. */
+    val episodes: StateFlow<List<MaxAiEpisode>> = journal.episodes
+
     private val _profileRequest = MutableStateFlow(ProfileRequestState())
     val profileRequest: StateFlow<ProfileRequestState> = _profileRequest.asStateFlow()
 
@@ -108,7 +133,22 @@ class MaxAiEngine @Inject constructor(
 
     @Volatile private var started = false
 
-    // ── دورة الحياة ──────────────────────────────────────────────────
+    /** سياق الدورة الأخيرة — يُنشر كي تفسر الواجهة الرقم المعروض. */
+    private data class CycleContext(
+        val objective: Objective,
+        val objectiveSource: String,
+        val appContextKey: String,
+        val satisfaction: Float,
+        val score: Float?,
+    )
+
+    @Volatile private var lastCycleContext: CycleContext? = null
+    @Volatile private var lastNoActionAtMs = 0L
+
+    private val trendSamples = ArrayDeque<MaxAiSample>()
+    private val trendLock = Any()
+
+    // ── دورة الحياة ───────────────────────────────────────
 
     /**
      * يبدأ المحرك عند إقلاع التطبيق (مرة واحدة، بلا توقف): حلقة واحدة
@@ -155,7 +195,7 @@ class MaxAiEngine @Inject constructor(
         EventLog.userAction("MaxAiEngine", "engine", "lifecycle", "started")
     }
 
-    // ── الدورة الواحدة ───────────────────────────────────────────────
+    // ── الدورة الواحدة ────────────────────────────────────
 
     private suspend fun runCycleSingleFlight() {
         val requested = requestedGeneration.incrementAndGet()
@@ -183,19 +223,57 @@ class MaxAiEngine @Inject constructor(
         // 2) الأمان أولًا ودائمًا — قبل أي قرار ومن فوق أي مالك.
         val thermalC = (snapshot?.thermal ?: 0f) * 100f
         val predictedC = PredictorBridge.predictThermal(THERMAL_FORECAST_STEPS)?.maxOrNull()
-        val safetyNow = safetyEngine.evaluate(thermalC, snapshot, predictedC)
+        safetyEngine.evaluate(thermalC, snapshot, predictedC)
 
-        // 3) AI مطفأ: تحكم يدوي. لا قرارات ولا كتابات على العتاد.
-        if (!aiEnabled) {
-            publish(
-                aiEnabled = false,
-                snapshot = snapshot,
+        // الهدف يُحسب حتى والمحرك مطفأ: درجة الرضا والأوزان وصف للحالة
+        // المقيسة لا ناتج تدخل، فعرضها والمحرك مطفأ صادق ومفيد: يرى
+        // المستخدم ماذا كان سيوازن لو فعّله.
+        val appContextKey = currentAppContextKey()
+        val preference = PropertyUtils.get(MaxManagerProps.Conf.AI_OBJECTIVE)
+            .takeIf { it.isNotBlank() }
+        val screenOn = (snapshot?.screenOn ?: 1f) >= 0.5f
+
+        val objective: Objective
+        val objectiveSource: String
+        if (!screenOn) {
+            // 3) الشاشة المطفأة هدف مختلف (طاقة+حرارة) لا "إيقاف" — أهم
+            //    نافذة لإدارة الموارد لا تُهدر (قرار #11).
+            objective = Objective.SCREEN_OFF
+            objectiveSource = "screen_off"
+        } else if (preference != null) {
+            // ترتيب الأولوية (قرار #10): نية المستخدم الصريحة أولًا.
+            objective = Objective.fromPreference(preference)
+            objectiveSource = "user"
+        } else if (snapshot != null) {
+            objective = dynamicIntentLearner.dynamicObjective(
+                snapshot,
+                appContextKey,
+                true,
+                Objective.BALANCED,
             )
-            return@withContext
+            objectiveSource = "learned"
+        } else {
+            objective = Objective.BALANCED
+            objectiveSource = "learned"
         }
 
-        // Higher-priority Per-App ownership is filtered per knob below; the
-        // planner remains free to use every unowned control.
+        val score = snapshot?.let { objective.score(it) }
+        lastCycleContext = CycleContext(
+            objective = objective,
+            objectiveSource = objectiveSource,
+            appContextKey = appContextKey,
+            satisfaction = MinimalPlanner.SATISFIED_SCORE,
+            score = score,
+        )
+        if (snapshot != null && score != null) {
+            appendTrend(snapshot, score)
+        }
+
+        // 4) AI مطفأ: تحكم يدوي. لا قرارات ولا كتابات على العتاد.
+        if (!aiEnabled) {
+            publish(aiEnabled = false, snapshot = snapshot)
+            return@withContext
+        }
 
         // 5) لا لقطة ⇒ لا قرار (لا تدخل على قياس غائب).
         if (snapshot == null) {
@@ -203,35 +281,18 @@ class MaxAiEngine @Inject constructor(
             return@withContext
         }
 
-        // 6) الهدف يتبع الحالة: الشاشة المطفأة هدف مختلف (طاقة+حرارة)
-        //    لا "إيقاف" — أهم نافذة لإدارة الموارد لا تُهدر (قرار #11).
-        val appContextKey = currentAppContextKey()
-        val preference = PropertyUtils.get(MaxManagerProps.Conf.AI_OBJECTIVE)
-            .takeIf { it.isNotBlank() }
-        val dynamicObjective = dynamicIntentLearner.dynamicObjective(
-            snapshot,
-            appContextKey,
-            snapshot.screenOn >= 0.5f,
-            preference?.let(Objective::fromPreference) ?: Objective.BALANCED,
-        )
-        val objective = if (snapshot.screenOn < 0.5f) {
-            Objective.SCREEN_OFF
-        } else {
-            // ترتيب الأولوية (قرار #10): نية المستخدم الصريحة أولًا، ثم
-            // الاستنتاج السلوكي عندما لا يوجد تفضيل صريح.
-            preference?.let(Objective::fromPreference) ?: dynamicObjective
-        }
-
         // Observe with DynamicIntentLearner
-        dynamicIntentLearner.observe(snapshot, appContextKey, snapshot.screenOn >= 0.5f)
+        dynamicIntentLearner.observe(snapshot, appContextKey, screenOn)
 
-        // 7) الحالة → الهدف → أصغر تدخل كافٍ → تحقق → تعلّم.
-        decisionCycle(snapshot, objective)
+        // 6) الحالة → الهدف → أصغر تدخل كافٍ → تحقق → تعلّم → توثيق.
+        decisionCycle(snapshot, objective, objectiveSource, appContextKey)
     }
 
     private suspend fun decisionCycle(
         before: DeviceStateCollector.DeviceSnapshot,
         objective: Objective,
+        objectiveSource: String,
+        appContextKey: String,
     ) = withContext(Dispatchers.IO) {
         // المفردات تُبنى من قدرات هذا الجهاز في كل دورة: ما لا يُثبَت
         // أنه قابل للكتابة لا يوجد كمرشح أصلًا (INV-5) — نفس الكود
@@ -247,26 +308,69 @@ class MaxAiEngine @Inject constructor(
             val winner = ownership[control.key]
             winner == null || winner.token == TOKEN || winner.owner.priority <= ControlOwnership.Owner.MAX_AI.priority
         }
-        val appContextKey = currentAppContextKey()
 
         // Prioritize controls with DynamicIntentLearner
-        val prioritizedControls = dynamicIntentLearner.prioritizeControls(availableControls, appContextKey, objective.preferredDirection(before))
+        val prioritizedControls = dynamicIntentLearner.prioritizeControls(
+            availableControls, appContextKey, objective.preferredDirection(before)
+        )
 
-        val step = planner.plan(
+        val plan = planner.planWithTrace(
             controls = prioritizedControls,
             state = before,
             objective = objective,
             appContext = appContextKey,
         )
+        val step = plan.step
 
         if (step == null) {
             // لا فجوة مقيسة ⇒ لا فعل (INV-4). هذا هو السلوك الصحيح
             // لجهاز يعمل جيدًا، لا نقص في الذكاء.
+            //
+            // لكن "فجوة موجودة وكل المرشحين مستبعدون" حالة مختلفة
+            // تمامًا ومعلومة جدًا للمستخدم: النطام رأى مشكلة وقرر أن
+            // كل علاج متاح أسوأ منها. تُسجل كحلقة NO_ACTION مع أسباب
+            // الاستبعاد، مع تهدئة زمنية كي لا تغرق الدفتر.
+            val now = System.currentTimeMillis()
+            if (!plan.satisfied &&
+                plan.candidates.isNotEmpty() &&
+                now - lastNoActionAtMs >= NO_ACTION_MIN_INTERVAL_MS
+            ) {
+                lastNoActionAtMs = now
+                journal.record(
+                    buildEpisode(
+                        plan = plan,
+                        step = null,
+                        objective = objective,
+                        objectiveSource = objectiveSource,
+                        appContextKey = appContextKey,
+                        before = before,
+                        after = null,
+                        appliedValue = null,
+                        verdict = MaxAiVerdict.NO_ACTION,
+                        detail = plan.candidates
+                            .mapNotNull { it.rejection }
+                            .distinct()
+                            .joinToString(","),
+                        effectBefore = null,
+                        effectAfter = null,
+                    )
+                )
+            }
             publish(aiEnabled = true, snapshot = before) {
-                copy(strategyLabel = "مراقبة — لا فجوة مقيسة")
+                copy(
+                    strategyLabel = if (plan.satisfied) {
+                        "مراقبة — لا فجوة مقيسة"
+                    } else {
+                        "مراقبة — فجوة مقيسة بلا تدخل أقل ضررًا"
+                    }
+                )
             }
             return@withContext
         }
+
+        // حالة التعلّم قبل التنفيذ — كي يكون "ماذا تعلّم" فرقًا مقيسًا
+        // بين قيمتين حقيقيتين لا عبارة عامة.
+        val effectBefore = planner.effectOf(step.control.key, step.direction, appContextKey)
 
         // SafetyGovernor owns the pre-write veto; the independent fast loop
         // keeps its status current between slow learning cycles.
@@ -283,6 +387,26 @@ class MaxAiEngine @Inject constructor(
             // لم يثبت التغيير على العتاد: لا مكافأة ولا ادعاء نجاح.
             if (!outcome.blocked) bumpCounter(PREF_ADJUSTED)
             DiagnosticCenter.record("maxai", "step not verified :: ${outcome.detail}")
+            journal.record(
+                buildEpisode(
+                    plan = plan,
+                    step = step,
+                    objective = objective,
+                    objectiveSource = objectiveSource,
+                    appContextKey = appContextKey,
+                    before = before,
+                    after = null,
+                    appliedValue = outcome.actual,
+                    verdict = if (outcome.blocked) {
+                        MaxAiVerdict.BLOCKED_SAFETY
+                    } else {
+                        MaxAiVerdict.WRITE_FAILED
+                    },
+                    detail = outcome.detail,
+                    effectBefore = effectBefore,
+                    effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey),
+                )
+            )
             publish(aiEnabled = true, snapshot = before) {
                 copy(
                     lastDecision = DecisionRecord(
@@ -295,13 +419,29 @@ class MaxAiEngine @Inject constructor(
             return@withContext
         }
 
-        // نُفِّذ وتُحقق منه: انتظر استجابة النظام ثم قِس الأثر الفعلي.
+        // نُفِّذ وتُحقق منه: انتظر استجابة النطام ثم قِس الأثر الفعلي.
         delay(RESPONSE_WINDOW_MS)
         val after = runCatching { DeviceStateCollector.collect(appContext) }.getOrNull()
         val postSafety = safetyGovernor.enforcePost(step, outcome, after, TOKEN, appContextKey)
         if (postSafety.safetyReason == "post-veto") {
             bumpCounter(PREF_BLOCKED)
             DiagnosticCenter.record("maxai", postSafety.outcome.detail)
+            journal.record(
+                buildEpisode(
+                    plan = plan,
+                    step = step,
+                    objective = objective,
+                    objectiveSource = objectiveSource,
+                    appContextKey = appContextKey,
+                    before = before,
+                    after = after,
+                    appliedValue = outcome.actual,
+                    verdict = MaxAiVerdict.BLOCKED_SAFETY,
+                    detail = postSafety.outcome.detail,
+                    effectBefore = effectBefore,
+                    effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey),
+                )
+            )
             publish(aiEnabled = true, snapshot = after ?: before) {
                 copy(
                     lastDecision = DecisionRecord(
@@ -316,6 +456,22 @@ class MaxAiEngine @Inject constructor(
         if (after == null) {
             DiagnosticCenter.record("maxai", "post-action measurement unavailable :: ${step.control.key}")
             bumpCounter(PREF_ADJUSTED)
+            journal.record(
+                buildEpisode(
+                    plan = plan,
+                    step = step,
+                    objective = objective,
+                    objectiveSource = objectiveSource,
+                    appContextKey = appContextKey,
+                    before = before,
+                    after = null,
+                    appliedValue = outcome.actual,
+                    verdict = MaxAiVerdict.UNMEASURED,
+                    detail = outcome.detail,
+                    effectBefore = effectBefore,
+                    effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey),
+                )
+            )
             publish(aiEnabled = true, snapshot = before) {
                 copy(
                     lastDecision = DecisionRecord(
@@ -329,6 +485,7 @@ class MaxAiEngine @Inject constructor(
 
         val objectiveGain = objective.score(after) - objective.score(before)
         planner.recordMeasuredOutcome(step, appContextKey, before, after, objective)
+        val effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey)
         val improved = objectiveGain > 0f
 
         if (!improved) {
@@ -340,6 +497,26 @@ class MaxAiEngine @Inject constructor(
             } else {
                 "لا تحسن مقيس (Δ%.3f) — تعذر استرجاع خط الأساس".format(objectiveGain)
             }
+            journal.record(
+                buildEpisode(
+                    plan = plan,
+                    step = step,
+                    objective = objective,
+                    objectiveSource = objectiveSource,
+                    appContextKey = appContextKey,
+                    before = before,
+                    after = after,
+                    appliedValue = outcome.actual,
+                    verdict = if (restored) {
+                        MaxAiVerdict.REGRESSED_ROLLED_BACK
+                    } else {
+                        MaxAiVerdict.REGRESSED_STUCK
+                    },
+                    detail = detail,
+                    effectBefore = effectBefore,
+                    effectAfter = effectAfter,
+                )
+            )
             publish(aiEnabled = true, snapshot = after) {
                 copy(
                     lastDecision = DecisionRecord(
@@ -354,6 +531,22 @@ class MaxAiEngine @Inject constructor(
         EventLog.userAction(
             "MaxAiEngine", "decision", step.control.key,
             "verified:${outcome.actual} gain=%.4f".format(objectiveGain)
+        )
+        journal.record(
+            buildEpisode(
+                plan = plan,
+                step = step,
+                objective = objective,
+                objectiveSource = objectiveSource,
+                appContextKey = appContextKey,
+                before = before,
+                after = after,
+                appliedValue = outcome.actual,
+                verdict = MaxAiVerdict.IMPROVED,
+                detail = outcome.detail,
+                effectBefore = effectBefore,
+                effectAfter = effectAfter,
+            )
         )
         publish(aiEnabled = true, snapshot = after) {
             copy(
@@ -398,7 +591,133 @@ class MaxAiEngine @Inject constructor(
             ?: "system"
     }.getOrDefault("system")
 
-    // ── واجهة المستخدم/الخدمات ───────────────────────────────────────
+    // ── توثيق الحلقات ─────────────────────────────────────
+
+    private fun reading(
+        snapshot: DeviceStateCollector.DeviceSnapshot,
+        objective: Objective,
+    ): MaxAiReading = MaxAiReading(
+        cpuLoadPercent = (snapshot.cpuLoad * 100f).toInt(),
+        thermalC = snapshot.thermal * 100f,
+        batteryPercent = (snapshot.battery * 100f).toInt(),
+        memoryPercent = (snapshot.memoryUsage * 100f).toInt(),
+        networkPercent = (snapshot.networkSpeed * 100f).toInt(),
+        screenOn = snapshot.screenOn >= 0.5f,
+        objectiveScore = objective.score(snapshot),
+    )
+
+    /**
+     * يبني حلقة موثّقة من معطيات الدورة وحدها. كل حقل أحد أمرين: قراءة
+     * عتاد أو خرج نموذج/مُحكِّم. ما لا يوجد له قياس يبقى null.
+     */
+    private fun buildEpisode(
+        plan: MinimalPlanner.Plan,
+        step: MinimalPlanner.Step?,
+        objective: Objective,
+        objectiveSource: String,
+        appContextKey: String,
+        before: DeviceStateCollector.DeviceSnapshot,
+        after: DeviceStateCollector.DeviceSnapshot?,
+        appliedValue: String?,
+        verdict: MaxAiVerdict,
+        detail: String,
+        effectBefore: ControlOutcomeModel.Effect?,
+        effectAfter: ControlOutcomeModel.Effect?,
+    ): MaxAiEpisode {
+        val beforeReading = reading(before, objective)
+        val afterReading = after?.let { reading(it, objective) }
+        val gain = afterReading?.let { it.objectiveScore - beforeReading.objectiveScore }
+        val predictedGain = step?.predicted?.objectiveGain
+
+        return MaxAiEpisode(
+            id = System.currentTimeMillis(),
+            appContext = appContextKey,
+            objectiveLabel = objectiveLabelOf(objective, objectiveSource),
+            objectiveSource = objectiveSource,
+            weightPerformance = objective.performance,
+            weightBattery = objective.battery,
+            weightThermal = objective.thermalHeadroom,
+            satisfactionTarget = plan.satisfaction,
+            gap = plan.gap,
+            before = beforeReading,
+            after = afterReading,
+            knobKey = step?.control?.key,
+            knobLabel = step?.control?.label,
+            direction = step?.direction?.name,
+            fromValue = step?.from,
+            toValue = step?.to,
+            appliedValue = appliedValue,
+            stepFraction = step?.stepFraction ?: 0f,
+            predictedGain = predictedGain,
+            predictedThermalC = step?.predicted?.thermalDeltaC,
+            predictionConfidence = step?.predicted?.confidence,
+            candidates = plan.candidates.map { trace ->
+                MaxAiCandidate(
+                    key = trace.key,
+                    label = trace.label,
+                    from = trace.from,
+                    to = trace.to,
+                    utility = trace.utility,
+                    credibility = trace.credibility,
+                    predictedGain = trace.predictedGain,
+                    predictedThermalC = trace.predictedThermalC,
+                    predictionConfidence = trace.predictionConfidence,
+                    samples = trace.samples,
+                    rejection = trace.rejection,
+                    chosen = trace.chosen,
+                )
+            },
+            verdict = verdict,
+            detail = detail,
+            objectiveDelta = gain,
+            thermalDeltaC = afterReading?.let { it.thermalC - beforeReading.thermalC },
+            cpuDeltaPercent = afterReading?.let { it.cpuLoadPercent - beforeReading.cpuLoadPercent },
+            batteryDeltaPercent = afterReading?.let {
+                it.batteryPercent - beforeReading.batteryPercent
+            },
+            samplesBefore = effectBefore?.samples ?: 0,
+            samplesAfter = effectAfter?.samples ?: 0,
+            confidenceBefore = effectBefore?.confidence ?: 0f,
+            confidenceAfter = effectAfter?.confidence ?: 0f,
+            predictionErrorGain = if (predictedGain != null && gain != null) {
+                abs(predictedGain - gain)
+            } else {
+                null
+            },
+            safetyLevel = safetyEngine.status.value.level.name,
+        )
+    }
+
+    private fun objectiveLabelOf(objective: Objective, source: String): String =
+        if (source == "screen_off") "screen_off" else Objective.labelFor(objective)
+
+    private fun appendTrend(
+        snapshot: DeviceStateCollector.DeviceSnapshot,
+        score: Float,
+    ) {
+        synchronized(trendLock) {
+            trendSamples.addLast(
+                MaxAiSample(
+                    timestampMs = System.currentTimeMillis(),
+                    cpuLoadPercent = (snapshot.cpuLoad * 100f).toInt(),
+                    thermalC = snapshot.thermal * 100f,
+                    batteryPercent = (snapshot.battery * 100f).toInt(),
+                    memoryPercent = (snapshot.memoryUsage * 100f).toInt(),
+                    objectiveScore = score,
+                )
+            )
+            while (trendSamples.size > TREND_CAPACITY) trendSamples.removeFirst()
+        }
+    }
+
+    private fun trendSnapshot(): List<MaxAiSample> = synchronized(trendLock) {
+        trendSamples.toList()
+    }
+
+    // ── واجهة المستخدم/الخدمات ─────────────────────────────
+
+    /** لقطة ما تعلّمه المحرك عن كل مقبض — مصدر قسم المعرفة في الواجهة. */
+    fun effectsSnapshot(): Map<String, ControlOutcomeModel.Effect> = planner.effectsSnapshot()
 
     /**
      * دورة فورية عند الطلب (دخول الشاشة مثلًا) كي تعكس الحالة القياسات
@@ -433,12 +752,8 @@ class MaxAiEngine @Inject constructor(
     }
 
     /**
-     * Applies a user-selected base profile immediately through the existing
-     * external compatibility service. Profiles remain baselines, not AI knobs.
-     */
-    /**
      * يضبط وزن الهدف من تفضيل المستخدم (قرار #10). يُستدعى مرة عند
-     * التفعيل، ثم يظل قابلًا للتعديل — والنظام يعدّله أيضًا من السلوك
+     * التفعيل، ثم يظل قابلًا للتعديل — والنطام يعدّله أيضًا من السلوك
      * عبر مصداقية المقابض فلا يبقى جامدًا.
      */
     fun setObjectivePreference(preference: String) {
@@ -454,6 +769,10 @@ class MaxAiEngine @Inject constructor(
         PropertyUtils.get(MaxManagerProps.Conf.AI_OBJECTIVE).takeIf { it.isNotBlank() }
             ?: Objective.labelFor(Objective.BALANCED)
 
+    /**
+     * Applies a user-selected base profile immediately through the existing
+     * external compatibility service. Profiles remain baselines, not AI knobs.
+     */
     suspend fun requestManualProfile(profileId: String, label: String): Boolean =
         withContext(Dispatchers.IO) {
             _profileRequest.value = ProfileRequestState(profileId = profileId, inFlight = true)
@@ -480,13 +799,13 @@ class MaxAiEngine @Inject constructor(
             }
         }
 
-    // ── قراءات الحالة ────────────────────────────────────────────────
+    // ── قراءات الحالة ─────────────────────────────────────
 
     fun readAiEnabled(): Boolean = runCatching {
         PropertyUtils.get(MaxManagerProps.Conf.AI_ENABLED, "0") == "1"
     }.getOrDefault(false)
 
-    // ── العدادات والنشر ──────────────────────────────────────────────
+    // ── العدادات والنشر ──────────────────────────────────
 
     private fun bumpCounter(key: String) {
         val v = prefs.getLong(key, 0L) + 1L
@@ -542,6 +861,8 @@ class MaxAiEngine @Inject constructor(
         }
 
         val learning = planner.learningProgress()
+        val context = lastCycleContext
+        val trend = trendSnapshot()
         _state.value = MaxAiState(
             aiEnabled = aiEnabled,
             strategyLabel = strategy,
@@ -560,6 +881,14 @@ class MaxAiEngine @Inject constructor(
             ownership = ownership,
             lockedKnobs = lockedKnobs,
             currentProfile = profile,
+            trend = trend,
+            objectiveWeights = context?.objective,
+            objectiveSource = context?.objectiveSource ?: prev.objectiveSource,
+            appContext = context?.appContextKey ?: prev.appContext,
+            objectiveScore = context?.score ?: prev.objectiveScore,
+            satisfactionTarget = context?.satisfaction ?: MinimalPlanner.SATISFIED_SCORE,
+            memoryPercent = snapshot?.let { (it.memoryUsage * 100f).toInt() } ?: prev.memoryPercent,
+            lastSampleAtMs = if (snapshot != null) System.currentTimeMillis() else prev.lastSampleAtMs,
         ).mutate()
     }
 

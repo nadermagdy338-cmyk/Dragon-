@@ -51,3 +51,19 @@ A typography/spacing/contrast pass across the then-current screens. **Partly sta
 ## 5. Aegis records (`docs/aegis/`)
 
 Plans/specs/work logs for GPU Reality Studio, core-grid frequency UX, and the Max AI control plane, including the evidence and reflection notes that produced §3. Keep for engineering rationale; the product direction is now `DESIGN_VISION.md`.
+
+## NT-02 — Max AI: من عدّادات إلى نظام سببي مفهوم (2026-09-15)
+
+ملفات جديدة:
+- `core/maxai/MaxAiJournal.kt` — دفتر حلقات القرار الدائم (JSON, 80 حلقة، أحدث أولًا) + نماذج `MaxAiReading/MaxAiSample/MaxAiCandidate/MaxAiVerdict/MaxAiEpisode`.
+- `core/maxai/MaxAiInsights.kt` — استخلاص نقي (JVM-only) لأحكام كل مقبض من خرائط الأثر + عدادات الحلقات + صدق التنبؤ.
+- `ui/design/MaxAiCinematics.kt` — بدائل بصرية سببية: `MaxSparkline`, `MaxDeltaRow`, `MaxCausalStage`, `MaxEpisodeCard`, `MaxWeightBar`, `MaxCapsule` (بلا أي اعتماد على `nd.max.core.*`).
+- `res/values/max_ai_strings.xml` + `res/values-ar/max_ai_strings.xml` — 116 مفتاحًا، تطابق تام EN/AR وتطابق وسائط التنسيق.
+
+ملفات أُعيدت كتابتها:
+- `core/maxai/MinimalPlanner.kt` — `planWithTrace` يُخرج كل المرشحين مع سبب الاستبعاد، الجدوى، المصداقية، والتنبؤ.
+- `core/maxai/MaxAiEngine.kt` — يبني حلقة كاملة لكل دورة (قبل/بعد/حكم/تعلّم)، يسجل `NO_ACTION` (بخنق 5 دقائق)، يحسب خطأ التنبؤ، ويحتفظ بشريط تطور 120 عيّنة في الذاكرة.
+- `ui/viewmodel/MaxAiViewModel.kt` — يمرر `episodes` و`insights` المشتقة.
+- `ui/mainscreens/MaxAiScreen.kt` — أُزيل الـScaffold اليدوي، الشاشة الآن على `MaxListScreen` + خط زمني من ٨ مراحل سببية لكل حلقة.
+
+`MaxAiModels.kt`: أُضيفت حقول الحالة `trend/objectiveWeights/objectiveSource/appContext/objectiveScore/satisfactionTarget/memoryPercent/lastSampleAtMs`.

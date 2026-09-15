@@ -5,11 +5,16 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import nd.max.core.maxai.MaxAiEngine
+import nd.max.core.maxai.MaxAiEpisode
+import nd.max.core.maxai.MaxAiInsights
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
 import nd.max.core.maxai.SafetyStatus
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 /**
@@ -19,6 +24,10 @@ import javax.inject.Inject
  * الحقيقية (أعداد فعلية)، وكل ما تفعله الواجهة يمر بالمحرك (تفعيل/
  * إيقاف، طلب ملف يدوي) كي تظل سلسلة التنفيذ واحدة:
  * UI → ViewModel → MaxAiEngine → SafetyEngine → HardwareControlArbiter.
+ *
+ * المضاف مع الخط الزمني: حلقات الدفتر ولقطة المعرفة المشتقة منها.
+ * الاشتقاق يحدث هنا وليس في التركيبة لأن قراءة خرائط الأثر تمس القرص؛
+ * تشغيله داخل recomposition كان سيقرأ الملف عند كل إطار.
  */
 @HiltViewModel
 class MaxAiViewModel @Inject constructor(
@@ -28,6 +37,23 @@ class MaxAiViewModel @Inject constructor(
     val state: StateFlow<MaxAiState> = engine.state
     val safety: StateFlow<SafetyStatus> = engine.safety
     val profileRequest: StateFlow<ProfileRequestState> = engine.profileRequest
+
+    /** حلقات القرار الحقيقية، الأحدث أولًا — مصدر الخط الزمني. */
+    val episodes: StateFlow<List<MaxAiEpisode>> = engine.episodes
+
+    /**
+     * لقطة المعرفة: حكم مقيس لكل مقبض + صدق التنبؤ + محصلة الأحكام.
+     *
+     * تُعاد الاشتقاق عند كل حلقة جديدة فقط، لأن خرائط الأثر لا تتغير إلا
+     * مع حلقة مقيسة جديدة.
+     */
+    val insights: StateFlow<MaxAiInsights.Snapshot> = engine.episodes
+        .map { MaxAiInsights.derive(engine.effectsSnapshot(), it) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000L),
+            initialValue = MaxAiInsights.Snapshot(),
+        )
 
     /** المفتاح الرئيسي: تفعيل/إيقاف Max AI (قرار المستخدم وحده). */
     fun setAiEnabled(enabled: Boolean) {
@@ -41,7 +67,7 @@ class MaxAiViewModel @Inject constructor(
         }
     }
 
-    /** إجبار دورة محرك فورية لتحديث الحالة المعروضة بلا انتظار. */
+    /** إجبار دورة محرك فورية لتحديث الحالة المعروضة بلا انتطار. */
     fun refresh() {
         viewModelScope.launch(Dispatchers.IO) { engine.requestRefresh() }
     }
@@ -49,8 +75,8 @@ class MaxAiViewModel @Inject constructor(
     /**
      * تفضيل المستخدم لوزن الهدف (قرار #10): أداء / توازن / بطارية.
      *
-     * يُسأل مرة عند التفعيل ثم يظل قابلًا للتعديل. الوزن يغيّر اتجاه
-     * القرار وترتيب المقابض — لا يبدّل ملفًا، فالمستخدم يحدد الأولوية
+     * يُسأل مرة عند التفعيل ثم يظل قابلًا للتعديل. الوزن يغير اتجاه
+     * القرار وترتيب المقابض — لا يبدل ملفًا، فالمستخدم يحدد الأولوية
      * والعقل يختار المقبض.
      */
     fun setObjectivePreference(preference: String) {

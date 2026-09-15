@@ -73,3 +73,24 @@ Binding decisions from the architect pass (2026-09-15). Executors follow these u
 ## ADR-18 — Nothing already-built is redone for aesthetic reasons
 **Why:** explicit user constraint and respect for sunk, good work.
 **Consequence:** the six migrated screens and the control-plane work are treated as foundations; they change only when a functional rule above (ownership chip, journal, localization) requires an additive change.
+
+## ADR-19 — دفتر الحلقات هو الذاكرة السردية، لا العدّادات
+العدّادات الأربعة و"آخر إجراء" كانت تُهدر سلسلة السبب/النتيجة كل ٣٠ ثانية. صار كل قرار حلقة دائمة مُسلسلة حقلًا بحقل.
+
+## ADR-20 — إظهار المرشحين المرفوضين
+القرار غير مفهوم بدون البدائل. `planWithTrace` يُخرج كل مرشح مع سبب الاستبعاد (`measured_harm`/`predicted_harm`/`no_step`/`unreadable`).
+
+## ADR-21 — `NO_ACTION` حدث يُسجَّل
+المراقبة الواعية ليست خمولًا؛ تُسجل حلقة بلا تنفيذ (بخنق ٥ دقائق) كي لا يبدو النظام ميتًا حين يقرر ألا يتدخل.
+
+## ADR-22 — التنبؤ يُقارن بالقياس دائمًا
+كل حلقة تحفظ `predictedGain` و`predictionErrorGain = |تنبؤ − مقيس|`، فتُعرض دقة النموذج بدل ادعائها.
+
+## ADR-23 — ما لا يُقاس يُعرض كغير متوفر
+لا صفر افتراضي ولا رسم وهمي: `after == null` ⇒ "تعذر القياس"، والخط الزمني فارغ قبل أول حلقة حقيقية.
+
+## ADR-24 — شريط التطور في الذاكرة فقط
+عيّنات الجلسة الحالية (120) لا تُحفظ على القرص كي لا يُعرض رسم "حي" من جلسة سابقة.
+
+## ADR-25 — بدائل سينمائية بلا تبعية للنواة
+`MaxAiCinematics.kt` لا يستورد `nd.max.core.*` ولا التنقل، فتبقى لغة التصميم قابلة لإعادة الاستخدام والاختبار.

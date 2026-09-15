@@ -109,4 +109,26 @@ data class MaxAiState(
     val lockedKnobs: List<LockedKnobSnapshot> = emptyList(),
     /** ملف الأساس الحالي ("1" أداء / "2" متوازن / "3" توفير). */
     val currentProfile: String? = null,
+    /**
+     * شريط التطور الزمني: عيّنات دورات المحرك الحقيقية منذ إقلاع التطبيق.
+     *
+     * في الذاكرة فقط وبقصد: هذه قياسات جلسة حالية لا أرشيف، وتخزينها على
+     * القرص كان سيجعل الواجهة تعرض رسمًا يبدو "حيًا" وهو من جلسة سابقة.
+     * فارغ = لم تكتمل دورة بعد، وتعرضه الواجهة كذلك بلا رسم وهمي.
+     */
+    val trend: List<MaxAiSample> = emptyList(),
+    /** أوزان الهدف النشط الآن — ما يوازن به المخطِّط فعلًا هذه الدورة. */
+    val objectiveWeights: Objective? = null,
+    /** "user" تفضيل صريح / "learned" استنتاج سلوكي / "screen_off". */
+    val objectiveSource: String = "learned",
+    /** التطبيق في المقدمة كما قرأه المحرك من ملف الرفيق، أو "system". */
+    val appContext: String = "system",
+    /** درجة رضا الحالة تحت الهدف النشط (0..1) من آخر لقطة مقيسة. */
+    val objectiveScore: Float? = null,
+    /** عتبة الرضا التي يقارن بها المخطِّط — تُعرض كي يكون الرقم مفهومًا. */
+    val satisfactionTarget: Float = 0f,
+    /** الذاكرة المستخدمة من آخر لقطة. */
+    val memoryPercent: Int = 0,
+    /** زمن آخر لقطة مقيسة — أساس شارة الثقة (حي/قديم) في الواجهة. */
+    val lastSampleAtMs: Long = 0L,
 )

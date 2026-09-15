@@ -10,15 +10,20 @@ import javax.inject.Singleton
  * أصغر تدخل كافٍ (قرار #13 — مبدأ لا خيار).
  *
  * يستبدل executeDecision القديم الذي كان يوزّع على ثماني سلاسل نصية
- * تنتهي ستٌّ منها بتبديل ملف عام. هنا:
+ * تنتهي ستٌ منها بتبديل ملف عام. هنا:
  *
  *   1. لا فجوة مقيسة ⇒ لا فعل إطلاقًا (INV-4).
  *   2. المرشحون = مقابض مكتشفة من العتاد فقط (INV-5).
  *   3. الترتيب = الأثر ÷ التكلفة × المصداقية — فالمقبض المتنازع يهبط
  *      تلقائيًا بدل أن يُعاد تجريبه (INV-6).
- *   4. خطوة واحدة على السلّم، لا قفزة إلى الحد الأقصى — هذا بالضبط ما
- *      فشل في سجل الجهاز: "رفع التردد" كان يطلب السقف الكامل دفعة.
+ *   4. خطوة واحدة على السلّم، لا قفزة إلى الحد الأقصى.
  *   5. كل كتابة تمر بالمُحكِّم مع خط أساس واسترجاع (INV-1).
+ *
+ * إضافة مرحلة الشرّافية: [planWithTrace] يعيد **كل** ما رآه المخطِّط —
+ * المرشحين المقبولين والمستبعدين مع سبب استبعاد كل واحد. قبل ذلك كان
+ * المخطِّط يُسقط المرشحين بـmapNotNull فيفقد النطاق سبب القرار نفسه،
+ * فيصل للمستخدم "لا فجوة مقيسة" بلا تفسير. لا يغير هذا القرار نفسه،
+ * بل يجعله قابلًا للتفسير والمراجعة.
  */
 @Singleton
 class MinimalPlanner @Inject constructor(
@@ -36,7 +41,7 @@ class MinimalPlanner @Inject constructor(
         val reason: String,
         /** نسبة الخطوة إلى مدى المقبض — وحدة تعلّم قابلة للنقل بين الأجهزة. */
         val stepFraction: Float = 0f,
-        /** تنبؤ ما قبل التنفيذ، أو null إن لم يتعلّم النموذج بعد. */
+        /** تنبؤ ما قبل التنفيذ، أو null إن لم يتعلم النموذج بعد. */
         val predicted: ResponseModel.Prediction? = null,
     )
 
@@ -52,6 +57,39 @@ class MinimalPlanner @Inject constructor(
     }
 
     /**
+     * مرشّح واحد كما قيّمه المخطِّط في هذه الدورة بالضبط.
+     *
+     * `rejection` يحمل أحد ثوابت [MaxAiRejection] حين يُستبعد، وnull حين
+     * يكون مؤهلًا وداخلًا في الترتيب.
+     */
+    data class CandidateTrace(
+        val key: String,
+        val label: String,
+        val from: String?,
+        val to: String?,
+        val utility: Float,
+        val credibility: Float,
+        val predictedGain: Float?,
+        val predictedThermalC: Float?,
+        val predictionConfidence: Float?,
+        val samples: Int,
+        val rejection: String?,
+        val chosen: Boolean,
+    )
+
+    /** قرار دورة واحدة مع كل ما بُني عليه. */
+    data class Plan(
+        val step: Step?,
+        val score: Float,
+        val gap: Float,
+        val satisfaction: Float,
+        val direction: ControlRegistry.Direction,
+        val candidates: List<CandidateTrace>,
+        /** true حين كانت الدرجة فوق عتبة الرضا — لا تدخل ولا حاجة له. */
+        val satisfied: Boolean,
+    )
+
+    /**
      * يخطط خطوة واحدة أو لا شيء.
      *
      * @param satisfaction عتبة الرضا: فوقها الجهاز "بخير" فلا تدخل.
@@ -62,22 +100,72 @@ class MinimalPlanner @Inject constructor(
         objective: Objective,
         appContext: String,
         satisfaction: Float = SATISFIED_SCORE,
-    ): Step? {
-        if (controls.isEmpty()) return null
+    ): Step? = planWithTrace(controls, state, objective, appContext, satisfaction).step
 
+    /** نفس القرار، مع سرده الكامل للدفتر والواجهة. */
+    fun planWithTrace(
+        controls: List<ControlRegistry.Control>,
+        state: DeviceSnapshot,
+        objective: Objective,
+        appContext: String,
+        satisfaction: Float = SATISFIED_SCORE,
+    ): Plan {
         val score = objective.score(state)
-        if (score >= satisfaction) return null // الجهاز بخير: لا تدخل.
-
         val direction = objective.preferredDirection(state)
         val gap = satisfaction - score
 
-        val ranked = controls.mapNotNull { control ->
-            val current = runCatching { control.read() }.getOrNull() ?: return@mapNotNull null
-            val next = control.step(current, direction) ?: return@mapNotNull null
+        // الجهاز بخير أو لا مفردات على هذا العتاد: لا تدخل.
+        if (score >= satisfaction || controls.isEmpty()) {
+            return Plan(
+                step = null,
+                score = score,
+                gap = gap,
+                satisfaction = satisfaction,
+                direction = direction,
+                candidates = emptyList(),
+                satisfied = score >= satisfaction,
+            )
+        }
+
+        val traces = mutableListOf<CandidateTrace>()
+        val ranked = mutableListOf<Candidate>()
+
+        controls.forEach { control ->
+            val cred = credibility.credibility(control.key, direction, appContext)
+            val effect = outcomeModel.expectedEffect(control.key, direction, appContext)
+
+            val current = runCatching { control.read() }.getOrNull()
+            if (current == null) {
+                traces += CandidateTrace(
+                    key = control.key, label = control.label, from = null, to = null,
+                    utility = 0f, credibility = cred,
+                    predictedGain = null, predictedThermalC = null, predictionConfidence = null,
+                    samples = effect.samples, rejection = MaxAiRejection.UNREADABLE, chosen = false,
+                )
+                return@forEach
+            }
+
+            val next = control.step(current, direction)
+            if (next == null) {
+                traces += CandidateTrace(
+                    key = control.key, label = control.label, from = current, to = null,
+                    utility = 0f, credibility = cred,
+                    predictedGain = null, predictedThermalC = null, predictionConfidence = null,
+                    samples = effect.samples, rejection = MaxAiRejection.NO_STEP, chosen = false,
+                )
+                return@forEach
+            }
 
             // استُبعد بالتجربة: يسخّن بلا مكسب يُذكر (تعلّم سابق مقيس).
             if (outcomeModel.isThermallyHarmful(control.key, direction, appContext)) {
-                return@mapNotNull null
+                traces += CandidateTrace(
+                    key = control.key, label = control.label, from = current, to = next,
+                    utility = 0f, credibility = cred,
+                    predictedGain = null, predictedThermalC = effect.meanThermal,
+                    predictionConfidence = effect.confidence,
+                    samples = effect.samples, rejection = MaxAiRejection.MEASURED_HARM, chosen = false,
+                )
+                return@forEach
             }
 
             val stepFraction = control.stepFraction(current, next)
@@ -97,10 +185,16 @@ class MinimalPlanner @Inject constructor(
                 prediction.thermalDeltaC > MAX_ACCEPTABLE_THERMAL_C &&
                 prediction.objectiveGain <= prediction.thermalDeltaC * THERMAL_TRADE_RATIO
             ) {
-                return@mapNotNull null
+                traces += CandidateTrace(
+                    key = control.key, label = control.label, from = current, to = next,
+                    utility = 0f, credibility = cred,
+                    predictedGain = prediction.objectiveGain,
+                    predictedThermalC = prediction.thermalDeltaC,
+                    predictionConfidence = prediction.confidence,
+                    samples = effect.samples, rejection = MaxAiRejection.PREDICTED_HARM, chosen = false,
+                )
+                return@forEach
             }
-
-            val cred = credibility.credibility(control.key, direction, appContext)
 
             // مصدر تقدير الأثر: التنبؤ حين يكون موثوقًا، وإلا التجربة
             // المتفائلة (UCB). مزيج مرجّح بالثقة كي ينتقل العقل تدريجيًا
@@ -113,8 +207,6 @@ class MinimalPlanner @Inject constructor(
                 empirical
             }.coerceAtLeast(MIN_EXPECTED_IMPACT)
 
-            // العائد على التكلفة: الأثر المتوقع مقابل خشونة التدخل
-            // والمخاطرة الحرارية المتوقعة، مرجّحًا بمصداقية المقبض.
             val utility = utilityOf(
                 expectedImpact = expectedImpact,
                 cost = control.cost,
@@ -122,21 +214,64 @@ class MinimalPlanner @Inject constructor(
                 predictedThermalDeltaC = prediction?.thermalDeltaC ?: 0f,
             )
 
-            Candidate(control, current, next, stepFraction, prediction, utility)
-        }.sortedByDescending { it.utility }
+            ranked += Candidate(control, current, next, stepFraction, prediction, utility)
+            traces += CandidateTrace(
+                key = control.key, label = control.label, from = current, to = next,
+                utility = utility, credibility = cred,
+                predictedGain = prediction?.objectiveGain,
+                predictedThermalC = prediction?.thermalDeltaC,
+                predictionConfidence = prediction?.confidence,
+                samples = effect.samples, rejection = null, chosen = false,
+            )
+        }
 
-        val best = ranked.firstOrNull() ?: return null
+        val best = ranked.maxByOrNull { it.utility }
+        if (best == null) {
+            return Plan(
+                step = null,
+                score = score,
+                gap = gap,
+                satisfaction = satisfaction,
+                direction = direction,
+                candidates = traces.sortedByDescending { it.utility },
+                satisfied = false,
+            )
+        }
+
         val predictedNote = best.prediction?.let {
             " تنبؤ=%.3f حرارة=%+.1f° ثقة=%.2f".format(it.objectiveGain, it.thermalDeltaC, it.confidence)
         } ?: " (بلا تنبؤ: تعلّم أولي)"
-        return Step(
-            control = best.control,
-            from = best.from,
-            to = best.to,
+
+        val finalTraces = traces
+            .map { trace ->
+                if (trace.rejection == null && trace.key == best.control.key) {
+                    trace.copy(chosen = true)
+                } else {
+                    trace
+                }
+            }
+            .sortedWith(
+                compareByDescending<CandidateTrace> { it.chosen }
+                    .thenByDescending { it.utility }
+            )
+
+        return Plan(
+            step = Step(
+                control = best.control,
+                from = best.from,
+                to = best.to,
+                direction = direction,
+                reason = "فجوة=%.2f اتجاه=%s جدوى=%.2f".format(gap, direction.name, best.utility) +
+                    predictedNote,
+                stepFraction = best.stepFraction,
+                predicted = best.prediction,
+            ),
+            score = score,
+            gap = gap,
+            satisfaction = satisfaction,
             direction = direction,
-            reason = "فجوة=%.2f اتجاه=%s جدوى=%.2f".format(gap, direction.name, best.utility) + predictedNote,
-            stepFraction = best.stepFraction,
-            predicted = best.prediction,
+            candidates = finalTraces,
+            satisfied = false,
         )
     }
 
@@ -184,7 +319,7 @@ class MinimalPlanner @Inject constructor(
     }
 
     /**
-     * تقدّم التعلّم الحقيقي للعرض: كم مقبضًا تعلّم النظام أثرَه فعلًا،
+     * تقدّم التعلّم الحقيقي للعرض: كم مقبضًا تعلّم النطام أثرَه فعلًا،
      * وكم حكمًا مقيسًا تراكم. أعداد مقيسة لا مُدّعاة — نواة Kotlin.
      */
     fun learningProgress(): LearningProgress {
@@ -197,6 +332,16 @@ class MinimalPlanner @Inject constructor(
 
     /** أعداد تقدّم التعلّم — تُعرض في الواجهة بدل عدّاد وكيل لم يعد يُستشار. */
     data class LearningProgress(val learnedKnobs: Int, val samples: Long)
+
+    /** لقطة خرائط الأثر المتعلّمة — مصدر قسم "ما تعلّمه Max AI". */
+    fun effectsSnapshot(): Map<String, ControlOutcomeModel.Effect> = outcomeModel.snapshot()
+
+    /** أثر مقبض واحد في سياقه — يُقرأ قبل التنفيذ وبعده لقياس التعلّم. */
+    fun effectOf(
+        key: String,
+        direction: ControlRegistry.Direction,
+        appContext: String,
+    ): ControlOutcomeModel.Effect = outcomeModel.expectedEffect(key, direction, appContext)
 
     /** ينسب الأثر المقيس إلى المقبض المنفذ وسياقه فقط. */
     fun recordMeasuredOutcome(
@@ -234,8 +379,7 @@ class MinimalPlanner @Inject constructor(
     /**
      * فيتو سلامة قبل/بعد الكتابة ليس فشل المقبض: الكتابة أثبتت على العتاد
      * لكن سلطة أعلى (أسبقية السلامة) ألغتها. تسجيله كفشل في المصداقية
-     * يسمّم إشارة التعلّم لمقبض فعل بالضبط ما أُمر به. هذا الفصل يمنع
-     * العقل من تعلّم "المقبض X لا يثبت" بينما الحقيقة "الحرارة منعته".
+     * يسمم إشارة التعلّم لمقبض فعل بالضبط ما أُمر به.
      */
     fun recordSafetyVeto(step: Step, appContext: String) {
         credibility.record(step.control.key, step.direction, appContext, verified = true)
@@ -245,13 +389,8 @@ class MinimalPlanner @Inject constructor(
         /**
          * دالة الجدوى النقية — قرار الترتيب بلا أي تبعية Android.
          *
-         * فصلت عن [plan] لسببين: (1) تُختبر في JVM فتُحرس أخطر نقطة في
-         * العقل (كيف يرجّح بين مقبضين)، و(2) تجعل المعادلة مقروءة في
-         * مكان واحد بدل تشتّتها بين فروع.
-         *
          * المعادلة: (الأثر المتوقع ÷ تكلفة التدخل) × المصداقية ÷ المخاطرة
-         * الحرارية. المقبض الخشن المكلف يسقط، والمتنازع عليه يسقط،
-         * والذي يُتوقع أن يسخّن يسقط — حتى لو بدا مغريًا على ورق الأداء.
+         * الحرارية.
          */
         internal fun utilityOf(
             expectedImpact: Float,
