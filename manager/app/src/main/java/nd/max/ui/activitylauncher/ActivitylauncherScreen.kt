@@ -147,7 +147,6 @@ enum class FilterOption { ALL, SYSTEM, USER }
 
 
 
-@Composable
 private const val ACTIVITY_LAUNCHER_LIST_ROUTE = "app_list"
 private const val ACTIVITY_LAUNCHER_DETAIL_ROUTE = "app_detail/"
 

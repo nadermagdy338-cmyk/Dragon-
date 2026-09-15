@@ -138,7 +138,7 @@ private fun HomeCommandPreview(missing: Boolean = false) {
             maxAi = MaxAiState(aiEnabled = true, strategyLabel = "Balanced"),
             profileRequest = ProfileRequestState(),
             deviceName = "MAX Preview Device",
-            onNavigate = {}, onProfile = {}, onReboot = {}, onAiRetry = {}
+            onNavigate = {}, onProfile = {}, onReboot = {}, onSettings = {}, onAiRetry = {}
         )
     }
 }
