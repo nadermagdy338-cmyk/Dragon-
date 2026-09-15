@@ -2,11 +2,15 @@ package nd.max.core.maxai
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,19 +18,15 @@ import javax.inject.Singleton
 /**
  * دفتر القرارات — الذاكرة السردية لـMax AI.
  *
- * المشكلة التي يحلّه: المحرك كان يتعلّم فعلًا (ControlOutcomeModel +
- * ResponseModel) وينفّذ فعلًا (HardwareControlArbiter)، لكن كل ما وصل
- * المستخدم هو أربعة عدادات و"آخر إجراء" واحد يُستبدل في الدورة
- * التالية. أي أن سلسلة السبب/النتيجة — أهم ما يجعل النظام مفهومًا —
- * كانت تُهدر بعد ثلاثين ثانية.
- *
  * هنا تُحفظ كل دورة قرار كحلقة كاملة موثّقة بالقياس:
  *   لاحظ → لماذا يهم → قرر → ماذا غيّر → ماذا حدث → هل نجح →
- *   ما الأثر → ماذا تعلّم.
+ *   ما الأثر → ماذا تعلّم → ماذا فعل المستخدم بعده.
  *
  * القاعدة الملزِمة: لا حقل في هذا الملف يمكن توليده من العدم. كل رقم
  * إما قراءة من العتاد، أو ناتج نموذج تعلّم حقيقي، أو خرج مُحكِّم.
  * الحقول التي لا يوجد لها قياس تبقى null وتُعرض كذلك.
+ *
+ * الترميز نفسه في [MaxAiJournalCodec] — دالّات نقية يحرسها اختبار ذهاب/عودة.
  */
 
 /** لقطة قابلة للعرض من قياسات دورة واحدة. */
@@ -100,6 +100,34 @@ enum class MaxAiVerdict {
     NO_ACTION,
 }
 
+/**
+ * نوع الحلقة. الخط الزمني واحد لأن سؤال المستخدم واحد: «لماذا تغيّر
+ * جهازي؟» — والجواب قد يكون قرار تحسين، تجربة معرفية، تدخل سلامة، أو
+ * انحراف مقبض عاد لقيمة النظام. الفرز بالنوع، لا بخطّ زمني منفصل.
+ */
+enum class MaxAiEpisodeKind {
+    /** قرار تحسين: فجوة مقيسة → خطوة → قياس → حكم. */
+    DECISION,
+
+    /** تجربة معرفية: الهدف مُشبَع والجهل هو الدافع، والاسترجاع إلزامي. */
+    PROBE,
+
+    /** تدخل [SafetyEngine]: سقف آمن فوق كل مالك. */
+    SAFETY,
+
+    /** انحراف: مقبض مملوك عاد لقيمة غير المطلوبة بعد كتابة مؤكَّدة. */
+    DRIFT,
+}
+
+/** نوع تجاوز المستخدم — قيم ثابتة كي تترجمها الواجهة بلا تخمين. */
+object MaxAiOverride {
+    /** قفل يدوي على مقبض (ManualControlLocks). */
+    const val LOCK = "lock"
+
+    /** تطبيق بروفايل أساس يدويًا بعد تدخل المحرك. */
+    const val PROFILE = "profile"
+}
+
 /** حلقة قرار واحدة كاملة. */
 data class MaxAiEpisode(
     val id: Long,
@@ -139,8 +167,69 @@ data class MaxAiEpisode(
     /** |تنبؤ − مقيس| حين وُجد تنبؤ — صدق النموذج معروضًا لا مدّعى. */
     val predictionErrorGain: Float?,
     val safetyLevel: String,
+    /**
+     * true حين كانت هذه الحلقة **تجربة معرفية** لا قرار تحسين: الجهاز
+     * كان محققًا لهدفه، وجرى القياس لأن أثر المقبض مجهول وتكلفة الخطأ
+     * كانت منخفضة. تُعرض بعنوان مختلف كي لا تُقرأ كأنها تحسين مطلوب.
+     */
+    val exploration: Boolean = false,
+
+    /** true حين أُعيد المقبض إلى خط أساسه بعد القياس (سلوك التجربة). */
+    val reverted: Boolean = false,
+
+    /** حالة المعرفة قبل التجربة/القرار — أحد أسماء [TrustModel.Knowledge]. */
+    val knowledgeBefore: String? = null,
+
+    /** حالة المعرفة بعد تسجيل القياس — الفرق هو التعلّم الفعلي. */
+    val knowledgeAfter: String? = null,
+
+    /** عدم اليقين المعرفي (الخطأ القياسي للمتوسط) قبل القياس. */
+    val epistemicBefore: Float? = null,
+
+    /** عدم اليقين المعرفي بعد القياس — يجب أن ينقص إن كان التعلّم حقيقيًا. */
+    val epistemicAfter: Float? = null,
+
+    /** قيمة المعلومة المتوقعة التي بُرِّرت بها التجربة. */
+    val informationGain: Float? = null,
+
+    /** تكلفة أسوأ حالة المقدّرة وقت السماح بالتجربة (0..1). */
+    val probeCost: Float? = null,
+
+    /** سبب منع التجربة — أحد ثوابت [TrustModel.Block] حين سُجِّل المنع. */
+    val probeBlockReason: String? = null,
+
+    /** نوع الحلقة — قرار، تجربة معرفية، تدخل سلامة، أو انحراف. */
+    val kind: MaxAiEpisodeKind = MaxAiEpisodeKind.DECISION,
+
+    /**
+     * لحظة تجاوز المستخدم بعد هذه الحلقة: قفل يدوي أو بروفايل خلال
+     * نافذة قصيرة من التدخل. أصدق إشارة رضا متاحة — سلوك فعلي لا
+     * استبيان — ولذلك تُغذّى عقوبةً في [CredibilityStore].
+     */
+    val userOverrideAtMs: Long? = null,
+
+    /** نوع التجاوز — أحد ثوابت [MaxAiOverride]. */
+    val userOverrideKind: String? = null,
+
+    /** لحظة إعادة فتح الحلقة للحكم المؤجل (قياس ثانٍ بعد ربع ساعة). */
+    val deferredAtMs: Long? = null,
+
+    /** انحدار البطارية المقيس في النافذة المؤجلة — ما لا تقيسه 10 ثوانٍ. */
+    val deferredBatteryDeltaPercent: Int? = null,
+
+    /** فرق الحرارة في النافذة المؤجلة. */
+    val deferredThermalDeltaC: Float? = null,
+
+    /** فرق درجة الرضا في النافذة المؤجلة. */
+    val deferredObjectiveDelta: Float? = null,
 ) {
     val acted: Boolean get() = knobKey != null && verdict != MaxAiVerdict.NO_ACTION
+
+    /** true حين ألغى المستخدم أثر هذه الحلقة يدويًا — رفض مقيس. */
+    val userRejected: Boolean get() = userOverrideAtMs != null
+
+    /** true حين أُعيد فتح الحلقة وقُيست النافذة المؤجلة فعلًا. */
+    val hasDeferredVerdict: Boolean get() = deferredAtMs != null
 }
 
 @Singleton
@@ -152,16 +241,19 @@ class MaxAiJournal @Inject constructor(
     val episodes: StateFlow<List<MaxAiEpisode>> = _episodes.asStateFlow()
     private val lock = Any()
 
+    /**
+     * الكتابة على IO مع تهدئة: الدورة تسجّل حلقة كل ثلاثين ثانية، وقد
+     * تُعاد كتابتها مرتين (رفض المستخدم، ثم الحكم المؤجل). التسلسل
+     * الكامل المتزامن داخل خيط القرار كان عمل قرص بلا سبب.
+     */
+    private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var persistJob: Job? = null
+
     init {
         synchronized(lock) {
             runCatching {
                 if (file.exists()) {
-                    val array = JSONArray(file.readText())
-                    val loaded = ArrayList<MaxAiEpisode>(array.length())
-                    for (i in 0 until array.length()) {
-                        array.optJSONObject(i)?.let(::parseEpisode)?.let(loaded::add)
-                    }
-                    _episodes.value = loaded
+                    _episodes.value = MaxAiJournalCodec.decodeAll(file.readText())
                 }
             }
         }
@@ -169,190 +261,89 @@ class MaxAiJournal @Inject constructor(
 
     /** يسجّل حلقة جديدة في المقدمة ويقصّ الدفتر عند الحد. */
     fun record(episode: MaxAiEpisode) {
+        val capped = episode.withCappedCandidates()
         synchronized(lock) {
-            _episodes.value = (listOf(episode) + _episodes.value).take(MAX_EPISODES)
-            persist()
+            _episodes.value = (listOf(capped) + _episodes.value).take(MAX_EPISODES)
         }
+        schedulePersist()
+    }
+
+    /**
+     * يعيد فتح حلقة مسجّلة ويحدّثها في موضعها — أساس الحكم المؤجل ورد
+     * فعل المستخدم: الحلقة نفسها تكتمل لاحقًا بدل إنشاء حلقة ثانية
+     * تكرّر نفس القرار.
+     *
+     * @return true حين وُجدت الحلقة وحُدِّثت.
+     */
+    fun amend(id: Long, transform: (MaxAiEpisode) -> MaxAiEpisode): Boolean {
+        val changed = synchronized(lock) {
+            val current = _episodes.value
+            val index = current.indexOfFirst { it.id == id }
+            if (index < 0) {
+                false
+            } else {
+                val updated = current.toMutableList()
+                updated[index] = transform(current[index]).withCappedCandidates()
+                _episodes.value = updated
+                true
+            }
+        }
+        if (changed) schedulePersist()
+        return changed
     }
 
     fun clear() {
         synchronized(lock) {
+            persistJob?.cancel()
+            persistJob = null
             _episodes.value = emptyList()
             runCatching { file.delete() }
         }
     }
 
+    /**
+     * سقف المرشحين المحفوظين: المختار أولًا ثم الأعلى جدوى. بلا هذا
+     * السقف ينمو الملف مع اتساع سجل المقابض، ولا يقرأ المستخدم
+     * عشرين مرشّحًا مرفوضًا أصلًا.
+     */
+    private fun MaxAiEpisode.withCappedCandidates(): MaxAiEpisode =
+        if (candidates.size <= MAX_CANDIDATES_PER_EPISODE) {
+            this
+        } else {
+            copy(
+                candidates = candidates
+                    .sortedWith(
+                        compareByDescending<MaxAiCandidate> { it.chosen }
+                            .thenByDescending { it.utility }
+                    )
+                    .take(MAX_CANDIDATES_PER_EPISODE)
+            )
+        }
+
+    private fun schedulePersist() {
+        synchronized(lock) {
+            persistJob?.cancel()
+            persistJob = ioScope.launch {
+                delay(PERSIST_DEBOUNCE_MS)
+                persist()
+            }
+        }
+    }
+
+    /** كتابة ذرّية (tmp + rename) من لقطة ثابتة، خارج قفل الحلقة. */
     private fun persist() {
+        val snapshot = synchronized(lock) { _episodes.value }
+        val payload = runCatching { MaxAiJournalCodec.encodeAll(snapshot) }.getOrNull()
+            ?: return
         runCatching {
-            val array = JSONArray()
-            _episodes.value.forEach { array.put(serializeEpisode(it)) }
             val tmp = File(file.parentFile, "$FILE_NAME.tmp")
-            tmp.writeText(array.toString())
+            tmp.writeText(payload)
             if (!tmp.renameTo(file)) {
-                file.writeText(array.toString())
+                file.writeText(payload)
                 tmp.delete()
             }
         }
     }
-
-    // ── تسلسل صريح: حقل بحقل، بلا انعكاس ولا تبعية مكتبة ────────────
-
-    private fun serializeReading(reading: MaxAiReading): JSONObject = JSONObject()
-        .put("cpu", reading.cpuLoadPercent)
-        .put("temp", reading.thermalC.toDouble())
-        .put("bat", reading.batteryPercent)
-        .put("mem", reading.memoryPercent)
-        .put("net", reading.networkPercent)
-        .put("screen", reading.screenOn)
-        .put("score", reading.objectiveScore.toDouble())
-
-    private fun parseReading(o: JSONObject): MaxAiReading = MaxAiReading(
-        cpuLoadPercent = o.optInt("cpu", 0),
-        thermalC = o.optDouble("temp", 0.0).toFloat(),
-        batteryPercent = o.optInt("bat", 0),
-        memoryPercent = o.optInt("mem", 0),
-        networkPercent = o.optInt("net", 0),
-        screenOn = o.optBoolean("screen", false),
-        objectiveScore = o.optDouble("score", 0.0).toFloat(),
-    )
-
-    private fun serializeCandidate(candidate: MaxAiCandidate): JSONObject = JSONObject()
-        .put("key", candidate.key)
-        .put("label", candidate.label)
-        .putOrNull("from", candidate.from)
-        .putOrNull("to", candidate.to)
-        .put("utility", candidate.utility.toDouble())
-        .put("cred", candidate.credibility.toDouble())
-        .putFloatOrNull("pg", candidate.predictedGain)
-        .putFloatOrNull("pt", candidate.predictedThermalC)
-        .putFloatOrNull("pc", candidate.predictionConfidence)
-        .put("n", candidate.samples)
-        .putOrNull("rej", candidate.rejection)
-        .put("chosen", candidate.chosen)
-
-    private fun parseCandidate(o: JSONObject): MaxAiCandidate = MaxAiCandidate(
-        key = o.optString("key"),
-        label = o.optString("label"),
-        from = o.optStringOrNull("from"),
-        to = o.optStringOrNull("to"),
-        utility = o.optDouble("utility", 0.0).toFloat(),
-        credibility = o.optDouble("cred", 0.0).toFloat(),
-        predictedGain = o.optFloatOrNull("pg"),
-        predictedThermalC = o.optFloatOrNull("pt"),
-        predictionConfidence = o.optFloatOrNull("pc"),
-        samples = o.optInt("n", 0),
-        rejection = o.optStringOrNull("rej"),
-        chosen = o.optBoolean("chosen", false),
-    )
-
-    private fun serializeEpisode(episode: MaxAiEpisode): JSONObject {
-        val candidates = JSONArray()
-        episode.candidates.forEach { candidates.put(serializeCandidate(it)) }
-        return JSONObject()
-            .put("id", episode.id)
-            .put("ctx", episode.appContext)
-            .put("obj", episode.objectiveLabel)
-            .put("objSrc", episode.objectiveSource)
-            .put("wp", episode.weightPerformance.toDouble())
-            .put("wb", episode.weightBattery.toDouble())
-            .put("wt", episode.weightThermal.toDouble())
-            .put("target", episode.satisfactionTarget.toDouble())
-            .put("gap", episode.gap.toDouble())
-            .put("before", serializeReading(episode.before))
-            .apply { episode.after?.let { put("after", serializeReading(it)) } }
-            .putOrNull("knob", episode.knobKey)
-            .putOrNull("knobLabel", episode.knobLabel)
-            .putOrNull("dir", episode.direction)
-            .putOrNull("from", episode.fromValue)
-            .putOrNull("to", episode.toValue)
-            .putOrNull("applied", episode.appliedValue)
-            .put("step", episode.stepFraction.toDouble())
-            .putFloatOrNull("pg", episode.predictedGain)
-            .putFloatOrNull("pt", episode.predictedThermalC)
-            .putFloatOrNull("pc", episode.predictionConfidence)
-            .put("cands", candidates)
-            .put("verdict", episode.verdict.name)
-            .put("detail", episode.detail)
-            .putFloatOrNull("dScore", episode.objectiveDelta)
-            .putFloatOrNull("dTemp", episode.thermalDeltaC)
-            .putIntOrNull("dCpu", episode.cpuDeltaPercent)
-            .putIntOrNull("dBat", episode.batteryDeltaPercent)
-            .put("nBefore", episode.samplesBefore)
-            .put("nAfter", episode.samplesAfter)
-            .put("cBefore", episode.confidenceBefore.toDouble())
-            .put("cAfter", episode.confidenceAfter.toDouble())
-            .putFloatOrNull("pErr", episode.predictionErrorGain)
-            .put("safety", episode.safetyLevel)
-    }
-
-    private fun parseEpisode(o: JSONObject): MaxAiEpisode? = runCatching {
-        val candidatesJson = o.optJSONArray("cands")
-        val candidates = buildList {
-            if (candidatesJson != null) {
-                for (i in 0 until candidatesJson.length()) {
-                    candidatesJson.optJSONObject(i)?.let { add(parseCandidate(it)) }
-                }
-            }
-        }
-        MaxAiEpisode(
-            id = o.optLong("id", 0L),
-            appContext = o.optString("ctx", "system"),
-            objectiveLabel = o.optString("obj", "balanced"),
-            objectiveSource = o.optString("objSrc", "learned"),
-            weightPerformance = o.optDouble("wp", 0.0).toFloat(),
-            weightBattery = o.optDouble("wb", 0.0).toFloat(),
-            weightThermal = o.optDouble("wt", 0.0).toFloat(),
-            satisfactionTarget = o.optDouble("target", 0.0).toFloat(),
-            gap = o.optDouble("gap", 0.0).toFloat(),
-            before = o.optJSONObject("before")?.let(::parseReading)
-                ?: return@runCatching null,
-            after = o.optJSONObject("after")?.let(::parseReading),
-            knobKey = o.optStringOrNull("knob"),
-            knobLabel = o.optStringOrNull("knobLabel"),
-            direction = o.optStringOrNull("dir"),
-            fromValue = o.optStringOrNull("from"),
-            toValue = o.optStringOrNull("to"),
-            appliedValue = o.optStringOrNull("applied"),
-            stepFraction = o.optDouble("step", 0.0).toFloat(),
-            predictedGain = o.optFloatOrNull("pg"),
-            predictedThermalC = o.optFloatOrNull("pt"),
-            predictionConfidence = o.optFloatOrNull("pc"),
-            candidates = candidates,
-            verdict = MaxAiVerdict.values()
-                .firstOrNull { it.name == o.optString("verdict") }
-                ?: MaxAiVerdict.UNMEASURED,
-            detail = o.optString("detail", ""),
-            objectiveDelta = o.optFloatOrNull("dScore"),
-            thermalDeltaC = o.optFloatOrNull("dTemp"),
-            cpuDeltaPercent = o.optIntOrNull("dCpu"),
-            batteryDeltaPercent = o.optIntOrNull("dBat"),
-            samplesBefore = o.optInt("nBefore", 0),
-            samplesAfter = o.optInt("nAfter", 0),
-            confidenceBefore = o.optDouble("cBefore", 0.0).toFloat(),
-            confidenceAfter = o.optDouble("cAfter", 0.0).toFloat(),
-            predictionErrorGain = o.optFloatOrNull("pErr"),
-            safetyLevel = o.optString("safety", SafetyLevel.NORMAL.name),
-        )
-    }.getOrNull()
-
-    private fun JSONObject.putOrNull(key: String, value: String?): JSONObject =
-        if (value == null) this else put(key, value)
-
-    private fun JSONObject.putFloatOrNull(key: String, value: Float?): JSONObject =
-        if (value == null) this else put(key, value.toDouble())
-
-    private fun JSONObject.putIntOrNull(key: String, value: Int?): JSONObject =
-        if (value == null) this else put(key, value)
-
-    private fun JSONObject.optStringOrNull(key: String): String? =
-        if (has(key) && !isNull(key)) optString(key).takeIf { it.isNotBlank() } else null
-
-    private fun JSONObject.optFloatOrNull(key: String): Float? =
-        if (has(key) && !isNull(key)) optDouble(key, Double.NaN)
-            .takeIf { !it.isNaN() }?.toFloat() else null
-
-    private fun JSONObject.optIntOrNull(key: String): Int? =
-        if (has(key) && !isNull(key)) optInt(key) else null
 
     companion object {
         private const val FILE_NAME = "maxai_journal.json"
@@ -362,5 +353,11 @@ class MaxAiJournal @Inject constructor(
          * دورات الثلاثين ثانية، وتبقى قابلة للقراءة والتحليل بلا كلفة.
          */
         const val MAX_EPISODES = 80
+
+        /** سقف المرشحين لكل حلقة — سرد مفهوم لا أرشيف ترشيح كامل. */
+        const val MAX_CANDIDATES_PER_EPISODE = 12
+
+        /** تهدئة الكتابة: تجميع تعديلات الحلقة نفسها في كتابة واحدة. */
+        const val PERSIST_DEBOUNCE_MS = 1_500L
     }
 }

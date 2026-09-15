@@ -55,6 +55,25 @@ object MaxAiInsights {
         val totalSamples: Long = 0L,
         /** أكثر سياق تطبيق تكرّر في الحلقات، أو null قبل أي حلقة. */
         val busiestContext: String? = null,
+        /**
+         * التجارب المعرفية المسجلة — معدودة منفصلة ومستبعدة من عدادات
+         * القرارات: التجربة تُسترجع بعد القياس دائمًا، فعدّها نجاحًا كان
+         * سيضخّم نسبة النجاح بما لا يزال أثره قائمًا على الجهاز.
+         */
+        val explorations: Int = 0,
+        /** التجارب التي انتهت بقياس فعلي (أي أنتجت معرفة). */
+        val explorationsMeasured: Int = 0,
+        /**
+         * حلقات النطام — تدخلات سلامة وانحرافات مقباض. معدودة منفصلة
+         * ومستبعدة من نسبة النجاح: لا قرار اختاره المخطِّط فيها، فعدّها
+         * نجاحًا أو فشلًا كان سينسب للمحرك ما لم يقرره.
+         */
+        val safetyEvents: Int = 0,
+        val driftEvents: Int = 0,
+        /** الحلقات التي ألغاها المستخدم يدويًا خلال نافذة الربط (رفض مقيس). */
+        val userOverrides: Int = 0,
+        /** الحلقات التي وصلها حكم مؤجل فعلي (قياس بطارية بعد ربع ساعة). */
+        val deferredMeasured: Int = 0,
     ) {
         /** نسبة الحلقات التي انتهت بتحسّن مقيس من الحلقات المُنفَّذة. */
         val actedEpisodes: Int get() = improved + rolledBack + stuck + blocked + failed + unmeasured
@@ -130,6 +149,15 @@ object MaxAiInsights {
                 .thenByDescending { it.meanGain }
         )
 
+        // التجارب المعرفية تُعزل عن عدادات القرار: أهدافها مختلفة
+        // (تقليل جهل) ومصيرها واحد (استرجاع)، فخلطها بالقرارات يفسد
+        // معنى نسبة النجاح نفسها.
+        // الفرز بنوع الحلقة لا براية exploration وحدها: حلقات السلامة
+        // والانحراف ليست تجارب ولا قرارات، وخلطها بالقرارات كان سيجعل
+        // كل ارتفاع حرارة يبدو كأنه خطأ من المخطِّط.
+        val decisions = episodes.filter { it.kind == MaxAiEpisodeKind.DECISION }
+        val probes = episodes.filter { it.kind == MaxAiEpisodeKind.PROBE }
+
         val errors = episodes.mapNotNull { episode ->
             val predicted = episode.predictedGain ?: return@mapNotNull null
             val measured = episode.objectiveDelta ?: return@mapNotNull null
@@ -145,17 +173,23 @@ object MaxAiInsights {
         return Snapshot(
             knobs = knobs,
             episodes = episodes.size,
-            improved = episodes.count { it.verdict == MaxAiVerdict.IMPROVED },
-            rolledBack = episodes.count { it.verdict == MaxAiVerdict.REGRESSED_ROLLED_BACK },
-            stuck = episodes.count { it.verdict == MaxAiVerdict.REGRESSED_STUCK },
-            blocked = episodes.count { it.verdict == MaxAiVerdict.BLOCKED_SAFETY },
-            failed = episodes.count { it.verdict == MaxAiVerdict.WRITE_FAILED },
-            unmeasured = episodes.count { it.verdict == MaxAiVerdict.UNMEASURED },
-            noAction = episodes.count { it.verdict == MaxAiVerdict.NO_ACTION },
+            improved = decisions.count { it.verdict == MaxAiVerdict.IMPROVED },
+            rolledBack = decisions.count { it.verdict == MaxAiVerdict.REGRESSED_ROLLED_BACK },
+            stuck = decisions.count { it.verdict == MaxAiVerdict.REGRESSED_STUCK },
+            blocked = decisions.count { it.verdict == MaxAiVerdict.BLOCKED_SAFETY },
+            failed = decisions.count { it.verdict == MaxAiVerdict.WRITE_FAILED },
+            unmeasured = decisions.count { it.verdict == MaxAiVerdict.UNMEASURED },
+            noAction = decisions.count { it.verdict == MaxAiVerdict.NO_ACTION },
             meanAbsPredictionError = errors.takeIf { it.isNotEmpty() }?.average()?.toFloat(),
             predictionSamples = errors.size,
             totalSamples = knobs.sumOf { it.samples.toLong() },
             busiestContext = busiest,
+            explorations = probes.size,
+            explorationsMeasured = probes.count { it.after != null },
+            safetyEvents = episodes.count { it.kind == MaxAiEpisodeKind.SAFETY },
+            driftEvents = episodes.count { it.kind == MaxAiEpisodeKind.DRIFT },
+            userOverrides = episodes.count { it.userRejected },
+            deferredMeasured = episodes.count { it.hasDeferredVerdict },
         )
     }
 }

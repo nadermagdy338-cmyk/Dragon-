@@ -71,6 +71,14 @@ sealed class MaxDestination(
     data object Apps : MaxDestination("apps", R.string.max_nav_apps, Icons.Rounded.Apps, isPrimary = true)
     data object MaxAi : MaxDestination("max_ai", R.string.max_nav_max_ai, Icons.Rounded.AutoAwesome, isPrimary = true)
 
+    /**
+     * The live command centre: the running loop drawn as it happens (vitals,
+     * thermal forecast vs actual, prediction-error trend, knowledge state,
+     * exploration gate, loop counters, knob ownership). Replaces the static
+     * "engine state" section that used to sit inside [MaxAi].
+     */
+    data object MaxLive : MaxDestination("max_live", R.string.max_live_title, Icons.Rounded.Timeline, MaxAi)
+
     // Settings root (opened from the Now top bar)
     data object Settings : MaxDestination("settings", R.string.max_nav_settings, Icons.Rounded.Settings)
 
@@ -160,7 +168,7 @@ sealed class MaxDestination(
 
         /** Every destination registered in [MaxNavGraph]. */
         val All = listOf(
-            GetStarted, Now, Control, Apps, MaxAi, Settings,
+            GetStarted, Now, Control, Apps, MaxAi, MaxLive, Settings,
             CpuHub, GpuHub, MemoryHub, DisplayHub, ResponsivenessHub, ThermalHub,
             PowerHub, StorageHub, NetworkHub, AllTweaks,
             CpuCoreControl, GovernorSettings, PreferenceTweaks, MtkVendor, GpuStudio,

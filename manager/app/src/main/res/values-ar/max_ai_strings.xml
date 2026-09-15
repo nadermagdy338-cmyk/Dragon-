@@ -70,6 +70,17 @@
     <string name="max_ai_safety_level">مستوى الأمان %1$s</string>
     <string name="max_ai_value_unknown">غير معروف</string>
 
+    <string name="max_ai_stage_user">ماذا فعل المستخدم</string>
+    <string name="max_ai_user_override">ألغى المستخدم هذا يدويًا بعد %1$s (%2$s)، فسُجّل رفضًا مقيسًا.</string>
+    <string name="max_ai_user_override_none">لم يتبعه تجاوز يدوي خلال نافذة الربط.</string>
+    <string name="max_ai_override_lock">قفل يدوي</string>
+    <string name="max_ai_override_profile">بروفايل يدوي</string>
+    <string name="max_ai_deferred_verdict">الحكم المؤجل: بطارية %1$s · حرارة %2$s · رضا %3$s</string>
+    <string name="max_ai_episode_safety">تدخل سلامة</string>
+    <string name="max_ai_episode_drift">انحراف: %1$s</string>
+    <string name="max_ai_verdict_safety">سلامة</string>
+    <string name="max_ai_verdict_drift">انحراف</string>
+
     <string name="max_ai_candidates_title">المرشحون المدروسون (%1$d)</string>
     <string name="max_ai_candidate_chosen">المختار</string>
     <string name="max_ai_candidate_metrics">الجدوى %1$s · المصداقية %2$s · %3$d عينة</string>
@@ -136,5 +147,67 @@
     <string name="max_ai_time_now">الآن</string>
     <string name="max_ai_time_minutes">قبل %1$d دقيقة</string>
     <string name="max_ai_time_hours">قبل %1$d ساعة</string>
+
+    <string name="max_live_title">مركز القيادة الحي</string>
+    <string name="max_live_open">افتح مركز القيادة الحي</string>
+    <string name="max_live_open_desc">عرض متحرك للحلقة وهي تعمل: القياسات الحية، التوقع مقابل الواقع، خطأ التنبؤ، المعرفة، بوابة الاستكشاف، وملكية المقابض.</string>
+    <string name="max_live_empty">لم تكتمل دورة بعد، فلا قياس يُرسم.</string>
+
+    <string name="max_live_section_vitals">القياسات الحية</string>
+    <string name="max_live_section_vitals_desc">الأشرطة تتحرك من القراءة السابقة إلى الجديدة؛ ولا رقم هنا مُقدّر.</string>
+    <string name="max_live_pulse_on">الحلقة تعمل</string>
+    <string name="max_live_pulse_off">الحلقة موقوفة — تحكم يدوي</string>
+    <string name="max_live_pulse_stale">آخر قراءة قديمة</string>
+
+    <string name="max_live_section_forecast">التوقع الحراري مقابل الواقع</string>
+    <string name="max_live_section_forecast_desc">التنبّؤ الأمامي الذي يحسبه المحرك أصلًا للسلامة، مرسومًا بجوار ما حدث فعلًا. الفرق بينهما هو الخطأ.</string>
+    <string name="max_live_forecast_empty">لا تنبّؤ على هذا الجهاز بعد.</string>
+    <string name="max_live_forecast_error">متوسط خطأ التوقع: %1$s</string>
+    <string name="max_live_curve_desc">%1$s: من %2$s إلى %3$s خلال %4$d دقيقة، %5$d عينة.</string>
+
+    <string name="max_live_section_error">خطأ التنبؤ عبر الزمن</string>
+    <string name="max_live_section_error_desc">الفرق المطلق بين المكسب المتوقع والمقيس، نقطة لكل حلقة. المنحنى الهابط هو الإثبات الصادق الوحيد على التعلّم.</string>
+    <string name="max_live_error_empty">أقل من تنبّؤين مقيسين حتى الآن.</string>
+    <string name="max_live_error_down">هابط — يتعلّم</string>
+    <string name="max_live_error_up">لم يهبط بعد</string>
+    <string name="max_live_error_detail">%1$s → %2$s عبر %3$d حلقة</string>
+
+    <string name="max_live_section_knowledge">ما يعرفه وما يجهله</string>
+    <string name="max_live_section_knowledge_desc">حالة المعرفة لكل مقبض متاح. المجهول أولًا لأنه سبب وجود الاستكشاف.</string>
+    <string name="max_live_knowledge_empty">لا مقبض مقروء على هذا الجهاز بعد.</string>
+    <string name="max_live_knowledge_count">%1$d من %2$d</string>
+    <string name="max_live_knob_row">%1$d عينة · عدم يقين %2$s · قيمة المعلومة %3$s</string>
+    <string name="max_live_knowledge_unknown">مجهول</string>
+    <string name="max_live_knowledge_uncertain">غير محسوم</string>
+    <string name="max_live_knowledge_useful">معروف نافع</string>
+    <string name="max_live_knowledge_neutral">معروف بلا أثر</string>
+    <string name="max_live_knowledge_costly">معروف مكلف</string>
+
+    <string name="max_live_section_exploration">بوابة الاستكشاف</string>
+    <string name="max_live_section_exploration_desc">يجرّب ما يجهله وحده، وفقط حين تكون تكلفة الخطأ منخفضة. وكل امتناع له سبب مسمى.</string>
+    <string name="max_live_explore_allowed">التجربة مسموحة الآن</string>
+    <string name="max_live_explore_blocked">لا تجربة: %1$s</string>
+    <string name="max_live_explore_budget">%1$d من %2$d تجارب استُهلكت في هذه الجلسة</string>
+    <string name="max_live_explore_target">تكلفة أسوأ حالة %1$s · قيمة المعلومة %2$s</string>
+    <string name="max_live_explore_last">آخر تجربة</string>
+    <string name="max_live_block_safety">الأمان الحراري مشتبك</string>
+    <string name="max_live_block_thermal">الهامش الحراري غير كافٍ</string>
+    <string name="max_live_block_battery">البطارية منخفضة</string>
+    <string name="max_live_block_busy">الجهاز مشغول الآن</string>
+    <string name="max_live_block_cooldown">ما زلنا داخل مهلة الانتظار بين التجارب</string>
+    <string name="max_live_block_budget">ميزانية تجارب الجلسة انتهت</string>
+    <string name="max_live_block_nothing">كل مقبض متاح مقيس بالفعل</string>
+    <string name="max_live_block_irreversible">المرشح لم يكن قابلًا للاسترجاع بأمان</string>
+    <string name="max_live_block_cost">تكلفة أسوأ حالة فوق الحد</string>
+
+    <string name="max_live_section_loops">الحلقات التي جرت فعلًا</string>
+    <string name="max_live_section_loops_desc">معدودة بحسب النوع. السلامة والانحراف وتجاوزاتك خارج نسبة النجاح لأن المخطِط لم يخترها.</string>
+    <string name="max_live_count_improved">تحسن وبقي</string>
+    <string name="max_live_count_rolled_back">تراجع واستُرجع</string>
+    <string name="max_live_count_safety">تدخلات السلامة</string>
+    <string name="max_live_count_drift">انحراف مقبض مكتشف</string>
+    <string name="max_live_count_override">تجاوزته بنفسك</string>
+    <string name="max_live_count_deferred">أحكام مؤجلة قيست</string>
+    <string name="max_live_count_explorations">تجارب معرفية</string>
 
 </resources>

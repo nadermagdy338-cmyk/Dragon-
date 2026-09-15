@@ -24,6 +24,7 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.Control.route) { ControlScreen(navController) }
     composable(MaxDestination.Apps.route) { ApplistScreen(navController) }
     composable(MaxDestination.MaxAi.route) { MaxAiScreen(navController) }
+    composable(MaxDestination.MaxLive.route) { MaxLiveScreen(navController) }
     composable(MaxDestination.Settings.route) { SettingsScreen(navController) }
 
     // Control domain hubs: one parameterized entry per domain (F-07).

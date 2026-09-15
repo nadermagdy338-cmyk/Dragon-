@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -125,6 +126,133 @@ fun MaxSparkline(
             radius = 2.5.dp.toPx(),
             center = Offset(size.width, lastY),
         )
+    }
+}
+
+/**
+ * Forecast vs actual on one shared scale.
+ *
+ * Why it exists: the engine already computes a forward thermal forecast for its
+ * safety math and then throws it away. Drawing that forecast next to what later
+ * actually happened is the cheapest honest proof that the system understands the
+ * device — and the gap between the two lines is the error, visible instead of
+ * claimed.
+ *
+ * Contract: both lists are indexed by the same time steps, oldest first, and a
+ * `null` entry means "no value for this step" (no forecast was made, or the
+ * moment has not happened yet). Nulls break the line instead of being
+ * interpolated, because interpolating would draw data that was never measured.
+ *
+ * @param futureFrom index at which the steps stop being measured; the segment
+ *        after it is faded and a hairline marks "now". Pass `points` size (or
+ *        beyond) when nothing is in the future yet.
+ */
+@Composable
+fun MaxForecastChart(
+    actual: List<Float?>,
+    forecast: List<Float?>,
+    futureFrom: Int,
+    modifier: Modifier = Modifier,
+    tone: MaxTone = MaxTone.Accent,
+    forecastTone: MaxTone = MaxTone.Caution,
+    label: String? = null,
+) {
+    val steps = maxOf(actual.size, forecast.size)
+    val values = actual.filterNotNull() + forecast.filterNotNull()
+    if (steps < 2 || values.isEmpty()) return
+    val minValue = values.min()
+    val maxValue = values.max()
+    val span = (maxValue - minValue).let { if (it > 0.0001f) it else 1f }
+    val actualColor = tone.content()
+    val forecastColor = forecastTone.content()
+    val gridColor = MaxTone.Neutral.content().copy(alpha = MaxAlpha.borderStrong)
+    val spoken = label
+
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(MaxSize.sparklineHeight * 3)
+            .then(
+                if (spoken != null) {
+                    Modifier.clearAndSetSemantics { contentDescription = spoken }
+                } else {
+                    Modifier
+                }
+            )
+    ) {
+        val stepX = size.width / (steps - 1)
+        val strokeWidth = 2.dp.toPx()
+        val dash = PathEffect.dashPathEffect(
+            floatArrayOf(6.dp.toPx(), 5.dp.toPx()),
+            0f,
+        )
+
+        fun yOf(value: Float): Float = size.height - ((value - minValue) / span) * size.height
+
+        fun segmentsOf(series: List<Float?>): List<List<Offset>> {
+            val out = ArrayList<List<Offset>>()
+            var current = ArrayList<Offset>()
+            for (index in 0 until steps) {
+                val value = series.getOrNull(index)
+                if (value == null) {
+                    if (current.size > 1) out.add(current)
+                    current = ArrayList()
+                } else {
+                    current.add(Offset(stepX * index, yOf(value)))
+                }
+            }
+            if (current.size > 1) out.add(current)
+            return out
+        }
+
+        fun pathOf(offsets: List<Offset>): Path {
+            val path = Path()
+            offsets.forEachIndexed { index, offset ->
+                if (index == 0) path.moveTo(offset.x, offset.y) else path.lineTo(offset.x, offset.y)
+            }
+            return path
+        }
+
+        if (futureFrom in 1 until steps) {
+            val x = stepX * futureFrom
+            drawLine(
+                color = gridColor,
+                start = Offset(x, 0f),
+                end = Offset(x, size.height),
+                strokeWidth = 1.dp.toPx(),
+            )
+        }
+
+        segmentsOf(forecast).forEach { segment ->
+            val isFuture = segment.first().x >= stepX * futureFrom
+            drawPath(
+                path = pathOf(segment),
+                color = if (isFuture) {
+                    forecastColor.copy(alpha = MaxAlpha.disabledContent)
+                } else {
+                    forecastColor
+                },
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Round, pathEffect = dash),
+            )
+        }
+
+        segmentsOf(actual).forEach { segment ->
+            drawPath(
+                path = pathOf(segment),
+                color = actualColor,
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
+            )
+        }
+
+        val lastActual = (0 until steps).lastOrNull { actual.getOrNull(it) != null }
+        val lastValue = lastActual?.let { actual[it] }
+        if (lastActual != null && lastValue != null) {
+            drawCircle(
+                color = actualColor,
+                radius = 2.5.dp.toPx(),
+                center = Offset(stepX * lastActual, yOf(lastValue)),
+            )
+        }
     }
 }
 

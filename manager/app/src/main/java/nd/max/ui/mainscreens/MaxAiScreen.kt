@@ -12,6 +12,8 @@ import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Psychology
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Science
+import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,11 +34,14 @@ import nd.max.core.hardware.ProfileApplier
 import nd.max.core.maxai.ControlRegistry
 import nd.max.core.maxai.MaxAiCandidate
 import nd.max.core.maxai.MaxAiEpisode
+import nd.max.core.maxai.MaxAiEpisodeKind
 import nd.max.core.maxai.MaxAiInsights
+import nd.max.core.maxai.MaxAiOverride
 import nd.max.core.maxai.MaxAiRejection
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.MaxAiVerdict
 import nd.max.core.maxai.SafetyLevel
+import nd.max.core.maxai.TrustModel
 import nd.max.ui.design.MaxCapsule
 import nd.max.ui.design.MaxCausalStage
 import nd.max.ui.design.MaxCondition
@@ -44,6 +49,7 @@ import nd.max.ui.design.MaxConditionKind
 import nd.max.ui.design.MaxDataTrust
 import nd.max.ui.design.MaxDeltaRow
 import nd.max.ui.design.MaxEpisodeCard
+import nd.max.ui.design.MaxForecastChart
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxListScreen
@@ -57,6 +63,8 @@ import nd.max.ui.design.MaxSparkline
 import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.design.MaxTone
 import nd.max.ui.design.MaxWeightBar
+import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.navigation.MaxNavActions
 import nd.max.ui.viewmodel.MaxAiViewModel
 import kotlin.math.abs
 
@@ -127,6 +135,8 @@ fun MaxAiScreen(
             ObjectiveSection(state)
         }
 
+        item { LiveCenterRow(navController) }
+
         item {
             MaxSection(
                 title = stringResource(R.string.max_ai_section_timeline),
@@ -162,8 +172,6 @@ fun MaxAiScreen(
         }
 
         item { InsightsSection(insights) }
-
-        item { SystemSection(state) }
 
         item { ControlsSection(state, viewModel) }
     }
@@ -313,19 +321,49 @@ private fun EpisodeTimelineCard(
     expanded: Boolean,
     onToggle: () -> Unit,
 ) {
-    val headline = if (episode.acted) {
+    val baseHeadline = if (episode.acted) {
         episode.knobLabel ?: episode.knobKey.orEmpty()
     } else {
         stringResource(R.string.max_ai_episode_no_action)
     }
-    val verdictTone = verdictTone(episode.verdict)
+    // التجربة المعرفية ليست قرارًا مُطبّقًا: تُسمّى باسمها ويُقال صراحةً أن
+    // القيمة استُرجعت، وإلا قرأها المستخدم كتحسين باقٍ على جهازه.
+    // الخط الزمني واحد، والفرز بالنوع: تدخل سلامة وانحراف مقبض ليسا
+    // قراري تحسين، وتسميتهما كقرار كانت ستنسب للمحرك ما لم يختره.
+    val headline = when (episode.kind) {
+        MaxAiEpisodeKind.PROBE -> stringResource(R.string.max_ai_episode_probe, baseHeadline)
+        MaxAiEpisodeKind.SAFETY -> stringResource(R.string.max_ai_episode_safety)
+        MaxAiEpisodeKind.DRIFT -> stringResource(
+            R.string.max_ai_episode_drift,
+            episode.knobLabel ?: episode.knobKey.orEmpty(),
+        )
+        MaxAiEpisodeKind.DECISION -> baseHeadline
+    }
+    val verdictTone = when {
+        episode.exploration -> MaxTone.Accent
+        episode.kind == MaxAiEpisodeKind.SAFETY -> MaxTone.Critical
+        episode.kind == MaxAiEpisodeKind.DRIFT -> MaxTone.Caution
+        else -> verdictTone(episode.verdict)
+    }
+    val verdictText = when {
+        episode.exploration -> stringResource(
+            if (episode.reverted) {
+                R.string.max_ai_verdict_probe_reverted
+            } else {
+                R.string.max_ai_verdict_probe_stuck
+            }
+        )
+        episode.kind == MaxAiEpisodeKind.SAFETY -> stringResource(R.string.max_ai_verdict_safety)
+        episode.kind == MaxAiEpisodeKind.DRIFT -> stringResource(R.string.max_ai_verdict_drift)
+        else -> verdictLabel(episode.verdict)
+    }
 
     MaxEpisodeCard(
         headline = headline,
         timeLabel = relativeTime(System.currentTimeMillis() - episode.id),
-        verdictLabel = verdictLabel(episode.verdict),
+        verdictLabel = verdictText,
         verdictTone = verdictTone,
-        summary = episodeSummary(episode),
+        summary = if (episode.exploration) probeSummary(episode) else episodeSummary(episode),
         expanded = expanded,
         onToggle = onToggle,
     ) {
@@ -458,7 +496,12 @@ private fun EpisodeTimelineCard(
             title = stringResource(R.string.max_ai_stage_verdict),
             body = verdictDetail(episode),
             tone = verdictTone,
-            technical = stringResource(R.string.max_ai_safety_level, episode.safetyLevel),
+            // الحكم المؤجل يُعرض فقط حين قيس فعلًا بعد ربع ساعة — لا وعد
+            // بقياس قادم ولا خانة فارغة توحي برقم مفقود.
+            technical = listOfNotNull(
+                stringResource(R.string.max_ai_safety_level, episode.safetyLevel),
+                deferredVerdictText(episode),
+            ).joinToString(" · "),
         )
 
         // 7) الأثر المقيس مقابل المتوقع — صدق التنبؤ لا ادعاءه.
@@ -489,6 +532,21 @@ private fun EpisodeTimelineCard(
                 stringResource(R.string.max_ai_learned_none)
             },
             tone = MaxTone.Positive,
+        )
+
+        // 9) ماذا فعل المستخدم بعده — أصدق إشارة رضا متاحة: سلوك فعلي
+        // لا استبيان. الغياب يُقال صراحةً كي لا يُقرأ الفراغ رضًا مؤكّدًا.
+        MaxCausalStage(
+            order = 9,
+            title = stringResource(R.string.max_ai_stage_user),
+            body = episode.userOverrideAtMs?.let { at ->
+                stringResource(
+                    R.string.max_ai_user_override,
+                    relativeTime(at - episode.id),
+                    overrideKindText(episode.userOverrideKind),
+                )
+            } ?: stringResource(R.string.max_ai_user_override_none),
+            tone = if (episode.userRejected) MaxTone.Critical else MaxTone.Inactive,
             isLast = episode.candidates.isEmpty(),
         )
 
@@ -509,6 +567,26 @@ private fun EpisodeTimelineCard(
             }
         }
     }
+}
+
+@Composable
+private fun deferredVerdictText(episode: MaxAiEpisode): String? {
+    if (!episode.hasDeferredVerdict) return null
+    val unknown = stringResource(R.string.max_ai_value_unknown)
+    return stringResource(
+        R.string.max_ai_deferred_verdict,
+        episode.deferredBatteryDeltaPercent?.let { formatSignedPercent(it) } ?: unknown,
+        episode.deferredThermalDeltaC?.let { formatSignedThermal(it) } ?: unknown,
+        episode.deferredObjectiveDelta?.let { formatSignedScore(it) } ?: unknown,
+    )
+}
+
+/** ترجمة نوع التجاوز — قيم ثابتة من المحرك، لا نص حر يُعرض كما هو. */
+@Composable
+private fun overrideKindText(kind: String?): String = when (kind) {
+    MaxAiOverride.LOCK -> stringResource(R.string.max_ai_override_lock)
+    MaxAiOverride.PROFILE -> stringResource(R.string.max_ai_override_profile)
+    else -> stringResource(R.string.max_ai_value_unknown)
 }
 
 @Composable
@@ -605,57 +683,15 @@ private fun InsightsSection(snapshot: MaxAiInsights.Snapshot) {
 // ── الملكية والأقفال ─────────────────────────────────
 
 @Composable
-private fun SystemSection(state: MaxAiState) {
-    MaxSection(
-        title = stringResource(R.string.max_ai_section_system),
-        description = stringResource(R.string.max_ai_section_system_desc),
-    ) {
-        MaxGroup {
-            if (state.ownership.isEmpty()) {
-                MaxRow(
-                    title = stringResource(R.string.max_ai_owner_none),
-                    iconTone = MaxTone.Inactive,
-                )
-            } else {
-                state.ownership.forEachIndexed { index, knob ->
-                    if (index > 0) MaxGroupDivider()
-                    MaxRow(
-                        title = knob.key,
-                        subtitle = stringResource(
-                            R.string.max_ai_owner_row,
-                            knob.owner.name,
-                            knob.desired,
-                        ),
-                        icon = if (knob.locked) Icons.Rounded.Lock else null,
-                        iconTone = if (knob.locked) MaxTone.Caution else MaxTone.Neutral,
-                        trailing = {
-                            MaxCapsule(
-                                text = ownershipStateLabel(knob.state.name),
-                                tone = if (knob.state.name == "VERIFIED") {
-                                    MaxTone.Positive
-                                } else {
-                                    MaxTone.Caution
-                                },
-                            )
-                        },
-                    )
-                }
-            }
-        }
-
-        if (state.lockedKnobs.isNotEmpty()) {
-            MaxGroup {
-                state.lockedKnobs.forEachIndexed { index, lock ->
-                    if (index > 0) MaxGroupDivider()
-                    MaxRow(
-                        title = lock.key,
-                        subtitle = stringResource(R.string.max_ai_locked_row, lock.desired),
-                        icon = Icons.Rounded.Lock,
-                        iconTone = MaxTone.Caution,
-                    )
-                }
-            }
-        }
+private fun LiveCenterRow(navController: NavController) {
+    MaxGroup {
+        MaxRow(
+            title = stringResource(R.string.max_live_open),
+            subtitle = stringResource(R.string.max_live_open_desc),
+            icon = Icons.Rounded.Insights,
+            iconTone = MaxTone.Accent,
+            onClick = { MaxNavActions(navController).navigateTo(MaxDestination.MaxLive) },
+        )
     }
 }
 

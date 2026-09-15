@@ -4,6 +4,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.locks.ReentrantLock
 
 /**
@@ -53,6 +54,20 @@ object ManualControlLocks {
 
     fun isConfigured(): Boolean = directory != null
 
+    /**
+     * مراقبو القفل اليدوي.
+     *
+     * قفل المستخدم مقبضًا بنفسه ليس استثناءً فقط؛ هو أقوى إشارة رضا
+     * متاحة بلا أي سؤال: إن جاء بعد تدخل المحرك بدقائق فهو رفض مقيس.
+     * المستمع يُخطر بعد ثبوت الكتابة وحدها، ويجب أن يعود فورًا (لا عمل
+     * قرص ولا قفل آخر) لأنه يُنادى داخل مراقب هذا الكائن.
+     */
+    private val listeners = CopyOnWriteArrayList<(Lock) -> Unit>()
+
+    fun observe(listener: (Lock) -> Unit) {
+        listeners.addIfAbsent(listener)
+    }
+
     @Synchronized
     fun lock(key: String, token: String, desired: String, baseline: String?): Lock {
         val locks = read()
@@ -67,6 +82,8 @@ object ManualControlLocks {
             lockedAtMs = existing?.lockedAtMs ?: System.currentTimeMillis(),
         )
         write(locks.filterNot { it.key == key } + entry)
+        // بعد الكتابة الدائمة وحدها: لا نُخطر برفض لم يُسجّل.
+        listeners.forEach { listener -> runCatching { listener(entry) } }
         return entry
     }
 

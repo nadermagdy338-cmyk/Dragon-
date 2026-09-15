@@ -1,0 +1,81 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :kernel-flasher:preBuild UP-TO-DATE
+> Task :kernel-flasher:preDebugBuild UP-TO-DATE
+> Task :kernel-flasher:compileDebugAidl UP-TO-DATE
+> Task :app:compileDebugAidl UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :app:extractDebugSupportedLocales
+> Task :app:mapDebugSourceSetPaths
+> Task :kernel-flasher:extractDebugSupportedLocales UP-TO-DATE
+> Task :terminal-emulator:preBuild UP-TO-DATE
+> Task :terminal-emulator:preDebugBuild UP-TO-DATE
+> Task :terminal-emulator:extractDebugSupportedLocales UP-TO-DATE
+> Task :terminal-view:preBuild UP-TO-DATE
+> Task :terminal-view:preDebugBuild UP-TO-DATE
+> Task :terminal-view:extractDebugSupportedLocales UP-TO-DATE
+> Task :app:generateDebugLocaleConfig
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :kernel-flasher:processDebugNavigationResources UP-TO-DATE
+> Task :terminal-emulator:processDebugNavigationResources UP-TO-DATE
+> Task :terminal-view:processDebugNavigationResources UP-TO-DATE
+> Task :app:processDebugNavigationResources
+> Task :kernel-flasher:generateDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources
+> Task :kernel-flasher:packageDebugResources
+> Task :kernel-flasher:parseDebugLocalResources UP-TO-DATE
+> Task :kernel-flasher:generateDebugRFile UP-TO-DATE
+> Task :app:generateDebugRFile
+> Task :kernel-flasher:javaPreCompileDebug UP-TO-DATE
+> Task :terminal-emulator:generateDebugResources UP-TO-DATE
+> Task :terminal-emulator:packageDebugResources
+> Task :terminal-emulator:parseDebugLocalResources UP-TO-DATE
+> Task :terminal-emulator:generateDebugRFile UP-TO-DATE
+> Task :terminal-emulator:compileDebugKotlin NO-SOURCE
+> Task :terminal-emulator:javaPreCompileDebug UP-TO-DATE
+
+> Task :terminal-emulator:compileDebugJavaWithJavac
+Note: /mnt/sdcard/MaxManger/optmize-main/manager/terminal-emulator/src/main/java/com/termux/terminal/TerminalSession.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :terminal-view:generateDebugResources UP-TO-DATE
+> Task :terminal-emulator:bundleLibCompileToJarDebug
+> Task :terminal-view:packageDebugResources
+> Task :terminal-view:parseDebugLocalResources UP-TO-DATE
+> Task :terminal-view:generateDebugRFile UP-TO-DATE
+> Task :terminal-view:compileDebugKotlin NO-SOURCE
+> Task :terminal-view:javaPreCompileDebug UP-TO-DATE
+
+> Task :terminal-view:compileDebugJavaWithJavac
+Note: /mnt/sdcard/MaxManger/optmize-main/manager/terminal-view/src/main/java/com/termux/view/TerminalView.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :terminal-view:bundleLibCompileToJarDebug
+> Task :kernel-flasher:kspDebugKotlin
+> Task :kernel-flasher:compileDebugKotlin
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/components/Card.kt:59:18 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/components/FlashList.kt:119:14 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/components/FlashList.kt:120:45 Unnecessary non-null assertion (!!) on a non-null receiver of type 'HazeState'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/components/FlasherGlassCard.kt:62:14 'fun Modifier.hazeEffect(state: HazeState, style: HazeBlurStyle, crossinline block: HazeEffectScope.() -> Unit = ...): Modifier' is deprecated. Style parameter moved to blurEffect {} block. See migration guide.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/components/FlasherGlassCard.kt:63:40 Unnecessary non-null assertion (!!) on a non-null receiver of type 'HazeState'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/RefreshableScreen.kt:76:46 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/BackupsContent.kt:64:42 'val Icons.Filled.Label: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Label.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/BackupsContent.kt:98:92 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Partitions'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/BackupsContent.kt:102:52 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Partitions'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/BackupsContent.kt:182:38 'val needsMigration: Boolean' is deprecated. Backup migration will be removed in the first stable release.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/BackupsContent.kt:185:98 'fun migrate(context: Context): Unit' is deprecated. Backup migration will be removed in the first stable release.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/BackupsViewModel.kt:76:17 'var _needsMigration: MutableState<Boolean>' is deprecated. Backup migration will be removed in the first stable release.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/BackupsViewModel.kt:87:9 'var _needsMigration: MutableState<Boolean>' is deprecated. Backup migration will be removed in the first stable release.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/SlotBackupsContent.kt:97:50 'val Icons.Filled.Label: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Label.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/SlotBackupsContent.kt:130:96 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Partitions'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/backups/SlotBackupsContent.kt:132:56 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Partitions'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/main/MainContent.kt:320:36 'val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/reboot/RebootContent.kt:56:119 'val isRebootingUserspaceSupported: Boolean' is deprecated. Deprecated in Java.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/slot/SlotViewModel.kt:578:95 'static field FLAG_REDIRECT_STDERR: Int' is deprecated. Deprecated in Java.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/updates/UpdatesViewModel.kt:115:91 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ResponseBody'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/updates/UpdatesViewModel.kt:136:91 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ResponseBody'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/updates/UpdatesViewModel.kt:164:42 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ResponseBody'.
+w: file:///mnt/sdcard/MaxManger/optmize-main/manager/kernel-flasher/src/main/java/com/github/capntrips/kernelflasher/ui/screens/updates/UpdatesViewModel.kt:193:34 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ResponseBody'.

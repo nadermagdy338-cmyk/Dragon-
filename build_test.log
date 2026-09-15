@@ -1,0 +1,37 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Calculating task graph as no cached configuration is available for tasks: :app:testDebugUnitTest --tests nd.max.core.maxai.MaxAiJournalCodecTest
+
+1 problem was found storing the configuration cache.
+- Task `:app:kspDebugUnitTestKotlin` of type `com.google.devtools.ksp.gradle.KspAATask`: error writing value of type 'org.gradle.api.internal.provider.DefaultProvider'
+
+See the complete report at file:///mnt/sdcard/MaxManger/optmize-main/manager/build/reports/configuration-cache/123v8tmne8ijg98xlxzyolr9v/d4u6n96au5lrr93pt730308wi/configuration-cache-report.html
+
+[Incubating] Problems report is available at: file:///mnt/sdcard/MaxManger/optmize-main/manager/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Configuration cache state could not be cached: field `provider` of `org.gradle.internal.serialize.codecs.core.ProviderBackedFileCollectionSpec` bean found in field `element` of `java.util.Collections$SingletonList` bean found in field `elements` of `org.gradle.internal.serialize.codecs.core.ResolutionBackedFileCollectionSpec` bean found in field `__classpathStructure__` of `com.google.devtools.ksp.gradle.KspGradleConfig_Decorated` bean found in field `__kspConfig__` of task `:app:kspDebugUnitTestKotlin` of type `com.google.devtools.ksp.gradle.KspAATask`: error writing value of type 'org.gradle.api.internal.provider.DefaultProvider'
+> Could not resolve all files for configuration ':app:debugUnitTestCompileClasspath'.
+   > Could not resolve org.json:json:20260814.
+     Required by:
+         project ':app'
+      > No cached version of org.json:json:20260814 available for offline mode.
+      > No cached version of org.json:json:20260814 available for offline mode.
+      > No cached version of org.json:json:20260814 available for offline mode.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 1m 47s
+Configuration cache entry discarded due to serialization error.

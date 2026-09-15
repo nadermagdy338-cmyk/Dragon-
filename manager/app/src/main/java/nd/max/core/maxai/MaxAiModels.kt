@@ -71,6 +71,49 @@ data class ProfileRequestState(
     val result: DecisionResult? = null,
 )
 
+/**
+ * نقطة واحدة في منحنى التوقع الحراري مقابل الواقع.
+ *
+ * لماذا توجد: المحرك يحسب تنبّؤًا حراريًا أماميًا كل دورة لحسابات
+ * السلامة، ثم يرميه فورًا. ومقارنة ذلك التنبّؤ بما حدث فعلًا لاحقًا هي
+ * أصدق دليل على أن النظام يفهم الجهاز — وتكلفته صفر لأن الرقمين
+ * محسوبان أصلًا.
+ *
+ * @param actualC الحرارة المقيسة في هذه اللحطة، أو null للنقاط المستقبلية.
+ * @param forecastC ما تنبّأ به المتنبئ لهذه اللحطة قبل [leadMs]، أو null.
+ * @param leadMs كم مسبقًا قيل هذا التنبّؤ.
+ * @param future true للنقاط التي لم يحن وقتها بعد.
+ */
+data class MaxAiForecastPoint(
+    val timestampMs: Long,
+    val actualC: Float? = null,
+    val forecastC: Float? = null,
+    val leadMs: Long = 0L,
+    val future: Boolean = false,
+)
+
+/**
+ * ما تعرفه طبقة الثقة الآن عن الاستكشاف: هل يُسمح، ولماذا، وعلى ماذا.
+ *
+ * هذا الحقل هو ما يمنع الاستكشاف من أن يكون صندوقًا أسود: المستخدم
+ * يرى متى كان النطام سيجرّب ولماذا امتنع بالضبط.
+ */
+data class ExplorationState(
+    /** null حين يُسمح بالتجربة؛ غير ذلك أحد ثوابت [TrustModel.Block]. */
+    val blockReason: String? = null,
+    /** المقبض المرشح للتجربة القادمة إن وجد. */
+    val targetLabel: String? = null,
+    /** تكلفة أسوأ حالة المقدّرة للمرشح (0..1). */
+    val worstCaseCost: Float? = null,
+    /** قيمة المعلومة المتوقعة من التجربة. */
+    val informationGain: Float? = null,
+    /** عدد التجارب المنفّذة في عمر العملية وسقفها. */
+    val probesThisSession: Int = 0,
+    val budget: Int = 0,
+    /** زمن آخر تجربة، أو 0 إن لم تجر واحدة بعد. */
+    val lastProbeAtMs: Long = 0L,
+)
+
 /** الحالة الكاملة التي تستهلكها الواجهة — أعداد حقيقية فقط. */
 data class MaxAiState(
     val aiEnabled: Boolean = false,
@@ -131,4 +174,16 @@ data class MaxAiState(
     val memoryPercent: Int = 0,
     /** زمن آخر لقطة مقيسة — أساس شارة الثقة (حي/قديم) في الواجهة. */
     val lastSampleAtMs: Long = 0L,
+    /**
+     * منحنى التوقع مقابل الواقع الحراري: نقاط ماضية مطابَقة ثم امتداد
+     * مستقبلي من أحدث تنبّؤ. فارغ = لا متنبئ على هذا الجهاز أو لم تكتمل
+     * دورة بعد، وتعرضه الواجهة كذلك بلا رسم وهمي.
+     */
+    val thermalForecast: List<MaxAiForecastPoint> = emptyList(),
+    /** متوسط |تنبّؤ − مقيس| للنقاط المطابَقة، أو null قبل أول مطابقة. */
+    val forecastErrorC: Float? = null,
+    /** حالة المعرفة لكل مقبض متاح الآن — ما يعرفه النطام وما يجهله. */
+    val trust: List<TrustModel.KnobTrust> = emptyList(),
+    /** بوابة الاستكشاف كما قُيّمت في الدورة الأخيرة. */
+    val exploration: ExplorationState = ExplorationState(),
 )
