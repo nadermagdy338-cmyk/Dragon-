@@ -64,7 +64,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.topjohnwu.superuser.Shell
 import nd.max.MaxManagerProps
 import nd.max.R
@@ -81,7 +81,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BypassChargeScreen(navController: NavController) {
+fun BypassChargeScreen(navController: NavHostController) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val colors = MaterialTheme.colorScheme
 

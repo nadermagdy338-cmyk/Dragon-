@@ -73,7 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.component.AppIconImage
 import nd.max.ui.component.MaxEmptyState
@@ -83,7 +83,7 @@ import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.ui.viewmodel.ApplistViewmodel
 
 @Composable
-fun ApplistScreen(navController: NavController) {
+fun ApplistScreen(navController: NavHostController) {
     val viewModel: ApplistViewmodel = viewModel()
     val context = LocalContext.current
     val allApps = ApplistViewmodel.apps

@@ -42,7 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.component.*
 import nd.max.ui.mainscreens.IconBadge
@@ -54,7 +54,7 @@ import nd.max.ui.viewmodel.CpuFrequencyControlState
 
 @Composable
 fun CpuCoreControlScreen(
-    navController: NavController,
+    navController: NavHostController,
     viewModel: CpuCoreControlViewModel = hiltViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())

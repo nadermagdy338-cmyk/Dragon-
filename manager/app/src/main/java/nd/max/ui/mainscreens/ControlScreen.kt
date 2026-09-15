@@ -2,7 +2,7 @@ package nd.max.ui.mainscreens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.design.MaxDomainCard
 import nd.max.ui.design.MaxGroup
@@ -19,7 +19,7 @@ import nd.max.ui.subscreens.hubs.maxHubDescription
  * plus the legacy flat tweaks workspace while its toggle rows await a home.
  */
 @Composable
-fun ControlScreen(navController: NavController) {
+fun ControlScreen(navController: NavHostController) {
     val actions = MaxNavActions(navController)
     val hubs = MaxDestination.All.filter { it.parent == MaxDestination.Control && it != MaxDestination.AllTweaks }
 

@@ -19,7 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import nd.max.R
 import nd.max.core.maxai.MaxAiState
@@ -37,7 +37,7 @@ import nd.max.ui.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
+    navController: NavHostController,
     isVisible: Boolean = true,
     homeViewModel: HomeViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     dashboardViewModel: HomeDashboardViewModel = viewModel(),
@@ -77,6 +77,7 @@ fun HomeScreen(
             onNavigate = navController::navigate,
             onProfile = { if (ui.autoMode == "0") showProfile = true },
             onReboot = { showReboot = true },
+            onSettings = { navActions.navigateTo(nd.max.ui.navigation.MaxDestination.Settings) },
             onAiRetry = maxAiViewModel::refresh
         )
     }
@@ -119,6 +120,7 @@ fun HomeDashboardContent(
     onNavigate: (String) -> Unit,
     onProfile: () -> Unit,
     onReboot: () -> Unit,
+    onSettings: () -> Unit,
     onAiRetry: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
@@ -152,7 +154,7 @@ fun HomeDashboardContent(
                     onNavigate = onNavigate,
                     onProfile = onProfile,
                     onReboot = onReboot,
-                    onSettings = { navActions.navigateTo(nd.max.ui.navigation.MaxDestination.Settings) },
+                    onSettings = onSettings,
                     onAiRetry = onAiRetry
                 )
             }

@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.component.*
 import nd.max.ui.mainscreens.SectionLoadingIndicator
@@ -43,7 +43,7 @@ private fun formatTimeout(seconds: Int): String = when {
 
 @Composable
 fun DisplayStudioScreen(
-    navController: NavController,
+    navController: NavHostController,
     viewModel: DisplayStudioViewModel = viewModel(),
     resolutionViewModel: ResolutionViewModel = viewModel(),
     tweakViewModel: TweakViewModel = viewModel()

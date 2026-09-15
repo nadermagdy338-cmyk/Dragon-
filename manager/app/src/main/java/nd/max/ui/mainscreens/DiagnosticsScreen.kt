@@ -61,7 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.R
 import nd.max.ui.component.ExpressiveInfoCard
@@ -93,7 +93,7 @@ import android.widget.Toast
 // ────────────────────────────────────────────────────────────────────────────
 
 @Composable
-fun DiagnosticsScreen(navController: NavController) {
+fun DiagnosticsScreen(navController: NavHostController) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val listState = rememberLazyListState()
     val context = LocalContext.current

@@ -2,7 +2,7 @@ package nd.max.ui.subscreens.hubs
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
@@ -22,7 +22,7 @@ import nd.max.ui.navigation.MaxNavActions
  * until NT-03 dissolves the tabbed screens.
  */
 @Composable
-fun MaxDomainHubScreen(navController: NavController, destination: MaxDestination) {
+fun MaxDomainHubScreen(navController: NavHostController, destination: MaxDestination) {
     val actions = MaxNavActions(navController)
     val rows = MaxDestination.All.filter { it.parent == destination } + extraRows(destination)
 

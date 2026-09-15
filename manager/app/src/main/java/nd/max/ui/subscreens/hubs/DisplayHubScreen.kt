@@ -1,5 +1,5 @@
 package nd.max.ui.subscreens.hubs
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import nd.max.ui.navigation.*
-@Composable fun DisplayHubScreen(navController: NavController) = MaxDomainHubScreen(navController, MaxDestination.DisplayHub)
+@Composable fun DisplayHubScreen(navController: NavHostController) = MaxDomainHubScreen(navController, MaxDestination.DisplayHub)

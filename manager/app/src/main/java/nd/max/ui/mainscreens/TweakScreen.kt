@@ -94,6 +94,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.topjohnwu.superuser.Shell
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
@@ -110,7 +111,7 @@ import nd.max.ui.viewmodel.TweakViewModel
 
 @Composable
 fun TweakScreen(
-    navController: NavController,
+    navController: NavHostController,
     viewModel: TweakViewModel = viewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())

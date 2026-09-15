@@ -59,7 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.topjohnwu.superuser.Shell
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import java.io.File
@@ -96,7 +96,7 @@ fun isLauncherIconEnabled(context: Context): Boolean {
 
 @Composable
 fun SettingsScreen(
-    navController: NavController,
+    navController: NavHostController,
     settingsViewModel: SettingsViewModel = viewModel(),
     preferenceSettingsViewModel: PreferenceSettingsViewModel = viewModel()
 ) {

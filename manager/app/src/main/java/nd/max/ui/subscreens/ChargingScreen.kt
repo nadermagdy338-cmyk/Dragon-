@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.component.*
 import nd.max.ui.mainscreens.TweaksSectionTitle
@@ -60,7 +60,7 @@ private fun currentMeasurement(currentMa: Int): String = when {
 
 @Composable
 fun ChargingScreen(
-    navController: NavController,
+    navController: NavHostController,
     viewModel: ChargingViewModel = viewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
