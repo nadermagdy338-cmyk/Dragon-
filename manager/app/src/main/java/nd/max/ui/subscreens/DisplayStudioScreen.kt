@@ -1,6 +1,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.subscreens
+import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.navigation.MaxNavActions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -114,7 +116,7 @@ fun DisplayStudioScreen(
                             dpi = resolutionViewModel.activeDpi,
                             refresh = currentHz,
                             scale = scale,
-                            onResolution = { navController.navigate("resolutionscreen") },
+                            onResolution = { MaxNavActions(navController).navigateTo(MaxDestination.Resolution) },
                             onRefresh = { showRefreshDialog = true }
                         )
                     }
@@ -236,7 +238,7 @@ fun DisplayStudioScreen(
                                         headlineContent = { Text(stringResource(R.string.display_resolution_control_title)) },
                                         supportingContent = { Text("${activeW}×${activeH} · ${resolutionViewModel.activeDpi} DPI") },
                                         trailingContent = { Icon(Icons.Outlined.ChevronRight, null) },
-                                        onClick = { navController.navigate("resolutionscreen") }
+                                        onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Resolution) }
                                     )
                                 },
                                 {

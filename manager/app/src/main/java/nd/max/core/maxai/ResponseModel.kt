@@ -62,6 +62,8 @@ class ResponseModel @Inject constructor(
         val samples: Int = 0,
         /** مجموع مربعات خطأ التنبؤ — أساس الثقة الصادقة. */
         val gainSse: Float = 0f,
+        /** مجموع مربعات خطأ التنبؤ الحراري — تُحتسب الثقة منه أيضًا. */
+        val thermalSse: Float = 0f,
     ) {
         fun predictGain(f: FloatArray): Float = dot(gainW, f)
         fun predictThermal(f: FloatArray): Float = dot(thermalW, f)
@@ -69,19 +71,23 @@ class ResponseModel @Inject constructor(
 
     private val file = File(context.filesDir, FILE_NAME)
     private val responses = linkedMapOf<String, Response>()
+    private val lock = Any()
 
     init {
-        runCatching {
-            if (!file.exists()) return@runCatching
-            val root = JSONObject(file.readText())
-            root.keys().forEach { key ->
-                val o = root.getJSONObject(key)
-                responses[key] = Response(
-                    gainW = o.getJSONArray("g").toFloatArray(),
-                    thermalW = o.getJSONArray("t").toFloatArray(),
-                    samples = o.optInt("n", 0),
-                    gainSse = o.optDouble("e", 0.0).toFloat(),
-                )
+        synchronized(lock) {
+            runCatching {
+                if (!file.exists()) return@runCatching
+                val root = JSONObject(file.readText())
+                root.keys().forEach { key ->
+                    val o = root.getJSONObject(key)
+                    responses[key] = Response(
+                        gainW = o.getJSONArray("g").toFloatArray(),
+                        thermalW = o.getJSONArray("t").toFloatArray(),
+                        samples = o.optInt("n", 0),
+                        gainSse = o.optDouble("e", 0.0).toFloat(),
+                        thermalSse = o.optDouble("te", 0.0).toFloat(),
+                    )
+                }
             }
         }
     }
@@ -100,22 +106,30 @@ class ResponseModel @Inject constructor(
         state: DeviceSnapshot,
         stepFraction: Float,
     ): Prediction? {
-        val response = resolve(key, direction, appContext) ?: return null
-        if (response.samples < MIN_SAMPLES_FOR_TRUST) return null
-        val f = features(state, stepFraction)
-        val residualStd = if (response.samples > 1) {
-            sqrt(response.gainSse / response.samples)
-        } else DEFAULT_RESIDUAL
-        // الثقة تنخفض مع الخطأ المتبقي وترتفع مع العينات — كلاهما مقيس.
-        val confidence = (
-            (response.samples.toFloat() / (response.samples + CONFIDENCE_HALF_LIFE)) *
-                exp(-residualStd * RESIDUAL_PENALTY)
-            ).coerceIn(0f, 1f)
-        return Prediction(
-            objectiveGain = response.predictGain(f),
-            thermalDeltaC = response.predictThermal(f),
-            confidence = confidence,
-        )
+        synchronized(lock) {
+            val response = resolve(key, direction, appContext) ?: return null
+            if (response.samples < MIN_SAMPLES_FOR_TRUST) return null
+            val f = features(state, stepFraction)
+            val gainResidualStd = if (response.samples > 1) {
+                sqrt(response.gainSse / response.samples)
+            } else DEFAULT_RESIDUAL
+            val thermalResidualStd = if (response.samples > 1) {
+                sqrt(response.thermalSse / response.samples)
+            } else DEFAULT_RESIDUAL
+            // الثقة تنخفض مع الخطأ المتبقي (الأدائي والحراري معًا) وترتفع
+            // مع العينات — كلاهما مقيس. نموذج يتنبأ بالمكسب جيدًا لكنه
+            // يخطئ في التكلفة الحرارية لا يستحق ثقة عالية: المخطط يزن
+            // قراره على تكلفته الحرارية المتوقعة، فخطأها خطأ قرار.
+            val confidence = (
+                (response.samples.toFloat() / (response.samples + CONFIDENCE_HALF_LIFE)) *
+                    exp(-(gainResidualStd + thermalResidualStd) * RESIDUAL_PENALTY)
+                ).coerceIn(0f, 1f)
+            return Prediction(
+                objectiveGain = response.predictGain(f),
+                thermalDeltaC = response.predictThermal(f),
+                confidence = confidence,
+            )
+        }
     }
 
     /**
@@ -134,44 +148,51 @@ class ResponseModel @Inject constructor(
         measuredGain: Float,
         measuredThermalDeltaC: Float,
     ) {
-        val f = features(stateBefore, stepFraction)
-        listOf(appContext, ControlOutcomeModel.GLOBAL_CONTEXT).forEach { ctx ->
-            val k = compose(key, direction, ctx)
-            val prev = responses[k] ?: Response()
-            val n = prev.samples + 1
-            val lr = (BASE_LR / (1f + prev.samples * LR_DECAY)).coerceAtLeast(MIN_LR)
+        synchronized(lock) {
+            val f = features(stateBefore, stepFraction)
+            listOf(appContext, ControlOutcomeModel.GLOBAL_CONTEXT).forEach { ctx ->
+                val k = compose(key, direction, ctx)
+                val prev = responses[k] ?: Response()
+                val n = prev.samples + 1
+                val lr = (BASE_LR / (1f + prev.samples * LR_DECAY)).coerceAtLeast(MIN_LR)
 
-            val gainError = prev.predictGain(f) - measuredGain
-            val thermalError = prev.predictThermal(f) - measuredThermalDeltaC
+                val gainError = prev.predictGain(f) - measuredGain
+                val thermalError = prev.predictThermal(f) - measuredThermalDeltaC
 
-            // تطبيع بمعيار السمة (NLMS): يمنع خطوة تعلّم منفجرة حين
-            // تكون السمات كبيرة، ويجعل التقارب مستقلًا عن مقياس المدخلات.
-            var norm = 0f
-            for (i in 0 until FEATURES) norm += f[i] * f[i]
-            val denom = norm.coerceAtLeast(1e-6f)
+                // تطبيع بمعيار السمة (NLMS): يمنع خطوة تعلّم منفجرة حين
+                // تكون السمات كبيرة، ويجعل التقارب مستقلًا عن مقياس المدخلات.
+                var norm = 0f
+                for (i in 0 until FEATURES) norm += f[i] * f[i]
+                val denom = norm.coerceAtLeast(1e-6f)
 
-            val gainW = prev.gainW.copyOf()
-            val thermalW = prev.thermalW.copyOf()
-            for (i in 0 until FEATURES) {
-                gainW[i] -= lr * gainError * f[i] / denom
-                thermalW[i] -= lr * thermalError * f[i] / denom
+                val gainW = prev.gainW.copyOf()
+                val thermalW = prev.thermalW.copyOf()
+                for (i in 0 until FEATURES) {
+                    gainW[i] -= lr * gainError * f[i] / denom
+                    thermalW[i] -= lr * thermalError * f[i] / denom
+                }
+                responses[k] = Response(
+                    gainW = gainW,
+                    thermalW = thermalW,
+                    samples = n,
+                    // خطأ ما قبل التحديث هو المقياس الصادق لجودة التنبؤ.
+                    gainSse = prev.gainSse + gainError * gainError,
+                    thermalSse = prev.thermalSse + thermalError * thermalError,
+                )
             }
-            responses[k] = Response(
-                gainW = gainW,
-                thermalW = thermalW,
-                samples = n,
-                // خطأ ما قبل التحديث هو المقياس الصادق لجودة التنبؤ.
-                gainSse = prev.gainSse + gainError * gainError,
-            )
+            persist()
         }
-        persist()
     }
 
     /** هل تعلّم النموذج ما يكفي لهذا المقبض في هذا السياق؟ */
     fun isTrained(key: String, direction: ControlRegistry.Direction, appContext: String): Boolean =
-        (resolve(key, direction, appContext)?.samples ?: 0) >= MIN_SAMPLES_FOR_TRUST
+        synchronized(lock) {
+            (resolve(key, direction, appContext)?.samples ?: 0) >= MIN_SAMPLES_FOR_TRUST
+        }
 
-    fun trainedCount(): Int = responses.count { it.value.samples >= MIN_SAMPLES_FOR_TRUST }
+    fun trainedCount(): Int = synchronized(lock) {
+        responses.count { it.value.samples >= MIN_SAMPLES_FOR_TRUST }
+    }
 
     /** السياق الخاص أولًا، ثم العام — نفس تدرج [ControlOutcomeModel]. */
     private fun resolve(
@@ -206,15 +227,18 @@ class ResponseModel @Inject constructor(
     private fun persist() {
         runCatching {
             val root = JSONObject()
-            responses.forEach { (k, r) ->
-                root.put(
-                    k,
-                    JSONObject()
-                        .put("g", r.gainW.toJsonArray())
-                        .put("t", r.thermalW.toJsonArray())
-                        .put("n", r.samples)
-                        .put("e", r.gainSse.toDouble())
-                )
+            synchronized(lock) {
+                responses.forEach { (k, r) ->
+                    root.put(
+                        k,
+                        JSONObject()
+                            .put("g", r.gainW.toJsonArray())
+                            .put("t", r.thermalW.toJsonArray())
+                            .put("n", r.samples)
+                            .put("e", r.gainSse.toDouble())
+                            .put("te", r.thermalSse.toDouble())
+                    )
+                }
             }
             val tmp = File(file.parentFile, "$FILE_NAME.tmp")
             tmp.writeText(root.toString())

@@ -63,19 +63,22 @@ class ControlOutcomeModel @Inject constructor(
 
     private val file = File(context.filesDir, FILE_NAME)
     private val effects = linkedMapOf<String, Effect>()
+    private val lock = Any()
 
     init {
-        runCatching {
-            if (file.exists()) {
-                val root = JSONObject(file.readText())
-                root.keys().forEach { key ->
-                    val o = root.getJSONObject(key)
-                    effects[key] = Effect(
-                        samples = o.optInt("n", 0),
-                        meanGain = o.optDouble("g", 0.0).toFloat(),
-                        m2Gain = o.optDouble("m2", 0.0).toFloat(),
-                        meanThermal = o.optDouble("t", 0.0).toFloat(),
-                    )
+        synchronized(lock) {
+            runCatching {
+                if (file.exists()) {
+                    val root = JSONObject(file.readText())
+                    root.keys().forEach { key ->
+                        val o = root.getJSONObject(key)
+                        effects[key] = Effect(
+                            samples = o.optInt("n", 0),
+                            meanGain = o.optDouble("g", 0.0).toFloat(),
+                            m2Gain = o.optDouble("m2", 0.0).toFloat(),
+                            meanThermal = o.optDouble("t", 0.0).toFloat(),
+                        )
+                    }
                 }
             }
         }
@@ -90,14 +93,16 @@ class ControlOutcomeModel @Inject constructor(
      * بلا أي عينة تعود الثقة صفرًا ويقرر المخطِّط بالحذر.
      */
     fun expectedEffect(key: String, direction: ControlRegistry.Direction, appContext: String): Effect {
-        val specific = effects[compose(key, direction, appContext)]
-        if (specific != null && specific.samples >= MIN_SPECIFIC_SAMPLES) return specific
-        val global = effects[compose(key, direction, GLOBAL_CONTEXT)]
-        return when {
-            specific != null && global != null -> blend(specific, global)
-            specific != null -> specific
-            global != null -> global
-            else -> Effect()
+        synchronized(lock) {
+            val specific = effects[compose(key, direction, appContext)]
+            if (specific != null && specific.samples >= MIN_SPECIFIC_SAMPLES) return specific
+            val global = effects[compose(key, direction, GLOBAL_CONTEXT)]
+            return when {
+                specific != null && global != null -> blend(specific, global)
+                specific != null -> specific
+                global != null -> global
+                else -> Effect()
+            }
         }
     }
 
@@ -112,11 +117,13 @@ class ControlOutcomeModel @Inject constructor(
         objectiveGain: Float,
         thermalDeltaC: Float,
     ) {
-        listOf(appContext, GLOBAL_CONTEXT).forEach { ctx ->
-            val k = compose(key, direction, ctx)
-            effects[k] = (effects[k] ?: Effect()).observe(objectiveGain, thermalDeltaC)
+        synchronized(lock) {
+            listOf(appContext, GLOBAL_CONTEXT).forEach { ctx ->
+                val k = compose(key, direction, ctx)
+                effects[k] = (effects[k] ?: Effect()).observe(objectiveGain, thermalDeltaC)
+            }
+            persist()
         }
-        persist()
     }
 
     /**
@@ -127,9 +134,11 @@ class ControlOutcomeModel @Inject constructor(
      * ثم تضيق حدوده بالقياس. لا عشوائية، ولا تسخين متعمد للجهاز.
      */
     fun optimisticGain(key: String, direction: ControlRegistry.Direction, appContext: String): Float {
-        val e = expectedEffect(key, direction, appContext)
-        if (e.samples == 0) return EXPLORATION_PRIOR
-        return e.meanGain + EXPLORATION_WEIGHT * e.gainStdDev / sqrt(e.samples.toFloat())
+        synchronized(lock) {
+            val e = expectedEffect(key, direction, appContext)
+            if (e.samples == 0) return EXPLORATION_PRIOR
+            return e.meanGain + EXPLORATION_WEIGHT * e.gainStdDev / sqrt(e.samples.toFloat())
+        }
     }
 
     /**
@@ -137,13 +146,17 @@ class ControlOutcomeModel @Inject constructor(
      * يُستبعد من الترشيح حتى لو بدا مغريًا على ورق الأداء.
      */
     fun isThermallyHarmful(key: String, direction: ControlRegistry.Direction, appContext: String): Boolean {
-        val e = expectedEffect(key, direction, appContext)
-        return e.samples >= MIN_SPECIFIC_SAMPLES &&
-            e.meanThermal > HARMFUL_THERMAL_C &&
-            e.meanGain <= abs(e.meanThermal) * THERMAL_GAIN_RATIO
+        synchronized(lock) {
+            val e = expectedEffect(key, direction, appContext)
+            return e.samples >= MIN_SPECIFIC_SAMPLES &&
+                e.meanThermal > HARMFUL_THERMAL_C &&
+                e.meanGain <= abs(e.meanThermal) * THERMAL_GAIN_RATIO
+        }
     }
 
-    fun snapshot(): Map<String, Effect> = effects.toMap()
+    fun snapshot(): Map<String, Effect> {
+        synchronized(lock) { return effects.toMap() }
+    }
 
     /** دمج مرجّح بالثقة: الخاص يقود، والعام يستقر. */
     private fun blend(specific: Effect, global: Effect): Effect {
@@ -162,15 +175,17 @@ class ControlOutcomeModel @Inject constructor(
     private fun persist() {
         runCatching {
             val root = JSONObject()
-            effects.forEach { (k, e) ->
-                root.put(
-                    k,
-                    JSONObject()
-                        .put("n", e.samples)
-                        .put("g", e.meanGain.toDouble())
-                        .put("m2", e.m2Gain.toDouble())
-                        .put("t", e.meanThermal.toDouble())
-                )
+            synchronized(lock) {
+                effects.forEach { (k, e) ->
+                    root.put(
+                        k,
+                        JSONObject()
+                            .put("n", e.samples)
+                            .put("g", e.meanGain.toDouble())
+                            .put("m2", e.m2Gain.toDouble())
+                            .put("t", e.meanThermal.toDouble())
+                    )
+                }
             }
             val tmp = File(file.parentFile, "$FILE_NAME.tmp")
             tmp.writeText(root.toString())

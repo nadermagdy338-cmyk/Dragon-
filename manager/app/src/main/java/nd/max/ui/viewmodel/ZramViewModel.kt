@@ -37,6 +37,27 @@ data class ZramSizePreset(
     val mb: Int
 )
 
+/** Which zram write an operation notice refers to. */
+enum class ZramOpKind { Size, Swappiness, Algorithm, Compact, Reset }
+
+/**
+ * State of the last zram write. Nothing is reported as applied until the value has been read back
+ * from the kernel, so the UI can tell "asked for" apart from "accepted by the kernel".
+ */
+sealed class ZramOperation {
+    abstract val kind: ZramOpKind
+
+    data class Applying(override val kind: ZramOpKind) : ZramOperation()
+
+    data class Applied(override val kind: ZramOpKind, val value: String? = null) : ZramOperation()
+
+    data class Failed(
+        override val kind: ZramOpKind,
+        val requested: String? = null,
+        val actual: String? = null,
+    ) : ZramOperation()
+}
+
 class ZramViewModel : ViewModel() {
 
     companion object {
@@ -94,6 +115,14 @@ class ZramViewModel : ViewModel() {
     val ramSavedMb: Int
         get() = (origDataMb - compDataMb).coerceAtLeast(0)
 
+    /** False when /proc/sys/vm/swappiness could not be read, so the UI can mark it unreadable. */
+    var swappinessKnown by mutableStateOf(true)
+        private set
+
+    /** In-flight or finished state of the last write; the UI never claims unverified success. */
+    var operation by mutableStateOf<ZramOperation?>(null)
+        private set
+
     private var pollJob: kotlinx.coroutines.Job? = null
 
     fun loadState() {
@@ -114,8 +143,9 @@ class ZramViewModel : ViewModel() {
             availableCompAlgorithms = compAlgoRaw.replace("[", "").replace("]", "")
                 .trim().split(Regex("\\s+")).filter { it.isNotBlank() }
 
-            swappiness = Shell.cmd("cat /proc/sys/vm/swappiness 2>/dev/null")
-                .exec().out.joinToString("").trim().toIntOrNull() ?: 60
+            val liveSwappiness = readSwappiness()
+            swappinessKnown = liveSwappiness != null
+            if (liveSwappiness != null) swappiness = liveSwappiness
 
             val savedPreset = PropertyUtils.get(MaxManagerProps.Storage.ZRAM_PRESET)
             if (savedPreset.isNotEmpty()) selectedPresetId = savedPreset
@@ -167,26 +197,49 @@ class ZramViewModel : ViewModel() {
         pollJob?.cancel()
     }
 
+    /** Lets the screen stop the 3s sysfs poll while it is not resumed. */
+    fun pausePolling() {
+        pollJob?.cancel()
+        pollJob = null
+    }
+
+    /** Resumes the poll when the screen returns to the foreground. */
+    fun resumePolling() {
+        if (isAvailable == true && pollJob == null) startPolling()
+    }
+
+    /** Clears the last operation notice so a stale outcome never sticks to a new action. */
+    fun clearOperation() {
+        operation = null
+    }
+
+    private fun readSwappiness(): Int? =
+        Shell.cmd("cat /proc/sys/vm/swappiness 2>/dev/null")
+            .exec().out.joinToString("").trim().toIntOrNull()
+
     fun applyPreset(preset: ZramSizePreset) {
-        selectedPresetId = preset.id
-        applySizeMb(preset.mb)
-        PropertyUtils.set(MaxManagerProps.Storage.ZRAM_PRESET, preset.id)
+        applySizeMb(preset.mb, ZramOpKind.Size, preset.id)
     }
 
     fun applyCustomSizeMb(mb: Int) {
-        selectedPresetId = "custom"
-        applySizeMb(mb.coerceIn(0, MAX_ZRAM_MB))
-        PropertyUtils.set(MaxManagerProps.Storage.ZRAM_PRESET, "custom")
+        applySizeMb(mb.coerceIn(0, MAX_ZRAM_MB), ZramOpKind.Size, "custom")
+    }
+
+    /** Restores the stock 8GB preset through the one size-setting path instead of a second copy. */
+    fun resetToDefault() {
+        val stock = SIZE_PRESETS.first { it.id == "stock" }
+        applySizeMb(stock.mb, ZramOpKind.Reset, stock.id)
     }
 
     /**
-     * Resizing a live zram device requires it to be swapped off and reset first
-     * (the kernel refuses to change disksize on an active device), then swapped
-     * back on at the new size. This briefly frees the compressed swap pages back
-     * to RAM, same as what any zram-config tool does.
+     * Resizing a live zram device requires it to be swapped off and reset first (the kernel refuses
+     * to change disksize on an active device), then swapped back on at the new size.
+     *
+     * Nothing is marked applied until disksize is read back from sysfs: a vendor kernel can refuse
+     * the write silently, and the UI has to show what the device actually reports.
      */
-    private fun applySizeMb(mb: Int) {
-        currentDiskSizeMb = mb
+    private fun applySizeMb(mb: Int, kind: ZramOpKind, presetId: String) {
+        operation = ZramOperation.Applying(kind)
         viewModelScope.launch(Dispatchers.IO) {
             val bytes = mb.toLong() * 1024 * 1024
             if (mb == 0) {
@@ -207,30 +260,42 @@ class ZramViewModel : ViewModel() {
             refreshStats()
             val liveMb = currentDiskSizeMb
             if (liveMb == mb) {
+                selectedPresetId = presetId
                 PropertyUtils.set(PROP_SIZE_MB, mb.toString())
+                PropertyUtils.set(MaxManagerProps.Storage.ZRAM_PRESET, presetId)
+                operation = ZramOperation.Applied(kind, mb.toString())
+            } else {
+                operation = ZramOperation.Failed(kind, mb.toString(), liveMb.toString())
             }
-
         }
     }
 
     fun applySwappiness(value: Int) {
         val clamped = value.coerceIn(0, 200)
-        swappiness = clamped
+        operation = ZramOperation.Applying(ZramOpKind.Swappiness)
         viewModelScope.launch(Dispatchers.IO) {
             Shell.cmd("echo $clamped > /proc/sys/vm/swappiness 2>/dev/null").exec()
-            PropertyUtils.set(PROP_SWAPPINESS, clamped.toString())
+            val live = readSwappiness()
+            swappinessKnown = live != null
+            if (live != null) swappiness = live
+            if (live == clamped) {
+                PropertyUtils.set(PROP_SWAPPINESS, clamped.toString())
+                operation = ZramOperation.Applied(ZramOpKind.Swappiness, clamped.toString())
+            } else {
+                operation = ZramOperation.Failed(ZramOpKind.Swappiness, clamped.toString(), live?.toString())
+            }
         }
     }
 
     /**
-     * Changing the compression codec hits the same kernel constraint as
-     * resizing (the device must be swapped off + reset first), so this mirrors
-     * applySizeMb()'s sequence rather than a separate, easy-to-drift copy.
+     * Changing the compression codec hits the same kernel constraint as resizing (the device must be
+     * swapped off + reset first), so this mirrors applySizeMb()'s sequence rather than a separate,
+     * easy-to-drift copy. The codec is only reported as applied when the driver echoes it back.
      */
     fun setCompAlgorithm(algo: String) {
         if (algo == compAlgorithm) return
         val previous = compAlgorithm
-        compAlgorithm = algo
+        operation = ZramOperation.Applying(ZramOpKind.Algorithm)
         viewModelScope.launch(Dispatchers.IO) {
             val bytes = currentDiskSizeMb.toLong() * 1024 * 1024
             if (currentDiskSizeMb > 0) {
@@ -249,23 +314,29 @@ class ZramViewModel : ViewModel() {
             if (live.exists && live.algorithm == algo) {
                 compAlgorithm = algo
                 PropertyUtils.set(PROP_COMP_ALGO, algo)
+                operation = ZramOperation.Applied(ZramOpKind.Algorithm, algo)
             } else {
                 compAlgorithm = live.algorithm ?: previous
+                operation = ZramOperation.Failed(ZramOpKind.Algorithm, algo, live.algorithm)
             }
             refreshStats()
         }
     }
 
-    /** Writes to the kernel's real memory-compaction trigger — same node "Free up RAM" style tools use. */
+    /**
+     * Writes the kernel's real memory-compaction trigger. The node is write-only, so the outcome
+     * comes from the shell exit status; there is nothing to read back.
+     */
     fun compactZram() {
+        operation = ZramOperation.Applying(ZramOpKind.Compact)
         viewModelScope.launch(Dispatchers.IO) {
-            Shell.cmd("echo 1 > /proc/sys/vm/compact_memory 2>/dev/null").exec()
+            val ok = Shell.cmd("echo 1 > /proc/sys/vm/compact_memory 2>/dev/null").exec().isSuccess
             refreshStats()
+            operation = if (ok) {
+                ZramOperation.Applied(ZramOpKind.Compact, null)
+            } else {
+                ZramOperation.Failed(ZramOpKind.Compact, null, null)
+            }
         }
-    }
-
-    /** Restores the stock 8GB preset — reuses applyPreset() instead of a second size-setting path. */
-    fun resetToDefault() {
-        applyPreset(SIZE_PRESETS.first { it.id == "stock" })
     }
 }

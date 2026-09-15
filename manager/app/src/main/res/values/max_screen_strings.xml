@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Strings introduced while migrating screens onto the MaxManager Design
+  Language. Kept in a separate file so translators can see exactly what the
+  redesign added, and so the large strings.xml stays reviewable.
+
+  Rule for this file: no decorative copy. Every string either names a thing,
+  states a real condition, or explains why something cannot be done.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+    <!-- Shared actions -->
+    <string name="max_action_retry">Retry</string>
+    <string name="max_action_recheck">Re-check device</string>
+    <string name="max_action_refresh">Refresh readings</string>
+
+    <!-- Touch response screen -->
+    <string name="max_touch_probe_title">Probing touch driver</string>
+    <string name="max_touch_probe_detail">Reading the vendor touch nodes this kernel exposes.</string>
+    <string name="max_touch_unsupported_title">Touch controls not exposed</string>
+    <string name="max_touch_section_controls">Touch response</string>
+    <string name="max_touch_section_controls_desc">Vendor input controls detected on this device.</string>
+    <string name="max_touch_section_providers">Providers</string>
+    <string name="max_touch_section_providers_desc">Where MaxManager reads and writes these settings.</string>
+    <string name="max_touch_section_about">How this works</string>
+    <string name="max_touch_node_game">Game mode node</string>
+    <string name="max_touch_node_sample">Report rate node</string>
+    <string name="max_touch_node_dt2w">Double tap node</string>
+    <string name="max_touch_node_missing">Not exposed by this kernel</string>
+    <string name="max_touch_provider_hal">Xiaomi vendor HAL</string>
+    <string name="max_touch_provider_hal_detail">No writable sysfs node was found, so changes are sent through the vendor HAL.</string>
+    <string name="max_touch_boost_locked">This device exposes no writable touch node and no vendor HAL.</string>
+    <string name="max_touch_dt2w_locked">This kernel does not expose a double tap node.</string>
+    <string name="max_touch_source_sysfs">sysfs probe</string>
+    <string name="max_touch_source_hal">vendor HAL</string>
+    <string name="max_touch_state_on">Enabled</string>
+    <string name="max_touch_state_off">Disabled</string>
+    <string name="max_touch_revert_notice">A switch that flips back means the kernel rejected the write.</string>
+
+    <!-- Doze / idle screen -->
+    <string name="max_doze_probe_title">Reading idle controller</string>
+    <string name="max_doze_probe_detail">Querying the Android device idle controller for its current state.</string>
+    <string name="max_doze_unsupported_title">Idle controls unavailable</string>
+    <string name="max_doze_source_deviceidle">deviceidle</string>
+    <string name="max_doze_section_state">Idle state</string>
+    <string name="max_doze_section_state_desc">Reported by Android, not by MaxManager. Refresh to re-read.</string>
+    <string name="max_doze_metric_state">Controller state</string>
+    <string name="max_doze_metric_idle_cycles">Deep idle cycles</string>
+    <string name="max_doze_metric_light_idle">Light idle cycles</string>
+    <string name="max_doze_metric_gms">Play services policy</string>
+    <string name="max_doze_section_policy">MaxManager policy</string>
+    <string name="max_doze_section_policy_desc">These switches change MaxManager\'s policy. Android keeps ownership of the state above.</string>
+    <string name="max_doze_aggressive_locked">Turn on the Doze policy first.</string>
+    <string name="max_doze_policy_on">Active</string>
+    <string name="max_doze_policy_off">Inactive</string>
+    <string name="max_doze_section_actions">Manual idle commands</string>
+    <string name="max_doze_section_actions_desc">Debug commands sent straight to the idle controller. The state above shows the result.</string>
+    <string name="max_doze_action_force_idle_desc">Push the device into deep idle immediately.</string>
+    <string name="max_doze_action_step_desc">Advance the idle state machine by one step.</string>
+    <string name="max_doze_action_unforce_desc">Return control of idling to Android.</string>
+    <string name="max_doze_action_reset_desc">Clear the counters shown above.</string>
+    <string name="max_doze_whitelist_desc">Apps listed here are exempt from battery optimisation.</string>
+    <string name="max_doze_apps_loading_title">Loading installed apps</string>
+    <string name="max_doze_apps_loading_detail">Reading the package list and current exemptions.</string>
+    <string name="max_doze_apps_empty_title">No apps match this filter</string>
+    <string name="max_doze_app_exempt_on">Exempt from optimisation</string>
+    <string name="max_doze_app_exempt_off">Optimised by Android</string>
+
+    <!-- Resolution / display size screen -->
+    <string name="max_res_probe_title">Reading display configuration</string>
+    <string name="max_res_probe_detail">Asking the window manager for the panel size, density and refresh rate.</string>
+    <string name="max_res_unreadable_title">Display size unreadable</string>
+    <string name="max_res_unreadable_detail">The window manager did not report a physical size. MaxManager needs root shell access to read and change the display configuration.</string>
+    <string name="max_res_section_current">Active output</string>
+    <string name="max_res_section_current_desc">Read once from the window manager. Refresh to re-read after a change.</string>
+    <string name="max_res_metric_active">Active resolution</string>
+    <string name="max_res_metric_native">Panel native</string>
+    <string name="max_res_metric_scale">Width scale</string>
+    <string name="max_res_metric_dpi">Density</string>
+    <string name="max_res_metric_refresh">Refresh rate</string>
+    <string name="max_res_source_wm">wm size · wm density</string>
+    <string name="max_res_source_derived">derived</string>
+    <string name="max_res_scale_note">Active width divided by native width.</string>
+    <string name="max_res_dpi_native_note">Panel default: %1$d DPI</string>
+    <string name="max_res_refresh_missing">Not reported by the display service.</string>
+    <string name="max_res_presets_desc">Each preset is a fraction of this panel\'s own native resolution and density.</string>
+    <string name="max_res_section_manual_desc">Changes are sent when you release the slider.</string>
+    <string name="max_res_height_derived">Height (from aspect lock)</string>
+    <string name="max_res_height_locked_note">Height follows the panel aspect ratio while the lock is on.</string>
+    <string name="max_res_section_reset">Revert</string>
+
+    <!-- FPS overlay screen -->
+    <string name="max_fps_permission_title">Overlay permission required</string>
+    <string name="max_fps_permission_detail">Android needs the \"Display over other apps\" permission before MaxManager can draw the overlay.</string>
+    <string name="max_fps_permission_action">Open permission settings</string>
+    <string name="max_fps_section_overlay">Overlay</string>
+    <string name="max_fps_section_overlay_desc">Draws a compact readout on top of whatever is running.</string>
+    <string name="max_fps_section_source">Frame data source</string>
+    <string name="max_fps_source_fallback_note">If the selected source returns nothing, MaxManager falls back to another source automatically.</string>
+    <string name="max_fps_section_presentation">Presentation</string>
+    <string name="max_fps_orientation_locked">Orientation applies to the Android list style only.</string>
+    <string name="max_fps_color_selected">Selected</string>
+    <string name="max_fps_color_not_selected">Not selected</string>
+    <string name="max_fps_color_green">Green</string>
+    <string name="max_fps_color_cyan">Cyan</string>
+    <string name="max_fps_color_yellow">Yellow</string>
+    <string name="max_fps_color_orange">Orange</string>
+    <string name="max_fps_color_red">Red</string>
+    <string name="max_fps_color_white">White</string>
+
+    <!-- Shared -->
+    <string name="max_action_dismiss">Dismiss</string>
+    <string name="max_action_turn_off">Turn off</string>
+
+    <!-- ZRAM manager -->
+    <string name="max_zram_probe_title">Reading ZRAM state</string>
+    <string name="max_zram_probe_detail">MaxManager is reading /sys/block/zram0 and the kernel swap table.</string>
+    <string name="max_zram_unsupported_detail">This kernel does not expose /sys/block/zram0/disksize, so compressed swap cannot be read or changed on this device.</string>
+    <string name="max_zram_source_sysfs">/sys/block/zram0</string>
+    <string name="max_zram_source_swaps">/proc/swaps</string>
+    <string name="max_zram_source_vm">/proc/sys/vm</string>
+    <string name="max_zram_metric_size">Swap size</string>
+    <string name="max_zram_metric_used">Swap in use</string>
+    <string name="max_zram_metric_ratio">Compression ratio</string>
+    <string name="max_zram_metric_saved">RAM saved</string>
+    <string name="max_zram_metric_algo">Codec</string>
+    <string name="max_zram_metric_swappiness">Swappiness</string>
+    <string name="max_zram_metric_priority">Swap priority</string>
+    <string name="max_zram_metric_streams">Compression streams</string>
+    <string name="max_zram_unit_mb">MB</string>
+    <string name="max_zram_ratio_value">%1$s to 1</string>
+    <string name="max_zram_swap_off">Off</string>
+    <string name="max_zram_section_state_desc">Read from the kernel and refreshed every 3 seconds while this screen is open.</string>
+    <string name="max_zram_section_size_desc">Resizing swaps the device off, resets it, then swaps it back on. Compressed pages return to RAM during the switch.</string>
+    <string name="max_zram_section_codec_desc">The codec is written together with a resize, so the device restarts when it changes.</string>
+    <string name="max_zram_section_pressure_desc">Swappiness controls how eagerly the kernel moves pages into compressed swap.</string>
+    <string name="max_zram_section_maintenance_desc">These actions run immediately and cannot be undone.</string>
+    <string name="max_zram_custom_value">%1$s MB</string>
+    <string name="max_zram_applying_size">Resizing compressed swap</string>
+    <string name="max_zram_applying_swappiness">Writing swappiness</string>
+    <string name="max_zram_applying_algorithm">Switching codec</string>
+    <string name="max_zram_applying_compact">Compacting memory</string>
+    <string name="max_zram_applying_reset">Restoring the default size</string>
+    <string name="max_zram_applying_detail">Waiting for the kernel to confirm the value.</string>
+    <string name="max_zram_applied_title">Applied</string>
+    <string name="max_zram_applied_size">Swap size is now %1$s MB.</string>
+    <string name="max_zram_applied_swappiness">Swappiness is now %1$s.</string>
+    <string name="max_zram_applied_algorithm">Codec is now %1$s.</string>
+    <string name="max_zram_applied_compact">The kernel accepted the compaction request.</string>
+    <string name="max_zram_applied_reset">Restored the default 8192 MB size.</string>
+    <string name="max_zram_failed_title">The kernel refused the change</string>
+    <string name="max_zram_failed_size">Asked for %1$s MB, the device reports %2$s MB.</string>
+    <string name="max_zram_failed_swappiness">Asked for %1$s, /proc/sys/vm/swappiness reports %2$s.</string>
+    <string name="max_zram_failed_algorithm">Asked for %1$s, the driver reports %2$s.</string>
+    <string name="max_zram_failed_compact">The compaction trigger could not be written.</string>
+    <string name="max_zram_failed_unreadable">Asked for %1$s, the value could not be read back.</string>
+    <string name="max_zram_failed_detail">Writing kernel nodes needs root access granted to MaxManager. Some vendor kernels lock these nodes entirely.</string>
+    <string name="max_zram_locked_root">Needs root access to write kernel nodes.</string>
+    <string name="max_zram_compaction_unsupported">/proc/sys/vm/compact_memory is missing on this kernel.</string>
+    <string name="max_zram_compact_confirm_title">Compact memory now?</string>
+    <string name="max_zram_compact_confirm_body">The kernel walks compressed pages to free fragments. CPU use rises briefly.</string>
+    <string name="max_zram_reset_confirm_title">Restore the default size?</string>
+    <string name="max_zram_reset_confirm_body">ZRAM is recreated at 8192 MB with the current codec. Swap is off during the switch.</string>
+
+    <!-- App compiler (dex2oat) -->
+    <string name="max_dex_loading_title">Reading installed packages</string>
+    <string name="max_dex_loading_detail">MaxManager is listing installed apps from the package manager.</string>
+    <string name="max_dex_empty_title">No apps match</string>
+    <string name="max_dex_empty_detail">Clear the search or switch scope to see more apps.</string>
+    <string name="max_dex_filter_desc">The ART compiler filter used by every action on this screen.</string>
+    <string name="max_dex_filter_speed_profile_desc">Compiles the methods recorded in the app profile. Balanced default.</string>
+    <string name="max_dex_filter_speed_desc">Compiles all methods ahead of time. Faster start, larger artifacts, longer compile.</string>
+    <string name="max_dex_filter_everything_desc">Compiles every method, including rarely used ones. Longest compile.</string>
+    <string name="max_dex_filter_quicker_desc">Shallow compilation. Quick to run, slower at runtime.</string>
+    <string name="max_dex_filter_verify_desc">Verification only, no native code. Smallest artifacts, slowest runtime.</string>
+    <string name="max_dex_scope_desc">Bulk actions apply the filter selected above.</string>
+    <string name="max_dex_apps_count">%1$s of %2$s apps</string>
+    <string name="max_dex_search_hint">Search by name or package</string>
+    <string name="max_dex_search_clear">Clear search</string>
+    <string name="max_dex_tag_system">System</string>
+    <string name="max_dex_bulk_warning">Bulk compilation keeps the CPU busy and heats the device. Keep it charging.</string>
+    <string name="max_dex_applying_single">Compiling %1$s</string>
+    <string name="max_dex_applying_reset_single">Resetting %1$s</string>
+    <string name="max_dex_applying_batch_detail">%1$s of %2$s apps</string>
+    <string name="max_dex_applying_all">Compiling every package</string>
+    <string name="max_dex_applying_reset_all">Resetting every package</string>
+    <string name="max_dex_applying_detail">ART is working in the background. Keep the device charging.</string>
+    <string name="max_dex_applied_title">Done</string>
+    <string name="max_dex_applied_single">%1$s compiled with %2$s.</string>
+    <string name="max_dex_applied_reset_single">%1$s reverted to its installer-time compilation.</string>
+    <string name="max_dex_applied_bulk">Every package compiled with %1$s.</string>
+    <string name="max_dex_applied_reset_bulk">Every package reverted to installer-time compilation.</string>
+    <string name="max_dex_applied_batch">%1$s apps compiled with %2$s.</string>
+    <string name="max_dex_failed_title">ART rejected the request</string>
+    <string name="max_dex_failed_single">%1$s was not compiled.</string>
+    <string name="max_dex_failed_reset_single">%1$s was not reset.</string>
+    <string name="max_dex_failed_bulk">The package manager returned an error for the all-packages command.</string>
+    <string name="max_dex_failed_batch">%1$s of %2$s apps failed.</string>
+    <string name="max_dex_failed_detail">Compilation runs cmd package compile as root. Some ROMs also block compilation for protected packages.</string>
+
+    <string name="max_dex_scope_title">Bulk actions</string>
+    <string name="max_dex_list_title">Installed apps</string>
+    <string name="max_dex_no_match_title">No apps match</string>
+    <string name="max_dex_no_match_detail">Clear the search or switch tabs to see the rest of the list.</string>
+</resources>

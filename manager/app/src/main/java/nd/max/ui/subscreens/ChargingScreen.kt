@@ -17,6 +17,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 
 package nd.max.ui.subscreens
+import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.navigation.MaxNavActions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
@@ -231,7 +233,7 @@ fun ChargingScreen(
                                 trailingContent = {
                                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
                                 },
-                                onClick = { navController.navigate("bypasschg") },
+                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.BypassCharging) },
                                 headlineContent = { Text(stringResource(R.string.charging_bypass_title)) },
                                 supportingContent = { Text(stringResource(R.string.charging_bypass_desc)) }
                             )

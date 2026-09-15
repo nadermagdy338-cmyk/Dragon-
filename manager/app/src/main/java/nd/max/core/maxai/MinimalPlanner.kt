@@ -72,7 +72,7 @@ class MinimalPlanner @Inject constructor(
         val gap = satisfaction - score
 
         val ranked = controls.mapNotNull { control ->
-            val current = runCatching { control.read() }.getOrNull()
+            val current = runCatching { control.read() }.getOrNull() ?: return@mapNotNull null
             val next = control.step(current, direction) ?: return@mapNotNull null
 
             // استُبعد بالتجربة: يسخّن بلا مكسب يُذكر (تعلّم سابق مقيس).
@@ -229,6 +229,16 @@ class MinimalPlanner @Inject constructor(
             measuredGain = gain,
             measuredThermalDeltaC = thermalDelta,
         )
+    }
+
+    /**
+     * فيتو سلامة قبل/بعد الكتابة ليس فشل المقبض: الكتابة أثبتت على العتاد
+     * لكن سلطة أعلى (أسبقية السلامة) ألغتها. تسجيله كفشل في المصداقية
+     * يسمّم إشارة التعلّم لمقبض فعل بالضبط ما أُمر به. هذا الفصل يمنع
+     * العقل من تعلّم "المقبض X لا يثبت" بينما الحقيقة "الحرارة منعته".
+     */
+    fun recordSafetyVeto(step: Step, appContext: String) {
+        credibility.record(step.control.key, step.direction, appContext, verified = true)
     }
 
     companion object {

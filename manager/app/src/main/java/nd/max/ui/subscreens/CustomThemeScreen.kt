@@ -128,7 +128,6 @@ fun ColorPaletteScreen(navController: NavController) {
     var customBannerUri by remember { mutableStateOf(context.getHeaderImage()) }
     var pendingCropUriPath by rememberSaveable { mutableStateOf<String?>(null) }
     var isBlurEnabled by rememberSaveable { mutableStateOf(prefs.getBoolean("expressive_blur_ui", false)) }
-    var useScrollAnimation by rememberSaveable { mutableStateOf(prefs.getBoolean("use_scroll_animation", false)) }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val colorScheme = MaterialTheme.colorScheme
@@ -303,7 +302,6 @@ fun ColorPaletteScreen(navController: NavController) {
                             bannerGradientAlpha = bannerGradientAlpha,
                             customBannerUri = customBannerUri,
                             isBlurEnabled = isBlurEnabled,
-                            useScrollAnimation = useScrollAnimation,
                             prefs = prefs,
                             onColorModeChange = { currentColorMode = it },
                             onKeyColorChange = { currentKeyColor = it },
@@ -318,12 +316,6 @@ fun ColorPaletteScreen(navController: NavController) {
                             onBlurEnabledChange = {
                                 EventLog.userAction(screen = "CustomTheme", field = "expressive_blur_ui", old = isBlurEnabled.toString(), new = it.toString())
                                 isBlurEnabled = it; prefs.edit { putBoolean("expressive_blur_ui", it) }
-                            },
-                            onUseScrollAnimationChange = {
-                                EventLog.userAction(screen = "CustomTheme", field = "use_scroll_animation", old = useScrollAnimation.toString(), new = it.toString())
-                                useScrollAnimation = it; prefs.edit {
-                                    putBoolean("use_scroll_animation", it)
-                                }
                             },
                             imagePicker = imagePicker,
                             context = context,
@@ -361,7 +353,6 @@ fun ColorPaletteScreen(navController: NavController) {
                         bannerGradientAlpha = bannerGradientAlpha,
                         customBannerUri = customBannerUri,
                         isBlurEnabled = isBlurEnabled,
-                        useScrollAnimation = useScrollAnimation,
                         prefs = prefs,
                         onColorModeChange = { currentColorMode = it },
                         onKeyColorChange = { currentKeyColor = it },
@@ -376,12 +367,6 @@ fun ColorPaletteScreen(navController: NavController) {
                         onBlurEnabledChange = {
                             EventLog.userAction(screen = "CustomTheme", field = "expressive_blur_ui", old = isBlurEnabled.toString(), new = it.toString())
                             isBlurEnabled = it; prefs.edit { putBoolean("expressive_blur_ui", it) }
-                        },
-                        onUseScrollAnimationChange = {
-                            EventLog.userAction(screen = "CustomTheme", field = "use_scroll_animation", old = useScrollAnimation.toString(), new = it.toString())
-                            useScrollAnimation = it; prefs.edit {
-                                putBoolean("use_scroll_animation", it)
-                            }
                         },
                         imagePicker = imagePicker,
                         context = context,
@@ -404,7 +389,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
     bannerGradientAlpha: Float,
     customBannerUri: String?,
     isBlurEnabled: Boolean,
-    useScrollAnimation: Boolean,
     prefs: android.content.SharedPreferences,
     onColorModeChange: (ColorMode) -> Unit,
     onKeyColorChange: (Int) -> Unit,
@@ -413,7 +397,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
     onBannerGradientAlphaChange: (Float) -> Unit,
     onBannerUpdated: (String?) -> Unit,
     onBlurEnabledChange: (Boolean) -> Unit,
-    onUseScrollAnimationChange: (Boolean) -> Unit,
     imagePicker: androidx.activity.result.ActivityResultLauncher<PickVisualMediaRequest>,
     context: Context,
     snackbarHostState: SnackbarHostState,
@@ -799,15 +782,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
                         summary = stringResource(R.string.str_expressive_blur_summary),
                         checked = isBlurEnabled,
                         onCheckedChange = onBlurEnabledChange
-                    )
-                }
-                add {
-                    ExpressiveSwitchItem(
-                        icon = Icons.Filled.SwipeRight,
-                        title = stringResource(R.string.str_use_scroll_animation),
-                        summary = stringResource(R.string.str_use_scroll_animation_summary),
-                        checked = useScrollAnimation,
-                        onCheckedChange = onUseScrollAnimationChange
                     )
                 }
             }

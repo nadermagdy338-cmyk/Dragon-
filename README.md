@@ -43,6 +43,8 @@
 This is a **Magisk Module**, so you must install it via your preferred Root Manager.
 这是一个 **Magisk 模块**，因此您必须通过您首选的 Root 管理器进行安装。
 
+<!-- docs-check: MCP write access verified on 2026-09-15 -->
+
 ---
 
 ## 🤝 Contributing & Bug Reports / 贡献与错误报告

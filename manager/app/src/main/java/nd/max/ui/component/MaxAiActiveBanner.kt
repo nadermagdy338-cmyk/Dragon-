@@ -15,6 +15,8 @@
  */
 
 package nd.max.ui.component
+import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.navigation.MaxNavActions
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -95,7 +97,7 @@ fun MaxAiActiveBanner(
                         color = colors.onSurfaceVariant
                     )
                 }
-                TextButton(onClick = { navController.navigate("maxai") }) {
+                TextButton(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.MaxAi) }) {
                     Text(stringResource(R.string.maxai_banner_open), color = colors.tertiary, fontWeight = FontWeight.SemiBold)
                 }
             }

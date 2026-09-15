@@ -28,14 +28,20 @@ class SafetyGovernor @Inject constructor(
         preVeto(step)?.let { return it }
         val outcome = planner.execute(step, appContext, token)
         if (!outcome.verified) return Transaction(outcome)
-        return enforcePost(step, outcome, readState(), token)
+        return enforcePost(step, outcome, readState(), token, appContext)
     }
 
+    /**
+     * [appContext] is required, not optional: the safety veto is recorded per
+     * app context, and defaulting it to a placeholder would silently attribute
+     * the veto to the wrong context and corrupt the credibility signal.
+     */
     fun enforcePost(
         step: MinimalPlanner.Step,
         outcome: MinimalPlanner.Outcome,
         state: DeviceSnapshot?,
         token: String,
+        appContext: String,
     ): Transaction {
         if (!outcome.verified || state == null) return Transaction(outcome, postState = state)
         val thermalC = state.thermal * 100f
@@ -45,6 +51,11 @@ class SafetyGovernor @Inject constructor(
         if (!unsafe) return Transaction(outcome, postState = state)
 
         val rollback = arbiter.release(step.control.key, token, restore = true)
+        // A safety-forced rollback is not a knob failure: the write verified
+        // against hardware but a higher authority (thermal supremacy) cancelled
+        // it. Recording it as a credibility failure would poison the learning
+        // signal for a knob that did exactly what it was told to do.
+        planner.recordSafetyVeto(step, appContext)
         return Transaction(
             outcome = outcome.copy(
                 verified = false,

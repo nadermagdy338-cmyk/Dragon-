@@ -17,6 +17,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.navigation.MaxNavActions
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -209,7 +211,7 @@ fun DiagnosticsScreen(navController: NavController) {
                         {
                             ExpressiveListItem(
                                 leadingContent = { IconBadge(Icons.Outlined.Memory, MaterialTheme.colorScheme.primary, 36) },
-                                onClick = { navController.navigate("processmanager") },
+                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ProcessManager) },
                                 headlineContent = { Text(stringResource(R.string.processmgr_title)) },
                                 supportingContent = { Text(stringResource(R.string.processmgr_menu_desc)) }
                             )
@@ -217,7 +219,7 @@ fun DiagnosticsScreen(navController: NavController) {
                         {
                             ExpressiveListItem(
                                 leadingContent = { IconBadge(Icons.Filled.Terminal, MaterialTheme.colorScheme.primary, 36) },
-                                onClick = { navController.navigate("logsviewer") },
+                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Logs) },
                                 headlineContent = { Text(stringResource(R.string.logsviewer_title)) },
                                 supportingContent = { Text(stringResource(R.string.logsviewer_menu_desc)) }
                             )
@@ -225,7 +227,7 @@ fun DiagnosticsScreen(navController: NavController) {
                         {
                             ExpressiveListItem(
                                 leadingContent = { IconBadge(Icons.Filled.Terminal, MaterialTheme.colorScheme.primary, 36) },
-                                onClick = { navController.navigate("terminal") },
+                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Terminal) },
                                 headlineContent = { Text(stringResource(R.string.terminal_shell)) },
                                 supportingContent = { Text(stringResource(R.string.terminal_shell_desc)) }
                             )

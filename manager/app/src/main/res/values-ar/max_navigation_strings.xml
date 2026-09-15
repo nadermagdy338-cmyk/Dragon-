@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary destinations (ADR-03) -->
+    <string name="max_nav_now">الآن</string>
+    <string name="max_nav_control">التحكم</string>
+    <string name="max_nav_apps">التطبيقات</string>
+    <string name="max_nav_max_ai">Max AI</string>
+    <string name="max_nav_settings">الإعدادات</string>
+    <string name="max_nav_advanced_tools">أدوات متقدمة</string>
+
+    <!-- Domain hub titles (ADR-04) -->
+    <string name="max_hub_cpu">المعالج</string>
+    <string name="max_hub_cpu_desc">الأنوية والحاكم وتحسين المورّد وتفضيلات النواة</string>
+    <string name="max_hub_gpu">معالج الرسوميات</string>
+    <string name="max_hub_gpu_desc">ترددات الرسوميات ومعاملات المورّد الخاصة بالرسوميات</string>
+    <string name="max_hub_memory">الذاكرة</string>
+    <string name="max_hub_memory_desc">الضغط وسلوك الذاكرة الافتراضية وميول التبديل</string>
+    <string name="max_hub_display">الشاشة</string>
+    <string name="max_hub_display_desc">معدل التحديث والألوان ومقياس اللوحة</string>
+    <string name="max_hub_responsiveness">الاستجابة</string>
+    <string name="max_hub_responsiveness_desc">اللمس وإيقاع الإطارات وزمن الجدولة</string>
+    <string name="max_hub_thermal">الحرارة</string>
+    <string name="max_hub_thermal_desc">درجات الحرارة والخفض ومعاملاتها</string>
+    <string name="max_hub_power">الطاقة</string>
+    <string name="max_hub_power_desc">الشحن والتجاوز والسكون وصحة البطارية</string>
+    <string name="max_hub_storage">التخزين والمترجم</string>
+    <string name="max_hub_storage_desc">نمط الترجمة وصحة التخزين</string>
+    <string name="max_hub_network">الشبكة</string>
+    <string name="max_hub_network_desc">جدولة حركة البيانات وحالة الاتصال</string>
+
+    <!-- Legacy tweaks workspace -->
+    <string name="max_nav_all_tweaks_section">قديم</string>
+    <string name="max_nav_all_tweaks">كل التعديلات (قديم)</string>
+    <string name="max_nav_all_tweaks_desc">قائمة مسطحة تبقى حتى انتقال كل مفتاح إلى مركز نطاقه</string>
+
+    <!-- Screen titles that had no resource of their own -->
+    <string name="max_title_vendor_boost">تحسين المورّد</string>
+    <string name="max_title_gpu_studio">استوديو GPU الواقعي</string>
+    <string name="max_title_bypass_check">حالة التجاوز</string>
+
+    <!-- Data-trust vocabulary (ADR-07): unknown is never a plausible value -->
+    <string name="max_status_unknown">status_unknown</string>
+    <string name="max_settings_diagnostics">التشخيص</string>
+    <string name="max_settings_logs">السجلات</string>
+    <string name="max_tool_terminal">الطرفية</string>
+    <string name="max_tool_setedit">SetEdit</string>
+    <string name="max_tool_activity_launcher">مشغّل الأنشطة</string>
+    <string name="max_tool_kernel_flasher">مفلاش النواة</string>
+</resources>

@@ -17,6 +17,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.navigation.MaxNavActions
 
 import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.MaxManagerProps
@@ -122,7 +124,7 @@ fun TweakScreen(
     var showRendererDialog by remember { mutableStateOf(false) }
     var pendingRestoreData by remember { mutableStateOf<Map<String, String>?>(null) }
     var showRestoreDialog by remember { mutableStateOf(false) }
-    
+
     var showBackupOptionsDialog by remember { mutableStateOf(false) }
     var optBackupTweaks by remember { mutableStateOf(true) }
     var optBackupApplist by remember { mutableStateOf(true) }
@@ -130,10 +132,10 @@ fun TweakScreen(
     var pendingRestoreResult by remember { mutableStateOf<TweakViewModel.ValidationResult?>(null) }
     var optRestoreTweaks by remember { mutableStateOf(true) }
     var optRestoreApplist by remember { mutableStateOf(true) }
-    
+
     val loadingDialog = rememberLoadingDialog()
     val confirmDialog = rememberConfirmDialog(onConfirm = {}, onDismiss = {})
-    
+
     LoadingDialogHost(handle = loadingDialog)
     ConfirmDialogHost(handle = confirmDialog)
 
@@ -151,7 +153,7 @@ fun TweakScreen(
             }
         }
     }
-    
+
     val openDocLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
             showBackupRestoreSheet = false
@@ -162,7 +164,7 @@ fun TweakScreen(
                         pendingRestoreResult = result
                         optRestoreTweaks = result.hasTweaks
                         optRestoreApplist = result.hasApplist
-                        showRestoreDialog = true 
+                        showRestoreDialog = true
                     } else {
                         confirmDialog.showConfirm(context.getString(R.string.dialog_restore_fail_title), result.message, context.getString(android.R.string.ok), null)
                     }
@@ -180,7 +182,7 @@ fun TweakScreen(
         viewModel.loadAllConfiguration(context)
     }
 
-    
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -195,7 +197,7 @@ fun TweakScreen(
         },
         containerColor = MaterialTheme.colorScheme.surface
     ) { innerPadding ->
-        
+
         LazyColumn(
             state = listState,
             modifier = Modifier.maxAdaptiveContentWidth(),
@@ -206,7 +208,7 @@ fun TweakScreen(
                 bottom = 110.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
             )
         ) {
-        
+
             item {
                 ControlScreenIntro(
                     icon = Icons.Rounded.Tune,
@@ -227,9 +229,9 @@ fun TweakScreen(
                     fullMode = isFullModeEnabled,
                     touchState = viewModel.touchBoostState,
                     thermalState = viewModel.thermalState,
-                    onTouchOpen = { navController.navigate("touchboost") },
-                    onCoreOpen = { navController.navigate("cpucorecontrol") },
-                    onThermalOpen = { navController.navigate("thermal_detail") }
+                    onTouchOpen = { MaxNavActions(navController).navigateTo(MaxDestination.TouchBoost) },
+                    onCoreOpen = { MaxNavActions(navController).navigateTo(MaxDestination.CpuCoreControl) },
+                    onThermalOpen = { MaxNavActions(navController).navigateTo(MaxDestination.ThermalDetail) }
                 )
                 Spacer(modifier = Modifier.height(MaxUiMetrics.sectionGap))
             }
@@ -242,7 +244,7 @@ fun TweakScreen(
                 }
                 if (socType != null && viewModel.liteState != null) {
                     val isMediaTek   = socType == "mediatek"
-                    
+
                     ExpressiveList(
                         content = listOf(
                             {
@@ -258,19 +260,19 @@ fun TweakScreen(
                                 Box(modifier = Modifier.alpha(if (isMediaTek) 1f else 0.4f)) {
                                     ExpressiveListItem(
                                         leadingContent = { LeadingIcon(icon = Icons.Filled.Speed) },
-                                        onClick = { 
+                                        onClick = {
                                             if (isMediaTek) {
-                                                navController.navigate("fpsgoscreen") 
+                                                MaxNavActions(navController).navigateTo(MaxDestination.FpsGo)
                                             }
                                         },
                                         headlineContent = { Text(text = stringResource(R.string.str_fpsgo_settings)) },
-                                        supportingContent = { 
+                                        supportingContent = {
                                             Text(
-                                                text = if (isMediaTek) 
-                                                    stringResource(R.string.str_fpsgo_desc) 
-                                                else 
+                                                text = if (isMediaTek)
+                                                    stringResource(R.string.str_fpsgo_desc)
+                                                else
                                                     stringResource(R.string.str_fpsgo_unavailable)
-                                            ) 
+                                            )
                                         },
                                         trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
                                     )
@@ -282,14 +284,14 @@ fun TweakScreen(
                     SectionLoadingIndicator()
                 }
             }
-            
+
                             item {
-                if (viewModel.preloadState != null && 
-                    viewModel.memKillerState != null && 
-                    viewModel.appPriorState != null && 
-                    viewModel.dndState != null && 
+                if (viewModel.preloadState != null &&
+                    viewModel.memKillerState != null &&
+                    viewModel.appPriorState != null &&
+                    viewModel.dndState != null &&
                     viewModel.fstrimState != null) {
-                    
+
                     TweaksSectionTitle(stringResource(R.string.section_features))
                     ExpressiveList(
                         content = buildList {
@@ -347,7 +349,7 @@ fun TweakScreen(
                             add {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.TouchApp) },
-                                    onClick = { navController.navigate("touchboost") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.TouchBoost) },
                                     headlineContent = { Text(stringResource(R.string.touch_boost_title)) },
                                     supportingContent = { Text(stringResource(R.string.touch_boost_desc)) },
                                 )
@@ -362,7 +364,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.Ballot) },
-                                    onClick = { navController.navigate("governorsettings") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.GovernorSettings) },
                                     headlineContent = { Text(stringResource(R.string.gov_settings)) },
                                     supportingContent = { Text(stringResource(R.string.gov_settingsdesc)) },
                                 )
@@ -370,7 +372,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.DeveloperBoard) },
-                                    onClick = { navController.navigate("cpucorecontrol") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.CpuCoreControl) },
                                     headlineContent = { Text(stringResource(R.string.cpu_core_control_title)) },
                                     supportingContent = { Text(stringResource(R.string.cpu_core_control_desc)) },
                                 )
@@ -384,7 +386,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.Memory) },
-                                    onClick = { navController.navigate("mtkscreen") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.MtkVendor) },
                                     headlineContent = { Text("Vendor Boost") },
                                     supportingContent = { Text("Chipset-specific game mode and thermal parameters") },
                                 )
@@ -398,7 +400,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.DeveloperBoard) },
-                                    onClick = { navController.navigate("gpustudio") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.GpuStudio) },
                                     headlineContent = { Text("GPU Reality Studio") },
                                     supportingContent = { Text("قراءة حية موثقة وتحكم يتكيف مع GPU الفعلي في جهازك") },
                                 )
@@ -413,7 +415,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.BatteryChargingFull) },
-                                    onClick = { navController.navigate("chargingscreen") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Charging) },
                                     headlineContent = { Text(stringResource(R.string.charging_title)) },
                                     supportingContent = { Text(stringResource(R.string.charging_desc)) },
                                 )
@@ -421,7 +423,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.Bedtime) },
-                                    onClick = { navController.navigate("dozemode") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.DozeMode) },
                                     headlineContent = { Text(stringResource(R.string.dozemode_title)) },
                                     supportingContent = { Text(stringResource(R.string.dozemode_menu_desc)) },
                                 )
@@ -429,7 +431,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.SdStorage) },
-                                    onClick = { navController.navigate("zrammanager") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ZramManager) },
                                     headlineContent = { Text(stringResource(R.string.zram_title)) },
                                     supportingContent = { Text(stringResource(R.string.zram_desc)) },
                                 )
@@ -437,7 +439,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.Cable) },
-                                    onClick = { navController.navigate("bypasschg") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.BypassCharging) },
                                     headlineContent = { Text(stringResource(R.string.bcharging)) },
                                     supportingContent = { Text(stringResource(R.string.bcharging_desc)) },
                                     trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
@@ -462,7 +464,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.Palette) },
-                                    onClick = { navController.navigate("displaystudio") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.DisplayStudio) },
                                     headlineContent = { Text(stringResource(R.string.display_studio_title)) },
                                     supportingContent = { Text(stringResource(R.string.display_studio_desc)) },
                                 )
@@ -470,7 +472,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.AspectRatio) },
-                                    onClick = { navController.navigate("resolutionscreen") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Resolution) },
                                     headlineContent = { Text(stringResource(R.string.resolution_title)) },
                                     supportingContent = { Text(stringResource(R.string.resolution_desc)) },
                                 )
@@ -478,7 +480,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.Speed) },
-                                    onClick = { navController.navigate("fpsoverlay") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.FpsOverlay) },
                                     headlineContent = { Text(stringResource(R.string.fps_overlay_title)) },
                                     supportingContent = { Text(stringResource(R.string.fps_overlay_menu_desc)) },
                                 )
@@ -493,7 +495,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.Hub) },
-                                    onClick = { navController.navigate("networkscheduler") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.NetworkScheduler) },
                                     headlineContent = { Text(stringResource(R.string.net_sched_title)) },
                                     supportingContent = { Text(stringResource(R.string.net_sched_menu_desc)) },
                                 )
@@ -501,7 +503,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.DeleteSweep) },
-                                    onClick = { navController.navigate("debloatfreeze") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.DebloatFreeze) },
                                     headlineContent = { Text(stringResource(R.string.debloat_freeze_title)) },
                                     supportingContent = { Text(stringResource(R.string.debloat_freeze_desc)) },
                                 )
@@ -509,7 +511,7 @@ fun TweakScreen(
                             {
                                 ExpressiveListItem(
                                     leadingContent = { LeadingIcon(icon = Icons.Outlined.Build) },
-                                    onClick = { navController.navigate("dex2oat") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Dex2oat) },
                                     headlineContent = { Text(stringResource(R.string.dex2oat_title)) },
                                     supportingContent = { Text(stringResource(R.string.dex2oat_desc)) },
                                 )
@@ -545,7 +547,7 @@ item {
                             // Display Studio is the single source of truth for refresh-rate changes.
                             // Keep this tile as a live shortcut so the value stays visible here while
                             // the actual picker remains in one place and cannot drift out of sync.
-                            navController.navigate("displaystudio")
+                            MaxNavActions(navController).navigateTo(MaxDestination.DisplayStudio)
                         }
 
                         ExpressiveTile(
@@ -565,7 +567,7 @@ item {
                     SectionLoadingIndicator()
                 }
             }
-            
+
             item { TweaksSectionTitle(stringResource(R.string.section_addons)) }
             item {
                 ExpressiveList(
@@ -573,7 +575,7 @@ item {
                         {
                             ExpressiveListItem(
                                 leadingContent = { LeadingIcon(icon = Icons.Filled.FilterBAndW) },
-                                onClick = { navController.navigate("colorscheme") },
+                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ColorScheme) },
                                 headlineContent = { Text(stringResource(R.string.color_scheme)) },
                                 supportingContent = { Text(stringResource(R.string.schemecolordesc)) },
                                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
@@ -582,7 +584,7 @@ item {
                         {
                             ExpressiveListItem(
                                 leadingContent = { LeadingIcon(icon = Icons.Filled.AddToPhotos) },
-                                onClick = { navController.navigate("preferenced") },
+                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.PreferenceTweaks) },
                                 headlineContent = { Text(stringResource(R.string.prefs)) },
                                 supportingContent = { Text(stringResource(R.string.prefsdesc)) },
                                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
@@ -593,17 +595,17 @@ item {
             }
         }
     }
-    
+
     RootAppDialog {
         BackupRestoreBottomSheet(
             show = showBackupRestoreSheet,
             onDismiss = { showBackupRestoreSheet = false },
-            onBackup = { 
+            onBackup = {
                 showBackupRestoreSheet = false
                 showBackupOptionsDialog = true
             },
-            onRestore = { 
-                openDocLauncher.launch(arrayOf("application/octet-stream", "*/*")) 
+            onRestore = {
+                openDocLauncher.launch(arrayOf("application/octet-stream", "*/*"))
             }
         )
     }
@@ -620,7 +622,7 @@ item {
                 val sdf = java.text.SimpleDateFormat("ddMMyyyy_HHmmss", java.util.Locale.getDefault())
                 val timestamp = sdf.format(java.util.Date())
                 val dynamicFileName = "MaxManagerConfig_Backup_$timestamp.zx"
-                createDocLauncher.launch(dynamicFileName) 
+                createDocLauncher.launch(dynamicFileName)
             }
         ) {
             Column {
@@ -655,13 +657,13 @@ item {
             onDismiss = { showRestoreDialog = false },
             onConfirm = {
                 showRestoreDialog = false
-                
+
 
                 pendingRestoreResult?.let { result ->
                     val dataToRestore = result.data
                     val currentSocType = PropertyUtils.get(MaxManagerProps.General.SOC_TYPE)
                     val isSocMismatch = result.socType != currentSocType
-                    
+
                     if (dataToRestore != null) {
                         scope.launch {
                             loadingDialog.withLoading {
@@ -678,7 +680,7 @@ item {
                 val socName = nd.max.ui.util.BackupManager.getSocName(result.socType)
                 val currentSocType = PropertyUtils.get(MaxManagerProps.General.SOC_TYPE)
                 val isSocMismatch = result.socType != currentSocType
-    
+
                 Column {
                     Text(
                         text = stringResource(R.string.str_backup_content_detected_select),
@@ -686,7 +688,7 @@ item {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(8.dp))
-                    
+
                     if (isSocMismatch && result.hasTweaks) {
                         Text(
                             stringResource(R.string.str_warning_backup_is_for_socname, socName),
@@ -695,11 +697,11 @@ item {
                         )
                         Spacer(Modifier.height(8.dp))
                     }
-    
+
                     if (result.hasTweaks) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().clickable { if (!isSocMismatch) optRestoreTweaks = !optRestoreTweaks }) {
                             Checkbox(
-                                checked = optRestoreTweaks && !isSocMismatch, 
+                                checked = optRestoreTweaks && !isSocMismatch,
                                 onCheckedChange = { if (!isSocMismatch) optRestoreTweaks = it },
                                 enabled = !isSocMismatch
                             )
@@ -716,7 +718,7 @@ item {
             }
         }
     }
-    
+
     RootAppDialog {
         RendererDialog(
             show = showRendererDialog,
@@ -996,7 +998,7 @@ fun FreqLimitSliderItem(
             ) {
                 if (icon != null) {
                     LeadingIcon(icon = icon, contentDescription = stringResource(R.string.freq_offset))
-                    Spacer(modifier = Modifier.width(16.dp)) 
+                    Spacer(modifier = Modifier.width(16.dp))
                 }
                 Text(
                     text = stringResource(R.string.freq_offset),
@@ -1004,7 +1006,7 @@ fun FreqLimitSliderItem(
                     color = colorScheme.onSurface
                 )
             }
-            
+
             Surface(
                 color = if (sliderValue.roundToInt() == 0) colorScheme.surfaceVariant else colorScheme.primaryContainer,
                 shape = RoundedCornerShape(12.dp)
@@ -1018,7 +1020,7 @@ fun FreqLimitSliderItem(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(12.dp))
         MaxSlider(
             value = sliderValue,

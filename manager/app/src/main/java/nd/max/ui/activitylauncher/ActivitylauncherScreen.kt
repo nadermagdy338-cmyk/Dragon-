@@ -8,6 +8,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 
 package nd.max.ui.activitylauncher
+import nd.max.ui.navigation.MaxNavActions
 
 import nd.max.ui.settings.BgType
 import nd.max.ui.settings.WeatherEffect
@@ -162,7 +163,7 @@ fun ActivityLauncherScreen(
                 
                 onBack = { rootNavController.popBackStack() },
                 onAppClick = { app ->
-                    internalNavController.navigate("app_detail/${app.packageName}")
+                    MaxNavActions(internalNavController).openActivityDetail(app.packageName)
                 }
             )
         }

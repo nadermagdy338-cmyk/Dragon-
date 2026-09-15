@@ -2,475 +2,596 @@
  * Copyright (C) 2026-2027 Zexshia
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package nd.max.ui.subscreens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.rounded.CleaningServices
+import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.PowerSettingsNew
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import kotlin.math.roundToInt
 import nd.max.R
-import nd.max.ui.component.MaxUiMetrics
-import nd.max.ui.component.*
-import nd.max.ui.mainscreens.SectionLoadingIndicator
-import nd.max.ui.viewmodel.ZramViewModel
+import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
+import nd.max.ui.design.MaxChoiceRow
+import nd.max.ui.design.MaxCondition
+import nd.max.ui.design.MaxConditionKind
+import nd.max.ui.design.MaxConfirmDialog
+import nd.max.ui.design.MaxDataTrust
+import nd.max.ui.design.MaxGroup
+import nd.max.ui.design.MaxGroupDivider
+import nd.max.ui.design.MaxMetric
+import nd.max.ui.design.MaxMetricLine
+import nd.max.ui.design.MaxMetricReadout
+import nd.max.ui.design.MaxMetricSize
+import nd.max.ui.design.MaxRow
+import nd.max.ui.design.MaxScreen
+import nd.max.ui.design.MaxSection
+import nd.max.ui.design.MaxSliderRow
+import nd.max.ui.design.MaxTone
+import nd.max.ui.viewmodel.ZramOpKind
+import nd.max.ui.viewmodel.ZramOperation
 import nd.max.ui.viewmodel.ZramSizePreset
+import nd.max.ui.viewmodel.ZramViewModel
 
+/** Size slider granularity. 256 MB is the smallest step that is meaningful for swap. */
+private const val SIZE_STEP_MB = 256
+
+private val SIZE_SLIDER_STEPS = (ZramViewModel.MAX_ZRAM_MB / SIZE_STEP_MB) - 1
+
+/**
+ * Compressed swap (ZRAM).
+ *
+ * Rebuilt on the MaxManager Design Language. What changed and why:
+ *
+ *  - The old screen showed a radial gauge and a LIVE pill above numbers that are
+ *    actually a mix of a 3 second poll and one-shot probes. Size, swap usage and
+ *    the compression counters really are polled, so they are marked Live. Codec,
+ *    swappiness, stream count and node presence are read once by loadState(), so
+ *    they are marked Snapshot. The gauge was dropped: a dial that maps swap size
+ *    against an arbitrary ceiling adds nothing the number does not already say.
+ *  - Every control used to be fire and forget, and the UI moved to the requested
+ *    value immediately. Vendor kernels routinely refuse disksize writes, so the
+ *    app claimed a state the device never had. The ViewModel now reads the value
+ *    back, and this screen renders Applying, Applied or Failed with the value
+ *    that was requested next to the value the kernel reports.
+ *  - Turning swap off and restoring defaults are destructive, so they go through
+ *    the shared confirm dialog with the exact shell effect shown in mono.
+ *  - Preset labels resolve by id through a when(), not Resources.getIdentifier().
+ *    Name based reflection returns 0 once resource shrinking runs, which is how
+ *    these labels would silently go blank in a release build.
+ *  - Sliders keep local state while dragging and commit only on release, so one
+ *    drag can no longer fire dozens of root writes at the kernel.
+ *  - The poll stops when the screen is not resumed instead of running forever.
+ */
 @Composable
 fun ZramManagerScreen(
     navController: NavController,
     viewModel: ZramViewModel = viewModel()
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val listState = rememberLazyListState()
-    val colors = MaterialTheme.colorScheme
-    val context = androidx.compose.ui.platform.LocalContext.current
+    LifecycleResumeEffect(Unit) {
+        viewModel.loadState()
+        onPauseOrDispose { viewModel.pausePolling() }
+    }
 
-    val disableConfirmDialog = rememberConfirmDialog(
-        onConfirm = { viewModel.applyPreset(ZramViewModel.SIZE_PRESETS.first { it.id == "disabled" }) },
-        onDismiss = {}
-    )
+    val operation = viewModel.operation
+    val busy = operation is ZramOperation.Applying
+    val available = viewModel.isAvailable == true
+    val canWrite = available && !busy
 
-    LaunchedEffect(Unit) { viewModel.loadState() }
+    val diskMb = viewModel.currentDiskSizeMb
+    val swapOff = diskMb <= 0
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            MaxManagerSubScreenTopBar(
-                scrollBehavior = scrollBehavior,
-                title = androidx.compose.ui.res.stringResource(R.string.zram_title),
-                onBack = { navController.popBackStack() },
-                accentIcon = Icons.Filled.Memory,
-                accent = colors.tertiary
-            )
-        },
-        containerColor = colors.surface
-    ) { innerPadding ->
-        when (viewModel.isAvailable) {
-            null -> Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                SectionLoadingIndicator()
-            }
-            false -> Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                EmptyStateCard(
-                    icon = Icons.Outlined.Memory,
-                    title = androidx.compose.ui.res.stringResource(R.string.zram_unavailable),
-                    modifier = Modifier.padding(24.dp)
+    var sizeSlider by remember { mutableStateOf(diskMb.toFloat()) }
+    LaunchedEffect(diskMb) { sizeSlider = diskMb.toFloat() }
+
+    var swappinessSlider by remember { mutableStateOf(viewModel.swappiness.toFloat()) }
+    LaunchedEffect(viewModel.swappiness) { swappinessSlider = viewModel.swappiness.toFloat() }
+
+    var confirmDisable by remember { mutableStateOf(false) }
+    var confirmCompact by remember { mutableStateOf(false) }
+    var confirmReset by remember { mutableStateOf(false) }
+
+    val sysfsSource = stringResource(R.string.max_zram_source_sysfs)
+    val swapsSource = stringResource(R.string.max_zram_source_swaps)
+    val vmSource = stringResource(R.string.max_zram_source_vm)
+    val unitMb = stringResource(R.string.max_zram_unit_mb)
+    val offLabel = stringResource(R.string.max_zram_swap_off)
+    val busyReason = stringResource(R.string.max_zram_applying_detail)
+    val rootReason = stringResource(R.string.max_zram_locked_root)
+    val supportedLabel = stringResource(R.string.zram_hw_supported)
+    val unsupportedLabel = stringResource(R.string.zram_hw_unsupported)
+
+    // Compression ratio is derived, never invented: without both counters the
+    // metric is unreadable rather than silently shown as zero.
+    val origMb = viewModel.origDataMb
+    val compMb = viewModel.compDataMb
+    val ratio = if (origMb > 0 && compMb > 0) origMb.toFloat() / compMb.toFloat() else null
+    val ratioText = ratio?.let { stringResource(R.string.max_zram_ratio_value, "%.2f".format(it)) }
+
+    val condition = when (viewModel.isAvailable) {
+        null -> MaxCondition(
+            kind = MaxConditionKind.Loading,
+            title = stringResource(R.string.max_zram_probe_title),
+            detail = stringResource(R.string.max_zram_probe_detail)
+        )
+
+        false -> MaxCondition(
+            kind = MaxConditionKind.Unsupported,
+            title = stringResource(R.string.zram_unavailable),
+            detail = stringResource(R.string.max_zram_unsupported_detail),
+            technicalDetail = "/sys/block/zram0/disksize",
+            primaryActionLabel = stringResource(R.string.max_action_recheck),
+            onPrimaryAction = { viewModel.loadState() }
+        )
+
+        else -> null
+    }
+
+    val banner = when (operation) {
+        null -> null
+
+        is ZramOperation.Applying -> MaxCondition(
+            kind = MaxConditionKind.Applying,
+            title = applyingTitle(operation.kind),
+            detail = stringResource(R.string.max_zram_applying_detail)
+        )
+
+        is ZramOperation.Applied -> MaxCondition(
+            kind = MaxConditionKind.Applied,
+            title = stringResource(R.string.max_zram_applied_title),
+            detail = appliedDetail(operation),
+            primaryActionLabel = stringResource(R.string.max_action_dismiss),
+            onPrimaryAction = { viewModel.clearOperation() }
+        )
+
+        is ZramOperation.Failed -> MaxCondition(
+            kind = MaxConditionKind.Failed,
+            title = stringResource(R.string.max_zram_failed_title),
+            detail = failedDetail(operation),
+            technicalDetail = stringResource(R.string.max_zram_failed_detail),
+            primaryActionLabel = stringResource(R.string.max_action_dismiss),
+            onPrimaryAction = { viewModel.clearOperation() }
+        )
+    }
+
+    MaxScreen(
+        title = stringResource(R.string.zram_title),
+        subtitle = stringResource(R.string.zram_desc),
+        onBack = { navController.popBackStack() },
+        accentIcon = Icons.Rounded.Memory,
+        condition = condition,
+        banner = banner,
+        actions = {
+            IconButton(onClick = { viewModel.loadState() }, enabled = !busy) {
+                Icon(
+                    imageVector = Icons.Rounded.Refresh,
+                    contentDescription = stringResource(R.string.max_action_refresh)
                 )
             }
-            true -> LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    top = innerPadding.calculateTopPadding() + 14.dp,
-                    start = MaxUiMetrics.screenHorizontalPadding,
-                    end = MaxUiMetrics.screenHorizontalPadding,
-                    bottom = MaxUiMetrics.screenBottomPadding + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                ),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                item {
-                    ZramHero(
-                        sizeMb = viewModel.currentDiskSizeMb,
-                        usedMb = viewModel.usedSwapMb,
-                        totalSwapMb = viewModel.totalSwapMb,
-                        algorithm = viewModel.compAlgorithm,
-                        efficiency = viewModel.efficiencyRatio,
-                        active = viewModel.swapPriority != null
+        }
+    ) {
+        // ---- What the kernel reports right now -------------------------------
+        MaxSection(
+            title = stringResource(R.string.zram_gauge_title),
+            description = stringResource(R.string.max_zram_section_state_desc)
+        ) {
+            MaxGroup {
+                MaxMetricReadout(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.max_zram_metric_size),
+                        value = if (swapOff) offLabel else diskMb.toString(),
+                        unit = if (swapOff) null else unitMb,
+                        trust = MaxDataTrust.Live,
+                        source = sysfsSource
+                    ),
+                    size = MaxMetricSize.Large
+                )
+                MaxGroupDivider()
+                MaxMetricLine(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.max_zram_metric_used),
+                        value = if (swapOff) offLabel else viewModel.usedSwapMb.toString(),
+                        unit = if (swapOff) null else unitMb,
+                        trust = MaxDataTrust.Live,
+                        source = swapsSource
+                    )
+                )
+                MaxGroupDivider()
+                MaxMetricLine(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.max_zram_metric_ratio),
+                        value = ratioText,
+                        trust = if (ratio == null) MaxDataTrust.Unreadable else MaxDataTrust.Live,
+                        source = sysfsSource
+                    )
+                )
+                MaxGroupDivider()
+                MaxMetricLine(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.max_zram_metric_saved),
+                        value = if (ratio == null) null else viewModel.ramSavedMb.toString(),
+                        unit = if (ratio == null) null else unitMb,
+                        trust = if (ratio == null) MaxDataTrust.Unreadable else MaxDataTrust.Live,
+                        source = sysfsSource
+                    )
+                )
+            }
+        }
+
+        // ---- Size -------------------------------------------------------------
+        MaxSection(
+            title = stringResource(R.string.zram_presets_title),
+            description = stringResource(R.string.max_zram_section_size_desc)
+        ) {
+            MaxGroup {
+                ZramViewModel.SIZE_PRESETS.forEachIndexed { index, preset ->
+                    if (index > 0) MaxGroupDivider()
+                    MaxChoiceRow(
+                        title = presetLabel(preset),
+                        subtitle = if (preset.mb <= 0) {
+                            stringResource(R.string.zram_preset_disabled_desc)
+                        } else {
+                            stringResource(R.string.max_zram_custom_value, preset.mb.toString())
+                        },
+                        selected = viewModel.selectedPresetId == preset.id,
+                        enabled = canWrite,
+                        lockedReason = if (busy) busyReason else null,
+                        onSelect = {
+                            if (preset.mb <= 0) confirmDisable = true else viewModel.applyPreset(preset)
+                        }
                     )
                 }
-
-                item {
-                    ZramMemoryBreakdown(
-                        usedMb = viewModel.usedSwapMb,
-                        totalMb = viewModel.totalSwapMb,
-                        originalMb = viewModel.origDataMb,
-                        compressedMb = viewModel.compDataMb,
-                        savedMb = viewModel.ramSavedMb
-                    )
-                }
-
-                item {
-                    SectionHeader(
-                        title = androidx.compose.ui.res.stringResource(R.string.zram_tuning_title),
-                        subtitle = "Change the values that directly control compressed swap."
-                    )
-                }
-
-                item {
-                    var sizeSlider by remember(viewModel.currentDiskSizeMb) {
-                        mutableFloatStateOf(viewModel.currentDiskSizeMb.toFloat())
+            }
+            MaxGroup {
+                MaxSliderRow(
+                    title = stringResource(R.string.zram_custom_size),
+                    subtitle = stringResource(R.string.zram_custom_size_desc),
+                    value = sizeSlider,
+                    onValueChange = { sizeSlider = it },
+                    valueRange = 0f..ZramViewModel.MAX_ZRAM_MB.toFloat(),
+                    steps = SIZE_SLIDER_STEPS,
+                    valueText = snapSizeMb(sizeSlider).let { target ->
+                        if (target <= 0) {
+                            offLabel
+                        } else {
+                            stringResource(R.string.max_zram_custom_value, target.toString())
+                        }
+                    },
+                    enabled = canWrite,
+                    lockedReason = if (busy) busyReason else null,
+                    onValueChangeFinished = {
+                        val target = snapSizeMb(sizeSlider)
+                        if (target <= 0) confirmDisable = true else viewModel.applyCustomSizeMb(target)
                     }
-                    ZramSizeCard(
-                        valueMb = sizeSlider.toInt(),
-                        maxMb = ZramViewModel.MAX_ZRAM_MB,
-                        onValueChange = { sizeSlider = it },
-                        onFinished = { viewModel.applyCustomSizeMb(sizeSlider.toInt()) }
-                    )
-                }
+                )
+            }
+        }
 
-                if (viewModel.availableCompAlgorithms.size > 1) {
-                    item {
-                        ZramAlgorithmCard(
-                            algorithms = viewModel.availableCompAlgorithms,
-                            selected = viewModel.compAlgorithm,
-                            onSelected = viewModel::setCompAlgorithm
+        // ---- Codec ------------------------------------------------------------
+        MaxSection(
+            title = stringResource(R.string.zram_algo_title),
+            description = stringResource(R.string.max_zram_section_codec_desc)
+        ) {
+            val algorithms = viewModel.availableCompAlgorithms
+            MaxGroup {
+                if (algorithms.isEmpty()) {
+                    // The kernel did not publish a codec list. Show what is in use
+                    // instead of an empty section that looks broken.
+                    MaxMetricLine(
+                        metric = MaxMetric(
+                            label = stringResource(R.string.max_zram_metric_algo),
+                            value = viewModel.compAlgorithm,
+                            trust = MaxDataTrust.Snapshot,
+                            source = sysfsSource,
+                            note = stringResource(R.string.zram_algo_desc)
+                        )
+                    )
+                } else {
+                    algorithms.forEachIndexed { index, algorithm ->
+                        if (index > 0) MaxGroupDivider()
+                        val description = algorithmDescription(algorithm)
+                        MaxChoiceRow(
+                            // The kernel token itself is the honest label here.
+                            title = algorithm,
+                            subtitle = description?.let { stringResource(it) },
+                            selected = algorithm.equals(viewModel.compAlgorithm, ignoreCase = true),
+                            enabled = canWrite,
+                            lockedReason = if (busy) busyReason else null,
+                            onSelect = { viewModel.setCompAlgorithm(algorithm) }
                         )
                     }
                 }
+            }
+        }
 
-                item {
-                    var slider by remember(viewModel.swappiness) {
-                        mutableFloatStateOf(viewModel.swappiness.toFloat())
+        // ---- Memory pressure ---------------------------------------------------
+        MaxSection(
+            title = stringResource(R.string.zram_tuning_title),
+            description = stringResource(R.string.max_zram_section_pressure_desc)
+        ) {
+            MaxGroup {
+                MaxSliderRow(
+                    title = stringResource(R.string.zram_swappiness),
+                    subtitle = stringResource(R.string.zram_swappiness_desc),
+                    value = swappinessSlider,
+                    onValueChange = { swappinessSlider = it },
+                    valueRange = 0f..200f,
+                    valueText = if (viewModel.swappinessKnown) {
+                        swappinessSlider.roundToInt().toString()
+                    } else {
+                        MAX_VALUE_UNAVAILABLE
+                    },
+                    enabled = canWrite && viewModel.swappinessKnown,
+                    lockedReason = when {
+                        busy -> busyReason
+                        !viewModel.swappinessKnown -> rootReason
+                        else -> null
+                    },
+                    onValueChangeFinished = {
+                        viewModel.applySwappiness(swappinessSlider.roundToInt())
                     }
-                    ZramSwappinessCard(
-                        value = slider.toInt(),
-                        onValueChange = { slider = it },
-                        onFinished = { viewModel.applySwappiness(slider.toInt()) }
+                )
+                MaxGroupDivider()
+                MaxMetricLine(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.max_zram_metric_swappiness),
+                        value = if (viewModel.swappinessKnown) viewModel.swappiness.toString() else null,
+                        trust = if (viewModel.swappinessKnown) {
+                            MaxDataTrust.Snapshot
+                        } else {
+                            MaxDataTrust.Unreadable
+                        },
+                        source = vmSource
                     )
-                }
+                )
+            }
+        }
 
-                item {
-                    SectionHeader(
-                        title = androidx.compose.ui.res.stringResource(R.string.zram_presets_title),
-                        subtitle = "Shortcuts for common memory profiles."
+        // ---- Maintenance --------------------------------------------------------
+        MaxSection(
+            title = stringResource(R.string.zram_instant_tools_title),
+            description = stringResource(R.string.max_zram_section_maintenance_desc)
+        ) {
+            MaxGroup {
+                MaxRow(
+                    title = stringResource(R.string.zram_compact_button),
+                    subtitle = if (viewModel.kernelCompactionSupported) {
+                        stringResource(R.string.max_zram_compact_confirm_body)
+                    } else {
+                        stringResource(R.string.max_zram_compaction_unsupported)
+                    },
+                    icon = Icons.Rounded.CleaningServices,
+                    iconTone = MaxTone.Accent,
+                    enabled = canWrite && viewModel.kernelCompactionSupported,
+                    onClick = { confirmCompact = true }
+                )
+                MaxGroupDivider()
+                MaxRow(
+                    title = stringResource(R.string.zram_reset_button),
+                    subtitle = stringResource(R.string.max_zram_reset_confirm_body),
+                    icon = Icons.Rounded.RestartAlt,
+                    iconTone = MaxTone.Caution,
+                    enabled = canWrite,
+                    onClick = { confirmReset = true }
+                )
+            }
+        }
+
+        // ---- Provenance ----------------------------------------------------------
+        MaxSection(title = stringResource(R.string.zram_hw_arch_title)) {
+            MaxGroup {
+                MaxMetricLine(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.zram_hw_block_device),
+                        value = if (viewModel.blockDeviceNodeExists) supportedLabel else unsupportedLabel,
+                        trust = MaxDataTrust.Snapshot,
+                        source = "/dev/block/zram0"
                     )
-                }
-
-                item {
-                    ZramPresetStrip(
-                        selected = viewModel.selectedPresetId,
-                        onSelect = { preset ->
-                            if (preset.id == "disabled") {
-                                disableConfirmDialog.showConfirm(
-                                    title = context.getString(R.string.zram_disable_confirm_title),
-                                    content = context.getString(R.string.zram_disable_confirm_body),
-                                    confirm = context.getString(R.string.yes),
-                                    dismiss = context.getString(R.string.no)
-                                )
-                            } else viewModel.applyPreset(preset)
-                        }
+                )
+                MaxGroupDivider()
+                MaxMetricLine(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.zram_hw_swap_status),
+                        value = if (viewModel.totalSwapMb > 0) {
+                            stringResource(R.string.zram_hw_swap_active)
+                        } else {
+                            stringResource(R.string.zram_hw_swap_inactive)
+                        },
+                        trust = MaxDataTrust.Live,
+                        source = swapsSource
                     )
-                }
-
-                item {
-                    SectionHeader(
-                        title = androidx.compose.ui.res.stringResource(R.string.zram_hw_arch_title),
-                        subtitle = "Read-only kernel facts detected from this device."
+                )
+                MaxGroupDivider()
+                MaxMetricLine(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.max_zram_metric_priority),
+                        value = viewModel.swapPriority?.toString(),
+                        trust = if (viewModel.swapPriority == null) {
+                            MaxDataTrust.Unreadable
+                        } else {
+                            MaxDataTrust.Live
+                        },
+                        source = swapsSource
                     )
-                }
-
-                item {
-                    ZramKernelFacts(
-                        blockDevice = viewModel.blockDeviceNodeExists,
-                        priority = viewModel.swapPriority,
-                        compaction = viewModel.kernelCompactionSupported,
-                        streams = viewModel.multiStreamCount
+                )
+                MaxGroupDivider()
+                MaxMetricLine(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.zram_hw_streams),
+                        value = viewModel.multiStreamCount?.toString(),
+                        trust = if (viewModel.multiStreamCount == null) {
+                            MaxDataTrust.Unreadable
+                        } else {
+                            MaxDataTrust.Snapshot
+                        },
+                        source = sysfsSource
                     )
-                }
-
-                item {
-                    SectionHeader(
-                        title = androidx.compose.ui.res.stringResource(R.string.zram_instant_tools_title),
-                        subtitle = "Maintenance actions use the live kernel nodes."
+                )
+                MaxGroupDivider()
+                MaxMetricLine(
+                    metric = MaxMetric(
+                        label = stringResource(R.string.zram_hw_compaction),
+                        value = if (viewModel.kernelCompactionSupported) {
+                            supportedLabel
+                        } else {
+                            unsupportedLabel
+                        },
+                        trust = MaxDataTrust.Snapshot,
+                        source = vmSource
                     )
-                }
-
-                item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        OutlinedButton(
-                            modifier = Modifier.weight(1f),
-                            onClick = viewModel::compactZram
-                        ) {
-                            Icon(Icons.Outlined.Compress, null, Modifier.size(18.dp))
-                            Spacer(Modifier.width(7.dp))
-                            Text(androidx.compose.ui.res.stringResource(R.string.zram_compact_button))
-                        }
-                        OutlinedButton(
-                            modifier = Modifier.weight(1f),
-                            onClick = viewModel::resetToDefault,
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.error),
-                            border = BorderStroke(1.dp, colors.error.copy(alpha = .45f))
-                        ) {
-                            Icon(Icons.Outlined.RestartAlt, null, Modifier.size(18.dp))
-                            Spacer(Modifier.width(7.dp))
-                            Text(androidx.compose.ui.res.stringResource(R.string.zram_reset_button))
-                        }
-                    }
-                }
-
-                item {
-                    Surface(
-                        shape = MaterialTheme.shapes.large,
-                        color = colors.surfaceContainerLow,
-                        border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .65f))
-                    ) {
-                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.Top) {
-                            Icon(Icons.Outlined.Info, null, tint = colors.onSurfaceVariant, modifier = Modifier.size(20.dp))
-                            Spacer(Modifier.width(10.dp))
-                            Text(
-                                androidx.compose.ui.res.stringResource(R.string.zram_safety_note),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colors.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
+                )
             }
         }
     }
 
-    ConfirmDialogHost(handle = disableConfirmDialog)
+    MaxConfirmDialog(
+        visible = confirmDisable,
+        title = stringResource(R.string.zram_disable_confirm_title),
+        message = stringResource(R.string.zram_disable_confirm_body),
+        technicalDetail = "swapoff /sys/block/zram0",
+        confirmLabel = stringResource(R.string.max_action_turn_off),
+        icon = Icons.Rounded.PowerSettingsNew,
+        destructive = true,
+        onConfirm = {
+            val disabled = ZramViewModel.SIZE_PRESETS.first { it.mb <= 0 }
+            viewModel.applyPreset(disabled)
+        },
+        onDismiss = {
+            confirmDisable = false
+            // Put the slider back where the kernel actually is, so a cancelled
+            // confirmation never leaves the UI showing a value that was refused.
+            sizeSlider = diskMb.toFloat()
+        }
+    )
+
+    MaxConfirmDialog(
+        visible = confirmCompact,
+        title = stringResource(R.string.max_zram_compact_confirm_title),
+        message = stringResource(R.string.max_zram_compact_confirm_body),
+        technicalDetail = "echo 1 > /proc/sys/vm/compact_memory",
+        confirmLabel = stringResource(R.string.zram_compact_button),
+        icon = Icons.Rounded.CleaningServices,
+        onConfirm = { viewModel.compactZram() },
+        onDismiss = { confirmCompact = false }
+    )
+
+    MaxConfirmDialog(
+        visible = confirmReset,
+        title = stringResource(R.string.max_zram_reset_confirm_title),
+        message = stringResource(R.string.max_zram_reset_confirm_body),
+        technicalDetail = "mkswap + swapon /sys/block/zram0",
+        confirmLabel = stringResource(R.string.zram_reset_button),
+        icon = Icons.Rounded.RestartAlt,
+        destructive = true,
+        onConfirm = { viewModel.resetToDefault() },
+        onDismiss = { confirmReset = false }
+    )
+}
+
+/** Snaps a raw slider position to the 256 MB grid the kernel is asked for. */
+private fun snapSizeMb(value: Float): Int =
+    ((value / SIZE_STEP_MB).roundToInt() * SIZE_STEP_MB)
+        .coerceIn(0, ZramViewModel.MAX_ZRAM_MB)
+
+/**
+ * Preset labels resolve by id, not by the label name stored on the preset.
+ * Resources.getIdentifier() returns 0 once resource shrinking runs, and a label
+ * that silently disappears in release builds is worse than a compile-time when.
+ */
+@Composable
+private fun presetLabel(preset: ZramSizePreset): String = stringResource(
+    when (preset.id) {
+        "disabled" -> R.string.zram_preset_disabled
+        "light" -> R.string.zram_preset_light
+        "stock" -> R.string.zram_preset_stock
+        "power" -> R.string.zram_preset_power
+        else -> R.string.zram_custom_size
+    }
+)
+
+/** Known kernel codecs get an explanation; unknown ones are shown without one. */
+private fun algorithmDescription(algorithm: String): Int? = when (algorithm.lowercase()) {
+    "lz4" -> R.string.zram_algo_lz4_desc
+    "zstd" -> R.string.zram_algo_zstd_desc
+    "lzo-rle" -> R.string.zram_algo_lzorle_desc
+    "lzo" -> R.string.zram_algo_lzo_desc
+    else -> null
 }
 
 @Composable
-private fun ZramHero(sizeMb: Int, usedMb: Int, totalSwapMb: Int, algorithm: String, efficiency: Float, active: Boolean) {
-    val colors = MaterialTheme.colorScheme
-    val fraction = if (totalSwapMb > 0) (usedMb.toFloat() / totalSwapMb).coerceIn(0f, 1f) else 0f
-    val sizeText = if (sizeMb >= 1024) String.format("%.1f GB", sizeMb / 1024f) else "$sizeMb MB"
-    Surface(
-        shape = MaterialTheme.shapes.extraLarge,
-        color = colors.surfaceContainerHigh,
-        border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .7f))
-    ) {
-        Column(Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(shape = MaterialTheme.shapes.large, color = colors.tertiaryContainer) {
-                    Icon(Icons.Filled.Memory, null, tint = colors.onTertiaryContainer, modifier = Modifier.padding(11.dp).size(24.dp))
-                }
-                Spacer(Modifier.width(12.dp))
-                Column(Modifier.weight(1f)) {
-                    Text("Compressed memory", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                    Text("ZRAM-backed swap", style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
-                }
-                StatusPill(if (active) "ACTIVE" else "IDLE", active)
-            }
-            Spacer(Modifier.height(22.dp))
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(sizeText, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.width(8.dp))
-                Text("configured", style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant, modifier = Modifier.padding(bottom = 6.dp))
-            }
-            Spacer(Modifier.height(14.dp))
-            LinearProgressIndicator(
-                progress = { fraction },
-                modifier = Modifier.fillMaxWidth().height(7.dp),
-                color = colors.tertiary,
-                trackColor = colors.surfaceContainerHighest
-            )
-            Spacer(Modifier.height(9.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("${usedMb} MB used", style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
-                Text("$totalSwapMb MB swap", style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
-            }
-            Spacer(Modifier.height(18.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                MetricChip("Codec", algorithm.uppercase(), Modifier.weight(1f))
-                MetricChip("Ratio", String.format("%.2f×", efficiency), Modifier.weight(1f))
-            }
+private fun applyingTitle(kind: ZramOpKind): String = stringResource(
+    when (kind) {
+        ZramOpKind.Size -> R.string.max_zram_applying_size
+        ZramOpKind.Swappiness -> R.string.max_zram_applying_swappiness
+        ZramOpKind.Algorithm -> R.string.max_zram_applying_algorithm
+        ZramOpKind.Compact -> R.string.max_zram_applying_compact
+        ZramOpKind.Reset -> R.string.max_zram_applying_reset
+    }
+)
+
+@Composable
+private fun appliedDetail(operation: ZramOperation.Applied): String {
+    val value = operation.value ?: MAX_VALUE_UNAVAILABLE
+    return when (operation.kind) {
+        ZramOpKind.Size -> stringResource(R.string.max_zram_applied_size, value)
+        ZramOpKind.Swappiness -> stringResource(R.string.max_zram_applied_swappiness, value)
+        ZramOpKind.Algorithm -> stringResource(R.string.max_zram_applied_algorithm, value)
+        ZramOpKind.Compact -> stringResource(R.string.max_zram_applied_compact)
+        ZramOpKind.Reset -> stringResource(R.string.max_zram_applied_reset)
+    }
+}
+
+/**
+ * Failure copy states the requested value next to the value the kernel reports.
+ * That difference is the whole diagnosis, so it is never reduced to a generic
+ * error message.
+ */
+@Composable
+private fun failedDetail(operation: ZramOperation.Failed): String {
+    val requested = operation.requested ?: MAX_VALUE_UNAVAILABLE
+    val actual = operation.actual
+    return when (operation.kind) {
+        ZramOpKind.Compact -> stringResource(R.string.max_zram_failed_compact)
+        ZramOpKind.Size, ZramOpKind.Reset -> if (actual == null) {
+            stringResource(R.string.max_zram_failed_unreadable, requested)
+        } else {
+            stringResource(R.string.max_zram_failed_size, requested, actual)
+        }
+
+        ZramOpKind.Swappiness -> if (actual == null) {
+            stringResource(R.string.max_zram_failed_unreadable, requested)
+        } else {
+            stringResource(R.string.max_zram_failed_swappiness, requested, actual)
+        }
+
+        ZramOpKind.Algorithm -> if (actual == null) {
+            stringResource(R.string.max_zram_failed_unreadable, requested)
+        } else {
+            stringResource(R.string.max_zram_failed_algorithm, requested, actual)
         }
     }
-}
-
-@Composable
-private fun ZramMemoryBreakdown(usedMb: Int, totalMb: Int, originalMb: Int, compressedMb: Int, savedMb: Int) {
-    val colors = MaterialTheme.colorScheme
-    Surface(shape = MaterialTheme.shapes.extraLarge, color = colors.surfaceContainerLow, border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .55f))) {
-        Column(Modifier.padding(16.dp)) {
-            Text("Memory accounting", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(12.dp))
-            InfoRow("Swap in use", "$usedMb / $totalMb MB")
-            InfoRow("Original data", "$originalMb MB")
-            InfoRow("Compressed data", "$compressedMb MB")
-            InfoRow("RAM saved", "$savedMb MB", emphasize = true)
-        }
-    }
-}
-
-@Composable
-private fun ZramSizeCard(valueMb: Int, maxMb: Int, onValueChange: (Float) -> Unit, onFinished: () -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    Surface(shape = MaterialTheme.shapes.extraLarge, color = colors.surfaceContainerLow, border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .55f))) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("ZRAM size", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    Text("0–${maxMb / 1024} GB kernel-backed compressed swap", style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
-                }
-                ValueBadge(if (valueMb >= 1024) String.format("%.1f GB", valueMb / 1024f) else "$valueMb MB")
-            }
-            Spacer(Modifier.height(8.dp))
-            MaxSlider(value = valueMb.toFloat(), onValueChange = onValueChange, onValueChangeFinished = onFinished, valueRange = 0f..maxMb.toFloat(), steps = 31)
-        }
-    }
-}
-
-@Composable
-private fun ZramAlgorithmCard(algorithms: List<String>, selected: String, onSelected: (String) -> Unit) {
-    Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))) {
-        Column(Modifier.padding(16.dp)) {
-            Text("Compression algorithm", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Text("Only algorithms exposed by this kernel are shown.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(10.dp))
-            algorithms.forEach { algo ->
-                val checked = selected == algo
-                Row(
-                    modifier = Modifier.fillMaxWidth().clickable { onSelected(algo) }.padding(vertical = 9.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(selected = checked, onClick = { onSelected(algo) })
-                    Spacer(Modifier.width(8.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(algoLabelLocal(algo), style = MaterialTheme.typography.bodyLarge, fontWeight = if (checked) FontWeight.Medium else FontWeight.Normal)
-                        val desc = algoDescLocal(algo)
-                        if (desc.isNotEmpty()) Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ZramSwappinessCard(value: Int, onValueChange: (Float) -> Unit, onFinished: () -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    Surface(shape = MaterialTheme.shapes.extraLarge, color = colors.surfaceContainerLow, border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .55f))) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("Swappiness", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    Text("How readily the kernel moves pages into swap.", style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
-                }
-                ValueBadge(value.toString())
-            }
-            MaxSlider(value = value.toFloat(), onValueChange = onValueChange, onValueChangeFinished = onFinished, valueRange = 0f..200f, steps = 19)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Prefer RAM", style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
-                Text("Swap sooner", style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
-            }
-        }
-    }
-}
-
-@Composable
-private fun ZramPresetStrip(selected: String, onSelect: (ZramSizePreset) -> Unit) {
-    // Kept as a small horizontal choice surface rather than another tall list of cards.
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-        ZramViewModel.SIZE_PRESETS.forEach { preset ->
-            val selectedNow = selected == preset.id
-            val label = when (preset.id) { "disabled" -> "Off"; "light" -> "4 GB"; "stock" -> "8 GB"; "power" -> "12 GB"; else -> preset.id }
-            FilterChip(selected = selectedNow, onClick = { onSelect(preset) }, label = { Text(label) }, leadingIcon = if (selectedNow) ({ Icon(Icons.Filled.Check, null, Modifier.size(16.dp)) }) else null)
-        }
-    }
-}
-
-@Composable
-private fun ZramKernelFacts(blockDevice: Boolean, priority: Int?, compaction: Boolean, streams: Int?) {
-    Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))) {
-        Column {
-            FactRow("/dev/block/zram0", if (blockDevice) "Available" else "Not detected", blockDevice)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .35f))
-            FactRow("Swap", priority?.let { "Active · priority $it" } ?: "Inactive", priority != null)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .35f))
-            FactRow("Memory compaction", if (compaction) "Supported" else "Not detected", compaction)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .35f))
-            FactRow("Compression streams", streams?.toString() ?: "Not exposed", streams != null)
-        }
-    }
-}
-
-@Composable
-private fun FactRow(label: String, value: String, ok: Boolean) {
-    Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(if (ok) Icons.Filled.CheckCircle else Icons.Outlined.HelpOutline, null, tint = if (ok) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(19.dp))
-        Spacer(Modifier.width(10.dp))
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-        Text(value, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-@Composable
-private fun SectionHeader(title: String, subtitle: String) {
-    Column(Modifier.padding(horizontal = 2.dp)) {
-        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-        Spacer(Modifier.height(2.dp))
-        Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-@Composable
-private fun InfoRow(label: String, value: String, emphasize: Boolean = false) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = if (emphasize) FontWeight.SemiBold else FontWeight.Medium)
-    }
-}
-
-@Composable
-private fun MetricChip(label: String, value: String, modifier: Modifier = Modifier) {
-    Surface(modifier, shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerHighest) {
-        Column(Modifier.padding(horizontal = 12.dp, vertical = 9.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(value, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-        }
-    }
-}
-
-@Composable
-private fun ValueBadge(text: String) {
-    Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.tertiaryContainer) {
-        Text(text, Modifier.padding(horizontal = 10.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onTertiaryContainer, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@Composable
-private fun StatusPill(text: String, active: Boolean) {
-    val colors = MaterialTheme.colorScheme
-    Surface(shape = MaterialTheme.shapes.medium, color = if (active) colors.tertiaryContainer else colors.surfaceContainerHighest) {
-        Text(text, Modifier.padding(horizontal = 9.dp, vertical = 6.dp), style = MaterialTheme.typography.labelSmall, color = if (active) colors.onTertiaryContainer else colors.onSurfaceVariant, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-private fun EmptyStateCard(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, modifier: Modifier = Modifier) {
-    Surface(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-        Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
-            Spacer(Modifier.height(12.dp))
-            Text(title, style = MaterialTheme.typography.titleMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-        }
-    }
-}
-
-private fun algoLabelLocal(id: String): String = when (id) {
-    "lz4" -> "LZ4 · fast"
-    "zstd" -> "ZSTD · high compression"
-    "lzo-rle" -> "LZO-RLE · balanced"
-    "lzo" -> "LZO · legacy"
-    "842" -> "842"
-    else -> id.uppercase()
-}
-
-private fun algoDescLocal(id: String): String = when (id) {
-    "lz4" -> "Lower compression overhead and generally low CPU cost."
-    "zstd" -> "Higher compression with more CPU work."
-    "lzo-rle" -> "A balanced kernel compression option."
-    "lzo" -> "Older compatibility-oriented compressor."
-    else -> ""
 }

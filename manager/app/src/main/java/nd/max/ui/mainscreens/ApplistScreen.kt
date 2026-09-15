@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.navigation.MaxNavActions
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -225,7 +226,7 @@ fun ApplistScreen(navController: NavController) {
                                 ApplistItem(
                                     app = app,
                                     onClick = {
-                                        navController.navigate("app_settings/${app.packageName}")
+                                        MaxNavActions(navController).openApp(app.packageName)
                                     }
                                 )
                             }

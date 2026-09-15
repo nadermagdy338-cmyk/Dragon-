@@ -298,7 +298,7 @@ class MaxAiEngine @Inject constructor(
         // نُفِّذ وتُحقق منه: انتظر استجابة النظام ثم قِس الأثر الفعلي.
         delay(RESPONSE_WINDOW_MS)
         val after = runCatching { DeviceStateCollector.collect(appContext) }.getOrNull()
-        val postSafety = safetyGovernor.enforcePost(step, outcome, after, TOKEN)
+        val postSafety = safetyGovernor.enforcePost(step, outcome, after, TOKEN, appContextKey)
         if (postSafety.safetyReason == "post-veto") {
             bumpCounter(PREF_BLOCKED)
             DiagnosticCenter.record("maxai", postSafety.outcome.detail)

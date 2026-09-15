@@ -44,6 +44,7 @@ fun HomeScreen(
     maxAiViewModel: nd.max.ui.viewmodel.MaxAiViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val context = LocalContext.current
+    val navActions = nd.max.ui.navigation.MaxNavActions(navController)
     val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
     val ui by homeViewModel.uiState.collectAsStateWithLifecycle()
     val dashboard by dashboardViewModel.dashboardState.collectAsStateWithLifecycle()
@@ -151,7 +152,7 @@ fun HomeDashboardContent(
                     onNavigate = onNavigate,
                     onProfile = onProfile,
                     onReboot = onReboot,
-                    onSettings = { onNavigate("settings") },
+                    onSettings = { navActions.navigateTo(nd.max.ui.navigation.MaxDestination.Settings) },
                     onAiRetry = onAiRetry
                 )
             }

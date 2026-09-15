@@ -103,7 +103,12 @@ class HardwareControlArbiter @Inject constructor() {
             list?.removeAll { it.token == token }
             val wasWinner = journal.winner(key)?.token == token
             journal.removeToken(key, token)
-            if (ControlOwnership.isOwner(key, token)) ControlOwnership.release(key, token)
+            // Release unconditionally: a stale lease for this token (written
+            // before a failed reconcile, or by another process path) would
+            // otherwise leak indefinitely and keep blocking future owners.
+            // ControlOwnership.release is token-guarded and returns false
+            // safely when the current lease belongs to a different token.
+            ControlOwnership.release(key, token)
 
             val localWinner = localRequestFor(journal.winner(key))
             if (localWinner != null) return@sharedTransaction reconcileLocked(key, journal)

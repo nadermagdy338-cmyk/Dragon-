@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    MaxManager Design Language vocabulary.
+
+    Kept in a separate file from strings.xml so the shared UI vocabulary is
+    reviewable on its own and cannot be lost in the 100k+ product string file.
+    These strings describe how trustworthy a reading is; they are shown next to
+    every telemetry value in the app.
+-->
+<resources>
+    <!-- Data trust vocabulary -->
+    <string name="max_trust_live">Live</string>
+    <string name="max_trust_stale">Last sample</string>
+    <string name="max_trust_snapshot">Snapshot</string>
+    <string name="max_trust_unreadable">No reading</string>
+    <string name="max_trust_unsupported">Not supported</string>
+
+    <!-- Provenance line -->
+    <string name="max_source_label">Source</string>
+    <string name="max_updated_label">Updated</string>
+    <string name="max_provenance_separator">" · "</string>
+
+    <!-- Accessibility -->
+    <string name="max_value_unavailable_a11y">no value available</string>
+    <string name="max_expand_section">Show details</string>
+    <string name="max_collapse_section">Hide details</string>
+</resources>

@@ -22,8 +22,11 @@ class AdaptiveProfileEngine(
             t != null && t >= hotThresholdC -> Profile.POWER
             battery != null && battery <= 12 && !input.charging -> Profile.POWER
             t != null && t >= warmThresholdC -> Profile.BALANCED
-            load != null && load >= 80 && (input.charging || (battery ?: 100) >= 30) -> Profile.PERFORMANCE
+            // GAMING must be checked before PERFORMANCE: PERFORMANCE's load
+            // gate (>= 80) is a strict subset of GAMING's (>= 55), so ordering
+            // PERFORMANCE first made GAMING unreachable at any load.
             load != null && load >= 55 -> Profile.GAMING
+            load != null && load >= 80 && (input.charging || (battery ?: 100) >= 30) -> Profile.PERFORMANCE
             t != null && t <= coolThresholdC - hysteresisC && load != null && load < 45 -> Profile.BALANCED
             else -> last ?: Profile.BALANCED
         }

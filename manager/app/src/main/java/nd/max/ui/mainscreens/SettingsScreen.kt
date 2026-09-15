@@ -17,6 +17,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.navigation.MaxNavActions
 
 
 import android.content.ComponentName
@@ -101,21 +103,21 @@ fun SettingsScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val context = LocalContext.current
     val listState = rememberLazyListState()
-    
+
     var showLogBottomSheet by remember { mutableStateOf(false) }
-    
+
     val restartToastText = stringResource(R.string.toast_restarting_service)
-    
+
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
     val isAdvancedMode by preferenceSettingsViewModel.isAdvancedMode.collectAsStateWithLifecycle()
-    
-    var isLauncherVisible by rememberSaveable { 
-        mutableStateOf(isLauncherIconEnabled(context)) 
+
+    var isLauncherVisible by rememberSaveable {
+        mutableStateOf(isLauncherIconEnabled(context))
     }
     var showChangelogSheet by remember { mutableStateOf(false) }
     var showScreenHelp by remember { mutableStateOf(false) }
     var changelogText by remember { mutableStateOf("") }
-    
+
     LaunchedEffect(Unit) {
         kotlinx.coroutines.withContext(Dispatchers.IO) {
             try {
@@ -125,10 +127,10 @@ fun SettingsScreen(
             }
         }
     }
-    
+
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    
+
 
     val loadingDialog = rememberLoadingDialog()
     val uninstallDialog = rememberConfirmDialog(
@@ -162,20 +164,20 @@ fun SettingsScreen(
         }
     }
     // ---------------------------------------
-    
+
     LaunchedEffect(uiState.isLoaded) {
         if (uiState.isLoaded) {
             RebootManager.captureBaselineOnce("disable_tweak", uiState.disableTweak)
         }
     }
-    
+
     val createLogLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/gzip")) { uri ->
         uri?.let { destinationUri ->
             coroutineScope.launch {
                 val success = loadingDialog.withLoading {
 
                     val logFile = dumpDiagnosticLogs(context, saveToDownloads = false)
-                    
+
                     if (logFile != null && logFile.exists()) {
 
                         try {
@@ -189,13 +191,13 @@ fun SettingsScreen(
                             false
                         } finally {
 
-                            logFile.delete() 
+                            logFile.delete()
                         }
                     } else {
                         false
                     }
                 }
-                
+
                 if (success) {
                     snackbarHostState.showSnackbar(context.getString(R.string.toast_log_save_success))
                 } else {
@@ -204,10 +206,10 @@ fun SettingsScreen(
             }
         }
     }
-    
+
     var logFileToDelete by remember { mutableStateOf<File?>(null) }
-    
-    val shareLogLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { 
+
+    val shareLogLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         logFileToDelete?.let { file ->
             if (file.exists()) {
                 file.delete()
@@ -216,19 +218,19 @@ fun SettingsScreen(
         }
     }
 
-    
+
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = { 
+            topBar = {
                 SettingsScreenTopAppBar(
                     scrollBehavior = scrollBehavior,
                     onChangelogClick = { showChangelogSheet = true },
                     onHelpClick = { showScreenHelp = true }
-                ) 
+                )
             },
-            snackbarHost = { 
-                MaxSnackbarHost(snackbarHostState) 
+            snackbarHost = {
+                MaxSnackbarHost(snackbarHostState)
             },
             containerColor = MaterialTheme.colorScheme.surface
         ) { innerPadding ->
@@ -251,13 +253,13 @@ fun SettingsScreen(
                         accent = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(bottom = MaxUiMetrics.sectionGap)
                     )
-                    
+
                     ExpressiveList(
                         content = listOf(
                             { AppInfoHeaderContent() },
                             {
                                 ExpressiveListItem(
-                                    onClick = { navController.navigate("color_palette") },
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ColorPalette) },
                                     headlineContent = { Text(stringResource(R.string.theme)) },
                                     supportingContent = { Text(stringResource(R.string.theme_desc)) },
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.Palette) },
@@ -267,9 +269,30 @@ fun SettingsScreen(
                         )
                     )
                 }
-    
+
                 item { SettingsSectionTitle(stringResource(R.string.section_features)) }
-                
+
+                item {
+                    ExpressiveList(
+                        content = listOf(
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Diagnostics) }, headlineContent = { Text(stringResource(R.string.max_settings_diagnostics)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.BugReport) }) },
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Logs) }, headlineContent = { Text(stringResource(R.string.max_settings_logs)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.ListAlt) }) },
+                        )
+                    )
+                }
+
+                item { SettingsSectionTitle(stringResource(R.string.max_nav_advanced_tools)) }
+                item {
+                    ExpressiveList(
+                        content = listOf(
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Terminal) }, headlineContent = { Text(stringResource(R.string.max_tool_terminal)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Terminal) }) },
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.SetEdit) }, headlineContent = { Text(stringResource(R.string.max_tool_setedit)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Edit) }) },
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ActivityLauncher) }, headlineContent = { Text(stringResource(R.string.max_tool_activity_launcher)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Launch) }) },
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.KernelFlasher) }, headlineContent = { Text(stringResource(R.string.max_tool_kernel_flasher)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.Build) }) },
+                        )
+                    )
+                }
+
                 item {
                     if (uiState.isLoaded) {
                         ExpressiveList(
@@ -338,7 +361,7 @@ fun SettingsScreen(
                         }
                     }
                 }
-    
+
                 item {
                     SettingsSectionTitle(stringResource(R.string.section_others))
                 }
@@ -460,13 +483,13 @@ fun SettingsScreen(
                         }
                     }
                 }
-    
+
                 item { SettingsSectionTitle(stringResource(R.string.section_about)) }
                 item {
                     ExpressiveList(
                         content = listOf {
                             ExpressiveListItem(
-                                onClick = { navController.navigate("aboutscreen") }, 
+                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.About) },
                                 headlineContent = { Text(stringResource(R.string.about_maxmanager)) },
                                 supportingContent = {
                                     Text(stringResource(R.string.version_format, BuildConfig.VERSION_NAME))
@@ -479,12 +502,12 @@ fun SettingsScreen(
                 }
             }
         }
-        
+
 
         LoadingDialogHost(handle = loadingDialog)
         ConfirmDialogHost(handle = uninstallDialog)
         ConfirmDialogHost(handle = rebootDialog)
-        
+
         RootAppDialog {
             CustomBottomSheet(
                 visible = showLogBottomSheet,
@@ -505,7 +528,7 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
                     )
-                    
+
                     ExpressiveList(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         content = listOf(
@@ -515,8 +538,8 @@ fun SettingsScreen(
                                     supportingContent = { Text(stringResource(R.string.str_save_compressed_logs_to_a_fold), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                                     leadingContent = { LeadingIcon(Icons.Rounded.FolderSpecial) },
                                     onClick = {
-                                        showLogBottomSheet = false 
-                                        
+                                        showLogBottomSheet = false
+
 
                                         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
                                         val fileName = "MaxManager_Logs_$timeStamp.tar.gz"
@@ -535,7 +558,7 @@ fun SettingsScreen(
                                             val logFile = loadingDialog.withLoading {
                                                 dumpDiagnosticLogs(context, saveToDownloads = false)
                                             }
-                                            
+
                                             if (logFile != null) {
                                                 logFileToDelete = logFile
                                                 val intent = getShareLogIntent(context, logFile)
@@ -560,7 +583,7 @@ fun SettingsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.85f) 
+                        .fillMaxHeight(0.85f)
                 ) {
                     Text(
                         text = stringResource(R.string.str_changelog),
@@ -569,12 +592,12 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 16.dp)
                     )
-        
+
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 24.dp),
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                     )
-        
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -582,13 +605,13 @@ fun SettingsScreen(
                             .verticalScroll(rememberScrollState())
                             .padding(horizontal = 24.dp)
                     ) {
-                        Spacer(modifier = Modifier.height(16.dp))                            
+                        Spacer(modifier = Modifier.height(16.dp))
                         MarkdownText(
                             markdown = changelogText,
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
-                            modifier = Modifier.fillMaxWidth() 
+                            modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(
                             modifier = Modifier.height(

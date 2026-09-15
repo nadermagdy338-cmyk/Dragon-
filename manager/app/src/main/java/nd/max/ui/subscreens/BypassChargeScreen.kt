@@ -5,6 +5,8 @@
  */
 
 package nd.max.ui.subscreens
+import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.navigation.MaxNavActions
 
 import nd.max.ui.component.MaxSwitch
 import nd.max.ui.component.MaxSlider
@@ -290,7 +292,7 @@ fun BypassChargeScreen(navController: NavController) {
 
                 item {
                     Card(
-                        onClick = { navController.navigate("bypasschg_check") },
+                        onClick = { MaxNavActions(navController).navigateTo(MaxDestination.BypassChargingCheck) },
                         colors = CardDefaults.cardColors(containerColor = colors.primaryContainer),
                         shape = RoundedCornerShape(MaxUiMetrics.cardRadius)
                     ) {
