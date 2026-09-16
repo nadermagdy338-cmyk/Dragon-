@@ -2,6 +2,7 @@ package nd.max.ui.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AddToPhotos
 import androidx.compose.material.icons.rounded.AppSettingsAlt
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.AspectRatio
@@ -137,6 +138,7 @@ sealed class MaxDestination(
     // Settings children + system tooling routes
     data object ColorPalette : MaxDestination("color_palette", R.string.theme, Icons.Rounded.Palette, Settings)
     data object ColorScheme : MaxDestination("colorscheme", R.string.color_scheme, Icons.Rounded.ColorLens, Settings)
+    data object PreferenceTweaks : MaxDestination("preferencetweaks", R.string.prefs, Icons.Rounded.AddToPhotos, Settings)
     data object Diagnostics : MaxDestination("diagnostics", R.string.section_diagnostics, Icons.Rounded.BugReport, Control)
     data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.Rounded.ListAlt, Control)
     data object About : MaxDestination("aboutscreen", R.string.section_about, Icons.Rounded.Info, Settings)
@@ -161,7 +163,7 @@ sealed class MaxDestination(
             ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
             BatteryDetail, Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
             ProcessManager, DebloatFreeze, AppSettings,
-            ColorPalette, ColorScheme, Diagnostics, Logs, About,
+            ColorPalette, ColorScheme, PreferenceTweaks, Diagnostics, Logs, About,
             Terminal, SetEdit, ActivityLauncher, KernelFlasher,
         )
 

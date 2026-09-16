@@ -39,6 +39,8 @@ import nd.max.ui.design.MaxListScreen
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxTone
+import nd.max.ui.design.content
+import nd.max.ui.design.container
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 import nd.max.ui.util.DebugUtils
@@ -67,6 +69,20 @@ fun ControlScreen(
         viewModel.loadAllConfiguration(context)
     }
 
+    // Section titles are resolved here, inside the @Composable ControlScreen
+    // function, because MaxListScreen's `content` lambda is a plain
+    // LazyListScope.() -> Unit (not @Composable) — stringResource() cannot
+    // be called directly from inside it.
+    val sectionPerformanceTitle = stringResource(R.string.section_performance)
+    val sectionFeaturesTitle = stringResource(R.string.section_features)
+    val sectionCpuSettingsTitle = stringResource(R.string.section_CPUSettings)
+    val sectionGpuTitle = stringResource(R.string.max_hub_gpu)
+    val sectionPowerThermalTitle = stringResource(R.string.section_power_thermal)
+    val sectionDisplayRenderTitle = stringResource(R.string.section_display_render_settings)
+    val sectionResponsivenessTitle = stringResource(R.string.max_hub_responsiveness)
+    val sectionAdditionalTitle = stringResource(R.string.section_additionalsettings)
+    val sectionAddonsTitle = stringResource(R.string.section_addons)
+
     MaxListScreen(
         title = stringResource(R.string.max_nav_control),
         subtitle = "System controls · live configuration",
@@ -80,7 +96,7 @@ fun ControlScreen(
             )
         },
     ) {
-        ControlSection(stringResource(R.string.section_performance), "Primary performance controls") {
+        ControlSection(sectionPerformanceTitle, "Primary performance controls") {
             if (viewModel.liteState != null) {
                 MaxToggleRow(
                     stringResource(R.string.perf_lite_mode),
@@ -92,7 +108,7 @@ fun ControlScreen(
             }
         }
 
-        ControlSection(stringResource(R.string.section_features), "Session and responsiveness behavior") {
+        ControlSection(sectionFeaturesTitle, "Session and responsiveness behavior") {
             if (viewModel.preloadState != null) {
                 MaxToggleRow(stringResource(R.string.game_preload), stringResource(R.string.game_preload_desc), MaxDestination.FpsGo.icon, viewModel.preloadState == true, viewModel::updatePreloadMode)
             }
@@ -111,17 +127,17 @@ fun ControlScreen(
             MaxLinkRow(stringResource(R.string.touch_boost_title), stringResource(R.string.touch_boost_desc), MaxDestination.TouchBoost.icon) { actions.navigateTo(MaxDestination.TouchBoost) }
         }
 
-        ControlSection(stringResource(R.string.section_CPUSettings), "Frequency, cores and vendor controls") {
+        ControlSection(sectionCpuSettingsTitle, "Frequency, cores and vendor controls") {
             MaxLinkRow(stringResource(R.string.gov_settings), stringResource(R.string.gov_settingsdesc), MaxDestination.GovernorSettings.icon) { actions.navigateTo(MaxDestination.GovernorSettings) }
             MaxLinkRow(stringResource(R.string.cpu_core_control_title), stringResource(R.string.cpu_core_control_desc), MaxDestination.CpuCoreControl.icon) { actions.navigateTo(MaxDestination.CpuCoreControl) }
             MaxLinkRow(stringResource(R.string.max_title_vendor_boost), stringResource(R.string.max_role_vendor_boost), MaxDestination.MtkVendor.icon) { actions.navigateTo(MaxDestination.MtkVendor) }
         }
 
-        ControlSection(stringResource(R.string.max_hub_gpu), "GPU frequency and rendering") {
+        ControlSection(sectionGpuTitle, "GPU frequency and rendering") {
             MaxLinkRow(stringResource(R.string.max_title_gpu_studio), stringResource(R.string.max_role_gpu_studio), MaxDestination.GpuStudio.icon) { actions.navigateTo(MaxDestination.GpuStudio) }
         }
 
-        ControlSection(stringResource(R.string.section_power_thermal), "Power, charging, thermal and memory pressure") {
+        ControlSection(sectionPowerThermalTitle, "Power, charging, thermal and memory pressure") {
             MaxLinkRow(stringResource(R.string.charging_title), stringResource(R.string.charging_desc), MaxDestination.Charging.icon) { actions.navigateTo(MaxDestination.Charging) }
             MaxLinkRow(stringResource(R.string.dozemode_title), stringResource(R.string.dozemode_menu_desc), MaxDestination.DozeMode.icon) { actions.navigateTo(MaxDestination.DozeMode) }
             MaxLinkRow(stringResource(R.string.zram_title), stringResource(R.string.zram_desc), MaxDestination.ZramManager.icon) { actions.navigateTo(MaxDestination.ZramManager) }
@@ -134,7 +150,7 @@ fun ControlScreen(
             MaxLinkRow(stringResource(R.string.detail_battery), stringResource(R.string.max_role_battery_detail), MaxDestination.BatteryDetail.icon) { actions.navigateTo(MaxDestination.BatteryDetail) }
         }
 
-        ControlSection(stringResource(R.string.section_display_render_settings), "Display, refresh rate and render path") {
+        ControlSection(sectionDisplayRenderTitle, "Display, refresh rate and render path") {
             MaxLinkRow(stringResource(R.string.display_studio_title), stringResource(R.string.display_studio_desc), MaxDestination.DisplayStudio.icon) { actions.navigateTo(MaxDestination.DisplayStudio) }
             MaxLinkRow(stringResource(R.string.refreshrates), viewModel.currentRefreshRate?.let { stringResource(R.string.refresh_rate_format, it) } ?: stringResource(R.string.refreshrates_desc), MaxDestination.DisplayStudio.icon) { actions.navigateTo(MaxDestination.DisplayStudio) }
             MaxLinkRow(stringResource(R.string.renderengine), viewModel.currentRenderer?.uppercase() ?: stringResource(R.string.renderengine_desc), MaxDestination.DisplayStudio.icon) { showRendererDialog = true }
@@ -142,12 +158,12 @@ fun ControlScreen(
             MaxLinkRow(stringResource(R.string.fps_overlay_title), stringResource(R.string.fps_overlay_menu_desc), MaxDestination.FpsOverlay.icon) { actions.navigateTo(MaxDestination.FpsOverlay) }
         }
 
-        ControlSection(stringResource(R.string.max_hub_responsiveness), "Frame-aware scheduling and latency") {
+        ControlSection(sectionResponsivenessTitle, "Frame-aware scheduling and latency") {
             MaxLinkRow(stringResource(R.string.str_frame_aware_scheduling), stringResource(R.string.max_role_fas), MaxDestination.Fas.icon) { actions.navigateTo(MaxDestination.Fas) }
             MaxLinkRow(stringResource(R.string.str_fpsgo_settings), stringResource(R.string.str_fpsgo_desc), MaxDestination.FpsGo.icon) { actions.navigateTo(MaxDestination.FpsGo) }
         }
 
-        ControlSection(stringResource(R.string.section_additionalsettings), "Network, storage and system behavior") {
+        ControlSection(sectionAdditionalTitle, "Network, storage and system behavior") {
             MaxLinkRow(stringResource(R.string.net_sched_title), stringResource(R.string.net_sched_menu_desc), MaxDestination.NetworkScheduler.icon) { actions.navigateTo(MaxDestination.NetworkScheduler) }
             MaxLinkRow(stringResource(R.string.detail_network), stringResource(R.string.max_role_network_detail), MaxDestination.NetworkDetail.icon) { actions.navigateTo(MaxDestination.NetworkDetail) }
             MaxLinkRow(stringResource(R.string.debloat_freeze_title), stringResource(R.string.debloat_freeze_desc), MaxDestination.DebloatFreeze.icon) { actions.navigateTo(MaxDestination.DebloatFreeze) }
@@ -155,7 +171,7 @@ fun ControlScreen(
             MaxLinkRow(stringResource(R.string.detail_storage), stringResource(R.string.max_role_storage_detail), MaxDestination.StorageDetail.icon) { actions.navigateTo(MaxDestination.StorageDetail) }
         }
 
-        ControlSection(stringResource(R.string.section_addons), "Appearance and visual system") {
+        ControlSection(sectionAddonsTitle, "Appearance and visual system") {
             MaxLinkRow(stringResource(R.string.color_scheme), stringResource(R.string.schemecolordesc), MaxDestination.ColorScheme.icon) { actions.navigateTo(MaxDestination.ColorScheme) }
         }
     }

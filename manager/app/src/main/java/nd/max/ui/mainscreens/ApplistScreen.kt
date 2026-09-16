@@ -2,11 +2,14 @@
 
 package nd.max.ui.mainscreens
 import nd.max.ui.design.MaxGroup
+import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxSection
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
