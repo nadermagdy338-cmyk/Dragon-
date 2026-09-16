@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -112,7 +115,11 @@ fun ApplistScreen(navController: NavHostController) {
             TopAppBar(
                 title = {
                     Column {
-                        Text(stringResource(R.string.applist_title), fontWeight = FontWeight.Bold)
+                        Text(
+                            text = stringResource(R.string.applist_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
                         if (totalApps > 0) {
                             Text(
                                 stringResource(R.string.applist_app_count, totalApps),
@@ -167,9 +174,9 @@ fun ApplistScreen(navController: NavHostController) {
                         modifier = Modifier.fillMaxSize().maxAdaptiveContentWidth(),
                         contentPadding = PaddingValues(
                             start = 16.dp,
-                            top = 10.dp,
+                            top = 24.dp,
                             end = 16.dp,
-                            bottom = 120.dp
+                            bottom = 144.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                         ),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -520,7 +527,12 @@ private fun AppTypeTag(text: String, color: Color) {
  */
 @Composable
 private fun WorkspaceLinks(onOpen: (MaxDestination) -> Unit) {
-    val links = MaxDestination.All.filter { it.parent == MaxDestination.Apps && it != MaxDestination.AppSettings }
+    val links = MaxDestination.All.filter {
+        it.parent == MaxDestination.Apps &&
+            it != MaxDestination.AppSettings &&
+            it != MaxDestination.ProcessManager &&
+            it != MaxDestination.DebloatFreeze
+    }
     if (links.isEmpty()) return
     MaxSection(title = stringResource(R.string.max_nav_apps)) {
         MaxGroup {
