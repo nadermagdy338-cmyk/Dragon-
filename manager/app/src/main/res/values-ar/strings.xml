@@ -802,7 +802,6 @@
     <string name="home_focus_storage_desc">المساحة الحرة منخفضة، وهذا يبطّئ الكتابة والتخزين المؤقت.</string>
     <string name="home_focus_memory">ضغط على الذاكرة</string>
     <string name="home_focus_memory_desc">الذاكرة تكاد تمتلئ. أوقف تطبيقات الخلفية أو فعّل ZRAM.</string>
-    <string name="max_hub_display">الشاشة</string>
     <string name="home_story_title">قصة الأداء</string>
     <string name="home_story_bottleneck">العامل المحدِّد</string>
     <string name="home_session_workload">نوع الحِمل</string>

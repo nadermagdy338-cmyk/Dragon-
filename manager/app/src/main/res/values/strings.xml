@@ -1687,6 +1687,5 @@
     <string name="home_focus_storage_desc">Free space is low, which slows writes and caching.</string>
     <string name="home_focus_memory">Memory pressure</string>
     <string name="home_focus_memory_desc">RAM is nearly full. Trim background apps or enable ZRAM.</string>
-    <string name="max_hub_display">Display</string>
 
 </resources>
