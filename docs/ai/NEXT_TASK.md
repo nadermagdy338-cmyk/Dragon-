@@ -21,13 +21,14 @@
    - توافق أسماء أيقونات Material المستخدمة في الشاشة.
 4. ممنوع: حذف أي مرحلة من مراحل الخط الزمني الثماني، أو استبدال قيمة غير مقيسة بصفر، أو إضافة بيانات توضيحية.
 
-## NT-04 — اختبار JVM لاستخلاص المعرفة
-أنشئ `app/src/test/java/nd/max/core/maxai/MaxAiInsightsTest.kt`:
+## NT-04 — اختبار JVM لاستخلاص المعرفة — مكتمل في هذه النسخة
+أُنشئ `app/src/test/java/nd/max/core/maxai/MaxAiInsightsTest.kt`:
 - عيّنة واحدة ⇒ `LEARNING`.
 - مكسب ≥ `HELPFUL_GAIN` مع ≥ `MIN_SAMPLES_FOR_VERDICT` ⇒ `PROVEN_HELPFUL`.
 - ارتفاع حراري > `COSTLY_THERMAL_C` بلا مكسب موازٍ ⇒ `PROVEN_COSTLY`.
 - `successRate == null` حين لا حلقات مُنفَّذة.
 - تجاهل مفاتيح الأثر غير `GLOBAL_CONTEXT`.
+- يغطي أيضًا فصل decision/probe/safety/drift، وعدادات التنبؤ والسياق.
 
 ## NT-05 — إتمام إصلاحات NT-01b
 F-01 مسار `app_detail/`، F-01b `openApp`، F-02 اعتماد `MaxDomainCard` على التنقل، F-03 تكرار `titleRes`، F-04 شاشتان غير قابلتين للوصول، F-05 `LaunchedEffect(currentRoute)` العام، F-06 بطاقات الـhub الساكنة، F-07 الأكواد الميتة.

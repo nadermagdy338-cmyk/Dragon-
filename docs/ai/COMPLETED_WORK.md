@@ -58,7 +58,7 @@ Plans/specs/work logs for GPU Reality Studio, core-grid frequency UX, and the Ma
 - `core/maxai/MaxAiJournal.kt` — دفتر حلقات القرار الدائم (JSON, 80 حلقة، أحدث أولًا) + نماذج `MaxAiReading/MaxAiSample/MaxAiCandidate/MaxAiVerdict/MaxAiEpisode`.
 - `core/maxai/MaxAiInsights.kt` — استخلاص نقي (JVM-only) لأحكام كل مقبض من خرائط الأثر + عدادات الحلقات + صدق التنبؤ.
 - `ui/design/MaxAiCinematics.kt` — بدائل بصرية سببية: `MaxSparkline`, `MaxDeltaRow`, `MaxCausalStage`, `MaxEpisodeCard`, `MaxWeightBar`, `MaxCapsule` (بلا أي اعتماد على `nd.max.core.*`).
-- `res/values/max_ai_strings.xml` + `res/values-ar/max_ai_strings.xml` — 116 مفتاحًا، تطابق تام EN/AR وتطابق وسائط التنسيق.
+- `res/values/max_ai_strings.xml` + `res/values-ar/max_ai_strings.xml` — 127 مفتاحًا مستخدمًا فعليًا من `MaxAiScreen.kt`، تطابق تام EN/AR وتطابق وسائط التنسيق، بلا تكرار مع `strings.xml`.
 
 ملفات أُعيدت كتابتها:
 - `core/maxai/MinimalPlanner.kt` — `planWithTrace` يُخرج كل المرشحين مع سبب الاستبعاد، الجدوى، المصداقية، والتنبؤ.
