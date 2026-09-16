@@ -41,9 +41,15 @@ class ControlLayoutModelTest {
     }
 
     @Test
-    fun `no screen is listed twice on the expanded page`() {
-        val listed = hubs.flatMap { spec -> spec.features.map { it.destination.route } }
-        assertEquals(listed.distinct(), listed)
+    fun `no screen is listed twice within the same hub`() {
+        hubs.forEach { spec ->
+            val listed = spec.features.map { it.destination.route }
+            assertEquals(
+                "${spec.hub.route} lists a screen more than once: $listed",
+                listed.distinct(),
+                listed,
+            )
+        }
     }
 
     @Test

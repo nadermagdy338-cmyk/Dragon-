@@ -156,24 +156,40 @@ sealed class MaxDestination(
     data object KernelFlasher : MaxDestination("kernelflasher", R.string.max_title_kernel_flasher, Icons.Rounded.Build, Control, MaxRisk.Dangerous)
 
     companion object {
-        /** The four bottom-bar / nav-rail destinations (ADR-03). */
-        val PrimaryDestinations = listOf(Now, Control, Apps, MaxAi)
+        /**
+         * The four bottom-bar / nav-rail destinations (ADR-03).
+         *
+         * Lazy on purpose: these lists are built from the very
+         * `data object`s that make up this sealed class. If whichever
+         * destination the app touches *first* — anywhere, e.g. a cold
+         * start reading [Control] for the nav bar — happened to force this
+         * list eagerly (a plain `val`), the JVM would already be partway
+         * through initializing that same destination's class when the list
+         * tried to read it back, and class-init recursion rules hand back
+         * the not-yet-assigned singleton field as null instead of waiting.
+         * `by lazy` defers evaluation until something actually asks for the
+         * list, by which point that recursive window has closed. See
+         * ControlLayoutModelTest for the regression this once caused.
+         */
+        val PrimaryDestinations: List<MaxDestination> by lazy { listOf(Now, Control, Apps, MaxAi) }
 
         /** Every destination registered in [MaxNavGraph]. */
-        val All = listOf(
-            GetStarted, Now, Control, Apps, MaxAi, MaxLive, Settings,
-            CpuHub, GpuHub, MemoryHub, DisplayHub, ResponsivenessHub, ThermalHub,
-            PowerHub, StorageHub, NetworkHub,
-            CpuCoreControl, GovernorSettings, PreferenceTweaks, GpuStudio,
-            ZramManager, DisplayStudio, Resolution, TouchBoost, FpsGo, Fas, FpsOverlay,
-            ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
-            BatteryDetail, Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
-            ProcessManager, DebloatFreeze, AppSettings,
-            ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, About,
-            Terminal, SetEdit, ActivityLauncher, KernelFlasher,
-        )
+        val All: List<MaxDestination> by lazy {
+            listOf(
+                GetStarted, Now, Control, Apps, MaxAi, MaxLive, Settings,
+                CpuHub, GpuHub, MemoryHub, DisplayHub, ResponsivenessHub, ThermalHub,
+                PowerHub, StorageHub, NetworkHub,
+                CpuCoreControl, GovernorSettings, PreferenceTweaks, GpuStudio,
+                ZramManager, DisplayStudio, Resolution, TouchBoost, FpsGo, Fas, FpsOverlay,
+                ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
+                BatteryDetail, Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
+                ProcessManager, DebloatFreeze, AppSettings,
+                ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, About,
+                Terminal, SetEdit, ActivityLauncher, KernelFlasher,
+            )
+        }
 
         /** Route ids of the primary destinations, for bar visibility checks. */
-        val PrimaryRoutes = PrimaryDestinations.map { it.route }.toSet()
+        val PrimaryRoutes: Set<String> by lazy { PrimaryDestinations.map { it.route }.toSet() }
     }
 }
