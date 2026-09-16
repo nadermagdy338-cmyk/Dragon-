@@ -79,25 +79,32 @@ For root/system operations, handle failures, exit codes, cancellation, cleanup, 
 
 6. Build Efficiency
 
-Do not run a full Gradle/NDK build after every edit.
-
-Batch related changes.
+Do not run Gradle/NDK builds by default. Standing instruction from the user
+(2026-09-16): skip builds instead of spending time and tokens on them; verify
+statically. Builds here are Android Gradle builds with Hilt/KSP and cost minutes
+per run, while a static pass catches the mistakes a compile would.
 
 Prefer:
 
-"inspect → edit → diagnostics/targeted checks → batch build"
+"inspect → edit → static verification → report"
 
-Run a broader Gradle/NDK build when:
+Run a Gradle/NDK build only when the user explicitly asks for one.
 
-- compilation is required,
-- build/dependency configuration changed,
-- native code requires validation,
-- integration may be affected,
-- a build failure was fixed,
-- final verification requires it,
-- or the user explicitly requests it.
+Static verification checklist for every edit:
 
-Do not skip necessary validation merely to save time.
+- bracket balance of each edited file, with string literals and comments
+  stripped first (comments and strings legitimately contain unbalanced braces),
+- imports: nothing imported is now unused; nothing used is missing an import,
+- re-read the edited range: confirm nesting, scope receivers (RowScope /
+  LazyListScope / ColumnScope) and named parameters,
+- for any changed shared component, grep every call site and confirm the
+  signature, parameter names and defaults still match,
+- Serena `get_diagnostics_for_file` when the language server is available.
+
+Never claim a change compiles or works because it was not built — say what was
+checked and what was not. Do not skip necessary validation merely to save time;
+the static pass *is* the validation here, and anything that cannot be validated
+that way must be reported as unverified.
 
 7. Testing & Verification
 

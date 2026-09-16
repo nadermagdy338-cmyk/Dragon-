@@ -80,6 +80,11 @@ fun MaxScreen(
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = Color.Transparent,
+        // A transparent container makes contentColorFor() return an unresolved colour, so
+        // every Text/Icon that relies on the ambient content colour (a row headline, an
+        // untinted caret) used to render black on the dark surface. State the theme's
+        // on-surface colour explicitly — the same one Material would pick for this page.
+        contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             MaxManagerSubScreenTopBar(
                 scrollBehavior = scrollBehavior,
@@ -149,6 +154,11 @@ fun MaxListScreen(
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = Color.Transparent,
+        // A transparent container makes contentColorFor() return an unresolved colour, so
+        // every Text/Icon that relies on the ambient content colour (a row headline, an
+        // untinted caret) used to render black on the dark surface. State the theme's
+        // on-surface colour explicitly — the same one Material would pick for this page.
+        contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             MaxManagerSubScreenTopBar(
                 scrollBehavior = scrollBehavior,

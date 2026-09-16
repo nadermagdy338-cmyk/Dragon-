@@ -143,14 +143,6 @@ fun PreferenceTweakScreen(navController: NavController) {
             )
         ) {
             
-            item {
-                MaxManagerInsight(
-                    text = stringResource(R.string.str_apply_add_on_configurations_ta),
-                    accent = colorScheme.secondary,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-            }
-
             item { PrefSectionTitle(stringResource(R.string.section_prefstweaks)) }
             item {
                 var socType by remember { mutableStateOf<String?>(null) }
@@ -370,6 +362,10 @@ fun PreferenceTweakTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: ()
     MaxManagerSubScreenTopBar(
         scrollBehavior = scrollBehavior,
         title = stringResource(R.string.prefs),
+        // The screen's description belongs in the shared header slot like every
+        // other screen; as the first list row it scrolled away and read as a
+        // start-aligned note instead of the screen's explanation.
+        subtitle = stringResource(R.string.str_apply_add_on_configurations_ta),
         onBack = onBack,
         accentIcon = Icons.Filled.Tune,
         accent = MaterialTheme.colorScheme.tertiary

@@ -38,7 +38,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -78,6 +77,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import nd.max.R
@@ -167,6 +167,9 @@ fun ScreenAccentGlyph(
  * that used to be missing entirely. Screens with extra actions (search,
  * shortcuts) pass them through `actions`; screens with nothing special just
  * omit it.
+ *
+ * `subtitle` is the screen's description and renders as a centred paragraph
+ * under the bar (see the comment inside), not as a second title line.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -204,87 +207,105 @@ fun MaxManagerSubScreenTopBar(
         label = "accentIconSpacerWidth"
     )
 
-    MaxManagerTopBarScrim {
-        LargeTopAppBar(
-            title = {
-                AnimatedVisibility(
-                    visible = titleVisible,
-                    enter = fadeIn(tween(260)) + scaleIn(initialScale = 0.96f, animationSpec = tween(260)),
-                    label = "subScreenTitleEnter"
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (accentIcon != null) {
-                            Box(
-                                modifier = Modifier
-                                    .width(accentIconSlotWidth)
-                                    .clipToBounds()
-                            ) {
-                                ScreenAccentGlyph(
-                                    icon = accentIcon,
-                                    accent = accent,
-                                    modifier = Modifier.graphicsLayer {
-                                        alpha = accentIconAlpha
-                                        scaleX = 0.94f + (0.06f * accentIconAlpha)
-                                        scaleY = 0.94f + (0.06f * accentIconAlpha)
-                                    }
-                                )
-                            }
-                            Spacer(Modifier.width(accentIconSpacerWidth))
-                        }
-                        Column(Modifier.weight(1f)) {
-                            Text(text = title, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                            if (!subtitle.isNullOrBlank()) {
-                                Spacer(Modifier.height(4.dp))
-                                // The subtitle is the one line that explains the screen, so it
-                                // carries the app's insight mark — the star with the line beside
-                                // it — instead of reading as anonymous grey text under the title.
-                                // Rendering it here means every screen with a top-bar subtitle
-                                // gets the same treatment from one place.
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+    // The bar and the screen's description are one opaque header column. The
+    // description used to be a one-line subtitle inside the title row, so any
+    // screen whose description is a real sentence (Core Grid, ZRAM, Doze…) had
+    // it ellipsized, and in RTL the reserved line shoved the title around.
+    // It now reads as a centred paragraph under the bar, separated from it by
+    // the scrim's own hairline, which fixes every screen from this one place.
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        MaxManagerTopBarScrim {
+            LargeTopAppBar(
+                title = {
+                    AnimatedVisibility(
+                        visible = titleVisible,
+                        enter = fadeIn(tween(260)) + scaleIn(initialScale = 0.96f, animationSpec = tween(260)),
+                        label = "subScreenTitleEnter"
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (accentIcon != null) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(accentIconSlotWidth)
+                                        .clipToBounds()
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.AutoAwesome,
-                                        contentDescription = null,
-                                        tint = accent,
-                                        modifier = Modifier.size(14.dp)
-                                    )
-                                    Text(
-                                        text = subtitle,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
+                                    ScreenAccentGlyph(
+                                        icon = accentIcon,
+                                        accent = accent,
+                                        modifier = Modifier.graphicsLayer {
+                                            alpha = accentIconAlpha
+                                            scaleX = 0.94f + (0.06f * accentIconAlpha)
+                                            scaleY = 0.94f + (0.06f * accentIconAlpha)
+                                        }
                                     )
                                 }
+                                Spacer(Modifier.width(accentIconSpacerWidth))
                             }
+                            Text(
+                                text = title,
+                                modifier = Modifier.weight(1f),
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
                     }
-                }
-            },
-            navigationIcon = {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier.padding(start = 4.dp).background(
-                        MaterialTheme.colorScheme.surfaceContainerHigh,
-                        RoundedCornerShape(16.dp)
-                    )
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
-                }
-            },
-            actions = actions,
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-                scrolledContainerColor = Color.Transparent
-            ),
-            scrollBehavior = scrollBehavior,
-            // Consume the real system status-bar inset at the app-bar level.
-            // This prevents large titles/actions from sliding underneath the phone
-            // status icons while keeping the scrim itself edge-to-edge.
-            windowInsets = WindowInsets.statusBars
-        )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier.padding(start = 4.dp).background(
+                            MaterialTheme.colorScheme.surfaceContainerHigh,
+                            RoundedCornerShape(16.dp)
+                        )
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
+                    }
+                },
+                actions = actions,
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    scrolledContainerColor = Color.Transparent
+                ),
+                scrollBehavior = scrollBehavior,
+                // Consume the real system status-bar inset at the app-bar level.
+                // This prevents large titles/actions from sliding underneath the phone
+                // status icons while keeping the scrim itself edge-to-edge.
+                windowInsets = WindowInsets.statusBars
+            )
+        }
+        if (!subtitle.isNullOrBlank()) {
+            // The description wraps to as many lines as it needs: it is the one
+            // piece of copy that explains the screen, so truncating it would
+            // hide exactly the sentence the user came to read. The insight mark
+            // stays pinned to the first line so it survives centring.
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(top = 10.dp, bottom = 14.dp),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.AutoAwesome,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(16.dp).padding(top = 1.dp)
+                )
+                Text(
+                    text = subtitle,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
     }
 }
 

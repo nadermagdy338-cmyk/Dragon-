@@ -281,24 +281,41 @@ fun ExpressiveListItem(
                 .weight(1f)
                 .padding(vertical = 8.dp)
         ) {
-            headlineContent()
-            if (supportingContent != null) {
-                CompositionLocalProvider(
-                    LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
-                ) {
-                    ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
-                        supportingContent()
+            // The headline and the trailing slot inherit LocalContentColor, and these rows
+            // are painted directly onto the screen surface — whose Scaffold is transparent,
+            // so contentColorFor() leaves the ambient content colour unresolved and the text
+            // fell through to black. That is why the Control screen's list layout read as
+            // unthemed while its card layout (which sets colours explicitly) looked right.
+            // Pinning on-surface here themes every caller; a caller that wants another tone
+            // still wins by passing its own colour.
+            CompositionLocalProvider(
+                LocalContentColor provides MaterialTheme.colorScheme.onSurface
+            ) {
+                headlineContent()
+                if (supportingContent != null) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
+                    ) {
+                        ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
+                            supportingContent()
+                        }
                     }
                 }
             }
         }
         if (trailingContent != null) {
-            Box(
-                modifier = Modifier.padding(start = 16.dp),
-                contentAlignment = Alignment.Center
+            // Same reason as the headline above: an untinted icon (the row caret) would
+            // otherwise resolve to black instead of the surface's content colour.
+            CompositionLocalProvider(
+                LocalContentColor provides MaterialTheme.colorScheme.onSurface
             ) {
-                ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
-                    trailingContent()
+                Box(
+                    modifier = Modifier.padding(start = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
+                        trailingContent()
+                    }
                 }
             }
         }
@@ -353,24 +370,41 @@ fun ExpressiveListItemHighlight(
                 .weight(1f)
                 .padding(vertical = 8.dp)
         ) {
-            headlineContent()
-            if (supportingContent != null) {
-                CompositionLocalProvider(
-                    LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
-                ) {
-                    ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
-                        supportingContent()
+            // The headline and the trailing slot inherit LocalContentColor, and these rows
+            // are painted directly onto the screen surface — whose Scaffold is transparent,
+            // so contentColorFor() leaves the ambient content colour unresolved and the text
+            // fell through to black. That is why the Control screen's list layout read as
+            // unthemed while its card layout (which sets colours explicitly) looked right.
+            // Pinning on-surface here themes every caller; a caller that wants another tone
+            // still wins by passing its own colour.
+            CompositionLocalProvider(
+                LocalContentColor provides MaterialTheme.colorScheme.onSurface
+            ) {
+                headlineContent()
+                if (supportingContent != null) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
+                    ) {
+                        ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
+                            supportingContent()
+                        }
                     }
                 }
             }
         }
         if (trailingContent != null) {
-            Box(
-                modifier = Modifier.padding(start = 16.dp),
-                contentAlignment = Alignment.Center
+            // Same reason as the headline above: an untinted icon (the row caret) would
+            // otherwise resolve to black instead of the surface's content colour.
+            CompositionLocalProvider(
+                LocalContentColor provides MaterialTheme.colorScheme.onSurface
             ) {
-                ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
-                    trailingContent()
+                Box(
+                    modifier = Modifier.padding(start = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
+                        trailingContent()
+                    }
                 }
             }
         }
