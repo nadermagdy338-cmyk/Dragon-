@@ -123,66 +123,20 @@ internal fun LegendaryHomeDashboard(
     onSettings: () -> Unit,
     onAiRetry: () -> Unit
 ) {
-    val palette = homePalette()
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        HomeBrandHeader(ui.rootStatus && ui.moduleInstalled, palette, onSettings, onReboot)
-        DeviceCommandHero(
-            deviceName = deviceName,
-            dashboard = dashboard,
-            profile = stringResource(ui.currentProfileRes),
-            engineOnline = ui.rootStatus && ui.moduleInstalled,
-            palette = palette,
-            onProfile = onProfile,
-            onDetails = { onNavigate(MaxDestination.Diagnostics.route) }
-        )
-        SystemIntentCard(
-            dashboard = dashboard,
-            maxAi = maxAi,
-            palette = palette,
-            onOpenControl = { onNavigate(MaxDestination.Control.route) },
-            onOpenApps = { onNavigate(MaxDestination.Apps.route) },
-            onOpenLive = { onNavigate(MaxDestination.MaxAi.route) }
-        )
-        LivePerformanceCard(
-            dashboard = dashboard,
-            palette = palette,
-            onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
-            onGpu = gpuRoute?.let { route -> { onNavigate(route) } },
-            onMemory = { onNavigate(MaxDestination.ZramManager.route) },
-            onThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
-        )
-        PerformanceStoryCard(
-            dashboard = dashboard,
-            maxAi = maxAi,
-            palette = palette,
-            onOpenLive = { onNavigate(MaxDestination.MaxAi.route) },
-            onOpenThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
-        )
-        PerformanceSessionCard(
-            dashboard = dashboard,
-            maxAi = maxAi,
-            palette = palette,
-            onOpenLive = { onNavigate(MaxDestination.MaxAi.route) },
-            onOpenThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
-        )
-        CpuCoreMatrix(dashboard.cores, palette) { onNavigate(MaxDestination.CpuCoreControl.route) }
-        MemoryStorageCard(
-            dashboard = dashboard,
-            palette = palette,
-            onMemory = { onNavigate(MaxDestination.ZramManager.route) },
-            onStorage = { onNavigate(MaxDestination.StorageDetail.route) }
-        )
-        QuickActionsGrid(
-            palette = palette,
-            onBoost = onProfile,
-            onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
-            onBattery = { onNavigate(MaxDestination.Charging.route) },
-            onAdvanced = { onNavigate(MaxDestination.Control.route) }
-        )
-        DeviceResourcesCard(dashboard, palette, onNavigate)
-        AiCommandCard(maxAi, profileRequest, palette, { onNavigate(MaxDestination.MaxAi.route) }, onAiRetry)
-        ConnectivityStrip(dashboard, ui.rootStatus && ui.moduleInstalled, palette)
-    }
+    MaxAnalyticsHome(
+        ui = ui,
+        dashboard = dashboard,
+        maxAi = maxAi,
+        profileRequest = profileRequest,
+        deviceName = deviceName,
+        gpuRoute = gpuRoute,
+        modifier = modifier,
+        onNavigate = onNavigate,
+        onProfile = onProfile,
+        onReboot = onReboot,
+        onSettings = onSettings,
+        onAiRetry = onAiRetry
+    )
 }
 
 @Composable

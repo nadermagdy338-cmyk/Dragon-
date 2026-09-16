@@ -49,6 +49,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import nd.max.ui.theme.MonoValueStyleMedium
+import nd.max.ui.design.MaxAlpha
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSize
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.MaxTone
+import nd.max.ui.design.container
+import nd.max.ui.design.content
 
 @Composable
 fun maxSemanticColors(): MaxSemanticColors {
@@ -82,21 +89,21 @@ object MaxUiAlpha {
 }
 
 object MaxUiMetrics {
-    val pagePadding = 20.dp
-    val sectionGap = 28.dp
-    val itemGap = 12.dp
-    val cardPadding = 18.dp
-    val cardRadius = 28.dp
-    val smallRadius = 18.dp
-    val compactRadius = 12.dp
-    val screenHorizontalPadding = 20.dp
-    val screenTopPadding = 16.dp
-    val screenBottomPadding = 32.dp
-    val screenItemGap = 12.dp
+    val pagePadding = MaxSpace.gutter
+    val sectionGap = MaxSpace.section
+    val itemGap = MaxSpace.md
+    val cardPadding = MaxSpace.lg
+    val cardRadius = MaxRadius.group
+    val smallRadius = MaxRadius.row
+    val compactRadius = MaxRadius.control
+    val screenHorizontalPadding = MaxSpace.gutter
+    val screenTopPadding = MaxSpace.lg
+    val screenBottomPadding = MaxSpace.pageBottom
+    val screenItemGap = MaxSpace.md
 }
 
-private val studioCardShape = RoundedCornerShape(28.dp)
-private val studioActionShape = RoundedCornerShape(18.dp)
+private val studioCardShape = RoundedCornerShape(MaxRadius.group)
+private val studioActionShape = RoundedCornerShape(MaxRadius.row)
 
 private fun studioSurfaceColor(scheme: ColorScheme, accent: Color?): Color =
     accent?.copy(alpha = 0.045f)?.compositeOver(scheme.surfaceContainerLow)
@@ -117,7 +124,7 @@ fun MaxSurface(
         .clip(studioCardShape)
         .background(studioSurfaceColor(scheme, accent))
         .border(
-            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) 0.22f else MaxUiAlpha.surfaceBorder)),
+            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) MaxAlpha.borderStrong else MaxAlpha.border)),
             studioCardShape
         )
     if (onClick != null) {
@@ -150,7 +157,7 @@ fun MaxSurfaceBox(
         .background(containerColor ?: studioSurfaceColor(scheme, accent))
     if (borderEnabled) {
         m = m.border(
-            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) 0.22f else MaxUiAlpha.surfaceBorder)),
+            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) MaxAlpha.borderStrong else MaxAlpha.border)),
             shape
         )
     }
@@ -198,16 +205,16 @@ fun MaxStatusPill(text: String, active: Boolean, accent: Color = MaterialTheme.c
     )
     Surface(
         modifier = Modifier.semantics { stateDescription = text },
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(MaxRadius.control),
         color = color.copy(alpha = 0.08f).compositeOver(scheme.surfaceContainerLow),
         border = BorderStroke(1.dp, color.copy(alpha = 0.22f))
     ) {
         Row(
-            Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            Modifier.padding(horizontal = MaxSpace.md, vertical = MaxSpace.sm),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(7.dp)
         ) {
-            Box(Modifier.size(6.dp).clip(RoundedCornerShape(if (active) 50 else 20)).background(color))
+            Box(Modifier.size(MaxSpace.sm).clip(RoundedCornerShape(if (active) 50 else 20)).background(color))
             Text(text, style = MaterialTheme.typography.labelMedium, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
@@ -227,42 +234,43 @@ fun MaxMetric(
     val scheme = MaterialTheme.colorScheme
     MaxSurface(modifier = modifier, accent = accent, onClick = onClick) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = RoundedCornerShape(12.dp), color = accent.copy(alpha = 0.10f)) {
-                Icon(icon, null, tint = accent, modifier = Modifier.padding(9.dp).size(20.dp))
+            Surface(
+                shape = RoundedCornerShape(MaxRadius.control),
+                color = accent.copy(alpha = MaxAlpha.toneContainer)
+            ) {
+                Icon(icon, null, tint = accent, modifier = Modifier.padding(MaxSpace.sm).size(MaxSize.iconGlyph))
             }
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(MaxSpace.md))
+            Column(Modifier.weight(1f)) {
+                Text(label, style = MaterialTheme.typography.labelMedium, color = scheme.onSurfaceVariant)
+                Spacer(Modifier.height(MaxSpace.xs))
+                Row(verticalAlignment = Alignment.Bottom) {
+                    AnimatedContent(
+                        targetState = value,
+                        transitionSpec = {
+                            fadeIn(tween(MaxMotion.standard, easing = FastOutSlowInEasing)) togetherWith fadeOut(tween(MaxMotion.fast))
+                        },
+                        label = "metricValue"
+                    ) { animatedValue ->
+                        Text(
+                            animatedValue,
+                            style = MaterialTheme.typography.titleLarge.copy(fontFeatureSettings = "tnum"),
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface
+                        )
+                    }
+                    if (unit.isNotBlank()) {
+                        Text(unit, style = MonoValueStyleMedium, color = scheme.onSurfaceVariant, modifier = Modifier.padding(start = 5.dp, bottom = 1.dp))
+                    }
+                }
+                if (!supporting.isNullOrBlank()) {
+                    Spacer(Modifier.height(MaxSpace.xs))
+                    Text(supporting, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+                }
+            }
             if (onClick != null) {
-                Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = accent, modifier = Modifier.size(18.dp))
+                Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = accent, modifier = Modifier.size(MaxSize.iconGlyph))
             }
-        }
-        Spacer(Modifier.height(16.dp))
-        Text(label, style = MaterialTheme.typography.labelLarge, color = scheme.onSurfaceVariant)
-        Spacer(Modifier.height(4.dp))
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
-            AnimatedContent(
-                targetState = value,
-                modifier = Modifier.weight(1f, fill = false),
-                transitionSpec = {
-                    fadeIn(tween(MaxMotion.standard, easing = FastOutSlowInEasing)) togetherWith fadeOut(tween(MaxMotion.fast))
-                },
-                label = "metricValue"
-            ) { animatedValue ->
-                Text(
-                    animatedValue,
-                    style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "tnum"),
-                    fontWeight = FontWeight.Bold,
-                    color = scheme.onSurface
-                )
-            }
-            if (unit.isNotBlank()) {
-                Text(unit, style = MonoValueStyleMedium, color = scheme.onSurfaceVariant, modifier = Modifier.padding(start = 5.dp, bottom = 3.dp))
-            }
-        }
-        if (!supporting.isNullOrBlank()) {
-            Spacer(Modifier.height(12.dp))
-            Box(Modifier.fillMaxWidth().height(1.dp).background(scheme.outlineVariant.copy(alpha = 0.45f)))
-            Spacer(Modifier.height(9.dp))
-            Text(supporting, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
         }
     }
 }
@@ -296,13 +304,13 @@ fun MaxActionRow(
             .maxButtonSemantics(title),
         shape = studioActionShape,
         color = scheme.surfaceContainerLow,
-        border = BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = MaxUiAlpha.surfaceBorder))
+        border = BorderStroke(MaxSize.hairlineBorder, scheme.outlineVariant.copy(alpha = MaxAlpha.border))
     ) {
-        Row(Modifier.heightIn(min = 72.dp).padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = RoundedCornerShape(12.dp), color = accent.copy(alpha = MaxUiAlpha.accentSurface)) {
-                Icon(icon, null, tint = accent, modifier = Modifier.padding(10.dp).size(20.dp))
+        Row(Modifier.heightIn(min = MaxSize.minTouchTarget).padding(horizontal = MaxSpace.lg, vertical = MaxSpace.md), verticalAlignment = Alignment.CenterVertically) {
+            Surface(shape = RoundedCornerShape(MaxRadius.control), color = accent.copy(alpha = MaxAlpha.toneContainer)) {
+                Icon(icon, null, tint = accent, modifier = Modifier.padding(MaxSpace.sm).size(MaxSize.iconGlyph))
             }
-            Spacer(Modifier.width(14.dp))
+            Spacer(Modifier.width(MaxSpace.md))
             Column(Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 if (subtitle.isNotBlank()) {
@@ -311,18 +319,18 @@ fun MaxActionRow(
                 }
                 if (!value.isNullOrBlank()) {
                     Spacer(Modifier.height(7.dp))
-                    Surface(shape = RoundedCornerShape(6.dp), color = accent.copy(alpha = 0.08f)) {
+                    Surface(shape = RoundedCornerShape(MaxRadius.control), color = accent.copy(alpha = MaxAlpha.toneContainer)) {
                         AnimatedContent(
                             targetState = value,
                             transitionSpec = { fadeIn(tween(MaxMotion.fast)) togetherWith fadeOut(tween(MaxMotion.fast)) },
                             label = "actionValue"
                         ) { animatedValue ->
-                            Text(animatedValue, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp), style = MaterialTheme.typography.labelMedium, color = accent)
+                            Text(animatedValue, modifier = Modifier.padding(horizontal = MaxSpace.sm, vertical = MaxSpace.hairline), style = MaterialTheme.typography.labelMedium, color = accent)
                         }
                     }
                 }
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(MaxSpace.md))
             Icon(
                 Icons.AutoMirrored.Rounded.ArrowForward, null, tint = accent,
                 modifier = Modifier.size(20.dp).graphicsLayer {
@@ -337,7 +345,7 @@ fun MaxActionRow(
 @Composable
 fun MaxSparkline(values: List<Float>, accent: Color, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
-    Canvas(modifier = modifier.fillMaxWidth().height(72.dp)) {
+    Canvas(modifier = modifier.fillMaxWidth().height(MaxSize.sparklineHeight)) {
         if (values.size < 2) return@Canvas
         val min = values.minOrNull() ?: 0f
         val max = values.maxOrNull() ?: 1f
@@ -350,7 +358,7 @@ fun MaxSparkline(values: List<Float>, accent: Color, modifier: Modifier = Modifi
         }
         for (i in 1..3) {
             val y = inset + plotHeight * i / 4f
-            drawLine(scheme.outlineVariant.copy(alpha = 0.35f), Offset(inset, y), Offset(size.width - inset, y), 1.dp.toPx())
+            drawLine(scheme.outlineVariant.copy(alpha = MaxAlpha.border), Offset(inset, y), Offset(size.width - inset, y), 1.dp.toPx())
         }
         val path = Path().apply {
             moveTo(points.first().x, points.first().y)
@@ -362,7 +370,7 @@ fun MaxSparkline(values: List<Float>, accent: Color, modifier: Modifier = Modifi
             lineTo(points.first().x, size.height - inset)
             close()
         }
-        drawPath(areaPath, accent.copy(alpha = 0.06f))
+        drawPath(areaPath, accent.copy(alpha = 0.055f))
         drawPath(path, accent, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round))
         drawCircle(scheme.surfaceContainerLow, radius = 4.dp.toPx(), center = points.last())
         drawCircle(accent, radius = 2.5.dp.toPx(), center = points.last())
