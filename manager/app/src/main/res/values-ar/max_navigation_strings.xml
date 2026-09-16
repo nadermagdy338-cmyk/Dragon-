@@ -6,7 +6,8 @@
     <string name="max_nav_apps">التطبيقات</string>
     <string name="max_nav_max_ai">Max AI</string>
     <string name="max_nav_settings">الإعدادات</string>
-    <string name="max_nav_advanced_tools">أدوات متقدمة</string>
+    <string name="max_nav_advanced_tools">أدوات</string>
+    <string name="max_nav_config_backup">النسخ والاستعادة</string>
 
     <!-- Domain hub titles (ADR-04) -->
     <string name="max_hub_cpu">المعالج</string>
@@ -28,10 +29,19 @@
     <string name="max_hub_network">الشبكة</string>
     <string name="max_hub_network_desc">جدولة حركة البيانات وحالة الاتصال</string>
 
-    <!-- Legacy tweaks workspace -->
-    <string name="max_nav_all_tweaks_section">قديم</string>
-    <string name="max_nav_all_tweaks">كل التعديلات (قديم)</string>
-    <string name="max_nav_all_tweaks_desc">قائمة مسطحة تبقى حتى انتقال كل مفتاح إلى مركز نطاقه</string>
+    <!-- أقسام مراكز النطاقات -->
+    <string name="max_hub_switches_title">تحكّم مباشر</string>
+
+    <!-- نسخ الإعدادات واستعادتها -->
+    <string name="max_config_backup_desc">احفظ إعدادات MaxManager أو استعدها</string>
+    <string name="max_config_backup_help">ملف النسخة يحفظ التعديلات التي طبّقتها وإعدادات كل تطبيق، حتى تنقلها إلى روم آخر أو تعود إلى حالة تعرف أنها سليمة. استعادة التعديلات تتطلب نفس شرائح الجهاز التي أُخذت منها النسخة، أما إعدادات التطبيقات فيمكن استعادتها دائماً.</string>
+    <string name="max_config_backup_section">ملف الإعدادات</string>
+    <string name="max_config_backup_action">إنشاء نسخة احتياطية</string>
+    <string name="max_config_backup_action_desc">كتابة إعداداتك إلى ملف تختاره</string>
+    <string name="max_config_restore_action">استعادة من نسخة</string>
+    <string name="max_config_restore_action_desc">قراءة ملف إعدادات محفوظ سابقاً</string>
+    <string name="max_config_backup_scope_title">ماذا تحتوي النسخة</string>
+    <string name="max_config_backup_scope_note">يُتحقق من صلاحيات الروت ومن شرائح هذا الجهاز قبل كتابة أي شيء</string>
 
     <!-- Screen titles that had no resource of their own -->
     <string name="max_title_vendor_boost">تحسين المورّد</string>

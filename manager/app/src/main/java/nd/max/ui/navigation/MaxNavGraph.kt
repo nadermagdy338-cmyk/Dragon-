@@ -38,9 +38,6 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.StorageHub.route) { MaxDomainHubScreen(navController, MaxDestination.StorageHub) }
     composable(MaxDestination.NetworkHub.route) { MaxDomainHubScreen(navController, MaxDestination.NetworkHub) }
 
-    // Legacy flat tweaks workspace (see MaxDestination.AllTweaks kdoc)
-    composable(MaxDestination.AllTweaks.route) { TweakScreen(navController) }
-
     // Feature screens
     composable(MaxDestination.CpuCoreControl.route) { CpuCoreControlScreen(navController) }
     composable(MaxDestination.GovernorSettings.route) { GovSettings(navController) }
@@ -78,6 +75,7 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.ColorScheme.route) { ColorSchemeSettings(navController) }
     composable(MaxDestination.Diagnostics.route) { DiagnosticsScreen(navController) }
     composable(MaxDestination.Logs.route) { LogsViewerScreen(navController) }
+    composable(MaxDestination.ConfigBackup.route) { ConfigBackupScreen(navController) }
     composable(MaxDestination.About.route) { AboutScreen(navController) }
 
     // Settings - Advanced tools (risk-gated in SettingsScreen, ADR-16)

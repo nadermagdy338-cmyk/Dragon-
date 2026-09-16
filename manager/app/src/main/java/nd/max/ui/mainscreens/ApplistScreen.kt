@@ -4,6 +4,7 @@ package nd.max.ui.mainscreens
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxRow
+import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxSection
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
@@ -123,6 +124,10 @@ fun ApplistScreen(navController: NavHostController) {
                     }
                 },
                 actions = {
+                    MaxHelpAction(
+                        title = stringResource(R.string.applist_hero_title),
+                        body = stringResource(R.string.applist_hero_desc),
+                    )
                     IconButton(
                         onClick = { viewModel.loadApps(context, forceRefresh = true) },
                         enabled = !viewModel.isRefreshing
@@ -173,21 +178,10 @@ fun ApplistScreen(navController: NavHostController) {
                         ),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        item {
-                            AppListHero(
-                                total = totalApps,
-                                customized = customizedApps,
-                                games = gameApps
-                            )
-                        }
-                        item(key = "apps_product_bridge") {
-                            AppsProductBridge(
-                                customized = customizedApps,
-                                games = gameApps,
-                                onOpenControl = { MaxNavActions(navController).navigateTo(MaxDestination.Control) },
-                                onOpenLive = { MaxNavActions(navController).navigateTo(MaxDestination.MaxLive) }
-                            )
-                        }
+                        // The hero card and the "app behaviour in the system" bridge were
+                        // removed: the filter row below already carries every count they
+                        // showed, and the page explanation now lives in the top-bar help
+                        // action instead of a permanent card.
                         item {
                             AppSearchField(
                                 query = viewModel.searchTextFieldValue,
@@ -252,124 +246,6 @@ fun ApplistScreen(navController: NavHostController) {
                     }
                 }
             }
-        }
-    }
-}
-
-
-@Composable
-private fun AppListHero(total: Int, customized: Int, games: Int) {
-    val colors = MaterialTheme.colorScheme
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.surfaceContainerLow),
-        border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .55f))
-    ) {
-        Box(
-            Modifier.background(
-                Brush.linearGradient(
-                    listOf(
-                        colors.primary.copy(alpha = .14f),
-                        Color.Transparent,
-                        colors.tertiary.copy(alpha = .08f)
-                    )
-                )
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconBadge(Icons.Rounded.Apps, colors.primary, 52)
-                    Spacer(Modifier.width(14.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            stringResource(R.string.applist_hero_title),
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            stringResource(R.string.applist_hero_desc),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colors.onSurfaceVariant
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    AppMetric(
-                        stringResource(R.string.applist_metric_installed),
-                        total,
-                        Modifier.weight(1f)
-                    )
-                    AppMetric(
-                        stringResource(R.string.applist_metric_customized),
-                        customized,
-                        Modifier.weight(1f)
-                    )
-                    AppMetric(
-                        stringResource(R.string.applist_metric_games),
-                        games,
-                        Modifier.weight(1f)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AppMetric(label: String, value: Int, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = .78f)
-    ) {
-        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
-            Text(
-                value.toString(),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
-            )
-        }
-    }
-}
-
-@Composable
-private fun AppsProductBridge(
-    customized: Int,
-    games: Int,
-    onOpenControl: () -> Unit,
-    onOpenLive: () -> Unit
-) {
-    MaxSection(
-        title = stringResource(R.string.apps_bridge_title),
-        description = stringResource(R.string.apps_bridge_desc)
-    ) {
-        MaxGroup {
-            MaxRow(
-                title = stringResource(R.string.apps_bridge_profiles_title),
-                subtitle = stringResource(R.string.apps_bridge_profiles_desc, customized, games),
-                icon = MaxDestination.MaxLive.icon,
-                onClick = onOpenLive,
-            )
-            MaxGroupDivider()
-            MaxRow(
-                title = stringResource(R.string.apps_bridge_control_title),
-                subtitle = stringResource(R.string.apps_bridge_control_desc),
-                icon = MaxDestination.Control.icon,
-                onClick = onOpenControl,
-            )
         }
     }
 }

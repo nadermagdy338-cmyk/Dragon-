@@ -1137,7 +1137,7 @@ private fun quickConfigAccent(id: String): Color = when (id) {
  * bold label, one-line description -- instead of the screen falling back
  * to ExpressiveTile's generic neutral treatment. Kept local to this screen
  * (not a change to ExpressiveTile itself) since that component is shared
- * with TweakScreen.kt and this per-preset coloring is specific to core
+ * with the tweak workspace and this per-preset coloring is specific to core
  * presets, not something every ExpressiveTile caller should inherit.
  */
 @Composable

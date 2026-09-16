@@ -282,10 +282,20 @@ fun SettingsScreen(
                 item { SettingsSectionTitle(stringResource(R.string.section_features)) }
 
                 item {
+                    // Diagnostics + log viewer were removed from Settings: they are
+                    // developer surfaces, not preferences. Backup/restore moved here
+                    // from the retired flat tweaks workspace instead.
                     ExpressiveList(
                         content = listOf(
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Diagnostics) }, headlineContent = { Text(stringResource(R.string.max_settings_diagnostics)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.BugReport) }) },
-                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Logs) }, headlineContent = { Text(stringResource(R.string.max_settings_logs)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.ListAlt) }) },
+                            {
+                                ExpressiveListItem(
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ConfigBackup) },
+                                    headlineContent = { Text(stringResource(R.string.max_nav_config_backup)) },
+                                    supportingContent = { Text(stringResource(R.string.max_config_backup_desc)) },
+                                    leadingContent = { LeadingIcon(icon = Icons.Rounded.Backup) },
+                                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                                )
+                            },
                         )
                     )
                 }

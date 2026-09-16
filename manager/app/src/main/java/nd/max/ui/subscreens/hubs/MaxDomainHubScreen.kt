@@ -1,25 +1,56 @@
 package nd.max.ui.subscreens.hubs
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ThermostatAuto
+import androidx.compose.material.icons.outlined.ContentCut
+import androidx.compose.material.icons.rounded.CleaningServices
+import androidx.compose.material.icons.rounded.DoNotDisturbOn
+import androidx.compose.material.icons.rounded.RocketLaunch
+import androidx.compose.material.icons.rounded.SettingsSuggest
+import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.SwapVerticalCircle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import nd.max.R
+import nd.max.ui.component.RendererDialog
+import nd.max.ui.component.RootAppDialog
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
+import nd.max.ui.design.MaxHelpAction
+import nd.max.ui.design.MaxNavigationRow
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxScreen
 import nd.max.ui.design.MaxSection
+import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
+import nd.max.ui.viewmodel.TweakViewModel
 
 /**
  * Shared body of the nine Control domain hubs (ADR-04).
  *
- * Rows are derived from [MaxDestination] parentage so the registry stays the
- * single source of truth. A few screens serve several domains (the MTK vendor
- * screen carries CPU, GPU/DRAM and thermal tabs; the preference editor carries
- * both CPU and VM/swappiness rows); those are cross-listed explicitly below
- * until NT-03 dissolves the tabbed screens.
+ * Navigation rows are derived from [MaxDestination] parentage so the registry
+ * stays the single source of truth. A few screens serve several domains (the
+ * MTK vendor screen carries CPU, GPU/DRAM and thermal tabs; the preference
+ * editor carries both CPU and VM/swappiness rows); those are cross-listed
+ * explicitly below.
+ *
+ * The hub also owns the switches that used to live in the removed flat tweaks
+ * workspace: each one now sits in the domain it actually belongs to, so there
+ * is exactly one place to look for a given knob.
+ *
+ * The "what is this page for" copy is NOT a card. It lives behind the top-bar
+ * help action, which keeps every hub the same height and removes the large
+ * question/answer block that dominated the old layout.
  */
 @Composable
 fun MaxDomainHubScreen(navController: NavHostController, destination: MaxDestination) {
@@ -28,39 +59,180 @@ fun MaxDomainHubScreen(navController: NavHostController, destination: MaxDestina
 
     MaxScreen(
         title = stringResource(destination.titleRes),
+        subtitle = stringResource(maxHubDescription(destination)),
         onBack = actions::back,
         accentIcon = destination.icon,
+        actions = {
+            MaxHelpAction(
+                title = stringResource(maxHubQuestionTitle(destination)),
+                body = stringResource(maxHubQuestionDescription(destination)),
+            )
+        },
     ) {
-        MaxSection(
-            title = stringResource(R.string.max_hub_experience_title),
-            description = stringResource(maxHubDescription(destination)),
-        ) {
-            MaxGroup {
-                MaxRow(
-                    title = stringResource(maxHubQuestionTitle(destination)),
-                    subtitle = stringResource(maxHubQuestionDescription(destination)),
-                    icon = destination.icon,
-                )
-            }
-        }
-
-        MaxSection(
-            title = stringResource(R.string.max_hub_tools_title),
-            description = stringResource(R.string.max_hub_tools_desc, rows.size),
-        ) {
-            MaxGroup {
-                rows.forEachIndexed { index, row ->
-                    if (index > 0) MaxGroupDivider()
-                    MaxRow(
-                        title = stringResource(row.titleRes),
-                        subtitle = stringResource(maxDestinationRole(row)),
-                        icon = row.icon,
-                        onClick = { actions.navigateTo(row) },
-                    )
+        if (rows.isNotEmpty()) {
+            MaxSection(title = stringResource(R.string.max_hub_tools_title)) {
+                MaxGroup {
+                    rows.forEachIndexed { index, row ->
+                        if (index > 0) MaxGroupDivider()
+                        MaxRow(
+                            title = stringResource(row.titleRes),
+                            subtitle = stringResource(maxDestinationRole(row)),
+                            icon = row.icon,
+                            onClick = { actions.navigateTo(row) },
+                        )
+                    }
                 }
             }
         }
+
+        if (hubOwnsDirectControls(destination)) {
+            HubDirectControls(destination)
+        }
     }
+}
+
+/** Hubs that absorbed switches from the retired flat tweaks workspace. */
+private fun hubOwnsDirectControls(hub: MaxDestination): Boolean = when (hub) {
+    MaxDestination.ResponsivenessHub,
+    MaxDestination.MemoryHub,
+    MaxDestination.StorageHub,
+    MaxDestination.ThermalHub,
+    MaxDestination.DisplayHub -> true
+    else -> false
+}
+
+/**
+ * Direct switches for one hub.
+ *
+ * Isolated in its own composable so [TweakViewModel] (and its root reads) is
+ * only created for the five hubs that actually need it.
+ */
+@Composable
+private fun HubDirectControls(
+    hub: MaxDestination,
+    viewModel: TweakViewModel = viewModel(),
+) {
+    val context = LocalContext.current
+    var showRendererDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(hub) {
+        viewModel.loadAllConfiguration(context)
+    }
+
+    val toggles = hubToggles(hub, viewModel).filter { it.checked != null }
+    val showRenderer = hub == MaxDestination.DisplayHub
+
+    if (toggles.isEmpty() && !showRenderer) return
+
+    MaxSection(title = stringResource(R.string.max_hub_switches_title)) {
+        MaxGroup {
+            toggles.forEachIndexed { index, toggle ->
+                if (index > 0) MaxGroupDivider()
+                MaxSwitchRow(
+                    title = stringResource(toggle.titleRes),
+                    subtitle = stringResource(toggle.descRes),
+                    icon = toggle.icon,
+                    checked = toggle.checked == true,
+                    onCheckedChange = toggle.onCheckedChange,
+                )
+            }
+
+            if (showRenderer) {
+                if (toggles.isNotEmpty()) MaxGroupDivider()
+                MaxNavigationRow(
+                    title = stringResource(R.string.renderengine),
+                    subtitle = stringResource(R.string.renderengine_desc),
+                    valueText = viewModel.currentRenderer?.uppercase(),
+                    icon = Icons.Rounded.SettingsSuggest,
+                    enabled = !viewModel.isRendererLoading,
+                    onClick = { showRendererDialog = true },
+                )
+            }
+        }
+    }
+
+    if (showRenderer) {
+        RootAppDialog {
+            RendererDialog(
+                show = showRendererDialog,
+                onDismiss = { showRendererDialog = false },
+                onRenderer = { reason -> viewModel.executeSetRenderer(reason, context) },
+            )
+        }
+    }
+}
+
+private class HubToggle(
+    @androidx.annotation.StringRes val titleRes: Int,
+    @androidx.annotation.StringRes val descRes: Int,
+    val icon: ImageVector,
+    val checked: Boolean?,
+    val onCheckedChange: (Boolean) -> Unit,
+)
+
+private fun hubToggles(hub: MaxDestination, vm: TweakViewModel): List<HubToggle> = when (hub) {
+    MaxDestination.ResponsivenessHub -> listOf(
+        HubToggle(
+            R.string.perf_lite_mode,
+            R.string.perf_lite_mode_desc,
+            Icons.Rounded.Speed,
+            vm.liteState,
+            vm::updateLiteMode,
+        ),
+        HubToggle(
+            R.string.app_priority_control,
+            R.string.app_priority_control_desc,
+            Icons.Rounded.SwapVerticalCircle,
+            vm.appPriorState,
+            vm::updateAppPriority,
+        ),
+        HubToggle(
+            R.string.dnd_mode_gaming,
+            R.string.dnd_mode_gaming_desc,
+            Icons.Rounded.DoNotDisturbOn,
+            vm.dndState,
+            vm::updateDndMode,
+        ),
+    )
+
+    MaxDestination.MemoryHub -> listOf(
+        HubToggle(
+            R.string.memory_killer,
+            R.string.memory_killer_desc,
+            Icons.Rounded.CleaningServices,
+            vm.memKillerState,
+            vm::updateMemoryKiller,
+        ),
+        HubToggle(
+            R.string.game_preload,
+            R.string.game_preload_desc,
+            Icons.Rounded.RocketLaunch,
+            vm.preloadState,
+            vm::updatePreloadMode,
+        ),
+    )
+
+    MaxDestination.StorageHub -> listOf(
+        HubToggle(
+            R.string.trim_filesystem,
+            R.string.trim_filesystem_desc,
+            Icons.Outlined.ContentCut,
+            vm.fstrimState,
+            vm::updateFstrim,
+        ),
+    )
+
+    MaxDestination.ThermalHub -> listOf(
+        HubToggle(
+            R.string.thermalcore_service,
+            R.string.thermalcore_service_desc,
+            Icons.Filled.ThermostatAuto,
+            vm.thermalState,
+            vm::updateThermalCore,
+        ),
+    )
+
+    else -> emptyList()
 }
 
 /** Screens that belong to more than one domain (see kdoc above). */
@@ -85,8 +257,6 @@ fun maxHubDescription(hub: MaxDestination): Int = when (hub) {
     MaxDestination.NetworkHub -> R.string.max_hub_network_desc
     else -> R.string.max_status_unknown
 }
-
-
 
 @androidx.annotation.StringRes
 private fun maxHubQuestionTitle(hub: MaxDestination): Int = when (hub) {

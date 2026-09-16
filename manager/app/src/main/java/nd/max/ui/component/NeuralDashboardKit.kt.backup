@@ -1,9 +1,15 @@
 package nd.max.ui.component
 
+import android.graphics.Color as AndroidColor
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -21,6 +27,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -57,6 +64,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
@@ -68,6 +76,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.ui.theme.MonoValueStyleSmall
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Neural dashboard kit — the single visual language for MAX's data surfaces.
@@ -526,6 +537,114 @@ fun NeuralBarSpectrum(
 
 // ---------------------------------------------------------------- rings
 
+@Immutable
+data class NeuralRingSeries(val fraction: Float, val color: Color)
+
+/**
+ * Concentric vital ring — the screen's signature element. Three arcs share one
+ * center so compute, graphics and memory pressure are compared at a glance,
+ * with the headline reading (temperature and state) living inside the ring.
+ */
+@Composable
+fun NeuralVitalRing(
+    series: List<NeuralRingSeries>,
+    modifier: Modifier = Modifier,
+    diameter: Dp = 176.dp,
+    stroke: Dp = 12.dp,
+    gap: Dp = 7.dp,
+    pulse: Boolean = true,
+    center: @Composable () -> Unit,
+) {
+    val p = neuralPalette()
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { shown = true }
+    val appear by animateFloatAsState(
+        targetValue = if (shown) 1f else 0f,
+        animationSpec = tween(900, easing = FastOutSlowInEasing),
+        label = "neural-ring",
+    )
+    val transition = rememberInfiniteTransition(label = "neural-pulse")
+    val breath by transition.animateFloat(
+        initialValue = if (pulse) .10f else 0f,
+        targetValue = if (pulse) .26f else 0f,
+        animationSpec = infiniteRepeatable(tween(2200, easing = LinearEasing), RepeatMode.Reverse),
+        label = "neural-breath",
+    )
+    Box(modifier.size(diameter), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.fillMaxSize()) {
+            val strokePx = stroke.toPx()
+            val gapPx = gap.toPx()
+            val lead = series.firstOrNull()?.color ?: p.accent
+            drawCircle(
+                brush = Brush.radialGradient(
+                    listOf(lead.copy(alpha = breath), Color.Transparent),
+                    center = Offset(size.width / 2f, size.height / 2f),
+                    radius = size.minDimension / 2f,
+                ),
+                radius = size.minDimension / 2f,
+            )
+            series.forEachIndexed { index, item ->
+                val inset = strokePx / 2f + index * (strokePx + gapPx)
+                val arcSize = Size(size.width - inset * 2f, size.height - inset * 2f)
+                if (arcSize.minDimension <= 0f) return@forEachIndexed
+                drawArc(
+                    color = p.grid,
+                    startAngle = -90f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    topLeft = Offset(inset, inset),
+                    size = arcSize,
+                    style = Stroke(width = strokePx, cap = StrokeCap.Round),
+                )
+                val sweep = 360f * item.fraction.coerceIn(0f, 1f) * appear
+                if (sweep > 0f) {
+                    drawArc(
+                        brush = Brush.sweepGradient(
+                            listOf(item.color.copy(alpha = .35f), item.color, item.color.copy(alpha = .35f))
+                        ),
+                        startAngle = -90f,
+                        sweepAngle = sweep,
+                        useCenter = false,
+                        topLeft = Offset(inset, inset),
+                        size = arcSize,
+                        style = Stroke(width = strokePx, cap = StrokeCap.Round),
+                    )
+                }
+            }
+        }
+        center()
+    }
+}
+
+/** Ring plus captions, sized for a three-up row. */
+@Composable
+fun NeuralRingStat(
+    caption: String,
+    value: String,
+    fraction: Float,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    support: String? = null,
+    onClick: (() -> Unit)? = null,
+) {
+    val p = neuralPalette()
+    Column(
+        modifier.neuralClickable(onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        NeuralVitalRing(
+            series = listOf(NeuralRingSeries(fraction, accent)),
+            diameter = 74.dp,
+            stroke = 7.dp,
+            pulse = false,
+        ) {
+            NeuralValue(value, style = MonoValueStyleSmall.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold), color = p.text)
+        }
+        NeuralCaption(caption, color = p.muted)
+        if (support != null) NeuralValue(support, style = MonoValueStyleSmall.copy(fontSize = 10.sp), color = accent)
+    }
+}
 
 // ---------------------------------------------------------------- readouts
 

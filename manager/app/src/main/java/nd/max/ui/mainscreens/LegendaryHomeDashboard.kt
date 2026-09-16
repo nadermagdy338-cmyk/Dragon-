@@ -63,12 +63,10 @@ import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralKpiTile
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
-import nd.max.ui.component.NeuralRingSeries
 import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.NeuralTile
 import nd.max.ui.component.NeuralTrack
 import nd.max.ui.component.NeuralValue
-import nd.max.ui.component.NeuralVitalRing
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.theme.MonoValueStyleSmall
@@ -243,9 +241,11 @@ private fun HeaderButton(icon: ImageVector, description: String, onClick: () -> 
 }
 
 /**
- * The signature block. Three concentric arcs (compute, graphics, memory) around
- * the temperature, because the first question is never "what is CPU load" but
- * "is anything under pressure, and is the device hot".
+ * The signature block. One headline reading (heat plus a plain-language verdict)
+ * over three pressure meters, because the first question is never "what is CPU
+ * load" but "is anything under pressure, and is the device hot". Straight bars
+ * beat a dial here: they share one baseline, so three values are comparable at a
+ * glance and every label has room to breathe in either writing direction.
  */
 @Composable
 private fun PulsePanel(
@@ -285,33 +285,48 @@ private fun PulsePanel(
                 )
             }
         }
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            NeuralVitalRing(
-                series = listOf(
-                    NeuralRingSeries(cpu / 100f, p.accent),
-                    NeuralRingSeries((gpu ?: 0) / 100f, p.accentAlt),
-                    NeuralRingSeries(ramFraction, p.ok)
-                ),
-                diameter = 182.dp
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    NeuralCaption(stringResource(R.string.home_temperature_short), color = heatAccent)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                NeuralCaption(stringResource(R.string.home_temperature_short), color = heatAccent)
+                Row(verticalAlignment = Alignment.Bottom) {
                     NeuralValue(
-                        heat?.let { "$it\u00b0" } ?: "\u2014",
-                        style = MonoValueStyleSmall.copy(fontSize = 38.sp, lineHeight = 42.sp, fontWeight = FontWeight.Bold),
+                        heat?.toString() ?: "\u2014",
+                        style = MonoValueStyleSmall.copy(
+                            fontSize = 44.sp,
+                            lineHeight = 48.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
                         color = p.text
                     )
-                    NeuralCaption(
-                        stringResource(if (calm) R.string.home_system_stable else R.string.home_system_attention),
-                        color = if (calm) p.ok else heatAccent
-                    )
+                    Spacer(Modifier.width(4.dp))
+                    NeuralCaption("\u00b0C", color = p.muted)
                 }
             }
+            NeuralPill(
+                text = stringResource(if (calm) R.string.home_system_stable else R.string.home_system_attention),
+                accent = if (calm) p.ok else heatAccent,
+                dot = true
+            )
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            RingLegend("CPU", "$cpu%", p.accent)
-            RingLegend("GPU", gpu?.let { "$it%" } ?: "\u2014", p.accentAlt)
-            RingLegend("RAM", "${(ramFraction * 100).roundToInt()}%", p.ok)
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(11.dp)) {
+            NeuralBudgetBar(
+                label = "CPU",
+                value = "$cpu%",
+                fraction = cpu / 100f,
+                accent = p.accent
+            )
+            NeuralBudgetBar(
+                label = "GPU",
+                value = gpu?.let { "$it%" } ?: "\u2014",
+                fraction = (gpu ?: 0) / 100f,
+                accent = p.accentAlt
+            )
+            NeuralBudgetBar(
+                label = "RAM",
+                value = "${(ramFraction * 100).roundToInt()}%",
+                fraction = ramFraction,
+                accent = p.ok
+            )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NeuralFactTile(
@@ -337,22 +352,6 @@ private fun PulsePanel(
             text = stringResource(R.string.home_device_overview),
             accent = p.muted,
             onClick = onOverview
-        )
-    }
-}
-
-@Composable
-private fun RingLegend(label: String, value: String, accent: Color) {
-    val p = neuralPalette()
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(7.dp).clip(CircleShape).background(accent))
-        Spacer(Modifier.width(6.dp))
-        NeuralCaption(label, color = p.muted)
-        Spacer(Modifier.width(6.dp))
-        NeuralValue(
-            value,
-            style = MonoValueStyleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
-            color = accent
         )
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.material.icons.rounded.AppSettingsAlt
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.AspectRatio
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.BatteryFull
 import androidx.compose.material.icons.rounded.Bedtime
@@ -96,14 +97,6 @@ sealed class MaxDestination(
     data object StorageHub : MaxDestination("hub_storage", R.string.max_hub_storage, Icons.Rounded.Storage, Control)
     data object NetworkHub : MaxDestination("hub_network", R.string.max_hub_network, Icons.Rounded.NetworkCheck, Control)
 
-    /**
-     * The pre-NT-01 flat tweaks workspace. Kept reachable because its toggle
-     * rows (lite mode, game preload, memory killer, app priority, DND gaming,
-     * fstrim, thermal core service, backup/restore) have no other home yet.
-     * Delete together with those toggles' absorption into the hubs (NT-03).
-     */
-    data object AllTweaks : MaxDestination("tweaks", R.string.max_nav_all_tweaks, Icons.Rounded.Tune, Control)
-
     // Feature screens: CPU domain
     data object CpuCoreControl : MaxDestination("cpucorecontrol", R.string.cpu_core_control_title, Icons.Rounded.DeveloperBoard, CpuHub)
     data object GovernorSettings : MaxDestination("governorsettings", R.string.gov_settings, Icons.Rounded.Tune, CpuHub)
@@ -154,6 +147,7 @@ sealed class MaxDestination(
     data object ColorScheme : MaxDestination("colorscheme", R.string.color_scheme, Icons.Rounded.ColorLens, Settings)
     data object Diagnostics : MaxDestination("diagnostics", R.string.section_diagnostics, Icons.Rounded.BugReport, Settings)
     data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.Rounded.ListAlt, Settings)
+    data object ConfigBackup : MaxDestination("config_backup", R.string.max_nav_config_backup, Icons.Rounded.Backup, Settings)
     data object About : MaxDestination("aboutscreen", R.string.section_about, Icons.Rounded.Info, Settings)
 
     // Control - Advanced tools (gated, not preferences)
@@ -170,13 +164,13 @@ sealed class MaxDestination(
         val All = listOf(
             GetStarted, Now, Control, Apps, MaxAi, MaxLive, Settings,
             CpuHub, GpuHub, MemoryHub, DisplayHub, ResponsivenessHub, ThermalHub,
-            PowerHub, StorageHub, NetworkHub, AllTweaks,
+            PowerHub, StorageHub, NetworkHub,
             CpuCoreControl, GovernorSettings, PreferenceTweaks, MtkVendor, GpuStudio,
             ZramManager, DisplayStudio, Resolution, TouchBoost, FpsGo, Fas, FpsOverlay,
             ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
             BatteryDetail, Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
             ProcessManager, DebloatFreeze, AppSettings,
-            ColorPalette, ColorScheme, Diagnostics, Logs, About,
+            ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, About,
             Terminal, SetEdit, ActivityLauncher, KernelFlasher,
         )
 

@@ -6,7 +6,8 @@
     <string name="max_nav_apps">Apps</string>
     <string name="max_nav_max_ai">Max AI</string>
     <string name="max_nav_settings">Settings</string>
-    <string name="max_nav_advanced_tools">Advanced tools</string>
+    <string name="max_nav_advanced_tools">Tools</string>
+    <string name="max_nav_config_backup">Backup &amp; restore</string>
 
     <!-- Domain hub titles (ADR-04) -->
     <string name="max_hub_cpu">CPU</string>
@@ -28,10 +29,19 @@
     <string name="max_hub_network">Network</string>
     <string name="max_hub_network_desc">Traffic scheduling and link state</string>
 
-    <!-- Legacy tweaks workspace -->
-    <string name="max_nav_all_tweaks_section">Legacy</string>
-    <string name="max_nav_all_tweaks">All tweaks (legacy)</string>
-    <string name="max_nav_all_tweaks_desc">Flat list kept until every toggle moves into a domain hub</string>
+    <!-- Domain hub sections -->
+    <string name="max_hub_switches_title">Direct controls</string>
+
+    <!-- Configuration backup -->
+    <string name="max_config_backup_desc">Save or restore your MaxManager configuration</string>
+    <string name="max_config_backup_help">A backup file stores the tweaks you applied and your per-app settings, so you can move them to another ROM or get back to a known-good state. Restoring tweaks requires the same chipset the backup was taken on; per-app settings can always be restored.</string>
+    <string name="max_config_backup_section">Configuration file</string>
+    <string name="max_config_backup_action">Create a backup</string>
+    <string name="max_config_backup_action_desc">Write your configuration to a file you choose</string>
+    <string name="max_config_restore_action">Restore from a backup</string>
+    <string name="max_config_restore_action_desc">Read a previously saved configuration file</string>
+    <string name="max_config_backup_scope_title">What a backup contains</string>
+    <string name="max_config_backup_scope_note">Root access and the chipset of this device are checked before anything is written back</string>
 
     <!-- Screen titles that had no resource of their own -->
     <string name="max_title_vendor_boost">Vendor Boost</string>
