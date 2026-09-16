@@ -22,8 +22,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -36,7 +34,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,237 +42,246 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.component.*
+import nd.max.ui.design.MaxAlpha
+import nd.max.ui.design.MaxBullets
+import nd.max.ui.design.MaxCondition
+import nd.max.ui.design.MaxConditionKind
+import nd.max.ui.design.MaxGroup
+import nd.max.ui.design.MaxGroupDivider
+import nd.max.ui.design.MaxHelpAction
+import nd.max.ui.design.MaxListScreen
+import nd.max.ui.design.MaxMetric
+import nd.max.ui.design.MaxMetricLine
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxRow
+import nd.max.ui.design.MaxSection
+import nd.max.ui.design.MaxSize
+import nd.max.ui.design.MaxSliderRow
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.MaxSwitchRow
+import nd.max.ui.design.MaxTone
 import nd.max.ui.mainscreens.IconBadge
-import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.util.CpuTopologyUtil
 import nd.max.ui.viewmodel.CpuCoreControlViewModel
 import nd.max.ui.viewmodel.CpuCoreRow
 import nd.max.ui.viewmodel.CpuFrequencyControlState
+
+/** Nodes this screen reads; shown as machine truth on condition panels. */
+private const val CPU_SOURCES = "/sys/devices/system/cpu"
+
+/** Keeps core counters left-to-right inside an RTL layout. */
+private const val LTR_MARK = "\u200E"
+
+/**
+ * The view model reports one localized sentence for an apply attempt, so the
+ * banner tone is derived from the wording it uses for a refusal.
+ */
+private val FREQUENCY_FAILURE_WORDS = listOf(
+    "رفض", "تعذّر", "تعارض", "أعاد ضبط", "كِيان خارجي"
+)
 
 @Composable
 fun CpuCoreControlScreen(
     navController: NavHostController,
     viewModel: CpuCoreControlViewModel = hiltViewModel()
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val listState = rememberLazyListState()
     val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
+    val accent = colorScheme.primary
+    val screenTitle = stringResource(R.string.cpu_core_control_title)
 
     LaunchedEffect(Unit) { viewModel.loadState(context) }
 
-    ScreenAccentProvider(colorScheme.primary) {
-        Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = { CpuCoreControlTopAppBar(scrollBehavior, onBack = { navController.popBackStack() }) },
-            containerColor = colorScheme.surface
-        ) { innerPadding ->
-            when (viewModel.isAvailable) {
-                null -> Box(
-                    Modifier.fillMaxSize().padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) { SectionLoadingIndicator() }
+    // The old screen opened with an AI banner, an insight paragraph and a
+    // duplicate "CORE GRID / Manual Core Control" heading before any control,
+    // then repeated the online count in a decision card that the hero already
+    // showed. The chrome is now the title bar, and the safety note is in help.
+    val condition = when (viewModel.isAvailable) {
+        null -> MaxCondition(
+            kind = MaxConditionKind.Loading,
+            title = screenTitle,
+            detail = stringResource(R.string.cpu_core_probe_detail),
+            technicalDetail = CPU_SOURCES
+        )
 
-                false -> Box(
-                    Modifier.fillMaxSize().padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.cpu_core_unavailable),
-                        modifier = Modifier.padding(horizontal = 32.dp),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        color = colorScheme.onSurfaceVariant
-                    )
+        false -> MaxCondition(
+            kind = MaxConditionKind.Unsupported,
+            title = screenTitle,
+            detail = stringResource(R.string.cpu_core_unavailable),
+            technicalDetail = CPU_SOURCES
+        )
+
+        else -> null
+    }
+
+    // Transient apply/verify feedback belongs in the scaffold banner slot,
+    // not in a dismissible card wedged between two control sections.
+    val actionMessage = viewModel.frequencyActionMessage
+    val banner = actionMessage?.let { message ->
+        val failed = FREQUENCY_FAILURE_WORDS.any { word -> message.contains(word) }
+        MaxCondition(
+            kind = if (failed) MaxConditionKind.Failed else MaxConditionKind.Applied,
+            title = stringResource(
+                if (failed) R.string.cpu_freq_action_failed
+                else R.string.cpu_freq_action_applied
+            ),
+            detail = message,
+            primaryActionLabel = stringResource(R.string.max_action_dismiss),
+            onPrimaryAction = viewModel::consumeFrequencyActionMessage
+        )
+    }
+
+    ScreenAccentProvider(accent) {
+        MaxListScreen(
+            title = screenTitle,
+            subtitle = stringResource(R.string.cpu_core_control_subtitle),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Outlined.Memory,
+            accent = accent,
+            condition = condition,
+            banner = banner,
+            actions = {
+                MaxHelpAction(
+                    title = screenTitle,
+                    body = stringResource(R.string.cpu_core_safety_note)
+                )
+            }
+        ) {
+            item {
+                CpuHeroCard(
+                    chipsetName = viewModel.chipsetName,
+                    onlineCores = viewModel.onlineCores,
+                    totalCores = viewModel.totalCores,
+                    coreRows = viewModel.coreRows
+                )
+            }
+
+            item {
+                CpuFrequencyControlSection(
+                    clusters = viewModel.clusters,
+                    controls = viewModel.frequencyControls,
+                    hasSessionChanges = viewModel.hasSessionFrequencyChanges,
+                    onApply = viewModel::applyFrequencyLimits,
+                    onRestore = viewModel::resetFrequencyLimits,
+                    onRestoreSession = viewModel::restoreSessionFrequencyLimits
+                )
+            }
+
+            item {
+                CpuCoresSection(
+                    clusters = viewModel.clusters,
+                    coreRows = viewModel.coreRows,
+                    clusterMaxFreqMhz = viewModel.clusterMaxFreqMhz
+                )
+            }
+
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.row)) {
+                    CpuSectionTitle(stringResource(R.string.cpu_core_quick_title))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
+                    ) {
+                        CpuCoreControlViewModel.QUICK_CONFIGS.forEach { config ->
+                            CoreQuickConfigTile(
+                                modifier = Modifier.weight(1f),
+                                icon = quickConfigIcon(config.id),
+                                label = quickConfigLabel(config.id),
+                                description = quickConfigDesc(config.id),
+                                accent = quickConfigAccent(config.id),
+                                onClick = { viewModel.applyQuickConfig(config.id) }
+                            )
+                        }
+                    }
                 }
+            }
 
-                true -> LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        top = innerPadding.calculateTopPadding() + 10.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 24.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    item {
-                        nd.max.ui.component.MaxAiActiveBanner(navController = navController)
-                    }
-                    item {
-                        MaxManagerInsight(
-                            text = "تحكم مباشر في سياسات الأنوية وتوزيعها بدون خلطها مع إعدادات الأداء العامة.",
-                            accent = colorScheme.primary,
-                            modifier = Modifier.padding(vertical = 2.dp)
-                        )
-                    }
-                    item { Spacer(Modifier.height(2.dp)) }
-                    item {
-                        Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-                            Text(
-                                text = "CORE GRID",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = colorScheme.onSurface
-                            )
-                            Text(
-                                text = "Manual Core Control",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = colorScheme.primary
-                            )
-                        }
-                    }
+            item {
+                CpuManualControlCard(
+                    enabled = viewModel.manualControlEnabled,
+                    onEnabledChange = viewModel::setManualControlEnabled
+                )
+            }
 
-                    item {
-                        CpuHeroCard(
-                            chipsetName = viewModel.chipsetName,
-                            onlineCores = viewModel.onlineCores,
-                            totalCores = viewModel.totalCores,
-                            coreRows = viewModel.coreRows
-                        )
-                    }
+            viewModel.clusters.forEach { cluster ->
+                val rows = viewModel.coreRows
+                    .filter { it.cluster.policyPath == cluster.policyPath }
 
-                    item {
-                        MaxDecisionCard(
-                            state = "${viewModel.onlineCores}/${viewModel.totalCores} cores online",
-                            guidance = if (viewModel.manualControlEnabled) "Manual control is active. Changes below directly affect core online state." else "Manual control is off. The kernel remains responsible for normal core policy.",
-                            icon = Icons.Outlined.Memory
-                        )
-                    }
-
-                    item {
-                        CpuFrequencyControlSection(
-                            clusters = viewModel.clusters,
-                            controls = viewModel.frequencyControls,
-                            hasSessionChanges = viewModel.hasSessionFrequencyChanges,
-                            onApply = viewModel::applyFrequencyLimits,
-                            onRestore = viewModel::resetFrequencyLimits,
-                            onRestoreSession = viewModel::restoreSessionFrequencyLimits
-                        )
-                    }
-
-                    viewModel.frequencyActionMessage?.let { message ->
-                        item {
-                            FrequencyActionBanner(
-                                message = message,
-                                onDismiss = viewModel::consumeFrequencyActionMessage
-                            )
-                        }
-                    }
-
-                    item {
-                        CpuCoresSection(
-                            clusters = viewModel.clusters,
-                            coreRows = viewModel.coreRows,
-                            clusterMaxFreqMhz = viewModel.clusterMaxFreqMhz
-                        )
-                    }
-
-                    item {
-                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            CpuSectionTitle("QUICK PRESETS")
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                CpuCoreControlViewModel.QUICK_CONFIGS.forEach { config ->
-                                    CoreQuickConfigTile(
-                                        modifier = Modifier.weight(1f),
-                                        icon = quickConfigIcon(config.id),
-                                        label = quickConfigLabel(config.id),
-                                        description = quickConfigDesc(config.id),
-                                        accent = quickConfigAccent(config.id),
-                                        onClick = { viewModel.applyQuickConfig(config.id) }
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    item {
-                        CpuManualControlCard(
-                            enabled = viewModel.manualControlEnabled,
-                            onEnabledChange = viewModel::setManualControlEnabled
-                        )
-                    }
-
-                    viewModel.clusters.forEach { cluster ->
-                        val rows = viewModel.coreRows.filter { it.cluster.policyPath == cluster.policyPath }
-                        val onlineInCluster = rows.count { it.online }
-                        val coreName = rows.firstOrNull()?.coreName
-                        val rangeText = if (cluster.cores.size > 1) {
-                            "${cluster.cores.first()}–${cluster.cores.last()}"
-                        } else {
-                            "${cluster.cores.first()}"
-                        }
-
-                        item {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                CpuSectionTitle(clusterDisplayName(cluster))
-                                Text(
-                                    text = buildString {
-                                        if (coreName != null) append("$coreName · ")
-                                        append("Cores $rangeText · $onlineInCluster/${cluster.cores.size} Online")
-                                    },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 4.dp)
-                                )
-                                ScreenAccentProvider(clusterAccent(cluster)) {
-                                    ExpressiveList(
-                                        content = rows.map { row ->
-                                            {
-                                                CoreRowItem(
-                                                    row = row,
-                                                    enabled = viewModel.manualControlEnabled && !row.isMaster,
-                                                    onToggle = { viewModel.setCoreOnline(row.cpu, it) }
-                                                )
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    if (viewModel.cpusetGroups.isNotEmpty()) {
-                        item {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                CpuSectionTitle(stringResource(R.string.cpu_affinity_title))
-                                Text(
-                                    text = stringResource(R.string.cpu_affinity_subtitle),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 4.dp)
-                                )
-                                ExpressiveList(
-                                    content = viewModel.cpusetGroups.map { group ->
-                                        {
-                                            CpusetGroupRow(
-                                                group = group,
-                                                totalCores = viewModel.totalCores,
-                                                onApply = { cores -> viewModel.setCpusetGroupCores(group, cores) }
-                                            )
-                                        }
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
+                        CpuSectionTitle(clusterDisplayName(cluster))
+                        ClusterCoreSummary(cluster = cluster, rows = rows)
+                        ScreenAccentProvider(clusterAccent(cluster)) {
+                            ExpressiveList(
+                                content = rows.map { row ->
+                                    {
+                                        CoreRowItem(
+                                            row = row,
+                                            enabled = viewModel.manualControlEnabled && !row.isMaster,
+                                            onToggle = { viewModel.setCoreOnline(row.cpu, it) }
+                                        )
                                     }
-                                )
-                            }
+                                }
+                            )
                         }
                     }
+                }
+            }
 
-                    item {
+            if (viewModel.cpusetGroups.isNotEmpty()) {
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
+                        CpuSectionTitle(stringResource(R.string.cpu_affinity_title))
                         Text(
-                            text = stringResource(R.string.cpu_core_safety_note),
+                            text = stringResource(R.string.cpu_affinity_subtitle),
                             style = MaterialTheme.typography.bodySmall,
-                            color = colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+                            color = colorScheme.onSurfaceVariant
+                        )
+                        ExpressiveList(
+                            content = viewModel.cpusetGroups.map { group ->
+                                {
+                                    CpusetGroupRow(
+                                        group = group,
+                                        totalCores = viewModel.totalCores,
+                                        onApply = { cores -> viewModel.setCpusetGroupCores(group, cores) }
+                                    )
+                                }
+                            }
                         )
                     }
-                    item { Spacer(Modifier.height(10.dp)) }
                 }
             }
         }
     }
+}
+
+/**
+ * Cluster line: which physical cores the cluster owns and how many are online,
+ * assembled from the shared labels instead of a hand-written English sentence.
+ */
+@Composable
+private fun ClusterCoreSummary(
+    cluster: CpuTopologyUtil.CpuCluster,
+    rows: List<CpuCoreRow>
+) {
+    val coresLabel = stringResource(R.string.cpu_core_cores_label)
+    val onlineLabel = stringResource(R.string.cpu_core_online_label)
+    val coreName = rows.firstOrNull()?.coreName
+    val online = rows.count { it.online }
+    val range = if (cluster.cores.size > 1) {
+        "${cluster.cores.first()}\u2013${cluster.cores.last()}"
+    } else {
+        "${cluster.cores.first()}"
+    }
+
+    Text(
+        text = buildString {
+            if (coreName != null) append("$coreName \u00b7 ")
+            append("$coresLabel $range \u00b7 $online/${cluster.cores.size} $onlineLabel")
+        },
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }
 
 @Composable
@@ -300,238 +306,91 @@ private fun CpuHeroCard(
     val availability = if (totalCores == 0) 0f else onlineCores.toFloat() / totalCores
     val allOnline = totalCores > 0 && onlineCores == totalCores
     val statusColor = if (allOnline) scheme.secondary else scheme.tertiary
-    val processorName = chipsetName.ifBlank { "Processor topology" }
-    val activeClusters = coreRows.map { it.cluster.policyPath }.distinct().size
 
-    Surface(
+    // One live idea instead of three stacked panels: the gauge answers how much
+    // of this CPU is running, the grid answers which cores. The old hero stated
+    // the same ratio four times (fraction tile, percentage tile, capacity badge
+    // and a status sentence).
+    Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
+        RadialGaugeCard(
+            title = stringResource(R.string.cpu_core_online_label),
+            valueText = "$LTR_MARK$onlineCores$LTR_MARK",
+            unitText = "$LTR_MARK/$totalCores$LTR_MARK",
+            fraction = availability,
+            isLive = true,
+            accentColor = statusColor,
+            tipMarkerMinFraction = 0.12f,
+            subtitle = chipsetName.takeIf { it.isNotBlank() }
+        )
+        CoreGridMap(coreRows = coreRows)
+    }
+}
+
+/**
+ * The grid this screen is named after: one tile per CPU, tinted by its cluster
+ * while online and dropped to the outline tone once the kernel parks it.
+ */
+@Composable
+private fun CoreGridMap(coreRows: List<CpuCoreRow>) {
+    val scheme = MaterialTheme.colorScheme
+    val cpuLabel = stringResource(R.string.cpu_label)
+    val offLabel = stringResource(R.string.cpu_core_row_offline)
+
+    FlowRow(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(30.dp),
-        color = scheme.surfaceContainerLow,
-        border = androidx.compose.foundation.BorderStroke(1.dp, statusColor.copy(alpha = .32f))
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
+        verticalArrangement = Arrangement.spacedBy(MaxSpace.sm),
+        maxItemsInEachRow = 4
     ) {
-        Column(
-            modifier = Modifier
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(statusColor.copy(alpha = .16f), scheme.surfaceContainerLow, Color.Transparent)
-                    )
-                )
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
-        ) {
-            Row(verticalAlignment = Alignment.Top) {
-                Surface(
-                    color = statusColor.copy(alpha = .13f),
-                    shape = RoundedCornerShape(18.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, statusColor.copy(alpha = .20f))
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Memory,
-                        contentDescription = null,
-                        tint = statusColor,
-                        modifier = Modifier.padding(13.dp).size(30.dp)
-                    )
-                }
-                Spacer(Modifier.width(13.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(
-                        text = "PROCESSOR ARRAY",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = statusColor
-                    )
-                    Text(
-                        text = processorName,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black,
-                        color = scheme.onSurface,
-                        maxLines = 2
-                    )
-                    Text(
-                        text = "$activeClusters scheduling cluster${if (activeClusters == 1) "" else "s"} detected",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.onSurfaceVariant
-                    )
-                }
-            }
+        coreRows.forEach { row ->
+            val accent = if (row.online) clusterAccent(row.cluster) else scheme.outline
+            val tileShape = RoundedCornerShape(MaxRadius.row)
 
-            CpuActivityMap(coreRows = coreRows, statusColor = statusColor)
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(tileShape)
+                    .background(
+                        accent.copy(
+                            alpha = if (row.online) MaxAlpha.toneContainerStrong else MaxAlpha.toneContainer
+                        )
+                    )
+                    .border(
+                        width = MaxSize.hairlineBorder,
+                        color = accent.copy(
+                            alpha = if (row.online) MaxAlpha.borderStrong else MaxAlpha.border
+                        ),
+                        shape = tileShape
+                    )
+                    .padding(vertical = MaxSpace.sm, horizontal = MaxSpace.xs),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)
             ) {
-                CpuHeroMetric(
-                    modifier = Modifier.weight(1f),
-                    value = "$onlineCores/$totalCores",
-                    label = "available cores",
-                    accent = statusColor
+                Text(
+                    text = "$cpuLabel$LTR_MARK${row.cpu}",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface
                 )
-                CpuHeroMetric(
-                    modifier = Modifier.weight(1f),
-                    value = "${(availability * 100).toInt()}%",
-                    label = "compute ready",
-                    accent = scheme.primary
+                Text(
+                    text = if (row.online) row.cluster.shortTag else offLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = accent,
+                    maxLines = 1
                 )
             }
-
-            Surface(
-                color = scheme.surfaceContainerHighest.copy(alpha = .64f),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 11.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    LivePulseDot(color = statusColor)
-                    Spacer(Modifier.width(9.dp))
-                    Text(
-                        text = if (allOnline) "All processor lanes are online" else "Kernel policy is adapting the active lanes",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = "LIVE",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Black,
-                        color = statusColor
-                    )
-                }
-            }
         }
     }
 }
 
-@Composable
-private fun CpuActivityMap(coreRows: List<CpuCoreRow>, statusColor: Color) {
-    val scheme = MaterialTheme.colorScheme
-    val onlineFraction = if (coreRows.isEmpty()) 0f else coreRows.count { it.online }.toFloat() / coreRows.size
-
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "LIVE CORE MAP",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = scheme.onSurfaceVariant
-            )
-            Spacer(Modifier.weight(1f))
-            Text(
-                text = if (onlineFraction == 1f) "FULL CAPACITY" else "DYNAMIC CAPACITY",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                color = statusColor
-            )
-        }
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            maxItemsInEachRow = 4
-        ) {
-            coreRows.forEach { row ->
-                val accent = if (row.online) clusterAccent(row.cluster) else scheme.outline
-                Surface(
-                    modifier = Modifier.weight(1f, fill = true),
-                    shape = RoundedCornerShape(14.dp),
-                    color = accent.copy(alpha = if (row.online) .13f else .06f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = if (row.online) .32f else .16f))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Box(
-                            Modifier
-                                .size(8.dp)
-                                .clip(RoundedCornerShape(99.dp))
-                                .background(accent)
-                        )
-                        Text(
-                            text = "CPU${row.cpu}",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = scheme.onSurface
-                        )
-                        Text(
-                            text = if (row.online) row.cluster.shortTag else "PARKED",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = accent,
-                            maxLines = 1
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CpuHeroMetric(
-    value: String,
-    label: String,
-    accent: Color,
-    modifier: Modifier = Modifier
-) {
-    val scheme = MaterialTheme.colorScheme
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
-        color = accent.copy(alpha = .09f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = .16f))
-    ) {
-        Column(Modifier.padding(horizontal = 13.dp, vertical = 12.dp)) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
-                color = scheme.onSurface
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = scheme.onSurfaceVariant,
-                maxLines = 1
-            )
-        }
-    }
-}
-
-@Composable
-private fun FrequencyActionBanner(message: String, onDismiss: () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
-    // Failure wording gets failure colors; verified/success stays neutral-green.
-    val isError = listOf("رفض", "تعذّر", "تعارض", "أعاد ضبط", "كِيان خارجي").any(message::contains)
-    val container = if (isError) scheme.errorContainer else scheme.secondaryContainer
-    val content = if (isError) scheme.onErrorContainer else scheme.onSecondaryContainer
-    val border = if (isError) scheme.error else scheme.secondary
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = container,
-        border = androidx.compose.foundation.BorderStroke(1.dp, border.copy(alpha = .3f))
-    ) {
-        Row(
-            modifier = Modifier.padding(start = 14.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                if (isError) Icons.Outlined.ErrorOutline else Icons.Outlined.Verified,
-                null,
-                tint = content,
-                modifier = Modifier.size(19.dp)
-            )
-            Spacer(Modifier.width(10.dp))
-            Text(message, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = content)
-            IconButton(onClick = onDismiss) {
-                Icon(Icons.Outlined.Close, contentDescription = "Dismiss", tint = content)
-            }
-        }
-    }
-}
-
+/**
+ * Frequency limits: one group per controllable cluster.
+ *
+ * The old section stacked a description paragraph, a restore card, a gradient
+ * card per cluster, a metric strip, a verification card and a conflict card:
+ * six surfaces for one idea. The same facts now live in rows inside a single
+ * hairline group, and the copy comes from resources instead of the source.
+ */
 @Composable
 private fun CpuFrequencyControlSection(
     clusters: List<CpuTopologyUtil.CpuCluster>,
@@ -541,139 +400,43 @@ private fun CpuFrequencyControlSection(
     onRestore: (String) -> Unit,
     onRestoreSession: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        CpuSectionTitle("FREQUENCY CONTROL")
-        Text(
-            text = "اضبط حدود كل عنقود بنفسك أو ثبّته على تردد واحد. كل تطبيق يُتحقق منه فوراً من العتاد، وإن أعاد كِيان خارجي ضبط القيم نعيد تثبيتها تلقائياً.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
+    val controllable = clusters.filter { controls[it.policyPath]?.canControl == true }
+    if (controllable.isEmpty()) return
+
+    MaxSection(
+        title = stringResource(R.string.cpu_freq_section_title),
+        description = stringResource(R.string.cpu_freq_section_desc)
+    ) {
         if (hasSessionChanges) {
-            SessionRestoreCard(onRestoreSession = onRestoreSession)
-        }
-        clusters.forEach { cluster ->
-            val control = controls[cluster.policyPath]
-            if (control?.canControl == true) {
-                CpuFrequencyControlCard(
-                    cluster = cluster,
-                    control = control,
-                    onApply = { min, max -> onApply(cluster.policyPath, min, max) },
-                    onRestore = { onRestore(cluster.policyPath) }
+            MaxGroup {
+                MaxRow(
+                    title = stringResource(R.string.cpu_freq_session_title),
+                    subtitle = stringResource(R.string.cpu_freq_session_desc),
+                    icon = Icons.Outlined.History,
+                    iconTone = MaxTone.Caution,
+                    onClick = onRestoreSession
                 )
             }
+        }
+
+        controllable.forEach { cluster ->
+            CpuFrequencyControlGroup(
+                cluster = cluster,
+                control = controls.getValue(cluster.policyPath),
+                onApply = { min, max -> onApply(cluster.policyPath, min, max) },
+                onRestore = { onRestore(cluster.policyPath) }
+            )
         }
     }
 }
 
 @Composable
-private fun SessionRestoreCard(onRestoreSession: () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        color = scheme.tertiaryContainer.copy(alpha = .48f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, scheme.tertiary.copy(alpha = .32f))
-    ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(11.dp)
-        ) {
-            Icon(Icons.Outlined.History, null, tint = scheme.tertiary, modifier = Modifier.size(23.dp))
-            Column(Modifier.weight(1f)) {
-                Text("تغييرات جلسة قائمة", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = scheme.onTertiaryContainer)
-                Text("استعادة كل الحدود إلى ما كانت عليه عند فتح هذه الشاشة، وإعادة التحكم للنظام.", style = MaterialTheme.typography.bodySmall, color = scheme.onTertiaryContainer)
-            }
-            TextButton(onClick = onRestoreSession) {
-                Text("استعادة", fontWeight = FontWeight.Bold)
-            }
-        }
-    }
-}
-
-@Composable
-private fun FrequencyVerificationStrip(
-    verification: nd.max.ui.viewmodel.CpuFrequencyVerification,
-    accent: Color,
-    controlMin: Long?,
-    controlMax: Long?,
-) {
-    val scheme = MaterialTheme.colorScheme
-    val statusColor = when {
-        verification.verified -> scheme.secondary
-        verification.writeAccepted -> scheme.tertiary
-        else -> scheme.error
-    }
-    val headline = when {
-        verification.verified && verification.reassertions > 0 ->
-            "أعدنا التثبيت تلقائياً وتحققنا منه (محاولة ${verification.reassertions})"
-        verification.verified -> "التطبيق موثّق — العتاد قبل القيم"
-        verification.writeAccepted ->
-            "كِيان خارجي أعاد الضبط بعد الكتابة — نحاول إعادة التثبيت"
-        else -> "رفضت عقدة النظام الكتابة — القيم لم تتغير"
-    }
-    val explanation = when {
-        verification.verified -> null
-        verification.writeAccepted ->
-            "ملف MaxManager العام أو نظام الحرارة في الجهاز يفرض حدوداً مختلفة."
-        else -> "قد تكون العقدة محمية أو لا تقبل هذه القيمة."
-    }
-    Surface(
-        shape = RoundedCornerShape(15.dp),
-        color = statusColor.copy(alpha = .09f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, statusColor.copy(alpha = .24f))
-    ) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    if (verification.verified) Icons.Outlined.Verified
-                    else if (verification.writeAccepted) Icons.Outlined.Sync
-                    else Icons.Outlined.ErrorOutline,
-                    null,
-                    tint = statusColor,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    headline,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = statusColor
-                )
-            }
-            Text(
-                "المطلوب: ${formatCpuFrequency(verification.requestedMinKHz)} – ${formatCpuFrequency(verification.requestedMaxKHz)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = scheme.onSurfaceVariant
-            )
-            Text(
-                "القراءة لحظة التحقق: ${verification.actualMinKHz?.let(::formatCpuFrequency) ?: "—"} – ${verification.actualMaxKHz?.let(::formatCpuFrequency) ?: "—"}",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold,
-                color = if (verification.verified) accent else statusColor
-            )
-            Text(
-                "القيم الحية الآن: ${controlMin?.let(::formatCpuFrequency) ?: "—"} – ${controlMax?.let(::formatCpuFrequency) ?: "—"}",
-                style = MaterialTheme.typography.bodySmall,
-                color = scheme.onSurfaceVariant
-            )
-            explanation?.let {
-                Text(it, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
-            }
-        }
-    }
-}
-
-@Composable
-private fun CpuFrequencyControlCard(
+private fun CpuFrequencyControlGroup(
     cluster: CpuTopologyUtil.CpuCluster,
     control: CpuFrequencyControlState,
     onApply: (Long, Long) -> Unit,
     onRestore: () -> Unit
 ) {
-    val scheme = MaterialTheme.colorScheme
-    val accent = clusterAccent(cluster)
     val lower = control.hardwareMinKHz ?: control.minKHz ?: 0L
     val upper = control.hardwareMaxKHz ?: control.maxKHz ?: lower
     // Edit state is deliberately keyed on the policy only: the 3s live poll
@@ -687,7 +450,6 @@ private fun CpuFrequencyControlCard(
         }
     }
     val editable = allowed.size > 1 && lower < upper
-    val current = control.currentKHz
     val activeMin = editMin.coerceIn(lower, upper)
     val activeMax = editMax.coerceIn(activeMin, upper)
     val isModified = activeMin != control.minKHz || activeMax != control.maxKHz
@@ -695,246 +457,207 @@ private fun CpuFrequencyControlCard(
     var pinSelection by remember(control.policyPath) { mutableStateOf<Long?>(null) }
     val effectivePin = pinSelection ?: activeMax
     val pinModified = pinned && (effectivePin != control.maxKHz || effectivePin != control.minKHz)
+    val tableMissing = stringResource(R.string.cpu_freq_table_missing)
+    val liveLimits = "${formatCpuFrequency(control.minKHz ?: 0L)} \u2013 " +
+        formatCpuFrequency(control.maxKHz ?: 0L)
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp),
-        color = scheme.surfaceContainerLow,
-        border = androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = .24f))
-    ) {
+    MaxGroup {
+        MaxRow(
+            title = clusterDisplayName(cluster),
+            subtitle = stringResource(
+                R.string.cpu_freq_cluster_summary,
+                cluster.cores.size,
+                control.governor ?: stringResource(R.string.cpu_freq_governor_default)
+            ),
+            icon = clusterIcon(cluster),
+            iconTone = MaxTone.Accent
+        )
+
+        MaxGroupDivider()
+
         Column(
-            modifier = Modifier
-                .background(Brush.verticalGradient(listOf(accent.copy(alpha = .10f), Color.Transparent)))
-                .padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(15.dp)
+            modifier = Modifier.padding(
+                horizontal = MaxSpace.rowPaddingHorizontal,
+                vertical = MaxSpace.rowPaddingVertical
+            ),
+            verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)
         ) {
-            Row(verticalAlignment = Alignment.Top) {
-                Surface(
-                    shape = RoundedCornerShape(14.dp),
-                    color = accent.copy(alpha = .13f)
-                ) {
-                    Icon(
-                        imageVector = clusterIcon(cluster),
-                        contentDescription = null,
-                        tint = accent,
-                        modifier = Modifier.padding(10.dp).size(22.dp)
-                    )
-                }
-                Spacer(Modifier.width(11.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        text = clusterDisplayName(cluster),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = scheme.onSurface
-                    )
-                    Text(
-                        text = "${cluster.cores.size} core${if (cluster.cores.size == 1) "" else "s"} · ${control.governor ?: "kernel governor"}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.onSurfaceVariant
-                    )
-                }
-                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Surface(shape = RoundedCornerShape(99.dp), color = accent.copy(alpha = .11f)) {
-                        Text(
-                            text = current?.let(::formatCpuFrequency) ?: "LIVE —",
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = accent
-                        )
-                    }
-                    if (control.externalConflict) {
-                        Surface(shape = RoundedCornerShape(99.dp), color = scheme.errorContainer) {
-                            Text(
-                                text = "تعارض خارجي",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = scheme.onErrorContainer
-                            )
-                        }
-                    } else if (control.sessionOwned) {
-                        Surface(shape = RoundedCornerShape(99.dp), color = scheme.secondaryContainer) {
-                            Text(
-                                text = "جلسة يدوية",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = scheme.onSecondaryContainer
-                            )
-                        }
-                    }
-                }
-            }
-
-            Surface(
-                shape = RoundedCornerShape(18.dp),
-                color = scheme.surfaceContainerHighest.copy(alpha = .56f)
-            ) {
-                Row(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 11.dp)) {
-                    CpuLimitMetric(
-                        modifier = Modifier.weight(1f),
-                        label = "LIVE FLOOR",
-                        value = control.minKHz?.let(::formatCpuFrequency) ?: "—",
-                        accent = accent
-                    )
-                    VerticalDivider(
-                        modifier = Modifier.height(42.dp).padding(horizontal = 8.dp),
-                        color = scheme.outlineVariant.copy(alpha = .65f)
-                    )
-                    CpuLimitMetric(
-                        modifier = Modifier.weight(1f),
-                        label = "LIVE CEILING",
-                        value = control.maxKHz?.let(::formatCpuFrequency) ?: "—",
-                        accent = accent
-                    )
-                }
-            }
-
-            control.verification?.let { FrequencyVerificationStrip(it, accent, control.minKHz, control.maxKHz) }
-
-            if (control.externalConflict) {
-                Surface(
-                    shape = RoundedCornerShape(14.dp),
-                    color = scheme.errorContainer.copy(alpha = .5f)
-                ) {
-                    Text(
-                        text = "تعارض مستمر: كِيان خارجي يفرض حدوداً مختلفة رغم إعادة التثبيت المتكررة. توقفت المحاولات التلقائية حفاظاً على الاستقرار.",
-                        modifier = Modifier.padding(11.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.onErrorContainer
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                MaxSwitch(
-                    checked = pinned,
-                    onCheckedChange = { pinned = it }
+            MaxMetricLine(
+                MaxMetric(
+                    label = stringResource(R.string.cpu_freq_current_label),
+                    value = control.currentKHz?.let(::formatCpuFrequency),
+                    source = control.policyPath
                 )
-                Spacer(Modifier.width(12.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        text = "تثبيت التردد",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = scheme.onSurface
-                    )
-                    Text(
-                        text = if (pinned) "قفل العنقود على تردد واحد ثابت (أدنى = أعلى)"
-                        else "حد أدنى وحد أعلى — النظام يتحرك بينهما",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            if (!editable) {
-                Text(
-                    text = "هذا العنقود لا يعلن جدول ترددات قابل للاختيار؛ يبقى المدى الحي ظاهراً أعلاه.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurfaceVariant
+            )
+            MaxMetricLine(
+                MaxMetric(
+                    label = stringResource(R.string.cpu_freq_range_label),
+                    value = liveLimits
                 )
-            } else if (pinned) {
-                FrequencyPointPicker(
-                    label = "التردد المثبّت",
+            )
+        }
+
+        MaxGroupDivider()
+
+        MaxSwitchRow(
+            title = stringResource(R.string.cpu_freq_pin_title),
+            checked = pinned,
+            onCheckedChange = { pinned = it },
+            subtitle = stringResource(
+                if (pinned) R.string.cpu_freq_pin_on_desc else R.string.cpu_freq_pin_off_desc
+            ),
+            enabled = editable,
+            lockedReason = tableMissing.takeIf { !editable }
+        )
+
+        if (editable) {
+            if (pinned) {
+                FrequencyStepRow(
+                    title = stringResource(R.string.cpu_freq_pinned_label),
                     value = effectivePin,
                     options = allowed,
-                    accent = accent,
                     onValueChange = { selected -> pinSelection = selected }
                 )
             } else {
-                FrequencyPointPicker(
-                    label = "الحد الأدنى",
+                FrequencyStepRow(
+                    title = stringResource(R.string.cpu_freq_min_label),
                     value = activeMin,
                     options = allowed.filter { it <= activeMax },
-                    accent = accent,
                     onValueChange = { selected -> editMin = selected.coerceAtMost(editMax) }
                 )
-                FrequencyPointPicker(
-                    label = "الحد الأقصى",
+                FrequencyStepRow(
+                    title = stringResource(R.string.cpu_freq_max_label),
                     value = activeMax,
                     options = allowed.filter { it >= activeMin },
-                    accent = accent,
                     onValueChange = { selected -> editMax = selected.coerceAtLeast(editMin) }
                 )
             }
+        }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                OutlinedButton(
-                    onClick = onRestore,
-                    modifier = Modifier.weight(1f),
-                    enabled = lower < upper,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = .45f))
-                ) {
-                    Icon(Icons.Outlined.RestartAlt, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(7.dp))
-                    Text("مدى العتاد")
-                }
-                Button(
-                    onClick = { if (pinned) onApply(effectivePin, effectivePin) else onApply(activeMin, activeMax) },
-                    modifier = Modifier.weight(1f),
-                    enabled = editable && (if (pinned) pinModified else isModified),
-                    colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = scheme.onPrimary)
-                ) {
-                    Icon(Icons.Outlined.CheckCircle, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(7.dp))
-                    Text(if (pinned) "تثبيت" else "تطبيق")
-                }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = MaxSpace.rowPaddingHorizontal,
+                    vertical = MaxSpace.xs
+                ),
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedButton(
+                onClick = onRestore,
+                modifier = Modifier.weight(1f),
+                enabled = lower < upper
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.RestartAlt,
+                    contentDescription = null,
+                    modifier = Modifier.size(MaxSize.iconGlyphSmall)
+                )
+                Spacer(Modifier.width(MaxSpace.xs))
+                Text(stringResource(R.string.cpu_freq_hardware_range))
             }
-            if (control.sessionOwned) {
+            Button(
+                onClick = {
+                    if (pinned) onApply(effectivePin, effectivePin) else onApply(activeMin, activeMax)
+                },
+                modifier = Modifier.weight(1f),
+                enabled = editable && (if (pinned) pinModified else isModified)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.CheckCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(MaxSize.iconGlyphSmall)
+                )
+                Spacer(Modifier.width(MaxSpace.xs))
                 Text(
-                    text = "حدودك محمية خلال هذه الجلسة: ملف MaxManager العام لن يعيدها للوضع الافتراضي حتى تستعيدها بنفسك.",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = scheme.onSurfaceVariant
+                    stringResource(
+                        if (pinned) R.string.cpu_freq_pin_action else R.string.dialog_apply
+                    )
                 )
             }
         }
+
+        val notes = buildList {
+            control.verification?.let { addAll(frequencyVerificationLines(it)) }
+            if (control.externalConflict) add(stringResource(R.string.cpu_freq_conflict_detail))
+            if (control.sessionOwned) add(stringResource(R.string.cpu_freq_session_owned_note))
+        }
+        if (notes.isNotEmpty()) {
+            MaxBullets(
+                lines = notes,
+                tone = when {
+                    control.externalConflict -> MaxTone.Critical
+                    control.verification?.verified == false -> MaxTone.Caution
+                    else -> MaxTone.Accent
+                },
+                modifier = Modifier.padding(
+                    horizontal = MaxSpace.rowPaddingHorizontal,
+                    vertical = MaxSpace.xs
+                )
+            )
+        }
     }
 }
 
+/**
+ * Verification result as reading lines: what was requested, what the hardware
+ * reported back, and why it differs. The old card printed three frequency
+ * ranges; the live-limits row above already carries the current one.
+ */
 @Composable
-private fun CpuLimitMetric(modifier: Modifier, label: String, value: String, accent: Color) {
-    Column(modifier) {
-        Text(label, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = accent)
-        Spacer(Modifier.height(3.dp))
-        Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurface)
+private fun frequencyVerificationLines(
+    verification: nd.max.ui.viewmodel.CpuFrequencyVerification
+): List<String> {
+    val headline = when {
+        verification.verified && verification.reassertions > 0 -> stringResource(
+            R.string.cpu_freq_verified_reasserted,
+            verification.reassertions
+        )
+
+        verification.verified -> stringResource(R.string.cpu_freq_verified)
+        verification.writeAccepted -> stringResource(R.string.cpu_freq_overridden)
+        else -> stringResource(R.string.cpu_freq_rejected)
+    }
+    val requested = "${formatCpuFrequency(verification.requestedMinKHz)} \u2013 " +
+        formatCpuFrequency(verification.requestedMaxKHz)
+    val measured = "${formatCpuFrequency(verification.actualMinKHz ?: 0L)} \u2013 " +
+        formatCpuFrequency(verification.actualMaxKHz ?: 0L)
+
+    return buildList {
+        add(headline)
+        add(stringResource(R.string.cpu_freq_verification_detail, requested, measured))
+        if (!verification.verified) {
+            add(
+                stringResource(
+                    if (verification.writeAccepted) R.string.cpu_freq_overridden_explain
+                    else R.string.cpu_freq_rejected_explain
+                )
+            )
+        }
     }
 }
 
+/** One frequency step picked from the kernel's own table, as a house slider row. */
 @Composable
-private fun FrequencyPointPicker(
-    label: String,
+private fun FrequencyStepRow(
+    title: String,
     value: Long,
     options: List<Long>,
-    accent: Color,
     onValueChange: (Long) -> Unit
 ) {
-    val scheme = MaterialTheme.colorScheme
     val safeOptions = options.ifEmpty { listOf(value) }
     val index = safeOptions.indexOf(value).takeIf { it >= 0 } ?: 0
-    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(label.uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = scheme.onSurfaceVariant)
-            Spacer(Modifier.weight(1f))
-            Text(formatCpuFrequency(safeOptions[index]), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = accent)
-        }
-        Slider(
-            value = index.toFloat(),
-            onValueChange = { position -> onValueChange(safeOptions[position.toInt().coerceIn(0, safeOptions.lastIndex)]) },
-            valueRange = 0f..safeOptions.lastIndex.toFloat(),
-            steps = (safeOptions.size - 2).coerceAtLeast(0),
-            colors = SliderDefaults.colors(
-                thumbColor = accent,
-                activeTrackColor = accent,
-                inactiveTrackColor = scheme.outlineVariant.copy(alpha = .58f)
-            )
-        )
-    }
+    MaxSliderRow(
+        title = title,
+        value = index.toFloat(),
+        onValueChange = { position ->
+            onValueChange(safeOptions[position.toInt().coerceIn(0, safeOptions.lastIndex)])
+        },
+        valueText = formatCpuFrequency(safeOptions[index]),
+        valueRange = 0f..safeOptions.lastIndex.toFloat().coerceAtLeast(1f),
+        steps = (safeOptions.size - 2).coerceAtLeast(0)
+    )
 }
 
 private fun formatCpuFrequency(kHz: Long): String = when {

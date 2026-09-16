@@ -17,12 +17,16 @@ package nd.max.ui.subscreens
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CleaningServices
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.PowerSettingsNew
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,12 +34,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlin.math.roundToInt
 import nd.max.R
 import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
+import nd.max.ui.design.MaxBullets
 import nd.max.ui.design.MaxChoiceRow
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
@@ -43,6 +49,7 @@ import nd.max.ui.design.MaxConfirmDialog
 import nd.max.ui.design.MaxDataTrust
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
+import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxMetric
 import nd.max.ui.design.MaxMetricLine
 import nd.max.ui.design.MaxMetricReadout
@@ -115,15 +122,22 @@ fun ZramManagerScreen(
     var confirmCompact by remember { mutableStateOf(false) }
     var confirmReset by remember { mutableStateOf(false) }
 
+    // Kernel facts are secondary diagnosis, so they stay folded until asked for.
+    var showKernelFacts by remember { mutableStateOf(false) }
+
     val sysfsSource = stringResource(R.string.max_zram_source_sysfs)
     val swapsSource = stringResource(R.string.max_zram_source_swaps)
-    val vmSource = stringResource(R.string.max_zram_source_vm)
     val unitMb = stringResource(R.string.max_zram_unit_mb)
     val offLabel = stringResource(R.string.max_zram_swap_off)
     val busyReason = stringResource(R.string.max_zram_applying_detail)
     val rootReason = stringResource(R.string.max_zram_locked_root)
     val supportedLabel = stringResource(R.string.zram_hw_supported)
     val unsupportedLabel = stringResource(R.string.zram_hw_unsupported)
+
+    // Screen level explanation lives in the top bar help dialog instead of
+    // occupying permanent vertical space under every section title.
+    val helpBody = stringResource(R.string.max_zram_section_state_desc) +
+        "\n\n" + stringResource(R.string.max_zram_section_pressure_desc)
 
     // Compression ratio is derived, never invented: without both counters the
     // metric is unreadable rather than silently shown as zero.
@@ -192,13 +206,14 @@ fun ZramManagerScreen(
                     contentDescription = stringResource(R.string.max_action_refresh)
                 )
             }
+            MaxHelpAction(
+                title = stringResource(R.string.zram_title),
+                body = helpBody
+            )
         }
     ) {
         // ---- What the kernel reports right now -------------------------------
-        MaxSection(
-            title = stringResource(R.string.zram_gauge_title),
-            description = stringResource(R.string.max_zram_section_state_desc)
-        ) {
+        MaxSection(title = stringResource(R.string.zram_gauge_title)) {
             MaxGroup {
                 MaxMetricReadout(
                     metric = MaxMetric(
@@ -243,10 +258,7 @@ fun ZramManagerScreen(
         }
 
         // ---- Size -------------------------------------------------------------
-        MaxSection(
-            title = stringResource(R.string.zram_presets_title),
-            description = stringResource(R.string.max_zram_section_size_desc)
-        ) {
+        MaxSection(title = stringResource(R.string.zram_presets_title)) {
             MaxGroup {
                 ZramViewModel.SIZE_PRESETS.forEachIndexed { index, preset ->
                     if (index > 0) MaxGroupDivider()
@@ -289,26 +301,23 @@ fun ZramManagerScreen(
                     }
                 )
             }
+            MaxBullets(
+                lines = listOf(stringResource(R.string.max_zram_section_size_desc)),
+                tone = MaxTone.Caution
+            )
         }
 
         // ---- Codec ------------------------------------------------------------
-        MaxSection(
-            title = stringResource(R.string.zram_algo_title),
-            description = stringResource(R.string.max_zram_section_codec_desc)
-        ) {
+        MaxSection(title = stringResource(R.string.zram_algo_title)) {
             val algorithms = viewModel.availableCompAlgorithms
             MaxGroup {
                 if (algorithms.isEmpty()) {
                     // The kernel did not publish a codec list. Show what is in use
                     // instead of an empty section that looks broken.
-                    MaxMetricLine(
-                        metric = MaxMetric(
-                            label = stringResource(R.string.max_zram_metric_algo),
-                            value = viewModel.compAlgorithm,
-                            trust = MaxDataTrust.Snapshot,
-                            source = sysfsSource,
-                            note = stringResource(R.string.zram_algo_desc)
-                        )
+                    ZramFactRow(
+                        label = stringResource(R.string.max_zram_metric_algo),
+                        value = viewModel.compAlgorithm.ifBlank { MAX_VALUE_UNAVAILABLE },
+                        subtitle = stringResource(R.string.zram_algo_desc)
                     )
                 } else {
                     algorithms.forEachIndexed { index, algorithm ->
@@ -326,13 +335,14 @@ fun ZramManagerScreen(
                     }
                 }
             }
+            MaxBullets(
+                lines = listOf(stringResource(R.string.max_zram_section_codec_desc)),
+                tone = MaxTone.Caution
+            )
         }
 
         // ---- Memory pressure ---------------------------------------------------
-        MaxSection(
-            title = stringResource(R.string.zram_tuning_title),
-            description = stringResource(R.string.max_zram_section_pressure_desc)
-        ) {
+        MaxSection(title = stringResource(R.string.zram_tuning_title)) {
             MaxGroup {
                 MaxSliderRow(
                     title = stringResource(R.string.zram_swappiness),
@@ -355,27 +365,11 @@ fun ZramManagerScreen(
                         viewModel.applySwappiness(swappinessSlider.roundToInt())
                     }
                 )
-                MaxGroupDivider()
-                MaxMetricLine(
-                    metric = MaxMetric(
-                        label = stringResource(R.string.max_zram_metric_swappiness),
-                        value = if (viewModel.swappinessKnown) viewModel.swappiness.toString() else null,
-                        trust = if (viewModel.swappinessKnown) {
-                            MaxDataTrust.Snapshot
-                        } else {
-                            MaxDataTrust.Unreadable
-                        },
-                        source = vmSource
-                    )
-                )
             }
         }
 
         // ---- Maintenance --------------------------------------------------------
-        MaxSection(
-            title = stringResource(R.string.zram_instant_tools_title),
-            description = stringResource(R.string.max_zram_section_maintenance_desc)
-        ) {
+        MaxSection(title = stringResource(R.string.zram_instant_tools_title)) {
             MaxGroup {
                 MaxRow(
                     title = stringResource(R.string.zram_compact_button),
@@ -399,31 +393,47 @@ fun ZramManagerScreen(
                     onClick = { confirmReset = true }
                 )
             }
+            MaxBullets(
+                lines = listOf(stringResource(R.string.max_zram_section_maintenance_desc)),
+                tone = MaxTone.Caution
+            )
         }
 
-        // ---- Provenance ----------------------------------------------------------
-        MaxSection(title = stringResource(R.string.zram_hw_arch_title)) {
-            MaxGroup {
-                MaxMetricLine(
-                    metric = MaxMetric(
-                        label = stringResource(R.string.zram_hw_block_device),
-                        value = if (viewModel.blockDeviceNodeExists) supportedLabel else unsupportedLabel,
-                        trust = MaxDataTrust.Snapshot,
-                        source = "/dev/block/zram0"
+        // ---- Kernel facts: secondary, folded until asked for --------------------
+        MaxGroup {
+            MaxRow(
+                title = stringResource(R.string.zram_hw_arch_title),
+                onClick = { showKernelFacts = !showKernelFacts },
+                trailing = {
+                    Icon(
+                        imageVector = if (showKernelFacts) {
+                            Icons.Rounded.ExpandLess
+                        } else {
+                            Icons.Rounded.ExpandMore
+                        },
+                        contentDescription = null
                     )
+                }
+            )
+            if (showKernelFacts) {
+                MaxGroupDivider()
+                ZramFactRow(
+                    label = stringResource(R.string.zram_hw_block_device),
+                    value = if (viewModel.blockDeviceNodeExists) supportedLabel else unsupportedLabel
                 )
                 MaxGroupDivider()
-                MaxMetricLine(
-                    metric = MaxMetric(
-                        label = stringResource(R.string.zram_hw_swap_status),
-                        value = if (viewModel.totalSwapMb > 0) {
-                            stringResource(R.string.zram_hw_swap_active)
-                        } else {
-                            stringResource(R.string.zram_hw_swap_inactive)
-                        },
-                        trust = MaxDataTrust.Live,
-                        source = swapsSource
-                    )
+                ZramFactRow(
+                    label = stringResource(R.string.zram_hw_swap_status),
+                    value = if (viewModel.totalSwapMb > 0) {
+                        stringResource(R.string.zram_hw_swap_active)
+                    } else {
+                        stringResource(R.string.zram_hw_swap_inactive)
+                    }
+                )
+                MaxGroupDivider()
+                ZramFactRow(
+                    label = stringResource(R.string.zram_hw_compaction),
+                    value = if (viewModel.kernelCompactionSupported) supportedLabel else unsupportedLabel
                 )
                 MaxGroupDivider()
                 MaxMetricLine(
@@ -449,19 +459,6 @@ fun ZramManagerScreen(
                             MaxDataTrust.Snapshot
                         },
                         source = sysfsSource
-                    )
-                )
-                MaxGroupDivider()
-                MaxMetricLine(
-                    metric = MaxMetric(
-                        label = stringResource(R.string.zram_hw_compaction),
-                        value = if (viewModel.kernelCompactionSupported) {
-                            supportedLabel
-                        } else {
-                            unsupportedLabel
-                        },
-                        trust = MaxDataTrust.Snapshot,
-                        source = vmSource
                     )
                 )
             }
@@ -516,6 +513,27 @@ fun ZramManagerScreen(
 private fun snapSizeMb(value: Float): Int =
     ((value / SIZE_STEP_MB).roundToInt() * SIZE_STEP_MB)
         .coerceIn(0, ZramViewModel.MAX_ZRAM_MB)
+
+/**
+ * A kernel fact that is text rather than a measurement: a node that exists, a
+ * codec token, a supported flag. These deliberately carry no trust chip, because
+ * a trust marker next to a word that is not a number reads as noise.
+ */
+@Composable
+private fun ZramFactRow(label: String, value: String, subtitle: String? = null) {
+    MaxRow(
+        title = label,
+        subtitle = subtitle,
+        trailing = {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
+        }
+    )
+}
 
 /**
  * Preset labels resolve by id, not by the label name stored on the preset.

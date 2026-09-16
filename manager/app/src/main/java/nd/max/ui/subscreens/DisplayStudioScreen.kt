@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.component.*
+import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.mainscreens.TweaksSectionTitle
 import nd.max.ui.viewmodel.DisplayStudioViewModel
@@ -75,7 +76,13 @@ fun DisplayStudioScreen(
                 title = stringResource(R.string.display_studio_title),
                 onBack = { navController.popBackStack() },
                 accentIcon = Icons.Filled.DisplaySettings,
-                accent = colorScheme.secondary
+                accent = colorScheme.secondary,
+                actions = {
+                    MaxHelpAction(
+                        title = stringResource(R.string.display_studio_title),
+                        body = stringResource(R.string.display_studio_desc),
+                    )
+                }
             )
         },
         containerColor = colorScheme.surface
@@ -97,16 +104,7 @@ fun DisplayStudioScreen(
                     ),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    item {
-                        ControlScreenIntro(
-                            icon = Icons.Filled.DisplaySettings,
-                            title = "Display Studio",
-                            description = "إدارة الدقة ومعدل التحديث وإعدادات العرض من نقطة تحكم واحدة.",
-                            accent = colorScheme.secondary,
-                            status = "ACTIVE"
-                        )
-                    }
-                    item { Spacer(Modifier.height(2.dp)) }
+                    // الشرح انتقل إلى علامة الاستفهام في شريط العنوان.
                     item {
                         DisplayHeroCard(
                             width = activeW,

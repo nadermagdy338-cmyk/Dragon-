@@ -246,15 +246,6 @@ fun SettingsScreen(
                 )
             ) {
                 item {
-                    ControlScreenIntro(
-                        icon = Icons.Rounded.Settings,
-                        title = stringResource(R.string.settings_workspace_title),
-                        description = stringResource(R.string.settings_workspace_guidance),
-                        status = stringResource(R.string.settings_workspace_state),
-                        accent = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = MaxUiMetrics.sectionGap)
-                    )
-
                     ExpressiveList(
                         content = listOf(
                             { AppInfoHeaderContent() },

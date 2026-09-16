@@ -90,6 +90,10 @@ TARGETS = [
     "ui/mainscreens/ApplistScreen.kt",
     "ui/navigation/MaxDestinations.kt",
     "ui/navigation/MaxNavGraph.kt",
+    "ui/subscreens/ChargingScreen.kt",
+    "ui/subscreens/ZramManagerScreen.kt",
+    "ui/subscreens/NetworkSchedulerScreen.kt",
+    "ui/subscreens/CpuCoreControlScreen.kt",
 ]
 for rel in TARGETS:
     p = os.path.join(JAVA, "nd/max", rel)
@@ -123,7 +127,11 @@ for f in sorted(glob.glob(os.path.join(RES, "values*", "*.xml"))):
 
 # ---------- 6. imports declared but symbol unused (new files only) ----------
 NEW = ["ui/design/MaxHelp.kt", "ui/subscreens/hubs/MaxDomainHubScreen.kt",
-       "ui/subscreens/ConfigBackupScreen.kt", "ui/mainscreens/ControlScreen.kt"]
+       "ui/subscreens/ConfigBackupScreen.kt", "ui/mainscreens/ControlScreen.kt",
+       "ui/subscreens/ChargingScreen.kt",
+       "ui/subscreens/ZramManagerScreen.kt",
+       "ui/subscreens/NetworkSchedulerScreen.kt",
+       "ui/subscreens/CpuCoreControlScreen.kt"]
 for rel in NEW:
     p = os.path.join(JAVA, "nd/max", rel)
     if not os.path.exists(p):

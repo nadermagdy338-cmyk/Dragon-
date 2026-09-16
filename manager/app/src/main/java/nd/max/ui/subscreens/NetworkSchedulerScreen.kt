@@ -1,382 +1,450 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+/*
+ * Copyright (C) 2026-2027 Zexshia
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Traffic & Scheduler.
+ *
+ * The old layout opened with a decorative card that counted how many knobs
+ * the kernel exposed, then repeated an explanatory paragraph above every
+ * group. Counting knobs is not a decision, so the card is gone and the screen
+ * is now the controls themselves: current values live on the rows that change
+ * them, the long-form explanation moved to the top bar help, and the raw
+ * kernel parameters stay folded until asked for.
+ */
 
 package nd.max.ui.subscreens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Bolt
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.NetworkCheck
-import androidx.compose.material.icons.outlined.Security
-import androidx.compose.material.icons.outlined.SettingsEthernet
-import androidx.compose.material.icons.outlined.Speed
-import androidx.compose.material.icons.outlined.Sync
-import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material.icons.outlined.BatteryChargingFull
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nd.max.R
-import nd.max.ui.component.MaxUiMetrics
 import nd.max.ui.component.CustomContentDialog
-import nd.max.ui.component.ExpressiveDropdownItem
-import nd.max.ui.component.ExpressiveInfoCard
-import nd.max.ui.component.ExpressiveList
-import nd.max.ui.component.ExpressiveListItem
-import nd.max.ui.component.ExpressiveSwitchItem
-import nd.max.ui.component.LeadingIcon
-import nd.max.ui.component.MaxManagerSubScreenTopBar
 import nd.max.ui.component.ScreenAccentProvider
-import nd.max.ui.component.maxAdaptiveContentWidth
-import nd.max.ui.mainscreens.SectionLoadingIndicator
-import nd.max.ui.mainscreens.TweaksSectionTitle
+import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
+import nd.max.ui.design.MaxBullets
+import nd.max.ui.design.MaxChoiceRow
+import nd.max.ui.design.MaxCondition
+import nd.max.ui.design.MaxConditionKind
+import nd.max.ui.design.MaxGroup
+import nd.max.ui.design.MaxGroupDivider
+import nd.max.ui.design.MaxHelpAction
+import nd.max.ui.design.MaxRow
+import nd.max.ui.design.MaxScreen
+import nd.max.ui.design.MaxSection
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.viewmodel.NetworkSchedulerViewModel
 
-/**
- * Network + Scheduler control surface.
- *
- * The screen deliberately uses the application's MaterialTheme directly:
- * no page-local theme, no fixed brand color, and no decorative dashboard
- * chrome that competes with the actual controls.
- */
+/** Kernel nodes this screen reads; shown as machine truth on condition panels. */
+private const val KERNEL_SOURCES = "/proc/sys/net/ipv4 \u00b7 /proc/sys/kernel"
+
 @Composable
 fun NetworkSchedulerScreen(
     navController: NavController,
     viewModel: NetworkSchedulerViewModel = viewModel()
 ) {
-    val listState = rememberLazyListState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val accent = MaterialTheme.colorScheme.primary
 
     LaunchedEffect(Unit) { viewModel.loadState() }
 
-    ScreenAccentProvider(accent) {
-        Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                MaxManagerSubScreenTopBar(
-                    scrollBehavior = scrollBehavior,
-                    title = stringResource(R.string.net_sched_title),
-                    subtitle = "TCP/IP · Scheduler",
-                    onBack = { navController.popBackStack() },
-                    accentIcon = Icons.Outlined.SettingsEthernet,
-                    accent = accent
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.surface
-        ) { innerPadding ->
-        when (viewModel.isAvailable) {
-            null -> Box(
-                Modifier.fillMaxSize().padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) { SectionLoadingIndicator() }
+    // Secondary choices and raw parameters are folded: one section, one idea.
+    var congestionExpanded by remember { mutableStateOf(false) }
+    var scalingExpanded by remember { mutableStateOf(false) }
+    var advancedExpanded by remember { mutableStateOf(false) }
 
-            false -> Box(
-                Modifier.fillMaxSize().padding(innerPadding).padding(24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                ExpressiveInfoCard(
-                    leadingContent = {
-                        LeadingIcon(Icons.Outlined.SettingsEthernet, null)
-                    },
-                    supportingContent = {
-                        Text(stringResource(R.string.net_sched_unavailable))
-                    }
-                )
-            }
+    val screenTitle = stringResource(R.string.net_sched_title)
 
-            true -> LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize().maxAdaptiveContentWidth(),
-                contentPadding = PaddingValues(
-                    start = MaxUiMetrics.screenHorizontalPadding,
-                    end = MaxUiMetrics.screenHorizontalPadding,
-                    top = MaxUiMetrics.screenTopPadding,
-                    bottom = 28.dp + WindowInsets.navigationBars.asPaddingValues()
-                        .calculateBottomPadding()
-                ),
-                verticalArrangement = Arrangement.spacedBy(MaxUiMetrics.screenItemGap)
-            ) {
-                item { NetworkOverview(viewModel) }
-
-                if (hasNetworkControls(viewModel)) {
-                    item { TweaksSectionTitle(stringResource(R.string.net_section_title)) }
-                    item { NetworkControls(viewModel) }
-                }
-
-                if (hasSchedulerControls(viewModel)) {
-                    item { TweaksSectionTitle(stringResource(R.string.sched_section_title)) }
-                    item { SchedulerControls(viewModel) }
-                }
-
-                if (viewModel.hasUclampMax || viewModel.hasUclampMin) {
-                    item { TweaksSectionTitle(stringResource(R.string.sched_uclamp_section_title)) }
-                    item {
-                        ExpressiveInfoCard(
-                            leadingContent = { LeadingIcon(Icons.Outlined.Speed, null) },
-                            supportingContent = { Text(stringResource(R.string.sched_uclamp_desc)) }
-                        )
-                    }
-                    item { UclampControls(viewModel) }
-                }
-
-                if (viewModel.genericTunables.isNotEmpty()) {
-                    item { TweaksSectionTitle(stringResource(R.string.sched_advanced_section_title)) }
-                    item {
-                        ExpressiveInfoCard(
-                            leadingContent = { LeadingIcon(Icons.Outlined.Warning, null) },
-                            supportingContent = { Text(stringResource(R.string.sched_advanced_desc)) }
-                        )
-                    }
-                    item { AdvancedTunables(viewModel) }
-                }
-
-                if (viewModel.hasPrintk) {
-                    item { TweaksSectionTitle(stringResource(R.string.sched_kernel_section_title)) }
-                    item {
-                        RawValueRow(
-                            title = stringResource(R.string.sched_printk_title),
-                            summary = stringResource(R.string.sched_printk_desc),
-                            value = viewModel.printkValue,
-                            onConfirm = viewModel::setPrintk
-                        )
-                    }
-                }
-            }
-        }
-    }
-    }
-}
-
-private fun hasNetworkControls(vm: NetworkSchedulerViewModel) =
-    vm.hasTcpCongestion || vm.hasSyncookies || vm.hasTcpReuse ||
-        vm.hasTcpFastopen || vm.hasTcpSack || vm.hasTcpEcn
-
-private fun hasSchedulerControls(vm: NetworkSchedulerViewModel) =
-    vm.hasBore || vm.hasAutogroup || vm.hasChildRunsFirst ||
-        vm.hasSchedstats || vm.hasTunableScaling || vm.hasCstateAware
-
-@Composable
-private fun NetworkOverview(vm: NetworkSchedulerViewModel) {
-    val active = listOf(
-        vm.hasTcpCongestion,
-        vm.hasSyncookies,
-        vm.hasTcpReuse,
-        vm.hasTcpFastopen,
-        vm.hasTcpSack,
-        vm.hasTcpEcn
-    ).count { it }
-
-    val enabled = listOf(
-        vm.syncookiesEnabled,
-        vm.tcpReuseEnabled,
-        vm.tcpFastopenEnabled,
-        vm.tcpSackEnabled,
-        vm.tcpEcnEnabled,
-        vm.boreEnabled,
-        vm.autogroupEnabled,
-        vm.childRunsFirstEnabled,
-        vm.schedstatsEnabled,
-        vm.cstateAwareEnabled
-    ).count { it }
-
-    Card(
-        shape = RoundedCornerShape(MaxUiMetrics.cardRadius),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    val condition = when (viewModel.isAvailable) {
+        null -> MaxCondition(
+            kind = MaxConditionKind.Loading,
+            title = screenTitle,
+            detail = stringResource(R.string.net_sched_probe_detail),
+            technicalDetail = KERNEL_SOURCES
         )
-    ) {
-        Column(Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier.size(48.dp).clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Outlined.NetworkCheck,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-                Spacer(Modifier.width(14.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        "System networking",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        "Live kernel controls exposed by this device",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = MaterialTheme.colorScheme.secondaryContainer
-                ) {
-                    Text(
-                        "LIVE",
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
 
-            Spacer(Modifier.height(20.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))
-            Spacer(Modifier.height(16.dp))
+        false -> MaxCondition(
+            kind = MaxConditionKind.Unsupported,
+            title = screenTitle,
+            detail = stringResource(R.string.net_sched_unavailable),
+            technicalDetail = KERNEL_SOURCES
+        )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                SummaryPill("TCP controls", active.toString(), Modifier.weight(1f))
-                SummaryPill("Enabled", enabled.toString(), Modifier.weight(1f))
-                SummaryPill("Congestion", vm.tcpCongestion.ifBlank { "—" }, Modifier.weight(1.2f))
-            }
-        }
+        else -> null
     }
-}
 
-@Composable
-private fun SummaryPill(title: String, value: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(horizontal = 12.dp, vertical = 11.dp)
-    ) {
-        Text(title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Spacer(Modifier.height(3.dp))
-        Text(value, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 1)
-    }
-}
-
-@Composable
-private fun NetworkControls(vm: NetworkSchedulerViewModel) {
-    val rows = buildList<@Composable () -> Unit> {
-        if (vm.hasTcpCongestion) add {
-            val options = vm.availableCongestion
-            val selectedIndex = options.indexOf(vm.tcpCongestion).coerceAtLeast(0)
-            ExpressiveDropdownItem(
-                icon = Icons.Outlined.NetworkCheck,
-                title = stringResource(R.string.net_congestion_title),
-                summary = stringResource(R.string.net_congestion_desc),
-                items = options,
-                selectedIndex = selectedIndex,
-                onItemSelected = { i -> options.getOrNull(i)?.let(vm::setTcpCongestion) }
+    ScreenAccentProvider(accent) {
+        MaxScreen(
+            title = screenTitle,
+            subtitle = stringResource(R.string.net_sched_menu_desc),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Outlined.SettingsEthernet,
+            accent = accent,
+            condition = condition,
+            actions = {
+                MaxHelpAction(
+                    title = screenTitle,
+                    body = stringResource(R.string.sched_advanced_desc)
+                )
+            }
+        ) {
+            NetworkSection(
+                vm = viewModel,
+                congestionExpanded = congestionExpanded,
+                onToggleCongestion = { congestionExpanded = !congestionExpanded }
+            )
+            SchedulerSection(
+                vm = viewModel,
+                scalingExpanded = scalingExpanded,
+                onToggleScaling = { scalingExpanded = !scalingExpanded }
+            )
+            UclampSection(vm = viewModel)
+            AdvancedSection(
+                vm = viewModel,
+                expanded = advancedExpanded,
+                onToggle = { advancedExpanded = !advancedExpanded }
             )
         }
+    }
+}
+
+@Composable
+private fun NetworkSection(
+    vm: NetworkSchedulerViewModel,
+    congestionExpanded: Boolean,
+    onToggleCongestion: () -> Unit
+) {
+    val rows = buildList<@Composable () -> Unit> {
+        if (vm.hasTcpCongestion) add {
+            MaxRow(
+                title = stringResource(R.string.net_congestion_title),
+                subtitle = stringResource(R.string.net_congestion_desc),
+                icon = Icons.Outlined.NetworkCheck,
+                onClick = onToggleCongestion,
+                trailing = {
+                    ValueChevron(
+                        value = vm.tcpCongestion.ifBlank { MAX_VALUE_UNAVAILABLE },
+                        expanded = congestionExpanded
+                    )
+                }
+            )
+            if (congestionExpanded) {
+                // Algorithm tokens come from the kernel, so they are not translated.
+                vm.availableCongestion.forEach { algorithm ->
+                    MaxGroupDivider()
+                    MaxChoiceRow(
+                        title = algorithm,
+                        selected = algorithm == vm.tcpCongestion,
+                        onSelect = { vm.setTcpCongestion(algorithm) }
+                    )
+                }
+            }
+        }
         if (vm.hasSyncookies) add {
-            ExpressiveSwitchItem(Icons.Outlined.Security, title = stringResource(R.string.net_syncookies_title), summary = stringResource(R.string.net_syncookies_desc), checked = vm.syncookiesEnabled, onCheckedChange = vm::setSyncookies)
+            MaxSwitchRow(
+                title = stringResource(R.string.net_syncookies_title),
+                subtitle = stringResource(R.string.net_syncookies_desc),
+                icon = Icons.Outlined.Security,
+                checked = vm.syncookiesEnabled,
+                onCheckedChange = vm::setSyncookies
+            )
         }
         if (vm.hasTcpReuse) add {
-            ExpressiveSwitchItem(Icons.Outlined.Sync, title = stringResource(R.string.net_tcp_reuse_title), summary = stringResource(R.string.net_tcp_reuse_desc), checked = vm.tcpReuseEnabled, onCheckedChange = vm::setTcpReuse)
+            MaxSwitchRow(
+                title = stringResource(R.string.net_tcp_reuse_title),
+                subtitle = stringResource(R.string.net_tcp_reuse_desc),
+                icon = Icons.Outlined.Sync,
+                checked = vm.tcpReuseEnabled,
+                onCheckedChange = vm::setTcpReuse
+            )
         }
         if (vm.hasTcpFastopen) add {
-            ExpressiveSwitchItem(Icons.Outlined.Bolt, title = stringResource(R.string.net_tcp_fastopen_title), summary = stringResource(R.string.net_tcp_fastopen_desc), checked = vm.tcpFastopenEnabled, onCheckedChange = vm::setTcpFastopen)
+            MaxSwitchRow(
+                title = stringResource(R.string.net_tcp_fastopen_title),
+                subtitle = stringResource(R.string.net_tcp_fastopen_desc),
+                icon = Icons.Outlined.Bolt,
+                checked = vm.tcpFastopenEnabled,
+                onCheckedChange = vm::setTcpFastopen
+            )
         }
         if (vm.hasTcpSack) add {
-            ExpressiveSwitchItem(Icons.Outlined.CheckCircle, title = stringResource(R.string.net_tcp_sack_title), summary = stringResource(R.string.net_tcp_sack_desc), checked = vm.tcpSackEnabled, onCheckedChange = vm::setTcpSack)
+            MaxSwitchRow(
+                title = stringResource(R.string.net_tcp_sack_title),
+                subtitle = stringResource(R.string.net_tcp_sack_desc),
+                icon = Icons.Outlined.CheckCircle,
+                checked = vm.tcpSackEnabled,
+                onCheckedChange = vm::setTcpSack
+            )
         }
         if (vm.hasTcpEcn) add {
-            ExpressiveSwitchItem(Icons.Outlined.Warning, title = stringResource(R.string.net_tcp_ecn_title), summary = stringResource(R.string.net_tcp_ecn_desc), checked = vm.tcpEcnEnabled, onCheckedChange = vm::setTcpEcn)
+            MaxSwitchRow(
+                title = stringResource(R.string.net_tcp_ecn_title),
+                subtitle = stringResource(R.string.net_tcp_ecn_desc),
+                icon = Icons.Outlined.Warning,
+                checked = vm.tcpEcnEnabled,
+                onCheckedChange = vm::setTcpEcn
+            )
         }
     }
-    ExpressiveList(content = rows)
+    if (rows.isEmpty()) return
+
+    MaxSection(title = stringResource(R.string.net_section_title)) {
+        MaxGroup {
+            rows.forEachIndexed { index, row ->
+                if (index > 0) MaxGroupDivider()
+                row()
+            }
+        }
+    }
 }
 
 @Composable
-private fun SchedulerControls(vm: NetworkSchedulerViewModel) {
+private fun SchedulerSection(
+    vm: NetworkSchedulerViewModel,
+    scalingExpanded: Boolean,
+    onToggleScaling: () -> Unit
+) {
     val rows = buildList<@Composable () -> Unit> {
         if (vm.hasBore) add {
-            ExpressiveSwitchItem(Icons.Outlined.Speed, title = "BORE scheduler", summary = "Use the BORE scheduler path when exposed by the kernel.", checked = vm.boreEnabled, onCheckedChange = vm::setBore)
+            MaxSwitchRow(
+                title = stringResource(R.string.sched_bore_title),
+                subtitle = stringResource(R.string.sched_bore_desc),
+                icon = Icons.Outlined.Speed,
+                checked = vm.boreEnabled,
+                onCheckedChange = vm::setBore
+            )
         }
         if (vm.hasAutogroup) add {
-            ExpressiveSwitchItem(Icons.Outlined.Sync, title = "Automatic task grouping", summary = "Kernel scheduler autogroup control.", checked = vm.autogroupEnabled, onCheckedChange = vm::setAutogroup)
+            MaxSwitchRow(
+                title = stringResource(R.string.sched_autogroup_title),
+                subtitle = stringResource(R.string.sched_autogroup_desc),
+                icon = Icons.Outlined.Sync,
+                checked = vm.autogroupEnabled,
+                onCheckedChange = vm::setAutogroup
+            )
         }
         if (vm.hasChildRunsFirst) add {
-            ExpressiveSwitchItem(Icons.Outlined.Bolt, title = "Child tasks run first", summary = "Prefer a child task before returning to the parent.", checked = vm.childRunsFirstEnabled, onCheckedChange = vm::setChildRunsFirst)
+            MaxSwitchRow(
+                title = stringResource(R.string.sched_child_runs_first_title),
+                subtitle = stringResource(R.string.sched_child_runs_first_desc),
+                icon = Icons.Outlined.Bolt,
+                checked = vm.childRunsFirstEnabled,
+                onCheckedChange = vm::setChildRunsFirst
+            )
         }
         if (vm.hasSchedstats) add {
-            ExpressiveSwitchItem(Icons.Outlined.Speed, title = "Scheduler statistics", summary = "Expose scheduler accounting and statistics.", checked = vm.schedstatsEnabled, onCheckedChange = vm::setSchedstats)
-        }
-        if (vm.hasTunableScaling) add {
-            val labels = listOf("None", "Logarithmic", "Linear")
-            ExpressiveDropdownItem(icon = Icons.Outlined.Tune, title = "Tunable scaling", summary = "Choose how scheduler tunables are scaled.", items = labels, selectedIndex = vm.tunableScalingIndex, onItemSelected = vm::setTunableScaling)
+            MaxSwitchRow(
+                title = stringResource(R.string.sched_stats_title),
+                subtitle = stringResource(R.string.sched_stats_desc),
+                icon = Icons.Outlined.QueryStats,
+                checked = vm.schedstatsEnabled,
+                onCheckedChange = vm::setSchedstats
+            )
         }
         if (vm.hasCstateAware) add {
-            ExpressiveSwitchItem(Icons.Outlined.BatteryChargingFull, title = "C-state aware", summary = "Let scheduler decisions account for idle-state behavior.", checked = vm.cstateAwareEnabled, onCheckedChange = vm::setCstateAware)
+            MaxSwitchRow(
+                title = stringResource(R.string.sched_cstate_aware_title),
+                subtitle = stringResource(R.string.sched_cstate_aware_desc),
+                icon = Icons.Outlined.BatteryChargingFull,
+                checked = vm.cstateAwareEnabled,
+                onCheckedChange = vm::setCstateAware
+            )
+        }
+        if (vm.hasTunableScaling) add {
+            val labels = listOf(
+                stringResource(R.string.sched_tunable_scaling_none),
+                stringResource(R.string.sched_tunable_scaling_log),
+                stringResource(R.string.sched_tunable_scaling_linear)
+            )
+            MaxRow(
+                title = stringResource(R.string.sched_tunable_scaling_title),
+                subtitle = stringResource(R.string.sched_tunable_scaling_desc),
+                icon = Icons.Outlined.Tune,
+                onClick = onToggleScaling,
+                trailing = {
+                    ValueChevron(
+                        value = labels.getOrNull(vm.tunableScalingIndex)
+                            ?: MAX_VALUE_UNAVAILABLE,
+                        expanded = scalingExpanded
+                    )
+                }
+            )
+            if (scalingExpanded) {
+                labels.forEachIndexed { index, label ->
+                    MaxGroupDivider()
+                    MaxChoiceRow(
+                        title = label,
+                        selected = index == vm.tunableScalingIndex,
+                        onSelect = { vm.setTunableScaling(index) }
+                    )
+                }
+            }
         }
     }
-    ExpressiveList(content = rows)
+    if (rows.isEmpty()) return
+
+    MaxSection(title = stringResource(R.string.sched_section_title)) {
+        MaxGroup {
+            rows.forEachIndexed { index, row ->
+                if (index > 0) MaxGroupDivider()
+                row()
+            }
+        }
+    }
 }
 
 @Composable
-private fun UclampControls(vm: NetworkSchedulerViewModel) {
-    val rows = buildList<@Composable () -> Unit> {
-        if (vm.hasUclampMax) add {
-            RawValueRow("UClamp max", value = vm.uclampMaxValue, onConfirm = vm::setUclampMax)
-        }
-        if (vm.hasUclampMin) add {
-            RawValueRow("UClamp min", value = vm.uclampMinValue, onConfirm = vm::setUclampMin)
-        }
-    }
-    ExpressiveList(content = rows)
-}
+private fun UclampSection(vm: NetworkSchedulerViewModel) {
+    if (!vm.hasUclampMax && !vm.hasUclampMin) return
 
-@Composable
-private fun AdvancedTunables(vm: NetworkSchedulerViewModel) {
-    ExpressiveList(
-        content = vm.genericTunables.map { tunable ->
-            {
+    MaxSection(title = stringResource(R.string.sched_uclamp_section_title)) {
+        MaxGroup {
+            if (vm.hasUclampMax) {
                 RawValueRow(
-                    title = tunable.label,
-                    value = tunable.value,
-                    onConfirm = { vm.setGenericTunable(tunable.path, it) }
+                    title = stringResource(R.string.sched_uclamp_max_title),
+                    value = vm.uclampMaxValue,
+                    onConfirm = vm::setUclampMax
+                )
+            }
+            if (vm.hasUclampMax && vm.hasUclampMin) MaxGroupDivider()
+            if (vm.hasUclampMin) {
+                RawValueRow(
+                    title = stringResource(R.string.sched_uclamp_min_title),
+                    value = vm.uclampMinValue,
+                    onConfirm = vm::setUclampMin
                 )
             }
         }
-    )
+        // The 0-1024 capacity range is needed to type a valid value, so it stays
+        // next to the fields instead of hiding in help.
+        MaxBullets(lines = listOf(stringResource(R.string.sched_uclamp_desc)))
+    }
 }
 
+@Composable
+private fun AdvancedSection(
+    vm: NetworkSchedulerViewModel,
+    expanded: Boolean,
+    onToggle: () -> Unit
+) {
+    val tunables = vm.genericTunables
+    val count = tunables.size + if (vm.hasPrintk) 1 else 0
+    if (count == 0) return
+
+    MaxGroup {
+        MaxRow(
+            title = stringResource(R.string.sched_advanced_section_title),
+            icon = Icons.Outlined.Tune,
+            onClick = onToggle,
+            trailing = {
+                ValueChevron(value = count.toString(), expanded = expanded)
+            }
+        )
+        if (expanded) {
+            tunables.forEach { tunable ->
+                MaxGroupDivider()
+                RawValueRow(
+                    // Labels are kernel node names, not product copy.
+                    title = tunable.label,
+                    value = tunable.value,
+                    onConfirm = { value -> vm.setGenericTunable(tunable.path, value) }
+                )
+            }
+            if (vm.hasPrintk) {
+                MaxGroupDivider()
+                RawValueRow(
+                    title = stringResource(R.string.sched_printk_title),
+                    value = vm.printkValue,
+                    onConfirm = vm::setPrintk,
+                    subtitle = stringResource(R.string.sched_printk_desc)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Trailing slot for a row that both reports the live value and expands to the
+ * choices behind it. No trust chip: these are settings, not measurements.
+ */
+@Composable
+private fun ValueChevron(value: String, expanded: Boolean) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1
+        )
+        Icon(
+            imageVector = if (expanded) {
+                Icons.Rounded.ExpandLess
+            } else {
+                Icons.Rounded.ExpandMore
+            },
+            contentDescription = null
+        )
+    }
+}
+
+/**
+ * A kernel value that has no safe range to offer as a slider: the row shows
+ * what the node currently holds and editing happens in a dialog, so a typo
+ * cannot be written by dragging.
+ */
 @Composable
 private fun RawValueRow(
     title: String,
-    summary: String? = null,
     value: String,
-    onConfirm: (String) -> Unit
+    onConfirm: (String) -> Unit,
+    subtitle: String? = null
 ) {
     var dialogVisible by remember { mutableStateOf(false) }
     var pendingValue by remember(value, dialogVisible) { mutableStateOf(value) }
 
-    ExpressiveListItem(
-        onClick = {
-            pendingValue = value
-            dialogVisible = true
-        },
-        headlineContent = { Text(title) },
-        supportingContent = summary?.let { { Text(it) } },
-        trailingContent = {
+    MaxRow(
+        title = title,
+        subtitle = subtitle,
+        onClick = { dialogVisible = true },
+        trailing = {
             Text(
-                text = value.ifBlank { "—" },
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge,
+                text = value.ifBlank { MAX_VALUE_UNAVAILABLE },
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
                 maxLines = 1
             )
         }
