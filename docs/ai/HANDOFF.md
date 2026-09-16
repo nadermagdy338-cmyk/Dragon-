@@ -61,14 +61,6 @@ MaxManager has a strong engine and a fragmented surface. `core/maxai` + `core/ha
 
 <!-- Append one entry per completed task: task id, files, gate results, deferred items, next suggestion. -->
 
-### NT-02/NT-03 static repair pass — Max AI resources + insights test
-
-- Rebuilt `max_ai_strings.xml` in `values/` and `values-ar/` from the actual 127 `max_ai_*` references in `MaxAiScreen.kt`; removed the previous 782-key duplicate dump.
-- Verified XML parsing, zero overlap with `strings.xml`, EN/AR key parity, format-specifier parity, and zero dangling `R.string` references.
-- Added `MaxAiInsightsTest.kt` covering learning/helpful/costly thresholds and decision/probe/safety/drift separation.
-- Updated `COMPLETED_WORK.md` and `NEXT_TASK.md` to reflect the 127-key resource set and NT-04 completion.
-- Build remains unverified because the export has no usable Gradle 9.5.1 distribution/network.
-
 ### NT-01 Executor log
 
 Implemented the typed navigation registry, graph, actions, four primary destinations, Control screen, nine domain hub entry points, localized navigation resources, and reduced MainActivity to a single NavHost. Removed the obsolete scroll-animation preference from CustomThemeScreen. Static hygiene and XML parsing passed; MainActivity is 88 lines with no inline composable registrations and legacy GPU aliases are absent. The build is unverified because the Gradle wrapper is not executable in this environment (permission denied). Existing MTK feature tabs still contain an internal HorizontalPager; hub row wiring and Settings/Home top-bar integration remain follow-up work.

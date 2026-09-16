@@ -2,7 +2,6 @@ package nd.max.ui.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AddToPhotos
 import androidx.compose.material.icons.rounded.AppSettingsAlt
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.AspectRatio
@@ -72,6 +71,13 @@ sealed class MaxDestination(
     data object Apps : MaxDestination("apps", R.string.max_nav_apps, Icons.Rounded.Apps, isPrimary = true)
     data object MaxAi : MaxDestination("max_ai", R.string.max_nav_max_ai, Icons.Rounded.AutoAwesome, isPrimary = true)
 
+    /**
+     * The live command centre: the running loop drawn as it happens (vitals,
+     * thermal forecast vs actual, prediction-error trend, knowledge state,
+     * exploration gate, loop counters, knob ownership). Replaces the static
+     * "engine state" section that used to sit inside [MaxAi].
+     */
+    data object MaxLive : MaxDestination("max_live", R.string.max_live_title, Icons.Rounded.Timeline, MaxAi)
 
     // Settings root (opened from the Now top bar)
     data object Settings : MaxDestination("settings", R.string.max_nav_settings, Icons.Rounded.Settings)
@@ -90,10 +96,18 @@ sealed class MaxDestination(
     data object StorageHub : MaxDestination("hub_storage", R.string.max_hub_storage, Icons.Rounded.Storage, Control)
     data object NetworkHub : MaxDestination("hub_network", R.string.max_hub_network, Icons.Rounded.NetworkCheck, Control)
 
+    /**
+     * The pre-NT-01 flat tweaks workspace. Kept reachable because its toggle
+     * rows (lite mode, game preload, memory killer, app priority, DND gaming,
+     * fstrim, thermal core service, backup/restore) have no other home yet.
+     * Delete together with those toggles' absorption into the hubs (NT-03).
+     */
+    data object AllTweaks : MaxDestination("tweaks", R.string.max_nav_all_tweaks, Icons.Rounded.Tune, Control)
 
     // Feature screens: CPU domain
     data object CpuCoreControl : MaxDestination("cpucorecontrol", R.string.cpu_core_control_title, Icons.Rounded.DeveloperBoard, CpuHub)
     data object GovernorSettings : MaxDestination("governorsettings", R.string.gov_settings, Icons.Rounded.Tune, CpuHub)
+    data object PreferenceTweaks : MaxDestination("preferenced", R.string.prefs, Icons.Rounded.Tune, CpuHub)
     data object MtkVendor : MaxDestination("mtkscreen", R.string.max_title_vendor_boost, Icons.Rounded.Memory, CpuHub)
 
     // Feature screens: GPU domain
@@ -135,15 +149,14 @@ sealed class MaxDestination(
     data object DebloatFreeze : MaxDestination("debloatfreeze", R.string.debloat_freeze_title, Icons.Rounded.CleaningServices, Apps)
     data object AppSettings : MaxDestination("app_settings/{pkg}", R.string.max_title_app_settings, Icons.Rounded.AppSettingsAlt, Apps)
 
-    // Settings children + system tooling routes
+    // Settings children
     data object ColorPalette : MaxDestination("color_palette", R.string.theme, Icons.Rounded.Palette, Settings)
     data object ColorScheme : MaxDestination("colorscheme", R.string.color_scheme, Icons.Rounded.ColorLens, Settings)
-    data object PreferenceTweaks : MaxDestination("preferencetweaks", R.string.prefs, Icons.Rounded.AddToPhotos, Settings)
-    data object Diagnostics : MaxDestination("diagnostics", R.string.section_diagnostics, Icons.Rounded.BugReport, Control)
-    data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.Rounded.ListAlt, Control)
+    data object Diagnostics : MaxDestination("diagnostics", R.string.section_diagnostics, Icons.Rounded.BugReport, Settings)
+    data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.Rounded.ListAlt, Settings)
     data object About : MaxDestination("aboutscreen", R.string.section_about, Icons.Rounded.Info, Settings)
 
-    // Control - Tools (gated, not preferences)
+    // Control - Advanced tools (gated, not preferences)
     data object Terminal : MaxDestination("terminal", R.string.max_title_terminal, Icons.Rounded.Terminal, Control, MaxRisk.Dangerous)
     data object SetEdit : MaxDestination("setedit", R.string.max_title_setedit, Icons.Rounded.Edit, Control, MaxRisk.Advanced)
     data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.Rounded.Launch, Control, MaxRisk.Advanced)
@@ -155,15 +168,15 @@ sealed class MaxDestination(
 
         /** Every destination registered in [MaxNavGraph]. */
         val All = listOf(
-            GetStarted, Now, Control, Apps, MaxAi, Settings,
+            GetStarted, Now, Control, Apps, MaxAi, MaxLive, Settings,
             CpuHub, GpuHub, MemoryHub, DisplayHub, ResponsivenessHub, ThermalHub,
-            PowerHub, StorageHub, NetworkHub,
-            CpuCoreControl, GovernorSettings, MtkVendor, GpuStudio,
+            PowerHub, StorageHub, NetworkHub, AllTweaks,
+            CpuCoreControl, GovernorSettings, PreferenceTweaks, MtkVendor, GpuStudio,
             ZramManager, DisplayStudio, Resolution, TouchBoost, FpsGo, Fas, FpsOverlay,
             ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
             BatteryDetail, Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
             ProcessManager, DebloatFreeze, AppSettings,
-            ColorPalette, ColorScheme, PreferenceTweaks, Diagnostics, Logs, About,
+            ColorPalette, ColorScheme, Diagnostics, Logs, About,
             Terminal, SetEdit, ActivityLauncher, KernelFlasher,
         )
 

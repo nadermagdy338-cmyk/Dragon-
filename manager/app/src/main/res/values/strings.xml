@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about_maxmanager">About Max Manager</string>
     <string name="telegram_group">Telegram Group</string>
@@ -359,6 +359,7 @@
     <string name="debloat_uninstall_action">Uninstall</string>
     <string name="debloat_uninstall_confirm_title">Uninstall %1$s?</string>
     <string name="debloat_uninstall_confirm_desc">This removes %1$s for the current user only. System apps can usually be restored with \"pm install-existing\" or a factory reset \u2014 this is not a permanent delete of the APK from /system.</string>
+
     <string name="dex2oat_title">Compiler Mode</string>
     <string name="dex2oat_desc">Re-run ART/dex2oat with a chosen speed or size compilation filter</string>
     <string name="dex2oat_tab_all">All</string>
@@ -488,6 +489,7 @@
     <string name="processmgr_result_kill_failed">Couldn\'t kill %1$s</string>
     <string name="processmgr_result_stopped">Force-stopped %1$s</string>
     <string name="processmgr_result_stop_failed">Couldn\'t force-stop %1$s</string>
+
     <string name="setedit_title">Property Editor</string>
     <string name="setedit_menu_desc">Browse and patch raw settings and system properties directly</string>
     <string name="setedit_tab_all">All</string>
@@ -528,6 +530,7 @@
     <string name="setedit_msg_create_failed">Couldn\'t create %1$s</string>
     <string name="setedit_msg_restored">Restored %1$s</string>
     <string name="setedit_msg_restore_failed">Couldn\'t restore %1$s</string>
+
     <string name="logsviewer_title">Log Console</string>
     <string name="logsviewer_menu_desc">Live logcat stream with filtering, search, and export</string>
     <string name="logsviewer_search_hint">Search tag or message</string>
@@ -597,10 +600,12 @@
     <string name="adreno_throttle_bypass_confirm_body">This removes the thermal safeguard that normally slows the GPU down when it gets too hot. Under sustained heavy load (long gaming sessions, benchmarks) your device may run significantly hotter than normal, which can cause thermal shutdowns, faster battery wear, uncomfortable skin temperature, and in extreme cases permanent hardware damage. Only enable this if you understand and accept that risk. You can turn it back off anytime from this screen.</string>
     <string name="adreno_throttle_bypass_warning">⚠️ Warning: this disables the GPU\'s built-in overheat protection. Monitor your device\'s temperature closely and turn this off immediately if it feels unusually hot.</string>
     <string name="adreno_freq_screen_warning">Manually pinning or capping the GPU\'s frequency overrides the driver\'s own load and thermal management. Push it too far and you may see graphics glitches, throttling, or a reboot — change one setting at a time.</string>
+
     <string name="net_sched_title">Traffic &amp; Scheduler</string>
     <string name="net_sched_menu_desc">TCP congestion algorithm and kernel I/O scheduler tunables</string>
     <string name="net_sched_unavailable">Network and scheduler tuning isn\'t available on this device.</string>
     <string name="net_sched_edit_value">Value</string>
+
     <string name="net_section_title">Network</string>
     <string name="net_congestion_title">TCP Congestion Control</string>
     <string name="net_congestion_desc">Algorithm the kernel uses to manage network throughput and packet loss.</string>
@@ -614,6 +619,7 @@
     <string name="net_tcp_sack_desc">Lets the receiver acknowledge non-contiguous data, reducing retransmissions on lossy connections.</string>
     <string name="net_tcp_ecn_title">Explicit Congestion Notification</string>
     <string name="net_tcp_ecn_desc">Lets routers signal congestion without dropping packets, avoiding an unnecessary retransmission.</string>
+
     <string name="sched_section_title">Scheduler</string>
     <string name="sched_bore_title">BORE Scheduler</string>
     <string name="sched_bore_desc">Burst-Oriented Response Enhancer: prioritizes interactive, bursty tasks over sustained background load.</string>
@@ -630,12 +636,15 @@
     <string name="sched_tunable_scaling_linear">Linear</string>
     <string name="sched_cstate_aware_title">C-State Aware</string>
     <string name="sched_cstate_aware_desc">Considers a CPU\'s idle-state wake-up cost when the scheduler picks which core to run a task on.</string>
+
     <string name="sched_uclamp_section_title">Utilization Clamp</string>
     <string name="sched_uclamp_desc">Bounds how much of a CPU\'s capacity the scheduler can request for a task (0\u20131024), independent of the active governor.</string>
     <string name="sched_uclamp_max_title">UClamp Max</string>
     <string name="sched_uclamp_min_title">UClamp Min</string>
+
     <string name="sched_advanced_section_title">Advanced Parameters</string>
     <string name="sched_advanced_desc">Raw scheduler timing values read directly from the kernel. Only what your kernel actually exposes is shown here, and edits apply immediately.</string>
+
     <string name="sched_kernel_section_title">Kernel</string>
     <string name="sched_printk_title">Kernel Log Levels</string>
     <string name="sched_printk_desc">Console / default / minimum-console / default-console log levels, space-separated.</string>
@@ -836,7 +845,7 @@
     <string name="tweaks_workspace_state_full">Full control mode</string>
     <string name="tweaks_workspace_state_lite">Core control mode</string>
     <string name="tweaks_workspace_guidance">These controls change system-wide behavior. Per-app overrides take precedence when configured.</string>
-    <string name="section_advanced_tools">Tools</string>
+    <string name="section_advanced_tools">Advanced Tools</string>
     <string name="section_personalization">Look &amp; Feel</string>
     <string name="section_power_thermal">Power &amp; Memory</string>
     <string name="section_prefstweaks">Preference Tweaks</string>
@@ -999,6 +1008,8 @@
     <string name="str_bypass_need_setup">Bypass charge path hasn\'t been set up yet. Please complete the setup via Compatibility Check first.</string>
     <string name="reboot_required_content">This option requires a reboot to be applied. Continue?</string>
     <string name="show_notifications">Show Current Profile Notifications</string>
+
+    <!-- Terminal (ported from ZKM) -->
     <string name="terminal_title">max@kernel</string>
     <string name="terminal_overlay_title">max@overlay</string>
     <string name="terminal_overlay_title_locked">max@overlay [LOCKED]</string>
@@ -1030,6 +1041,8 @@
     <string name="terminal_floating_mode">Floating Mode (Overlay)</string>
     <string name="terminal_shell">Shell Console</string>
     <string name="terminal_shell_desc">A floating terminal window you can open and type in from anywhere</string>
+
+    <!-- Kernel Flasher / MTK screens (nd.max.ui.flasher, nd.max.ui.mtk) -->
     <string name="action_back">Back</string>
     <string name="action_refresh">Refresh</string>
     <string name="active_label">Active</string>
@@ -1057,7 +1070,7 @@
     <string name="format_label">Fmt: %1$s</string>
     <string name="go_back">Go Back</string>
     <string name="horizon_engine_legacy">Horizon Engine (Legacy)</string>
-    <string name="horizon_ready">&gt; Horizon Engine Ready...</string>
+    <string name="horizon_ready">> Horizon Engine Ready...</string>
     <string name="kernel_flasher_title">Kernel Flasher</string>
     <string name="flasher_workspace_ready">Flash workspace • root connected</string>
     <string name="later">Later</string>
@@ -1278,6 +1291,7 @@
     <string name="home_android_device">Android Device</string>
     <string name="thermal_policy_unavailable">Thermal policy not exposed</string>
     <string name="thermal_policy_unavailable_desc">This kernel does not expose a writable thermal policy node.</string>
+
     <string name="applist_loading_title">Loading applications</string>
     <string name="applist_loading_desc">Reading installed apps and MaxManager overrides.</string>
     <string name="applist_error_title">Couldn’t load applications</string>
@@ -1299,6 +1313,7 @@
     <string name="max_home_state_charging_desc">The device is charging. Monitor temperature if a demanding workload is active.</string>
     <string name="max_home_state_balanced">Balanced</string>
     <string name="max_home_state_balanced_desc">The live dashboard is within a normal operating range.</string>
+
     <string name="max_home_command_center">Command Center</string>
     <string name="max_home_dashboard_eyebrow">System monitor</string>
     <string name="max_home_uptime">Uptime</string>
@@ -1358,10 +1373,13 @@
     <string name="settings_workspace_guidance">Configure MaxManager itself here. Performance controls remain in Tweaks and per-app behavior remains in Apps.</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+
     <string name="cd_screen_help">Page help</string>
     <string name="settings_help_title">About Settings</string>
     <string name="tweaks_help_title">About Tweaks</string>
     <string name="diagnostics_help_title">About Diagnostics</string>
+
+    <!-- MAX AI unified engine screen -->
     <string name="maxai_screen_title">Max AI Engine</string>
     <string name="maxai_master_switch">Max AI</string>
     <string name="maxai_managing_auto">Max AI is currently managing your performance automatically</string>
@@ -1430,6 +1448,8 @@
     <string name="max_home_ai_failed">Last AI action failed</string>
     <string name="max_home_retry">Retry</string>
     <string name="max_home_ai_idle">No AI decision recorded yet</string>
+
+    <!-- Legendary live dashboard -->
     <string name="home_engine_ready">Performance engine online</string>
     <string name="home_engine_offline">Performance engine offline</string>
     <string name="home_system_stable">SYSTEM STABLE</string>
@@ -1474,10 +1494,11 @@
     <string name="home_available_swap">%1$s swap free</string>
     <string name="home_zram_unavailable">Compressed swap is unavailable</string>
     <string name="home_available_storage">%1$s GB free</string>
+
     <string name="home_story_title">Performance story</string>
     <string name="home_story_pressure">Pressure</string>
     <string name="home_story_bottleneck">Limiter</string>
-    <string name="home_story_live_loop">Max AI</string>
+    <string name="home_story_live_loop">Live loop</string>
     <string name="home_story_heat_map">Heat map</string>
     <string name="home_story_heat_headline">Heat is shaping performance</string>
     <string name="home_story_heat_desc">Battery is at %1$d°C while CPU load is %2$d%%. The best next action is to understand where heat is coming from before pushing more performance.</string>
@@ -1567,6 +1588,7 @@
     <string name="max_role_network_scheduler">Edit kernel network and scheduler parameters.</string>
     <string name="max_role_network_detail">Inspect current network activity and detail signals.</string>
     <string name="max_role_open_screen">Open this focused control surface.</string>
+
     <string name="home_passport_title">System passport</string>
     <string name="home_passport_desc">One verdict from performance, app intent, Max AI and control safety.</string>
     <string name="home_passport_guard">Guarding</string>
@@ -1581,14 +1603,15 @@
     <string name="home_passport_story">Profile %1$s is active. Next safe action: %2$s</string>
     <string name="home_passport_open_control">Control</string>
     <string name="home_passport_open_apps">Apps</string>
-    <string name="home_passport_open_live">Max AI</string>
+    <string name="home_passport_open_live">Live</string>
+
     <string name="home_session_title">Session report</string>
     <string name="home_session_subtitle">Before/after from the current live window</string>
     <string name="home_session_cpu_delta">CPU shift</string>
     <string name="home_session_ram_delta">RAM shift</string>
     <string name="home_session_gpu_delta">GPU shift</string>
     <string name="home_session_correlation">Correlation</string>
-    <string name="home_session_open_loop">Max AI</string>
+    <string name="home_session_open_loop">Live loop</string>
     <string name="home_session_open_heat">Thermals</string>
     <string name="home_session_grade_hot">Hot</string>
     <string name="home_session_grade_busy">Busy</string>
@@ -1599,6 +1622,7 @@
     <string name="home_session_summary_baseline">Current window is a useful baseline: CPU %1$d%% and RAM %2$d%% without a strong degradation signal.</string>
     <string name="home_session_corr_heat">Load ↔ heat</string>
     <string name="home_session_corr_stable">No strong link</string>
+
     <string name="home_session_confidence">Performance Intelligence · %1$d%% confidence</string>
     <string name="home_session_workload">Workload</string>
     <string name="home_session_limiter">Limiter</string>
@@ -1611,10 +1635,19 @@
     <string name="home_session_real_yes">Yes</string>
     <string name="home_session_real_no">No</string>
     <string name="home_session_real_unknown">Watching</string>
+
     <string name="app_settings_system_bridge">This app has %1$d custom signals in the %2$s context. When it becomes foreground, Max AI can read that intent while Control applies only the allowed lanes.</string>
-    <string name="app_settings_open_live">Max AI</string>
+    <string name="app_settings_open_live">Live loop</string>
     <string name="app_settings_open_control">Control map</string>
+
     <string name="home_session_ai_bridge">Max AI: %1$s · profile %2$s</string>
+    <string name="apps_bridge_title">App behavior in the system</string>
+    <string name="apps_bridge_desc">Per-app choices are not isolated: they feed workload intent, profile behavior and the live control loop.</string>
+    <string name="apps_bridge_profiles_title">Configured apps affect sessions</string>
+    <string name="apps_bridge_profiles_desc">%1$d customized apps · %2$d game candidates can shape workload-aware tuning.</string>
+    <string name="apps_bridge_control_title">Open the control map</string>
+    <string name="apps_bridge_control_desc">Review the device lanes that apply app behavior through CPU, GPU, display, power and memory.</string>
+
     <string name="max_live_automation_title">Smart control plan</string>
     <string name="max_live_automation_desc">Shows what automation is allowed to do now, why, and how it can roll back.</string>
     <string name="max_live_confidence">%1$d%% trust</string>
@@ -1622,6 +1655,11 @@
     <string name="max_live_next_action">Next action</string>
     <string name="max_live_reversible">Reversible</string>
     <string name="max_live_not_reversible">One-way</string>
+
+    <string name="control_live_title">Live control lane</string>
+    <string name="control_live_desc">Start with the loop that explains ownership, learning, safety and rollback before opening raw tools.</string>
+    <string name="control_live_plan_desc">See what Max AI is allowed to change now, why, and whether it can revert.</string>
+    <string name="control_live_badge">Live</string>
     <string name="control_group_performance">Performance lanes</string>
     <string name="control_group_performance_desc">CPU, GPU, memory and responsiveness controls grouped by runtime pressure.</string>
     <string name="control_group_environment">Thermal and power</string>
@@ -1629,24 +1667,9 @@
     <string name="control_group_system">System paths</string>
     <string name="control_group_system_desc">Storage and network paths that shape loading, updates and online workloads.</string>
     <string name="control_advanced_tools_desc">High-risk utilities belong with Control, not Settings. They stay explicit, labeled and reversible where possible.</string>
-    <string name="tools_diagnostics_desc">Verify capabilities, support state and system readiness.</string>
-    <string name="tools_logs_desc">Review collected engine and system logs.</string>
-    <string name="max_role_vendor_boost">Chipset-specific performance and thermal controls.</string>
-    <string name="max_role_battery_detail">Battery state, health and power information.</string>
-    <string name="max_role_storage_detail">Storage state and available capacity.</string>
     <string name="max_role_terminal">Run direct commands only when a normal control cannot express the task.</string>
     <string name="max_role_setedit">Inspect and edit Android settings with clear advanced-risk labeling.</string>
     <string name="max_role_activity_launcher">Open hidden Android activities for debugging and vendor tools.</string>
     <string name="max_role_kernel_flasher">Flash kernel packages; dangerous and intentionally kept away from preferences.</string>
-    <string name="max_nav_tools">Tools</string>
-    <string name="apps_bridge_title">App behavior in the system</string>
-    <string name="apps_bridge_desc">Per-app choices are not isolated: they feed workload intent, profile behavior and the live control loop.</string>
-    <string name="apps_bridge_profiles_title">Configured apps affect sessions</string>
-    <string name="apps_bridge_profiles_desc">%1$d customized apps · %2$d game candidates can shape workload-aware tuning.</string>
-    <string name="apps_bridge_control_title">Open the control map</string>
-    <string name="apps_bridge_control_desc">Review the device lanes that apply app behavior through CPU, GPU, display, power and memory.</string>
-    <string name="control_live_title">Live control lane</string>
-    <string name="control_live_desc">Start with the loop that explains ownership, learning, safety and rollback before opening raw tools.</string>
-    <string name="control_live_plan_desc">See what Max AI is allowed to change now, why, and whether it can revert.</string>
-    <string name="control_live_badge">Live</string>
+
 </resources>

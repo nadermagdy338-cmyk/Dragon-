@@ -37,6 +37,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,6 +65,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -177,6 +180,14 @@ fun ApplistScreen(navController: NavHostController) {
                                 games = gameApps
                             )
                         }
+                        item(key = "apps_product_bridge") {
+                            AppsProductBridge(
+                                customized = customizedApps,
+                                games = gameApps,
+                                onOpenControl = { MaxNavActions(navController).navigateTo(MaxDestination.Control) },
+                                onOpenLive = { MaxNavActions(navController).navigateTo(MaxDestination.MaxLive) }
+                            )
+                        }
                         item {
                             AppSearchField(
                                 query = viewModel.searchTextFieldValue,
@@ -249,65 +260,117 @@ fun ApplistScreen(navController: NavHostController) {
 @Composable
 private fun AppListHero(total: Int, customized: Int, games: Int) {
     val colors = MaterialTheme.colorScheme
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(26.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceContainerLow),
+        border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .55f))
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Rounded.Apps,
-                contentDescription = null,
-                tint = colors.primary,
-                modifier = Modifier.size(28.dp)
+        Box(
+            Modifier.background(
+                Brush.linearGradient(
+                    listOf(
+                        colors.primary.copy(alpha = .14f),
+                        Color.Transparent,
+                        colors.tertiary.copy(alpha = .08f)
+                    )
+                )
             )
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.applist_hero_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    stringResource(R.string.applist_hero_desc),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            AppMetricInline(stringResource(R.string.applist_metric_installed), total, Modifier.weight(1f))
-            AppMetricInline(stringResource(R.string.applist_metric_customized), customized, Modifier.weight(1f))
-            AppMetricInline(stringResource(R.string.applist_metric_games), games, Modifier.weight(1f))
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconBadge(Icons.Rounded.Apps, colors.primary, 52)
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            stringResource(R.string.applist_hero_title),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            stringResource(R.string.applist_hero_desc),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colors.onSurfaceVariant
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    AppMetric(
+                        stringResource(R.string.applist_metric_installed),
+                        total,
+                        Modifier.weight(1f)
+                    )
+                    AppMetric(
+                        stringResource(R.string.applist_metric_customized),
+                        customized,
+                        Modifier.weight(1f)
+                    )
+                    AppMetric(
+                        stringResource(R.string.applist_metric_games),
+                        games,
+                        Modifier.weight(1f)
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun AppMetricInline(label: String, value: Int, modifier: Modifier = Modifier) {
-    Row(
+private fun AppMetric(label: String, value: Int, modifier: Modifier = Modifier) {
+    Surface(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = .78f)
     ) {
-        Text(
-            value.toString(),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+            Text(
+                value.toString(),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppsProductBridge(
+    customized: Int,
+    games: Int,
+    onOpenControl: () -> Unit,
+    onOpenLive: () -> Unit
+) {
+    MaxSection(
+        title = stringResource(R.string.apps_bridge_title),
+        description = stringResource(R.string.apps_bridge_desc)
+    ) {
+        MaxGroup {
+            MaxRow(
+                title = stringResource(R.string.apps_bridge_profiles_title),
+                subtitle = stringResource(R.string.apps_bridge_profiles_desc, customized, games),
+                icon = MaxDestination.MaxLive.icon,
+                onClick = onOpenLive,
+            )
+            MaxGroupDivider()
+            MaxRow(
+                title = stringResource(R.string.apps_bridge_control_title),
+                subtitle = stringResource(R.string.apps_bridge_control_desc),
+                icon = MaxDestination.Control.icon,
+                onClick = onOpenControl,
+            )
+        }
     }
 }
 

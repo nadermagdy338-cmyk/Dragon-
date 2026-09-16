@@ -1,157 +1,196 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Max AI causal experience strings.
+
+  Every string here labels a real measurement, a real decision or a real
+  outcome taken from MaxAiJournal / MaxAiState. There is deliberately no copy
+  that claims intelligence in the abstract: if the engine has nothing measured,
+  the screen says so (see max_ai_after_unmeasured, max_ai_impact_none).
+-->
 <resources>
-    <string name="max_ai_after_body">After measurement: objective score %1$s.</string>
-    <string name="max_ai_after_unmeasured">No after-measurement is available yet.</string>
-    <string name="max_ai_candidate_chosen">Selected</string>
-    <string name="max_ai_candidate_metrics">Utility %1$s · confidence %2$s · %3$d samples</string>
-    <string name="max_ai_candidates_title">Candidates (%1$d)</string>
-    <string name="max_ai_changed_body">Hardware readback: %1$s</string>
-    <string name="max_ai_changed_none">No confirmed hardware change.</string>
-    <string name="max_ai_context_line">App %1$s · %2$s · profile %3$s</string>
-    <string name="max_ai_context_system">System</string>
-    <string name="max_ai_context_title">Context</string>
-    <string name="max_ai_counters">Decisions %1$d · successful %2$d · adjusted %3$d · safety-blocked %4$d</string>
-    <string name="max_ai_decided_body">%1$s · %2$s · %3$s → %4$s</string>
-    <string name="max_ai_decided_none">No control step was applied.</string>
-    <string name="max_ai_deferred_verdict">Deferred: battery %1$s · thermal %2$s · score %3$s</string>
-    <string name="max_ai_direction_raise">Raise performance</string>
-    <string name="max_ai_direction_save">Save energy</string>
-    <string name="max_ai_episode_drift">Drift detected on %1$s</string>
-    <string name="max_ai_episode_no_action">No action</string>
-    <string name="max_ai_episode_probe">Knowledge probe: %1$s</string>
-    <string name="max_ai_episode_safety">Safety intervention</string>
-    <string name="max_ai_impact_body">Objective change %1$s</string>
-    <string name="max_ai_impact_none">No measured objective change.</string>
-    <string name="max_ai_insight_costly">Costly</string>
-    <string name="max_ai_insight_empty">No learned controls yet.</string>
-    <string name="max_ai_insight_helpful">Helpful</string>
-    <string name="max_ai_insight_inconclusive">Inconclusive</string>
-    <string name="max_ai_insight_learning">Learning</string>
-    <string name="max_ai_insight_row">Gain %1$s · thermal %2$s · %3$d samples · %4$s</string>
-    <string name="max_ai_insights_events_summary">Safety %1$d · drift %2$d · user overrides %3$d · deferred %4$d</string>
-    <string name="max_ai_insights_prediction">Prediction error %1$s across %2$d samples</string>
-    <string name="max_ai_insights_summary">Improved %1$d · rolled back %2$d · blocked %3$d · unmeasured %4$d</string>
-    <string name="max_ai_learned_body">Samples %1$d → %2$d · confidence %3$s</string>
-    <string name="max_ai_learned_none">No new learning was recorded.</string>
-    <string name="max_ai_master_off">Max AI is off</string>
-    <string name="max_ai_master_on">Max AI is on</string>
-    <string name="max_ai_master_title">Max AI</string>
-    <string name="max_ai_metric_battery">Battery</string>
-    <string name="max_ai_metric_cpu">CPU</string>
-    <string name="max_ai_metric_memory">Memory</string>
-    <string name="max_ai_metric_thermal">Thermal</string>
-    <string name="max_ai_objective_pick_balanced">Balanced</string>
-    <string name="max_ai_objective_pick_battery">Battery</string>
-    <string name="max_ai_objective_pick_performance">Performance</string>
-    <string name="max_ai_objective_source_learned">Learned objective</string>
-    <string name="max_ai_objective_source_screen_off">Screen-off objective</string>
-    <string name="max_ai_objective_source_user">User preference</string>
-    <string name="max_ai_observed_body">Score %1$s · target %2$s · gap %3$s</string>
-    <string name="max_ai_observed_technical">CPU %1$s · thermal %2$s · battery %3$s · memory %4$s</string>
-    <string name="max_ai_override_lock">Manual lock</string>
-    <string name="max_ai_override_profile">Manual profile</string>
-    <string name="max_ai_owner_pending">Pending</string>
-    <string name="max_ai_owner_verified">Verified</string>
-    <string name="max_ai_prediction">Predicted gain %1$s · thermal %2$s · confidence %3$s</string>
-    <string name="max_ai_prediction_error">Prediction error %1$s</string>
-    <string name="max_ai_profile_balanced">Balanced</string>
-    <string name="max_ai_profile_eco">Eco</string>
-    <string name="max_ai_profile_performance">Performance</string>
-    <string name="max_ai_profile_row_desc">Current profile</string>
-    <string name="max_ai_profile_unknown">Unknown</string>
-    <string name="max_ai_refresh">Refresh</string>
-    <string name="max_ai_refresh_desc">Refresh Max AI telemetry and decisions</string>
-    <string name="max_ai_rejected_measured_harm">Rejected: measured harm</string>
-    <string name="max_ai_rejected_no_step">Rejected: no useful step</string>
-    <string name="max_ai_rejected_other">Rejected</string>
-    <string name="max_ai_rejected_predicted_harm">Rejected: predicted harm</string>
-    <string name="max_ai_rejected_unreadable">Rejected: unreadable control</string>
-    <string name="max_ai_safety_critical_title">Safety critical</string>
-    <string name="max_ai_safety_detail">Thermal %1$s · interventions %2$d</string>
-    <string name="max_ai_safety_engaged_title">Safety engaged</string>
-    <string name="max_ai_safety_level">Safety level: %1$s</string>
-    <string name="max_ai_score_desc">Target score %1$s</string>
-    <string name="max_ai_score_label">Objective score</string>
-    <string name="max_ai_screen_off">Screen off</string>
-    <string name="max_ai_screen_on">Screen on</string>
-    <string name="max_ai_section_controls">Controls</string>
-    <string name="max_ai_section_insights">Insights</string>
-    <string name="max_ai_section_insights_desc">Measured learning from real outcomes</string>
-    <string name="max_ai_section_now">Now</string>
-    <string name="max_ai_section_now_desc">Current objective and live state</string>
-    <string name="max_ai_section_objective">Objective</string>
-    <string name="max_ai_section_timeline">Timeline</string>
-    <string name="max_ai_section_timeline_desc">Causal history of Max AI decisions</string>
-    <string name="max_ai_stage_after">After</string>
-    <string name="max_ai_stage_changed">Changed</string>
-    <string name="max_ai_stage_decided">Decision</string>
-    <string name="max_ai_stage_impact">Impact</string>
-    <string name="max_ai_stage_learned">Learned</string>
-    <string name="max_ai_stage_observed">Observed</string>
-    <string name="max_ai_stage_user">User</string>
-    <string name="max_ai_stage_verdict">Verdict</string>
-    <string name="max_ai_stage_why">Why</string>
-    <string name="max_ai_summary_blocked">Blocked by safety</string>
-    <string name="max_ai_summary_improved">Improved by %1$s</string>
-    <string name="max_ai_summary_no_action">No action taken</string>
-    <string name="max_ai_summary_probe_reverted">Probe measured and reverted</string>
-    <string name="max_ai_summary_probe_stuck">Probe did not complete</string>
-    <string name="max_ai_summary_rolled_back">Regressed; rolled back by %1$s</string>
-    <string name="max_ai_summary_stuck">Regressed; rollback not confirmed</string>
-    <string name="max_ai_summary_unmeasured">Applied, but impact was not measured</string>
-    <string name="max_ai_summary_write_failed">Write failed</string>
-    <string name="max_ai_time_hours">%1$d h ago</string>
-    <string name="max_ai_time_minutes">%1$d min ago</string>
-    <string name="max_ai_time_now">Just now</string>
-    <string name="max_ai_timeline_empty_off">Max AI is disabled.</string>
-    <string name="max_ai_timeline_empty_on">No decision episodes yet.</string>
-    <string name="max_ai_timeline_empty_title">No timeline events</string>
+
+    <!-- Screen -->
     <string name="max_ai_title">Max AI</string>
-    <string name="max_ai_trend_label">Objective trend</string>
-    <string name="max_ai_user_override">User override %1$s · %2$s</string>
-    <string name="max_ai_user_override_none">No user override recorded</string>
-    <string name="max_ai_value_unknown">Unknown</string>
-    <string name="max_ai_verdict_blocked">Blocked</string>
-    <string name="max_ai_verdict_drift">Drift</string>
-    <string name="max_ai_verdict_improved">Improved</string>
-    <string name="max_ai_verdict_no_action">No action</string>
-    <string name="max_ai_verdict_probe_reverted">Probe reverted</string>
-    <string name="max_ai_verdict_probe_stuck">Probe stuck</string>
-    <string name="max_ai_verdict_rolled_back">Rolled back</string>
-    <string name="max_ai_verdict_safety">Safety</string>
-    <string name="max_ai_verdict_stuck">Stuck</string>
-    <string name="max_ai_verdict_unmeasured">Unmeasured</string>
-    <string name="max_ai_verdict_write_failed">Write failed</string>
-    <string name="max_ai_weight_battery">Battery</string>
+
+    <!-- Now: measured state -->
+    <string name="max_ai_section_now">Measured now</string>
+    <string name="max_ai_section_now_desc">Readings from the last engine cycle. Nothing here is estimated.</string>
+    <string name="max_ai_score_label">Objective satisfaction</string>
+    <string name="max_ai_score_desc">Target %1$s. Below it the planner looks for one step.</string>
+    <string name="max_ai_trend_label">Satisfaction over the recent cycles</string>
+    <string name="max_ai_metric_cpu">CPU load</string>
+    <string name="max_ai_metric_thermal">Temperature</string>
+    <string name="max_ai_metric_battery">Battery</string>
+    <string name="max_ai_metric_memory">Memory in use</string>
+    <string name="max_ai_context_title">Context</string>
+    <string name="max_ai_context_system">System (no focused app)</string>
+    <string name="max_ai_context_line">%1$s · %2$s · base profile %3$s</string>
+    <string name="max_ai_screen_on">Screen on</string>
+    <string name="max_ai_screen_off">Screen off</string>
+    <string name="max_ai_profile_performance">Performance</string>
+    <string name="max_ai_profile_balanced">Balanced</string>
+    <string name="max_ai_profile_eco">Battery saver</string>
+    <string name="max_ai_profile_unknown">unknown</string>
+
+    <!-- Objective weights -->
+    <string name="max_ai_section_objective">What it is optimising for</string>
+    <string name="max_ai_objective_source_user">Your explicit preference decides the weights.</string>
+    <string name="max_ai_objective_source_learned">Weights inferred from your measured usage.</string>
+    <string name="max_ai_objective_source_screen_off">Screen off: energy and heat only.</string>
     <string name="max_ai_weight_performance">Performance</string>
-    <string name="max_ai_weight_thermal">Thermal</string>
-    <string name="max_ai_why_body">Objective %1$s in %2$s</string>
-    <string name="max_ai_why_technical">Weights: performance %1$s · battery %2$s · thermal %3$s</string>
+    <string name="max_ai_weight_battery">Battery</string>
+    <string name="max_ai_weight_thermal">Thermal headroom</string>
+
+    <!-- Timeline -->
+    <string name="max_ai_section_timeline">Decision timeline</string>
+    <string name="max_ai_section_timeline_desc">One entry per real control loop: observation, decision, write, re-measurement, verdict, learning.</string>
+    <string name="max_ai_timeline_empty_title">No loop recorded yet</string>
+    <string name="max_ai_timeline_empty_on">Max AI is on and monitoring. An entry appears the moment a measured gap produces a decision.</string>
+    <string name="max_ai_timeline_empty_off">Max AI is off, so it takes no decisions. Turn it on to let it act and record what happens.</string>
+    <string name="max_ai_episode_no_action">Gap measured, no safe step</string>
+
+    <string name="max_ai_stage_observed">What it measured</string>
+    <string name="max_ai_observed_body">Satisfaction %1$s against target %2$s, a gap of %3$s.</string>
+    <string name="max_ai_observed_technical">cpu %1$s · temp %2$s · battery %3$s · memory %4$s</string>
+    <string name="max_ai_stage_why">Why it mattered</string>
+    <string name="max_ai_why_body">The active objective was %1$s, measured in the context %2$s.</string>
+    <string name="max_ai_why_technical">weights: performance %1$s · battery %2$s · thermal %3$s</string>
+    <string name="max_ai_stage_decided">What it decided</string>
+    <string name="max_ai_decided_body">%1$s, %2$s, from %3$s to %4$s.</string>
+    <string name="max_ai_decided_none">No knob qualified: every candidate was rejected before any write.</string>
+    <string name="max_ai_stage_changed">What it changed</string>
+    <string name="max_ai_changed_body">Written and verified by reading the value back: %1$s.</string>
+    <string name="max_ai_changed_none">Nothing was written to the hardware.</string>
+    <string name="max_ai_stage_after">What happened next</string>
+    <string name="max_ai_after_body">Re-measured after the response window: satisfaction %1$s.</string>
+    <string name="max_ai_after_unmeasured">The post-change measurement was unavailable, so no effect is claimed.</string>
+    <string name="max_ai_stage_verdict">Verdict</string>
+    <string name="max_ai_stage_impact">Measured impact</string>
+    <string name="max_ai_impact_body">Objective change %1$s.</string>
+    <string name="max_ai_impact_none">No measured impact available.</string>
+    <string name="max_ai_stage_learned">What it learned</string>
+    <string name="max_ai_learned_body">Samples for this knob went from %1$d to %2$d; confidence now %3$s.</string>
+    <string name="max_ai_learned_none">No new sample was added, because nothing was measured.</string>
+
+    <string name="max_ai_prediction">predicted %1$s · thermal %2$s · confidence %3$s</string>
+    <string name="max_ai_prediction_error">prediction error %1$s</string>
+    <string name="max_ai_safety_level">safety level %1$s</string>
+    <string name="max_ai_value_unknown">unknown</string>
+
+    <string name="max_ai_stage_user">What the user did</string>
+    <string name="max_ai_user_override">The user undid this manually after %1$s (%2$s), so it was recorded as a measured rejection.</string>
+    <string name="max_ai_user_override_none">No manual override followed within the linking window.</string>
+    <string name="max_ai_override_lock">manual lock</string>
+    <string name="max_ai_override_profile">manual profile</string>
+    <string name="max_ai_deferred_verdict">deferred verdict: battery %1$s · thermal %2$s · satisfaction %3$s</string>
+    <string name="max_ai_episode_safety">Safety intervention</string>
+    <string name="max_ai_episode_drift">Drift: %1$s</string>
+    <string name="max_ai_episode_probe">Probe: %1$s</string>
+    <string name="max_ai_verdict_safety">Safety</string>
+    <string name="max_ai_verdict_drift">Drift</string>
+    <string name="max_ai_verdict_probe_reverted">Probe: reverted</string>
+    <string name="max_ai_verdict_probe_stuck">Probe: not reverted</string>
+
+    <string name="max_ai_candidates_title">Candidates considered (%1$d)</string>
+    <string name="max_ai_candidate_chosen">Chosen</string>
+    <string name="max_ai_candidate_metrics">utility %1$s · credibility %2$s · %3$d samples</string>
+    <string name="max_ai_rejected_measured_harm">Measured harm</string>
+    <string name="max_ai_rejected_predicted_harm">Predicted harm</string>
+    <string name="max_ai_rejected_no_step">No step left</string>
+    <string name="max_ai_rejected_unreadable">Unreadable</string>
+    <string name="max_ai_rejected_other">Not chosen</string>
+
+    <string name="max_ai_verdict_improved">Improved</string>
+    <string name="max_ai_verdict_rolled_back">Rolled back</string>
+    <string name="max_ai_verdict_stuck">Regressed</string>
+    <string name="max_ai_verdict_blocked">Blocked by safety</string>
+    <string name="max_ai_verdict_write_failed">Write failed</string>
+    <string name="max_ai_verdict_unmeasured">Unmeasured</string>
+    <string name="max_ai_verdict_no_action">No action</string>
+
+    <string name="max_ai_summary_improved">Verified on the hardware and measured better: %1$s.</string>
+    <string name="max_ai_summary_rolled_back">Measured worse (%1$s), so the baseline was restored.</string>
+    <string name="max_ai_summary_stuck">Measured worse and the baseline could not be restored.</string>
+    <string name="max_ai_summary_blocked">Safety vetoed the change; thermal supremacy wins over any gain.</string>
+    <string name="max_ai_summary_write_failed">The write did not hold on the hardware, so no success is claimed.</string>
+    <string name="max_ai_summary_unmeasured">Written and verified, but the effect could not be measured.</string>
+    <string name="max_ai_summary_no_action">A gap was measured, but every available step looked worse than the gap.</string>
+    <string name="max_ai_summary_probe_reverted">The objective was already satisfied; this knob was unknown, so it was measured once and reverted to baseline as designed.</string>
+    <string name="max_ai_summary_probe_stuck">The objective was already satisfied; this knob was unknown and measured once, but it could not be reverted to baseline.</string>
+
+    <string name="max_ai_direction_raise">raising performance</string>
+    <string name="max_ai_direction_save">saving energy</string>
+
+    <!-- Knowledge -->
+    <string name="max_ai_section_insights">What it knows about this device</string>
+    <string name="max_ai_section_insights_desc">Per-knob verdicts derived only from measured outcomes on this device.</string>
+    <string name="max_ai_insight_empty">Nothing learned yet: no measured outcome has been recorded.</string>
+    <string name="max_ai_insight_row">mean gain %1$s · thermal %2$s · %3$d samples · %4$s</string>
+    <string name="max_ai_insight_helpful">Proven helpful</string>
+    <string name="max_ai_insight_costly">Proven costly</string>
+    <string name="max_ai_insight_inconclusive">Inconclusive</string>
+    <string name="max_ai_insight_learning">Still learning</string>
+    <string name="max_ai_insights_summary">Improved %1$d · rolled back %2$d · blocked %3$d · unmeasured %4$d</string>
+    <string name="max_ai_insights_events_summary">Safety %1$d · drift %2$d · overridden %3$d · deferred measured %4$d</string>
+    <string name="max_ai_insights_prediction">Mean prediction error %1$s over %2$d measured loops</string>
+
+    <!-- Ownership -->
     <string name="max_ai_section_system">Who owns each control</string>
     <string name="max_ai_section_system_desc">One winner per hardware knob, from the shared ownership journal.</string>
     <string name="max_ai_owner_none">No knob is currently owned by any automated controller.</string>
     <string name="max_ai_owner_row">owner %1$s · intent %2$s</string>
+    <string name="max_ai_owner_verified">Verified</string>
+    <string name="max_ai_owner_pending">Pending</string>
     <string name="max_ai_locked_row">Locked by you at %1$s — Max AI will never touch it.</string>
+
+    <!-- Controls -->
+    <string name="max_ai_section_controls">Controls</string>
+    <string name="max_ai_master_title">Max AI</string>
+    <string name="max_ai_master_on">On: it decides, writes through the arbiter and measures the result.</string>
+    <string name="max_ai_master_off">Off: manual control, zero decisions and zero hardware writes.</string>
+    <string name="max_ai_objective_pick_performance">Prioritise performance</string>
+    <string name="max_ai_objective_pick_balanced">Keep it balanced</string>
+    <string name="max_ai_objective_pick_battery">Prioritise battery</string>
+    <string name="max_ai_profile_row_desc">Base profiles stay manual and are applied immediately; they are not AI knobs.</string>
+    <string name="max_ai_refresh">Run a cycle now</string>
+    <string name="max_ai_refresh_desc">Measure, plan and act once instead of waiting for the 30s cycle.</string>
+    <string name="max_ai_counters">Decisions %1$d · verified %2$d · adjusted %3$d · blocked for safety %4$d</string>
+
+    <!-- Safety -->
+    <string name="max_ai_safety_engaged_title">Thermal safety engaged</string>
+    <string name="max_ai_safety_critical_title">Critical temperature</string>
+    <string name="max_ai_safety_detail">Measured %1$s, %2$d interventions since install.</string>
+
+    <!-- Time -->
+    <string name="max_ai_time_now">just now</string>
+    <string name="max_ai_time_minutes">%1$d min ago</string>
+    <string name="max_ai_time_hours">%1$d h ago</string>
+
+    <!-- Live command centre -->
     <string name="max_live_title">Live command centre</string>
     <string name="max_live_open">Open the live command centre</string>
     <string name="max_live_open_desc">Animated view of the running loop: vitals, forecast vs actual, prediction error, knowledge, exploration gate and knob ownership.</string>
     <string name="max_live_empty">No cycle has completed yet, so there is nothing measured to animate.</string>
+
     <string name="max_live_section_vitals">Live vitals</string>
     <string name="max_live_section_vitals_desc">Bars move from the previous reading to the new one; nothing here is estimated.</string>
     <string name="max_live_pulse_on">Loop is running</string>
     <string name="max_live_pulse_off">Loop is off — manual control</string>
     <string name="max_live_pulse_stale">Last reading is stale</string>
+
     <string name="max_live_section_forecast">Thermal forecast vs actual</string>
     <string name="max_live_section_forecast_desc">The forward forecast the engine already computes for safety, drawn against what actually happened. The gap is the error.</string>
     <string name="max_live_forecast_empty">No forecast on this device yet.</string>
     <string name="max_live_forecast_error">Mean forecast error: %1$s</string>
     <string name="max_live_curve_desc">%1$s: from %2$s to %3$s over %4$d minutes, %5$d samples.</string>
+
     <string name="max_live_section_error">Prediction error over time</string>
     <string name="max_live_section_error_desc">Absolute gap between predicted and measured gain, one point per loop. A falling curve is the only honest proof of learning.</string>
     <string name="max_live_error_empty">Fewer than two measured predictions so far.</string>
     <string name="max_live_error_down">Falling — learning</string>
     <string name="max_live_error_up">Not falling yet</string>
     <string name="max_live_error_detail">%1$s → %2$s across %3$d loops</string>
+
     <string name="max_live_section_knowledge">What it knows and what it does not</string>
     <string name="max_live_section_knowledge_desc">Knowledge state per available knob. Unknown comes first because it is the reason exploration exists.</string>
     <string name="max_live_knowledge_empty">No knob is readable on this device yet.</string>
@@ -162,6 +201,7 @@
     <string name="max_live_knowledge_useful">Known useful</string>
     <string name="max_live_knowledge_neutral">Known neutral</string>
     <string name="max_live_knowledge_costly">Known costly</string>
+
     <string name="max_live_section_exploration">Exploration gate</string>
     <string name="max_live_section_exploration_desc">It only probes what it does not know, and only while a mistake would be cheap. Every refusal is named.</string>
     <string name="max_live_explore_allowed">A probe is allowed right now</string>
@@ -178,6 +218,7 @@
     <string name="max_live_block_nothing">every available knob is already measured</string>
     <string name="max_live_block_irreversible">the candidate could not be reverted safely</string>
     <string name="max_live_block_cost">worst-case cost is above the limit</string>
+
     <string name="max_live_section_loops">Loops it actually ran</string>
     <string name="max_live_section_loops_desc">Counted by kind. Safety, drift and your overrides are kept out of the success rate because the planner did not choose them.</string>
     <string name="max_live_count_improved">Improved and kept</string>
@@ -187,4 +228,5 @@
     <string name="max_live_count_override">You overrode it</string>
     <string name="max_live_count_deferred">Deferred verdicts measured</string>
     <string name="max_live_count_explorations">Knowledge probes</string>
+
 </resources>

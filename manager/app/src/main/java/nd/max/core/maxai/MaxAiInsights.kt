@@ -61,14 +61,7 @@ object MaxAiInsights {
          * سيضخّم نسبة النجاح بما لا يزال أثره قائمًا على الجهاز.
          */
         val explorations: Int = 0,
-        /**
-         * التجارب التي أكملت دورتها كاملة (طُبِّقت ثم أُعيدت لخط
-         * الأساس) لا التي حُجبت أو فشلت قبل أن تصل مرحلة القياس أصلًا.
-         * العلامة [MaxAiEpisode.reverted] — لا وجود قراءة `after` — هي
-         * الدليل الصحيح: الاسترجاع نفسه لا يحدث إلا بعد محاولة القياس
-         * (انظر توثيق الحقل)، وقد تفشل التقاطة القراءة النهائية رغم
-         * اكتمال الدورة فعليًا فيبقى `after` عندها null.
-         */
+        /** التجارب التي انتهت بقياس فعلي (أي أنتجت معرفة). */
         val explorationsMeasured: Int = 0,
         /**
          * حلقات النطام — تدخلات سلامة وانحرافات مقباض. معدودة منفصلة
@@ -165,10 +158,7 @@ object MaxAiInsights {
         val decisions = episodes.filter { it.kind == MaxAiEpisodeKind.DECISION }
         val probes = episodes.filter { it.kind == MaxAiEpisodeKind.PROBE }
 
-        // صدق التنبؤ يُقاس على حلقات المخطِّط فقط — قرارات وتجارب، لا
-        // سلامة ولا انحراف: هذان الأخيران لا قرار للمخطِّط فيهما أصلًا،
-        // فأي predictedGain/objectiveDelta موروث عليهما ليس تنبؤًا حقيقيًا.
-        val errors = (decisions + probes).mapNotNull { episode ->
+        val errors = episodes.mapNotNull { episode ->
             val predicted = episode.predictedGain ?: return@mapNotNull null
             val measured = episode.objectiveDelta ?: return@mapNotNull null
             abs(predicted - measured)
@@ -195,7 +185,7 @@ object MaxAiInsights {
             totalSamples = knobs.sumOf { it.samples.toLong() },
             busiestContext = busiest,
             explorations = probes.size,
-            explorationsMeasured = probes.count { it.reverted },
+            explorationsMeasured = probes.count { it.after != null },
             safetyEvents = episodes.count { it.kind == MaxAiEpisodeKind.SAFETY },
             driftEvents = episodes.count { it.kind == MaxAiEpisodeKind.DRIFT },
             userOverrides = episodes.count { it.userRejected },

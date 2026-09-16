@@ -24,6 +24,7 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.Control.route) { ControlScreen(navController) }
     composable(MaxDestination.Apps.route) { ApplistScreen(navController) }
     composable(MaxDestination.MaxAi.route) { MaxAiScreen(navController) }
+    composable(MaxDestination.MaxLive.route) { MaxLiveScreen(navController) }
     composable(MaxDestination.Settings.route) { SettingsScreen(navController) }
 
     // Control domain hubs: one parameterized entry per domain (F-07).
@@ -37,10 +38,13 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.StorageHub.route) { MaxDomainHubScreen(navController, MaxDestination.StorageHub) }
     composable(MaxDestination.NetworkHub.route) { MaxDomainHubScreen(navController, MaxDestination.NetworkHub) }
 
+    // Legacy flat tweaks workspace (see MaxDestination.AllTweaks kdoc)
+    composable(MaxDestination.AllTweaks.route) { TweakScreen(navController) }
 
     // Feature screens
     composable(MaxDestination.CpuCoreControl.route) { CpuCoreControlScreen(navController) }
     composable(MaxDestination.GovernorSettings.route) { GovSettings(navController) }
+    composable(MaxDestination.PreferenceTweaks.route) { PreferenceTweakScreen(navController) }
     composable(MaxDestination.MtkVendor.route) { MtkScreen(navController) }
     composable(MaxDestination.GpuStudio.route) { GpuStudioScreen(navController) }
     composable(MaxDestination.ZramManager.route) { ZramManagerScreen(navController) }
@@ -72,12 +76,11 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     // Settings children
     composable(MaxDestination.ColorPalette.route) { ColorPaletteScreen(navController) }
     composable(MaxDestination.ColorScheme.route) { ColorSchemeSettings(navController) }
-    composable(MaxDestination.PreferenceTweaks.route) { PreferenceTweakScreen(navController) }
     composable(MaxDestination.Diagnostics.route) { DiagnosticsScreen(navController) }
     composable(MaxDestination.Logs.route) { LogsViewerScreen(navController) }
     composable(MaxDestination.About.route) { AboutScreen(navController) }
 
-    // Control - Tools (risk-gated)
+    // Settings - Advanced tools (risk-gated in SettingsScreen, ADR-16)
     composable(MaxDestination.Terminal.route) { TerminalScreen() }
     composable(MaxDestination.SetEdit.route) { SetEditScreen(navController) }
     composable(MaxDestination.ActivityLauncher.route) { ActivityLauncherScreen(navController) }

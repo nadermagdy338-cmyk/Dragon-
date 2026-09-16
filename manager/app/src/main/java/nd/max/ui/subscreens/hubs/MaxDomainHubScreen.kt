@@ -67,6 +67,7 @@ fun MaxDomainHubScreen(navController: NavHostController, destination: MaxDestina
 private fun extraRows(hub: MaxDestination): List<MaxDestination> = when (hub) {
     MaxDestination.GpuHub -> listOf(MaxDestination.MtkVendor)
     MaxDestination.ThermalHub -> listOf(MaxDestination.MtkVendor)
+    MaxDestination.MemoryHub -> listOf(MaxDestination.PreferenceTweaks)
     else -> emptyList()
 }
 
@@ -119,6 +120,7 @@ private fun maxHubQuestionDescription(hub: MaxDestination): Int = when (hub) {
 private fun maxDestinationRole(destination: MaxDestination): Int = when (destination) {
     MaxDestination.CpuCoreControl -> R.string.max_role_cpu_core
     MaxDestination.GovernorSettings -> R.string.max_role_governor
+    MaxDestination.PreferenceTweaks -> R.string.max_role_preference_tweaks
     MaxDestination.MtkVendor -> R.string.max_role_vendor
     MaxDestination.GpuStudio -> R.string.max_role_gpu_studio
     MaxDestination.ZramManager -> R.string.max_role_zram

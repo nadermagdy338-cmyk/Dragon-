@@ -231,7 +231,7 @@ fun AppSettingsScreen(
                             PerAppSystemBridge(
                                 customizedCount = cfg.customizedFieldCount(),
                                 isGameApp = isGameApp,
-                                onOpenLive = { navController.navigate(MaxDestination.MaxAi.route) },
+                                onOpenLive = { navController.navigate(MaxDestination.MaxLive.route) },
                                 onOpenControl = { navController.navigate(MaxDestination.Control.route) }
                             )
                             Spacer(Modifier.height(10.dp))

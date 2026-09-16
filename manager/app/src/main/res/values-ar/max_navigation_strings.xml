@@ -1,11 +1,14 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary destinations (ADR-03) -->
     <string name="max_nav_now">الآن</string>
     <string name="max_nav_control">التحكم</string>
     <string name="max_nav_apps">التطبيقات</string>
     <string name="max_nav_max_ai">Max AI</string>
     <string name="max_nav_settings">الإعدادات</string>
-    <string name="max_nav_advanced_tools">الأدوات</string>
+    <string name="max_nav_advanced_tools">أدوات متقدمة</string>
+
+    <!-- Domain hub titles (ADR-04) -->
     <string name="max_hub_cpu">المعالج</string>
     <string name="max_hub_cpu_desc">الأنوية والحاكم وتحسين المورّد وتفضيلات النواة</string>
     <string name="max_hub_gpu">معالج الرسوميات</string>
@@ -24,9 +27,18 @@
     <string name="max_hub_storage_desc">نمط الترجمة وصحة التخزين</string>
     <string name="max_hub_network">الشبكة</string>
     <string name="max_hub_network_desc">جدولة حركة البيانات وحالة الاتصال</string>
+
+    <!-- Legacy tweaks workspace -->
+    <string name="max_nav_all_tweaks_section">قديم</string>
+    <string name="max_nav_all_tweaks">كل التعديلات (قديم)</string>
+    <string name="max_nav_all_tweaks_desc">قائمة مسطحة تبقى حتى انتقال كل مفتاح إلى مركز نطاقه</string>
+
+    <!-- Screen titles that had no resource of their own -->
     <string name="max_title_vendor_boost">تحسين المورّد</string>
     <string name="max_title_gpu_studio">استوديو GPU الواقعي</string>
     <string name="max_title_bypass_check">حالة التجاوز</string>
+
+    <!-- Data-trust vocabulary (ADR-07): unknown is never a plausible value -->
     <string name="max_status_unknown">status_unknown</string>
     <string name="max_settings_diagnostics">التشخيص</string>
     <string name="max_settings_logs">السجلات</string>
@@ -44,7 +56,4 @@
     <string name="max_title_kernel_flasher">مفلاش النواة</string>
     <string name="max_title_app_settings">إعدادات التطبيق</string>
     <string name="max_title_get_started">التهيئة</string>
-    <string name="max_nav_all_tweaks_section">قديم</string>
-    <string name="max_nav_all_tweaks">كل التعديلات (قديم)</string>
-    <string name="max_nav_all_tweaks_desc">قائمة مسطحة تبقى حتى انتقال كل مفتاح إلى مركز نطاقه</string>
 </resources>

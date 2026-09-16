@@ -19,15 +19,14 @@ package nd.max.ui.theme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
-import nd.max.ui.design.MaxRadius
 
 /** Tight control shapes contrast with the studio's generous, directional panels.
  * Start/end corners mirror naturally with the layout direction.
  */
 val Shapes = Shapes(
     extraSmall = RoundedCornerShape(6.dp),
-    small = RoundedCornerShape(MaxRadius.control),
-    medium = RoundedCornerShape(MaxRadius.row),
-    large = RoundedCornerShape(MaxRadius.group),
-    extraLarge = RoundedCornerShape(MaxRadius.sheet)
+    small = RoundedCornerShape(10.dp),
+    medium = RoundedCornerShape(18.dp),
+    large = RoundedCornerShape(26.dp),
+    extraLarge = RoundedCornerShape(32.dp)
 )

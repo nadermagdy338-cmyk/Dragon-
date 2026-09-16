@@ -19,6 +19,7 @@
 package nd.max.ui.mainscreens
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
+import nd.max.ui.navigation.MaxRisk
 
 
 import android.content.ComponentName
@@ -26,6 +27,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -60,6 +63,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.topjohnwu.superuser.Shell
 import dev.jeziellago.compose.markdowntext.MarkdownText
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -98,6 +105,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val listState = rememberLazyListState()
 
+    var showLogBottomSheet by remember { mutableStateOf(false) }
 
     val restartToastText = stringResource(R.string.toast_restarting_service)
 
@@ -164,6 +172,52 @@ fun SettingsScreen(
         }
     }
 
+    val createLogLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/gzip")) { uri ->
+        uri?.let { destinationUri ->
+            coroutineScope.launch {
+                val success = loadingDialog.withLoading {
+
+                    val logFile = dumpDiagnosticLogs(context, saveToDownloads = false)
+
+                    if (logFile != null && logFile.exists()) {
+
+                        try {
+                            context.contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
+                                logFile.inputStream().use { inputStream ->
+                                    inputStream.copyTo(outputStream)
+                                }
+                            }
+                            true
+                        } catch (e: Exception) {
+                            false
+                        } finally {
+
+                            logFile.delete()
+                        }
+                    } else {
+                        false
+                    }
+                }
+
+                if (success) {
+                    snackbarHostState.showSnackbar(context.getString(R.string.toast_log_save_success))
+                } else {
+                    snackbarHostState.showSnackbar(context.getString(R.string.toast_log_save_fail))
+                }
+            }
+        }
+    }
+
+    var logFileToDelete by remember { mutableStateOf<File?>(null) }
+
+    val shareLogLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        logFileToDelete?.let { file ->
+            if (file.exists()) {
+                file.delete()
+            }
+            logFileToDelete = null
+        }
+    }
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -225,6 +279,16 @@ fun SettingsScreen(
                     )
                 }
 
+                item { SettingsSectionTitle(stringResource(R.string.section_features)) }
+
+                item {
+                    ExpressiveList(
+                        content = listOf(
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Diagnostics) }, headlineContent = { Text(stringResource(R.string.max_settings_diagnostics)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.BugReport) }) },
+                            { ExpressiveListItem(onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Logs) }, headlineContent = { Text(stringResource(R.string.max_settings_logs)) }, leadingContent = { LeadingIcon(icon = Icons.Rounded.ListAlt) }) },
+                        )
+                    )
+                }
 
                 item {
                     if (uiState.isLoaded) {
@@ -352,7 +416,33 @@ fun SettingsScreen(
                                         trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
                                     )
                                 },
-
+                                {
+                                    ExpressiveListItem(
+                                        onClick = { showLogBottomSheet = true },
+                                        headlineContent = { Text(stringResource(R.string.save_log)) },
+                                        supportingContent = { Text(stringResource(R.string.save_log_desc)) },
+                                        leadingContent = { LeadingIcon(icon = Icons.Filled.Save) },
+                                        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                                    )
+                                },
+                                {
+                                    ExpressiveSwitchItem(
+                                        icon = Icons.Filled.BugReport,
+                                        title = stringResource(R.string.allow_verbose_log),
+                                        summary = stringResource(R.string.allow_verbose_log_desc),
+                                        checked = uiState.debugMode,
+                                        onCheckedChange = settingsViewModel::setDebugMode
+                                    )
+                                },
+                                {
+                                    ExpressiveSwitchItem(
+                                        icon = Icons.Filled.History,
+                                        title = stringResource(R.string.detailed_activity_log),
+                                        summary = stringResource(R.string.detailed_activity_log_desc),
+                                        checked = uiState.detailedLog,
+                                        onCheckedChange = settingsViewModel::setDetailedLog
+                                    )
+                                },
                                 {
                                     ExpressiveListItem(
                                         onClick = {
@@ -415,6 +505,73 @@ fun SettingsScreen(
         ConfirmDialogHost(handle = uninstallDialog)
         ConfirmDialogHost(handle = rebootDialog)
 
+        RootAppDialog {
+            CustomBottomSheet(
+                visible = showLogBottomSheet,
+                onDismiss = { showLogBottomSheet = false }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(
+                            bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                        )
+                ) {
+                    Text(
+                        text = stringResource(R.string.str_logs_diagnostics),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+                    )
+
+                    ExpressiveList(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        content = listOf(
+                            {
+                                ExpressiveListItem(
+                                    headlineContent = { Text(stringResource(R.string.save_log), color = MaterialTheme.colorScheme.onSurface) },
+                                    supportingContent = { Text(stringResource(R.string.str_save_compressed_logs_to_a_fold), color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                    leadingContent = { LeadingIcon(Icons.Rounded.FolderSpecial) },
+                                    onClick = {
+                                        showLogBottomSheet = false
+
+
+                                        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+                                        val fileName = "MaxManager_Logs_$timeStamp.tar.gz"
+                                        createLogLauncher.launch(fileName)
+                                    }
+                                )
+                            },
+                            {
+                                ExpressiveListItem(
+                                    headlineContent = { Text(stringResource(R.string.str_send_logs), color = MaterialTheme.colorScheme.onSurface) },
+                                    supportingContent = { Text(stringResource(R.string.str_share_compressed_logs_to_other), color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                    leadingContent = { LeadingIcon(Icons.Rounded.Share) },
+                                    onClick = {
+                                        showLogBottomSheet = false
+                                        coroutineScope.launch {
+                                            val logFile = loadingDialog.withLoading {
+                                                dumpDiagnosticLogs(context, saveToDownloads = false)
+                                            }
+
+                                            if (logFile != null) {
+                                                logFileToDelete = logFile
+                                                val intent = getShareLogIntent(context, logFile)
+                                                shareLogLauncher.launch(intent)
+                                            } else {
+                                                snackbarHostState.showSnackbar(context.getString(R.string.toast_log_gather_fail))
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        )
+                    )
+                }
+            }
+        }
         RootAppDialog {
             CustomBottomSheet(
                 visible = showChangelogSheet,
@@ -537,4 +694,10 @@ fun SettingsScreenTopAppBar(
             windowInsets = WindowInsets.statusBars
         )
     }
+}
+/** Risk label resource for the Settings -> Advanced tools gate (ADR-16). */
+internal fun maxRiskLabel(risk: MaxRisk): Int = when (risk) {
+    MaxRisk.Normal -> R.string.max_risk_normal
+    MaxRisk.Advanced -> R.string.max_risk_advanced
+    MaxRisk.Dangerous -> R.string.max_risk_dangerous
 }

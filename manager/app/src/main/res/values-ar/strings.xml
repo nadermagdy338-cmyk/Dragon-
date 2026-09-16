@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about_maxmanager">حول Max Manager</string>
     <string name="about_source_code">Join our %1$s group</string>
@@ -604,15 +604,19 @@
     <string name="applist_filter_customized">مخصص</string>
     <string name="applist_filter_all_hint">عرض جميع التطبيقات</string>
     <string name="applist_filter_customized_hint">عرض التطبيقات التي لها إعدادات مخصصة فقط</string>
+
     <string name="settings_workspace_title">إعدادات MaxManager</string>
     <string name="settings_workspace_state">مساحة إعدادات التطبيق</string>
     <string name="settings_workspace_guidance">اضبط MaxManager من هنا. التحكم العام موجود في Tweaks والتحكم لكل تطبيق موجود في Apps.</string>
     <string name="ok">موافق</string>
     <string name="cancel">إلغاء</string>
+
     <string name="cd_screen_help">مساعدة الصفحة</string>
     <string name="settings_help_title">حول الإعدادات</string>
     <string name="tweaks_help_title">حول التعديلات</string>
     <string name="diagnostics_help_title">حول التشخيص</string>
+
+    <!-- شاشة محرك MAX AI الموحد -->
     <string name="maxai_screen_title">محرك Max AI</string>
     <string name="maxai_master_switch">Max AI</string>
     <string name="maxai_managing_auto">Max AI يدير أداءك تلقائيًا حاليًا</string>
@@ -695,12 +699,16 @@
     <string name="tweaks_workspace_state_lite">وضع التحكم الأساسي</string>
     <string name="tweaks_workspace_guidance">تغيّر هذه الأدوات سلوك النظام بالكامل. تتقدم تخصيصات التطبيقات عند إعدادها.</string>
     <string name="loading">جارٍ التحميل…</string>
+
+    <!-- Charge Control -->
     <string name="charging_battery_ready">البطارية جاهزة</string>
     <string name="charging_battery_ready_desc">%1$d%% متاحة · عناصر تحكم الشحن جاهزة عند الحاجة</string>
     <string name="charging_session_active">جلسة الشحن نشطة</string>
     <string name="charging_session_power">%1$.1f واط · %2$.2f أمبير يدخلان البطارية</string>
     <string name="charging_session_telemetry">%1$s · %2$s يدخلان البطارية</string>
     <string name="charging_limit_full">100٪ · بلا حد</string>
+
+    <!-- لوحة النظام الحية -->
     <string name="home_engine_ready">محرك الأداء متصل</string>
     <string name="home_engine_offline">محرك الأداء غير متصل</string>
     <string name="home_system_stable">النظام مستقر</string>
@@ -745,6 +753,8 @@
     <string name="home_available_swap">%1$s تبديل متاح</string>
     <string name="home_zram_unavailable">التبديل المضغوط غير متاح</string>
     <string name="home_available_storage">%1$s غيغابايت متاحة</string>
+
+    <!-- Charge Control -->
     <string name="charging_title">التحكم بالشحن</string>
     <string name="charging_desc">حدود تيار الشحن وقياسات الطاقة الحية</string>
     <string name="charging_live_summary">%1$d%% · %2$s · %3$.2f فولت · %4$d ملي أمبير · %5$.1f°م</string>
@@ -777,9 +787,4 @@
     <string name="charging_limit_slider_title">نسبة حد الشحن</string>
     <string name="charging_battery_saver_title">توفير البطارية</string>
     <string name="charging_battery_saver_desc">تقليل النشاط الخلفي والأداء لتمديد عمر البطارية</string>
-    <string name="tools_diagnostics_desc">التحقق من القدرات وحالة الدعم وجاهزية النظام.</string>
-    <string name="tools_logs_desc">عرض سجلات المحرك والنظام المجمعة.</string>
-    <string name="max_role_vendor_boost">تحكم خاص بالشريحة في الأداء والحرارة.</string>
-    <string name="max_role_battery_detail">حالة البطارية وصحتها ومعلومات الطاقة.</string>
-    <string name="max_role_storage_detail">حالة التخزين والمساحة المتاحة.</string>
 </resources>
