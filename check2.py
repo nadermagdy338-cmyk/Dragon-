@@ -94,6 +94,7 @@ TARGETS = [
     "ui/subscreens/ZramManagerScreen.kt",
     "ui/subscreens/NetworkSchedulerScreen.kt",
     "ui/subscreens/CpuCoreControlScreen.kt",
+    "ui/mainscreens/LegacyTweakComponents.kt",
 ]
 for rel in TARGETS:
     p = os.path.join(JAVA, "nd/max", rel)
@@ -131,7 +132,8 @@ NEW = ["ui/design/MaxHelp.kt", "ui/subscreens/hubs/MaxDomainHubScreen.kt",
        "ui/subscreens/ChargingScreen.kt",
        "ui/subscreens/ZramManagerScreen.kt",
        "ui/subscreens/NetworkSchedulerScreen.kt",
-       "ui/subscreens/CpuCoreControlScreen.kt"]
+       "ui/subscreens/CpuCoreControlScreen.kt",
+       "ui/mainscreens/LegacyTweakComponents.kt"]
 for rel in NEW:
     p = os.path.join(JAVA, "nd/max", rel)
     if not os.path.exists(p):
@@ -145,6 +147,58 @@ for rel in NEW:
                 continue
             if not re.search(r'\b' + re.escape(sym) + r'\b', body):
                 problems.append(f"UNUSED IMPORT {rel}: {sym}")
+
+# ---------- 7. nd.max named imports must resolve to a real declaration ----------
+# Catches the class of regression that broke the build: a top-level composable is
+# deleted, but other files still import it by name. Section 4 only covers a manual
+# DEAD list, so this generalises it to every nd.max import in the module.
+DECL_RE = re.compile(r'\b(?:fun|val|var|class|object|interface|typealias)\s+(?:<[^>\n]*>\s*)?([A-Za-z_][A-Za-z0-9_.]*)')
+TYPE_RE = re.compile(r'\b(?:class|interface|enum|record)\s+([A-Za-z_][A-Za-z0-9_]*)')
+
+def _pkg_of(txt):
+    m = re.search(r'^package\s+([A-Za-z0-9_.]+)', txt, re.M)
+    return m.group(1) if m else ""
+
+pkg_decls = collections.defaultdict(set)
+all_decls = set()
+kt_text = {}
+for p in kt_files:
+    txt = open(p, encoding="utf-8").read()
+    kt_text[p] = txt
+    names = {m.group(1).split(".")[-1] for m in DECL_RE.finditer(txt)}
+    pkg_decls[_pkg_of(txt)] |= names
+    all_decls |= names
+
+# java sources and AIDL-generated interfaces are declarations too
+for dp, dn, fn in os.walk(ROOT):
+    for f in fn:
+        if not (f.endswith(".java") or f.endswith(".aidl")):
+            continue
+        txt = open(os.path.join(dp, f), encoding="utf-8", errors="ignore").read()
+        names = {m.group(1) for m in TYPE_RE.finditer(txt)}
+        pkg_decls[_pkg_of(txt)] |= names
+        all_decls |= names
+
+GENERATED = {"R", "BuildConfig", "Companion"}
+for p in kt_files:
+    for line in kt_text[p].split("\n"):
+        s = line.strip()
+        if not s.startswith("import nd.max") or s.endswith("*"):
+            continue
+        path = s[len("import "):].split(" as ")[0].strip()
+        sym = path.split(".")[-1]
+        pkg = path.rsplit(".", 1)[0]
+        if sym in GENERATED:
+            continue
+        rel = os.path.relpath(p, JAVA)
+        if pkg in pkg_decls:
+            if sym not in pkg_decls[pkg]:
+                where = "declared in another package" if sym in all_decls else "DECLARED NOWHERE"
+                problems.append(f"UNRESOLVED IMPORT {rel}: {path} ({where})")
+        else:
+            parent = path.rsplit(".", 2)[-2] if path.count(".") >= 2 else ""
+            if sym not in all_decls and parent not in all_decls:
+                problems.append(f"UNRESOLVED IMPORT {rel}: {path} (no declaration found)")
 
 print("PROBLEMS:", len(problems))
 for p in problems:
