@@ -199,16 +199,19 @@ private fun ControlBand(
                 ExpandedRow(entry = entry, onOpen = onOpen)
             }
         } else {
-            val rows: List<@Composable () -> Unit> = hubs.map { spec ->
-                {
-                    ControlRow(
-                        entry = ControlEntry(spec.hub, spec.hubSubtitleRes),
-                        onOpen = onOpen,
-                    )
+            val rows = buildList<@Composable () -> Unit> {
+                hubs.forEach { spec ->
+                    add {
+                        ControlRow(
+                            entry = ControlEntry(spec.hub, spec.hubSubtitleRes),
+                            onOpen = onOpen,
+                        )
+                    }
                 }
-            } + entries.map { entry ->
-                {
-                    ControlRow(entry = entry, onOpen = onOpen)
+                entries.forEach { entry ->
+                    add {
+                        ControlRow(entry = entry, onOpen = onOpen)
+                    }
                 }
             }
             ExpressiveList(content = rows)
