@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /**
@@ -187,9 +186,7 @@ fun MaxRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha)
             )
             subtitle?.takeIf { it.isNotBlank() }?.let {
                 Text(
@@ -266,8 +263,6 @@ fun MaxSegmented(
                             text = label,
                             style = MaterialTheme.typography.labelLarge,
                             color = labelColor,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(
                                 horizontal = MaxSpace.sm,
                                 vertical = MaxSpace.sm

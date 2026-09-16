@@ -1498,8 +1498,9 @@
     <string name="home_story_no_limit">None obvious</string>
     <string name="home_story_stable_value">Baseline</string>
     <string name="control_workspace_subtitle">Map every tuning surface by the part of the device it affects</string>
-    <string name="control_view_list">List</string>
-    <string name="control_view_cards">Cards</string>
+    <string name="control_view_compact">Compact</string>
+    <string name="control_view_expanded">Expanded</string>
+    <string name="control_view_switch_cd">Change layout</string>
     <string name="cd_backup_restore">Backup &amp; restore</string>
     <string name="control_map_title">Control map</string>
     <string name="control_map_desc">Start from the symptom you feel, then open the domain that owns the limiting subsystem.</string>

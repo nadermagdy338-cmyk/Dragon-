@@ -310,8 +310,9 @@
     <string name="str_backup_configuration">نسخ احتياطي للتكوين</string>
     <string name="str_backup_content_detected_select">تم اكتشاف محتوى النسخة الاحتياطية، يرجى تحديد العناصر المراد استعادتها:</string>
     <string name="str_backup_restore">النسخ الاحتياطي والاستعادة</string>
-    <string name="control_view_list">قائمة</string>
-    <string name="control_view_cards">بطاقات</string>
+    <string name="control_view_compact">مختصر</string>
+    <string name="control_view_expanded">موسّع</string>
+    <string name="control_view_switch_cd">تغيير طريقة العرض</string>
     <string name="cd_backup_restore">النسخ الاحتياطي والاستعادة</string>
     <string name="str_banner_updated">تم تحديث الصورة</string>
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>

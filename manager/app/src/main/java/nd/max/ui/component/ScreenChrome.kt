@@ -221,7 +221,7 @@ fun MaxManagerSubScreenTopBar(
         MaxManagerTopBarScrim {
             LargeTopAppBar(
                 title = {
-                    AnimatedVisibility(
+                    androidx.compose.animation.AnimatedVisibility(
                         visible = titleVisible,
                         enter = fadeIn(tween(260)) + scaleIn(initialScale = 0.96f, animationSpec = tween(260)),
                         label = "subScreenTitleEnter"

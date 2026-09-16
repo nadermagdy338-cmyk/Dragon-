@@ -223,8 +223,6 @@ fun NeuralCaption(text: String, modifier: Modifier = Modifier, color: Color? = n
         lineHeight = 13.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.9.sp,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
     )
 }
 
@@ -279,8 +277,6 @@ fun NeuralSectionHeader(
                 fontSize = 15.sp,
                 lineHeight = 19.sp,
                 fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
             )
             if (caption != null) {
                 Text(
@@ -288,8 +284,6 @@ fun NeuralSectionHeader(
                     color = p.muted,
                     fontSize = 11.sp,
                     lineHeight = 15.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -652,8 +646,6 @@ fun NeuralFeedRow(
                 fontSize = 12.5.sp,
                 lineHeight = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
             )
             if (meta != null) {
                 Text(
@@ -661,8 +653,6 @@ fun NeuralFeedRow(
                     color = p.muted,
                     fontSize = 10.5.sp,
                     lineHeight = 14.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -703,8 +693,6 @@ fun NeuralActionTile(
             fontSize = 12.5.sp,
             lineHeight = 16.sp,
             fontWeight = FontWeight.SemiBold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
         )
         if (support != null) {
             Text(
@@ -712,8 +700,6 @@ fun NeuralActionTile(
                 color = p.muted,
                 fontSize = 10.5.sp,
                 lineHeight = 14.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
             )
         }
     }
