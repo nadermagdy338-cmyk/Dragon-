@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -161,7 +162,21 @@ fun HomeDashboardContent(
                 )
             }
         }
+        EdgeScrim(colors.background, true, Modifier.align(Alignment.TopCenter))
+        EdgeScrim(colors.background, false, Modifier.align(Alignment.BottomCenter))
     }
+}
+
+@Composable
+private fun EdgeScrim(base: Color, top: Boolean, modifier: Modifier = Modifier) {
+    val stops = if (top) listOf(base, base.copy(alpha = .72f), Color.Transparent)
+    else listOf(Color.Transparent, base.copy(alpha = .72f), base)
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(if (top) 26.dp else 34.dp)
+            .background(Brush.verticalGradient(stops))
+    )
 }
 
 @Composable

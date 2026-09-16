@@ -25,39 +25,50 @@ import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PowerSettingsNew
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.R
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.component.NeuralActionTile
-import nd.max.ui.component.NeuralAreaPlot
+import nd.max.ui.component.NeuralBarSpectrum
 import nd.max.ui.component.NeuralBudgetBar
 import nd.max.ui.component.NeuralCaption
+import nd.max.ui.component.NeuralExpandable
 import nd.max.ui.component.NeuralFactTile
 import nd.max.ui.component.NeuralFeedRow
 import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralKpiTile
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
+import nd.max.ui.component.NeuralRingSeries
 import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.NeuralTile
 import nd.max.ui.component.NeuralTrack
 import nd.max.ui.component.NeuralValue
+import nd.max.ui.component.NeuralVitalRing
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.theme.MonoValueStyleSmall
@@ -71,21 +82,23 @@ import kotlin.math.roundToInt
 /**
  * The MAX "Now" dashboard.
  *
- * What this screen is for: answer "how is my device right now, and what is the
- * one thing worth touching?" in a single scroll. Everything that only explains
- * MAX itself (system passport, engine verdict copy, AI console, duplicated
- * gauges) moved out; those belong to Max AI and Diagnostics, and on the home
- * screen they pushed the actual measurements below the fold.
+ * Question the screen answers: how is the device right now, and what is the one
+ * thing worth touching? Everything that only explained MAX to itself (system
+ * passport, AI console, the old "live performance" gauge stack, the base
+ * profile row) is gone; those live in Max AI, Control and Diagnostics.
  *
- * Eight blocks, in decreasing order of "what do I look at first":
- * identity -> four KPIs -> live plot -> memory budget -> one insight ->
- * core matrix -> command deck -> fabric strip.
+ * Reading order, each block earning its place exactly once:
+ *  1. pulse   — one ring: compute, graphics, memory, with heat in the middle
+ *  2. focus   — appears only when something is actually wrong
+ *  3. trends  — CPU and GPU with smoothed, auto-scaled sparklines
+ *  4. spectrum— per-sample load bars, tinted calm to hot
+ *  5. memory  — RAM, compressed swap and storage budgets
+ *  6. verdict — the limiter, in one sentence, with recent events
+ *  7. details — collapsed: core matrix, display, network, storage
+ *  8. deck    — four destinations people actually reach for
  *
- * Every color comes from MaterialTheme.colorScheme through [neuralPalette], so
- * the screen follows the palette, contrast and light/dark mode chosen in
- * Settings instead of hardcoding a dark look. Every live number renders through
- * NeuralValue, which pins direction to LTR: "2712x1220 - 120 Hz" is Latin
- * technical notation and must not be reordered by an RTL locale.
+ * No metric is drawn twice, and every color comes from MaterialTheme through
+ * neuralPalette(), so the Settings theme drives the entire screen.
  */
 
 private fun Float.oneDecimal(): String = String.format(Locale.US, "%.1f", this)
@@ -134,29 +147,27 @@ internal fun LegendaryHomeDashboard(
     onAiRetry: () -> Unit
 ) {
     val online = ui.rootStatus && ui.moduleInstalled
+    var detailsOpen by rememberSaveable { mutableStateOf(false) }
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         HomeHeader(online, onSettings, onReboot)
-        DeviceIdentityPanel(
+        PulsePanel(
             deviceName = deviceName,
             dashboard = dashboard,
-            profile = stringResource(ui.currentProfileRes),
-            onProfile = onProfile,
             onOverview = { onNavigate(MaxDestination.Diagnostics.route) }
         )
-        KpiGrid(
+        FocusCard(dashboard, onNavigate)
+        TrendDuo(
             dashboard = dashboard,
             onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
-            onGpu = { onNavigate(gpuRoute ?: MaxDestination.GpuStudio.route) },
-            onMemory = { onNavigate(MaxDestination.ZramManager.route) },
-            onThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
+            onGpu = { onNavigate(gpuRoute ?: MaxDestination.GpuStudio.route) }
         )
-        LiveLoadPanel(dashboard) { onNavigate(MaxDestination.MaxLive.route) }
+        SpectrumPanel(dashboard) { onNavigate(MaxDestination.MaxLive.route) }
         MemoryBudgetPanel(
             dashboard = dashboard,
             onMemory = { onNavigate(MaxDestination.ZramManager.route) },
             onStorage = { onNavigate(MaxDestination.StorageDetail.route) }
         )
-        InsightPanel(
+        VerdictPanel(
             dashboard = dashboard,
             maxAi = maxAi,
             request = profileRequest,
@@ -164,14 +175,18 @@ internal fun LegendaryHomeDashboard(
             onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
             onRetry = onAiRetry
         )
-        CoreMatrixPanel(dashboard.cores) { onNavigate(MaxDestination.CpuCoreControl.route) }
+        DetailsSection(
+            dashboard = dashboard,
+            expanded = detailsOpen,
+            onToggle = { detailsOpen = !detailsOpen },
+            onNavigate = onNavigate
+        )
         CommandDeck(
             onBoost = onProfile,
             onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
             onBattery = { onNavigate(MaxDestination.Charging.route) },
             onAdvanced = { onNavigate(MaxDestination.Control.route) }
         )
-        FabricStrip(dashboard, onNavigate)
     }
 }
 
@@ -227,18 +242,26 @@ private fun HeaderButton(icon: ImageVector, description: String, onClick: () -> 
     }
 }
 
-/** Who am I, what profile am I running, and the three numbers people check first. */
+/**
+ * The signature block. Three concentric arcs (compute, graphics, memory) around
+ * the temperature, because the first question is never "what is CPU load" but
+ * "is anything under pressure, and is the device hot".
+ */
 @Composable
-private fun DeviceIdentityPanel(
+private fun PulsePanel(
     deviceName: String,
     dashboard: DashboardState,
-    profile: String,
-    onProfile: () -> Unit,
     onOverview: () -> Unit
 ) {
     val p = neuralPalette()
-    val battTemp = primaryBatteryTemperatureC(dashboard)
-    NeuralPanel(accent = p.accent) {
+    val cpu = dashboard.cpuLoadPercent.coerceIn(0, 100)
+    val gpu = dashboard.gpuLoadPercent?.coerceIn(0, 100)
+    val ramFraction = fractionOf(dashboard.ramUsedMb, dashboard.ramTotalMb)
+    val heat = primaryBatteryTemperatureC(dashboard)?.roundToInt()
+        ?: dashboard.cpuTempC.takeIf { it > 0 }
+    val heatAccent = temperatureAccent(heat)
+    val calm = heat == null || heat < 43
+    NeuralPanel(accent = p.accent, contentPadding = PaddingValues(18.dp), verticalSpacing = 16.dp) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             NeuralIconChip(Icons.Rounded.PhoneAndroid, p.accent, size = 40.dp)
             Spacer(Modifier.width(12.dp))
@@ -252,34 +275,43 @@ private fun DeviceIdentityPanel(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                NeuralValue(
+                Text(
                     dashboard.chipsetName,
-                    style = MonoValueStyleSmall.copy(fontSize = 11.sp),
-                    color = p.muted
+                    color = p.muted,
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-            NeuralPill(
-                text = stringResource(R.string.home_device_overview),
-                accent = p.muted,
-                onClick = onOverview
-            )
         }
-        NeuralTile(Modifier.fillMaxWidth(), accent = p.accent, onClick = onProfile, verticalSpacing = 4.dp) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    NeuralCaption(stringResource(R.string.max_home_active_profile), color = p.accent)
-                    Text(
-                        profile,
-                        color = p.text,
-                        fontSize = 14.sp,
-                        lineHeight = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            NeuralVitalRing(
+                series = listOf(
+                    NeuralRingSeries(cpu / 100f, p.accent),
+                    NeuralRingSeries((gpu ?: 0) / 100f, p.accentAlt),
+                    NeuralRingSeries(ramFraction, p.ok)
+                ),
+                diameter = 182.dp
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    NeuralCaption(stringResource(R.string.home_temperature_short), color = heatAccent)
+                    NeuralValue(
+                        heat?.let { "$it\u00b0" } ?: "\u2014",
+                        style = MonoValueStyleSmall.copy(fontSize = 38.sp, lineHeight = 42.sp, fontWeight = FontWeight.Bold),
+                        color = p.text
+                    )
+                    NeuralCaption(
+                        stringResource(if (calm) R.string.home_system_stable else R.string.home_system_attention),
+                        color = if (calm) p.ok else heatAccent
                     )
                 }
-                Icon(Icons.Rounded.Tune, null, Modifier.size(18.dp), tint = p.accent)
             }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            RingLegend("CPU", "$cpu%", p.accent)
+            RingLegend("GPU", gpu?.let { "$it%" } ?: "\u2014", p.accentAlt)
+            RingLegend("RAM", "${(ramFraction * 100).roundToInt()}%", p.ok)
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NeuralFactTile(
@@ -289,112 +321,166 @@ private fun DeviceIdentityPanel(
                 modifier = Modifier.weight(1f)
             )
             NeuralFactTile(
-                caption = stringResource(R.string.max_home_temp),
-                value = battTemp?.let { "${it.oneDecimal()}\u00b0C" } ?: "\u2014",
-                accent = temperatureAccent(battTemp?.roundToInt()),
-                modifier = Modifier.weight(1f)
-            )
-            NeuralFactTile(
                 caption = stringResource(R.string.max_home_battery),
                 value = "${dashboard.batteryPercent}%",
                 accent = if (dashboard.isCharging) p.ok else p.accentAlt,
                 modifier = Modifier.weight(1f)
             )
+            NeuralFactTile(
+                caption = stringResource(R.string.home_power_draw),
+                value = "${dashboard.powerWatt.oneDecimal()} W",
+                accent = p.warn,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        NeuralPill(
+            text = stringResource(R.string.home_device_overview),
+            accent = p.muted,
+            onClick = onOverview
+        )
+    }
+}
+
+@Composable
+private fun RingLegend(label: String, value: String, accent: Color) {
+    val p = neuralPalette()
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(7.dp).clip(CircleShape).background(accent))
+        Spacer(Modifier.width(6.dp))
+        NeuralCaption(label, color = p.muted)
+        Spacer(Modifier.width(6.dp))
+        NeuralValue(
+            value,
+            style = MonoValueStyleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
+            color = accent
+        )
+    }
+}
+
+/** Shown only when a real problem exists, so its presence itself means something. */
+@Composable
+private fun FocusCard(dashboard: DashboardState, onNavigate: (String) -> Unit) {
+    val p = neuralPalette()
+    val heat = primaryBatteryTemperatureC(dashboard)?.roundToInt() ?: dashboard.cpuTempC
+    val ram = fractionOf(dashboard.ramUsedMb, dashboard.ramTotalMb)
+    val storageFree = if (dashboard.storageTotalGb <= 0f) 1f else
+        ((dashboard.storageTotalGb - dashboard.storageUsedGb) / dashboard.storageTotalGb).coerceIn(0f, 1f)
+
+    val title: String
+    val body: String
+    val accent: Color
+    val icon: ImageVector
+    val route: String
+    when {
+        heat >= 45 -> {
+            title = stringResource(R.string.home_focus_heat)
+            body = stringResource(R.string.home_focus_heat_desc)
+            accent = p.danger
+            icon = Icons.Rounded.Thermostat
+            route = MaxDestination.ThermalDetail.route
+        }
+        storageFree < 0.10f -> {
+            title = stringResource(R.string.home_focus_storage)
+            body = stringResource(R.string.home_focus_storage_desc)
+            accent = p.warn
+            icon = Icons.Rounded.Storage
+            route = MaxDestination.StorageDetail.route
+        }
+        ram >= 0.90f -> {
+            title = stringResource(R.string.home_focus_memory)
+            body = stringResource(R.string.home_focus_memory_desc)
+            accent = p.accentAlt
+            icon = Icons.Rounded.Speed
+            route = MaxDestination.ZramManager.route
+        }
+        else -> return
+    }
+    NeuralPanel(accent = accent, onClick = { onNavigate(route) }, verticalSpacing = 8.dp) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            NeuralIconChip(icon, accent, size = 34.dp)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    title,
+                    color = p.text,
+                    fontSize = 14.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    body,
+                    color = p.muted,
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
 
-/** Four measurements, each with its own trend. This is the core of the screen. */
+/** CPU and GPU trends. RAM lives in the budget panel, heat lives in the ring. */
 @Composable
-private fun KpiGrid(
-    dashboard: DashboardState,
-    onCpu: () -> Unit,
-    onGpu: () -> Unit,
-    onMemory: () -> Unit,
-    onThermal: () -> Unit
-) {
+private fun TrendDuo(dashboard: DashboardState, onCpu: () -> Unit, onGpu: () -> Unit) {
     val p = neuralPalette()
-    val ramPercent = (fractionOf(dashboard.ramUsedMb, dashboard.ramTotalMb) * 100).roundToInt()
-    val heat = primaryBatteryTemperatureC(dashboard)?.roundToInt()
-        ?: dashboard.cpuTempC.takeIf { it > 0 }
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            NeuralKpiTile(
-                caption = "CPU",
-                value = "${dashboard.cpuLoadPercent}%",
-                accent = p.accent,
-                support = compactFrequency(dashboard.cpuFreqMhz),
-                history = dashboard.cpuLoadHistory,
-                onClick = onCpu,
-                modifier = Modifier.weight(1f)
-            )
-            NeuralKpiTile(
-                caption = "GPU",
-                value = dashboard.gpuLoadPercent?.let { "$it%" } ?: "\u2014",
-                accent = p.accentAlt,
-                support = compactFrequency(dashboard.gpuFreqMhz),
-                history = dashboard.gpuLoadHistory,
-                onClick = onGpu,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            NeuralKpiTile(
-                caption = "RAM",
-                value = "$ramPercent%",
-                accent = p.ok,
-                support = "${gigabytes(dashboard.ramUsedMb)} / ${gigabytes(dashboard.ramTotalMb)}",
-                history = dashboard.ramLoadHistory,
-                onClick = onMemory,
-                modifier = Modifier.weight(1f)
-            )
-            NeuralKpiTile(
-                caption = stringResource(R.string.home_temperature_short),
-                value = heat?.let { "$it\u00b0C" } ?: "\u2014",
-                accent = temperatureAccent(heat),
-                support = "${dashboard.powerWatt.oneDecimal()} W",
-                onClick = onThermal,
-                modifier = Modifier.weight(1f)
-            )
-        }
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        NeuralKpiTile(
+            caption = "CPU",
+            value = "${dashboard.cpuLoadPercent}%",
+            accent = p.accent,
+            support = compactFrequency(dashboard.cpuFreqMhz),
+            history = dashboard.cpuLoadHistory,
+            onClick = onCpu,
+            modifier = Modifier.weight(1f)
+        )
+        NeuralKpiTile(
+            caption = "GPU",
+            value = dashboard.gpuLoadPercent?.let { "$it%" } ?: "\u2014",
+            accent = p.accentAlt,
+            support = compactFrequency(dashboard.gpuFreqMhz),
+            history = dashboard.gpuLoadHistory,
+            onClick = onGpu,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
-/** One chart instead of three gauge cards: CPU filled, GPU as a reference line. */
+/**
+ * Replaces the old "live performance" card. A line chart answered "what is the
+ * trend", which the sparklines already do; bars answer the more useful question
+ * on a phone — how often and how hard does the system spike — and the calm-to-hot
+ * tint makes that visible without reading a single number.
+ */
 @Composable
-private fun LiveLoadPanel(dashboard: DashboardState, onLive: () -> Unit) {
+private fun SpectrumPanel(dashboard: DashboardState, onLive: () -> Unit) {
     val p = neuralPalette()
-    val cpu = dashboard.cpuLoadHistory
-    val gpu = dashboard.gpuLoadHistory
-    val peak = cpu.maxOrNull()?.roundToInt() ?: 0
+    val history = dashboard.cpuLoadHistory
+    val peak = history.maxOrNull()?.roundToInt() ?: 0
+    val avg = if (history.isEmpty()) 0 else (history.sum() / history.size).roundToInt()
+    val now = history.lastOrNull()?.roundToInt() ?: dashboard.cpuLoadPercent
     NeuralPanel(onClick = onLive) {
         NeuralSectionHeader(
-            title = stringResource(R.string.home_live_performance),
-            caption = stringResource(R.string.home_live_performance_desc),
+            title = stringResource(R.string.home_spectrum_title),
+            caption = stringResource(R.string.home_spectrum_caption),
+            accent = p.accent,
             trailing = {
                 NeuralPill(stringResource(R.string.home_session_open_loop), p.accent, filled = true, dot = true)
             }
         )
-        if (cpu.size > 1) {
-            NeuralAreaPlot(
-                values = cpu,
+        if (history.size > 1) {
+            NeuralBarSpectrum(
+                values = history,
                 accent = p.accent,
-                secondary = gpu,
-                secondaryAccent = p.accentAlt,
-                modifier = Modifier.fillMaxWidth().height(112.dp)
+                hot = p.danger,
+                modifier = Modifier.fillMaxWidth().height(96.dp)
             )
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                LegendDot("CPU", p.accent)
-                if (gpu.size > 1) {
-                    Spacer(Modifier.width(14.dp))
-                    LegendDot("GPU", p.accentAlt)
-                }
-                Spacer(Modifier.weight(1f))
-                NeuralValue(
-                    "PEAK $peak%",
-                    style = MonoValueStyleSmall.copy(fontSize = 11.sp),
-                    color = p.muted
-                )
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NeuralFactTile(stringResource(R.string.home_stat_now), "$now%", p.accent, Modifier.weight(1f))
+                NeuralFactTile(stringResource(R.string.home_stat_avg), "$avg%", p.ok, Modifier.weight(1f))
+                NeuralFactTile(stringResource(R.string.home_stat_peak), "$peak%", p.danger, Modifier.weight(1f))
             }
         } else {
             NeuralValue(
@@ -406,16 +492,6 @@ private fun LiveLoadPanel(dashboard: DashboardState, onLive: () -> Unit) {
     }
 }
 
-@Composable
-private fun LegendDot(label: String, accent: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(7.dp).clip(CircleShape).background(accent))
-        Spacer(Modifier.width(6.dp))
-        NeuralCaption(label)
-    }
-}
-
-/** RAM, compressed swap and storage as three budgets, not three separate cards. */
 @Composable
 private fun MemoryBudgetPanel(
     dashboard: DashboardState,
@@ -465,13 +541,9 @@ private fun MemoryBudgetPanel(
     }
 }
 
-/**
- * The single verdict block. It replaced the old trio of "system passport",
- * "performance story" and "session report" cards, which each restated the same
- * limiter from a slightly different angle.
- */
+/** One verdict: what is limiting the device, how sure we are, what changed. */
 @Composable
-private fun InsightPanel(
+private fun VerdictPanel(
     dashboard: DashboardState,
     maxAi: MaxAiState,
     request: ProfileRequestState,
@@ -526,17 +598,13 @@ private fun InsightPanel(
                 modifier = Modifier.weight(1f)
             )
         }
-        if (intel.events.isNotEmpty()) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                intel.events.takeLast(2).reversed().forEach { event ->
-                    NeuralFeedRow(
-                        icon = Icons.Rounded.Bolt,
-                        title = event.title,
-                        meta = event.reason,
-                        accent = p.accentAlt
-                    )
-                }
-            }
+        intel.events.lastOrNull()?.let { event ->
+            NeuralFeedRow(
+                icon = Icons.Rounded.Bolt,
+                title = event.title,
+                meta = event.impact.takeIf { it.isNotBlank() },
+                accent = p.accentAlt
+            )
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             NeuralPill(
@@ -566,40 +634,73 @@ private fun InsightPanel(
                     onClick = onRetry
                 )
             } else if (maxAi.strategyLabel.isNotBlank()) {
-                NeuralValue(
-                    maxAi.strategyLabel,
-                    style = MonoValueStyleSmall.copy(fontSize = 10.sp),
-                    color = p.muted
-                )
+                NeuralCaption(maxAi.strategyLabel)
             }
         }
     }
 }
 
-/** Per-core clocks as a compact chip matrix; the app's signature block. */
+/** Secondary detail, collapsed by default so the first screen stays calm. */
 @Composable
-private fun CoreMatrixPanel(cores: List<CpuCoreState>, onOpen: () -> Unit) {
+private fun DetailsSection(
+    dashboard: DashboardState,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    onNavigate: (String) -> Unit
+) {
     val p = neuralPalette()
-    val onlineCores = cores.count { it.online }
-    NeuralPanel(onClick = onOpen) {
-        NeuralSectionHeader(
-            title = stringResource(R.string.home_cpu_cores),
-            caption = if (cores.isEmpty()) {
-                stringResource(R.string.home_waiting_core_data)
-            } else {
-                stringResource(R.string.home_cpu_cores_online, onlineCores, cores.size)
-            },
-            accent = p.accent
-        )
-        if (cores.isNotEmpty()) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                cores.chunked(4).forEach { row ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        row.forEach { core -> CoreChip(core, Modifier.weight(1f)) }
-                        repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
+    val cores = dashboard.cores
+    NeuralExpandable(
+        title = stringResource(R.string.home_details_title),
+        caption = stringResource(R.string.home_details_caption),
+        expanded = expanded,
+        accent = p.accentAlt,
+        onToggle = onToggle
+    ) {
+        if (cores.isEmpty()) {
+            NeuralCaption(stringResource(R.string.home_waiting_core_data))
+        } else {
+            NeuralCaption(stringResource(R.string.home_cpu_cores_online, cores.count { it.online }, cores.size))
+            // Core identity is positional: C0 must read first regardless of locale.
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    cores.chunked(4).forEach { row ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            row.forEach { core -> CoreChip(core, Modifier.weight(1f)) }
+                            repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
+                        }
                     }
                 }
             }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FabricChip(
+                icon = Icons.Rounded.DisplaySettings,
+                label = stringResource(R.string.max_hub_display),
+                value = if (dashboard.displayWidth > 0) "${dashboard.displayWidth}x${dashboard.displayHeight}" else "\u2014",
+                support = if (dashboard.displayRefreshHz > 0) "${dashboard.displayRefreshHz} Hz" else null,
+                accent = p.accent,
+                modifier = Modifier.weight(1f),
+                onClick = { onNavigate(MaxDestination.DisplayStudio.route) }
+            )
+            FabricChip(
+                icon = Icons.Rounded.NetworkCheck,
+                label = stringResource(R.string.home_network_status),
+                value = netSpeed(dashboard.downloadSpeedKbps),
+                support = "\u2191 ${netSpeed(dashboard.uploadSpeedKbps)}",
+                accent = p.ok,
+                modifier = Modifier.weight(1f),
+                onClick = { onNavigate(MaxDestination.NetworkDetail.route) }
+            )
+            FabricChip(
+                icon = Icons.Rounded.BatteryChargingFull,
+                label = stringResource(R.string.max_home_battery),
+                value = "${dashboard.batteryVoltageV.oneDecimal()} V",
+                support = dashboard.batteryStatus.takeIf { it.isNotBlank() },
+                accent = p.warn,
+                modifier = Modifier.weight(1f),
+                onClick = { onNavigate(MaxDestination.BatteryDetail.route) }
+            )
         }
     }
 }
@@ -632,7 +733,35 @@ private fun CoreChip(core: CpuCoreState, modifier: Modifier) {
     }
 }
 
-/** Four destinations people actually reach for from the home screen. */
+@Composable
+private fun FabricChip(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    support: String?,
+    accent: Color,
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
+    val p = neuralPalette()
+    NeuralTile(modifier, onClick = onClick, verticalSpacing = 6.dp, contentPadding = PaddingValues(12.dp)) {
+        NeuralIconChip(icon, accent, size = 26.dp)
+        NeuralCaption(label, color = accent)
+        NeuralValue(
+            value,
+            style = MonoValueStyleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
+            color = p.text
+        )
+        if (support != null) {
+            NeuralValue(
+                support,
+                style = MonoValueStyleSmall.copy(fontSize = 10.sp),
+                color = p.muted
+            )
+        }
+    }
+}
+
 @Composable
 private fun CommandDeck(
     onBoost: () -> Unit,
@@ -681,75 +810,6 @@ private fun CommandDeck(
                 accent = p.accentAlt,
                 onClick = onAdvanced,
                 modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-/** Display, network and power draw kept as one thin strip, not four fat rows. */
-@Composable
-private fun FabricStrip(dashboard: DashboardState, onNavigate: (String) -> Unit) {
-    val p = neuralPalette()
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        FabricChip(
-            icon = Icons.Rounded.DisplaySettings,
-            label = stringResource(R.string.max_hub_display),
-            value = if (dashboard.displayWidth > 0) {
-                "${dashboard.displayWidth}x${dashboard.displayHeight}"
-            } else "\u2014",
-            support = if (dashboard.displayRefreshHz > 0) "${dashboard.displayRefreshHz} Hz" else null,
-            accent = p.accent,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(MaxDestination.DisplayStudio.route) }
-        )
-        FabricChip(
-            icon = Icons.Rounded.NetworkCheck,
-            label = stringResource(R.string.home_network_status),
-            value = netSpeed(dashboard.downloadSpeedKbps),
-            support = "\u2191 ${netSpeed(dashboard.uploadSpeedKbps)}",
-            accent = p.ok,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(MaxDestination.NetworkDetail.route) }
-        )
-        FabricChip(
-            icon = Icons.Rounded.Bolt,
-            label = stringResource(R.string.home_power_draw),
-            value = "${dashboard.powerWatt.oneDecimal()} W",
-            support = "${dashboard.batteryVoltageV.oneDecimal()} V",
-            accent = p.warn,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(MaxDestination.BatteryDetail.route) }
-        )
-    }
-}
-
-@Composable
-private fun FabricChip(
-    icon: ImageVector,
-    label: String,
-    value: String,
-    support: String?,
-    accent: Color,
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
-    val p = neuralPalette()
-    NeuralTile(modifier, onClick = onClick, verticalSpacing = 6.dp, contentPadding = PaddingValues(12.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralIconChip(icon, accent, size = 26.dp)
-            Spacer(Modifier.width(8.dp))
-            NeuralCaption(label, Modifier.weight(1f), color = accent)
-        }
-        NeuralValue(
-            value,
-            style = MonoValueStyleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
-            color = p.text
-        )
-        if (support != null) {
-            NeuralValue(
-                support,
-                style = MonoValueStyleSmall.copy(fontSize = 10.sp),
-                color = p.muted
             )
         }
     }

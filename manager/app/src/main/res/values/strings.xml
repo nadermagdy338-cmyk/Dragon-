@@ -1672,4 +1672,21 @@
     <string name="max_role_activity_launcher">Open hidden Android activities for debugging and vendor tools.</string>
     <string name="max_role_kernel_flasher">Flash kernel packages; dangerous and intentionally kept away from preferences.</string>
 
+
+    <!-- Neural home dashboard v2 -->
+    <string name="home_spectrum_title">Load spectrum</string>
+    <string name="home_spectrum_caption">Recent load distribution</string>
+    <string name="home_stat_now">Now</string>
+    <string name="home_stat_avg">Average</string>
+    <string name="home_stat_peak">Peak</string>
+    <string name="home_details_title">Details</string>
+    <string name="home_details_caption">Cores, display, network and power</string>
+    <string name="home_focus_heat">Thermal pressure</string>
+    <string name="home_focus_heat_desc">Sustained heat is capping clocks. Open thermal controls to ease it.</string>
+    <string name="home_focus_storage">Storage almost full</string>
+    <string name="home_focus_storage_desc">Free space is low, which slows writes and caching.</string>
+    <string name="home_focus_memory">Memory pressure</string>
+    <string name="home_focus_memory_desc">RAM is nearly full. Trim background apps or enable ZRAM.</string>
+    <string name="max_hub_display">Display</string>
+
 </resources>

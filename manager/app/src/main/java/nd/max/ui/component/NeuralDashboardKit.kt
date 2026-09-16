@@ -1,12 +1,21 @@
 package nd.max.ui.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,13 +32,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,11 +57,15 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -56,25 +76,29 @@ import nd.max.ui.theme.MonoValueStyleSmall
 /**
  * Neural dashboard kit — the single visual language for MAX's data surfaces.
  *
- * Why this file exists: the previous home screen stacked a dozen bespoke cards,
- * each with its own padding, icon badge, arrow and title rhythm. The result read
- * as a list of settings rows rather than an instrument panel. Everything here is
- * built from four primitives only — panel, tile, readout, plot — so a screen
- * assembled from the kit is automatically consistent.
+ * Design rules, all enforced here instead of per screen:
  *
- * Numbers always render through [NeuralValue], which pins the text direction to
- * LTR. Live readouts such as "2712x1220 - 120 Hz" or "7.4 / 10.6 GB" are Latin
- * technical notation; letting an RTL locale reorder them (as the old screens did)
- * produced values that looked plainly wrong to the reader.
+ *  - Three depth levels only: panel (outlined, optional accent glow), tile
+ *    (filled, no border) and accent tile (accent wash + accent hairline).
+ *    Radii are fixed at 24 / 18 / 12 and padding at 16 / 14 / 12.
+ *  - One measurement per tile, number first, caption above it, trend below.
+ *  - Plots are smoothed (Catmull-Rom) and auto-scaled to the visible window:
+ *    a metric that hovers at 75% must still show its shape, not a flat line.
+ *  - Every color resolves from MaterialTheme.colorScheme, so the palette,
+ *    contrast and light/dark choice made in Settings drives the whole screen.
+ *  - Live numbers render through [NeuralValue], which pins layout direction to
+ *    LTR. "7.9 GB / 10.6 GB" is Latin technical notation and must never be
+ *    reordered or clipped by an RTL locale.
  */
 
-val NeuralPanelShape = RoundedCornerShape(22.dp)
+val NeuralPanelShape = RoundedCornerShape(24.dp)
 val NeuralTileShape = RoundedCornerShape(18.dp)
 private val ChipShape = RoundedCornerShape(12.dp)
 
 @Immutable
 data class NeuralPalette(
     val panel: Color,
+    val panelTop: Color,
     val tile: Color,
     val text: Color,
     val muted: Color,
@@ -92,11 +116,12 @@ fun neuralPalette(): NeuralPalette {
     val c = MaterialTheme.colorScheme
     return NeuralPalette(
         panel = c.surfaceContainerLow,
-        tile = c.surfaceContainerHighest.copy(alpha = .38f),
+        panelTop = c.surfaceContainerHigh,
+        tile = c.surfaceContainerHighest.copy(alpha = .40f),
         text = c.onSurface,
         muted = c.onSurfaceVariant,
-        border = c.outlineVariant.copy(alpha = .5f),
-        grid = c.onSurfaceVariant.copy(alpha = .14f),
+        border = c.outlineVariant.copy(alpha = .45f),
+        grid = c.onSurfaceVariant.copy(alpha = .13f),
         accent = c.primary,
         accentAlt = c.tertiary,
         ok = c.secondary,
@@ -105,7 +130,33 @@ fun neuralPalette(): NeuralPalette {
     )
 }
 
-/** Outer container. One radius, one border weight, one padding across the app. */
+/** Press feedback shared by every tappable surface: 2.5% scale plus theme ripple. */
+@Composable
+private fun Modifier.neuralClickable(onClick: (() -> Unit)?): Modifier {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) .975f else 1f,
+        animationSpec = tween(120, easing = FastOutSlowInEasing),
+        label = "neural-press",
+    )
+    // Every call site runs the same composable calls above, whether or not the
+    // surface is tappable, so composition structure stays stable.
+    if (onClick == null) return this
+    return this
+        .graphicsLayer { scaleX = scale; scaleY = scale }
+        .clickable(
+            interactionSource = interaction,
+            indication = LocalIndication.current,
+            onClick = onClick,
+        )
+}
+
+/**
+ * Outer container. When an accent is supplied the panel gets a soft corner glow
+ * and a tinted hairline; that single touch is what separates a "card" from the
+ * flat grey rectangles the screen used to be made of.
+ */
 @Composable
 fun NeuralPanel(
     modifier: Modifier = Modifier,
@@ -116,14 +167,26 @@ fun NeuralPanel(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val p = neuralPalette()
-    var box = modifier
+    val base = modifier
         .fillMaxWidth()
+        .neuralClickable(onClick)
         .clip(NeuralPanelShape)
-        .background(Brush.verticalGradient(listOf(p.panel, p.panel.copy(alpha = .62f))))
-        .border(BorderStroke(1.dp, accent?.copy(alpha = .30f) ?: p.border), NeuralPanelShape)
-    if (onClick != null) box = box.clickable(onClick = onClick)
+        .background(Brush.verticalGradient(listOf(p.panelTop.copy(alpha = .92f), p.panel)))
+    val glow = if (accent == null) {
+        base
+    } else {
+        base.background(
+            Brush.radialGradient(
+                colors = listOf(accent.copy(alpha = .16f), Color.Transparent),
+                center = Offset(0f, 0f),
+                radius = 620f,
+            )
+        )
+    }
     Column(
-        box.padding(contentPadding),
+        glow
+            .border(BorderStroke(1.dp, accent?.copy(alpha = .28f) ?: p.border), NeuralPanelShape)
+            .padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(verticalSpacing),
         content = content,
     )
@@ -141,10 +204,10 @@ fun NeuralTile(
 ) {
     val p = neuralPalette()
     var box = modifier
+        .neuralClickable(onClick)
         .clip(NeuralTileShape)
         .background(accent?.copy(alpha = .10f) ?: p.tile)
     if (accent != null) box = box.border(BorderStroke(1.dp, accent.copy(alpha = .22f)), NeuralTileShape)
-    if (onClick != null) box = box.clickable(onClick = onClick)
     Column(
         box.padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(verticalSpacing),
@@ -177,6 +240,7 @@ fun NeuralValue(
     style: TextStyle = MonoValueStyleSmall,
     color: Color? = null,
     maxLines: Int = 1,
+    align: TextAlign? = null,
 ) {
     val p = neuralPalette()
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -187,11 +251,13 @@ fun NeuralValue(
             style = style,
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
+            softWrap = false,
+            textAlign = align,
         )
     }
 }
 
-/** Section heading: caption line, title line, optional trailing slot. No icon badges. */
+/** Section heading: accent rule, title, caption, optional trailing slot. */
 @Composable
 fun NeuralSectionHeader(
     title: String,
@@ -205,7 +271,7 @@ fun NeuralSectionHeader(
         Box(
             Modifier
                 .width(3.dp)
-                .height(if (caption == null) 18.dp else 30.dp)
+                .height(if (caption == null) 18.dp else 32.dp)
                 .clip(CircleShape)
                 .background(accent ?: p.accent)
         )
@@ -238,7 +304,7 @@ fun NeuralSectionHeader(
     }
 }
 
-/** Status pill. Filled for live/primary state, outlined otherwise. */
+/** Status pill. */
 @Composable
 fun NeuralPill(
     text: String,
@@ -249,13 +315,13 @@ fun NeuralPill(
     icon: ImageVector? = null,
     onClick: (() -> Unit)? = null,
 ) {
-    var box = modifier
-        .clip(CircleShape)
-        .background(if (filled) accent.copy(alpha = .18f) else Color.Transparent)
-        .border(BorderStroke(1.dp, accent.copy(alpha = if (filled) .45f else .30f)), CircleShape)
-    if (onClick != null) box = box.clickable(onClick = onClick)
     Row(
-        box.padding(horizontal = 10.dp, vertical = 5.dp),
+        modifier
+            .neuralClickable(onClick)
+            .clip(CircleShape)
+            .background(if (filled) accent.copy(alpha = .16f) else Color.Transparent)
+            .border(BorderStroke(1.dp, accent.copy(alpha = if (filled) .42f else .28f)), CircleShape)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -279,81 +345,110 @@ fun NeuralIconChip(icon: ImageVector, accent: Color, modifier: Modifier = Modifi
     }
 }
 
+// ---------------------------------------------------------------- plots
+
 /**
- * KPI tile: caption, large readout, delta caption and an optional sparkline.
- * This is the unit the reference dashboards repeat, and it replaces the old
- * "icon + title + subtitle + arrow" rows that made every metric look like a
- * navigation entry instead of a measurement.
+ * Map values to canvas points. [adaptive] rescales to the visible window with a
+ * 25% margin, which is what makes a metric parked at 75% still read as a curve
+ * instead of a straight line glued to the top edge.
  */
-@Composable
-fun NeuralKpiTile(
-    caption: String,
-    value: String,
-    accent: Color,
-    modifier: Modifier = Modifier,
-    support: String? = null,
-    history: List<Float> = emptyList(),
-    maxValue: Float = 100f,
-    onClick: (() -> Unit)? = null,
-) {
-    val p = neuralPalette()
-    NeuralTile(modifier, accent = accent, onClick = onClick, verticalSpacing = 6.dp) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralCaption(caption, Modifier.weight(1f), color = accent)
-            Box(Modifier.size(6.dp).clip(CircleShape).background(accent.copy(alpha = .8f)))
-        }
-        NeuralValue(value, style = MonoValueStyleSmall.copy(fontSize = 22.sp, lineHeight = 26.sp, fontWeight = FontWeight.Bold), color = p.text)
-        if (support != null) NeuralValue(support, style = MonoValueStyleSmall.copy(fontSize = 11.sp), color = p.muted)
-        if (history.size > 1) {
-            NeuralSparkline(history, accent, Modifier.fillMaxWidth().height(26.dp), maxValue = maxValue)
-        }
+private fun plotPoints(
+    values: List<Float>,
+    width: Float,
+    height: Float,
+    ceiling: Float,
+    adaptive: Boolean,
+): List<Offset> {
+    if (values.isEmpty()) return emptyList()
+    val lo: Float
+    val hi: Float
+    if (adaptive) {
+        val low = values.minOrNull() ?: 0f
+        val high = values.maxOrNull() ?: ceiling
+        val pad = ((high - low) * .25f).coerceAtLeast(ceiling * .04f)
+        lo = (low - pad).coerceAtLeast(0f)
+        hi = (high + pad).coerceAtMost(ceiling).coerceAtLeast(lo + ceiling * .08f)
+    } else {
+        lo = 0f
+        hi = ceiling
+    }
+    val span = (hi - lo).coerceAtLeast(0.001f)
+    val step = if (values.size > 1) width / (values.size - 1) else width
+    return values.mapIndexed { index, raw ->
+        val t = ((raw - lo) / span).coerceIn(0f, 1f)
+        Offset(step * index, height - t * height)
     }
 }
 
-/** Compact line+area plot for tiles. */
+/** Catmull-Rom through every point, emitted as cubic segments. */
+private fun smoothPath(points: List<Offset>): Path {
+    val path = Path()
+    if (points.isEmpty()) return path
+    path.moveTo(points[0].x, points[0].y)
+    for (i in 0 until points.size - 1) {
+        val p0 = points[if (i > 0) i - 1 else i]
+        val p1 = points[i]
+        val p2 = points[i + 1]
+        val p3 = points[if (i + 2 < points.size) i + 2 else i + 1]
+        path.cubicTo(
+            p1.x + (p2.x - p0.x) / 6f,
+            p1.y + (p2.y - p0.y) / 6f,
+            p2.x - (p3.x - p1.x) / 6f,
+            p2.y - (p3.y - p1.y) / 6f,
+            p2.x,
+            p2.y,
+        )
+    }
+    return path
+}
+
+private fun DrawScope.drawSeries(
+    points: List<Offset>,
+    color: Color,
+    strokeWidth: Float,
+    fill: Boolean,
+    marker: Boolean,
+) {
+    if (points.size < 2) return
+    val line = smoothPath(points)
+    if (fill) {
+        val area = Path()
+        area.addPath(line)
+        area.lineTo(points.last().x, size.height)
+        area.lineTo(points.first().x, size.height)
+        area.close()
+        drawPath(
+            area,
+            Brush.verticalGradient(
+                listOf(color.copy(alpha = .34f), color.copy(alpha = .10f), Color.Transparent)
+            ),
+        )
+    }
+    drawPath(line, color.copy(alpha = .22f), style = Stroke(width = strokeWidth * 2.6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    drawPath(line, color, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    if (marker) {
+        val last = points.last()
+        drawCircle(color.copy(alpha = .25f), radius = strokeWidth * 3.2f, center = last)
+        drawCircle(color, radius = strokeWidth * 1.3f, center = last)
+    }
+}
+
+/** Compact smoothed trend for KPI tiles. */
 @Composable
 fun NeuralSparkline(
     values: List<Float>,
     accent: Color,
     modifier: Modifier = Modifier,
     maxValue: Float = 100f,
-    filled: Boolean = true,
+    adaptive: Boolean = true,
 ) {
     Canvas(modifier) {
-        if (values.size < 2) return@Canvas
-        val ceiling = if (maxValue <= 0f) 1f else maxValue
-        val step = size.width / (values.size - 1)
-        val line = Path()
-        val area = Path()
-        values.forEachIndexed { index, raw ->
-            val x = step * index
-            val y = size.height - (raw.coerceIn(0f, ceiling) / ceiling) * size.height
-            if (index == 0) {
-                line.moveTo(x, y)
-                area.moveTo(x, size.height)
-                area.lineTo(x, y)
-            } else {
-                line.lineTo(x, y)
-                area.lineTo(x, y)
-            }
-        }
-        if (filled) {
-            area.lineTo(size.width, size.height)
-            area.close()
-            drawPath(area, Brush.verticalGradient(listOf(accent.copy(alpha = .30f), Color.Transparent)))
-        }
-        drawPath(
-            line,
-            accent,
-            style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
-        )
+        val points = plotPoints(values, size.width, size.height, if (maxValue <= 0f) 1f else maxValue, adaptive)
+        drawSeries(points, accent, 2.dp.toPx(), fill = true, marker = false)
     }
 }
 
-/**
- * Full-width plot with grid, gradient fill and a marker on the newest sample —
- * the "request volume" chart from the reference, applied to live device load.
- */
+/** Full-width smoothed plot with grid, used where two series must be compared. */
 @Composable
 fun NeuralAreaPlot(
     values: List<Float>,
@@ -362,90 +457,152 @@ fun NeuralAreaPlot(
     secondary: List<Float> = emptyList(),
     secondaryAccent: Color? = null,
     maxValue: Float = 100f,
+    adaptive: Boolean = true,
 ) {
     val p = neuralPalette()
     Canvas(modifier) {
         val ceiling = if (maxValue <= 0f) 1f else maxValue
-        val dash = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 6.dp.toPx()))
+        val dash = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 7.dp.toPx()))
         for (i in 0..3) {
             val y = size.height * i / 3f
             drawLine(p.grid, Offset(0f, y), Offset(size.width, y), 1f, pathEffect = dash)
         }
-        fun plot(series: List<Float>, color: Color, fill: Boolean) {
-            if (series.size < 2) return
-            val step = size.width / (series.size - 1)
-            val line = Path()
-            val area = Path()
-            var lastX = 0f
-            var lastY = size.height
-            series.forEachIndexed { index, raw ->
-                val x = step * index
-                val y = size.height - (raw.coerceIn(0f, ceiling) / ceiling) * size.height
-                if (index == 0) {
-                    line.moveTo(x, y)
-                    area.moveTo(x, size.height)
-                    area.lineTo(x, y)
-                } else {
-                    line.lineTo(x, y)
-                    area.lineTo(x, y)
-                }
-                lastX = x
-                lastY = y
-            }
-            if (fill) {
-                area.lineTo(size.width, size.height)
-                area.close()
-                drawPath(area, Brush.verticalGradient(listOf(color.copy(alpha = .34f), Color.Transparent)))
-            }
-            drawPath(line, color, style = Stroke(width = 2.4.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
-            drawCircle(color.copy(alpha = .28f), radius = 7.dp.toPx(), center = Offset(lastX, lastY))
-            drawCircle(color, radius = 3.dp.toPx(), center = Offset(lastX, lastY))
+        if (secondaryAccent != null) {
+            drawSeries(plotPoints(secondary, size.width, size.height, ceiling, adaptive), secondaryAccent, 2.dp.toPx(), fill = false, marker = true)
         }
-        if (secondary.size > 1 && secondaryAccent != null) plot(secondary, secondaryAccent, false)
-        plot(values, accent, true)
+        drawSeries(plotPoints(values, size.width, size.height, ceiling, adaptive), accent, 2.6.dp.toPx(), fill = true, marker = true)
     }
 }
 
-/** Donut readout. Center content is supplied so it can hold a value plus label. */
+/**
+ * Load spectrum: one rounded bar per sample, tinted from calm to hot by value.
+ * Bars beat a line here because the question is "how often does it spike",
+ * which is a comparison of quantities rather than a trend.
+ */
 @Composable
-fun NeuralRing(
-    fraction: Float,
+fun NeuralBarSpectrum(
+    values: List<Float>,
     accent: Color,
+    hot: Color,
     modifier: Modifier = Modifier,
-    diameter: Dp = 72.dp,
-    stroke: Dp = 7.dp,
+    maxValue: Float = 100f,
+    maxBars: Int = 26,
+) {
+    val p = neuralPalette()
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { shown = true }
+    val appear by animateFloatAsState(
+        targetValue = if (shown) 1f else 0f,
+        animationSpec = tween(700, easing = FastOutSlowInEasing),
+        label = "neural-spectrum",
+    )
+    Canvas(modifier) {
+        val series = values.takeLast(maxBars)
+        if (series.isEmpty()) return@Canvas
+        val ceiling = if (maxValue <= 0f) 1f else maxValue
+        val slot = size.width / series.size
+        val barWidth = (slot * .55f).coerceAtLeast(2f)
+        val radius = barWidth / 2f
+        series.forEachIndexed { index, raw ->
+            val t = (raw / ceiling).coerceIn(0f, 1f)
+            val barHeight = (size.height * t * appear).coerceAtLeast(barWidth)
+            val x = slot * index + (slot - barWidth) / 2f
+            val top = size.height - barHeight
+            drawRoundRect(
+                color = p.grid,
+                topLeft = Offset(x, 0f),
+                size = Size(barWidth, size.height),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
+            )
+            drawRoundRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(lerp(accent, hot, t), accent.copy(alpha = .55f)),
+                    startY = top,
+                    endY = size.height,
+                ),
+                topLeft = Offset(x, top),
+                size = Size(barWidth, barHeight),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
+            )
+        }
+    }
+}
+
+// ---------------------------------------------------------------- rings
+
+@Immutable
+data class NeuralRingSeries(val fraction: Float, val color: Color)
+
+/**
+ * Concentric vital ring — the screen's signature element. Three arcs share one
+ * center so compute, graphics and memory pressure are compared at a glance,
+ * with the headline reading (temperature and state) living inside the ring.
+ */
+@Composable
+fun NeuralVitalRing(
+    series: List<NeuralRingSeries>,
+    modifier: Modifier = Modifier,
+    diameter: Dp = 176.dp,
+    stroke: Dp = 12.dp,
+    gap: Dp = 7.dp,
+    pulse: Boolean = true,
     center: @Composable () -> Unit,
 ) {
     val p = neuralPalette()
-    val animated by animateFloatAsState(
-        targetValue = fraction.coerceIn(0f, 1f),
-        animationSpec = tween(650),
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { shown = true }
+    val appear by animateFloatAsState(
+        targetValue = if (shown) 1f else 0f,
+        animationSpec = tween(900, easing = FastOutSlowInEasing),
         label = "neural-ring",
+    )
+    val transition = rememberInfiniteTransition(label = "neural-pulse")
+    val breath by transition.animateFloat(
+        initialValue = if (pulse) .10f else 0f,
+        targetValue = if (pulse) .26f else 0f,
+        animationSpec = infiniteRepeatable(tween(2200, easing = LinearEasing), RepeatMode.Reverse),
+        label = "neural-breath",
     )
     Box(modifier.size(diameter), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
-            val width = stroke.toPx()
-            val inset = width / 2f
-            val arc = Size(size.width - width, size.height - width)
-            drawArc(
-                color = p.grid,
-                startAngle = -90f,
-                sweepAngle = 360f,
-                useCenter = false,
-                topLeft = Offset(inset, inset),
-                size = arc,
-                style = Stroke(width = width, cap = StrokeCap.Round),
+            val strokePx = stroke.toPx()
+            val gapPx = gap.toPx()
+            val lead = series.firstOrNull()?.color ?: p.accent
+            drawCircle(
+                brush = Brush.radialGradient(
+                    listOf(lead.copy(alpha = breath), Color.Transparent),
+                    center = Offset(size.width / 2f, size.height / 2f),
+                    radius = size.minDimension / 2f,
+                ),
+                radius = size.minDimension / 2f,
             )
-            if (animated > 0f) {
+            series.forEachIndexed { index, item ->
+                val inset = strokePx / 2f + index * (strokePx + gapPx)
+                val arcSize = Size(size.width - inset * 2f, size.height - inset * 2f)
+                if (arcSize.minDimension <= 0f) return@forEachIndexed
                 drawArc(
-                    brush = Brush.sweepGradient(listOf(accent.copy(alpha = .45f), accent)),
+                    color = p.grid,
                     startAngle = -90f,
-                    sweepAngle = 360f * animated,
+                    sweepAngle = 360f,
                     useCenter = false,
                     topLeft = Offset(inset, inset),
-                    size = arc,
-                    style = Stroke(width = width, cap = StrokeCap.Round),
+                    size = arcSize,
+                    style = Stroke(width = strokePx, cap = StrokeCap.Round),
                 )
+                val sweep = 360f * item.fraction.coerceIn(0f, 1f) * appear
+                if (sweep > 0f) {
+                    drawArc(
+                        brush = Brush.sweepGradient(
+                            listOf(item.color.copy(alpha = .35f), item.color, item.color.copy(alpha = .35f))
+                        ),
+                        startAngle = -90f,
+                        sweepAngle = sweep,
+                        useCenter = false,
+                        topLeft = Offset(inset, inset),
+                        size = arcSize,
+                        style = Stroke(width = strokePx, cap = StrokeCap.Round),
+                    )
+                }
             }
         }
         center()
@@ -464,10 +621,17 @@ fun NeuralRingStat(
     onClick: (() -> Unit)? = null,
 ) {
     val p = neuralPalette()
-    var box = modifier
-    if (onClick != null) box = box.clip(NeuralTileShape).clickable(onClick = onClick)
-    Column(box, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        NeuralRing(fraction, accent, diameter = 74.dp) {
+    Column(
+        modifier.neuralClickable(onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        NeuralVitalRing(
+            series = listOf(NeuralRingSeries(fraction, accent)),
+            diameter = 74.dp,
+            stroke = 7.dp,
+            pulse = false,
+        ) {
             NeuralValue(value, style = MonoValueStyleSmall.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold), color = p.text)
         }
         NeuralCaption(caption, color = p.muted)
@@ -475,7 +639,42 @@ fun NeuralRingStat(
     }
 }
 
-/** Budget bar: label left, readout right, thin track underneath. */
+// ---------------------------------------------------------------- readouts
+
+/** KPI tile: caption, large readout, support line, smoothed trend. */
+@Composable
+fun NeuralKpiTile(
+    caption: String,
+    value: String,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    support: String? = null,
+    history: List<Float> = emptyList(),
+    maxValue: Float = 100f,
+    onClick: (() -> Unit)? = null,
+) {
+    val p = neuralPalette()
+    NeuralTile(modifier, accent = accent, onClick = onClick, verticalSpacing = 6.dp) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            NeuralCaption(caption, Modifier.weight(1f), color = accent)
+            Box(Modifier.size(6.dp).clip(CircleShape).background(accent.copy(alpha = .85f)))
+        }
+        NeuralValue(
+            value,
+            style = MonoValueStyleSmall.copy(fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold),
+            color = p.text,
+        )
+        if (support != null) NeuralValue(support, style = MonoValueStyleSmall.copy(fontSize = 11.sp), color = p.muted)
+        if (history.size > 1) {
+            NeuralSparkline(history, accent, Modifier.fillMaxWidth().height(28.dp), maxValue = maxValue)
+        }
+    }
+}
+
+/**
+ * Budget bar. Label and value sit on separate lines: sharing one row was what
+ * clipped "7.9 GB / 10.6 GB" down to ".8 GB" once an RTL label took the width.
+ */
 @Composable
 fun NeuralBudgetBar(
     label: String,
@@ -487,15 +686,29 @@ fun NeuralBudgetBar(
     onClick: (() -> Unit)? = null,
 ) {
     val p = neuralPalette()
-    var box = modifier.fillMaxWidth()
-    if (onClick != null) box = box.clip(NeuralTileShape).clickable(onClick = onClick)
-    Column(box, verticalArrangement = Arrangement.spacedBy(7.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralCaption(label, Modifier.weight(1f))
-            NeuralValue(value, style = MonoValueStyleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold), color = p.text)
-        }
+    Column(
+        modifier
+            .fillMaxWidth()
+            .neuralClickable(onClick),
+        verticalArrangement = Arrangement.spacedBy(7.dp),
+    ) {
+        NeuralCaption(label, color = accent)
+        NeuralValue(
+            value,
+            style = MonoValueStyleSmall.copy(fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
+            color = p.text,
+        )
         NeuralTrack(fraction, accent)
-        if (support != null) NeuralValue(support, style = MonoValueStyleSmall.copy(fontSize = 10.sp), color = p.muted)
+        if (support != null) {
+            Text(
+                support,
+                color = p.muted,
+                fontSize = 10.5.sp,
+                lineHeight = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 
@@ -505,7 +718,7 @@ fun NeuralTrack(fraction: Float, accent: Color, modifier: Modifier = Modifier, h
     val p = neuralPalette()
     val animated by animateFloatAsState(
         targetValue = fraction.coerceIn(0f, 1f),
-        animationSpec = tween(520),
+        animationSpec = tween(520, easing = FastOutSlowInEasing),
         label = "neural-track",
     )
     Box(
@@ -520,25 +733,28 @@ fun NeuralTrack(fraction: Float, accent: Color, modifier: Modifier = Modifier, h
                 .fillMaxWidth(animated)
                 .fillMaxHeight()
                 .clip(CircleShape)
-                .background(Brush.horizontalGradient(listOf(accent.copy(alpha = .65f), accent)))
+                .background(Brush.horizontalGradient(listOf(accent.copy(alpha = .6f), accent)))
         )
     }
 }
 
-/** Feed row for the event timeline. */
+/** Feed row for event timelines. */
 @Composable
 fun NeuralFeedRow(
     icon: ImageVector,
     title: String,
-    meta: String,
+    meta: String?,
     accent: Color,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
 ) {
     val p = neuralPalette()
-    var box = modifier.fillMaxWidth()
-    if (onClick != null) box = box.clip(NeuralTileShape).clickable(onClick = onClick)
-    Row(box, verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .neuralClickable(onClick),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         NeuralIconChip(icon, accent, size = 30.dp)
         Spacer(Modifier.width(11.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -551,19 +767,21 @@ fun NeuralFeedRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(
-                meta,
-                color = p.muted,
-                fontSize = 10.5.sp,
-                lineHeight = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (meta != null) {
+                Text(
+                    meta,
+                    color = p.muted,
+                    fontSize = 10.5.sp,
+                    lineHeight = 14.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
 
-/** Two-column readout grid used for verdict facts (limiter, workload, heat...). */
+/** Caption plus value, the smallest readout unit. */
 @Composable
 fun NeuralFactTile(
     caption: String,
@@ -578,7 +796,7 @@ fun NeuralFactTile(
     }
 }
 
-/** Compact action tile for the command deck. */
+/** Compact action tile. */
 @Composable
 fun NeuralActionTile(
     icon: ImageVector,
@@ -609,6 +827,38 @@ fun NeuralActionTile(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
+        }
+    }
+}
+
+/** Collapsible panel so secondary detail can exist without crowding the screen. */
+@Composable
+fun NeuralExpandable(
+    title: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+    caption: String? = null,
+    accent: Color? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val p = neuralPalette()
+    NeuralPanel(modifier, onClick = onToggle) {
+        NeuralSectionHeader(
+            title = title,
+            caption = caption,
+            accent = accent,
+            trailing = {
+                Icon(
+                    if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                    null,
+                    Modifier.size(20.dp),
+                    tint = p.muted,
+                )
+            },
+        )
+        AnimatedVisibility(expanded) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
         }
     }
 }

@@ -787,4 +787,30 @@
     <string name="charging_limit_slider_title">نسبة حد الشحن</string>
     <string name="charging_battery_saver_title">توفير البطارية</string>
     <string name="charging_battery_saver_desc">تقليل النشاط الخلفي والأداء لتمديد عمر البطارية</string>
+
+    <!-- Neural home dashboard v2 -->
+    <string name="home_spectrum_title">طيف الحِمل</string>
+    <string name="home_spectrum_caption">توزيع الحِمل في آخر فترة</string>
+    <string name="home_stat_now">الآن</string>
+    <string name="home_stat_avg">المتوسط</string>
+    <string name="home_stat_peak">الذروة</string>
+    <string name="home_details_title">التفاصيل</string>
+    <string name="home_details_caption">الأنوية والشاشة والشبكة والطاقة</string>
+    <string name="home_focus_heat">ضغط حراري</string>
+    <string name="home_focus_heat_desc">الحرارة المستمرة تقيّد الترددات. افتح التحكم الحراري لتخفيفها.</string>
+    <string name="home_focus_storage">التخزين يكاد يمتلئ</string>
+    <string name="home_focus_storage_desc">المساحة الحرة منخفضة، وهذا يبطّئ الكتابة والتخزين المؤقت.</string>
+    <string name="home_focus_memory">ضغط على الذاكرة</string>
+    <string name="home_focus_memory_desc">الذاكرة تكاد تمتلئ. أوقف تطبيقات الخلفية أو فعّل ZRAM.</string>
+    <string name="max_hub_display">الشاشة</string>
+    <string name="home_story_title">قصة الأداء</string>
+    <string name="home_story_bottleneck">العامل المحدِّد</string>
+    <string name="home_session_workload">نوع الحِمل</string>
+    <string name="home_session_confidence">ذكاء الأداء · ثقة %1$d%%</string>
+    <string name="home_session_collecting">قيد الجمع</string>
+    <string name="home_session_open_loop">الحلقة الحيّة</string>
+    <string name="home_session_open_heat">الحرارة</string>
+    <string name="home_session_real_yes">نعم</string>
+    <string name="home_session_real_no">لا</string>
+
 </resources>
