@@ -135,7 +135,6 @@ fun MaxAiScreen(
             ObjectiveSection(state)
         }
 
-        item { LiveCenterRow(navController) }
 
         item {
             MaxSection(
@@ -693,18 +692,6 @@ private fun InsightsSection(snapshot: MaxAiInsights.Snapshot) {
 
 // ── الملكية والأقفال ─────────────────────────────────
 
-@Composable
-private fun LiveCenterRow(navController: NavHostController) {
-    MaxGroup {
-        MaxRow(
-            title = stringResource(R.string.max_live_open),
-            subtitle = stringResource(R.string.max_live_open_desc),
-            icon = Icons.Rounded.Insights,
-            iconTone = MaxTone.Accent,
-            onClick = { MaxNavActions(navController).navigateTo(MaxDestination.MaxLive) },
-        )
-    }
-}
 
 // ── التحكم ─────────────────────────────────────────
 

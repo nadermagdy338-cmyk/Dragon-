@@ -141,7 +141,7 @@ internal fun LegendaryHomeDashboard(
             palette = palette,
             onOpenControl = { onNavigate(MaxDestination.Control.route) },
             onOpenApps = { onNavigate(MaxDestination.Apps.route) },
-            onOpenLive = { onNavigate(MaxDestination.MaxLive.route) }
+            onOpenLive = { onNavigate(MaxDestination.MaxAi.route) }
         )
         LivePerformanceCard(
             dashboard = dashboard,
@@ -155,14 +155,14 @@ internal fun LegendaryHomeDashboard(
             dashboard = dashboard,
             maxAi = maxAi,
             palette = palette,
-            onOpenLive = { onNavigate(MaxDestination.MaxLive.route) },
+            onOpenLive = { onNavigate(MaxDestination.MaxAi.route) },
             onOpenThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
         )
         PerformanceSessionCard(
             dashboard = dashboard,
             maxAi = maxAi,
             palette = palette,
-            onOpenLive = { onNavigate(MaxDestination.MaxLive.route) },
+            onOpenLive = { onNavigate(MaxDestination.MaxAi.route) },
             onOpenThermal = { onNavigate(MaxDestination.ThermalDetail.route) }
         )
         CpuCoreMatrix(dashboard.cores, palette) { onNavigate(MaxDestination.CpuCoreControl.route) }
@@ -180,7 +180,7 @@ internal fun LegendaryHomeDashboard(
             onAdvanced = { onNavigate(MaxDestination.Control.route) }
         )
         DeviceResourcesCard(dashboard, palette, onNavigate)
-        AiCommandCard(maxAi, profileRequest, palette, { onNavigate(MaxDestination.MaxLive.route) }, onAiRetry)
+        AiCommandCard(maxAi, profileRequest, palette, { onNavigate(MaxDestination.MaxAi.route) }, onAiRetry)
         ConnectivityStrip(dashboard, ui.rootStatus && ui.moduleInstalled, palette)
     }
 }

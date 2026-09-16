@@ -787,4 +787,10 @@
     <string name="charging_limit_slider_title">نسبة حد الشحن</string>
     <string name="charging_battery_saver_title">توفير البطارية</string>
     <string name="charging_battery_saver_desc">تقليل النشاط الخلفي والأداء لتمديد عمر البطارية</string>
+    <string name="tools_diagnostics_desc">التحقق من القدرات وحالة الدعم وجاهزية النظام.</string>
+    <string name="tools_logs_desc">عرض سجلات المحرك والنظام المجمعة.</string>
+    <string name="max_role_vendor_boost">تحكم خاص بالشريحة في الأداء والحرارة.</string>
+    <string name="max_role_battery_detail">حالة البطارية وصحتها ومعلومات الطاقة.</string>
+    <string name="max_role_storage_detail">حالة التخزين والمساحة المتاحة.</string>
+
 </resources>
