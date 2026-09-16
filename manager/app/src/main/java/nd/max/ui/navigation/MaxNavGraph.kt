@@ -71,7 +71,6 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
 
     // Settings children
     composable(MaxDestination.ColorPalette.route) { ColorPaletteScreen(navController) }
-    composable(MaxDestination.PreferenceTweaks.route) { PreferenceTweakScreen(navController) }
     composable(MaxDestination.ColorScheme.route) { ColorSchemeSettings(navController) }
     composable(MaxDestination.Diagnostics.route) { DiagnosticsScreen(navController) }
     composable(MaxDestination.Logs.route) { LogsViewerScreen(navController) }

@@ -93,7 +93,6 @@ sealed class MaxDestination(
     // Feature screens: CPU domain
     data object CpuCoreControl : MaxDestination("cpucorecontrol", R.string.cpu_core_control_title, Icons.Rounded.DeveloperBoard, CpuHub)
     data object GovernorSettings : MaxDestination("governorsettings", R.string.gov_settings, Icons.Rounded.Tune, CpuHub)
-    data object PreferenceTweaks : MaxDestination("preferenced", R.string.prefs, Icons.Rounded.Tune, CpuHub)
     data object MtkVendor : MaxDestination("mtkscreen", R.string.max_title_vendor_boost, Icons.Rounded.Memory, CpuHub)
 
     // Feature screens: GPU domain
@@ -157,7 +156,7 @@ sealed class MaxDestination(
             GetStarted, Now, Control, Apps, MaxAi, Settings,
             CpuHub, GpuHub, MemoryHub, DisplayHub, ResponsivenessHub, ThermalHub,
             PowerHub, StorageHub, NetworkHub,
-            CpuCoreControl, GovernorSettings, PreferenceTweaks, MtkVendor, GpuStudio,
+            CpuCoreControl, GovernorSettings, MtkVendor, GpuStudio,
             ZramManager, DisplayStudio, Resolution, TouchBoost, FpsGo, Fas, FpsOverlay,
             ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
             BatteryDetail, Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,

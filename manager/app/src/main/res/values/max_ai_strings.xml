@@ -1,5 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    
     <string name="max_ai_after_body">After measurement: objective score %1$s.</string>
     <string name="max_ai_after_unmeasured">No after-measurement is available yet.</string>
     <string name="max_ai_candidate_chosen">Selected</string>
@@ -127,37 +127,31 @@
     <string name="max_ai_weight_thermal">Thermal</string>
     <string name="max_ai_why_body">Objective %1$s in %2$s</string>
     <string name="max_ai_why_technical">Weights: performance %1$s · battery %2$s · thermal %3$s</string>
-<string name="max_ai_section_system">Who owns each control</string>
+    <string name="max_ai_section_system">Who owns each control</string>
     <string name="max_ai_section_system_desc">One winner per hardware knob, from the shared ownership journal.</string>
     <string name="max_ai_owner_none">No knob is currently owned by any automated controller.</string>
     <string name="max_ai_owner_row">owner %1$s · intent %2$s</string>
     <string name="max_ai_locked_row">Locked by you at %1$s — Max AI will never touch it.</string>
-
-    
     <string name="max_live_title">Live command centre</string>
     <string name="max_live_open">Open the live command centre</string>
     <string name="max_live_open_desc">Animated view of the running loop: vitals, forecast vs actual, prediction error, knowledge, exploration gate and knob ownership.</string>
     <string name="max_live_empty">No cycle has completed yet, so there is nothing measured to animate.</string>
-
     <string name="max_live_section_vitals">Live vitals</string>
     <string name="max_live_section_vitals_desc">Bars move from the previous reading to the new one; nothing here is estimated.</string>
     <string name="max_live_pulse_on">Loop is running</string>
     <string name="max_live_pulse_off">Loop is off — manual control</string>
     <string name="max_live_pulse_stale">Last reading is stale</string>
-
     <string name="max_live_section_forecast">Thermal forecast vs actual</string>
     <string name="max_live_section_forecast_desc">The forward forecast the engine already computes for safety, drawn against what actually happened. The gap is the error.</string>
     <string name="max_live_forecast_empty">No forecast on this device yet.</string>
     <string name="max_live_forecast_error">Mean forecast error: %1$s</string>
     <string name="max_live_curve_desc">%1$s: from %2$s to %3$s over %4$d minutes, %5$d samples.</string>
-
     <string name="max_live_section_error">Prediction error over time</string>
     <string name="max_live_section_error_desc">Absolute gap between predicted and measured gain, one point per loop. A falling curve is the only honest proof of learning.</string>
     <string name="max_live_error_empty">Fewer than two measured predictions so far.</string>
     <string name="max_live_error_down">Falling — learning</string>
     <string name="max_live_error_up">Not falling yet</string>
     <string name="max_live_error_detail">%1$s → %2$s across %3$d loops</string>
-
     <string name="max_live_section_knowledge">What it knows and what it does not</string>
     <string name="max_live_section_knowledge_desc">Knowledge state per available knob. Unknown comes first because it is the reason exploration exists.</string>
     <string name="max_live_knowledge_empty">No knob is readable on this device yet.</string>
@@ -168,7 +162,6 @@
     <string name="max_live_knowledge_useful">Known useful</string>
     <string name="max_live_knowledge_neutral">Known neutral</string>
     <string name="max_live_knowledge_costly">Known costly</string>
-
     <string name="max_live_section_exploration">Exploration gate</string>
     <string name="max_live_section_exploration_desc">It only probes what it does not know, and only while a mistake would be cheap. Every refusal is named.</string>
     <string name="max_live_explore_allowed">A probe is allowed right now</string>
@@ -185,7 +178,6 @@
     <string name="max_live_block_nothing">every available knob is already measured</string>
     <string name="max_live_block_irreversible">the candidate could not be reverted safely</string>
     <string name="max_live_block_cost">worst-case cost is above the limit</string>
-
     <string name="max_live_section_loops">Loops it actually ran</string>
     <string name="max_live_section_loops_desc">Counted by kind. Safety, drift and your overrides are kept out of the success rate because the planner did not choose them.</string>
     <string name="max_live_count_improved">Improved and kept</string>
@@ -195,5 +187,4 @@
     <string name="max_live_count_override">You overrode it</string>
     <string name="max_live_count_deferred">Deferred verdicts measured</string>
     <string name="max_live_count_explorations">Knowledge probes</string>
-
 </resources>

@@ -1,5 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    
     <string name="max_ai_after_body">بعد القياس: درجة الهدف %1$s.</string>
     <string name="max_ai_after_unmeasured">لا يوجد قياس لاحق متاح بعد.</string>
     <string name="max_ai_candidate_chosen">مختار</string>
@@ -127,36 +127,31 @@
     <string name="max_ai_weight_thermal">الحرارة</string>
     <string name="max_ai_why_body">الهدف %1$s في %2$s</string>
     <string name="max_ai_why_technical">الأوزان: الأداء %1$s · البطارية %2$s · الحرارة %3$s</string>
-<string name="max_ai_section_system">من يملك كل مقبض</string>
+    <string name="max_ai_section_system">من يملك كل مقبض</string>
     <string name="max_ai_section_system_desc">فائز واحد لكل مقبض عتاد، من دفتر الملكية المشترك.</string>
     <string name="max_ai_owner_none">لا مقبض مملوك حاليًا لأي متحكم آلي.</string>
     <string name="max_ai_owner_row">المالك %1$s · النية %2$s</string>
     <string name="max_ai_locked_row">أقفلته عند القيمة %1$s — Max AI لن يمسه أبدًا.</string>
-
     <string name="max_live_title">مركز القيادة الحي</string>
     <string name="max_live_open">افتح مركز القيادة الحي</string>
     <string name="max_live_open_desc">عرض متحرك للحلقة وهي تعمل: القياسات الحية، التوقع مقابل الواقع، خطأ التنبؤ، المعرفة، بوابة الاستكشاف، وملكية المقابض.</string>
     <string name="max_live_empty">لم تكتمل دورة بعد، فلا قياس يُرسم.</string>
-
     <string name="max_live_section_vitals">القياسات الحية</string>
     <string name="max_live_section_vitals_desc">الأشرطة تتحرك من القراءة السابقة إلى الجديدة؛ ولا رقم هنا مُقدّر.</string>
     <string name="max_live_pulse_on">الحلقة تعمل</string>
     <string name="max_live_pulse_off">الحلقة موقوفة — تحكم يدوي</string>
     <string name="max_live_pulse_stale">آخر قراءة قديمة</string>
-
     <string name="max_live_section_forecast">التوقع الحراري مقابل الواقع</string>
     <string name="max_live_section_forecast_desc">التنبّؤ الأمامي الذي يحسبه المحرك أصلًا للسلامة، مرسومًا بجوار ما حدث فعلًا. الفرق بينهما هو الخطأ.</string>
     <string name="max_live_forecast_empty">لا تنبّؤ على هذا الجهاز بعد.</string>
     <string name="max_live_forecast_error">متوسط خطأ التوقع: %1$s</string>
     <string name="max_live_curve_desc">%1$s: من %2$s إلى %3$s خلال %4$d دقيقة، %5$d عينة.</string>
-
     <string name="max_live_section_error">خطأ التنبؤ عبر الزمن</string>
     <string name="max_live_section_error_desc">الفرق المطلق بين المكسب المتوقع والمقيس، نقطة لكل حلقة. المنحنى الهابط هو الإثبات الصادق الوحيد على التعلّم.</string>
     <string name="max_live_error_empty">أقل من تنبّؤين مقيسين حتى الآن.</string>
     <string name="max_live_error_down">هابط — يتعلّم</string>
     <string name="max_live_error_up">لم يهبط بعد</string>
     <string name="max_live_error_detail">%1$s → %2$s عبر %3$d حلقة</string>
-
     <string name="max_live_section_knowledge">ما يعرفه وما يجهله</string>
     <string name="max_live_section_knowledge_desc">حالة المعرفة لكل مقبض متاح. المجهول أولًا لأنه سبب وجود الاستكشاف.</string>
     <string name="max_live_knowledge_empty">لا مقبض مقروء على هذا الجهاز بعد.</string>
@@ -167,7 +162,6 @@
     <string name="max_live_knowledge_useful">معروف نافع</string>
     <string name="max_live_knowledge_neutral">معروف بلا أثر</string>
     <string name="max_live_knowledge_costly">معروف مكلف</string>
-
     <string name="max_live_section_exploration">بوابة الاستكشاف</string>
     <string name="max_live_section_exploration_desc">يجرّب ما يجهله وحده، وفقط حين تكون تكلفة الخطأ منخفضة. وكل امتناع له سبب مسمى.</string>
     <string name="max_live_explore_allowed">التجربة مسموحة الآن</string>
@@ -184,7 +178,6 @@
     <string name="max_live_block_nothing">كل مقبض متاح مقيس بالفعل</string>
     <string name="max_live_block_irreversible">المرشح لم يكن قابلًا للاسترجاع بأمان</string>
     <string name="max_live_block_cost">تكلفة أسوأ حالة فوق الحد</string>
-
     <string name="max_live_section_loops">الحلقات التي جرت فعلًا</string>
     <string name="max_live_section_loops_desc">معدودة بحسب النوع. السلامة والانحراف وتجاوزاتك خارج نسبة النجاح لأن المخطِط لم يخترها.</string>
     <string name="max_live_count_improved">تحسن وبقي</string>
@@ -194,5 +187,4 @@
     <string name="max_live_count_override">تجاوزته بنفسك</string>
     <string name="max_live_count_deferred">أحكام مؤجلة قيست</string>
     <string name="max_live_count_explorations">تجارب معرفية</string>
-
 </resources>
