@@ -26,11 +26,11 @@ import nd.max.IMtkService
 import nd.max.service.MtkRootService
 
 /**
- * Fast root-IPC channel that [MtkUtils] and [MtkViewModel] use to read/write MTK sysfs nodes
- * without spawning a shell for every call.
+ * Fast root-IPC channel that [MtkUtils] uses to read/write MTK sysfs nodes without spawning a
+ * shell for every call.
  *
- * Backed by [MtkRootService], an AIDL-based root service (ported from the upstream project this
- * screen was adapted from) that runs as uid 0 and services `readNode`/`writeNode`/`nodeExists`/
+ * Backed by [MtkRootService], an AIDL-based root service (ported from the upstream project it was
+ * adapted from) that runs as uid 0 and services `readNode`/`writeNode`/`nodeExists`/
  * `listDirectories` calls directly against the filesystem.
  *
  * [bind] is called once from `MainActivity.onCreate` and [unbind] from `onDestroy`. Binding is

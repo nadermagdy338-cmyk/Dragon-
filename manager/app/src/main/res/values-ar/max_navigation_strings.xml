@@ -44,7 +44,6 @@
     <string name="max_config_backup_scope_note">يُتحقق من صلاحيات الروت ومن شرائح هذا الجهاز قبل كتابة أي شيء</string>
 
     <!-- Screen titles that had no resource of their own -->
-    <string name="max_title_vendor_boost">تحسين المورّد</string>
     <string name="max_title_gpu_studio">استوديو GPU الواقعي</string>
     <string name="max_title_bypass_check">حالة التجاوز</string>
 

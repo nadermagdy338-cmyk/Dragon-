@@ -44,7 +44,6 @@
     <string name="max_config_backup_scope_note">Root access and the chipset of this device are checked before anything is written back</string>
 
     <!-- Screen titles that had no resource of their own -->
-    <string name="max_title_vendor_boost">Vendor Boost</string>
     <string name="max_title_gpu_studio">GPU Reality Studio</string>
     <string name="max_title_bypass_check">Bypass Status</string>
 

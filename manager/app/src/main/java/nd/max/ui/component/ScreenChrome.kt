@@ -235,13 +235,29 @@ fun MaxManagerSubScreenTopBar(
                             Text(text = title, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
                             if (!subtitle.isNullOrBlank()) {
                                 Spacer(Modifier.height(4.dp))
-                                Text(
-                                    text = subtitle,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+                                // The subtitle is the one line that explains the screen, so it
+                                // carries the app's insight mark — the star with the line beside
+                                // it — instead of reading as anonymous grey text under the title.
+                                // Rendering it here means every screen with a top-bar subtitle
+                                // gets the same treatment from one place.
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.AutoAwesome,
+                                        contentDescription = null,
+                                        tint = accent,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Text(
+                                        text = subtitle,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                             }
                         }
                     }

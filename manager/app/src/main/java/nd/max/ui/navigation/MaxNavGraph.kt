@@ -7,7 +7,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import nd.max.ui.activitylauncher.ActivityLauncherScreen
 import nd.max.ui.flasher.KernelFlasherScreen
-import nd.max.ui.gpu.mtk.MtkScreen
 import nd.max.ui.terminal.TerminalScreen
 import nd.max.ui.mainscreens.*
 import nd.max.ui.subscreens.*
@@ -42,7 +41,6 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.CpuCoreControl.route) { CpuCoreControlScreen(navController) }
     composable(MaxDestination.GovernorSettings.route) { GovSettings(navController) }
     composable(MaxDestination.PreferenceTweaks.route) { PreferenceTweakScreen(navController) }
-    composable(MaxDestination.MtkVendor.route) { MtkScreen(navController) }
     composable(MaxDestination.GpuStudio.route) { GpuStudioScreen(navController) }
     composable(MaxDestination.ZramManager.route) { ZramManagerScreen(navController) }
     composable(MaxDestination.DisplayStudio.route) { DisplayStudioScreen(navController) }

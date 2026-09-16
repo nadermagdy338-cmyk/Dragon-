@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -176,8 +177,7 @@ fun CpuCoreControlScreen(
             }
 
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.row)) {
-                    CpuSectionTitle(stringResource(R.string.cpu_core_quick_title))
+                MaxSection(title = stringResource(R.string.cpu_core_quick_title)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
@@ -208,8 +208,7 @@ fun CpuCoreControlScreen(
                     .filter { it.cluster.policyPath == cluster.policyPath }
 
                 item {
-                    Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
-                        CpuSectionTitle(clusterDisplayName(cluster))
+                    MaxSection(title = clusterDisplayName(cluster)) {
                         ClusterCoreSummary(cluster = cluster, rows = rows)
                         ScreenAccentProvider(clusterAccent(cluster)) {
                             ExpressiveList(
@@ -230,8 +229,7 @@ fun CpuCoreControlScreen(
 
             if (viewModel.cpusetGroups.isNotEmpty()) {
                 item {
-                    Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
-                        CpuSectionTitle(stringResource(R.string.cpu_affinity_title))
+                    MaxSection(title = stringResource(R.string.cpu_affinity_title)) {
                         Text(
                             text = stringResource(R.string.cpu_affinity_subtitle),
                             style = MaterialTheme.typography.bodySmall,
@@ -285,17 +283,6 @@ private fun ClusterCoreSummary(
 }
 
 @Composable
-private fun CpuSectionTitle(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(horizontal = 4.dp)
-    )
-}
-
-@Composable
 private fun CpuHeroCard(
     chipsetName: String,
     onlineCores: Int,
@@ -307,21 +294,52 @@ private fun CpuHeroCard(
     val allOnline = totalCores > 0 && onlineCores == totalCores
     val statusColor = if (allOnline) scheme.secondary else scheme.tertiary
 
-    // One live idea instead of three stacked panels: the gauge answers how much
-    // of this CPU is running, the grid answers which cores. The old hero stated
-    // the same ratio four times (fraction tile, percentage tile, capacity badge
-    // and a status sentence).
+    // The page opens with one line of facts and one picture: how much of this
+    // CPU is up, and which cores are up. The circular gauge that used to sit
+    // here restated the same ratio four times (value, unit, ring, caption) and
+    // pushed the first real control below the fold on a phone, so it is now a
+    // single summary line plus a 4dp bar.
     Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
-        RadialGaugeCard(
-            title = stringResource(R.string.cpu_core_online_label),
-            valueText = "$LTR_MARK$onlineCores$LTR_MARK",
-            unitText = "$LTR_MARK/$totalCores$LTR_MARK",
-            fraction = availability,
-            isLive = true,
-            accentColor = statusColor,
-            tipMarkerMinFraction = 0.12f,
-            subtitle = chipsetName.takeIf { it.isNotBlank() }
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)
+        ) {
+            IconBadge(icon = Icons.Outlined.Memory, tint = statusColor, size = 40)
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)
+            ) {
+                Text(
+                    text = chipsetName.ifBlank { stringResource(R.string.cpu_core_chipset_unknown) },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "$LTR_MARK$onlineCores/$totalCores$LTR_MARK " +
+                        stringResource(R.string.cpu_core_online_label),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurfaceVariant
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(MaxSpace.hairline + 2.dp)
+                .clip(RoundedCornerShape(MaxRadius.pill))
+                .background(scheme.surfaceContainerHighest)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(availability.coerceIn(0f, 1f))
+                    .fillMaxHeight()
+                    .background(statusColor)
+            )
+        }
         CoreGridMap(coreRows = coreRows)
     }
 }
@@ -672,12 +690,11 @@ private fun CpuCoresSection(
     coreRows: List<CpuCoreRow>,
     clusterMaxFreqMhz: Map<String, Int>
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        CpuSectionTitle("CPU CORES")
+    MaxSection(title = stringResource(R.string.cpu_core_cores_label)) {
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
+            verticalArrangement = Arrangement.spacedBy(MaxSpace.sm),
             maxItemsInEachRow = 3
         ) {
             clusters.forEach { cluster ->
@@ -704,42 +721,56 @@ private fun CpuClusterSummaryCard(
     val title = clusterDisplayName(cluster)
     val frequency = if (maxFreqMhz > 0) String.format(java.util.Locale.US, "%.2f GHz", maxFreqMhz / 1000f) else "—"
 
+    val online = rows.count { it.online }
+
+    // Three rows instead of five, and the title reserves two of them so the
+    // three summary tiles keep one height whatever the cluster name is. The
+    // previous card stacked icon / title / GHz / "3 / 3" / "Online" vertically,
+    // which made a summary tile taller than the controls it summarises and left
+    // the three tiles visibly ragged next to each other.
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(MaxRadius.group),
         color = scheme.surfaceContainerLow,
-        border = androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = 0.20f))
+        border = androidx.compose.foundation.BorderStroke(
+            MaxSize.hairlineBorder,
+            accent.copy(alpha = MaxAlpha.borderStrong)
+        )
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            modifier = Modifier.padding(MaxSpace.md),
+            verticalArrangement = Arrangement.spacedBy(MaxSpace.xs)
         ) {
-            Icon(
-                imageVector = clusterIcon(cluster),
-                contentDescription = null,
-                tint = accent,
-                modifier = Modifier.size(28.dp)
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = accent,
-                maxLines = 2
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
+            ) {
+                Icon(
+                    imageVector = clusterIcon(cluster),
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(MaxSize.iconGlyph)
+                )
+                Text(
+                    text = title,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = accent,
+                    minLines = 2,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
             Text(
                 text = frequency,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = scheme.onSurface
             )
             Text(
-                text = "${rows.count { it.online }} / ${rows.size}",
-                style = MaterialTheme.typography.bodyLarge,
-                color = scheme.onSurface
-            )
-            Text(
-                text = "Online",
+                text = "$LTR_MARK$online/${rows.size}$LTR_MARK " +
+                    stringResource(R.string.cpu_core_online_label),
                 style = MaterialTheme.typography.bodySmall,
                 color = scheme.onSurfaceVariant
             )
@@ -752,51 +783,29 @@ private fun CpuManualControlCard(
     enabled: Boolean,
     onEnabledChange: (Boolean) -> Unit
 ) {
-    val scheme = MaterialTheme.colorScheme
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = scheme.surfaceContainerLow,
-        border = androidx.compose.foundation.BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = 0.55f))
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            CpuSectionTitle("MANUAL CORE CONTROL")
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                MaxSwitch(
-                    checked = enabled,
-                    onCheckedChange = onEnabledChange
-                )
-                Spacer(Modifier.width(14.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Enable Manual Control",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = scheme.onSurface
-                    )
-                    Text(
-                        text = "Enable to manually power on/off individual processor cores. Session only — resets on reboot.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.onSurfaceVariant
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                IconBadge(icon = Icons.Outlined.Tune, tint = scheme.primary, size = 44)
-            }
+    // A titled section holding one switch row, the shape every other redesigned
+    // screen uses, instead of a card that carried its own section title inside
+    // it and stretched its icon and its switch to opposite edges.
+    MaxSection(title = stringResource(R.string.cpu_core_manual_control)) {
+        MaxGroup {
+            MaxSwitchRow(
+                title = stringResource(R.string.cpu_manual_enable_title),
+                subtitle = stringResource(R.string.cpu_core_manual_control_desc),
+                checked = enabled,
+                onCheckedChange = onEnabledChange,
+                icon = Icons.Outlined.Tune,
+                iconTone = MaxTone.Accent
+            )
         }
     }
 }
 
+/** Cluster name from resources, so section titles and tiles agree in every locale. */
+@Composable
 private fun clusterDisplayName(cluster: CpuTopologyUtil.CpuCluster): String = when (cluster.shortTag) {
-    "PRIME" -> "Prime Core"
-    "GOLD" -> "Performance Cores"
-    "SILVER" -> "Efficiency Cores"
+    "PRIME" -> stringResource(R.string.cpu_cluster_prime)
+    "GOLD" -> stringResource(R.string.cpu_cluster_gold)
+    "SILVER" -> stringResource(R.string.cpu_cluster_silver)
     else -> cluster.label
 }
 
@@ -879,17 +888,21 @@ private fun CoreQuickConfigTile(
             .background(Brush.linearGradient(listOf(accent.copy(alpha = 0.16f), MaterialTheme.colorScheme.surfaceContainerLow)))
             .border(1.dp, accent.copy(alpha = 0.18f), shape)
             .clickable(onClick = onClick)
-            .padding(vertical = 16.dp, horizontal = 8.dp),
+            .padding(vertical = 12.dp, horizontal = MaxSpace.xs),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        IconBadge(icon = icon, tint = accent, size = 36)
-        Spacer(Modifier.height(8.dp))
+        IconBadge(icon = icon, tint = accent, size = 32)
+        Spacer(Modifier.height(MaxSpace.sm))
+        // Two reserved lines: the longest preset name must wrap instead of being
+        // cut mid-word, which is what "Performanc" was in the old one-line tile.
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
+            minLines = 2,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
         Text(
@@ -897,6 +910,7 @@ private fun CoreQuickConfigTile(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
     }

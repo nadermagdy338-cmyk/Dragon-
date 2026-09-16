@@ -83,6 +83,8 @@ def balance(path):
 
 TARGETS = [
     "ui/design/MaxHelp.kt",
+    "ui/design/MaxViewToggle.kt",
+    "ui/component/ConfigBackupFlow.kt",
     "ui/subscreens/hubs/MaxDomainHubScreen.kt",
     "ui/subscreens/ConfigBackupScreen.kt",
     "ui/mainscreens/ControlScreen.kt",
@@ -127,7 +129,9 @@ for f in sorted(glob.glob(os.path.join(RES, "values*", "*.xml"))):
         problems.append(f"XML PARSE {f}: {e}")
 
 # ---------- 6. imports declared but symbol unused (new files only) ----------
-NEW = ["ui/design/MaxHelp.kt", "ui/subscreens/hubs/MaxDomainHubScreen.kt",
+NEW = ["ui/design/MaxHelp.kt", "ui/design/MaxViewToggle.kt",
+       "ui/component/ConfigBackupFlow.kt",
+       "ui/subscreens/hubs/MaxDomainHubScreen.kt",
        "ui/subscreens/ConfigBackupScreen.kt", "ui/mainscreens/ControlScreen.kt",
        "ui/subscreens/ChargingScreen.kt",
        "ui/subscreens/ZramManagerScreen.kt",

@@ -310,6 +310,9 @@
     <string name="str_backup_configuration">نسخ احتياطي للتكوين</string>
     <string name="str_backup_content_detected_select">تم اكتشاف محتوى النسخة الاحتياطية، يرجى تحديد العناصر المراد استعادتها:</string>
     <string name="str_backup_restore">النسخ الاحتياطي والاستعادة</string>
+    <string name="control_view_list">قائمة</string>
+    <string name="control_view_cards">بطاقات</string>
+    <string name="cd_backup_restore">النسخ الاحتياطي والاستعادة</string>
     <string name="str_banner_updated">تم تحديث الصورة</string>
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">تاريخ البناء</string>
@@ -546,6 +549,16 @@
     <string name="status_disconnected">غير متصل</string>
     <string name="home_pid">PID %1$s</string>
     <string name="cpu_label">المعالج</string>
+    <string name="cpu_core_cores_label">الأنوية</string>
+    <string name="cpu_core_online_label">متصل</string>
+    <string name="cpu_core_quick_title">إعدادات جاهزة</string>
+    <string name="cpu_core_manual_control">التحكم اليدوي بالأنوية</string>
+    <string name="cpu_core_manual_control_desc">فعّله لتشغيل أو إيقاف الأنوية فرديًا. لهذه الجلسة فقط — يُعاد الضبط عند إعادة التشغيل.</string>
+    <string name="cpu_manual_enable_title">تفعيل التحكم اليدوي</string>
+    <string name="cpu_core_chipset_unknown">شريحة المعالج</string>
+    <string name="cpu_cluster_prime">النواة الرئيسية</string>
+    <string name="cpu_cluster_gold">أنوية الأداء</string>
+    <string name="cpu_cluster_silver">أنوية الكفاءة</string>
     <string name="ram_label">RAM</string>
     <string name="temperature_label">الحرارة</string>
     <string name="battery_label">البطارية</string>

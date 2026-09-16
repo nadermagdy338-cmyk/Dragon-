@@ -237,8 +237,6 @@ private fun hubToggles(hub: MaxDestination, vm: TweakViewModel): List<HubToggle>
 
 /** Screens that belong to more than one domain (see kdoc above). */
 private fun extraRows(hub: MaxDestination): List<MaxDestination> = when (hub) {
-    MaxDestination.GpuHub -> listOf(MaxDestination.MtkVendor)
-    MaxDestination.ThermalHub -> listOf(MaxDestination.MtkVendor)
     MaxDestination.MemoryHub -> listOf(MaxDestination.PreferenceTweaks)
     else -> emptyList()
 }
@@ -291,7 +289,6 @@ private fun maxDestinationRole(destination: MaxDestination): Int = when (destina
     MaxDestination.CpuCoreControl -> R.string.max_role_cpu_core
     MaxDestination.GovernorSettings -> R.string.max_role_governor
     MaxDestination.PreferenceTweaks -> R.string.max_role_preference_tweaks
-    MaxDestination.MtkVendor -> R.string.max_role_vendor
     MaxDestination.GpuStudio -> R.string.max_role_gpu_studio
     MaxDestination.ZramManager -> R.string.max_role_zram
     MaxDestination.DisplayStudio -> R.string.max_role_display_studio
