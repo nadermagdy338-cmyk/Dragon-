@@ -86,8 +86,7 @@ import kotlin.math.roundToInt
  * profile row) is gone; those live in Max AI, Control and Diagnostics.
  *
  * Reading order, each block earning its place exactly once:
- *  1. pulse   — device identity, heat with a stable/attention read, and
- *               uptime, battery and power draw at a glance
+ *  1. pulse   — one ring: compute, graphics, memory, with heat in the middle
  *  2. focus   — appears only when something is actually wrong
  *  3. trends  — CPU and GPU with smoothed, auto-scaled sparklines
  *  4. spectrum— per-sample load bars, tinted calm to hot
@@ -255,6 +254,9 @@ private fun PulsePanel(
     onOverview: () -> Unit
 ) {
     val p = neuralPalette()
+    val cpu = dashboard.cpuLoadPercent.coerceIn(0, 100)
+    val gpu = dashboard.gpuLoadPercent?.coerceIn(0, 100)
+    val ramFraction = fractionOf(dashboard.ramUsedMb, dashboard.ramTotalMb)
     val heat = primaryBatteryTemperatureC(dashboard)?.roundToInt()
         ?: dashboard.cpuTempC.takeIf { it > 0 }
     val heatAccent = temperatureAccent(heat)
@@ -304,6 +306,26 @@ private fun PulsePanel(
                 text = stringResource(if (calm) R.string.home_system_stable else R.string.home_system_attention),
                 accent = if (calm) p.ok else heatAccent,
                 dot = true
+            )
+        }
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(11.dp)) {
+            NeuralBudgetBar(
+                label = "CPU",
+                value = "$cpu%",
+                fraction = cpu / 100f,
+                accent = p.accent
+            )
+            NeuralBudgetBar(
+                label = "GPU",
+                value = gpu?.let { "$it%" } ?: "\u2014",
+                fraction = (gpu ?: 0) / 100f,
+                accent = p.accentAlt
+            )
+            NeuralBudgetBar(
+                label = "RAM",
+                value = "${(ramFraction * 100).roundToInt()}%",
+                fraction = ramFraction,
+                accent = p.ok
             )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

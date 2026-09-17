@@ -39,6 +39,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,8 +52,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -229,6 +232,15 @@ fun MainScreen(fromTileType: String? = null) {
         }
     }
     val isFabVisible = remember { mutableStateOf(true) }
+    // BottomNavBar floats *over* the NavHost (see the Box below) instead of living in a
+    // Scaffold's bottomBar slot, so nothing reserves layout space for it automatically —
+    // every primary screen's own scroll content used to run underneath it. We measure the
+    // bar's real rendered height (it isn't a fixed constant: labels can wrap to two lines,
+    // e.g. longer Arabic strings) and pad the NavHost by exactly that amount, the same way
+    // `start = 96.dp` already reserves space for the nav rail on wide layouts.
+    var bottomBarHeightPx by remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+    val isPrimaryBarVisible = rootStatus && moduleInstalled && currentRoute in primaryRoutes
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -252,7 +264,12 @@ fun MainScreen(fromTileType: String? = null) {
                     } else MaxDestination.GetStarted.route,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(start = if (useNavigationRail) 96.dp else 0.dp)
+                        .padding(
+                            start = if (useNavigationRail) 96.dp else 0.dp,
+                            bottom = if (!useNavigationRail && isPrimaryBarVisible) {
+                                with(density) { bottomBarHeightPx.toDp() }
+                            } else 0.dp,
+                        )
                         .background(MaterialTheme.colorScheme.surface)
                         .nestedScroll(nestedScrollConnection)
                         .then(
@@ -306,7 +323,7 @@ fun MainScreen(fromTileType: String? = null) {
                     maxNavGraph(navController)
                 }
                 AnimatedVisibility(
-                    visible = rootStatus && moduleInstalled && currentRoute in primaryRoutes,
+                    visible = isPrimaryBarVisible,
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
                     exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
                     modifier = Modifier.align(
@@ -333,7 +350,9 @@ fun MainScreen(fromTileType: String? = null) {
                             selectedRoute = currentRoute ?: MaxDestination.Now.route,
                             isBlurEnabled = isBlurEnabled,
                             hazeState = hazeState,
-                            modifier = Modifier.align(Alignment.BottomCenter),
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .onSizeChanged { size -> bottomBarHeightPx = size.height },
                             onItemSelected = onItemSelected,
                         )
                     }
@@ -362,7 +381,7 @@ fun MainScreen(fromTileType: String? = null) {
                     )
                 }
                 AnimatedVisibility(
-                    visible = rootStatus && moduleInstalled && pendingReboot && currentRoute in primaryRoutes && isFabVisible.value,
+                    visible = isPrimaryBarVisible && pendingReboot && isFabVisible.value,
                     enter = scaleIn(animationSpec = tween(300, easing = FastOutSlowInEasing)) + fadeIn(),
                     exit = scaleOut(animationSpec = tween(200, easing = FastOutLinearInEasing)) + fadeOut(),
                     modifier = Modifier

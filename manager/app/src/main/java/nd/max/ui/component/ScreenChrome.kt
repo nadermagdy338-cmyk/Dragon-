@@ -43,8 +43,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
@@ -59,7 +57,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -168,8 +166,9 @@ fun ScreenAccentGlyph(
  * shortcuts) pass them through `actions`; screens with nothing special just
  * omit it.
  *
- * `subtitle` is the screen's description and renders as a centred paragraph
- * under the bar (see the comment inside), not as a second title line.
+ * `subtitle` is the screen's description and renders as a paragraph under
+ * the bar, aligned to the reading direction (see the comment inside), not
+ * as a second title line.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -188,38 +187,29 @@ fun MaxManagerSubScreenTopBar(
         titleVisible = true
     }
 
-    val accentIconAlpha by animateFloatAsState(
-        targetValue = 1f - scrollBehavior.state.collapsedFraction.coerceIn(0f, 1f),
-        animationSpec = tween(220),
-        label = "accentIconScrollAlpha"
-    )
-    // Fade the icon out AND release its horizontal slot as the large title
-    // collapses. Keeping a transparent icon in a fixed-width slot was leaving
-    // the title stranded far from the back arrow after scrolling.
-    val accentIconSlotWidth by animateDpAsState(
-        targetValue = 50.dp * accentIconAlpha,
-        animationSpec = tween(220),
-        label = "accentIconSlotWidth"
-    )
-    val accentIconSpacerWidth by animateDpAsState(
-        targetValue = 12.dp * accentIconAlpha,
-        animationSpec = tween(220),
-        label = "accentIconSpacerWidth"
-    )
+    // Tied 1:1 to the same collapsedFraction Material3 reads internally to shrink/reposition
+    // the title row. A separate tween() here would chase a constantly-moving target and drift
+    // out of sync with M3's own (un-eased) transform, leaving the icon visibly stranded beside
+    // the back arrow for a moment before it finally caught up and popped away.
+    val collapsedFraction = scrollBehavior.state.collapsedFraction.coerceIn(0f, 1f)
+    val accentIconAlpha = 1f - collapsedFraction
+    val accentIconSlotWidth = 50.dp * accentIconAlpha
+    val accentIconSpacerWidth = 12.dp * accentIconAlpha
 
     // The bar and the screen's description are one opaque header column. The
     // description used to be a one-line subtitle inside the title row, so any
     // screen whose description is a real sentence (Core Grid, ZRAM, Doze…) had
     // it ellipsized, and in RTL the reserved line shoved the title around.
-    // It now reads as a centred paragraph under the bar, separated from it by
-    // the scrim's own hairline, which fixes every screen from this one place.
+    // It now reads as a paragraph under the bar, aligned to the start edge
+    // (right in RTL, left in LTR) rather than centred, separated from the bar
+    // by the scrim's own hairline — which fixes every screen from this one place.
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
     ) {
         MaxManagerTopBarScrim {
-            LargeTopAppBar(
+            MediumTopAppBar(
                 title = {
                     androidx.compose.animation.AnimatedVisibility(
                         visible = titleVisible,
@@ -281,8 +271,10 @@ fun MaxManagerSubScreenTopBar(
         if (!subtitle.isNullOrBlank()) {
             // The description wraps to as many lines as it needs: it is the one
             // piece of copy that explains the screen, so truncating it would
-            // hide exactly the sentence the user came to read. The insight mark
-            // stays pinned to the first line so it survives centring.
+            // hide exactly the sentence the user came to read. TextAlign.Start
+            // resolves to the reading direction (right in RTL/Arabic, left in
+            // LTR) instead of a fixed side, so the insight mark and the first
+            // line of text always sit together at the same edge.
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -302,7 +294,7 @@ fun MaxManagerSubScreenTopBar(
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Start
                 )
             }
         }
