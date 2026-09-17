@@ -204,18 +204,6 @@ fun AppSettingsScreen(
                         }
                     )
                     Spacer(Modifier.height(8.dp))
-                    // ربط ملف التطبيق بـ Max AI: يشرح علاقة الأولوية —
-                    // ملف التطبيق يتولّى والمحرك يراقب أثناء فتح التطبيق.
-                    AnimatedVisibility(visible = localMasterOn) {
-                        Column {
-                            MaxManagerInsight(
-                                text = stringResource(R.string.app_profile_maxai_note),
-                                accent = colorScheme.tertiary,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-                            Spacer(Modifier.height(8.dp))
-                        }
-                    }
                 }
 
                 // ── All Settings ─────────────────────────────────────────────

@@ -11,11 +11,15 @@
  *    ("global control" + scope paragraph) is gone: it pushed every real control
  *    below the fold, and the same copy already lives behind the top-bar help
  *    action.
- * 2. Two presentations, one model. `compact` lists the domains; `expanded` opens
- *    every domain out and shows each screen it owns, painted straight on the page
- *    — no group container inside a group container, which is the whole point of
- *    that mode. Both read [controlLayoutModel], so adding or removing a
- *    destination shows up in both at once.
+ * 2. Two presentations, one model. `compact` lists the domains, one row each,
+ *    linking out to the domain's own hub screen. `expanded` skips that link:
+ *    the hub screen shows nothing but the same rows (see
+ *    MaxDomainHubScreen), so a header that only led there was a tap to
+ *    nowhere new. Instead each domain gets a small label and its rows sit
+ *    in one grouped box right there — a labelled group per domain rather
+ *    than a group container inside a group container. Both presentations
+ *    read [controlLayoutModel], so adding or removing a destination shows
+ *    up in both at once.
  * 3. The layout switch is one top-bar icon that opens the two names as a menu
  *    (see MaxViewMenu); the two-chip control it replaced crowded the help and
  *    side actions on phones.
@@ -26,20 +30,14 @@ package nd.max.ui.mainscreens
 
 import android.content.Context
 import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,13 +47,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
@@ -64,12 +58,12 @@ import nd.max.ui.component.ExpressiveList
 import nd.max.ui.component.ExpressiveListItem
 import nd.max.ui.component.LeadingIcon
 import nd.max.ui.component.rememberConfigBackupFlow
+import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxListScreen
-import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxRow
-import nd.max.ui.design.MaxSize
+import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
 import nd.max.ui.design.MaxViewMenu
@@ -166,8 +160,9 @@ fun ControlScreen(navController: NavHostController) {
  *
  * `hubs` are the domains (their own screens); `entries` are loose destinations
  * that belong to no domain, which is how the advanced-tools band renders.
- * Compact puts both into grouped rows; expanded opens the hubs out and paints
- * every row straight on the page.
+ * Compact puts both into one grouped-list box, one row per domain or entry.
+ * Expanded opens each hub out into its own labelled grouped-list box of
+ * feature rows, and boxes any loose entries the same way.
  */
 @Composable
 private fun ControlBand(
@@ -181,22 +176,18 @@ private fun ControlBand(
         TweaksSectionTitle(text = stringResource(titleRes))
 
         if (expanded) {
-            hubs.forEach { spec ->
-                HubHeader(spec = spec, onOpen = onOpen)
-                spec.features.forEachIndexed { index, feature ->
-                    if (index > 0) MaxGroupDivider()
-                    ExpandedRow(
-                        entry = feature,
-                        onOpen = onOpen,
-                        // Indented under the hub's icon, so "which domain owns this
-                        // row" is carried by alignment instead of another container.
-                        modifier = Modifier.padding(start = MaxSize.iconGlyph + MaxSpace.md),
-                    )
+            Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.row)) {
+                hubs.forEach { spec ->
+                    ExpandedHubGroup(spec = spec, onOpen = onOpen)
                 }
-            }
-            entries.forEachIndexed { index, entry ->
-                if (index > 0) MaxGroupDivider()
-                ExpandedRow(entry = entry, onOpen = onOpen)
+                if (entries.isNotEmpty()) {
+                    MaxGroup {
+                        entries.forEachIndexed { index, entry ->
+                            if (index > 0) MaxGroupDivider()
+                            ExpandedRow(entry = entry, onOpen = onOpen)
+                        }
+                    }
+                }
             }
         } else {
             val rows = buildList<@Composable () -> Unit> {
@@ -236,7 +227,7 @@ private fun ControlRow(entry: ControlEntry, onOpen: (MaxDestination) -> Unit) {
     )
 }
 
-/** Flat row on the expanded page. Nothing wraps it; the page is the container. */
+/** One row inside a domain's grouped box, on the expanded page. */
 @Composable
 private fun ExpandedRow(
     entry: ControlEntry,
@@ -254,47 +245,25 @@ private fun ExpandedRow(
 }
 
 /**
- * Hub header of the expanded page: names the domain, states its scope, and is
- * itself the link to the hub screen — where that domain's own switches live, so
- * the page never has to inline controls to stay complete.
+ * One domain's rows on the expanded page: a label naming it, then its rows
+ * boxed into a single grouped-list card.
+ *
+ * This used to be a clickable header that also linked out to
+ * [ControlHubSpec.hub]'s own screen. That screen (MaxDomainHubScreen) shows
+ * nothing but these same rows, so the link led nowhere the page didn't
+ * already show — it is a label now, not a row, and opens nothing. The name
+ * itself still earns its place: the preference editor is cross-listed under
+ * both the CPU and Memory domains, and without a label the two copies would
+ * be indistinguishable.
  */
 @Composable
-private fun HubHeader(spec: ControlHubSpec, onOpen: (MaxDestination) -> Unit) {
-    val accent = MaterialTheme.colorScheme.primary
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(MaxRadius.row))
-            .clickable(role = Role.Button) { onOpen(spec.hub) }
-            .padding(horizontal = MaxSpace.xs, vertical = MaxSpace.md),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MaxSpace.md),
-    ) {
-        Icon(
-            imageVector = spec.hub.icon,
-            contentDescription = null,
-            tint = accent,
-            modifier = Modifier.size(MaxSize.iconGlyph),
-        )
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(spec.hub.titleRes),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = accent,
-            )
-            Text(
-                text = stringResource(spec.hubSubtitleRes),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+private fun ExpandedHubGroup(spec: ControlHubSpec, onOpen: (MaxDestination) -> Unit) {
+    MaxSection(title = stringResource(spec.hub.titleRes)) {
+        MaxGroup {
+            spec.features.forEachIndexed { index, feature ->
+                if (index > 0) MaxGroupDivider()
+                ExpandedRow(entry = feature, onOpen = onOpen)
+            }
         }
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(MaxSize.iconGlyphSmall),
-        )
     }
 }

@@ -70,6 +70,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.ui.component.*
+import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.*
 import nd.max.ui.theme.MaxManagerTheme
 import nd.max.ui.util.*
@@ -238,8 +239,16 @@ fun MainScreen(fromTileType: String? = null) {
     // bar's real rendered height (it isn't a fixed constant: labels can wrap to two lines,
     // e.g. longer Arabic strings) and pad the NavHost by exactly that amount, the same way
     // `start = 96.dp` already reserves space for the nav rail on wide layouts.
-    var bottomBarHeightPx by remember { mutableIntStateOf(0) }
+    //
+    // Seeding this at 0px left a window — most visible right after switching a primary
+    // screen's own layout (e.g. Control's compact/expanded toggle) — where the bar was
+    // already on screen but no space had been reserved for it yet, so the last row could
+    // render behind it. Seed it with the safe MaxSpace.bottomBarReserve floor and only ever
+    // grow it from the real measurement, so content always has at least that much clearance.
     val density = LocalDensity.current
+    var bottomBarHeightPx by remember(density) {
+        mutableIntStateOf(with(density) { MaxSpace.bottomBarReserve.roundToPx() })
+    }
     val isPrimaryBarVisible = rootStatus && moduleInstalled && currentRoute in primaryRoutes
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -322,6 +331,32 @@ fun MainScreen(fromTileType: String? = null) {
                 ) {
                     maxNavGraph(navController)
                 }
+                // Drawn *before* the bar below so it sits behind it — this only blends the
+                // sliver of the system navigation bar peeking under the floating pill, and
+                // must never tint the pill itself.
+                val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                if (!useNavigationRail && navBarHeight > 32.dp) {
+                    val colorScheme = MaterialTheme.colorScheme
+                    val bottomScrimGradient = remember(colorScheme) {
+                        Brush.verticalGradient(
+                            0.0f to Color.Transparent,
+                            0.1f to colorScheme.surface.copy(alpha = 0.3f),
+                            0.2f to colorScheme.surface.copy(alpha = 0.4f),
+                            0.3f to colorScheme.surface.copy(alpha = 0.5f),
+                            0.4f to colorScheme.surface.copy(alpha = 0.7f),
+                            0.5f to colorScheme.surface.copy(alpha = 0.8f),
+                            0.6f to colorScheme.surface.copy(alpha = 0.9f),
+                            1.0f to colorScheme.surface,
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(navBarHeight + 12.dp)
+                            .align(Alignment.BottomCenter)
+                            .background(bottomScrimGradient),
+                    )
+                }
                 AnimatedVisibility(
                     visible = isPrimaryBarVisible,
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
@@ -352,33 +387,17 @@ fun MainScreen(fromTileType: String? = null) {
                             hazeState = hazeState,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
-                                .onSizeChanged { size -> bottomBarHeightPx = size.height },
+                                .onSizeChanged { size ->
+                                    // Only ever grow past the safe reserve (e.g. a real
+                                    // two-line label) — never shrink below it, so a
+                                    // transient small measurement can't under-reserve space
+                                    // for the content behind it.
+                                    val minPx = with(density) { MaxSpace.bottomBarReserve.roundToPx() }
+                                    bottomBarHeightPx = maxOf(size.height, minPx)
+                                },
                             onItemSelected = onItemSelected,
                         )
                     }
-                }
-                val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                if (!useNavigationRail && navBarHeight > 32.dp) {
-                    val colorScheme = MaterialTheme.colorScheme
-                    val bottomScrimGradient = remember(colorScheme) {
-                        Brush.verticalGradient(
-                            0.0f to Color.Transparent,
-                            0.1f to colorScheme.surface.copy(alpha = 0.3f),
-                            0.2f to colorScheme.surface.copy(alpha = 0.4f),
-                            0.3f to colorScheme.surface.copy(alpha = 0.5f),
-                            0.4f to colorScheme.surface.copy(alpha = 0.7f),
-                            0.5f to colorScheme.surface.copy(alpha = 0.8f),
-                            0.6f to colorScheme.surface.copy(alpha = 0.9f),
-                            1.0f to colorScheme.surface,
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(navBarHeight + 12.dp)
-                            .align(Alignment.BottomCenter)
-                            .background(bottomScrimGradient),
-                    )
                 }
                 AnimatedVisibility(
                     visible = isPrimaryBarVisible && pendingReboot && isFabVisible.value,

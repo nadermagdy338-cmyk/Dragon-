@@ -55,6 +55,19 @@ object MaxSpace {
 
     /** Breathing room so the bottom navigation never covers the last row. */
     val pageBottom: Dp = 40.dp
+
+    /**
+     * Safe minimum footprint of the floating pill bottom bar (pill height +
+     * its own top/bottom margins), *excluding* the system navigation-bar
+     * inset, which is layered on separately.
+     *
+     * Primary screens reserve at least this much space before the bar's real
+     * pixel height is known. It must stay generous enough to cover a wrapped
+     * two-line label (long Arabic strings) without the last row of content
+     * ever sitting behind the bar — see [pageBottom], which adds further
+     * clearance on top of this.
+     */
+    val bottomBarReserve: Dp = 112.dp
 }
 
 /**
