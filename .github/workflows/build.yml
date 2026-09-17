@@ -72,7 +72,29 @@ jobs:
         uses: nttld/setup-ndk@v1.6.0
         with:
           ndk-version: r29
-          local-cache: true
+          # local-cache: true is off on purpose. nttld/setup-ndk's own
+          # actions/cache entry for "setup-ndk-r29-linux" is known to restore
+          # a half-populated toolchain on Linux: the aarch64-linux-android*-clang
+          # wrapper scripts come back, but the real clang/clang++ binaries they
+          # exec do not, so ndk-build fails deep inside ccache/make with a bare
+          # "No such file or directory" (see nttld/setup-ndk-consuming projects
+          # hitting the same "setup-ndk-r29-linux" cache-hit failure). Every hit
+          # of that cache entry is broken, not just stale ones, so re-enabling
+          # the cache will reproduce this. Downloading r29 fresh from Google
+          # each run costs well under a minute and avoids the whole class.
+          local-cache: false
+
+      # Fails fast, and says what actually broke, instead of a confusing
+      # "No such file or directory" surfacing later from inside ccache/make
+      # (see the local-cache note above — this is the failure mode it guards).
+      - name: Verify NDK Toolchain
+        run: |
+          if ! command -v clang >/dev/null 2>&1 || ! command -v clang++ >/dev/null 2>&1; then
+            echo "❌ NDK toolchain is incomplete: clang/clang++ not found on PATH." >&2
+            echo "   ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-<unset>}" >&2
+            exit 1
+          fi
+          echo "✅ NDK toolchain OK: $(command -v clang)"
 
       - name: Setup ccache for native (NDK) builds
         uses: hendrikmuhs/ccache-action@v1.2
