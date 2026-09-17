@@ -259,9 +259,10 @@ jobs:
             variant="Release"
           fi
 
-          # الاختبارات تُشغَّل على نفس النسخة التي يُبنى منها الـ APK (انظر
-          # الشرح أعلاه): testReleaseUnitTest + assembleRelease يتقاسمان
-          # ترجمة واحدة.
+          # AGP 9.x creates unit-test components only for the tested build type by default.
+          # gradle.properties disables that optimization so testReleaseUnitTest exists.
+          # الاختبارات تُشغَّل على نفس النسخة التي يُبنى منها الـ APK:
+          # testReleaseUnitTest + assembleRelease يتقاسمان ترجمة واحدة.
           ./gradlew \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
             ":app:test${variant}UnitTest" \
