@@ -257,8 +257,8 @@ object GpuHardwareBackend {
         }
         val baseline = captureBaseline(live, io)
         var wrote = true
-        if (touchesRange) wrote = writeRange(live, request.minFreq!!, request.maxFreq!!, io)
-        if (wrote && touchesGovernor) wrote = io.write("${live.path}/governor", request.governor!!)
+        if (touchesRange) wrote = writeRange(live, request.minFreq, request.maxFreq, io)
+        if (wrote && touchesGovernor) wrote = io.write("${live.path}/governor", request.governor)
         val actual = refresh(live.path, io)
         if (wrote && matches(actual, request)) return TransactionResult(request, actual, true, true)
 
@@ -286,7 +286,7 @@ object GpuHardwareBackend {
             live.governor ?: return TransactionResult(request, live, false, false, error = "baseline-unreadable")
         } else null
         val wroteLock = io.write(path, targetIndex)
-        val wroteGovernor = !touchesGovernor || (wroteLock && io.write("${live.path}/governor", request.governor!!))
+        val wroteGovernor = !touchesGovernor || (wroteLock && io.write("${live.path}/governor", request.governor))
         val actual = refresh(live.path, io)
         val verified = wroteLock && wroteGovernor &&
             io.read(path)?.let(::parseMtkIndex) == parseMtkIndex(targetIndex) &&

@@ -3,6 +3,7 @@ package nd.max.ui.navigation
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -52,6 +53,21 @@ import dev.chrisbanes.haze.blur.blurEffect
 import dev.chrisbanes.haze.hazeEffect
 import nd.max.ui.component.MaxMotion
 import nd.max.ui.component.maxPressMotion
+import nd.max.ui.design.MaxAlpha
+
+/**
+ * Tint of the floating navigation surface when the backdrop is blurred by Haze.
+ * Light on purpose: the blur already separates the bar from the page, so the bar only
+ * needs enough tint to keep its labels and icons readable.
+ */
+private const val FloatingBarTintAlpha = 0.45f
+
+/**
+ * Tint used when the blur preference is off. Still translucent — the whole point of the
+ * floating bar is that content is seen travelling behind it — but darker than the blurred
+ * case, because a plain translucent pill has to carry contrast on its own.
+ */
+private const val FloatingBarTintAlphaNoBlur = 0.82f
 
 /**
  * Bottom-bar / nav-rail item backed by a [MaxDestination] route.
@@ -78,6 +94,7 @@ fun NavigationRailBar(
     hazeState: HazeState? = null,
 ) {
     val navigationShape = RoundedCornerShape(28.dp)
+    val isBlurActive = isBlurEnabled && hazeState != null
 
     Surface(
         modifier = modifier
@@ -95,12 +112,19 @@ fun NavigationRailBar(
                 } else Modifier
             ),
         shape = navigationShape,
-        color = if (isBlurEnabled) {
-            MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.42f)
+        // Same floating treatment as BottomNavBar: never fully opaque, so the page keeps
+        // being perceptible underneath, plus a hairline edge to hold the shape when the
+        // blur path is off (see the note there).
+        color = if (isBlurActive) {
+            MaterialTheme.colorScheme.surfaceContainer.copy(alpha = FloatingBarTintAlpha)
         } else {
-            MaterialTheme.colorScheme.surfaceContainer
+            MaterialTheme.colorScheme.surfaceContainer.copy(alpha = FloatingBarTintAlphaNoBlur)
         },
-        shadowElevation = if (isBlurEnabled) 0.dp else 8.dp,
+        border = if (isBlurActive) null else BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border),
+        ),
+        shadowElevation = if (isBlurActive) 0.dp else 10.dp,
     ) {
         Column(
             modifier = Modifier
@@ -137,10 +161,17 @@ fun BottomNavBar(
     isBlurEnabled: Boolean = false,
     hazeState: HazeState? = null,
 ) {
+    val pillShape = RoundedCornerShape(28.dp)
+    val isBlurActive = isBlurEnabled && hazeState != null
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.navigationBars)
+            // The bar and its clearance: page content scrolls behind the pill (the shell
+            // publishes this wrapper's measured height as
+            // LocalFloatingBottomBarHeight — see MainActivity), and these margins are the
+            // gap that keeps the last row of a page from touching the pill.
             .padding(horizontal = 18.dp, vertical = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -148,7 +179,7 @@ fun BottomNavBar(
             modifier = Modifier
                 .widthIn(max = 440.dp)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(28.dp))
+                .clip(pillShape)
                 .then(
                     if (isBlurEnabled && hazeState != null) {
                         Modifier.hazeEffect(state = hazeState) {
@@ -158,13 +189,22 @@ fun BottomNavBar(
                         }
                     } else Modifier
                 ),
-            shape = RoundedCornerShape(28.dp),
-            color = if (isBlurEnabled) {
-                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.4f)
+            shape = pillShape,
+            // The pill owns the bottom of the screen, so it must never be a solid slab:
+            // with Haze on, the backdrop is blurred and a light tint is enough; with Haze
+            // off, the surface stays translucent so page content is still visibly moving
+            // through it, and a hairline border plus elevation keep the pill readable and
+            // clearly above the page instead of merged with it.
+            color = if (isBlurActive) {
+                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = FloatingBarTintAlpha)
             } else {
-                MaterialTheme.colorScheme.surfaceContainer
+                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = FloatingBarTintAlphaNoBlur)
             },
-            shadowElevation = if (isBlurEnabled) 0.dp else 8.dp,
+            border = if (isBlurActive) null else BorderStroke(
+                1.dp,
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border),
+            ),
+            shadowElevation = if (isBlurActive) 0.dp else 10.dp,
         ) {
             Row(
                 modifier = Modifier

@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,7 +47,7 @@ fun MaxHelpAction(
 
     IconButton(onClick = { visible = true }, modifier = modifier) {
         Icon(
-            imageVector = Icons.Outlined.HelpOutline,
+            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
             contentDescription = title,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )

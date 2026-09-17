@@ -35,13 +35,43 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import nd.max.ui.component.MaxManagerSubScreenTopBar
 import nd.max.ui.component.MaxSnackbarHost
 import nd.max.ui.component.maxAdaptiveContentWidth
+
+/**
+ * Rendered height of the floating bottom navigation pill, published by the app
+ * shell (MainActivity) and consumed by every scrollable page body.
+ *
+ * The shell draws the bar *over* the navigation host instead of reserving layout
+ * space for it, so page content keeps scrolling underneath the bar's blur — that
+ * motion through a translucent surface is what makes the bar read as floating
+ * instead of as a slab bolted to the bottom edge. The trade-off is that nothing
+ * reserves space automatically anymore, so a page body must add this height to
+ * its bottom content padding or its last row ends up hidden behind the pill.
+ *
+ * Zero means "no floating bar on this page" (navigation-rail layouts, onboarding
+ * and sub-screens), in which case bodies keep their own bottom spacing.
+ */
+val LocalFloatingBottomBarHeight = compositionLocalOf { 0.dp }
+
+/**
+ * Bottom padding a scrolling body must reserve so the floating bar never covers
+ * its last row: the bar's real measured height when it is on screen, otherwise
+ * [fallback] (the page's own bottom spacing).
+ */
+@Composable
+fun floatingBottomBarPadding(fallback: Dp): Dp {
+    val barHeight = LocalFloatingBottomBarHeight.current
+    return if (barHeight > 0.dp) barHeight else fallback
+}
 
 /**
  * Standard scrolling screen.
@@ -76,6 +106,7 @@ fun MaxScreen(
     )
     val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
         .calculateBottomPadding()
+    val bottomPadding = floatingBottomBarPadding(MaxSpace.pageBottom + navigationBarPadding)
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -108,7 +139,7 @@ fun MaxScreen(
                 .maxAdaptiveContentWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = MaxSpace.gutter)
-                .padding(bottom = MaxSpace.pageBottom + navigationBarPadding),
+                .padding(bottom = bottomPadding),
             verticalArrangement = Arrangement.spacedBy(MaxSpace.section)
         ) {
             if (condition != null) {
@@ -150,6 +181,7 @@ fun MaxListScreen(
     )
     val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
         .calculateBottomPadding()
+    val bottomPadding = floatingBottomBarPadding(MaxSpace.pageBottom + navigationBarPadding)
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -194,7 +226,7 @@ fun MaxListScreen(
                 contentPadding = PaddingValues(
                     start = MaxSpace.gutter,
                     end = MaxSpace.gutter,
-                    bottom = MaxSpace.pageBottom + navigationBarPadding
+                    bottom = bottomPadding
                 ),
                 verticalArrangement = Arrangement.spacedBy(MaxSpace.row)
             ) {

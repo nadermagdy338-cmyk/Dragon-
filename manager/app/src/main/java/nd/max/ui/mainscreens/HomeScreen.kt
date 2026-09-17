@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.design.floatingBottomBarPadding
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 
@@ -143,10 +144,14 @@ fun HomeDashboardContent(
                 start = 18.dp,
                 end = 18.dp,
                 top = topPadding + 10.dp,
-                // NavHost (MainActivity) already reserves the real, measured BottomNavBar
-                // height for primary routes — this only needs a small breathing-room
-                // margin, not a second guess at the bar's full height stacked on top of it.
-                bottom = 16.dp
+                // This page renders full-bleed to the bottom edge and the floating bar is
+                // drawn on top of it, so the card has to reserve the bar's real height
+                // itself — otherwise the dashboard's last block stays hidden underneath the
+                // pill (the bar no longer insets the navigation host, see MainActivity).
+                // Without a bar (navigation-rail layouts) only the gesture bar needs clearance.
+                bottom = floatingBottomBarPadding(
+                    16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                )
             )
         ) {
             item {
@@ -166,7 +171,9 @@ fun HomeDashboardContent(
             }
         }
         EdgeScrim(colors.background, true, Modifier.align(Alignment.TopCenter))
-        EdgeScrim(colors.background, false, Modifier.align(Alignment.BottomCenter))
+        // Only the top edge is scrimmed: the dashboard scrolls underneath the floating
+        // navigation bar now, and a bottom fade would erase the very content that is
+        // supposed to be seen travelling through the bar's translucent surface.
     }
 }
 

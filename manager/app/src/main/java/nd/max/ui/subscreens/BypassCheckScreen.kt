@@ -42,6 +42,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.FactCheck
 import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.*
@@ -553,7 +554,7 @@ fun BypassChgCheckTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () 
         scrollBehavior = scrollBehavior,
         title = stringResource(R.string.CompatibilityCheck),
         onBack = onBack,
-        accentIcon = Icons.Filled.FactCheck,
+        accentIcon = Icons.AutoMirrored.Filled.FactCheck,
         accent = MaterialTheme.colorScheme.tertiary
     )
 }

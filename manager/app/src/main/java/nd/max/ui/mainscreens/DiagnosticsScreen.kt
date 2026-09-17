@@ -37,7 +37,7 @@ import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.outlined.Analytics
-import androidx.compose.material.icons.rounded.HelpOutline
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -112,7 +112,7 @@ fun DiagnosticsScreen(navController: NavHostController) {
                 actions = {
                     androidx.compose.material3.IconButton(onClick = { showScreenHelp = true }) {
                         androidx.compose.material3.Icon(
-                            imageVector = Icons.Rounded.HelpOutline,
+                            imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
                             contentDescription = stringResource(R.string.cd_screen_help)
                         )
                     }

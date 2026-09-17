@@ -32,6 +32,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.TrendingDown
+import androidx.compose.material.icons.automirrored.rounded.TrendingUp
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -778,8 +780,8 @@ fun NetworkDetailScreen(navController: NavController) {
             }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    DetailStatCard(Icons.Rounded.TrendingDown, stringResource(R.string.detail_peak_download), formatNetSpeed(peakDl), accent, Modifier.weight(1f))
-                    DetailStatCard(Icons.Rounded.TrendingUp, stringResource(R.string.detail_peak_upload), formatNetSpeed(peakUl), secondary, Modifier.weight(1f))
+                    DetailStatCard(Icons.AutoMirrored.Rounded.TrendingDown, stringResource(R.string.detail_peak_download), formatNetSpeed(peakDl), accent, Modifier.weight(1f))
+                    DetailStatCard(Icons.AutoMirrored.Rounded.TrendingUp, stringResource(R.string.detail_peak_upload), formatNetSpeed(peakUl), secondary, Modifier.weight(1f))
                 }
             }
         }

@@ -94,6 +94,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.alpha
@@ -139,11 +140,21 @@ private fun Modifier.expressiveCardSurface(shape: RoundedCornerShape): Modifier 
         .border(BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.32f)), shape)
 }
 
+/**
+ * A grouped list: one card per row, stacked with a gap so every row reads as its
+ * own item instead of running into the next one.
+ *
+ * @param rowSpacing gap between two cards. The default is the app-wide rhythm;
+ *        a screen whose rows are heavier than a settings row (the Control page's
+ *        domain lists) passes a wider value, because the same 6dp that separates
+ *        two one-line rows reads as zero between two tall bordered cards.
+ */
 @Composable
 fun ExpressiveList(
     modifier: Modifier = Modifier,
     title: String = "",
     content: List<@Composable () -> Unit>,
+    rowSpacing: Dp = 6.dp,
 ) {
     if (content.isEmpty()) return
 
@@ -160,7 +171,7 @@ fun ExpressiveList(
             modifier = Modifier.clip(
                 if (content.size == 1) singleShape else RoundedCornerShape(largeCorner)
             ),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(rowSpacing)
         ) {
             content.forEachIndexed { index, itemContent ->
                 val shape = when {

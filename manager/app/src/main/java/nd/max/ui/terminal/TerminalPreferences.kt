@@ -188,7 +188,7 @@ fun TerminalPreferences(
                                      }
                                  }
 
-                                 Divider(color = Color(0xFF313244), thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
+                                 HorizontalDivider(color = Color(0xFF313244), thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
                                  
                                  Text(stringResource(R.string.terminal_background_section), color = Color(0xFF585B70), fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
 
@@ -261,10 +261,10 @@ fun TerminalPreferences(
                                      }
                                  }
                                  
-                                 Divider(color = Color(0xFF313244), thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
+                                 HorizontalDivider(color = Color(0xFF313244), thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
                                  MenuToggleItem(Icons.Outlined.Fullscreen, stringResource(R.string.terminal_fullscreen), isStatusBarHidden, onFullscreenChanged)
                                  
-                                 Divider(color = Color(0xFF313244), thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
+                                 HorizontalDivider(color = Color(0xFF313244), thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
                                  val canDrawOverlays = Settings.canDrawOverlays(context)
                                  
                                  MenuToggleItem(

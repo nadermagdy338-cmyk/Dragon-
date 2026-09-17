@@ -196,22 +196,34 @@ jobs:
 
           echo "✅ gradle-wrapper.jar is a valid archive."
 
-      # ── بوابة الاختبارات ──
-      # اختبار يفشل = لا حزمة إصدار. عقد نصوص التوصيات (الاختبار
-      # الوحدوي الأول في المشروع) يمنع انزياح الصياغة بين مصادر
-      # النصوص (Rust/Kotlin) والمصنِّف — الحشرة التي تكررت ثلاث مرات
-      # قبل وجود هذا القفل.
-      - name: Run Unit Tests (contract gate)
+      # ── بوابة الاختبارات + بناء الـ APK في أمر Gradle واحد ──
+      # اختبار يفشل = لا حزمة إصدار (كما كان).
+      #
+      # هذا كان خطوتين منفصلتين: `testDebugUnitTest` ثم `clean assembleRelease`،
+      # وهما معًا ~20 من 26 دقيقة من عمر المهمة. الأسباب التي جُمعتا من أجلها:
+      #
+      # 1. اختبارات الـ debug وبناء الـ release كانا يترجمان التطبيق كاملًا
+      #    مرتين (Kotlin + KSP/Hilt + Compose) لأن النسختين (variant) مختلفتان.
+      #    الاختبارات الـ 14 هنا اختبارات JUnit خالصة لمنطق Kotlin، ولا يستخدم
+      #    أي منها BuildConfig أو DEBUG، فتشغيلها على نسخة release مطابق في
+      #    السلوك ولوحظ أن يشارك البناء نفسُه في ترجمة واحدة.
+      # 2. `clean` كان يمحو مخرجات خطوة الاختبار قبل أن يعيد بناء الـ APK لها،
+      #    والـ runner يبدأ من checkout نظيف أصلًا فلا شيء قديم ليُمسح.
+      # 3. أمران مستقلان = بدء JVM + إعداد (configuration) + حل اعتماديات
+      #    مرتين. و`org.gradle.daemon=false` (المكتوب في gradle.properties من
+      #    أجل البناء على الجهاز عبر AndroidIDE) كان يجعل البدء باردًا في
+      #    المرة الثانية — لذلك تُتجاوَز قيمته هنا فقط، ويبقى الملف كما هو حتى
+      #    لا يتغيّر أسلوب البناء المحلي منخفض الذاكرة.
+      # 4. 2GB (افتراضي المستودع) ضيّقة أمام R8 + ترجمة Kotlin in-process على
+      #    runner فيه 16GB؛ رفعها إلى 4GB يلغي معظم ضغط الـ GC.
+      #
+      # لا شيء من مخرجات المنتج يتغيّر: نفس الـ APK، نفس الـ minify/R8، نفس
+      # اختبارات العقد — فقط بلا عمل مكرَّر.
+      - name: Build + test (contract gate)
         working-directory: ./manager
         run: |
           # git on Windows drops the +x bit on gradlew — self-heal before
           # the first invocation instead of relying on how it was committed.
-          chmod +x ./gradlew
-          ./gradlew :app:testDebugUnitTest --no-daemon --build-cache
-
-      - name: Build Manager APK
-        working-directory: ./manager
-        run: |
           chmod +x ./gradlew
 
           # Pull requests (including ones opened from forks) never receive
@@ -220,10 +232,20 @@ jobs:
           # build so PR CI still validates the code without needing a
           # signed release artifact.
           if [ "$V_TYPE" == "experimental" ] || [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-            ./gradlew clean assembleDebug --build-cache
+            variant="Debug"
           else
-            ./gradlew clean assembleRelease --build-cache
+            variant="Release"
           fi
+
+          # الاختبارات تُشغَّل على نفس النسخة التي يُبنى منها الـ APK (انظر
+          # الشرح أعلاه): testReleaseUnitTest + assembleRelease يتقاسمان
+          # ترجمة واحدة.
+          ./gradlew \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
+            ":app:test${variant}UnitTest" \
+            ":app:assemble${variant}" \
+            --build-cache \
+            --parallel
 
         env:
           KS_PWD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -373,21 +395,61 @@ jobs:
 
       # Upload only after validation passed, so a broken package never
       # surfaces as a downloadable artifact.
+      #
+      # Every upload is attempted twice. The artifact backend is known to accept
+      # the whole payload and then fail while finalizing it —
+      # "Failed to FinalizeArtifact: ... (403) Forbidden: Error from intermediary"
+      # or ECONNRESET — which killed a green build at the last step before this
+      # (see actions/upload-artifact#560, still open). A retry is the only fix
+      # available to a workflow, and because both packages were already
+      # validated above, a second attempt can only succeed or fail for a real
+      # reason. `continue-on-error` on the first attempt is what allows the retry
+      # to run; the retry itself is not tolerant, so a genuine outage still fails
+      # the job instead of shipping a build that cannot be downloaded.
       - name: Upload Build Artifact
+        id: upload_module
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: MaxManager-module
           path: ${{ steps.compileZip.outputs.zipName }}
           if-no-files-found: error
 
+      - name: Retry Build Artifact upload
+        if: steps.upload_module.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MaxManager-module
+          path: ${{ steps.compileZip.outputs.zipName }}
+          if-no-files-found: error
+          overwrite: true
+
       - name: Upload developer integration artifact
+        id: upload_developer_bundle
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: MaxManager-developer-bundle
           path: MaxManager-developer-bundle.zip
           if-no-files-found: error
 
+      - name: Retry developer integration upload
+        if: steps.upload_developer_bundle.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MaxManager-developer-bundle
+          path: MaxManager-developer-bundle.zip
+          if-no-files-found: error
+          overwrite: true
+
+      # Delivery is optional and must never decide whether the build is green:
+      # the artifacts above are the build's output, and this step is only how
+      # they happen to be announced. It already no-ops when CHAT_ID/BOT_TOKEN
+      # are not configured (which is the normal state here — the Telegram
+      # upload is disabled on purpose), and `continue-on-error` additionally
+      # keeps a failing or unreachable bot from turning the job red.
       - name: Upload To Telegram
+        continue-on-error: true
         env:
           CHAT_ID: ${{ secrets.CHAT_ID }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -400,5 +462,5 @@ jobs:
             export VERSION=$(git rev-list --count HEAD)
             bash .github/scripts/telebot.sh "${{ steps.compileZip.outputs.zipName }}"
           else
-            echo "⚠️ Telegram bot token or chat id is undefined, skipping upload."
+            echo "⚠️ Telegram bot token or chat id is undefined, skipping upload. Build artifacts are unaffected."
           fi

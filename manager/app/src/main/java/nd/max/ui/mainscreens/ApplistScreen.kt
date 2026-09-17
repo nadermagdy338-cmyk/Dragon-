@@ -3,6 +3,7 @@
 package nd.max.ui.mainscreens
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
+import nd.max.ui.design.floatingBottomBarPadding
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxSection
@@ -19,8 +20,11 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -173,11 +177,14 @@ fun ApplistScreen(navController: NavHostController) {
                             start = 16.dp,
                             top = 24.dp,
                             end = 16.dp,
-                            // NavHost (MainActivity) already reserves the real, measured
-                            // BottomNavBar height for primary routes — this only needs a
-                            // small breathing-room margin, not a second guess at the bar's
-                            // full height stacked on top of it.
-                            bottom = 16.dp
+                            // The list scrolls behind the floating navigation bar (the
+                            // navigation host is full-bleed — see MainActivity), so the app
+                            // list has to reserve the bar's real height itself. Otherwise the
+                            // final app rows stay hidden under the pill instead of scrolling
+                            // clear of it.
+                            bottom = floatingBottomBarPadding(
+                                16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                            )
                         ),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {

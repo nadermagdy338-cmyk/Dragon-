@@ -40,6 +40,7 @@
     <string name="max_ai_weight_performance">Performance</string>
     <string name="max_ai_weight_battery">Battery</string>
     <string name="max_ai_weight_thermal">Thermal headroom</string>
+    <string name="max_ai_objective_pending">No weights computed yet: they are derived from the first measured cycle.</string>
 
     <!-- Timeline -->
     <string name="max_ai_section_timeline">Decision timeline</string>
@@ -47,6 +48,14 @@
     <string name="max_ai_timeline_empty_title">No loop recorded yet</string>
     <string name="max_ai_timeline_empty_on">Max AI is on and monitoring. An entry appears the moment a measured gap produces a decision.</string>
     <string name="max_ai_timeline_empty_off">Max AI is off, so it takes no decisions. Turn it on to let it act and record what happens.</string>
+    <string name="max_ai_timeline_empty_filter">No entry of this kind yet.</string>
+    <string name="max_ai_timeline_filter_all">All</string>
+    <string name="max_ai_timeline_filter_decisions">Decisions</string>
+    <string name="max_ai_timeline_filter_probes">Probes</string>
+    <string name="max_ai_timeline_filter_alerts">Alerts</string>
+    <string name="max_ai_timeline_shown">Showing %1$d of %2$d matching entries.</string>
+    <string name="max_ai_timeline_show_all">Show all %1$d entries</string>
+    <string name="max_ai_timeline_show_less">Show only the latest %1$d</string>
     <string name="max_ai_episode_no_action">Gap measured, no safe step</string>
 
     <string name="max_ai_stage_observed">What it measured</string>
@@ -142,24 +151,50 @@
     <string name="max_ai_owner_verified">Verified</string>
     <string name="max_ai_owner_pending">Pending</string>
     <string name="max_ai_locked_row">Locked by you at %1$s — Max AI will never touch it.</string>
+    <string name="max_ai_owner_knobs">Owned knobs</string>
+    <string name="max_ai_owner_summary">%1$d knobs owned by an automated controller · %2$d verified on the hardware.</string>
+    <string name="max_ai_locks_summary">%1$d knobs are closed to every automated owner until you unlock them.</string>
 
     <!-- Controls -->
     <string name="max_ai_section_controls">Controls</string>
     <string name="max_ai_master_title">Max AI</string>
     <string name="max_ai_master_on">On: it decides, writes through the arbiter and measures the result.</string>
     <string name="max_ai_master_off">Off: manual control, zero decisions and zero hardware writes.</string>
-    <string name="max_ai_objective_pick_performance">Prioritise performance</string>
-    <string name="max_ai_objective_pick_balanced">Keep it balanced</string>
-    <string name="max_ai_objective_pick_battery">Prioritise battery</string>
+    <string name="max_ai_objective_pick_performance">Performance</string>
+    <string name="max_ai_objective_pick_balanced">Balanced</string>
+    <string name="max_ai_objective_pick_battery">Battery</string>
     <string name="max_ai_profile_row_desc">Base profiles stay manual and are applied immediately; they are not AI knobs.</string>
     <string name="max_ai_refresh">Run a cycle now</string>
     <string name="max_ai_refresh_desc">Measure, plan and act once instead of waiting for the 30s cycle.</string>
     <string name="max_ai_counters">Decisions %1$d · verified %2$d · adjusted %3$d · blocked for safety %4$d</string>
 
+    <!-- Control deck: the switch and the engine state behind it -->
+    <string name="max_ai_deck_title">Control deck</string>
+    <string name="max_ai_deck_desc">The live switch and the state it changes. Everything below this is the evidence.</string>
+    <string name="max_ai_deck_learning">Learning progress</string>
+    <string name="max_ai_deck_learning_row">%1$d knobs carry a measured verdict · %2$d graded samples in total.</string>
+    <string name="max_ai_deck_decisions">Decision record</string>
+    <string name="max_ai_deck_live_summary">%1$d knobs under watch and %2$d owned — open the animated view of the running loop.</string>
+    <string name="max_ai_section_profiles">Base profiles</string>
+    <string name="max_ai_profile_active">Applied</string>
+
     <!-- Safety -->
     <string name="max_ai_safety_engaged_title">Thermal safety engaged</string>
     <string name="max_ai_safety_critical_title">Critical temperature</string>
     <string name="max_ai_safety_detail">Measured %1$s, %2$d interventions since install.</string>
+    <string name="max_ai_safety_section">Thermal safety</string>
+    <string name="max_ai_safety_section_desc">The governor\'s live state: what it measured, how often it intervened, and whether the cap actually applied.</string>
+    <string name="max_ai_safety_state">Governor state</string>
+    <string name="max_ai_safety_state_normal">Normal</string>
+    <string name="max_ai_safety_state_engaged">Engaged</string>
+    <string name="max_ai_safety_state_critical">Critical</string>
+    <string name="max_ai_safety_enforcement">Cap enforcement</string>
+    <string name="max_ai_safety_reason">Last intervention reason</string>
+    <string name="max_ai_enforce_not_required">Not required</string>
+    <string name="max_ai_enforce_applied">Applied and verified</string>
+    <string name="max_ai_enforce_partial">Partially applied</string>
+    <string name="max_ai_enforce_failed">Failed on the hardware</string>
+    <string name="max_ai_enforce_unavailable">Not verifiable on this device</string>
 
     <!-- Time -->
     <string name="max_ai_time_now">just now</string>

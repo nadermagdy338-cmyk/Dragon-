@@ -21,8 +21,8 @@ import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Launch
-import androidx.compose.material.icons.rounded.ListAlt
+import androidx.compose.material.icons.automirrored.rounded.Launch
+import androidx.compose.material.icons.automirrored.rounded.ListAlt
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.NetworkCheck
 import androidx.compose.material.icons.rounded.Palette
@@ -145,14 +145,14 @@ sealed class MaxDestination(
     data object ColorPalette : MaxDestination("color_palette", R.string.theme, Icons.Rounded.Palette, Settings)
     data object ColorScheme : MaxDestination("colorscheme", R.string.color_scheme, Icons.Rounded.ColorLens, Settings)
     data object Diagnostics : MaxDestination("diagnostics", R.string.section_diagnostics, Icons.Rounded.BugReport, Settings)
-    data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.Rounded.ListAlt, Settings)
+    data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.AutoMirrored.Rounded.ListAlt, Settings)
     data object ConfigBackup : MaxDestination("config_backup", R.string.max_nav_config_backup, Icons.Rounded.Backup, Settings)
     data object About : MaxDestination("aboutscreen", R.string.section_about, Icons.Rounded.Info, Settings)
 
     // Control - Advanced tools (gated, not preferences)
     data object Terminal : MaxDestination("terminal", R.string.max_title_terminal, Icons.Rounded.Terminal, Control, MaxRisk.Dangerous)
     data object SetEdit : MaxDestination("setedit", R.string.max_title_setedit, Icons.Rounded.Edit, Control, MaxRisk.Advanced)
-    data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.Rounded.Launch, Control, MaxRisk.Advanced)
+    data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.AutoMirrored.Rounded.Launch, Control, MaxRisk.Advanced)
     data object KernelFlasher : MaxDestination("kernelflasher", R.string.max_title_kernel_flasher, Icons.Rounded.Build, Control, MaxRisk.Dangerous)
 
     companion object {

@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -47,8 +45,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -70,6 +66,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.ui.component.*
+import nd.max.ui.design.LocalFloatingBottomBarHeight
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.*
 import nd.max.ui.theme.MaxManagerTheme
@@ -234,11 +231,18 @@ fun MainScreen(fromTileType: String? = null) {
     }
     val isFabVisible = remember { mutableStateOf(true) }
     // BottomNavBar floats *over* the NavHost (see the Box below) instead of living in a
-    // Scaffold's bottomBar slot, so nothing reserves layout space for it automatically —
-    // every primary screen's own scroll content used to run underneath it. We measure the
-    // bar's real rendered height (it isn't a fixed constant: labels can wrap to two lines,
-    // e.g. longer Arabic strings) and pad the NavHost by exactly that amount, the same way
-    // `start = 96.dp` already reserves space for the nav rail on wide layouts.
+    // Scaffold's bottomBar slot, and the NavHost is deliberately left full-bleed so page
+    // content keeps scrolling underneath the pill. That pass-through is the whole point of
+    // the design: a bar whose backdrop you can see moving through its blur reads as
+    // floating, whereas insetting the NavHost by the bar's height (what this used to do)
+    // cropped the scroll viewport short and left a dead strip of background behind the pill
+    // — content visibly disappeared before it ever reached the bar.
+    //
+    // Since nothing reserves layout space for the bar anymore, it is published to the
+    // screens instead: `LocalFloatingBottomBarHeight` carries the bar's real rendered height
+    // (it is not a fixed constant — labels can wrap to two lines, e.g. longer Arabic
+    // strings) so each scrollable page body can reserve exactly that much as bottom content
+    // padding. Content scrolls behind the bar; the last row still stops above it.
     //
     // Seeding this at 0px left a window — most visible right after switching a primary
     // screen's own layout (e.g. Control's compact/expanded toggle) — where the bar was
@@ -250,13 +254,20 @@ fun MainScreen(fromTileType: String? = null) {
     // `.windowInsetsPadding(WindowInsets.navigationBars)` itself, so its *real* measured
     // height (captured below via onSizeChanged) always contains that inset. A seed of just
     // MaxSpace.bottomBarReserve was missing it, so on the very first frame(s) — before
-    // onSizeChanged ever fires — the NavHost was under-padded by the inset's worth of space
+    // onSizeChanged ever fires — page bodies were under-padded by the inset's worth of space
     // (~24–48dp on most devices), letting the last visible card peek out from behind the bar.
     val navInsetPx = WindowInsets.navigationBars.getBottom(density)
     var bottomBarHeightPx by remember(density, navInsetPx) {
         mutableIntStateOf(with(density) { MaxSpace.bottomBarReserve.roundToPx() } + navInsetPx)
     }
     val isPrimaryBarVisible = rootStatus && moduleInstalled && currentRoute in primaryRoutes
+    // Reserved bottom space for the pages that show the bar. Zero in navigation-rail
+    // layouts (the rail lives on the start edge, so the bottom stays free) and on every
+    // route without the bar. The value already includes the system navigation-bar inset,
+    // because the bar applies `.windowInsetsPadding(navigationBars)` itself.
+    val bottomBarInset = if (!useNavigationRail && isPrimaryBarVisible) {
+        with(density) { bottomBarHeightPx.toDp() }
+    } else 0.dp
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -268,20 +279,19 @@ fun MainScreen(fromTileType: String? = null) {
             }
         }
     }
-    CompositionLocalProvider(LocalAppHazeState provides hazeState) {
+    CompositionLocalProvider(
+        LocalAppHazeState provides hazeState,
+        LocalFloatingBottomBarHeight provides bottomBarInset,
+    ) {
         RootDialogsProvider {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    // Both NavHost and the floating BottomNavBar/NavigationRailBar live in
-                    // this Box, but NavHost is padded to stop short of the bar (see below),
-                    // and its own `.background(colorScheme.surface)` only paints its own
-                    // (smaller) bounds. Nothing else has ever painted the strip reserved for
-                    // the bar itself, so that gap fell through to the raw window background
-                    // (solid black) instead of the app's real background — visible as a flat
-                    // black slab behind/around the floating pill instead of it looking like
-                    // it's floating over the app. Painting the real background here, behind
-                    // everything, closes that gap for every primary screen at once.
+                    // The app's real background, painted behind everything. It shows through
+                    // wherever a screen's own body does not cover the window (the pill's
+                    // rounded corners, the gesture-bar strip) and keeps those slivers from
+                    // falling through to the raw window background (solid black) — which is
+                    // what used to make the pill look bolted onto a black slab.
                     .background(MaterialTheme.colorScheme.background),
             ) {
                 NavHost(
@@ -291,12 +301,12 @@ fun MainScreen(fromTileType: String? = null) {
                     } else MaxDestination.GetStarted.route,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(
-                            start = if (useNavigationRail) 96.dp else 0.dp,
-                            bottom = if (!useNavigationRail && isPrimaryBarVisible) {
-                                with(density) { bottomBarHeightPx.toDp() }
-                            } else 0.dp,
-                        )
+                        // Full-bleed to the bottom edge: content scrolls *behind* the
+                        // floating bar (each page body reserves the bar's height as bottom
+                        // content padding — see LocalFloatingBottomBarHeight). `start` still
+                        // reserves space for the navigation rail on wide layouts, because
+                        // the rail covers the content instead of the other way round.
+                        .padding(start = if (useNavigationRail) 96.dp else 0.dp)
                         .background(MaterialTheme.colorScheme.surface)
                         .nestedScroll(nestedScrollConnection)
                         .then(
@@ -349,32 +359,13 @@ fun MainScreen(fromTileType: String? = null) {
                 ) {
                     maxNavGraph(navController)
                 }
-                // Drawn *before* the bar below so it sits behind it — this only blends the
-                // sliver of the system navigation bar peeking under the floating pill, and
-                // must never tint the pill itself.
-                val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                if (!useNavigationRail && navBarHeight > 32.dp) {
-                    val colorScheme = MaterialTheme.colorScheme
-                    val bottomScrimGradient = remember(colorScheme) {
-                        Brush.verticalGradient(
-                            0.0f to Color.Transparent,
-                            0.1f to colorScheme.surface.copy(alpha = 0.3f),
-                            0.2f to colorScheme.surface.copy(alpha = 0.4f),
-                            0.3f to colorScheme.surface.copy(alpha = 0.5f),
-                            0.4f to colorScheme.surface.copy(alpha = 0.7f),
-                            0.5f to colorScheme.surface.copy(alpha = 0.8f),
-                            0.6f to colorScheme.surface.copy(alpha = 0.9f),
-                            1.0f to colorScheme.surface,
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(navBarHeight + 12.dp)
-                            .align(Alignment.BottomCenter)
-                            .background(bottomScrimGradient),
-                    )
-                }
+                // No bottom scrim is painted here on purpose. There used to be a
+                // transparent→surface gradient sitting behind the pill (to blend the
+                // gesture-bar strip), but now that page content runs underneath the bar it
+                // turned into a haze band that faded content out just before it reached the
+                // bottom edge — the exact "the bar is not floating" impression this change
+                // removes. The bar's own translucent surface is the only thing between the
+                // scrolling content and the bottom edge now.
                 AnimatedVisibility(
                     visible = isPrimaryBarVisible,
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),

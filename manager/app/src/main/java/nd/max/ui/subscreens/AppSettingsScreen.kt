@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.automirrored.rounded.Launch
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -1110,7 +1111,7 @@ fun AppSettingsTopAppBar(
         accentIcon = Icons.Filled.Apps,
         accent = MaterialTheme.colorScheme.secondary,
         actions = {
-            IconButton(onClick = onShowGuide) { Icon(Icons.Rounded.HelpOutline, contentDescription = "Feature Guide") }
+            IconButton(onClick = onShowGuide) { Icon(Icons.AutoMirrored.Rounded.HelpOutline, contentDescription = "Feature Guide") }
             IconButton(onClick = onLaunchApp) { Icon(Icons.AutoMirrored.Rounded.Launch, contentDescription = stringResource(R.string.str_launch_app)) }
             IconButton(onClick = onOpenAppInfo) { Icon(Icons.Rounded.Info, contentDescription = stringResource(R.string.str_app_info)) }
         }

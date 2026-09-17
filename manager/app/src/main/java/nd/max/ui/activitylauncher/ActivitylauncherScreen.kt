@@ -54,6 +54,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Launch
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -98,14 +100,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-
-
-
-
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.blur.HazeBlurStyle
-import dev.chrisbanes.haze.blur.HazeColorEffect
-import dev.chrisbanes.haze.blur.HazeProgressive
 import dev.chrisbanes.haze.blur.blurEffect
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
@@ -114,16 +109,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-// Manual stand-in for the old HazeMaterials.regular() style (haze-materials artifact isn't
-// part of this project's dependency set). Matches the same "regular" translucency/blur weight
-// used by the other frosted-glass surfaces in this file.
-private val overlayHazeStyle = HazeBlurStyle(
-    backgroundColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.72f),
-    blurRadius = 20.dp,
-    noiseFactor = 0.1f,
-    colorEffects = listOf(HazeColorEffect.tint(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.35f)))
-)
 
 // --- DATA CLASS (Lightweight - No Drawable) ---
 
@@ -599,7 +584,7 @@ fun AppDetailScreen(packageName: String, onBack: () -> Unit) {
                     Card(modifier = Modifier.fillMaxWidth().clickable { selectedActivity = activity }, shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                             Box(Modifier.size(38.dp).clip(RoundedCornerShape(11.dp)).background(if (activity.isExported) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer), contentAlignment = Alignment.Center) {
-                                Icon(if (activity.isExported) Icons.Default.Launch else Icons.Default.Lock, null, tint = if (activity.isExported) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
+                                Icon(if (activity.isExported) Icons.AutoMirrored.Filled.Launch else Icons.Default.Lock, null, tint = if (activity.isExported) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
                             }
                             Spacer(Modifier.width(11.dp))
                             Column(Modifier.weight(1f)) {
@@ -619,7 +604,7 @@ fun AppDetailScreen(packageName: String, onBack: () -> Unit) {
         if (app != null) {
             AlertDialog(
                 onDismissRequest = { selectedActivity = null },
-                icon = { Icon(if (act.isExported) Icons.Default.Launch else Icons.Default.Lock, null) },
+                icon = { Icon(if (act.isExported) Icons.AutoMirrored.Filled.Launch else Icons.Default.Lock, null) },
                 title = { Text(act.label) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -650,15 +635,17 @@ fun GlassCard(
     val glassModifier = if (isGlassActive) {
         Modifier
             .clip(shape)
-            .hazeEffect(
-                state = hazeState,
-                style = HazeBlurStyle(
-                    backgroundColor = cardColor.copy(alpha = 0.5f),
-                    blurRadius = 24.dp,
-                    noiseFactor = 0.1f,
+            // haze 2.x: the blur style is configured inside `blurEffect {}`.
+            // The old `hazeEffect(state, style)` overload is deprecated and goes
+            // away, so every frosted surface in the app declares it this way.
+            .hazeEffect(state = hazeState) {
+                blurEffect {
+                    backgroundColor = cardColor.copy(alpha = 0.5f)
+                    blurRadius = 24.dp
+                    noiseFactor = 0.1f
                     colorEffects = emptyList()
-                )
-            )
+                }
+            }
             .border(
                 width = 1.dp,
                 brush = Brush.linearGradient(
@@ -701,15 +688,14 @@ fun GlassListItem(
         Modifier
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .clip(shape)
-            .hazeEffect(
-                state = hazeState,
-                style = HazeBlurStyle(
-                    backgroundColor = cardColor.copy(alpha = 0.4f),
-                    blurRadius = 20.dp,
-                    noiseFactor = 0.08f,
+            .hazeEffect(state = hazeState) {
+                blurEffect {
+                    backgroundColor = cardColor.copy(alpha = 0.4f)
+                    blurRadius = 20.dp
+                    noiseFactor = 0.08f
                     colorEffects = emptyList()
-                )
-            )
+                }
+            }
             .border(
                 width = 1.dp,
                 brush = Brush.linearGradient(
@@ -830,7 +816,7 @@ fun ActivityStatsDashboard(
             
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 DashboardCard(icon = Icons.Default.Apps, label = "All Apps", count = totalApps, textColor = textColor, subTextColor = subTextColor, accentColor = primaryColor, modifier = Modifier.weight(1f), onClick = { onFilterChange(FilterOption.ALL) })
-                DashboardCard(icon = Icons.Default.List, label = "Total Activities", count = totalActivities, textColor = textColor, subTextColor = subTextColor, accentColor = primaryColor, modifier = Modifier.weight(1f), onClick = {})
+                DashboardCard(icon = Icons.AutoMirrored.Filled.List, label = "Total Activities", count = totalActivities, textColor = textColor, subTextColor = subTextColor, accentColor = primaryColor, modifier = Modifier.weight(1f), onClick = {})
             }
         }
     }

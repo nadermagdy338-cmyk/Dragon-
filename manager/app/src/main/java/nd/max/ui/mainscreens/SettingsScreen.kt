@@ -676,7 +676,7 @@ fun SettingsScreenTopAppBar(
             actions = {
                 IconButton(onClick = onHelpClick) {
                     Icon(
-                        imageVector = Icons.Rounded.HelpOutline,
+                        imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
                         contentDescription = stringResource(R.string.cd_screen_help)
                     )
                 }

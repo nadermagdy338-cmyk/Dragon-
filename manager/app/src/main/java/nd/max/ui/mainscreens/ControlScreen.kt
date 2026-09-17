@@ -16,10 +16,12 @@
  *    the hub screen shows nothing but the same rows (see
  *    MaxDomainHubScreen), so a header that only led there was a tap to
  *    nowhere new. Instead each domain gets a small label and its rows sit
- *    in one grouped box right there — a labelled group per domain rather
- *    than a group container inside a group container. Both presentations
- *    read [controlLayoutModel], so adding or removing a destination shows
- *    up in both at once.
+ *    in one grouped list right there — a labelled group per domain rather
+ *    than a group container inside a group container, and the same
+ *    grouped-list presentation (and therefore the same row rhythm) the
+ *    compact layout uses, so the two views read as one page. Both
+ *    presentations read [controlLayoutModel], so adding or removing a
+ *    destination shows up in both at once.
  * 3. The layout switch is one top-bar icon that opens the two names as a menu
  *    (see MaxViewMenu); the two-chip control it replaced crowded the help and
  *    side actions on phones.
@@ -49,6 +51,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -58,14 +61,10 @@ import nd.max.ui.component.ExpressiveList
 import nd.max.ui.component.ExpressiveListItem
 import nd.max.ui.component.LeadingIcon
 import nd.max.ui.component.rememberConfigBackupFlow
-import nd.max.ui.design.MaxGroup
-import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxListScreen
-import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSpace
-import nd.max.ui.design.MaxTone
 import nd.max.ui.design.MaxViewMenu
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
@@ -160,9 +159,9 @@ fun ControlScreen(navController: NavHostController) {
  *
  * `hubs` are the domains (their own screens); `entries` are loose destinations
  * that belong to no domain, which is how the advanced-tools band renders.
- * Compact puts both into one grouped-list box, one row per domain or entry.
- * Expanded opens each hub out into its own labelled grouped-list box of
- * feature rows, and boxes any loose entries the same way.
+ * Compact puts both into one grouped list, one row per domain or entry.
+ * Expanded opens each hub out into its own labelled grouped list of feature
+ * rows, and lists any loose entries the same way.
  */
 @Composable
 private fun ControlBand(
@@ -176,41 +175,56 @@ private fun ControlBand(
         TweaksSectionTitle(text = stringResource(titleRes))
 
         if (expanded) {
-            Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.row)) {
+            // One labelled list per domain. Two gaps have to stay clearly different or the
+            // page reads as one unbroken column: MaxSpace.section between two lists, and
+            // MaxSection's own MaxSpace.md between a label and the rows it names.
+            Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.section)) {
                 hubs.forEach { spec ->
                     ExpandedHubGroup(spec = spec, onOpen = onOpen)
                 }
                 if (entries.isNotEmpty()) {
-                    MaxGroup {
-                        entries.forEachIndexed { index, entry ->
-                            if (index > 0) MaxGroupDivider()
-                            ExpandedRow(entry = entry, onOpen = onOpen)
-                        }
-                    }
+                    ExpressiveList(
+                        content = controlRows(entries, onOpen),
+                        rowSpacing = ControlListRowSpacing,
+                    )
                 }
             }
         } else {
-            val rows = buildList<@Composable () -> Unit> {
-                hubs.forEach { spec ->
-                    add {
-                        ControlRow(
-                            entry = ControlEntry(spec.hub, spec.hubSubtitleRes),
-                            onOpen = onOpen,
-                        )
-                    }
-                }
-                entries.forEach { entry ->
-                    add {
-                        ControlRow(entry = entry, onOpen = onOpen)
-                    }
-                }
-            }
-            ExpressiveList(content = rows)
+            // The compact view puts the domains and the loose entries into one list; the
+            // expanded view splits that same list into one list per domain.
+            val rows = hubs.map { ControlEntry(it.hub, it.hubSubtitleRes) } + entries
+            ExpressiveList(
+                content = controlRows(rows, onOpen),
+                rowSpacing = ControlListRowSpacing,
+            )
         }
     }
 }
 
-/** Grouped-list row: the compact presentation of any destination. */
+/**
+ * The rows of one control list, rendered with the shared grouped-list component.
+ *
+ * Both presentations go through here so a row added to the model can never look
+ * different in one view than in the other.
+ */
+/**
+ * Gap between two rows of a Control list.
+ *
+ * Wider than the app-wide 6dp: these rows are tall cards with their own border, and
+ * at 6dp they touch, so a domain's rows looked like a single welded block. The
+ * compact and the expanded view both use this one value, which is what keeps them
+ * looking like the same page.
+ */
+private val ControlListRowSpacing: Dp = MaxSpace.md
+
+private fun controlRows(
+    entries: List<ControlEntry>,
+    onOpen: (MaxDestination) -> Unit,
+): List<@Composable () -> Unit> = entries.map { entry ->
+    { ControlRow(entry = entry, onOpen = onOpen) }
+}
+
+/** Grouped-list row: the one presentation of any destination on this page. */
 @Composable
 private fun ControlRow(entry: ControlEntry, onOpen: (MaxDestination) -> Unit) {
     ExpressiveListItem(
@@ -227,26 +241,10 @@ private fun ControlRow(entry: ControlEntry, onOpen: (MaxDestination) -> Unit) {
     )
 }
 
-/** One row inside a domain's grouped box, on the expanded page. */
-@Composable
-private fun ExpandedRow(
-    entry: ControlEntry,
-    onOpen: (MaxDestination) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    MaxRow(
-        title = stringResource(entry.destination.titleRes),
-        subtitle = stringResource(entry.subtitleRes),
-        icon = entry.destination.icon,
-        iconTone = MaxTone.Accent,
-        onClick = { onOpen(entry.destination) },
-        modifier = modifier,
-    )
-}
-
 /**
- * One domain's rows on the expanded page: a label naming it, then its rows
- * boxed into a single grouped-list card.
+ * One domain's rows on the expanded page: a label naming it, then its rows as
+ * a grouped list — the same component, row rhythm and 6dp card gaps the compact
+ * page uses, so switching views changes the grouping, not the look of a row.
  *
  * This used to be a clickable header that also linked out to
  * [ControlHubSpec.hub]'s own screen. That screen (MaxDomainHubScreen) shows
@@ -259,11 +257,9 @@ private fun ExpandedRow(
 @Composable
 private fun ExpandedHubGroup(spec: ControlHubSpec, onOpen: (MaxDestination) -> Unit) {
     MaxSection(title = stringResource(spec.hub.titleRes)) {
-        MaxGroup {
-            spec.features.forEachIndexed { index, feature ->
-                if (index > 0) MaxGroupDivider()
-                ExpandedRow(entry = feature, onOpen = onOpen)
-            }
-        }
+        ExpressiveList(
+            content = controlRows(spec.features, onOpen),
+            rowSpacing = ControlListRowSpacing,
+        )
     }
 }

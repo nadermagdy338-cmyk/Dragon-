@@ -34,12 +34,21 @@
     <string name="max_ai_weight_performance">الأداء</string>
     <string name="max_ai_weight_battery">البطارية</string>
     <string name="max_ai_weight_thermal">المتسع الحراري</string>
+    <string name="max_ai_objective_pending">لم تُحسب أوزان بعد: تُشتق من أول دورة مقيسة.</string>
 
     <string name="max_ai_section_timeline">الخط الزمني للقرارات</string>
     <string name="max_ai_section_timeline_desc">مدخل واحد لكل حلقة تحكم حقيقية: ملاحطة، قرار، كتابة، قياس ثانٍ، حكم، تعلّم.</string>
     <string name="max_ai_timeline_empty_title">لا حلقة مسجلة بعد</string>
     <string name="max_ai_timeline_empty_on">Max AI مفعّل ويراقب. يطهر مدخل بمجرد أن تُنتج فجوة مقيسة قرارًا.</string>
     <string name="max_ai_timeline_empty_off">Max AI مطفأ، لذا لا يتخذ أي قرار. فعّله كي يعمل ويسجل ما يحدث.</string>
+    <string name="max_ai_timeline_empty_filter">لا مدخل من هذا النوع بعد.</string>
+    <string name="max_ai_timeline_filter_all">الكل</string>
+    <string name="max_ai_timeline_filter_decisions">قرارات</string>
+    <string name="max_ai_timeline_filter_probes">تجارب</string>
+    <string name="max_ai_timeline_filter_alerts">تنبيهات</string>
+    <string name="max_ai_timeline_shown">المعروض %1$d من %2$d مدخلًا مطابقًا.</string>
+    <string name="max_ai_timeline_show_all">اعرض كل المدخلات (%1$d)</string>
+    <string name="max_ai_timeline_show_less">اعرض الأحدث %1$d فقط</string>
     <string name="max_ai_episode_no_action">فجوة مقيسة بلا خطوة آمنة</string>
 
     <string name="max_ai_stage_observed">ما قاسه</string>
@@ -133,22 +142,47 @@
     <string name="max_ai_owner_verified">مُتحقق</string>
     <string name="max_ai_owner_pending">معلق</string>
     <string name="max_ai_locked_row">أقفلته عند القيمة %1$s — Max AI لن يمسه أبدًا.</string>
+    <string name="max_ai_owner_knobs">المقابض المملوكة</string>
+    <string name="max_ai_owner_summary">%1$d مقبضًا يملكها متحكم آلي · %2$d مُتحقق منه على العتاد.</string>
+    <string name="max_ai_locks_summary">%1$d مقبضًا مغلق أمام كل مالك آلي حتى تفتحه بنفسك.</string>
 
     <string name="max_ai_section_controls">التحكم</string>
     <string name="max_ai_master_title">Max AI</string>
     <string name="max_ai_master_on">مفعّل: يقرر، يكتب عبر المُحكِّم، ثم يقيس النتيجة.</string>
     <string name="max_ai_master_off">مطفأ: تحكم يدوي، صفر قرارات وصفر كتابات على العتاد.</string>
-    <string name="max_ai_objective_pick_performance">أولوية للأداء</string>
-    <string name="max_ai_objective_pick_balanced">حافط على التوازن</string>
-    <string name="max_ai_objective_pick_battery">أولوية للبطارية</string>
+    <string name="max_ai_objective_pick_performance">الأداء</string>
+    <string name="max_ai_objective_pick_balanced">التوازن</string>
+    <string name="max_ai_objective_pick_battery">البطارية</string>
     <string name="max_ai_profile_row_desc">ملفات الأساس تبقى يدوية وتُطبق فورًا؛ ليست مقابض للذكاء.</string>
     <string name="max_ai_refresh">شغّل دورة الآن</string>
     <string name="max_ai_refresh_desc">قس وخطِّط ونفّذ مرة بدل انتطار دورة الثلاثين ثانية.</string>
     <string name="max_ai_counters">قرارات %1$d · مُتحقق %2$d · معدلة %3$d · محجوبة للأمان %4$d</string>
 
+    <string name="max_ai_deck_title">سطح التحكم</string>
+    <string name="max_ai_deck_desc">المفتاح الحي وحالة المحرك خلفه. وكل ما بعد هذا هو الدليل.</string>
+    <string name="max_ai_deck_learning">تقدّم التعلّم</string>
+    <string name="max_ai_deck_learning_row">%1$d مقبضًا له حكم مقيس · %2$d حكمًا متراكمًا إجمالًا.</string>
+    <string name="max_ai_deck_decisions">سجل القرارات</string>
+    <string name="max_ai_deck_live_summary">%1$d مقبضًا تحت المراقبة و%2$d مملوك — افتح العرض المتحرك للحلقة الجارية.</string>
+    <string name="max_ai_section_profiles">ملفات الأساس</string>
+    <string name="max_ai_profile_active">مُطبَّق</string>
+
     <string name="max_ai_safety_engaged_title">أمان حراري مُشتبك</string>
     <string name="max_ai_safety_critical_title">حرارة حرجة</string>
     <string name="max_ai_safety_detail">المقيس %1$s، و%2$d تدخل منذ التثبيت.</string>
+    <string name="max_ai_safety_section">الأمان الحراري</string>
+    <string name="max_ai_safety_section_desc">حالة الحاكم الحية: ما قاسه، وكم تدخل، وهل فُرض السقف فعلًا.</string>
+    <string name="max_ai_safety_state">حالة الحاكم</string>
+    <string name="max_ai_safety_state_normal">طبيعي</string>
+    <string name="max_ai_safety_state_engaged">مشتبك</string>
+    <string name="max_ai_safety_state_critical">حرج</string>
+    <string name="max_ai_safety_enforcement">فرض السقف</string>
+    <string name="max_ai_safety_reason">آخر سبب تدخل</string>
+    <string name="max_ai_enforce_not_required">غير مطلوب</string>
+    <string name="max_ai_enforce_applied">فُرض وتُحقق منه</string>
+    <string name="max_ai_enforce_partial">فُرض جزئيًا</string>
+    <string name="max_ai_enforce_failed">فشل على العتاد</string>
+    <string name="max_ai_enforce_unavailable">غير قابل للتحقق على هذا الجهاز</string>
 
     <string name="max_ai_time_now">الآن</string>
     <string name="max_ai_time_minutes">قبل %1$d دقيقة</string>

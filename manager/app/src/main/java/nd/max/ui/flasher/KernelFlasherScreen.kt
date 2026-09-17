@@ -100,8 +100,7 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.blur.HazeBlurStyle
-import dev.chrisbanes.haze.blur.HazeColorEffect
+import dev.chrisbanes.haze.blur.blurEffect
 
 // --- IMPORT MODULE CAPNTRIPS ---
 import com.github.capntrips.kernelflasher.FilesystemService
@@ -380,7 +379,21 @@ private fun KernelFlasherHeader(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .then(if (glass) Modifier.hazeEffect(state = hazeState, style = HazeBlurStyle(backgroundColor = Color.Black.copy(alpha = 0.18f), colorEffects = emptyList(), blurRadius = 24.dp, noiseFactor = 0.06f)) else Modifier),
+            // haze 2.x: the blur style is configured inside `blurEffect {}`.
+            // The deprecated `hazeEffect(state, style)` overload is removed in
+            // the next haze release, so no surface here uses it any more.
+            .then(
+                if (glass) {
+                    Modifier.hazeEffect(state = hazeState) {
+                        blurEffect {
+                            backgroundColor = Color.Black.copy(alpha = 0.18f)
+                            blurRadius = 24.dp
+                            noiseFactor = 0.06f
+                            colorEffects = emptyList()
+                        }
+                    }
+                } else Modifier
+            ),
         color = if (glass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow,
         tonalElevation = 3.dp,
         shadowElevation = 2.dp,
@@ -841,15 +854,14 @@ fun StyledCard(
     
     val glassModifier = if (isGlassActive) {
         Modifier.clip(shape)
-            .hazeEffect(
-                state = hazeState, 
-                style = HazeBlurStyle(
-                    backgroundColor = cardColor.copy(alpha = 0.5f), 
-                    blurRadius = 24.dp, 
-                    noiseFactor = 0.1f,
+            .hazeEffect(state = hazeState) {
+                blurEffect {
+                    backgroundColor = cardColor.copy(alpha = 0.5f)
+                    blurRadius = 24.dp
+                    noiseFactor = 0.1f
                     colorEffects = emptyList()
-                )
-            )
+                }
+            }
             .border(1.dp, Color.White.copy(0.1f), shape)
     } else {
         Modifier.clip(shape)
@@ -946,14 +958,13 @@ fun SlotStatusCard(
 
     val glassModifier = if (isGlassActive) {
         Modifier.clip(shape)
-            .hazeEffect(
-                state = hazeState, 
-                style = HazeBlurStyle(
-                    backgroundColor = bgColor, 
-                    blurRadius = 15.dp,
+            .hazeEffect(state = hazeState) {
+                blurEffect {
+                    backgroundColor = bgColor
+                    blurRadius = 15.dp
                     colorEffects = emptyList()
-                )
-            )
+                }
+            }
             .border(1.dp, Color.White.copy(0.1f), shape)
     } else {
         Modifier.clip(shape)

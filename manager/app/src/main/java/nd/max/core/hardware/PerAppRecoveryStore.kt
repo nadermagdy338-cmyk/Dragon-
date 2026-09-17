@@ -192,7 +192,7 @@ object PerAppRecoveryStore {
         tmp.outputStream().use { out ->
             out.write(value.toString().toByteArray(StandardCharsets.UTF_8))
             out.flush()
-            runCatching { (out as java.io.FileOutputStream).fd.sync() }
+            runCatching { out.fd.sync() }
         }
         if (!tmp.renameTo(file)) throw IllegalStateException("failed to replace ${file.absolutePath}")
     }

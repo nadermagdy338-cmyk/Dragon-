@@ -72,7 +72,7 @@ class PerAppControlRegistry(
             entries[key] = Entry(key, desired, apply, read, baseline, restore)
             refusals.remove(key)
         } else if (result.error != null) {
-            refusals[key] = result.error!!
+            refusals[key] = result.error
         }
         return result.verified
     }

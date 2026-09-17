@@ -1571,7 +1571,7 @@ class MaxAiEngine @Inject constructor(
             ownership.any { it.owner == ControlOwnership.Owner.MAX_AI } ->
                 "Max AI — يدير ${ownership.count { it.owner == ControlOwnership.Owner.MAX_AI }} مقابض"
             ownership.isNotEmpty() -> "Max AI — يراقب المقابض المملوكة"
-            prev.lastDecision != null -> prev.lastDecision!!.label
+            prev.lastDecision != null -> prev.lastDecision.label
             else -> "Max AI — جارٍ التقييم"
         }
 
