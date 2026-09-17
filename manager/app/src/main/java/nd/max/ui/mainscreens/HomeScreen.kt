@@ -143,7 +143,10 @@ fun HomeDashboardContent(
                 start = 18.dp,
                 end = 18.dp,
                 top = topPadding + 10.dp,
-                bottom = 124.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                // NavHost (MainActivity) already reserves the real, measured BottomNavBar
+                // height for primary routes — this only needs a small breathing-room
+                // margin, not a second guess at the bar's full height stacked on top of it.
+                bottom = 16.dp
             )
         ) {
             item {

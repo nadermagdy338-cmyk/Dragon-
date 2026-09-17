@@ -246,8 +246,15 @@ fun MainScreen(fromTileType: String? = null) {
     // render behind it. Seed it with the safe MaxSpace.bottomBarReserve floor and only ever
     // grow it from the real measurement, so content always has at least that much clearance.
     val density = LocalDensity.current
+    // The seed must already include the system navigation-bar inset: BottomNavBar applies
+    // `.windowInsetsPadding(WindowInsets.navigationBars)` itself, so its *real* measured
+    // height (captured below via onSizeChanged) always contains that inset. A seed of just
+    // MaxSpace.bottomBarReserve was missing it, so on the very first frame(s) — before
+    // onSizeChanged ever fires — the NavHost was under-padded by the inset's worth of space
+    // (~24–48dp on most devices), letting the last visible card peek out from behind the bar.
     var bottomBarHeightPx by remember(density) {
-        mutableIntStateOf(with(density) { MaxSpace.bottomBarReserve.roundToPx() })
+        val navInsetPx = WindowInsets.navigationBars.getBottom(density)
+        mutableIntStateOf(with(density) { MaxSpace.bottomBarReserve.roundToPx() } + navInsetPx)
     }
     val isPrimaryBarVisible = rootStatus && moduleInstalled && currentRoute in primaryRoutes
     val nestedScrollConnection = remember {

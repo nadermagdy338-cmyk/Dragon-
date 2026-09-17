@@ -17,9 +17,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -176,7 +173,11 @@ fun ApplistScreen(navController: NavHostController) {
                             start = 16.dp,
                             top = 24.dp,
                             end = 16.dp,
-                            bottom = 144.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                            // NavHost (MainActivity) already reserves the real, measured
+                            // BottomNavBar height for primary routes — this only needs a
+                            // small breathing-room margin, not a second guess at the bar's
+                            // full height stacked on top of it.
+                            bottom = 16.dp
                         ),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
