@@ -252,8 +252,8 @@ fun MainScreen(fromTileType: String? = null) {
     // MaxSpace.bottomBarReserve was missing it, so on the very first frame(s) — before
     // onSizeChanged ever fires — the NavHost was under-padded by the inset's worth of space
     // (~24–48dp on most devices), letting the last visible card peek out from behind the bar.
-    var bottomBarHeightPx by remember(density) {
-        val navInsetPx = WindowInsets.navigationBars.getBottom(density)
+    val navInsetPx = WindowInsets.navigationBars.getBottom(density)
+    var bottomBarHeightPx by remember(density, navInsetPx) {
         mutableIntStateOf(with(density) { MaxSpace.bottomBarReserve.roundToPx() } + navInsetPx)
     }
     val isPrimaryBarVisible = rootStatus && moduleInstalled && currentRoute in primaryRoutes
