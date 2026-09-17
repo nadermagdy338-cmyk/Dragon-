@@ -72,10 +72,17 @@ jobs:
         uses: nttld/setup-ndk@v1.6.0
         with:
           ndk-version: r29
+          local-cache: true
+
+      - name: Setup ccache for native (NDK) builds
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ndk-build-${{ runner.os }}
 
       - name: Compile Daemon
         working-directory: ./archdaemon
         run: |
+          export NDK_CCACHE="$(command -v ccache)"
           if [ "$V_TYPE" == "experimental" ]; then
             ndk-build NDK_DEBUG=1
           else
@@ -85,6 +92,7 @@ jobs:
       - name: Compile Preload Binary
         working-directory: ./preloadbin
         run: |
+          export NDK_CCACHE="$(command -v ccache)"
           if [ "$V_TYPE" == "experimental" ]; then
             ndk-build NDK_DEBUG=1
           else
@@ -96,8 +104,24 @@ jobs:
         with:
           targets: aarch64-linux-android, armv7-linux-androideabi
 
+      - name: Cache Rust registry and target directories
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            thermalcore -> target
+            binprofiles -> target
+            binutils -> target
+            manager/src/main/rust -> target
+
+      - name: Cache cargo-ndk binary
+        id: cargo-ndk-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/cargo-ndk
+          key: ${{ runner.os }}-cargo-ndk-bin-v1
+
       - name: Install cargo-ndk
-        run: cargo install cargo-ndk
+        run: command -v cargo-ndk >/dev/null 2>&1 || cargo install cargo-ndk
 
       - name: Build MaxManager Thermalcore
         working-directory: ./thermalcore
@@ -147,6 +171,11 @@ jobs:
           java-version: "17"
           distribution: temurin
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -178,7 +207,7 @@ jobs:
           # git on Windows drops the +x bit on gradlew — self-heal before
           # the first invocation instead of relying on how it was committed.
           chmod +x ./gradlew
-          ./gradlew :app:testDebugUnitTest --no-daemon
+          ./gradlew :app:testDebugUnitTest --no-daemon --build-cache
 
       - name: Build Manager APK
         working-directory: ./manager
@@ -191,9 +220,9 @@ jobs:
           # build so PR CI still validates the code without needing a
           # signed release artifact.
           if [ "$V_TYPE" == "experimental" ] || [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-            ./gradlew clean assembleDebug
+            ./gradlew clean assembleDebug --build-cache
           else
-            ./gradlew clean assembleRelease
+            ./gradlew clean assembleRelease --build-cache
           fi
 
         env:
