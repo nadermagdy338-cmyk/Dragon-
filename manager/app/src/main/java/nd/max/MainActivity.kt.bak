@@ -271,18 +271,7 @@ fun MainScreen(fromTileType: String? = null) {
     CompositionLocalProvider(LocalAppHazeState provides hazeState) {
         RootDialogsProvider {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    // Both NavHost and the floating BottomNavBar/NavigationRailBar live in
-                    // this Box, but NavHost is padded to stop short of the bar (see below),
-                    // and its own `.background(colorScheme.surface)` only paints its own
-                    // (smaller) bounds. Nothing else has ever painted the strip reserved for
-                    // the bar itself, so that gap fell through to the raw window background
-                    // (solid black) instead of the app's real background — visible as a flat
-                    // black slab behind/around the floating pill instead of it looking like
-                    // it's floating over the app. Painting the real background here, behind
-                    // everything, closes that gap for every primary screen at once.
-                    .background(MaterialTheme.colorScheme.background),
+                modifier = Modifier.fillMaxSize(),
             ) {
                 NavHost(
                     navController = navController,
