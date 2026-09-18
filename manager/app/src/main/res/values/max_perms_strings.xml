@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GAP-07 — الصلاحيات و AppOps -->
+
+    <string name="max_perms_title">Permissions &amp; App ops</string>
+    <string name="max_perms_subtitle">What this app declares, what the system actually allows, and a saved reference to return to</string>
+    <string name="max_perms_help">Two different things decide what an app can do. A manifest permission is what the app asked for — the system may or may not have granted it. An app op is what the system actually allows right now: allowed, ignored, restricted to foreground use, or the override removed so the manifest decides again. Modern Android moves more control into app ops every release, including things no manifest permission covers at all — the clipboard, vibration, background execution — so showing only one of the two would be a half answer that looks complete. Writing an app op needs root here (or ADB through Shizuku, which this app does not run yet), and every write is read back afterwards so you are told what the device actually accepted instead of what we sent. The saved reference is the answer to a real problem: reinstalling an app or switching ROM restores every permission. Save the reference once, compare later, and see exactly which ops drifted.</string>
+    <string name="max_perms_loading_detail">Reading this app\'s declared permissions and app ops.</string>
+    <string name="max_perms_declared_title">Declared permissions</string>
+    <string name="max_perms_declared_desc">Only dangerous permissions are listed: normal ones are never granted or revoked by you, so listing them adds length without information.</string>
+    <string name="max_perms_declared_none">This app declares no dangerous permissions.</string>
+    <string name="max_perms_declared_count">%1$s of %2$s dangerous permissions granted</string>
+    <string name="max_perms_granted">Granted</string>
+    <string name="max_perms_denied">Not granted</string>
+    <string name="max_perms_ops_title">App ops</string>
+    <string name="max_perms_ops_desc">The system\'s own switches, as reported by cmd appops.</string>
+    <string name="max_perms_ops_needs_root">Reading app ops needs root</string>
+    <string name="max_perms_ops_unreadable">The command returned nothing we could parse, so this is "unknown" — not "no ops".</string>
+    <string name="max_perms_ops_count">%1$s operations reported</string>
+    <string name="max_perms_ops_tap_hint">Tap an operation to change it. Every change is read back before it is reported as done.</string>
+    <string name="max_perms_choose_desc">Choose the mode for this operation. Every mode is read back after writing.</string>
+    <string name="max_perms_last_change">Last change</string>
+    <string name="max_perms_verdict_line">Requested %1$s — %2$s</string>
+    <string name="max_perms_verdict_applied">the device accepted it</string>
+    <string name="max_perms_verdict_as_default">the override was removed, so the manifest decides again</string>
+    <string name="max_perms_verdict_ignored">the device kept its own value</string>
+    <string name="max_perms_verdict_failed">the command was rejected</string>
+    <string name="max_perms_verdict_unverifiable">could not be read back, so the result is unknown</string>
+    <string name="max_perms_ref_title">Saved reference</string>
+    <string name="max_perms_ref_desc">A policy you write down, not a guess: save the current ops, then compare or restore later.</string>
+    <string name="max_perms_ref_save">Save the current state as reference</string>
+    <string name="max_perms_ref_save_desc">Stores every op this app reports, in this app\'s own storage — no root needed to keep or read it</string>
+    <string name="max_perms_ref_saved">Reference saved</string>
+    <string name="max_perms_ref_save_failed">The reference could not be written</string>
+    <string name="max_perms_ref_exists">Saved %1$s</string>
+    <string name="max_perms_ref_compare">Compare with the reference</string>
+    <string name="max_perms_ref_restore">Restore the reference</string>
+    <string name="max_perms_ref_restore_desc">Writes only the operations that drifted, and reports what the device accepted</string>
+    <string name="max_perms_ref_drift_title">Compared with the reference</string>
+    <string name="max_perms_ref_drift_none">Nothing drifted: every saved operation still has its saved value.</string>
+    <string name="max_perms_ref_drift_count">%1$s operations differ from the reference</string>
+    <string name="max_perms_drift_line">reference %1$s → now %2$s</string>
+    <string name="max_perms_current_absent">not reported</string>
+    <string name="max_perms_ref_restore_title">Restore these operations?</string>
+    <string name="max_perms_ref_restore_message">%1$s operations will be written back to their reference value. Each one is read back afterwards and reported.</string>
+    <string name="max_perms_ref_restore_more">…and %1$s more (all of them will be written)</string>
+    <string name="max_perms_ref_restore_done">Accepted %1$s · override removed %2$s · device kept its own value %3$s · rejected %4$s · unknown %5$s</string>
+    <string name="max_perms_ref_delete">Delete the reference</string>
+    <string name="max_perms_ref_delete_title">Delete the saved reference?</string>
+    <string name="max_perms_ref_delete_message">The saved policy is removed. App ops themselves are not touched.</string>
+    <string name="max_perms_ref_deleted">Reference deleted</string>
+
+    <!-- أوضاع AppOps -->
+    <string name="max_perms_mode_allow">Allow</string>
+    <string name="max_perms_mode_allow_note">The operation is permitted.</string>
+    <string name="max_perms_mode_foreground">Allow while in use</string>
+    <string name="max_perms_mode_foreground_note">Permitted only while the app is in the foreground.</string>
+    <string name="max_perms_mode_ignore">Ignore</string>
+    <string name="max_perms_mode_ignore_note">The call is accepted and silently does nothing. The app is not told.</string>
+    <string name="max_perms_mode_deny">Deny</string>
+    <string name="max_perms_mode_deny_note">The call fails, and the app is told it was denied.</string>
+    <string name="max_perms_mode_default">Default</string>
+    <string name="max_perms_mode_default_note">Removes the override, so the manifest permission and the platform policy decide again.</string>
+    <string name="max_perms_mode_ask">Ask</string>
+    <string name="max_perms_mode_ask_note">The platform should ask before allowing. Not every operation supports it.</string>
+
+    <!-- مدخل من شاشة إعدادات التطبيق -->
+    <string name="max_perms_entry_title">Permissions &amp; App ops</string>
+    <string name="max_perms_entry_desc">See what this app declares and what the system actually allows</string>
+    <string name="max_perms_entry_action">Open permissions</string>
+</resources>

@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.outlined.Analytics
+import androidx.compose.material.icons.outlined.BatteryChargingFull
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -73,6 +74,21 @@ import nd.max.core.hardware.AccessLevel
 import nd.max.core.hardware.HardwareCapabilityResolver
 import nd.max.core.hardware.HardwareCapabilitySnapshot
 import nd.max.core.hardware.HardwareRuntime
+import nd.max.ui.util.BatteryHealth
+import nd.max.ui.util.BatteryHealthSource
+import nd.max.ui.util.BatteryHealthUtil
+import nd.max.ui.util.BootHistory
+import nd.max.ui.util.BootHistoryUtil
+import nd.max.ui.util.ChargeLedger
+import nd.max.ui.util.ChargeVerdict
+import nd.max.ui.util.CrashLogSummary
+import nd.max.ui.util.CrashLogUtil
+import nd.max.ui.component.SensorInventoryCard
+import nd.max.ui.util.MemoryLedger
+import nd.max.ui.util.ZramPlatformState
+import nd.max.ui.util.ZramPlatformUtil
+import nd.max.ui.util.StorageHealthUtil
+import nd.max.ui.util.StorageMediaHealth
 import androidx.compose.ui.platform.LocalContext
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -174,6 +190,30 @@ fun DiagnosticsScreen(navController: NavHostController) {
             }
             item {
                 RuntimeHealthCard(runtime)
+            }
+            item {
+                BootHistoryCard()
+            }
+            item {
+                BatteryHealthCard()
+            }
+            item {
+                ChargeLedgerCard()
+            }
+            item {
+                MemoryLedgerCard()
+            }
+            item {
+                SensorInventoryCard()
+            }
+            item {
+                StorageHealthCard()
+            }
+            item {
+                CrashLogCard()
+            }
+            item {
+                ZramPlatformCard()
             }
             item {
                 OwnershipDiagnosticsCard()
@@ -306,6 +346,590 @@ private fun RuntimeHealthCard(snapshot: HardwareRuntime.Snapshot?) {
     }
 }
 
+
+/**
+ * `AR-02` — «لماذا أقلع الجهاز؟» — قراءة فقط، بلا كتابة وبلا امتياز.
+ *
+ * تُجيب السؤال الذي يطرحه المستخدم بعد كل فلاش: هل أقلع نظيفًا؟ وإن انهار، هل هناك أثر؟
+ * وثلاث حالات إجبارية: `Live` (مقروء) · `Unsupported` (الروم لا يُعلنه) ·
+ * «لا نستطيع الجزم» عند تعذّر قراءة `pstore` (ADR-07).
+ */
+@Composable
+private fun BootHistoryCard() {
+    var history by remember { mutableStateOf<BootHistory?>(null) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        history = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            BootHistoryUtil.read()
+        }
+    }
+
+    MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            IconBadge(Icons.Outlined.Memory, MaterialTheme.colorScheme.primary, 36)
+            Text(
+                text = stringResource(R.string.max_boot_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.max_boot_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(12.dp))
+
+        val snapshot = history
+        if (snapshot == null) {
+            Text(
+                text = stringResource(R.string.max_boot_reading),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        } else {
+            if (snapshot.isSupported) {
+                BootRow(
+                    label = stringResource(R.string.max_boot_loader),
+                    value = snapshot.loaderReason ?: stringResource(R.string.status_unknown),
+                    ok = true
+                )
+                BootRow(
+                    label = stringResource(R.string.max_boot_system),
+                    value = snapshot.systemReason ?: stringResource(R.string.status_unknown),
+                    ok = true
+                )
+            } else {
+                BootRow(
+                    label = stringResource(R.string.max_boot_loader),
+                    value = stringResource(R.string.max_boot_unsupported),
+                    ok = false
+                )
+            }
+
+            if (snapshot.isThermalShutdown) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.max_boot_thermal_warning),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            when {
+                !snapshot.pstoreReadable -> BootRow(
+                    label = stringResource(R.string.max_boot_pstore),
+                    value = stringResource(R.string.max_boot_unreadable),
+                    ok = false
+                )
+                snapshot.hasCrashArtifact -> BootRow(
+                    label = stringResource(R.string.max_boot_pstore),
+                    value = stringResource(
+                        R.string.max_boot_crash_found,
+                        snapshot.pstoreEntries.size
+                    ),
+                    ok = false
+                )
+                else -> BootRow(
+                    label = stringResource(R.string.max_boot_pstore),
+                    value = stringResource(R.string.max_boot_no_crash),
+                    ok = true
+                )
+            }
+        }
+    }
+}
+
+/** `AR-08` — صحة البطارية، قراءة فقط، بلا رقم مُخترَع. */
+@Composable
+private fun BatteryHealthCard() {
+    var health by remember { mutableStateOf<BatteryHealth?>(null) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        health = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            BatteryHealthUtil.read()
+        }
+    }
+
+    MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            IconBadge(Icons.Outlined.Memory, MaterialTheme.colorScheme.primary, 36)
+            Text(
+                text = stringResource(R.string.max_battery_health_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.max_battery_health_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(10.dp))
+
+        val snapshot = health
+        when {
+            snapshot == null -> DetailRow(stringResource(R.string.max_boot_reading), null)
+            snapshot.source == BatteryHealthSource.UNSUPPORTED ->
+                DetailRow(stringResource(R.string.max_battery_unsupported), null)
+            else -> {
+                DetailRow(
+                    stringResource(R.string.max_battery_design),
+                    snapshot.designUah?.let { microAh(it) }
+                )
+                DetailRow(
+                    stringResource(R.string.max_battery_full),
+                    snapshot.currentFullUah?.let { microAh(it) }
+                )
+                DetailRow(
+                    stringResource(R.string.max_battery_soh),
+                    snapshot.stateOfHealthPercent?.let {
+                        stringResource(R.string.max_percent_format, it)
+                    }
+                )
+                DetailRow(
+                    stringResource(R.string.max_battery_cycles),
+                    snapshot.cycleCount?.toString()
+                )
+                if (snapshot.source == BatteryHealthSource.ESTIMATED) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.max_battery_estimated),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** `AR-11` — تآكل وسائط التخزين كما تُعلنه الوسيطة نفسها. */
+@Composable
+private fun StorageHealthCard() {
+    var health by remember { mutableStateOf<StorageMediaHealth?>(null) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        health = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            StorageHealthUtil.read()
+        }
+    }
+
+    MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            IconBadge(Icons.Outlined.Memory, MaterialTheme.colorScheme.primary, 36)
+            Text(
+                text = stringResource(R.string.max_storage_health_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.max_storage_health_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(10.dp))
+
+        val snapshot = health
+        when {
+            snapshot == null -> DetailRow(stringResource(R.string.max_boot_reading), null)
+            !snapshot.supported -> DetailRow(stringResource(R.string.max_storage_unsupported), null)
+            else -> {
+                DetailRow(stringResource(R.string.max_storage_device), snapshot.device)
+                DetailRow(
+                    stringResource(R.string.max_storage_wear),
+                    snapshot.usedPercent?.let {
+                        stringResource(R.string.max_percent_format, it)
+                    }
+                )
+                DetailRow(
+                    stringResource(R.string.max_storage_eol),
+                    when (snapshot.preEol) {
+                        1 -> stringResource(R.string.max_storage_eol_normal)
+                        2 -> stringResource(R.string.max_storage_eol_warning)
+                        3 -> stringResource(R.string.max_storage_eol_urgent)
+                        else -> null
+                    }
+                )
+            }
+        }
+    }
+}
+
+/** `AR-06` — ملخّص الانهيارات وANR من `/data/anr` و`/data/tombstones`. قراءة فقط. */
+@Composable
+private fun CrashLogCard() {
+    var summary by remember { mutableStateOf<CrashLogSummary?>(null) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        summary = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            CrashLogUtil.read()
+        }
+    }
+
+    MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            IconBadge(Icons.Outlined.Memory, MaterialTheme.colorScheme.primary, 36)
+            Text(
+                text = stringResource(R.string.max_crash_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.max_crash_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(10.dp))
+
+        val snapshot = summary
+        when {
+            snapshot == null -> DetailRow(stringResource(R.string.max_boot_reading), null)
+            !snapshot.readable -> DetailRow(stringResource(R.string.max_crash_unsupported), null)
+            snapshot.total == 0 -> DetailRow(stringResource(R.string.max_crash_none), null)
+            else -> {
+                DetailRow(
+                    stringResource(R.string.max_crash_anr),
+                    snapshot.anrCount?.toString() ?: stringResource(R.string.status_unknown)
+                )
+                DetailRow(
+                    stringResource(R.string.max_crash_tombstones),
+                    snapshot.tombstoneCount?.toString() ?: stringResource(R.string.status_unknown)
+                )
+                DetailRow(
+                    stringResource(R.string.max_crash_latest),
+                    snapshot.latestAtMs?.let { formatTimestamp(it) }
+                )
+            }
+        }
+    }
+}
+
+/** `AR-10` — ZRAM كمسار معلَن: من يديره؟ بأي مرحلة؟ قراءة فقط. */
+@Composable
+private fun ZramPlatformCard() {
+    var state by remember { mutableStateOf<ZramPlatformState?>(null) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        state = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            ZramPlatformUtil.read()
+        }
+    }
+
+    MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            IconBadge(Icons.Outlined.Memory, MaterialTheme.colorScheme.primary, 36)
+            Text(
+                text = stringResource(R.string.max_zram_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.max_zram_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(10.dp))
+
+        val snapshot = state
+        when {
+            snapshot == null -> DetailRow(stringResource(R.string.max_boot_reading), null)
+            !snapshot.supported -> DetailRow(stringResource(R.string.max_zram_unsupported), null)
+            else -> {
+                DetailRow(
+                    stringResource(R.string.max_zram_managed),
+                    triState(snapshot.platformManaged)
+                )
+                DetailRow(
+                    stringResource(R.string.max_zram_algorithm),
+                    snapshot.algorithm
+                )
+                DetailRow(stringResource(R.string.max_zram_size), snapshot.sizeRaw)
+                DetailRow(
+                    stringResource(R.string.max_zram_writeback),
+                    triState(snapshot.writebackEnabled)
+                )
+                DetailRow(
+                    stringResource(R.string.max_zram_recompress),
+                    triState(snapshot.recompressSupported)
+                )
+                DetailRow(
+                    stringResource(R.string.max_zram_idle),
+                    triState(snapshot.idleTrackingPresent)
+                )
+                DetailRow(
+                    stringResource(R.string.max_zram_disk),
+                    snapshot.disksizeBytes?.let {
+                        stringResource(R.string.max_mb_format, (it / (1024L * 1024L)).toString())
+                    }
+                )
+            }
+        }
+    }
+}
+
+/** نعم / لا / غير معروف — بلا تقريب ولا تخمين (ADR-07). */
+@Composable
+private fun triState(value: Boolean?): String = when (value) {
+    true -> stringResource(R.string.max_yes)
+    false -> stringResource(R.string.max_no)
+    null -> stringResource(R.string.status_unknown)
+}
+
+/** تنسيق زمن محلي، بلا نمط صلب في الواجهة. */
+private fun formatTimestamp(ms: Long): String =
+    java.text.DateFormat.getDateTimeInstance(
+        java.text.DateFormat.MEDIUM,
+        java.text.DateFormat.SHORT
+    ).format(java.util.Date(ms))
+
+/** يحوّل µAh إلى نصّ mAh بوحدة معلنة في النصّ نفسه. */
+@Composable
+private fun microAh(value: Long): String =
+    stringResource(R.string.max_mah_format, (value / 1000).toString())
+
+/**
+ * `AR-09` — سجل دورات الشحن: حكم طولي لا لحظي.
+ *
+ * يُسجّل لقطة **عند فتح هذه الشاشة فقط** (لا خدمة خلفية)، ويعرض الحكم بحالاته الصريحة —
+ * ومنها «العدّاد غير مدعوم» و«لا حكم بعد». الأساس معلَن في البطاقة نفسها، لا مخفيًّا.
+ */
+@Composable
+private fun ChargeLedgerCard() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var snapshot by remember { mutableStateOf<ChargeLedger.Snapshot?>(null) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        snapshot = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            ChargeLedger.observe(context)
+        }
+    }
+
+    MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            IconBadge(Icons.Outlined.BatteryChargingFull, MaterialTheme.colorScheme.primary, 36)
+            Text(
+                text = stringResource(R.string.max_charge_ledger_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.max_charge_ledger_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(10.dp))
+
+        val current = snapshot
+        when {
+            current == null -> DetailRow(stringResource(R.string.max_boot_reading), null)
+            else -> {
+                DetailRow(
+                    stringResource(R.string.max_charge_sessions),
+                    current.sessions.size.toString()
+                )
+                current.sessions.lastOrNull()?.let { last ->
+                    DetailRow(
+                        stringResource(R.string.max_charge_last_range),
+                        stringResource(R.string.max_charge_range_format, last.levelFrom, last.levelTo)
+                    )
+                    DetailRow(
+                        stringResource(R.string.max_charge_last_energy),
+                        microAh(last.chargeCounterDeltaUah)
+                    )
+                    last.uahPerPoint?.let { perPoint ->
+                        DetailRow(
+                            stringResource(R.string.max_charge_last_per_point),
+                            microAh(perPoint)
+                        )
+                    }
+                }
+                when (val verdict = current.verdict) {
+                    ChargeVerdict.CounterUnavailable -> DetailRow(
+                        stringResource(R.string.max_charge_verdict),
+                        stringResource(R.string.max_charge_verdict_no_counter)
+                    )
+                    is ChargeVerdict.InsufficientData -> DetailRow(
+                        stringResource(R.string.max_charge_verdict),
+                        stringResource(
+                            R.string.max_charge_verdict_insufficient,
+                            verdict.have.toString(),
+                            verdict.need.toString()
+                        )
+                    )
+                    is ChargeVerdict.Stable -> DetailRow(
+                        stringResource(R.string.max_charge_verdict),
+                        stringResource(
+                            R.string.max_charge_verdict_stable,
+                            microAh(verdict.medianUahPerPoint)
+                        )
+                    )
+                    is ChargeVerdict.Drifting -> DetailRow(
+                        stringResource(R.string.max_charge_verdict),
+                        stringResource(
+                            R.string.max_charge_verdict_drifting,
+                            microAh(verdict.medianUahPerPoint),
+                            microAh(verdict.recentUahPerPoint)
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * `AR-24` — دفتر ذاكرة التطبيق: PSS + مقارنة لقطات.
+ *
+ * يُقاس **تطبيقنا نحن بلا امتياز** (المسار الموثوق)، وتُعلَن الطريقة. ولا يُقارَن رقمان بطريقتين
+ * مختلفتين — تظهر «لا مقارنة» بصراحة.
+ */
+@Composable
+private fun MemoryLedgerCard() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var report by remember { mutableStateOf<MemoryLedger.Report?>(null) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        report = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            MemoryLedger.observeOwn(context)
+        }
+    }
+
+    MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            IconBadge(Icons.Outlined.Memory, MaterialTheme.colorScheme.primary, 36)
+            Text(
+                text = stringResource(R.string.max_memory_ledger_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.max_memory_ledger_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(10.dp))
+
+        val current = report
+        when {
+            current == null || current.current == null ->
+                DetailRow(stringResource(R.string.max_memory_reading), null)
+            else -> {
+                DetailRow(
+                    stringResource(R.string.max_memory_current),
+                    stringResource(R.string.max_memory_kb_format, current.current.totalPssKb.toString())
+                )
+                DetailRow(
+                    stringResource(R.string.max_memory_method),
+                    when (current.current.method) {
+                        MemoryLedger.Method.OWN_PROCESS -> stringResource(R.string.max_memory_method_own)
+                        MemoryLedger.Method.DUMPSYS -> stringResource(R.string.max_memory_method_dumpsys)
+                    }
+                )
+                DetailRow(
+                    stringResource(R.string.max_memory_snapshots),
+                    current.snapshots.count { it.key == current.current.key }.toString()
+                )
+                when (val delta = current.delta) {
+                    MemoryLedger.MemoryDelta.Insufficient -> DetailRow(
+                        stringResource(R.string.max_memory_trend),
+                        stringResource(R.string.max_memory_trend_insufficient)
+                    )
+                    is MemoryLedger.MemoryDelta.Stable -> DetailRow(
+                        stringResource(R.string.max_memory_trend),
+                        stringResource(
+                            R.string.max_memory_trend_stable,
+                            delta.previousKb.toString()
+                        )
+                    )
+                    is MemoryLedger.MemoryDelta.Changed -> DetailRow(
+                        stringResource(R.string.max_memory_trend),
+                        if (delta.deltaKb > 0) {
+                            stringResource(
+                                R.string.max_memory_trend_grew,
+                                delta.percent.toString(),
+                                delta.deltaKb.toString()
+                            )
+                        } else {
+                            stringResource(
+                                R.string.max_memory_trend_shrank,
+                                delta.percent.toString(),
+                                (-delta.deltaKb).toString()
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailRow(label: String, value: String?) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        value?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+@Composable
+private fun BootRow(label: String, value: String, ok: Boolean) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (ok) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error
+        )
+    }
+}
 
 @Composable
 private fun OwnershipDiagnosticsCard() {

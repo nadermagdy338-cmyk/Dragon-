@@ -252,4 +252,49 @@
     <string name="max_live_count_deferred">أحكام مؤجلة قيست</string>
     <string name="max_live_count_explorations">تجارب معرفية</string>
 
+    <!-- نطاق التعلّم: نفس المقبض محكومًا داخل تطبيق وداخل الجهاز كله -->
+    <string name="max_ai_insight_scope">نطاق التعلّم</string>
+    <string name="max_ai_insight_scope_desc">تُحسب الأحكام من عيّنات هذا السياق وحده. المقبض قد ينفع في تطبيق ويكلّف في آخر، فلا يُخلط الاثنان في رقم واحد.</string>
+    <string name="max_ai_insight_scope_global">الجهاز كله</string>
+    <string name="max_ai_insight_scope_count">%1$d سياقًا مقيسًا</string>
+    <string name="max_ai_insight_context_empty">لم يُقس شيء داخل هذا السياق بعد. تبقى قائمة أحكامه فارغة بدل أن تستعير أرقام الجهاز كله.</string>
+
+    <!-- صدق التنبؤ: ما وعد به المحرك مقابل ما فعله العتاد -->
+    <string name="max_ai_audit_section">تدقيق المحرك على نفسه</string>
+    <string name="max_ai_audit_desc">نسب مأخوذة من حلقات هذا الجهاز المسجّلة. الشرطة تعني أن المقام ما زال صفرًا، وهذا ليس صفرًا.</string>
+    <string name="max_ai_calibration_title">صدق التنبؤ</string>
+    <string name="max_ai_calibration_calibrated">مُعاير</string>
+    <string name="max_ai_calibration_drifting">منحرف</string>
+    <string name="max_ai_calibration_learning">قيد التعلّم</string>
+    <string name="max_ai_calibration_hits">%1$s من %2$d تنبؤًا وقع خطؤها داخل ±%3$s من المكسب المقيس</string>
+    <string name="max_ai_calibration_mean_error">متوسط |الخطأ| %1$s</string>
+    <string name="max_ai_calibration_confidence">أعلن المحرك ثقة %1$s في المتوسط</string>
+    <string name="max_ai_calibration_pending">لم يُقابل أي تنبؤ بقياس بعد، فلا يوجد ما يُقيَّم.</string>
+    <string name="max_ai_audit_probe_yield">تجارب أنتجت قياسًا</string>
+    <string name="max_ai_audit_probe_yield_value">%1$s (%2$d من %3$d)</string>
+    <string name="max_ai_audit_override_rate">تجاوزاتك بعد قرار</string>
+    <string name="max_ai_audit_measurement_rate">قرارات وصلها قياس حقيقي</string>
+    <string name="max_ai_audit_rate_value">%1$s (%2$d من %3$d)</string>
+
+    <!-- وتيرة إعادة التخطيط: لماذا تحدث دورة قبل الدورة الدورية -->
+    <string name="max_ai_cadence_title">إعادة التخطيط</string>
+    <string name="max_ai_cadence_calm">الدورة الدورية فقط. لم يتحرك شيء يغيّر القرار منذ آخر دورة.</string>
+    <string name="max_ai_cadence_now">إعادة تخطيط الآن لأنّ %1$s</string>
+    <string name="max_ai_cadence_pending">بانتظار إعادة التخطيط: %1$s (بعد %2$d ث)</string>
+    <string name="max_ai_cadence_reason_safety">مستوى السلامة تغيّر</string>
+    <string name="max_ai_cadence_reason_screen">حالة الشاشة تغيّرت</string>
+    <string name="max_ai_cadence_reason_usage">طريقة استخدامك للجهاز تغيّرت</string>
+
+    <!-- صيانة الدفتر -->
+    <string name="max_ai_journal_clear">مسح الدفتر</string>
+    <string name="max_ai_journal_clear_desc">يحذف الحلقات المسجّلة. الأقفال اليدوية والملكية الحالية وكل ما تعلّمه Max AI تبقى.</string>
+    <string name="max_ai_journal_clear_empty">لا شيء مسجّل بعد.</string>
+    <string name="max_ai_journal_clear_confirm_title">مسح دفتر القرارات؟</string>
+    <string name="max_ai_journal_clear_confirm_message">ستُحذف %1$d حلقة مسجّلة. أقفال المقابض وخريطة الملكية الحالية والأثر المقيس تبقى كما هي — يُمسح السرد وحده.</string>
+    <string name="max_ai_journal_clear_confirm_action">امسح الدفتر</string>
+
+    <!-- البحث في الدفتر -->
+    <string name="max_ai_timeline_search_hint">ابحث في المقبض أو التطبيق أو التفصيل</string>
+    <string name="max_ai_timeline_search_clear">مسح البحث</string>
+
 </resources>

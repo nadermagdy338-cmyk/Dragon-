@@ -29,7 +29,15 @@ enum class SetEditCategory(val listCommand: String, val settingsNamespace: Strin
     ANDROID_PROP("getprop", null)
 }
 
-data class SetEditItem(val key: String, val value: String, val category: SetEditCategory)
+data class SetEditItem(val key: String, val value: String, val category: SetEditCategory) {
+    /**
+     * مفتاح الصف في القائمة الكسولة — **في مكان واحد** لا في نصّ مبنِي داخل الشاشة.
+     *
+     * وسبب وجوده ليس الترتيب: Compose يرمي إن تكرّر مفتاح صفّ، والشاشة تعتمد على تفرده. ولا يصحّ
+     * أن يعرف الاختبارُ صيغةً تُكتب في الشاشة وتتغيّر فيها وحدها.
+     */
+    val lazyKey: String get() = "$category:$key"
+}
 
 /** Keys that can break the device if fat-fingered; edits to these get an extra confirm step. */
 private val SENSITIVE_KEY_FRAGMENTS = listOf(
@@ -51,29 +59,68 @@ object SetEditUtil {
         for (cat in categories) {
             try {
                 val output = Shell.cmd(cat.listCommand).exec().out
-                for (line in output) {
-                    val item = try {
-                        if (cat == SetEditCategory.ANDROID_PROP) {
-                            parseGetpropLine(line, cat)
-                        } else {
-                            parseSettingsLine(line, cat)
-                        }
-                    } catch (e: Exception) {
-                        // A single malformed line (unexpected shell output, stray
-                        // error text mixed into stdout, etc.) shouldn't take down
-                        // the whole screen - skip it and keep going.
-                        null
-                    }
-                    if (item != null) result += item
-                }
+                result += parseOutput(cat, output)
             } catch (e: Exception) {
                 // Root shell can legitimately fail (denied, not yet granted, shell
                 // died mid-command). Skip this category instead of propagating the
                 // exception up through the IO coroutine, which would crash the app.
             }
         }
-        if (category == null) result.sortBy { it.key }
-        return result
+        return dedupe(result, category)
+    }
+
+    /**
+     * يحوّل مخرج أمر إلى عناصر — **خالص وقابل للاختبار** بلا وصول إلى shell.
+     *
+     * وكل سطر يُحلَّل في `try` خاص به: سطر مشوّه (نصّ خطأ دخل في stdout، أو صيغة مصنّع غريبة)
+     * **يُسقَط** ولا يُسقط الشاشة كلها.
+     */
+    fun parseOutput(category: SetEditCategory, output: List<String>): List<SetEditItem> =
+        output.mapNotNull { line ->
+            try {
+                if (category == SetEditCategory.ANDROID_PROP) {
+                    parseGetpropLine(line, category)
+                } else {
+                    parseSettingsLine(line, category)
+                }
+            } catch (e: Exception) {
+                // سطر واحد مشوّه لا يُسقط الشاشة.
+                null
+            }
+        }
+
+    /**
+     * **يضمن تفرد `(category, key)` — وهذا ليس ترتيبًا جماليًّا بل منع كراش.**
+     *
+     * شاشة `SetEdit` تعرض هذه العناصر في `LazyColumn` بمفتاح `"category:key"`، وCompose **يرمي**
+     * حين يتكرّر مفتاح:
+     * `IllegalArgumentException: Key … was already used`. وهذا العطب لا يظهر عند الفتح بل
+     * **عند التمرير**، لأن الصفّ المكرّر لا يُبنى إلا حين يدخل نطاق العرض — فتخبو الشاشة فجأةً
+     * في منتصف تمرير.
+     *
+     * ومخرج الأوامر **يتكرّر فعلًا**، ولهذا يُنقّى في مواضع أخرى من المستودع
+     * (`RootFileAccess.globDirectories` مثلًا يستدعي `distinct()` على مخرج shell). وكانت هذه
+     * الشاشة الوحيدة التي تبني **مفاتيح قائمة** من مخرج خام بلا تنقية.
+     *
+     * ويُحفَظ **الأول** ويُسقَط ما بعده، مع تسجيل العدد — فالتكرار يبقى ظاهرًا في السجل بدل أن
+     * يُسكَت عنه، والأصل أن لا يوجد.
+     */
+    internal fun dedupe(items: List<SetEditItem>, category: SetEditCategory?): List<SetEditItem> {
+        val seen = HashSet<Pair<SetEditCategory, String>>(items.size)
+        val unique = ArrayList<SetEditItem>(items.size)
+        var duplicates = 0
+        items.forEach { item ->
+            if (seen.add(item.category to item.key)) unique += item else duplicates++
+        }
+        if (duplicates > 0) {
+            // يُسجَّل عبر `error` لا `symptom`: الأخير للحالات **المقيسة بالزمن**، وهذا عطب
+            // بيانات. والغرض واحد: لا يُسكت عن تكرار، حتى لو لم يُعد يسبب كراشًا.
+            EventLog.error(
+                screen = "SetEdit",
+                operation = "duplicate_keys category=${category?.name ?: "ALL"} dropped=$duplicates",
+            )
+        }
+        return if (category == null) unique.sortedBy { it.key } else unique
     }
 
     fun set(category: SetEditCategory, key: String, value: String): Boolean {
@@ -107,7 +154,11 @@ object SetEditUtil {
     private fun parseSettingsLine(line: String, category: SetEditCategory): SetEditItem? {
         val parts = line.split("=", limit = 2)
         if (parts.size != 2) return null
-        return SetEditItem(parts[0].trim(), parts[1].trim(), category)
+        val key = parts[0].trim()
+        // مفتاح فارغ صفٌّ بلا معنى: لايمكن قراءته ولا البحث عنه، وتكتبه الشاشة لاحقًا إلى الجهاز
+        // باسم `settings put <ns> ""` — أي أمر يكتب في لا شيء. يُسقَط.
+        if (key.isEmpty()) return null
+        return SetEditItem(key, parts[1].trim(), category)
     }
 
     private fun parseGetpropLine(line: String, category: SetEditCategory): SetEditItem? {
@@ -115,6 +166,7 @@ object SetEditUtil {
         val parts = line.split("]: [")
         if (parts.size != 2) return null
         val key = parts[0].removePrefix("[").trim()
+        if (key.isEmpty()) return null
         val value = parts[1].removeSuffix("]").trim()
         return SetEditItem(key, value, category)
     }

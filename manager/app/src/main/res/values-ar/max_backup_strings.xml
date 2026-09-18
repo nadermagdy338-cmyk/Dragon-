@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Max Backup — النسخ الاحتياطي والاسترجاع -->
+
+    <string name="max_backup_title">‏Max Backup</string>
+    <string name="max_backup_help">النسخة الاحتياطية تنسخ APK التطبيق ومجلدات بياناته وملفات توسعته إلى تخزين هذا التطبيق نفسه. وكل ملف يُبصم بـ‏SHA-256 بعد كتابته مباشرة، ثم يُعاد قراءته قبل حفظ السجل — فـ«تم النسخ» تعني «فُحص»، لا «افتُرض». والاسترجاع يُرفض إن لم يمرّ كل ملف مسجَّل بفحص بصمته. ولا شيء يُرفع إلى أي مكان، ولا شيء مشفّر: مفتاح مشحون داخل الـAPK ليس سرًّا، وادّعاء تشفير لا تملكه أسوأ من عدمه.</string>
+
+    <!-- منتقي التطبيقات -->
+    <string name="max_backup_picker_title">اختر تطبيقًا</string>
+    <string name="max_backup_picker_desc">النسخ تُحفَظ لكل تطبيق على حدة، وكل أرشيف يُتحقَّق منه بعد كتابته</string>
+    <string name="max_backup_search_hint">ابحث في التطبيقات</string>
+    <string name="max_backup_no_match_title">لا شيء يطابق</string>
+    <string name="max_backup_no_match_detail">لا يوجد تطبيق مثبَّت يطابق ما كتبته.</string>
+    <string name="max_backup_app_count">‏%1$s من %2$s تطبيقًا</string>
+
+    <!-- الجرد -->
+    <string name="max_backup_plan_title">ما الذي سيُنسخ</string>
+    <string name="max_backup_plan_desc">مقيس على هذا الجهاز، قبل أن تُكتب أي بيانات</string>
+    <string name="max_backup_plan_unmeasured">لم يُقس</string>
+    <string name="max_backup_plan_estimated">بعض الأحجام تعذّر قياسها. والمجاميع أدناه تحسب المقيس فقط — ومجلد لم يُقس لا يُخمَّن ولا يُعرض صفرًا.</string>
+    <string name="max_backup_plan_selected">المحدَّد الآن: %1$s · المجموع القابل للقياس: %2$s</string>
+    <string name="max_backup_plan_loading_title">جارٍ قراءة التطبيق</string>
+    <string name="max_backup_plan_loading_detail">حصر الـAPK ومجلدات البيانات وملفات التوسعة.</string>
+    <string name="max_backup_plan_missing_title">هذا التطبيق غير مثبَّت</string>
+    <string name="max_backup_plan_missing_detail">لا توجد حزمة بهذا الاسم على الجهاز الآن.</string>
+
+    <!-- الصلاحية -->
+    <string name="max_backup_priv_title">ما تستطيع هذه الطبقة الوصول إليه</string>
+    <string name="max_backup_priv_layer">الامتياز</string>
+    <string name="max_backup_priv_root">الجذر متاح: بيانات التطبيق والبيانات الخارجية وملفات التوسعة كلها قابلة للأرشفة.</string>
+    <string name="max_backup_priv_no_root">بلا جذر: الـAPK وحده قابل للأرشفة. ومجلد بيانات تطبيق آخر خارج متناول هذه الطبقة — ونقول ذلك بدل أن نُنتج أرشيفًا يبدو كاملًا وهو فارغ.</string>
+    <string name="max_backup_priv_encryption">محتوى الأرشيف</string>
+    <string name="max_backup_no_encryption_desc">الأرشيفات غير مشفّرة. السلامة تُتحقَّق بـ‏SHA-256، والسرّية لا نَدّعيها.</string>
+
+    <!-- النطاق -->
+    <string name="max_backup_scope_title">النطاق</string>
+    <string name="max_backup_scope_desc">لا يُقرأ ولا يُؤرشف إلا ما يُحدَّد هنا.</string>
+
+    <!-- المكوّنات -->
+    <string name="max_backup_kind_apk">الـAPK الأساسي</string>
+    <string name="max_backup_kind_split">ملفات التقسيم</string>
+    <string name="max_backup_kind_data">بيانات التطبيق</string>
+    <string name="max_backup_kind_external">البيانات الخارجية</string>
+    <string name="max_backup_kind_obb">ملفات التوسعة (OBB)</string>
+
+    <!-- التوفّر -->
+    <string name="max_backup_avail_available">متاح</string>
+    <string name="max_backup_avail_needs_root">يحتاج جذرًا</string>
+    <string name="max_backup_avail_unavailable">غير موجود</string>
+    <string name="max_backup_avail_unknown">غير معروف</string>
+
+    <!-- الإنشاء -->
+    <string name="max_backup_create_section">النسخ</string>
+    <string name="max_backup_action_create">أنشئ نسخة</string>
+    <string name="max_backup_action_create_desc">أرشفة الأجزاء المحدَّدة، ثم بَصم كل ملف وإعادة قراءته قبل كتابة السجل</string>
+    <string name="max_backup_action_prune">احتفظ بأحدث النسخ فقط</string>
+    <string name="max_backup_action_prune_desc">حذف النسخ الأقدم لهذا التطبيق</string>
+    <string name="max_backup_create_confirm_title">إنشاء هذه النسخة؟</string>
+    <string name="max_backup_create_confirm_message">سيُؤرشف نحو %1$s من المحتوى المقيس إلى تخزين هذا التطبيق نفسه.</string>
+    <string name="max_backup_msg_created">كُتبت النسخة وتحقّقنا منها</string>
+    <string name="max_backup_msg_created_partial">كُتبت النسخة مع نواقص — راجع السجل</string>
+    <string name="max_backup_msg_failed">لم يُؤرشف شيء، ولم يُكتب أي سجل</string>
+    <string name="max_backup_working_detail">أبقِ التطبيق مفتوحًا حتى ينتهي هذا.</string>
+
+    <!-- المراحل -->
+    <string name="max_backup_stage_apk">أرشفة الـAPK</string>
+    <string name="max_backup_stage_data">أرشفة بيانات التطبيق</string>
+    <string name="max_backup_stage_external">أرشفة البيانات الخارجية</string>
+    <string name="max_backup_stage_obb">أرشفة ملفات التوسعة</string>
+    <string name="max_backup_stage_manifest">حساب البصمات وكتابة السجل</string>
+
+    <!-- السجل -->
+    <string name="max_backup_history_title">النسخ</string>
+    <string name="max_backup_history_desc">الأحدث أولًا. واسترجاع نسخة يتطلّب أن يمرّ كل ملف مسجَّل بفحص بصمته.</string>
+    <string name="max_backup_history_none">لا نسخ لهذا التطبيق بعد.</string>
+    <string name="max_backup_entry_summary">%1$s · %2$s ملفًا</string>
+    <string name="max_backup_incomplete">ناقصة</string>
+    <string name="max_backup_incomplete_note">السجل الناقص يبقى ظاهرًا ناقصًا: استرجاعه يُرفض بدل أن يُثبّت حالة جزئية.</string>
+    <string name="max_backup_action_verify">افحص السلامة</string>
+    <string name="max_backup_action_restore">استرجع</string>
+    <string name="max_backup_action_delete">احذف</string>
+
+    <!-- الفحص -->
+    <string name="max_backup_verify_title">فحص السلامة</string>
+    <string name="max_backup_verify_verified">يطابق البصمة المسجَّلة</string>
+    <string name="max_backup_verify_missing">الملف مفقود</string>
+    <string name="max_backup_verify_corrupt">البصمة لا تطابق</string>
+    <string name="max_backup_verify_unverifiable">لا بصمة مسجَّلة — لا يمكن التحقّق</string>
+
+    <!-- الحذف والاحتفاظ -->
+    <string name="max_backup_delete_title">حذف هذه النسخة؟</string>
+    <string name="max_backup_delete_message">ستُزال الملفات المؤرشفة. ولا يمكن التراجع عن هذا.</string>
+    <string name="max_backup_delete_confirm">احذف</string>
+    <string name="max_backup_delete_done">حُذفت النسخة</string>
+    <string name="max_backup_delete_failed">تعذّر إزالة النسخة</string>
+    <string name="max_backup_prune_title">حذف النسخ الأقدم؟</string>
+    <string name="max_backup_prune_message">سيُحذف كل شيء عدا أحدث %1$s نسخ لهذا التطبيق.</string>
+    <string name="max_backup_prune_confirm">احذف الأقدم</string>
+    <string name="max_backup_prune_done">حُذفت %1$s نسخة</string>
+
+    <!-- الاسترجاع -->
+    <string name="max_backup_restore_title">استرجاع هذه النسخة؟</string>
+    <string name="max_backup_restore_message">يُوقف التطبيق أولًا، ثم تُستبدل بياناته، ثم تُصلَّح الملكية وسياق SELinux. وإعادة تثبيت الـAPK تحدث قبل فكّ البيانات.</string>
+    <string name="max_backup_restore_confirm">استرجع الآن</string>
+    <string name="max_backup_restore_done">انتهى الاسترجاع</string>
+    <string name="max_backup_restore_failed">فشل الاسترجاع عند: %1$s</string>
+    <string name="max_backup_restore_blocked_title">الاسترجاع ممنوع</string>
+    <string name="max_backup_block_none">لا مانع.</string>
+    <string name="max_backup_block_no_entries">هذا السجل بلا مدخلات، فلا شيء لاسترجاعه.</string>
+    <string name="max_backup_block_incomplete">كُتب هذا السجل ناقصًا. واسترجاعه سيُثبّت حالة جزئية.</string>
+    <string name="max_backup_block_not_verified">ملف واحد على الأقل لا يطابق بصمته المسجَّلة، أو لا بصمة له أصلًا. واسترجاع ملف لا نستطيع التحقّق منه غير مسموح.</string>
+    <string name="max_backup_block_root">استرجاع بيانات التطبيقات يحتاج جذرًا.</string>
+    <string name="max_backup_warn_title">قبل أن تُكمل:</string>
+    <string name="max_backup_warn_device">أُخذت هذه النسخة على جهاز مختلف.</string>
+    <string name="max_backup_warn_soc">أُخذت هذه النسخة على شريحة مختلفة.</string>
+    <string name="max_backup_warn_version">إصدار التطبيق المثبَّت يختلف عن الإصدار المسجَّل.</string>
+    <string name="max_backup_warn_not_installed">التطبيق غير مثبَّت؛ وخطوة إعادة التثبيت وحدها قد تُنشئه.</string>
+    <string name="max_backup_warn_encrypted">هذا السجل موسوم بأنه مشفّر؛ والملفات المؤرشفة تُقرأ كما هي.</string>
+
+    <!-- التخزين -->
+    <string name="max_backup_storage_title">التخزين</string>
+    <string name="max_backup_storage_count">النسخ</string>
+    <string name="max_backup_storage_total">الحجم على القرص</string>
+    <string name="max_backup_storage_location">الموقع</string>
+    <string name="max_backup_storage_location_desc">النسخ تعيش في المجلد الخارجي لهذا التطبيق. ولا شيء يُرفع إلى أي مكان.</string>
+
+    <!-- نمطا النسخ -->
+    <string name="max_backup_mode_title">ماذا تنسخ</string>
+    <string name="max_backup_mode_apps">التطبيقات</string>
+    <string name="max_backup_mode_system">بيانات النظام</string>
+    <string name="max_backup_kind_system">بيانات النظام</string>
+
+    <!-- بيانات النظام -->
+    <string name="max_backup_system_title">بيانات النظام</string>
+    <string name="max_backup_system_subtitle">الواي‑فاي والبلوتوث والجهات وسجل المكالمات — بنفس الأرشيف المتحقَّق منه الذي للتطبيقات</string>
+    <string name="max_backup_system_help">بيانات النظام تعيش في مكانين مختلفين، فتُقرأ بطريقتين مختلفتين. شبكات الواي‑فاي وأزواج البلوتوث ملفات نظام: يقرأها الجذر وتُؤرشف بـtar ثم تُستَرجع بفكّ الأرشيف. أما الجهات وسجل المكالمات والرسائل فتعيش خلف مزوّدات محتوى: تُقرأ صفوفًا وتُؤرشف JSON قابلًا للقراءة، ولا تُؤخذ نسخة من قاعدة بيانات حيّة — لأن نسخة من قاعدة يكتب عليها أحد قد تكون نصف مكتوبة. واسترجاع الصفوف **دمج**: ما هو موجود يُتخطّى ويُعَدّ، وما ليس في النسخة لا يُمسح. والرسائل تُقرأ وتُؤرشف، لكن أندرويد لا يسمح بكتابتها إلا لتطبيق الرسائل الافتراضي، فاسترجاعها محجوب بسياسة المنصّة — ونقول ذلك هنا بدل زر يفشل.</string>
+    <string name="max_backup_system_loading_detail">البحث عن ملفات النظام وعدّ صفوف المزوّدات.</string>
+    <string name="max_backup_system_no_root_title">بلا جذر: الفئات الملفّية خارج المتناول</string>
+    <string name="max_backup_system_no_root_desc">إعدادات الواي‑فاي والبلوتوث ملفات نظام تحت ‎/data/misc، وهذه الطبقة لا تقرؤها بلا جذر. أما الجهات وسجل المكالمات والرسائل فتمرّ عبر مزوّداتها ولا تحتاج إلا أذوناتها.</string>
+    <string name="max_backup_system_permissions_title">الأذونات</string>
+    <string name="max_backup_system_permissions_desc">الصفوف لا تُقرأ إلا بعد منح التطبيق الإذن الذي يتطلّبه مزوّدها.</string>
+    <string name="max_backup_system_grant">امنح الأذونات الناقصة</string>
+    <string name="max_backup_system_grant_desc">%1$s فئة في انتظار إذن</string>
+    <string name="max_backup_system_sources_title">الفئات</string>
+    <string name="max_backup_system_sources_desc">مقيسة على هذا الجهاز. والفئة التي لا تُقرأ تُعرض كذلك بدل أن تُعرَض للاختيار.</string>
+    <string name="max_backup_system_semantics_note">كل فئة تُعلن ما يعنيه استرجاعها: استبدال ملفات نظام، أو دمج صفوف، أو قراءة فقط لأن المنصّة تحجب الكتابة.</string>
+    <string name="max_backup_system_create_section">النسخ</string>
+    <string name="max_backup_system_action_create">أنشئ نسخة بيانات نظام</string>
+    <string name="max_backup_system_action_create_desc">أرشفة الفئات المحدَّدة، ثم بَصم كل ملف وإعادة قراءته قبل كتابة السجل</string>
+    <string name="max_backup_system_create_confirm_message">ستُؤرشف هذه الفئات: %1$s</string>
+    <string name="max_backup_system_history_title">نسخ بيانات النظام</string>
+    <string name="max_backup_system_history_desc">الأحدث أولًا. والاسترجاع يتطلّب أن يمرّ كل ملف مؤرشف بفحص بصمته.</string>
+    <string name="max_backup_system_history_none">لا نسخة بيانات نظام بعد.</string>
+
+    <!-- مفردات الفئات -->
+    <string name="max_backup_system_kind_wifi">شبكات الواي‑فاي</string>
+    <string name="max_backup_system_kind_bluetooth">أزواج البلوتوث</string>
+    <string name="max_backup_system_kind_contacts">جهات الاتصال وأرقامها</string>
+    <string name="max_backup_system_kind_call_log">سجل المكالمات</string>
+    <string name="max_backup_system_kind_sms">الرسائل</string>
+    <string name="max_backup_system_kind_dictionary">القاموس الشخصي</string>
+    <string name="max_backup_system_avail_needs_permission">يحتاج إذنًا</string>
+    <string name="max_backup_system_rows">%1$s صفًّا</string>
+    <string name="max_backup_system_files">%1$s ملفًا</string>
+    <string name="max_backup_system_method_root">ملفات نظام</string>
+    <string name="max_backup_system_method_provider">مزوّد محتوى</string>
+    <string name="max_backup_system_semantics_replace">الاسترجاع يستبدل الملف</string>
+    <string name="max_backup_system_semantics_merge">الاسترجاع يدمج صفوفًا</string>
+    <string name="max_backup_system_semantics_readonly">قراءة فقط: المنصّة تحجب الكتابة</string>
+
+    <!-- مراحل بيانات النظام -->
+    <string name="max_backup_stage_system_root">أرشفة ملفات النظام</string>
+    <string name="max_backup_stage_system_rows">قراءة صفوف مزوّدات المحتوى</string>
+
+    <!-- موانع وتحذيرات بيانات النظام -->
+    <string name="max_backup_system_block_readonly">لا تسمح المنصّة بكتابة هذه الفئة إلا لتطبيق الرسائل الافتراضي، فتُؤرشف ولا تُسترجع.</string>
+    <string name="max_backup_system_block_permission">هذه الفئة تحتاج إذنًا لم يُمنح بعد.</string>
+    <string name="max_backup_system_block_unavailable">تعذّرت قراءة هذه الفئة على هذا الجهاز.</string>
+    <string name="max_backup_system_block_empty">هذا الأرشيف لا يحوي تلك الفئة.</string>
+    <string name="max_backup_system_warn_overwrite">خدمة النظام المالكة لهذه الملفات تعمل الآن وقد تكتب فوق ما استُرجع. أعد الإقلاع بعد الاسترجاع ليستقرّ.</string>
+    <string name="max_backup_system_warn_merge">الاسترجاع يُضيف صفوفًا ولا يمسح شيئًا. والصفوف الموجودة بالفعل تُتخطّى وتُعَدّ.</string>
+    <string name="max_backup_system_warn_blocked">إحدى الفئات المحدَّدة قراءة فقط على هذه المنصّة.</string>
+
+    <!-- حوار الاسترجاع -->
+    <string name="max_backup_system_restore_title">استرجاع نسخة بيانات النظام؟</string>
+    <string name="max_backup_system_restore_message">كل ملف مؤرشف يُفحص قبل كتابة أي شيء. ملفات النظام تُفكّ إلى مساراتها المسجَّلة بعد التحقّق من تلك المسارات أولًا. وصفوف المزوّدات تُدمج لا تُستبدل.</string>
+    <string name="max_backup_system_restore_will_apply">سيُسترجع: %1$s</string>
+    <string name="max_backup_system_skipped_title">سيُتخطّى:</string>
+    <string name="max_backup_system_restore_summary">أُدرج %1$s · تُخُطّي %2$s · بلا مفتاح صالح %3$s</string>
+    <string name="max_backup_system_restore_failed">فشل الاسترجاع عند: %1$s</string>
+
+    <!-- مدخل من شاشة إعدادات التطبيق -->
+    <string name="max_backup_entry_title">‏Max Backup</string>
+    <string name="max_backup_entry_desc">انسخ APK هذا التطبيق وبياناته، وافحصها، واسترجعها</string>
+    <string name="max_backup_entry_action">افتح Max Backup</string>
+</resources>

@@ -1,12 +1,9 @@
 package nd.max.core.hardware
 
 import android.content.Context
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.os.BatteryManager
 import android.os.PowerManager
+import nd.max.ui.util.SensorMonitorUtil
 import nd.max.ui.util.ThermalUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,7 +14,11 @@ import kotlinx.coroutines.withContext
 data class ContextData(
     val foregroundPackage: String = "",
     val isScreenOn: Boolean = true,
-    val ambientLightLux: Float = 0f,
+    /**
+     * إضاءة البيئة باللوكس، و**`null` تعني «لم أقرأ»** — لا صفرًا. وصفر لوكس قيمة حقيقية تعني
+     * «مظلم»، وخلطها بـ«تعذّرت القراءة» يجعل سياسة مبنية عليها تكذب على نفسها.
+     */
+    val ambientLightLux: Float? = null,
     val audioVolumePercent: Int = 0,
     val isCharging: Boolean = false,
     val batteryLevel: Int = 0,
@@ -49,21 +50,10 @@ class AndroidContextDataSource(
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         val isScreenOn = powerManager.isInteractive
 
-        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        val lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
-        var ambientLight = 0f
-        if (lightSensor != null) {
-            val listener = object : SensorEventListener {
-                override fun onSensorChanged(event: SensorEvent?) {
-                    if (event?.sensor?.type == Sensor.TYPE_LIGHT) {
-                        ambientLight = event.values[0]
-                    }
-                }
-                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
-            }
-            sensorManager.registerListener(listener, lightSensor, SensorManager.SENSOR_DELAY_FASTEST)
-            sensorManager.unregisterListener(listener)
-        }
+        // قراءة الضوء تمرّ بالمُحصّل المحدود المهلة في `SensorMonitorUtil` — لأن النسخة
+        // السابقة كانت تُسجّل المستمع ثم تُلغيه في الكتلة نفسها، فلا يصل حدث قطّ وتبقى القيمة
+        // `0f` أبدًا. أي أنها كانت تقول **«مظلم»** كلما عجزت عن القراءة.
+        val ambientLight = SensorMonitorUtil.readLight(context).lux
 
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
         val volume = audioManager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC)

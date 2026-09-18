@@ -2,6 +2,7 @@ package nd.max.ui.viewmodel
 
 import javax.inject.Inject
 
+import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,7 +37,15 @@ data class GpuStudioUiState(
     val mode: String? = null,
 )
 
-/** Session orchestrator. Hardware discovery and mutation stay in GpuHardwareBackend. */
+/**
+ * Session orchestrator. Hardware discovery and mutation stay in GpuHardwareBackend.
+ *
+ * و`@HiltViewModel` ليست زخرفة: الـViewModel له مُنشئ **بوسائط** (`arbiter`)، فلا مُنشئ له
+ * بلا وسائط. وبلا هذا الوسم لا يستطيع Hilt أن يبنيه عند طلبه بـ`hiltViewModel()`، وبلا
+ * `hiltViewModel()` ينادي `viewModel()` المصنعَ الافتراضي فيرمي عند فتح الشاشة — وهو العطل
+ * الذي كان يخرج التطبيق. (ونفس قالب `CpuCoreControlViewModel`.)
+ */
+@HiltViewModel
 class GpuStudioViewModel @Inject constructor(
     private val arbiter: HardwareControlArbiter,
 ) : ViewModel() {

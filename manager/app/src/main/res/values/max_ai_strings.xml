@@ -266,4 +266,49 @@
     <string name="max_live_count_deferred">Deferred verdicts measured</string>
     <string name="max_live_count_explorations">Knowledge probes</string>
 
+    <!-- Learning scope: the same knob judged inside one app vs the whole device -->
+    <string name="max_ai_insight_scope">Learning scope</string>
+    <string name="max_ai_insight_scope_desc">Verdicts are recomputed from that context\'s own samples. A knob can help in one app and cost in another, so the two are never averaged together.</string>
+    <string name="max_ai_insight_scope_global">Whole device</string>
+    <string name="max_ai_insight_scope_count">%1$d measured context(s)</string>
+    <string name="max_ai_insight_context_empty">Nothing has been measured inside this context yet. Its verdict list stays empty instead of borrowing the device-wide numbers.</string>
+
+    <!-- Prediction honesty: what the engine promised vs what the device did -->
+    <string name="max_ai_audit_section">Engine self-audit</string>
+    <string name="max_ai_audit_desc">Ratios taken from this device\'s own recorded loops. A dash means the denominator is still zero, which is not the same as zero.</string>
+    <string name="max_ai_calibration_title">Prediction honesty</string>
+    <string name="max_ai_calibration_calibrated">Calibrated</string>
+    <string name="max_ai_calibration_drifting">Drifting</string>
+    <string name="max_ai_calibration_learning">Learning</string>
+    <string name="max_ai_calibration_hits">%1$s of %2$d predictions landed within ±%3$s of the measured gain</string>
+    <string name="max_ai_calibration_mean_error">Mean absolute error %1$s</string>
+    <string name="max_ai_calibration_confidence">The engine declared %1$s confidence on average</string>
+    <string name="max_ai_calibration_pending">No prediction has been compared with a measurement yet, so there is nothing to grade.</string>
+    <string name="max_ai_audit_probe_yield">Probes that returned a measurement</string>
+    <string name="max_ai_audit_probe_yield_value">%1$s (%2$d of %3$d)</string>
+    <string name="max_ai_audit_override_rate">You overrode it after a decision</string>
+    <string name="max_ai_audit_measurement_rate">Decisions with a real measurement</string>
+    <string name="max_ai_audit_rate_value">%1$s (%2$d of %3$d)</string>
+
+    <!-- Re-planning cadence: why a cycle happens before the next periodic one -->
+    <string name="max_ai_cadence_title">Re-planning</string>
+    <string name="max_ai_cadence_calm">Periodic cycle only. Nothing that changes the decision has moved since the last one.</string>
+    <string name="max_ai_cadence_now">Re-planning now because %1$s</string>
+    <string name="max_ai_cadence_pending">Waiting to re-plan: %1$s (in %2$ds)</string>
+    <string name="max_ai_cadence_reason_safety">the safety level changed</string>
+    <string name="max_ai_cadence_reason_screen">the screen turned on or off</string>
+    <string name="max_ai_cadence_reason_usage">the way you are using the device changed</string>
+
+    <!-- Journal maintenance -->
+    <string name="max_ai_journal_clear">Clear the journal</string>
+    <string name="max_ai_journal_clear_desc">Deletes the recorded loops. Manual locks, current ownership and everything Max AI learned are kept.</string>
+    <string name="max_ai_journal_clear_empty">Nothing recorded yet.</string>
+    <string name="max_ai_journal_clear_confirm_title">Clear the decision journal?</string>
+    <string name="max_ai_journal_clear_confirm_message">%1$d recorded loop(s) will be deleted. Knob locks, the current ownership map and the measured effects stay untouched — only the narration is erased.</string>
+    <string name="max_ai_journal_clear_confirm_action">Clear journal</string>
+
+    <!-- Journal search -->
+    <string name="max_ai_timeline_search_hint">Search knob, app or detail</string>
+    <string name="max_ai_timeline_search_clear">Clear the search</string>
+
 </resources>

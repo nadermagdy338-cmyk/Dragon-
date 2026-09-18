@@ -66,7 +66,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import nd.max.core.hardware.GpuHardwareBackend
 import nd.max.ui.viewmodel.GpuStudioUiState
@@ -76,7 +76,9 @@ import kotlin.math.roundToInt
 @Composable
 fun GpuStudioScreen(
     navController: NavController,
-    viewModel: GpuStudioViewModel = viewModel(),
+    // `hiltViewModel()` لا `viewModel()`: هذا الـViewModel له مُنشئ بوسائط (arbiter)، و`viewModel()`
+    // بلا مصنع ينادي مُنشئًا بلا وسائط — فلا يجد، ويخرج التطبيق لحظة فتح الشاشة.
+    viewModel: GpuStudioViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state
     LaunchedEffect(Unit) { viewModel.load() }

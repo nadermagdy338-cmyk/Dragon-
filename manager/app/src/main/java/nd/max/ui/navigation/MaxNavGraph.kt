@@ -74,7 +74,27 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.Diagnostics.route) { DiagnosticsScreen(navController) }
     composable(MaxDestination.Logs.route) { LogsViewerScreen(navController) }
     composable(MaxDestination.ConfigBackup.route) { ConfigBackupScreen(navController) }
+    composable(
+        route = MaxDestination.MaxBackup.route,
+        arguments = listOf(navArgument("pkg") { type = NavType.StringType; defaultValue = "" })
+    ) { entry ->
+        MaxBackupScreen(
+            navController = navController,
+            packageName = entry.arguments?.getString("pkg")?.takeIf { it.isNotBlank() },
+        )
+    }
+    composable(
+        route = MaxDestination.Permissions.route,
+        arguments = listOf(navArgument("pkg") { type = NavType.StringType })
+    ) { entry ->
+        PermissionsScreen(
+            navController = navController,
+            pkg = entry.arguments?.getString("pkg").orEmpty(),
+        )
+    }
     composable(MaxDestination.About.route) { AboutScreen(navController) }
+    composable(MaxDestination.Privilege.route) { PrivilegeScreen(navController) }
+    composable(MaxDestination.ModuleHealth.route) { ModuleHealthScreen(navController) }
 
     // Settings - Advanced tools (risk-gated in SettingsScreen, ADR-16)
     composable(MaxDestination.Terminal.route) { TerminalScreen() }

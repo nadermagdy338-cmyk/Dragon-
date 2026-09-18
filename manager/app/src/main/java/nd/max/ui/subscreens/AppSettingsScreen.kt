@@ -58,6 +58,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nd.max.R
 import nd.max.ui.component.*
+import nd.max.ui.util.BackgroundGovernance
+import nd.max.ui.util.BackgroundGovernanceUtil
+import nd.max.ui.util.InstallSourceSnapshot
+import nd.max.ui.util.InstallSourceUtil
 import nd.max.ui.util.AppConfig
 import nd.max.ui.util.PerAppCpuControlMode
 import nd.max.ui.util.PerAppCpuPolicyControl
@@ -67,6 +71,7 @@ import nd.max.ui.util.getSupportedDownscaleFactors
 import nd.max.ui.util.getSupportedRefreshRates
 import nd.max.ui.util.PerAppKernelUtil
 import nd.max.ui.util.ProfilePresetStore
+import nd.max.ui.util.ProfileSharing
 import nd.max.ui.util.customizedFieldCount
 import nd.max.ui.viewmodel.AppSettingsViewModel
 import nd.max.ui.viewmodel.ApplistViewmodel
@@ -205,6 +210,51 @@ fun AppSettingsScreen(
                         }
                     )
                     Spacer(Modifier.height(8.dp))
+                }
+
+                // ── Background governance (AR-14) ────────────────────────────
+                // نُفسّر آلية المنصّة (App Standby + Doze) ولا نقتل شيئًا.
+                packageName?.let { pkg ->
+                    item {
+                        BackgroundGovernanceCard(packageName = pkg)
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+
+                // ── App source (AR-34) ───────────────────────────────────────
+                packageName?.let { pkg ->
+                    item {
+                        AppSourceCard(packageName = pkg)
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+
+                // ── Max Backup: المدخل إلى الشاشة المستقلة ────────────────────
+                packageName?.let { pkg ->
+                    item {
+                        MaxBackupEntryCard(
+                            onOpen = {
+                                navController.navigate(
+                                    MaxDestination.MaxBackup.route.replace("{pkg}", pkg)
+                                )
+                            }
+                        )
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+
+                // ── الصلاحيات و AppOps (GAP-07) ──────────────────────────────
+                packageName?.let { pkg ->
+                    item {
+                        PermissionsEntryCard(
+                            onOpen = {
+                                navController.navigate(
+                                    MaxDestination.Permissions.route.replace("{pkg}", pkg)
+                                )
+                            }
+                        )
+                        Spacer(Modifier.height(8.dp))
+                    }
                 }
 
                 // ── All Settings ─────────────────────────────────────────────
@@ -775,6 +825,12 @@ private fun ProfilePresetEditor(
                         )
                     }
                 }
+                ProfileSharingBlock(
+                    onImported = { imported ->
+                        values = values + imported.associate { it.profile to it.percent }
+                    }
+                )
+
                 nd.max.ui.component.StudioTextButton(
                     onClick = {
                         ProfilePresetStore.reset(context)
@@ -796,6 +852,134 @@ private fun ProfilePresetEditor(
         },
         dismissButton = { nd.max.ui.component.StudioTextButton(onClick = onDismiss) { Text("Cancel") } }
     )
+}
+
+/**
+ * `AR-33` — مشاركة/استيراد البروفايلات **بمصدر معلن**.
+ *
+ * لماذا موجود في هذه النافذة: هنا تُضبط القيم، فهنا يجب أن يظهر **ما يعرفه التطبيق عن مصدرها**
+ * ويظهر حكم نقلها إلى جهاز آخر. ولا نصّ صلب هنا: كل نصّ من الموارد (EN + AR).
+ */
+@Composable
+private fun ProfileSharingBlock(onImported: (List<ProfileSharing.Entry>) -> Unit) {
+    val context = LocalContext.current
+    var status by remember { mutableStateOf<ProfileImportStatus?>(null) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            stringResource(R.string.max_profile_share_title),
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            stringResource(R.string.max_profile_share_desc),
+            style = MaterialTheme.typography.bodySmall
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            nd.max.ui.component.StudioTextButton(onClick = {
+                val document = ProfileSharing.read(context)
+                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                    as? android.content.ClipboardManager
+                clipboard?.setPrimaryClip(
+                    android.content.ClipData.newPlainText("maxmanager-profile", ProfileSharing.encode(document))
+                )
+                status = ProfileImportStatus.Copied
+            }) {
+                Text(stringResource(R.string.max_profile_share_copy))
+            }
+            nd.max.ui.component.StudioTextButton(onClick = {
+                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                    as? android.content.ClipboardManager
+                val raw = clipboard?.primaryClip?.getItemAt(0)?.coerceToText(context)?.toString()
+                status = evaluateImport(raw, ProfileSharing.currentSoc())
+            }) {
+                Text(stringResource(R.string.max_profile_share_paste))
+            }
+        }
+
+        when (val current = status) {
+            null -> Unit
+            ProfileImportStatus.Copied -> Text(
+                stringResource(R.string.max_profile_share_copied),
+                style = MaterialTheme.typography.bodySmall
+            )
+            ProfileImportStatus.Unreadable -> Text(
+                stringResource(R.string.max_profile_import_unreadable),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            is ProfileImportStatus.Parsed -> {
+                Text(
+                    stringResource(R.string.max_profile_import_accepted, current.report.accepted.size.toString()),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                if (current.report.rejected.isNotEmpty()) {
+                    Text(
+                        stringResource(
+                            R.string.max_profile_import_rejected,
+                            current.report.rejected.size.toString(),
+                            current.report.rejected.first().reason.label()
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                if (current.report.missingSource.isNotEmpty()) {
+                    Text(
+                        stringResource(
+                            R.string.max_profile_import_missing_source,
+                            current.report.missingSource.size.toString()
+                        ),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                if (current.report.accepted.any { it.source == ProfileSharing.DeclaredSource.MEASURED }) {
+                    Text(
+                        stringResource(R.string.max_profile_import_measured_claim),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Text(
+                    when (current.report.deviceMatch) {
+                        ProfileSharing.DeviceMatch.SAME -> stringResource(R.string.max_profile_import_device_same)
+                        ProfileSharing.DeviceMatch.DIFFERENT -> stringResource(R.string.max_profile_import_device_different)
+                        ProfileSharing.DeviceMatch.UNKNOWN -> stringResource(R.string.max_profile_import_device_unknown)
+                    },
+                    style = MaterialTheme.typography.bodySmall
+                )
+                nd.max.ui.component.StudioTextButton(onClick = {
+                    onImported(current.report.accepted)
+                    status = ProfileImportStatus.Copied
+                }) {
+                    Text(stringResource(R.string.max_profile_import_apply))
+                }
+            }
+        }
+    }
+}
+
+/** حالات الاستيراد — عددي إلى أن يُترجَم في الواجهة، لا نصوص مبثوثة. */
+private sealed interface ProfileImportStatus {
+    data object Copied : ProfileImportStatus
+    data object Unreadable : ProfileImportStatus
+    data class Parsed(val report: ProfileSharing.ImportReport) : ProfileImportStatus
+}
+
+/** يترجم سبب الرفض إلى نصّ موارد (لا نصّ صلب في المنطق). */
+@Composable
+private fun ProfileSharing.RejectReason.label(): String = when (this) {
+    ProfileSharing.RejectReason.PERCENT_OUT_OF_RANGE -> stringResource(R.string.max_profile_reject_range)
+    ProfileSharing.RejectReason.PERCENT_NOT_A_NUMBER -> stringResource(R.string.max_profile_reject_number)
+    ProfileSharing.RejectReason.EMPTY_PROFILE -> stringResource(R.string.max_profile_reject_name)
+}
+
+/** يقرأ الحافظة ويحكم — وفشل القراءة أو الصيغة **ليس** نجاحًا صامتًا. */
+private fun evaluateImport(raw: String?, currentSoc: String?): ProfileImportStatus {
+    val report = ProfileSharing.decode(raw, currentSoc)
+    return if (!report.schemaSupported || !report.hasAnything) {
+        ProfileImportStatus.Unreadable
+    } else {
+        ProfileImportStatus.Parsed(report)
+    }
 }
 
 @Composable
@@ -1177,6 +1361,236 @@ private fun AppConfig.gamingCustomizedCount(): Int = listOf(
 private fun AppConfig.powerCustomizedCount(): Int = listOf(
     bypass_charging, wifi_no_sleep
 ).count { it != "default" }
+
+// ────────────────────────────────────────────────────────────────────────────
+// Background governance (AR-14)
+//
+// يشرح آلية المنصّة المطبَّقة على هذا التطبيق (App Standby + Doze).
+// قراءة فقط: لا تغيير حاوية ولا إعفاء ولا قتل — "اقتل الخلفية" ليس حلًّا.
+// ────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun BackgroundGovernanceCard(packageName: String) {
+    var governance by remember { mutableStateOf<BackgroundGovernance?>(null) }
+    LaunchedEffect(packageName) {
+        governance = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            BackgroundGovernanceUtil.read(packageName)
+        }
+    }
+
+    MaxSurface(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Rounded.Bedtime,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = stringResource(R.string.max_bg_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.max_bg_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(10.dp))
+
+        val snapshot = governance
+        when {
+            snapshot == null -> BackgroundRow(stringResource(R.string.max_boot_reading), null)
+            !snapshot.readable -> BackgroundRow(stringResource(R.string.max_bg_unsupported), null)
+            else -> {
+                BackgroundRow(
+                    stringResource(R.string.max_bg_bucket),
+                    stringResource(snapshot.bucket.labelRes)
+                )
+                BackgroundRow(
+                    stringResource(R.string.max_bg_doze),
+                    when (snapshot.dozeWhitelisted) {
+                        true -> stringResource(R.string.max_yes)
+                        false -> stringResource(R.string.max_no)
+                        null -> stringResource(R.string.status_unknown)
+                    }
+                )
+                BackgroundRow(
+                    stringResource(R.string.max_bg_restricted),
+                    when (snapshot.restricted) {
+                        true -> stringResource(R.string.max_yes)
+                        false -> stringResource(R.string.max_no)
+                        null -> stringResource(R.string.status_unknown)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BackgroundRow(label: String, value: String?) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        value?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+/**
+ * مدخل `GAP-07` من داخل شاشة التطبيق: الصلاحيات و`AppOps`.
+ *
+ * وزر واحد بلا منطق، كما في مدخل النسخ: الشاشة المستقلة هي التي تجمع المقارنة والمرجع
+ * والكتابة المقروءة بعدها — وحشوها في شاشة الإعدادات يحوّلها شاشة داخل شاشة.
+ */
+@Composable
+private fun PermissionsEntryCard(onOpen: () -> Unit) {
+    MaxSurface(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Rounded.Shield,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(10.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.max_perms_entry_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.max_perms_entry_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Button(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
+            Icon(
+                imageVector = Icons.Rounded.Shield,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(text = stringResource(R.string.max_perms_entry_action))
+        }
+    }
+}
+
+/**
+ * مدخل `Max Backup` من داخل شاشة التطبيق.
+ *
+ * زر واحد لا يحمل أي منطق: يفتح الشاشة المستقلة على هذا التطبيق، ويُترك كل شيء آخر هناك.
+ * السبب في فصل الشاشة لا في تكرارها: النسخ الاحتياطي يحتاج جردًا ونطاقًا وسجلًا وفحصًا
+ * وحوارات تأكيد — حشوها في شاشة الإعدادات يحوّلها إلى شاشة ثانية داخل شاشة.
+ */
+@Composable
+private fun MaxBackupEntryCard(onOpen: () -> Unit) {
+    MaxSurface(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Rounded.Backup,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(10.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.max_backup_entry_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.max_backup_entry_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Button(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
+            Icon(
+                imageVector = Icons.Rounded.Backup,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(text = stringResource(R.string.max_backup_entry_action))
+        }
+    }
+}
+
+/** `AR-34` — من أين جاء التطبيق، كما يُعلنه النظام (قراءة فقط). */
+@Composable
+private fun AppSourceCard(packageName: String) {
+    val context = LocalContext.current
+    var source by remember { mutableStateOf<InstallSourceSnapshot?>(null) }
+    LaunchedEffect(packageName) {
+        source = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            InstallSourceUtil.read(context, packageName)
+        }
+    }
+
+    MaxSurface(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Rounded.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = stringResource(R.string.max_app_source_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.max_app_source_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(10.dp))
+
+        val snapshot = source
+        if (snapshot == null) {
+            BackgroundRow(stringResource(R.string.max_boot_reading), null)
+        } else {
+            BackgroundRow(
+                stringResource(R.string.max_app_source_kind),
+                stringResource(snapshot.kind.labelRes)
+            )
+            BackgroundRow(
+                stringResource(R.string.max_app_source_installer),
+                snapshot.installerPackage
+            )
+            BackgroundRow(
+                stringResource(R.string.max_app_source_originating),
+                snapshot.originatingPackage
+            )
+        }
+    }
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // App Metadata Helpers

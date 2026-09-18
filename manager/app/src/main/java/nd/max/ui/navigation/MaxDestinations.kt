@@ -31,6 +31,7 @@ import androidx.compose.material.icons.rounded.Power
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Terminal
@@ -147,7 +148,23 @@ sealed class MaxDestination(
     data object Diagnostics : MaxDestination("diagnostics", R.string.section_diagnostics, Icons.Rounded.BugReport, Settings)
     data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.AutoMirrored.Rounded.ListAlt, Settings)
     data object ConfigBackup : MaxDestination("config_backup", R.string.max_nav_config_backup, Icons.Rounded.Backup, Settings)
+
+    /**
+     * `Max Backup` — نسخ التطبيقات احتياطيًّا وفحص سلامتها واسترجاعها.
+     *
+     * `pkg` **اختياري**: بلا معرّف تفتح الشاشة على منتقي التطبيقات (فهي شاشة قائمة بذاتها)،
+     * وبه تُفتح على تطبيق واحد — وهو المدخل الموجود في شاشة إعدادات كل تطبيق.
+     */
+    data object MaxBackup : MaxDestination("max_backup?pkg={pkg}", R.string.max_backup_title, Icons.Rounded.Backup, Apps)
+
+    /**
+     * `GAP-07` — الصلاحيات و`AppOps` لتطبيق واحد: ما يُعلنه البيان، وما تسمح به المنصّة فعلًا،
+     * ومرجع مدوَّن تعود إليه. `pkg` إلزامي لأن الشاشة كلها عن تطبيق بعينه.
+     */
+    data object Permissions : MaxDestination("max_perms/{pkg}", R.string.max_perms_title, Icons.Rounded.Shield, Apps)
     data object About : MaxDestination("aboutscreen", R.string.section_about, Icons.Rounded.Info, Settings)
+    data object Privilege : MaxDestination("privilege", R.string.max_privilege_title, Icons.Rounded.Shield, Settings)
+    data object ModuleHealth : MaxDestination("module_health", R.string.max_module_title, Icons.Rounded.Build, Settings)
 
     // Control - Advanced tools (gated, not preferences)
     data object Terminal : MaxDestination("terminal", R.string.max_title_terminal, Icons.Rounded.Terminal, Control, MaxRisk.Dangerous)
@@ -184,7 +201,8 @@ sealed class MaxDestination(
                 ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
                 BatteryDetail, Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
                 ProcessManager, DebloatFreeze, AppSettings,
-                ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, About,
+                ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, MaxBackup, Permissions, About,
+                Privilege, ModuleHealth,
                 Terminal, SetEdit, ActivityLauncher, KernelFlasher,
             )
         }

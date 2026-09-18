@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GAP-12 / GAP-13 — إعلان محتوى نسخة الإعداد -->
+
+    <string name="max_cfg_backup_appearance">Appearance &amp; interface</string>
+    <string name="max_cfg_backup_app_prefs">App preferences &amp; language</string>
+
+    <string name="max_cfg_declared_absent_title">Will not be included, and why</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">this device has no verified root, so the values cannot be read reliably</string>
+    <string name="max_cfg_absent_file_missing">the preference file does not exist yet</string>
+    <string name="max_cfg_absent_empty">the preference file exists but is empty, so there is nothing to write</string>
+
+    <string name="max_cfg_declared_excluded_title">Never included in this file</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI safety settings are configured inside the app, never carried in a file</string>
+    <string name="max_cfg_excluded_other_apps">data of other apps belongs to app backup, not config backup</string>
+    <string name="max_cfg_excluded_secret">signing keys and secrets are never written to a file you might share</string>
+
+    <string name="max_cfg_section_tweaks">Tweak configuration</string>
+    <string name="max_cfg_section_applist">Per-app list</string>
+    <string name="max_cfg_section_appearance">Appearance &amp; interface</string>
+    <string name="max_cfg_section_app_prefs">App preferences &amp; language</string>
+
+    <string name="max_cfg_restore_merge_note">Restoring preferences merges: keys present in the file are written, and keys it does not mention stay as they are. Nothing is cleared.</string>
+</resources>

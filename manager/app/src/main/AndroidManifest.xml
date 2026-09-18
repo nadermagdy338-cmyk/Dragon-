@@ -13,6 +13,23 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!--
+      Max Backup — فئات بيانات النظام التي تعيش خلف مزوّدات محتوى (جهات · سجل مكالمات ·
+      رسائل). تُطلَب وقت الاستعمال لا عند التثبيت، ومن رفضها يرى فئته «تحتاج إذنًا» بدل
+      أن تُعرَض متاحة ثم تفشل. والرسائل **قراءة فقط**: كتابتها تشترط أن يكون التطبيق
+      تطبيق الرسائل الافتراضي، ولا ندّعي غير ذلك.
+    -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
+    <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY" />
+
+    <!-- Shizuku (AR-20): إذن واجهة الشيزوكو، ولا يُمنح إلا من مدير الشيزوكو نفسه. -->
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+
+    <!--
       Gates ZenithReceiver (notifications/toasts) and RefreshRateReceiver
       (nd.max.SET_FPS, which forces a real SurfaceFlinger refresh-rate
       change) so only components signed with the same certificate as this
@@ -48,6 +65,16 @@
         android:localeConfig="@xml/locales_config"
         android:theme="@style/Theme.MaxManager"> 
         
+        <!-- Shizuku: يوفّر مسار الصلاحية لطبقة الامتياز الثانية (AR-20).
+             لا يُتصدَّر إلا لمدير الشيزوكو بحكم إذنه الخاص. -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

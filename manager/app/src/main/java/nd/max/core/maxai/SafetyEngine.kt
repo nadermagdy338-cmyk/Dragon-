@@ -57,6 +57,22 @@ class SafetyEngine @Inject constructor(
 
         private const val PREF_INTERVENTIONS = "interventions"
         private val RETRY_DELAYS_MS = longArrayOf(120_000L, 600_000L, 1_800_000L)
+
+        /** أقل مسافة بين تشديدين متدرّجين — أربع كتابات في الدقيقة كحد أقصى. */
+        private const val CAP_REFRESH_MS = 15_000L
+
+        /**
+         * ثوابت المنحنى مبنية على عتبات الأمان نفسها — لا رقمين لحقيقة واحدة.
+         * النتيجة المُثبَتة بالاختبار: المنحنى لا يعطي سقفًا أخفّ من السقفين
+         * القديمين في أي نقطة، والبند التكاملي يشدّد ولا يرخي.
+         */
+        private val CURVE = MaxAiThermalCurve.Config(
+            engageC = ENGAGE_TEMP_C,
+            criticalC = CRITICAL_TEMP_C,
+            releaseC = RELEASE_TEMP_C,
+            engageCap = ENGAGE_CAP_FRACTION,
+            criticalCap = CRITICAL_CAP_FRACTION,
+        )
     }
 
     private data class RetryState(
@@ -67,6 +83,18 @@ class SafetyEngine @Inject constructor(
     )
 
     private var retry: RetryState? = null
+
+    /**
+     * حالة المنحنى المتدرّج + آخر سقف كُتب فعلًا.
+     *
+     * لماذا يُتذكَّر آخر سقف: المنحنى يعطي رقمًا كسريًا يتغيّر بكل دورة، وكتابة
+     * عتاد لكل تغيّر عُشري هي ضجيج لا تحكّم. فيُقرّب إلى خطوات ٥٪، ولا يُكتب
+     * إلا حين يكون الجديد **أشدّ بخطوة كاملة** — أي في اتجاه الأمان وحده.
+     */
+    private var curveState = MaxAiThermalCurve.State()
+    private var lastCurveAtMs = 0L
+    private var lastCapFraction = 0f
+    private var lastCapAtMs = 0L
 
     /** قابلة للاستبدال في اختبارات JVM دون انتظار فعلي. */
     internal var monotonicNowMs: () -> Long = { SystemClock.elapsedRealtime() }
@@ -120,26 +148,75 @@ class SafetyEngine @Inject constructor(
         val scheduledRetry = retry?.takeIf {
             it.level == desired && now >= it.dueAtMs
         }
+
+        // المنحنى يقول **بكم** نسقّف؛ المستوى نفسه يبقى قرار آلة الحالة أعلاه
+        // (هستيريسيس + تنبؤ أمامي)، فلا تُلمس قواعد السلامة عند تعديل المقدار.
+        val activeLevel = if (desired == SafetyLevel.NORMAL) current.level else desired
+        val elapsed = if (lastCurveAtMs <= 0L || now <= lastCurveAtMs) {
+            MaxAiThermalCurve.DEFAULT_INTERVAL_MS
+        } else {
+            now - lastCurveAtMs
+        }
+        val assessment = MaxAiThermalCurve.assess(
+            thermalC = thermalC,
+            level = activeLevel,
+            previous = curveState,
+            config = CURVE,
+            intervalMs = elapsed,
+        )
+        curveState = MaxAiThermalCurve.State(assessment.integral, assessment.coolStreak)
+        lastCurveAtMs = now
+
         val next = when {
+            // تبريد لم يُثبَّت بعد: يُبقى السقف ولا يُسترجع. التأرجح حول العتبة
+            // كان يكلّف كتابتين على العتاد في كل دورة (تصعيد ثم استرجاع).
+            desired == SafetyLevel.NORMAL && current.engaged && !assessment.releaseReady ->
+                current.copy(
+                    thermalC = thermalC,
+                    lastReason = "الحرارة ${thermalC.toInt()}°م تحت عتبة التراجع، " +
+                        "بانتظار تأكيد التبريد (${assessment.coolStreak}/" +
+                        "${CURVE.releaseConfirmSamples} قياسات)",
+                )
             desired == SafetyLevel.NORMAL && current.engaged -> {
                 retry = null
                 release(
                     thermalC,
-                    "انخفضت الحرارة إلى ${thermalC.toInt()}°م تحت عتبة التراجع ${RELEASE_TEMP_C.toInt()}°م"
+                    "انخفضت الحرارة إلى ${thermalC.toInt()}°م تحت عتبة التراجع " +
+                        "${RELEASE_TEMP_C.toInt()}°م، وأُكِّد التبريد " +
+                        "${assessment.coolStreak} قياسات متتالية"
                 )
             }
             desired == SafetyLevel.NORMAL -> current.copy(thermalC = thermalC)
             !current.engaged || desired != current.level -> {
                 retry = null
-                engage(thermalC, predicted, desired, isRetry = false)
+                engage(thermalC, predicted, desired, assessment.capFraction, isRetry = false)
             }
-            scheduledRetry != null -> engage(thermalC, predicted, desired, isRetry = true)
+            scheduledRetry != null ->
+                engage(thermalC, predicted, desired, assessment.capFraction, isRetry = true)
+            shouldTighten(assessment.capFraction, now) ->
+                engage(
+                    thermalC,
+                    predicted,
+                    desired,
+                    assessment.capFraction,
+                    isRetry = false,
+                    tighten = true,
+                )
             else -> current.copy(thermalC = thermalC)
         }
 
         if (next != current) _status.value = next
         return next
     }
+
+    /**
+     * هل يستحق المنحنى كتابة جديدة؟ شرطان: خطوة تشديد كاملة على الأقل، ومهلة
+     * تهدئة كي لا يتحوّل التحكم التناسبي إلى سيل كتابات على العتاد.
+     */
+    private fun shouldTighten(capFraction: Float, nowMs: Long): Boolean =
+        lastCapFraction > 0f &&
+            nowMs - lastCapAtMs >= CAP_REFRESH_MS &&
+            MaxAiThermalCurve.isTighterByStep(lastCapFraction, capFraction)
 
     /**
      * Backward-compatible evaluate without deviceState for existing callers.
@@ -151,18 +228,23 @@ class SafetyEngine @Inject constructor(
         thermalC: Float,
         predictedC: Float,
         level: SafetyLevel,
+        capFractionRequested: Float,
         isRetry: Boolean,
+        /**
+         * true حين تكون الكتابة **تشديدًا** لحماية قائمة لا تدخلًا جديدًا:
+         * لا يُزاد عدّاد التدخلات ولا يُسمى التعديل تدخلًا ثانيًا في السجل،
+         * لأن المستخدم لم يُحمَ مرتين — بل حُمي أكثر.
+         */
+        tighten: Boolean = false,
     ): SafetyStatus {
-        val capFraction = if (level == SafetyLevel.CRITICAL) {
-            CRITICAL_CAP_FRACTION
-        } else {
-            ENGAGE_CAP_FRACTION
-        }
+        val capFraction = MaxAiThermalCurve.quantize(capFractionRequested)
         val outcome = ceilingKnobs.cap(
             capFraction,
             ControlOwnership.Owner.SAFETY,
             TOKEN,
         )
+        lastCapFraction = capFraction
+        lastCapAtMs = monotonicNowMs()
         val enforcement = when {
             outcome.applied > 0 && outcome.failed == 0 && outcome.blocked == 0 -> SafetyEnforcement.APPLIED
             outcome.applied > 0 -> SafetyEnforcement.PARTIAL
@@ -184,14 +266,17 @@ class SafetyEngine @Inject constructor(
             )
         }
 
-        val count = if (isRetry) {
+        val count = if (isRetry || tighten) {
             _status.value.interventions
         } else {
             prefs.getLong(PREF_INTERVENTIONS, 0L) + 1L
         }
-        if (!isRetry) prefs.edit().putLong(PREF_INTERVENTIONS, count).apply()
+        if (!isRetry && !tighten) prefs.edit().putLong(PREF_INTERVENTIONS, count).apply()
 
-        val reason = when (level) {
+        val reason = if (tighten) {
+            "الحرارة ${thermalC.toInt()}°م داخل نطاق الحماية — تضييق السقف إلى " +
+                "${(capFraction * 100).toInt()}٪ من المدى"
+        } else when (level) {
             SafetyLevel.CRITICAL -> "حرارة ${thermalC.toInt()}°م " +
                 (if (predictedC >= CRITICAL_TEMP_C + 2f) "(والتنبؤ ${predictedC.toInt()}°م) " else "") +
                 "تجاوز الحد الحرج ${CRITICAL_TEMP_C.toInt()}°م — خفض جراحي مباشر لسقف التردد"
@@ -201,10 +286,11 @@ class SafetyEngine @Inject constructor(
         }
         DiagnosticCenter.record(
             "safety",
-            "SAFETY_${if (isRetry) "RETRY" else "ENGAGED"} level=$level " +
+            "SAFETY_${if (tighten) "TIGHTEN" else if (isRetry) "RETRY" else "ENGAGED"} " +
+                "level=$level cap=${(capFraction * 100).toInt()}% " +
                 "applied=${outcome.applied} blocked=${outcome.blocked} failed=${outcome.failed} :: ${outcome.detail}"
         )
-        if (!isRetry) {
+        if (!isRetry && !tighten) {
             EventLog.userAction(
                 screen = "SafetyEngine",
                 field = "thermal_guard",
@@ -226,6 +312,10 @@ class SafetyEngine @Inject constructor(
 
     private fun release(thermalC: Float, reason: String): SafetyStatus {
         retry = null
+        // بعد الاسترجاع لا يوجد سقف مكتوب، فتضييقٌ "متدرّج" بعده وهم. ويُبقى
+        // عدّاد التبريد كما هو كي لا يُقرأ الاسترجاع نهايةً لسلسلة قياس.
+        lastCapFraction = 0f
+        lastCapAtMs = 0L
         ceilingKnobs.leaveAll(TOKEN)
         DiagnosticCenter.record(
             "safety",

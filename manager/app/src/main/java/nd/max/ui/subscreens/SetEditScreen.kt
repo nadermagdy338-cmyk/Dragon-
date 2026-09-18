@@ -175,7 +175,7 @@ fun SetEditScreen(
                             }
                         }
                     } else {
-                        items(viewModel.filteredItems, key = { "${it.category}:${it.key}" }) { item ->
+                        items(viewModel.filteredItems, key = { it.lazyKey }) { item ->
                             SetEditRow(item, onClick = { selectedItem = item })
                         }
                     }

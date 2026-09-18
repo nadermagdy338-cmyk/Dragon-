@@ -113,6 +113,108 @@ object EventLog {
         )
     }
 
+    /**
+     * `AR-13` — يسجّل **نتيجة عملية** بزمنها المقيس فعلًا، لا نيّتها.
+     *
+     * هذا هو الفرق الذي يمنع «تحسينات بلا أثر معلَن»: قبل هذا كان `cmd package compile`
+     * يُنادى ويُعاد `Boolean` ولا يبقى منه سطر واحد — فيصير نجاحه وفشله ومدّته مجهولة.
+     *
+     * @param success نتيجة العملية كما أعادها المنفّذ (لا كالمتوقَّع).
+     * @param durationMs زمن مقيس بـ[android.os.SystemClock.elapsedRealtime] — **لا تقدير**.
+     */
+    fun result(
+        screen: String,
+        action: String,
+        target: String?,
+        success: Boolean,
+        durationMs: Long,
+    ) {
+        forward(resultMessage(screen, action, target, success, durationMs))
+    }
+
+    /**
+     * بناء سطر النتيجة بمعزل عن الإرسال — قابل للاختبار بلا أي أثر جانبي.
+     * `internal` لأن العقد يخصّ الوحدة واختباراتها فقط.
+     */
+    internal fun resultMessage(
+        screen: String,
+        action: String,
+        target: String?,
+        success: Boolean,
+        durationMs: Long,
+    ): String {
+        val targetPart = if (target != null) " target=${shellSafe(target)}" else ""
+        return "EVENT=OP_RESULT screen=${shellSafe(screen)} action=${shellSafe(action)}" +
+            "$targetPart ok=$success duration_ms=$durationMs"
+    }
+
+    /**
+     * `AR-32` — يسجّل **عرضًا مقيسًا** (لا إجراء مستخدم ولا خطأ مُعالَج).
+     *
+     * الفرق مقصود: `userTriggered` = «المستخدم فعل»، و`error` = «التقطنا استثناءً»،
+     * وهذا = «الجهاز/التطبيق أساء التصرّف أمامنا وقسناه». خلطه بأي منهما يجعل السجل
+     * يخبرك أن المستخدم ضغط زرًّا لم يضغطه.
+     *
+     * @param valueMs القيمة المقيسة (مثلًا مدّة انسداد).
+     * @param worstMs أسوأ قيمة مقيسة حتى الآن، إن وُجدت.
+     * @param count كم مرّة وقع العرض حتى الآن، إن عُرف.
+     */
+    fun symptom(
+        screen: String,
+        symptom: String,
+        valueMs: Long,
+        worstMs: Long? = null,
+        count: Long? = null,
+    ) {
+        forward(symptomMessage(screen, symptom, valueMs, worstMs, count))
+    }
+
+    /** بناء سطر العرض بمعزل عن الإرسال — قابل للاختبار بلا أي أثر جانبي. */
+    internal fun symptomMessage(
+        screen: String,
+        symptom: String,
+        valueMs: Long,
+        worstMs: Long? = null,
+        count: Long? = null,
+    ): String {
+        val worstPart = if (worstMs != null) " worst_ms=$worstMs" else ""
+        val countPart = if (count != null) " count=$count" else ""
+        return "EVENT=SYMPTOM screen=${shellSafe(screen)} symptom=${shellSafe(symptom)}" +
+            " value_ms=$valueMs$worstPart$countPart"
+    }
+
+    /**
+     * `PEER-8` + `AR-31` — نتيجة **كتابة في عقدة عتاد، مقروءة بعد الكتابة**.
+     *
+     * ولماذا حدث منفصل: `OP_RESULT` يحمل نجاحًا/فشلًا وزمنًا، ولا يحمل **القيمة التي وجدناها
+     * فعلًا**. والفرق بين «أمر الكتابة نجح» و«القيمة استقرّت» هو ما يكشف أن الجهاز يقيّد قيمة
+     * (تدوير/حدّ/حاكم) — أو أن المسار غير قابل للكتابة أصلًا.
+     *
+     * @param verdict واحدة من كلمات [nd.max.core.hardware.WriteVerification.verdictWord].
+     */
+    fun writeCheck(path: String, wrote: String, readBack: String?, verdict: String) {
+        forward(writeCheckMessage(path, wrote, readBack, verdict))
+    }
+
+    /** بناء سطر التحقّق بمعزل عن الإرسال — قابل للاختبار بلا أي أثر جانبي. */
+    internal fun writeCheckMessage(
+        path: String,
+        wrote: String,
+        readBack: String?,
+        verdict: String,
+    ): String {
+        val readPart = if (readBack != null) " read=${shellSafe(singleLine(readBack))}" else " read=?"
+        return "EVENT=WRITE_CHECK path=${shellSafe(path)} wrote=${shellSafe(singleLine(wrote))}" +
+            "$readPart verdict=${shellSafe(verdict)}"
+    }
+
+    /**
+     * يوحّد الفراغات ويُزيل الأطراف: عقدة sysfs تُعاد بسطر جديد، وسطر السجل يجب أن يبقى
+     * **حقلًا واحدًا قابلًا للبحث** لا فراغين متتاليين. ولا يُغيّر الدلالة: القيمة تبقى كما هي.
+     */
+    internal fun singleLine(value: String): String =
+        value.replace(Regex("\\s+"), " ").trim()
+
     private fun forward(message: String) {
         if (!isEnabled()) return
         try {
@@ -130,6 +232,6 @@ object EventLog {
      * names), but this is defense in depth against the shell command built
      * above ever seeing a stray single quote.
      */
-    private fun shellSafe(value: String): String =
+    internal fun shellSafe(value: String): String =
         value.replace("\n", " ").replace("\r", "").replace("'", "'\\''")
 }

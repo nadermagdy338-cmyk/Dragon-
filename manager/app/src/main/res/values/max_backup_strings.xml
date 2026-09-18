@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Max Backup — النسخ الاحتياطي والاسترجاع -->
+
+    <string name="max_backup_title">Max Backup</string>
+    <string name="max_backup_help">A backup copies an app\'s APK, its data folders and its expansion files into this app\'s own storage. Every archived file is hashed with SHA-256 right after it is written and read back before the record is saved, so "backed up" means checked, not assumed. Restoring is refused unless every recorded file passes its own hash check. Nothing is uploaded and nothing is encrypted — a key shipped inside the APK is not a secret, and claiming encryption you do not have is worse than not having it.</string>
+
+    <!-- منتقي التطبيقات -->
+    <string name="max_backup_picker_title">Choose an app</string>
+    <string name="max_backup_picker_desc">Backups are stored per app, and every archive is verified after it is written</string>
+    <string name="max_backup_search_hint">Search apps</string>
+    <string name="max_backup_no_match_title">Nothing matches</string>
+    <string name="max_backup_no_match_detail">No installed app matches what you typed.</string>
+    <string name="max_backup_app_count">%1$s of %2$s apps</string>
+
+    <!-- الجرد -->
+    <string name="max_backup_plan_title">What will be copied</string>
+    <string name="max_backup_plan_desc">Measured on this device, before anything is written</string>
+    <string name="max_backup_plan_unmeasured">Not measured</string>
+    <string name="max_backup_plan_estimated">Some sizes could not be measured. The totals below count only what was actually measured — an unmeasured folder is never guessed or shown as zero.</string>
+    <string name="max_backup_plan_selected">Selected now: %1$s · measurable total: %2$s</string>
+    <string name="max_backup_plan_loading_title">Reading the app</string>
+    <string name="max_backup_plan_loading_detail">Listing the APK, data folders and expansion files.</string>
+    <string name="max_backup_plan_missing_title">This app is not installed</string>
+    <string name="max_backup_plan_missing_detail">No package with this name is present on the device right now.</string>
+
+    <!-- الصلاحية -->
+    <string name="max_backup_priv_title">What this layer can reach</string>
+    <string name="max_backup_priv_layer">Privilege</string>
+    <string name="max_backup_priv_root">Root is available: app data, external data and expansion files can all be archived.</string>
+    <string name="max_backup_priv_no_root">No root: only the APK can be archived. Another app\'s private data folder is out of reach of this layer, and we say so rather than producing an archive that looks complete and is empty.</string>
+    <string name="max_backup_priv_encryption">Archive contents</string>
+    <string name="max_backup_no_encryption_desc">Archives are not encrypted. Integrity is verified with SHA-256; secrecy is not claimed.</string>
+
+    <!-- النطاق -->
+    <string name="max_backup_scope_title">Scope</string>
+    <string name="max_backup_scope_desc">Only what is selected here is read and archived.</string>
+
+    <!-- المكوّنات -->
+    <string name="max_backup_kind_apk">Base APK</string>
+    <string name="max_backup_kind_split">Split APKs</string>
+    <string name="max_backup_kind_data">App data</string>
+    <string name="max_backup_kind_external">External data</string>
+    <string name="max_backup_kind_obb">Expansion files (OBB)</string>
+
+    <!-- التوفّر -->
+    <string name="max_backup_avail_available">Available</string>
+    <string name="max_backup_avail_needs_root">Needs root</string>
+    <string name="max_backup_avail_unavailable">Not present</string>
+    <string name="max_backup_avail_unknown">Unknown</string>
+
+    <!-- الإنشاء -->
+    <string name="max_backup_create_section">Backup</string>
+    <string name="max_backup_action_create">Create backup</string>
+    <string name="max_backup_action_create_desc">Archive the selected parts, then hash and re-read every file before the record is written</string>
+    <string name="max_backup_action_prune">Keep only the newest copies</string>
+    <string name="max_backup_action_prune_desc">Delete the older backups for this app</string>
+    <string name="max_backup_create_confirm_title">Create this backup?</string>
+    <string name="max_backup_create_confirm_message">About %1$s of measured content will be archived into this app\'s own storage.</string>
+    <string name="max_backup_msg_created">Backup written and verified</string>
+    <string name="max_backup_msg_created_partial">Backup written with omissions — review the record</string>
+    <string name="max_backup_msg_failed">Nothing was archived; no record was written</string>
+    <string name="max_backup_working_detail">Keep the app open until this finishes.</string>
+
+    <!-- المراحل -->
+    <string name="max_backup_stage_apk">Archiving the APK</string>
+    <string name="max_backup_stage_data">Archiving app data</string>
+    <string name="max_backup_stage_external">Archiving external data</string>
+    <string name="max_backup_stage_obb">Archiving expansion files</string>
+    <string name="max_backup_stage_manifest">Hashing and writing the record</string>
+
+    <!-- السجل -->
+    <string name="max_backup_history_title">Backups</string>
+    <string name="max_backup_history_desc">Newest first. Restoring a copy requires every recorded file to pass its hash check.</string>
+    <string name="max_backup_history_none">No backups for this app yet.</string>
+    <string name="max_backup_entry_summary">%1$s · %2$s files</string>
+    <string name="max_backup_incomplete">Incomplete</string>
+    <string name="max_backup_incomplete_note">An incomplete record stays visible as incomplete: restoring it is refused instead of installing a partial state.</string>
+    <string name="max_backup_action_verify">Check integrity</string>
+    <string name="max_backup_action_restore">Restore</string>
+    <string name="max_backup_action_delete">Delete</string>
+
+    <!-- الفحص -->
+    <string name="max_backup_verify_title">Integrity check</string>
+    <string name="max_backup_verify_verified">Matches the recorded hash</string>
+    <string name="max_backup_verify_missing">The file is gone</string>
+    <string name="max_backup_verify_corrupt">Hash mismatch</string>
+    <string name="max_backup_verify_unverifiable">No recorded hash — cannot be verified</string>
+
+    <!-- الحذف والاحتفاظ -->
+    <string name="max_backup_delete_title">Delete this backup?</string>
+    <string name="max_backup_delete_message">The archived files are removed. This cannot be undone.</string>
+    <string name="max_backup_delete_confirm">Delete</string>
+    <string name="max_backup_delete_done">Backup deleted</string>
+    <string name="max_backup_delete_failed">The backup could not be removed</string>
+    <string name="max_backup_prune_title">Delete the older backups?</string>
+    <string name="max_backup_prune_message">Everything except the newest %1$s copies for this app is deleted.</string>
+    <string name="max_backup_prune_confirm">Delete older</string>
+    <string name="max_backup_prune_done">%1$s backups deleted</string>
+
+    <!-- الاسترجاع -->
+    <string name="max_backup_restore_title">Restore this backup?</string>
+    <string name="max_backup_restore_message">The app is stopped first, its data is replaced, then ownership and the SELinux context are repaired. Reinstalling the APK happens before the data is unpacked.</string>
+    <string name="max_backup_restore_confirm">Restore now</string>
+    <string name="max_backup_restore_done">Restore finished</string>
+    <string name="max_backup_restore_failed">Restore failed at: %1$s</string>
+    <string name="max_backup_restore_blocked_title">Restore blocked</string>
+    <string name="max_backup_block_none">No blocking condition.</string>
+    <string name="max_backup_block_no_entries">This record contains no entries, so there is nothing to restore.</string>
+    <string name="max_backup_block_incomplete">This record was written incomplete. Restoring it would install a partial state.</string>
+    <string name="max_backup_block_not_verified">At least one file does not match its recorded hash, or has no recorded hash at all. Restoring a file we cannot verify is not allowed.</string>
+    <string name="max_backup_block_root">Restoring app data needs root.</string>
+    <string name="max_backup_warn_title">Before you continue:</string>
+    <string name="max_backup_warn_device">This backup was taken on a different device.</string>
+    <string name="max_backup_warn_soc">This backup was taken on a different chipset.</string>
+    <string name="max_backup_warn_version">The installed app version differs from the recorded one.</string>
+    <string name="max_backup_warn_not_installed">The app is not installed; only the reinstall step can recreate it.</string>
+    <string name="max_backup_warn_encrypted">This record is marked as encrypted; the archived files are read as they are.</string>
+
+    <!-- التخزين -->
+    <string name="max_backup_storage_title">Storage</string>
+    <string name="max_backup_storage_count">Backups</string>
+    <string name="max_backup_storage_total">Size on disk</string>
+    <string name="max_backup_storage_location">Location</string>
+    <string name="max_backup_storage_location_desc">Backups live in this app\'s own external folder. Nothing is uploaded anywhere.</string>
+
+    <!-- نمطا النسخ -->
+    <string name="max_backup_mode_title">What to back up</string>
+    <string name="max_backup_mode_apps">Apps</string>
+    <string name="max_backup_mode_system">System data</string>
+    <string name="max_backup_kind_system">System data</string>
+
+    <!-- بيانات النظام -->
+    <string name="max_backup_system_title">System data</string>
+    <string name="max_backup_system_subtitle">Wi-Fi, Bluetooth, contacts and call log — with the same verified archive as apps</string>
+    <string name="max_backup_system_help">System data lives in two different places, so it is read two different ways. Wi-Fi networks and Bluetooth pairings are system files: root reads them and they are archived with tar, then restored by unpacking. Contacts, call log and messages live behind content providers: they are read as rows and archived as readable JSON, never as a copy of a live database — a copy of a database something is writing to can be half-written. Restoring rows merges: rows that are already there are skipped and counted, and nothing that is not in the backup is deleted. Messages can be read and archived, but Android only lets the default messaging app write them, so restoring them is blocked by the platform — and we say that here instead of offering a button that fails.</string>
+    <string name="max_backup_system_loading_detail">Looking for system files and counting provider rows.</string>
+    <string name="max_backup_system_no_root_title">No root: file-based categories are out of reach</string>
+    <string name="max_backup_system_no_root_desc">Wi-Fi and Bluetooth settings are system files under /data/misc, which this layer cannot read without root. Contacts, call log and messages go through their providers and only need their permissions.</string>
+    <string name="max_backup_system_permissions_title">Permissions</string>
+    <string name="max_backup_system_permissions_desc">Rows are only read after the app is granted the permission its provider requires.</string>
+    <string name="max_backup_system_grant">Grant the missing permissions</string>
+    <string name="max_backup_system_grant_desc">%1$s categories are waiting on a permission</string>
+    <string name="max_backup_system_sources_title">Categories</string>
+    <string name="max_backup_system_sources_desc">Measured on this device. A category that cannot be read is shown as such instead of being offered.</string>
+    <string name="max_backup_system_semantics_note">Each category states what restoring it means: replacing system files, merging rows, or being read-only because the platform forbids the write.</string>
+    <string name="max_backup_system_create_section">Backup</string>
+    <string name="max_backup_system_action_create">Create system backup</string>
+    <string name="max_backup_system_action_create_desc">Archive the selected categories, then hash and re-read every file before the record is written</string>
+    <string name="max_backup_system_create_confirm_message">These categories will be archived: %1$s</string>
+    <string name="max_backup_system_history_title">System backups</string>
+    <string name="max_backup_system_history_desc">Newest first. Restoring requires every archived file to pass its hash check.</string>
+    <string name="max_backup_system_history_none">No system backup yet.</string>
+
+    <!-- مفردات الفئات -->
+    <string name="max_backup_system_kind_wifi">Wi-Fi networks</string>
+    <string name="max_backup_system_kind_bluetooth">Bluetooth pairings</string>
+    <string name="max_backup_system_kind_contacts">Contacts and numbers</string>
+    <string name="max_backup_system_kind_call_log">Call log</string>
+    <string name="max_backup_system_kind_sms">Messages</string>
+    <string name="max_backup_system_kind_dictionary">Personal dictionary</string>
+    <string name="max_backup_system_avail_needs_permission">Needs permission</string>
+    <string name="max_backup_system_rows">%1$s rows</string>
+    <string name="max_backup_system_files">%1$s files</string>
+    <string name="max_backup_system_method_root">system files</string>
+    <string name="max_backup_system_method_provider">content provider</string>
+    <string name="max_backup_system_semantics_replace">restore replaces the file</string>
+    <string name="max_backup_system_semantics_merge">restore merges rows</string>
+    <string name="max_backup_system_semantics_readonly">read-only: the platform forbids writing</string>
+
+    <!-- مراحل بيانات النظام -->
+    <string name="max_backup_stage_system_root">Archiving system files</string>
+    <string name="max_backup_stage_system_rows">Reading content-provider rows</string>
+
+    <!-- موانع وتحذيرات بيانات النظام -->
+    <string name="max_backup_system_block_readonly">The platform only lets the default messaging app write this category, so it can be archived but not restored.</string>
+    <string name="max_backup_system_block_permission">This category needs a permission that has not been granted.</string>
+    <string name="max_backup_system_block_unavailable">This category could not be read on this device.</string>
+    <string name="max_backup_system_block_empty">This archive does not contain that category.</string>
+    <string name="max_backup_system_warn_overwrite">The system service that owns these files is running and may write over what is restored. Reboot after restoring for it to take effect.</string>
+    <string name="max_backup_system_warn_merge">Restoring adds rows and never deletes anything. Rows that are already present are skipped and counted.</string>
+    <string name="max_backup_system_warn_blocked">One of the selected categories is read-only on this platform.</string>
+
+    <!-- حوار الاسترجاع -->
+    <string name="max_backup_system_restore_title">Restore this system backup?</string>
+    <string name="max_backup_system_restore_message">Every archived file is checked before anything is written. System files are unpacked back to their recorded paths, which are validated first. Provider rows are merged, not replaced.</string>
+    <string name="max_backup_system_restore_will_apply">Will be restored: %1$s</string>
+    <string name="max_backup_system_skipped_title">Will be skipped:</string>
+    <string name="max_backup_system_restore_summary">Inserted %1$s · skipped %2$s · no usable key %3$s</string>
+    <string name="max_backup_system_restore_failed">Restore failed at: %1$s</string>
+
+    <!-- مدخل من شاشة إعدادات التطبيق -->
+    <string name="max_backup_entry_title">Max Backup</string>
+    <string name="max_backup_entry_desc">Back up this app\'s APK and data, check it, and restore it</string>
+    <string name="max_backup_entry_action">Open Max Backup</string>
+</resources>

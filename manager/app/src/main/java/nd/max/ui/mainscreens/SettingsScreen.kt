@@ -317,6 +317,27 @@ fun SettingsScreen(
                                     trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
                                 )
                             },
+                            {
+                                // طبقة الامتياز الثانية (AR-20): تُعرَض في الإعدادات
+                                // بجانب بقية الأسطح، وبنفس اللوحة المستخدمة في شاشة البداية.
+                                ExpressiveListItem(
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Privilege) },
+                                    headlineContent = { Text(stringResource(R.string.max_privilege_title)) },
+                                    supportingContent = { Text(stringResource(R.string.max_privilege_desc)) },
+                                    leadingContent = { LeadingIcon(icon = Icons.Rounded.Shield) },
+                                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                                )
+                            },
+                            {
+                                // صحة الوحدة والإنقاذ (AR-05 + AR-18): قراءة فقط وبلا شبكة.
+                                ExpressiveListItem(
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ModuleHealth) },
+                                    headlineContent = { Text(stringResource(R.string.max_module_title)) },
+                                    supportingContent = { Text(stringResource(R.string.max_module_health_desc)) },
+                                    leadingContent = { LeadingIcon(icon = Icons.Rounded.Build) },
+                                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                                )
+                            },
                         )
                     )
                 }

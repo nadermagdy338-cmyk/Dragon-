@@ -73,10 +73,12 @@ object RootUtils {
         }
     }
 
-    fun getModuleVersionCode(): Int {
-        val result = Shell.cmd("grep '^versionCode=' /data/adb/modules/MaxManager/module.prop | cut -d= -f2").exec().out
-        return result.firstOrNull()?.trim()?.toIntOrNull() ?: -1
-    }
+    /**
+     * `AR-04` — يفوّض إلى **القارئ الواحد** (`ModuleHealthUtil`) بدل أمر shell على مسار مكتوب
+     * يدويًّا. السبب: كان في المستودع قارئان لرقم الإصدار نفسه (هذا وذاك)، ومسار مُكرّر يمكن
+     * أن ينحرف عن الحقيقة. الآن قراءة واحدة والحكم في `VersionIdentity`. والعقد لم يتغيّر.
+     */
+    fun getModuleVersionCode(): Int = ModuleHealthUtil.read().versionCode
 
     data class GameInfo(val pkg: String?, val pid: Int?, val startTime: String?)
 

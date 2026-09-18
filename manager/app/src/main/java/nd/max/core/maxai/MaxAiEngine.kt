@@ -190,6 +190,15 @@ class MaxAiEngine @Inject constructor(
     /** حالة طبقة الثقة والاستكشاف من الدورة الأخيرة — تُنشر للواجهة. */
     @Volatile private var lastTrust: List<TrustModel.KnobTrust> = emptyList()
     @Volatile private var lastExploration = ExplorationState()
+
+    /**
+     * وتيرة إعادة التقييم: إشارة آخر دورة قيّمنا عليها، وزمن آخر دورة
+     * نُفِّذت فعلًا. الاثنان معًا يجعلان الاستيقاظ المبكر حدثًا نادرًا ومبرَّرًا
+     * لا حلقة استطلاع ثانية تعمل بجانب الحلقة الدورية.
+     */
+    @Volatile private var cadenceSignal: MaxAiCadence.Signal? = null
+    @Volatile private var lastCycleAtMs = 0L
+    @Volatile private var lastCadence = CadenceStatus()
     @Volatile private var lastProbeAtMs = 0L
     private val probesThisSession = java.util.concurrent.atomic.AtomicInteger(0)
 
@@ -257,6 +266,9 @@ class MaxAiEngine @Inject constructor(
                     // السلامة حلقة من الدرجة الأولى: «لماذا خفّض جهازي نفسه؟» لا
                     // يجيبه عداّد؛ كل تبدل حالة موثّق يدخل نفس الخط الزمني.
                     recordSafetyEpisode(safetyEngine.status.value, snapshot)
+                    // نفس القياس يخدم التوقيت: تغيّر مؤهِّل (شاشة/نوع استخدام/
+                    // سلامة) يستحق إعادة تخطيط قبل دورة الثلاثين ثانية.
+                    noteCadence(snapshot, safetyEngine.status.value.level)
                 }.onFailure {
                     Log.w(TAG, "fast safety cycle failed", it)
                     DiagnosticCenter.record(
@@ -283,6 +295,9 @@ class MaxAiEngine @Inject constructor(
     }
 
     private suspend fun cycle() = withContext(Dispatchers.IO) {
+        // يُسجَّل في البداية لا في النهاية: التوقيت يقيس «متى قرّرنا آخر مرة»
+        // لا «متى انتهت الكتابة» — فدورة طويلة لا تُنشئ استيقاظًا مزدحمًا بعدها.
+        lastCycleAtMs = System.currentTimeMillis()
         val aiEnabled = readAiEnabled()
 
         // 1) كشف: القياس المشترك الموحد (يغذي المتنبئ والتوأم أيضًا).
@@ -1003,6 +1018,46 @@ class MaxAiEngine @Inject constructor(
         if (errors.isEmpty()) null else errors.average().toFloat()
     }
 
+    /**
+     * يقيّم وتيرة إعادة التقييم من القياس المجاني الذي جرى للتوّ.
+     *
+     * الإشارة تُبنى من حقول موجودة في نفس اللقطة (شاشة، نوع استخدام) ومن
+     * مستوى السلامة — صفر قراءة جديدة على العتاد. وكل ما تفعله الدالة أن
+     * تطلب دورة قرار عادية؛ لا سلطة جديدة ولا كتابة جديدة. وما لم يُستوفَ
+     * الحد الأدنى ([MaxAiCadence.MIN_ADAPTIVE_INTERVAL_MS]) لا يُنسى التغيّر:
+     * تُحفظ الإشارة السابقة كما هي فيبقى الفرق قائمًا ويُعلن الانتظار المتبقي
+     * في الواجهة، ثم يقع الاستيقاظ في أول ثانية تنتهي فيها المهلة.
+     */
+    private fun noteCadence(
+        snapshot: DeviceStateCollector.DeviceSnapshot,
+        level: SafetyLevel,
+    ) {
+        val current = MaxAiCadence.Signal(
+            screenOn = snapshot.screenOn >= 0.5f,
+            appIntent = snapshot.appIntent,
+            safetyLevel = level,
+        )
+        val decision = MaxAiCadence.decide(
+            previous = cadenceSignal,
+            current = current,
+            nowMs = System.currentTimeMillis(),
+            lastCycleAtMs = lastCycleAtMs,
+        )
+        lastCadence = CadenceStatus(
+            lastCycleAtMs = lastCycleAtMs,
+            pendingReason = decision.reason,
+            pendingWaitMs = decision.waitMs,
+        )
+        if (decision.wake) {
+            // الإشارة تُحدَّث هنا فقط كي لا يُستهلك التغيّر قبل تنفيذه.
+            cadenceSignal = current
+            DiagnosticCenter.record("maxai", "early re-plan: ${decision.reason}")
+            scope.launch { runCatching { runCycleSingleFlight() } }
+        } else if (decision.reason == null) {
+            cadenceSignal = current
+        }
+    }
+
     /** سياق التعلّم: التطبيق في المقدمة كي تصبح المصداقية خاصة به (قرار #18). */
     private fun currentAppContextKey(): String = runCatching {
         RootFileAccess.read(APP_STATUS_PATH)
@@ -1371,6 +1426,20 @@ class MaxAiEngine @Inject constructor(
     }
 
     /**
+     * يمسح دفتر الحلقات بطلب صريح من المستخدم.
+     *
+     * ما لا يمسحه عمدًا: مقابض مملوكة، أقفال يدوية، وخرائط التعلّم
+     * ([ControlOutcomeModel] و[ResponseModel]). الدفتر سرد يُقرأ؛ والتعلّم
+     * معرفة تراكمت من قياسات حقيقية، ومحوها لأن السرد أزعج كان سيُنسي المحرك
+     * ما تعلّمه فعلًا. تُمسح الحكايات لا المعرفة، ويُوثَّق الفعل نفسه كي يبقى
+     * أثر القرار في سجل الأحداث بعد اختفاء ما يشرحه.
+     */
+    fun clearJournal() {
+        journal.clear()
+        EventLog.userAction("MaxAiEngine", "journal", "clear", "cleared")
+    }
+
+    /**
      * تبديل Max AI. عند الإيقاف تُترك سقوف المحرك باسترجاع الأساس.
      */
     fun setAiEnabled(enabled: Boolean) {
@@ -1609,6 +1678,9 @@ class MaxAiEngine @Inject constructor(
             trust = lastTrust,
             exploration = lastExploration,
             automationPlan = automationPlan(aiEnabled, safetyNow, ownership, lockedKnobs, learning, context, prev),
+            // الزمن يُقرأ عند النشر لا من اللقطة المحفوظة: الصف يعني «آخر دورة
+            // قرار» فعلًا، لا آخر مرة نُشرت فيها الحالة.
+            cadence = lastCadence.copy(lastCycleAtMs = lastCycleAtMs),
         ).mutate()
     }
 

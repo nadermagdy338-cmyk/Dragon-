@@ -125,6 +125,23 @@ data class ExplorationState(
     val lastProbeAtMs: Long = 0L,
 )
 
+/**
+ * حالة وتيرة إعادة التقييم كما قيّمتها الحلقة السريعة آخر مرة.
+ *
+ * الغرض ليس الكشف عن تفصيل داخلي، بل الإجابة عن سؤال يخص المستخدم:
+ * «تشغّل لعبة الآن، فمتى يلاحظها Max AI؟». لهذا يحمل التغيير المؤهِّل سببًا
+ * ثابتًا وكم بقي من انتظار، ويُصفَّر تلقائيًا حين لا يوجد تغيّر معلّق — فلا
+ * يبقى في الشاشة وعد بحدث مضى.
+ */
+data class CadenceStatus(
+    /** زمن آخر دورة قرار نُفِّذت فعلًا (0 = لم تجر بعد). */
+    val lastCycleAtMs: Long = 0L,
+    /** أحد ثوابت [MaxAiCadence.Reason] حين ينتظر تغيّر مؤهِّل، أو null. */
+    val pendingReason: String? = null,
+    /** كم بقي حتى إعادة التقييم المبكرة، أو 0 حين لا انتظار. */
+    val pendingWaitMs: Long = 0L,
+)
+
 /** الحالة الكاملة التي تستهلكها الواجهة — أعداد حقيقية فقط. */
 data class MaxAiState(
     val aiEnabled: Boolean = false,
@@ -199,4 +216,6 @@ data class MaxAiState(
     val exploration: ExplorationState = ExplorationState(),
     /** خطة automation مفهومة وقابلة للتراجع مشتقة من الملكية والسلامة والتعلّم. */
     val automationPlan: AutomationPlan = AutomationPlan(),
+    /** وتيرة إعادة التقييم الحالية — تغيّر حقيقي معلّق أو لا شيء. */
+    val cadence: CadenceStatus = CadenceStatus(),
 )

@@ -109,6 +109,40 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    /**
+     * `AR-32` — مراقبة انسداد الخيط الرئيسي داخل عمليتنا (قياس لا استنتاج). تُشغَّل مع
+     * ظهور الواجهة وتُوقف مع اختفائها، فما لا نستطيع رؤيته لا ندّعي قياسه.
+     */
+    private val stallDetector = MainThreadStallDetector { report ->
+        EventLog.symptom(
+            screen = "UiHealth",
+            symptom = "main_thread_stall",
+            valueMs = report.durationMs,
+            worstMs = report.worstMs,
+            count = report.count,
+        )
+    }
+
+    override fun onStart() {
+        super.onStart()
+        stallDetector.start()
+    }
+
+    override fun onStop() {
+        // أسوأ انسداد يُسجَّل مرّة عند الإخفاء: هذا هو الرقم الذي يُقارَن به لاحقًا لنفي
+        // التحسّن أو إثباته، ولا معنى لسطر يقيس انسدادًا واحدًا بلا سياقه.
+        if (stallDetector.worstStallMs > 0L) {
+            EventLog.symptom(
+                screen = "UiHealth",
+                symptom = "main_thread_stall_session",
+                valueMs = stallDetector.worstStallMs,
+                count = stallDetector.stallCount,
+            )
+        }
+        stallDetector.stop()
+        super.onStop()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         RootIpcManager.unbind()
@@ -215,13 +249,10 @@ fun MainScreen(fromTileType: String? = null) {
                     RootUtils.isModuleUpdatePendingReboot(),
                 )
             }
-            val appVC = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode.toInt()
-            } else {
-                @Suppress("DEPRECATION")
-                context.packageManager.getPackageInfo(context.packageName, 0).versionCode
-            }
-            if (appVC < moduleVC && apkAvailable) {
+            // `AR-04`: إصدار التطبيق يُقرأ من **مصدر واحد** (`VersionIdentity`)، لا بتكرار
+            // `getPackageInfo` هنا مع تفريع حسب إصدار النظام كما كان.
+            val appVC = VersionIdentity.readApp(context).versionCode
+            if (appVC >= 0L && appVC < moduleVC.toLong() && apkAvailable) {
                 updateDialog.showConfirm(
                     title = context.getString(R.string.dialog_update_available_title),
                     content = context.getString(R.string.dialog_update_available_content, appVC, moduleVC),

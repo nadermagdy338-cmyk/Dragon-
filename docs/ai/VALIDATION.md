@@ -32,6 +32,27 @@ bash gradlew :app:testReleaseUnitTest :app:minifyReleaseWithR8 :app:optimizeRele
 
 **تحقّق الـAPK** (كما يفعل CI): `apksigner verify` → `Verifies` ومخطّط v2 = true · `aapt dump badging` → `package: name='nd.max' versionCode='1' versionName='1.0'` · البيان المدمج يحمل `android:localeConfig` · والحزمة تضم `res/xml/locales_config.xml`.
 
+### 0.1 جولة NT-15-MAXAI — 2026-09-18 (تغيير Max AI + واجهته)
+
+```sh
+export ANDROID_HOME="$HOME/android-sdk" ANDROID_SDK_ROOT="$HOME/android-sdk"
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+cd manager
+bash gradlew :app:compileDebugKotlin :app:compileDebugUnitTestKotlin   # 2m13s · BUILD SUCCESSFUL
+bash gradlew :app:testDebugUnitTest                                   # **160 اختبارًا، 0 فشل، 0 مُتخطّى**
+bash gradlew :app:assembleDebug                                       # 2m34s · APK `116,778,525` بايت
+```
+
+| الأمر | النتيجة |
+| --- | --- |
+| `:app:compileDebugKotlin :app:compileDebugUnitTestKotlin` | BUILD SUCCESSFUL **2m13s** |
+| `:app:testDebugUnitTest` | BUILD SUCCESSFUL · **160 اختبارًا، 0 فشل، 0 مُتخطّى** (كان 128) |
+| `:app:assembleDebug` | BUILD SUCCESSFUL **2m34s** · APK `116,778,525` بايت |
+
+**عيب حقيقي كشفه البناء**: فاصلة عليا `'` غير مهرَّبة في نصّين إنجليزيين جديدين أسقطت `:app:mergeDebugResources` برسالة `Invalid unicode escape sequence` — **لا بوابة ثابتة تكشف هذا**؛ الدرس يستحق التسجيل: كل تسليم واجهة يُبنى، وتشغيل `aapt2` هو الفحص الوحيد الذي يرى أخطاء XML الحقيقية. الإصلاح: `\'` (نفس نمط `max_live_block_budget` القائم).
+
+**الذي لا يُدّعى هنا**: مراجعة السلامة (I-61) والعرض على جهاز حقيقي (I-60).
+
 **④ الإصدار الموقّع — مُتحقَّق 2026-09-18 بعد توليد keystore جديد:**
 
 ```sh

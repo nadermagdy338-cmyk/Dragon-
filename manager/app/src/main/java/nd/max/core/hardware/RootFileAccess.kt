@@ -5,6 +5,7 @@
 package nd.max.core.hardware
 
 import com.topjohnwu.superuser.Shell
+import nd.max.ui.util.EventLog
 import nd.max.ui.util.RootIpcManager
 import java.io.File
 
@@ -28,23 +29,63 @@ object RootFileAccess {
             ?: shellRead(path)
     }.getOrNull()
 
-    fun write(path: String, value: String): Boolean = runCatching {
-        // IPC first: MtkRootService.writeNode now performs the HyperOS chmod
-        // dance internally, so a false return is a real failure and the shell
-        // path below re-runs the same dance. Plain root writes to 0444 sysfs
-        // nodes are denied with EACCES on HyperOS 3 — real-device log showed
-        // every registry PERAPP_COMMIT ending in live-value-mismatch without it.
-        // A binder exception must not block the shell fallback either.
-        val viaIpc = try { RootIpcManager.ipc?.writeNode(path, value) } catch (_: Exception) { false }
-        if (viaIpc == true) return@runCatching true
-        val p = quote(path)
-        Shell.cmd(
-            "m=\$(stat -c %a $p 2>/dev/null)",
-            "chmod 644 $p 2>/dev/null",
-            "printf '%s\\n' ${quote(value)} > $p",
-            "chmod \$m $p 2>/dev/null"
-        ).exec().isSuccess
-    }.getOrDefault(false)
+    /**
+     * يكتب ويعيد **نجاح أمر الكتابة** — نفس معنى العائد قبل `PEER-8` تمامًا
+     * (`!= WRITE_FAILED` مكافئة لـ`exec().isSuccess` القديمة).
+     */
+    fun write(path: String, value: String): Boolean =
+        writeOutcome(path, value) != WriteVerification.Outcome.WRITE_FAILED
+
+    /**
+     * كتابة **متحقَّقة**: تُعيد حكمًا على **القيمة** لا على الأمر. الحكم يُحسب **مرّة واحدة**
+     * هنا ويُعاد استخدامه، فلا تُقرأ العقدة مرّتين لمتصل يريد الحكم.
+     */
+    fun writeVerified(path: String, value: String): WriteVerification.Outcome =
+        writeOutcome(path, value)
+
+    /**
+     * النواة الواحدة: أمر الكتابة، ثم **قراءة للتحقّق**، ثم تسجيل الحكم. لا إصلاح ولا إعادة
+     * محاولة — القرار يبقى للمتصل.
+     */
+    private fun writeOutcome(path: String, value: String): WriteVerification.Outcome {
+        val wrote = runCatching {
+            // IPC first: MtkRootService.writeNode now performs the HyperOS chmod
+            // dance internally, so a false return is a real failure and the shell
+            // path below re-runs the same dance. Plain root writes to 0444 sysfs
+            // nodes are denied with EACCES on HyperOS 3 — real-device log showed
+            // every registry PERAPP_COMMIT ending in live-value-mismatch without it.
+            // A binder exception must not block the shell fallback either.
+            val viaIpc = try { RootIpcManager.ipc?.writeNode(path, value) } catch (_: Exception) { false }
+            if (viaIpc == true) return@runCatching true
+            val p = quote(path)
+            Shell.cmd(
+                "m=\$(stat -c %a $p 2>/dev/null)",
+                "chmod 644 $p 2>/dev/null",
+                "printf '%s\\n' ${quote(value)} > $p",
+                "chmod \$m $p 2>/dev/null"
+            ).exec().isSuccess
+        }.getOrDefault(false)
+
+        // `PEER-8`/`AR-31`: كل كتابة تُقرأ بعدها وتُسجَّل نتيجتها. الكلفة: قراءة واحدة إضافية —
+        // وليست في مسار إطار-بإطار بل في تغيير إعداد/تطبيق ملف.
+        val readBack = if (wrote) read(path) else null
+        val outcome = if (!wrote) {
+            WriteVerification.Outcome.WRITE_FAILED
+        } else {
+            WriteVerification.compare(value, readBack)
+        }
+        try {
+            EventLog.writeCheck(
+                path = path,
+                wrote = value,
+                readBack = readBack,
+                verdict = WriteVerification.verdictWord(outcome),
+            )
+        } catch (_: Exception) {
+            // التسجيل لا يُسقط كتابةً نجحت.
+        }
+        return outcome
+    }
 
     fun listDirectories(path: String): List<String> {
         RootIpcManager.ipc?.let { service ->

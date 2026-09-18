@@ -44,10 +44,15 @@ import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nd.max.MaxManagerProps
 import nd.max.R
 import nd.max.ui.util.BackupManager
+import nd.max.ui.util.ConfigBackupInventory
+import nd.max.ui.util.MaxPrefsBundle
+import nd.max.ui.util.RootUtils
 import nd.max.ui.util.PropertyUtils
 import nd.max.ui.viewmodel.TweakViewModel
 
@@ -83,11 +88,18 @@ fun rememberConfigBackupFlow(
     var showBackupOptionsDialog by remember { mutableStateOf(false) }
     var optBackupTweaks by remember { mutableStateOf(true) }
     var optBackupApplist by remember { mutableStateOf(true) }
+    var optBackupAppearance by remember { mutableStateOf(false) }
+    var optBackupAppPrefs by remember { mutableStateOf(false) }
+
+    // `GAP-13`: حالة الجهاز تُقاس **قبل** الإعلان، والإعلان يُحسب من النطاق المختار وحده.
+    var deviceState by remember { mutableStateOf<ConfigBackupInventory.DeviceState?>(null) }
 
     var showRestoreDialog by remember { mutableStateOf(false) }
     var pendingRestoreResult by remember { mutableStateOf<TweakViewModel.ValidationResult?>(null) }
     var optRestoreTweaks by remember { mutableStateOf(true) }
     var optRestoreApplist by remember { mutableStateOf(true) }
+    var optRestoreAppearance by remember { mutableStateOf(false) }
+    var optRestoreAppPrefs by remember { mutableStateOf(false) }
 
     val loadingDialog = rememberLoadingDialog()
     val confirmDialog = rememberConfirmDialog(onConfirm = {}, onDismiss = {})
@@ -110,7 +122,9 @@ fun rememberConfigBackupFlow(
                         context,
                         destination,
                         optBackupTweaks,
-                        optBackupApplist
+                        optBackupApplist,
+                        optBackupAppearance,
+                        optBackupAppPrefs
                     )
                 }
                 currentOnMessage(if (success) backupSuccessMessage else backupFailedMessage)
@@ -130,6 +144,8 @@ fun rememberConfigBackupFlow(
                         pendingRestoreResult = result
                         optRestoreTweaks = result.hasTweaks
                         optRestoreApplist = result.hasApplist
+                        optRestoreAppearance = result.hasAppearance
+                        optRestoreAppPrefs = result.hasAppPrefs
                         showRestoreDialog = true
                     } else {
                         confirmDialog.showConfirm(
@@ -150,9 +166,40 @@ fun rememberConfigBackupFlow(
         val timestamp = SimpleDateFormat("ddMMyyyy_HHmmss", Locale.getDefault()).format(Date())
         createDocLauncher.launch("MaxManagerConfig_Backup_$timestamp.zx")
     }
-    val askBackupScope: () -> Unit = { showBackupOptionsDialog = true }
+    // يفتح نافذة النطاق **بعد** قياس حالة الجهاز، فلا يُعلن إعلانٌ على حالة مفترضة.
+    val askBackupScope: () -> Unit = {
+        showBackupOptionsDialog = true
+        scope.launch {
+            deviceState = withContext(Dispatchers.IO) {
+                ConfigBackupInventory.DeviceState(
+                    hasRoot = RootUtils.isRootGranted(),
+                    prefFilesPresent = MaxPrefsBundle.presentFiles(context),
+                    prefFilesEmpty = MaxPrefsBundle.emptyFiles(context),
+                )
+            }
+        }
+    }
     val openRestorePicker: () -> Unit = {
         openDocLauncher.launch(arrayOf("application/octet-stream", "*/*"))
+    }
+
+    /**
+     * `GAP-13` — **الإعلان** من النطاق المختار وحالة الجهاز المقيسة. وهو دالّة خالصة، فالواجهة
+     * تعرض بالضبط ما سيُكتب.
+     *
+     * و`null` تعني **«لم يُقس بعد»** لا «قيس فلم يبق شيء». والفرق جوهري في الواجهة: القياس
+     * يجري في الخلفية، فلو بُنيت حالة الزرّ عليه لأمكن أن يُعطَّل الزرّ لحظةً ثم يُفعَّل — وزرّ
+     * يومض لا يقول شيئًا عن المستخدم، بل عن توقيت قياسنا. فالزرّ يعتمد على **ما اختاره المستخدم**
+     * وحده، والإعلان يُضاف متى وصل القياس.
+     */
+    val selectedScope = ConfigBackupInventory.Scope(
+        tweaks = optBackupTweaks,
+        applist = optBackupApplist,
+        appearance = optBackupAppearance,
+        appPrefs = optBackupAppPrefs,
+    )
+    val declaration = remember(deviceState, selectedScope) {
+        deviceState?.let { ConfigBackupInventory.declare(selectedScope, it) }
     }
 
     RootAppDialog {
@@ -175,7 +222,8 @@ fun rememberConfigBackupFlow(
             visible = showBackupOptionsDialog,
             title = stringResource(R.string.dialog_backup_options_title),
             confirmText = stringResource(R.string.dialog_backup_options_confirm),
-            confirmEnabled = optBackupTweaks || optBackupApplist,
+            // يُعطَّل فقط إن لم يختر المستخدم شيئًا — وهذا قراره لا نتيجة قياس عندنا.
+            confirmEnabled = selectedScope.chosen.isNotEmpty(),
             onDismiss = { showBackupOptionsDialog = false },
             onConfirm = {
                 showBackupOptionsDialog = false
@@ -213,6 +261,76 @@ fun rememberConfigBackupFlow(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { optBackupAppearance = !optBackupAppearance }
+                ) {
+                    Checkbox(
+                        checked = optBackupAppearance,
+                        onCheckedChange = { optBackupAppearance = it }
+                    )
+                    Text(
+                        stringResource(R.string.max_cfg_backup_appearance),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { optBackupAppPrefs = !optBackupAppPrefs }
+                ) {
+                    Checkbox(
+                        checked = optBackupAppPrefs,
+                        onCheckedChange = { optBackupAppPrefs = it }
+                    )
+                    Text(
+                        stringResource(R.string.max_cfg_backup_app_prefs),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                // ── الإعلان: ما سيغيب، وما لا يُنسخ أبدًا — قبل الكتابة لا بعدها ──
+                val measured = declaration
+                if (measured != null && measured.absent.isNotEmpty()) {
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.max_cfg_declared_absent_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    measured.absent.forEach { absent ->
+                        Text(
+                            text = stringResource(
+                                R.string.max_cfg_declared_absent_line,
+                                sectionText(absent.section),
+                                absenceReasonText(absent.reason),
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.max_cfg_declared_excluded_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                (measured?.exclusions ?: ConfigBackupInventory.exclusions()).forEach { excluded ->
+                    Text(
+                        text = stringResource(
+                            R.string.max_cfg_declared_excluded_line,
+                            excluded.what,
+                            exclusionReasonText(excluded.reason),
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
@@ -225,7 +343,8 @@ fun rememberConfigBackupFlow(
             confirmEnabled = pendingRestoreResult?.let { result ->
                 val isSocMismatch =
                     result.socType != PropertyUtils.get(MaxManagerProps.General.SOC_TYPE)
-                (optRestoreTweaks && !isSocMismatch) || optRestoreApplist
+                (optRestoreTweaks && !isSocMismatch) || optRestoreApplist ||
+                    optRestoreAppearance || optRestoreAppPrefs
             } ?: false,
             onDismiss = { showRestoreDialog = false },
             onConfirm = {
@@ -241,7 +360,9 @@ fun rememberConfigBackupFlow(
                                     context,
                                     dataToRestore,
                                     optRestoreTweaks && !isSocMismatch,
-                                    optRestoreApplist
+                                    optRestoreApplist,
+                                    optRestoreAppearance,
+                                    optRestoreAppPrefs
                                 )
                                 viewModel.loadAllConfiguration(context)
                             }
@@ -311,6 +432,46 @@ fun rememberConfigBackupFlow(
                             )
                         }
                     }
+                    if (result.hasAppearance) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { optRestoreAppearance = !optRestoreAppearance }
+                        ) {
+                            Checkbox(
+                                checked = optRestoreAppearance,
+                                onCheckedChange = { optRestoreAppearance = it }
+                            )
+                            Text(
+                                stringResource(R.string.max_cfg_backup_appearance),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                    if (result.hasAppPrefs) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { optRestoreAppPrefs = !optRestoreAppPrefs }
+                        ) {
+                            Checkbox(
+                                checked = optRestoreAppPrefs,
+                                onCheckedChange = { optRestoreAppPrefs = it }
+                            )
+                            Text(
+                                stringResource(R.string.max_cfg_backup_app_prefs),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.max_cfg_restore_merge_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
@@ -326,3 +487,34 @@ fun rememberConfigBackupFlow(
         override fun startRestore() = openRestorePicker()
     }
 }
+
+/** اسم القسم كما يراه المستخدم — والترجمة من مورد لا من نصّ صلب. */
+@Composable
+private fun sectionText(section: ConfigBackupInventory.Section): String = stringResource(
+    when (section) {
+        ConfigBackupInventory.Section.TWEAKS -> R.string.max_cfg_section_tweaks
+        ConfigBackupInventory.Section.APPLIST -> R.string.max_cfg_section_applist
+        ConfigBackupInventory.Section.APPEARANCE -> R.string.max_cfg_section_appearance
+        ConfigBackupInventory.Section.APP_PREFS -> R.string.max_cfg_section_app_prefs
+    }
+)
+
+/** سبب الغياب — و«غائب» تُقال بصراحة لا تُخفى. */
+@Composable
+private fun absenceReasonText(reason: ConfigBackupInventory.AbsenceReason): String = stringResource(
+    when (reason) {
+        ConfigBackupInventory.AbsenceReason.NO_ROOT -> R.string.max_cfg_absent_no_root
+        ConfigBackupInventory.AbsenceReason.FILE_MISSING -> R.string.max_cfg_absent_file_missing
+        ConfigBackupInventory.AbsenceReason.EMPTY -> R.string.max_cfg_absent_empty
+    }
+)
+
+/** سبب الاستثناء الدائم. */
+@Composable
+private fun exclusionReasonText(reason: ConfigBackupInventory.ExclusionReason): String = stringResource(
+    when (reason) {
+        ConfigBackupInventory.ExclusionReason.SAFETY_POLICY -> R.string.max_cfg_excluded_safety
+        ConfigBackupInventory.ExclusionReason.OTHER_APPS -> R.string.max_cfg_excluded_other_apps
+        ConfigBackupInventory.ExclusionReason.SECRET -> R.string.max_cfg_excluded_secret
+    }
+)

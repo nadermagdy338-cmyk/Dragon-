@@ -151,6 +151,11 @@ dependencies {
     implementation(libs.com.github.topjohnwu.libsu.service)
     implementation(libs.com.github.topjohnwu.libsu.io)
 
+    // Shizuku: طبقة امتياز ثانية بمستوى ADB بلا جذر (AR-20).
+    // provider ليس اختياريًا: يحمل ShizukuProvider الذي يُصرَّح به في البيان.
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
+
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.service)

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GAP-07 — الصلاحيات و AppOps -->
+
+    <string name="max_perms_title">الصلاحيات و‏AppOps</string>
+    <string name="max_perms_subtitle">ما يُعلنه هذا التطبيق، وما تسمح به المنصّة فعلًا، ومرجع محفوظ تعود إليه</string>
+    <string name="max_perms_help">شيئان مختلفان يحدّدان ما يستطيع التطبيق فعله. صلاحية البيان هي ما طلبه التطبيق — وقد تمنحها المنصّة أو لا تمنحها. وعملية ‏AppOps هي ما تسمح به المنصّة **الآن**: مسموح، أو مُتجاهَل، أو مقيَّد بالاستعمال الأمامي، أو تجاوز مرفوع فيعود الحكم إلى البيان. ومع كل إصدار أندرويد تنتقل سيطرة أكبر إلى ‏AppOps، بما لا تغطّيه صلاحيات البيان أصلًا — الحافظة والاهتزاز والتنفيذ في الخلفية — فعرض واحد من الاثنين جوابٌ نصفه الذي يبدو كاملًا. وكتابة عملية ‏AppOps تحتاج جذرًا هنا (أو ADB عبر الشيزوكو، وهو غير مُشغَّل عندنا بعد)، وكل كتابة تُقرأ بعدها فتُخبَر بما قبله الجهاز فعلًا لا بما أرسلناه. والمرجع المحفوظ جواب مشكلة حقيقية: إعادة تثبيت تطبيق أو تغيير روم تُعيد كل الصلاحيات. احفظ المرجع مرّة، وقارن لاحقًا، فترى بالضبط ما انحرف.</string>
+    <string name="max_perms_loading_detail">قراءة صلاحيات هذا التطبيق المُعلَنة وعملياته.</string>
+    <string name="max_perms_declared_title">الصلاحيات المُعلَنة</string>
+    <string name="max_perms_declared_desc">لا تُعرض إلا الأذونات الخطيرة: العادية لا تمنحها أنت ولا تسحبها، فإدراجها يُطيل القائمة بلا معلومة.</string>
+    <string name="max_perms_declared_none">لا يُعلن هذا التطبيق أي إذن خطير.</string>
+    <string name="max_perms_declared_count">ممنوحة %1$s من %2$s إذنًا خطيرًا</string>
+    <string name="max_perms_granted">ممنوحة</string>
+    <string name="max_perms_denied">غير ممنوحة</string>
+    <string name="max_perms_ops_title">عمليات ‏AppOps</string>
+    <string name="max_perms_ops_desc">مفاتيح المنصّة نفسها، كما يُبلّغ عنها ‏cmd appops.</string>
+    <string name="max_perms_ops_needs_root">قراءة عمليات ‏AppOps تحتاج جذرًا</string>
+    <string name="max_perms_ops_unreadable">أعاد الأمر شيئًا لا نفهمه، فهذه «غير معروفة» — لا «لا عمليات».</string>
+    <string name="max_perms_ops_count">%1$s عملية مُبلَّغ عنها</string>
+    <string name="max_perms_ops_tap_hint">اضغط عملية لتغييرها. وكل تغيير يُقرأ بعد كتابته قبل أن يُبلَّغ بنجاحه.</string>
+    <string name="max_perms_choose_desc">اختر وضع هذه العملية. وكل وضع يُقرأ بعد الكتابة.</string>
+    <string name="max_perms_last_change">آخر تغيير</string>
+    <string name="max_perms_verdict_line">طُلب %1$s — %2$s</string>
+    <string name="max_perms_verdict_applied">قبله الجهاز</string>
+    <string name="max_perms_verdict_as_default">رُفع التجاوز، فيعود الحكم إلى البيان</string>
+    <string name="max_perms_verdict_ignored">أبقى الجهاز قيمته هو</string>
+    <string name="max_perms_verdict_failed">رُفض الأمر</string>
+    <string name="max_perms_verdict_unverifiable">تعذّرت القراءة العكسية، فالنتيجة غير معروفة</string>
+    <string name="max_perms_ref_title">مرجع محفوظ</string>
+    <string name="max_perms_ref_desc">سياسة تُدوّنها بنفسك لا تخمين: احفظ الحالة، ثم قارن أو استعد لاحقًا.</string>
+    <string name="max_perms_ref_save">احفظ الحالة الحالية كمرجع</string>
+    <string name="max_perms_ref_save_desc">يحفظ كل عملية يُبلّغ عنها هذا التطبيق، داخل تخزينه الخاص — بلا حاجة لجذر لحفظه أو قراءته</string>
+    <string name="max_perms_ref_saved">حُفظ المرجع</string>
+    <string name="max_perms_ref_save_failed">تعذّرت كتابة المرجع</string>
+    <string name="max_perms_ref_exists">حُفظ %1$s</string>
+    <string name="max_perms_ref_compare">قارن بالمرجع</string>
+    <string name="max_perms_ref_restore">استعد المرجع</string>
+    <string name="max_perms_ref_restore_desc">يكتب العمليات التي انحرفت فقط، ويُبلّغ بما قبله الجهاز</string>
+    <string name="max_perms_ref_drift_title">المقارنة بالمرجع</string>
+    <string name="max_perms_ref_drift_none">لا انحراف: كل عملية محفوظة ما زالت على قيمتها المحفوظة.</string>
+    <string name="max_perms_ref_drift_count">%1$s عملية تخالف المرجع</string>
+    <string name="max_perms_drift_line">المرجع %1$s ← الآن %2$s</string>
+    <string name="max_perms_current_absent">غير مُبلَّغ عنها</string>
+    <string name="max_perms_ref_restore_title">استرجاع هذه العمليات؟</string>
+    <string name="max_perms_ref_restore_message">ستُكتب %1$s عملية إلى قيمة المرجع. وكل واحدة تُقرأ بعدها وتُبلَّغ نتيجتها.</string>
+    <string name="max_perms_ref_restore_more">…و%1$s غيرها (وستُكتب كلها)</string>
+    <string name="max_perms_ref_restore_done">مُطبَّق %1$s · رُفع التجاوز %2$s · أبقى الجهاز قيمته %3$s · مرفوض %4$s · غير معروف %5$s</string>
+    <string name="max_perms_ref_delete">احذف المرجع</string>
+    <string name="max_perms_ref_delete_title">حذف المرجع المحفوظ؟</string>
+    <string name="max_perms_ref_delete_message">تُزال السياسة المحفوظة. وعمليات ‏AppOps نفسها لا تُمسّ.</string>
+    <string name="max_perms_ref_deleted">حُذف المرجع</string>
+
+    <!-- أوضاع AppOps -->
+    <string name="max_perms_mode_allow">اسمح</string>
+    <string name="max_perms_mode_allow_note">العملية مسموح بها.</string>
+    <string name="max_perms_mode_foreground">اسمح أثناء الاستعمال</string>
+    <string name="max_perms_mode_foreground_note">مسموح فقط حين يكون التطبيق في المقدّمة.</string>
+    <string name="max_perms_mode_ignore">تجاهل</string>
+    <string name="max_perms_mode_ignore_note">يُقبل النداء ولا يفعل شيئًا بصمت، ولا يُخبَر التطبيق.</string>
+    <string name="max_perms_mode_deny">ارفض</string>
+    <string name="max_perms_mode_deny_note">يفشل النداء، ويُخبَر التطبيق بالرفض.</string>
+    <string name="max_perms_mode_default">افتراضي</string>
+    <string name="max_perms_mode_default_note">يرفع التجاوز، فيعود الحكم إلى صلاحية البيان وسياسة المنصّة.</string>
+    <string name="max_perms_mode_ask">اسأل</string>
+    <string name="max_perms_mode_ask_note">تُفترض المنصّة أن تسأل قبل السماح. ولا تدعمه كل العمليات.</string>
+
+    <!-- مدخل من شاشة إعدادات التطبيق -->
+    <string name="max_perms_entry_title">الصلاحيات و‏AppOps</string>
+    <string name="max_perms_entry_desc">اطّلع على ما يُعلنه هذا التطبيق وما تسمح به المنصّة فعلًا</string>
+    <string name="max_perms_entry_action">افتح الصلاحيات</string>
+</resources>

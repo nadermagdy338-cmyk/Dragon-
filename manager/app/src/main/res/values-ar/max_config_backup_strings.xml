@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GAP-12 / GAP-13 — إعلان محتوى نسخة الإعداد -->
+
+    <string name="max_cfg_backup_appearance">المظهر والواجهة</string>
+    <string name="max_cfg_backup_app_prefs">تفضيلات التطبيق واللغة</string>
+
+    <string name="max_cfg_declared_absent_title">لن تُحفظ — ولماذا</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">لا جذر مُتحقَّق منه على هذا الجهاز، فلا يمكن قراءة القيم بثقة</string>
+    <string name="max_cfg_absent_file_missing">ملف التفضيلات غير موجود بعد</string>
+    <string name="max_cfg_absent_empty">ملف التفضيلات موجود لكنه فارغ، فلا شيء يُكتب</string>
+
+    <string name="max_cfg_declared_excluded_title">لا تُحفظ في هذا الملف أبدًا</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">إعدادات حراسة Max AI تُضبط داخل التطبيق ولا تُنقل في ملف</string>
+    <string name="max_cfg_excluded_other_apps">بيانات التطبيقات الأخرى من عمل نسخة التطبيقات لا نسخة الإعداد</string>
+    <string name="max_cfg_excluded_secret">مفاتيح التوقيع والأسرار لا تُكتب في ملف قد تشاركه</string>
+
+    <string name="max_cfg_section_tweaks">إعداد الضبط</string>
+    <string name="max_cfg_section_applist">قائمة التطبيقات لكل تطبيق</string>
+    <string name="max_cfg_section_appearance">المظهر والواجهة</string>
+    <string name="max_cfg_section_app_prefs">تفضيلات التطبيق واللغة</string>
+
+    <string name="max_cfg_restore_merge_note">استعادة التفضيلات دمجٌ لا محو: المفاتيح الموجودة في الملف تُكتب، وما لم يُذكر فيها يبقى كما هو. ولا شيء يُمحى.</string>
+</resources>

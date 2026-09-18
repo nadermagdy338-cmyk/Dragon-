@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GAP-11 — جرد المستشعرات -->
+    <string name="max_sensor_title">المستشعرات التي يعلنها هذا الجهاز</string>
+    <string name="max_sensor_desc">ما تُعلنه المنصّة عن عتادها، مع قراءة ضوء واحدة بمهلة محدودة. لا معايرة ولا درجة صحة: كلتاهما تحتاج مرجعًا ماديًّا لا نملكه.</string>
+    <string name="max_sensor_service">خدمة المستشعرات</string>
+    <string name="max_sensor_service_unavailable">تعذّر الوصول إليها</string>
+    <string name="max_sensor_count">المستشعرات المُعلَنة</string>
+    <string name="max_sensor_kinds">الأصناف الموجودة</string>
+    <string name="max_sensor_wakeup">مستشعرات إيقاظ (تُبلّغ والجهاز نائم)</string>
+    <string name="max_sensor_light">إضاءة البيئة</string>
+    <string name="max_sensor_unit_lux">لوكس</string>
+    <string name="max_sensor_light_absent">هذا الجهاز لا يُعلن مستشعر ضوء</string>
+    <string name="max_sensor_light_unreadable">لم تصل قراءة قبل انتهاء المهلة — مجهولة لا صفرًا</string>
+    <string name="max_sensor_more">…و%1$s غيرها</string>
+    <string name="max_sensor_no_score">الأسماء والمدى والتأخير من المنصّة. ومستشعر يُبلّغ ليس دليلًا على أنه دقيق.</string>
+    <string name="max_sensor_kind_motion">حركة</string>
+    <string name="max_sensor_kind_environment">بيئة</string>
+    <string name="max_sensor_kind_position">موضع</string>
+    <string name="max_sensor_kind_body">جسد</string>
+    <string name="max_sensor_kind_unpositioned">بلا موضع</string>
+    <string name="max_sensor_kind_other">غير مصنّف</string>
+</resources>

@@ -26,6 +26,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nd.max.core.hardware.RootFileAccess
+import nd.max.core.hardware.WriteVerification
 import nd.max.ui.util.PropertyUtils
 import nd.max.XiaomiVendorFeatures
 
@@ -83,7 +84,12 @@ class TouchBoostViewModel : ViewModel() {
         private fun writeAndVerify(node: TouchNode, enabled: Boolean): Boolean {
             if (!isVerifiedNode(node)) return false
             val value = if (enabled) node.onValue else node.offValue
-            return RootFileAccess.write(node.path, value) && RootFileAccess.read(node.path)?.trim() == value
+            // `PEER-8`: كان التحقّق اليدوي (write + read + مقارنة نصّية) مكتوبًا هنا وحده.
+            // صار يمرّ بالبدائية المشتركة `writeVerified` — **تغيير مقصود ومعلَن**: المقارنة
+            // صارت تقبل التكافؤ العددي (`1` و`01`) وتوحّد الفراغات، لأن السؤال هو «هل استقرّت
+            // القيمة؟» لا «هل النصّ حرفيًّا نفسه؟». ومَن يريد الحرفية يقرأ العقدة بنفسه.
+            return RootFileAccess.writeVerified(node.path, value) ==
+                WriteVerification.Outcome.MATCHED
         }
 
 

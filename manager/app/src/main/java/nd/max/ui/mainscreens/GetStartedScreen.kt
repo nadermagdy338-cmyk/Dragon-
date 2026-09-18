@@ -31,6 +31,8 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -74,7 +76,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
 import nd.max.core.hardware.RootFileAccess
+import nd.max.core.privilege.PrivilegeLevel
+import nd.max.core.privilege.PrivilegeManager
 import nd.max.ui.component.ExpressiveList
+import nd.max.ui.component.PrivilegePanel
 import nd.max.ui.component.ExpressiveSwitchItem
 import nd.max.ui.component.ScreenAccentGlyph
 import nd.max.ui.component.ScreenAccentProvider
@@ -244,10 +249,15 @@ fun GetStartedScreen(navController: NavController) {
 
     var isFinalizing by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val totalPages = 4
+    val totalPages = 5
+
+    // طبقة الامتياز الثانية (AR-20): تُقرأ هنا لتحديد إمكانية التقدّم.
+    val privilegeSnapshot by PrivilegeManager.snapshot.collectAsState()
 
     val canGoNext = when (currentPage) {
-        1 -> rootAccessGranted == true
+        // صفحة فحص الامتياز: مستخدم Shizuku بلا جذر له الحق في إكمال التثبيت،
+        // فلا تُحبَسه بوابتنا الجذرية وحدها.
+        1 -> rootAccessGranted == true || privilegeSnapshot.level != PrivilegeLevel.NONE
         else -> true
     }
 
@@ -578,6 +588,17 @@ fun GetStartedScreen(navController: NavController) {
                             }
                         }
                         2 -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState()),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                PrivilegePanel()
+                            }
+                        }
+                        3 -> {
                             ScreenAccentGlyph(
                                 icon = Icons.Rounded.Tune,
                                 accent = MaterialTheme.colorScheme.secondary,
@@ -657,7 +678,7 @@ fun GetStartedScreen(navController: NavController) {
                                 }
                             }
                         }
-                        3 -> {
+                        4 -> {
                             StatusGlyph(
                                 success = true,
                                 modifier = Modifier

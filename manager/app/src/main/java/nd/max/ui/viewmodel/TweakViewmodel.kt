@@ -39,6 +39,8 @@ import nd.max.R
 import nd.max.RefreshRateReceiver
 import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.util.BackupManager
+import nd.max.ui.util.ConfigBackupInventory
+import nd.max.ui.util.MaxPrefsBundle
 import nd.max.ui.util.PropertyUtils
 
 
@@ -49,7 +51,10 @@ class TweakViewModel : ViewModel() {
         val hasTweaks: Boolean, 
         val hasApplist: Boolean,
         val socType: String?,
-        val data: Map<String, String>?
+        val data: Map<String, String>?,
+        // `GAP-12`: قسما المظهر والتفضيلات — يُكتشفان من الحِزمة المُعلَنة لا بالتخمين.
+        val hasAppearance: Boolean = false,
+        val hasAppPrefs: Boolean = false,
     )
     
     var isUiLoaded by mutableStateOf(false)
@@ -143,7 +148,9 @@ class TweakViewModel : ViewModel() {
         context: Context, 
         uri: Uri, 
         backupTweaks: Boolean, 
-        backupApplist: Boolean
+        backupApplist: Boolean,
+        backupAppearance: Boolean = false,
+        backupAppPrefs: Boolean = false,
     ): Boolean {
         return withContext(Dispatchers.IO) {
             val propsMap = mutableMapOf<String, String>()
@@ -165,6 +172,20 @@ class TweakViewModel : ViewModel() {
                 if (applistContent.isNotBlank()) {
                     propsMap[APPLIST_BACKUP_KEY] = applistContent
                 }
+            }
+
+            // أقسام التفضيلات: تُقرأ **بالقيم بأنواعها**، وتُرفض كل حِزمة إن تعذّر أحد ملفاتها.
+            if (backupAppearance || backupAppPrefs) {
+                val wanted = buildList {
+                    if (backupAppearance) addAll(ConfigBackupInventory.prefFilesOf(ConfigBackupInventory.Section.APPEARANCE))
+                    if (backupAppPrefs) addAll(ConfigBackupInventory.prefFilesOf(ConfigBackupInventory.Section.APP_PREFS))
+                }
+                val bundles = MaxPrefsBundle.read(context, wanted)
+                if (bundles != null && bundles.isNotEmpty()) {
+                    propsMap[ConfigBackupInventory.PREFS_KEY_PREFIX] =
+                        ConfigBackupInventory.PrefCodec.encodeAll(bundles)
+                }
+                // تعذّرت القراءة ⇒ القسم **غائب**، ولا نكتب حِزمة نصفها مفقود.
             }
 
             val isSuccess = BackupManager.createBackup(context, uri, propsMap)
@@ -192,8 +213,23 @@ class TweakViewModel : ViewModel() {
                 it != MaxManagerProps.General.SOC_TYPE &&
                 it != MaxManagerProps.General.SOC_TYPE_DEBUG 
             }
+
+            // حِزمة تفضيلات مشوّهة أو تحمل ملفًا محميًّا ⇒ **لا شيء يُطبَّق**، والقسم يُعلن غائبًا.
+            val prefBundles = backupData[ConfigBackupInventory.PREFS_KEY_PREFIX]
+                ?.let { ConfigBackupInventory.PrefCodec.decodeAll(it) }
+            val appearanceFiles = ConfigBackupInventory.prefFilesOf(ConfigBackupInventory.Section.APPEARANCE)
+            val appPrefFiles = ConfigBackupInventory.prefFilesOf(ConfigBackupInventory.Section.APP_PREFS)
     
-            ValidationResult(true, "", hasTweaks, hasApplist, backupSocType, backupData)
+            ValidationResult(
+                isValid = true,
+                message = "",
+                hasTweaks = hasTweaks,
+                hasApplist = hasApplist,
+                socType = backupSocType,
+                data = backupData,
+                hasAppearance = prefBundles?.keys?.any { it in appearanceFiles } == true,
+                hasAppPrefs = prefBundles?.keys?.any { it in appPrefFiles } == true,
+            )
         }
     }
 
@@ -201,7 +237,9 @@ class TweakViewModel : ViewModel() {
         context: Context, 
         backupData: Map<String, String>, 
         restoreTweaks: Boolean, 
-        restoreApplist: Boolean
+        restoreApplist: Boolean,
+        restoreAppearance: Boolean = false,
+        restoreAppPrefs: Boolean = false,
     ) {
         withContext(Dispatchers.IO) {
             if (restoreTweaks) {
@@ -209,6 +247,8 @@ class TweakViewModel : ViewModel() {
                     if (key != MaxManagerProps.General.SOC_TYPE && 
                         key != MaxManagerProps.General.SOC_TYPE_DEBUG && 
                         key != APPLIST_BACKUP_KEY && 
+                        // حِزمة التفضيلات ليست خاصية نظام: تمريرها إلى `PropertyUtils.set` خطأ.
+                        key != ConfigBackupInventory.PREFS_KEY_PREFIX &&
                         value.isNotEmpty()) {
                         
                         PropertyUtils.set(key, value)
@@ -223,6 +263,20 @@ class TweakViewModel : ViewModel() {
             if (restoreApplist && backupData.containsKey(APPLIST_BACKUP_KEY)) {
                 val applistContent = backupData[APPLIST_BACKUP_KEY]!!
                 RootFileAccess.atomicWriteText(APPLIST_PATH, applistContent)
+            }
+
+            // المظهر والتفضيلات: **دمج لا محو**، وبالقائمة البيضاء وحدها.
+            if (restoreAppearance || restoreAppPrefs) {
+                val wanted = buildSet {
+                    if (restoreAppearance) addAll(ConfigBackupInventory.prefFilesOf(ConfigBackupInventory.Section.APPEARANCE))
+                    if (restoreAppPrefs) addAll(ConfigBackupInventory.prefFilesOf(ConfigBackupInventory.Section.APP_PREFS))
+                }
+                val bundles = backupData[ConfigBackupInventory.PREFS_KEY_PREFIX]
+                    ?.let { ConfigBackupInventory.PrefCodec.decodeAll(it) }
+                val selected = bundles?.filterKeys { it in wanted }
+                if (!selected.isNullOrEmpty()) {
+                    MaxPrefsBundle.apply(context, selected)
+                }
             }
             
             Shell.cmd("touch /data/adb/modules/MaxManager/reboot").exec()
