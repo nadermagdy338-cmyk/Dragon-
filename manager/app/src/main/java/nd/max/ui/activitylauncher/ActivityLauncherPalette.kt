@@ -30,8 +30,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
-import nd.max.ui.components.VideoWallpaperPlayer
-import nd.max.ui.components.WeatherEffectOverlay
+import nd.max.ui.component.VideoWallpaperPlayer
+import nd.max.ui.component.WeatherEffectOverlay
 import nd.max.ui.settings.BgType
 import nd.max.ui.settings.SettingsViewModel
 import nd.max.ui.settings.WeatherEffect

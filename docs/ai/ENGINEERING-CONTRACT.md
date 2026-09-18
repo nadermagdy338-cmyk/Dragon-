@@ -1,0 +1,225 @@
+MaxManager — Engineering Contract
+
+> مرجع ملزم لكل وكيل: هذا الملف كان باسم `CLAUDE.md.bak`، ونُقل إلى هنا في 2026-09-18 ليصبح مرجعًا صريحًا
+> بدل ملف باسم امتداد احتياطي. يُشار إليه من `AGENTS.md` وملفات `docs/ai/team/*`.
+
+1. Core Rules
+
+- Understand before changing. Read the relevant code and existing patterns first.
+- Never guess when the repository or tools can provide the answer.
+- Verify libraries, APIs, functions, files, and behavior before relying on them.
+- Prefer existing utilities and patterns over creating duplicates.
+- Make the smallest change that correctly solves the problem.
+- Do not modify unrelated code.
+- Do not claim something was tested, built, inspected, or verified unless it actually was.
+- If uncertain, state the uncertainty instead of inventing an answer.
+- Push back on technically bad or unsafe ideas with concrete reasoning.
+
+2. Investigation
+
+Before implementation, determine:
+
+- Where the behavior originates.
+- Which symbols/components are involved.
+- Who calls the affected code.
+- Relevant state, lifecycle, threading, and failure paths.
+- Existing tests and conventions.
+
+For non-trivial work, follow:
+
+"Understand → Investigate → Plan → Implement → Verify → Review"
+
+Use Serena first for semantic code navigation:
+
+"find_symbol"
+"find_referencing_symbols"
+"find_implementations"
+"find_declaration"
+"get_symbols_overview"
+"get_diagnostics_for_file"
+
+Use normal search for strings, resources, Gradle, scripts, configuration, and logs.
+
+3. Task Triage
+
+Before substantial work, classify:
+
+"small | medium | large"
+
+- Small: mechanical/non-behavioral change. Targeted checks only.
+- Medium: localized behavior change or bug fix. Test the affected area.
+- Large: cross-module feature, architecture, security, or high-risk change. Use broader investigation and verification.
+
+Use the smallest verification scope that matches the change's blast radius.
+
+4. Context Discipline
+
+Treat context as a limited resource.
+
+- Do not dump large files when relevant symbols/sections are enough.
+- Do not repeatedly inspect unchanged information.
+- Do not explore unrelated directories.
+- Use scripts for deterministic/repetitive work.
+- Use Serena for semantic navigation instead of broad manual exploration.
+
+5. Android / Kotlin
+
+Follow the project's existing architecture.
+
+Prefer:
+
+- Idiomatic Kotlin.
+- Coroutines and Flow.
+- Lifecycle-aware concurrency.
+- Clear state ownership.
+- Existing dependency-injection patterns.
+- Jetpack Compose conventions.
+- Testable, small functions.
+
+Never perform blocking or expensive work on the main thread.
+
+For root/system operations, handle failures, exit codes, cancellation, cleanup, and device/ROM differences explicitly.
+
+6. Build Efficiency
+
+Do not run Gradle/NDK builds by default. Standing instruction from the user
+(2026-09-16): skip builds instead of spending time and tokens on them; verify
+statically. Builds here are Android Gradle builds with Hilt/KSP and cost minutes
+per run, while a static pass catches the mistakes a compile would.
+
+Prefer:
+
+"inspect → edit → static verification → report"
+
+Run a Gradle/NDK build only when the user explicitly asks for one.
+
+Static verification checklist for every edit:
+
+- bracket balance of each edited file, with string literals and comments
+  stripped first (comments and strings legitimately contain unbalanced braces),
+- imports: nothing imported is now unused; nothing used is missing an import,
+- re-read the edited range: confirm nesting, scope receivers (RowScope /
+  LazyListScope / ColumnScope) and named parameters,
+- for any changed shared component, grep every call site and confirm the
+  signature, parameter names and defaults still match,
+- Serena `get_diagnostics_for_file` when the language server is available.
+
+Never claim a change compiles or works because it was not built — say what was
+checked and what was not. Do not skip necessary validation merely to save time;
+the static pass *is* the validation here, and anything that cannot be validated
+that way must be reported as unverified.
+
+7. Testing & Verification
+
+Every meaningful behavioral change must be verified.
+
+- Bug fixes should include regression coverage when practical.
+- Test what was actually touched.
+- Expand verification according to blast radius.
+- Investigate failures before retrying.
+- Never repeat the same failed action without understanding why it failed.
+- Never substitute mocked behavior for testing the real logic.
+
+Before reporting completion, inspect the resulting diff and verify the requested behavior.
+
+8. Critical Review
+
+Before accepting a non-trivial implementation, try to falsify it.
+
+Identify at least one concrete failure mode and its mitigation.
+
+For high-blast-radius changes, identify multiple failure modes.
+
+Ask:
+
+«What could make this fail in production?»
+
+Do not stop at the happy path.
+
+9. Safety
+
+Never expose or commit:
+
+- API keys
+- tokens
+- passwords
+- signing keys
+- keystores
+- credentials
+
+Never perform irreversible actions without explicit user permission:
+
+- commit/push/deploy
+- force-push
+- reset --hard
+- destructive deletion
+- destructive database operations
+
+When told to stop, stop completely.
+
+10. Code Quality
+
+- Prefer self-documenting code.
+- Comments should explain non-obvious intent, constraints, workarounds, or regressions.
+- Avoid speculative abstractions.
+- Avoid unnecessary dependencies.
+- Avoid large rewrites when a focused fix is sufficient.
+- Before deleting existing code, understand why it exists.
+
+11. Completion
+
+Do not consider a task complete merely because code was written.
+
+Report:
+
+- What changed.
+- Why it changed.
+- What was actually verified.
+- What remains unverified.
+
+Use:
+
+"DONE" — implementation and appropriate verification complete.
+
+"DONE_WITH_CONCERNS" — implementation complete but meaningful verification remains.
+
+"BLOCKED" — progress requires an external dependency or decision.
+
+Never hide incomplete work.
+
+12. Communication
+
+Be direct and technical.
+
+For non-trivial proposals show:
+
+What — change
+Why — reason
+Where — affected files/symbols
+Risk — concrete failure + mitigation
+How — implementation/verification
+
+When explaining how something works, trace the actual code path rather than giving a generic explanation.
+
+When multiple valid approaches materially differ, show the trade-offs before choosing.
+
+13. MaxManager Priorities
+
+Pay particular attention to:
+
+- Android lifecycle.
+- Root/system operations.
+- Concurrency.
+- Performance/jank.
+- Background execution.
+- Boot-time behavior.
+- APK installation/signing.
+- Native/NDK code.
+- Android/ROM/device compatibility.
+- Security boundaries.
+
+Prefer evidence from:
+
+"source + Serena diagnostics + logs + targeted tests"
+
+over assumptions.

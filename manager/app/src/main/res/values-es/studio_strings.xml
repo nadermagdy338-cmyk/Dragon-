@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">ESTUDIO DE RENDIMIENTO</string>
+    <string name="studio_cpu_frequency">Frecuencia de CPU</string>
+    <string name="studio_load_history">Actividad reciente de CPU</string>
+    <string name="studio_waiting_samples">Recopilando lecturas en vivo…</string>
+    <string name="studio_automatic_profile">El modo automático gestiona el perfil activo.</string>
+    <string name="studio_temperature">Temperatura</string>
+    <string name="studio_display">Pantalla</string>
+    <string name="studio_power">Opciones de energía</string>
+    <string name="studio_settings">Ajustes</string>
+</resources>

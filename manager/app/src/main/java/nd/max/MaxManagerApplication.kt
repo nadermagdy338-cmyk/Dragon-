@@ -22,6 +22,7 @@ import javax.inject.Inject
 import nd.max.core.maxai.MaxAiEngine
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.hardware.SharedHardwareOwnershipStore
+import nd.max.ui.settings.AppLanguage
 
 /**
  * نقطة إقلاع التطبيق: تُنشئ مكون Hilt وتُقلع بمحرك MAX AI.
@@ -37,6 +38,9 @@ class MaxManagerApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // لغة التطبيق أولًا: AppCompat يطبّق اللغة ويجدّد النشاط عند الحاجة، وهذا الوقت هو الوحيد
+        // الخالي من أي نشاط. بدون هذا السطر كان اختيار المستخدم يُنسى بعد كل قتل للعملية (settings_prefs).
+        AppLanguage.applySaved(this)
         SharedHardwareOwnershipStore.configure(filesDir, applicationInfo.uid, android.os.Process.myPid())
         // Same directory as the journal: the UI writes locks here, the companion
         // process reads them, and both must agree on one durable lock set.

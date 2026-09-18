@@ -1,135 +1,124 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-09-16
+**Analysis Date:** 2026-09-18 (rebuilt from the current tree)
 
-## Directory Layout
+## Directory layout
 
 ```
 optmize-main/
-├── manager/               # Android app (Gradle root, rootProject "MaxManager")
-│   ├── app/               # Main app module (namespace nd.max)
-│   │   ├── src/main/java/nd/max/   # ~238 Kotlin files
-│   │   ├── src/main/aidl/nd/max/   # IMtkService.aidl
-│   │   ├── src/main/res/           # strings.xml × ~70 locales
-│   │   └── src/test/java/nd/max/   # 13 JVM unit tests
-│   ├── terminal-emulator/ # Vendored Termux terminal (com.termux.terminal)
-│   ├── terminal-view/     # Terminal view library
-│   ├── kernel-flasher/    # Kernel flashing lib (Room schemas/)
-│   └── gradle/libs.versions.toml   # Version catalog (single source of versions)
-├── mainfiles/             # Magisk module payload (scripts + system/ overlay + banner)
-├── archdaemon/            # C daemon sys.maxmanager-service (NDK, jni/)
-├── thermalcore/           # Rust thermal policy daemon
-├── binprofiles/           # Rust profile-setter CLI (chipset strategies)
-├── binutils/              # Rust utility binaries
-├── preloadbin/            # C game-lib preloader (NDK, jni/)
-├── android/               # AOSP integration: aosp/ (rc, sepolicy, overlay), kernelsu/ variant
-├── docs/                  # aegis/ + ai/ docs
-├── .github/workflows/     # build.yml (CI)
-├── .github/scripts/       # verify.sh, changelog.sh, compile_zip.sh, generatesha256.sh, telebot.sh
-├── maxmanagerApplist.json # Curated per-game default profile DB
-├── version, version_type  # Version single-sources (read by CI)
-├── update.json            # Magisk update manifest (version/zipUrl/changelog)
-├── changelog.md           # Release notes (copied into module by CI)
-├── module.json, crowdin.yml, fix_tweak.py, logo.jpg
-└── CLAUDE.md.bak, *.log, *.backup   # Tracked artifacts (see CONCERNS.md)
+├── manager/                    # Android app (Gradle root, rootProject "MaxManager")
+│   ├── app/                    # Main module, namespace nd.max
+│   │   ├── src/main/java/nd/max/      # 235 .kt files / 62,660 LOC
+│   │   ├── src/main/aidl/nd/max/IMtkService.aidl
+│   │   ├── src/main/res/              # values/ + 84 locale folders
+│   │   └── src/test/java/nd/max/      # 14 JVM unit-test files
+│   ├── terminal-emulator/      # Vendored Termux engine (com.termux.terminal)
+│   ├── terminal-view/          # Vendored terminal view
+│   ├── kernel-flasher/         # Vendored kernel flasher (+ Room schemas)
+│   └── gradle/libs.versions.toml
+├── mainfiles/                  # Magisk module payload: 8 .sh + system/ overlay + banner + META-INF
+├── archdaemon/jni/             # C: sys.maxmanager-service (14 components + Main.c)
+├── thermalcore/src/            # Rust thermal daemon (16 files)
+├── binprofiles/src/            # Rust chip-aware profile CLI (10 files)
+├── binutils/src/               # Rust utility binaries (3 files)
+├── preloadbin/jni/             # C: game-library preloader
+├── android/                    # aosp/ (rc, sepolicy, overlay) + kernelsu/ variant
+├── docs/ai/                    # Living state: vision, ADRs, tasks, gates, handoff log
+├── docs/aegis/                 # Older spec/plan records (history, superseded)
+├── .planning/codebase/         # This technical map (rebuilt 2026-09-18)
+├── .github/workflows/build.yml # Full CI pipeline
+├── AGENTS.md                   # Team roster + model routing + handoff contract
+├── maxmanagerApplist.json      # Curated per-game default profiles
+├── version / version_type / module.json / update.json / crowdin.yml
+└── (بقايا متعقّبة)              # had *.bak/*.backup + build logs — cleaned 2026-09-18, see CONCERNS.md C-04
 ```
 
-## Directory Purposes
+## Where the app code lives
 
-**manager/app/src/main/java/nd/max/**
-- Purpose: All application code
-- Key files: `MainActivity.kt`, `MaxManagerApplication.kt`, `AppMonitor.kt`, `MaxManagerProps.kt`
-- Subdirectories:
-  - `core/hardware/` — 24 control-plane files (arbiter, backends, locks, capabilities)
-  - `core/maxai/` — 17 files, the MaxAI adaptive engine
-  - `core/jni/` — PredictorBridge, ContextBridge
-  - `core/di/` — Hilt modules (AppModule, DataModule)
-  - `core/diagnostics/` — DiagnosticCenter
-  - `core/recommendation/`, `core/threading/`
-  - `data/datasources/` — HardwareDataSourceImpl
-  - `service/` — FpsOverlayService, MtkRootService, ProcessOverlayService
-  - `receiver/`, `TileService/`
-  - `ui/` — mainscreens (12), component (36), viewmodel (22), navigation (4), subscreens, mtk tabs, terminal (6), theme, design, util (31)
+`manager/app/src/main/java/nd/max/` — **top-level files (10)**: `MainActivity.kt`, `MaxManagerApplication.kt`,
+`AppMonitor.kt`, `AppMonitorLogger.kt`, `MaxManagerPaths.kt`, `MaxManagerProps.kt`, `MtkUtils.kt`,
+`PerAppRefreshRateController.kt`, `RefreshRate.kt`, `XiaomiVendorFeatures.kt`.
 
-**mainfiles/**
-- Purpose: The actual Magisk module — everything that lands on-device
-- Key files: `customize.sh` (SKIPUNZIP=1 installer), `service.sh`, `post-fs-data.sh`, `action.sh`, `preferenced-tweaks.sh`, `verify.sh`, `module.prop`, `system/bin/` (daemon binaries placed here)
-- Subdirectories: `META-INF/` (update-binary), `system/` (systemless overlay tree)
+| Package | Files | Purpose |
+| --- | --- | --- |
+| `core/hardware/` | 24 | Control plane: `HardwareControlArbiter`, `ControlOwnership`, `ManualControlLocks`, `ProfileApplier`, backends (Cpu/Gpu/Zram), `HardwareCapabilityResolver`, `DriftGuard`, `PredictiveSafety`, `PerApp*`, `RootFileAccess` |
+| `core/maxai/` | 17 | Adaptive engine: `MaxAiEngine`, `MinimalPlanner`, `SafetyGovernor`, `SafetyEngine`, `TrustModel`, `CredibilityStore`, `ControlRegistry`, `ControlOutcomeModel`, `MaxAiJournal(+Codec)`, `MaxAiInsights`, `Objective`, `ResponseModel`, `DynamicIntentLearner`, `ControlPlane`, `CpuCeilingKnobs` |
+| `core/jni/` | 2 | JNI boundary only: `PredictorBridge`, `ContextBridge` |
+| `core/di/` | 2 | Hilt modules (`AppModule`, `DataModule`) |
+| `core/diagnostics/` | 2 | `DiagnosticCenter` + support |
+| `core/recommendation/` | 2 | Recommendation text classifier |
+| `ui/mainscreens/` | 13 | `HomeScreen`, `ControlScreen`, `MaxAiScreen`, `ApplistScreen`, `SettingsScreen`, `DiagnosticsScreen`, `MaxLiveScreen`, `GetStartedScreen`, `DashboardDetailScreens`, `ControlLayoutModel`, plus three legacy-named but **load-bearing** files: `LegendaryHomeDashboard` (live dashboard body, rendered by `HomeScreen`), `HomeDashboardComponents` and `LegacyTweakComponents` (shared composables — see CONCERNS C-07) |
+| `ui/subscreens/` | 26 | Feature screens reached from the domain hubs |
+| `ui/component/` | 38 | Shared composables (legacy design system) + `VideoWallpaperPlayer`, `WeatherEffects` (decorative engines, ADR-12 governed). The duplicate `ui/components/` package was merged here on 2026-09-18 (CONCERNS C-05) |
+| `ui/design/` | 11 | The design language: `MaxTokens`, `MaxStructure`, `MaxScreenScaffold`, `MaxControlRows`, `MaxMetric`, `MaxDomainCard`, `MaxCondition`, `MaxDialogs`, `MaxHelp`, `MaxViewMenu`, `MaxAiCinematics` |
+| `ui/navigation/` | 5 | `MaxDestinations`, `MaxDestinationCatalog`, `MaxNavGraph`, `MaxNavActions`, `MaxNavBar` |
+| `ui/viewmodel/` | 22 | Screen state + orchestration (`*ViewModel.kt`, four legacy `*Viewmodel.kt`) |
+| `ui/util/` | 31 | Logging, formatting, formatting helpers, event log |
+| `ui/theme/` | 6 | Compose theme |
+| `ui/terminal/` | 6 | Terminal screen + integration |
+| `ui/activitylauncher/` | 4 | Activity launcher palette, VM, screen, floating service |
+| `ui/settings/` | 2 | `SettingsViewModel`, `SettingsPreference` |
+| `ui/flasher/` | 2 | `KernelFlasherScreen`, `FlasherWorker` |
+| `ui/process/` | 1 | `MyLifecycleOwner` |
+| `service/`, `TileService/`, `receiver/`, `data/datasources/` | 3 / 2 / 1 / 1 | Foreground services (`FpsOverlayService`, `MtkRootService`, `ProcessOverlayService`), quick tiles, receiver, data source |
 
-**archdaemon/jni/**
-- Purpose: C source of `sys.maxmanager-service` background daemon
-- Key files: `Main.c`, `Android.mk`, `include/AZenith.h`
-- Subdirectories: 14 components (`AppLoader/`, `GamePreload/`, `PidTracker/`, `BypassCharge/`, `ConfigHandler/`, `BinaryCLI/`, `SystemProfile/`, `InotifyHandler/`, `SystemLogger/`, `MaxManagerUtility/`, `FileUtility/`, `ShellUtility/`, `StartupInit/`, `System/`)
+**Removed since the 2026-09-16 analysis:** `ui/mtk/` (tabs package) no longer exists — MediaTek handling is now
+`MtkUtils.kt` + `service/MtkRootService.kt` + MTK rows hosted by the domain hubs.
 
-**thermalcore/src/**
-- Purpose: Rust thermal management daemon (`rianixia-thermalcore`)
-- Key files: `main.rs`, `policy_manager.rs`, `monitor.rs`, `learning.rs`, `prediction.rs`, `cooling.rs`, `thermal_zones.rs`, `state.rs`
-- Special: `simulator.rs` + `simulator` cargo feature — desktop testing without a device
+## Key file locations
 
-**binprofiles/src/**
-- Purpose: Rust CLI applying performance profiles per chipset
-- Subdirectories: `chipsets/` (snapdragon, mediatek, exynos, tensor, unisoc), `profiles/`, `utils/`
+- **App entry**: `MainActivity.kt` (444 lines) → `ui/navigation/MaxNavGraph.kt`.
+- **Boot**: `MaxManagerApplication.kt` (Hilt), `AppMonitor.kt` (foreground watching).
+- **Module install/boot**: `mainfiles/customize.sh` (`SKIPUNZIP=1`), `service.sh`, `post-fs-data.sh`,
+  `action.sh` → `system/bin/sys.maxmanager-service`.
+- **Native entries**: `archdaemon/jni/Main.c`, `thermalcore/src/main.rs`, `binprofiles/src/main.rs`, `binutils/src/main.rs`.
+- **Config sources of truth**: `manager/gradle/libs.versions.toml`, `manager/app/build.gradle.kts`,
+  `version` + `version_type`, `maxmanagerApplist.json`, `android/aosp/maxmanager.rc` + `sepolicy/maxmanager.te`.
+- **Critical logic**: `core/hardware/HardwareControlArbiter.kt` (every hardware write),
+  `core/maxai/MaxAiEngine.kt`, `thermalcore/src/policy_manager.rs`.
+- **Docs**: `README.md` (bilingual EN/中文 overview), `docs/ai/*` (living), `docs/aegis/*` (history), this folder.
 
-## Key File Locations
+## Naming conventions
 
-**Entry Points:**
-- `manager/app/src/main/java/nd/max/MainActivity.kt` — app UI entry
-- `mainfiles/customize.sh` — module installation entry
-- `mainfiles/action.sh` — launches `sys.maxmanager-service`
-- `archdaemon/jni/Main.c`, `thermalcore/src/main.rs`, `binprofiles/src/main.rs` — daemon/binary entries
+- Kotlin files: PascalCase matching the primary class; ViewModels end in `*ViewModel.kt` (legacy `*Viewmodel.kt`
+  in four files: `SettingViewmodel`, `HomeViewmodel`, `ApplistViewmodel`, `TweakViewmodel`).
+- Compose screens: `<Name>Screen.kt`, function `fun <Name>Screen(...)` — 37 files declare a top-level `*Screen(`.
+- Rust: snake_case modules (`policy_manager.rs`); C: PascalCase components + `Main.c`; shell: lowercase
+  hyphenless (`post-fs-data.sh`); tests: `*Test.kt` mirroring the source package under `src/test/`.
 
-**Configuration:**
-- `manager/gradle/libs.versions.toml` — all dependency versions
-- `manager/app/build.gradle.kts` — SDK levels, signing (KS_PWD), ABI filters
-- `version` + `version_type` — version source consumed by CI and scripts
-- `maxmanagerApplist.json` — per-game default profiles
-- `android/aosp/maxmanager.rc` + `sepolicy/maxmanager.te` — init + SELinux
+## Where to add new code
 
-**Core Logic:**
-- `core/hardware/HardwareControlArbiter.kt` — every hardware write
-- `core/maxai/MaxAiEngine.kt` — adaptive engine
-- `thermalcore/src/policy_manager.rs` — thermal decisions
+| Adding | Where |
+| --- | --- |
+| New screen | `ui/subscreens/` (or `ui/mainscreens/` if primary) + entry in `ui/navigation/MaxDestinations.kt`; **do not** declare a new `Scaffold` — use `ui/design/MaxScreenScaffold.kt` |
+| New hardware control | backend in `core/hardware/` following `CpuHardwareBackend.kt`, key in `HardwareControlKey.kt`, writes only through the arbiter; test under `src/test/java/nd/max/core/hardware/` |
+| New Max AI behaviour | `core/maxai/` respecting `SafetyGovernor` + `ManualControlLocks`; journal via `MaxAiJournal` |
+| New tweak prop | `mainfiles/preferenced-tweaks.sh` via the `set_default_prop` helper |
+| New chipset support | `binprofiles/src/chipsets/{family}.rs` + probing in `HardwareCapabilityResolver.kt` |
+| New C daemon component | new directory under `archdaemon/jni/src/` + hook in `Main.c` + `Android.mk` |
+| New user-visible string | `res/values/*.xml` **and** `res/values-ar/*.xml` in the same change (ADR-14) |
 
-**Testing:**
-- `manager/app/src/test/java/nd/max/` — 13 unit test files (core layer only)
+## Special directories
 
-**Documentation:**
-- `README.md` — bilingual (EN/中文) overview + feature list
-- `docs/aegis/`, `docs/ai/` — subsystem docs
-- `changelog.md` — release notes
+- `manager/app/src/main/jniLibs/`: `libmaxmanager_native.so` is CI-built and gitignored; `libtermux.so` is a
+  deliberate committed exception.
+- `.serena/`: LSP artifacts, **tracked in git** (including `intellij-server.log` and telemetry CSV) — see CONCERNS.
+- Backups inside source trees: `ui/mainscreens/HomeDashboardComponents.kt.backup`,
+  `ui/mainscreens/LegendaryHomeDashboard.kt.bak`, plus root `LegendaryHomeDashboard.kt.backup`.
 
-## Naming Conventions
+## Changelog
 
-**Files:**
-- Kotlin: PascalCase matching class (`HardwareControlArbiter.kt`); ViewModels end in `*ViewModel.kt` or `*Viewmodel.kt` (inconsistent: both `SettingViewmodel.kt` and `ChargingViewModel.kt`)
-- Rust: snake_case modules (`policy_manager.rs`)
-- Shell: lowercase hyphenless (`customize.sh`, `post-fs-data.sh`)
-- Tests: `*Test.kt` mirroring source package under `src/test/`
+- 2026-09-18 — rebuilt: `ui/mtk/` removed from the map, `ui/design` now 11 files, navigation package 5 files,
+  MainActivity 444 lines, added `.planning/` + `AGENTS.md` to the tree, and per-package file counts re-derived.
 
-**Directories:**
-- Kotlin packages by layer: `core/`, `ui/`, `data/`, `service/`, `receiver/`
-- `ui/component/` vs `ui/components/` both exist (see CONCERNS.md)
+<details>
+<summary>Evidence</summary>
 
-## Where to Add New Code
-
-**New UI screen:** `ui/mainscreens/` or `ui/subscreens/` + route in `ui/navigation/MaxDestinations.kt` / `MaxNavGraph.kt` + ViewModel in `ui/viewmodel/`; all strings → `res/values/strings.xml` (then Crowdin)
-**New hardware control:** backend in `core/hardware/` (follow `CpuHardwareBackend.kt` shape), register key in `HardwareControlKey.kt`, arbiter-mediated writes only; test in `src/test/java/nd/max/core/hardware/`
-**New MaxAI behavior:** `core/maxai/` respecting SafetyGovernor/ManualControlLocks; journal via MaxAiJournal
-**New tweak prop:** `mainfiles/preferenced-tweaks.sh` via `set_default_prop` helper (see comment block in `customize.sh`)
-**New chipset support:** strategy in `binprofiles/src/chipsets/{family}.rs` + capability probing in `HardwareCapabilityResolver.kt`
-**New daemon component (C):** directory under `archdaemon/jni/src/` + hook into `Main.c` + `Android.mk`
-
-## Special Directories
-
-**`manager/app/src/main/jniLibs/`:**
-- Purpose: packaged native libs
-- `libmaxmanager_native.so` is CI-built and gitignored; `libtermux.so` deliberately committed
-
-**`.serena/cache/` (tracked accidentally):** IDE/LSP cache including a log file — cleanup candidate
-
-**Backup/log files tracked in git:** `CLAUDE.md.bak`, `LegendaryHomeDashboard.kt.backup`, `HomeDashboardComponents.kt.backup`, `build_*.log` — see CONCERNS.md
-
----
-
-*Structure analysis: 2026-09-16*
-*Update when directory structure changes*
+```sh
+for d in $(find manager/app/src/main/java/nd/max -maxdepth 2 -type d); do echo "$(find $d -maxdepth 1 -name '*.kt' | wc -l) $d"; done | sort -rn
+ls manager/app/src/main/java/nd/max/ui/design manager/app/src/main/java/nd/max/ui/navigation
+grep -rl '^fun .*Screen(' manager/app/src/main/java/nd/max/ui | wc -l     # 37
+wc -l manager/app/src/main/java/nd/max/MainActivity.kt                     # 444
+find manager/app/src/main/java/nd/max -iname '*mtk*'                       # only MtkUtils.kt + MtkRootService.kt
+```
+</details>

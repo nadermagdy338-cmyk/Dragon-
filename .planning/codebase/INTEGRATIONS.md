@@ -1,83 +1,133 @@
 # External Integrations
 
-**Analysis Date:** 2026-09-16
+**Analysis Date:** 2026-09-18 (rebuilt from the current tree)
 
-## APIs & External Services
+## The headline
 
-Max Manager is a **local, offline-first** Android system module. It has no cloud backend and no user-facing remote APIs.
+Max Manager is a **local, offline-first, rooted Android module**. It has **no backend, no user accounts, and no
+remote API called by the app**. A grep for `http(s)://` in `manager/app/src/main/java/nd/max/**` returns only
+Apache license headers — no HTTP client, no analytics SDK, no update-check call in the Kotlin sources.
 
-**Telegram build notifications (CI only):**
-- `.github/scripts/telebot.sh` — sends built module zip to a Telegram chat
-  - Client: `curl` against `https://api.telegram.org/bot$BOT_TOKEN/sendDocument`
-  - Auth: `BOT_TOKEN` from GitHub Actions secrets (never committed)
-  - Not part of the product; release pipeline only
+Every "integration" is either **on-device kernel/system surface** (mediated by root) or **build/release
+infrastructure** (GitHub Actions, Crowdin, Telegram).
 
-## Device-Level Integrations (not network)
+## Device-level integrations
 
-The "external systems" this codebase talks to are **on-device kernel/system interfaces**, mediated through root:
+**Kernel sysfs / procfs — the real interface** (via libsu + `RootFileAccess.kt`, or direct native I/O in daemons):
 
-**Kernel sysfs/procfs (via libsu shell + direct file IO):**
-- CPU: freq governors, per-core limits (`core/hardware/CpuHardwareBackend.kt`, `preferenced-tweaks.sh`)
-- GPU: clocks/offsets (`GpuHardwareBackend.kt`, `GpuTweakPersistence.kt`)
-- Thermal: cooling device lists, thermal zones (`thermalcore/src/thermal_zones.rs`, `cooling.rs`)
-- ZRAM: size/compression knobs (`ZramHardwareBackend.kt`)
-- I/O schedulers, CPU governor selection (user-configurable defaults)
+| Domain | Where |
+| --- | --- |
+| CPU: governors, per-core limits, freq ceiling | `core/hardware/CpuHardwareBackend.kt`, `mainfiles/preferenced-tweaks.sh`, `core/maxai/CpuCeilingKnobs.kt` |
+| GPU: clocks/offsets, persistence | `GpuHardwareBackend.kt`, `GpuTweakPersistence.kt` |
+| Memory: ZRAM size/compression | `ZramHardwareBackend.kt` |
+| Thermal: zones, cooling devices | `thermalcore/src/thermal_zones.rs`, `cooling.rs`, `monitor.rs` |
+| I/O scheduler, profile application | `ProfileApplier.kt`, `binprofiles/src/chipsets/*.rs` |
+| Charging bypass, per-app refresh rate, process freezing | `archdaemon/jni` (`BypassCharge`, `PidTracker`), `PerAppRefreshRateController.kt` |
 
-**Android system services (app side):**
-- PackageManager / ActivityManager — foreground app detection, app list (`AppMonitor.kt`, `ApplistViewmodel.kt`)
-- Charging/battery state — `ChargingViewModel.kt`, bypass-charge diagnostics
-- Per-app refresh rate — `PerAppRefreshRateController.kt` (vendor surfaceflinger props on some chips)
-- Vendor props — `XiaomiVendorFeatures.kt`, `MtkUtils.kt` (MediaTek-specific paths), `ui/mtk/` screens
+**Android system services (app side)**:
+- PackageManager / ActivityManager → foreground detection, app list (`AppMonitor.kt`, `ApplistViewmodel.kt`).
+- Battery/charging state (`ChargingViewModel.kt`), overlays (`FpsOverlayService`, `ProcessOverlayService`).
+- Quick settings tiles: `TileService/ProfileTileService.kt`, `BypassChgTileService.kt`.
+- Binder: `service/MtkRootService.kt` exposed through `src/main/aidl/nd/max/IMtkService.aidl`.
+- Hidden Android APIs via the `hiddenapibypass` (LSPosed) dependency.
 
-**Inter-process control plane:**
-- Manager app ↔ archdaemon (`sys.maxmanager-service`, C, `archdaemon/jni/`): app profiles, preloading, PidTracker, bypass charge, config handling — version-checked via baked-in `MODULE_VERSION` compared against module.prop (`build.yml` "Sync Daemon Version String" step)
-- Manager app ↔ thermalcore (Rust daemon): thermal policy, serialized state via serde/bincode; `simulator` cargo feature for desktop testing
-- App ↔ per-app settings store: `/data/adb/.config/MaxManager` (module config dir created by `customize.sh`)
-- `maxmanagerApplist.json` (repo root) — curated per-game default profile database shipped with module
+**Vendor surfaces** (chipset-specific, probed rather than assumed): `MtkUtils.kt` (MediaTek),
+`XiaomiVendorFeatures.kt`, per-SoC strategies in `binprofiles/src/chipsets/{snapdragon,mediatek,exynos,tensor,unisoc}.rs`,
+and capability discovery in `HardwareCapabilityResolver.kt`.
 
-**Native code (JNI, in-app):**
-- `core/jni/PredictorBridge.kt` — RL-based thermal/perf predictor (`libmaxmanager_native.so`, built by CI; gitignored)
-- `core/jni/ContextBridge.kt` — native recommendation generation
+**Native boundary**: `core/jni/PredictorBridge.kt` + `ContextBridge.kt` ↔ `libmaxmanager_native.so`
+(built by CI, gitignored, packaged into `jniLibs/`). `libtermux.so` is committed deliberately.
 
-## Data Storage
+## Root-manager integrations
 
-**No databases.** All persistence is property/file based:
-- Android system props (`resetprop`/`setprop`) — 58+ tweak props in `preferenced-tweaks.sh`
-- Config files under `/data/adb/.config/MaxManager`
-- SharedPreferences in-app (e.g., `MaxAiEngine.kt` journal/credibility stores)
-- Room not used; `manager/kernel-flasher` has `schemas/` (Room export) for its own use
+The module ships three entry layers and must work under each:
 
-## Authentication & Identity
+| Manager | Files |
+| --- | --- |
+| Magisk / generic systemless | `mainfiles/customize.sh`, `service.sh`, `post-fs-data.sh`, `action.sh`, `module.prop`, `META-INF/` |
+| KernelSU / KernelSU Next | `android/kernelsu/` — `customize.sh`, `service.sh`, `action.sh`, `uninstall.sh`, `module.prop`, `skip_mount` |
+| AOSP / ROM integration | `android/aosp/` — `maxmanager.rc`, `Android.bp`, `BoardConfig.mk`, `sepolicy/maxmanager.te`, `sepolicy/file_contexts` |
 
-None. Root authorization is delegated to the installed root manager (KernelSU/Magisk); libsu handles shell elevation.
+- SELinux: the shipped `maxmanager.te` defines the daemon domains; a denial here breaks the daemon silently.
+- Init: `android/aosp/maxmanager.rc` starts the service; boot ordering is handled by `post-fs-data.sh` → `service.sh`.
+- Module metadata: `module.json` (`metamodule: false`), `update.json` (Magisk update manifest with
+  `versionCode` 1823) — the only "remote" artifact, consumed by the root manager, not by the app.
 
-## Monitoring & Observability
+## CI / release infrastructure
 
-- In-app: `core/diagnostics/DiagnosticCenter.kt` (tested in `DiagnosticCenterTest.kt`), `EventLog` (`ui/util/`)
-- Daemon-side: `SystemLogger` component in `archdaemon/jni/src/`, thermalcore's own state journaling
-- No crash reporting / analytics service
+`.github/workflows/build.yml` runs, in order: `verify.sh` → `changelog.sh` → determine build type →
+sync daemon version string → NDK setup (`nttld/setup-ndk`) + ccache → compile archdaemon → compile preloadbin →
+Rust toolchain (`dtolnay/rust-toolchain`) + `cargo-ndk` → build thermalcore / profilesettings / utility →
+build the JNI native library → compile flashable zip (`compile_zip.sh`) → package developer integration bundle →
+validate artifacts → upload artifacts (with retry steps) → Telegram upload.
 
-## CI/CD & Deployment
+**Secrets used by CI** (never committed): `KS_PWD` / key password for release signing (the build fails fast
+without it), and `BOT_TOKEN` + `CHAT_ID` for the Telegram notification in `.github/scripts/telebot.sh`
+(`curl https://api.telegram.org/bot$BOT_TOKEN/sendDocument`). The Telegram step is release plumbing only.
 
-- GitHub Actions `.github/workflows/build.yml` — triggers on PR/push to main + manual dispatch, path-filtered
-  - Steps: verify module → changelog copy → build type from `version_type` → daemon version sync → Gradle release APK (KS_PWD secret) → Rust cross-compile → NDK daemons → `.github/scripts/compile_zip.sh` → sha256 → Telegram notify
-  - Secrets: `KS_PWD`/`KEYSTORE_PASSWORD`, `BOT_TOKEN`
+## Localization pipeline
 
-## Environment Configuration
+`crowdin.yml` registers **all six** translatable files in `res/values/` (since 2026-09-18):
 
-**Development:**
-- `KS_PWD` required for signed release APK (build fails early otherwise)
-- Rust targets: aarch64-linux-android, armv7-linux-androideabi (+ NDK linker config)
-- `thermalcore` `simulator` feature enables running the thermal daemon on desktop for testing
+```yaml
+files:
+  - source: manager/app/src/main/res/values/strings.xml
+    translation: manager/app/src/main/res/values-%android_code%/strings.xml
+  - source: manager/app/src/main/res/values/max_ai_strings.xml
+    translation: manager/app/src/main/res/values-%android_code%/max_ai_strings.xml
+  # + max_navigation_strings.xml, max_screen_strings.xml, max_design_strings.xml, studio_strings.xml
+```
 
-**Production:**
-- Version string flows: `version` + `version_type` files → `module.prop`, `update.json`, daemon binary — all must agree or module self-verifies as broken (`verify.sh`)
+Before that date only `strings.xml` was wired, so **471 strings** (`max_ai` 220, `max_screen` 177,
+`max_navigation` 54, `max_design` 11, `studio` 9) never entered the ~100-locale pipeline — visible in the tree
+because `values-de/` and `values-fr/` contained `strings.xml` **only**. The rule is now written down as
+**ADR-26**: a string file that is not registered is a defect, and a new file must be registered in the same change.
 
-## Webhooks & Callbacks
+**Arabic is the reference pair**: all six EN files have a `values-ar/` counterpart (`values-ar/` now contains six
+files), and the remaining work is translation *coverage* inside `strings.xml` (1,629 EN vs 844 AR), which is
+exactly what the pipeline is for. Three gates in `docs/ai/VALIDATION.md` §3 keep the structure honest:
+file-level AR parity, per-pair key + format-specifier parity, and Crowdin registration.
 
-None. Incoming: none. Outgoing: Telegram (CI only, see above).
+### Measured coverage — `tools/i18n_coverage.py` (2026-09-18)
 
----
+The pipeline is now *measurable* instead of assumed. 6 English source files hold **2,106 keys**;
+`values-ar/` carries **1,321** of them (62.7%), and **each of the other 84 locales sits at 380 (18%) and is
+missing 5 of the 6 files entirely — 144,043 keys**. That number is a translation backlog, not a defect:
+a missing key falls back to English at runtime, and the gate reports coverage as output, never as a failure.
 
-*Integration audit: 2026-09-16*
-*Update when adding/removing external services*
+```sh
+python3 tools/i18n_coverage.py                    # coverage table for all 84 locales
+python3 tools/i18n_coverage.py --write-manifests   # build/i18n/to_translate_<locale>.csv, one per locale
+python3 tools/i18n_coverage.py --locale de --apply-csv <csv> --dry-run   # validate before writing
+python3 tools/i18n_coverage.py --assert            # gate: exit 1 only on a real defect
+```
+
+`--apply-csv` is append-only and refuses any row whose specifiers the caller never passes, whose key already
+exists, or that duplicates a key inside the same batch — so a returned translation file cannot silently break
+the build or crash a screen. The same command also enforces that the three descriptions of the language set
+stay identical: `res/values-*` folders, `AppLanguage.CODES`, and `res/xml/locales_config.xml`.
+
+## What this repo does *not* integrate with
+
+No Firebase/analytics/crash reporting, no ad SDK, no payment, no auth provider, no cloud sync, no OTA update
+client inside the app, no third-party telemetry endpoint. Any future addition of one of these is an architecture
+decision (needs an ADR in `docs/ai/DECISIONS.md`), not a local edit.
+
+## Changelog
+
+- 2026-09-18 — rebuilt: added the KernelSU/AOSP entry matrix, the detailed CI step order, the secret names
+  actually used, and the **Crowdin single-file gap** discovered while verifying this document.
+- 2026-09-18 (later) — added measured per-locale coverage (2,106 keys / 84 locales / 144,043 missing) and the
+  `tools/i18n_coverage.py` commands that produce and merge translation batches.
+
+<details>
+<summary>Evidence</summary>
+
+```sh
+grep -rn 'https\?://' manager/app/src/main/java/nd/max --include='*.kt' | grep -v xmlns   # license headers only
+cat crowdin.yml                                                                          # 1 source file
+grep -nE 'BOT_TOKEN|CHAT_ID|curl' .github/scripts/telebot.sh
+grep -nE '^\s+(- name:|uses:)' .github/workflows/build.yml
+find android/kernelsu android/aosp -maxdepth 2
+```
+</details>

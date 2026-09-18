@@ -69,10 +69,20 @@ import nd.max.ui.component.*
 import nd.max.ui.design.LocalFloatingBottomBarHeight
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.*
+import nd.max.ui.settings.AppLanguage
 import nd.max.ui.theme.MaxManagerTheme
 import nd.max.ui.util.*
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    /**
+     * لغة التطبيق تُربط هنا قبل أي مورد وقبل إنشاء الواجهة. النشاط `ComponentActivity` لا يمرّ على
+     * `AppCompatDelegate` (وهو ما يعمل به تبديل اللغة على API 33+)، فاللفّ هنا هو ما يجعل الاختيار
+     * المحفوظ ظاهرًا على أندرويد ١٠–١٢ بدل أن يبقى محفوظًا بلا أثر. التفصيل في `AppLanguage.wrap`.
+     */
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

@@ -1,5 +1,9 @@
 # MaxManager UI final-pass audit — 2026-09-04
 
+> **مُتجاوَز (superseded).** هذه وثيقة من تمريرة UI قديمة: بعض ما تذكره من شاشات لم يعد موجودًا
+> (`AdrenoGpuScreen`، `MaliGpuFreqScreen`، `ThermalDevicesScreen` — انظر `docs/ai/KNOWN_ISSUES.md` I-42).
+> المرجع الحي للحالة والقرارات: `docs/ai/` و`.planning/codebase/`. لا تعتمد على هذه الوثيقة في قرار.
+
 ## Scope
 This pass continues from `MaxManager-home-command-center-rtl.zip` and does not rebuild Home again. It focuses on the remaining Dashboard Detail screens plus cross-screen UI consistency and RTL-safe motion.
 

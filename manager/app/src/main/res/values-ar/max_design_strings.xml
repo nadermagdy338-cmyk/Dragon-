@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    مفردات لغة التصميم — النظير العربي لملف values/max_design_strings.xml، مطابقة مفتاحًا بمفتاح.
+
+    هذه النصوص تصف مدى موثوقية القراءة، وتُعرض جوار كل قيمة قياس في التطبيق،
+    لذا تُرجمت بوصفها وصفًا للحالة لا زخرفة: «لا قراءة» تعني فعلًا أنه لا قراءة،
+    و«غير مدعوم» تعني أن العتاد لا يوفّر المنفذ.
+-->
+<resources>
+    <!-- مفردات موثوقية البيانات -->
+    <string name="max_trust_live">مباشر</string>
+    <string name="max_trust_stale">آخر عيّنة</string>
+    <string name="max_trust_snapshot">لقطة</string>
+    <string name="max_trust_unreadable">لا قراءة</string>
+    <string name="max_trust_unsupported">غير مدعوم</string>
+
+    <!-- سطر المصدر والحداثة -->
+    <string name="max_source_label">المصدر</string>
+    <string name="max_updated_label">آخر تحديث</string>
+    <string name="max_provenance_separator">" · "</string>
+
+    <!-- إمكانية الوصول -->
+    <string name="max_value_unavailable_a11y">لا توجد قيمة متاحة</string>
+    <string name="max_expand_section">إظهار التفاصيل</string>
+    <string name="max_collapse_section">إخفاء التفاصيل</string>
+</resources>

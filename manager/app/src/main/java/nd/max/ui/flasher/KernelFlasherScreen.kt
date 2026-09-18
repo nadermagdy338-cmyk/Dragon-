@@ -16,7 +16,7 @@
 package nd.max.ui.flasher
 
 import nd.max.ui.settings.BgType
-import nd.max.ui.components.VideoWallpaperPlayer
+import nd.max.ui.component.VideoWallpaperPlayer
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent

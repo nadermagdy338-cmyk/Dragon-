@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">En direct</string>
+    <string name="max_trust_stale">Dernière mesure</string>
+    <string name="max_trust_snapshot">Instantané</string>
+    <string name="max_trust_unreadable">Aucune lecture</string>
+    <string name="max_trust_unsupported">Non pris en charge</string>
+    <string name="max_source_label">Source</string>
+    <string name="max_updated_label">Mis à jour</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">aucune valeur disponible</string>
+    <string name="max_expand_section">Afficher les détails</string>
+    <string name="max_collapse_section">Masquer les détails</string>
+</resources>

@@ -1,3 +1,15 @@
+# كل ملف نصوص في values/ يجب أن يُسجَّل هنا — الملف غير المسجّل يبقى خارج خط الترجمة (~100 لغة).
+# السبب والقرار: docs/ai/DECISIONS.md → ADR-26.
 files:
   - source: manager/app/src/main/res/values/strings.xml
     translation: manager/app/src/main/res/values-%android_code%/strings.xml
+  - source: manager/app/src/main/res/values/max_ai_strings.xml
+    translation: manager/app/src/main/res/values-%android_code%/max_ai_strings.xml
+  - source: manager/app/src/main/res/values/max_navigation_strings.xml
+    translation: manager/app/src/main/res/values-%android_code%/max_navigation_strings.xml
+  - source: manager/app/src/main/res/values/max_screen_strings.xml
+    translation: manager/app/src/main/res/values-%android_code%/max_screen_strings.xml
+  - source: manager/app/src/main/res/values/max_design_strings.xml
+    translation: manager/app/src/main/res/values-%android_code%/max_design_strings.xml
+  - source: manager/app/src/main/res/values/studio_strings.xml
+    translation: manager/app/src/main/res/values-%android_code%/studio_strings.xml

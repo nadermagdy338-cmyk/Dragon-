@@ -19,6 +19,26 @@ local.properties
 captures/
 .cxx/
 
+# ── نسخ احتياطية وحطام بناء ──
+# كانت متعقَّبة: *.bak/*.backup داخل الشجرة (منها MainActivity.kt.bak) وسجلات البناء.
+# القاعدة: نسخة قديمة من ملف لا تنتمي إلى جانب الملف الحقيقي.
+*.bak
+*.backup
+*.log
+
+# ── حالة الأدوات المحلية ──
+# .serena/cache = LSP + تليمترى (سجلات وCSV)، وproject.local.yml/إعدادات .claude محلية لكل جهاز.
+# .serena/project.yml يبقى متعقّبًا — هو إعداد المشروع المشترك لا حالة الجهاز.
+# __pycache__ ينشأ من تشغيل أدوات tools/*.py — مخزّن مؤقت لا ينتمي للمستودع.
+.serena/cache/
+__pycache__/
+.serena/project.local.yml
+.claude/settings.local.json
+
+# علامة أداة مزامنة محلية تُنشأ في جذر العمل. فارغة، وتخصّ هذا الجهاز وحده، وكانت
+# تظهر في `git status` كملف غير متعقّب في كل مرة — وهو ضجيج لا يخصّ المستودع.
+.maxmanager-sync-root
+
 # ── نظام التشغيل ──
 .DS_Store
 Thumbs.db

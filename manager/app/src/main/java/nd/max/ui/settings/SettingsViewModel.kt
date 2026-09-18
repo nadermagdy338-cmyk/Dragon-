@@ -12,8 +12,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import nd.max.ui.theme.ThemeMode
@@ -147,32 +145,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         } 
     }
 
-    // [UPDATE] Locale handling untuk semua bahasa baru
+    /**
+     * يغيّر لغة التطبيق ويحفظها.
+     *
+     * التعيين والحفظ يعيشان في [AppLanguage] و[SettingsPreference] لأن الإقلاع يحتاجهما أيضًا؛
+     * كانت هنا سلسلة `when` طويلة لا يعرفها الإقلاع، فكان الاختيار يُنسى بعد قتل العملية.
+     */
     fun setAppLanguage(code: String) {
         viewModelScope.launch {
             settingsPreference.setLanguageCode(code)
-            
-            val localeList = when (code) {
-                "system" -> LocaleListCompat.getEmptyLocaleList()
-                // Chinese Variants
-                "zh-CN" -> LocaleListCompat.forLanguageTags("zh-CN")
-                "zh-SG" -> LocaleListCompat.forLanguageTags("zh-SG")
-                "zh-TW" -> LocaleListCompat.forLanguageTags("zh-TW")
-                "zh-HK" -> LocaleListCompat.forLanguageTags("zh-HK")
-                "zh-MO" -> LocaleListCompat.forLanguageTags("zh-MO")
-                // Cyrillic & Eastern European
-                "ru" -> LocaleListCompat.forLanguageTags("ru-RU")
-                "uk" -> LocaleListCompat.forLanguageTags("uk-UA")
-                "be" -> LocaleListCompat.forLanguageTags("be-BY")
-                "kk" -> LocaleListCompat.forLanguageTags("kk-KZ")
-                "ro-MD" -> LocaleListCompat.forLanguageTags("ro-MD")
-                // Existing
-                "in" -> LocaleListCompat.forLanguageTags("in-ID")
-                "en" -> LocaleListCompat.forLanguageTags("en-US")
-                else -> LocaleListCompat.forLanguageTags(code)
-            }
-            
-            AppCompatDelegate.setApplicationLocales(localeList)
+            AppLanguage.apply(code)
         }
     }
 

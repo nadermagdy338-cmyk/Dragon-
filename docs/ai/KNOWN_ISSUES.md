@@ -21,7 +21,7 @@ Open problems as of 2026-09-15. `P1` blocks the redesign, `P2` degrades quality,
 | --- | --- | --- | --- | --- |
 | I-10 | P1 | Only 6 of ~46 screens use `ui/design/`; 33 declare their own `Scaffold` | grep `Scaffold(` | NT-03 (per domain) |
 | I-11 | P2 | Two design systems + two near-identical packages `ui/component/` and `ui/components/` | package listing | ADR-06 |
-| I-12 | P2 | Giant unmaintainable UI files: `CpuCoreControlScreen` 1305, `CustomThemeScreen` 1304, `TweakScreen` 1222, `AppSettingsScreen` 1174, `HomeComponents` 1142, `ExpressiveListComponent` 1040, `DashboardDetailScreens` 959 | `wc -l` | NT-03/NT-04/NT-05 |
+| I-12 | P2 | **ملفات ضخمة (رقم مقيس، لا أمثلة يدوية): `10` ملفات فوق 1000 سطر** — `AppMonitor` 1943 · `MaxAiEngine` 1616 · `MaxAiScreen` 1366 · `CustomThemeScreen` 1279 · `AppSettingsScreen` 1204 · `HomeComponents` 1143 · `ExpressiveListComponent` 1086 · `ActivitylauncherScreen` 1081 · `CpuCoreControlScreen` 1043 · `KernelFlasherScreen` 1007. موصولة الآن بسقف: `oversized_files` في `tools/code_health_baseline.json` | `python3 tools/code_health.py` | NT-12 |
 | I-13 | P2 | Decorative engines (pulse field, ambient glow/motif, weather, video wallpaper, haze blur) cost frames/battery in a performance app | `ui/component/`, `ui/components/` | ADR-12 / NT-05 |
 | I-14 | P3 | `MainActivity` defines its own `ExpressiveShapes` duplicating theme shapes | `MainActivity.kt` | NT-01 |
 
@@ -39,22 +39,38 @@ Open problems as of 2026-09-15. `P1` blocks the redesign, `P2` degrades quality,
 
 | ID | P | Issue | Evidence | Fixed by |
 | --- | --- | --- | --- | --- |
-| I-30 | P1 | New design strings exist only in `values/`: 188 keys added, `values-ar` has 77 `max_*` keys; `values/strings.xml` 1474 vs `values-ar/strings.xml` 777 | res grep | NT-07 + ADR-14 in every task |
-| I-31 | P2 | Hardcoded English literals remain in unmigrated Compose screens | grep `Text("` | NT-03 |
+| I-53 | P2 | ~~الفرنسية ١٥٦٧/٢١٠٦~~ **مُغلق 2026-09-18**: الفرنسية **١٠٠٪ (٢١٠٦/٢١٠٦)**، ملفاتها الستة كاملة، `--assert` = ٠ عيب. أُكملت بتسع دفعات (صفر صف مرفوض في التسع) | `python3 tools/i18n_coverage.py --locale fr` | أُنجز |
+| I-54 | P2 | ~~الإسبانية لم تبدأ~~ **مُغلق 2026-09-18**: الإسبانية **١٠٠٪ (٢١٠٦/٢١٠٦)** بعد تسع دفعات من ١٨٪، صفر صف مرفوض. **الألمانية ما زالت عند ١٨٪ (٣٨٠/٢١٠٦ · ناقص ١٧٢٦)** | `python3 tools/i18n_coverage.py --locale es` · `--locale de` | جزئي — الألمانية مفتوحة |
+| I-51 | P1 | **٨١ لغة ناقصة ١٣٩٨٠٦ مفتاحًا** (من أصل ٨٤ لغة هدف؛ المكتملة ٣: `ar` · `es` · `fr`). الجهاز جاهز: `tools/i18n_translate.py --estimate` ثم `--provider <deepl\|google\|openai> --locales all`، والدمج مُتحقَّق (إضافة فقط + فحص وسائط). الناقص مفتاح المزوّد أو مترجم بشري (ADR-28) | `python3 tools/i18n_coverage.py` · `crowdin.yml` | مفتوح |
+| I-52 | P2 | ~~تغطية العربية ١٣٢١/٢١٠٦~~ **مُغلق 2026-09-18**: العربية **١٠٠٪ (٢١٠٦/٢١٠٦)** وكل ملفاتها الستة كاملة، ٠ مفتاح مكرّر، `--assert` = ٠ عيب. تُرجمت داخل المستودع على ثلاث دفعات (٧٨٥ مفتاحًا) بمصطلحات المشروع المعتمدة | `python3 tools/i18n_coverage.py --locale ar` | أُنجز |
+| I-30 | P1 | ~~New design strings exist only in `values/`~~ **مُغلق 2026-09-18**: أُنشئ `values-ar/max_screen_strings.xml` (١٧٧ مفتاحًا) و`values-ar/max_design_strings.xml` (١١)، وكل ملفات النصوص الستة صار لها نظير عربي (تحقق: ٠ مفقود، ٠ زائد، ٠ اختلاف في وسائط `%n$`). الباقي هو تغطية `strings.xml` (١٦٢٩ EN مقابل ٨٤٤ AR) وهي مهمة Crowdin | `docs/ai/VALIDATION.md` §3 (ثلاث بوابات جديدة) · §3.1 (بوابة اللغات) | أُنجز |
+| I-31 | P2 | **نصوص واجهة صلبة: `80` موضعًا مقيسة** (`Text("…")` بنص حرفي، بلا قوالب `$` ولا رموز فقط) في شاشات Compose غير مُرحَّلة. مُجمَّدة بسقف `hardcoded_ui_literals` | `python3 tools/code_health.py` | NT-12 |
 | I-32 | P2 | No UI/instrumentation tests at all; a11y (state descriptions, touch targets) enforced only by convention in `ui/design/` | test dirs | NT-07 (static test) |
+
+## Control plane (ADR-11)
+
+| ID | P | Issue | Evidence | Fixed by |
+| --- | --- | --- | --- | --- |
+| I-55 | P1 | **`27` كتابة مباشرة من طبقة العرض** في **١٢ ملفًا** بدلًا من الـarbiter — فالعقود والـrollback وحق النقض الأمني لا تشمل هذه المفاتيح. التوزيع مقيس: `viewmodel/ZramViewModel` ١٠ · `ChargingViewModel` ٣ · `TweakViewmodel` ٣ · `subscreens/BypassChargeScreen` ٢ · `BypassCheckScreen` ٢ · وواحد لكل من `mainscreens/GetStartedScreen` · `SettingsScreen` · `subscreens/ZramManagerScreen` (**كتابة من داخل شاشة** — الأخطر) · `viewmodel/AppSettingsViewmodel` · `DisplayStudioViewModel` · `NetworkSchedulerViewModel` · `TouchBoostViewModel`. **تنبيه للتصنيف**: ليس كلها عقد عتاد — بعضها ملفات إعداد في `/data/adb/.config/MaxManager/`، وهي آمنة وظيفيًا لكنها تنتمي لنفس الترحيل. **دَين سابق معروف نصًّا** (`VERIFICATION_NT01.md`: «١٩٩ موضعًا مباشرًا في `ui/**`، ADR-11 للكود الجديد») لكنه لم يكن مقيسًا ولا مفروضًا | `python3 tools/code_health.py` → `presentation_hw_writes` | NT-13 — مُجمَّد عند ٢٧ حتى الترحيل |
+| I-56 | P2 | **`29` استيرادًا شاملًا لكود المشروع** (`import nd.max.ui.*`) يُخفي مصدر الرمز عن أي قارئ — أهمها `MainActivity` (٣ حزم) و`MaxNavGraph` (٣) و`SettingsScreen` (٣). ٢٢٨ استيرادًا شاملًا لمنصّة أندرويد باقية **متعمّدة** (نمط Compose) | `python3 tools/code_health.py` | NT-12 — سقف ٢٩ |
 
 ## Environment / process
 
 | ID | P | Issue | Evidence | Fixed by |
 | --- | --- | --- | --- | --- |
-| I-40 | P1 | Cannot compile here: PATH `gradle` is 4.4.1, wrapper needs 9.5.1, `services.gradle.org` unreachable (JDK 25 is present) | `gradle --version`, `gradle-wrapper.properties` | VALIDATION.md static gates |
+| I-57 | P2 | ~~`AGENTS.md` غير متعقّب + ملف عالم محلي يلوّث `git status`~~ **مُغلق 2026-09-18**: `AGENTS.md` (نقطة دخول كل وكيل) كان **غير متعقّب وغير متجاهَل** أي أنه يضيع في أي استنساخ جديد — صار متعقّبًا. و`.maxmanager-sync-root` (فارغ، محلي) أُضيف إلى `.gitignore` فخرج من الضجيج. وبوابة `stray_root_file` تكشف أي ملف جذر جديد غير متعقّب وغير متجاهَل | `python3 tools/code_health.py` | أُنجز |
+
+| ID | P | Issue | Evidence | Fixed by |
+| --- | --- | --- | --- | --- |
+| I-40 | P1 | تعذّر البناء هنا — **السبب الصحيح (2026-09-18)**: لا Android SDK في البيئة (`ANDROID_HOME` غير مضبوط، لا `sdkmanager`، لا `local.properties`)، ولا ذاكرة Gradle (`~/.gradle/caches` غير موجودة). أما تعارض الإصدارات فزائل: `gradle` في PATH صار 9.7.0 والـwrapper يطلب 9.5.1، والشبكة **متاحة** (services.gradle.org وMaven Central قابلان للوصول) | `echo $ANDROID_HOME`, `command -v sdkmanager`, `ls ~/.gradle/caches`, اختبار TCP للوصول | بوابات `VALIDATION.md` الثابتة، و CI هو المكان الوحيد الذي يبني فعلًا |
 | I-41 | P2 | Redesign work is uncommitted/untracked (`ui/design/`, new string files) — easy to lose | `git status` | commit early in NT-01 |
-| I-42 | P2 | `manager/FINAL_UI_AUDIT.md` references screens that no longer exist (`AdrenoGpuScreen`, `MaliGpuFreqScreen`, `ThermalDevicesScreen`) | file vs tree | superseded by docs/ai |
+| I-42 | P2 | ~~`manager/FINAL_UI_AUDIT.md` references screens that no longer exist~~ **مُغلق 2026-09-18**: أُضيف شريط «مُتجاوَز» في أعلى `FINAL_UI_AUDIT.md` و`CHANGED_FILES_FINAL_UI.md` يحيل إلى `docs/ai/` و`.planning/codebase/` | file vs tree | أُنجز |
 | I-43 | P3 | `AppMonitor.kt` fails naive brace-balance checks (pre-existing lexer artifact, identical to HEAD) — do not “fix” in UI work | aegis checkpoint | ignore, baseline |
 | I-44 | P3 | `manager/kernel-flasher` is a vendored fork with its own theme/type files — duplicate-looking files are expected | package `com.github.capntrips.kernelflasher` | leave alone |
 
 ## بعد NT-02 (Max AI)
-- I-45: تعذّر البناء محليًا (gradle 4.4.1 في PATH مقابل wrapper 9.5.1 وشبكة مغلقة) ⇒ التحقق ثابت فقط، لا ضمان تجميع.
+- I-45: تعذّر البناء محليًا — مُحدَّث 2026-09-18: العائق هو غياب **Android SDK** وذاكرة التبعيات، لا إصدار Gradle ولا الشبكة (كلاهما سليم الآن). تنزيل SDK (cmdline-tools + platform 36 + build-tools) ممكن بإذن صريح، وإلا فالتحقق ثابت فقط.
+- I-50: `KernelFlasherScreen.kt` يحمل ٨ مسارات حرفية في تنقّله الداخلي خارج `ui/navigation` (الأسطر ٥٣٧، ٥٤٢، ٥٦٢، ٥٧٠، ٥٧٧، ٥٨٨، ٦١٩، ٦٥٠) — نفس عيب F-01 لكن في شاشة عالية الخطورة (تلمس الأقسام والأقسام الاحتياطية)؛ لم تُلمس بلا بناء. تكشفه بوابة §5(f) الجديدة.
 - I-46: `MaxAiInsights` يقرأ السياق العام `*` فقط؛ أحكام السياق لكل تطبيق غير معروضة بعد.
 - I-47: خط الزمن بلا فلترة/بحث؛ عند ٨٠ حلقة قد يطول التمرير.
 - I-48: لا زر لمسح الدفتر في الواجهة رغم وجود `MaxAiJournal.clear()`.

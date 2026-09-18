@@ -1,5 +1,9 @@
 # Changed files in final UI pass
 
+> **مُتجاوَز (superseded).** سجل ملفات من تمريرة UI قديمة؛ مسارات وأسماء قد تكون تغيرت منذها
+> (منها حذف الحطام المتعقّب و`ui/mtk/`). المرجع الحي: `docs/ai/HANDOFF.md` (سجل التسليم المتسلسل)
+> و`.planning/codebase/STRUCTURE.md` (البنية الحالية).
+
 - `app/src/main/java/nd/max/ui/component/StudioSectionHeader.kt`
 - `app/src/main/java/nd/max/ui/mainscreens/ApplistScreen.kt`
 - `app/src/main/java/nd/max/ui/mainscreens/DashboardDetailScreens.kt`

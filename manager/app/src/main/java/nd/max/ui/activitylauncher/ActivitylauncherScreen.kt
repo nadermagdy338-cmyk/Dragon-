@@ -9,13 +9,14 @@
 
 package nd.max.ui.activitylauncher
 
+import nd.max.ui.navigation.ActivityLauncherRoutes
 import nd.max.ui.settings.BgType
 import nd.max.ui.settings.WeatherEffect
 import nd.max.ui.util.EventLog
 import nd.max.ui.component.MaxManagerSubScreenTopBar
 import nd.max.ui.component.ScreenAccentProvider
-import nd.max.ui.components.VideoWallpaperPlayer
-import nd.max.ui.components.WeatherEffectOverlay
+import nd.max.ui.component.VideoWallpaperPlayer
+import nd.max.ui.component.WeatherEffectOverlay
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -132,9 +133,6 @@ enum class FilterOption { ALL, SYSTEM, USER }
 
 
 
-private const val ACTIVITY_LAUNCHER_LIST_ROUTE = "app_list"
-private const val ACTIVITY_LAUNCHER_DETAIL_ROUTE = "app_detail/"
-
 @Composable
 fun ActivityLauncherScreen(
     rootNavController: NavController,
@@ -143,20 +141,20 @@ fun ActivityLauncherScreen(
 ) {
     val internalNavController = rememberNavController()
 
-    NavHost(navController = internalNavController, startDestination = "app_list") {
-        composable(ACTIVITY_LAUNCHER_LIST_ROUTE) {
+    NavHost(navController = internalNavController, startDestination = ActivityLauncherRoutes.LIST) {
+        composable(ActivityLauncherRoutes.LIST) {
             AppListScreen(
                 viewModel = viewModel,
                 
                 onBack = { rootNavController.popBackStack() },
                 onAppClick = { app ->
-                    internalNavController.navigate(ACTIVITY_LAUNCHER_DETAIL_ROUTE + app.packageName)
+                    internalNavController.navigate(ActivityLauncherRoutes.detail(app.packageName))
                 }
             )
         }
 
-        composable(ACTIVITY_LAUNCHER_DETAIL_ROUTE + "{packageName}") { backStackEntry ->
-            val packageName = backStackEntry.arguments?.getString("packageName") ?: ""
+        composable(ActivityLauncherRoutes.DETAIL_PATTERN) { backStackEntry ->
+            val packageName = backStackEntry.arguments?.getString(ActivityLauncherRoutes.PACKAGE_ARG) ?: ""
             AppDetailScreen(
                 packageName = packageName,
                 

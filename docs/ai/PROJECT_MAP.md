@@ -1,6 +1,6 @@
 # PROJECT_MAP
 
-Structural map of MaxManager as it exists today (2026-09-15). Paths are relative to repo root; app sources are under `manager/app/src/main/java/nd/max/`.
+Structural map of MaxManager as it exists today (2026-09-18). Paths are relative to repo root; app sources are under `manager/app/src/main/java/nd/max/`.
 
 ## Top level
 
@@ -9,10 +9,26 @@ android/ archdaemon/ binprofiles/ binutils/ mainfiles/ preloadbin/ thermalcore/ 
 manager/            # Gradle project: app, kernel-flasher, terminal-emulator, terminal-view
 docs/aegis/         # older spec/plan/work records
 docs/ai/            # THIS shared memory
-module.json version version_type maxmanagerApplist.json fix_tweak.py update.json
+tools/              # static gates — no compiler needed, run from any directory
+.planning/codebase/ # technical map of the code (.planning/README.md is the index)
+AGENTS.md           # team roster + model routing + handoff contract
+module.json version version_type maxmanagerApplist.json update.json crowdin.yml
 ```
 
-## App module layout (281 Kotlin files total in `manager/`)
+## Tools — the only checks that work without an Android SDK
+
+| file | what it proves | how to run |
+| --- | --- | --- |
+| `tools/code_health.py` | correctness = 0 (package/path, every `R.*` resolves per Gradle module, duplicate keys, stray root files) and maintenance debt ≤ ceiling | `python3 tools/code_health.py --assert` |
+| `tools/i18n_coverage.py` | locale coverage, key + format-specifier parity, folder ↔ picker ↔ `locales_config` identity, CSV merge (`--apply-csv`) and manifests (`--write-manifests`) | `python3 tools/i18n_coverage.py --assert` |
+| `tools/repo_audit.py` | an independent second opinion: string keys/duplicates, bracket balance, listed-file presence | `python3 tools/repo_audit.py` |
+| `tools/i18n_translate.py` | batch machine translation with placeholder protection + cache (needs a provider key) | `…--estimate` |
+| `tools/i18n_glossary.csv` | terms that must not be translated | data file |
+
+Each of these derives the repo root from its own location, so the working directory cannot change the answer.
+Replaces the old root-level `check2.py` (stale assertions + CWD-dependent false output) and the inert `fix_tweak.py` (deleted).
+
+## App module layout (297 Kotlin files under `manager/`, of which 238 are `nd.max` app files)
 
 ```
 nd/max/

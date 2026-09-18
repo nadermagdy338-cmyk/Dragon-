@@ -1,93 +1,104 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-09-16
+**Analysis Date:** 2026-09-18 (rebuilt from the current tree)
 
-## Test Framework
+## In one line
 
-**Runner:**
-- JUnit 4.13.2 (`libs.versions.toml`: junit = "4.13.2")
-- Config: standard Gradle test source set; no custom test config file
+14 JVM unit tests, all targeting framework-free logic under `core/` (plus two UI/model helpers); **no
+instrumented tests, no Compose UI tests, no Rust/C/shell tests, no mocking library**.
 
-**Assertion Library:**
-- JUnit 4 built-in asserts (`assertEquals`, `assertTrue`, `assertNull`, `assertNotEquals`)
+## Runner & commands
 
-**Run Commands:**
-```bash
-cd manager && ./gradlew test          # All JVM unit tests
-cd manager && ./gradlew :app:testDebugUnitTest --tests "nd.max.core.maxai.*"   # One package
-cd manager && ./gradlew :app:testDebugUnitTest --tests "nd.max.core.hardware.HardwareControlArbiterTest"  # One class
+- **JUnit 4.13.2** (from `manager/gradle/libs.versions.toml`), plain `@Test` methods, JUnit assertions only
+  (`assertEquals`, `assertTrue`, `assertNull`, `assertNotEquals`). No Robolectric, no MockK/Mockito.
+
+```sh
+cd manager && ./gradlew test                                   # all JVM unit tests
+cd manager && ./gradlew :app:testDebugUnitTest --tests 'nd.max.core.*'
+cd manager && ./gradlew :app:testDebugUnitTest --tests 'nd.max.core.hardware.HardwareControlArbiterTest'
 ```
 
-## Test File Organization
+⚠️ In this sandbox the wrapper is **not executable** (`-rw-rw----`) and there is no guarantee the distribution
+is cached, so invoke `sh gradlew …` or `chmod +x manager/gradlew` and record the exact output. Until a build is
+actually observed to pass, report "compilation unverified in this environment" (ADR-15).
 
-**Location:**
-- `manager/app/src/test/java/nd/max/` — JVM unit tests only, mirrored package structure
+## The 14 test files
 
-**Naming:** `*Test.kt` matching class under test
+| Package | File | What it protects |
+| --- | --- | --- |
+| `core/hardware/` | `ControlPlaneArchitectureTest.kt` | **the architecture itself** — arbiter-mediated writes must stay the only path |
+| | `HardwareControlArbiterTest.kt` | arbitration, journaling, verify-after-write |
+| | `ManualControlLocksTest.kt` | manual intent wins per knob |
+| | `GpuControlModelTest.kt` | GPU control model semantics |
+| `core/maxai/` | `MinimalPlannerTest.kt` | planning decisions |
+| | `ControlOutcomeModelTest.kt` | outcome recording |
+| | `ControlRegistryTest.kt` | canonical knob registry |
+| | `MaxAiJournalCodecTest.kt` | journal serialization round-trip |
+| | `ObjectiveTest.kt` | objective scoring |
+| | `ResponseModelTest.kt` | response serialization round-trip |
+| `core/diagnostics/` | `DiagnosticCenterTest.kt` | user-facing diagnostics |
+| `core/recommendation/` | `RecommendationTextClassifierTest.kt` | classifier behaviour |
+| `ui/mainscreens/` | `ControlLayoutModelTest.kt` | layout model logic extracted out of the composable |
+| `ui/viewmodel/` | `HomeTemperaturePolicyTest.kt` | temperature policy decision logic |
 
-**Structure:**
+The set that must stay green when a toolchain becomes available: `ControlPlaneArchitectureTest`,
+`HardwareControlArbiterTest`, `ManualControlLocksTest`, `MinimalPlannerTest`, `ControlOutcomeModelTest`,
+`DiagnosticCenterTest`.
+
+## Patterns to follow
+
+- **Pure-core discipline**: the control plane and Max AI engine are written so they can be tested without the
+  Android framework (constructor-injected collaborators, interface boundaries). Keep it that way.
+- **Architecture enforcement tests**: `ControlPlaneArchitectureTest` constrains the design, not just behaviour.
+  When adding a control-plane feature, extend the architectural test rather than bypassing it.
+- **Codec round-trips**: `MaxAiJournalCodecTest` / `ResponseModelTest` assert serialize→deserialize equality for
+  persistence formats. Any new persisted format gets the same test.
+- **Hand-built fakes**: where a boundary is needed (filesystem, `RootFileAccess`), inject a fake object written
+  by hand in the test file. Data is constructed inline; there is no fixtures directory and no factory framework.
+- **Test the real logic** — never substitute a mock for the behaviour under test.
+- **Extract, don't instrument**: when a decision lives inside a composable or a heavy class, move the decision
+  into a plain model (`ControlLayoutModel.kt`, `HomeTemperaturePolicy`) and test the model. This is how the two
+  `ui/` tests exist at all.
+- **Naming**: `*Test.kt` under the mirrored package. Flat per-class suites, arrange/act/assert inline without
+  comment headers.
+
+## Where tests live
+
 ```
 manager/app/src/test/java/nd/max/
-├── core/
-│   ├── diagnostics/DiagnosticCenterTest.kt
-│   ├── hardware/            # 4 tests: ControlPlaneArchitecture, GpuControlModel,
-│   │                        #   HardwareControlArbiter, ManualControlLocks
-│   └── maxai/               # 6 tests: ControlOutcomeModel, ControlRegistry,
-│                            #   MaxAiJournalCodec, MinimalPlanner, Objective, ResponseModel
-│   └── recommendation/RecommendationTextClassifierTest.kt
-└── ui/viewmodel/HomeTemperaturePolicyTest.kt
+├── core/{diagnostics,hardware,maxai,recommendation}/
+└── ui/{mainscreens,viewmodel}/
 ```
 
-**Coverage shape:** 13 test files, all targeting `core/` logic + one ViewModel policy test. Zero tests for: UI/composables, shell scripts, Rust crates, C daemons, JNI bridges.
+## Gaps (know these before planning)
 
-## Test Structure
+| Area | State | Consequence |
+| --- | --- | --- |
+| Compose UI / screens | **0 tests** | visual and interaction regressions rely on review |
+| ViewModels | 1 of 22 (`HomeTemperaturePolicyTest`) | state logic is mostly untested |
+| Shell (`mainfiles/*.sh`) | **0 tests** | install/boot scripts verified by reading and `bash -n` only |
+| Rust (`thermalcore`, `binprofiles`, `binutils`) | **0 tests** | `simulator` feature + `simulator.rs` allow desktop runs, unused by CI |
+| C daemons (`archdaemon`, `preloadbin`) | **0 tests** | behaviour validated on-device by maintainers |
+| JNI boundary (`core/jni/`) | **0 tests** | native library is CI-built and not exercised in unit tests |
+| Localization | no test | EN/AR parity is checked by grep gates in `docs/ai/VALIDATION.md` |
+| Coverage tooling | not configured | no JaCoCo, no coverage threshold |
 
-**Patterns (from HardwareControlArbiterTest.kt / MinimalPlannerTest.kt style):**
-- Plain JUnit 4: `@Test` methods, no `describe` nesting (flat per-class suites)
-- arrange/act/assert inline without comments
-- Constructor-instantiated pure Kotlin objects — core layer is deliberately testable without Android framework
-- No Robolectric, no instrumented tests (`androidTest/` absent)
+Adding the first test in any of these areas sets the pattern — follow the pure-core/extracted-interface approach
+the existing 14 already use, and say in the report that execution is unverified if no toolchain is available.
 
-## Mocking
+## Changelog
 
-**Framework:** No mocking library in the version catalog (no Mockito/MockK) — tests exercise real pure-Kotlin logic with hand-built fakes/stubs where needed
+- 2026-09-18 — rebuilt: test count corrected 13 → **14** (`ControlRegistryTest`, `ObjectiveTest`,
+  `ControlLayoutModelTest` now present), added the per-file purpose table, the wrapper-not-executable caveat,
+  and the gap table by area.
 
-**What to Mock (by hand):** file-system boundaries, `RootFileAccess` interactions — kept behind interfaces so tests inject fakes
+<details>
+<summary>Evidence</summary>
 
-**What NOT to Mock:** arbiter/planner/journal logic — tested for real (that's the point of the pure core)
-
-## Fixtures and Factories
-
-- Inline data construction in test files; no shared fixture directory, no factory framework
-
-## Coverage
-
-**Requirements:** None enforced; CI (`.github/workflows/build.yml`) builds and verifies, test gate presence depends on workflow steps — verify before assuming tests block merges
-
-**View Coverage:** not configured
-
-## Test Types
-
-**Unit Tests:** JVM-only, fast, framework-free — the sole test type
-
-**Integration Tests:** none in repo; hardware interactions validated on-device by maintainers
-
-**Rust/C testing:** thermalcore has a `simulator` cargo feature + `simulator.rs` for desktop runs (`cargo run --features simulator`); no automated Rust tests detected; C daemons untested
-
-## Common Patterns
-
-**Architecture enforcement tests:** `ControlPlaneArchitectureTest.kt` — tests constrain the design itself (arbiter-mediated writes must stay the only path). Preserve this pattern: when adding control-plane features, extend architectural tests rather than bypassing them.
-
-**Codec round-trip tests:** `MaxAiJournalCodecTest.kt`, `ResponseModelTest.kt` — serialize/deserialize equality for persistence formats
-
-**Error Testing:** invalid/edge inputs asserted via plain JUnit asserts (no `assertThrows` convention observed)
-
-## Gaps to Know When Planning
-
-- No test infrastructure for: Compose UI, ViewModels (except one), shell scripts, Rust, C, JNI
-- Adding first tests in those areas = setting the pattern; follow the pure-core/extracted-interface approach the existing 13 tests already use
-
----
-
-*Testing analysis: 2026-09-16*
-*Update when test patterns change*
+```sh
+find manager/app/src/test -name '*.kt' | sed 's|.*/nd/max/||' | sort   # 14 files
+find manager/app/src/test -name '*.kt' | wc -l                        # 14
+ls -l manager/gradle/../gradlew | cut -c1-11                           # -rw-rw----
+grep -n 'junit' manager/gradle/libs.versions.toml
+```
+</details>

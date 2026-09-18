@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  النصوص التي أُضيفت أثناء نقل الشاشات إلى لغة تصميم MaxManager — النظير العربي
+  لملف values/max_screen_strings.xml، مطابق له مفتاحًا بمفتاح.
+
+  القاعدة نفسها: لا عبارات زخرفية. كل نص إما يسمّي شيئًا، أو يذكر حالة حقيقية،
+  أو يشرح لماذا لا يمكن فعل الشيء. المصطلحات مأخوذة من الترجمات المعتمدة مسبقًا
+  في هذا المستودع (مفعل/معطل، إعادة المحاولة، ميجابايت) كي لا تختلف النبرة بين الشاشات.
+
+  ملاحظة للمُراجع البشري: هذه ترجمة تقنية أُعدّت داخل المستودع لا عبر Crowdin؛
+  مراجعتها لغويًا مطلوبة كأي تغيير نصّي (انظر ADR-14 وADR-26).
+-->
+<resources>
+
+    <!-- إجراءات مشتركة -->
+    <string name="max_action_retry">إعادة المحاولة</string>
+    <string name="max_action_recheck">إعادة فحص الجهاز</string>
+    <string name="max_action_refresh">تحديث القراءات</string>
+
+    <!-- شاشة استجابة اللمس -->
+    <string name="max_touch_probe_title">جارٍ فحص مشغّل اللمس</string>
+    <string name="max_touch_probe_detail">قراءة عُقد اللمس الخاصة بالشركة المتاحة في هذه النواة.</string>
+    <string name="max_touch_unsupported_title">أدوات اللمس غير متاحة</string>
+    <string name="max_touch_section_controls">استجابة اللمس</string>
+    <string name="max_touch_section_controls_desc">أدوات الإدخال الخاصة بالشركة المكتشفة على هذا الجهاز.</string>
+    <string name="max_touch_section_providers">المزوّدون</string>
+    <string name="max_touch_section_providers_desc">من أين يقرأ MaxManager هذه الإعدادات ويكتبها.</string>
+    <string name="max_touch_section_about">كيف يعمل هذا</string>
+    <string name="max_touch_node_game">عقدة وضع الألعاب</string>
+    <string name="max_touch_node_sample">عقدة معدّل الإبلاغ</string>
+    <string name="max_touch_node_dt2w">عقدة النقر المزدوج</string>
+    <string name="max_touch_node_missing">غير متاحة في هذه النواة</string>
+    <string name="max_touch_provider_hal">طبقة HAL من Xiaomi</string>
+    <string name="max_touch_provider_hal_detail">لم تُوجد عقدة sysfs قابلة للكتابة، لذا تُرسل التغييرات عبر طبقة HAL.</string>
+    <string name="max_touch_boost_locked">لا يوفّر هذا الجهاز عقدة لمس قابلة للكتابة ولا طبقة HAL.</string>
+    <string name="max_touch_dt2w_locked">لا توفّر هذه النواة عقدة للنقر المزدوج.</string>
+    <string name="max_touch_source_sysfs">فحص sysfs</string>
+    <string name="max_touch_source_hal">طبقة HAL</string>
+    <string name="max_touch_state_on">مفعل</string>
+    <string name="max_touch_state_off">معطل</string>
+    <string name="max_touch_revert_notice">عودة المفتاح إلى موضعه تعني أن النواة رفضت الكتابة.</string>
+
+    <!-- شاشة الخمول / Doze -->
+    <string name="max_doze_probe_title">جارٍ قراءة متحكّم الخمول</string>
+    <string name="max_doze_probe_detail">استعلام متحكّم الخمول في أندرويد عن حالته الحالية.</string>
+    <string name="max_doze_unsupported_title">أدوات الخمول غير متاحة</string>
+    <string name="max_doze_source_deviceidle">deviceidle</string>
+    <string name="max_doze_section_state">حالة الخمول</string>
+    <string name="max_doze_section_state_desc">مصدرها أندرويد لا MaxManager. حدّث لإعادة القراءة.</string>
+    <string name="max_doze_metric_state">حالة المتحكّم</string>
+    <string name="max_doze_metric_idle_cycles">دورات الخمول العميق</string>
+    <string name="max_doze_metric_light_idle">دورات الخمول الخفيف</string>
+    <string name="max_doze_metric_gms">سياسة خدمات Play</string>
+    <string name="max_doze_section_policy">سياسة MaxManager</string>
+    <string name="max_doze_section_policy_desc">هذه المفاتيح تغيّر سياسة MaxManager، أما الحالة أعلاه فتبقى ملكيتها لأندرويد.</string>
+    <string name="max_doze_aggressive_locked">شغّل سياسة الخمول أولًا.</string>
+    <string name="max_doze_policy_on">نشط</string>
+    <string name="max_doze_policy_off">غير نشط</string>
+    <string name="max_doze_section_actions">أوامر خمول يدوية</string>
+    <string name="max_doze_section_actions_desc">أوامر تشخيص تُرسل مباشرة إلى متحكّم الخمول، والحالة أعلاه تُظهر النتيجة.</string>
+    <string name="max_doze_action_force_idle_desc">دفع الجهاز إلى الخمول العميق فورًا.</string>
+    <string name="max_doze_action_step_desc">تقديم آلة حالة الخمول خطوة واحدة.</string>
+    <string name="max_doze_action_unforce_desc">إعادة التحكم في الخمول إلى أندرويد.</string>
+    <string name="max_doze_action_reset_desc">تصفير العدّادات المعروضة أعلاه.</string>
+    <string name="max_doze_whitelist_desc">التطبيقات المدرجة هنا مستثناة من تحسين البطارية.</string>
+    <string name="max_doze_apps_loading_title">جارٍ تحميل التطبيقات المثبّتة</string>
+    <string name="max_doze_apps_loading_detail">قراءة قائمة الحزم والاستثناءات الحالية.</string>
+    <string name="max_doze_apps_empty_title">لا تطبيقات مطابقة لهذا المرشّح</string>
+    <string name="max_doze_app_exempt_on">مستثنى من التحسين</string>
+    <string name="max_doze_app_exempt_off">محسَّن بواسطة أندرويد</string>
+
+    <!-- شاشة الدقة / مقاس الشاشة -->
+    <string name="max_res_probe_title">جارٍ قراءة إعداد الشاشة</string>
+    <string name="max_res_probe_detail">سؤال مدير النوافذ عن مقاس اللوحة وكثافتها ومعدل تحديثها.</string>
+    <string name="max_res_unreadable_title">تعذّرت قراءة مقاس الشاشة</string>
+    <string name="max_res_unreadable_detail">لم يُبلّغ مدير النوافذ عن مقاس فيزيائي. يحتاج MaxManager إلى صلاحية root لقراءة إعداد الشاشة وتغييره.</string>
+    <string name="max_res_section_current">المخرج النشط</string>
+    <string name="max_res_section_current_desc">قُرئ مرة واحدة من مدير النوافذ. حدّث لإعادة القراءة بعد أي تغيير.</string>
+    <string name="max_res_metric_active">الدقة النشطة</string>
+    <string name="max_res_metric_native">الدقة الأصلية للوحة</string>
+    <string name="max_res_metric_scale">مقياس العرض</string>
+    <string name="max_res_metric_dpi">الكثافة</string>
+    <string name="max_res_metric_refresh">معدل التحديث</string>
+    <string name="max_res_source_wm">wm size · wm density</string>
+    <string name="max_res_source_derived">مشتق</string>
+    <string name="max_res_scale_note">العرض النشط مقسومًا على العرض الأصلي.</string>
+    <string name="max_res_dpi_native_note">افتراضي اللوحة: %1$d نقطة/بوصة</string>
+    <string name="max_res_refresh_missing">لم تُبلّغ به خدمة الشاشة.</string>
+    <string name="max_res_presets_desc">كل إعداد مسبق نسبة من دقة هذه اللوحة وكثافتها الأصليتين.</string>
+    <string name="max_res_section_manual_desc">تُرسل التغييرات عند إفلات شريط التمرير.</string>
+    <string name="max_res_height_derived">الارتفاع (من قفل النسبة)</string>
+    <string name="max_res_height_locked_note">يتبع الارتفاع نسبة اللوحة ما دام القفل مفعّلًا.</string>
+    <string name="max_res_section_reset">رجوع</string>
+
+    <!-- شاشة طبقة معدل الإطارات -->
+    <string name="max_fps_permission_title">مطلوب صلاحية الطبقات</string>
+    <string name="max_fps_permission_detail">يحتاج أندرويد إلى صلاحية «العرض فوق التطبيقات الأخرى» قبل أن يرسم MaxManager الطبقة.</string>
+    <string name="max_fps_permission_action">فتح إعدادات الصلاحية</string>
+    <string name="max_fps_section_overlay">الطبقة</string>
+    <string name="max_fps_section_overlay_desc">يرسم قراءة مختصرة فوق كل ما يعمل على الشاشة.</string>
+    <string name="max_fps_section_source">مصدر بيانات الإطار</string>
+    <string name="max_fps_source_fallback_note">إذا لم يُرجع المصدر المختار شيئًا، ينتقل MaxManager تلقائيًا إلى مصدر آخر.</string>
+    <string name="max_fps_section_presentation">العرض</string>
+    <string name="max_fps_orientation_locked">ينطبق الاتجاه على قائمة أندرويد فقط.</string>
+    <string name="max_fps_color_selected">محدد</string>
+    <string name="max_fps_color_not_selected">غير محدد</string>
+    <string name="max_fps_color_green">أخضر</string>
+    <string name="max_fps_color_cyan">سماوي</string>
+    <string name="max_fps_color_yellow">أصفر</string>
+    <string name="max_fps_color_orange">برتقالي</string>
+    <string name="max_fps_color_red">أحمر</string>
+    <string name="max_fps_color_white">أبيض</string>
+
+    <!-- مشتركة -->
+    <string name="max_action_dismiss">تجاهل</string>
+    <string name="max_action_turn_off">إيقاف</string>
+
+    <!-- مدير ZRAM -->
+    <string name="max_zram_probe_title">جارٍ قراءة حالة ZRAM</string>
+    <string name="max_zram_probe_detail">يقرأ MaxManager الملف /sys/block/zram0 وجدول swap في النواة.</string>
+    <string name="max_zram_unsupported_detail">لا توفّر هذه النواة الملف /sys/block/zram0/disksize، لذا لا يمكن قراءة الـswap المضغوط أو تغييره على هذا الجهاز.</string>
+    <string name="max_zram_source_sysfs">/sys/block/zram0</string>
+    <string name="max_zram_source_swaps">/proc/swaps</string>
+    <string name="max_zram_source_vm">/proc/sys/vm</string>
+    <string name="max_zram_metric_size">حجم الـswap</string>
+    <string name="max_zram_metric_used">المستخدم من الـswap</string>
+    <string name="max_zram_metric_ratio">نسبة الضغط</string>
+    <string name="max_zram_metric_saved">ذاكرة موفَّرة</string>
+    <string name="max_zram_metric_algo">المُرمِّز</string>
+    <string name="max_zram_metric_swappiness">ميل التبديل</string>
+    <string name="max_zram_metric_priority">أولوية الـswap</string>
+    <string name="max_zram_metric_streams">مسارات الضغط</string>
+    <string name="max_zram_unit_mb">ميجابايت</string>
+    <string name="max_zram_ratio_value">%1$s إلى 1</string>
+    <string name="max_zram_swap_off">متوقف</string>
+    <string name="max_zram_section_state_desc">تُقرأ من النواة وتُحدَّث كل ٣ ثوانٍ ما دامت هذه الشاشة مفتوحة.</string>
+    <string name="max_zram_section_size_desc">تغيير الحجم يوقف الـswap ثم يعيد تهيئته ثم يشغّله من جديد، وخلال ذلك تعود الصفحات المضغوطة إلى الذاكرة.</string>
+    <string name="max_zram_section_codec_desc">يُكتب المُرمِّز مع تغيير الحجم، لذا يُعاد تشغيل الجهاز عند تغييره.</string>
+    <string name="max_zram_section_pressure_desc">يتحكم «ميل التبديل» في مدى تسارع النواة إلى نقل الصفحات نحو الـswap المضغوط.</string>
+    <string name="max_zram_section_maintenance_desc">هذه الإجراءات تُنفّذ فورًا ولا يمكن التراجع عنها.</string>
+    <string name="max_zram_custom_value">%1$s ميجابايت</string>
+    <string name="max_zram_applying_size">جارٍ تغيير حجم الـswap المضغوط</string>
+    <string name="max_zram_applying_swappiness">جارٍ كتابة ميل التبديل</string>
+    <string name="max_zram_applying_algorithm">جارٍ تبديل المُرمِّز</string>
+    <string name="max_zram_applying_compact">جارٍ ضغط الذاكرة</string>
+    <string name="max_zram_applying_reset">جارٍ استعادة الحجم الافتراضي</string>
+    <string name="max_zram_applying_detail">انتظار تأكيد النواة للقيمة.</string>
+    <string name="max_zram_applied_title">تم التطبيق</string>
+    <string name="max_zram_applied_size">حجم الـswap الآن %1$s ميجابايت.</string>
+    <string name="max_zram_applied_swappiness">ميل التبديل الآن %1$s.</string>
+    <string name="max_zram_applied_algorithm">المُرمِّز الآن %1$s.</string>
+    <string name="max_zram_applied_compact">قبلت النواة طلب ضغط الذاكرة.</string>
+    <string name="max_zram_applied_reset">أُعيد الحجم الافتراضي 8192 ميجابايت.</string>
+    <string name="max_zram_failed_title">رفضت النواة التغيير</string>
+    <string name="max_zram_failed_size">طُلب %1$s ميجابايت، والجهاز يُبلّغ عن %2$s ميجابايت.</string>
+    <string name="max_zram_failed_swappiness">طُلب %1$s، والملف /proc/sys/vm/swappiness يُبلّغ عن %2$s.</string>
+    <string name="max_zram_failed_algorithm">طُلب %1$s، والمشغّل يُبلّغ عن %2$s.</string>
+    <string name="max_zram_failed_compact">تعذّرت كتابة مُشغّل ضغط الذاكرة.</string>
+    <string name="max_zram_failed_unreadable">طُلب %1$s، وتعذّرت إعادة قراءة القيمة.</string>
+    <string name="max_zram_failed_detail">كتابة عُقد النواة تحتاج صلاحية root ممنوحة لـMaxManager. وبعض نويات الشركات تقفل هذه العُقد تمامًا.</string>
+    <string name="max_zram_locked_root">يحتاج صلاحية root لكتابة عُقد النواة.</string>
+    <string name="max_zram_compaction_unsupported">الملف /proc/sys/vm/compact_memory غير موجود في هذه النواة.</string>
+    <string name="max_zram_compact_confirm_title">ضغط الذاكرة الآن؟</string>
+    <string name="max_zram_compact_confirm_body">تمرّ النواة على الصفحات المضغوطة لتحرير الشُّذَر، ويرتفع استخدام المعالج قليلًا.</string>
+    <string name="max_zram_reset_confirm_title">استعادة الحجم الافتراضي؟</string>
+    <string name="max_zram_reset_confirm_body">يُعاد إنشاء ZRAM بحجم 8192 ميجابايت وبالمُرمِّز الحالي، ويكون الـswap متوقفًا خلال التبديل.</string>
+
+    <!-- مُصرِّف التطبيقات (dex2oat) -->
+    <string name="max_dex_loading_title">جارٍ قراءة الحزم المثبّتة</string>
+    <string name="max_dex_loading_detail">يسرد MaxManager التطبيقات المثبّتة من مدير الحزم.</string>
+    <string name="max_dex_empty_title">لا تطبيقات مطابقة</string>
+    <string name="max_dex_empty_detail">امسح البحث أو بدّل النطاق لرؤية تطبيقات أكثر.</string>
+    <string name="max_dex_filter_desc">مرشّح مُصرِّف ART المستخدم في كل إجراءات هذه الشاشة.</string>
+    <string name="max_dex_filter_speed_profile_desc">يصرّف الدوال المسجّلة في ملف التطبيق. وهو الخيار المتوازن الافتراضي.</string>
+    <string name="max_dex_filter_speed_desc">يصرّف كل الدوال مسبقًا: بدء أسرع، وملفات أكبر، وتصريف أطول.</string>
+    <string name="max_dex_filter_everything_desc">يصرّف كل دالة حتى النادرة الاستخدام. وهو الأطول زمنًا.</string>
+    <string name="max_dex_filter_quicker_desc">تصريف سطحي: سريع التنفيذ، وأبطأ في وقت التشغيل.</string>
+    <string name="max_dex_filter_verify_desc">تحقّق فقط بلا شيفرة أصلية: أصغر الملفات، وأبطأ تشغيل.</string>
+    <string name="max_dex_scope_desc">الإجراءات الجماعية تُطبّق المرشّح المختار أعلاه.</string>
+    <string name="max_dex_apps_count">%1$s من %2$s تطبيق</string>
+    <string name="max_dex_search_hint">ابحث بالاسم أو باسم الحزمة</string>
+    <string name="max_dex_search_clear">مسح البحث</string>
+    <string name="max_dex_tag_system">النظام</string>
+    <string name="max_dex_bulk_warning">التصريف الجماعي يُشغل المعالج ويُسخّن الجهاز، فاتركه على الشاحن.</string>
+    <string name="max_dex_applying_single">جارٍ تصريف %1$s</string>
+    <string name="max_dex_applying_reset_single">جارٍ إرجاع %1$s</string>
+    <string name="max_dex_applying_batch_detail">%1$s من %2$s تطبيق</string>
+    <string name="max_dex_applying_all">جارٍ تصريف كل الحزم</string>
+    <string name="max_dex_applying_reset_all">جارٍ إرجاع كل الحزم</string>
+    <string name="max_dex_applying_detail">يعمل ART في الخلفية. اترك الجهاز على الشاحن.</string>
+    <string name="max_dex_applied_title">تم</string>
+    <string name="max_dex_applied_single">صُرّف %1$s بمرشّح %2$s.</string>
+    <string name="max_dex_applied_reset_single">أُعيد %1$s إلى تصريفه وقت التثبيت.</string>
+    <string name="max_dex_applied_bulk">صُرّفت كل الحزم بمرشّح %1$s.</string>
+    <string name="max_dex_applied_reset_bulk">أُعيدت كل الحزم إلى تصريف وقت التثبيت.</string>
+    <string name="max_dex_applied_batch">صُرّف %1$s تطبيق بمرشّح %2$s.</string>
+    <string name="max_dex_failed_title">رفض ART الطلب</string>
+    <string name="max_dex_failed_single">لم يُصرّف %1$s.</string>
+    <string name="max_dex_failed_reset_single">لم يُعَد %1$s.</string>
+    <string name="max_dex_failed_bulk">أعاد مدير الحزم خطأً في أمر كل الحزم.</string>
+    <string name="max_dex_failed_batch">فشل %1$s من %2$s تطبيق.</string>
+    <string name="max_dex_failed_detail">التصريف ينفّذ cmd package compile بصلاحية root، وبعض الرومات تمنعه أيضًا للحزم المحمية.</string>
+
+    <string name="max_dex_scope_title">إجراءات جماعية</string>
+    <string name="max_dex_list_title">التطبيقات المثبّتة</string>
+    <string name="max_dex_no_match_title">لا تطبيقات مطابقة</string>
+    <string name="max_dex_no_match_detail">امسح البحث أو بدّل التبويب لرؤية بقية القائمة.</string>
+
+    <!-- لغة التطبيق (الإعدادات) -->
+    <string name="max_language_title">اللغة</string>
+    <string name="max_language_desc">لغة عرض التطبيق، وتُطَبَّق فورًا.</string>
+    <string name="max_language_auto">تلقائي (النظام)</string>
+    <string name="max_language_search_hint">ابحث عن لغة</string>
+    <string name="max_language_empty">لا لغة مطابقة</string>
+    <string name="max_language_partial_note">بعض اللغات ما زالت مترجمة جزئيًا، والنص الناقص يظهر بالإنجليزية.</string>
+</resources>

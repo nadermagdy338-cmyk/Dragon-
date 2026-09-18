@@ -82,6 +82,8 @@ import nd.max.ui.viewmodel.*
 // nd.max.ui.settings.SettingsViewModel are two different classes that happen to
 // share a name — the wildcard import above resolves to the former. Aliasing the
 // latter here avoids silently colliding with it.
+import nd.max.ui.settings.AppLanguage
+import nd.max.ui.settings.AppLanguageSheet
 import nd.max.ui.settings.SettingsViewModel as PreferenceSettingsViewModel
 
 
@@ -111,12 +113,21 @@ fun SettingsScreen(
 
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
     val isAdvancedMode by preferenceSettingsViewModel.isAdvancedMode.collectAsStateWithLifecycle()
+    val currentLanguage by preferenceSettingsViewModel.currentLanguage.collectAsStateWithLifecycle()
+
+    // تلقائي: نبيّن اللغة التي يقررها النظام فعلًا، وإلا بقي المستخدم لا يعرف ما يرى.
+    val languageLabel = if (currentLanguage == AppLanguage.AUTO) {
+        stringResource(R.string.max_language_auto) + " · " + AppLanguage.displayName(AppLanguage.AUTO)
+    } else {
+        AppLanguage.nativeName(currentLanguage)
+    }
 
     var isLauncherVisible by rememberSaveable {
         mutableStateOf(isLauncherIconEnabled(context))
     }
     var showChangelogSheet by remember { mutableStateOf(false) }
     var showScreenHelp by remember { mutableStateOf(false) }
+    var showLanguageSheet by remember { mutableStateOf(false) }
     var changelogText by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
@@ -264,6 +275,25 @@ fun SettingsScreen(
                                     headlineContent = { Text(stringResource(R.string.color_scheme)) },
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.ColorLens) },
                                     trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                                )
+                            },
+                            {
+                                ExpressiveListItem(
+                                    onClick = { showLanguageSheet = true },
+                                    headlineContent = { Text(stringResource(R.string.max_language_title)) },
+                                    supportingContent = { Text(stringResource(R.string.max_language_desc)) },
+                                    leadingContent = { LeadingIcon(icon = Icons.Filled.Language) },
+                                    trailingContent = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = languageLabel,
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Spacer(Modifier.width(8.dp))
+                                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                                        }
+                                    }
                                 )
                             }
                         )
@@ -507,6 +537,17 @@ fun SettingsScreen(
         ConfirmDialogHost(handle = rebootDialog)
 
         RootAppDialog {
+            AppLanguageSheet(
+                visible = showLanguageSheet,
+                selected = currentLanguage,
+                onSelect = { tag ->
+                    // نغلق الورقة قبل التطبيق: تغيير اللغة يُعيد إنشاء النشاط، والعودة بورقة مفتوحة تبدو كخطأ.
+                    showLanguageSheet = false
+                    preferenceSettingsViewModel.setAppLanguage(tag)
+                },
+                onDismiss = { showLanguageSheet = false }
+            )
+
             CustomBottomSheet(
                 visible = showLogBottomSheet,
                 onDismiss = { showLogBottomSheet = false }
