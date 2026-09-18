@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import nd.max.core.maxai.MaxAiEngine
@@ -26,8 +27,8 @@ import javax.inject.Inject
  * UI → ViewModel → MaxAiEngine → SafetyEngine → HardwareControlArbiter.
  *
  * المضاف مع الخط الزمني: حلقات الدفتر ولقطة المعرفة المشتقة منها.
- * الاشتقاق يحدث هنا وليس في التركيبة لأن قراءة خرائط الأثر تمس القرص؛
- * تشغيله داخل recomposition كان سيقرأ الملف عند كل إطار.
+ * نسخ خرائط الأثر واستخلاص المعرفة يجريان خارج خيط الواجهة؛ قفل
+ * اللقطة مشترك مع حفظ نتائج التعلّم، وقد ينتظر اكتمال كتابة القرص.
  */
 @HiltViewModel
 class MaxAiViewModel @Inject constructor(
@@ -49,6 +50,7 @@ class MaxAiViewModel @Inject constructor(
      */
     val insights: StateFlow<MaxAiInsights.Snapshot> = engine.episodes
         .map { MaxAiInsights.derive(engine.effectsSnapshot(), it) }
+        .flowOn(Dispatchers.IO)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000L),

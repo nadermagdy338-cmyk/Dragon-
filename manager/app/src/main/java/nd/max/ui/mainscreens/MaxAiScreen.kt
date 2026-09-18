@@ -1,12 +1,14 @@
 package nd.max.ui.mainscreens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Psychology
@@ -15,12 +17,15 @@ import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -98,14 +103,15 @@ fun MaxAiScreen(
     // دورة فورية عند دخول الشاشة: القياسات المعروضة حالية لا قديمة.
     LaunchedEffect(Unit) { viewModel.refresh() }
 
-    var expandedEpisode by remember { mutableStateOf<Long?>(null) }
-    var timelineFilter by remember { mutableStateOf(TimelineFilter.All) }
-    var timelineExpanded by remember { mutableStateOf(false) }
+    var expandedEpisode by rememberSaveable { mutableStateOf<Long?>(null) }
+    var timelineFilter by rememberSaveable { mutableStateOf(TimelineFilter.All) }
+    var verdictFilter by rememberSaveable { mutableStateOf<MaxAiVerdict?>(null) }
+    var timelineExpanded by rememberSaveable { mutableStateOf(false) }
 
-    // الخط الزمني يُفتح بمعاينة قصيرة (٥ حلقات) وبفلتر بنوع الحلقة: الدفتر ينمو
-    // بلا سقف، وكان عرضه كاملًا هو ما جعل الشاشة تبدو جدول سجلات لا مركز تحكم.
-    // العدّ الصادق يبقى ظاهرًا دائمًا، والتوسيع إجراء صريح من المستخدم.
-    val filteredEpisodes = episodes.filter { timelineFilter.matches(it) }
+    // Filter the retained journal before taking the preview, without changing its order.
+    val filteredEpisodes = episodes.filter {
+        timelineFilter.matches(it.kind, it.verdict, verdictFilter)
+    }
     val visibleEpisodes = if (timelineExpanded) {
         filteredEpisodes
     } else {
@@ -115,7 +121,7 @@ fun MaxAiScreen(
         if (episodes.isEmpty()) {
             R.string.max_ai_timeline_empty_title
         } else {
-            R.string.max_ai_timeline_empty_filter
+            R.string.max_ai_timeline_no_matches
         },
     )
     val timelineEmptySubtitle = if (episodes.isEmpty()) {
@@ -171,11 +177,18 @@ fun MaxAiScreen(
         item(key = "max_ai_timeline_header") {
             TimelineHeader(
                 filter = timelineFilter,
+                verdict = verdictFilter,
                 shown = visibleEpisodes.size,
                 matched = filteredEpisodes.size,
                 onFilterChange = {
                     timelineFilter = it
                     timelineExpanded = false
+                    expandedEpisode = null
+                },
+                onVerdictChange = {
+                    verdictFilter = it
+                    timelineExpanded = false
+                    expandedEpisode = null
                 },
             )
         }
@@ -224,16 +237,23 @@ fun MaxAiScreen(
 /** حدود المعاينة القصيرة للخط الزمني قبل أن يطلب المستخدم البقية. */
 private const val MaxAiTimelinePreview = 5
 
-/** الفلاتر المعروضة فوق الخط الزمني — واحد لكل نوع حلقة في الدفتر. */
-private enum class TimelineFilter { All, Decisions, Probes, Alerts }
+/** Filters use recorded facts, never localized labels or inferred success. */
+internal enum class TimelineFilter {
+    All, Decisions, Probes, Alerts;
 
-/** نوع الحلقة من [MaxAiEpisode.kind]، بلا اشتقاق من نصوص الواجهة. */
-private fun TimelineFilter.matches(episode: MaxAiEpisode): Boolean = when (this) {
-    TimelineFilter.All -> true
-    TimelineFilter.Decisions -> episode.kind == MaxAiEpisodeKind.DECISION
-    TimelineFilter.Probes -> episode.kind == MaxAiEpisodeKind.PROBE
-    TimelineFilter.Alerts -> episode.kind == MaxAiEpisodeKind.SAFETY ||
-        episode.kind == MaxAiEpisodeKind.DRIFT
+    fun matches(
+        kind: MaxAiEpisodeKind,
+        verdict: MaxAiVerdict,
+        selectedVerdict: MaxAiVerdict? = null,
+    ): Boolean {
+        val matchesKind = when (this) {
+            All -> true
+            Decisions -> kind == MaxAiEpisodeKind.DECISION
+            Probes -> kind == MaxAiEpisodeKind.PROBE
+            Alerts -> kind == MaxAiEpisodeKind.SAFETY || kind == MaxAiEpisodeKind.DRIFT
+        }
+        return matchesKind && (selectedVerdict == null || verdict == selectedVerdict)
+    }
 }
 
 // ── الحالة الآن ───────────────────────────────────────
@@ -1002,19 +1022,19 @@ private fun enforcementLabel(enforcement: SafetyEnforcement): String = stringRes
 // ── الخط الزمني ──────────────────────────────────
 
 /**
- * رأس الخط الزمني: فلتر بنوع الحلقة + عدّ صادق للمعروض.
- *
- * الدفتر ينمو بلا سقف، فكان الخط الزمني أطول ما في الشاشة. الفلتر يعرض ما
- * يهمّ القارئ الآن (قرارات؟ تجارب معرفية؟ تنبيهات؟)، والعدّ يمنع أن يوهم
- * العرض الجزئي بأن هذا كل ما جرى.
+ * رأس الخط الزمني: نوع الحلقة والحكم المسجّل، مع عدّ صادق للمعروض.
+ * التصفية تغيّر العرض فقط؛ لا تغيّر دفتر المحرك أو ملخص المعرفة.
  */
 @Composable
 private fun TimelineHeader(
     filter: TimelineFilter,
+    verdict: MaxAiVerdict?,
     shown: Int,
     matched: Int,
     onFilterChange: (TimelineFilter) -> Unit,
+    onVerdictChange: (MaxAiVerdict?) -> Unit,
 ) {
+    var verdictMenuExpanded by remember { mutableStateOf(false) }
     MaxSection(
         title = stringResource(R.string.max_ai_section_timeline),
         description = stringResource(R.string.max_ai_section_timeline_desc),
@@ -1029,6 +1049,38 @@ private fun TimelineHeader(
             selectedIndex = filter.ordinal,
             onSelect = { index -> onFilterChange(TimelineFilter.values()[index]) },
         )
+        Box {
+            MaxGroup {
+                MaxRow(
+                    title = stringResource(R.string.max_ai_timeline_verdict_filter),
+                    subtitle = verdict?.let { verdictLabel(it) }
+                        ?: stringResource(R.string.max_ai_timeline_filter_all),
+                    icon = Icons.Rounded.FilterList,
+                    onClick = { verdictMenuExpanded = true },
+                )
+            }
+            DropdownMenu(
+                expanded = verdictMenuExpanded,
+                onDismissRequest = { verdictMenuExpanded = false },
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.max_ai_timeline_filter_all)) },
+                    onClick = {
+                        onVerdictChange(null)
+                        verdictMenuExpanded = false
+                    },
+                )
+                MaxAiVerdict.values().forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(verdictLabel(option)) },
+                        onClick = {
+                            onVerdictChange(option)
+                            verdictMenuExpanded = false
+                        },
+                    )
+                }
+            }
+        }
         if (matched > 0) {
             Text(
                 text = stringResource(R.string.max_ai_timeline_shown, shown, matched),
@@ -1198,11 +1250,13 @@ private fun BaseProfileRow(label: String, active: Boolean, onClick: () -> Unit) 
 private fun episodeSummary(episode: MaxAiEpisode): String = when (episode.verdict) {
     MaxAiVerdict.IMPROVED -> stringResource(
         R.string.max_ai_summary_improved,
-        formatSignedScore(episode.objectiveDelta ?: 0f),
+        episode.objectiveDelta?.let { formatSignedScore(it) }
+            ?: stringResource(R.string.max_ai_value_unknown),
     )
     MaxAiVerdict.REGRESSED_ROLLED_BACK -> stringResource(
         R.string.max_ai_summary_rolled_back,
-        formatSignedScore(episode.objectiveDelta ?: 0f),
+        episode.objectiveDelta?.let { formatSignedScore(it) }
+            ?: stringResource(R.string.max_ai_value_unknown),
     )
     MaxAiVerdict.REGRESSED_STUCK -> stringResource(R.string.max_ai_summary_stuck)
     MaxAiVerdict.BLOCKED_SAFETY -> stringResource(R.string.max_ai_summary_blocked)
@@ -1312,13 +1366,12 @@ private fun objectiveText(label: String): String = when (label) {
 @Composable
 private fun predictionText(episode: MaxAiEpisode): String? {
     val gain = episode.predictedGain ?: return null
-    val confidence = episode.predictionConfidence ?: 0f
-    val thermal = episode.predictedThermalC ?: 0f
+    val unknown = stringResource(R.string.max_ai_value_unknown)
     return stringResource(
         R.string.max_ai_prediction,
         formatSignedScore(gain),
-        formatSignedThermal(thermal),
-        formatWeight(confidence),
+        episode.predictedThermalC?.let { formatSignedThermal(it) } ?: unknown,
+        episode.predictionConfidence?.let { formatWeight(it) } ?: unknown,
     )
 }
 

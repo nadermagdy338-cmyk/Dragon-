@@ -53,6 +53,8 @@
     <string name="max_ai_timeline_filter_decisions">Decisions</string>
     <string name="max_ai_timeline_filter_probes">Probes</string>
     <string name="max_ai_timeline_filter_alerts">Alerts</string>
+    <string name="max_ai_timeline_verdict_filter">Recorded verdict</string>
+    <string name="max_ai_timeline_no_matches">No entries match these filters. Change the kind or verdict to see other entries.</string>
     <string name="max_ai_timeline_shown">Showing %1$d of %2$d matching entries.</string>
     <string name="max_ai_timeline_show_all">Show all %1$d entries</string>
     <string name="max_ai_timeline_show_less">Show only the latest %1$d</string>

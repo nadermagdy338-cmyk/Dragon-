@@ -46,6 +46,8 @@
     <string name="max_ai_timeline_filter_decisions">قرارات</string>
     <string name="max_ai_timeline_filter_probes">تجارب</string>
     <string name="max_ai_timeline_filter_alerts">تنبيهات</string>
+    <string name="max_ai_timeline_verdict_filter">الحكم المسجّل</string>
+    <string name="max_ai_timeline_no_matches">لا مدخلات تطابق هذه الفلاتر. غيّر النوع أو الحكم لعرض مدخلات أخرى.</string>
     <string name="max_ai_timeline_shown">المعروض %1$d من %2$d مدخلًا مطابقًا.</string>
     <string name="max_ai_timeline_show_all">اعرض كل المدخلات (%1$d)</string>
     <string name="max_ai_timeline_show_less">اعرض الأحدث %1$d فقط</string>

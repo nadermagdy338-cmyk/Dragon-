@@ -62,6 +62,19 @@ MaxManager has a strong engine and a fragmented surface. `core/maxai` + `core/ha
 
 <!-- Append one entry per completed task: task id, files, gate results, deferred items, next suggestion. -->
 
+### NT-06-I47-PERF - Max AI presentation and insight dispatch - 2026-09-18
+
+TASK: NT-06-I47-PERF (medium) - DONE_WITH_CONCERNS.
+FILES: Modified `ui/mainscreens/MaxAiScreen.kt`, `ui/viewmodel/MaxAiViewModel.kt`, EN/AR `max_ai_strings.xml`, this log and the I-47 entries in `NEXT_TASK.md` / `KNOWN_ISSUES.md`. Added `MaxAiTimelineFilterTest.kt` and `MaxAiPresentationArchitectureTest.kt` under `app/src/test/java/nd/max/ui/`. No core, hardware, native, signing or CI changes; existing untracked `.kilo/` left untouched.
+GATES: `python3 tools/code_health.py --assert` exit 0 (four health metrics 0; debt unchanged: 10 oversized files, 29 own wildcard imports, 80 hardcoded literals, 27 presentation writes); `python3 tools/i18n_coverage.py --assert` exit 0 (85 matching locale codes, 0 errors); `python3 tools/repo_audit.py` reports `PROBLEMS: 0`; `git diff --check` clean. Kotlin file count was already 299 before this task, not REVIEW.md's historical 297; it is now 301 after adding two test files. Repo audit: 240 app source files unchanged, R.string references 1502 -> 1503, base string keys 2108 -> 2110.
+BUILD: Not run, per ENGINEERING-CONTRACT section 6; compilation unverified for this change. Five JUnit tests added (three filter tests, two source architecture guards), not executed. Historical build success does not validate this diff.
+RESIDUAL RISK: Device rendering, RTL/large-font menu layout, saved-state restoration and runtime threading remain unverified. No measured FPS/battery improvement is claimed. Filtering uses the recorded enum verdict, not the special display label for probe/safety/drift cards; it never changes the journal or learning totals. Two new strings are paired in EN/AR; other locales use Android fallback until translated.
+NEXT: Run the targeted JUnit tests and device checks when a build is requested; continue NT-04 insight-derivation tests before changing learning or safety policy.
+
+- I-47: added an exact verdict selector intersecting the existing kind filter; filtering occurs before the five-entry preview, preserves journal order, resets expanded entries when filters change, and keeps filter/expansion state with `rememberSaveable`. Empty results explicitly suggest changing filters. No journal deletion or artificial episodes.
+- Corrected the insight dispatch boundary: `effectsSnapshot()` copies memory but can wait on a lock held during outcome persistence. The `map` previously ran in `viewModelScope` on Main; `flowOn(Dispatchers.IO)` now moves both copying and derivation off Main. No storage or decision semantics changed.
+- Missing objective deltas, thermal predictions and prediction confidence now render the existing unknown label rather than a fabricated zero. Missing gain still suppresses the prediction line entirely.
+
 ### NT-01 Executor log
 
 Implemented the typed navigation registry, graph, actions, four primary destinations, Control screen, nine domain hub entry points, localized navigation resources, and reduced MainActivity to a single NavHost. Removed the obsolete scroll-animation preference from CustomThemeScreen. Static hygiene and XML parsing passed; MainActivity is 88 lines with no inline composable registrations and legacy GPU aliases are absent. The build is unverified because the Gradle wrapper is not executable in this environment (permission denied). Existing MTK feature tabs still contain an internal HorizontalPager; hub row wiring and Settings/Home top-bar integration remain follow-up work.
