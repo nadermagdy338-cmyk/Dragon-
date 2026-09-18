@@ -276,7 +276,9 @@ jobs:
       - name: Validate Manager APK
         env:
           # Public certificate identity, not a credential. Keep validation self-contained.
-          EXPECTED_RELEASE_SIGNER_SHA256: f0889f70f53fb610f8188bf02342bde42a3e5dc2cb88388435c5112c7bb363a7
+          # البصمة تتغيّر مع كل keystore جديد. هذه بصمة keystore 2026-09-18
+          # (alias: azenith_key، كلمة المرور في سر KEYSTORE_PASSWORD).
+          EXPECTED_RELEASE_SIGNER_SHA256: 72e335af259a9770c79c5e2c66d2f7afbc194492b979444d2acab839022f0fc0
         run: |
           set -eu
           if [ "$V_TYPE" = "experimental" ] || [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then

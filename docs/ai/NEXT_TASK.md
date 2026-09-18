@@ -4,17 +4,18 @@
 **قبل أي عمل:** شغّل حزمة إعادة الإنتاج في `docs/ai/REVIEW.md` §2 — ثلاثة أوامر تخبرك إن كان المستودع سليمًا قبل أن تلمسه.
 المرجع الحي للمخاوف: `.planning/codebase/CONCERNS.md` (رموز `C-xx`) و`docs/ai/KNOWN_ISSUES.md` (رموز `I-xx`).
 
-## NT-03 — إثبات البناء (يبقى الأول، بسبب مُصحَّح)
+## NT-03 — إثبات البناء — **مُنجز 2026-09-18**
 
-**الوضع المُتحقَّق:** العائق ليس إصدار Gradle ولا الشبكة — كلاهما سليم الآن. العائق هو **غياب Android SDK**: `ANDROID_HOME` غير مضبوط، لا `sdkmanager`، لا `manager/local.properties`، ولا ذاكرة تبعيات في `~/.gradle/caches`. (يُصحّح I-40/I-45.)
+**النتيجة:** نُزِّل Android SDK بإذن المالك (`~/android-sdk`) مع JDK 17، والبناء **نجح**: `:app:testDebugUnitTest :app:assembleDebug` = BUILD SUCCESSFUL 5m54s · 128 اختبارًا 0 فشل · APK موقّع v2؛ و`:terminal-emulator:testDebugUnitTest` = 145 اختبارًا 0 فشل؛ و`:app:minifyReleaseWithR8 :app:optimizeReleaseResources` = BUILD SUCCESSFUL. الأوامر والنتائج الحرفية في `VALIDATION.md` §0، وأُغلقت I-40 وI-45.
+**عطل حقيقي كشفه البناء وأُصلح:** تعارض `generateLocaleConfig` مع `android:localeConfig` (ADR-29).
+**ما يبقى (لا يُدّعى):** توقيع `release` (سر CI) وسلوك تبديل اللغة على جهاز حقيقي.
 
-**الخيارات:**
-1. تنزيل SDK (cmdline-tools + platform 36 + build-tools) ثم `sh manager/gradlew --offline :app:compileDebugKotlin` — يحتاج **إذنًا صريحًا** لأنه تثبيت خارج المستودع بحجم غيغابايتات.
-2. الاعتماد على CI (`.github/workflows/build.yml`) كالمكان الوحيد الذي يبني فعلًا، مع تسجيل الخروج في `VALIDATION.md` §0.
+## NT-14 — تشغيل اختبارات `:terminal-emulator` في CI (مقترح، I-58)
 
-**المطلوب في الحالتين:** كتابة المخرجات الحرفية (نجاحًا أو فشلًا) في `VALIDATION.md` §0، ثم إغلاق I-40/I-45 بتصحيح السبب.
-**الدور:** `verifier`.
-**معيار القبول:** `VALIDATION.md` §0 يحمل نتيجة أمر حقيقي، ولا تبقى عبارة «تعارض إصدارات» في أي ملف.
+**الوضع المُتحقَّق:** `build.yml` يستدعي `:app:testDebugUnitTest` فقط؛ و19 ملف اختبار في `terminal-emulator` لا تُنفَّذ في أي CI. تشغيلها يدويًا: **BUILD SUCCESSFUL 22s · 145 اختبارًا · 0 فشل**.
+**النطاق:** إضافة `:terminal-emulator:testDebugUnitTest` إلى أمر Gradle في `build.yml` (سطر واحد) مع تعليق يوضّح الكلفة المقيسة.
+**معيار القبول:** الـCI يذكر اختبارات الموديول، وسجلّ وظيفة واحدة يظهر فيها عدد اختباراته.
+**الدور:** `verifier` + قرار المالك (لم يُنفَّذ لأنه يعدّل مسار الإصدار).
 
 ## NT-04 — `MaxAiInsightsTest` (JVM) — مفتوح (I-49)
 

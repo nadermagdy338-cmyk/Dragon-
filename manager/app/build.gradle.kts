@@ -65,10 +65,13 @@ android {
     }
     
     androidResources {
-        // locales_config.xml مُدار يدويًا (انظر التعليق داخل الملف) ومُصرَّح عنه
-        // بالفعل عبر android:localeConfig في AndroidManifest.xml. تفعيل التوليد
-        // التلقائي هنا يجعل AGP 9 يفشل دمج المانيفست بخطأ:
-        // "Locale config generation was requested but user locale config is present in manifest."
+        // [FIX] AGP يرفض الجمع بين توليده الآلي و`android:localeConfig` الصريح في
+        // البيان («Locale config generation was requested but user locale config is
+        // present in manifest») فيفشل :app:processDebugMainManifest ويسقط البناء كله.
+        // نُبقي قائمتنا الصريحة في res/xml/locales_config.xml لأنها المصدر الوحيد
+        // الذي يضمن ظهور اللغات الـ85 كاملةً في منتقي النظام — ومنها ما لا يستنتجه
+        // التوليد الآلي من أسماء المجلدات (b+sr+Latn، zh-rHK، pt-rPT…) — ولأن
+        // tools/i18n_coverage.py --check-codes يتحقق من مطابقتها للمجلدات والمنتقي.
         generateLocaleConfig = false
     }
 

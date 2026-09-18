@@ -15,7 +15,7 @@ AGENTS.md           # team roster + model routing + handoff contract
 module.json version version_type maxmanagerApplist.json update.json crowdin.yml
 ```
 
-## Tools — the only checks that work without an Android SDK
+## Tools — فحوص سريعة تعمل بلا Android SDK (والـSDK صار مثبَّتًا: `VALIDATION.md` §0)
 
 | file | what it proves | how to run |
 | --- | --- | --- |

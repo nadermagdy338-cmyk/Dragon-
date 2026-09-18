@@ -58,18 +58,20 @@ Open problems as of 2026-09-15. `P1` blocks the redesign, `P2` degrades quality,
 
 | ID | P | Issue | Evidence | Fixed by |
 | --- | --- | --- | --- | --- |
+| I-58 | P2 | **١٤٥ اختبارًا في `:terminal-emulator` لا يشغّلها CI**: `build.yml` يستدعي `:app:testDebugUnitTest` فقط، والموديول يحمل ١٩ ملف اختبار وتبعية JUnit معلَنة في `terminal-emulator/build.gradle:33`. تشغيلها يدويًا نجح في **22 ثانية** و**0 فشل** — أي أن إضافة سطر واحد للـCI تنقذ تغطية كاملة كانت ميتة | `grep -n gradlew .github/workflows/build.yml` مقابل `find terminal-emulator/src/test` | NT-14 (مقترح) |
+| I-59 | ~~P3~~ | ~~keystore بلا قاعدة تجاهل~~ **مُحدَّث 2026-09-18**: كلمة المرور كانت مفقودة، فوُلِّد keystore جديد (`alias=azenith_key`، RSA 4096، صالح حتى 2054-02-03) وبُنيت نسخة **موقّعة وناجحة** منه. **إبقاء الملف في المستودع قرار مقصود**: `build.yml` يقرأ `app/azenith.jks` للتوقيع، فالحدّ الأمني هو **كلمة المرور في سر `KEYSTORE_PASSWORD`** لا الملف. البديل الأكثر صرامة: حذف الملف من المستودع وفكّ ترميزه من سر base64 في CI. **الأثر على المستخدمين**: بصمة الموقّع تغيّرت، فمن ثبّت نسخة قديمة **لا يستطيع الترقية فوقها** (يلزم إلغاء تثبيت أولًا) | `apksigner verify --print-certs` = `72e335af…0fc0` · `keytool -list` · تحديث `EXPECTED_RELEASE_SIGNER_SHA256` في `build.yml` | مُنجز (I-59 مغلق بقرار موثَّق) |
 | I-57 | P2 | ~~`AGENTS.md` غير متعقّب + ملف عالم محلي يلوّث `git status`~~ **مُغلق 2026-09-18**: `AGENTS.md` (نقطة دخول كل وكيل) كان **غير متعقّب وغير متجاهَل** أي أنه يضيع في أي استنساخ جديد — صار متعقّبًا. و`.maxmanager-sync-root` (فارغ، محلي) أُضيف إلى `.gitignore` فخرج من الضجيج. وبوابة `stray_root_file` تكشف أي ملف جذر جديد غير متعقّب وغير متجاهَل | `python3 tools/code_health.py` | أُنجز |
 
 | ID | P | Issue | Evidence | Fixed by |
 | --- | --- | --- | --- | --- |
-| I-40 | P1 | تعذّر البناء هنا — **السبب الصحيح (2026-09-18)**: لا Android SDK في البيئة (`ANDROID_HOME` غير مضبوط، لا `sdkmanager`، لا `local.properties`)، ولا ذاكرة Gradle (`~/.gradle/caches` غير موجودة). أما تعارض الإصدارات فزائل: `gradle` في PATH صار 9.7.0 والـwrapper يطلب 9.5.1، والشبكة **متاحة** (services.gradle.org وMaven Central قابلان للوصول) | `echo $ANDROID_HOME`, `command -v sdkmanager`, `ls ~/.gradle/caches`, اختبار TCP للوصول | بوابات `VALIDATION.md` الثابتة، و CI هو المكان الوحيد الذي يبني فعلًا |
+| I-40 | ~~P1~~ | ~~تعذّر البناء هنا~~ **مُغلق 2026-09-18 (جولة ١٠)**: نُزِّل Android SDK في `~/android-sdk` (`platform-tools` 37.0.1 + `platforms;android-36` + `build-tools;36.0.0`) مع JDK 17، والبناء **نجح**: `:app:testDebugUnitTest :app:assembleDebug` = BUILD SUCCESSFUL 5m54s · **128 اختبارًا 0 فشل** · APK موقّع (v2) · و`:terminal-emulator` **145 اختبارًا 0 فشل** · وR8/تقليص الموارد نجحا. **المتبقي (لا يُدَّعى)**: توقيع `release` (يحتاج سر CI) وسلوك تبديل اللغة على جهاز حقيقي | مخرجات Gradle الحرفية في `VALIDATION.md` §0 | أُنجز |
 | I-41 | P2 | Redesign work is uncommitted/untracked (`ui/design/`, new string files) — easy to lose | `git status` | commit early in NT-01 |
 | I-42 | P2 | ~~`manager/FINAL_UI_AUDIT.md` references screens that no longer exist~~ **مُغلق 2026-09-18**: أُضيف شريط «مُتجاوَز» في أعلى `FINAL_UI_AUDIT.md` و`CHANGED_FILES_FINAL_UI.md` يحيل إلى `docs/ai/` و`.planning/codebase/` | file vs tree | أُنجز |
 | I-43 | P3 | `AppMonitor.kt` fails naive brace-balance checks (pre-existing lexer artifact, identical to HEAD) — do not “fix” in UI work | aegis checkpoint | ignore, baseline |
 | I-44 | P3 | `manager/kernel-flasher` is a vendored fork with its own theme/type files — duplicate-looking files are expected | package `com.github.capntrips.kernelflasher` | leave alone |
 
 ## بعد NT-02 (Max AI)
-- I-45: تعذّر البناء محليًا — مُحدَّث 2026-09-18: العائق هو غياب **Android SDK** وذاكرة التبعيات، لا إصدار Gradle ولا الشبكة (كلاهما سليم الآن). تنزيل SDK (cmdline-tools + platform 36 + build-tools) ممكن بإذن صريح، وإلا فالتحقق ثابت فقط.
+- I-45: ~~تعذّر البناء محليًا~~ **مُغلق 2026-09-18 (جولة ١٠)**: السبب كان غياب Android SDK وذاكرة التبعيات فقط، لا إصدار Gradle ولا الشبكة. بعد التنزيل بإذن المالك نجح البناء والاختبارات (التفاصيل في I-40 و`VALIDATION.md` §0).
 - I-50: `KernelFlasherScreen.kt` يحمل ٨ مسارات حرفية في تنقّله الداخلي خارج `ui/navigation` (الأسطر ٥٣٧، ٥٤٢، ٥٦٢، ٥٧٠، ٥٧٧، ٥٨٨، ٦١٩، ٦٥٠) — نفس عيب F-01 لكن في شاشة عالية الخطورة (تلمس الأقسام والأقسام الاحتياطية)؛ لم تُلمس بلا بناء. تكشفه بوابة §5(f) الجديدة.
 - I-46: `MaxAiInsights` يقرأ السياق العام `*` فقط؛ أحكام السياق لكل تطبيق غير معروضة بعد.
 - I-47: خط الزمن بلا فلترة/بحث؛ عند ٨٠ حلقة قد يطول التمرير.

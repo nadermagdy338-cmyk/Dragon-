@@ -1,16 +1,54 @@
 # VALIDATION
 
-How to verify work in this environment. **A real Gradle build cannot run here** (PATH gradle 4.4.1, wrapper needs 9.5.1, no network). Static gates below are therefore the contract. Never report “build passes” — report “compilation unverified in this environment”.
+How to verify work in this environment. **البناء صار مُتحقَّقًا هنا (2026-09-18)**: Android SDK مثبَّت في `~/android-sdk`، والبوابات الثابتة أدناه تبقى الفحص السريع، والبناء هو الإثبات النهائي.
 
-Run everything from repo root: `/mnt/sdcard/MaxManger/optmize-main`.
+Run everything from repo root: `/mnt/sdcard/MaxManger/optmize-main` (على الجهاز) أو `/workspaces/Hi/MaxManager` (في حاوية CI/التطوير).
 
-## 0. Build attempt (optional, expected to fail offline)
+## 0. Build — مُتحقَّق 2026-09-18 (كان يفشل: لا SDK)
+
+البيئة المقيسة: **JDK 17** (`/usr/lib/jvm/java-17-openjdk-amd64`) · AGP **9.2.0** · Kotlin **2.3.10** · wrapper **Gradle 9.5.1** · `compileSdk 36`.
+SDK: `~/android-sdk` = `platform-tools` 37.0.1 + `platforms;android-36` + `build-tools;36.0.0` (نُزِّل بـ`android sdk install`؛ `sdkmanager` صار مُهمَلًا).
 
 ```sh
-java -version
-cd manager && ./gradlew --offline :app:compileDebugKotlin ; echo "exit=$?"
+export ANDROID_HOME="$HOME/android-sdk" ANDROID_SDK_ROOT="$HOME/android-sdk"
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+cd manager
+# ① مسار الـPR في CI (debug): اختبارات + APK
+bash gradlew -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
+  :app:testDebugUnitTest :app:assembleDebug --build-cache --parallel
+# ② اختبارات الوحدة غير المشغَّلة في CI (145 اختبارًا)
+bash gradlew :terminal-emulator:testDebugUnitTest
+# ③ مسار الإصدار بلا توقيع: R8 + تقليص الموارد + اختبارات release
+bash gradlew :app:testReleaseUnitTest :app:minifyReleaseWithR8 :app:optimizeReleaseResources
 ```
-If it fails on distribution download or Gradle version, record the exact message and continue with the static gates.
+
+**النتائج الفعلية (كلها `BUILD SUCCESSFUL`):**
+
+| الأمر | النتيجة |
+| --- | --- |
+| `:app:testDebugUnitTest :app:assembleDebug` | **5m54s** · 137 مهمة · **128 اختبارًا، 0 فشل** · APK `111,527,920` بايت |
+| `:terminal-emulator:testDebugUnitTest` | **22s** · **145 اختبارًا، 0 فشل** (18 صنفًا) |
+| `:app:testReleaseUnitTest :app:minifyReleaseWithR8 :app:optimizeReleaseResources` | **7m02s** · 128 اختبارًا، 0 فشل · R8 بلا أصناف مفقودة |
+
+**تحقّق الـAPK** (كما يفعل CI): `apksigner verify` → `Verifies` ومخطّط v2 = true · `aapt dump badging` → `package: name='nd.max' versionCode='1' versionName='1.0'` · البيان المدمج يحمل `android:localeConfig` · والحزمة تضم `res/xml/locales_config.xml`.
+
+**④ الإصدار الموقّع — مُتحقَّق 2026-09-18 بعد توليد keystore جديد:**
+
+```sh
+export KS_PWD="$(cat /tmp/keystore-new-password.txt)"   # السر ليس في المستودع
+bash gradlew :app:testReleaseUnitTest :app:assembleRelease --build-cache --parallel
+```
+
+`BUILD SUCCESSFUL in 6m13s` · 203 مهمة (منها `minifyReleaseWithR8` و`optimizeReleaseResources` و`lintVitalRelease`) · 128 اختبارًا 0 فشل.
+`app-release.apk` = **20,780,698 بايت** (مقابل 111,527,920 لـdebug ⇒ R8 والتقليص عاملان) · `apksigner verify` → **Verifies** (v2) · بصمة الموقّع = `72e335af259a9770c79c5e2c66d2f7afbc194492b979444d2acab839022f0fc0` وهي المطابقة لـ`EXPECTED_RELEASE_SIGNER_SHA256` في `build.yml`.
+
+**اللغات تنجو من مسار الإصدار (مُثبت):** `aapt dump configurations` = **89 تهيئة لغة في debug وrelease بالضبط**، و`type 17 (string) configCount=91`. تقليص الموارد يحذف كثافات (127→110 تهيئة) ولا يحذف لغات، ويُعيد تسمية مسارات الملفات (`res/xml/locales_config.xml` → `res/Br.xml` بنفس الحجم 7868) مع بقاء المورد بمعرّفه `nd.max:xml/locales_config`. **درس**: «ملف مفقود» في الحزمة المصغَّرة قد يكون مُعاد التسمية — افحص بجدول الموارد لا بأسماء الملفات.
+
+**ما يبقى غير مُتحقَّق (لا تدّعِه):**
+- التوقيع في **CI**: يحتاج ضبط سر `KEYSTORE_PASSWORD` بالكلمة الجديدة (البصمة في `build.yml` حُدِّثت بالفعل).
+- البناء بلا `KS_PWD` **يفشل عمدًا**: `KS_PWD must be set to produce a signed release artifact` (`app/build.gradle.kts:30`) — لأن APK غير موقّع غير صالح كـpriv-app.
+- سلوك تبديل اللغة على **جهاز حقيقي** (١٠–١٢ و١٣+).
+- ملاحظة AGP 9: `shrinkReleaseRes` لم تعد موجودة؛ البديل `optimizeReleaseResources`.
 
 ## 1. Hygiene gates (always)
 
