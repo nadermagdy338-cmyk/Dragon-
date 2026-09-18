@@ -65,7 +65,11 @@ android {
     }
     
     androidResources {
-        generateLocaleConfig = true
+        // locales_config.xml مُدار يدويًا (انظر التعليق داخل الملف) ومُصرَّح عنه
+        // بالفعل عبر android:localeConfig في AndroidManifest.xml. تفعيل التوليد
+        // التلقائي هنا يجعل AGP 9 يفشل دمج المانيفست بخطأ:
+        // "Locale config generation was requested but user locale config is present in manifest."
+        generateLocaleConfig = false
     }
 
     buildTypes {
