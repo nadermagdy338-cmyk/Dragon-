@@ -32,6 +32,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import nd.max.ui.design.MaxSpace
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -57,6 +58,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -250,11 +253,17 @@ fun SettingsScreen(
                 state = listState,
                 modifier = Modifier.maxAdaptiveContentWidth(),
                 contentPadding = PaddingValues(
-                    top = innerPadding.calculateTopPadding() + 12.dp,
-                    start = 16.dp,
-                    end = 16.dp,
+                    top = innerPadding.calculateTopPadding() + MaxSpace.md,
+                    start = MaxSpace.gutter,
+                    end = MaxSpace.gutter,
                     bottom = 110.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                )
+                ),
+                // بلا هذا الترتيب تُرصف الكتل عند حافة بعضها: هذا `LazyColumn`
+                // كان الوحيد بلا مسافة بين عناصره، بينما كل صفحة تبنيها `MaxListScreen`
+                // تستعمل `MaxSpace.row`. والنتيجة كانت أن آخر بطاقة في كتلة تُلتصق بأول
+                // بطاقة في الكتلة التالية وتُقرأ كبطاقة واحدة مكسورة — «صحة الوحدة والإنقاذ»
+                // كانت آخر صفّ في قسم الميزات، فبدت ملتصقة بكتلة المفاتيح التي تحتها.
+                verticalArrangement = Arrangement.spacedBy(MaxSpace.row),
             ) {
                 item {
                     ExpressiveList(
@@ -285,10 +294,16 @@ fun SettingsScreen(
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.Language) },
                                     trailingContent = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
+                                            // سطر القيمة يحمل حدًّا فضيّقًا أحيانًا (اسم لغة طويل
+                                            // أمام سهم): بلا حدّ يُكسّر الاسم حرفًا حرفًا.
                                             Text(
                                                 text = languageLabel,
-                                                style = MaterialTheme.typography.labelMedium,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                style = MaterialTheme.typography.labelMedium.copy(
+                                                    lineBreak = LineBreak.Heading
+                                                ),
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
                                             )
                                             Spacer(Modifier.width(8.dp))
                                             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
@@ -314,6 +329,18 @@ fun SettingsScreen(
                                     headlineContent = { Text(stringResource(R.string.max_nav_config_backup)) },
                                     supportingContent = { Text(stringResource(R.string.max_config_backup_desc)) },
                                     leadingContent = { LeadingIcon(icon = Icons.Rounded.Backup) },
+                                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                                )
+                            },
+                            {
+                                // عقد إضافات الطرف الثالث (GAP-14): كانت الشاشة مبنية ومسارها
+                                // مسجّلًا لكن **لا مدخل لها**، فلا يصل إليها أحد. وُضعت هنا لأنها
+                                // حالة النظام لا تحكّم أداء — وبنصّ العقد في متناول من يكتب إضافة.
+                                ExpressiveListItem(
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Plugins) },
+                                    headlineContent = { Text(stringResource(R.string.max_plugins_title)) },
+                                    supportingContent = { Text(stringResource(R.string.max_plugins_subtitle)) },
+                                    leadingContent = { LeadingIcon(icon = Icons.Rounded.Extension) },
                                     trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
                                 )
                             },

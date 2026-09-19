@@ -476,7 +476,7 @@
     <string name="resolution_preset_balanced">Équilibré</string>
     <string name="resolution_preset_performance">Performance</string>
     <string name="resolution_preset_battery">Économie de batterie</string>
-    <string name="zram_title">Compression mémoire</string>
+    <string name="zram_title">Mémoire</string>
     <string name="zram_desc">Dimensionnement de l\'échange compressé et réglage de la récupération mémoire du noyau</string>
     <string name="zram_unavailable">ZRAM n\'est pas disponible sur cet appareil.</string>
     <string name="thermal_title">Périphériques thermiques</string>
@@ -1531,6 +1531,7 @@
     <string name="max_role_fps_overlay">Afficher la source FPS</string>
     <string name="max_role_thermal">Inspecter les zones thermiques</string>
     <string name="max_role_charging">Lire la puissance de charge en direct</string>
+    <string name="max_role_battery_and_charging">État de la batterie et contrôle de la charge au même endroit.</string>
     <string name="max_role_bypass">Configurer le comportement et le seuil de charge par contournement.</string>
     <string name="max_role_bypass_check">Diagnostiquer si l\'appareil expose des nœuds de contournement sûrs.</string>
     <string name="max_role_doze">Inspecter l\'état de veille</string>

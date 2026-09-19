@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="max_plugins_title">إضافات الطرف الثالث</string>
+    <string name="max_plugins_subtitle">العقد المنشور: ما يجوز للإضافة أن تعلنه، وما قُبل أو رُفض على هذا الجهاز.</string>
+
+    <string name="max_plugins_section_contract">العقد</string>
+    <string name="max_plugins_contract_api">مستوى الـAPI %1$d</string>
+    <string name="max_plugins_contract_dir">مجلد البيانات</string>
+    <string name="max_plugins_contract_rules">القدرة المُعلَنة إمّا قراءة وإمّا اقتراح. ولا توجد عن قصد قدرة تكتب في العتاد: كل كتابة في هذا التطبيق تمرّ بالـarbiter، وإضافة تستطيع الكتابة مباشرةً تُلغي الحارس الذي بُني ليمنع أن يكتب مالكَان في المقبض نفسه.</string>
+    <string name="max_plugins_contract_keys">المفاتيح المقروءة من البيان</string>
+    <string name="max_plugins_contract_kinds">الأنواع المقبولة</string>
+    <string name="max_plugins_contract_capabilities">القدرات المقبولة</string>
+    <string name="max_plugins_template">قالب البيان</string>
+    <string name="max_plugins_template_note">هذا النصّ هو ما يقرؤه المحلّل فعلًا. ولا يستطيع أن يتقادم عن الكود لأنه مُولَّد منه.</string>
+    <string name="max_plugins_copy_template">انسخ القالب</string>
+    <string name="max_plugins_template_copied">نُسخ القالب</string>
+
+    <string name="max_plugins_section_installed">الموجود على هذا الجهاز</string>
+    <string name="max_plugins_loading_title">يُقرأ مجلد الإضافات</string>
+    <string name="max_plugins_loading_detail">سرد مجلد البيانات بالجذر، ثم الحكم على كل بيان مقابل العقد.</string>
+    <string name="max_plugins_accepted_count">مقبول: %1$d</string>
+    <string name="max_plugins_rejected_count">مرفوض: %1$d</string>
+    <string name="max_plugins_unreadable_count">مجلد بلا بيان مقروء: %1$d</string>
+    <string name="max_plugins_rejected_section">المرفوض، بسببه الحرفي</string>
+    <string name="max_plugins_detail_label">المُعلَن</string>
+    <string name="max_plugins_refresh_cd">أعد قراءة مجلد الإضافات</string>
+    <string name="max_plugins_capability_source">تُعلنه الإضافة، ولم نقسه نحن</string>
+
+    <string name="max_plugins_cond_empty_title">لا إضافات مركّبة</string>
+    <string name="max_plugins_cond_empty_detail">مجلد البيانات لا يحوي أي مجلد إضافة. ولا عطب في ذلك: هذه هي الحالة الافتراضية للميزة.</string>
+    <string name="max_plugins_cond_missing_title">مجلد البيانات غير موجود بعد</string>
+    <string name="max_plugins_cond_missing_detail">لم يُنشأ %1$s على هذا الجهاز، فلا شيء يُقرأ. وإنشاء المجلد هو كل ما يحتاجه كاتب الإضافة.</string>
+    <string name="max_plugins_cond_unreadable_title">مجلد البيانات لا يُقرأ</string>
+    <string name="max_plugins_cond_unreadable_detail">المجلد موجود في %1$s لكن الـshell لم يستطع قراءته. وسرده يحتاج الجذر.</string>
+
+    <string name="max_plugins_reason_BadId">المعرّف لا يصلح اسمًا لمجلد. استعمل أحرفًا لاتينية صغيرة وأرقامًا ونقطة وشرطة وسفليًّا، ولا نقطتين متتاليتين أبدًا.</string>
+    <string name="max_plugins_reason_MissingName">البيان لا يعلن اسمًا.</string>
+    <string name="max_plugins_reason_BadVersion">الإصدار يبدأ بأرقام، مثل 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">مستوى الـAPI المعلن غائب أو أقل من ١.</string>
+    <string name="max_plugins_reason_ApiTooNew">مستوى الـAPI المعلن أحدث من أن يفهمه هذا الإصدار، فلا يُشغَّل إطلاقًا.</string>
+    <string name="max_plugins_reason_MissingKind">البيان لا يعلن نوعًا.</string>
+    <string name="max_plugins_reason_UnknownKind">النوع ليس من الأنواع المنشورة.</string>
+    <string name="max_plugins_reason_UnknownCapability">القدرة ليست من هذا العقد. والقدرة المجهولة تُرفض ولا تُتجاهل، فلا يعمل شيء بصلاحيات أقلّ مما طلب.</string>
+    <string name="max_plugins_reason_NoCapabilities">على الإضافة أن تعلن قدرة واحدة على الأقل.</string>
+    <string name="max_plugins_reason_DuplicateId">قُبلت إضافة أخرى بهذا المعرّف من قبل، فلا تُستعمل هذه.</string>
+
+    <string name="max_plugins_help_title">لماذا عقد أصلًا</string>
+    <string name="max_plugins_help_body">بلا عقد منشور، يبقى من يوسّع هذا التطبيق يخمّن شكل ملفاتنا الداخلية، ولا نستطيع التمييز بين امتداد صالح وامتداد معطوب. وبالعقد يصير الحدّ معلنًا: الإضافة تعلن نيّة وتقرأ، ولا تكتب في العتاد أبدًا، وكل رفض أعلاه يسمّي الحقل الذي أخفق بالضبط.</string>
+
+</resources>

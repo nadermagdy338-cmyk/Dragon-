@@ -64,6 +64,14 @@
     <string name="max_perms_mode_ask">اسأل</string>
     <string name="max_perms_mode_ask_note">تُفترض المنصّة أن تسأل قبل السماح. ولا تدعمه كل العمليات.</string>
 
+    <!-- الشاشة الرئيسية المستقلة: قائمة التطبيقات -->
+    <string name="max_perms_picker_title">اختر تطبيقًا</string>
+    <string name="max_perms_picker_desc">كل تطبيق على هذا الجهاز، مع الصلاحيات التي يعلنها و‏AppOps التي تسمح بها المنصّة فعلًا.</string>
+    <string name="max_perms_search_hint">ابحث باسم التطبيق أو معرّفه</string>
+    <string name="max_perms_no_match_title">لا تطبيق يطابق</string>
+    <string name="max_perms_no_match_detail">لا شيء على هذا الجهاز يطابق هذا البحث. امسحه لترى كل التطبيقات مجددًا.</string>
+    <string name="max_perms_app_count">%1$s من %2$s تطبيقًا</string>
+
     <!-- مدخل من شاشة إعدادات التطبيق -->
     <string name="max_perms_entry_title">الصلاحيات و‏AppOps</string>
     <string name="max_perms_entry_desc">اطّلع على ما يُعلنه هذا التطبيق وما تسمح به المنصّة فعلًا</string>

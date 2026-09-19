@@ -43,17 +43,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,6 +70,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import java.text.DateFormat
 import java.util.Date
@@ -74,9 +79,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
+import nd.max.ui.component.AppIconImage
 import nd.max.ui.design.MaxBullets
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
+import nd.max.ui.design.MaxConditionNotice
 import nd.max.ui.design.MaxConfirmDialog
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
@@ -85,10 +92,13 @@ import nd.max.ui.design.MaxListScreen
 import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxSection
+import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
+import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.util.AppOpsUtil
 import nd.max.ui.util.PermissionPolicy
+import nd.max.ui.viewmodel.ApplistViewmodel
 
 /** أقصى ما يُعرض من سطور الانحراف داخل حوار واحد قبل أن نقول «وغيرها». */
 private const val DRIFT_PREVIEW_LIMIT = 8
@@ -119,8 +129,24 @@ private data class RestoreTally(
     }
 }
 
+/**
+ * نقطة الدخول: بلا معرّف حزمة تكون **الشاشة الرئيسية المستقلة** (قائمة التطبيقات)،
+ * وبه تكون تفصيل تطبيق واحد — **بلا قائمة ولا تمرير عبرها**.
+ *
+ * والفصل هنا لا في داخل التفصيل، لأن من دخل من إعدادات تطبيق بعينه طلب **ذلك** التطبيق،
+ * وعرض قائمة عليه لحظةً ثم تحويله إلى ما طلبه يبدو كأن الشاشة غلطت في العنوان.
+ */
 @Composable
-fun PermissionsScreen(navController: NavController, pkg: String) {
+fun PermissionsScreen(navController: NavController, pkg: String? = null) {
+    if (pkg.isNullOrBlank()) {
+        AppOpsPicker(navController)
+        return
+    }
+    AppOpsDetail(navController, pkg)
+}
+
+@Composable
+private fun AppOpsDetail(navController: NavController, pkg: String) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -619,4 +645,113 @@ private suspend fun drink(
             if (saved) R.string.max_perms_ref_saved else R.string.max_perms_ref_save_failed
         )
     )
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// الشاشة الرئيسية المستقلة: قائمة التطبيقات
+// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * قائمة التطبيقات الخاصة بـ`AppOps` — الشاشة الرئيسية عند الدخول من `Tools`.
+ *
+ * وهي **نسخة عن قائمة `Max Backup` في الشكل والسلوك**: بحث بالاسم أو المعرّف، وترتيب
+ * واحد من `ApplistViewmodel` (المضبوط أولًا ثم الموصى به ثم ابجديًّا)، أيقونة التطبيق
+ * كذيل الصفّ. ولماذا لا قائمة مشتركة بين الشاشتين: كل شاشة في هذا المستودع تحمل قائمتها
+ * وسطرها الأخير الخاصّ بها، والقائمة المشتركة كانت ستفرض عليهما نصوصًا ونهاية واحدة.
+ */
+@Composable
+private fun AppOpsPicker(navController: NavController) {
+    val context = LocalContext.current
+    val appListViewModel: ApplistViewmodel = viewModel()
+
+    LaunchedEffect(Unit) {
+        appListViewModel.loadApps(context)
+    }
+
+    val apps = appListViewModel.filteredApps
+    val total = ApplistViewmodel.apps.size
+    var query by remember { mutableStateOf(TextFieldValue("")) }
+
+    val matches = remember(apps, query) {
+        val needle = query.text.trim().lowercase()
+        if (needle.isEmpty()) {
+            apps
+        } else {
+            apps.filter {
+                it.label.lowercase().contains(needle) ||
+                    it.packageName.lowercase().contains(needle)
+            }
+        }
+    }
+
+    MaxListScreen(
+        title = stringResource(R.string.max_perms_title),
+        subtitle = stringResource(R.string.max_perms_picker_desc),
+        onBack = { navController.popBackStack() },
+        accentIcon = MaxDestination.Permissions.icon,
+        actions = {
+            MaxHelpAction(
+                title = stringResource(R.string.max_perms_title),
+                body = stringResource(R.string.max_perms_help),
+            )
+        },
+        header = {
+            MaxSection(title = stringResource(R.string.max_perms_picker_title)) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text(text = stringResource(R.string.max_perms_search_hint)) },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Rounded.Search, contentDescription = null)
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(MaxRadius.control),
+                )
+            }
+        },
+    ) {
+        if (matches.isEmpty()) {
+            item {
+                MaxConditionNotice(
+                    MaxCondition(
+                        kind = MaxConditionKind.Empty,
+                        title = stringResource(R.string.max_perms_no_match_title),
+                        detail = stringResource(R.string.max_perms_no_match_detail),
+                    )
+                )
+            }
+        } else {
+            itemsIndexed(items = matches, key = { _, app -> app.packageName }) { index, app ->
+                MaxRow(
+                    title = app.label,
+                    subtitle = app.packageName,
+                    onClick = {
+                        // `replace("{pkg}", …)` على مسار اختياري: الناتج `max_perms?pkg=…`
+                        // وهو نفسه الذي ينتجه مدخل إعدادات التطبيق — مدخل واحد لا اثنان.
+                        navController.navigate(
+                            MaxDestination.Permissions.route.replace("{pkg}", app.packageName)
+                        )
+                    },
+                    trailing = {
+                        AppIconImage(app = app, size = MaxSize.rowIconContainer)
+                    },
+                )
+                if (index < matches.lastIndex) MaxGroupDivider()
+            }
+        }
+
+        item {
+            MaxSection(
+                title = stringResource(R.string.max_perms_picker_title),
+                description = stringResource(
+                    R.string.max_perms_app_count,
+                    matches.size.toString(),
+                    total.toString(),
+                ),
+            ) {
+                MaxBullets(lines = listOf(stringResource(R.string.max_perms_ops_tap_hint)))
+            }
+        }
+    }
 }

@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import nd.max.R
@@ -214,6 +215,15 @@ fun MaxMetricReadout(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            // A metric pads itself, exactly like [MaxRow]. It did not, and every
+            // caller that dropped it straight into a MaxGroup got its label and
+            // value flush against the group's border — the values read as clipped
+            // because they effectively were. Fixing it here rather than at each
+            // call site is what makes it true for screens written after this one.
+            .padding(
+                horizontal = MaxSpace.rowPaddingHorizontal,
+                vertical = MaxSpace.rowPaddingVertical,
+            )
             .clearAndSetSemantics { contentDescription = spoken },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)
@@ -233,13 +243,21 @@ fun MaxMetricReadout(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)
             ) {
-                Text(text = valueText, style = valueStyle, color = valueColor)
+                Text(
+                    text = valueText,
+                    style = valueStyle,
+                    color = valueColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 if (showsValue) {
                     metric.unit?.takeIf { it.isNotBlank() }?.let {
                         Text(
                             text = it,
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(bottom = MaxSpace.hairline)
                         )
                     }
@@ -293,6 +311,12 @@ fun MaxMetricLine(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            // See the note on the large readout above: this is the shared fix for
+            // readings sitting flush against a group's edge.
+            .padding(
+                horizontal = MaxSpace.rowPaddingHorizontal,
+                vertical = MaxSpace.rowPaddingVertical,
+            )
             .clearAndSetSemantics { contentDescription = spoken },
         verticalArrangement = Arrangement.spacedBy(MaxSpace.xs)
     ) {
@@ -303,10 +327,12 @@ fun MaxMetricLine(
         ) {
             Text(
                 text = metric.label,
-                style = MaterialTheme.typography.bodyMedium,
+                // `Heading` لا `Paragraph`: كلمة واحدة طويلة تُقتطع بعلامة، ولا تُكسّر
+                // حرفًا حرفًا في عرض ضيّق.
+                style = MaterialTheme.typography.bodyMedium.copy(lineBreak = LineBreak.Heading),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
@@ -316,6 +342,8 @@ fun MaxMetricLine(
                     valueText
                 },
                 style = MonoValueStyleSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 color = if (showsValue) {
                     MaterialTheme.colorScheme.onSurface
                 } else {

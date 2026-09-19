@@ -25,11 +25,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import nd.max.R
 import nd.max.ui.component.CustomBottomSheet
 import nd.max.ui.design.MaxChoiceRow
+import nd.max.ui.design.MaxSpace
 
 /**
  * منتقي لغة التطبيق: ورقة سفلية بخيار **تلقائي (النظام)** أولًا، ثم اللغات الـ٨٥ المدعومة.
@@ -69,9 +73,12 @@ fun AppLanguageSheet(
         Column(modifier = Modifier.navigationBarsPadding()) {
             Text(
                 text = stringResource(R.string.max_language_title),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium.copy(lineBreak = LineBreak.Heading),
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(start = 4.dp, bottom = 12.dp),
+                // عنوان الورقة يُعلن نفسه كعنوان، كما في بقية الشاشات.
+                modifier = Modifier
+                    .padding(start = MaxSpace.xs, end = MaxSpace.xs, bottom = MaxSpace.md)
+                    .semantics { heading() },
             )
 
             OutlinedTextField(
@@ -124,19 +131,28 @@ fun AppLanguageSheet(
                             text = stringResource(R.string.max_language_empty),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 12.dp),
+                            modifier = Modifier.padding(
+                                start = MaxSpace.gutter,
+                                end = MaxSpace.gutter,
+                                top = MaxSpace.md,
+                                bottom = MaxSpace.md,
+                            ),
                         )
                     }
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(MaxSpace.md))
 
             Text(
                 text = stringResource(R.string.max_language_partial_note),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 8.dp),
+                modifier = Modifier.padding(
+                    start = MaxSpace.gutter,
+                    end = MaxSpace.gutter,
+                    bottom = MaxSpace.sm,
+                ),
             )
         }
     }

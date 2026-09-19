@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  نصوص عقد الإضافات (GAP-14). وهي **هي العقد المعروض**: ما نقرأه فعلًا، وما نرفضه ولماذا.
+-->
+<resources>
+
+    <string name="max_plugins_title">Third-party plugins</string>
+    <string name="max_plugins_subtitle">The published contract: what a plugin may declare, and what was accepted or refused here.</string>
+
+    <string name="max_plugins_section_contract">The contract</string>
+    <string name="max_plugins_contract_api">API level %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest folder</string>
+    <string name="max_plugins_contract_rules">A declared capability is either a read or a proposal. There is deliberately no capability that writes hardware: every write in this app goes through the arbiter, and a plugin that could write directly would remove the guard built to stop two owners writing the same knob.</string>
+    <string name="max_plugins_contract_keys">Keys read from a manifest</string>
+    <string name="max_plugins_contract_kinds">Accepted kinds</string>
+    <string name="max_plugins_contract_capabilities">Accepted capabilities</string>
+    <string name="max_plugins_template">Manifest template</string>
+    <string name="max_plugins_template_note">This text is what the parser reads. It cannot drift from the code, because it is generated from it.</string>
+    <string name="max_plugins_copy_template">Copy the template</string>
+    <string name="max_plugins_template_copied">Template copied</string>
+
+    <string name="max_plugins_section_installed">Found on this device</string>
+    <string name="max_plugins_loading_title">Reading the plugin folder</string>
+    <string name="max_plugins_loading_detail">Listing the manifest folder with root, then evaluating each manifest against the contract.</string>
+    <string name="max_plugins_accepted_count">%1$d accepted</string>
+    <string name="max_plugins_rejected_count">%1$d refused</string>
+    <string name="max_plugins_unreadable_count">%1$d folder without a readable manifest</string>
+    <string name="max_plugins_rejected_section">Refused, with the exact reason</string>
+    <string name="max_plugins_detail_label">Declared</string>
+    <string name="max_plugins_refresh_cd">Re-read the plugin folder</string>
+    <string name="max_plugins_capability_source">Reported by the plugin, not measured by us</string>
+
+    <string name="max_plugins_cond_empty_title">No plugins installed</string>
+    <string name="max_plugins_cond_empty_detail">The manifest folder holds no plugin folders. Nothing is wrong: this is the default state of the feature.</string>
+    <string name="max_plugins_cond_missing_title">Manifest folder does not exist yet</string>
+    <string name="max_plugins_cond_missing_detail">%1$s has not been created on this device, so there is nothing to read. Creating it is all a plugin author needs to do.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifest folder cannot be read</string>
+    <string name="max_plugins_cond_unreadable_detail">The folder exists at %1$s but the shell could not read it. Root is required to list it.</string>
+
+    <string name="max_plugins_reason_BadId">The id is not usable as a folder name. Use lowercase Latin letters, digits, dots, dashes or underscores, and never two dots in a row.</string>
+    <string name="max_plugins_reason_MissingName">The manifest declares no name.</string>
+    <string name="max_plugins_reason_BadVersion">The version must start with digits, for example 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">The declared API level is missing or below 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">The declared API level is newer than this build understands, so it is not run at all.</string>
+    <string name="max_plugins_reason_MissingKind">The manifest declares no kind.</string>
+    <string name="max_plugins_reason_UnknownKind">The kind is not one of the published kinds.</string>
+    <string name="max_plugins_reason_UnknownCapability">The capability is not part of this contract. An unknown capability is refused rather than ignored, so nothing runs with fewer rights than it asked for.</string>
+    <string name="max_plugins_reason_NoCapabilities">A plugin must declare at least one capability.</string>
+    <string name="max_plugins_reason_DuplicateId">Another plugin with this id was already accepted, so this one is not used.</string>
+
+    <string name="max_plugins_help_title">Why a contract at all</string>
+    <string name="max_plugins_help_body">Without a published contract, anyone extending this app has to guess the shape of our internal files, and we cannot tell a valid extension from a broken one. With it, the limit is stated: a plugin declares intent and reads; it never writes hardware, and every refusal above names the exact field that failed.</string>
+
+</resources>

@@ -149,6 +149,22 @@ object CpuHardwareBackend {
     }
 
     /** Apply limits to one cpufreq policy only, preserving heterogeneous policies. */
+    /**
+     * هل يقع الطلب خارج المدى الذي **أثبته** السائق لهذه السياسة؟
+     *
+     * [setPolicyLimits] يُقيّد الطلب إلى `[provenMin, provenMax]` **قبل** الكتابة،
+     * فالطلب خارج المدى لا يصل إلى العقدة أصلًا. وشتّان بين حالين يتشابهان في
+     * الواجهة: «العقدة رفضت القيمة» و«القيمة لم تُطلب من العقدة قطّ». كان الاثنان
+     * يُعرضان بالجملة نفسها، فيسأل المستخدم: هل العقدة محمية أم لا تقبل القيمة؟
+     * ولا يجد جوابًا في التطبيق. هذه الدالة تُفرّق بينهما.
+     */
+    fun isOutsideProvenRange(policy: Policy, minKHz: Long? = null, maxKHz: Long? = null): Boolean {
+        val low = policy.provenMinKHz ?: return false
+        val high = policy.provenMaxKHz ?: return false
+        return (minKHz != null && (minKHz < low || minKHz > high)) ||
+            (maxKHz != null && (maxKHz < low || maxKHz > high))
+    }
+
     fun setPolicyLimits(policyPath: String, minKHz: Long? = null, maxKHz: Long? = null): VerificationResult<String> {
         if (minKHz == null && maxKHz == null) return VerificationResult("", null, false, false, "no-request")
         val policy = policies().firstOrNull { it.path == policyPath }

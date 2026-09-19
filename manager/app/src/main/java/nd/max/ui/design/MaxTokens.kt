@@ -98,6 +98,15 @@ object MaxSize {
 
     val hairlineBorder: Dp = 1.dp
 
+    /**
+     * Border width of the one element on a split page that owns the next action.
+     *
+     * Added for the file manager's two panes: with two identical columns the user has
+     * no way to tell where an action will land, and a colour alone is not an answer for
+     * anyone who cannot see it — so the active pane is also wider, not only tinted.
+     */
+    val activeRing: Dp = 2.dp
+
     /** Keeps long explanatory copy readable on tablets/landscape. */
     val readingMaxWidth: Dp = 560.dp
 

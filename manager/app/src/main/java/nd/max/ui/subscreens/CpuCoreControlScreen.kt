@@ -21,6 +21,7 @@ package nd.max.ui.subscreens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import nd.max.R
@@ -63,6 +65,8 @@ import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.design.MaxTone
 import nd.max.ui.mainscreens.IconBadge
 import nd.max.ui.util.CpuTopologyUtil
+import nd.max.ui.viewmodel.CpuActionNotice
+import nd.max.ui.viewmodel.CpuActionReason
 import nd.max.ui.viewmodel.CpuCoreControlViewModel
 import nd.max.ui.viewmodel.CpuCoreRow
 import nd.max.ui.viewmodel.CpuFrequencyControlState
@@ -72,14 +76,6 @@ private const val CPU_SOURCES = "/sys/devices/system/cpu"
 
 /** Keeps core counters left-to-right inside an RTL layout. */
 private const val LTR_MARK = "\u200E"
-
-/**
- * The view model reports one localized sentence for an apply attempt, so the
- * banner tone is derived from the wording it uses for a refusal.
- */
-private val FREQUENCY_FAILURE_WORDS = listOf(
-    "رفض", "تعذّر", "تعارض", "أعاد ضبط", "كِيان خارجي"
-)
 
 @Composable
 fun CpuCoreControlScreen(
@@ -117,20 +113,10 @@ fun CpuCoreControlScreen(
 
     // Transient apply/verify feedback belongs in the scaffold banner slot,
     // not in a dismissible card wedged between two control sections.
-    val actionMessage = viewModel.frequencyActionMessage
-    val banner = actionMessage?.let { message ->
-        val failed = FREQUENCY_FAILURE_WORDS.any { word -> message.contains(word) }
-        MaxCondition(
-            kind = if (failed) MaxConditionKind.Failed else MaxConditionKind.Applied,
-            title = stringResource(
-                if (failed) R.string.cpu_freq_action_failed
-                else R.string.cpu_freq_action_applied
-            ),
-            detail = message,
-            primaryActionLabel = stringResource(R.string.max_action_dismiss),
-            onPrimaryAction = viewModel::consumeFrequencyActionMessage
-        )
-    }
+    //
+    // The kind comes from the action's own outcome code, never from the wording:
+    // a deferred write says "saved, not applied" and must not be green.
+    val banner = viewModel.actionNotice?.let { notice -> cpuActionBanner(notice, viewModel::consumeActionNotice) }
 
     ScreenAccentProvider(accent) {
         MaxListScreen(
@@ -189,6 +175,9 @@ fun CpuCoreControlScreen(
                                 label = quickConfigLabel(config.id),
                                 description = quickConfigDesc(config.id),
                                 accent = quickConfigAccent(config.id),
+                                // الحالة المقروءة من الحالة لا من نيّة محليّة: الصفّ يعلن
+                                // أي نمط جرّبه المستخدم آخر مرة.
+                                selected = viewModel.appliedQuickConfig == config.id,
                                 onClick = { viewModel.applyQuickConfig(config.id) }
                             )
                         }
@@ -251,6 +240,78 @@ fun CpuCoreControlScreen(
             }
         }
     }
+}
+
+/**
+ * The action banner, built from the outcome code rather than from the wording.
+ *
+ * `Deferred*` is shown as *waiting*, not as success: the write was accepted and
+ * stored, but it is not in effect, and saying otherwise is the exact mistake this
+ * screen used to make.
+ */
+@Composable
+private fun cpuActionBanner(notice: CpuActionNotice, onDismiss: () -> Unit): MaxCondition {
+    val kind = when (notice.reason) {
+        CpuActionReason.AppliedVerified,
+        CpuActionReason.HardwareRangeRestored,
+        CpuActionReason.Restored,
+        CpuActionReason.PresetApplied,
+        -> MaxConditionKind.Applied
+
+        CpuActionReason.DeferredSafety,
+        CpuActionReason.DeferredOwner,
+        CpuActionReason.NoManualIntents,
+        -> MaxConditionKind.Applying
+
+        CpuActionReason.PresetRefused,
+        CpuActionReason.CoresUnreadable,
+        CpuActionReason.UnknownClusterTopology,
+        -> MaxConditionKind.Unsupported
+
+        CpuActionReason.NotVerified,
+        CpuActionReason.UnknownNode,
+        CpuActionReason.HardwareRangeUnknown,
+        CpuActionReason.PartialRestore,
+        -> MaxConditionKind.Failed
+    }
+
+    val titleRes = when (kind) {
+        MaxConditionKind.Applied -> R.string.cpu_freq_action_applied
+        MaxConditionKind.Failed -> R.string.cpu_freq_action_failed
+        else -> R.string.cpu_action_pending_title
+    }
+
+    val detail = when (notice.reason) {
+        CpuActionReason.AppliedVerified -> stringResource(R.string.cpu_notice_applied_verified)
+        CpuActionReason.HardwareRangeRestored -> stringResource(R.string.cpu_notice_hardware_range_restored)
+        CpuActionReason.Restored -> stringResource(R.string.cpu_notice_restored)
+        CpuActionReason.DeferredSafety -> stringResource(R.string.cpu_notice_deferred_safety)
+        CpuActionReason.DeferredOwner -> stringResource(
+            R.string.cpu_notice_deferred_owner,
+            notice.detail ?: stringResource(R.string.cpu_notice_owner_unknown),
+        )
+        CpuActionReason.NotVerified -> stringResource(R.string.cpu_notice_not_verified)
+        CpuActionReason.UnknownNode -> stringResource(R.string.cpu_notice_unknown_node)
+        CpuActionReason.HardwareRangeUnknown -> stringResource(R.string.cpu_notice_hardware_range_unknown)
+        CpuActionReason.NoManualIntents -> stringResource(R.string.cpu_notice_no_manual_intents)
+        CpuActionReason.PartialRestore -> stringResource(R.string.cpu_notice_partial_restore)
+        CpuActionReason.UnknownClusterTopology -> stringResource(R.string.cpu_notice_unknown_topology)
+        CpuActionReason.CoresUnreadable -> stringResource(R.string.cpu_notice_cores_unreadable)
+        CpuActionReason.PresetRefused -> stringResource(R.string.cpu_notice_preset_refused)
+        CpuActionReason.PresetApplied -> stringResource(
+            R.string.cpu_notice_preset_applied,
+            notice.onlineCores,
+            notice.totalCores,
+        )
+    }
+
+    return MaxCondition(
+        kind = kind,
+        title = stringResource(titleRes),
+        detail = detail,
+        primaryActionLabel = stringResource(R.string.max_action_dismiss),
+        onPrimaryAction = onDismiss,
+    )
 }
 
 /**
@@ -493,13 +554,8 @@ private fun CpuFrequencyControlGroup(
 
         MaxGroupDivider()
 
-        Column(
-            modifier = Modifier.padding(
-                horizontal = MaxSpace.rowPaddingHorizontal,
-                vertical = MaxSpace.rowPaddingVertical
-            ),
-            verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)
-        ) {
+        // حشو القراءة يسكن في `MaxMetricLine` نفسها؛ فلا يُضاعف هنا.
+        Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)) {
             MaxMetricLine(
                 MaxMetric(
                     label = stringResource(R.string.cpu_freq_current_label),
@@ -645,7 +701,11 @@ private fun frequencyVerificationLines(
     return buildList {
         add(headline)
         add(stringResource(R.string.cpu_freq_verification_detail, requested, measured))
-        if (!verification.verified) {
+        // الترتيب مقصود: سبب «لم تصل القيمة إلى العقدة» يُقال قبل تفسيري
+        // الرفض/الانقلاب، لأن هذين يفترضان أن العقدة رأت القيمة أصلًا.
+        if (verification.outsideProvenRange) {
+            add(stringResource(R.string.cpu_freq_outside_proven_range_explain))
+        } else if (!verification.verified) {
             add(
                 stringResource(
                     if (verification.writeAccepted) R.string.cpu_freq_overridden_explain
@@ -878,16 +938,32 @@ private fun CoreQuickConfigTile(
     label: String,
     description: String,
     accent: Color,
+    selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val shape = MaterialTheme.shapes.large
+    // التحديد بإطار أعرض وتحوّل في التعبئة **معًا**: الإطار وحده لا يُقرأ من بعيد،
+    // والتعبئة وحدها لا تُقرأ في تباين منخفض.
+    val container = if (selected) {
+        Brush.linearGradient(listOf(accent.copy(alpha = 0.32f), MaterialTheme.colorScheme.surfaceContainerHigh))
+    } else {
+        Brush.linearGradient(listOf(accent.copy(alpha = 0.16f), MaterialTheme.colorScheme.surfaceContainerLow))
+    }
     Column(
         modifier = modifier
             .clip(shape)
-            .background(Brush.linearGradient(listOf(accent.copy(alpha = 0.16f), MaterialTheme.colorScheme.surfaceContainerLow)))
-            .border(1.dp, accent.copy(alpha = 0.18f), shape)
-            .clickable(onClick = onClick)
+            .background(container)
+            .border(
+                width = if (selected) MaxSize.activeRing else 1.dp,
+                color = accent.copy(alpha = if (selected) MaxAlpha.borderStrong else MaxAlpha.border),
+                shape = shape,
+            )
+            .selectable(
+                selected = selected,
+                role = Role.RadioButton,
+                onClick = onClick,
+            )
             .padding(vertical = 12.dp, horizontal = MaxSpace.xs),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

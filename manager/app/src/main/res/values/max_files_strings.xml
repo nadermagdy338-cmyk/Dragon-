@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  نصوص مدير الملفات (GAP-09). مفاتيحها هنا وحدها حتى لا تتفرّق بين ملفات النصوص العامّة.
+  والقاعدة: لكل حالة فشل نصّها الخاصّ — لا «حدث خطأ» يجمع خمس حالات مختلفة.
+-->
+<resources>
+
+    <string name="max_files_title">File manager</string>
+    <string name="max_files_subtitle">Browse and modify files as root. Every operation states its own result.</string>
+
+    <!-- شريط البحث والفتات -->
+    <string name="max_files_search_placeholder">Search names in this folder</string>
+    <string name="max_files_search_clear">Clear the search</string>
+    <string name="max_files_root_crumb">Root</string>
+    <string name="max_files_pane_left">Left pane</string>
+    <string name="max_files_pane_right">Right pane</string>
+    <string name="max_files_sync_panes_cd">Point both panes at the active pane folder</string>
+    <string name="max_files_swap_panes_cd">Swap the two panes</string>
+    <string name="max_files_pane_no_match_title">No name matches</string>
+    <string name="max_files_pane_no_match_detail">Nothing in this folder matches %1$s. Clear the search to see every entry again.</string>
+    <string name="max_files_up_cd">Go up one folder</string>
+    <string name="max_files_refresh_cd">Re-read this folder</string>
+    <string name="max_files_select_cd">Start selecting entries</string>
+    <string name="max_files_selected_count">%1$d selected</string>
+    <string name="max_files_open_cd">Open</string>
+
+    <!-- ترتيب القائمة -->
+    <string name="max_files_sort_cd">Sort order</string>
+    <string name="max_files_sort_name">Name</string>
+    <string name="max_files_sort_size">Size</string>
+    <string name="max_files_sort_date">Modified</string>
+    <string name="max_files_sort_kind">Type</string>
+
+    <!-- الحالات المعلنة عند فشل القراءة -->
+    <string name="max_files_cond_loading_title">Reading the folder</string>
+    <string name="max_files_cond_loading_detail">Running one stat pass so sizes, permissions and owners are measured rather than guessed.</string>
+    <string name="max_files_cond_empty_title">This folder is empty</string>
+    <string name="max_files_cond_empty_detail">The listing succeeded and returned no entries. That is a reading, not a failure.</string>
+    <string name="max_files_cond_notfound_title">Path not found</string>
+    <string name="max_files_cond_notfound_detail">This path does not exist on the device right now.</string>
+    <string name="max_files_cond_notdir_title">Not a folder</string>
+    <string name="max_files_cond_notdir_detail">The path exists but is not a directory, so it has nothing to list.</string>
+    <string name="max_files_cond_denied_title">Root cannot read this folder</string>
+    <string name="max_files_cond_denied_detail">The shell could not read or traverse the path. Grant root, then re-read.</string>
+    <string name="max_files_cond_shell_title">No privileged shell</string>
+    <string name="max_files_cond_shell_detail">Nothing answered with root, so no folder could be read at all.</string>
+    <string name="max_files_cond_recheck">Re-read</string>
+    <string name="max_files_cond_no_root_title">Root is required</string>
+    <string name="max_files_cond_no_root_detail">This screen exists to read and change system paths, so it needs root. Without it the listing would be a half-truth.</string>
+
+    <!-- أشرطة الصدق: ما نقوله حين لا تكون القراءة كاملة -->
+    <string name="max_files_degraded_title">Attributes unavailable</string>
+    <string name="max_files_degraded_detail">stat did not answer on this device, so only names are listed. Sizes and permissions are unknown, not zero.</string>
+    <string name="max_files_skipped_title">Some entries could not be read</string>
+    <string name="max_files_skipped_detail">%1$d lines did not match the declared format and were dropped. Entries may be missing from this view.</string>
+
+    <!-- صف المدخل -->
+    <string name="max_files_unknown">Unknown</string>
+    <string name="max_files_kind_directory">Folder</string>
+    <string name="max_files_kind_file">File</string>
+    <string name="max_files_kind_symlink">Symbolic link</string>
+    <string name="max_files_kind_block">Block device</string>
+    <string name="max_files_kind_char">Character device</string>
+    <string name="max_files_kind_fifo">Pipe</string>
+    <string name="max_files_kind_socket">Socket</string>
+    <string name="max_files_kind_unknown">Unknown type</string>
+    <string name="max_files_link_to">Link to %1$s</string>
+    <string name="max_files_owner_group">%1$s:%2$s</string>
+    <string name="max_files_row_cd">Open entry menu</string>
+
+    <!-- الإجراءات -->
+    <string name="max_files_action_rename">Rename</string>
+    <string name="max_files_action_delete">Delete</string>
+    <string name="max_files_action_copy">Copy</string>
+    <string name="max_files_action_move">Move</string>
+    <string name="max_files_action_new_folder">New folder</string>
+    <string name="max_files_action_compress">Compress to tar.gz</string>
+    <string name="max_files_action_extract">Extract tar.gz here</string>
+    <string name="max_files_action_details">Details</string>
+    <string name="max_files_action_preview">Preview as text</string>
+    <string name="max_files_action_select_all">Select all</string>
+    <string name="max_files_action_invert">Invert selection</string>
+    <string name="max_files_action_done">Done</string>
+    <string name="max_files_action_clear_selection">Clear the selection</string>
+
+    <!-- الحوارات -->
+    <string name="max_files_rename_title">Rename entry</string>
+    <string name="max_files_rename_field">New name</string>
+    <string name="max_files_new_folder_title">Create a folder</string>
+    <string name="max_files_new_folder_field">Folder name</string>
+    <string name="max_files_delete_title">Delete permanently</string>
+    <string name="max_files_delete_body">%1$d entries will be removed with root. There is no recycle bin and no undo on this screen.</string>
+    <string name="max_files_copy_title">Copy to folder</string>
+    <string name="max_files_move_title">Move to folder</string>
+    <string name="max_files_destination_field">Destination folder</string>
+    <string name="max_files_destination_hint">Absolute path, for example /sdcard/Download</string>
+    <string name="max_files_confirm">Apply</string>
+    <string name="max_files_cancel">Cancel</string>
+
+    <!-- أسباب الرفض: تُعرض بنصّها لا برقمها -->
+    <string name="max_files_refused_title">Not applied</string>
+    <string name="max_files_refuse_empty">Nothing is selected.</string>
+    <string name="max_files_refuse_protected">The filesystem root cannot be the target of this operation.</string>
+    <string name="max_files_refuse_self">Source and destination are the same path.</string>
+    <string name="max_files_refuse_inside">A folder cannot be copied or moved inside itself.</string>
+    <string name="max_files_refuse_name">A name cannot be empty, a dot, a double dot, or contain a slash.</string>
+    <string name="max_files_refuse_taken">An entry with that name already exists here.</string>
+
+    <!-- نتائج التنفيذ: ثلاثة أحكام لا حكمان -->
+    <string name="max_files_outcome_ok">Done, and the result was verified on disk.</string>
+    <string name="max_files_outcome_unverified">The command ran, but the result could not be verified.</string>
+    <string name="max_files_outcome_failed">The operation failed. Nothing was verified.</string>
+    <string name="max_files_outcome_count">%1$d entries processed.</string>
+
+    <!-- لوحة التفاصيل -->
+    <string name="max_files_details_title">Entry details</string>
+    <string name="max_files_detail_path">Path</string>
+    <string name="max_files_detail_kind">Type</string>
+    <string name="max_files_detail_size">Size</string>
+    <string name="max_files_detail_modified">Modified</string>
+    <string name="max_files_detail_permissions">Permissions</string>
+    <string name="max_files_detail_owner">Owner</string>
+    <string name="max_files_detail_group">Group</string>
+    <string name="max_files_detail_symlink">Link target</string>
+    <string name="max_files_detail_selinux">SELinux context</string>
+    <string name="max_files_detail_selinux_unknown">Not reported by this device</string>
+    <string name="max_files_detail_selinux_check">Read SELinux context</string>
+    <string name="max_files_detail_not_read">Not read</string>
+    <string name="max_files_flag_setuid">setuid</string>
+    <string name="max_files_flag_setgid">setgid</string>
+    <string name="max_files_flag_sticky">sticky</string>
+    <string name="max_files_detail_copy_path">Copy the path</string>
+    <string name="max_files_detail_copied">Path copied</string>
+    <string name="max_files_detail_copy_failed">The clipboard refused the path — nothing was copied</string>
+    <string name="max_files_detail_copy_label">File path</string>
+
+    <!-- المعاينة النصّية -->
+    <string name="max_files_preview_title">Text preview</string>
+    <string name="max_files_preview_loading_title">Reading the file</string>
+    <string name="max_files_preview_loading_detail">Starting with the first %1$s, then checking whether the content is text at all.</string>
+    <string name="max_files_preview_binary_title">Binary file</string>
+    <string name="max_files_preview_binary_detail">The content is not text, so it is not rendered as text. Use a hex viewer for this file.</string>
+    <string name="max_files_preview_large_title">Too large to preview</string>
+    <string name="max_files_preview_large_detail">Only files up to %1$s are previewed here. Open it in another tool.</string>
+    <string name="max_files_preview_truncated">Showing the first part of the file only.</string>
+    <string name="max_files_preview_unreadable">The file could not be read.</string>
+    <string name="max_files_preview_readonly">This preview is read-only. Editing files is not offered on this screen.</string>
+
+    <!-- الشرح -->
+    <string name="max_files_help_title">How this screen decides</string>
+    <string name="max_files_help_body">Entries come from one stat pass with a fixed tab-separated format, so ls output is never parsed for data. Anything not measured is shown as unknown rather than as zero. Every operation is guarded before it reaches the shell: a folder cannot be copied into itself, a move cannot target its own source, and the filesystem root cannot be deleted.</string>
+
+</resources>

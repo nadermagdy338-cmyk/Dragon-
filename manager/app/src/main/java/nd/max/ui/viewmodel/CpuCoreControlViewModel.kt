@@ -64,6 +64,14 @@ data class CpuFrequencyVerification(
      *  through but an external manager (module profile / thermal daemon)
      *  overwrote the limits before or after the read-back. */
     val writeAccepted: Boolean = true,
+    /**
+     * True when the request fell outside the range the driver proves for this
+     * policy. The write is clamped before it reaches the node, so a failure here
+     * is **not** the node refusing a value — the node never saw the requested
+     * one. Reported separately so the screen stops asking the user to guess
+     * between "the node is protected" and "the node rejects this value".
+     */
+    val outsideProvenRange: Boolean = false,
     /** How many automatic re-assertions were spent defending this request. */
     val reassertions: Int = 0,
 )
@@ -99,6 +107,73 @@ data class CpuFrequencyControlState(
  * starts fresh, matching real hotplug drivers, which is why the UI itself
  * flags this as "SESSION" rather than a saved setting.
  */
+/**
+ * How the last CPU action ended, **as a code**.
+ *
+ * The banner used to be driven by a message — an Arabic sentence written here —
+ * and the screen decided success by searching that sentence for failure words.
+ * Two consequences, both real:
+ *  - a **deferred** write ("a higher-priority owner holds this knob; your request
+ *    is saved") matched none of the failure words and was reported as a green
+ *    success, although nothing had been applied;
+ *  - the wording was Arabic in every locale.
+ *
+ * The code carries the outcome; the screen owns the wording.
+ */
+enum class CpuActionReason {
+    /** Written, re-read, and matching. */
+    AppliedVerified,
+
+    /** The full proven hardware range was restored and verified. */
+    HardwareRangeRestored,
+
+    /** Session limits were restored and verified. */
+    Restored,
+
+    /** Thermal safety owns the knob; the request is stored and applied on release. */
+    DeferredSafety,
+
+    /** A higher-priority owner holds the knob; the request is stored. `detail` names it. */
+    DeferredOwner,
+
+    /** Written but not confirmed by a read-back. */
+    NotVerified,
+
+    /** The cpufreq node behind this policy is not one we can name, so nothing was written. */
+    UnknownNode,
+
+    /** The driver does not declare this policy's hardware bounds. */
+    HardwareRangeUnknown,
+
+    /** No hand-applied intents were recorded this session. */
+    NoManualIntents,
+
+    /** Some limits could not be restored. */
+    PartialRestore,
+
+    /** The topology could not be read, so no preset could be applied. */
+    UnknownClusterTopology,
+
+    /** Core rows could not be read back after the preset. */
+    CoresUnreadable,
+
+    /** The preset changed nothing that a read-back can see. */
+    PresetRefused,
+
+    /** The preset changed the online count; `onlineCores`/`totalCores` say to what. */
+    PresetApplied,
+}
+
+@androidx.compose.runtime.Immutable
+data class CpuActionNotice(
+    val reason: CpuActionReason,
+    /** Machine detail only (an owner name), never a sentence. */
+    val detail: String? = null,
+    val onlineCores: Int = 0,
+    val totalCores: Int = 0,
+    val presetId: String? = null,
+)
+
 @HiltViewModel
 class CpuCoreControlViewModel @Inject constructor(
     private val arbiter: HardwareControlArbiter,
@@ -139,7 +214,11 @@ class CpuCoreControlViewModel @Inject constructor(
         private set
     var frequencyControls by mutableStateOf<Map<String, CpuFrequencyControlState>>(emptyMap())
         private set
-    var frequencyActionMessage by mutableStateOf<String?>(null)
+    var actionNotice by mutableStateOf<CpuActionNotice?>(null)
+        private set
+
+    /** The core preset last chosen, so the tiles can show a real selection. */
+    var appliedQuickConfig by mutableStateOf<String?>(null)
         private set
     private var sessionFrequencyBaseline: Map<String, Pair<Long, Long>> = emptyMap()
     private var lastFrequencyVerification: Map<String, CpuFrequencyVerification> = emptyMap()
@@ -362,7 +441,7 @@ class CpuCoreControlViewModel @Inject constructor(
             policyPath = policyPath,
             minKHz = minKHz,
             maxKHz = maxKHz,
-            successMessage = "تم التطبيق والتحقق من العتاد ✓",
+            successReason = CpuActionReason.AppliedVerified,
         )
     }
 
@@ -385,13 +464,13 @@ class CpuCoreControlViewModel @Inject constructor(
         policyPath: String,
         minKHz: Long,
         maxKHz: Long,
-        successMessage: String,
+        successReason: CpuActionReason,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val key = controlKeyFor(policyPath)
             if (key == null) {
                 withContext(Dispatchers.Main) {
-                    frequencyActionMessage = "عقدة cpufreq غير معروفة — لم يُكتب شيء"
+                    actionNotice = CpuActionNotice(CpuActionReason.UnknownNode)
                 }
                 return@launch
             }
@@ -423,6 +502,8 @@ class CpuCoreControlViewModel @Inject constructor(
                 actualMaxKHz = actual?.maxKHz,
                 verified = result.verified,
                 writeAccepted = result.applied,
+                outsideProvenRange = actual != null &&
+                    CpuHardwareBackend.isOutsideProvenRange(actual, minKHz, maxKHz),
             ))
             if (accepted) {
                 // The user's intent is now the defended session state for this policy.
@@ -432,13 +513,19 @@ class CpuCoreControlViewModel @Inject constructor(
             }
             refreshFrequencyControls()
             withContext(Dispatchers.Main) {
-                frequencyActionMessage = when {
-                    result.verified -> successMessage
+                // Outcome first, wording second. The old banner decided success by
+                // searching the message for failure words, so a **deferred** write
+                // (“a higher-priority owner holds this knob; your request is saved”)
+                // contained none of them and was shown as a green success — while
+                // nothing had in fact been applied. Now the code carries the truth
+                // and the text only explains it.
+                actionNotice = when {
+                    result.verified -> CpuActionNotice(successReason)
                     result.blocked && result.winner == ControlOwnership.Owner.SAFETY ->
-                        "تدخل أمان حراري يملك هذا المقبض الآن — طلبك محفوظ ويُطبَّق عند انتهائه"
+                        CpuActionNotice(CpuActionReason.DeferredSafety)
                     result.blocked ->
-                        "مالك أعلى أولوية (${result.winner?.name ?: "غير معروف"}) يملك هذا المقبض — طلبك محفوظ"
-                    else -> "تعذّر التطبيق والتحقق من العتاد — القيم لم تتغير"
+                        CpuActionNotice(CpuActionReason.DeferredOwner, detail = result.winner?.name)
+                    else -> CpuActionNotice(CpuActionReason.NotVerified)
                 }
             }
         }
@@ -481,11 +568,13 @@ class CpuCoreControlViewModel @Inject constructor(
             refreshManualSessionProp()
             refreshFrequencyControls()
             withContext(Dispatchers.Main) {
-                frequencyActionMessage = when {
-                    attempted == 0 -> "لا توجد نوايا يدوية مسجلة — لم يُستعد شيء"
-                    allVerified -> "تمت استعادة حدود بداية الجلسة وتوثيقها"
-                    else -> "تعذّرت استعادة بعض الحدود — راجع القيم الحية"
-                }
+                actionNotice = CpuActionNotice(
+                    when {
+                        attempted == 0 -> CpuActionReason.NoManualIntents
+                        allVerified -> CpuActionReason.Restored
+                        else -> CpuActionReason.PartialRestore
+                    }
+                )
             }
         }
     }
@@ -508,7 +597,7 @@ class CpuCoreControlViewModel @Inject constructor(
                 refreshManualSessionProp()
                 refreshFrequencyControls()
                 withContext(Dispatchers.Main) {
-                    frequencyActionMessage = "مدى العتاد غير معلن من الدرايفر — لا يمكن الاستعادة"
+                    actionNotice = CpuActionNotice(CpuActionReason.HardwareRangeUnknown)
                 }
                 return@launch
             }
@@ -516,13 +605,13 @@ class CpuCoreControlViewModel @Inject constructor(
                 policyPath = policyPath,
                 minKHz = min,
                 maxKHz = max,
-                successMessage = "تم استعادة مدى العتاد الكامل والتحقق منه",
+                successReason = CpuActionReason.HardwareRangeRestored,
             )
         }
     }
 
-    fun consumeFrequencyActionMessage() {
-        frequencyActionMessage = null
+    fun consumeActionNotice() {
+        actionNotice = null
     }
 
     fun setCoreOnline(cpu: Int, online: Boolean) {
@@ -533,17 +622,35 @@ class CpuCoreControlViewModel @Inject constructor(
         }
     }
 
+    /**
+     * A core-preset tile: turn clusters on and off.
+     *
+     * Two things were wrong with this, and neither was the toggling itself.
+     *
+     * 1. It reported **nothing**. No notice, no message, no highlight — so the only
+     *    evidence a tap had done something was a core row changing far down the
+     *    page. It read exactly like a dead control.
+     * 2. Nothing showed which preset was last chosen, so the row of tiles had no
+     *    selected state at all.
+     *
+     * The result is now measured after the refresh rather than assumed from the
+     * intent: what is reported is the number of cores that actually read back as
+     * online. A preset that could not put a single core online is reported as
+     * refused, not as applied.
+     */
     fun applyQuickConfig(id: String) {
         manualControlEnabled = true
         val clustersSnapshot = clusters
-        if (clustersSnapshot.isEmpty()) return
+        if (clustersSnapshot.isEmpty()) {
+            actionNotice = CpuActionNotice(CpuActionReason.UnknownClusterTopology)
+            return
+        }
+        val before = coreRows.count { it.online }
 
         viewModelScope.launch(Dispatchers.IO) {
             when (id) {
-                "all_on" -> {
-                    clustersSnapshot.forEach { cluster ->
-                        cluster.cores.forEach { CpuTopologyUtil.setCoreOnline(it, true) }
-                    }
+                "all_on" -> clustersSnapshot.forEach { cluster ->
+                    cluster.cores.forEach { CpuTopologyUtil.setCoreOnline(it, true) }
                 }
                 "balanced" -> {
                     // Efficiency + mid clusters on, top ("Prime") cluster off.
@@ -560,7 +667,25 @@ class CpuCoreControlViewModel @Inject constructor(
                     }
                 }
             }
-            withContext(Dispatchers.Main) { refreshRows() }
+            withContext(Dispatchers.Main) {
+                refreshRows()
+                val online = coreRows.count { it.online }
+                val total = coreRows.size
+                val reason = when {
+                    // صفر صفوف = لم نقرأ، وهذه ليست «نجاحًا» ولا «رفضًا».
+                    total == 0 -> CpuActionReason.CoresUnreadable
+                    // ولا صف تغيّر = رفض هذا النمط، لا نجاحه.
+                    online == before -> CpuActionReason.PresetRefused
+                    else -> CpuActionReason.PresetApplied
+                }
+                actionNotice = CpuActionNotice(
+                    reason = reason,
+                    onlineCores = online,
+                    totalCores = total,
+                    presetId = id,
+                )
+                appliedQuickConfig = id
+            }
         }
     }
 }

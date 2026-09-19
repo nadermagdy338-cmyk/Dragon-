@@ -153,6 +153,80 @@ fun MaxScreen(
 }
 
 /**
+ * Split-layout screen shell: the same top bar, condition and snackbar handling as
+ * [MaxScreen], but the body is a **fixed-height slot instead of a vertical scroll**.
+ *
+ * Why it has to exist rather than reusing [MaxScreen]: a `LazyColumn` nested inside a
+ * vertically scrolling `Column` is measured with an infinite maximum height and throws.
+ * So any page that owns more than one lazy list — the file manager's two panes are the
+ * first — cannot use [MaxScreen] at all. The alternative, a screen-local `Scaffold`,
+ * is exactly the drift this file was written to stop.
+ *
+ * The body fills the available height and arranges itself; the shell deliberately adds
+ * no vertical spacing between children, because a split layout's gaps belong to the
+ * panes, not to the page.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MaxSplitScreen(
+    title: String,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    accentIcon: ImageVector? = null,
+    accent: Color = MaterialTheme.colorScheme.primary,
+    condition: MaxCondition? = null,
+    banner: MaxCondition? = null,
+    snackbarHostState: SnackbarHostState? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+    floatingAction: (@Composable () -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
+        rememberTopAppBarState()
+    )
+    val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
+        .calculateBottomPadding()
+    val bottomPadding = floatingBottomBarPadding(MaxSpace.pageBottom + navigationBarPadding)
+
+    Scaffold(
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        topBar = {
+            MaxManagerSubScreenTopBar(
+                scrollBehavior = scrollBehavior,
+                title = title,
+                subtitle = subtitle,
+                onBack = onBack,
+                accentIcon = accentIcon,
+                accent = accent,
+                actions = actions
+            )
+        },
+        snackbarHost = {
+            if (snackbarHostState != null) MaxSnackbarHost(snackbarHostState)
+        },
+        floatingActionButton = { floatingAction?.invoke() }
+    ) { scaffoldPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(scaffoldPadding)
+                .padding(horizontal = MaxSpace.gutter)
+                .padding(bottom = bottomPadding)
+        ) {
+            if (condition != null) {
+                MaxConditionPanel(condition)
+            } else {
+                banner?.let { MaxConditionNotice(it, modifier = Modifier.fillMaxWidth()) }
+                content()
+            }
+        }
+    }
+}
+
+/**
  * List screen variant.
  *
  * Long, data-heavy screens (apps, processes, logs, thermal zones) must stay

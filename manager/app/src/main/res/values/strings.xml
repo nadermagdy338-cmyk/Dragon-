@@ -218,7 +218,7 @@
     <string name="resolution_preset_balanced">Balanced</string>
     <string name="resolution_preset_performance">Performance</string>
     <string name="resolution_preset_battery">Battery Saver</string>
-    <string name="zram_title">Memory Compression</string>
+    <string name="zram_title">Memory</string>
     <string name="zram_desc">Compressed swap sizing and kernel memory reclaim tuning</string>
     <string name="zram_unavailable">ZRAM isn\'t available on this device.</string>
     <string name="thermal_title">Thermal Devices</string>
@@ -375,10 +375,33 @@
     <string name="cpu_freq_verification_detail">Requested %1$s \u00b7 measured %2$s</string>
     <string name="cpu_freq_overridden_explain">The global MaxManager profile or the device thermal service is enforcing different limits.</string>
     <string name="cpu_freq_rejected_explain">The node may be protected, or it may not accept this value.</string>
+    <string name="cpu_freq_outside_proven_range_explain">The requested value is outside the range this policy proves. The write is clamped to the proven limit, so the node was never asked for the requested value.</string>
     <string name="cpu_freq_conflict_detail">Persistent conflict: another entity keeps enforcing different limits, so automatic re-assertion stopped to protect stability.</string>
     <string name="cpu_freq_session_owned_note">Your limits hold for this session: the global profile will not reset them until you restore them.</string>
     <string name="cpu_freq_action_applied">Limits applied</string>
     <string name="cpu_freq_action_failed">Limits not applied</string>
+    <!--
+      CPU action outcomes. Every one of these is a distinct ending, because
+      collapsing them is how a stored-but-unapplied request ends up reported as a
+      success. The banner picks the title from the outcome kind, and the body from
+      the outcome code.
+    -->
+    <string name="cpu_action_pending_title">Saved, not applied yet</string>
+    <string name="cpu_notice_applied_verified">The values read back match what was requested.</string>
+    <string name="cpu_notice_hardware_range_restored">The full hardware range was restored and verified.</string>
+    <string name="cpu_notice_restored">The session-start limits were restored and verified.</string>
+    <string name="cpu_notice_deferred_safety">Thermal safety owns this knob right now. Your request is stored and will be applied when it lets go \u2014 nothing has changed on the device yet.</string>
+    <string name="cpu_notice_deferred_owner">A higher-priority owner (%1$s) holds this knob. Your request is stored and will be applied on release \u2014 nothing has changed on the device yet.</string>
+    <string name="cpu_notice_owner_unknown">unknown owner</string>
+    <string name="cpu_notice_not_verified">The write went out but did not read back as requested, so the values were left as they were.</string>
+    <string name="cpu_notice_unknown_node">The cpufreq node behind this policy is not one MaxManager can name, so nothing was written.</string>
+    <string name="cpu_notice_hardware_range_unknown">The driver does not declare this policy\'s hardware bounds, so there is nothing to restore to.</string>
+    <string name="cpu_notice_no_manual_intents">No hand-applied limits were recorded this session, so there was nothing to restore.</string>
+    <string name="cpu_notice_partial_restore">Some limits could not be restored. Read the live values below.</string>
+    <string name="cpu_notice_unknown_topology">The core topology could not be read, so no preset could be applied.</string>
+    <string name="cpu_notice_cores_unreadable">The core states could not be read back, so the preset\'s result is unknown rather than successful.</string>
+    <string name="cpu_notice_preset_refused">The preset changed nothing that a read-back can see. The kernel may keep these cores in a fixed state.</string>
+    <string name="cpu_notice_preset_applied">Preset applied: %1$d of %2$d cores now read back as online.</string>
     <string name="debloat_freeze_title">App Cleanup</string>
     <string name="debloat_freeze_desc">Freeze or remove system and user apps you don’t need</string>
     <string name="debloat_tab_all">All</string>
@@ -717,6 +740,12 @@
     <string name="charging_limit_title">Charge limit</string>
     <string name="charging_limit_desc">Stop charging at a set percentage to slow down battery wear</string>
     <string name="charging_limit_active">Charging stops at %1$d%%</string>
+    <string name="charging_limit_active_progress">Charging stops at %1$d%% \u00b7 now at %2$d%%</string>
+    <string name="charging_status_full">Full</string>
+    <string name="charging_full_capacity">Full capacity now</string>
+    <string name="charging_health_dead">Dead</string>
+    <string name="charging_health_over_voltage">Over voltage</string>
+    <string name="charging_health_cold">Cold</string>
     <string name="charging_limit_slider_title">Charge limit percentage</string>
     <string name="charging_battery_saver_title">Battery saver</string>
     <string name="charging_battery_saver_desc">Reduce background activity and performance to extend battery life</string>
@@ -1552,6 +1581,7 @@
     <string name="max_role_fps_overlay">Show FPS source, overlay style and permission state.</string>
     <string name="max_role_thermal">Inspect thermal zones, trends and throttling context.</string>
     <string name="max_role_charging">Read live charging power, cable state, health and related controls.</string>
+    <string name="max_role_battery_and_charging">Battery state and charging control in one place: what the pack is doing now, and what may be changed about it.</string>
     <string name="max_role_bypass">Configure bypass charging behavior and threshold.</string>
     <string name="max_role_bypass_check">Diagnose whether the device exposes safe bypass nodes.</string>
     <string name="max_role_doze">Inspect idle state, whitelist and GMS behavior.</string>
@@ -1642,6 +1672,10 @@
     <string name="control_advanced_tools_desc">High-risk utilities belong with Control, not Settings. They stay explicit, labeled and reversible where possible.</string>
     <string name="max_role_terminal">Run direct commands only when a normal control cannot express the task.</string>
     <string name="max_role_setedit">Inspect and edit Android settings with clear advanced-risk labeling.</string>
+    <string name="max_role_max_backup">Back up and restore any app and its data, with a fingerprint check after every write.</string>
+    <string name="max_role_permissions">Inspect and set declared permissions and App ops per app, against a recorded reference.</string>
+    <string name="max_role_file_manager">Browse, inspect and modify files as root, with every operation guarded and verified.</string>
+    <string name="max_role_plugins">Read the published contract for third-party plugins and what was accepted or refused on this device.</string>
     <string name="max_role_activity_launcher">Open hidden Android activities for debugging and vendor tools.</string>
     <string name="max_role_kernel_flasher">Flash kernel packages; dangerous and intentionally kept away from preferences.</string>
 

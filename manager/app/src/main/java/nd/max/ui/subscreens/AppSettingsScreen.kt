@@ -58,10 +58,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nd.max.R
 import nd.max.ui.component.*
-import nd.max.ui.util.BackgroundGovernance
-import nd.max.ui.util.BackgroundGovernanceUtil
-import nd.max.ui.util.InstallSourceSnapshot
-import nd.max.ui.util.InstallSourceUtil
 import nd.max.ui.util.AppConfig
 import nd.max.ui.util.PerAppCpuControlMode
 import nd.max.ui.util.PerAppCpuPolicyControl
@@ -181,6 +177,22 @@ fun AppSettingsScreen(
                         }
                     },
                     onShowGuide = { showGuide = true },
+                    // يُفتحان **مباشرة على هذا التطبيق**: لا شاشة رئيسية ولا قائمة تطبيقات،
+                    // لأن من ضغط هنا طلب تطبيقه هو.
+                    onOpenMaxBackup = {
+                        packageName?.let { pkg ->
+                            navController.navigate(
+                                MaxDestination.MaxBackup.route.replace("{pkg}", pkg)
+                            )
+                        }
+                    },
+                    onOpenAppOps = {
+                        packageName?.let { pkg ->
+                            navController.navigate(
+                                MaxDestination.Permissions.route.replace("{pkg}", pkg)
+                            )
+                        }
+                    },
                     onBack = {
                         appListViewModel.loadApps(context, forceRefresh = true)
                         navController.popBackStack()
@@ -212,50 +224,15 @@ fun AppSettingsScreen(
                     Spacer(Modifier.height(8.dp))
                 }
 
-                // ── Background governance (AR-14) ────────────────────────────
-                // نُفسّر آلية المنصّة (App Standby + Doze) ولا نقتل شيئًا.
-                packageName?.let { pkg ->
-                    item {
-                        BackgroundGovernanceCard(packageName = pkg)
-                        Spacer(Modifier.height(8.dp))
-                    }
-                }
+                // ── مُزالة: الخلفية والبطارية (AR-14) ────────────────────────────
+                // أُزيلت هاتان البطاقتان من هذه الشاشة **بقرار مالك** لا لخطأ فيهما.
+                // والقارئان (`BackgroundGovernanceUtil` و`InstallSourceUtil`) باقيان
+                // **مُختبَرَين** كمعلومة مقروءة، فإعادة عرضهما في موضع آخر لا تعني إعادة كتابتهما.
 
-                // ── App source (AR-34) ───────────────────────────────────────
-                packageName?.let { pkg ->
-                    item {
-                        AppSourceCard(packageName = pkg)
-                        Spacer(Modifier.height(8.dp))
-                    }
-                }
+                // ── مُزالة: مصدر التطبيق (AR-34) ───────────────────────────────────────
+                // ── مُزالة من المحتوى: Max Backup صار زرًّا في شريط العنوان ────────────────────
 
-                // ── Max Backup: المدخل إلى الشاشة المستقلة ────────────────────
-                packageName?.let { pkg ->
-                    item {
-                        MaxBackupEntryCard(
-                            onOpen = {
-                                navController.navigate(
-                                    MaxDestination.MaxBackup.route.replace("{pkg}", pkg)
-                                )
-                            }
-                        )
-                        Spacer(Modifier.height(8.dp))
-                    }
-                }
-
-                // ── الصلاحيات و AppOps (GAP-07) ──────────────────────────────
-                packageName?.let { pkg ->
-                    item {
-                        PermissionsEntryCard(
-                            onOpen = {
-                                navController.navigate(
-                                    MaxDestination.Permissions.route.replace("{pkg}", pkg)
-                                )
-                            }
-                        )
-                        Spacer(Modifier.height(8.dp))
-                    }
-                }
+                // ── مُزالة من المحتوى: AppOps صار زرًّا في شريط العنوان ──────────────────────────────
 
                 // ── All Settings ─────────────────────────────────────────────
                 item {
@@ -1282,10 +1259,12 @@ private fun GuideItem(icon: ImageVector, title: String, desc: String, color: Col
 
 @Composable
 fun AppSettingsTopAppBar(
-    scrollBehavior: TopAppBarScrollBehavior, 
-    onLaunchApp: () -> Unit, 
-    onOpenAppInfo: () -> Unit, 
+    scrollBehavior: TopAppBarScrollBehavior,
+    onLaunchApp: () -> Unit,
+    onOpenAppInfo: () -> Unit,
     onShowGuide: () -> Unit,
+    onOpenMaxBackup: () -> Unit,
+    onOpenAppOps: () -> Unit,
     onBack: () -> Unit
 ) {
     MaxManagerSubScreenTopBar(
@@ -1295,6 +1274,23 @@ fun AppSettingsTopAppBar(
         accentIcon = Icons.Filled.Apps,
         accent = MaterialTheme.colorScheme.secondary,
         actions = {
+            // مدخلا `Max Backup` و`AppOps` بنفس **شكل** زر `Control map` في شاشة التحكم:
+            // زر أيقونة في شريط العنوان، بلا إطار ولا لون مملوء، وباسمه في الوصف الصوتي.
+            // ونفس التلوين حرفيًّا (`onSurfaceVariant`) حتى لا يبدو أحدهما زرًّا آخر.
+            IconButton(onClick = onOpenMaxBackup) {
+                Icon(
+                    imageVector = Icons.Rounded.Backup,
+                    contentDescription = stringResource(R.string.max_backup_title),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            IconButton(onClick = onOpenAppOps) {
+                Icon(
+                    imageVector = Icons.Rounded.Shield,
+                    contentDescription = stringResource(R.string.max_perms_title),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             IconButton(onClick = onShowGuide) { Icon(Icons.AutoMirrored.Rounded.HelpOutline, contentDescription = "Feature Guide") }
             IconButton(onClick = onLaunchApp) { Icon(Icons.AutoMirrored.Rounded.Launch, contentDescription = stringResource(R.string.str_launch_app)) }
             IconButton(onClick = onOpenAppInfo) { Icon(Icons.Rounded.Info, contentDescription = stringResource(R.string.str_app_info)) }
@@ -1368,229 +1364,6 @@ private fun AppConfig.powerCustomizedCount(): Int = listOf(
 // يشرح آلية المنصّة المطبَّقة على هذا التطبيق (App Standby + Doze).
 // قراءة فقط: لا تغيير حاوية ولا إعفاء ولا قتل — "اقتل الخلفية" ليس حلًّا.
 // ────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun BackgroundGovernanceCard(packageName: String) {
-    var governance by remember { mutableStateOf<BackgroundGovernance?>(null) }
-    LaunchedEffect(packageName) {
-        governance = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            BackgroundGovernanceUtil.read(packageName)
-        }
-    }
-
-    MaxSurface(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Rounded.Bedtime,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.width(10.dp))
-            Text(
-                text = stringResource(R.string.max_bg_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(
-            text = stringResource(R.string.max_bg_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(10.dp))
-
-        val snapshot = governance
-        when {
-            snapshot == null -> BackgroundRow(stringResource(R.string.max_boot_reading), null)
-            !snapshot.readable -> BackgroundRow(stringResource(R.string.max_bg_unsupported), null)
-            else -> {
-                BackgroundRow(
-                    stringResource(R.string.max_bg_bucket),
-                    stringResource(snapshot.bucket.labelRes)
-                )
-                BackgroundRow(
-                    stringResource(R.string.max_bg_doze),
-                    when (snapshot.dozeWhitelisted) {
-                        true -> stringResource(R.string.max_yes)
-                        false -> stringResource(R.string.max_no)
-                        null -> stringResource(R.string.status_unknown)
-                    }
-                )
-                BackgroundRow(
-                    stringResource(R.string.max_bg_restricted),
-                    when (snapshot.restricted) {
-                        true -> stringResource(R.string.max_yes)
-                        false -> stringResource(R.string.max_no)
-                        null -> stringResource(R.string.status_unknown)
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BackgroundRow(label: String, value: String?) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f)
-        )
-        value?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
-
-/**
- * مدخل `GAP-07` من داخل شاشة التطبيق: الصلاحيات و`AppOps`.
- *
- * وزر واحد بلا منطق، كما في مدخل النسخ: الشاشة المستقلة هي التي تجمع المقارنة والمرجع
- * والكتابة المقروءة بعدها — وحشوها في شاشة الإعدادات يحوّلها شاشة داخل شاشة.
- */
-@Composable
-private fun PermissionsEntryCard(onOpen: () -> Unit) {
-    MaxSurface(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Rounded.Shield,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.width(10.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.max_perms_entry_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.max_perms_entry_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        Spacer(Modifier.height(10.dp))
-        Button(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
-            Icon(
-                imageVector = Icons.Rounded.Shield,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(text = stringResource(R.string.max_perms_entry_action))
-        }
-    }
-}
-
-/**
- * مدخل `Max Backup` من داخل شاشة التطبيق.
- *
- * زر واحد لا يحمل أي منطق: يفتح الشاشة المستقلة على هذا التطبيق، ويُترك كل شيء آخر هناك.
- * السبب في فصل الشاشة لا في تكرارها: النسخ الاحتياطي يحتاج جردًا ونطاقًا وسجلًا وفحصًا
- * وحوارات تأكيد — حشوها في شاشة الإعدادات يحوّلها إلى شاشة ثانية داخل شاشة.
- */
-@Composable
-private fun MaxBackupEntryCard(onOpen: () -> Unit) {
-    MaxSurface(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Rounded.Backup,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.width(10.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.max_backup_entry_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.max_backup_entry_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        Spacer(Modifier.height(10.dp))
-        Button(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
-            Icon(
-                imageVector = Icons.Rounded.Backup,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(text = stringResource(R.string.max_backup_entry_action))
-        }
-    }
-}
-
-/** `AR-34` — من أين جاء التطبيق، كما يُعلنه النظام (قراءة فقط). */
-@Composable
-private fun AppSourceCard(packageName: String) {
-    val context = LocalContext.current
-    var source by remember { mutableStateOf<InstallSourceSnapshot?>(null) }
-    LaunchedEffect(packageName) {
-        source = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            InstallSourceUtil.read(context, packageName)
-        }
-    }
-
-    MaxSurface(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Rounded.Info,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.width(10.dp))
-            Text(
-                text = stringResource(R.string.max_app_source_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(
-            text = stringResource(R.string.max_app_source_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(10.dp))
-
-        val snapshot = source
-        if (snapshot == null) {
-            BackgroundRow(stringResource(R.string.max_boot_reading), null)
-        } else {
-            BackgroundRow(
-                stringResource(R.string.max_app_source_kind),
-                stringResource(snapshot.kind.labelRes)
-            )
-            BackgroundRow(
-                stringResource(R.string.max_app_source_installer),
-                snapshot.installerPackage
-            )
-            BackgroundRow(
-                stringResource(R.string.max_app_source_originating),
-                snapshot.originatingPackage
-            )
-        }
-    }
-}
 
 // ────────────────────────────────────────────────────────────────────────────
 // App Metadata Helpers

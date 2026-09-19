@@ -676,7 +676,9 @@ private fun DetailsSection(
                 support = dashboard.batteryStatus.takeIf { it.isNotBlank() },
                 accent = p.warn,
                 modifier = Modifier.weight(1f),
-                onClick = { onNavigate(MaxDestination.BatteryDetail.route) }
+                // الشاشتان دُمجتا: "BatteryDetail" لم يعد موجودًا، وهذا المدخل يذهب
+                // إلى الشاشة المدمجة نفسها التي يذهب إليها مدخل البطارية في الأعلى.
+                onClick = { onNavigate(MaxDestination.Charging.route) }
             )
         }
     }

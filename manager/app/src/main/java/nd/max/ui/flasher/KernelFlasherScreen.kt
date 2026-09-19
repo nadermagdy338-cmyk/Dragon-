@@ -87,6 +87,20 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import nd.max.R
 
+// --- DESIGN SYSTEM ---
+// The screen used to invent its own radii, colours, type scale and spacing. It
+// now reads from the same tokens as every other MaxManager surface, so a change
+// to the language reaches this page too instead of stopping at its border.
+import nd.max.ui.design.MaxAlpha
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSize
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.MaxTone
+import nd.max.ui.design.container
+import nd.max.ui.theme.MonoValueStyleSmall
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+
 
 
 
@@ -362,19 +376,15 @@ private fun KernelFlasherHeader(
     glass: Boolean,
     hazeState: HazeState
 ) {
-    val infinite = rememberInfiniteTransition(label = "flasher-orbit")
-    val rotation by infinite.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(9000, easing = LinearEasing)),
-        label = "orbit"
+    // The rotating orb and the breathing scale that used to sit here are gone.
+    // They were the screen's own invention: no other MaxManager surface animates
+    // its header, and a decoration that keeps moving competes with the status dot
+    // that actually carries information. The accent icon container below says the
+    // same thing in the language every other screen already speaks.
+    val shape = RoundedCornerShape(
+        bottomStart = MaxRadius.sheet,
+        bottomEnd = MaxRadius.sheet,
     )
-    val pulse by infinite.animateFloat(
-        0.94f, 1.04f,
-        infiniteRepeatable(tween(1800), RepeatMode.Reverse),
-        label = "pulse"
-    )
-
-    val shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -395,32 +405,57 @@ private fun KernelFlasherHeader(
                 } else Modifier
             ),
         color = if (glass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow,
-        tonalElevation = 3.dp,
-        shadowElevation = 2.dp,
+        // No tonal/shadow elevation: house surfaces separate themselves with one
+        // hairline border, and a shadowed header beside bordered cards reads as two
+        // different design languages on one page.
+        border = if (glass) null else BorderStroke(
+            MaxSize.hairlineBorder,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border),
+        ),
     ) {
-        Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 14.dp, bottom = 14.dp)) {
+        Column(
+            Modifier.padding(
+                start = MaxSpace.gutter,
+                end = MaxSpace.gutter,
+                top = MaxSpace.md,
+                bottom = MaxSpace.md,
+            )
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.btn_back), tint = content)
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        stringResource(R.string.btn_back),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
-                Spacer(Modifier.width(4.dp))
-                Box(
-                    Modifier.size(56.dp).graphicsLayer { rotationZ = rotation * 0.08f; scaleX = pulse; scaleY = pulse },
-                    contentAlignment = Alignment.Center
+                Spacer(Modifier.width(MaxSpace.xs))
+                Surface(
+                    shape = RoundedCornerShape(MaxRadius.control),
+                    color = MaxTone.Accent.container(),
+                    modifier = Modifier.size(MaxSize.iconContainer),
                 ) {
-                    Canvas(Modifier.fillMaxSize()) {
-                        drawCircle(primary.copy(alpha = 0.12f), radius = size.minDimension * 0.45f)
-                        drawCircle(primary.copy(alpha = 0.34f), radius = size.minDimension * 0.31f, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()))
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            Icons.Default.Memory,
+                            null,
+                            tint = primary,
+                            modifier = Modifier.size(MaxSize.iconGlyph),
+                        )
                     }
-                    Icon(Icons.Default.Memory, null, tint = primary, modifier = Modifier.size(25.dp))
                 }
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(MaxSpace.md))
                 Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.kernel_flasher_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = content)
+                    Text(
+                        stringResource(R.string.kernel_flasher_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                     Text(
                         text = if (ready) stringResource(R.string.flasher_workspace_ready) else status,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = content.copy(alpha = 0.62f),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -428,10 +463,14 @@ private fun KernelFlasherHeader(
                 StatusDot(ready = ready, primary = primary)
             }
 
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(MaxSpace.md))
             Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(content.copy(alpha = 0.06f)).padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(MaxRadius.control))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .padding(MaxSpace.xs),
+                horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)
             ) {
                 FlasherModeChip(
                     selected = currentMode == FlasherMode.CAPNTRIPS,
@@ -466,17 +505,37 @@ private fun FlasherModeChip(
     modifier: Modifier,
     onClick: () -> Unit
 ) {
-    val scale by animateFloatAsState(if (selected) 1f else 0.97f, tween(180), label = "mode-scale")
+    // No press-scale animation and no custom radius: selection is shown the way
+    // every other segmented control in the app shows it — a filled container on
+    // the chosen option, and nothing moving.
+    val shape = RoundedCornerShape(MaxRadius.control)
     Surface(
-        modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }.clip(RoundedCornerShape(14.dp)),
+        modifier = modifier.clip(shape),
         onClick = onClick,
-        color = if (selected) primary.copy(alpha = 0.18f) else Color.Transparent,
-        shape = RoundedCornerShape(14.dp)
+        color = if (selected) MaxTone.Accent.container() else Color.Transparent,
+        shape = shape
     ) {
-        Row(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = if (selected) primary else content.copy(alpha = 0.65f), modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(title, color = if (selected) primary else content.copy(alpha = 0.72f), fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium)
+        Row(
+            Modifier
+                .heightIn(min = MaxSize.minTouchTarget)
+                .padding(horizontal = MaxSpace.md),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                icon,
+                null,
+                tint = if (selected) primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(MaxSize.iconGlyphSmall)
+            )
+            Spacer(Modifier.width(MaxSpace.sm))
+            Text(
+                title,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (selected) primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }
@@ -542,7 +601,7 @@ fun CapntripsContainer(
         composable("error/{message}") { backStackEntry ->
             val message = backStackEntry.arguments?.getString("message") ?: stringResource(R.string.unknown_error)
             Column(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxSize().padding(horizontal = MaxSpace.gutter),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -560,7 +619,7 @@ fun CapntripsContainer(
 
         // --- MAIN SCREENS ---
         composable("main") {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = MaxSpace.gutter)) {
                 topSpacer()
                 MainContent(viewModel = viewModel, navController = internalNavController, glassTheme = glassTheme)
                 Spacer(Modifier.height(100.dp))
@@ -568,7 +627,7 @@ fun CapntripsContainer(
         }
 
         composable("backups") {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = MaxSpace.gutter)) {
                 topSpacer()
                 BackupsContent(viewModel = viewModel.backups, navController = internalNavController, glassTheme = glassTheme)
                 Spacer(Modifier.height(100.dp))
@@ -577,7 +636,7 @@ fun CapntripsContainer(
          composable("backups/{backupId}") { backStackEntry ->
             val backupId = backStackEntry.arguments?.getString("backupId")
             viewModel.backups.currentBackup = backupId
-             Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
+             Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = MaxSpace.gutter)) {
                 topSpacer()
                 BackupsContent(viewModel = viewModel.backups, navController = internalNavController, glassTheme = glassTheme)
                 Spacer(Modifier.height(100.dp))
@@ -588,7 +647,7 @@ fun CapntripsContainer(
         composable("slot_a") {
             val slotVM = viewModel.slotA
             if (slotVM != null) {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = MaxSpace.gutter)) {
                     topSpacer()
                     SlotContent(viewModel = slotVM, slotSuffix = "_a", navController = internalNavController, glassTheme = glassTheme)
                     Spacer(Modifier.height(100.dp))
@@ -619,7 +678,7 @@ fun CapntripsContainer(
         composable("slot_b") {
             val slotVM = viewModel.slotB
             if (slotVM != null) {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = MaxSpace.gutter)) {
                     topSpacer()
                     SlotContent(viewModel = slotVM, slotSuffix = "_b", navController = internalNavController, glassTheme = glassTheme)
                     Spacer(Modifier.height(100.dp))
@@ -723,26 +782,32 @@ fun HorizonFlasherContent(
         item {
             FlasherSectionHeader(stringResource(R.string.horizon_engine_legacy), Icons.Default.Info, primaryColor)
             StyledCard(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = MaxSpace.gutter),
                 isGlassActive = isGlassActive,
                 hazeState = hazeState,
                 cardColor = cardColor
             ) {
                 Column {
                     PixelListItem(Icons.Default.PhoneAndroid, stringResource(R.string.device_model), deviceModel, contentColor)
-                    HorizontalDivider(modifier = Modifier.padding(start = 56.dp, end = 16.dp), color = contentColor.copy(0.08f))
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = MaxSize.rowIconContainer + MaxSpace.lg, end = MaxSpace.lg),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border),
+                    )
                     PixelListItem(Icons.Default.Memory, stringResource(R.string.kernel_version), kernelVersion, contentColor)
-                    HorizontalDivider(modifier = Modifier.padding(start = 56.dp, end = 16.dp), color = contentColor.copy(0.08f))
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = MaxSize.rowIconContainer + MaxSpace.lg, end = MaxSpace.lg),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border),
+                    )
                     PixelListItem(Icons.Default.SystemUpdate, stringResource(R.string.active_slot), stringResource(R.string.slot_current, activeSlot.uppercase()), primaryColor)
                 }
             }
         }
 
-        item { Spacer(modifier = Modifier.height(32.dp)) }
+        item { Spacer(modifier = Modifier.height(MaxSpace.section)) }
 
         item {
             FlasherSectionHeader(stringResource(R.string.boot_partitions), Icons.Default.SdStorage, primaryColor)
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = MaxSpace.gutter), horizontalArrangement = Arrangement.spacedBy(MaxSpace.lg)) {
                 val isSlotA = activeSlot.contains("A", ignoreCase = true)
                 val isSlotB = activeSlot.contains("B", ignoreCase = true)
                 Box(Modifier.weight(1f)) { SlotStatusCard(stringResource(R.string.slot_a), isSlotA, bootInfoA, cardColor, contentColor, primaryColor, isGlassActive, hazeState) }
@@ -750,56 +815,64 @@ fun HorizonFlasherContent(
             }
         }
 
-        item { Spacer(modifier = Modifier.height(32.dp)) }
+        item { Spacer(modifier = Modifier.height(MaxSpace.section)) }
 
         item {
             FlasherSectionHeader(stringResource(R.string.flasher_console), Icons.Default.Terminal, primaryColor)
             StyledCard(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).heightIn(min = 180.dp, max = 300.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = MaxSpace.gutter).heightIn(min = 180.dp, max = 300.dp),
                 isGlassActive = isGlassActive,
                 hazeState = hazeState,
-                cardColor = if(isGlassActive) Color.Transparent else Color(0xFF121212)
+                // A console genuinely is a terminal, so the dark surface and the
+                // monospace text stay — that is information, not decoration. What
+                // goes is the theatre around it: three pretend macOS window dots,
+                // an uppercased label and a hardcoded green. The log keeps the
+                // screen's accent so it reads as part of this app.
+                cardColor = if (isGlassActive) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHighest
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFFFF5F56)))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFFFFBD2E)))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF27C93F)))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(stringResource(R.string.terminal_output).uppercase(), color = Color.White.copy(0.4f), fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f))
-                    Spacer(modifier = Modifier.height(12.dp))
+                Column(modifier = Modifier.padding(MaxSpace.lg)) {
                     Text(
-                        text = if (logs.isEmpty()) stringResource(R.string.horizon_ready) else logs, 
-                        color = Color(0xFF00E676), 
-                        fontFamily = FontFamily.Monospace, 
-                        fontSize = 12.sp, 
-                        lineHeight = 18.sp
+                        text = stringResource(R.string.terminal_output),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(Modifier.height(MaxSpace.sm))
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border)
+                    )
+                    Spacer(Modifier.height(MaxSpace.sm))
+                    Text(
+                        text = if (logs.isEmpty()) stringResource(R.string.horizon_ready) else logs,
+                        style = MonoValueStyleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            nd.max.ui.component.StudioButton(
+
+            Spacer(modifier = Modifier.height(MaxSpace.lg))
+
+            Button(
                 onClick = { if (!isFlashing) filePickerLauncher.launch("*/*") },
                 enabled = !isFlashing,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(64.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = primaryColor, contentColor = if (primaryColor.luminance() > 0.5f) Color.Black else Color.White)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaxSpace.gutter)
+                    .heightIn(min = MaxSize.minTouchTarget),
+                shape = RoundedCornerShape(MaxRadius.control),
             ) {
                 if (isFlashing) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 3.dp)
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text(stringResource(R.string.flashing_kernel_progress), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(MaxSize.iconGlyph),
+                        strokeWidth = 2.dp,
+                    )
+                    Spacer(Modifier.width(MaxSpace.sm))
+                    Text(stringResource(R.string.flashing_kernel_progress))
                 } else {
-                    Icon(Icons.Default.Bolt, null, modifier = Modifier.size(24.dp))
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(stringResource(R.string.flash_horizon_method), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                    Icon(Icons.Default.Bolt, null, modifier = Modifier.size(MaxSize.iconGlyph))
+                    Spacer(Modifier.width(MaxSpace.sm))
+                    Text(stringResource(R.string.flash_horizon_method))
                 }
             }
         }
@@ -816,28 +889,34 @@ fun FlasherSectionHeader(title: String, icon: ImageVector, color: Color) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, top = 0.dp, end = 24.dp, bottom = 12.dp)
+            .padding(
+                start = MaxSpace.gutter,
+                end = MaxSpace.gutter,
+                bottom = MaxSpace.sm,
+            )
     ) {
         Box(
             modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(color.copy(alpha = 0.15f)),
+                .size(MaxSize.rowIconContainer)
+                .clip(RoundedCornerShape(MaxRadius.control))
+                .background(MaxTone.Accent.container()),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(MaxSize.iconGlyphSmall)
             )
         }
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(MaxSpace.md))
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = color
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.semantics { heading() },
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -850,8 +929,8 @@ fun StyledCard(
     cardColor: Color,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val shape = RoundedCornerShape(24.dp)
-    
+    val shape = RoundedCornerShape(MaxRadius.group)
+
     val glassModifier = if (isGlassActive) {
         Modifier.clip(shape)
             .hazeEffect(state = hazeState) {
@@ -862,15 +941,23 @@ fun StyledCard(
                     colorEffects = emptyList()
                 }
             }
-            .border(1.dp, Color.White.copy(0.1f), shape)
+            .border(MaxSize.hairlineBorder, Color.White.copy(0.1f), shape)
     } else {
-        Modifier.clip(shape)
+        Modifier
+            .clip(shape)
+            .border(
+                MaxSize.hairlineBorder,
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border),
+                shape,
+            )
     }
 
     Card(
         modifier = modifier.then(glassModifier),
         shape = shape,
-        colors = CardDefaults.cardColors(containerColor = if(isGlassActive) Color.Transparent else cardColor)
+        colors = CardDefaults.cardColors(
+            containerColor = if (isGlassActive) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
         content()
     }
@@ -879,7 +966,7 @@ fun StyledCard(
 @Composable
 fun HandleSlotFlash(slotVM: com.github.capntrips.kernelflasher.ui.screens.slot.SlotViewModel?, suffix: String, navController: NavController, headerPadding: Dp, glassTheme: FlasherGlassTheme = FlasherGlassTheme()) {
     if (slotVM != null) {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
+        Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = MaxSpace.gutter)) {
             Spacer(Modifier.height(headerPadding + 16.dp)) 
             SlotFlashContent(viewModel = slotVM, slotSuffix = suffix, navController = navController, glassTheme = glassTheme)
             Spacer(Modifier.height(100.dp))
@@ -897,7 +984,7 @@ fun HandleSlotBackups(
     glassTheme: FlasherGlassTheme = FlasherGlassTheme()
 ) {
     if (slotVM != null) {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
+        Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = MaxSpace.gutter)) {
             Spacer(Modifier.height(headerPadding + 16.dp)) 
             SlotBackupsContent(slotViewModel = slotVM, backupsViewModel = backupsVM, slotSuffix = suffix, navController = navController, glassTheme = glassTheme)
             Spacer(Modifier.height(100.dp))
@@ -914,15 +1001,48 @@ fun ErrorScreen(msg: String, topPadding: Dp) {
 
 @Composable
 fun SectionTitle(title: String, color: Color) {
-    Text(title, style = MaterialTheme.typography.titleSmall, color = color, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 32.dp, bottom = 8.dp))
+    Text(
+        title,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.padding(
+            start = MaxSpace.gutter,
+            bottom = MaxSpace.sm,
+        ),
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+    )
 }
 
 @Composable
 fun PixelListItem(icon: ImageVector, title: String, value: String, contentColor: Color) {
     ListItem(
-        headlineContent = { Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, color = contentColor) },
-        supportingContent = { Text(value, style = MaterialTheme.typography.bodySmall, color = contentColor.copy(0.7f), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        leadingContent = { Icon(icon, null, tint = contentColor.copy(0.7f)) },
+        headlineContent = {
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
+        supportingContent = {
+            Text(
+                value,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
+        leadingContent = {
+            Icon(
+                icon,
+                null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(MaxSize.iconGlyph),
+            )
+        },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
     )
 }
@@ -942,19 +1062,11 @@ fun SlotStatusCard(
     
     val textColor = if (isActive) (if(primaryColor.luminance() > 0.5f) Color.Black else Color.White) else contentColor
     
-    val shape = RoundedCornerShape(20.dp)
-
-    // A slow breathing glow behind the active slot only — a quiet way of
-    // saying "this is the one that will actually boot" beyond the flat fill.
-    val glowTransition = rememberInfiniteTransition(label = "slot_glow")
-    val glowAlpha by glowTransition.animateFloat(
-        initialValue = 0.18f, targetValue = 0.42f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1800, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "slot_glow_alpha"
-    )
+    // A breathing radial glow used to sit behind the active slot. It is gone:
+    // the active slot is already stated by the fill, by the check icon and by the
+    // word "Active", and decoration that animates on a screen about to write a
+    // boot partition is the last thing that should draw the eye.
+    val shape = RoundedCornerShape(MaxRadius.group)
 
     val glassModifier = if (isGlassActive) {
         Modifier.clip(shape)
@@ -965,41 +1077,62 @@ fun SlotStatusCard(
                     colorEffects = emptyList()
                 }
             }
-            .border(1.dp, Color.White.copy(0.1f), shape)
+            .border(MaxSize.hairlineBorder, Color.White.copy(0.1f), shape)
     } else {
-        Modifier.clip(shape)
+        Modifier
+            .clip(shape)
+            .border(
+                MaxSize.hairlineBorder,
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border),
+                shape,
+            )
     }
 
-    Box {
-        if (isActive) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .padding(4.dp)
-                    .background(
-                        Brush.radialGradient(listOf(primaryColor.copy(alpha = glowAlpha), Color.Transparent)),
-                        shape
-                    )
+    Card(
+        modifier = Modifier.fillMaxWidth().then(glassModifier),
+        shape = shape,
+        colors = CardDefaults.cardColors(containerColor = if (isGlassActive) Color.Transparent else bgColor),
+    ) {
+        Column(modifier = Modifier.padding(MaxSpace.lg)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                Icon(
+                    if (isActive) Icons.Default.CheckCircle else Icons.Outlined.SdStorage,
+                    null,
+                    tint = textColor,
+                    modifier = Modifier.size(MaxSize.iconGlyph)
+                )
+                if (isActive) Text(
+                    stringResource(R.string.active_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = textColor,
+                )
+            }
+            Spacer(Modifier.height(MaxSpace.md))
+            Text(
+                slotName,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = textColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
-        }
-        Card(
-            modifier = Modifier.fillMaxWidth().then(glassModifier),
-            shape = shape,
-            colors = CardDefaults.cardColors(containerColor = if(isGlassActive) Color.Transparent else bgColor),
-            border = if (isActive && !isGlassActive) BorderStroke(1.dp, Color.White.copy(alpha = 0.25f)) else null
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                    Icon(if (isActive) Icons.Default.CheckCircle else Icons.Outlined.SdStorage, null, tint = textColor, modifier = Modifier.size(20.dp))
-                    if (isActive) Text(stringResource(R.string.active_label).uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = textColor)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(slotName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = textColor)
-                Spacer(modifier = Modifier.height(4.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text("SHA1: ${data.sha1.take(8)}...", style = MaterialTheme.typography.labelSmall, fontFamily = FontFamily.Monospace, color = textColor.copy(alpha = 0.7f))
-                    Text(stringResource(R.string.format_label, data.format), style = MaterialTheme.typography.labelSmall, color = textColor.copy(alpha = 0.7f))
-                }
+            Spacer(Modifier.height(MaxSpace.xs))
+            Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)) {
+                Text(
+                    "SHA1: ${data.sha1.take(8)}…",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = textColor.copy(alpha = MaxAlpha.supportingText),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    stringResource(R.string.format_label, data.format),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = textColor.copy(alpha = MaxAlpha.supportingText),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }

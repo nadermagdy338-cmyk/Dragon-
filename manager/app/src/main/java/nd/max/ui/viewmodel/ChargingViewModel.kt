@@ -31,6 +31,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.ui.util.PropertyUtils
 
+/**
+ * The device's own charging state, as a code rather than a sentence.
+ *
+ * It replaces the English literal that the old battery screen built inline
+ * ("Charging"/"Discharging"/…), which was untranslatable and mixed into an
+ * Arabic UI.
+ */
+enum class BatteryStatus { Charging, Discharging, Full, NotCharging, Unknown }
+
+/**
+ * The kernel/BatteryManager verdict on the pack's condition.
+ *
+ * Deliberately separate from [ChargingViewModel.batteryHealthPercent]: that one
+ * is our own ratio (full ÷ design), and this one is the driver's opinion. When
+ * they disagree the user should see both, not one of them silently chosen.
+ */
+enum class BatteryHealthVerdict { Good, Overheat, Dead, OverVoltage, Cold, Unknown }
+
 class ChargingViewModel : ViewModel() {
 
     companion object {
@@ -103,6 +121,19 @@ class ChargingViewModel : ViewModel() {
     var cycleCount by mutableStateOf<Int?>(null)
         private set
     var batteryTechnology by mutableStateOf("-")
+        private set
+
+    /** What the node says right now. Always a code; the screen owns the wording. */
+    var batteryStatus by mutableStateOf(BatteryStatus.Unknown)
+        private set
+    /** The driver's own verdict on the pack, read once. Independent of our own ratio. */
+    var healthVerdict by mutableStateOf(BatteryHealthVerdict.Unknown)
+        private set
+    /** Nameplate capacity, so a worn pack can be read against what it was built as. */
+    var designCapacityMah by mutableStateOf<Int?>(null)
+        private set
+    /** Capacity the pack reports as full right now. */
+    var fullCapacityMah by mutableStateOf<Int?>(null)
         private set
 
     var chargeLimitSupported by mutableStateOf(false)
@@ -186,6 +217,21 @@ class ChargingViewModel : ViewModel() {
         } else {
             null
         }
+        // µAh on the node, mAh in the UI. `null` when the node has nothing to say —
+        // never 0, which would read as "this battery holds no charge".
+        designCapacityMah = design?.takeIf { it > 0 }?.div(1000)?.toInt()
+        fullCapacityMah = full?.takeIf { it > 0 }?.div(1000)?.toInt()
+
+        healthVerdict = when (
+            Shell.cmd("cat $dir/health 2>/dev/null").exec().out.joinToString("").trim().lowercase()
+        ) {
+            "good" -> BatteryHealthVerdict.Good
+            "overheat", "hot" -> BatteryHealthVerdict.Overheat
+            "dead" -> BatteryHealthVerdict.Dead
+            "over voltage" -> BatteryHealthVerdict.OverVoltage
+            "cold" -> BatteryHealthVerdict.Cold
+            else -> BatteryHealthVerdict.Unknown
+        }
     }
 
     private fun refreshStats() {
@@ -194,6 +240,13 @@ class ChargingViewModel : ViewModel() {
         voltageMv = (readLong("$dir/voltage_now")?.div(1000))?.toInt() ?: voltageMv
         temperatureC = (readInt("$dir/temp")?.div(10f)) ?: temperatureC
         val status = Shell.cmd("cat $dir/status 2>/dev/null").exec().out.joinToString("").trim()
+        batteryStatus = when (status.lowercase()) {
+            "charging" -> BatteryStatus.Charging
+            "discharging" -> BatteryStatus.Discharging
+            "full" -> BatteryStatus.Full
+            "not charging" -> BatteryStatus.NotCharging
+            else -> BatteryStatus.Unknown
+        }
         isCharging = status.equals("Charging", ignoreCase = true) || status.equals("Full", ignoreCase = true)
 
         // Kernels disagree on current_now polarity: many report a negative value

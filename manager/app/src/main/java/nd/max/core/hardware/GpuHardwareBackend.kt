@@ -18,6 +18,13 @@ object GpuHardwareBackend {
         "/proc/gpufreq/gpufreq_opp_freq",
     )
 
+    // شكل صيغة قيمة مفتاح gpu_frequency — انظر explanation في encodeRequest.
+    private const val SCHEMA_SEPARATOR = "|"
+    private const val UNTOUCHED = "-"
+    private const val UNREADABLE = "unreadable"
+    private const val RELEASED = "released"
+    private const val HELD = "held"
+
     enum class Family { QUALCOMM, MALI, UNKNOWN }
     enum class IntentMode { EFFICIENCY, ADAPTIVE, SUSTAINED }
     enum class SelectionState { READY, READ_ONLY, AMBIGUOUS, UNAVAILABLE }
@@ -138,6 +145,50 @@ object GpuHardwareBackend {
 
     fun effectiveFrequency(device: Device, io: Io = SystemIo): Long? =
         currentExactLockFrequency(device, io) ?: device.maxFreq
+
+    /**
+     * الصيغة القياسية لقيمة مفتاح `gpu_frequency:<device>`.
+     *
+     * المُحكِّم يُثبت المعاملة بـ**تساوي نصّين**: القيمة المطلوبة والقيمة
+     * المقروءة من السائق بعد الكتابة. فصيغة تحمل المدى الرقمي وحده لا تستطيع
+     * إثبات طلبٍ مضمونه في حقل آخر: اختيار مُحكِّم (governor)، أو تحرير قفل
+     * OPP الثابت في MediaTek. في الحالتين تنجح الكتابة، ولا يساوي المقروء
+     * المطلوبَ أبدًا، فيُصنَّف تغييرٌ ناجح فاشلًا غير مؤكَّد وتُعاد الحالة
+     * السابقة — والمستخدم يرى المقبض يرتدّ بلا سبب مكتوب.
+     *
+     * فالصيغة هنا تحمل كل حقل يمكن للطلب أن يمسّه، و[encodeLive] تُسقِط الحالة
+     * الحية على **نفس** الحقول التي يمسّها ذلك الطلب وحده؛ فيصير التساوي معناه
+     * «هذا الطلب مُلبّى» لا شيئًا آخر.
+     */
+    fun encodeRequest(request: Request): String = listOf(
+        if (request.minFreq != null && request.maxFreq != null) {
+            "${request.minFreq}:${request.maxFreq}"
+        } else UNTOUCHED,
+        request.governor ?: UNTOUCHED,
+        if (request.releaseLock) RELEASED else UNTOUCHED,
+    ).joinToString(SCHEMA_SEPARATOR)
+
+    /** الحالة الحية مُسقَطةً على حقول [request] وحدها — لا على كل الحالة. */
+    fun encodeLive(device: Device, request: Request, io: Io = SystemIo): String = listOf(
+        if (request.minFreq != null && request.maxFreq != null) {
+            "${device.minFreq?.toString().orEmpty()}:${device.maxFreq?.toString().orEmpty()}"
+        } else UNTOUCHED,
+        if (request.governor != null) device.governor ?: UNREADABLE else UNTOUCHED,
+        if (request.releaseLock) {
+            if (fixedLockReleased(device, io)) RELEASED else HELD
+        } else UNTOUCHED,
+    ).joinToString(SCHEMA_SEPARATOR)
+
+    /**
+     * هل لا يوجد قفل OPP ثابت يقيّد التردد؟ صحيح أيضًا لجهاز لا يملك مسار قفل
+     * أصلًا (لا شيئ لنحرّره)، وخاطئ إن كان المسار موجودًا وغير مقروء — لا يُدّعى
+     * تحرير قفل لم يُقرأ.
+     */
+    fun fixedLockReleased(device: Device, io: Io = SystemIo): Boolean {
+        val path = device.mtkFixedIndexPath ?: return true
+        val raw = io.read(path) ?: return false
+        return parseMtkIndex(raw) == "-1"
+    }
 
     fun encodeBaseline(baseline: Baseline): String = listOf(
         baseline.devicePath,

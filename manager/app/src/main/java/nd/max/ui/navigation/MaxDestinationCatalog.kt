@@ -71,11 +71,11 @@ fun maxDestinationRole(destination: MaxDestination): Int = when (destination) {
     MaxDestination.Fas -> R.string.max_role_fas
     MaxDestination.FpsOverlay -> R.string.max_role_fps_overlay
     MaxDestination.ThermalDetail -> R.string.max_role_thermal
-    MaxDestination.Charging -> R.string.max_role_charging
+    // الدور يصف ما صارت عليه الشاشة بعد الدمج: بطارية **و** شحن، لا شحن وحده.
+    MaxDestination.Charging -> R.string.max_role_battery_and_charging
     MaxDestination.BypassCharging -> R.string.max_role_bypass
     MaxDestination.BypassChargingCheck -> R.string.max_role_bypass_check
     MaxDestination.DozeMode -> R.string.max_role_doze
-    MaxDestination.BatteryDetail -> R.string.max_role_battery
     MaxDestination.Dex2oat -> R.string.max_role_dex2oat
     MaxDestination.StorageDetail -> R.string.max_role_storage
     MaxDestination.NetworkScheduler -> R.string.max_role_network_scheduler
@@ -83,6 +83,10 @@ fun maxDestinationRole(destination: MaxDestination): Int = when (destination) {
     MaxDestination.Terminal -> R.string.max_role_terminal
     MaxDestination.SetEdit -> R.string.max_role_setedit
     MaxDestination.ActivityLauncher -> R.string.max_role_activity_launcher
+    MaxDestination.MaxBackup -> R.string.max_role_max_backup
+    MaxDestination.Permissions -> R.string.max_role_permissions
+    MaxDestination.FileManager -> R.string.max_role_file_manager
     MaxDestination.KernelFlasher -> R.string.max_role_kernel_flasher
+    MaxDestination.Plugins -> R.string.max_role_plugins
     else -> R.string.max_role_open_screen
 }

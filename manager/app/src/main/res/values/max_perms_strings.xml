@@ -64,6 +64,14 @@
     <string name="max_perms_mode_ask">Ask</string>
     <string name="max_perms_mode_ask_note">The platform should ask before allowing. Not every operation supports it.</string>
 
+    <!-- الشاشة الرئيسية المستقلة: قائمة التطبيقات -->
+    <string name="max_perms_picker_title">Choose an app</string>
+    <string name="max_perms_picker_desc">Every app on this device, with the permissions it declares and the app ops the system actually allows.</string>
+    <string name="max_perms_search_hint">Search by app name or package</string>
+    <string name="max_perms_no_match_title">No app matches</string>
+    <string name="max_perms_no_match_detail">Nothing on this device matches that search. Clear it to see every app again.</string>
+    <string name="max_perms_app_count">%1$s of %2$s apps</string>
+
     <!-- مدخل من شاشة إعدادات التطبيق -->
     <string name="max_perms_entry_title">Permissions &amp; App ops</string>
     <string name="max_perms_entry_desc">See what this app declares and what the system actually allows</string>

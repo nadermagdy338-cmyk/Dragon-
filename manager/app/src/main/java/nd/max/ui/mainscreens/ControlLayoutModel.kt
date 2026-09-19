@@ -40,8 +40,17 @@ data class ControlGroupSpec(
     val hubs: List<ControlHubSpec>,
 )
 
-/** The gated toolbox: not a domain, so it is not part of the bands above. */
+/**
+ * The gated toolbox: not a domain, so it is not part of the bands above.
+ *
+ * `Max Backup` و`AppOps` انتقلا إلى هنا من شاشة التطبيقات بقرار مالك: كلاهما أداة تفتح
+ * على **كل** التطبيقات ولها شاشة رئيسية مستقلة، فلا معنى لعرضها داخل شاشة تطبيق واحد.
+ * والترتيب مقصود: الأدوات التي تُفتح بلا نيّة سابقة (نسخ · صلاحيات) قبل أدوات النظام.
+ */
 val ControlToolDestinations: List<MaxDestination> = listOf(
+    MaxDestination.MaxBackup,
+    MaxDestination.Permissions,
+    MaxDestination.FileManager,
     MaxDestination.Terminal,
     MaxDestination.SetEdit,
     MaxDestination.ActivityLauncher,

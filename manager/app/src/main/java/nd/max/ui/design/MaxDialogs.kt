@@ -17,16 +17,21 @@ package nd.max.ui.design
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import nd.max.ui.theme.MonoValueStyleSmall
 
 /**
@@ -128,6 +133,87 @@ fun MaxConfirmDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(text = dismissLabel)
+            }
+        }
+    )
+}
+
+/**
+ * The single single-line input surface of the MaxManager Design Language.
+ *
+ * Added for the file manager, which needs to name a file, a folder or a
+ * destination path, and had no shared primitive to do it with. Written here
+ * rather than locally for the same reason as [MaxConfirmDialog]: a screen-local
+ * dialog grows its own shape, and the sheet radius every other dialog in this
+ * app carries would have been the first thing lost.
+ *
+ * The confirm button is disabled while [confirmEnabled] is false, so an empty
+ * name can never reach the shell as an operation with no argument.
+ */
+@Composable
+fun MaxInputDialog(
+    visible: Boolean,
+    title: String,
+    fieldLabel: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    confirmLabel: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String? = null,
+    supportingText: String? = null,
+    confirmEnabled: Boolean = value.isNotBlank(),
+) {
+    if (!visible) return
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = modifier,
+        shape = RoundedCornerShape(MaxRadius.sheet),
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    label = { Text(text = fieldLabel) },
+                    placeholder = placeholder?.let { { Text(text = it) } },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done,
+                    ),
+                )
+                supportingText?.takeIf { it.isNotBlank() }?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDismiss()
+                    onConfirm()
+                },
+                enabled = confirmEnabled,
+            ) {
+                Text(text = confirmLabel)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(android.R.string.cancel))
             }
         }
     )

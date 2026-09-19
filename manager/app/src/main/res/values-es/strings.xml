@@ -485,7 +485,7 @@
     <string name="resolution_preset_balanced">Equilibrado</string>
     <string name="resolution_preset_performance">Rendimiento</string>
     <string name="resolution_preset_battery">Ahorro de batería</string>
-    <string name="zram_title">Compresión de memoria</string>
+    <string name="zram_title">Memoria</string>
     <string name="zram_desc">Tamaño del intercambio comprimido y ajuste de recuperación de memoria del núcleo</string>
     <string name="zram_unavailable">ZRAM no está disponible en este dispositivo.</string>
     <string name="thermal_title">Dispositivos térmicos</string>
@@ -1531,6 +1531,7 @@
     <string name="max_role_fps_overlay">Mostrar el origen de FPS</string>
     <string name="max_role_thermal">Inspeccionar las zonas térmicas</string>
     <string name="max_role_charging">Leer la potencia de carga en vivo</string>
+    <string name="max_role_battery_and_charging">Estado de la batería y control de carga en un solo lugar.</string>
     <string name="max_role_bypass">Configurar el comportamiento y el umbral de la carga por bypass.</string>
     <string name="max_role_bypass_check">Diagnosticar si el dispositivo expone nodos de bypass seguros.</string>
     <string name="max_role_doze">Inspeccionar el estado de reposo</string>

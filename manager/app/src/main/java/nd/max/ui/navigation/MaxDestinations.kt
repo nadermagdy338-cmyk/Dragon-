@@ -19,6 +19,8 @@ import androidx.compose.material.icons.rounded.DataUsage
 import androidx.compose.material.icons.rounded.DeveloperBoard
 import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Extension
+import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.automirrored.rounded.Launch
@@ -123,11 +125,18 @@ sealed class MaxDestination(
     data object ThermalDetail : MaxDestination("thermal_detail", R.string.thermal_title, Icons.Rounded.Thermostat, ThermalHub)
 
     // Feature screens: Power domain
+    /**
+     * Battery and charging in one place.
+     *
+     * `BatteryDetail` used to be a second destination reading the same pack with
+     * its own poll loop and no controls. It was folded in here rather than kept
+     * beside: one screen per question, and this question ("what is the battery
+     * doing, and what may I change about it?") is a single one.
+     */
     data object Charging : MaxDestination("chargingscreen", R.string.charging_title, Icons.Rounded.BatteryChargingFull, PowerHub)
     data object BypassCharging : MaxDestination("bypasschg", R.string.bcharging, Icons.Rounded.Cable, PowerHub)
     data object BypassChargingCheck : MaxDestination("bypasschg_check", R.string.max_title_bypass_check, Icons.Rounded.Power, PowerHub)
     data object DozeMode : MaxDestination("dozemode", R.string.dozemode_title, Icons.Rounded.Bedtime, PowerHub)
-    data object BatteryDetail : MaxDestination("battery_detail", R.string.detail_battery, Icons.Rounded.BatteryFull, PowerHub)
 
     // Feature screens: Storage & compiler domain
     data object Dex2oat : MaxDestination("dex2oat", R.string.dex2oat_title, Icons.Rounded.Science, StorageHub)
@@ -150,18 +159,26 @@ sealed class MaxDestination(
     data object ConfigBackup : MaxDestination("config_backup", R.string.max_nav_config_backup, Icons.Rounded.Backup, Settings)
 
     /**
+     * `GAP-14` — عقد الطرف الثالث: الإضافات المركّبة، وما قُبل منها وما رُفض ولماذا.
+     * تحت الإعدادات لأنها **حالة النظام** لا تحكّم أداء، ولأن نصّ العقد يجب أن يكون
+     * في متناول من يكتب إضافة، لا مخفيًّا في صفحة مطوّرين.
+     */
+    data object Plugins : MaxDestination("plugins", R.string.max_plugins_title, Icons.Rounded.Extension, Settings)
+
+    /**
      * `Max Backup` — نسخ التطبيقات احتياطيًّا وفحص سلامتها واسترجاعها.
      *
      * `pkg` **اختياري**: بلا معرّف تفتح الشاشة على منتقي التطبيقات (فهي شاشة قائمة بذاتها)،
      * وبه تُفتح على تطبيق واحد — وهو المدخل الموجود في شاشة إعدادات كل تطبيق.
      */
-    data object MaxBackup : MaxDestination("max_backup?pkg={pkg}", R.string.max_backup_title, Icons.Rounded.Backup, Apps)
+    data object MaxBackup : MaxDestination("max_backup?pkg={pkg}", R.string.max_backup_title, Icons.Rounded.Backup, Control, MaxRisk.Advanced)
 
     /**
-     * `GAP-07` — الصلاحيات و`AppOps` لتطبيق واحد: ما يُعلنه البيان، وما تسمح به المنصّة فعلًا،
-     * ومرجع مدوَّن تعود إليه. `pkg` إلزامي لأن الشاشة كلها عن تطبيق بعينه.
+     * `GAP-07` — الصلاحيات و`AppOps`: ما يُعلنه البيان، وما تسمح به المنصّة فعلًا، ومرجع مدوَّن
+     * تعود إليه. `pkg` **اختياري**: بلا معرّف تفتح الشاشة على منتقي التطبيقات (فهي شاشة رئيسية
+     * مستقلة بذاتها)، وبه تُفتح على تطبيق واحد — وهو مدخل شاشة إعدادات كل تطبيق.
      */
-    data object Permissions : MaxDestination("max_perms/{pkg}", R.string.max_perms_title, Icons.Rounded.Shield, Apps)
+    data object Permissions : MaxDestination("max_perms?pkg={pkg}", R.string.max_perms_title, Icons.Rounded.Shield, Control, MaxRisk.Advanced)
     data object About : MaxDestination("aboutscreen", R.string.section_about, Icons.Rounded.Info, Settings)
     data object Privilege : MaxDestination("privilege", R.string.max_privilege_title, Icons.Rounded.Shield, Settings)
     data object ModuleHealth : MaxDestination("module_health", R.string.max_module_title, Icons.Rounded.Build, Settings)
@@ -170,6 +187,13 @@ sealed class MaxDestination(
     data object Terminal : MaxDestination("terminal", R.string.max_title_terminal, Icons.Rounded.Terminal, Control, MaxRisk.Dangerous)
     data object SetEdit : MaxDestination("setedit", R.string.max_title_setedit, Icons.Rounded.Edit, Control, MaxRisk.Advanced)
     data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.AutoMirrored.Rounded.Launch, Control, MaxRisk.Advanced)
+
+    /**
+     * `GAP-09` — مدير الملفات بالجذر. أداة متقدّمة لا تفضيل: كل عملية تكتب على القرص
+     * خارج نطاق إعداداتنا، فمكانها تحت `Control → Tools` مع تعليم المخاطرة لا في قائمة
+     * تفضيلات تُقلَّب بلا انتباه.
+     */
+    data object FileManager : MaxDestination("filemanager", R.string.max_files_title, Icons.Rounded.Folder, Control, MaxRisk.Advanced)
     data object KernelFlasher : MaxDestination("kernelflasher", R.string.max_title_kernel_flasher, Icons.Rounded.Build, Control, MaxRisk.Dangerous)
 
     companion object {
@@ -199,11 +223,11 @@ sealed class MaxDestination(
                 CpuCoreControl, GovernorSettings, PreferenceTweaks, GpuStudio,
                 ZramManager, DisplayStudio, Resolution, TouchBoost, FpsGo, Fas, FpsOverlay,
                 ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
-                BatteryDetail, Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
+                Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
                 ProcessManager, DebloatFreeze, AppSettings,
-                ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, MaxBackup, Permissions, About,
+                ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, Plugins, MaxBackup, Permissions, About,
                 Privilege, ModuleHealth,
-                Terminal, SetEdit, ActivityLauncher, KernelFlasher,
+                Terminal, SetEdit, ActivityLauncher, FileManager, KernelFlasher,
             )
         }
 

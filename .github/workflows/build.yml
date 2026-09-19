@@ -32,6 +32,10 @@ jobs:
   build:
     name: Build MaxManager
     runs-on: ubuntu-latest
+    # A hung or wedged step must not sit on a runner for the 6-hour default.
+    # 45 minutes is ~2x the observed end-to-end time, so a genuine slowdown
+    # reports as a red job instead of silently consuming the afternoon.
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
@@ -431,6 +435,15 @@ jobs:
       # reason. `continue-on-error` on the first attempt is what allows the retry
       # to run; the retry itself is not tolerant, so a genuine outage still fails
       # the job instead of shipping a build that cannot be downloaded.
+      # compression-level: 0 (store) on every upload below.
+      #
+      # `compile_zip.sh` already emits `zip -r9`, so the payload the artifact
+      # backend receives is an archives-of-archives: zlib level 6 then spends
+      # CPU finding nothing to compress, on tens of megabytes. The action's own
+      # manifest documents 0 as the value for "large files that are not easily
+      # compressed" ("significantly faster uploads"). The downloaded file is
+      # byte-identical either way — only the container's compression method
+      # changes — so this costs nothing in validation or in what users get.
       - name: Upload Build Artifact
         id: upload_module
         continue-on-error: true
@@ -439,6 +452,7 @@ jobs:
           name: MaxManager-module
           path: ${{ steps.compileZip.outputs.zipName }}
           if-no-files-found: error
+          compression-level: 0
 
       - name: Retry Build Artifact upload
         if: steps.upload_module.outcome == 'failure'
@@ -448,6 +462,7 @@ jobs:
           path: ${{ steps.compileZip.outputs.zipName }}
           if-no-files-found: error
           overwrite: true
+          compression-level: 0
 
       - name: Upload developer integration artifact
         id: upload_developer_bundle
@@ -457,6 +472,7 @@ jobs:
           name: MaxManager-developer-bundle
           path: MaxManager-developer-bundle.zip
           if-no-files-found: error
+          compression-level: 0
 
       - name: Retry developer integration upload
         if: steps.upload_developer_bundle.outcome == 'failure'
@@ -466,6 +482,7 @@ jobs:
           path: MaxManager-developer-bundle.zip
           if-no-files-found: error
           overwrite: true
+          compression-level: 0
 
       # Delivery is optional and must never decide whether the build is green:
       # the artifacts above are the build's output, and this step is only how

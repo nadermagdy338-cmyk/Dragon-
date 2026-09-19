@@ -54,7 +54,6 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.BypassCharging.route) { BypassChargeScreen(navController) }
     composable(MaxDestination.BypassChargingCheck.route) { BypassChargeCheckScreen(navController) }
     composable(MaxDestination.DozeMode.route) { DozeModeScreen(navController) }
-    composable(MaxDestination.BatteryDetail.route) { BatteryDetailScreen(navController) }
     composable(MaxDestination.Dex2oat.route) { Dex2oatScreen(navController) }
     composable(MaxDestination.StorageDetail.route) { StorageDetailScreen(navController) }
     composable(MaxDestination.NetworkScheduler.route) { NetworkSchedulerScreen(navController) }
@@ -74,6 +73,7 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.Diagnostics.route) { DiagnosticsScreen(navController) }
     composable(MaxDestination.Logs.route) { LogsViewerScreen(navController) }
     composable(MaxDestination.ConfigBackup.route) { ConfigBackupScreen(navController) }
+    composable(MaxDestination.Plugins.route) { PluginsScreen(navController) }
     composable(
         route = MaxDestination.MaxBackup.route,
         arguments = listOf(navArgument("pkg") { type = NavType.StringType; defaultValue = "" })
@@ -85,11 +85,13 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     }
     composable(
         route = MaxDestination.Permissions.route,
-        arguments = listOf(navArgument("pkg") { type = NavType.StringType })
+        // `pkg` اختياري: بلا معرّف تُفتح الشاشة على قائمة التطبيقات (فهي شاشة رئيسية
+        // مستقلة بذاتها)، وبه تُفتح على تطبيق واحد. وهذا نفس عقد `Max Backup` حرفيًّا.
+        arguments = listOf(navArgument("pkg") { type = NavType.StringType; defaultValue = "" })
     ) { entry ->
         PermissionsScreen(
             navController = navController,
-            pkg = entry.arguments?.getString("pkg").orEmpty(),
+            pkg = entry.arguments?.getString("pkg").orEmpty().takeIf { it.isNotBlank() },
         )
     }
     composable(MaxDestination.About.route) { AboutScreen(navController) }
@@ -100,5 +102,6 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.Terminal.route) { TerminalScreen() }
     composable(MaxDestination.SetEdit.route) { SetEditScreen(navController) }
     composable(MaxDestination.ActivityLauncher.route) { ActivityLauncherScreen(navController) }
+    composable(MaxDestination.FileManager.route) { FileManagerScreen(navController) }
     composable(MaxDestination.KernelFlasher.route) { KernelFlasherScreen(navController) }
 }

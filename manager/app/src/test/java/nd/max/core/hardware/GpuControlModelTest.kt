@@ -2,6 +2,7 @@ package nd.max.core.hardware
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -285,6 +286,97 @@ class GpuControlModelTest {
         val device = GpuHardwareBackend.selection(fake).device!!
         val map = device.mtkOppIndexByFrequency
         assertEquals(mapOf(800_000_000L to "0", 700_000_000L to "1", 600_000_000L to "2", 500_000_000L to "3"), map)
+    }
+
+    // ── صيغة قيمة مفتاح gpu_frequency ────────────────────────────────────────
+    //
+    // المُحكِّم يُثبت المعاملة بتساوي نصّي المطلوب والمقروء. فالمدى وحده لم يكن
+    // يكفي لطلب يمسّ المُحكِّم أو يحرّر قفل OPP: الكتابة تنجح، والمقروء لا يساوي
+    // المطلوب أبدًا، فيُعاد خط الأساس على تغيير **ناجح**. الاختبارات التالية
+    // تُثبت أن العطب لم يعد ممكنًا في الحالتين، وأن تساويًا كاذبًا لا يتحقق.
+
+    @Test fun governorOnlyRequestIsVerifiableInTheSharedValueSchema() {
+        val fake = io()
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val request = GpuHardwareBackend.Request(governor = "performance")
+        val desired = GpuHardwareBackend.encodeRequest(request)
+
+        // الصيغة القديمة (المدى وحده) كانت تعطي "100000000:800000000" — نصًّا
+        // لا يمكن أن يساوي مطلب "غيّر المُحكِّم".
+        assertNotEquals("${device.minFreq ?: ""}:${device.maxFreq ?: ""}", desired)
+        // قبل الكتابة الإسقاط الحي مخالف، فالمُحكِّم يكتب فعلًا...
+        assertNotEquals(desired, GpuHardwareBackend.encodeLive(device, request, fake))
+        assertTrue(GpuHardwareBackend.apply(device, request, fake).verified)
+        // ...وبعدها الإسقاط الحي نفسه يساوي المطلوب: مُثبَت لا مدَّعى.
+        val live = GpuHardwareBackend.refresh(device.path, fake)!!
+        assertEquals(desired, GpuHardwareBackend.encodeLive(live, request, fake))
+    }
+
+    @Test fun releasedFixedLockIsVerifiableInTheSharedValueSchema() {
+        val fake = mtkIo(activeIndex = "1")
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val request = GpuHardwareBackend.Request(releaseLock = true)
+        val desired = GpuHardwareBackend.encodeRequest(request)
+
+        assertNotEquals(desired, GpuHardwareBackend.encodeLive(device, request, fake))
+        assertTrue(GpuHardwareBackend.apply(device, request, fake).verified)
+        val live = GpuHardwareBackend.refresh(device.path, fake)!!
+        assertEquals(desired, GpuHardwareBackend.encodeLive(live, request, fake))
+    }
+
+    @Test fun selectingAnIntentOnAnMtkLockVerifiesThroughTheSchema() {
+        for (mode in GpuHardwareBackend.IntentMode.entries) {
+            val fake = mtkIo(activeIndex = "1")
+            val device = GpuHardwareBackend.selection(fake).device!!
+            val request = GpuHardwareBackend.requestForMode(device, mode)!!
+            val desired = GpuHardwareBackend.encodeRequest(request)
+            assertTrue(mode.name, GpuHardwareBackend.apply(device, request, fake).verified)
+            val live = GpuHardwareBackend.refresh(device.path, fake)!!
+            assertEquals(mode.name, desired, GpuHardwareBackend.encodeLive(live, request, fake))
+        }
+    }
+
+    @Test fun plainRangeStillVerifiesInTheSharedValueSchema() {
+        val fake = io()
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val request = GpuHardwareBackend.Request(200_000_000L, 400_000_000L)
+        val desired = GpuHardwareBackend.encodeRequest(request)
+        assertTrue(GpuHardwareBackend.apply(device, request, fake).verified)
+        val live = GpuHardwareBackend.refresh(device.path, fake)!!
+        assertEquals(desired, GpuHardwareBackend.encodeLive(live, request, fake))
+    }
+
+    @Test fun untouchedFieldsAreProjectedAwayNotComparedAsAbsent() {
+        val fake = io()
+        val device = GpuHardwareBackend.selection(fake).device!!
+        // جهاز مُحكِّمه الحالي مختلف عن المطلوب: لا تساوي قبل الكتابة، ولو أُسقط
+        // حقل المُحكِّم من الإسقاط لتساوى الاثنان كذبًا وصار الطلب "مُثبتًا" بلا كتابة.
+        val governorRequest = GpuHardwareBackend.Request(governor = "performance")
+        val desired = GpuHardwareBackend.encodeRequest(governorRequest)
+        assertEquals("simple_ondemand", device.governor)
+        assertNotEquals(desired, GpuHardwareBackend.encodeLive(device, governorRequest, fake))
+        // وطلبٌ لا يمسّ المُحكِّم لا يُقارَن على المُحكِّم: مدى مطابق يكفي للإثبات
+        // وإن اختلف المُحكِّم الحي — الحقل مُسقَط لا مُقارَن بغياب.
+        val rangeOnly = GpuHardwareBackend.Request(100_000_000L, 800_000_000L)
+        val live = device.copy(governor = "mali-something-else")
+        assertEquals(GpuHardwareBackend.encodeRequest(rangeOnly), GpuHardwareBackend.encodeLive(live, rangeOnly, fake))
+    }
+
+    @Test fun bothEncodingsAlwaysShareTheirFieldCount() {
+        val fake = io()
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val requests = listOf(
+            GpuHardwareBackend.Request(100_000_000L, 400_000_000L),
+            GpuHardwareBackend.Request(governor = "performance"),
+            GpuHardwareBackend.Request(200_000_000L, 400_000_000L, "performance"),
+            GpuHardwareBackend.Request(releaseLock = true),
+        )
+        requests.forEach { request ->
+            assertEquals(
+                GpuHardwareBackend.encodeRequest(request).split("|").size,
+                GpuHardwareBackend.encodeLive(device, request, fake).split("|").size,
+            )
+        }
     }
 
     @Test fun unitConversionUsesSnapshotUnit() {

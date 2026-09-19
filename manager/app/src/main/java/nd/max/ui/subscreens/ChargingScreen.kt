@@ -15,12 +15,25 @@
  */
 
 /*
- * Charge control.
+ * Battery and charging — one screen.
  *
- * The old layout stacked a gauge, a "readiness" card, two hand built card
- * grids and a control list, which repeated the same facts three times. The
- * screen now keeps a single live hero, one group of read only facts and one
- * group of actions, all built from the shared design system.
+ * It used to be two destinations: `Charging` (the gauge plus every control) and
+ * `BatteryDetail` (a second reading of the same pack, with its own polling loop,
+ * its own data class and its own English status literals, and no controls at
+ * all). Both answered the same question, and neither answered it whole: one knew
+ * what you could change, the other knew what the battery was. Opening one and
+ * then the other to learn a single fact is the cost of that split.
+ *
+ * They are merged here in the order the question is actually asked: **what is it
+ * doing** (live), **what is it** (identity), **what can I change** (controls) —
+ * with the limit's own effect stated against the current level, so the control
+ * and the reading are not two unrelated halves of one page.
+ *
+ * Nothing was dropped in the move. The readings `BatteryDetail` owned that this
+ * screen lacked — the driver's health verdict, the nameplate capacity, the pack's
+ * current full capacity and the raw status — now come from the same
+ * `ChargingViewModel` that owns everything else, so there is one poll loop and
+ * one source per fact instead of two that could disagree.
  */
 
 package nd.max.ui.subscreens
@@ -58,6 +71,8 @@ import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.design.MaxTone
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
+import nd.max.ui.viewmodel.BatteryHealthVerdict
+import nd.max.ui.viewmodel.BatteryStatus
 import nd.max.ui.viewmodel.ChargingViewModel
 import java.util.Locale
 
@@ -170,6 +185,45 @@ fun ChargingScreen(
                 }
             }
 
+            // ── هوية البطارية: ما نقلته شاشة البطارية المنفصلة ──────────────
+            item(key = "battery_identity") {
+                MaxSection(title = stringResource(R.string.detail_battery_identity)) {
+                    MaxGroup {
+                        MaxRow(
+                            title = stringResource(R.string.detail_status),
+                            subtitle = stringResource(R.string.detail_battery_identity_subtitle),
+                            trailing = {
+                                Text(
+                                    text = stringResource(viewModel.batteryStatus.labelRes),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1
+                                )
+                            }
+                        )
+                        MaxGroupDivider()
+                        ChargingFactRow(
+                            label = stringResource(R.string.charging_health),
+                            // الرأي نفسه، لا رقمنا المشتق: يُذكر بطول مسافة من النسبة
+                            // أعلاه حتى لا يُنسب أحدهما للآخر.
+                            value = stringResource(viewModel.healthVerdict.labelRes)
+                        )
+                        MaxGroupDivider()
+                        ChargingFactRow(
+                            label = stringResource(R.string.detail_design_capacity),
+                            value = viewModel.designCapacityMah?.let { "$LTR_MARK$it mAh$LTR_MARK" }
+                                ?: stringResource(R.string.home_sensor_unavailable)
+                        )
+                        MaxGroupDivider()
+                        ChargingFactRow(
+                            label = stringResource(R.string.charging_full_capacity),
+                            value = viewModel.fullCapacityMah?.let { "$LTR_MARK$it mAh$LTR_MARK" }
+                                ?: stringResource(R.string.home_sensor_unavailable)
+                        )
+                    }
+                }
+            }
+
             item(key = "charging_controls") {
                 MaxSection(title = stringResource(R.string.charging_controls_title)) {
                     MaxGroup {
@@ -209,10 +263,13 @@ fun ChargingScreen(
                                 title = stringResource(R.string.charging_limit_title),
                                 checked = chargeLimitActive,
                                 onCheckedChange = { viewModel.setChargeLimitEnabled(it) },
+                                // الربط الذي كانت الشاشتان تفقده: الحدّ يُقرأ مقابل المستوى
+                                // الحالي، فيُعرف أين يقف الآن من الحدّ الذي ضبطه المستخدم.
                                 subtitle = if (chargeLimitActive) {
                                     stringResource(
-                                        R.string.charging_limit_active,
-                                        viewModel.chargeLimitPercent
+                                        R.string.charging_limit_active_progress,
+                                        viewModel.chargeLimitPercent,
+                                        viewModel.capacityPercent
                                     )
                                 } else {
                                     stringResource(R.string.charging_limit_desc)
@@ -263,6 +320,26 @@ fun ChargingScreen(
         }
     }
 }
+
+/** Wording for the pack's state and the driver's verdict is owned here, not in the ViewModel. */
+private val BatteryStatus.labelRes: Int
+    get() = when (this) {
+        BatteryStatus.Charging -> R.string.detail_power_flowing
+        BatteryStatus.Discharging -> R.string.detail_on_battery
+        BatteryStatus.Full -> R.string.charging_status_full
+        BatteryStatus.NotCharging -> R.string.charging_status_not_charging
+        BatteryStatus.Unknown -> R.string.home_sensor_unavailable
+    }
+
+private val BatteryHealthVerdict.labelRes: Int
+    get() = when (this) {
+        BatteryHealthVerdict.Good -> R.string.detail_good
+        BatteryHealthVerdict.Overheat -> R.string.detail_overheat
+        BatteryHealthVerdict.Dead -> R.string.charging_health_dead
+        BatteryHealthVerdict.OverVoltage -> R.string.charging_health_over_voltage
+        BatteryHealthVerdict.Cold -> R.string.charging_health_cold
+        BatteryHealthVerdict.Unknown -> R.string.home_sensor_unavailable
+    }
 
 @Composable
 private fun ChargingFactRow(label: String, value: String) {

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="max_files_title">مدير الملفات</string>
+    <string name="max_files_subtitle">تصفّح الملفات وعدّلها بالجذر. وكل عملية تعلن نتيجتها بنفسها.</string>
+
+    <!-- شريط البحث والفتات -->
+    <string name="max_files_search_placeholder">ابحث في أسماء هذا المجلد</string>
+    <string name="max_files_search_clear">امسح البحث</string>
+    <string name="max_files_root_crumb">الجذر</string>
+    <string name="max_files_pane_left">اللوح الأيسر</string>
+    <string name="max_files_pane_right">اللوح الأيمن</string>
+    <string name="max_files_sync_panes_cd">اجعَل اللوحين على مجلد اللوح النشط</string>
+    <string name="max_files_swap_panes_cd">بدّل اللوحين</string>
+    <string name="max_files_pane_no_match_title">لا اسم يطابق</string>
+    <string name="max_files_pane_no_match_detail">لا شيء في هذا المجلد يطابق %1$s. امسح البحث لترى كل المدخلات مجددًا.</string>
+    <string name="max_files_up_cd">اصعد مجلدًا واحدًا</string>
+    <string name="max_files_refresh_cd">أعد قراءة هذا المجلد</string>
+    <string name="max_files_select_cd">ابدأ تحديد المدخلات</string>
+    <string name="max_files_selected_count">المحدَّد: %1$d</string>
+    <string name="max_files_open_cd">افتح</string>
+
+    <!-- ترتيب القائمة -->
+    <string name="max_files_sort_cd">ترتيب القائمة</string>
+    <string name="max_files_sort_name">الاسم</string>
+    <string name="max_files_sort_size">الحجم</string>
+    <string name="max_files_sort_date">تاريخ التعديل</string>
+    <string name="max_files_sort_kind">النوع</string>
+
+    <!-- الحالات المعلنة عند فشل القراءة -->
+    <string name="max_files_cond_loading_title">يُقرأ المجلد</string>
+    <string name="max_files_cond_loading_detail">تمريرة stat واحدة، ليكون الحجم والصلاحيات والمالك مقيسًا لا مقدَّرًا.</string>
+    <string name="max_files_cond_empty_title">هذا المجلد فارغ</string>
+    <string name="max_files_cond_empty_detail">نجحت القراءة ولم تُرجع أي مدخل. هذه قراءة، لا فشل.</string>
+    <string name="max_files_cond_notfound_title">المسار غير موجود</string>
+    <string name="max_files_cond_notfound_detail">هذا المسار غير موجود على الجهاز الآن.</string>
+    <string name="max_files_cond_notdir_title">ليس مجلدًا</string>
+    <string name="max_files_cond_notdir_detail">المسار موجود لكنه ليس مجلدًا، فلا شيء فيه يُسرَد.</string>
+    <string name="max_files_cond_denied_title">الجذر لا يستطيع قراءة هذا المجلد</string>
+    <string name="max_files_cond_denied_detail">لم يستطع الـshell قراءة المسار أو عبوره. امنح الجذر ثم أعد القراءة.</string>
+    <string name="max_files_cond_shell_title">لا shell ذا امتياز</string>
+    <string name="max_files_cond_shell_detail">لم يجب شيء بصلاحية الجذر، فلم يُقرأ أي مجلد أصلًا.</string>
+    <string name="max_files_cond_recheck">أعد القراءة</string>
+    <string name="max_files_cond_no_root_title">الجذر مطلوب</string>
+    <string name="max_files_cond_no_root_detail">هذه الشاشة وُجدت لقراءة مسارات النظام وتغييرها، فهي تحتاج الجذر. وبدونه تصير القائمة نصف حقيقة.</string>
+
+    <!-- أشرطة الصدق: ما نقوله حين لا تكون القراءة كاملة -->
+    <string name="max_files_degraded_title">الصفات غير متاحة</string>
+    <string name="max_files_degraded_detail">لم يستجب stat على هذا الجهاز، فالأسماء وحدها مسرودة. والأحجام والصلاحيات مجهولة، لا صفر.</string>
+    <string name="max_files_skipped_title">بعض المدخلات لم تُقرأ</string>
+    <string name="max_files_skipped_detail">%1$d سطرًا لم يطابق الصيغة المعلنة فأسقطناه. قد تكون مدخلات ناقصة من هذه القائمة.</string>
+
+    <!-- صف المدخل -->
+    <string name="max_files_unknown">مجهول</string>
+    <string name="max_files_kind_directory">مجلد</string>
+    <string name="max_files_kind_file">ملف</string>
+    <string name="max_files_kind_symlink">رابط رمزي</string>
+    <string name="max_files_kind_block">جهاز كتل</string>
+    <string name="max_files_kind_char">جهاز محارف</string>
+    <string name="max_files_kind_fifo">أنبوب</string>
+    <string name="max_files_kind_socket">مقبس</string>
+    <string name="max_files_kind_unknown">نوع غير معروف</string>
+    <string name="max_files_link_to">رابط إلى %1$s</string>
+    <string name="max_files_owner_group">%1$s:%2$s</string>
+    <string name="max_files_row_cd">افتح قائمة المدخل</string>
+
+    <!-- الإجراءات -->
+    <string name="max_files_action_rename">أعد التسمية</string>
+    <string name="max_files_action_delete">احذف</string>
+    <string name="max_files_action_copy">انسخ</string>
+    <string name="max_files_action_move">انقل</string>
+    <string name="max_files_action_new_folder">مجلد جديد</string>
+    <string name="max_files_action_compress">اضغط إلى tar.gz</string>
+    <string name="max_files_action_extract">فكّ tar.gz هنا</string>
+    <string name="max_files_action_details">التفاصيل</string>
+    <string name="max_files_action_preview">اعرض كنصّ</string>
+    <string name="max_files_action_select_all">حدّد الكل</string>
+    <string name="max_files_action_invert">اعكس التحديد</string>
+    <string name="max_files_action_done">تمّ</string>
+    <string name="max_files_action_clear_selection">امسح التحديد</string>
+
+    <!-- الحوارات -->
+    <string name="max_files_rename_title">إعادة تسمية المدخل</string>
+    <string name="max_files_rename_field">الاسم الجديد</string>
+    <string name="max_files_new_folder_title">إنشاء مجلد</string>
+    <string name="max_files_new_folder_field">اسم المجلد</string>
+    <string name="max_files_delete_title">حذف نهائي</string>
+    <string name="max_files_delete_body">سيُحذف %1$d مدخلًا بصلاحية الجذر. لا سلة مهملات ولا رجوع في هذه الشاشة.</string>
+    <string name="max_files_copy_title">انسخ إلى مجلد</string>
+    <string name="max_files_move_title">انقل إلى مجلد</string>
+    <string name="max_files_destination_field">المجلد الهدف</string>
+    <string name="max_files_destination_hint">مسار مطلق، مثل ‎/sdcard/Download</string>
+    <string name="max_files_confirm">طبّق</string>
+    <string name="max_files_cancel">إلغاء</string>
+
+    <!-- أسباب الرفض: تُعرض بنصّها لا برقمها -->
+    <string name="max_files_refused_title">لم يُطبَّق</string>
+    <string name="max_files_refuse_empty">لا شيء محدَّد.</string>
+    <string name="max_files_refuse_protected">جذر نظام الملفات لا يصلح هدفًا لهذه العملية.</string>
+    <string name="max_files_refuse_self">المصدر والهدف المسار نفسه.</string>
+    <string name="max_files_refuse_inside">لا يُنسخ مجلد ولا يُنقل داخل نفسه.</string>
+    <string name="max_files_refuse_name">الاسم لا يكون فارغًا ولا نقطة ولا نقطتين، ولا يحتوي فاصل مسار.</string>
+    <string name="max_files_refuse_taken">يوجد مدخل بهذا الاسم هنا بالفعل.</string>
+
+    <!-- نتائج التنفيذ: ثلاثة أحكام لا حكمان -->
+    <string name="max_files_outcome_ok">تمّ، وتُحقِّق من النتيجة على القرص.</string>
+    <string name="max_files_outcome_unverified">نُفِّذ الأمر، لكن لم نستطع التحقّق من النتيجة.</string>
+    <string name="max_files_outcome_failed">فشلت العملية. ولم يُتحقَّق من أي شيء.</string>
+    <string name="max_files_outcome_count">عُولج %1$d مدخلًا.</string>
+
+    <!-- لوحة التفاصيل -->
+    <string name="max_files_details_title">تفاصيل المدخل</string>
+    <string name="max_files_detail_path">المسار</string>
+    <string name="max_files_detail_kind">النوع</string>
+    <string name="max_files_detail_size">الحجم</string>
+    <string name="max_files_detail_modified">آخر تعديل</string>
+    <string name="max_files_detail_permissions">الصلاحيات</string>
+    <string name="max_files_detail_owner">المالك</string>
+    <string name="max_files_detail_group">المجموعة</string>
+    <string name="max_files_detail_symlink">هدف الرابط</string>
+    <string name="max_files_detail_selinux">سياق SELinux</string>
+    <string name="max_files_detail_selinux_unknown">لا يُعلنه هذا الجهاز</string>
+    <string name="max_files_detail_selinux_check">اقرأ سياق SELinux</string>
+    <string name="max_files_detail_not_read">لم يُقرأ</string>
+    <string name="max_files_flag_setuid">setuid</string>
+    <string name="max_files_flag_setgid">setgid</string>
+    <string name="max_files_flag_sticky">sticky</string>
+    <string name="max_files_detail_copy_path">انسخ المسار</string>
+    <string name="max_files_detail_copied">نُسخ المسار</string>
+    <string name="max_files_detail_copy_failed">رفضت الحافظة المسار — لم يُنسخ شيء</string>
+    <string name="max_files_detail_copy_label">مسار الملف</string>
+
+    <!-- المعاينة النصّية -->
+    <string name="max_files_preview_title">معاينة نصّية</string>
+    <string name="max_files_preview_loading_title">يُقرأ الملف</string>
+    <string name="max_files_preview_loading_detail">نبدأ بأول %1$s، ثم نفحص هل المحتوى نصّ أصلًا.</string>
+    <string name="max_files_preview_binary_title">ملف ثنائي</string>
+    <string name="max_files_preview_binary_detail">المحتوى ليس نصًّا، فلا يُعرض كنصّ. استعمل عارضًا سادس عشريًّا لهذا الملف.</string>
+    <string name="max_files_preview_large_title">أكبر من أن يُعاين</string>
+    <string name="max_files_preview_large_detail">لا نعاين هنا إلا الملفات حتى %1$s. افتحه في أداة أخرى.</string>
+    <string name="max_files_preview_truncated">يُعرض الجزء الأول من الملف فقط.</string>
+    <string name="max_files_preview_unreadable">لم نستطع قراءة الملف.</string>
+    <string name="max_files_preview_readonly">هذه المعاينة للقراءة فقط. وتحرير الملفات غير معروض في هذه الشاشة.</string>
+
+    <!-- الشرح -->
+    <string name="max_files_help_title">كيف تقرّر هذه الشاشة</string>
+    <string name="max_files_help_body">المدخلات تأتي من تمريرة stat واحدة بصيغة ثابتة مفصولة بتبويب، فلا يُحلَّل مخرج ls للحصول على بيانات أبدًا. وكل ما لم يُقس يُعرض مجهولًا لا صفرًا. وكل عملية تُحرس قبل أن تصل إلى shell: لا يُنسخ مجلد داخل نفسه، ولا يُنقل شيء إلى مصدره، ولا يُحذف جذر نظام الملفات.</string>
+
+</resources>

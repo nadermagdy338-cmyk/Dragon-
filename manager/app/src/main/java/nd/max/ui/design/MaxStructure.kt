@@ -38,6 +38,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /**
@@ -183,16 +185,23 @@ fun MaxRow(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)
         ) {
+            // `LineBreak.Heading` keeps a long single word from being split into
+            // individual letters when the row is narrow; the overflow guard then
+            // truncates it instead. See MaxControlRows.kt for the full note.
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha)
+                style = MaterialTheme.typography.bodyLarge.copy(lineBreak = LineBreak.Heading),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             subtitle?.takeIf { it.isNotBlank() }?.let {
                 Text(
                     text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha)
+                    style = MaterialTheme.typography.bodySmall.copy(lineBreak = LineBreak.Heading),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import nd.max.ui.component.MaxSlider
 import nd.max.ui.component.MaxSwitch
@@ -110,9 +111,16 @@ private fun MaxControlRowLayout(
             }
 
             Column(modifier = Modifier.weight(1f)) {
+                // `LineBreak.Heading` and the overflow guard together are what stop
+                // a long single word from being chopped into letters. `maxLines`
+                // alone does NOT: the greedy breaker will happily split a word that
+                // is wider than the line, and only then ellipsize the tail — which
+                // is how a language name came out as one letter per line.
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
+                    // `LineBreak.Heading` is set on the style, not on Text: it is what
+                    // stops a long single word from being chopped into letters.
+                    style = MaterialTheme.typography.bodyLarge.copy(lineBreak = LineBreak.Heading),
                     color = contentColor,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -120,8 +128,10 @@ private fun MaxControlRowLayout(
                 if (!subtitle.isNullOrBlank()) {
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = supportingColor
+                        style = MaterialTheme.typography.bodySmall.copy(lineBreak = LineBreak.Heading),
+                        color = supportingColor,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -146,7 +156,8 @@ private fun MaxControlRowLayout(
                 Text(
                     text = lockedReason,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaxTone.Caution.content()
+                    color = MaxTone.Caution.content(),
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -233,12 +244,14 @@ fun MaxSliderRow(
             {
                 Text(
                     text = valueText,
-                    style = MonoValueStyleSmall,
+                    style = MonoValueStyleSmall.copy(lineBreak = LineBreak.Heading),
                     color = if (enabled) {
                         MaterialTheme.colorScheme.onSurface
                     } else {
                         MaterialTheme.colorScheme.onSurface.copy(alpha = MaxAlpha.disabledContent)
-                    }
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         } else {
@@ -299,7 +312,9 @@ fun MaxNavigationRow(
                     Text(
                         text = valueText,
                         style = MonoValueStyleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(Modifier.width(MaxSpace.sm))
                 }
