@@ -1,23 +1,15 @@
 package nd.max.ui.mainscreens
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Psychology
@@ -28,7 +20,6 @@ import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,12 +28,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import nd.max.R
+import nd.max.core.maxai.MaxAiCycleStatus
 import nd.max.core.maxai.MaxAiEpisode
 import nd.max.core.maxai.MaxAiInsights
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.SafetyLevel
 import nd.max.core.maxai.TrustModel
-import nd.max.ui.design.MaxAlpha
 import nd.max.ui.design.MaxCapsule
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
@@ -50,8 +41,8 @@ import nd.max.ui.design.MaxDuration
 import nd.max.ui.design.MaxForecastChart
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
+import nd.max.ui.design.MaxListScreen
 import nd.max.ui.design.MaxRow
-import nd.max.ui.design.MaxScreen
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
@@ -61,23 +52,10 @@ import nd.max.ui.design.MaxWeightBar
 import nd.max.ui.design.content
 import nd.max.ui.viewmodel.MaxAiViewModel
 
-/*
- * مركز القيادة الحي — الشاشة التي تعرض الحلقة وهي تعمل.
- *
- * لماذا وُجدت: قسم "حالة المحرك" القديم كان جدول ملكية ساكنًا داخل شاشة
- * طويلة، فكان المستخدم يقرأ أسماء مقابض بلا أن يرى شيئًا يتحرك أو يفهم
- * ما يجري الآن. هذه الشاشة تجمع كل ما يحتاجه في مكان واحد وبحركة:
- *
- *   نبض الدورة → القياسات الحية → التوقع مقابل الواقع → انحدار خطأ
- *   التنبؤ → ما يعرفه وما يجهله → بوابة الاستكشاف → عدادات الحلقات →
- *   من يملك كل مقبض
- *
- * قاعدة ملزمة موروثة من شاشة MAX AI: كل عنصر متحرك هنا مرتبط بحقل مقيس
- * واحد. الحركة تُستخدم لإظهار **تغيّر** رقم حقيقي فقط؛ ما لم يُقس لا يُرسم
- * ولا يُعرض كصفر، والأقسام تختفي تمامًا قبل أول دورة حقيقية.
- *
- * كل منحنى يحمل وصفًا نصيًا لقارئ الشاشة ("ارتفاع من 0.61 إلى 0.74 خلال
- * 8 دقائق") لأن Canvas بلا وصف = معلومة غير موجودة لمستخدم TalkBack.
+/**
+ * Measured observations, model estimates and recorded control outcomes stay distinct.
+ * Freshness expires without a new engine emission; opening this page requests no cycle.
+ * Only measured bars have bounded transitions, and charts retain spoken descriptions.
  */
 @Composable
 fun MaxLiveScreen(
@@ -88,9 +66,9 @@ fun MaxLiveScreen(
     val safety by viewModel.safety.collectAsStateWithLifecycle()
     val episodes by viewModel.episodes.collectAsStateWithLifecycle()
     val insights by viewModel.insights.collectAsStateWithLifecycle()
-
-    // دورة فورية عند الدخول: ما يُعرض هنا يوصف كـ"حي"، فيجب أن يكون كذلك.
-    LaunchedEffect(Unit) { viewModel.refresh() }
+    val cycleStatus by viewModel.cycleStatus.collectAsStateWithLifecycle()
+    val nowMs by viewModel.nowMs.collectAsStateWithLifecycle()
+    val freshness = sampleFreshness(state.lastSampleAtMs, nowMs)
 
     val banner = when {
         safety.level == SafetyLevel.CRITICAL -> MaxCondition(
@@ -116,49 +94,45 @@ fun MaxLiveScreen(
         else -> null
     }
 
-    MaxScreen(
+    MaxListScreen(
         title = stringResource(R.string.max_live_title),
         onBack = { navController.popBackStack() },
-        subtitle = state.strategyLabel,
+        subtitle = if (freshness == SampleFreshness.Missing) {
+            stringResource(R.string.max_live_empty)
+        } else {
+            state.strategyLabel
+        },
         accentIcon = Icons.Rounded.Psychology,
         accent = MaterialTheme.colorScheme.tertiary,
         banner = banner,
     ) {
-        VitalsSection(state)
-        LiveForecastSection(state)
-        PredictionErrorSection(episodes)
-        KnowledgeSection(state)
-        ExplorationSection(state)
-        AutomationPlanSection(state)
-        LoopCountersSection(insights)
-        OwnershipSection(state)
-        ActionsSection(viewModel)
+        item(key = "vitals") { VitalsSection(state, freshness, nowMs) }
+        item(key = "forecast") { LiveForecastSection(state, freshness) }
+        item(key = "prediction_error") { PredictionErrorSection(episodes) }
+        item(key = "knowledge") { KnowledgeSection(state) }
+        item(key = "exploration") { ExplorationSection(state, freshness, nowMs) }
+        item(key = "automation_plan") { AutomationPlanSection(state, freshness) }
+        item(key = "loop_counters") { LoopCountersSection(insights) }
+        item(key = "ownership") { OwnershipSection(state) }
+        item(key = "actions") { ActionsSection(cycleStatus, viewModel::refresh) }
     }
 }
 
 // ── النبض والقياسات الحية ────────────────────────────
 
-/**
- * القياسات الحية كأشرطة متحركة + نبضة الدورة.
- *
- * النبضة تنبض فقط حين يكون المحرك مشتغلًا **وعيّنته حديثة**: نبضة تتحرك
- * بجوار رقم عمره ساعة كانت ستكذب على المستخدم.
- */
+/** Observation freshness is independent of the automatic-decision preference. */
 @Composable
-private fun VitalsSection(state: MaxAiState) {
-    val hasSample = state.lastSampleAtMs > 0L
-    val ageMs = if (hasSample) System.currentTimeMillis() - state.lastSampleAtMs else 0L
-    val fresh = hasSample && ageMs <= 45_000L
-    val beating = state.aiEnabled && fresh
-    val pulseTone = when {
-        !state.aiEnabled -> MaxTone.Inactive
-        !fresh -> MaxTone.Caution
-        else -> MaxTone.Positive
+private fun VitalsSection(state: MaxAiState, freshness: SampleFreshness, nowMs: Long) {
+    val hasSample = freshness != SampleFreshness.Missing
+    val observationTone = when (freshness) {
+        SampleFreshness.Missing -> MaxTone.Inactive
+        SampleFreshness.Stale -> MaxTone.Caution
+        SampleFreshness.Live -> MaxTone.Positive
     }
-    val pulseText = when {
-        !state.aiEnabled -> stringResource(R.string.max_live_pulse_off)
-        !fresh -> stringResource(R.string.max_live_pulse_stale)
-        else -> stringResource(R.string.max_live_pulse_on)
+    val observationText = when (freshness) {
+        SampleFreshness.Missing -> stringResource(R.string.max_live_empty)
+        SampleFreshness.Stale -> stringResource(R.string.max_live_pulse_stale)
+        SampleFreshness.Live -> stringResource(R.string.max_trust_live)
     }
 
     MaxSection(
@@ -170,27 +144,28 @@ private fun VitalsSection(state: MaxAiState) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
         ) {
-            LivePulse(active = beating, tone = pulseTone)
+            LiveIndicator(tone = observationTone)
             Text(
-                text = pulseText,
+                text = observationText,
+                modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             if (hasSample) {
-                MaxCapsule(text = liveRelativeTime(ageMs), tone = pulseTone)
-            }
-        }
-
-        if (!hasSample) {
-            MaxGroup {
-                MaxRow(
-                    title = stringResource(R.string.max_live_empty),
-                    icon = Icons.Rounded.Insights,
-                    iconTone = MaxTone.Inactive,
+                MaxCapsule(
+                    text = liveRelativeTime(nowMs - state.lastSampleAtMs),
+                    tone = observationTone,
                 )
             }
-            return@MaxSection
         }
+        Text(
+            text = stringResource(
+                if (state.aiEnabled) R.string.max_ai_decisions_enabled else R.string.max_ai_decisions_disabled,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (!hasSample) return@MaxSection
 
         LiveBar(
             label = stringResource(R.string.max_ai_metric_cpu),
@@ -245,27 +220,13 @@ private fun VitalsSection(state: MaxAiState) {
     }
 }
 
-/** نبضة واحدة: تتحرك حين تكون الحلقة حية فعلًا، وتسكن حين تتوقف. */
+/** A static status marker never implies unobserved engine activity. */
 @Composable
-private fun LivePulse(active: Boolean, tone: MaxTone, modifier: Modifier = Modifier) {
-    val transition = rememberInfiniteTransition(label = "maxLivePulse")
-    val breath by transition.animateFloat(
-        initialValue = if (active) 0.35f else 1f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = MaxDuration.deliberate * 3,
-                easing = FastOutSlowInEasing,
-            ),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "maxLivePulseBreath",
-    )
-    val alpha = if (active) breath else MaxAlpha.disabledContent
+private fun LiveIndicator(tone: MaxTone, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .size(MaxSize.iconGlyph)
-            .background(tone.content().copy(alpha = alpha), CircleShape),
+            .background(tone.content(), CircleShape),
     )
 }
 
@@ -287,7 +248,7 @@ private fun LiveBar(label: String, fraction: Float, valueText: String, tone: Max
  * المحرك أصلًا لحسابات السلامة، مرسومًا بجوار ما حدث فعلًا.
  */
 @Composable
-private fun LiveForecastSection(state: MaxAiState) {
+private fun LiveForecastSection(state: MaxAiState, freshness: SampleFreshness) {
     val points = state.thermalForecast
     MaxSection(
         title = stringResource(R.string.max_live_section_forecast),
@@ -302,6 +263,10 @@ private fun LiveForecastSection(state: MaxAiState) {
                 )
             }
             return@MaxSection
+        }
+
+        if (freshness == SampleFreshness.Stale) {
+            MaxCapsule(text = stringResource(R.string.max_trust_snapshot), tone = MaxTone.Caution)
         }
 
         val firstMeasured = points.firstOrNull { it.actualC != null }
@@ -478,19 +443,31 @@ private fun KnowledgeSection(state: MaxAiState) {
  * تكون تكلفة الخطأ منخفضة": لا تجربة عشوائية، وكل امتناع له سبب مقروء.
  */
 @Composable
-private fun ExplorationSection(state: MaxAiState) {
+private fun ExplorationSection(state: MaxAiState, freshness: SampleFreshness, nowMs: Long) {
     val exploration = state.exploration
     MaxSection(
         title = stringResource(R.string.max_live_section_exploration),
         description = stringResource(R.string.max_live_section_exploration_desc),
     ) {
+        if (freshness == SampleFreshness.Missing) {
+            MaxGroup {
+                MaxRow(
+                    title = stringResource(R.string.max_live_empty),
+                    icon = Icons.Rounded.Science,
+                    iconTone = MaxTone.Inactive,
+                )
+            }
+            return@MaxSection
+        }
         MaxGroup {
             val blocked = exploration.blockReason
+            val canExplore = state.aiEnabled && freshness == SampleFreshness.Live && blocked == null
             MaxRow(
-                title = if (blocked == null) {
-                    stringResource(R.string.max_live_explore_allowed)
-                } else {
-                    stringResource(R.string.max_live_explore_blocked, blockText(blocked))
+                title = when {
+                    !state.aiEnabled -> stringResource(R.string.max_ai_decisions_disabled)
+                    freshness == SampleFreshness.Stale -> stringResource(R.string.max_live_pulse_stale)
+                    blocked != null -> stringResource(R.string.max_live_explore_blocked, blockText(blocked))
+                    else -> stringResource(R.string.max_live_explore_allowed)
                 },
                 subtitle = stringResource(
                     R.string.max_live_explore_budget,
@@ -498,7 +475,7 @@ private fun ExplorationSection(state: MaxAiState) {
                     exploration.budget,
                 ),
                 icon = Icons.Rounded.Science,
-                iconTone = if (blocked == null) MaxTone.Accent else MaxTone.Inactive,
+                iconTone = if (canExplore) MaxTone.Accent else MaxTone.Inactive,
             )
             // المرشح يُعرض فقط حين وُجد فعلًا مقبض مجهول الأثر.
             if (exploration.targetLabel != null) {
@@ -519,7 +496,7 @@ private fun ExplorationSection(state: MaxAiState) {
                 MaxRow(
                     title = stringResource(R.string.max_live_explore_last),
                     subtitle = liveRelativeTime(
-                        System.currentTimeMillis() - exploration.lastProbeAtMs,
+                        nowMs - exploration.lastProbeAtMs,
                     ),
                 )
             }
@@ -535,7 +512,7 @@ private fun ExplorationSection(state: MaxAiState) {
  * التالي. لا تنفذ مسارًا موازيًا؛ تعرض فقط قرار المحرك القابل للتراجع.
  */
 @Composable
-private fun AutomationPlanSection(state: MaxAiState) {
+private fun AutomationPlanSection(state: MaxAiState, freshness: SampleFreshness) {
     val plan = state.automationPlan
     val tone = when (plan.mode) {
         "Safety guard" -> MaxTone.Critical
@@ -548,13 +525,37 @@ private fun AutomationPlanSection(state: MaxAiState) {
         title = stringResource(R.string.max_live_automation_title),
         description = stringResource(R.string.max_live_automation_desc),
     ) {
+        if (freshness == SampleFreshness.Missing) {
+            MaxGroup {
+                MaxRow(
+                    title = stringResource(R.string.max_live_empty),
+                    icon = Icons.Rounded.Tune,
+                    iconTone = MaxTone.Inactive,
+                )
+            }
+            return@MaxSection
+        }
+        if (!state.aiEnabled || freshness == SampleFreshness.Stale) {
+            Text(
+                text = stringResource(R.string.max_live_plan_snapshot),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         MaxGroup {
             MaxRow(
                 title = plan.mode,
                 subtitle = plan.reason,
                 icon = Icons.Rounded.Tune,
                 iconTone = tone,
-                trailing = { MaxCapsule(text = stringResource(R.string.max_live_confidence, plan.confidencePercent), tone = tone) },
+                trailing = {
+                    if (plan.mode != "Safety guard") {
+                        MaxCapsule(
+                            text = stringResource(R.string.max_ai_learning_coverage, plan.confidencePercent),
+                            tone = tone,
+                        )
+                    }
+                },
             )
             MaxGroupDivider()
             MaxRow(
@@ -641,17 +642,12 @@ private fun LoopCountersSection(snapshot: MaxAiInsights.Snapshot) {
     }
 }
 
-/** عدّاد يتحرك من رقمه السابق إلى الجديد كي يُرى أن شيئًا حدث. */
+/** Render recorded counts directly, never intermediate, unmeasured integers. */
 @Composable
 private fun LiveCountRow(title: String, count: Int, tone: MaxTone) {
-    val animated by animateIntAsState(
-        targetValue = count,
-        animationSpec = tween(MaxDuration.standard),
-        label = "maxLiveCount",
-    )
     MaxRow(
         title = title,
-        trailing = { MaxCapsule(text = animated.toString(), tone = tone) },
+        trailing = { MaxCapsule(text = count.toString(), tone = tone) },
     )
 }
 
@@ -720,17 +716,9 @@ private fun OwnershipSection(state: MaxAiState) {
 // ── إجراء واحد ───────────────────────────────────────
 
 @Composable
-private fun ActionsSection(viewModel: MaxAiViewModel) {
+private fun ActionsSection(status: MaxAiCycleStatus, onRefresh: () -> Unit) {
     MaxSection(title = stringResource(R.string.max_ai_section_controls)) {
-        MaxGroup {
-            MaxRow(
-                title = stringResource(R.string.max_ai_refresh),
-                subtitle = stringResource(R.string.max_ai_refresh_desc),
-                icon = Icons.Rounded.Refresh,
-                iconTone = MaxTone.Accent,
-                onClick = { viewModel.refresh() },
-            )
-        }
+        MaxAiRuntimeStatus(status, onRefresh)
     }
 }
 
@@ -812,6 +800,7 @@ private fun liveScore(value: Float): String = "%.3f".format(value)
 
 @Composable
 private fun liveRelativeTime(elapsedMs: Long): String {
+    if (elapsedMs < 0L) return stringResource(R.string.max_ai_value_unknown)
     val minutes = elapsedMs / 60_000L
     return when {
         minutes < 1L -> stringResource(R.string.max_ai_time_now)

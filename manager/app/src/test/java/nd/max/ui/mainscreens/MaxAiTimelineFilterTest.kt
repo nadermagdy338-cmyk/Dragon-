@@ -112,6 +112,31 @@ class MaxAiTimelineSearchTest {
         assertTrue(TimelineSearch.matches(episode, "  com.tencent.ig  "))
     }
 
+    @Test
+    fun `multiple terms can match different recorded fields`() {
+        val episode = episode(knobKey = "gpu.max", appContext = "com.game", detail = "verified")
+        assertTrue(TimelineSearch.matches(episode, "GPU com.game verified"))
+        assertFalse(TimelineSearch.matches(episode, "GPU com.game missing"))
+    }
+
+    @Test
+    fun `context kind verdict and text intersect without changing journal order`() {
+        val first = episode(knobKey = "gpu.max", appContext = "app.a").copy(id = 3L)
+        val second = first.copy(id = 2L, appContext = "app.b")
+        val third = first.copy(id = 1L)
+        val journal = listOf(first, second, third)
+        val matched = filterTimeline(journal, TimelineFilter.Decisions, MaxAiVerdict.NO_ACTION, "gpu", "app.a")
+        assertEquals(listOf(3L, 1L), matched.map { it.id })
+        assertEquals(3, journal.size)
+        assertTrue(filterTimeline(journal, TimelineFilter.Probes, null, "", "app.a").isEmpty())
+    }
+
+    @Test
+    fun `recorded verdict and event kind are searchable`() {
+        assertTrue(TimelineSearch.matches(episode(), "NO_ACTION DECISION"))
+        assertFalse(TimelineSearch.matches(episode(), "WRITE_FAILED"))
+    }
+
     private fun episode(
         knobKey: String? = null,
         knobLabel: String? = null,

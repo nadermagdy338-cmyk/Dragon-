@@ -6,16 +6,18 @@ import android.util.Log
 import com.topjohnwu.superuser.Shell
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import nd.max.MaxManagerProps
 import nd.max.core.diagnostics.DiagnosticCenter
@@ -27,7 +29,7 @@ import nd.max.core.hardware.RootFileAccess
 import nd.max.core.hardware.SharedHardwareOwnershipStore
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.hardware.ProfileApplier
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
@@ -154,10 +156,12 @@ class MaxAiEngine @Inject constructor(
     private val _profileRequest = MutableStateFlow(ProfileRequestState())
     val profileRequest: StateFlow<ProfileRequestState> = _profileRequest.asStateFlow()
 
-    private val cycleMutex = Mutex()
-    private val requestedGeneration = AtomicLong(0L)
+    private val cycleRunner = CoalescingCycleRunner()
+    private val profileMutex = Mutex()
+    private val _cycleStatus = MutableStateFlow(MaxAiCycleStatus())
+    val cycleStatus: StateFlow<MaxAiCycleStatus> = _cycleStatus.asStateFlow()
 
-    @Volatile private var started = false
+    private val started = AtomicBoolean(false)
 
     /** سياق الدورة الأخيرة — يُنشر كي تفسر الواجهة الرقم المعروض. */
     private data class CycleContext(
@@ -230,8 +234,7 @@ class MaxAiEngine @Inject constructor(
      * صفر قرارات وصفر كتابات على العتاد.
      */
     fun start() {
-        if (started) return
-        started = true
+        if (!started.compareAndSet(false, true)) return
 
         // رد فعل المستخدم إشارة مجانية ومقيسة: قفل يدوي على نفس المقبض
         // خلال دقائق من تدخلنا = رفض، لا استبيان ولا سؤال.
@@ -246,14 +249,10 @@ class MaxAiEngine @Inject constructor(
         // والتوأم الرقمي (updateDigitalTwin).
 
         scope.launch {
+            val preference = runCatching { objectivePreference() }.getOrNull()
+            _state.update { it.copy(aiEnabled = readAiEnabled(), objectivePreference = preference) }
             while (isActive) {
-                runCatching { runCycleSingleFlight() }
-                    .onFailure {
-                        Log.w(TAG, "engine cycle failed", it)
-                        DiagnosticCenter.record(
-                            "maxai", "engine cycle failed: ${it.message ?: it.javaClass.simpleName}"
-                        )
-                    }
+                runCycleSingleFlight()
                 delay(CYCLE_MS)
             }
         }
@@ -284,12 +283,22 @@ class MaxAiEngine @Inject constructor(
     // ── الدورة الواحدة ────────────────────────────────────
 
     private suspend fun runCycleSingleFlight() {
-        val requested = requestedGeneration.incrementAndGet()
-        cycleMutex.withLock {
-            var handled = requested - 1L
-            while (handled < requestedGeneration.get()) {
-                handled = requestedGeneration.get()
+        cycleRunner.run {
+            _cycleStatus.update { it.copy(inFlight = true) }
+            try {
                 cycle()
+                _cycleStatus.value = MaxAiCycleStatus(lastCompletedAtMs = System.currentTimeMillis())
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                _cycleStatus.update { it.copy(lastFailureAtMs = System.currentTimeMillis()) }
+                Log.w(TAG, "engine cycle failed", failure)
+                DiagnosticCenter.record(
+                    "maxai", "engine cycle failed: ${failure.javaClass.simpleName}",
+                    level = DiagnosticCenter.Level.ERROR,
+                )
+            } finally {
+                _cycleStatus.update { it.copy(inFlight = false) }
             }
         }
     }
@@ -1052,7 +1061,7 @@ class MaxAiEngine @Inject constructor(
             // الإشارة تُحدَّث هنا فقط كي لا يُستهلك التغيّر قبل تنفيذه.
             cadenceSignal = current
             DiagnosticCenter.record("maxai", "early re-plan: ${decision.reason}")
-            scope.launch { runCatching { runCycleSingleFlight() } }
+            scope.launch { runCycleSingleFlight() }
         } else if (decision.reason == null) {
             cadenceSignal = current
         }
@@ -1418,11 +1427,12 @@ class MaxAiEngine @Inject constructor(
     fun effectsSnapshot(): Map<String, ControlOutcomeModel.Effect> = planner.effectsSnapshot()
 
     /**
-     * دورة فورية عند الطلب (دخول الشاشة مثلًا) كي تعكس الحالة القياسات
-     * الحالية بلا انتظار دورة الثلاثين ثانية القادمة.
+     * Explicit evaluation request. Merely opening an evidence screen does not act.
      */
-    suspend fun requestRefresh() = withContext(Dispatchers.IO) {
-        runCatching { runCycleSingleFlight() }
+    suspend fun requestRefresh() {
+        // A screen leaving during the response window must not cancel probe restoration.
+        // The application engine owns execution; the caller owns only its wait.
+        scope.async { runCycleSingleFlight() }.await()
     }
 
     /**
@@ -1459,7 +1469,7 @@ class MaxAiEngine @Inject constructor(
                 ceilingKnobs.leaveAll(TOKEN)
                 arbiter.releaseToken(TOKEN, restore = true)
             }
-            runCatching { runCycleSingleFlight() }
+            runCycleSingleFlight()
         }
     }
 
@@ -1469,11 +1479,13 @@ class MaxAiEngine @Inject constructor(
      * عبر مصداقية المقابض فلا يبقى جامدًا.
      */
     fun setObjectivePreference(preference: String) {
+        val normalized = Objective.labelFor(Objective.fromPreference(preference))
         PropertyUtils.set(
             MaxManagerProps.Conf.AI_OBJECTIVE,
-            Objective.labelFor(Objective.fromPreference(preference)),
+            normalized,
         )
-        scope.launch(Dispatchers.IO) { runCatching { runCycleSingleFlight() } }
+        _state.update { it.copy(objectivePreference = objectivePreference()) }
+        scope.launch(Dispatchers.IO) { runCycleSingleFlight() }
     }
 
     /** التفضيل الحالي للعرض في الواجهة — التوازن إن لم يُسأل المستخدم بعد. */
@@ -1487,6 +1499,7 @@ class MaxAiEngine @Inject constructor(
      */
     suspend fun requestManualProfile(profileId: String, label: String): Boolean =
         withContext(Dispatchers.IO) {
+            if (!profileMutex.tryLock()) return@withContext false
             _profileRequest.value = ProfileRequestState(profileId = profileId, inFlight = true)
             try {
                 val ok = ProfileApplier.apply(profileId)
@@ -1496,15 +1509,19 @@ class MaxAiEngine @Inject constructor(
                 )
                 _profileRequest.value = ProfileRequestState(
                     profileId, false,
-                    if (ok) DecisionResult.VERIFIED else DecisionResult.FAILED
+                    // The module command exit code is not per-knob hardware read-back.
+                    if (ok) DecisionResult.EXECUTED else DecisionResult.FAILED
                 )
                 if (ok) {
                     // بروفايل أساس يدوي بعد تدخل مقيس = رفض مقيس أيضًا.
                     noteUserOverride(MaxAiOverride.PROFILE, null)
-                    runCatching { runCycleSingleFlight() }
+                    scope.launch { runCycleSingleFlight() }
                 }
                 ok
-            } catch (t: Throwable) {
+            } catch (cancelled: CancellationException) {
+                _profileRequest.value = ProfileRequestState(profileId, false, DecisionResult.FAILED)
+                throw cancelled
+            } catch (t: Exception) {
                 _profileRequest.value = ProfileRequestState(profileId, false, DecisionResult.FAILED)
                 DiagnosticCenter.record(
                     "profile",
@@ -1512,6 +1529,8 @@ class MaxAiEngine @Inject constructor(
                     level = DiagnosticCenter.Level.ERROR,
                 )
                 false
+            } finally {
+                profileMutex.unlock()
             }
         }
 
@@ -1649,6 +1668,7 @@ class MaxAiEngine @Inject constructor(
         val trend = trendSnapshot()
         _state.value = MaxAiState(
             aiEnabled = aiEnabled,
+            objectivePreference = objectivePreference(),
             strategyLabel = strategy,
             lastDecision = prev.lastDecision,
             safety = safetyNow,

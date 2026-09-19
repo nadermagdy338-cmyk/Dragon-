@@ -225,3 +225,24 @@ python3 tools/i18n_coverage.py --locale <locale> --apply-csv build/i18n/translat
 C-02 (تسجيل Crowdin) · C-04 (حطام متعقَّب) · C-05 (حزمة مكوّنات مكرّرة) · C-09 جزئيًا · C-12 (تحقّق) · C-13 · **I-30** (النظيران العربيان) · **I-42** (وثائق مُتجاوَزة) · **F-01/F-01b/F-04/F-05/F-07** · **منتقي اللغة** (زر + خيار تلقائي + تطبيق عند الإقلاع + `locales_config`) · **I-46/I-47/I-48/I-49** (نطاق التعلّم · بحث الدفتر · مسح الدفتر · اختبارات الاستخلاص) · **حطام الجذر الفعلي** (`check2.py` و`fix_tweak.py` — كانا محذوفين في git وباقيين على القرص، فكانت بوابة `stray_root_file` تفشل على الحالة الحقيقية للمستودع).
 
 **بوابات جديدة تحمي ما أُغلق:** `VALIDATION.md` §3 (تطابق ملفات AR · تطابق المفاتيح والوسائط بقاعدة جزئية · تسجيل Crowdin) و§3.1 (المجلدات ↔ المنتقي ↔ `locales_config` + عيوب الوسائط في ٨٥ لغة) و§5(f) (مسارات حرفية بأي صيغة خارج `ui/navigation`).
+
+## MA-INTELLIGENCE-01 - Reliable Max AI workspace (2026-09-19)
+
+**Classification:** large. **Status:** implementation in progress; independent safety gate remains required.
+
+**Intent:** strengthen the existing local, measured optimizer rather than add an ungrounded chatbot or a second hardware writer. Repository-level architecture review and targeted source review drive the changes; no claim of exhaustive line-by-line review.
+
+**Scope:** `core/maxai/MaxAiEngine.kt`, its state models and focused pure helpers/tests; `ui/viewmodel/MaxAiViewModel.kt`; `ui/mainscreens/MaxAiScreen.kt`, `MaxLiveScreen.kt` and focused presentation helpers/tests; existing EN/AR `max_ai_strings.xml`; these planning/decision/handoff documents. Existing dirty hardware, navigation, shared design and feature-screen work is preserved.
+
+**Acceptance:**
+- Objective selection follows authoritative observable state, including repeated preference changes.
+- Refresh requests are bounded/coalesced without bypassing decision, safety, ownership or measurement gates; runtime failures must not advertise success.
+- Overview, journal, learning and controls are individually accessible without removing the causal episode evidence or live command centre.
+- No default zero telemetry before the first sample; stale state expires on a lifecycle-bound presentation clock even if the engine stops emitting.
+- Journal search/filter work is keyed to journal/query changes, not every telemetry tick; scope selection uses a stable context key, not a reordering list index.
+- Profile requests expose in-flight/result state and suppress repeat submission; no new direct UI hardware writes.
+- Focused regression tests, repository health/localization gates, diff review, independent source safety review, and explicit Android/device validation limits.
+
+**Non-goals:** new native/SELinux/boot behavior, thermal threshold tuning, speculative bottleneck classification without frame measurements, external AI/provider dependencies, changes to signing, or rewriting unrelated in-progress screens. No Gradle/NDK build without explicit build request (ENGINEERING-CONTRACT section 6). Standalone JVM/source checks are allowed and are not an Android build.
+
+**Baseline:** `code_health --assert` exit 0, debt 10/29/66/26; `i18n_coverage --assert` exit 0; `repo_audit.py` reports one pre-existing unused `clickable` import in `CpuCoreControlScreen.kt`; `git diff --check` clean. Historical document counts differ from the live tree and are not treated as current evidence.

@@ -151,7 +151,7 @@
     <string name="max_ai_section_controls">التحكم</string>
     <string name="max_ai_master_title">Max AI</string>
     <string name="max_ai_master_on">مفعّل: يقرر، يكتب عبر المُحكِّم، ثم يقيس النتيجة.</string>
-    <string name="max_ai_master_off">مطفأ: تحكم يدوي، صفر قرارات وصفر كتابات على العتاد.</string>
+    <string name="max_ai_master_off">تحسين الذكاء متوقف. التحكم اليدوي والحماية الحرارية يبقيان مستقلين.</string>
     <string name="max_ai_objective_pick_performance">الأداء</string>
     <string name="max_ai_objective_pick_balanced">التوازن</string>
     <string name="max_ai_objective_pick_battery">البطارية</string>
@@ -197,8 +197,8 @@
 
     <string name="max_live_section_vitals">القياسات الحية</string>
     <string name="max_live_section_vitals_desc">الأشرطة تتحرك من القراءة السابقة إلى الجديدة؛ ولا رقم هنا مُقدّر.</string>
-    <string name="max_live_pulse_on">الحلقة تعمل</string>
-    <string name="max_live_pulse_off">الحلقة موقوفة — تحكم يدوي</string>
+    <string name="max_live_pulse_on">القرارات التلقائية مفعلة</string>
+    <string name="max_live_pulse_off">القرارات التلقائية متوقفة</string>
     <string name="max_live_pulse_stale">آخر قراءة قديمة</string>
 
     <string name="max_live_section_forecast">التوقع الحراري مقابل الواقع</string>
@@ -294,7 +294,33 @@
     <string name="max_ai_journal_clear_confirm_action">امسح الدفتر</string>
 
     <!-- البحث في الدفتر -->
-    <string name="max_ai_timeline_search_hint">ابحث في المقبض أو التطبيق أو التفصيل</string>
+    <string name="max_ai_timeline_search_hint">ابحث في المقبض أو التطبيق أو الحكم أو التفصيل</string>
     <string name="max_ai_timeline_search_clear">مسح البحث</string>
 
+    <string name="max_ai_workspace_overview">الملخص</string>
+    <string name="max_ai_workspace_journal">السجل</string>
+    <string name="max_ai_workspace_learning">المعرفة</string>
+    <string name="max_ai_workspace_controls">التحكم</string>
+    <string name="max_ai_latest_evidence">أحدث دليل</string>
+    <string name="max_ai_journal_context">سياق التطبيق المسجل</string>
+    <string name="max_ai_journal_all_contexts">كل السياقات</string>
+    <string name="max_ai_exploration_inactive">لا سماح حالي بالاستكشاف: الذكاء متوقف أو ينتظر دورة تقييم حديثة.</string>
+    <string name="max_ai_profile_request">آخر طلب ملف أساس</string>
+    <string name="max_ai_profile_applying">جار تطبيق ملف أساس. انتظر النتيجة قبل إرسال طلب آخر.</string>
+    <string name="max_ai_profile_verified">طُبق وتُحقق منه.</string>
+    <string name="max_ai_profile_executed">اكتمل الأمر؛ لم يتأكد التحقق من العتاد.</string>
+    <string name="max_ai_profile_adjusted">عدّلته طبقة التحكم. راجع النتيجة المسجلة.</string>
+    <string name="max_ai_profile_blocked">حجبته الحماية الحرارية. لا يُدعى نجاح التطبيق.</string>
+    <string name="max_ai_profile_skipped">تُخطي الطلب. لم يتأكد تطبيق ملف جديد.</string>
+    <string name="max_ai_profile_failed">فشل الطلب. افحص سجل القرار قبل إعادة المحاولة.</string>
+    <string name="max_live_plan_snapshot">آخر خطة جرى تقييمها، وليست نشاطا جاريا</string>
+    <string name="max_ai_learning_coverage">تغطية التعلم %1$d%%</string>
+    <string name="max_ai_cycle_running">جار تقييم الجهاز</string>
+    <string name="max_ai_cycle_running_desc">دورة قيد التنفيذ. الطلبات المتكررة تُدمج ولا تُعاد واحدة تلو الأخرى.</string>
+    <string name="max_ai_cycle_failed">فشل التقييم</string>
+    <string name="max_ai_cycle_failed_desc">لا يُدعى نجاح التقييم. اضغط لإعادة المحاولة؛ التفاصيل في التشخيص.</string>
+    <string name="max_ai_decisions_enabled">القرارات التلقائية مفعلة</string>
+    <string name="max_ai_decisions_disabled">القرارات التلقائية متوقفة</string>
+    <string name="max_ai_master_disabled_desc">تحسين الذكاء متوقف. التحكم اليدوي والحماية الحرارية يبقيان مستقلين.</string>
+    <string name="max_ai_settings_loading">جار تحميل تفضيلات الذكاء المحفوظة.</string>
 </resources>

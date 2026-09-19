@@ -4,13 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import nd.max.core.maxai.MaxAiEngine
+import nd.max.core.maxai.MaxAiCycleStatus
 import nd.max.core.maxai.MaxAiEpisode
 import nd.max.core.maxai.MaxAiInsights
 import nd.max.core.maxai.MaxAiState
@@ -38,6 +42,16 @@ class MaxAiViewModel @Inject constructor(
     val state: StateFlow<MaxAiState> = engine.state
     val safety: StateFlow<SafetyStatus> = engine.safety
     val profileRequest: StateFlow<ProfileRequestState> = engine.profileRequest
+    val cycleStatus: StateFlow<MaxAiCycleStatus> = engine.cycleStatus
+    private var refreshJob: Job? = null
+
+    /** Presentation only: no polling or hardware work, stopped with the last subscriber. */
+    val nowMs: StateFlow<Long> = flow {
+        while (true) {
+            emit(System.currentTimeMillis())
+            delay(1_000L)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(0L), System.currentTimeMillis())
 
     /** حلقات القرار الحقيقية، الأحدث أولًا — مصدر الخط الزمني. */
     val episodes: StateFlow<List<MaxAiEpisode>> = engine.episodes
@@ -71,7 +85,8 @@ class MaxAiViewModel @Inject constructor(
 
     /** إجبار دورة محرك فورية لتحديث الحالة المعروضة بلا انتطار. */
     fun refresh() {
-        viewModelScope.launch(Dispatchers.IO) { engine.requestRefresh() }
+        if (refreshJob?.isActive == true) return
+        refreshJob = viewModelScope.launch(Dispatchers.IO) { engine.requestRefresh() }
     }
 
     /**
@@ -95,6 +110,4 @@ class MaxAiViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) { engine.setObjectivePreference(preference) }
     }
 
-    /** التفضيل الحالي لعرضه في الواجهة (توازن قبل أن يُسأل المستخدم). */
-    fun objectivePreference(): String = engine.objectivePreference()
 }

@@ -57,4 +57,44 @@ class MaxAiPresentationArchitectureTest {
             .substringBefore("private fun deltaTone(")
         assertTrue(prediction.contains("R.string.max_ai_value_unknown"))
     }
+
+    @Test
+    fun `opening evidence does not run a hardware decision cycle`() {
+        listOf("MaxAiScreen.kt", "MaxLiveScreen.kt").forEach { file ->
+            val text = source("ui/mainscreens/$file")
+            assertFalse(Regex("LaunchedEffect\\s*\\([^)]*\\)\\s*\\{\\s*viewModel\\.refresh").containsMatchIn(text))
+        }
+    }
+
+    @Test
+    fun `objective selection observes state rather than remembered getter`() {
+        val text = source("ui/mainscreens/MaxAiScreen.kt")
+        assertTrue(text.contains("state.objectivePreference"))
+        assertFalse(text.contains("viewModel.objectivePreference()"))
+        assertTrue(text.contains("viewModel.profileRequest.collectAsStateWithLifecycle()"))
+    }
+
+    @Test
+    fun `presentation clock stops with its last subscriber`() {
+        val text = source("ui/viewmodel/MaxAiViewModel.kt")
+        val clock = text.substringAfter("val nowMs:").substringBefore("val episodes:")
+        assertTrue(clock.contains("SharingStarted.WhileSubscribed(0L)"))
+        assertFalse(clock.contains("engine.requestRefresh"))
+    }
+
+    @Test
+    fun `saved preference is unknown until loaded and app labels reset with identity`() {
+        val models = source("core/maxai/MaxAiModels.kt")
+        assertTrue(models.contains("val objectivePreference: String? = null"))
+        val screen = source("ui/mainscreens/MaxAiScreen.kt")
+        assertTrue(screen.contains("return key(context, packageName)"))
+        assertTrue(screen.contains("freshness != SampleFreshness.Live"))
+    }
+
+    @Test
+    fun `refresh execution is owned by the engine not the waiting screen`() {
+        val engine = source("core/maxai/MaxAiEngine.kt")
+        val request = engine.substringAfter("suspend fun requestRefresh()").substringBefore("fun clearJournal")
+        assertTrue(request.contains("scope.async { runCycleSingleFlight() }.await()"))
+    }
 }

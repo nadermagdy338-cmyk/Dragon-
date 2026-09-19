@@ -169,3 +169,9 @@ Binding decisions from the architect pass (2026-09-15). Executors follow these u
 **عبء إضافي مُعلن:** إشارة ثامنة في اللقطة، **لا تُمرَّر إلى موصل RL الأصلي** (عقده سبع إحداثيات ثابتة — زيادتها كانت ستقلب معنى كل وزن في النموذج).
 
 **الحدود المُعلنة:** `STALL_FRACTION = 0.10` غير معايَرة على جهاز، ومسار القراءة الفعلي (صلاحية `/proc/pressure/memory` بلا جذر على إصدارات مختلفة) لم يُجرَّب على جهاز — مُسجَّل في I-65.
+
+## ADR-35 - Observable intent and evidence-first workspaces (2026-09-19)
+
+Max AI remains one local control plane. UI preferences reflect observable engine state, not a remembered imperative getter. Request progress is distinct from verified hardware state; a tap never establishes success. Presentation freshness expires independently of engine emissions, rejects future timestamps as live, and never invents a reading before the first sample. A presentation clock does not request hardware reads.
+
+The Max AI destination separates overview, journal, learning and controls while retaining the causal evidence and existing live command centre. Journal queries operate on recorded fields, preserve order, and do not mutate learning. Learning contexts are selected by stable key so new samples cannot silently switch the selected app. All changes reuse `ui/design/`, paired EN/AR strings, existing arbiter ownership and existing safety policy.

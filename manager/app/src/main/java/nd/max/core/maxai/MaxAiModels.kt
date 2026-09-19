@@ -71,6 +71,13 @@ data class ProfileRequestState(
     val result: DecisionResult? = null,
 )
 
+/** Evaluation progress, not a claim that a hardware change succeeded. */
+data class MaxAiCycleStatus(
+    val inFlight: Boolean = false,
+    val lastCompletedAtMs: Long? = null,
+    val lastFailureAtMs: Long? = null,
+)
+
 /**
  * نقطة واحدة في منحنى التوقع الحراري مقابل الواقع.
  *
@@ -145,6 +152,8 @@ data class CadenceStatus(
 /** الحالة الكاملة التي تستهلكها الواجهة — أعداد حقيقية فقط. */
 data class MaxAiState(
     val aiEnabled: Boolean = false,
+    /** Persisted user preference, independent of the current screen-off objective. */
+    val objectivePreference: String? = null,
     /** موجز مشتق من الملكية الفعلية/الأمان/حالة AI، وليس وضع تحكم عالميًا. */
     val strategyLabel: String = "يدوي",
     val lastDecision: DecisionRecord? = null,

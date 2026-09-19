@@ -161,7 +161,7 @@
     <string name="max_ai_section_controls">Controls</string>
     <string name="max_ai_master_title">Max AI</string>
     <string name="max_ai_master_on">On: it decides, writes through the arbiter and measures the result.</string>
-    <string name="max_ai_master_off">Off: manual control, zero decisions and zero hardware writes.</string>
+    <string name="max_ai_master_off">AI optimization is off. Manual controls and thermal protection remain independent.</string>
     <string name="max_ai_objective_pick_performance">Performance</string>
     <string name="max_ai_objective_pick_balanced">Balanced</string>
     <string name="max_ai_objective_pick_battery">Battery</string>
@@ -211,8 +211,8 @@
 
     <string name="max_live_section_vitals">Live vitals</string>
     <string name="max_live_section_vitals_desc">Bars move from the previous reading to the new one; nothing here is estimated.</string>
-    <string name="max_live_pulse_on">Loop is running</string>
-    <string name="max_live_pulse_off">Loop is off — manual control</string>
+    <string name="max_live_pulse_on">Automatic decisions enabled</string>
+    <string name="max_live_pulse_off">Automatic decisions disabled</string>
     <string name="max_live_pulse_stale">Last reading is stale</string>
 
     <string name="max_live_section_forecast">Thermal forecast vs actual</string>
@@ -308,7 +308,33 @@
     <string name="max_ai_journal_clear_confirm_action">Clear journal</string>
 
     <!-- Journal search -->
-    <string name="max_ai_timeline_search_hint">Search knob, app or detail</string>
+    <string name="max_ai_timeline_search_hint">Search knob, app, verdict or detail</string>
     <string name="max_ai_timeline_search_clear">Clear the search</string>
 
+    <string name="max_ai_workspace_overview">Overview</string>
+    <string name="max_ai_workspace_journal">Journal</string>
+    <string name="max_ai_workspace_learning">Learning</string>
+    <string name="max_ai_workspace_controls">Controls</string>
+    <string name="max_ai_latest_evidence">Latest evidence</string>
+    <string name="max_ai_journal_context">Recorded app context</string>
+    <string name="max_ai_journal_all_contexts">All contexts</string>
+    <string name="max_ai_exploration_inactive">No current exploration approval: AI is off or awaiting a fresh evaluated cycle.</string>
+    <string name="max_ai_profile_request">Latest profile request</string>
+    <string name="max_ai_profile_applying">Applying a profile. Wait for the result before sending another request.</string>
+    <string name="max_ai_profile_verified">Applied and verified.</string>
+    <string name="max_ai_profile_executed">Command completed; hardware verification is not confirmed.</string>
+    <string name="max_ai_profile_adjusted">Adjusted by the control plane. Check the recorded result.</string>
+    <string name="max_ai_profile_blocked">Blocked by thermal safety. No success is claimed.</string>
+    <string name="max_ai_profile_skipped">Request skipped. No new profile was confirmed.</string>
+    <string name="max_ai_profile_failed">The request failed. Inspect the decision record before retrying.</string>
+    <string name="max_live_plan_snapshot">Last evaluated plan, not current activity</string>
+    <string name="max_ai_learning_coverage">Learning coverage %1$d%%</string>
+    <string name="max_ai_cycle_running">Evaluating the device</string>
+    <string name="max_ai_cycle_running_desc">A cycle is in progress. Repeated requests are merged, not replayed.</string>
+    <string name="max_ai_cycle_failed">Evaluation failed</string>
+    <string name="max_ai_cycle_failed_desc">No successful evaluation is claimed. Tap to retry; details are in diagnostics.</string>
+    <string name="max_ai_decisions_enabled">Automatic decisions enabled</string>
+    <string name="max_ai_decisions_disabled">Automatic decisions disabled</string>
+    <string name="max_ai_master_disabled_desc">AI optimization is off. Manual controls and thermal protection remain independent.</string>
+    <string name="max_ai_settings_loading">Loading saved AI preferences.</string>
 </resources>
