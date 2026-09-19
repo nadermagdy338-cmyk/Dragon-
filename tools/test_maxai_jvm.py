@@ -76,6 +76,14 @@ def main():
         TEST / "ui/util/FileSearchFiltersTest.kt",
         SOURCE / "ui/util/FilePaneModel.kt",
         TEST / "ui/util/FilePaneModelTest.kt",
+        # شاشة التخزين: تصنيف المصارف وترتيب أكبر العناصر وتحليل العُقد — ثلاثة قرارات
+        # تُنتج أرقامًا يعتمد عليها المستخدم في قرار حذف، فتُقاس في JVM لا على الجهاز.
+        SOURCE / "ui/util/StorageScanModel.kt",
+        TEST / "ui/util/StorageScanModelTest.kt",
+        # شاشة الحرارة: العتبتان ونقاط التخفيف. `null` هنا يعني «لا نعرف» لا «آمن»،
+        # وهذا الفرق هو ما يمنع طمأنة كاذبة عند جهاز لا يُعلن نقاطه.
+        SOURCE / "ui/util/ThermalModel.kt",
+        TEST / "ui/util/ThermalModelTest.kt",
         # حرّاس شكل على قائمة الاختيار الواحد: الصنف الذي أسقط شاشة مدير الملفات كان
         # «فهرسة قائمة أيقونات أقصر من الأسماء» — وهو عطبٌ لا يراه مصرّف ولا اختبار جهاز.
         TEST / "ui/design/MaxViewMenuContractTest.kt",
@@ -95,6 +103,8 @@ def main():
         "nd.max.ui.util.MaxBackupCountsTest",
         "nd.max.ui.util.FileSearchFiltersTest",
         "nd.max.ui.util.FilePaneModelTest",
+        "nd.max.ui.util.StorageScanModelTest",
+        "nd.max.ui.util.ThermalModelTest",
         "nd.max.ui.design.MaxViewMenuContractTest",
     ]
     live_test = TEST / "ui/mainscreens/MaxLivePresentationArchitectureTest.kt"
@@ -108,6 +118,13 @@ def main():
     if applist_test.exists():
         sources.append(applist_test)
         tests.append("nd.max.ui.mainscreens.ApplistPresentationArchitectureTest")
+
+    # شاشتا التخزين والحرارة: حرس اللغة المشتركة والعنوان الإنجليزي الصلب ومصدر حرارة
+    # البطارية. يقرأ الملفين نصًّا بعد تنقيتهما، فلا يحتاج Compose ولا جهازًا.
+    details_test = TEST / "ui/subscreens/DetailScreensLanguageContractTest.kt"
+    if details_test.exists():
+        sources.append(details_test)
+        tests.append("nd.max.ui.subscreens.DetailScreensLanguageContractTest")
 
     with tempfile.TemporaryDirectory(prefix="maxai-jvm-", dir=args.work_dir) as output:
         # Parse the Android-facing code with Kotlin's actual parser, without
@@ -177,6 +194,10 @@ class CheckKotlinSyntax {
             # شاشة التطبيقات: إعراب فقط، لا فحص أنواع — يكفي ليمسك إعرابًا مكسورًا في
             # الشاشة التي عُدِّلت حالتها المشتركة.
             "ui/mainscreens/ApplistScreen.kt",
+            # الشاشتان المعاد بناؤهما وقارئهما: إعراب فقط كما في بقية القائمة.
+            "ui/subscreens/StorageDetailScreen.kt", "ui/util/StorageUtil.kt",
+            "ui/subscreens/ThermalDetailScreen.kt", "ui/design/MaxBar.kt",
+            "ui/subscreens/ChargingScreen.kt", "ui/mainscreens/DashboardDetailScreens.kt",
         ]
         subprocess.run([
             "java", "-cp", compiler_cp, str(syntax),

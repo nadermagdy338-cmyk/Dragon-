@@ -49,10 +49,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.component.RadialGaugeCard
@@ -73,6 +77,7 @@ import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 import nd.max.ui.viewmodel.BatteryHealthVerdict
 import nd.max.ui.viewmodel.BatteryStatus
+import nd.max.ui.util.ThermalUtil
 import nd.max.ui.viewmodel.ChargingViewModel
 import java.util.Locale
 
@@ -93,8 +98,26 @@ fun ChargingScreen(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val navActions = MaxNavActions(navController)
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) { viewModel.loadState() }
+
+    /*
+     * حرارة البطارية من نفس مصدر الشاشة الرئيسية: بثّ `ACTION_BATTERY_CHANGED` أوّلًا،
+     * ثم عقدة البطارية، ثم منطقة حرارة البطارية، ثم `thermalservice`.
+     *
+     * كان هذا الرقم في الشاشة يُقرأ من `$batteryDir/temp` وحدها، فعلى جهاز لا تُقرأ فيه
+     * تلك العقدة كان يُعرض `0.0 °C` بينما الشاشة الرئيسية تعرض قراءة صحيحة — رقمان لفكرة
+     * واحدة يفترقان فيُفقد الثقة فيهما معًا. وقراءة الـViewModel تبقى احتياطًا.
+     */
+    var homeBatteryHeat by remember { mutableStateOf(0f) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            homeBatteryHeat = withContext(Dispatchers.IO) { ThermalUtil.readBatteryTemperatureC(context) }
+            delay(3_000L)
+        }
+    }
+    val batteryHeat = homeBatteryHeat.takeIf { it > 0f } ?: viewModel.temperatureC
 
     val accent = colorScheme.tertiary
     val gaugeAccent = if (viewModel.isCharging) colorScheme.tertiary else colorScheme.primary
@@ -141,7 +164,7 @@ fun ChargingScreen(
                     stats = listOf(
                         stringResource(R.string.charging_voltage) to measurement(voltage, "V", 2),
                         stringResource(R.string.charging_current) to currentMeasurement(viewModel.currentMa),
-                        stringResource(R.string.charging_temp) to measurement(viewModel.temperatureC, "\u00b0C", 1),
+                        stringResource(R.string.charging_temp) to measurement(batteryHeat, "\u00b0C", 1),
                         stringResource(R.string.charging_power) to measurement(voltage * amps, "W", 1)
                     ),
                     valueTextDirection = TextDirection.Ltr

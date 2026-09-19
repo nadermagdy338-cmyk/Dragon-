@@ -6,19 +6,8 @@
 
 package nd.max.ui.mainscreens
 
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.TrafficStats
-import android.os.BatteryManager
-import android.os.StatFs
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,11 +16,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.TrendingDown
 import androidx.compose.material.icons.automirrored.rounded.TrendingUp
 import androidx.compose.material.icons.rounded.*
@@ -41,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -50,25 +35,15 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.topjohnwu.superuser.Shell
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import nd.max.R
 import nd.max.ui.component.LivePulseDot
 import nd.max.ui.component.MaxManagerSubScreenTopBar
-import nd.max.ui.component.RadialGaugeCard
-import nd.max.ui.theme.MonoValueStyleMedium
 import nd.max.ui.theme.MonoValueStyleSmall
-import nd.max.ui.util.ThermalUtil
-import nd.max.ui.util.ThermalZoneInfo
-import kotlin.math.abs
-import kotlin.math.roundToInt
 
 // =========================================================================
 // SHARED DETAIL LANGUAGE
@@ -177,22 +152,6 @@ private fun DetailPill(text: String, accent: Color, icon: ImageVector? = null) {
     }
 }
 
-@Composable
-private fun LoadingPanel() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(260.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator(modifier = Modifier.size(48.dp))
-            Spacer(Modifier.height(12.dp))
-            Text(stringResource(R.string.detail_live_device_data), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
-
 private fun DetailListPadding(top: PaddingValues): PaddingValues = PaddingValues(
     top = top.calculateTopPadding() + 8.dp,
     start = 16.dp,
@@ -200,403 +159,11 @@ private fun DetailListPadding(top: PaddingValues): PaddingValues = PaddingValues
     bottom = 104.dp
 )
 
-// =========================================================================
-// 1. THERMAL DETAIL SCREEN
-// =========================================================================
+// الشاشتان هنا (`ThermalDetailScreen` و`StorageDetailScreen`) نُقلتا إلى `ui/subscreens`
+// وأُعيد بناؤهما بلغة التصميم المشتركة: كانتا بلغة لوحة البداية بشبكة مختلفة وعناوين
+// إنجليزية صلبة داخل شاشة عربية، وقراءة بطارية تبحث عن تصنيف مُعرَّب لا تعلنه النواة.
+// وتبقى شاشة الشبكة هنا حتى تُعاد بناؤها بنفس الطريقة.
 
-@Composable
-fun ThermalDetailScreen(navController: NavController) {
-    var zones by remember { mutableStateOf<List<ThermalZoneInfo>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        zones = withContext(Dispatchers.IO) { ThermalUtil.readThermalZones() }
-        isLoading = false
-        while (true) {
-            delay(3000)
-            zones = withContext(Dispatchers.IO) { ThermalUtil.readThermalZones() }
-        }
-    }
-
-    val cpuTemps = zones.filter { it.category.equals("CPU", true) && it.temperatureC > 0 }.map { it.temperatureC }
-    val gpuTemps = zones.filter { it.category.equals("GPU", true) && it.temperatureC > 0 }.map { it.temperatureC }
-    val batteryTemps = zones.filter { it.category.equals(stringResource(R.string.detail_battery), true) && it.temperatureC > 0 }.map { it.temperatureC }
-    val cpuAvg = cpuTemps.average().takeUnless { it.isNaN() } ?: 0.0
-    val gpuMax = gpuTemps.maxOrNull() ?: 0
-    val batteryMax = batteryTemps.maxOrNull() ?: 0
-    val hottest = maxOf(cpuAvg.roundToInt(), gpuMax, batteryMax)
-    val accent by animateColorAsState(
-        targetValue = when {
-            hottest >= 70 -> MaterialTheme.colorScheme.error
-            hottest >= 50 -> MaterialTheme.colorScheme.tertiary
-            else -> MaterialTheme.colorScheme.primary
-        },
-        label = "thermalAccent"
-    )
-    val enabledZones = zones.filter { it.isEnabled && it.temperatureC > 0 }
-    val grouped = enabledZones.groupBy { it.category.ifBlank { "Other" } }.toList()
-
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = MaterialTheme.colorScheme.surface,
-        topBar = {
-            DetailTopBar(
-                title = stringResource(R.string.detail_thermal),
-                label = stringResource(R.string.detail_thermal_label),
-                icon = Icons.Rounded.Thermostat,
-                navController = navController,
-                scrollBehavior = scrollBehavior
-            )
-        }
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = DetailListPadding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            if (isLoading) {
-                item { LoadingPanel() }
-            } else {
-                item {
-                    LiveHeader(
-                        eyebrow = stringResource(R.string.detail_current_peak),
-                        title = if (hottest >= 70) stringResource(R.string.detail_thermal_high) else if (hottest >= 50) stringResource(R.string.detail_thermal_elevated) else stringResource(R.string.detail_thermal_stable),
-                        subtitle = stringResource(R.string.detail_thermal_subtitle),
-                        accent = accent,
-                        value = "${hottest}°C",
-                        valueLabel = stringResource(R.string.detail_hottest),
-                        icon = Icons.Rounded.LocalFireDepartment
-                    )
-                }
-                item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        DetailStatCard(Icons.Rounded.Memory, stringResource(R.string.detail_cpu_average), "${cpuAvg.roundToInt()}°C", accent, Modifier.weight(1f))
-                        DetailStatCard(Icons.Rounded.Videocam, stringResource(R.string.detail_gpu_peak), "${gpuMax}°C", accent, Modifier.weight(1f))
-                    }
-                }
-                item {
-                    DetailStatCard(
-                        Icons.Rounded.BatteryFull,
-                        stringResource(R.string.detail_battery_peak),
-                        "${batteryMax}°C",
-                        accent,
-                        Modifier.fillMaxWidth()
-                    )
-                }
-
-                item {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.detail_thermal_map), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                            Text(
-                                stringResource(R.string.detail_active_zones_grouped, enabledZones.size),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        DetailPill(stringResource(R.string.detail_live), accent, Icons.Rounded.Sensors)
-                    }
-                }
-
-                if (grouped.isEmpty()) {
-                    item {
-                        DashCardWrapper(Modifier.fillMaxWidth()) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconBadge(Icons.Rounded.Info, MaterialTheme.colorScheme.onSurfaceVariant, size = 34)
-                                Spacer(Modifier.width(12.dp))
-                                Column {
-                                    Text(stringResource(R.string.detail_no_thermal_zones), fontWeight = FontWeight.SemiBold)
-                                    Text(
-                                        stringResource(R.string.detail_no_thermal_zones_desc),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    grouped.forEach { (category, zoneList) ->
-                        item(key = "thermal_header_$category") {
-                            DashSectionLabel(category)
-                        }
-                        items(zoneList, key = { "thermal_${it.sysfsPath}_${it.label}" }) { zone ->
-                            val zoneAccent = when {
-                                zone.temperatureC >= 70 -> MaterialTheme.colorScheme.error
-                                zone.temperatureC >= 50 -> MaterialTheme.colorScheme.tertiary
-                                else -> MaterialTheme.colorScheme.primary
-                            }
-                            DashCardWrapper(Modifier.fillMaxWidth(), accent = zoneAccent) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Column(Modifier.weight(1f)) {
-                                        Text(zone.label, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
-                                        Text(
-                                            zone.sysfsPath,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                    Text("${zone.temperatureC}°C", style = MonoValueStyleSmall, color = zoneAccent)
-                                }
-                                Spacer(Modifier.height(10.dp))
-                                GlowLinearBar(
-                                    fraction = (zone.temperatureC / 100f).coerceIn(0f, 1f),
-                                    accent = zoneAccent,
-                                    height = 6.dp
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// =========================================================================
-// 2. STORAGE DETAIL SCREEN
-// =========================================================================
-
-private data class PartitionInfo(
-    val name: String,
-    val path: String,
-    val usedGb: Float,
-    val totalGb: Float,
-    val freeGb: Float,
-    val filesystem: String
-)
-
-private fun loadPartitions(): List<PartitionInfo> {
-    val result = mutableListOf<PartitionInfo>()
-    listOf(
-        "/data" to "Internal Data",
-        "/sdcard" to "Internal Storage",
-        "/system" to "System"
-    ).forEach { (path, name) ->
-        try {
-            val sf = StatFs(path)
-            val total = sf.blockSizeLong * sf.blockCountLong
-            val free = sf.blockSizeLong * sf.availableBlocksLong
-            if (total > 0) {
-                result.add(
-                    PartitionInfo(
-                        name,
-                        path,
-                        (total - free) / 1_073_741_824f,
-                        total / 1_073_741_824f,
-                        free / 1_073_741_824f,
-                        try {
-                            Shell.cmd("stat -f -c %T $path 2>/dev/null").exec().out.firstOrNull()?.trim().orEmpty()
-                        } catch (_: Exception) { "" }
-                    )
-                )
-            }
-        } catch (_: Exception) {
-            try {
-                val out = Shell.cmd("df -k $path 2>/dev/null | tail -1").exec().out.firstOrNull()?.trim() ?: return@forEach
-                val parts = out.split("\\s+".toRegex())
-                if (parts.size >= 5) {
-                    val total = parts[1].toLongOrNull()?.times(1024L) ?: return@forEach
-                    val used = parts[2].toLongOrNull()?.times(1024L) ?: return@forEach
-                    val free = parts[3].toLongOrNull()?.times(1024L) ?: (total - used)
-                    if (total > 0) {
-                        result.add(
-                            PartitionInfo(
-                                name,
-                                path,
-                                used / 1_073_741_824f,
-                                total / 1_073_741_824f,
-                                free / 1_073_741_824f,
-                                parts.getOrNull(0).orEmpty()
-                            )
-                        )
-                    }
-                }
-            } catch (_: Exception) { }
-        }
-    }
-    return result
-}
-
-private fun formatStorage(gb: Float): String = when {
-    gb >= 1024f -> String.format("%.2f TB", gb / 1024f)
-    gb >= 10f -> String.format("%.1f GB", gb)
-    else -> String.format("%.2f GB", gb)
-}
-
-@Composable
-fun StorageDetailScreen(navController: NavController) {
-    var partitions by remember { mutableStateOf<List<PartitionInfo>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var revision by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            partitions = withContext(Dispatchers.IO) { loadPartitions() }
-            isLoading = false
-            revision++
-            delay(5000)
-        }
-    }
-
-    val main = partitions.firstOrNull { it.path == "/data" } ?: partitions.firstOrNull()
-    val usedFraction = main?.let { if (it.totalGb > 0f) (it.usedGb / it.totalGb).coerceIn(0f, 1f) else 0f } ?: 0f
-    val storageAccent = MaterialTheme.colorScheme.tertiary
-    val storageTitle = when {
-        main == null -> stringResource(R.string.detail_storage_unavailable)
-        usedFraction >= 0.90f -> stringResource(R.string.detail_storage_nearly_full)
-        usedFraction >= 0.75f -> stringResource(R.string.detail_storage_busy)
-        else -> stringResource(R.string.detail_storage_headroom)
-    }
-
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = MaterialTheme.colorScheme.surface,
-        topBar = {
-            DetailTopBar(
-                title = stringResource(R.string.detail_storage),
-                label = stringResource(R.string.detail_filesystem_view),
-                icon = Icons.Rounded.Storage,
-                navController = navController,
-                scrollBehavior = scrollBehavior
-            )
-        }
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = DetailListPadding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            if (isLoading) {
-                item { LoadingPanel() }
-            } else if (main == null) {
-                item {
-                    LiveHeader(
-                        eyebrow = "UNAVAILABLE",
-                        title = storageTitle,
-                        subtitle = stringResource(R.string.detail_no_filesystem_stats),
-                        accent = MaterialTheme.colorScheme.error,
-                        value = "—",
-                        valueLabel = "capacity",
-                        icon = Icons.Rounded.Storage
-                    )
-                }
-            } else {
-                item {
-                    LiveHeader(
-                        eyebrow = stringResource(R.string.detail_internal_capacity),
-                        title = storageTitle,
-                        subtitle = stringResource(R.string.detail_storage_refresh_subtitle),
-                        accent = storageAccent,
-                        value = "${(usedFraction * 100).roundToInt()}%",
-                        valueLabel = "used",
-                        icon = Icons.Rounded.Storage
-                    )
-                }
-                item {
-                    DashCardWrapper(Modifier.fillMaxWidth(), accent = storageAccent) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text(stringResource(R.string.detail_primary_view), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(main.path, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                Spacer(Modifier.height(2.dp))
-                                Text(
-                                    buildString {
-                                        append(formatStorage(main.usedGb))
-                                        append(" used · ")
-                                        append(formatStorage(main.freeGb))
-                                        append(" free")
-                                        if (main.filesystem.isNotBlank()) append(" · ${main.filesystem}")
-                                    },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            DetailPill("${formatStorage(main.totalGb)} total", storageAccent)
-                        }
-                        Spacer(Modifier.height(14.dp))
-                        GlowLinearBar(usedFraction, storageAccent, height = 9.dp)
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            DetailStatCard(Icons.Rounded.DataUsage, stringResource(R.string.detail_used), formatStorage(main.usedGb), storageAccent, Modifier.weight(1f))
-                            DetailStatCard(Icons.Rounded.Inventory2, stringResource(R.string.detail_free), formatStorage(main.freeGb), storageAccent, Modifier.weight(1f))
-                        }
-                    }
-                }
-
-                item {
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.detail_mount_views), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                            Text(
-                                stringResource(R.string.detail_readable_paths, partitions.size, if (partitions.size == 1) "" else "s"),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Text(stringResource(R.string.detail_refresh_number, revision), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-
-                items(partitions, key = { it.path }) { part ->
-                    val fraction = if (part.totalGb > 0f) (part.usedGb / part.totalGb).coerceIn(0f, 1f) else 0f
-                    val isPrimary = part.path == "/data" || part.path == "/sdcard"
-                    val accent = if (isPrimary) storageAccent else MaterialTheme.colorScheme.secondary
-                    DashCardWrapper(Modifier.fillMaxWidth(), accent = accent) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconBadge(
-                                if (part.path == "/system") Icons.Rounded.Layers else Icons.Rounded.Storage,
-                                accent,
-                                size = 34
-                            )
-                            Spacer(Modifier.width(10.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text(part.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
-                                Text(
-                                    buildString {
-                                        append(part.path)
-                                        if (part.filesystem.isNotBlank()) append(" · ${part.filesystem}")
-                                    },
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Text("${(fraction * 100).roundToInt()}%", style = MonoValueStyleSmall, color = accent)
-                        }
-                        Spacer(Modifier.height(10.dp))
-                        GlowLinearBar(fraction, accent, height = 6.dp)
-                        Spacer(Modifier.height(7.dp))
-                        Text(
-                            "${formatStorage(part.usedGb)} used · ${formatStorage(part.freeGb)} free · ${formatStorage(part.totalGb)} total",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                item {
-                    DashCardWrapper(Modifier.fillMaxWidth()) {
-                        Row(verticalAlignment = Alignment.Top) {
-                            IconBadge(Icons.Rounded.Info, MaterialTheme.colorScheme.onSurfaceVariant, size = 34)
-                            Spacer(Modifier.width(12.dp))
-                            Column {
-                                Text(stringResource(R.string.detail_how_to_read), fontWeight = FontWeight.SemiBold)
-                                Spacer(Modifier.height(3.dp))
-                                Text(
-                                    stringResource(R.string.detail_storage_note),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 // =========================================================================
 // 3. NETWORK DETAIL SCREEN

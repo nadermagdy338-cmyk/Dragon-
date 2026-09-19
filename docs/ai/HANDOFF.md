@@ -2371,3 +2371,59 @@ Wrapper معًا: AGP 9.4 يطلب Gradle أحدث، والمقترض في ال�
 (الاسم الجديد يحمل نطاقه في ملف مشترك) — ولا مستدعي خارجيًا لها خارج هذه الشاشة.
 **NEXT:** تشغيل APK ورؤية الحالة الجديدة فور فتح «التطبيقات» على شاشة بعرض فعلي ضيّق، ثم قرار نقل
 `session-ses_f487.md` من الجذر إلى `docs/ai/` لإغلاق الحمراء الأخيرة.
+
+### DETAILS-L10N-01 — إعادة بناء شاشتي التخزين والحرارة بلغة التطبيق + مصدر حرارة البطارية — 2026-09-19
+
+**TASK:** DETAILS-L10N-01 (large) — `DONE_WITH_CONCERNS`
+**FILES:** جديد: `ui/subscreens/StorageDetailScreen.kt` (638) · `ui/subscreens/ThermalDetailScreen.kt` (511) ·
+`ui/util/StorageScanModel.kt` (207) · `ui/util/ThermalModel.kt` (93) · `ui/util/StorageUtil.kt` (246) ·
+`ui/design/MaxBar.kt` (86) · `test/ui/util/StorageScanModelTest.kt` · `test/ui/util/ThermalModelTest.kt` ·
+`test/ui/subscreens/DetailScreensLanguageContractTest.kt`. معدّل: `ui/mainscreens/DashboardDetailScreens.kt`
+(فقد الشاشتين ⇒ 357 سطرًا) · `ui/subscreens/ChargingScreen.kt` · `ui/design/MaxTokens.kt` ·
+`values/strings.xml` + `values-ar/strings.xml` · `tools/code_health_baseline.json` · `tools/test_maxai_jvm.py`.
+
+**WHAT:** الشاشتان كانتا تُبنيان بلغة **لوحة البداية** (`DashCardWrapper`/`LiveHeader`/`GlowLinearBar`) لا بلغة
+التطبيق (`MaxListScreen`/`MaxSection`/`MaxGroup`/`MaxMetricReadout`) — وهو سبب «غير متناسقة مع الشكل العام».
+فأُعيد بناؤهما على المكوّنات المشتركة، ونُقلتا إلى ملفّيهما (357 سطرًا من `DashboardDetailScreens.kt` صارت
+638+511 في ملفين مستقلّين)، وأُضيف أصل مشترك واحد `MaxBar` بدل أشرطة نسبة مرسومة داخل كل شاشة.
+
+- **التخزين:** جرد نقاط التحميل الحقيقية من `/proc/mounts` (لا مجلد واحد مفترض) مع مساحة/`inodes` لكل نقطة،
+  وتصنيف البايتات في حِزم (صور · فيديو · صوت · أرشيف · تطبيقات · متفرّقات) بـ`StorageScanModel` الخالص.
+- **الحرارة:** المناطق + أجهزة التبريد + نقاط التخفيف (`trip points`) تُقرأ **مرّة واحدة** لأنها ثابتة في النواة؛
+  العيّنة الحيّة كل ٣ ثوانٍ. قبلًا كانت تقرأ مئات قراءات sysfs لعرض رقم لا يتغيّر.
+- **حرارة البطارية:** كانت تُقرأ من `$batteryDir/temp` وحدها فيُعرض `0.0 °C` على جهاز لا تُقرأ فيه تلك العقدة،
+  بينما الشاشة الرئيسية تعرض قراءة صحيحة — رقمان لفكرة واحدة يفترقان. الآن المصدر واحد:
+  `ThermalUtil.readBatteryTemperatureC(context)` (بثّ Android ثم عقدة البطارية ثم منطقة الحرارة ثم `thermalservice`)،
+  والوسم «الحرارة» فقط (`charging_temp`)، وقُرئ الـViewModel احتياطًا أخيرًا.
+- **واسم مورد يكذب أُصلح:** `detail_thermal_battery_heat` صار `detail_thermal_heat` (وقيمته «الحرارة») — الاسم
+  القديم كان يقول «حرارة بطارية» لوسم يقول «حرارة». لا مستدعي غيره.
+
+**الحرس الجديد، وعلّتان مقيسَتان بداخله:** حرس `DetailScreensLanguageContractTest` يمنع عودة لغة اللوحة،
+ويمنع نصًّا إنجليزيًّا داخل شاشة مُعرَّبة، ويمنع مقارنة تصنيف نواة بنصّ مُعرَّب. و**أول تشغيل له اتّهم كودًا سليمًا
+مرّتين، فأُصلح الحرس لا الكود** — وكلاهما مُسمّى في تعليقه:
+1. المحرّك يبدأ من **قوس إغلاق** (`"…$LTR",`) بلا `\n` في الصنف الممنوع، فيمتدّ إلى سطر لاحق ويلتقط `(total - free)`.
+2. `UNAVAILABLE` كان يُمنع كـ**نصّ فرعي** فيطابق المعرّف `MAX_VALUE_UNAVAILABLE` (وقيمته `"—"`).
+وحرس يكذب مرّة يُعطَّل مرّة، وهذا أسوأ من غيابه. وصُحّح طبعه كذلك: `match.value` بدل `MatchResult.toString()`
+الذي يطبع `MatcherMatchResult@32ee6fee` — رسالة حرس لا تقول ماذا رأت لا تُعلّم أحدًا.
+
+**إعادات العطب (٤ طفرات، كلها تُفشل بالاسم):**
+| الطفرة | الحكم |
+| --- | --- |
+| نصّ إنجليزي حرفي داخل الشاشة | `no user-visible English text is hardcoded inside a translated screen` |
+| عودة `DashCardWrapper` | `neither screen draws the dashboard language` |
+| حرارة البطارية من مصدر آخر | `the thermal screen reads battery heat from the home screen source` |
+| مقارنة تصنيف بنصّ مُعرَّب | `Zone categories must never be compared against a translated string` |
+
+والشجر نظيف: ٤/٤ تمرّ على الكود الأصلي، وكل ملف عاد إلى حاله بعد كل طفرة (مُثبَّت بالمقارنة الحرفية).
+
+**GATES:** `code_health --assert` = **exit 0 · «صحّة نظيفة»** (الصفر الأربعة كلها ✓) · `i18n_coverage --assert` = 0 عوائق ·
+`repo_audit.py` = `PROBLEMS: 0` · هارنس JVM = **155 OK**.
+**أُغلق الحاجز الأحمر الوحيد:** `session-ses_f487.md` نُقل إلى `docs/ai/` (غير متتبَّع في git، فلا حذف ولا فقدان محتوى).
+و**أُعلن خفض السقف** لأن الإصلاح خفّض الدَّين فعلًا: `hardcoded_ui_literals` **80 → 66** (الأصل: ١٤ نصًّا صلّبًا
+كانت في الشاشتين القديمتين) و`presentation_hw_writes` **27 → 26**. السقف الآن مطابق للواقع لا أعلى منه.
+**BUILD:** `:app:testReleaseUnitTest` = **670 اختبارًا · صفر فشل** (2m52s) · `:app:compileReleaseKotlin` = **BUILD SUCCESSFUL** (2m5s).
+**RESIDUAL RISK:** لم تُرَ الشاشتان على جهاز — التناسق مُشتقّ من المكوّنات المشتركة لا من لقطة. والمسح **قراءة فقط**
+ولا يتجاوز ما يبلغه التطبيق بلا root (`/proc/mounts` + `File`)، ولا كتابة عتاد جديدة في الشاشتين
+(`presentation_hw_writes` لم يرتفع؛ مسارات sysfs تُعرض كـprovenance لا تُكتب).
+**NEXT:** تصنيف الحِزم يقيس ما يراه التطبيق لا القرص كله؛ وتوسيعه إلى بقية مسارات المستخدم يحتاج `MANAGE_EXTERNAL_STORAGE`
+أو `Shizuku` — قرار يُكتب أولًا.

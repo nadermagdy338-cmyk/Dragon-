@@ -122,6 +122,15 @@ object MaxSize {
      * confirm button stay visible while choosing.
      */
     val dialogListMax: Dp = 360.dp
+
+    /**
+     * Height of a fractional usage bar (storage share, zone heat, cooling state).
+     *
+     * A token rather than a literal at each call site: the storage screen and the
+     * thermal screen both draw these, and two bar heights for one idea is exactly the
+     * drift this token layer exists to stop.
+     */
+    val barHeight: Dp = 8.dp
 }
 
 /**
