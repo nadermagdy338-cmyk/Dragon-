@@ -1,5 +1,7 @@
 package nd.max.ui.navigation
 
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -80,7 +82,10 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     ) { entry ->
         MaxBackupScreen(
             navController = navController,
-            packageName = entry.arguments?.getString("pkg")?.takeIf { it.isNotBlank() },
+            // نمط مسارنا ليس حزمة: قيمة محفوظة من نسخة سبقت الإصلاح قد تحمل `{pkg}`،
+            // فتُفتح على تفصيل حزمة لا وجود لها — وهي الحالة المُبلَّغ عنها. الرفض هنا
+            // يُسقط إلى قائمة التطبيقات، وهي الشاشة الرئيسية المقصودة لهذا المدخل.
+            packageName = packageArgumentOrNull(LocalContext.current, entry.arguments?.getString("pkg")),
         )
     }
     composable(
@@ -91,7 +96,7 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     ) { entry ->
         PermissionsScreen(
             navController = navController,
-            pkg = entry.arguments?.getString("pkg").orEmpty().takeIf { it.isNotBlank() },
+            pkg = packageArgumentOrNull(LocalContext.current, entry.arguments?.getString("pkg")),
         )
     }
     composable(MaxDestination.About.route) { AboutScreen(navController) }
@@ -105,3 +110,24 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.FileManager.route) { FileManagerScreen(navController) }
     composable(MaxDestination.KernelFlasher.route) { KernelFlasherScreen(navController) }
 }
+
+/**
+ * معامل الحزمة كما تعنيه الوجهتان ذواتا المعامل الاختياري: `null` إلا أن تكون القيمة
+ * **شكلها** معرّف حزمة و**مثبّتة فعلًا** على الجهاز.
+ *
+ * ولماذا الفحصان معًا، وهما ليسا تكرارًا:
+ *
+ * - الشكل يرفض `{pkg}` — نمط مسارنا إن وصل قيمةً. واسم حزمة Java لا يقبل قوسًا أصلًا،
+ *   فالرفض ليس ترجيحًا. وهذا هو الفحص الذي يعمل **حتى لو جاءت القيمة من حالة تنقّل
+ *   محفوظة من نسخة سبقت إصلاح مسار الإطلاق** — وهي الحالة المُبلَّغ عنها («تظهر `{pkg}`
+ *   … لا توجد حزمة بهذا الاسم على الجهاز»).
+ * - والوجود يرفض حزمة حقيقية **أُبطل تثبيتها** بعد إنشاء المدخل، فلم يُبقِ حارس الشكل عليها.
+ *
+ * وفائدة الاثنين واحدة: الشاشتان تعتبران `null` «بلا نيّة سابقة» فتُفتحان على **قائمة
+ * التطبيقات**، وهي الشاشة الرئيسية المقصودة لهما بطلب صريح من المالك — لا تفصيل حزمة
+ * لا وجود لها. فالطريق المسدود (رسالة + إعادة محاولة بلا نفع) لا يبقى منه شيء.
+ */
+private fun packageArgumentOrNull(context: Context, raw: String?): String? =
+    raw.takeIf { isPackageArgument(it) }?.takeIf { name ->
+        runCatching { context.packageManager.getApplicationInfo(name, 0) }.isSuccess
+    }

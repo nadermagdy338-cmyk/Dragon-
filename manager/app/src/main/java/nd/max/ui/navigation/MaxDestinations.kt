@@ -69,6 +69,22 @@ sealed class MaxDestination(
     val risk: MaxRisk = MaxRisk.Normal,
     val isPrimary: Boolean = false,
 ) {
+    /**
+     * المسار الذي يُفتح به هذا العنصر من قائمة، بلا نيّة سابقة عن تطبيق بعينه.
+     *
+     * يختلف عن [route] في وجهات الاستعلام الاختياري (`?pkg={pkg}`): نقلُ [route]
+     * كما هو يُطابق الوجهة ويُمرّر النمط `"{pkg}"` قيمةً للمعامل، فيقرأ المستهلك
+     * نصًّا **غير فارغ** فينجو من فلترة الفراغ ويُفتح على تفصيل حزمة لا وجود لها.
+     * التفصيل في `LaunchRoutes.kt`.
+     */
+    val launchRoute: String get() = launchRouteOf(route)
+
+    /**
+     * `true` حين يلزم معامل في المسار نفسه (`app_settings/{pkg}`) لا في استعلامه،
+     * فلا يصحّ بثه من قائمة — وفتحُه كذلك خطأ برمجي لا حالة مشروعة.
+     */
+    val needsLaunchArgument: Boolean get() = launchRouteNeedsArgument(route)
+
     // Primary destinations (bottom bar / navigation rail)
     data object Now : MaxDestination("now", R.string.max_nav_now, Icons.Rounded.Home, isPrimary = true)
     data object Control : MaxDestination("control", R.string.max_nav_control, Icons.Rounded.Tune, isPrimary = true)

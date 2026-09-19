@@ -78,7 +78,9 @@ fun HomeScreen(
             profileRequest = profileRequest,
             deviceName = deviceName,
             topPadding = padding.calculateTopPadding(),
-            onNavigate = navController::navigate,
+            // المسار يمرّ ببوّابة التنقّل نفسها التي تمرّ بها بقية الشاشات، فلا
+            // يُنقل نمط `?pkg={pkg}` خامًّا إلى الـNavigator.
+            onNavigate = navActions::navigateRoute,
             onProfile = { if (ui.autoMode == "0") showProfile = true },
             onReboot = { showReboot = true },
             onSettings = { navActions.navigateTo(MaxDestination.Settings) },
@@ -161,7 +163,9 @@ fun HomeDashboardContent(
                     maxAi = maxAi,
                     profileRequest = profileRequest,
                     deviceName = deviceName,
-                    gpuRoute = "gpustudio",
+                    // من السجلّ لا حرفيًّا: سلسلة مسار مكتوبة بيد هنا كانت تفلت
+                    // من ADR-02 وتصير غير قابلة للتتبّع بتغيير المسار.
+                    gpuRoute = MaxDestination.GpuStudio.launchRoute,
                     onNavigate = onNavigate,
                     onProfile = onProfile,
                     onReboot = onReboot,
@@ -202,8 +206,15 @@ private fun TechnicalBackdrop() {
     }
 }
 
+/**
+ * مسار شاشة الـGPU حين يعرف الجهاز شريحته، وإلا `null` فيسقط النداء إلى السجلّ.
+ *
+ * وكانت السلسلة `"gpustudio"` مكتوبة بيد هنا — مسار حرفي خارج السجلّ، وهو ما
+ * يمنعه ADR-02: تغيير المسار في `MaxDestinations` كان يترك هذا المدخل يشير إلى
+ * مسار غير مسجّل، وهي نفس فصيلة العطب التي جعلت `Max Backup` يُفتح فارغًا.
+ */
 internal fun gpuRouteForChipset(chipset: String): String? =
-    chipset.takeIf(String::isNotBlank)?.let { "gpustudio" }
+    chipset.takeIf(String::isNotBlank)?.let { MaxDestination.GpuStudio.launchRoute }
 
 internal fun gpuFamilyForChipset(chipset: String): String? {
     val value = chipset.lowercase()

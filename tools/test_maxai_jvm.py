@@ -46,10 +46,15 @@ def main():
         TEST / "ui/mainscreens/MaxAiPresentationTest.kt",
         TEST / "ui/mainscreens/MaxAiTimelineFilterTest.kt",
         TEST / "ui/viewmodel/MaxAiPresentationArchitectureTest.kt",
+        TEST / "core/maxai/MaxAiInterruptSafetyTest.kt",
+        SOURCE / "ui/navigation/LaunchRoutes.kt",
+        TEST / "ui/navigation/LaunchRouteTest.kt",
     ]
     tests = [
         "nd.max.core.maxai.CoalescingCycleRunnerTest",
+        "nd.max.core.maxai.MaxAiInterruptSafetyTest",
         "nd.max.ui.mainscreens.MaxAiPresentationTest",
+        "nd.max.ui.navigation.LaunchRouteTest",
         "nd.max.ui.mainscreens.MaxAiTimelineFilterTest",
         "nd.max.ui.mainscreens.MaxAiTimelineSearchTest",
         "nd.max.ui.viewmodel.MaxAiPresentationArchitectureTest",
@@ -98,6 +103,13 @@ class CheckKotlinSyntax {
             "core/maxai/MaxAiJournal.kt", "ui/viewmodel/MaxAiViewModel.kt",
             "ui/mainscreens/MaxAiScreen.kt", "ui/mainscreens/MaxLiveScreen.kt",
             "ui/mainscreens/MaxAiRuntimeStatus.kt",
+            # الملفات التي مسّها إصلاح مسار الإطلاق: تُعرَب بمُحلِّل Kotlin الحقيقي
+            # حتى لو تعذّرت الترجمة لغياب Android SDK (لا فحص أنواع، إعراب فقط).
+            "ui/navigation/LaunchRoutes.kt", "ui/navigation/MaxNavActions.kt",
+            "ui/navigation/MaxDestinations.kt", "ui/navigation/MaxNavGraph.kt",
+            "ui/mainscreens/HomeScreen.kt",
+            "ui/mainscreens/ControlLayoutModel.kt", "ui/mainscreens/ControlScreen.kt",
+            "ui/subscreens/MaxBackupScreen.kt", "ui/subscreens/PermissionsScreen.kt",
         ]
         subprocess.run([
             "java", "-cp", compiler_cp, str(syntax),

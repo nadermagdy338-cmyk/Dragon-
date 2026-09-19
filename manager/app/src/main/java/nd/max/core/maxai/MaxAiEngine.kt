@@ -582,14 +582,96 @@ class MaxAiEngine @Inject constructor(
         }
 
         // نُفِّذ وتُحقق منه: انتظر استجابة النطام ثم قِس الأثر الفعلي.
-        delay(RESPONSE_WINDOW_MS)
-        val after = runCatching { DeviceStateCollector.collect(appContext) }.getOrNull()
-        val postSafety = safetyGovernor.enforcePost(step, outcome, after, TOKEN, appContextKey)
-        if (postSafety.safetyReason == "post-veto") {
-            bumpCounter(PREF_BLOCKED)
-            DiagnosticCenter.record("maxai", postSafety.outcome.detail)
-            journal.record(
-                buildEpisode(
+        //
+        // من هنا الكتابة مُطبَّقة ومُتحقَّق منها والمُحكِّم يحمل خط أساسها، ولم
+        // يُتخذ فيها حكم. و`delay` نقطة إلغاء، فإلغاء النطاق أو استثناء هنا كان
+        // يتخطى الحكم والاسترجاع معًا. و`keptWrite` هي الإبقاء **العمدي** وحده:
+        // مسارا ما بعد الفيتو والتراجع يسترجعان خط الأساس بنفسيهما، فنداؤهما
+        // من `finally` يعود بـnull ولا يفعل شيئًا. فلا يُرفع العلم إلا حيث يُقصد
+        // إبقاء الكتابة فعلًا.
+        var keptWrite = false
+        try {
+            delay(RESPONSE_WINDOW_MS)
+            val after = runCatching { DeviceStateCollector.collect(appContext) }.getOrNull()
+            val postSafety = safetyGovernor.enforcePost(step, outcome, after, TOKEN, appContextKey)
+            if (postSafety.safetyReason == "post-veto") {
+                bumpCounter(PREF_BLOCKED)
+                DiagnosticCenter.record("maxai", postSafety.outcome.detail)
+                journal.record(
+                    buildEpisode(
+                        plan = plan,
+                        step = step,
+                        objective = objective,
+                        objectiveSource = objectiveSource,
+                        appContextKey = appContextKey,
+                        before = before,
+                        after = after,
+                        appliedValue = outcome.actual,
+                        verdict = MaxAiVerdict.BLOCKED_SAFETY,
+                        detail = postSafety.outcome.detail,
+                        effectBefore = effectBefore,
+                        effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey),
+                    )
+                )
+                publish(aiEnabled = true, snapshot = after ?: before) {
+                    copy(
+                        lastDecision = DecisionRecord(
+                            step.control.label, System.currentTimeMillis(),
+                            DecisionResult.BLOCKED_FOR_SAFETY, postSafety.outcome.detail
+                        )
+                    )
+                }
+                return@withContext
+            }
+
+            if (after == null) {
+                DiagnosticCenter.record("maxai", "post-action measurement unavailable :: ${step.control.key}")
+                bumpCounter(PREF_ADJUSTED)
+                journal.record(
+                    buildEpisode(
+                        plan = plan,
+                        step = step,
+                        objective = objective,
+                        objectiveSource = objectiveSource,
+                        appContextKey = appContextKey,
+                        before = before,
+                        after = null,
+                        appliedValue = outcome.actual,
+                        verdict = MaxAiVerdict.UNMEASURED,
+                        detail = outcome.detail,
+                        effectBefore = effectBefore,
+                        effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey),
+                    )
+                )
+                publish(aiEnabled = true, snapshot = before) {
+                    copy(
+                        lastDecision = DecisionRecord(
+                            step.control.label, System.currentTimeMillis(),
+                            DecisionResult.FAILED, "تم التحقق من الكتابة لكن تعذّر قياس الأثر"
+                        )
+                    )
+                }
+                // إبقاء عمدي: الكتابة تحققت ولا سبيل لقياس أثرها، فالرجوع عنها
+                // قرار لم يُطلب من هذا المسار. مُوثَّق كما هو لا مُصلَح ضمنًا.
+                keptWrite = true
+                return@withContext
+            }
+
+            val objectiveGain = objective.score(after) - objective.score(before)
+            planner.recordMeasuredOutcome(step, appContextKey, before, after, objective)
+            val effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey)
+            val improved = objectiveGain > 0f
+
+            if (!improved) {
+                val restored = rollbackOnRegression(step, outcome)
+                bumpCounter(PREF_ADJUSTED)
+                val result = if (restored) DecisionResult.ADJUSTED else DecisionResult.FAILED
+                val detail = if (restored) {
+                    "تراجع مقيس (Δ%.3f) — استُرجع خط الأساس".format(objectiveGain)
+                } else {
+                    "لا تحسن مقيس (Δ%.3f) — تعذر استرجاع خط الأساس".format(objectiveGain)
+                }
+                val regressedEpisode = buildEpisode(
                     plan = plan,
                     step = step,
                     objective = objective,
@@ -598,68 +680,36 @@ class MaxAiEngine @Inject constructor(
                     before = before,
                     after = after,
                     appliedValue = outcome.actual,
-                    verdict = MaxAiVerdict.BLOCKED_SAFETY,
-                    detail = postSafety.outcome.detail,
+                    verdict = if (restored) {
+                        MaxAiVerdict.REGRESSED_ROLLED_BACK
+                    } else {
+                        MaxAiVerdict.REGRESSED_STUCK
+                    },
+                    detail = detail,
                     effectBefore = effectBefore,
-                    effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey),
+                    effectAfter = effectAfter,
                 )
-            )
-            publish(aiEnabled = true, snapshot = after ?: before) {
-                copy(
-                    lastDecision = DecisionRecord(
-                        step.control.label, System.currentTimeMillis(),
-                        DecisionResult.BLOCKED_FOR_SAFETY, postSafety.outcome.detail
+                journal.record(regressedEpisode)
+                // حتى التراجع المسترجَع يستحق قياسًا ثانيًا: إن بقي أثر بعد ربع
+                // ساعة فالاسترجاع لم يعد الجهاز إلى حالته فعلًا.
+                noteActed(regressedEpisode, step, appContextKey)
+                scheduleDeferredVerdict(regressedEpisode, objective)
+                publish(aiEnabled = true, snapshot = after) {
+                    copy(
+                        lastDecision = DecisionRecord(
+                            step.control.label, System.currentTimeMillis(), result, detail
+                        )
                     )
-                )
+                }
+                return@withContext
             }
-            return@withContext
-        }
 
-        if (after == null) {
-            DiagnosticCenter.record("maxai", "post-action measurement unavailable :: ${step.control.key}")
-            bumpCounter(PREF_ADJUSTED)
-            journal.record(
-                buildEpisode(
-                    plan = plan,
-                    step = step,
-                    objective = objective,
-                    objectiveSource = objectiveSource,
-                    appContextKey = appContextKey,
-                    before = before,
-                    after = null,
-                    appliedValue = outcome.actual,
-                    verdict = MaxAiVerdict.UNMEASURED,
-                    detail = outcome.detail,
-                    effectBefore = effectBefore,
-                    effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey),
-                )
+            bumpCounter(PREF_SUCCESSFUL)
+            EventLog.userAction(
+                "MaxAiEngine", "decision", step.control.key,
+                "verified:${outcome.actual} gain=%.4f".format(objectiveGain)
             )
-            publish(aiEnabled = true, snapshot = before) {
-                copy(
-                    lastDecision = DecisionRecord(
-                        step.control.label, System.currentTimeMillis(),
-                        DecisionResult.FAILED, "تم التحقق من الكتابة لكن تعذّر قياس الأثر"
-                    )
-                )
-            }
-            return@withContext
-        }
-
-        val objectiveGain = objective.score(after) - objective.score(before)
-        planner.recordMeasuredOutcome(step, appContextKey, before, after, objective)
-        val effectAfter = planner.effectOf(step.control.key, step.direction, appContextKey)
-        val improved = objectiveGain > 0f
-
-        if (!improved) {
-            val restored = rollbackOnRegression(step, outcome)
-            bumpCounter(PREF_ADJUSTED)
-            val result = if (restored) DecisionResult.ADJUSTED else DecisionResult.FAILED
-            val detail = if (restored) {
-                "تراجع مقيس (Δ%.3f) — استُرجع خط الأساس".format(objectiveGain)
-            } else {
-                "لا تحسن مقيس (Δ%.3f) — تعذر استرجاع خط الأساس".format(objectiveGain)
-            }
-            val regressedEpisode = buildEpisode(
+            val improvedEpisode = buildEpisode(
                 plan = plan,
                 step = step,
                 objective = objective,
@@ -668,61 +718,29 @@ class MaxAiEngine @Inject constructor(
                 before = before,
                 after = after,
                 appliedValue = outcome.actual,
-                verdict = if (restored) {
-                    MaxAiVerdict.REGRESSED_ROLLED_BACK
-                } else {
-                    MaxAiVerdict.REGRESSED_STUCK
-                },
-                detail = detail,
+                verdict = MaxAiVerdict.IMPROVED,
+                detail = outcome.detail,
                 effectBefore = effectBefore,
                 effectAfter = effectAfter,
             )
-            journal.record(regressedEpisode)
-            // حتى التراجع المسترجَع يستحق قياسًا ثانيًا: إن بقي أثر بعد ربع
-            // ساعة فالاسترجاع لم يعد الجهاز إلى حالته فعلًا.
-            noteActed(regressedEpisode, step, appContextKey)
-            scheduleDeferredVerdict(regressedEpisode, objective)
+            journal.record(improvedEpisode)
+            // الحكم الفوري مسجل أعلاه؛ والبطارية تُقاس بعد ربع ساعة في نفس الحلقة.
+            noteActed(improvedEpisode, step, appContextKey)
+            scheduleDeferredVerdict(improvedEpisode, objective)
             publish(aiEnabled = true, snapshot = after) {
                 copy(
+                    strategyLabel = step.control.label,
                     lastDecision = DecisionRecord(
-                        step.control.label, System.currentTimeMillis(), result, detail
+                        step.control.label, System.currentTimeMillis(),
+                        DecisionResult.VERIFIED, "${step.reason} :: ${outcome.detail}"
                     )
                 )
             }
-            return@withContext
-        }
-
-        bumpCounter(PREF_SUCCESSFUL)
-        EventLog.userAction(
-            "MaxAiEngine", "decision", step.control.key,
-            "verified:${outcome.actual} gain=%.4f".format(objectiveGain)
-        )
-        val improvedEpisode = buildEpisode(
-            plan = plan,
-            step = step,
-            objective = objective,
-            objectiveSource = objectiveSource,
-            appContextKey = appContextKey,
-            before = before,
-            after = after,
-            appliedValue = outcome.actual,
-            verdict = MaxAiVerdict.IMPROVED,
-            detail = outcome.detail,
-            effectBefore = effectBefore,
-            effectAfter = effectAfter,
-        )
-        journal.record(improvedEpisode)
-        // الحكم الفوري مسجل أعلاه؛ والبطارية تُقاس بعد ربع ساعة في نفس الحلقة.
-        noteActed(improvedEpisode, step, appContextKey)
-        scheduleDeferredVerdict(improvedEpisode, objective)
-        publish(aiEnabled = true, snapshot = after) {
-            copy(
-                strategyLabel = step.control.label,
-                lastDecision = DecisionRecord(
-                    step.control.label, System.currentTimeMillis(),
-                    DecisionResult.VERIFIED, "${step.reason} :: ${outcome.detail}"
-                )
-            )
+            // هذا هو الإبقاء الثاني: تحسّنٌ مقيس يبقى مكتوبًا (وهو الغرض من
+            // المحرك) ويُحرَّر لاحقًا بإيقاف Max AI أو بتحرير المقبض.
+            keptWrite = true
+        } finally {
+            if (!keptWrite) restoreInterruptedWrite(step)
         }
     }
 
@@ -745,6 +763,35 @@ class MaxAiEngine @Inject constructor(
                 if (restored) "verified" else "FAILED (was ${outcome.actual})"
         )
         return restored
+    }
+
+    /**
+     * استرجاع أخير بعد انقطاع نافذة الاستجابة.
+     *
+     * بين الكتابة المُتحقَّقة وحكمها نافذةٌ يمرّ فيها `delay` — وهو نقطة إلغاء.
+     * فإلغاء النطاق (شاشة تُغلق، نطاق محرك يُلغى) أو أي استثناء يقطع الانتظار
+     * كان يتخطى الحكم **والاسترجاع معًا**، فيبقى المقبض مكتوبًا على العتاد بلا
+     * حكم وبلا حلقة في الدفتر. يُنادى هذا من `finally`، فله شرطان:
+     *
+     * - **ألّا يُعلَّق:** لا `delay` ولا `withContext` فيه. و`arbiter.release`
+     *   دالة عادية لا `suspend`، ولذلك تصحّ منادتها بعد الإلغاء.
+     * - **ألّا يمحو الانقطاع الأصلي:** كل شيء داخل `runCatching`، فلا يُستبدَل
+     *   الاستثناء الجاري بخطأ من الاسترجاع نفسه.
+     *
+     * ونداؤها بعد استرجاع ناجح **لا يفعل شيئًا**: المُحكِّم يُعيد `null` حين لا
+     * يكون هذا الطلب مالكًا ولا له طلب قائم. فلذلك لا تحتاج مسارات الاسترجاع
+     * العادية إلى علامة، وتحتاجها مسارات الإبقاء العمدي وحدها.
+     */
+    private fun restoreInterruptedWrite(step: MinimalPlanner.Step) {
+        val released = runCatching {
+            arbiter.release(step.control.key, TOKEN, restore = true)
+        }.getOrNull()
+        if (released == null) return
+        DiagnosticCenter.record(
+            "maxai",
+            "interrupted response window ${step.control.key} → ${step.from} :: " +
+                if (released.verified) "restored" else "restore FAILED (was ${released.actual})",
+        )
     }
 
     // ── طبقة الثقة والاستكشاف المحروس ──────────────────
@@ -907,52 +954,61 @@ class MaxAiEngine @Inject constructor(
             return true
         }
 
-        delay(RESPONSE_WINDOW_MS)
-        val after = runCatching { DeviceStateCollector.collect(appContext) }.getOrNull()
-        val postSafety = safetyGovernor.enforcePost(step, outcome, after, TOKEN, appContextKey)
-        if (after != null) {
-            // هذا هو المكسب الحقيقي من التجربة: عينة مقيسة تقلّل الجهل.
-            planner.recordMeasuredOutcome(step, appContextKey, before, after, objective)
-        }
-        val reverted = rollbackOnRegression(step, outcome)
-        val effectAfter = planner.effectOf(control.key, direction, appContextKey)
-        val gain = after?.let { objective.score(it) - baseScore }
-        val verdict = when {
-            postSafety.safetyReason == "post-veto" -> MaxAiVerdict.BLOCKED_SAFETY
-            after == null -> MaxAiVerdict.UNMEASURED
-            gain != null && gain > 0f -> MaxAiVerdict.IMPROVED
-            else -> MaxAiVerdict.REGRESSED_ROLLED_BACK
-        }
-        journal.record(
-            buildEpisode(
-                plan = probePlan,
-                step = step,
-                objective = objective,
-                objectiveSource = objectiveSource,
-                appContextKey = appContextKey,
-                before = before,
-                after = after,
-                appliedValue = outcome.actual,
-                verdict = verdict,
-                detail = "${outcome.detail} :: probe restore=" +
-                    if (reverted) "verified" else "FAILED",
-                effectBefore = effectBefore,
-                effectAfter = effectAfter,
-                exploration = true,
-                reverted = reverted,
-                informationGain = candidate.trust.informationGain,
-                probeCost = worstCase,
-            )
-        )
-        publish(aiEnabled = true, snapshot = after ?: before) {
-            copy(
-                lastDecision = DecisionRecord(
-                    control.label, System.currentTimeMillis(),
-                    DecisionResult.EXECUTED, reason,
+        // من هنا الكتابة مُطبَّقة على العتاد ومُتحقَّق منها، والمُحكِّم يحمل خط
+        // أساسها لهذا الطلب — ولم يُتخذ فيها حكم بعد. والتجربة تسترجع خط أساسها
+        // في كل مسار عادي (`rollbackOnRegression` أدناه، و`from` مضمون غير فارغ
+        // لأن هذه الدالة تُشترطه أعلاه)، فنداءُ الاسترجاع في `finally` لا يفعل
+        // شيئًا هناك، ويفعل وحده عندما ينقطع الطريق قبل أن يصدر الحكم.
+        try {
+            delay(RESPONSE_WINDOW_MS)
+            val after = runCatching { DeviceStateCollector.collect(appContext) }.getOrNull()
+            val postSafety = safetyGovernor.enforcePost(step, outcome, after, TOKEN, appContextKey)
+            if (after != null) {
+                // هذا هو المكسب الحقيقي من التجربة: عينة مقيسة تقلّل الجهل.
+                planner.recordMeasuredOutcome(step, appContextKey, before, after, objective)
+            }
+            val reverted = rollbackOnRegression(step, outcome)
+            val effectAfter = planner.effectOf(control.key, direction, appContextKey)
+            val gain = after?.let { objective.score(it) - baseScore }
+            val verdict = when {
+                postSafety.safetyReason == "post-veto" -> MaxAiVerdict.BLOCKED_SAFETY
+                after == null -> MaxAiVerdict.UNMEASURED
+                gain != null && gain > 0f -> MaxAiVerdict.IMPROVED
+                else -> MaxAiVerdict.REGRESSED_ROLLED_BACK
+            }
+            journal.record(
+                buildEpisode(
+                    plan = probePlan,
+                    step = step,
+                    objective = objective,
+                    objectiveSource = objectiveSource,
+                    appContextKey = appContextKey,
+                    before = before,
+                    after = after,
+                    appliedValue = outcome.actual,
+                    verdict = verdict,
+                    detail = "${outcome.detail} :: probe restore=" +
+                        if (reverted) "verified" else "FAILED",
+                    effectBefore = effectBefore,
+                    effectAfter = effectAfter,
+                    exploration = true,
+                    reverted = reverted,
+                    informationGain = candidate.trust.informationGain,
+                    probeCost = worstCase,
                 )
             )
+            publish(aiEnabled = true, snapshot = after ?: before) {
+                copy(
+                    lastDecision = DecisionRecord(
+                        control.label, System.currentTimeMillis(),
+                        DecisionResult.EXECUTED, reason,
+                    )
+                )
+            }
+            return true
+        } finally {
+            restoreInterruptedWrite(step)
         }
-        return true
     }
 
     // ── التوقع الحراري مقابل الواقع ──────────────────────
