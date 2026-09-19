@@ -214,6 +214,25 @@ object FileSystemEngine {
     }
 
     /**
+     * مساحة نظام الملفات الذي يقع فيه المسار — المجموع والمتاح.
+     *
+     * تُقرأ بـ`StatFs` على المسار نفسه لا من جدول التحميلات: لوح مدير الملفات يقف على
+     * `/system` مرة وعلى `/data` أخرى، وهذان نظاما ملفات مختلفان، فسطر الحالة يجب أن
+     * يقيس **النظام الذي يقف عليه هذا اللوح** لا نقطة تحميل مختارة سلفًا.
+     *
+     * و`null` تعني «لم تُقرأ»: المسار غير موجود، أو لا نظام ملفات له. **ولا صفر**: «صفر
+     * متاح» رسالة «القرص ممتلئ» وهي أسوأ رسالة كاذبة (ADR-23).
+     */
+    fun diskSpace(rawPath: String): DiskSpace? {
+        val path = FileBrowser.normalize(rawPath)
+        val stats = runCatching { android.os.StatFs(path) }.getOrNull() ?: return null
+        val total = runCatching { stats.blockSizeLong * stats.blockCountLong }.getOrNull() ?: return null
+        val free = runCatching { stats.blockSizeLong * stats.availableBlocksLong }.getOrNull() ?: return null
+        if (total <= 0L) return null
+        return DiskSpace(totalBytes = total, freeBytes = free)
+    }
+
+    /**
      * سياق SELinux للمسار، أو `null` إن لم يُعلنه الجهاز.
      *
      * يُقرأ من `ls -Zd` لأن `stat -c %C` ليس في toybox على كل إصدار. و`null` تعني

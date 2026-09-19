@@ -417,4 +417,69 @@ class FileSystemModelTest {
         assertEquals("a (1)", FileOpGuard.uniqueName("a", setOf("a")))
         assertEquals("a (2)", FileOpGuard.uniqueName("a", setOf("a", "a (1)")))
     }
+
+    // ── العدّ وما يُخفى ───────────────────────────────────────────────────────
+
+    private fun entry(name: String, directory: Boolean) = FileEntry(
+        name = name,
+        path = "/sdcard/$name",
+        kind = if (directory) FileKind.Directory else FileKind.RegularFile,
+    )
+
+    /**
+     * عدّ المجلدات والملفات يُقاس على ما قُرئ، والمخفي يُعدّ منفصلًا في الحالتين.
+     *
+     * وهو الرقم الذي يقف في سطر حالة اللوح، فالخطأ فيه يعني «مدير ملفات» يخبر برقم
+     * لا يطابق ما يراه المستخدم أمامه بعينه.
+     */
+    @Test
+    fun `counts separate folders, files and hidden entries`() {
+        val entries = listOf(
+            entry("DCIM", directory = true),
+            entry("Music", directory = true),
+            entry("report.pdf", directory = false),
+            entry(".pending-1.zip", directory = false),
+            entry(".config", directory = true),
+        )
+        val counts = FileBrowser.counts(entries)
+        assertEquals(3, counts.folders)
+        assertEquals(2, counts.files)
+        assertEquals(2, counts.hidden)
+        assertEquals(5, counts.total)
+
+        // وبعد إخفاء المخفيّ ينزل العددان معًا — والمانع للمخفي مجلد ومعه أرشيف اسمه نقطة،
+        // فالباقي مجلدان وملف واحد، وصفر مُخفى.
+        val shown = FileBrowser.counts(FileBrowser.withoutHidden(entries))
+        assertEquals(2, shown.folders)
+        assertEquals(1, shown.files)
+        assertEquals(0, shown.hidden)
+        assertTrue(FileBrowser.counts(emptyList()).let { it.total == 0 && it.hidden == 0 })
+    }
+
+    /** الحكم على الإخفاء بالاسم وحده: النقطة في أوله، لا الصلاحيات ولا نوع المدخل. */
+    @Test
+    fun `a hidden entry is one whose name starts with a dot`() {
+        assertTrue(FileBrowser.isHidden(entry(".thumbnails", directory = true)))
+        assertTrue(FileBrowser.isHidden(entry(".bashrc", directory = false)))
+        assertFalse(FileBrowser.isHidden(entry("bashrc", directory = false)))
+        // ونقطة في وسط الاسم ليست إخفاءً — وإلا أُخفي `photo.jpg` وهو كل مجلد صور.
+        assertFalse(FileBrowser.isHidden(entry("photo.jpg", directory = false)))
+        assertEquals(listOf("photo.jpg"), FileBrowser.withoutHidden(listOf(entry(".x", false), entry("photo.jpg", false))).map { it.name })
+    }
+
+    /**
+     * مساحة القرص: المُتاح يُطرح من المجموع، ولا يُنتج سالبًا ولو أعلن الجهاز رقمًا شاذًّا
+     * (متاح أكبر من المجموع يقع فعلًا على أنظمة ملفات مُجمَّدة).
+     */
+    @Test
+    fun `disk space reports the used part without ever going negative`() {
+        val normal = DiskSpace(totalBytes = 479L * 1000 * 1000 * 1000, freeBytes = 31L * 1000 * 1000 * 1000)
+        assertEquals(448L * 1000 * 1000 * 1000, normal.usedBytes)
+
+        val full = DiskSpace(totalBytes = 1024L, freeBytes = 0L)
+        assertEquals(1024L, full.usedBytes)
+
+        val odd = DiskSpace(totalBytes = 1024L, freeBytes = 2048L)
+        assertEquals(0L, odd.usedBytes)
+    }
 }

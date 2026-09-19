@@ -41,6 +41,8 @@
     <string name="max_files_cond_loading_detail">Running one stat pass so sizes, permissions and owners are measured rather than guessed.</string>
     <string name="max_files_cond_empty_title">This folder is empty</string>
     <string name="max_files_cond_empty_detail">The listing succeeded and returned no entries. That is a reading, not a failure.</string>
+    <string name="max_files_cond_hidden_title">Everything here is hidden</string>
+    <string name="max_files_cond_hidden_detail">The read succeeded, and every entry in this folder is hidden because its name starts with a dot. The folder summary states how many, and the pane menu can show them.</string>
     <string name="max_files_cond_notfound_title">Path not found</string>
     <string name="max_files_cond_notfound_detail">This path does not exist on the device right now.</string>
     <string name="max_files_cond_notdir_title">Not a folder</string>
@@ -153,7 +155,7 @@
 
     <!-- الشرح -->
     <string name="max_files_help_title">How this screen decides</string>
-    <string name="max_files_help_body">Entries come from one stat pass with a fixed tab-separated format, so ls output is never parsed for data. Anything not measured is shown as unknown rather than as zero. Every operation is guarded before it reaches the shell: a folder cannot be copied into itself, a move cannot target its own source, and the filesystem root cannot be deleted. The pane arrangement is yours to choose, and so is linked navigation: linked navigation follows the folder by name on the other side, and when the other side has no such folder it stays where it is instead of being sent to a guessed path.</string>
+    <string name="max_files_help_body">Entries come from one stat pass with a fixed tab-separated format, so ls output is never parsed for data. Anything not measured is shown as unknown rather than as zero, and each pane summarises its folder: how many folders, how many files, and the space of the filesystem that pane is standing on — reported as \u201cnot read\u201d when it could not be measured. Hidden files are hidden by default and their count stays in that same summary, so hiding is announced instead of silent. Every operation is guarded before it reaches the shell: a folder cannot be copied into itself, a move cannot target its own source, and the filesystem root cannot be deleted. Tabs pin the folders you keep coming back to, inside the pane that uses them, and they survive navigation. The pane arrangement and linked navigation are yours to choose: linked navigation follows the folder by name on the other side, and when the other side has no such folder it stays where it is instead of being sent to a guessed path.</string>
 
     <!-- ترتيب اللوحين والربط -->
     <string name="max_files_layout_cd">Pane arrangement</string>
@@ -191,4 +193,34 @@
     <string name="max_files_results_selected">%1$s selected</string>
     <string name="max_files_select_all_results">Select all %1$s results</string>
     <string name="max_files_invert_results">Invert selection</string>
+
+    <!--
+      إعادة كتابة الشاشة (جولة FM-02): تبويبات اللوح · سطر حالته · شريط أوامره · مواقع سريعة.
+      والقاعدة نفسها: لكل زرّ نصّه، ولكل حالة نصّها — لا أيقونة بلا اسم.
+    -->
+    <string name="max_files_side_left_short">Left</string>
+    <string name="max_files_side_right_short">Right</string>
+    <string name="max_files_tabs_cd">Pane tabs</string>
+    <string name="max_files_tab_pin">Pin this folder as a tab</string>
+    <string name="max_files_tab_close">Remove this tab</string>
+    <string name="max_files_status_cd">Folder summary</string>
+    <string name="max_files_status_folders">%1$d folders</string>
+    <string name="max_files_status_files">%1$d files</string>
+    <string name="max_files_status_hidden">%1$d hidden</string>
+    <string name="max_files_status_disk">%1$s of %2$s</string>
+    <string name="max_files_status_disk_unread">Space not read</string>
+    <string name="max_files_tools_cd">Active pane tools</string>
+    <string name="max_files_menu_cd">Screen options</string>
+    <string name="max_files_action_more_cd">More actions</string>
+    <string name="max_files_show_hidden">Show hidden files</string>
+    <string name="max_files_hide_hidden">Hide hidden files</string>
+    <string name="max_files_open_terminal">Open the terminal</string>
+    <string name="max_files_search_open_cd">Search this folder</string>
+    <string name="max_files_search_close_cd">Close the search</string>
+    <string name="max_files_quick_locations_cd">Quick locations</string>
+    <string name="max_files_location_root">Root /</string>
+    <string name="max_files_location_storage">Internal storage</string>
+    <string name="max_files_location_download">Downloads</string>
+    <string name="max_files_location_appdata">App data</string>
+    <string name="max_files_location_system">System</string>
 </resources>

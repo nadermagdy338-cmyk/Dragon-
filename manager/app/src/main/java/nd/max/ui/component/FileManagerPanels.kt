@@ -15,37 +15,44 @@
  */
 
 /**
- * أجزاء شاشة مدير الملفات: شريط المسار · شريط إجراءات اللوح · شريط التحديد · لوحة
- * التفاصيل · لوحة المعاينة.
+ * أجزاء شاشة مدير الملفات: **شريط أوامر اللوح · شريط التحديد · لوحة التفاصيل · لوحة
+ * المعاينة** — وخريطة الأسماء التي تُترجم بها قرارات النموذج إلى نصّ يراه المستخدم.
  *
- * فُصلت عن الشاشة لسببين لا لتنظيم الشكل: الشاشة كانت ستتجاوز حدّ الحجم المعلن في
- * المستودع، و**لأن كل جزء هنا يُقرأ وحده** — لوحة التفاصيل يجب أن تُراجَع بمعزل عن
- * منطق التنقّل، لا أن تكون مدفونة بين مئة سطر من حوارات العمليات.
+ * وُجدت في ملف منفصل لسببين لا لتنظيم الشكل: الشاشة تتجاوز حدّ الحجم المعلن في المستودع،
+ * و**كل جزء هنا يُقرأ وحده** — لوحة التفاصيل تُراجَع بمعزل عن منطق التنقّل، وشريط التحديد
+ * يُراجَع بمعزل عن حوارات العمليات.
+ *
+ * والقاعدة البصرية في الشريطين: **الأشرطة في أسفل الشاشة**، كما في كل مدير ملفات يعمل
+ * بالإبهام. والشريط السفلي يحمل إمّا أدوات اللوح النشط (حين لا يوجد تحديد) أو إجراءات
+ * التحديد (حين يوجد) — فلا يوجد شريطان يتنازعان آخر بوصة من الشاشة، ولا إجراء يختفي لأن
+ * الشريط الذي يحمله ليس ظاهرًا الآن.
+ *
+ * و**كل زرّ فيهما باسمه**: الرمز وحده لا يُقرأ إلا من يعرفه سلفًا، والنصّ المسموع مكتوب
+ * في كل موضع فيُقرأ بالقارئ وبنفس الوضوح.
  */
 package nd.max.ui.component
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.CompareArrows
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.CreateNewFolder
+import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.SelectAll
-import androidx.compose.material.icons.rounded.SwapHoriz
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Sync
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,101 +61,62 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import nd.max.R
+import nd.max.ui.design.MaxCommand
+import nd.max.ui.design.MaxCommandMenu
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxRow
+import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
-import nd.max.ui.design.MaxSize
 import nd.max.ui.design.border
 import nd.max.ui.design.container
 import nd.max.ui.design.content
-import nd.max.ui.util.Crumb
 import nd.max.ui.util.FileAction
 import nd.max.ui.util.FileEntry
 import nd.max.ui.util.FileFormat
 import nd.max.ui.util.FileKind
 import nd.max.ui.util.FileOpRefusal
 import nd.max.ui.util.FileOpVerdict
-import nd.max.ui.util.FilePaneState
 import nd.max.ui.util.FilePermissions
 import nd.max.ui.util.FileSortKey
-import nd.max.ui.util.PaneSide
 import nd.max.ui.util.TextPreview
 import java.text.DateFormat
 import java.util.Date
 
-/**
- * شريط المسار: كل قطعة تؤدّي إلى مجلدها — التنقّل بلا رجوع متكرّر.
- *
- * `horizontalPadding` قابل للضبط لأن الشريط صار يُستعمل **داخل لوح** لا داخل صفحة:
- * حشوة الصفحة (20dp) كانت ستأكل نصف عرض اللوح في العرض المنقسم.
- */
-@Composable
-fun FileBreadcrumbs(
-    crumbs: List<Crumb>,
-    onOpen: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    horizontalPadding: Dp = MaxSpace.gutter,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = horizontalPadding, vertical = MaxSpace.xs),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
-    ) {
-        crumbs.forEachIndexed { index, crumb ->
-            Text(
-                text = crumb.label,
-                style = MaterialTheme.typography.labelLarge,
-                color = if (index == crumbs.lastIndex) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.primary
-                },
-                modifier = Modifier
-                    .clickable(role = Role.Button) { onOpen(crumb.path) }
-                    .padding(horizontal = MaxSpace.xs, vertical = MaxSpace.xs),
-            )
-            if (index != crumbs.lastIndex) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.heightIn(min = MaxSize.iconGlyphSmall),
-                )
-            }
-        }
-    }
+/** حالة قراءة سياق SELinux — أربع حالات، لا «فارغ». */
+sealed interface SelinuxState {
+    data object NotQueried : SelinuxState
+    data object Loading : SelinuxState
+    data object NotReported : SelinuxState
+    data class Found(val context: String) : SelinuxState
 }
 
-/** عنوان صفّ: الاسم ثم صفّ الصفات — والصفّ الثاني لا يُخترع فيه رقم أبدًا. */
+/**
+ * تاريخ الصفّ بلغة الجهاز: **الساعة** إن كان التعديل اليوم، و**التاريخ** إن كان قبله.
+ *
+ * وهو قرار قِصر لا تفصيل: عمود بعرض ٥٨ نقطة لا يحمل `9/19/26 17:04`، وأهمّ ما يُسأل عنه
+ * في مدير ملفات «أيّها أُضيف الآن» — فالساعة تكفي اليوم، والتاريخ يكفي لغيره. والقيمة
+ * الكاملة تُعرض مجمّعة في لوحة التفاصيل، فلا تُفقد معلومة.
+ */
 @Composable
-fun fileSubtitle(entry: FileEntry): String {
-    val unknown = stringResource(R.string.max_files_unknown)
-    val size = FileFormat.size(entry.sizeBytes)
-    val permissions = FileFormat.permissions(entry.permissions)
-    val modified = entry.modifiedEpochSec?.let { epoch ->
-        DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(epoch * 1000))
+fun fileRowDate(epochSec: Long?): String? {
+    if (epochSec == null) return null
+    val millis = epochSec * 1000L
+    val format = if (android.text.format.DateUtils.isToday(millis)) {
+        DateFormat.getTimeInstance(DateFormat.SHORT)
+    } else {
+        DateFormat.getDateInstance(DateFormat.SHORT)
     }
-    val parts = buildList {
-        add(entry.kindLabel())
-        add(size ?: unknown)
-        permissions?.let { add(it) }
-        modified?.let { add(it) }
-        entry.symlinkTarget?.let { add(stringResource(R.string.max_files_link_to, it)) }
-    }
-    return parts.joinToString(" · ")
+    return format.format(Date(millis))
 }
 
 /** اسم النوع بلغة المستخدم، من النوع الذي **أعلنه الجهاز** لا من الامتداد. */
@@ -164,19 +132,206 @@ fun FileKind.label(): String = when (this) {
     FileKind.Unknown -> stringResource(R.string.max_files_kind_unknown)
 }
 
+/**
+ * شريط أوامر اللوح النشط — ستة أزرار، بلا تمرير: صعود · تحديث · مجلد جديد · بحث ·
+ * تحديد · مواقع سريعة.
+ *
+ * **ولماذا لم يعد شريط رأس اللوح:** كان في رأس كل لوح ثمانية أزرار داخل صفّ يمرّ أفقيًّا،
+ * يضاف إليها شريط في الصفحة يقول أيّ لوح يُقصد. والنتيجة أن نصف الإجراءات كانت خارج
+ * الشاشة، والمساحة العمودية تُصرف على أشرطة لا على قائمة. الآن: الشريط واحد في الأسفل
+ * حيث الإبهام، واللوح النشط **مُعلَن في اللوح نفسه** (إطار أعرض وحبّة اسمه).
+ */
 @Composable
-private fun FileEntry.kindLabel(): String = kind.label()
-
-/** حالة قراءة سياق SELinux — أربع حالات، لا «فارغ». */
-sealed interface SelinuxState {
-    data object NotQueried : SelinuxState
-    data object Loading : SelinuxState
-    data object NotReported : SelinuxState
-    data class Found(val context: String) : SelinuxState
+fun FilePaneBar(
+    searchOpen: Boolean,
+    modifier: Modifier = Modifier,
+    onUp: () -> Unit,
+    onRefresh: () -> Unit,
+    onNewFolder: () -> Unit,
+    onToggleSearch: () -> Unit,
+    onToggleSelect: () -> Unit,
+    quickLocations: List<MaxCommand>,
+) {
+    val tools = stringResource(R.string.max_files_tools_cd)
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(MaxRadius.group),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MaxSpace.xs, vertical = MaxSpace.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            BarAction(
+                icon = Icons.Rounded.ArrowUpward,
+                description = stringResource(R.string.max_files_up_cd),
+                onClick = onUp,
+            )
+            BarAction(
+                icon = Icons.Rounded.Sync,
+                description = stringResource(R.string.max_files_refresh_cd),
+                onClick = onRefresh,
+            )
+            BarAction(
+                icon = Icons.Rounded.CreateNewFolder,
+                description = stringResource(R.string.max_files_action_new_folder),
+                onClick = onNewFolder,
+            )
+            BarAction(
+                icon = Icons.Rounded.Search,
+                description = stringResource(R.string.max_files_search_open_cd),
+                onClick = onToggleSearch,
+                // البحث مفتوح يُعلن بإطار لا بلون فقط: من لا يميّز اللونين يعرف من الحدّ.
+                active = searchOpen,
+            )
+            BarAction(
+                icon = Icons.Rounded.SelectAll,
+                description = stringResource(R.string.max_files_select_cd),
+                onClick = onToggleSelect,
+            )
+            MaxCommandMenu(
+                commands = quickLocations,
+                contentDescription = "$tools · ${stringResource(R.string.max_files_quick_locations_cd)}",
+                triggerIcon = Icons.Rounded.Star,
+            )
+        }
+    }
 }
 
-/** لوحة التفاصيل: كل حقل يعلن هل قُرئ أم لا. */
-@OptIn(ExperimentalLayoutApi::class)
+/**
+ * زرّ في شريط اللوح.
+ *
+ * و`active` تُعلن الحالة **بإطار وحاوية ورمز** لا بلون وحده: من لا يميّز الأزرق من الرمادي
+ * يجب أن يرى أن البحث مفتوح. والحاوية مع `BorderStroke` هي الشكل نفسه المستعمل في بقيّة
+ * الشاشة، فلا يُخترع نمط ثانٍ لحالة «مُفعَّل».
+ */
+@Composable
+private fun BarAction(
+    icon: ImageVector,
+    description: String,
+    onClick: () -> Unit,
+    active: Boolean = false,
+) {
+    Surface(
+        shape = RoundedCornerShape(MaxRadius.control),
+        color = if (active) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+        border = if (active) {
+            BorderStroke(MaxSize.hairlineBorder, MaterialTheme.colorScheme.primary)
+        } else {
+            null
+        },
+        modifier = Modifier.heightIn(min = MaxSize.minTouchTarget),
+    ) {
+        IconButton(onClick = onClick) {
+            Icon(
+                imageVector = icon,
+                contentDescription = description,
+                tint = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+/**
+ * شريط التحديد: العدد، والأربعة التي تُستعمل دائمًا، والباقي في قائمة أوامر واحدة.
+ *
+ * والعدد ونصّه يقولان **أيّ لوح** يُقصد («٤ محدَّدة · اللوح الأيسر»): الإجراء يقع على لوح
+ * واحد، وشريط لا يسمّي لوحه يجعل المستخدم يخمّن أين ستقع عمليته.
+ *
+ * والإجراءات المدمِّرة في النهاية وبمدلول الخطأ، والمسح آخرها — ترتيب مقصود لا يُخترع في
+ * الواجهة بل يأتي من [nd.max.ui.util.FileActionSet] ومعه [FileAction.destructive].
+ */
+@Composable
+fun FileSelectionBar(
+    label: String,
+    actions: List<FileAction>,
+    modifier: Modifier = Modifier,
+    onAction: (FileAction) -> Unit,
+    extra: List<MaxCommand> = emptyList(),
+) {
+    val primary = listOf(FileAction.Copy, FileAction.Move, FileAction.Rename, FileAction.Delete)
+        .filter { it in actions }
+    val secondary = actions.filterNot { it in primary }
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(MaxRadius.group),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MaxSpace.sm, vertical = MaxSpace.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
+        ) {
+            Text(
+                text = label,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            primary.forEach { action ->
+                val icon = fileActionIcon(action) ?: return@forEach
+                IconButton(onClick = { onAction(action) }) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = stringResource(fileActionLabel(action)),
+                        tint = if (action.destructive) {
+                            MaxTone.Critical.content()
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                }
+            }
+
+            // الباقي بأسمائه لا برموزه: «فكّ هنا» و«ضغط» لا رمز معروف لهما يعرفه كل أحد،
+            // وقائمة الأوامر تُقرأ فيها الأسماء كاملة.
+            val commands = secondary.map { action ->
+                MaxCommand(
+                    label = stringResource(fileActionLabel(action)),
+                    onSelect = { onAction(action) },
+                    icon = fileActionIcon(action),
+                    destructive = action.destructive,
+                )
+            } + extra
+            MaxCommandMenu(
+                commands = commands,
+                contentDescription = stringResource(R.string.max_files_action_more_cd),
+            )
+        }
+    }
+}
+
+/**
+ * رمز الإجراء — والأسماء هي الحاملة للمعنى، وهذا للتمييز السريع وحده.
+ *
+ * و`null` للإجراء الذي لا رمز معروف له: «ضغط» و«فكّ» سيظهران في قائمة الأوامر باسميهما
+ * كاملين، ولا يُختصران إلى رمزٍ يحتمل معنيين — رمز مجلد على «فكّ أرشيف» يَعِد بشيء آخر.
+ */
+private fun fileActionIcon(action: FileAction): ImageVector? = when (action) {
+    FileAction.Copy -> Icons.Outlined.ContentCopy
+    FileAction.Move -> Icons.AutoMirrored.Rounded.ArrowForward
+    FileAction.Rename -> Icons.Rounded.Edit
+    FileAction.Delete -> Icons.Rounded.DeleteOutline
+    FileAction.Details -> Icons.Rounded.Info
+    FileAction.Clear -> Icons.Rounded.Close
+    FileAction.Compress, FileAction.Extract -> null
+}
+
+/**
+ * لوحة التفاصيل: كل حقل يعلن هل قُرئ أم لا.
+ *
+ * وهي **المكان الوحيد** الذي تُعرض فيه الصلاحيات والمالك، بعد أن كانت الصلاحيات تُطبع في
+ * كل صفّ قائمة (`drwxr-xr-x`) — وهي معلومة تُسأل مرة عند الحاجة لا في كل نظرة.
+ */
 @Composable
 fun FileDetailsPanel(
     entry: FileEntry,
@@ -334,10 +489,7 @@ private fun NoticeLine(title: String? = null, detail: String? = null, message: S
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(MaxRadius.group),
         color = tone.container(),
-        border = androidx.compose.foundation.BorderStroke(
-            MaxSize.hairlineBorder,
-            tone.border(),
-        ),
+        border = BorderStroke(MaxSize.hairlineBorder, tone.border()),
     ) {
         Column(
             modifier = Modifier.padding(MaxSpace.md),
@@ -362,65 +514,6 @@ private fun NoticeLine(title: String? = null, detail: String? = null, message: S
     }
 }
 
-/** شريط الإجراءات على التحديد. يظهر فقط حين يوجد تحديد — فلا يشغل الشاشة دائمًا. */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun FileSelectionBar(
-    count: Int,
-    labelFor: @Composable (Int) -> String,
-    /**
-     * الإجراءات المنطبقة على هذا التحديد، محسوبة في [nd.max.ui.util.FileActionSet].
-     * تُمرَّر جاهزة ولا تُستنتج هنا: ما يصلح وما لا يصلح قرار يُختبر، لا شرط في الرسم.
-     */
-    actions: List<FileAction>,
-    onAction: (FileAction) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(MaxRadius.group),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-    ) {
-        Column(
-            modifier = Modifier.padding(MaxSpace.md),
-            verticalArrangement = Arrangement.spacedBy(MaxSpace.xs),
-        ) {
-            Text(
-                text = labelFor(count),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
-                verticalArrangement = Arrangement.spacedBy(MaxSpace.xs),
-            ) {
-                actions.forEach { action ->
-                    Surface(
-                        shape = RoundedCornerShape(MaxRadius.pill),
-                        color = if (action.destructive) {
-                            MaxTone.Critical.container()
-                        } else {
-                            MaterialTheme.colorScheme.surfaceContainerLowest
-                        },
-                        modifier = Modifier.clickable(role = Role.Button) { onAction(action) },
-                    ) {
-                        Text(
-                            text = stringResource(fileActionLabel(action)),
-                            modifier = Modifier.padding(horizontal = MaxSpace.sm, vertical = MaxSpace.xs),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (action.destructive) {
-                                MaxTone.Critical.content()
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            },
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
 /**
  * عنوان الإجراء بلغة المستخدم.
  *
@@ -437,117 +530,6 @@ fun fileActionLabel(action: FileAction): Int = when (action) {
     FileAction.Details -> R.string.max_files_action_details
     FileAction.Delete -> R.string.max_files_action_delete
     FileAction.Clear -> R.string.max_files_action_clear_selection
-}
-
-/**
- * شريط إجراءات اللوح النشط.
- *
- * وُجد لأنه في العرض المنقسم لا يتّسع لكل لوح شريط إجراءات خاصّ به، ولا يصحّ أن تُخلط
- * إجراءات لوحين في شريط واحد بلا إعلان أيّهما يُقصد. فالشريط يسمّي اللوح النشط، ثم
- * يحمل إجراءاته الأربعة.
- */
-@Composable
-fun ActivePaneStrip(
-    side: PaneSide,
-    pane: FilePaneState,
-    linked: Boolean,
-    onSync: () -> Unit,
-    onBack: () -> Unit,
-    onSwap: () -> Unit,
-    onRefresh: () -> Unit,
-    onUp: () -> Unit,
-    onNewFolder: () -> Unit,
-    onToggleSelect: () -> Unit,
-) {
-    val tone = MaxTone.Accent
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = MaxSpace.sm)
-            // الشريط صار يحمل فعلين إضافيين (مزامنة المسار · تبديل اللوحين) بعد أن
-            // انتقل الترتيب والربط إلى الشريط العلوي. والتمرير الأفقي يضمن ألا يُقصّ
-            // فعل على هاتف ضيّق بدل أن يُضغط بعضه بعضًا — وهو أسوأ من التمرير.
-            .horizontalScroll(rememberScrollState()),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
-    ) {
-        Surface(
-            shape = RoundedCornerShape(MaxRadius.pill),
-            color = tone.container(),
-        ) {
-            Text(
-                text = stringResource(
-                    if (side == PaneSide.Left) R.string.max_files_pane_left else R.string.max_files_pane_right
-                ),
-                modifier = Modifier.padding(horizontal = MaxSpace.sm, vertical = MaxSpace.hairline),
-                style = MaterialTheme.typography.labelLarge,
-                color = tone.content(),
-            )
-        }
-        StripAction(
-            icon = Icons.AutoMirrored.Rounded.ArrowBack,
-            description = stringResource(R.string.max_files_back_cd),
-            onClick = onBack,
-        )
-        StripAction(
-            icon = Icons.Rounded.ArrowUpward,
-            description = stringResource(R.string.max_files_up_cd),
-            onClick = onUp,
-        )
-        StripAction(
-            icon = Icons.Rounded.Sync,
-            description = stringResource(R.string.max_files_refresh_cd),
-            onClick = onRefresh,
-        )
-        StripAction(
-            icon = Icons.Rounded.CreateNewFolder,
-            description = stringResource(R.string.max_files_action_new_folder),
-            onClick = onNewFolder,
-        )
-        StripAction(
-            // `AutoMirrored`: سهم التبديل/المقارنة اتجاهي، فيجب أن ينقلب في العربية
-            // — والقائمة غير المنقلبة تُنتج زرًّا يشير إلى الجهة الخاطئة في RTL.
-            icon = if (pane.selecting) Icons.AutoMirrored.Rounded.CompareArrows else Icons.Rounded.SelectAll,
-            description = stringResource(R.string.max_files_select_cd),
-            onClick = onToggleSelect,
-        )
-        StripAction(
-            icon = Icons.Rounded.Sync,
-            description = stringResource(R.string.max_files_sync_panes_cd),
-            onClick = onSync,
-        )
-        StripAction(
-            icon = Icons.Rounded.SwapHoriz,
-            description = stringResource(R.string.max_files_swap_panes_cd),
-            onClick = onSwap,
-        )
-        if (linked) {
-            // الربط يُقال بالكلام أيضًا: من يفتح هذه الشاشة بلا رؤية للأيقونة الصغيرة
-            // في رأس كل لوح يحتاج جملة واحدة تقول إن اللوحين يتحركان معًا.
-            Text(
-                text = stringResource(R.string.max_files_linked_hint),
-                modifier = Modifier.padding(start = MaxSpace.xs),
-                style = MaterialTheme.typography.labelSmall,
-                color = tone.content(),
-                maxLines = 1,
-            )
-        }
-    }
-}
-
-@Composable
-private fun StripAction(
-    icon: ImageVector,
-    description: String,
-    onClick: () -> Unit,
-) {
-    IconButton(onClick = onClick, modifier = Modifier.size(MaxSize.iconContainer)) {
-        Icon(
-            imageVector = icon,
-            contentDescription = description,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
 }
 
 /** عنوان فرز القائمة بلغة المستخدم — يُترجم عند الاستدعاء كما يترجم أخوه [fileActionLabel]. */

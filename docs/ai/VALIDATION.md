@@ -53,6 +53,36 @@ bash gradlew :app:assembleDebug                                       # 2m34s ·
 
 **الذي لا يُدّعى هنا**: مراجعة السلامة (I-61) والعرض على جهاز حقيقي (I-60).
 
+### 0.2 جولة FM-02 — 2026-09-19 (إعادة بناء شاشة مدير الملفات)
+
+**تغيير في وضع البيئة، لا في الكود:** هذه الشجرة (`/workspaces/Ai`) لم يكن فيها SDK ولا JDK 17 أصلًا —
+بينما `AGENTS.md` §5 يوثّق `~/android-sdk` وJDK 17. أُعيد إنشاء الوضع نفسه **بإذن المالك**، ثم بُني فعلًا:
+
+```sh
+sudo apt-get install -y openjdk-17-jdk-headless          # 17.0.20
+# SDK: cmdline-tools (11076708) + platform-tools + platforms;android-36 + build-tools;36.0.0 → ~/android-sdk
+# manager/local.properties: sdk.dir=$HOME/android-sdk   (وهو في .gitignore فلا يدخل المستودع)
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export ANDROID_HOME="$HOME/android-sdk" ANDROID_SDK_ROOT="$HOME/android-sdk"
+cd manager
+bash gradlew :app:compileDebugKotlin --build-cache --parallel -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+bash gradlew :app:testReleaseUnitTest :app:assembleDebug -x :app:lintVitalRelease --build-cache --parallel -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+bash gradlew :app:minifyReleaseWithR8 --build-cache --parallel -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+```
+
+| الأمر | النتيجة الحرفية |
+| --- | --- |
+| `:app:compileDebugKotlin` | **BUILD SUCCESSFUL in 1m 55s** · صفر خطأ · صفر تحذير في ملفات الجولة |
+| `:app:testReleaseUnitTest :app:assembleDebug` | **BUILD SUCCESSFUL in 3m 42s** (وقياس أول 8m37s وفيه فشل واحد في اختبار جديد أُصلح) · **679 tests completed, 0 failed, 0 errors, 0 skipped** · APK `118,792,784` بايت في آخر بناء |
+| `:app:minifyReleaseWithR8` | **BUILD SUCCESSFUL in 5m 35s** |
+| `python3 tools/code_health.py --assert` | `exit 0` · «صحّة نظيفة» · الدَّين `10 / 29 / 66 / 26` (لا ارتفاع عن السقف) |
+| `python3 tools/i18n_coverage.py --assert` | `exit 0` · عوائق `0` · تطابق الأكواد الثلاثة OK |
+| `python3 tools/repo_audit.py` | `PROBLEMS: 0` |
+
+**ما لا يُدّعى في هذه الجولة:** لم تُفتح الشاشة على جهاز (RTL · حجم خط كبير · لمس · جذر حقيقي)،
+ولم تُلتقط لقطة، وشريط التبويبات عند ٦ تبويبات في لوح بعرض ~١٧٠ نقطة لم يُقس. والتوقيع بالإصدار يبقى
+غير مُختبَر (يحتاج `KS_PWD`).
+
 **④ الإصدار الموقّع — مُتحقَّق 2026-09-18 بعد توليد keystore جديد:**
 
 ```sh

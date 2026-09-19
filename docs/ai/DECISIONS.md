@@ -175,3 +175,30 @@ Binding decisions from the architect pass (2026-09-15). Executors follow these u
 Max AI remains one local control plane. UI preferences reflect observable engine state, not a remembered imperative getter. Request progress is distinct from verified hardware state; a tap never establishes success. Presentation freshness expires independently of engine emissions, rejects future timestamps as live, and never invents a reading before the first sample. A presentation clock does not request hardware reads.
 
 The Max AI destination separates overview, journal, learning and controls while retaining the causal evidence and existing live command centre. Journal queries operate on recorded fields, preserve order, and do not mutate learning. Learning contexts are selected by stable key so new samples cannot silently switch the selected app. All changes reuse `ui/design/`, paired EN/AR strings, existing arbiter ownership and existing safety policy.
+
+## ADR-36 — إعادة بناء واجهة مدير الملفات على طلب المالك، والنموذج لا يُمَس (2026-09-19)
+
+**القرار:** أُعيد بناء **عرض** شاشة مدير الملفات (`FM-02`) استجابةً لطلب المالك الصريح بأنها «عديمة الفائدة
+وغير متناسقة وصعبة الاستخدام»، وبمرجع سبع لقطات لمدير ملفات آخر قُرئت بنصوصها (‏`tools/read_image_text.py`).
+والتغيير مقيَّد بحدّين: ① طبقة العرض — والنموذج الخالص يُعدَّل **إضافةً** لا إبدالًا (`EntryCounts` · `DiskSpace`
+· `isHidden/withoutHidden/counts` · `showHidden`/`tabs` · `FileSystemEngine.diskSpace`)، و② كل ما يُثبت
+السلامة يبقى كما هو: الحرس قبل الـshell، والأحكام الثلاثة للنتيجة، والإعلان عن المجهول («غير مقروءة» لا صفرًا).
+
+**لماذا لا يخالف `ADR-18`:** ذاك يمنع إعادة ما بُني **لأسباب جمالية**. والطلب هنا استعمالي مُعلن، والتشخيص
+مقيس لا مُدَّعى: أربعة أشرطة قبل أول صفّ في كل لوح، وأفعال موزّعة على ثلاثة أشرطة بأيقونات بلا أسماء،
+وصفوف بسطرين تحمل الصلاحيات في كل صفّ. فالقاعدة تُطبَّق على «أعيدوا بنائه ليبدو أحدث» لا على «لم يعد صالحًا
+للاستعمال».
+
+**النتيجة الملزمة للجولات القادمة:**
+
+1. **بنية الشاشة معلنة**: شريط أوامر الشاشة في الأعلى · **شريط سفلي واحد** يتبدّل دوره (أدوات اللوح النشط،
+   أو إجراءات التحديد) · وداخل كل لوح: تبويباته · مساره · سطر حالته · قائمته — ولا شريط خامس يُضاف.
+2. **لكل فعل اسمه**: لا زرّ أيقونة في هذه الشاشة بلا `contentDescription`، ولا إجراء في قائمة إلا بنصّه.
+3. **الإخفاء يُعلَن**: كل ترشيح أو إخفاء يقصّ ما يُرى يجب أن يُصرّح بعدد ما أخفى في سطر الحالة — «مخفيّ
+   ومُعلَن» غير «مفقود».
+4. **ما لا يُقاس لا يُعرض**: لا حجم لمجلد غير مقيس، ولا إجراء لا ينطبق (`FileActionSet`)، ولا مساحة تُكتب
+   صفرًا حين لم تُقرأ.
+5. **التبويبات تخصّ اللوح** وتُحفظ مع حالته (`PaneSaver`)، ولا تُبنى من نصّ محفوظ في مكان آخر.
+
+**الحدود المُعلنة:** لم تُرَ الشاشة على جهاز؛ وعدد التبويبات الكبير في لوح بعرض ~١٧٠ نقطة لم يُقس
+(‏`HANDOFF` تكملة ٤١ §٦).

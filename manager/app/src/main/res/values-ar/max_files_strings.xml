@@ -37,6 +37,8 @@
     <string name="max_files_cond_loading_detail">تمريرة stat واحدة، ليكون الحجم والصلاحيات والمالك مقيسًا لا مقدَّرًا.</string>
     <string name="max_files_cond_empty_title">هذا المجلد فارغ</string>
     <string name="max_files_cond_empty_detail">نجحت القراءة ولم تُرجع أي مدخل. هذه قراءة، لا فشل.</string>
+    <string name="max_files_cond_hidden_title">كل ما هنا مُخفى</string>
+    <string name="max_files_cond_hidden_detail">القراءة نجحت، وكل مدخلات المجلد مخفيّة لأن أسماءها تبدأ بنقطة. وعددها مذكور في سطر حالة اللوح، وقائمة أوامر الشاشة تُظهرها.</string>
     <string name="max_files_cond_notfound_title">المسار غير موجود</string>
     <string name="max_files_cond_notfound_detail">هذا المسار غير موجود على الجهاز الآن.</string>
     <string name="max_files_cond_notdir_title">ليس مجلدًا</string>
@@ -149,7 +151,7 @@
 
     <!-- الشرح -->
     <string name="max_files_help_title">كيف تقرّر هذه الشاشة</string>
-    <string name="max_files_help_body">المدخلات تأتي من تمريرة stat واحدة بصيغة ثابتة مفصولة بتبويب، فلا يُحلَّل مخرج ls للحصول على بيانات أبدًا. وكل ما لم يُقس يُعرض مجهولًا لا صفرًا. وكل عملية تُحرس قبل أن تصل إلى shell: لا يُنسخ مجلد داخل نفسه، ولا يُنقل شيء إلى مصدره، ولا يُحذف جذر نظام الملفات. وترتيب اللوحين اختيارك، والتنقّل المرتبط كذلك: يتبع المجلد بالاسم في اللوح الآخر، وإن لم يوجد ذلك المجلد هناك بقي اللوح مكانه بدل أن يُرسَل إلى مسار مخمَّن.</string>
+    <string name="max_files_help_body">المدخلات تأتي من تمريرة stat واحدة بصيغة ثابتة مفصولة بتبويب، فلا يُحلَّل مخرج ls للحصول على بيانات أبدًا. وكل ما لم يُقس يُعرض مجهولًا لا صفرًا، وسطر حالة كل لوح يلخّص مجلده: كم مجلدًا وكم ملفًا، ومساحة نظام الملفات الذي يقف عليه اللوح — ويقول «غير مقروءة» حين يتعذّر قياسها. والملفات المخفيّة مخفيّة افتراضيًّا وعددها مذكور في السطر نفسه، فالإخفاء مُعلَن لا صامت. وكل عملية تُحرس قبل أن تصل إلى shell: لا يُنسخ مجلد داخل نفسه، ولا يُنقل شيء إلى مصدره، ولا يُحذف جذر نظام الملفات. والتبويبات تُثبّت المجلدات التي تعود إليها، داخل اللوح الذي يخصّها، وتبقى مع التنقّل. وترتيب اللوحين اختيارك، والتنقّل المرتبط كذلك: يتبع المجلد بالاسم في اللوح الآخر، وإن لم يوجد ذلك المجلد هناك بقي اللوح مكانه بدل أن يُرسَل إلى مسار مخمَّن.</string>
 
     <!-- ترتيب اللوحين والربط -->
     <string name="max_files_layout_cd">ترتيب اللوحين</string>
@@ -187,4 +189,34 @@
     <string name="max_files_results_selected">حُدَّد %1$s</string>
     <string name="max_files_select_all_results">حدّد النتائج كلها (%1$s)</string>
     <string name="max_files_invert_results">اعكس الاختيار</string>
+
+    <!--
+      إعادة كتابة الشاشة (جولة FM-02): تبويبات اللوح · سطر حالته · شريط أوامره · مواقع سريعة.
+      والقاعدة نفسها: لكل زرّ نصّه، ولكل حالة نصّها — لا أيقونة بلا اسم.
+    -->
+    <string name="max_files_side_left_short">الأيسر</string>
+    <string name="max_files_side_right_short">الأيمن</string>
+    <string name="max_files_tabs_cd">تبويبات اللوح</string>
+    <string name="max_files_tab_pin">ثبّت المجلد الحالي كتبويب</string>
+    <string name="max_files_tab_close">أزل هذا التبويب</string>
+    <string name="max_files_status_cd">ملخّص المجلد</string>
+    <string name="max_files_status_folders">مجلدات: %1$d</string>
+    <string name="max_files_status_files">ملفات: %1$d</string>
+    <string name="max_files_status_hidden">مخفية: %1$d</string>
+    <string name="max_files_status_disk">%1$s من %2$s</string>
+    <string name="max_files_status_disk_unread">المساحة غير مقروءة</string>
+    <string name="max_files_tools_cd">أدوات اللوح النشط</string>
+    <string name="max_files_menu_cd">خيارات الشاشة</string>
+    <string name="max_files_action_more_cd">إجراءات أخرى</string>
+    <string name="max_files_show_hidden">إظهار الملفات المخفية</string>
+    <string name="max_files_hide_hidden">إخفاء الملفات المخفية</string>
+    <string name="max_files_open_terminal">افتح الطرفية</string>
+    <string name="max_files_search_open_cd">ابحث في هذا المجلد</string>
+    <string name="max_files_search_close_cd">أغلق البحث</string>
+    <string name="max_files_quick_locations_cd">مواقع سريعة</string>
+    <string name="max_files_location_root">الجذر /</string>
+    <string name="max_files_location_storage">التخزين الداخلي</string>
+    <string name="max_files_location_download">التنزيلات</string>
+    <string name="max_files_location_appdata">بيانات التطبيقات</string>
+    <string name="max_files_location_system">النظام</string>
 </resources>

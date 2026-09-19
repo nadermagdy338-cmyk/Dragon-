@@ -135,6 +135,27 @@ data class FileSort(
 )
 
 /**
+ * عدد ما في المجلد: مجلدات · ملفات · مخفيّ.
+ *
+ * والثالث ليس زينة: مدير الملفات الذي يُخفي ما يبدأ بنقطة **يجب أن يقول كم أخفى**،
+ * وإلا قرأ المستخدم «٤ ملفات» على مجلد فيه ٧ — وهذا هو النوع نفسه من الكذب الذي
+ * يمنعه `status_unknown` في التلمترى (ADR-07)، مطبَّقًا على قائمة ملفات.
+ */
+data class EntryCounts(val folders: Int, val files: Int, val hidden: Int) {
+    val total: Int get() = folders + files
+}
+
+/**
+ * مساحة نظام ملفات قُرئت فعلًا: المجموع والمتاح.
+ *
+ * ولا وجود لـ«صفر» هنا: من لم يقرأ يُعيد `null` من القارئ، لأن «المساحة صفر» تعني
+ * قرصًا ممتلئًا وهي أسوأ رسالة ممكنة لم تكن صحيحة (ADR-23).
+ */
+data class DiskSpace(val totalBytes: Long, val freeBytes: Long) {
+    val usedBytes: Long get() = (totalBytes - freeBytes).coerceAtLeast(0L)
+}
+
+/**
  * كل قواعد التنقّل والترتيب والتصفية — خالصة.
  *
  * الترتيب الطبيعي (natural) مقصود: `file2` قبل `file10`. الترتيب الأبجدي الصرف
@@ -225,6 +246,25 @@ object FileBrowser {
         if (needle.isEmpty()) return entries
         return entries.filter { it.name.contains(needle, ignoreCase = true) }
     }
+
+    /**
+     * هل الاسم مخفيّ؟
+     *
+     * عرف يونكس وحده: نقطة في أول الاسم. **ولا يُستنتج من الصلاحيات** — الحكم على
+     * الصلاحيات كان سيُخفي ملفًا مقروءًا من المستخدم العادي في لوح يعمل بالجذر، وهو
+     * قرار لا يملكه هذا النموذج.
+     */
+    fun isHidden(entry: FileEntry): Boolean = entry.name.startsWith(".")
+
+    /** ما يُعرض حين تكون الملفات المخفية مخفيّة. */
+    fun withoutHidden(entries: List<FileEntry>): List<FileEntry> = entries.filterNot(::isHidden)
+
+    /** عدّ المجلدات والملفات — عدّ **ما قُرئ** لا ما يُتوقَّع. */
+    fun counts(entries: List<FileEntry>): EntryCounts = EntryCounts(
+        folders = entries.count { it.isDirectory },
+        files = entries.count { !it.isDirectory },
+        hidden = entries.count(::isHidden),
+    )
 
     /**
      * مقارنة طبيعية: تقارن الأرقام كأرقام والحروف كحروف.

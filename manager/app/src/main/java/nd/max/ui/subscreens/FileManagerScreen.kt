@@ -15,7 +15,7 @@
  */
 
 /**
- * `GAP-09` + `FM-01` — مدير الملفات بالجذر، **بلوحين**.
+ * `GAP-09` + `FM-01` + `FM-02` — مدير الملفات بالجذر، **بلوحين**.
  *
  * القرارات الحاكمة، وكلها مما يميّزها عن «عارض مجلدات»:
  *
@@ -26,13 +26,37 @@
  *    **مجلدًا اختاره المستخدم في اللوح الآخر**، وهذا هو الشكل الذي يظهر فيه «نسخ مجلد
  *    داخل نفسه». و`FileOpGuard` هو من يحكم — لا تكرار للقواعد هنا.
  * 3. **النتيجة ثلاثة أحكام لا حكمان:** «نُفِّذ وتُحقِّق منه» ≠ «نُفِّذ ولم يُتحقّق» ≠ «فشل».
- * 4. **اللوح النشط معلن.** كل إجراء في الشريط يُطبَّق على اللوح النشط وحده، وهو مُعلَّم
- *    بإطار أعرض ولون — فاللون وحده ليس جوابًا لمن لا يراه.
+ * 4. **اللوح النشط معلن.** كل إجراء في الشريط السفلي يُطبَّق على اللوح النشط وحده، وهو
+ *    مُعلَّم بإطار أعرض **وبحبّة اسمه** — فاللون وحده ليس جوابًا لمن لا يراه.
  * 5. **السلاسة:** ذاكرة مجلدات LRU — المجلد المزار يُعرض من الذاكرة في الإطار نفسه ثم
  *    تُقرأ نسخته الطازجة في الخلفية، فلا يُستبدل المحتوى بمؤشّر تحميل عند الرجوع.
+ *
+ * ### جولة FM-02 — إعادة بناء الواجهة (طلب المالك): الشاشة كما تُستعمل لا كما تُوصف
+ *
+ * نصّ الطلب: «أعِد كتابة شاشة مدير الملفات … أريدها كمثل لقطات الشاشة هذه» (مدير ملفات
+ * مرجعي بأشرطة تبويبات وشريط مسار وسطر حالة وصفوف كثيفة وشريط أوامر سفلي). والبنية
+ * القديمة كانت **تضاعف الصفوف وتُشتّت الإجراءات**:
+ *
+ * - كل لوح كان يحمل: حبّة اسم · مسارًا · فتات خبز · حقل بحث دائم · ثلاث قوائم مرشّح ·
+ *   سطر أفعال نتائج — أربعة أشرطة قبل أن تبدأ قائمة الملفات.
+ * - الإجراءات كانت موزّعة على ثلاثة أماكن (شريط الشاشة، شريط اللوح، شريط التحديد) بأيقونات
+ *   بلا أسماء، فمن لا يعرف الرمز لا يعرف الفعل.
+ * - كل صفّ كان سطرين: الاسم، ثم `مجلد · ١٫٦ KB · drwxr-xr-x · 9/19/26` مجموعةً — الصلاحيات
+ *   في كل صفّ بينما تُسأل مرة واحدة عند الحاجة.
+ *
+ * والبنية الجديدة تكمل ما هو مُثبت (النموذج الخالص، والحرس، وذاكرة المجلدات) وتبدّل
+ * **العرض** وحده:
+ *
+ * | الشريط | مكانه | ما يحمله |
+ * | --- | --- | --- |
+ * | شريط الشاشة | الأعلى | الفرز · قائمة أوامر الشاشة (مزامنة · مبادلة · ترتيب اللوحين · ربط · المخفيّ · الطرفية) · الشرح |
+ * | شريط اللوح | الأسفل، حين لا تحديد | صعود · تحديث · مجلد جديد · بحث · تحديد الكل · مواقع سريعة |
+ * | شريط التحديد | الأسفل، حين يوجد تحديد | العدد واللوح · نسخ · نقل · تسمية · حذف · وقائمة بقيّة الإجراءات بأسمائها |
+ *
+ * وفي اللوح نفسه: **شريط تبويباته · مساره · سطر حالته · قائمته** — ولا شيء آخر. والبحث
+ * يُفتح بطلبه ويُغلق بإغلاقه بدل أن يستهلك سطرًا في كل لوح دائمًا. والملفات المخفيّة مخفيّة
+ * افتراضيًّا كما في كل مدير ملفات، **وعددها معلن في سطر الحالة** فلا يُقرأ غيابها كحذف.
  */
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package nd.max.ui.subscreens
 
 import android.content.ClipData
@@ -42,19 +66,20 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.CompareArrows
 import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.rounded.AspectRatio
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.LinkOff
-import androidx.compose.material.icons.rounded.ViewAgenda
-import androidx.compose.material.icons.rounded.ViewColumn
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.SelectAll
+import androidx.compose.material.icons.rounded.SwapHoriz
+import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -77,8 +102,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
-import nd.max.ui.component.ActivePaneStrip
 import nd.max.ui.component.FileDetailsPanel
+import nd.max.ui.component.FilePaneBar
 import nd.max.ui.component.FilePaneColumn
 import nd.max.ui.component.FilePreviewPanel
 import nd.max.ui.component.FileSelectionBar
@@ -86,6 +111,8 @@ import nd.max.ui.component.SelinuxState
 import nd.max.ui.component.fileRefusalText
 import nd.max.ui.component.fileRefusalVerdictText
 import nd.max.ui.component.fileSortLabel
+import nd.max.ui.design.MaxCommand
+import nd.max.ui.design.MaxCommandMenu
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
 import nd.max.ui.design.MaxConfirmDialog
@@ -99,10 +126,9 @@ import nd.max.ui.design.MaxViewMenu
 import nd.max.ui.design.content
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.util.DirectoryCache
+import nd.max.ui.util.DiskSpace
 import nd.max.ui.util.DualPane
-import nd.max.ui.util.FileAction
 import nd.max.ui.util.FileActionSet
-import nd.max.ui.util.FileArchive
 import nd.max.ui.util.FileBrowser
 import nd.max.ui.util.FileEntry
 import nd.max.ui.util.FileFormat
@@ -114,6 +140,7 @@ import nd.max.ui.util.FileOpVerdict
 import nd.max.ui.util.FileOperation
 import nd.max.ui.util.executeFileOperation
 import nd.max.ui.util.FilePaneState
+import nd.max.ui.util.FileSearchFilters
 import nd.max.ui.util.FileSelection
 import nd.max.ui.util.FileSort
 import nd.max.ui.util.FileSortKey
@@ -121,19 +148,19 @@ import nd.max.ui.util.FileSystemEngine
 import nd.max.ui.util.PaneLayout
 import nd.max.ui.util.PaneLayoutRule
 import nd.max.ui.util.PaneSide
+import nd.max.ui.util.PaneTabs
 import nd.max.ui.util.RootUtils
 import nd.max.ui.util.TextPreview
 
 /** عرض يليه الانقسام: تحته يُرصّ اللوحان فوق بعضهما بدل أن يتضايقا. */
 private val SplitThreshold = 600.dp
 
-/** اللوحة المفتوحة بدل اللوحين: تفاصيل أو معاينة. */
-private sealed interface FilePanel {
-    data class Details(val entry: FileEntry) : FilePanel
-    data class Preview(val entry: FileEntry) : FilePanel
-}
-
-/** حفظ حالة اللوح عبر إعادة التركيب، وإلا فقد المستخدم مساره بمجرّد تدوير الجهاز. */
+/**
+ * حفظ حالة اللوح عبر إعادة التركيب، وإلا فقد المستخدم مساره بمجرّد تدوير الجهاز.
+ *
+ * والتبويبات وقرار إظهار المخفيّ يُحفظان معها: هما اختياران وقعا بيد المستخدم، وتدويره
+ * للجهاز لا يعني أنه غيّر رأيه.
+ */
 private val PaneSaver = listSaver<FilePaneState, Any>(
     save = {
         listOf(
@@ -144,6 +171,8 @@ private val PaneSaver = listSaver<FilePaneState, Any>(
             it.sort.directoriesFirst,
             it.selecting,
             ArrayList(it.selection.paths),
+            it.showHidden,
+            ArrayList(it.tabs),
         )
     },
     restore = {
@@ -157,15 +186,10 @@ private val PaneSaver = listSaver<FilePaneState, Any>(
             ),
             selecting = it[5] as Boolean,
             selection = FileSelection((it[6] as ArrayList<*>).filterIsInstance<String>().toSet()),
+            showHidden = it[7] as Boolean,
+            tabs = (it[8] as ArrayList<*>).filterIsInstance<String>(),
         )
     },
-)
-
-/** طلب نسخ/نقل: أيّ لوح طلبه، وماذا، وإلى أين. */
-private data class TransferRequest(
-    val operation: FileOperation,
-    val sources: List<String>,
-    val from: PaneSide,
 )
 
 @Composable
@@ -183,12 +207,18 @@ fun FileManagerScreen(navController: NavController) {
     // الضبط في كل دخول إن لم يُحفظا، وهو أول ما يُشكى منه في هذه الشاشة.
     var layout by rememberSaveable { mutableStateOf(PaneLayout.Auto) }
     var linked by rememberSaveable { mutableStateOf(false) }
+    var searchLeft by rememberSaveable { mutableStateOf(false) }
+    var searchRight by rememberSaveable { mutableStateOf(false) }
     var rootGranted by remember { mutableStateOf<Boolean?>(null) }
     var panel by remember { mutableStateOf<FilePanel?>(null) }
     var selinux by remember { mutableStateOf<SelinuxState>(SelinuxState.NotQueried) }
     var previewContent by remember { mutableStateOf<TextPreview?>(null) }
     var previewLoading by remember { mutableStateOf(false) }
     var refused by remember { mutableStateOf<FileOpRefusal?>(null) }
+    // مساحة نظام الملفات لكل لوح: تُقاس عند كل انتقال، و`null` يعني «لم تُقرأ» — وسطر
+    // الحالة يقولها بهذه العبارة لا بصفر (ADR-23).
+    var leftSpace by remember { mutableStateOf<DiskSpace?>(null) }
+    var rightSpace by remember { mutableStateOf<DiskSpace?>(null) }
 
     var renameTarget by remember { mutableStateOf<Pair<PaneSide, FileEntry>?>(null) }
     var createFolderIn by remember { mutableStateOf<PaneSide?>(null) }
@@ -207,6 +237,29 @@ fun FileManagerScreen(navController: NavController) {
     fun setPane(side: PaneSide, next: FilePaneState) {
         if (side == PaneSide.Left) left = next else right = next
     }
+
+    fun searchOpenOf(side: PaneSide) = if (side == PaneSide.Left) searchLeft else searchRight
+    fun setSearchOpen(side: PaneSide, value: Boolean) {
+        if (side == PaneSide.Left) searchLeft = value else searchRight = value
+    }
+
+    /**
+     * إغلاق البحث: يمسح الاستعلام **والمرشّح**. ولو بقي المرشّح بعد إغلاق الحقل لقُرئت
+     * قائمة ناقصة بلا سبب ظاهر — وهو أسوأ من فقدان مرشّح لم يعد له حقل يراه المستخدم.
+     */
+    fun closeSearch(side: PaneSide) {
+        setPane(side, paneOf(side).copy(query = "", search = FileSearchFilters.Filter()))
+        setSearchOpen(side, false)
+    }
+
+    /**
+     * تغيير ما يُعرض (بحث · مرشّح · إخفاء) يُعيد التحديد إلى ما هو معروض.
+     *
+     * اختيار اختفى بالترشيح ثم نُسخ بلا أن يُرى هو أسوأ ما يمكن أن يفعله مرشّح في مدير
+     * ملفات — فيُقصّ التحديد عند كل تغيير يعيد تشكيل القائمة.
+     */
+    fun keepVisibleSelection(next: FilePaneState): FilePaneState =
+        next.copy(selection = FileSelection(next.selection.paths intersect next.visible().map { it.path }.toSet()))
 
     val activePane = paneOf(active)
     val otherSide = active.other
@@ -232,12 +285,23 @@ fun FileManagerScreen(navController: NavController) {
             runCatching { RootUtils.isRootGranted() }.getOrDefault(false)
         }
     }
-    LaunchedEffect(left.path) { refresh(PaneSide.Left) }
-    LaunchedEffect(right.path) { refresh(PaneSide.Right) }
+    // قراءة القائمة وقياس المساحة في تأثير واحد لكل لوح: كلاهما يخصّ المسار نفسه،
+    // فلا يُقاس نظام ملفات انطلقنا منه.
+    LaunchedEffect(left.path) {
+        refresh(PaneSide.Left)
+        leftSpace = withContext(Dispatchers.IO) { FileSystemEngine.diskSpace(left.path) }
+    }
+    LaunchedEffect(right.path) {
+        refresh(PaneSide.Right)
+        rightSpace = withContext(Dispatchers.IO) { FileSystemEngine.diskSpace(right.path) }
+    }
 
     val navigate: (PaneSide, String, Boolean) -> Unit = { side, target, push ->
         val before = paneOf(side)
-        if (push) historyOf(side).add(before.path)
+        // الانتقال إلى المجلد الذي نحن فيه ليس انتقالًا: إدخاله في السجل يُنتج زرّ رجوع
+        // يوصل إلى المكان نفسه، فيبدو معطلًا وهو ليس كذلك.
+        val moved = FileBrowser.normalize(target) != FileBrowser.normalize(before.path)
+        if (push && moved) historyOf(side).add(before.path)
         setPane(side, before.at(target))
         active = side
 
@@ -245,7 +309,7 @@ fun FileManagerScreen(navController: NavController) {
         // two panes appear linked until the first tap on a breadcrumb, then silently
         // diverge.  Ancestor navigation is deterministic: move the other pane one
         // parent for each breadcrumb jump; never invent a child path that was not read.
-        if (linked && target != before.path) {
+        if (linked && moved) {
             val twin = side.other
             val other = paneOf(twin)
             val mirrored = when {
@@ -265,7 +329,7 @@ fun FileManagerScreen(navController: NavController) {
      * التنقّل المرتبط — يُنقل اللوح الآخر إلى **المجلد ذي الاسم نفسه** من مساره هو،
      * أو يبقى مكانه إن لم يُوجد. والانتقال يدفع سجل اللوح الآخر أيضًا، فيعمل الرجوع فيه.
      *
-     * ولا يُطبَّق على القفز المطلق (شريط الأثر): القفز إلى `/sdcard/Download` لا مقابل
+     * ولا يُطبَّق على القفز المطلق (المواقع السريعة): القفز إلى `/sdcard/Download` لا مقابل
      * اسميّ له في اللوح الآخر، فمقابلته بمسار مخمَّن هي بالضبط ما نمنعه.
      */
     val mirrorIntoOther: (PaneSide, FileEntry) -> Unit = { side, entry ->
@@ -356,6 +420,12 @@ fun FileManagerScreen(navController: NavController) {
         selinux = SelinuxState.NotQueried
         previewContent = null
         panel = target
+    }
+
+    /** تثبيت المجلد الحالي كتبويب في اللوح — ومسحه لا يتكرّر (‏[PaneTabs.pin] تتكفّل بذلك). */
+    val pinCurrentTab: (PaneSide) -> Unit = { side ->
+        val pane = paneOf(side)
+        setPane(side, pane.copy(tabs = PaneTabs.pin(pane.tabs, pane.path)))
     }
 
     // حرس الرجوع بترتيب الأولوية: اللوحة · تحديد اللوح النشط · سجل اللوح النشط.
@@ -458,9 +528,110 @@ fun FileManagerScreen(navController: NavController) {
         null
     }
 
+    // الاسم القصير لا الطويل: شريط التحديد يحمل العدد واللوح والإجراءات معًا، و«اللوح الأيسر»
+    // كاملةً تُقتطع على هاتف ضيّق فيضيع نصف الإعلان. والاسم الطويل يُقرأ مسموعًا في اللوح نفسه.
+    val activePaneLabel = stringResource(
+        if (active == PaneSide.Left) {
+            R.string.max_files_side_left_short
+        } else {
+            R.string.max_files_side_right_short
+        }
+    )
+
+    /** أوامر الشاشة: كل ما لا يخصّ لوحًا بعينه، بأسمائه لا برموزه. */
+    val screenCommands = buildList {
+        add(
+            MaxCommand(
+                label = stringResource(R.string.max_files_sync_panes_cd),
+                icon = Icons.Rounded.Sync,
+                onSelect = { setPane(otherSide, DualPane.syncOther(activePane, otherPane)) },
+            )
+        )
+        add(
+            MaxCommand(
+                label = stringResource(R.string.max_files_swap_panes_cd),
+                icon = Icons.Rounded.SwapHoriz,
+                onSelect = {
+                    val (swappedLeft, swappedRight) = DualPane.swap(left, right)
+                    left = swappedLeft
+                    right = swappedRight
+                },
+            )
+        )
+        PaneLayout.entries.forEach { mode ->
+            add(
+                MaxCommand(
+                    label = stringResource(layoutLabel(mode)),
+                    icon = layoutIcon(mode),
+                    active = layout == mode,
+                    onSelect = { layout = mode },
+                )
+            )
+        }
+        add(
+            MaxCommand(
+                label = stringResource(
+                    if (linked) R.string.max_files_unlink_cd else R.string.max_files_link_cd
+                ),
+                icon = if (linked) Icons.Rounded.LinkOff else Icons.Rounded.Link,
+                active = linked,
+                onSelect = { linked = !linked },
+            )
+        )
+        add(
+            MaxCommand(
+                // الاسم يقول ما سيحدث لا ما هو كائن: القائمة تعرض الفعل القادم.
+                label = stringResource(
+                    if (activePane.showHidden) R.string.max_files_hide_hidden else R.string.max_files_show_hidden
+                ),
+                active = activePane.showHidden,
+                onSelect = {
+                    val pane = paneOf(active)
+                    setPane(active, keepVisibleSelection(pane.copy(showHidden = !pane.showHidden)))
+                },
+            )
+        )
+        add(
+            MaxCommand(
+                label = stringResource(R.string.max_files_open_terminal),
+                icon = Icons.Filled.Terminal,
+                onSelect = { navController.navigate(MaxDestination.Terminal.route) },
+            )
+        )
+    }
+
+    /** المواقع السريعة وأوامر اللوح: تُطبَّق على اللوح النشط لأنها تنقل **هذا** اللوح. */
+    val paneCommands = buildList {
+        quickLocations().forEach { location ->
+            add(
+                MaxCommand(
+                    label = stringResource(location.labelRes),
+                    onSelect = { navigate(active, location.path, true) },
+                )
+            )
+        }
+        add(
+            MaxCommand(
+                label = stringResource(R.string.max_files_tab_pin),
+                icon = Icons.Rounded.Add,
+                active = PaneTabs.isPinned(activePane.tabs, activePane.path),
+                onSelect = { pinCurrentTab(active) },
+            )
+        )
+        add(
+            MaxCommand(
+                label = stringResource(R.string.max_files_edit_path_title),
+                icon = Icons.Rounded.Edit,
+                onSelect = {
+                    pathInput = paneOf(active).path
+                    pathEditSide = active
+                },
+            )
+        )
+    }
+
     MaxSplitScreen(
         title = stringResource(R.string.max_files_title),
-        subtitle = "${activePane.path}  →  ${otherPane.path}",
         onBack = { navController.popBackStack() },
         accentIcon = MaxDestination.FileManager.icon,
         accent = MaxTone.Neutral.content(),
@@ -484,113 +655,34 @@ fun FileManagerScreen(navController: NavController) {
                     setPane(active, activePane.copy(sort = next))
                 },
             )
-            MaxViewMenu(
-                labels = listOf(
-                    stringResource(R.string.max_files_layout_auto),
-                    stringResource(R.string.max_files_layout_side),
-                    stringResource(R.string.max_files_layout_stack),
-                ),
-                selectedIndex = PaneLayout.entries.indexOf(layout),
-                contentDescription = stringResource(R.string.max_files_layout_cd),
-                icons = listOf(
-                    Icons.Rounded.AspectRatio,
-                    Icons.Rounded.ViewColumn,
-                    Icons.Rounded.ViewAgenda,
-                ),
-                onSelect = { index -> layout = PaneLayout.entries[index] },
+            MaxCommandMenu(
+                commands = screenCommands,
+                contentDescription = stringResource(R.string.max_files_menu_cd),
+                triggerIcon = Icons.Rounded.MoreVert,
             )
-            IconButton(onClick = { linked = !linked }) {
-                Icon(
-                    imageVector = if (linked) Icons.Rounded.Link else Icons.Rounded.LinkOff,
-                    contentDescription = stringResource(
-                        if (linked) R.string.max_files_unlink_cd else R.string.max_files_link_cd
-                    ),
-                    // اللون **مع** الرمز: الرمز وحده لا يُقرأه من لا يميّز الأشكال الدقيقة.
-                    tint = if (linked) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                )
-            }
             MaxHelpAction(
                 title = stringResource(R.string.max_files_help_title),
                 body = stringResource(R.string.max_files_help_body),
             )
         },
     ) {
-        ActivePaneStrip(
-            side = active,
-            pane = activePane,
-            linked = linked,
-            onSync = { setPane(otherSide, DualPane.syncOther(activePane, otherPane)) },
-            onBack = { goBack(active) },
-            onSwap = {
-                val (newLeft, newRight) = DualPane.swap(left, right)
-                left = newLeft
-                right = newRight
-            },
-            onRefresh = { refresh(active) },
-            onUp = { goUp(active) },
-            onNewFolder = {
-                input = ""
-                createFolderIn = active
-            },
-            onToggleSelect = {
-                setPane(
-                    active,
-                    if (activePane.selecting) activePane.clearSelection() else activePane.copy(selecting = true),
-                )
-            },
-        )
-
-        if (activePane.selecting) {
-            FileSelectionBar(
-                count = activePane.selection.count,
-                labelFor = { count -> stringResource(R.string.max_files_selected_count, count) },
-                // الإجراءات المنطبقة تُحسب في النموذج: زرّ لا يعد بما لا يمكن فعله.
-                actions = FileActionSet.forSelection(activePane.entries, activePane.selection),
-                onAction = { action ->
-                    onSelectionAction(
-                        side = active,
-                        action = action,
-                        pane = activePane,
-                        onOpenPanel = openPanel,
-                        onRename = { entry ->
-                            input = entry.name
-                            renameTarget = active to entry
-                        },
-                        onDelete = { deleteTargets = active to it },
-                        onTransfer = { operation, sources ->
-                            // الوجهة الافتراضية هي اللوح الآخر — وهذا هو معنى اللوحين:
-                            // لا يكتب المستخدم مسارًا ولا ينسخ إلى مكان لم يره.
-                            destination = otherPane.path
-                            transfer = TransferRequest(operation, sources, active)
-                        },
-                        onRun = { targetSide, request -> runOperation(targetSide, request) },
-                        onClear = { setPane(active, activePane.clearSelection()) },
-                    )
-                },
-            )
-        }
-
         BoxWithConstraints(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(top = MaxSpace.sm),
+                .fillMaxWidth()
+                .weight(1f),
         ) {
             // كل لوح يُوصَّل **مرّة واحدة**، ولا يُكتب وِراؤه مرتين حسب اتجاه التخطيط.
             // قبل هذا كان سلوك النقر مكتوبًا في **أربعة مواضع** (لوحان × لفّتان)، فأي تغيير
             // فيه يجب أن يُكتب أربع مرّات — ومن ينسى واحدًا يُنتج لوحين يتصرّفان بشكلين.
-            // والأربعة كانوا متطابقين، فالتكرار لم يشترِ شيئًا غير خطر النسيان.
             val renderPane: @Composable (PaneSide, Modifier) -> Unit = { side, modifier ->
-                val pane = paneOf(side)
                 FilePaneColumn(
                     side = side,
-                    state = pane,
+                    state = paneOf(side),
                     // اللوح النشط يُعلن بالإطار واللون **معًا** لا باللون وحده.
                     active = active == side,
+                    diskSpace = if (side == PaneSide.Left) leftSpace else rightSpace,
                     linked = linked,
+                    searchOpen = searchOpenOf(side),
                     modifier = modifier,
                     onActivate = { active = side },
                     onPathEdit = {
@@ -603,25 +695,15 @@ fun FileManagerScreen(navController: NavController) {
                     onQueryChange = { query -> setPane(side, paneOf(side).copy(query = query)) },
                     onSearchChange = { filter ->
                         val pane = paneOf(side)
-                        // تغيير المرشّح يغيّر المجموعة المعروضة، فالتحديد يُعاد إلى ما هو معروض:
-                        // اختيار اختفى بالترشيح ثم نُسخ بلا أن يُرى هو أسوأ ما يمكن أن يفعله
-                        // مرشّح في مدير ملفات.
-                        setPane(
-                            side,
-                            pane.copy(
-                                search = filter,
-                                selection = FileSelection(pane.selection.paths intersect pane.visible().map { it.path }.toSet()),
-                            ),
-                        )
+                        // الترشيح يُقاس على الحالة **الجديدة**: القصّ على المجموعة القديمة
+                        // كان يُبقي تحديدًا لم يعد ظاهرًا بعد تطبيق المرشّح نفسه.
+                        setPane(side, keepVisibleSelection(pane.copy(search = filter)))
                     },
-                    onSelectAllResults = {
+                    onCloseSearch = { closeSearch(side) },
+                    onPinCurrent = { pinCurrentTab(side) },
+                    onRemoveTab = { path ->
                         val pane = paneOf(side)
-                        // **النتائج** لا المجلد: من بحث ثم ضغط «حدّد الكل» يقصد ما يراه.
-                        setPane(side, pane.copy(selecting = true, selection = pane.selection.selectAll(pane.visible())))
-                    },
-                    onInvertResults = {
-                        val pane = paneOf(side)
-                        setPane(side, pane.copy(selecting = true, selection = pane.selection.invert(pane.visible())))
+                        setPane(side, pane.copy(tabs = PaneTabs.unpin(pane.tabs, path)))
                     },
                     onEntryClick = { entry ->
                         when {
@@ -660,6 +742,96 @@ fun FileManagerScreen(navController: NavController) {
                     renderPane(PaneSide.Right, Modifier.weight(1f))
                 }
             }
+        }
+
+        // شريط واحد في الأسفل يتبدّل بدوره: أدوات اللوح النشط، أو إجراءات التحديد. والتبديل
+        // مقصود: التحديد عملية طارئة تُصلح لها الأوامر، واللوح حالة دائمة تُصلح لها الأدوات.
+        if (activePane.selecting && activePane.selection.isNotEmpty) {
+            FileSelectionBar(
+                label = stringResource(R.string.max_files_selected_count, activePane.selection.count) +
+                    "  ·  " + activePaneLabel,
+                // الإجراءات المنطبقة تُحسب في النموذج: زرّ لا يعد بما لا يمكن فعله.
+                actions = FileActionSet.forSelection(activePane.entries, activePane.selection),
+                onAction = { action ->
+                    onSelectionAction(
+                        side = active,
+                        action = action,
+                        pane = activePane,
+                        onOpenPanel = openPanel,
+                        onRename = { entry ->
+                            input = entry.name
+                            renameTarget = active to entry
+                        },
+                        onDelete = { deleteTargets = active to it },
+                        onTransfer = { operation, sources ->
+                            // الوجهة الافتراضية هي اللوح الآخر — وهذا هو معنى اللوحين:
+                            // لا يكتب المستخدم مسارًا ولا ينسخ إلى مكان لم يره.
+                            destination = otherPane.path
+                            transfer = TransferRequest(operation, sources, active)
+                        },
+                        onRun = { targetSide, request -> runOperation(targetSide, request) },
+                        onClear = { setPane(active, activePane.clearSelection()) },
+                    )
+                },
+                extra = listOf(
+                    MaxCommand(
+                        // «حدّد الكل» على **النتائج** لا على المجلد: من مرّر قائمة يحدّد ما يراها.
+                        label = stringResource(
+                            R.string.max_files_select_all_results,
+                            activePane.visible().size.toString(),
+                        ),
+                        icon = Icons.Rounded.SelectAll,
+                        onSelect = {
+                            val pane = paneOf(active)
+                            setPane(
+                                active,
+                                pane.copy(selecting = true, selection = pane.selection.selectAll(pane.visible())),
+                            )
+                        },
+                    ),
+                    MaxCommand(
+                        label = stringResource(R.string.max_files_invert_results),
+                        icon = Icons.AutoMirrored.Rounded.CompareArrows,
+                        onSelect = {
+                            val pane = paneOf(active)
+                            setPane(
+                                active,
+                                pane.copy(selecting = true, selection = pane.selection.invert(pane.visible())),
+                            )
+                        },
+                    ),
+                ),
+            )
+        } else {
+            FilePaneBar(
+                searchOpen = searchOpenOf(active),
+                modifier = Modifier.padding(top = MaxSpace.sm),
+                onUp = { goUp(active) },
+                onRefresh = { refresh(active) },
+                onNewFolder = {
+                    input = ""
+                    createFolderIn = active
+                },
+                onToggleSearch = {
+                    if (searchOpenOf(active)) closeSearch(active) else setSearchOpen(active, true)
+                },
+                onToggleSelect = {
+                    // الزرّ **يحدّد الكل** لا «يدخل وضع التحديد»: وضع تحديد فارغ شاشةٌ لا
+                    // تعرض شيئًا ولا تفعل شيئًا، ومن ضغطه يريد أن يحدّد. وإن لم يُمكن تحديد
+                    // شيء (مجلد فارغ أو مرشّح لا يطابق) فالنتيجة إلغاء تحديد لا دخول في وضع.
+                    val pane = paneOf(active)
+                    val selectable = pane.visible()
+                    setPane(
+                        active,
+                        if (pane.selecting || selectable.isEmpty()) {
+                            pane.clearSelection()
+                        } else {
+                            pane.copy(selecting = true, selection = pane.selection.selectAll(selectable))
+                        },
+                    )
+                },
+                quickLocations = paneCommands,
+            )
         }
     }
 
@@ -805,48 +977,3 @@ fun FileManagerScreen(navController: NavController) {
     )
 }
 
-/**
- * إجراءات شريط التحديد — دالّة واحدة تأخذ الحالة وترجع الأفعال، فتبقى الشاشة قابلة
- * للقراءة ولا تتفرّع قائمة `when` داخل تركيب الواجهة.
- */
-private fun onSelectionAction(
-    side: PaneSide,
-    action: FileAction,
-    pane: FilePaneState,
-    onOpenPanel: (FilePanel) -> Unit,
-    onRename: (FileEntry) -> Unit,
-    onDelete: (List<String>) -> Unit,
-    onTransfer: (FileOperation, List<String>) -> Unit,
-    onRun: (PaneSide, FileOpRequest) -> Unit,
-    onClear: () -> Unit,
-) {
-    val sources = pane.selection.paths.toList().sorted()
-    // المدخلات المختارة فعلًا، لا المسارات وحدها: نوع المدخل (أرشيف؟) يحدّد الإجراء.
-    val chosen = pane.entries.filter { it.path in pane.selection.paths }
-    when (action) {
-        FileAction.Copy -> onTransfer(FileOperation.Copy, sources)
-        FileAction.Move -> onTransfer(FileOperation.Move, sources)
-        FileAction.Delete -> onDelete(sources)
-        FileAction.Clear -> onClear()
-        FileAction.Compress -> {
-            val first = chosen.firstOrNull() ?: return
-            val archive = FileBrowser.childPath(pane.path, FileArchive.archiveNameFor(first.name))
-            onRun(side, FileOpRequest(FileOperation.Compress, sources = sources, destination = archive))
-        }
-        // الفكّ يذهب إلى **مجلد اللوح الحالي**: هذا أين ينظر المستخدم، لا حوار وجهة
-        // إضافي لعملية أمنها منخفض ونتيجتها مرئية فورًا.
-        FileAction.Extract -> {
-            val archive = chosen.singleOrNull() ?: return
-            onRun(
-                side,
-                FileOpRequest(
-                    operation = FileOperation.Extract,
-                    sources = listOf(archive.path),
-                    destination = pane.path,
-                )
-            )
-        }
-        FileAction.Rename -> chosen.singleOrNull()?.let(onRename) ?: return
-        FileAction.Details -> onOpenPanel(FilePanel.Details(chosen.singleOrNull() ?: return))
-    }
-}

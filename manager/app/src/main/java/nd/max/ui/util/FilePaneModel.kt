@@ -83,6 +83,21 @@ data class FilePaneState(
     val sort: FileSort = FileSort(),
     val selection: FileSelection = FileSelection(),
     val selecting: Boolean = false,
+    /**
+     * الملفات المخفّية ظاهرة أو لا.
+     *
+     * والافتراضي **مخفيّة** كما في كل مدير ملفات — وليس إخفاءً صامتًا: [EntryCounts.hidden]
+     * يُعرض في سطر حالة اللوح دائمًا، فيعرف المستخدم أن هناك ما لا يراه وأن مفتاحه في
+     * قائمة أوامر اللوح. والفرق بين «مخفيّ وأعلنته» و«مفقود» هو كل الفرق.
+     */
+    val showHidden: Boolean = false,
+    /**
+     * تبويبات اللوح: مجلدات مثبّتة في **هذا اللوح وحده** لتُنقَر فيُنتقل إليها.
+     *
+     * وتبقى مع التنقّل ([at] لا يصفّرها) لأنها ليست موضعًا حاليًا بل مفاتيح، ولا تُصفَّر
+     * بعد عملية لأن العملية قد تكون هي سبب الحاجة إليها.
+     */
+    val tabs: List<String> = emptyList(),
 ) {
     /** المدخلات كما قرأها الجهاز، بلا تصفية ولا ترتيب. */
     val entries: List<FileEntry> get() = (listing as? DirectoryListing.Entries)?.entries.orEmpty()
@@ -95,7 +110,14 @@ data class FilePaneState(
      * سيصيّر الناتج غير قابل للقياس بلا انتظار. والقيمة الافتراضية تجعل الشاشة تُمرّر لا شيئًا.
      */
     fun visible(nowEpochSec: Long = System.currentTimeMillis() / 1000L): List<FileEntry> = FileBrowser.sort(
-        FileSearchFilters.apply(FileBrowser.filter(entries, query), search, nowEpochSec),
+        FileSearchFilters.apply(
+            FileBrowser.filter(
+                if (showHidden) entries else FileBrowser.withoutHidden(entries),
+                query,
+            ),
+            search,
+            nowEpochSec,
+        ),
         sort,
     )
 
@@ -117,6 +139,40 @@ data class FilePaneState(
     fun clearSelection(): FilePaneState = copy(selecting = false, selection = FileSelection())
 
     fun isSelected(target: String): Boolean = target in selection.paths
+}
+
+/**
+ * تبويبات اللوح — عمليّات خالصة على قائمة مسارات.
+ *
+ * ولماذا تبويبات أصلًا: التنقّل في مدير ملفات ذهاب وعودة بين مجلدين أو ثلاثة، وكل
+ * عودة تعني صعودًا ثم دخولًا أو مسارًا يُكتب يدويًّا. والتبويب يحفظ المكان الذي **اختاره
+ * المستخدم** بنقرة واحدة، وهو الفرق الذي يجعل اللوحين يعملان: لوح على `Download`
+ * وآخر على `Android/data`، والتبويبات داخل كل لوح لحفظ المقارنات المتكرّرة.
+ *
+ * ولا سقف لعددها — الشريط يمرّ أفقيًّا. و«سقف يُسقط الأقدم» كان سيعني أن تثبيتًا وقع
+ * بيد المستخدم يُحذف بلا أن يعلم، وهو أسوأ من تمرير.
+ */
+object PaneTabs {
+
+    /** تثبيت مسار. التكرار لا يُنتج تبويبًا ثانيًا، فيُصبح النقر على «ثبّت» آمنًا. */
+    fun pin(tabs: List<String>, path: String): List<String> {
+        val target = FileBrowser.normalize(path)
+        return if (target in tabs) tabs else tabs + target
+    }
+
+    /** إزالة التثبيت — وبلا خطأ إن لم يكن مثبّتًا. */
+    fun unpin(tabs: List<String>, path: String): List<String> = tabs - FileBrowser.normalize(path)
+
+    fun isPinned(tabs: List<String>, path: String): Boolean = FileBrowser.normalize(path) in tabs
+
+    /**
+     * عنوان التبويب: اسم آخر قطعة في المسار — والجذر يعرض نفسه (`/`).
+     *
+     * والاسم وحده لا المسار الكامل: الشريط يحمل خمسة تبويبات أو أكثر، ومسار كامل في كل
+     * تبويب يجعل الشريط سطرًا من المسارات المتشابهة. والمسار الكامل يُقرأ في شريط المسار
+     * فور النقر على التبويب — أي أنه لا يُخفى، بل يُؤجَّل إلى حيث يُقرأ.
+     */
+    fun label(path: String): String = FileBrowser.nameOf(path)
 }
 
 /** نموذج اللوحين: بناء طلبات النقل بينهما، والمزامنة، والتبديل. */

@@ -333,4 +333,92 @@ class FilePaneModelTest {
             FileSelection(setOf("/sdcard/a.jpg")).invert(entries).paths,
         )
     }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // الملفات المخفيّة
+    // ────────────────────────────────────────────────────────────────────────
+
+    /**
+     * الافتراضي أن المخفيّ مخفيّ، ومفتاحه يُظهره — والعدد **يبقى معلنًا** في الحالتين،
+     * فالإخفاء هنا قرار عرض مُعلَن لا اختفاء صامت (ADR-07 مطبَّقًا على قائمة ملفات).
+     */
+    @Test
+    fun hiddenEntriesAreHiddenByDefaultAndAnnouncedByTheirCount() {
+        val state = pane(
+            "/sdcard",
+            dir("/sdcard", "DCIM"),
+            file("/sdcard", "note.txt"),
+            file("/sdcard", ".pending-99.zip"),
+        )
+
+        assertFalse(state.showHidden)
+        assertEquals(listOf("DCIM", "note.txt"), state.visible().map { it.name })
+
+        // والعدّ يقيس القراءة كلها لا المعروض وحده: هذا الفرق هو ما يقوله سطر الحالة.
+        assertEquals(1, FileBrowser.counts(state.entries).hidden)
+        assertEquals(0, FileBrowser.counts(state.visible()).hidden)
+
+        assertEquals(
+            listOf("DCIM", ".pending-99.zip", "note.txt"),
+            state.copy(showHidden = true).visible().map { it.name },
+        )
+    }
+
+    /** والتنقّل لا يُلغي قرار العرض: من أظهر المخفيّ يبقى ظاهرًا في المجلد التالي. */
+    @Test
+    fun navigatingKeepsTheHiddenFilesDecision() {
+        val state = FilePaneState(path = "/sdcard", showHidden = true, loading = false)
+        assertTrue(state.at("/sdcard/DCIM").showHidden)
+        assertTrue(state.copy(selecting = true).at("/data").showHidden)
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // تبويبات اللوح
+    // ────────────────────────────────────────────────────────────────────────
+
+    /** التثبيت لا يتكرّر، والإزالة لا تفشل إن لم يكن مثبّتًا، والمسار يُطبَّع قبل المقارنة. */
+    @Test
+    fun pinningATabIsIdempotentAndUnpinningIsForgiving() {
+        val pinned = PaneTabs.pin(emptyList(), "/sdcard/Download")
+        assertEquals(listOf("/sdcard/Download"), pinned)
+        assertEquals(pinned, PaneTabs.pin(pinned, "/sdcard/Download"))
+        // شرطة أخيرة أو شرطتان لا تُنتجان تبويبًا ثانيًا لنفس المجلد.
+        assertEquals(pinned, PaneTabs.pin(pinned, "/sdcard//Download/"))
+
+        assertTrue(PaneTabs.isPinned(pinned, "/sdcard/Download"))
+        assertFalse(PaneTabs.isPinned(pinned, "/sdcard/Music"))
+        assertEquals(emptyList<String>(), PaneTabs.unpin(pinned, "/sdcard/Download"))
+        assertEquals(pinned, PaneTabs.unpin(pinned, "/sdcard/Music"))
+    }
+
+    /** ولا سقف يُسقط تبويبًا: الشريط يمرّ أفقيًّا، والحذف لا يقع بغير يد المستخدم. */
+    @Test
+    fun tabsAreNeverDroppedToFitALimit() {
+        var tabs: List<String> = emptyList()
+        repeat(12) { index -> tabs = PaneTabs.pin(tabs, "/sdcard/folder$index") }
+        assertEquals(12, tabs.size)
+        assertEquals("/sdcard/folder0", tabs.first())
+        assertEquals("/sdcard/folder11", tabs.last())
+    }
+
+    /** عنوان التبويب اسمه الأخير، والجذر يعرض نفسه بدل اسم فارغ. */
+    @Test
+    fun aTabIsLabelledByItsLastSegment() {
+        assertEquals("Download", PaneTabs.label("/sdcard/Download"))
+        assertEquals("Download", PaneTabs.label("/sdcard/Download/"))
+        assertEquals("/", PaneTabs.label("/"))
+    }
+
+    /** والتبويبات تخصّ اللوح: التنقّل فيها لا يُلغيها، والتبديل لا ينقلها إلى اللوح الآخر. */
+    @Test
+    fun tabsBelongToTheirPane() {
+        val left = FilePaneState(path = "/sdcard", tabs = listOf("/sdcard/Download"), loading = false)
+        val right = FilePaneState(path = "/data", loading = false)
+        assertEquals(listOf("/sdcard/Download"), left.at("/sdcard/DCIM").tabs)
+
+        val (swappedLeft, swappedRight) = DualPane.swap(left, right)
+        assertEquals("/data", swappedLeft.path)
+        assertEquals(listOf("/sdcard/Download"), swappedLeft.tabs)
+        assertEquals(emptyList<String>(), swappedRight.tabs)
+    }
 }
