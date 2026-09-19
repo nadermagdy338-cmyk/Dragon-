@@ -2337,3 +2337,37 @@ Wrapper معًا: AGP 9.4 يطلب Gradle أحدث، والمقترض في ال�
 
 **RESIDUAL RISK:** لم تُلتقط صورة جهاز حقيقي في هذه البيئة، لذلك لم يُحكم بصريًا على RTL أو حجم الخط الكبير أو عرض القيم على جهاز ضيق. تحذيرات Kotlin القائمة لم تتغير. `code_health --assert` يبقى متأثرًا بملف الجذر المعروف `session-ses_f487.md`، لا بهذا التعديل.
 **NEXT:** تركيب APK على الجهاز، فتح GPU على Qualcomm وMali إن أمكن، واختبار سيناريو: اختيار Performance/intent → مراجعة → Apply → رفض العقدة → ظهور rollback.
+
+### APPS-STATE-01 — توحيد حالة التحميل في شاشة التطبيقات + استخراج شريط اللوح — 2026-09-19
+
+**TASK:** APPS-STATE-01 (small) — `DONE_WITH_CONCERNS`
+**FILES:** `ui/mainscreens/ApplistScreen.kt` · `ui/component/FileManagerPanels.kt` (استقبل شريط اللوح) ·
+`ui/subscreens/FileManagerScreen.kt` (فقده) · `test/java/nd/max/ui/mainscreens/ApplistPresentationArchitectureTest.kt` (جديد) ·
+`tools/test_maxai_jvm.py`.
+
+**WHAT:** القياس سبق التخمين: `tools/read_image_text.py` قرأ نصّ `applist_loading_desc` من اللقطة، وهندسة
+الصورة أعطت حلقة قطرها ١٤٠px بسماكة قوس ٣٠–٣٤px على عرض ١٢٢٠px — أي `CircularProgressIndicator(76.dp)`
+بعنوان `headlineMedium`. وكان ذلك **العنصر الوحيد في التطبيق** الذي يرسم حالته داخل الشاشة، بينما الشاشة نفسها
+تعرض خطأها وفراغها بـ`MaxErrorState`/`MaxEmptyState`. ⇒ صارت حالة التحميل `MaxLoadingState` بالعبارتين
+نفسهما، فالحالات الثلاث تقرأ بلغة واحدة وبمقاس واحد (`titleMedium` · `bodyMedium` · أيقونة ٢٨dp في بطاقة).
+
+**وأُصلح دَين الجولة السابقة:** `FileManagerScreen.kt` كان قد بلغ ١٠٠٢ سطر (فوق سقف ١٠٠٠)، فأُخرج شريط إجراءات
+اللوح (`ActivePaneStrip` + `StripAction`) وخرائط الفرز والرفض إلى `ui/component/FileManagerPanels.kt` — الملف
+الذي أُنشئ لهذا الغرض نصًّا. الشاشة الآن **٨٥١ سطرًا**، وسقط **١٩ استيرادًا ميتًا** — اثنان منها (`DirectoryListing` و`EventLog`) كانا
+ميتين قبل هذا التعديل أصلًا، والبقية صارت ميتة بنقل الشريط. و`getValue`/`setValue` **لم يُحذفا** وإن أشار إليهما
+فحصٌ ساذج: هما مشغّلا `by` في `var left by rememberSaveable { … }` ولا يُكتب اسمهما في الكود أبدًا.
+
+**GATES:** `code_health --assert` → `oversized_files` رجع تحت السقف (الحمراء الوحيدة `stray_root_file`:
+`session-ses_f487.md`) · `i18n_coverage --assert` = 0 عوائق · `repo_audit.py` = `PROBLEMS: 0` ·
+هارنس JVM = **١٣٧ OK** و**٣٨ ملفًّا** بلا خطأ إعرابي.
+**BUILD:** `:app:compileDebugKotlin` ✅ · `:app:testDebugUnitTest` = **٦٥٢ اختبارًا، صفر فشل**.
+**إعادات العطب:** أربع طفرات (حلقة يدوية تعود · الخروج من عائلة الحالات · توسيع الشرط إلى كل تحديث ·
+إدخال خطّ display) ⇒ فشل كل منها **بالاسم** في `ApplistPresentationArchitectureTest`، ثم عاد الشجر نظيفًا.
+ومُصرّف Kotlin نفسه أمسك خطأي: دالّة واحدة للرفض لا تكفي لأن مسار الـsnackbar يمرّر `FileOpRefusal` لا حكمًا
+⇒ فُصلتا `fileRefusalText(reason)` و`fileRefusalVerdictText(verdict)`.
+
+**RESIDUAL RISK:** لم يُرَ العنصر على جهاز — المقاس النهائي مشتقّ من `MaxContentState` لا من صورة. وتغيّرت أسماء
+`refusalText`/`refusalTextOrNull`/`sortLabel` في الانتقال إلى `fileRefusalText`/`fileRefusalVerdictText`/`fileSortLabel`
+(الاسم الجديد يحمل نطاقه في ملف مشترك) — ولا مستدعي خارجيًا لها خارج هذه الشاشة.
+**NEXT:** تشغيل APK ورؤية الحالة الجديدة فور فتح «التطبيقات» على شاشة بعرض فعلي ضيّق، ثم قرار نقل
+`session-ses_f487.md` من الجذر إلى `docs/ai/` لإغلاق الحمراء الأخيرة.

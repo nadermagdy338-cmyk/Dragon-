@@ -15,7 +15,8 @@
  */
 
 /**
- * أجزاء شاشة مدير الملفات: شريط المسار · شريط التحديد · لوحة التفاصيل · لوحة المعاينة.
+ * أجزاء شاشة مدير الملفات: شريط المسار · شريط إجراءات اللوح · شريط التحديد · لوحة
+ * التفاصيل · لوحة المعاينة.
  *
  * فُصلت عن الشاشة لسببين لا لتنظيم الشكل: الشاشة كانت ستتجاوز حدّ الحجم المعلن في
  * المستودع، و**لأن كل جزء هنا يُقرأ وحده** — لوحة التفاصيل يجب أن تُراجَع بمعزل عن
@@ -33,17 +34,27 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.CompareArrows
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.CreateNewFolder
+import androidx.compose.material.icons.rounded.SelectAll
+import androidx.compose.material.icons.rounded.SwapHoriz
+import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
@@ -65,7 +76,12 @@ import nd.max.ui.util.FileAction
 import nd.max.ui.util.FileEntry
 import nd.max.ui.util.FileFormat
 import nd.max.ui.util.FileKind
+import nd.max.ui.util.FileOpRefusal
+import nd.max.ui.util.FileOpVerdict
+import nd.max.ui.util.FilePaneState
 import nd.max.ui.util.FilePermissions
+import nd.max.ui.util.FileSortKey
+import nd.max.ui.util.PaneSide
 import nd.max.ui.util.TextPreview
 import java.text.DateFormat
 import java.util.Date
@@ -422,3 +438,144 @@ fun fileActionLabel(action: FileAction): Int = when (action) {
     FileAction.Delete -> R.string.max_files_action_delete
     FileAction.Clear -> R.string.max_files_action_clear_selection
 }
+
+/**
+ * شريط إجراءات اللوح النشط.
+ *
+ * وُجد لأنه في العرض المنقسم لا يتّسع لكل لوح شريط إجراءات خاصّ به، ولا يصحّ أن تُخلط
+ * إجراءات لوحين في شريط واحد بلا إعلان أيّهما يُقصد. فالشريط يسمّي اللوح النشط، ثم
+ * يحمل إجراءاته الأربعة.
+ */
+@Composable
+fun ActivePaneStrip(
+    side: PaneSide,
+    pane: FilePaneState,
+    linked: Boolean,
+    onSync: () -> Unit,
+    onBack: () -> Unit,
+    onSwap: () -> Unit,
+    onRefresh: () -> Unit,
+    onUp: () -> Unit,
+    onNewFolder: () -> Unit,
+    onToggleSelect: () -> Unit,
+) {
+    val tone = MaxTone.Accent
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = MaxSpace.sm)
+            // الشريط صار يحمل فعلين إضافيين (مزامنة المسار · تبديل اللوحين) بعد أن
+            // انتقل الترتيب والربط إلى الشريط العلوي. والتمرير الأفقي يضمن ألا يُقصّ
+            // فعل على هاتف ضيّق بدل أن يُضغط بعضه بعضًا — وهو أسوأ من التمرير.
+            .horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
+    ) {
+        Surface(
+            shape = RoundedCornerShape(MaxRadius.pill),
+            color = tone.container(),
+        ) {
+            Text(
+                text = stringResource(
+                    if (side == PaneSide.Left) R.string.max_files_pane_left else R.string.max_files_pane_right
+                ),
+                modifier = Modifier.padding(horizontal = MaxSpace.sm, vertical = MaxSpace.hairline),
+                style = MaterialTheme.typography.labelLarge,
+                color = tone.content(),
+            )
+        }
+        StripAction(
+            icon = Icons.AutoMirrored.Rounded.ArrowBack,
+            description = stringResource(R.string.max_files_back_cd),
+            onClick = onBack,
+        )
+        StripAction(
+            icon = Icons.Rounded.ArrowUpward,
+            description = stringResource(R.string.max_files_up_cd),
+            onClick = onUp,
+        )
+        StripAction(
+            icon = Icons.Rounded.Sync,
+            description = stringResource(R.string.max_files_refresh_cd),
+            onClick = onRefresh,
+        )
+        StripAction(
+            icon = Icons.Rounded.CreateNewFolder,
+            description = stringResource(R.string.max_files_action_new_folder),
+            onClick = onNewFolder,
+        )
+        StripAction(
+            // `AutoMirrored`: سهم التبديل/المقارنة اتجاهي، فيجب أن ينقلب في العربية
+            // — والقائمة غير المنقلبة تُنتج زرًّا يشير إلى الجهة الخاطئة في RTL.
+            icon = if (pane.selecting) Icons.AutoMirrored.Rounded.CompareArrows else Icons.Rounded.SelectAll,
+            description = stringResource(R.string.max_files_select_cd),
+            onClick = onToggleSelect,
+        )
+        StripAction(
+            icon = Icons.Rounded.Sync,
+            description = stringResource(R.string.max_files_sync_panes_cd),
+            onClick = onSync,
+        )
+        StripAction(
+            icon = Icons.Rounded.SwapHoriz,
+            description = stringResource(R.string.max_files_swap_panes_cd),
+            onClick = onSwap,
+        )
+        if (linked) {
+            // الربط يُقال بالكلام أيضًا: من يفتح هذه الشاشة بلا رؤية للأيقونة الصغيرة
+            // في رأس كل لوح يحتاج جملة واحدة تقول إن اللوحين يتحركان معًا.
+            Text(
+                text = stringResource(R.string.max_files_linked_hint),
+                modifier = Modifier.padding(start = MaxSpace.xs),
+                style = MaterialTheme.typography.labelSmall,
+                color = tone.content(),
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
+private fun StripAction(
+    icon: ImageVector,
+    description: String,
+    onClick: () -> Unit,
+) {
+    IconButton(onClick = onClick, modifier = Modifier.size(MaxSize.iconContainer)) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/** عنوان فرز القائمة بلغة المستخدم — يُترجم عند الاستدعاء كما يترجم أخوه [fileActionLabel]. */
+@Composable
+fun fileSortLabel(key: FileSortKey): Int = when (key) {
+    FileSortKey.Name -> R.string.max_files_sort_name
+    FileSortKey.Size -> R.string.max_files_sort_size
+    FileSortKey.Modified -> R.string.max_files_sort_date
+    FileSortKey.Kind -> R.string.max_files_sort_kind
+}
+
+/**
+ * أسباب الرفض بلغة المستخدم — الخريطة الوحيدة من [FileOpRefusal] إلى نصّ يراه المستخدم.
+ *
+ * وهي لا في [FileOpRefusal] عن قصد: القرار يُختبر في نموذج لا يعرف `R` ولا Compose،
+ * والنصّ شأن عرض.
+ */
+@Composable
+fun fileRefusalText(reason: FileOpRefusal): String = when (reason) {
+    FileOpRefusal.EmptySelection -> stringResource(R.string.max_files_refuse_empty)
+    FileOpRefusal.ProtectedPath -> stringResource(R.string.max_files_refuse_protected)
+    FileOpRefusal.SelfTarget -> stringResource(R.string.max_files_refuse_self)
+    FileOpRefusal.TargetInsideSource -> stringResource(R.string.max_files_refuse_inside)
+    FileOpRefusal.InvalidName -> stringResource(R.string.max_files_refuse_name)
+    FileOpRefusal.NameTaken -> stringResource(R.string.max_files_refuse_taken)
+}
+
+/** النصّ لنتيجة حكم جاهزة، أو `null` إن كان الطلب مقبولًا — فيبقى حقل الدعم فارغًا حين لا رفض. */
+@Composable
+fun fileRefusalVerdictText(verdict: FileOpVerdict?): String? =
+    (verdict as? FileOpVerdict.Refused)?.let { fileRefusalText(it.reason) }

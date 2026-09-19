@@ -102,6 +102,13 @@ def main():
         sources.append(live_test)
         tests.append("nd.max.ui.mainscreens.MaxLivePresentationArchitectureTest")
 
+    # شاشة التطبيقات: حرس عائلة الحالات الثلاث يقرأ الشاشة نصًّا بعد تنقيتها من التعليقات،
+    # فلا يحتاج Compose ولا جهازًا — وكان تضاربها اللغوي هو سبب وجوده.
+    applist_test = TEST / "ui/mainscreens/ApplistPresentationArchitectureTest.kt"
+    if applist_test.exists():
+        sources.append(applist_test)
+        tests.append("nd.max.ui.mainscreens.ApplistPresentationArchitectureTest")
+
     with tempfile.TemporaryDirectory(prefix="maxai-jvm-", dir=args.work_dir) as output:
         # Parse the Android-facing code with Kotlin's actual parser, without
         # substituting fake Android/Compose APIs or claiming type-check coverage.
@@ -162,8 +169,14 @@ class CheckKotlinSyntax {
             # مدير الملفات بعد إضافة ترتيب اللوحين والتنقّل المرتبط: الشاشة واللغة ورؤوس
             # الألواح. إعراب فقط — لا فحص أنواع (لا Android SDK في هذه البيئة).
             "ui/subscreens/FileManagerScreen.kt", "ui/component/FilePaneColumn.kt",
+            # شريط اللوح وخرائط الرفض والفرز انتقلت من الشاشة إلى مكوّناتها: تُعرَب في
+            # مكانها الجديد حتى لا يصير النقل نقلًا أعمى.
+            "ui/component/FileManagerPanels.kt",
             "ui/design/MaxViewMenu.kt", "ui/util/FileSearchFilters.kt",
             "ui/util/FilePaneModel.kt",
+            # شاشة التطبيقات: إعراب فقط، لا فحص أنواع — يكفي ليمسك إعرابًا مكسورًا في
+            # الشاشة التي عُدِّلت حالتها المشتركة.
+            "ui/mainscreens/ApplistScreen.kt",
         ]
         subprocess.run([
             "java", "-cp", compiler_cp, str(syntax),

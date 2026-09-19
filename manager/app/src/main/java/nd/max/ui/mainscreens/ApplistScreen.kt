@@ -87,6 +87,7 @@ import nd.max.R
 import nd.max.ui.component.AppIconImage
 import nd.max.ui.component.MaxEmptyState
 import nd.max.ui.component.MaxErrorState
+import nd.max.ui.component.MaxLoadingState
 import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.ui.viewmodel.ApplistViewmodel
 
@@ -148,7 +149,14 @@ fun ApplistScreen(navController: NavHostController) {
     ) { padding ->
         when {
             viewModel.isRefreshing && allApps.isEmpty() -> {
-                AppListLoadingState(modifier = Modifier.padding(padding))
+                // الحالة المشتركة لا حالة يدوية: هذه الشاشة تعرض خطأها وفراغها من
+                // العائلة نفسها، فلو بقيت حالة التحميل وحدها بحلقة ٧٦dp وعنوان ٢٨sp
+                // لكان أوّل ما يراه المستخدم أكبر عنصر في التطبيق ثم يصغر فجأة.
+                MaxLoadingState(
+                    title = stringResource(R.string.applist_loading_title),
+                    message = stringResource(R.string.applist_loading_desc),
+                    modifier = Modifier.padding(padding)
+                )
             }
 
             viewModel.loadError != null -> {
@@ -256,38 +264,6 @@ fun ApplistScreen(navController: NavHostController) {
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun AppListLoadingState(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(18.dp)
-        ) {
-            androidx.compose.material3.CircularProgressIndicator(
-                modifier = Modifier.size(76.dp),
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 8.dp
-            )
-            Text(
-                text = stringResource(R.string.applist_loading_title),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
-            Text(
-                text = stringResource(R.string.applist_loading_desc),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
         }
     }
 }

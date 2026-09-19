@@ -37,38 +37,25 @@ package nd.max.ui.subscreens
 
 import android.content.ClipData
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material.icons.automirrored.rounded.CompareArrows
 import androidx.compose.material.icons.rounded.AspectRatio
-import androidx.compose.material.icons.rounded.CreateNewFolder
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.LinkOff
-import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material.icons.rounded.ViewAgenda
 import androidx.compose.material.icons.rounded.ViewColumn
-import androidx.compose.material.icons.rounded.SwapHoriz
-import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -79,7 +66,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
@@ -91,30 +77,29 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
+import nd.max.ui.component.ActivePaneStrip
 import nd.max.ui.component.FileDetailsPanel
 import nd.max.ui.component.FilePaneColumn
 import nd.max.ui.component.FilePreviewPanel
 import nd.max.ui.component.FileSelectionBar
 import nd.max.ui.component.SelinuxState
+import nd.max.ui.component.fileRefusalText
+import nd.max.ui.component.fileRefusalVerdictText
+import nd.max.ui.component.fileSortLabel
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
 import nd.max.ui.design.MaxConfirmDialog
 import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxInputDialog
-import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxScreen
-import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxSplitScreen
 import nd.max.ui.design.MaxTone
 import nd.max.ui.design.MaxViewMenu
-import nd.max.ui.design.container
 import nd.max.ui.design.content
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.util.DirectoryCache
-import nd.max.ui.util.DirectoryListing
 import nd.max.ui.util.DualPane
-import nd.max.ui.util.EventLog
 import nd.max.ui.util.FileAction
 import nd.max.ui.util.FileActionSet
 import nd.max.ui.util.FileArchive
@@ -483,7 +468,7 @@ fun FileManagerScreen(navController: NavController) {
         snackbarHostState = snackbarHostState,
         actions = {
             MaxViewMenu(
-                labels = FileSortKey.entries.map { stringResource(sortLabel(it)) },
+                labels = FileSortKey.entries.map { stringResource(fileSortLabel(it)) },
                 selectedIndex = FileSortKey.entries.indexOf(activePane.sort.key),
                 contentDescription = stringResource(R.string.max_files_sort_cd),
                 // القائمة بأسماء فقط: أيقونة «مجدول/موسّع» بجانب «الاسم/الحجم» لا معنى لها.
@@ -695,7 +680,7 @@ fun FileManagerScreen(navController: NavController) {
         value = input,
         onValueChange = { input = it },
         confirmLabel = stringResource(R.string.max_files_confirm),
-        supportingText = refusalTextOrNull(renameVerdict),
+        supportingText = fileRefusalVerdictText(renameVerdict),
         onConfirm = {
             if (rename != null) runOperation(
                 rename.first,
@@ -725,7 +710,7 @@ fun FileManagerScreen(navController: NavController) {
         value = input,
         onValueChange = { input = it },
         confirmLabel = stringResource(R.string.max_files_confirm),
-        supportingText = refusalTextOrNull(folderVerdict),
+        supportingText = fileRefusalVerdictText(folderVerdict),
         onConfirm = {
             if (folderSide != null) runOperation(
                 folderSide,
@@ -759,7 +744,7 @@ fun FileManagerScreen(navController: NavController) {
         onValueChange = { destination = it },
         confirmLabel = stringResource(R.string.max_files_confirm),
         placeholder = stringResource(R.string.max_files_destination_hint),
-        supportingText = refusalTextOrNull(transferVerdict),
+        supportingText = fileRefusalVerdictText(transferVerdict),
         confirmEnabled = destination.isNotBlank(),
         onConfirm = {
             if (transferRequest != null) runOperation(
@@ -813,122 +798,11 @@ fun FileManagerScreen(navController: NavController) {
     MaxConfirmDialog(
         visible = refusal != null,
         title = stringResource(R.string.max_files_refused_title),
-        message = refusal?.let { refusalText(it) }.orEmpty(),
+        message = refusal?.let { fileRefusalText(it) }.orEmpty(),
         confirmLabel = stringResource(R.string.max_files_cancel),
         onConfirm = { refused = null },
         onDismiss = { refused = null },
     )
-}
-
-/**
- * شريط إجراءات اللوح النشط.
- *
- * وُجد لأنه في العرض المنقسم لا يتّسع لكل لوح شريط إجراءات خاصّ به، ولا يصحّ أن تُخلط
- * إجراءات لوحين في شريط واحد بلا إعلان أيّهما يُقصد. فالشريط يسمّي اللوح النشط، ثم
- * يحمل إجراءاته الأربعة.
- */
-@Composable
-private fun ActivePaneStrip(
-    side: PaneSide,
-    pane: FilePaneState,
-    linked: Boolean,
-    onSync: () -> Unit,
-    onBack: () -> Unit,
-    onSwap: () -> Unit,
-    onRefresh: () -> Unit,
-    onUp: () -> Unit,
-    onNewFolder: () -> Unit,
-    onToggleSelect: () -> Unit,
-) {
-    val tone = MaxTone.Accent
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = MaxSpace.sm)
-            // الشريط صار يحمل فعلين إضافيين (مزامنة المسار · تبديل اللوحين) بعد أن
-            // انتقل الترتيب والربط إلى الشريط العلوي. والتمرير الأفقي يضمن ألا يُقصّ
-            // فعل على هاتف ضيّق بدل أن يُضغط بعضه بعضًا — وهو أسوأ من التمرير.
-            .horizontalScroll(rememberScrollState()),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
-    ) {
-        Surface(
-            shape = RoundedCornerShape(MaxRadius.pill),
-            color = tone.container(),
-        ) {
-            Text(
-                text = stringResource(
-                    if (side == PaneSide.Left) R.string.max_files_pane_left else R.string.max_files_pane_right
-                ),
-                modifier = Modifier.padding(horizontal = MaxSpace.sm, vertical = MaxSpace.hairline),
-                style = MaterialTheme.typography.labelLarge,
-                color = tone.content(),
-            )
-        }
-        StripAction(
-            icon = Icons.AutoMirrored.Rounded.ArrowBack,
-            description = stringResource(R.string.max_files_back_cd),
-            onClick = onBack,
-        )
-        StripAction(
-            icon = Icons.Rounded.ArrowUpward,
-            description = stringResource(R.string.max_files_up_cd),
-            onClick = onUp,
-        )
-        StripAction(
-            icon = Icons.Rounded.Sync,
-            description = stringResource(R.string.max_files_refresh_cd),
-            onClick = onRefresh,
-        )
-        StripAction(
-            icon = Icons.Rounded.CreateNewFolder,
-            description = stringResource(R.string.max_files_action_new_folder),
-            onClick = onNewFolder,
-        )
-        StripAction(
-            // `AutoMirrored`: سهم التبديل/المقارنة اتجاهي، فيجب أن ينقلب في العربية
-            // — والقائمة غير المنقلبة تُنتج زرًّا يشير إلى الجهة الخاطئة في RTL.
-            icon = if (pane.selecting) Icons.AutoMirrored.Rounded.CompareArrows else Icons.Rounded.SelectAll,
-            description = stringResource(R.string.max_files_select_cd),
-            onClick = onToggleSelect,
-        )
-        StripAction(
-            icon = Icons.Rounded.Sync,
-            description = stringResource(R.string.max_files_sync_panes_cd),
-            onClick = onSync,
-        )
-        StripAction(
-            icon = Icons.Rounded.SwapHoriz,
-            description = stringResource(R.string.max_files_swap_panes_cd),
-            onClick = onSwap,
-        )
-        if (linked) {
-            // الربط يُقال بالكلام أيضًا: من يفتح هذه الشاشة بلا رؤية للأيقونة الصغيرة
-            // في رأس كل لوح يحتاج جملة واحدة تقول إن اللوحين يتحركان معًا.
-            Text(
-                text = stringResource(R.string.max_files_linked_hint),
-                modifier = Modifier.padding(start = MaxSpace.xs),
-                style = MaterialTheme.typography.labelSmall,
-                color = tone.content(),
-                maxLines = 1,
-            )
-        }
-    }
-}
-
-@Composable
-private fun StripAction(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    description: String,
-    onClick: () -> Unit,
-) {
-    IconButton(onClick = onClick, modifier = Modifier.size(MaxSize.iconContainer)) {
-        Icon(
-            imageVector = icon,
-            contentDescription = description,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
 }
 
 /**
@@ -975,27 +849,4 @@ private fun onSelectionAction(
         FileAction.Rename -> chosen.singleOrNull()?.let(onRename) ?: return
         FileAction.Details -> onOpenPanel(FilePanel.Details(chosen.singleOrNull() ?: return))
     }
-}
-
-@Composable
-private fun sortLabel(key: FileSortKey): Int = when (key) {
-    FileSortKey.Name -> R.string.max_files_sort_name
-    FileSortKey.Size -> R.string.max_files_sort_size
-    FileSortKey.Modified -> R.string.max_files_sort_date
-    FileSortKey.Kind -> R.string.max_files_sort_kind
-}
-
-/** نصّ سبب الرفض، أو `null` إن كان الطلب مقبولًا. */
-@Composable
-private fun refusalTextOrNull(verdict: FileOpVerdict?): String? =
-    (verdict as? FileOpVerdict.Refused)?.let { refusalText(it.reason) }
-
-@Composable
-private fun refusalText(reason: FileOpRefusal): String = when (reason) {
-    FileOpRefusal.EmptySelection -> stringResource(R.string.max_files_refuse_empty)
-    FileOpRefusal.ProtectedPath -> stringResource(R.string.max_files_refuse_protected)
-    FileOpRefusal.SelfTarget -> stringResource(R.string.max_files_refuse_self)
-    FileOpRefusal.TargetInsideSource -> stringResource(R.string.max_files_refuse_inside)
-    FileOpRefusal.InvalidName -> stringResource(R.string.max_files_refuse_name)
-    FileOpRefusal.NameTaken -> stringResource(R.string.max_files_refuse_taken)
 }
