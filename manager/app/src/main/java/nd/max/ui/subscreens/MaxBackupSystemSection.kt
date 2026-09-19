@@ -694,8 +694,9 @@ private fun componentSubtitle(
     }
 }
 
+/** اسم النوع في الموارد — `internal` لأن قسم الجدول في لوحة `Max Backup` يعرضه أيضًا. */
 @Composable
-private fun systemKindText(kind: MaxBackupSystem.Kind): String = stringResource(systemKindRes(kind))
+internal fun systemKindText(kind: MaxBackupSystem.Kind): String = stringResource(systemKindRes(kind))
 
 /** خريطة الأنواع كاملةً — تُستعمل حيث لا تصل دالة مركّبة (كوروتين · حوار · بناء سلسلة). */
 @Composable

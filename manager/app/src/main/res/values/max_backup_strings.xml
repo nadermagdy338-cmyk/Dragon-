@@ -290,4 +290,80 @@
     <string name="max_backup_entry_title">Max Backup</string>
     <string name="max_backup_entry_desc">Back up this app\'s APK and data, check it, and restore it</string>
     <string name="max_backup_entry_action">Open Max Backup</string>
+
+    <!-- OCR-02: مجموعات المجلدات التي يختارها المستخدم بنفسه -->
+    <string name="max_backup_sets_title">Folder sets</string>
+    <string name="max_backup_sets_desc">Folders you name yourself — separate from apps and from system data.</string>
+    <string name="max_backup_sets_empty_title">No folder set yet</string>
+    <string name="max_backup_sets_empty_detail">A set is a name you choose plus one or more folders. They are copied only when you ask — by button, or by a schedule you turn on.</string>
+    <string name="max_backup_set_paths_count">%1$s folders</string>
+    <string name="max_backup_set_add">Add a set</string>
+    <string name="max_backup_set_add_path_title">Add a folder to %1$s</string>
+    <string name="max_backup_set_name_field">Set name</string>
+    <string name="max_backup_set_path_field">Folder path</string>
+    <string name="max_backup_set_path_hint">/storage/emulated/0/DCIM</string>
+    <string name="max_backup_set_bad_name">A name cannot contain a slash or a line break.</string>
+    <string name="max_backup_set_bad_path">This path cannot be archived — the root, and the kernel filesystems (proc, sys, dev) have no content to copy.</string>
+    <string name="max_backup_set_dup_path">That path is already in this set.</string>
+    <string name="max_backup_set_will_rename">That name is taken; it will be saved as %1$s.</string>
+    <string name="max_backup_set_shared">%1$s and %2$s share %3$s path(s) — those paths will be copied twice.</string>
+    <string name="max_backup_set_delete_cd">Delete set</string>
+    <string name="max_backup_set_delete_title">Delete this set?</string>
+    <string name="max_backup_set_delete_message">%1$s (%2$s paths) leaves the list. Copies already taken stay on disk, and the schedule stops targeting it.</string>
+    <string name="max_backup_set_delete_confirm">Delete set</string>
+    <string name="max_backup_set_save_failed">The set was not saved, so nothing changed. Try again.</string>
+
+    <!-- OCR-06: العدّاد والتجميع -->
+    <string name="max_backup_recent_title_count">Recent copies (%1$s)</string>
+    <string name="max_backup_more_copies">+%1$s more</string>
+    <string name="max_backup_collapse">Collapse the list</string>
+    <string name="max_backup_incomplete_count">%1$s copies are incomplete: they were interrupted, and the file list says so.</string>
+
+    <!-- OCR-04: المفضّلة -->
+    <string name="max_backup_fav_only">Favourites only (%1$s)</string>
+    <string name="max_backup_row_star">Add %1$s to favourites</string>
+    <string name="max_backup_row_unstar">Remove %1$s from favourites</string>
+
+    <!-- OCR-01: النسخ المجدول -->
+    <string name="max_backup_schedule_title">Scheduled backup</string>
+    <string name="max_backup_schedule_desc">The system runs it in the first window it allows after your time — not at the exact minute.</string>
+    <string name="max_backup_schedule_enable">Run on a schedule</string>
+    <string name="max_backup_schedule_enable_desc">Off means nothing is ever copied on its own.</string>
+    <string name="max_backup_schedule_charging">Only while charging</string>
+    <string name="max_backup_schedule_charging_desc">A large copy is not started on battery.</string>
+    <string name="max_backup_schedule_wifi">Only on unmetered network</string>
+    <string name="max_backup_schedule_wifi_desc">Applies to copies that read from a network share.</string>
+    <string name="max_backup_schedule_time">Start time: %1$s</string>
+    <string name="max_backup_schedule_time_desc">24-hour clock, and the offset from midnight is what is stored.</string>
+    <string name="max_backup_schedule_time_title">Start time</string>
+    <string name="max_backup_schedule_time_field">Time (HH:MM)</string>
+    <string name="max_backup_schedule_time_placeholder">03:00</string>
+    <string name="max_backup_schedule_time_invalid">Not a time. Write two digits, a colon, two digits — between 00:00 and 23:59.</string>
+    <string name="max_backup_schedule_days_summary">Days: %1$s</string>
+    <string name="max_backup_schedule_every_day">every day</string>
+    <string name="max_backup_schedule_targets">What it copies</string>
+    <string name="max_backup_schedule_targets_desc">Only what is switched on here is copied; nothing else is touched.</string>
+    <string name="max_backup_schedule_no_target_title">No target chosen</string>
+    <string name="max_backup_schedule_no_target_detail">Add a folder set, or switch on a system data kind, then choose it above.</string>
+    <string name="max_backup_schedule_missing">%1$s no longer exists — it will be skipped, and nothing is put in its place.</string>
+    <string name="max_backup_schedule_platform_note">The system decides the exact moment; your time is the earliest it may start.</string>
+    <string name="max_backup_schedule_off_note">The schedule is off, so nothing runs.</string>
+    <string name="max_backup_schedule_no_target_note">The schedule is on but has no target, so nothing runs.</string>
+    <string name="max_backup_schedule_next">Next attempt: from %1$s</string>
+    <string name="max_backup_schedule_last">Last attempt: %1$s — %2$s</string>
+    <string name="max_backup_schedule_run_now">Run the schedule now</string>
+    <string name="max_backup_schedule_result_ok">completed</string>
+    <string name="max_backup_schedule_result_failed">did not complete</string>
+    <string name="max_backup_schedule_result_skipped">conditions were not met</string>
+    <string name="max_backup_schedule_result_none">no result recorded</string>
+    <string name="max_backup_schedule_done_ok">The schedule ran and finished.</string>
+    <string name="max_backup_schedule_done_failed">The schedule ran and did not finish — the file list stays readable.</string>
+    <string name="max_backup_schedule_done_skipped">Nothing ran: the schedule is off, has no target, or no target still exists.</string>
+    <string name="max_backup_day_mon">Mon</string>
+    <string name="max_backup_day_tue">Tue</string>
+    <string name="max_backup_day_wed">Wed</string>
+    <string name="max_backup_day_thu">Thu</string>
+    <string name="max_backup_day_fri">Fri</string>
+    <string name="max_backup_day_sat">Sat</string>
+    <string name="max_backup_day_sun">Sun</string>
 </resources>

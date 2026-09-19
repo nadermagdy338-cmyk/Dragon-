@@ -13,6 +13,13 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!--
+      Max Backup — النسخ المجدول (`OCR-01`). شرط أن تبقى المهمة مسجّلة بعد إعادة الإقلاع
+      (`setPersisted(true)`)، وإلا نسي الجهاز جدول المستخدم مع أول ريستارت وقالت الشاشة
+      إنه فعّال. والصلاحية **لا تمنحنا إقلاعًا**، بل تسمح للنظام بإعادة التسجيل.
+    -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!--
       Max Backup — فئات بيانات النظام التي تعيش خلف مزوّدات محتوى (جهات · سجل مكالمات ·
       رسائل). تُطلَب وقت الاستعمال لا عند التثبيت، ومن رفضها يرى فئته «تحتاج إذنًا» بدل
       أن تُعرَض متاحة ثم تفشل. والرسائل **قراءة فقط**: كتابتها تشترط أن يكون التطبيق
@@ -119,6 +126,15 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
+
+        <!--
+          عامل النسخ المجدول: رقيقة عن قصد — كل المنطق في `MaxBackupScheduler`، وهذه
+          تعرف `jobFinished` فقط. ولا تُصدَّر: لا أحد خارجنا يُشغّلها.
+        -->
+        <service
+            android:name=".ui.util.MaxBackupJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
             android:name=".service.FpsOverlayService"

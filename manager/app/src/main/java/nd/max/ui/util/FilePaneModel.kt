@@ -78,6 +78,8 @@ data class FilePaneState(
     val listing: DirectoryListing? = null,
     val loading: Boolean = true,
     val query: String = "",
+    /** `OCR-10`: مرشّح البحث — نوع المحتوى، والحجم، والعمر. `Filter()` = بلا ترشيح. */
+    val search: FileSearchFilters.Filter = FileSearchFilters.Filter(),
     val sort: FileSort = FileSort(),
     val selection: FileSelection = FileSelection(),
     val selecting: Boolean = false,
@@ -86,7 +88,19 @@ data class FilePaneState(
     val entries: List<FileEntry> get() = (listing as? DirectoryListing.Entries)?.entries.orEmpty()
 
     /** ما يُعرض فعلًا: تصفية ثم ترتيب. */
-    fun visible(): List<FileEntry> = FileBrowser.sort(FileBrowser.filter(entries, query), sort)
+    /**
+     * ما يُعرض فعلًا: البحث بالاسم ثم المرشّح ثم الترتيب.
+     *
+     * و[nowEpochSec] يُمرَّر لأن مرشّح العمر يحتاج «الآن»: أخذه من الساعة داخل النموذج كان
+     * سيصيّر الناتج غير قابل للقياس بلا انتظار. والقيمة الافتراضية تجعل الشاشة تُمرّر لا شيئًا.
+     */
+    fun visible(nowEpochSec: Long = System.currentTimeMillis() / 1000L): List<FileEntry> = FileBrowser.sort(
+        FileSearchFilters.apply(FileBrowser.filter(entries, query), search, nowEpochSec),
+        sort,
+    )
+
+    /** بحث أو مرشّح فعّال — يُعلن في الشاشة كي لا يُقرأ غياب الملف كأنه حُذف. */
+    val filtering: Boolean get() = query.isNotBlank() || search.isActive
 
     /** انتقال إلى مجلد: صفر التحديد والبحث — فلا تبقى حالة لوح على لوح آخر. */
     fun at(newPath: String): FilePaneState =

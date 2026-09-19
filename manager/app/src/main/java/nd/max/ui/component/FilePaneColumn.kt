@@ -43,14 +43,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.CompareArrows
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.InsertDriveFile
+import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
+import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,6 +73,7 @@ import nd.max.ui.design.MaxSearchField
 import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
+import nd.max.ui.design.MaxViewMenu
 import nd.max.ui.design.container
 import nd.max.ui.design.content
 import nd.max.ui.util.DirectoryListing
@@ -76,6 +81,7 @@ import nd.max.ui.util.FileBrowser
 import nd.max.ui.util.FileEntry
 import nd.max.ui.util.FileKind
 import nd.max.ui.util.FilePaneState
+import nd.max.ui.util.FileSearchFilters
 import nd.max.ui.util.ListingFailure
 import nd.max.ui.util.PaneSide
 
@@ -90,6 +96,9 @@ fun FilePaneColumn(
     onActivate: () -> Unit,
     onNavigate: (String) -> Unit,
     onQueryChange: (String) -> Unit,
+    onSearchChange: (FileSearchFilters.Filter) -> Unit,
+    onSelectAllResults: () -> Unit,
+    onInvertResults: () -> Unit,
     onEntryClick: (FileEntry) -> Unit,
     onEntryLongPress: (FileEntry) -> Unit,
 ) {
@@ -128,6 +137,22 @@ fun FilePaneColumn(
                 clearContentDescription = stringResource(R.string.max_files_search_clear),
                 modifier = Modifier.padding(horizontal = MaxSpace.sm),
             )
+
+            FileSearchFilterRow(
+                filter = state.search,
+                onChange = { onActivate(); onSearchChange(it) },
+            )
+
+            // `OCR-10`: تحديد **النتائج** لا كل المجلد. الصفّ يظهر حين يوجد ما يُحدَّد وحين
+            // يوجد ما يُرشَّح — وفي الحالتين يعدّ ما سيفعله بالرقم لا بالوصف.
+            if (state.filtering || state.selecting) {
+                FileSearchActionsRow(
+                    resultCount = entries.size,
+                    selectedCount = entries.count { state.isSelected(it.path) },
+                    onSelectAll = { onActivate(); onSelectAllResults() },
+                    onInvert = { onActivate(); onInvertResults() },
+                )
+            }
 
             // كل ما يحتاج تركيبًا يُحسب **قبل** الدخول في نطاق `LazyColumn`: فنطاق القائمة
             // الكسولة ليس سياق تركيب، ودالّة @Composable لا تُنادى داخله أصلًا.
@@ -415,6 +440,145 @@ fun FileEntryRow(
             }
         }
     }
+}
+
+/**
+ * `OCR-10` — صفّ المرشّح: ثلاثة قوائم صغيرة (النوع · الحجم · العمر) وسهم لوح.
+ *
+ * **ولماذا قوائم لا رقاع مرشّح متعدّدة:** المرشّح هنا **مركّب** (صورة أكبر من ١٠ م.ب من آخر
+ * أسبوع)، وثلاثة أشرطة من الرقاع المتعدّدة تُنتج خيارات متنافية زائفة. وثلاث قوائم مستقلّة
+ * تُنتج التوليفات كلها بعنصر واحد لكل بُعد.
+ *
+ * وكل قائمة تحمل **«الكل»** في أولها، فيوجد طريق معروف إلى إلغاء الترشيح بلا البحث عن زرّ
+ * «مسح المرشّحات».
+ */
+@Composable
+private fun FileSearchFilterRow(
+    filter: FileSearchFilters.Filter,
+    onChange: (FileSearchFilters.Filter) -> Unit,
+) {
+    val kinds = FileSearchFilters.Kind.entries
+    val sizes = FileSearchFilters.Size.entries
+    val ages = FileSearchFilters.Age.entries
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaxSpace.xs),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
+    ) {
+        MaxViewMenu(
+            labels = kinds.map { stringResource(kindLabel(it)) },
+            selectedIndex = kinds.indexOf(filter.kind),
+            contentDescription = stringResource(R.string.max_files_filter_kind_cd),
+            onSelect = { onChange(filter.copy(kind = kinds[it])) },
+            icons = emptyList(),
+            triggerIcon = Icons.Rounded.FilterAlt,
+        )
+        MaxViewMenu(
+            labels = sizes.map { stringResource(sizeLabel(it)) },
+            selectedIndex = sizes.indexOf(filter.size),
+            contentDescription = stringResource(R.string.max_files_filter_size_cd),
+            onSelect = { onChange(filter.copy(size = sizes[it])) },
+            icons = emptyList(),
+            triggerIcon = Icons.Rounded.FilterAlt,
+        )
+        MaxViewMenu(
+            labels = ages.map { stringResource(ageLabel(it)) },
+            selectedIndex = ages.indexOf(filter.age),
+            contentDescription = stringResource(R.string.max_files_filter_age_cd),
+            onSelect = { onChange(filter.copy(age = ages[it])) },
+            icons = emptyList(),
+            triggerIcon = Icons.Rounded.FilterAlt,
+        )
+        if (filter.isActive) {
+            Text(
+                text = stringResource(R.string.max_files_filter_active),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaxTone.Accent.content(),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+/**
+ * صفّ أفعال النتائج: عددها، وكم منها محدَّد، و«حدّد الكل» و«اعكس».
+ *
+ * والعددان معًا مقصودان: من رأى «١٢ نتيجة» ثم ضغط «حدّد الكل» يجب أن يرى «١٢ محدَّدة» — لا
+ * أن يُخبر بشيء ثم يفعل غيره.
+ */
+@Composable
+private fun FileSearchActionsRow(
+    resultCount: Int,
+    selectedCount: Int,
+    onSelectAll: () -> Unit,
+    onInvert: () -> Unit,
+) {
+    // الرقمان **قبل** الدخول في `LazyColumn` لا داخله: نطاق القائمة الكسولة ليس سياق
+    // تركيب، ودالّة @Composable لا تُنادى داخله أصلًا.
+    val results = stringResource(R.string.max_files_results_count, resultCount.toString())
+    val selected = stringResource(R.string.max_files_results_selected, selectedCount.toString())
+    val selectAll = stringResource(R.string.max_files_select_all_results, resultCount.toString())
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaxSpace.xs, vertical = MaxSpace.hairline),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
+    ) {
+        Text(
+            text = if (selectedCount > 0) "$results · $selected" else results,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        IconButton(onClick = onSelectAll, enabled = resultCount > 0) {
+            Icon(
+                imageVector = Icons.Rounded.SelectAll,
+                contentDescription = selectAll,
+                tint = MaxTone.Accent.content(),
+            )
+        }
+        IconButton(onClick = onInvert) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Rounded.CompareArrows,
+                contentDescription = stringResource(R.string.max_files_invert_results),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+private fun kindLabel(kind: FileSearchFilters.Kind): Int = when (kind) {
+    FileSearchFilters.Kind.ANY -> R.string.max_files_filter_kind_any
+    FileSearchFilters.Kind.FOLDER -> R.string.max_files_filter_kind_folder
+    FileSearchFilters.Kind.IMAGE -> R.string.max_files_filter_kind_image
+    FileSearchFilters.Kind.VIDEO -> R.string.max_files_filter_kind_video
+    FileSearchFilters.Kind.AUDIO -> R.string.max_files_filter_kind_audio
+    FileSearchFilters.Kind.DOCUMENT -> R.string.max_files_filter_kind_document
+    FileSearchFilters.Kind.ARCHIVE -> R.string.max_files_filter_kind_archive
+    FileSearchFilters.Kind.APK -> R.string.max_files_filter_kind_apk
+}
+
+private fun sizeLabel(size: FileSearchFilters.Size): Int = when (size) {
+    FileSearchFilters.Size.ANY -> R.string.max_files_filter_size_any
+    FileSearchFilters.Size.OVER_1MB -> R.string.max_files_filter_size_1mb
+    FileSearchFilters.Size.OVER_10MB -> R.string.max_files_filter_size_10mb
+    FileSearchFilters.Size.OVER_100MB -> R.string.max_files_filter_size_100mb
+}
+
+private fun ageLabel(age: FileSearchFilters.Age): Int = when (age) {
+    FileSearchFilters.Age.ANY -> R.string.max_files_filter_age_any
+    FileSearchFilters.Age.TODAY -> R.string.max_files_filter_age_today
+    FileSearchFilters.Age.WEEK -> R.string.max_files_filter_age_week
+    FileSearchFilters.Age.MONTH -> R.string.max_files_filter_age_month
 }
 
 private fun FileEntry.rowIcon() = when (kind) {

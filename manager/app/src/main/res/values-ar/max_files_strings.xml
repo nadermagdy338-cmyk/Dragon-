@@ -156,4 +156,30 @@
     <string name="max_files_linked_cd">التنقّل مرتبط باللوح الآخر</string>
     <string name="max_files_linked_hint">اللوحان يتحرّكان معًا</string>
 
+
+    <!-- OCR-10: مرشّح البحث وتحديد النتائج -->
+    <string name="max_files_filter_kind_cd">رشّح بنوع المحتوى</string>
+    <string name="max_files_filter_size_cd">رشّح بالحجم</string>
+    <string name="max_files_filter_age_cd">رشّح بتاريخ التعديل</string>
+    <string name="max_files_filter_active">قائمة مرشّحة</string>
+    <string name="max_files_filter_kind_any">كل الأنواع</string>
+    <string name="max_files_filter_kind_folder">المجلدات فقط</string>
+    <string name="max_files_filter_kind_image">صور</string>
+    <string name="max_files_filter_kind_video">فيديو</string>
+    <string name="max_files_filter_kind_audio">صوت</string>
+    <string name="max_files_filter_kind_document">مستندات</string>
+    <string name="max_files_filter_kind_archive">أرشيفات</string>
+    <string name="max_files_filter_kind_apk">حزم (APK)</string>
+    <string name="max_files_filter_size_any">كل الأحجام</string>
+    <string name="max_files_filter_size_1mb">أكبر من ١ م.ب</string>
+    <string name="max_files_filter_size_10mb">أكبر من ١٠ م.ب</string>
+    <string name="max_files_filter_size_100mb">أكبر من ١٠٠ م.ب</string>
+    <string name="max_files_filter_age_any">كل التواريخ</string>
+    <string name="max_files_filter_age_today">آخر ٢٤ ساعة</string>
+    <string name="max_files_filter_age_week">آخر ٧ أيام</string>
+    <string name="max_files_filter_age_month">آخر ٣٠ يومًا</string>
+    <string name="max_files_results_count">%1$s نتيجة</string>
+    <string name="max_files_results_selected">حُدَّد %1$s</string>
+    <string name="max_files_select_all_results">حدّد النتائج كلها (%1$s)</string>
+    <string name="max_files_invert_results">اعكس الاختيار</string>
 </resources>

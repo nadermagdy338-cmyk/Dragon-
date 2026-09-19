@@ -160,4 +160,30 @@
     <string name="max_files_linked_cd">Navigation linked to the other pane</string>
     <string name="max_files_linked_hint">Both panes move together</string>
 
+
+    <!-- OCR-10: مرشّح البحث وتحديد النتائج -->
+    <string name="max_files_filter_kind_cd">Filter by content type</string>
+    <string name="max_files_filter_size_cd">Filter by size</string>
+    <string name="max_files_filter_age_cd">Filter by modification date</string>
+    <string name="max_files_filter_active">Filtered list</string>
+    <string name="max_files_filter_kind_any">Any type</string>
+    <string name="max_files_filter_kind_folder">Folders only</string>
+    <string name="max_files_filter_kind_image">Images</string>
+    <string name="max_files_filter_kind_video">Video</string>
+    <string name="max_files_filter_kind_audio">Audio</string>
+    <string name="max_files_filter_kind_document">Documents</string>
+    <string name="max_files_filter_kind_archive">Archives</string>
+    <string name="max_files_filter_kind_apk">Packages (APK)</string>
+    <string name="max_files_filter_size_any">Any size</string>
+    <string name="max_files_filter_size_1mb">Over 1 MB</string>
+    <string name="max_files_filter_size_10mb">Over 10 MB</string>
+    <string name="max_files_filter_size_100mb">Over 100 MB</string>
+    <string name="max_files_filter_age_any">Any date</string>
+    <string name="max_files_filter_age_today">Last 24 hours</string>
+    <string name="max_files_filter_age_week">Last 7 days</string>
+    <string name="max_files_filter_age_month">Last 30 days</string>
+    <string name="max_files_results_count">%1$s results</string>
+    <string name="max_files_results_selected">%1$s selected</string>
+    <string name="max_files_select_all_results">Select all %1$s results</string>
+    <string name="max_files_invert_results">Invert selection</string>
 </resources>

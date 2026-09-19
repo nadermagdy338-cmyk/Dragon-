@@ -23,7 +23,9 @@
  *  - صندوق تحديد لكل صف، وصفُّ **الجسم** يفتح تفصيل التطبيق كما كان (لا نكسر مسارًا قائمًا).
  *  - تحديد الكل **للمعروض** لا لكل التطبيقات: من رشّح «لها نسخة» ثم حدّد الكل لا يُفاجأ
  *    بأنه حدّد ما لم يره.
- *  - مرشّحات: الكل · المستخدم · النظام · لها نسخة.
+ *  - مرشّحات: الكل · المستخدم · النظام · لها نسخة · و«المفضّلة فقط» زرًّا مستقلًّا، مع نجمة
+ *    في كل صفّ (`OCR-04`). والمفضّلة **تُقدَّم** في القائمة دائمًا، فوجودها لا يتوقّف على
+ *    تفعيل مرشّح.
  *  - تاريخ أحدث نسخة وحجمها في كل صف، أو «لم تُنسخ بعد» صراحةً.
  *  - زرّ حفظ جماعي في الأعلى وفي الأسفل، وحوار تأكيد قبل أي كتابة.
  *
@@ -51,6 +53,8 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -104,8 +108,11 @@ import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.packageRouteOf
+import nd.max.ui.design.content
 import nd.max.ui.util.MaxBackupEngine
+import nd.max.ui.util.MaxBackupFavorites
 import nd.max.ui.util.MaxBackupModel
+import nd.max.ui.util.MaxBackupScheduler
 import nd.max.ui.viewmodel.ApplistViewmodel
 
 /** مرشّحات القائمة. أربعة، لأن الصفّ الواحد يجب أن يبقى مقروءًا بلا التفاف نصّ. */
@@ -124,6 +131,9 @@ internal fun MaxBackupAppsPicker(
 
     var query by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableStateOf(MaxBackupFilter.ALL) }
+    // `OCR-04`: المفضّلة تُقدَّم في الترتيب دائمًا، وهذا المفتاح لقصر القائمة عليها فعلًا.
+    var favoritesOnly by rememberSaveable { mutableStateOf(false) }
+    var favorites by remember { mutableStateOf<List<String>>(emptyList()) }
     // التحديد يُحفظ عبر إعادة التركيب: اختيار ثلاثين تطبيقًا ثم فقدانه بدوران الشاشة
     // ليس تفصيلًا، بل يُلغي الوظيفة.
     var selection by rememberSaveable(
@@ -143,7 +153,15 @@ internal fun MaxBackupAppsPicker(
 
     LaunchedEffect(Unit) {
         appListViewModel.loadApps(context)
+        favorites = withContext(Dispatchers.IO) { MaxBackupScheduler.readFavorites(context) }
         reload()
+    }
+
+    /** وسم وإزالة وسم: تُكتب القائمة كاملة، والملف ذرّي — فلا نصف قائمة مفضّلة. */
+    fun toggleFavorite(pkg: String) {
+        val next = MaxBackupFavorites.toggle(favorites, pkg)
+        favorites = next
+        scope.launch { withContext(Dispatchers.IO) { MaxBackupScheduler.writeFavorites(context, next) } }
     }
 
     val installed = ApplistViewmodel.apps
@@ -152,9 +170,9 @@ internal fun MaxBackupAppsPicker(
     }
     val labels = remember(installed) { installed.associate { it.packageName to it.label } }
 
-    val matches = remember(installed, query, filter, latestByPkg) {
+    val matches = remember(installed, query, filter, latestByPkg, favorites, favoritesOnly) {
         val needle = query.trim().lowercase(Locale.getDefault())
-        installed
+        val filtered = installed
             .filter { app ->
                 val matchesQuery = needle.isEmpty() ||
                     app.label.lowercase(Locale.getDefault()).contains(needle) ||
@@ -165,9 +183,12 @@ internal fun MaxBackupAppsPicker(
                     MaxBackupFilter.SYSTEM -> app.isSystem
                     MaxBackupFilter.BACKED_UP -> latestByPkg.containsKey(app.packageName)
                 }
-                matchesQuery && matchesFilter
+                val matchesFavorite = !favoritesOnly || app.packageName in favorites
+                matchesQuery && matchesFilter && matchesFavorite
             }
             .sortedBy { it.label.lowercase(Locale.getDefault()) }
+        // المفضّلة تتقدّم ولا تُخفى: الترتيب الأبجدي يبقى، ويُقدَّم عليه ما وسَمه المستخدم.
+        MaxBackupFavorites.ordered(filtered, key = { it.packageName }, favorites = favorites)
     }
 
     // التحديد يقتصر على ما هو معروض الآن: صفّ اختفى بالترشيح لا يُنسخ بلا أن يُرى.
@@ -296,6 +317,19 @@ internal fun MaxBackupAppsPicker(
                     onSelect = { filter = MaxBackupFilter.entries[it] },
                     enabled = !busy,
                 )
+                // المفضّلة: زرّ صريح لا مرشّح خامس (الشريط يحمل أربعة، والخامس يضغط نصّه).
+                MaxGroup {
+                    MaxRow(
+                        title = stringResource(
+                            R.string.max_backup_fav_only,
+                            favorites.size.toString(),
+                        ),
+                        icon = if (favoritesOnly) Icons.Rounded.Star else Icons.Rounded.StarBorder,
+                        iconTone = if (favoritesOnly) MaxTone.Accent else MaxTone.Neutral,
+                        enabled = !busy,
+                        onClick = { favoritesOnly = !favoritesOnly },
+                    )
+                }
                 MaxGroup {
                     MaxRow(
                         title = stringResource(R.string.max_backup_select_all, matches.size.toString()),
@@ -347,6 +381,8 @@ internal fun MaxBackupAppsPicker(
                     },
                     selected = app.packageName in selection,
                     enabled = !busy,
+                    favorite = app.packageName in favorites,
+                    onStar = { toggleFavorite(app.packageName) },
                     onToggle = { toggle(app.packageName) },
                     onOpen = {
                         // من سجل الوجهات لا من سلسلة مكتوبة بيد (ADR-02).
@@ -426,11 +462,17 @@ private fun BackupAppRow(
     lastCopy: String?,
     selected: Boolean,
     enabled: Boolean,
+    favorite: Boolean,
+    onStar: () -> Unit,
     onToggle: () -> Unit,
     onOpen: () -> Unit,
 ) {
     val selectLabel = stringResource(R.string.max_backup_row_select, app.label)
     val openLabel = stringResource(R.string.max_backup_row_open, app.label)
+    val starLabel = stringResource(
+        if (favorite) R.string.max_backup_row_unstar else R.string.max_backup_row_star,
+        app.label,
+    )
     val alpha = if (enabled) 1f else MaxAlpha.disabledContent
 
     // التحديد **يقلب** ألوان الصفّ (حاوية وأمامية) بدل أن يُضيف رقعة شفافة: المطلوب أن
@@ -496,6 +538,23 @@ private fun BackupAppRow(
                     color = supportColor,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
+                )
+            }
+            // الوسم قبل سهم الفتح: النجمة حالة تُقلب في مكانها، والسهم يغادر الشاشة —
+            // فلا يجاور فعلًا مُتلِفًا فعلًا مُغادرًا في نقطة واحدة.
+            IconButton(
+                onClick = onStar,
+                enabled = enabled,
+                modifier = Modifier.semantics { contentDescription = starLabel },
+            ) {
+                Icon(
+                    imageVector = if (favorite) Icons.Rounded.Star else Icons.Rounded.StarBorder,
+                    contentDescription = null,
+                    tint = if (favorite) {
+                        MaxTone.Accent.content()
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha)
+                    },
                 )
             }
             IconButton(onClick = onOpen, enabled = enabled) {

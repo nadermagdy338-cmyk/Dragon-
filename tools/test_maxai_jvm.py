@@ -55,10 +55,25 @@ def main():
         TEST / "ui/util/MaxBackupStorageTest.kt",
         SOURCE / "ui/util/MaxBackupRetention.kt",
         TEST / "ui/util/MaxBackupRetentionTest.kt",
+        # `OCR-01`/`OCR-02`: قراءة الوقت وحساب الموعد القادم وقواعد المجموعات وتخزينها
+        # النصّي — أربعة أشياء تُحسب ولا تُرى، فتخطئ بصمت إن لم تُقَس في JVM عادي.
+        SOURCE / "ui/util/MaxBackupSchedule.kt",
+        SOURCE / "ui/util/MaxBackupFolders.kt",
+        TEST / "ui/util/MaxBackupSchedulePlanTest.kt",
+        # `OCR-04`: المفضّلة — التحقّق بالاسم، والترتيب، والملف. لا شيء منها يحتاج Android.
+        SOURCE / "ui/util/MaxBackupFavorites.kt",
+        TEST / "ui/util/MaxBackupFavoritesTest.kt",
+        # `OCR-06`: الحصيلة وصفّ التجميع — رقمان يقفان بين المستخدم وقائمة بـ١٩١ نسخة.
+        SOURCE / "ui/util/MaxBackupCounts.kt",
+        TEST / "ui/util/MaxBackupCountsTest.kt",
         # نموذج اللوحين وحرس العمليات: قرار الترتيب يحدّد أيّ شاشتين تُركَّبان، والحرس
         # هو آخر ما يقف بين نقرة وحذف شجرة. كلاهما خالص فلا حاجة إلى Android لقياسه.
         SOURCE / "ui/util/FileSystemModel.kt",
         SOURCE / "ui/util/FileActionModel.kt",
+        # `OCR-10`: مرشّح البحث خالص ويعتمد عليه `FilePaneModel.visible()`، فلو لم يُترجم
+        # هنا لبقي قرار «ما يراه المستخدم» بلا قياس.
+        SOURCE / "ui/util/FileSearchFilters.kt",
+        TEST / "ui/util/FileSearchFiltersTest.kt",
         SOURCE / "ui/util/FilePaneModel.kt",
         TEST / "ui/util/FilePaneModelTest.kt",
         # حرّاس شكل على قائمة الاختيار الواحد: الصنف الذي أسقط شاشة مدير الملفات كان
@@ -75,6 +90,10 @@ def main():
         "nd.max.ui.viewmodel.MaxAiPresentationArchitectureTest",
         "nd.max.ui.util.MaxBackupStorageTest",
         "nd.max.ui.util.MaxBackupRetentionTest",
+        "nd.max.ui.util.MaxBackupSchedulePlanTest",
+        "nd.max.ui.util.MaxBackupFavoritesTest",
+        "nd.max.ui.util.MaxBackupCountsTest",
+        "nd.max.ui.util.FileSearchFiltersTest",
         "nd.max.ui.util.FilePaneModelTest",
         "nd.max.ui.design.MaxViewMenuContractTest",
     ]
@@ -134,10 +153,17 @@ class CheckKotlinSyntax {
             "ui/subscreens/MaxBackupHubScreen.kt", "ui/subscreens/MaxBackupPickerScreen.kt",
             "ui/util/MaxBackupStorage.kt", "ui/util/MaxBackupEngine.kt",
             "ui/util/MaxBackupModel.kt",
+            # المجموعات والجدول: الشاشتان الجديدتان والمُجدوِل الذي ينفّذهما. إعراب فقط.
+            "ui/subscreens/MaxBackupScheduleSection.kt", "ui/subscreens/MaxBackupSystemSection.kt",
+            "ui/util/MaxBackupScheduler.kt", "ui/util/MaxBackupSystemModel.kt",
+            "ui/util/MaxBackupFolders.kt", "ui/util/MaxBackupSchedule.kt",
+            "ui/util/MaxBackupFavorites.kt", "ui/subscreens/MaxBackupPickerScreen.kt",
+            "ui/util/MaxBackupCounts.kt", "ui/subscreens/MaxBackupRecentItem.kt",
             # مدير الملفات بعد إضافة ترتيب اللوحين والتنقّل المرتبط: الشاشة واللغة ورؤوس
             # الألواح. إعراب فقط — لا فحص أنواع (لا Android SDK في هذه البيئة).
             "ui/subscreens/FileManagerScreen.kt", "ui/component/FilePaneColumn.kt",
-            "ui/design/MaxViewMenu.kt",
+            "ui/design/MaxViewMenu.kt", "ui/util/FileSearchFilters.kt",
+            "ui/util/FilePaneModel.kt",
         ]
         subprocess.run([
             "java", "-cp", compiler_cp, str(syntax),

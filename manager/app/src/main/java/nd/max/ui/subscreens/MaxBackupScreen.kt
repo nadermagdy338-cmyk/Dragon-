@@ -89,6 +89,7 @@ import nd.max.ui.design.MaxSegmented
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.design.MaxTone
+import nd.max.ui.design.content
 import nd.max.ui.util.MaxBackupEngine
 import nd.max.ui.util.MaxBackupModel
 

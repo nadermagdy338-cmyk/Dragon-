@@ -249,4 +249,77 @@ class FilePaneModelTest {
             ),
         )
     }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // OCR-10: المرشّح داخل اللوح
+    // ────────────────────────────────────────────────────────────────────────
+
+    private fun sized(parent: String, name: String, size: Long?) = FileEntry(
+        name = name,
+        path = FileBrowser.childPath(parent, name),
+        kind = FileKind.RegularFile,
+        sizeBytes = size,
+        modifiedEpochSec = 1_700_000_000L,
+    )
+
+    /** ما يراه المستخدم هو ناتج البحث **ثم** المرشّح — لا أحدهما. */
+    @Test
+    fun theVisibleListIsTheSearchThenTheFilter() {
+        val state = FilePaneState(
+            path = "/sdcard/DCIM",
+            listing = DirectoryListing.Entries(
+                path = "/sdcard/DCIM",
+                entries = listOf(
+                    sized("/sdcard/DCIM", "holiday.jpg", 20L * 1024 * 1024),
+                    sized("/sdcard/DCIM", "tiny.jpg", 1024L),
+                    sized("/sdcard/DCIM", "clip.mp4", 30L * 1024 * 1024),
+                ),
+            ),
+            loading = false,
+        )
+
+        assertEquals(3, state.visible().size)
+
+        val images = state.copy(search = FileSearchFilters.Filter(kind = FileSearchFilters.Kind.IMAGE))
+        assertEquals(listOf("holiday.jpg", "tiny.jpg"), images.visible().map { it.name })
+
+        val bigImages = images.copy(search = images.search.copy(size = FileSearchFilters.Size.OVER_10MB))
+        assertEquals(listOf("holiday.jpg"), bigImages.visible().map { it.name })
+
+        // والبحث بالاسم يعمل مع المرشّح لا بدلًا منه.
+        val named = images.copy(query = "tiny")
+        assertEquals(listOf("tiny.jpg"), named.visible().map { it.name })
+    }
+
+    /** وغياب ملف بسبب مرشّح **يُعلَن**، فلا يُقرأ كأنه حُذف. */
+    @Test
+    fun aFilteredListSaysThatItIsFiltered() {
+        val plain = FilePaneState(path = "/sdcard", loading = false)
+        assertFalse(plain.filtering)
+        assertTrue(plain.copy(query = "a").filtering)
+        assertTrue(
+            plain.copy(search = FileSearchFilters.Filter(age = FileSearchFilters.Age.TODAY)).filtering
+        )
+    }
+
+    /** وعكس الاختيار على النتائج: ما لم يُحدَّد يُحدَّد، وما حُدِّد يُرفع — لا عملية تُلغي الأخرى. */
+    @Test
+    fun selectAllResultsAndInvertWorkOnWhatIsVisible() {
+        val entries = listOf(
+            sized("/sdcard", "a.jpg", null),
+            sized("/sdcard", "b.jpg", null),
+            sized("/sdcard", "c.jpg", null),
+        )
+        // «حدّد الكل» على **النتائج** لا على المجلد: من مرّر قائمة مرشّحة يحدّد ما يراها.
+        val visible = entries.take(2)
+        assertEquals(setOf("/sdcard/a.jpg", "/sdcard/b.jpg"), FileSelection().selectAll(visible).paths)
+
+        // والعكس يعني «ما لم يُحدَّد يُحدَّد»: من لا شيء يُنتج الكل، ومن الكل يُنتج لا شيء.
+        assertEquals(entries.map { it.path }.toSet(), FileSelection().invert(entries).paths)
+        assertEquals(emptySet<String>(), FileSelection().selectAll(entries).invert(entries).paths)
+        assertEquals(
+            setOf("/sdcard/b.jpg", "/sdcard/c.jpg"),
+            FileSelection(setOf("/sdcard/a.jpg")).invert(entries).paths,
+        )
+    }
 }

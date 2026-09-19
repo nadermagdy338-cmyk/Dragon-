@@ -566,6 +566,28 @@ fun FileManagerScreen(navController: NavController) {
                     // القراءة الطازجة عند الإدخال (`paneOf`) لا الملتقطة عند التركيب،
                     // وإلا كتب بحث اللوح في لقطة قديمة بعد أن تغيّر مجلده.
                     onQueryChange = { query -> setPane(side, paneOf(side).copy(query = query)) },
+                    onSearchChange = { filter ->
+                        val pane = paneOf(side)
+                        // تغيير المرشّح يغيّر المجموعة المعروضة، فالتحديد يُعاد إلى ما هو معروض:
+                        // اختيار اختفى بالترشيح ثم نُسخ بلا أن يُرى هو أسوأ ما يمكن أن يفعله
+                        // مرشّح في مدير ملفات.
+                        setPane(
+                            side,
+                            pane.copy(
+                                search = filter,
+                                selection = FileSelection(pane.selection.paths intersect pane.visible().map { it.path }.toSet()),
+                            ),
+                        )
+                    },
+                    onSelectAllResults = {
+                        val pane = paneOf(side)
+                        // **النتائج** لا المجلد: من بحث ثم ضغط «حدّد الكل» يقصد ما يراه.
+                        setPane(side, pane.copy(selecting = true, selection = pane.selection.selectAll(pane.visible())))
+                    },
+                    onInvertResults = {
+                        val pane = paneOf(side)
+                        setPane(side, pane.copy(selecting = true, selection = pane.selection.invert(pane.visible())))
+                    },
                     onEntryClick = { entry ->
                         when {
                             paneOf(side).selecting -> setPane(side, paneOf(side).toggleSelection(entry.path))

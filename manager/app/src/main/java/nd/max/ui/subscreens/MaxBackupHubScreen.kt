@@ -88,8 +88,12 @@ import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSegmented
 import nd.max.ui.design.MaxTone
+import nd.max.ui.util.MaxBackupCounts
 import nd.max.ui.util.MaxBackupEngine
+import nd.max.ui.util.MaxBackupFolders
 import nd.max.ui.util.MaxBackupModel
+import nd.max.ui.util.MaxBackupSchedule
+import nd.max.ui.util.MaxBackupScheduler
 import nd.max.ui.util.MaxBackupStorage
 import nd.max.ui.viewmodel.ApplistViewmodel
 
@@ -272,8 +276,25 @@ internal fun MaxBackupHub(
     var sweepProgress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var sweepResult by remember { mutableStateOf<SweepResult?>(null) }
 
+    // `OCR-01`/`OCR-02`: مجموعات المجلدات والخطة المجدولة. تُقرأ من ملفّين صغيرين في مجلد
+    // التطبيق، وتُحفظ عند كل تغيير — فلا تنسيق مزدوج ولا حالة تعيش في الذاكرة وحدها.
+    var folderSets by remember { mutableStateOf<List<MaxBackupFolders.FolderSet>>(emptyList()) }
+    var plan by remember { mutableStateOf(MaxBackupSchedule.Plan()) }
+    var policyBusy by remember { mutableStateOf(false) }
+    // `OCR-06`: هل أظهر المستخدم بقية النسخ؟ يُحفظ عبر إعادة التركيب لأن طيّ القائمة بعد
+    // تمرير طويل يُفقد المكان الذي كان يقرأ فيه.
+    var showAllCopies by rememberSaveable { mutableStateOf(false) }
+
     suspend fun reload() {
         snapshot = readBackupSnapshot(context)
+    }
+
+    suspend fun reloadPolicy() {
+        val loaded = withContext(Dispatchers.IO) {
+            MaxBackupScheduler.readSets(context) to MaxBackupScheduler.readPlan(context)
+        }
+        folderSets = loaded.first
+        plan = loaded.second
     }
 
     // على كل عودة إلى الواجهة: قد يكون المستخدم منح الصلاحية في الإعدادات، والقرار
@@ -281,6 +302,12 @@ internal fun MaxBackupHub(
     LifecycleResumeEffect(Unit) {
         MaxBackupEngine.invalidateStorageRoot()
         appListViewModel.loadApps(context)
+        scope.launch {
+            // السلسلة المجدولة تُستأنف عند كل فتح للشاشة: بعد إقلاع، أو بعد أن يُلغي النظام
+            // مهمة، أو بعد أن يحذف المستخدم المهمة من إعدادات النظام.
+            withContext(Dispatchers.IO) { MaxBackupScheduler.rearm(context) }
+            reloadPolicy()
+        }
         scope.launch { reload() }
         onPauseOrDispose { }
     }
@@ -314,6 +341,66 @@ internal fun MaxBackupHub(
         val openedList = listScreen != null && runCatching { context.startActivity(listScreen) }.isSuccess
         if (!openedList) {
             scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.max_backup_storage_grant_failed)) }
+        }
+    }
+
+    /**
+     * يحفظ المجموعات، وإن حُذفت مجموعة **يُنقّي الخطة من اسمها** ثم يُسلّح الجدول من جديد.
+     *
+     * ولماذا التنقية هنا لا في المحرّك: اسم مجموعة محذوفة يبقى هدفًا في الخطة، فتظهر في
+     * الشاشة «لم يعد موجودًا» وتُتخطّى في كل تشغيل. التنقية تجعل الحالتين متطابقتين: ما تراه
+     * في الشاشة هو ما سيُنفَّذ.
+     */
+    fun persistSets(next: List<MaxBackupFolders.FolderSet>, removed: String? = null) {
+        policyBusy = true
+        val cleaned = if (removed != null) plan.copy(sets = plan.sets - removed) else plan
+        scope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                val written = MaxBackupScheduler.writeSets(context, next)
+                if (removed != null) MaxBackupScheduler.apply(context, cleaned)
+                written
+            }
+            policyBusy = false
+            if (ok) {
+                folderSets = next
+                if (removed != null) plan = cleaned
+            } else {
+                snackbarHostState.showSnackbar(context.getString(R.string.max_backup_set_save_failed))
+            }
+        }
+    }
+
+    /**
+     * يثبّت الخطة. الحالة تُحدَّث **قبل** الكتابة لأن الشاشة يجب أن تستجيب فورًا، ثم يُعاد
+     * الناتج المُنقّى من `apply` ليصير المعروض هو المخزَّن بالضبط.
+     */
+    fun persistPlan(next: MaxBackupSchedule.Plan) {
+        plan = next
+        scope.launch {
+            plan = withContext(Dispatchers.IO) { MaxBackupScheduler.apply(context, next) }
+        }
+    }
+
+    /** تشغيل الجدول بيد المستخدم: بلا شروط البطارية والشبكة، لأنه طلب النسخة الآن. */
+    fun runScheduleNow() {
+        policyBusy = true
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                MaxBackupScheduler.runNow(context) { stage -> busyStage = stage }
+            }
+            policyBusy = false
+            busyStage = null
+            plan = withContext(Dispatchers.IO) { MaxBackupScheduler.readPlan(context) }
+            reload()
+            snackbarHostState.showSnackbar(
+                context.getString(
+                    when (result) {
+                        MaxBackupSchedule.Result.OK -> R.string.max_backup_schedule_done_ok
+                        MaxBackupSchedule.Result.FAILED -> R.string.max_backup_schedule_done_failed
+                        MaxBackupSchedule.Result.SKIPPED -> R.string.max_backup_schedule_done_skipped
+                    }
+                )
+            )
         }
     }
 
@@ -428,6 +515,9 @@ internal fun MaxBackupHub(
     val run = deviceRun
     val sweepNow = sweepProgress
     val busy = stageNow != null || run != null || sweepNow != null
+
+    // `OCR-06`: الحصيلة والعدّ — من ثلاثة أرقام لكل نسخة، محسوبة في نموذج خالص يُقاس في JVM.
+    val counts = remember(handles) { MaxBackupCounts.summarize(handles.map { copyFactOf(it) }) }
     val banner = when {
         run != null -> MaxCondition(
             kind = MaxConditionKind.Applying,
@@ -533,6 +623,21 @@ internal fun MaxBackupHub(
                 }
             }
 
+            // القرار كله داخل البندين (`MaxBackupScheduleSection.kt`): أي قائمة تنتج من أي
+            // إضافة أو حذف، ومتى يكون للجدول موعد. وهنا **الحفظ والرسالة** فحسب.
+            maxBackupSetsItem(
+                sets = folderSets,
+                busy = busy || policyBusy,
+                onPersist = { next, removed -> persistSets(next, removed) },
+                onRejected = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            context.getString(R.string.max_backup_set_save_failed)
+                        )
+                    }
+                },
+            )
+
             item(key = "hub_actions") {
                 MaxSection(title = stringResource(R.string.max_backup_actions_title)) {
                     MaxGroup {
@@ -564,41 +669,27 @@ internal fun MaxBackupHub(
                 }
             }
 
-            if (handles.isNotEmpty()) {
-                item(key = "hub_recent_header") {
-                    MaxSection(
-                        title = stringResource(R.string.max_backup_recent_title),
-                        description = stringResource(R.string.max_backup_recent_desc),
-                    ) {
-                        MaxGroup {
-                            handles.take(HUB_RECENT_LIMIT).forEachIndexed { index, handle ->
-                                if (index > 0) MaxGroupDivider()
-                                BackupHistoryRow(
-                                    handle = handle,
-                                    title = labelOf(handle),
-                                    enabled = !busy,
-                                    busyReason = busyReason,
-                                    onVerify = { verifyInto(handle, snackbarHostState, scope, context) },
-                                    onRestore = { requestRestore(handle) },
-                                    onToggleKeep = { toggleKeep(handle) },
-                                    onDelete = { askDelete = handle },
-                                )
-                            }
-                        }
-                        if (handles.size > HUB_RECENT_LIMIT) {
-                            MaxBullets(
-                                lines = listOf(
-                                    stringResource(
-                                        R.string.max_backup_app_count,
-                                        HUB_RECENT_LIMIT.toString(),
-                                        handles.size.toString(),
-                                    )
-                                )
-                            )
-                        }
-                    }
-                }
-            }
+            maxBackupScheduleItem(
+                plan = plan,
+                sets = folderSets,
+                busy = busy || policyBusy,
+                onChange = { persistPlan(it) },
+                onRunNow = { runScheduleNow() },
+            )
+
+            maxBackupRecentItem(
+                handles = handles,
+                counts = counts,
+                expanded = showAllCopies,
+                busy = busy,
+                busyReason = busyReason,
+                label = { labelOf(it) },
+                onToggleExpanded = { showAllCopies = !showAllCopies },
+                onVerify = { verifyInto(it, snackbarHostState, scope, context) },
+                onRestore = { requestRestore(it) },
+                onToggleKeep = { toggleKeep(it) },
+                onDelete = { askDelete = it },
+            )
         } else {
             item(key = "hub_restore_intro") {
                 MaxSection(
@@ -844,9 +935,6 @@ private data class SweepResult(
     val problems: List<SweepProblem>,
 )
 
-/** كم نسخة تُعرض في «أحدث النسخ». البقية في تبويب الاسترجاع — لا تُخفى، تُنقل. */
-private const val HUB_RECENT_LIMIT = 5
-
 /**
  * فحص سلامة بنتيجة في سطر واحد.
  *
@@ -871,6 +959,21 @@ private fun verifyInto(
         )
     }
 }
+
+/**
+ * من `Handle` إلى [MaxBackupCounts.CopyFact] — السطر الوحيد الذي يربط المستند بالحساب.
+ *
+ * ولماذا هنا لا في النموذج: `Handle` يُفكّ من `org.json` فلا يُترجَم على JVM، ووضع العدّ داخله
+ * كان سيُعيد الحساب إلى مكان لا يُقاس إلا بجهاز. التحويل سطر واحد، والقاعدة كلها تحت اختبار.
+ */
+internal fun copyFactOf(handle: MaxBackupModel.Handle): MaxBackupCounts.CopyFact =
+    MaxBackupCounts.CopyFact(
+        pkg = handle.pkg,
+        createdAtMs = handle.createdAtMs,
+        bytes = handle.bytes,
+        entryCount = handle.entryCount,
+        complete = handle.complete,
+    )
 
 /** طابع زمني مُنسَّق محليًّا. دالّة عادية لا Composable: تُنادى داخل `remember`. */
 internal fun backupStamp(createdAtMs: Long): String =

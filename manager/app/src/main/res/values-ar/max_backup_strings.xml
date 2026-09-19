@@ -290,4 +290,80 @@
     <string name="max_backup_entry_title">‏Max Backup</string>
     <string name="max_backup_entry_desc">انسخ APK هذا التطبيق وبياناته، وافحصها، واسترجعها</string>
     <string name="max_backup_entry_action">افتح Max Backup</string>
+
+    <!-- OCR-02: مجموعات المجلدات التي يختارها المستخدم بنفسه -->
+    <string name="max_backup_sets_title">مجموعات المجلدات</string>
+    <string name="max_backup_sets_desc">مجلدات تسمّيها بنفسك — منفصلة عن التطبيقات وعن بيانات النظام.</string>
+    <string name="max_backup_sets_empty_title">لا مجموعة بعد</string>
+    <string name="max_backup_sets_empty_detail">المجموعة اسم تختاره مع مسار أو أكثر. ولا يُنسخ شيء منها إلا عندما تطلب: بزرّ، أو بجدول تشغّله أنت.</string>
+    <string name="max_backup_set_paths_count">%1$s مجلدًا</string>
+    <string name="max_backup_set_add">أضف مجموعة</string>
+    <string name="max_backup_set_add_path_title">أضف مجلدًا إلى %1$s</string>
+    <string name="max_backup_set_name_field">اسم المجموعة</string>
+    <string name="max_backup_set_path_field">مسار المجلد</string>
+    <string name="max_backup_set_path_hint">/storage/emulated/0/DCIM</string>
+    <string name="max_backup_set_bad_name">لا يصلح الشرطة المائلة ولا فاصل السطر في الاسم.</string>
+    <string name="max_backup_set_bad_path">هذا المسار لا يُؤرشف — الجذر وأنظمة ملفات النواة (proc وsys وdev) لا محتوى فيها يُنسخ.</string>
+    <string name="max_backup_set_dup_path">هذا المسار موجود في المجموعة أصلًا.</string>
+    <string name="max_backup_set_will_rename">الاسم مستخدم؛ سيُحفظ باسم %1$s.</string>
+    <string name="max_backup_set_shared">‏%1$s و%2$s يتقاسمان %3$s مسارًا — ستُنسخ هذه المسارات مرّتين.</string>
+    <string name="max_backup_set_delete_cd">حذف المجموعة</string>
+    <string name="max_backup_set_delete_title">أحذف هذه المجموعة؟</string>
+    <string name="max_backup_set_delete_message">تخرج %1$s (%2$s مسارًا) من القائمة. النسخ المأخوذة تبقى على التخزين، ويتوقف الجدول عن استهدافها.</string>
+    <string name="max_backup_set_delete_confirm">احذف المجموعة</string>
+    <string name="max_backup_set_save_failed">لم تُحفظ المجموعة، فلم يتغير شيء. أعد المحاولة.</string>
+
+    <!-- OCR-06: العدّاد والتجميع -->
+    <string name="max_backup_recent_title_count">أحدث النسخ (%1$s)</string>
+    <string name="max_backup_more_copies">+%1$s أخرى</string>
+    <string name="max_backup_collapse">اطوِ القائمة</string>
+    <string name="max_backup_incomplete_count">%1$s نسخة غير مكتملة: انقطعت أثناء العمل، وقائمة ملفاتها تقول ذلك.</string>
+
+    <!-- OCR-04: المفضّلة -->
+    <string name="max_backup_fav_only">المفضّلة فقط (%1$s)</string>
+    <string name="max_backup_row_star">أضف %1$s إلى المفضّلة</string>
+    <string name="max_backup_row_unstar">أزل %1$s من المفضّلة</string>
+
+    <!-- OCR-01: النسخ المجدول -->
+    <string name="max_backup_schedule_title">النسخ المجدول</string>
+    <string name="max_backup_schedule_desc">ينفّذه النظام في أول نافذة يسمح بها بعد وقتك — لا في الدقيقة نفسها.</string>
+    <string name="max_backup_schedule_enable">شغّله بجدول</string>
+    <string name="max_backup_schedule_enable_desc">الإيقاف يعني أنه لا يُنسخ شيء من تلقاء نفسه أبدًا.</string>
+    <string name="max_backup_schedule_charging">فقط أثناء الشحن</string>
+    <string name="max_backup_schedule_charging_desc">النسخة الكبيرة لا تُبدأ على البطارية.</string>
+    <string name="max_backup_schedule_wifi">فقط على شبكة غير محدودة</string>
+    <string name="max_backup_schedule_wifi_desc">يخصّ النسخ التي تقرأ من مشاركة شبكية.</string>
+    <string name="max_backup_schedule_time">وقت البدء: %1$s</string>
+    <string name="max_backup_schedule_time_desc">بنظام ٢٤ ساعة، والمحفوظ هو المسافة من منتصف الليل.</string>
+    <string name="max_backup_schedule_time_title">وقت البدء</string>
+    <string name="max_backup_schedule_time_field">الوقت (HH:MM)</string>
+    <string name="max_backup_schedule_time_placeholder">03:00</string>
+    <string name="max_backup_schedule_time_invalid">ليس وقتًا. اكتب رقمين، نقطتين، رقمين — بين 00:00 و23:59.</string>
+    <string name="max_backup_schedule_days_summary">الأيام: %1$s</string>
+    <string name="max_backup_schedule_every_day">كل يوم</string>
+    <string name="max_backup_schedule_targets">ما يُنسخ</string>
+    <string name="max_backup_schedule_targets_desc">لا يُنسخ إلا ما هو مفتوح هنا؛ ولا يُلمس غير ذلك.</string>
+    <string name="max_backup_schedule_no_target_title">لا هدف مختار</string>
+    <string name="max_backup_schedule_no_target_detail">أضف مجموعة مجلدات، أو افتح صنفًا من بيانات النظام، ثم اختره أعلاه.</string>
+    <string name="max_backup_schedule_missing">‏%1$s لم يعد موجودًا — سيُتخطّى، ولا يُوضع شيء مكانه.</string>
+    <string name="max_backup_schedule_platform_note">النظام يحدّد اللحظة الفعلية؛ ووقتك هو أبكر ما يمكن أن يبدأ.</string>
+    <string name="max_backup_schedule_off_note">الجدول متوقف، فلا يُنفَّذ شيء.</string>
+    <string name="max_backup_schedule_no_target_note">الجدول مفتوح لكن بلا هدف، فلا يُنفَّذ شيء.</string>
+    <string name="max_backup_schedule_next">المحاولة القادمة: من %1$s</string>
+    <string name="max_backup_schedule_last">آخر محاولة: %1$s — %2$s</string>
+    <string name="max_backup_schedule_run_now">شغّل الجدول الآن</string>
+    <string name="max_backup_schedule_result_ok">اكتمل</string>
+    <string name="max_backup_schedule_result_failed">لم يكتمل</string>
+    <string name="max_backup_schedule_result_skipped">الشروط لم تتحقق</string>
+    <string name="max_backup_schedule_result_none">لا نتيجة مسجّلة</string>
+    <string name="max_backup_schedule_done_ok">نُفّذ الجدول واكتمل.</string>
+    <string name="max_backup_schedule_done_failed">نُفّذ الجدول ولم يكتمل — وقائمة الملفات تبقى مقروءة.</string>
+    <string name="max_backup_schedule_done_skipped">لم يُنفَّذ شيء: الجدول متوقف، أو بلا هدف، أو لم يعد هدفه موجودًا.</string>
+    <string name="max_backup_day_mon">الإثنين</string>
+    <string name="max_backup_day_tue">الثلاثاء</string>
+    <string name="max_backup_day_wed">الأربعاء</string>
+    <string name="max_backup_day_thu">الخميس</string>
+    <string name="max_backup_day_fri">الجمعة</string>
+    <string name="max_backup_day_sat">السبت</string>
+    <string name="max_backup_day_sun">الأحد</string>
 </resources>
