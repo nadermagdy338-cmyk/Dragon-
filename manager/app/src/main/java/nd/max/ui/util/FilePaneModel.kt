@@ -175,6 +175,26 @@ object DualPane {
     fun mirrorParent(other: FilePaneState): String? = FileBrowser.parentOf(other.path)
 
     /**
+     * مزامنة قفزة فتات الخبز إلى سلف: إذا قفز المستخدم من `a/b/c` إلى `a`،
+     * يصعد اللوح الآخر خطوتين من مساره الحالي. لا يُبنى مسار ابن جديد ولا تُخفى
+     * قفزة غير قابلة للإثبات؛ إن لم يكن الهدف سلفًا مباشرًا نعيد `null`.
+     */
+    fun mirrorAncestor(other: FilePaneState, currentPath: String, targetPath: String): String? {
+        var cursor = FileBrowser.normalize(currentPath)
+        val target = FileBrowser.normalize(targetPath)
+        var steps = 0
+        while (cursor != target) {
+            cursor = FileBrowser.parentOf(cursor) ?: return null
+            steps++
+        }
+        var mirrored = other.path
+        repeat(steps) {
+            mirrored = FileBrowser.parentOf(mirrored) ?: return null
+        }
+        return mirrored
+    }
+
+    /**
      * تبديل اللوحين: يتبادل المساران، وتُصفَّر حالة كل لوح (تحديد وبحث) مع الانتقال.
      * وتبديل المسارين **بلا** تصفير الحالة كان سيُبقي تحديدًا على مدخل لم يعد مرئيًّا.
      */

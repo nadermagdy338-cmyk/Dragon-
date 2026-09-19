@@ -49,6 +49,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.automirrored.rounded.CompareArrows
@@ -126,6 +127,7 @@ import nd.max.ui.util.FileOpRefusal
 import nd.max.ui.util.FileOpRequest
 import nd.max.ui.util.FileOpVerdict
 import nd.max.ui.util.FileOperation
+import nd.max.ui.util.executeFileOperation
 import nd.max.ui.util.FilePaneState
 import nd.max.ui.util.FileSelection
 import nd.max.ui.util.FileSort
@@ -209,6 +211,8 @@ fun FileManagerScreen(navController: NavController) {
     var deleteTargets by remember { mutableStateOf<Pair<PaneSide, List<String>>?>(null) }
     var transfer by remember { mutableStateOf<TransferRequest?>(null) }
     var destination by remember { mutableStateOf("") }
+    var pathEditSide by remember { mutableStateOf<PaneSide?>(null) }
+    var pathInput by remember { mutableStateOf("") }
 
     val leftHistory = remember { mutableStateListOf<String>() }
     val rightHistory = remember { mutableStateListOf<String>() }
@@ -247,9 +251,29 @@ fun FileManagerScreen(navController: NavController) {
     LaunchedEffect(right.path) { refresh(PaneSide.Right) }
 
     val navigate: (PaneSide, String, Boolean) -> Unit = { side, target, push ->
-        if (push) historyOf(side).add(paneOf(side).path)
-        setPane(side, paneOf(side).at(target))
+        val before = paneOf(side)
+        if (push) historyOf(side).add(before.path)
+        setPane(side, before.at(target))
         active = side
+
+        // Breadcrumb navigation used to bypass the link entirely.  That made the
+        // two panes appear linked until the first tap on a breadcrumb, then silently
+        // diverge.  Ancestor navigation is deterministic: move the other pane one
+        // parent for each breadcrumb jump; never invent a child path that was not read.
+        if (linked && target != before.path) {
+            val twin = side.other
+            val other = paneOf(twin)
+            val mirrored = when {
+                target == FileBrowser.parentOf(before.path) -> DualPane.mirrorParent(other)
+                FileBrowser.isInside(before.path, target) ->
+                    DualPane.mirrorAncestor(other, before.path, target)
+                else -> other.entries.firstOrNull { it.path == target }?.path
+            }
+            mirrored?.let {
+                historyOf(twin).add(other.path)
+                setPane(twin, other.at(it))
+            }
+        }
     }
 
     /**
@@ -284,11 +308,31 @@ fun FileManagerScreen(navController: NavController) {
     }
 
     val goUp: (PaneSide) -> Unit = { side ->
+        val current = paneOf(side)
+        FileBrowser.parentOf(current.path)?.let { parent ->
+            val history = historyOf(side)
+            if (history.lastOrNull() == parent) history.removeAt(history.lastIndex)
+            setPane(side, current.at(parent))
+            // الصعود **نسبي** مثل الدخول: خطوة واحدة للأعلى في اللوحين معًا.
+            mirrorUpInOther(side)
+        }
+    }
+
+    // رجوع النظام ليس «صعودًا».  MT-style navigation must return to the exact
+    // folder the user came from, even when that folder is not the direct parent.
+    val goBack: (PaneSide) -> Unit = { side ->
         val history = historyOf(side)
-        if (history.isNotEmpty()) history.removeAt(history.lastIndex)
-        FileBrowser.parentOf(paneOf(side).path)?.let { setPane(side, paneOf(side).at(it)) }
-        // الصعود **نسبي** مثل الدخول: خطوة واحدة للأعلى في اللوحين معًا.
-        mirrorUpInOther(side)
+        history.removeLastOrNull()?.let { previous ->
+            setPane(side, paneOf(side).at(previous))
+            if (linked) {
+                val twin = side.other
+                val other = paneOf(twin)
+                DualPane.mirrorAncestor(other, other.path, previous)?.let { target ->
+                    historyOf(twin).add(other.path)
+                    setPane(twin, other.at(target))
+                }
+            }
+        }
     }
 
     val showOutcome: (FileOpOutcome, Int) -> Unit = { outcome, count ->
@@ -317,7 +361,7 @@ fun FileManagerScreen(navController: NavController) {
         when (val verdict = FileOpGuard.check(request, names, directories)) {
             is FileOpVerdict.Refused -> refused = verdict.reason
             FileOpVerdict.Allowed -> scope.launch {
-                val outcome = withContext(Dispatchers.IO) { executeOperation(request) }
+                val outcome = withContext(Dispatchers.IO) { executeFileOperation(request) }
                 showOutcome(outcome, request.sources.size.coerceAtLeast(1))
             }
         }
@@ -335,7 +379,7 @@ fun FileManagerScreen(navController: NavController) {
         setPane(active, activePane.clearSelection())
     }
     BackHandler(enabled = panel == null && !activePane.selecting && historyOf(active).isNotEmpty()) {
-        goUp(active)
+        goBack(active)
     }
 
     when (val open = panel) {
@@ -495,6 +539,7 @@ fun FileManagerScreen(navController: NavController) {
             pane = activePane,
             linked = linked,
             onSync = { setPane(otherSide, DualPane.syncOther(activePane, otherPane)) },
+            onBack = { goBack(active) },
             onSwap = {
                 val (newLeft, newRight) = DualPane.swap(left, right)
                 left = newLeft
@@ -522,6 +567,7 @@ fun FileManagerScreen(navController: NavController) {
                 actions = FileActionSet.forSelection(activePane.entries, activePane.selection),
                 onAction = { action ->
                     onSelectionAction(
+                        side = active,
                         action = action,
                         pane = activePane,
                         onOpenPanel = openPanel,
@@ -536,7 +582,7 @@ fun FileManagerScreen(navController: NavController) {
                             destination = otherPane.path
                             transfer = TransferRequest(operation, sources, active)
                         },
-                        onRun = { request -> runOperation(otherSide, request) },
+                        onRun = { targetSide, request -> runOperation(targetSide, request) },
                         onClear = { setPane(active, activePane.clearSelection()) },
                     )
                 },
@@ -562,6 +608,10 @@ fun FileManagerScreen(navController: NavController) {
                     linked = linked,
                     modifier = modifier,
                     onActivate = { active = side },
+                    onPathEdit = {
+                        pathInput = paneOf(side).path
+                        pathEditSide = side
+                    },
                     onNavigate = { navigate(side, it, true) },
                     // القراءة الطازجة عند الإدخال (`paneOf`) لا الملتقطة عند التركيب،
                     // وإلا كتب بحث اللوح في لقطة قديمة بعد أن تغيّر مجلده.
@@ -742,6 +792,23 @@ fun FileManagerScreen(navController: NavController) {
         onDismiss = { deleteTargets = null },
     )
 
+    val pathSide = pathEditSide
+    MaxInputDialog(
+        visible = pathSide != null,
+        title = stringResource(R.string.max_files_edit_path_title),
+        fieldLabel = stringResource(R.string.max_files_edit_path_field),
+        value = pathInput,
+        onValueChange = { pathInput = it },
+        confirmLabel = stringResource(R.string.max_files_confirm),
+        placeholder = stringResource(R.string.max_files_destination_hint),
+        confirmEnabled = pathInput.isNotBlank(),
+        onConfirm = {
+            pathSide?.let { navigate(it, pathInput.trim(), true) }
+            pathEditSide = null
+        },
+        onDismiss = { pathEditSide = null },
+    )
+
     val refusal = refused
     MaxConfirmDialog(
         visible = refusal != null,
@@ -766,6 +833,7 @@ private fun ActivePaneStrip(
     pane: FilePaneState,
     linked: Boolean,
     onSync: () -> Unit,
+    onBack: () -> Unit,
     onSwap: () -> Unit,
     onRefresh: () -> Unit,
     onUp: () -> Unit,
@@ -797,6 +865,11 @@ private fun ActivePaneStrip(
                 color = tone.content(),
             )
         }
+        StripAction(
+            icon = Icons.AutoMirrored.Rounded.ArrowBack,
+            description = stringResource(R.string.max_files_back_cd),
+            onClick = onBack,
+        )
         StripAction(
             icon = Icons.Rounded.ArrowUpward,
             description = stringResource(R.string.max_files_up_cd),
@@ -863,13 +936,14 @@ private fun StripAction(
  * للقراءة ولا تتفرّع قائمة `when` داخل تركيب الواجهة.
  */
 private fun onSelectionAction(
+    side: PaneSide,
     action: FileAction,
     pane: FilePaneState,
     onOpenPanel: (FilePanel) -> Unit,
     onRename: (FileEntry) -> Unit,
     onDelete: (List<String>) -> Unit,
     onTransfer: (FileOperation, List<String>) -> Unit,
-    onRun: (FileOpRequest) -> Unit,
+    onRun: (PaneSide, FileOpRequest) -> Unit,
     onClear: () -> Unit,
 ) {
     val sources = pane.selection.paths.toList().sorted()
@@ -883,13 +957,14 @@ private fun onSelectionAction(
         FileAction.Compress -> {
             val first = chosen.firstOrNull() ?: return
             val archive = FileBrowser.childPath(pane.path, FileArchive.archiveNameFor(first.name))
-            onRun(FileOpRequest(FileOperation.Compress, sources = sources, destination = archive))
+            onRun(side, FileOpRequest(FileOperation.Compress, sources = sources, destination = archive))
         }
         // الفكّ يذهب إلى **مجلد اللوح الحالي**: هذا أين ينظر المستخدم، لا حوار وجهة
         // إضافي لعملية أمنها منخفض ونتيجتها مرئية فورًا.
         FileAction.Extract -> {
             val archive = chosen.singleOrNull() ?: return
             onRun(
+                side,
                 FileOpRequest(
                     operation = FileOperation.Extract,
                     sources = listOf(archive.path),
@@ -900,41 +975,6 @@ private fun onSelectionAction(
         FileAction.Rename -> chosen.singleOrNull()?.let(onRename) ?: return
         FileAction.Details -> onOpenPanel(FilePanel.Details(chosen.singleOrNull() ?: return))
     }
-}
-
-/** تنفيذ العملية — المكان الوحيد الذي يلمس shell، وكل مساراته مقيَّدة بحدود الطلب. */
-private fun executeOperation(request: FileOpRequest): FileOpOutcome {
-    val start = android.os.SystemClock.elapsedRealtime()
-    val outcome = when (request.operation) {
-        FileOperation.Copy -> FileSystemEngine.copy(request.sources, request.destination.orEmpty())
-        FileOperation.Move -> FileSystemEngine.move(request.sources, request.destination.orEmpty())
-        FileOperation.Delete -> FileSystemEngine.delete(request.sources)
-        FileOperation.Rename -> FileSystemEngine.rename(
-            request.sources.firstOrNull().orEmpty(),
-            request.newName.orEmpty(),
-        )
-        FileOperation.CreateDirectory -> FileSystemEngine.createDirectory(
-            request.destination.orEmpty(),
-            request.newName.orEmpty(),
-        )
-        FileOperation.Compress -> FileSystemEngine.compress(
-            request.sources,
-            request.destination.orEmpty(),
-        )
-        FileOperation.Extract -> FileSystemEngine.extract(
-            request.sources.firstOrNull().orEmpty(),
-            request.destination.orEmpty(),
-        )
-    }
-    // `AR-13`: كل عملية تُقاس وتُسجَّل — لا «نجحت» بلا زمن ولا نتيجة.
-    EventLog.result(
-        screen = "file_manager",
-        action = request.operation.name,
-        target = request.destination ?: request.sources.firstOrNull(),
-        success = outcome.ok,
-        durationMs = android.os.SystemClock.elapsedRealtime() - start,
-    )
-    return outcome
 }
 
 @Composable

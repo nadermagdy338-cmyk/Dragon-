@@ -14,15 +14,20 @@
     <string name="max_files_root_crumb">Root</string>
     <string name="max_files_pane_left">Left pane</string>
     <string name="max_files_pane_right">Right pane</string>
+    <string name="max_files_entry_count">%1$d visible entries</string>
     <string name="max_files_sync_panes_cd">Point both panes at the active pane folder</string>
     <string name="max_files_swap_panes_cd">Swap the two panes</string>
     <string name="max_files_pane_no_match_title">No name matches</string>
     <string name="max_files_pane_no_match_detail">Nothing in this folder matches %1$s. Clear the search to see every entry again.</string>
     <string name="max_files_up_cd">Go up one folder</string>
+    <string name="max_files_back_cd">Go back to the previous folder</string>
     <string name="max_files_refresh_cd">Re-read this folder</string>
     <string name="max_files_select_cd">Start selecting entries</string>
     <string name="max_files_selected_count">%1$d selected</string>
     <string name="max_files_open_cd">Open</string>
+    <string name="max_files_edit_path_cd">Enter a path directly</string>
+    <string name="max_files_edit_path_title">Go to path</string>
+    <string name="max_files_edit_path_field">Absolute path</string>
 
     <!-- ترتيب القائمة -->
     <string name="max_files_sort_cd">Sort order</string>

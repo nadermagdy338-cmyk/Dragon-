@@ -82,6 +82,8 @@ import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxMetric
 import nd.max.ui.design.MaxMetricLine
+import nd.max.ui.design.MaxMetricReadout
+import nd.max.ui.design.MaxMetricSize
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSize
@@ -212,39 +214,56 @@ private fun GpuHero(state: GpuStudioUiState, device: GpuHardwareBackend.Device) 
 
         MaxGroupDivider()
 
-        // بلا حشو أو مسافات هنا: كل قراءة تحمل حشوها الخاصّ (انظر `MaxMetricLine`)،
-        // فالحشو المكرّر هنا كان يُضاعفه.
-        Column {
-            MaxMetricLine(
-                MaxMetric(
-                    label = stringResource(R.string.max_gpu_live_frequency),
-                    // `null` تعني «لم نقرأ» لا صفرًا؛ والعارض يرفض طباعة قيمة بلا قراءة.
-                    value = GpuHardwareBackend.frequencyMHz(device, device.currentFreq)?.toString(),
-                    unit = "MHz",
-                    trust = if (device.currentFreq != null) MaxDataTrust.Live else MaxDataTrust.Unreadable,
-                    source = device.path,
-                )
-            )
-            MaxMetricLine(
-                MaxMetric(
+        // قراءة رئيسية كبيرة أولًا، ثم بطاقتا حمل/حرارة قابلتان للمقارنة. هذا يعطي
+        // المستخدم جوابًا فوريًا عن «ماذا يفعل GPU الآن؟» بدل ستة أسطر متساوية الأهمية.
+        MaxMetricReadout(
+            metric = MaxMetric(
+                label = stringResource(R.string.max_gpu_live_frequency),
+                value = GpuHardwareBackend.frequencyMHz(device, device.currentFreq)?.toString(),
+                unit = "MHz",
+                trust = if (device.currentFreq != null) MaxDataTrust.Live else MaxDataTrust.Unreadable,
+                source = device.path,
+            ),
+            size = MaxMetricSize.Large,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
+        ) {
+            MaxMetricReadout(
+                modifier = Modifier.weight(1f),
+                metric = MaxMetric(
                     label = stringResource(R.string.max_gpu_load),
                     value = device.loadPercent?.toString(),
                     unit = "%",
                     trust = if (device.loadPercent != null) MaxDataTrust.Live else MaxDataTrust.Unreadable,
                     source = device.path,
-                )
+                ),
+                size = MaxMetricSize.Small,
+                showProvenance = false,
             )
+            MaxMetricReadout(
+                modifier = Modifier.weight(1f),
+                metric = MaxMetric(
+                    label = stringResource(R.string.max_gpu_temp_label),
+                    value = device.thermalC?.toString(),
+                    unit = "°C",
+                    trust = if (device.thermalC != null) MaxDataTrust.Live else MaxDataTrust.Unreadable,
+                    source = device.evidence.firstOrNull(),
+                ),
+                size = MaxMetricSize.Small,
+                showProvenance = false,
+            )
+        }
+
+        MaxGroupDivider()
+        Column {
             MaxMetricLine(
                 MaxMetric(
                     label = stringResource(R.string.max_gpu_range_label),
                     value = effectiveRange(device),
                     unit = "MHz",
-                    // نطاق معلَن لا قياس لحظي: يُوسم كما هو بدل أن يُوهم بأنه حيّ.
-                    trust = if (device.minFreq != null && device.maxFreq != null) {
-                        MaxDataTrust.Snapshot
-                    } else {
-                        MaxDataTrust.Unreadable
-                    },
+                    trust = if (device.minFreq != null && device.maxFreq != null) MaxDataTrust.Snapshot else MaxDataTrust.Unreadable,
                     source = device.path,
                 )
             )
@@ -254,15 +273,6 @@ private fun GpuHero(state: GpuStudioUiState, device: GpuHardwareBackend.Device) 
                     value = device.governor?.takeIf { it.isNotBlank() },
                     trust = if (device.governor.isNullOrBlank()) MaxDataTrust.Unreadable else MaxDataTrust.Live,
                     source = device.path,
-                )
-            )
-            MaxMetricLine(
-                MaxMetric(
-                    label = stringResource(R.string.max_gpu_temp_label),
-                    value = device.thermalC?.toString(),
-                    unit = "°C",
-                    trust = if (device.thermalC != null) MaxDataTrust.Live else MaxDataTrust.Unreadable,
-                    source = device.evidence.firstOrNull(),
                 )
             )
             MaxMetricLine(

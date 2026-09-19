@@ -46,6 +46,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.CompareArrows
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.InsertDriveFile
@@ -94,6 +95,7 @@ fun FilePaneColumn(
     /** هل تنقّل هذا اللوح مرتبط بالآخر — يُعلَن في الرأس، فلا يبقى الربط حالة مخفية. */
     linked: Boolean = false,
     onActivate: () -> Unit,
+    onPathEdit: () -> Unit,
     onNavigate: (String) -> Unit,
     onQueryChange: (String) -> Unit,
     onSearchChange: (FileSearchFilters.Filter) -> Unit,
@@ -122,6 +124,7 @@ fun FilePaneColumn(
                 linked = linked,
                 tone = tone,
                 onActivate = onActivate,
+                onPathEdit = onPathEdit,
             )
 
             FileBreadcrumbs(
@@ -209,6 +212,7 @@ private fun PaneHeader(
     linked: Boolean,
     tone: MaxTone,
     onActivate: () -> Unit,
+    onPathEdit: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -231,14 +235,31 @@ private fun PaneHeader(
                 color = tone.content(),
             )
         }
-        Text(
-            text = if (state.loading) stringResource(R.string.max_files_cond_loading_title) else state.path,
-            modifier = Modifier.weight(1f, fill = false),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline),
+        ) {
+            Text(
+                text = if (state.loading) stringResource(R.string.max_files_cond_loading_title) else state.path,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = stringResource(R.string.max_files_entry_count, state.visible().size),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+        }
+        IconButton(onClick = { onActivate(); onPathEdit() }) {
+            Icon(
+                imageVector = Icons.Rounded.Edit,
+                contentDescription = stringResource(R.string.max_files_edit_path_cd),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         // علامة الربط رمزٌ **و**وصف: من لا يرى الأيقونة يسمع الحالة، ولا يعتمد الربط على
         // مقارنة مسارين لِيُفهَم. وتُعرض في اللوح الآخر أيضًا — لأن الربط علاقة بين اثنين.
         if (linked) {

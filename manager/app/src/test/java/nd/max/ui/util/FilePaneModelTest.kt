@@ -95,6 +95,17 @@ class FilePaneModelTest {
         assertNull(DualPane.mirrorFolder(right, dir("/sdcard", "Download")))
     }
 
+    /** قفزة فتات الخبز تصعد العدد نفسه من الخطوات في اللوح المقابل. */
+    @Test
+    fun linkedBreadcrumbNavigationMirrorsAncestorDepth() {
+        val right = pane("/storage/emulated/0/Android/data/cache")
+        assertEquals(
+            "/storage/emulated/0/Android",
+            DualPane.mirrorAncestor(right, "/sdcard/a/b", "/sdcard"),
+        )
+        assertNull(DualPane.mirrorAncestor(right, "/sdcard/a", "/other"))
+    }
+
     /** ملف بالاسم نفسه ليس مجلدًا: الربط لا يوقف لوحًا على ملف. */
     @Test
     fun linkedNavigationNeverTreatsAFileAsAFolder() {

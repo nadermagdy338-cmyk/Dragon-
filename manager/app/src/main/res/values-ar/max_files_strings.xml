@@ -10,15 +10,20 @@
     <string name="max_files_root_crumb">الجذر</string>
     <string name="max_files_pane_left">اللوح الأيسر</string>
     <string name="max_files_pane_right">اللوح الأيمن</string>
+    <string name="max_files_entry_count">%1$d مدخلًا ظاهرًا</string>
     <string name="max_files_sync_panes_cd">اجعَل اللوحين على مجلد اللوح النشط</string>
     <string name="max_files_swap_panes_cd">بدّل اللوحين</string>
     <string name="max_files_pane_no_match_title">لا اسم يطابق</string>
     <string name="max_files_pane_no_match_detail">لا شيء في هذا المجلد يطابق %1$s. امسح البحث لترى كل المدخلات مجددًا.</string>
     <string name="max_files_up_cd">اصعد مجلدًا واحدًا</string>
+    <string name="max_files_back_cd">ارجع إلى المجلد السابق</string>
     <string name="max_files_refresh_cd">أعد قراءة هذا المجلد</string>
     <string name="max_files_select_cd">ابدأ تحديد المدخلات</string>
     <string name="max_files_selected_count">المحدَّد: %1$d</string>
     <string name="max_files_open_cd">افتح</string>
+    <string name="max_files_edit_path_cd">أدخل مسارًا مباشرة</string>
+    <string name="max_files_edit_path_title">اذهب إلى مسار</string>
+    <string name="max_files_edit_path_field">المسار المطلق</string>
 
     <!-- ترتيب القائمة -->
     <string name="max_files_sort_cd">ترتيب القائمة</string>

@@ -2323,3 +2323,17 @@ Wrapper معًا: AGP 9.4 يطلب Gradle أحدث، والمقترض في ال�
 4. مخرجات `manager/*/build` تُركت في الشجرة (وهي في `.gitignore`) لتسريع الجولات القادمة؛
    و`manager/local.properties` باقٍ بقصد ليبقى البناء ممكنًا.
 5. **ولم يُلتزم شيء في git.**
+
+### FM-UI-02 — GPU Studio visual hierarchy pass — 2026-09-19
+
+**TASK:** FM-UI-02 (medium) — `DONE_WITH_CONCERNS`
+**FILES:** `manager/app/src/main/java/nd/max/ui/subscreens/GpuStudioScreen.kt` فقط.
+لم يتغير `GpuStudioViewModel` أو `GpuHardwareBackend` أو أي مسار كتابة عتاد.
+
+**WHAT:** أُعيد ترتيب العرض ليبدأ بقراءة التردد الحيّة كـ`MaxMetricReadout` كبيرة، ثم الحمل والحرارة كقراءة مقارنة، ثم النطاق والحاكم وعمر القراءة، قبل النوايا والتحكم اليدوي. أزيلت مساواة الأهمية البصرية بين ستة أسطر قياس، وبقيت كل حالات unknown/unsupported والـprovenance كما هي. التصميم يستخدم مكوّنات Max الحالية، لا نظام بطاقات جديدًا ولا تبعية جديدة.
+
+**GATES:** `python3 tools/i18n_coverage.py --assert` = 0 عوائق · `repo_audit.py` = `PROBLEMS: 0` · فحص الأقواس للملف = 101/101.
+**BUILD:** `:app:compileDebugKotlin :app:compileDebugUnitTestKotlin` = **BUILD SUCCESSFUL** في 1m50s · اختبارات JVM = **134 OK**.
+
+**RESIDUAL RISK:** لم تُلتقط صورة جهاز حقيقي في هذه البيئة، لذلك لم يُحكم بصريًا على RTL أو حجم الخط الكبير أو عرض القيم على جهاز ضيق. تحذيرات Kotlin القائمة لم تتغير. `code_health --assert` يبقى متأثرًا بملف الجذر المعروف `session-ses_f487.md`، لا بهذا التعديل.
+**NEXT:** تركيب APK على الجهاز، فتح GPU على Qualcomm وMali إن أمكن، واختبار سيناريو: اختيار Performance/intent → مراجعة → Apply → رفض العقدة → ظهور rollback.
