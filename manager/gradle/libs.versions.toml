@@ -24,7 +24,12 @@ hilt = "2.60.1"
 material3 = "1.4.0"
 activity-compose = "1.11.0"
 lifecycle = "2.9.4"
-navigation = "2.10.1"
+# **مقيس في تكملة ٤٠، لا منقولًا من ذاكرة:** `2.10.1` **ترفض** البناء بـ
+# `checkReleaseAarMetadata`، ومعها ثلاثة اعتماديات منقولة:
+#   navigation-compose-android:2.10.1 · lifecycle-runtime-compose-android:2.11.0 ·
+#   lifecycle-viewmodel-compose-android:2.11.0 ⇒ «requires … compileSdk 37» و`:app` على android-36.
+# فـ`2.9.4` هو **آخر إصدار يقبل SDK 36**، والتعليق القديم كان صحيحًا — وهذا دليله.
+navigation = "2.9.4"
 
 # Security & Glassmorphism
 stringfog = "5.1.0"
