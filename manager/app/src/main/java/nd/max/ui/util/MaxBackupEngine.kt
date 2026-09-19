@@ -19,6 +19,7 @@ package nd.max.ui.util
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Build
+import android.os.Environment
 import com.topjohnwu.superuser.Shell
 import java.io.File
 import nd.max.ui.util.MaxBackupModel.Availability
@@ -61,7 +62,6 @@ object MaxBackupEngine {
      */
     const val SYSTEM_PKG = "@system"
 
-    private const val ROOT_FOLDER = "MaxBackup"
     internal const val MANIFEST_FILE = "manifest.json"
     private const val APK_SUFFIX = ".apk"
     internal const val PART_SUFFIX = ".part"
@@ -76,6 +76,13 @@ object MaxBackupEngine {
     const val STAGE_EXTERNAL = "external"
     const val STAGE_OBB = "obb"
     const val STAGE_MANIFEST = "manifest"
+
+    /**
+     * الجذر الذي استقرّ عليه الفحص الكتابي. `null` = لم يُفحص بعد.
+     * `@Volatile` لأن القراءة من خيط الواجهة والكتابة من خيط القرص.
+     */
+    @Volatile
+    private var cachedRoot: File? = null
 
     // ────────────────────────────────────────────────────────────────────────
     // نتائج العمليات
@@ -223,11 +230,81 @@ object MaxBackupEngine {
     // المستودع
     // ────────────────────────────────────────────────────────────────────────
 
-    fun backupsRoot(context: Context): File =
-        File(context.getExternalFilesDir(null), ROOT_FOLDER)
+    /**
+     * الجذر المُستخدَم فعلًا. **لا يلمس القرص**: القرار بالصلاحية وحدها، حتى تُنادى من
+     * التركيب بلا حجب خيط الواجهة — والفحص الكتابي يثبّته عند أول عملية قرص ([ensureRoot]).
+     */
+    fun storageRoot(context: Context): File {
+        cachedRoot?.let { return it }
+        return if (publicStorageGranted(context)) {
+            MaxBackupStorage.requestedRoot()
+        } else {
+            fallbackRoot(context)
+        }
+    }
+
+    /**
+     * هل يملك التطبيق صلاحية الكتابة في التخزين العام؟
+     *
+     * قبل أندرويد ١١ لا يوجد هذا القيد، فنقول «نعم» ولا نحرم مستخدمًا من مسار لن يواجه
+     * مانعه. والقراءة محفوظة في `runCatching` لأن سؤال النظام عن صلاحية لا يجوز أن يُسقط شاشة.
+     */
+    fun publicStorageGranted(context: Context): Boolean = runCatching {
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.R || Environment.isExternalStorageManager()
+    }.getOrDefault(false)
+
+    /** المسار العام المطلوب — تعرضه الشاشة كما هو ليعرفه المستخدم ويصل إليه بمدير ملفاته. */
+    fun requestedRoot(): File = MaxBackupStorage.requestedRoot()
+
+    /**
+     * جذر الاحتياط: مجلد التطبيق الخارجي. **يُقرأ منه دائمًا**، لا عند غياب العام فقط،
+     * حتى لا تختفي نسخة أُخذت قبل منح الصلاحية أو قبل هذا التغيير.
+     */
+    fun fallbackRoot(context: Context): File {
+        val external = runCatching { context.getExternalFilesDir(null) }.getOrNull()
+        return MaxBackupStorage.fallbackRoot(external ?: context.filesDir)
+    }
+
+    /**
+     * يثبّت الجذر بفحص كتابة **فعلي** — ولا يُنادى إلا من عمليات القرص.
+     *
+     * ولماذا فحص كتابة لا `mkdir` ناجحة: مجلد ينشئه root ويبقى مملوكًا له يوجد بنجاح ثم
+     * يفشل عند أول كتابة من التطبيق — وذلك بالضبط كيف تُنتَج نسخة تُعلن نجاحًا ولم تُكتب.
+     */
+    internal fun ensureRoot(context: Context): File {
+        cachedRoot?.let { return it }
+        val chosen = MaxBackupStorage.choose(
+            requested = MaxBackupStorage.requestedRoot(),
+            fallback = fallbackRoot(context),
+            requestedUsable = writable(MaxBackupStorage.requestedRoot()),
+        )
+        cachedRoot = chosen
+        return chosen
+    }
+
+    /**
+     * يُسقط القرار المخزَّن. يُنادى بعد أن يمنح المستخدم صلاحية «الوصول لكل الملفات»،
+     * وإلا بقي الأرشيف في مجلد التطبيق حتى إعادة تشغيل العملية بلا سبب مفهوم.
+     */
+    fun invalidateStorageRoot() {
+        cachedRoot = null
+    }
+
+    private fun writable(dir: File): Boolean {
+        if (!dir.isDirectory && !runCatching { dir.mkdirs() }.getOrDefault(false)) return false
+        return runCatching {
+            val probe = File(dir, MaxBackupStorage.PROBE_FILE)
+            probe.writeText("")
+            probe.delete()
+            true
+        }.getOrDefault(false)
+    }
+
+    /** الجذر المُستخدَم — الاسم الذي تناديه الشاشة للعرض. */
+    fun backupsRoot(context: Context): File = storageRoot(context)
 
     private fun appFolder(context: Context, pkg: String): File =
-        File(backupsRoot(context), pkg)
+        MaxBackupStorage.folderOf(ensureRoot(context), pkg)
 
     fun readManifest(folder: File): Manifest? {
         val file = File(folder, MANIFEST_FILE)
@@ -245,14 +322,15 @@ object MaxBackupEngine {
 
     /** كل النسخ على القرص، أو نسخ تطبيق واحد. المجلدات بلا مستند صالح تُتجاهل بصمت معلَن. */
     fun list(context: Context, pkg: String? = null): List<Handle> {
-        val root = backupsRoot(context)
+        // الجذران معًا: المُستخدَم والاحتياطي. نسخة واحدة لا تختفي لأن مكانها تغيّر.
+        val roots = MaxBackupStorage.searchRoots(ensureRoot(context), fallbackRoot(context))
         val appFolders = if (pkg != null) {
-            listOf(appFolder(context, pkg))
+            roots.map { MaxBackupStorage.folderOf(it, pkg) }
         } else {
-            root.listFiles()?.filter(File::isDirectory).orEmpty()
+            roots.flatMap { root -> root.listFiles()?.filter(File::isDirectory).orEmpty() }
         }
 
-        return appFolders.flatMap { folder ->
+        return appFolders.distinctBy { it.absolutePath }.flatMap { folder ->
             folder.listFiles()?.filter(File::isDirectory).orEmpty().mapNotNull { backup ->
                 val manifest = readManifest(backup) ?: return@mapNotNull null
                 Handle(
@@ -263,6 +341,8 @@ object MaxBackupEngine {
                     complete = manifest.complete,
                     entryCount = manifest.entries.size,
                     encrypted = manifest.encrypted,
+                    label = manifest.label,
+                    keptForever = manifest.keptForever,
                 )
             }
         }.sortedByDescending { it.createdAtMs }
@@ -616,6 +696,25 @@ object MaxBackupEngine {
         val removed = shell("rm -rf ${quote(folder.absolutePath)} && echo y")?.firstOrNull() == "y"
         EventLog.userTriggered(SCREEN, "delete_backup", handle.pkg)
         return removed
+    }
+
+    /**
+     * يوسم نسخةً «تُحفَظ للأبد»، أو يرفع الوسم عنها.
+     *
+     * والوسم في المستند نفسه لا في تفضيلات التطبيق: النسخة قد تُنسخ إلى جهاز آخر،
+     * وقرار «لا تحذف هذه» يجب أن يسافر معها لا أن يبقى في جهاز أخذها.
+     *
+     * ولا يمسّ الوسم ما فُحص: البصمات في المستند عن الملفات، والتقليم يُقرأ منه وحده.
+     */
+    fun setKeptForever(handle: Handle, value: Boolean): Boolean {
+        val folder = File(handle.folder)
+        val manifest = readManifest(folder) ?: return false
+        if (manifest.keptForever == value) return true
+        val written = writeManifest(folder, manifest.copy(keptForever = value))
+        if (written) {
+            EventLog.userTriggered(SCREEN, if (value) "keep_forever" else "release_keep", handle.pkg)
+        }
+        return written
     }
 
     /** يُطبّق سياسة الاحتفاظ على تطبيق واحد ويعيد ما حُذف فعلًا. */

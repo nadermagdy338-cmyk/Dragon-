@@ -49,6 +49,21 @@ def main():
         TEST / "core/maxai/MaxAiInterruptSafetyTest.kt",
         SOURCE / "ui/navigation/LaunchRoutes.kt",
         TEST / "ui/navigation/LaunchRouteTest.kt",
+        # مكان الأرشيف وسياسة التقليم خالصان عن قصد: يُترجمان ويُقاسان هنا بلا Android
+        # ولا جهاز. والقاعدة الثانية هي الوحيدة التي تحذف بيانات بلا سؤال.
+        SOURCE / "ui/util/MaxBackupStorage.kt",
+        TEST / "ui/util/MaxBackupStorageTest.kt",
+        SOURCE / "ui/util/MaxBackupRetention.kt",
+        TEST / "ui/util/MaxBackupRetentionTest.kt",
+        # نموذج اللوحين وحرس العمليات: قرار الترتيب يحدّد أيّ شاشتين تُركَّبان، والحرس
+        # هو آخر ما يقف بين نقرة وحذف شجرة. كلاهما خالص فلا حاجة إلى Android لقياسه.
+        SOURCE / "ui/util/FileSystemModel.kt",
+        SOURCE / "ui/util/FileActionModel.kt",
+        SOURCE / "ui/util/FilePaneModel.kt",
+        TEST / "ui/util/FilePaneModelTest.kt",
+        # حرّاس شكل على قائمة الاختيار الواحد: الصنف الذي أسقط شاشة مدير الملفات كان
+        # «فهرسة قائمة أيقونات أقصر من الأسماء» — وهو عطبٌ لا يراه مصرّف ولا اختبار جهاز.
+        TEST / "ui/design/MaxViewMenuContractTest.kt",
     ]
     tests = [
         "nd.max.core.maxai.CoalescingCycleRunnerTest",
@@ -58,6 +73,10 @@ def main():
         "nd.max.ui.mainscreens.MaxAiTimelineFilterTest",
         "nd.max.ui.mainscreens.MaxAiTimelineSearchTest",
         "nd.max.ui.viewmodel.MaxAiPresentationArchitectureTest",
+        "nd.max.ui.util.MaxBackupStorageTest",
+        "nd.max.ui.util.MaxBackupRetentionTest",
+        "nd.max.ui.util.FilePaneModelTest",
+        "nd.max.ui.design.MaxViewMenuContractTest",
     ]
     live_test = TEST / "ui/mainscreens/MaxLivePresentationArchitectureTest.kt"
     if live_test.exists():
@@ -110,6 +129,15 @@ class CheckKotlinSyntax {
             "ui/mainscreens/HomeScreen.kt",
             "ui/mainscreens/ControlLayoutModel.kt", "ui/mainscreens/ControlScreen.kt",
             "ui/subscreens/MaxBackupScreen.kt", "ui/subscreens/PermissionsScreen.kt",
+            # Max Backup بعد إعادة التصميم: الشاشة الرئيسية والمنتقي، ومكان الأرشيف،
+            # والمحرّك والمستند اللذان مسّهما التغيير. إعراب فقط — لا فحص أنواع.
+            "ui/subscreens/MaxBackupHubScreen.kt", "ui/subscreens/MaxBackupPickerScreen.kt",
+            "ui/util/MaxBackupStorage.kt", "ui/util/MaxBackupEngine.kt",
+            "ui/util/MaxBackupModel.kt",
+            # مدير الملفات بعد إضافة ترتيب اللوحين والتنقّل المرتبط: الشاشة واللغة ورؤوس
+            # الألواح. إعراب فقط — لا فحص أنواع (لا Android SDK في هذه البيئة).
+            "ui/subscreens/FileManagerScreen.kt", "ui/component/FilePaneColumn.kt",
+            "ui/design/MaxViewMenu.kt",
         ]
         subprocess.run([
             "java", "-cp", compiler_cp, str(syntax),

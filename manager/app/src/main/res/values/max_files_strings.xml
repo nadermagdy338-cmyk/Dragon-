@@ -148,6 +148,16 @@
 
     <!-- الشرح -->
     <string name="max_files_help_title">How this screen decides</string>
-    <string name="max_files_help_body">Entries come from one stat pass with a fixed tab-separated format, so ls output is never parsed for data. Anything not measured is shown as unknown rather than as zero. Every operation is guarded before it reaches the shell: a folder cannot be copied into itself, a move cannot target its own source, and the filesystem root cannot be deleted.</string>
+    <string name="max_files_help_body">Entries come from one stat pass with a fixed tab-separated format, so ls output is never parsed for data. Anything not measured is shown as unknown rather than as zero. Every operation is guarded before it reaches the shell: a folder cannot be copied into itself, a move cannot target its own source, and the filesystem root cannot be deleted. The pane arrangement is yours to choose, and so is linked navigation: linked navigation follows the folder by name on the other side, and when the other side has no such folder it stays where it is instead of being sent to a guessed path.</string>
+
+    <!-- ترتيب اللوحين والربط -->
+    <string name="max_files_layout_cd">Pane arrangement</string>
+    <string name="max_files_layout_auto">Automatic</string>
+    <string name="max_files_layout_side">Side by side</string>
+    <string name="max_files_layout_stack">Above and below</string>
+    <string name="max_files_link_cd">Link the navigation of the two panes</string>
+    <string name="max_files_unlink_cd">Unlink the navigation of the two panes</string>
+    <string name="max_files_linked_cd">Navigation linked to the other pane</string>
+    <string name="max_files_linked_hint">Both panes move together</string>
 
 </resources>

@@ -64,7 +64,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavController
 import java.io.File
 import java.text.DateFormat
 import java.util.Date
@@ -102,7 +101,10 @@ private data class SystemRestorePrompt(
 )
 
 @Composable
-internal fun MaxBackupSystemMode(navController: NavController, onSwitchMode: () -> Unit) {
+internal fun MaxBackupSystemMode(
+    onSwitchMode: () -> Unit,
+    onBack: () -> Unit,
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -178,7 +180,7 @@ internal fun MaxBackupSystemMode(navController: NavController, onSwitchMode: () 
     MaxListScreen(
         title = stringResource(R.string.max_backup_title),
         subtitle = stringResource(R.string.max_backup_system_subtitle),
-        onBack = { navController.popBackStack() },
+        onBack = onBack,
         accentIcon = Icons.Rounded.SimCard,
         condition = condition,
         banner = banner,

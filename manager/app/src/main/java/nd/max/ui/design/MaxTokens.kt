@@ -112,6 +112,16 @@ object MaxSize {
 
     /** Height of the inline history strip used by telemetry rows. */
     val sparklineHeight: Dp = 28.dp
+
+    /**
+     * Largest height a scrollable list may take inside a dialog.
+     *
+     * Added for the `AppOps` operation picker: a device exposes a couple of hundred
+     * operation names, and a dialog that grows to fit them covers the screen it is
+     * asking about. The list scrolls inside this cap instead, so the title and the
+     * confirm button stay visible while choosing.
+     */
+    val dialogListMax: Dp = 360.dp
 }
 
 /**

@@ -144,6 +144,16 @@
 
     <!-- الشرح -->
     <string name="max_files_help_title">كيف تقرّر هذه الشاشة</string>
-    <string name="max_files_help_body">المدخلات تأتي من تمريرة stat واحدة بصيغة ثابتة مفصولة بتبويب، فلا يُحلَّل مخرج ls للحصول على بيانات أبدًا. وكل ما لم يُقس يُعرض مجهولًا لا صفرًا. وكل عملية تُحرس قبل أن تصل إلى shell: لا يُنسخ مجلد داخل نفسه، ولا يُنقل شيء إلى مصدره، ولا يُحذف جذر نظام الملفات.</string>
+    <string name="max_files_help_body">المدخلات تأتي من تمريرة stat واحدة بصيغة ثابتة مفصولة بتبويب، فلا يُحلَّل مخرج ls للحصول على بيانات أبدًا. وكل ما لم يُقس يُعرض مجهولًا لا صفرًا. وكل عملية تُحرس قبل أن تصل إلى shell: لا يُنسخ مجلد داخل نفسه، ولا يُنقل شيء إلى مصدره، ولا يُحذف جذر نظام الملفات. وترتيب اللوحين اختيارك، والتنقّل المرتبط كذلك: يتبع المجلد بالاسم في اللوح الآخر، وإن لم يوجد ذلك المجلد هناك بقي اللوح مكانه بدل أن يُرسَل إلى مسار مخمَّن.</string>
+
+    <!-- ترتيب اللوحين والربط -->
+    <string name="max_files_layout_cd">ترتيب اللوحين</string>
+    <string name="max_files_layout_auto">تلقائي</string>
+    <string name="max_files_layout_side">جنبًا إلى جنب</string>
+    <string name="max_files_layout_stack">فوق وتحت</string>
+    <string name="max_files_link_cd">اربط تنقّل اللوحين</string>
+    <string name="max_files_unlink_cd">افصل تنقّل اللوحين</string>
+    <string name="max_files_linked_cd">التنقّل مرتبط باللوح الآخر</string>
+    <string name="max_files_linked_hint">اللوحان يتحرّكان معًا</string>
 
 </resources>

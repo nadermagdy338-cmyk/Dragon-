@@ -43,3 +43,12 @@ internal fun launchRouteNeedsArgument(route: String): Boolean =
  */
 internal fun isPackageArgument(value: String?): Boolean =
     !value.isNullOrBlank() && '{' !in value && '}' !in value
+
+/**
+ * مسار **حزمة بعينها**: يُبنى من سجل الوجهات بنزع النمط ووضع المعرّف مكانه.
+ *
+ * ولماذا دالة لا `route.replace(...)` في كل موضع: النزع كان مكرّرًا في خمس شاشات، وكل
+ * موضع جديد كان فرصة لنزع خاطئ — وهو بالضبط العطب الذي وُلد منه هذا الملف. هنا موضع
+ * واحد، ويُقاس في اختبار JVM بلا جهاز، **والحارس المقابل له [isPackageArgument]**.
+ */
+internal fun packageRouteOf(route: String, pkg: String): String = route.replace("{pkg}", pkg)

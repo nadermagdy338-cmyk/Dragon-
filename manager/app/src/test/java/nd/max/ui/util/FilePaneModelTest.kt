@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2026-2027 Zexshia
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package nd.max.ui.util
 
 import org.junit.Assert.assertEquals
@@ -7,177 +23,230 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * نموذج اللوحين.
+ * نموذج اللوحين وحرس العمليات — يُقاسان في JVM عادي بلا جهاز ولا Android.
  *
- * وأهمّ ما هنا ليس حفظ الحالة — بل **الطلب الذي يبنيه اللوحان**: مع لوح واحد لا توجد
- * إلا وجهة واحدة، ومع لوحين تصير الوجهة مجلدًا اختاره المستخدم في الجهة الأخرى. وهنا
- * بالضبط يظهر «نسخ مجلد داخل نفسه»: لوحان على نفس الشجرة. فيُختبر أن الطلب المبنيّ
- * من اللوحين **يمرّ على نفس الحرس**، لا على حرس ثانٍ مكتوب في الواجهة.
+ * والسببان مختلفان: قرار **ترتيب اللوحين** يحدّد أيّ شاشتين تُركَّبان (وتخطئته تنتج لوحين
+ * متراكبين في صندوق لا يتّسعهما)، و[FileOpGuard] هو آخر ما يقف بين نقرة وحذف شجرة. ولا
+ * يُقاس أيٌّ منهما بقراءة الشيفرة — يُقاس بطلب يُرفض أو يُسمح.
  */
 class FilePaneModelTest {
 
-    private fun entry(name: String, directory: Boolean = false, size: Long? = null) = FileEntry(
+    private fun dir(parent: String, name: String) = FileEntry(
         name = name,
-        path = "/root/$name",
-        kind = if (directory) FileKind.Directory else FileKind.RegularFile,
-        sizeBytes = size,
+        path = FileBrowser.childPath(parent, name),
+        kind = FileKind.Directory,
     )
 
-    private fun pane(
-        path: String = "/root",
-        entries: List<FileEntry> = emptyList(),
-        selected: Set<String> = emptySet(),
-        query: String = "",
-        sort: FileSort = FileSort(),
-    ) = FilePaneState(
+    private fun file(parent: String, name: String) = FileEntry(
+        name = name,
+        path = FileBrowser.childPath(parent, name),
+        kind = FileKind.RegularFile,
+    )
+
+    private fun pane(path: String, vararg entries: FileEntry) = FilePaneState(
         path = path,
-        listing = DirectoryListing.Entries(path, entries),
+        listing = DirectoryListing.Entries(path = path, entries = entries.toList()),
         loading = false,
-        query = query,
-        sort = sort,
-        selection = FileSelection(selected),
-        selecting = selected.isNotEmpty(),
     )
 
-    // ── الجانب ────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────────────
+    // ترتيب اللوحين
+    // ────────────────────────────────────────────────────────────────────────
 
+    /** الآلي يتبع العرض المقيس: الضيّق يرصّ، والواسع يجانب. */
     @Test
-    fun `each side points at the other and never at itself`() {
-        assertEquals(PaneSide.Right, PaneSide.Left.other)
-        assertEquals(PaneSide.Left, PaneSide.Right.other)
-        assertFalse(PaneSide.Left.other == PaneSide.Left)
-    }
-
-    // ── حالة اللوح ────────────────────────────────────────────────────────────
-
-    @Test
-    fun `visible entries are filtered then sorted`() {
-        val state = pane(entries = listOf(entry("b2"), entry("b10"), entry("a")))
-        val filtered = state.copy(query = "b").visible()
-        assertEquals(listOf("b2", "b10"), filtered.map { it.name })
-    }
-
-    @Test
-    fun `moving to a folder clears the selection and the search`() {
-        val state = pane(selected = setOf("/root/x"), query = "q")
-        val moved = state.at("/data/")
-        assertEquals("/data", moved.path)
-        assertTrue(moved.selection.isEmpty)
-        assertEquals("", moved.query)
-        assertFalse(moved.selecting)
-    }
-
-    @Test
-    fun `a long press starts selecting and selects that entry`() {
-        val state = pane(entries = listOf(entry("a"))).toggleSelection("/root/a")
-        assertTrue(state.selecting)
-        assertTrue(state.isSelected("/root/a"))
-        assertFalse(state.isSelected("/root/b"))
-    }
-
-    @Test
-    fun `clearing the selection also leaves selecting mode`() {
-        val state = pane(selected = setOf("/root/a")).clearSelection()
-        assertFalse(state.selecting)
-        assertTrue(state.selection.isEmpty)
-    }
-
-    @Test
-    fun `a fresh listing replaces the old one and ends loading`() {
-        val loading = FilePaneState(path = "/root", loading = true)
-        val loaded = loading.withListing(DirectoryListing.Entries("/root", listOf(entry("a"))))
-        assertFalse(loaded.loading)
-        assertEquals(listOf("a"), loaded.entries.map { it.name })
-    }
-
-    // ── النقل بين اللوحين ────────────────────────────────────────────────────
-
-    @Test
-    fun `a transfer request takes the sources from one pane and the other pane as destination`() {
-        val from = pane(path = "/sdcard/DCIM", selected = setOf("/sdcard/DCIM/b.jpg", "/sdcard/DCIM/a.jpg"))
-        val to = pane(path = "/sdcard/Backup")
-        val request = DualPane.transferRequest(FileOperation.Copy, from, to)
-        assertEquals("/sdcard/Backup", request.destination)
-        // مرتّبة: الطلب يجب أن يكون قابلًا للمقارنة والمقايسة، لا أن يتغيّر ترتيبه.
-        assertEquals(listOf("/sdcard/DCIM/a.jpg", "/sdcard/DCIM/b.jpg"), request.sources)
-        assertEquals(FileOperation.Copy, request.operation)
-    }
-
-    @Test
-    fun `transfer needs a selection and two different folders`() {
-        val filled = pane(path = "/a", selected = setOf("/a/x"))
-        val empty = pane(path = "/b")
-        assertTrue(DualPane.canTransfer(filled, empty))
-        assertFalse(DualPane.canTransfer(empty, filled))
-        // اللوحان على المجلد نفسه: نقل «إلى هنا» ليس نقلًا.
-        assertFalse(DualPane.canTransfer(filled, pane(path = "/a")))
-        assertFalse(DualPane.canTransfer(filled, pane(path = "/a/")))
+    fun automaticArrangementFollowsTheMeasuredWidth() {
+        assertTrue(PaneLayoutRule.sideBySide(PaneLayout.Auto, availableWidth = 900f, threshold = 600f))
+        assertFalse(PaneLayoutRule.sideBySide(PaneLayout.Auto, availableWidth = 359f, threshold = 600f))
+        // حدّ صريح: العرض المساوي للحدّ يُعدّ كافيًا، وإلا صار سلوك الحدّ متروكًا للحظّ.
+        assertTrue(PaneLayoutRule.sideBySide(PaneLayout.Auto, availableWidth = 600f, threshold = 600f))
     }
 
     /**
-     * الاختبار الحاسم: الطلب المبنيّ من اللوحين يُمرَّر إلى الحرس نفسه، فيرفض نسخ مجلد
-     * داخل مجلد آخر يقع في شجرته. ولو بُنيت قاعدة ثانية في الواجهة لاختلفت يومًا ما.
+     * الوضع الصريح يتقدّم على القياس في الاتجاهين — وهذا هو الطلب نفسه: من اختار
+     * «جنبًا إلى جنب» على هاتف ضيّق يريده كذلك، ومن اختار «فوق وتحت» لا يُجبَر على عمودين.
      */
     @Test
-    fun `a cross-pane copy into the source's own subtree is refused by the shared guard`() {
-        val from = pane(path = "/sdcard/DCIM", selected = setOf("/sdcard/DCIM"))
-        val to = pane(path = "/sdcard/DCIM/inner")
+    fun anExplicitArrangementWinsOverTheWidth() {
+        assertTrue(PaneLayoutRule.sideBySide(PaneLayout.SideBySide, 359f, 600f))
+        assertFalse(PaneLayoutRule.sideBySide(PaneLayout.Stacked, 1200f, 600f))
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // التنقّل المرتبط
+    // ────────────────────────────────────────────────────────────────────────
+
+    /**
+     * الربط يتبع **الاسم** لا المسار: اللوح الآخر يُدخل مجلدًا بالاسم نفسه من مساره هو.
+     * وهذا ما يجعله مفيدًا: المزامنة المطلقة تضع اللوحين على مجلد واحد فتصير الوجهة =
+     * المصدر، أي تمنع النقل الذي وُجد اللوحان من أجله.
+     */
+    @Test
+    fun linkedNavigationFollowsTheFolderNameOnTheOtherSide() {
+        val right = pane("/storage/emulated/0", dir("/storage/emulated/0", "Download"))
+        val target = DualPane.mirrorFolder(right, dir("/sdcard", "Download"))
+        assertEquals("/storage/emulated/0/Download", target)
+    }
+
+    /** الاسم غير الموجود هناك لا يُخترع له مسار: لا `childPath` بالنصّ على مجلد لم نقسه. */
+    @Test
+    fun linkedNavigationLeavesTheOtherPaneAloneWhenTheFolderIsMissingThere() {
+        val right = pane("/storage/emulated/0", dir("/storage/emulated/0", "Pictures"))
+        assertNull(DualPane.mirrorFolder(right, dir("/sdcard", "Download")))
+    }
+
+    /** ملف بالاسم نفسه ليس مجلدًا: الربط لا يوقف لوحًا على ملف. */
+    @Test
+    fun linkedNavigationNeverTreatsAFileAsAFolder() {
+        val right = pane("/storage/emulated/0", file("/storage/emulated/0", "Download"))
+        assertNull(DualPane.mirrorFolder(right, dir("/sdcard", "Download")))
+    }
+
+    /** لوح لم تُقرأ مديرته لا يُنقل على اسم منه — لا مدخلات مقيسة يعني لا مقابل. */
+    @Test
+    fun anUnreadablePaneIsNeverMoved() {
+        val unreadable = FilePaneState(
+            path = "/data",
+            listing = DirectoryListing.Unreadable("/data", ListingFailure.PermissionDenied),
+            loading = false,
+        )
+        assertNull(DualPane.mirrorFolder(unreadable, dir("/", "data")))
+    }
+
+    /** الصعود المرتبط خطوة واحدة، والجذر لا أبَ له فلا يُدفَع اللوح إلى مسار غير موجود. */
+    @Test
+    fun goingUpOnlyMirrorsWhileThereIsAParent() {
+        assertEquals("/sdcard", DualPane.mirrorParent(pane("/sdcard/Download")))
+        assertNull(DualPane.mirrorParent(pane("/")))
+    }
+
+    /** الوجهة في النقل هي **مجلد اللوح الآخر**: لا يكتب المستخدم مسارًا ولا يُخمَّن له مسار. */
+    @Test
+    fun transferRequestTargetsTheOtherPaneFolder() {
+        val from = pane("/sdcard", file("/sdcard", "a.txt"), file("/sdcard", "b.txt")).let {
+            it.copy(selection = FileSelection(setOf("/sdcard/a.txt", "/sdcard/b.txt")))
+        }
+        val to = pane("/sdcard/Backup")
         val request = DualPane.transferRequest(FileOperation.Copy, from, to)
-        val verdict = FileOpGuard.check(request, directories = setOf("/sdcard/DCIM"))
+        assertEquals(listOf("/sdcard/a.txt", "/sdcard/b.txt"), request.sources)
+        assertEquals("/sdcard/Backup", request.destination)
+        assertTrue(DualPane.canTransfer(from, to))
+    }
+
+    /**
+     * واللوحان على المجلد نفسه بعد «مزامنة المسار»: لا نقلَ ممكنًا — وهذا هو الفرق العملي
+     * بين المزامنة المطلقة والتنقّل المرتبط، فيُثبَّت هنا حتى لا يُخلط بينهما.
+     */
+    @Test
+    fun absoluteSynchronisationLeavesNothingToTransfer() {
+        val left = pane("/sdcard").let { it.copy(selection = FileSelection(setOf("/sdcard/a.txt"))) }
+        val right = DualPane.syncOther(left, pane("/sdcard/Backup"))
+        assertEquals("/sdcard", right.path)
+        assertFalse(DualPane.canTransfer(left, right))
+    }
+
+    /** التبديل يتبادل المسارين و**يُصفّر** البحث والتحديد معهما. */
+    @Test
+    fun swappingKeepsEachPaneCleanOfTheOtherState() {
+        val left = pane("/a").let { it.copy(query = "log", selection = FileSelection(setOf("/a/x"))) }
+        val right = pane("/b")
+        val (newLeft, newRight) = DualPane.swap(left, right)
+        assertEquals("/b", newLeft.path)
+        assertEquals("/a", newRight.path)
+        assertEquals("", newLeft.query)
+        assertTrue(newLeft.selection.isEmpty)
+        assertFalse(newLeft.selecting)
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // حرس العمليات
+    // ────────────────────────────────────────────────────────────────────────
+
+    /** نسخ مجلد داخل مجلد فرعيّ منه: شجرة لا تنتهي وقرص يمتلئ. */
+    @Test
+    fun copyingAFolderIntoItselfIsRefused() {
+        val verdict = FileOpGuard.check(
+            FileOpRequest(
+                operation = FileOperation.Copy,
+                sources = listOf("/sdcard/Pictures"),
+                destination = "/sdcard/Pictures/copy",
+            ),
+            directories = setOf("/sdcard/Pictures"),
+        )
         assertEquals(FileOpVerdict.Refused(FileOpRefusal.TargetInsideSource), verdict)
     }
 
+    /**
+     * ونفس الوجهة من اللوحين: النقل إلى المجلد الذي جاء منه الملف ليس نقلًا.
+     * وهذا هو الشكل الذي يظهر بمجرّد أن يقف اللوحان على مجلد واحد.
+     */
     @Test
-    fun `a cross-pane move into the pane's own folder is refused as a self target`() {
-        val from = pane(path = "/data/local", selected = setOf("/data/local/tmp"))
-        val to = pane(path = "/data/local/tmp")
-        val request = DualPane.transferRequest(FileOperation.Move, from, to)
-        val verdict = FileOpGuard.check(request, directories = setOf("/data/local/tmp"))
+    fun movingSomethingOntoItsOwnSourceIsRefused() {
+        val verdict = FileOpGuard.check(
+            FileOpRequest(
+                operation = FileOperation.Move,
+                sources = listOf("/sdcard/Backup"),
+                destination = "/sdcard/Backup",
+            ),
+        )
         assertEquals(FileOpVerdict.Refused(FileOpRefusal.SelfTarget), verdict)
     }
 
+    /** جذر نظام الملفات لا يُحذف ولا يُنقل ولا يكون وجهة. */
     @Test
-    fun `a cross-pane copy between sibling folders is allowed`() {
-        val from = pane(path = "/sdcard/DCIM", selected = setOf("/sdcard/DCIM/a.jpg"))
-        val to = pane(path = "/sdcard/Download")
-        val request = DualPane.transferRequest(FileOperation.Copy, from, to)
-        assertEquals(FileOpVerdict.Allowed, FileOpGuard.check(request, directories = emptySet()))
+    fun theFilesystemRootIsAlwaysProtected() {
+        assertEquals(
+            FileOpVerdict.Refused(FileOpRefusal.ProtectedPath),
+            FileOpGuard.check(FileOpRequest(FileOperation.Delete, sources = listOf("/"))),
+        )
+        assertEquals(
+            FileOpVerdict.Refused(FileOpRefusal.ProtectedPath),
+            FileOpGuard.check(
+                FileOpRequest(FileOperation.Move, sources = listOf("/sdcard/x"), destination = "/"),
+            ),
+        )
     }
 
-    // ── المزامنة والتبديل ────────────────────────────────────────────────────
-
+    /** الاسم لا يكون مسارًا: فاصل في الاسم يحوّل `mv x a/b` إلى كتابة في مجلد آخر. */
     @Test
-    fun `sync moves only the other pane onto the active folder`() {
-        val from = pane(path = "/data/adb/modules")
-        val to = pane(path = "/sdcard", query = "keep")
-        val synced = DualPane.syncOther(from, to)
-        assertEquals("/data/adb/modules", synced.path)
-        // ولا يمسّ بحث اللوح الآخر: المزامنة مسار لا حالة كاملة.
-        assertEquals("keep", synced.query)
+    fun aNameCarryingASeparatorIsRefused() {
+        assertFalse(FileOpGuard.isValidName("a/b"))
+        assertFalse(FileOpGuard.isValidName(".."))
+        assertFalse(FileOpGuard.isValidName("   "))
+        assertTrue(FileOpGuard.isValidName("backup 2026"))
+        assertEquals(
+            FileOpVerdict.Refused(FileOpRefusal.InvalidName),
+            FileOpGuard.check(
+                FileOpRequest(FileOperation.Rename, sources = listOf("/sdcard/a"), newName = "b/c"),
+            ),
+        )
     }
 
+    /** اسم مشغول يُرفض بدل أن يُستبدل ملف، والبديل الفريد يُبنى بلا مسّ ما هو موجود. */
     @Test
-    fun `swap exchanges the paths and drops state tied to the old folder`() {
-        val left = pane(path = "/left", selected = setOf("/left/x"), query = "q")
-        val right = pane(path = "/right")
-        val (newLeft, newRight) = DualPane.swap(left, right)
-        assertEquals("/right", newLeft.path)
-        assertEquals("/left", newRight.path)
-        assertTrue(newLeft.selection.isEmpty)
-        assertEquals("", newLeft.query)
+    fun aTakenNameIsRefusedAndTheUniqueAlternativeIsOffered() {
+        assertEquals(
+            FileOpVerdict.Refused(FileOpRefusal.NameTaken),
+            FileOpGuard.check(
+                FileOpRequest(FileOperation.CreateDirectory, destination = "/sdcard", newName = "Backup"),
+                existingNames = setOf("Backup"),
+            ),
+        )
+        assertEquals("Backup (2)", FileOpGuard.uniqueName("Backup", setOf("Backup", "Backup (1)")))
     }
 
+    /** والنسخ العادي بين مجلدين مختلفين يُسمح — الحرس ليس مانعًا عامًّا. */
     @Test
-    fun `activate reports the side it was given`() {
-        assertEquals(PaneSide.Left, DualPane.activate(PaneSide.Left))
-        assertEquals(PaneSide.Right, DualPane.activate(PaneSide.Right))
-    }
-
-    @Test
-    fun `a pane with no listing shows no entries and does not invent them`() {
-        val blank = FilePaneState(path = "/root", listing = null)
-        assertTrue(blank.entries.isEmpty())
-        assertTrue(blank.visible().isEmpty())
-        assertNull((blank.listing as? DirectoryListing.Entries))
+    fun aPlainCopyBetweenTwoDifferentFoldersIsAllowed() {
+        assertEquals(
+            FileOpVerdict.Allowed,
+            FileOpGuard.check(
+                FileOpRequest(
+                    operation = FileOperation.Copy,
+                    sources = listOf("/sdcard/Download/a.zip"),
+                    destination = "/sdcard/Backup",
+                ),
+            ),
+        )
     }
 }

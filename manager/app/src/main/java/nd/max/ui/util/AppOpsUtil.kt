@@ -186,4 +186,25 @@ object AppOpsUtil {
         runCatching { referenceFile(context, pkg).delete() }.getOrDefault(false)
 
     fun referenceExists(context: Context, pkg: String): Boolean = referenceFile(context, pkg).isFile
+
+    /**
+     * فهرس المراجع المحفوظة: معرّف الحزمة ⇒ وقت حفظ مرجعها.
+     *
+     * **ولماذا الفهرس لا القائمة الكاملة:** الشاشة تحتاج من هذه الملفات **سؤالين فقط** — أيّ
+     * تطبيق له مرجع، ومتى حُفظ — والمرجع نفسه يحمل مئات الأوضاع لكل تطبيق. فتُقرأ الملفات
+     * وتُرمى خريطة الأوضاع، ويبقى ما يُعرض. والقراءة في `Dispatchers.IO` عند المستدعي: هنا
+     * ملفّات محلية فقط ولا امتياز مطلوب.
+     *
+     * والملفات التي لا تُعرَب **تُتخطّى ولا تُبلَّغ فشلًا**: مرجع مكتوب بإصدار أقدم قد لا يُقرأ،
+     * وإسقاط القائمة كلها بسببه كان سيُخفي ما هو سليم. وشاشة التطبيق نفسه هي التي تُبلِّغ عن
+     * مرجعه إن تعذّرت قراءته.
+     */
+    fun referenceIndex(context: Context): Map<String, Long> = runCatching {
+        val dir = File(context.filesDir, REFERENCE_DIR)
+        val files = dir.listFiles { file -> file.isFile && file.name.endsWith(".json") } ?: return@runCatching emptyMap()
+        files.mapNotNull { file ->
+            val pkg = file.name.removeSuffix(".json")
+            PermissionPolicy.Codec.decode(file.readText())?.let { pkg to it.savedAtMs }
+        }.toMap()
+    }.getOrDefault(emptyMap())
 }

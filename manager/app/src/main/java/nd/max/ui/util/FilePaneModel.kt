@@ -38,6 +38,36 @@ enum class PaneSide {
 }
 
 /**
+ * كيف يُعرض اللوحان.
+ *
+ * و`Auto` ليس احتياطًا بل قرارًا: على هاتف ضيّق يقيس اللوحان بعرض 320dp فيصير كل صفّ
+ * عمودًا من حرفين. وعلى شاشة أعرض ينقلبان جنبًا إلى جنب. لكن القرار الآلي لا يعرف أن
+ * المستخدم **يريد** اللوحين معًا الآن، ولا أنه يريد رؤية مسار طويل كامل — فالأوضاع
+ * الصريحة تُلغي الآلي، والآلي يبقى الافتراضي.
+ */
+enum class PaneLayout {
+    Auto,
+    SideBySide,
+    Stacked,
+}
+
+/**
+ * قاعدة العرض الخالصة: عرض متاح وحدّ ⇒ جنبًا إلى جنب أو فوق/تحت.
+ *
+ * ولماذا في نموذج لا في الشاشة: هذه القاعدة يُبنى عليها **أيّ الشاشتين تُركَّب**، فخطأ
+ * فيها يُنتج لوحين متراكبين في صندوق لا يتّسعهما (قياس لا نهائي ← انهيار في `LazyColumn`).
+ * وهي دالة صافية تُقاس في JVM بلا جهاز.
+ */
+object PaneLayoutRule {
+
+    fun sideBySide(layout: PaneLayout, availableWidth: Float, threshold: Float): Boolean = when (layout) {
+        PaneLayout.SideBySide -> true
+        PaneLayout.Stacked -> false
+        PaneLayout.Auto -> availableWidth >= threshold
+    }
+}
+
+/**
  * حالة لوح واحد: مسار · قراءة · بحث · ترتيب · تحديد.
  *
  * وهي `data class` ثابتة عن قصد: كل انتقال يُنتج حالة جديدة، فلا يبقى في الشاشة حقل
@@ -102,6 +132,33 @@ object DualPane {
     /** المزامنة: كلا اللوحين على مجلد واحد — بلا تغيير أي شيء آخر في اللوح المقابل. */
     fun syncOther(from: FilePaneState, to: FilePaneState): FilePaneState =
         to.copy(path = FileBrowser.normalize(from.path))
+
+    /**
+     * **التنقّل المرتبط** — أين يذهب اللوح الآخر عند دخول مجلد في اللوح الذي يتحرّك.
+     *
+     * وهذه هي المزامنة التي تنفع فعلًا مع الاثنين: المزامنة المطلقة ([syncOther]) تضع
+     * اللوحين على المجلد **نفسه**، وعندها تصير الوجهة = المصدر فلا نقلَ ممكنًا — أي أن
+     * المزامنة تمنع الشيء الذي وُجد اللوحان من أجله. أما هنا فيتبع اللوح الآخر **الاسم**
+     * لا المسار: تدخل `Android/data` فيُدخل الآخر `Android/data` بدوره من مساره هو.
+     *
+     * والبحث يجري في **قراءة اللوح الآخر** لا في مسار مُخترع: لا `childPath` بالنصّ،
+     * لأن مجلدًا لم نقسه قد لا يوجد أصلًا (`/sdcard/Android/data` محجوب على كثير من
+     * الإصدارات) فنكون قد أنزلنا لوحًا على مجلد لا يُقرأ. ولم يُوجد المجلد ⇒ `null`،
+     * واللوح الآخر يبقى مكانه — ولا يُخمَّن له مسار.
+     */
+    fun mirrorFolder(other: FilePaneState, entered: FileEntry): String? {
+        if (!entered.isDirectory) return null
+        val twin = other.entries.firstOrNull { it.isDirectory && it.name == entered.name }
+        return twin?.path
+    }
+
+    /**
+     * الصعود المرتبط: المجلد الأب للوح الآخر، أو `null` إن كان على الجذر.
+     *
+     * و`null` هنا ليست فشلًا: الجذر لا أبَ له، واللوح الآخر يبقى عليه بدل أن يُدفع
+     * إلى مسار غير موجود.
+     */
+    fun mirrorParent(other: FilePaneState): String? = FileBrowser.parentOf(other.path)
 
     /**
      * تبديل اللوحين: يتبادل المساران، وتُصفَّر حالة كل لوح (تحديد وبحث) مع الانتقال.

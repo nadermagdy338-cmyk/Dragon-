@@ -9,6 +9,7 @@
     <string name="max_backup_picker_title">Choose an app</string>
     <string name="max_backup_picker_desc">Backups are stored per app, and every archive is verified after it is written</string>
     <string name="max_backup_search_hint">Search apps</string>
+    <string name="max_backup_search_clear">Clear the search</string>
     <string name="max_backup_no_match_title">Nothing matches</string>
     <string name="max_backup_no_match_detail">No installed app matches what you typed.</string>
     <string name="max_backup_app_count">%1$s of %2$s apps</string>
@@ -86,6 +87,7 @@
     <string name="max_backup_verify_missing">The file is gone</string>
     <string name="max_backup_verify_corrupt">Hash mismatch</string>
     <string name="max_backup_verify_unverifiable">No recorded hash — cannot be verified</string>
+    <string name="max_backup_verify_result">%1$s of %2$s files match their recorded hash</string>
 
     <!-- الحذف والاحتفاظ -->
     <string name="max_backup_delete_title">Delete this backup?</string>
@@ -116,6 +118,35 @@
     <string name="max_backup_warn_version">The installed app version differs from the recorded one.</string>
     <string name="max_backup_warn_not_installed">The app is not installed; only the reinstall step can recreate it.</string>
     <string name="max_backup_warn_encrypted">This record is marked as encrypted; the archived files are read as they are.</string>
+
+    <!-- الحفظ للأبد -->
+    <string name="max_backup_keep_title">Keep forever</string>
+    <string name="max_backup_keep_desc">Trimming never deletes this copy. The mark travels inside the copy itself, so it survives being moved to another device.</string>
+    <string name="max_backup_keep_badge">kept</string>
+    <string name="max_backup_keep_on">This copy is now kept</string>
+    <string name="max_backup_keep_off">The keep mark was removed</string>
+    <string name="max_backup_keep_failed">The mark could not be written; the record is unchanged</string>
+    <string name="max_backup_delete_kept_message">This copy is marked as kept, so trimming would never have removed it. Deleting it now is a deliberate act and it cannot be undone.</string>
+
+    <!-- فحص كل النسخ -->
+    <string name="max_backup_sweep_title">Check every copy</string>
+    <string name="max_backup_sweep_desc">Re-reads every archived file and compares it with the hash recorded when it was written</string>
+    <string name="max_backup_sweep_running">Checking %1$s of %2$s</string>
+    <string name="max_backup_sweep_ok">%1$s of %2$s copies match every hash they recorded</string>
+    <string name="max_backup_sweep_problems_title">Copies that need attention</string>
+    <string name="max_backup_sweep_problem_detail">%1$s of %2$s files matched their hash</string>
+    <string name="max_backup_sweep_problem_unreadable">The record could not be read, so nothing could be checked</string>
+    <string name="max_backup_restore_one_title">Restoring a copy of %1$s</string>
+
+    <!-- استعادة الجهاز -->
+    <string name="max_backup_restore_device_title">Restore the whole device</string>
+    <string name="max_backup_restore_device_desc">%1$s apps: the newest copy of each is restored in turn. System data is not part of it — it has its own screen.</string>
+    <string name="max_backup_restore_device_none">No app has a copy yet, so there is nothing to restore.</string>
+    <string name="max_backup_restore_device_confirm_title">Restore every app from its newest copy?</string>
+    <string name="max_backup_restore_device_confirm_message">%1$s apps will be stopped, replaced and repaired one after another. A copy that fails its own check is skipped, never forced — and what was skipped is reported at the end.</string>
+    <string name="max_backup_restore_device_running">%1$s of %2$s</string>
+    <string name="max_backup_restore_device_done">Restored %1$s · skipped %2$s</string>
+    <string name="max_backup_restore_device_none_done">Nothing was restored. Each skip is recorded with its reason.</string>
 
     <!-- التخزين -->
     <string name="max_backup_storage_title">Storage</string>
@@ -188,6 +219,72 @@
     <string name="max_backup_system_skipped_title">Will be skipped:</string>
     <string name="max_backup_system_restore_summary">Inserted %1$s · skipped %2$s · no usable key %3$s</string>
     <string name="max_backup_system_restore_failed">Restore failed at: %1$s</string>
+
+    <!-- ═══ الشاشة الرئيسية: تبويبان وأقسام ═══ -->
+    <string name="max_backup_home_subtitle">Copies stay on this device: apps, their data, and the system data behind providers</string>
+    <string name="max_backup_tab_backup">Backup</string>
+    <string name="max_backup_tab_restore">Restore</string>
+    <string name="max_backup_not_automatic">Nothing is copied on its own. A copy starts only when you press a save action and confirm it — that is what the plan screen in front of every copy is for.</string>
+
+    <string name="max_backup_cat_title">What to back up</string>
+    <string name="max_backup_cat_apps_title">Apps</string>
+    <string name="max_backup_cat_apps_desc">%1$s installed · %2$s have a copy</string>
+    <string name="max_backup_cat_apps_loading">Counting installed apps and their copies.</string>
+    <string name="max_backup_cat_system_title">System data</string>
+    <string name="max_backup_cat_system_desc">Wi-Fi, Bluetooth, contacts, call log, messages, personal dictionary</string>
+
+    <!-- الإجراءات الصريحة -->
+    <string name="max_backup_actions_title">Actions</string>
+    <string name="max_backup_save_now_title">Save a copy now</string>
+    <string name="max_backup_save_now_desc">Choose the apps, then start the copy. Nothing is written before you press save.</string>
+    <string name="max_backup_restore_latest_title">Restore the newest copy</string>
+    <string name="max_backup_restore_latest_desc">%1$s · taken %2$s · %3$s</string>
+    <string name="max_backup_restore_newest_none">No copy has been taken yet, so there is nothing to restore.</string>
+
+    <!-- أحدث النسخ -->
+    <string name="max_backup_recent_title">Newest copies</string>
+    <string name="max_backup_recent_desc">Everything taken on this device, newest first</string>
+
+    <!-- منتقي التطبيقات بالتحديد المتعدد -->
+    <string name="max_backup_selection_none">Nothing selected</string>
+    <string name="max_backup_selection_count">%1$s selected</string>
+    <string name="max_backup_select_all">Select all shown (%1$s)</string>
+    <string name="max_backup_select_none">Clear selection</string>
+    <string name="max_backup_filter_all">All</string>
+    <string name="max_backup_filter_user">User</string>
+    <string name="max_backup_filter_system_apps">System</string>
+    <string name="max_backup_filter_backed_up">Has copy</string>
+    <string name="max_backup_row_last_copy">Newest copy: %1$s · %2$s</string>
+    <string name="max_backup_row_never">Never copied</string>
+    <string name="max_backup_row_select">Select %1$s</string>
+    <string name="max_backup_row_open">Open the backup details of %1$s</string>
+    <string name="max_backup_save_selected">Save %1$s copies</string>
+    <string name="max_backup_save_selected_one">Save 1 copy</string>
+    <string name="max_backup_batch_confirm_title">Save copies of these apps?</string>
+    <string name="max_backup_batch_confirm_message">%1$s apps will be read and archived one after another. Keep the app open until the run finishes.</string>
+    <string name="max_backup_batch_title">Saving a copy of %1$s</string>
+    <string name="max_backup_batch_running">%1$s of %2$s</string>
+    <string name="max_backup_batch_done">Saved %1$s · skipped %2$s</string>
+    <string name="max_backup_batch_none">Nothing was saved. The reasons are recorded for each app.</string>
+    <string name="max_backup_picker_empty_detail">Neither the search nor the filter matched an installed app.</string>
+
+    <!-- تبويب الاسترجاع -->
+    <string name="max_backup_restore_tab_desc">Pick a copy to put back on this device. Every recorded file passes its own hash check first.</string>
+    <string name="max_backup_restore_all_title">Every copy on this device</string>
+    <string name="max_backup_restore_empty_title">No copies yet</string>
+    <string name="max_backup_restore_empty_detail">A copy you take will be listed here with its app, its date and its size.</string>
+
+    <!-- مكان التخزين -->
+    <string name="max_backup_storage_path">Folder</string>
+    <string name="max_backup_storage_used">Used by copies</string>
+    <string name="max_backup_storage_free_title">Free space</string>
+    <string name="max_backup_storage_free">%1$s free of %2$s</string>
+    <string name="max_backup_storage_size_unknown">Could not be read</string>
+    <string name="max_backup_storage_public_ok">Writing into the shared folder below, so any file manager can reach the archive without root.</string>
+    <string name="max_backup_storage_fallback_title">Copies are in the app folder</string>
+    <string name="max_backup_storage_fallback_desc">The shared folder %1$s needs the “All files access” permission. Until it is granted, copies go to %2$s — and copies already taken there stay readable, because both folders are searched.</string>
+    <string name="max_backup_storage_grant">Grant all-files access</string>
+    <string name="max_backup_storage_grant_failed">This device has no screen for that permission. Copies stay in the app folder.</string>
 
     <!-- مدخل من شاشة إعدادات التطبيق -->
     <string name="max_backup_entry_title">Max Backup</string>

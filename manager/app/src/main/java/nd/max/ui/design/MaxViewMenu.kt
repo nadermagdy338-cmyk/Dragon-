@@ -1,17 +1,22 @@
 /*
- * MaxManager Design Language — layout switch.
+ * MaxManager Design Language — single-choice menu.
  *
- * Used by page top bars when the same content can be presented two ways (the
- * Control page's compact list and its expanded page). It is one top-bar icon that
- * opens the two names as a menu instead of two always-visible chips: the top bar
- * already carries the page's help action and its side actions, and a two-chip
- * control big enough to touch (48dp per option) crowded them on phones while the
- * name it showed was almost always the one you are not in.
+ * Used by page top bars when one page-level choice must be made between a few
+ * names: the Control page's compact/expanded layout, the file manager's sort
+ * order, and the file manager's pane arrangement. It is one top-bar icon that
+ * opens the names instead of one always-visible chip per option: the top bar
+ * already carries the page's help action and its side actions, and a chip per
+ * option big enough to touch (48dp each) crowded them on phones while the name
+ * it showed was almost always the one you were not in.
  *
- * The menu is a radio group — the active name carries the check — and both names
- * stay readable when opened, so the control never depends on an icon being
- * understood. The trigger shows the mode you are in, which is the one fact the
- * collapsed chip could not tell you anyway when it showed two names at once.
+ * The menu is a radio group — the active name carries the check — and every name
+ * stays readable when opened, so the control never depends on an icon being
+ * understood. An option may carry an icon for faster scanning, but **icons are
+ * optional per option and are always looked up by index with a fallback**: this
+ * primitive is handed as many labels as the caller has choices, and a caller
+ * with four choices once crashed the screen the moment the menu opened, because
+ * the trigger and the item icons indexed a two-entry list directly. Nothing here
+ * indexes an icon list without a bound.
  */
 package nd.max.ui.design
 
@@ -35,9 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
- * The two presentations this control switches between, in the order callers pass
- * their labels: `[0]` compact (everything behind its hub) and `[1]` expanded
- * (every screen opened out).
+ * Icons used when a caller names two layout options and passes no icons of its
+ * own: `[0]` compact (everything behind its hub) and `[1]` expanded (every
+ * screen opened out).
  */
 private val MaxViewIcons: List<ImageVector> = listOf(
     Icons.AutoMirrored.Rounded.ViewList,
@@ -45,12 +50,24 @@ private val MaxViewIcons: List<ImageVector> = listOf(
 )
 
 /**
- * Top-bar layout switch.
+ * The icon drawn on the trigger when neither the caller's trigger icon nor a
+ * per-option icon exists for the active index. It exists so a menu can never
+ * render without a face — the alternative is an invisible control.
+ */
+private val MaxViewFallbackIcon: ImageVector = Icons.AutoMirrored.Rounded.ViewList
+
+/**
+ * Single-choice menu for a page-level switch.
  *
- * @param labels exactly the two names the user chooses between.
- * @param selectedIndex index of the active option.
- * @param contentDescription spoken name of the control; the menu items carry the
- *        names themselves.
+ * @param labels the names the user chooses between, in order.
+ * @param selectedIndex index of the active option; coerced into range, so a
+ *        caller whose state came from a saved string cannot crash the menu.
+ * @param contentDescription spoken name of the control; the menu items carry
+ *        the names themselves.
+ * @param icons optional icon per option, **looked up by index**: shorter lists
+ *        are allowed and simply leave the later options without an icon.
+ * @param triggerIcon icon for the closed control; `null` means "the active
+ *        option's icon", falling back to [MaxViewFallbackIcon].
  */
 @Composable
 fun MaxViewMenu(
@@ -59,16 +76,19 @@ fun MaxViewMenu(
     contentDescription: String,
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    icons: List<ImageVector> = MaxViewIcons,
+    triggerIcon: ImageVector? = null,
 ) {
-    if (labels.size < 2) return
+    if (labels.isEmpty()) return
 
     var expanded by remember { mutableStateOf(false) }
     val selected = selectedIndex.coerceIn(0, labels.lastIndex)
+    val face = triggerIcon ?: icons.getOrNull(selected) ?: MaxViewFallbackIcon
 
     Box(modifier = modifier) {
         IconButton(onClick = { expanded = true }) {
             Icon(
-                imageVector = MaxViewIcons[selected],
+                imageVector = face,
                 contentDescription = contentDescription,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -77,18 +97,26 @@ fun MaxViewMenu(
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             labels.forEachIndexed { index, label ->
                 val isSelected = index == selected
+                val iconTint = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+                // `null` حين لا أيقونة لهذا الخيار: اسم بلا رمز خير من رمز لا يعني شيئًا.
+                // والشكل نفسه المستعمل في `trailingIcon` أدناه، فلا يُخترع نمط ثانٍ لنفس الغرض.
+                val optionIcon = icons.getOrNull(index)
                 DropdownMenuItem(
                     text = { Text(label) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = MaxViewIcons[index],
-                            contentDescription = null,
-                            tint = if (isSelected) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                        )
+                    leadingIcon = if (optionIcon == null) {
+                        null
+                    } else {
+                        {
+                            Icon(
+                                imageVector = optionIcon,
+                                contentDescription = null,
+                                tint = iconTint,
+                            )
+                        }
                     },
                     trailingIcon = if (isSelected) {
                         {

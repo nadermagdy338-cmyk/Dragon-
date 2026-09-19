@@ -26,6 +26,19 @@
     <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
     <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY" />
 
+    <!--
+      Max Backup — مكان الأرشيف: `/storage/emulated/0/MaxManger/MaxBackup`.
+
+      المطلوب مجلد عام يراه المستخدم ومدير الملفات بلا جذر، وأندرويد ١١+ لا يسمح لتطبيق
+      بالكتابة في جذر التخزين العام بلا هذه الصلاحية. وهي **اختيارية لا شرط تشغيل**:
+      الطبقة تحاول المسار العام بفحص كتابة فعلي، وإن رُفضت الصلاحية كُتب الأرشيف في مجلد
+      التطبيق الخارجي — و`Max Backup` يقول أي المسارين استُعمل بدل أن يفشل بصمت أو يدّعي
+      مكانًا لم يُكتب فيه. وهي صلاحية «وصول خاص» تُمنح من إعدادات النظام لا من نافذة أذونات.
+    -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
     <!-- Shizuku (AR-20): إذن واجهة الشيزوكو، ولا يُمنح إلا من مدير الشيزوكو نفسه. -->
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 

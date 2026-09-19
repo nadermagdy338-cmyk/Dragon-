@@ -42,23 +42,21 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material.icons.automirrored.rounded.FactCheck
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Restore
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -72,39 +70,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import java.text.DateFormat
-import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
-import nd.max.ui.component.AppIconImage
 import nd.max.ui.design.MaxBullets
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
-import nd.max.ui.design.MaxConditionNotice
 import nd.max.ui.design.MaxConfirmDialog
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
-import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxListScreen
-import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxScreen
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSegmented
-import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.design.MaxTone
-import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.util.MaxBackupEngine
 import nd.max.ui.util.MaxBackupModel
-import nd.max.ui.viewmodel.ApplistViewmodel
 
 /**
  * نمطا `Max Backup`. والفصل مقصود: نسخة تطبيق ونسخة بيانات نظام ليستا الشيء نفسه —
@@ -113,21 +99,47 @@ import nd.max.ui.viewmodel.ApplistViewmodel
  */
 internal enum class MaxBackupMode { APPS, SYSTEM }
 
+/**
+ * صفحات الشاشة الرئيسية.
+ *
+ * والفصل مقصود: `HOME` تعرض الخيارات، و`APPS` تعرض قائمة إدارتها، و`SYSTEM` بيانات
+ * النظام. ودخول تطبيق بعينه لا يمرّ من هنا أصلًا (له تفصيله المستقلّ).
+ */
+internal enum class MaxBackupPage { HOME, APPS, SYSTEM }
+
 @Composable
 fun MaxBackupScreen(
     navController: NavController,
     packageName: String? = null,
 ) {
-    // بمعرّف حزمة: نسخة تطبيق واحدة، بلا مبدّل أنماط (المستخدم طلب تطبيقًا بعينه).
+    // بمعرّف حزمة: نسخة تطبيق واحدة، وبلا صفحات (المستخدم طلب تطبيقًا بعينه).
     if (!packageName.isNullOrBlank()) {
         MaxBackupDetail(navController, packageName)
         return
     }
 
-    var mode by rememberSaveable { mutableStateOf(MaxBackupMode.APPS) }
-    when (mode) {
-        MaxBackupMode.APPS -> MaxBackupPicker(navController, onSwitchMode = { mode = MaxBackupMode.SYSTEM })
-        MaxBackupMode.SYSTEM -> MaxBackupSystemMode(navController, onSwitchMode = { mode = MaxBackupMode.APPS })
+    // الصفحة الأولى **خيارات لا قائمة**: ارجع إلى وصف الملف أعلى الشاشة — كان الهبوط
+    // المباشر في قائمة تطبيقات يجعل النسخ يبدو تلقائيًّا، وهو ما لا يفعله هذا التطبيق.
+    var page by rememberSaveable { mutableStateOf(MaxBackupPage.HOME) }
+    when (page) {
+        MaxBackupPage.HOME -> MaxBackupHub(
+            navController = navController,
+            onOpenApps = { page = MaxBackupPage.APPS },
+            onOpenSystem = { page = MaxBackupPage.SYSTEM },
+        )
+
+        MaxBackupPage.APPS -> MaxBackupAppsPicker(
+            navController = navController,
+            onBack = { page = MaxBackupPage.HOME },
+            onSwitchMode = { page = MaxBackupPage.SYSTEM },
+        )
+
+        MaxBackupPage.SYSTEM -> MaxBackupSystemMode(
+            onSwitchMode = { page = MaxBackupPage.APPS },
+            // الرجوع يعود إلى الخيارات لا يخرج من Max Backup: الصفحة الأولى صارت
+            // خيارات، والخروج بقفزة واحدة منها يفقد المستخدم مكانه بلا سبب.
+            onBack = { page = MaxBackupPage.HOME },
+        )
     }
 }
 
@@ -145,114 +157,6 @@ internal fun MaxBackupModeSwitch(mode: MaxBackupMode, onSelect: (MaxBackupMode) 
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// منتقي التطبيقات
-// ────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun MaxBackupPicker(navController: NavController, onSwitchMode: () -> Unit) {
-    val context = LocalContext.current
-    val appListViewModel: ApplistViewmodel = viewModel()
-
-    LaunchedEffect(Unit) {
-        appListViewModel.loadApps(context)
-    }
-
-    val apps = appListViewModel.filteredApps
-    val total = ApplistViewmodel.apps.size
-    var query by remember { mutableStateOf(TextFieldValue("")) }
-
-    val matches = remember(apps, query) {
-        val needle = query.text.trim().lowercase()
-        if (needle.isEmpty()) {
-            apps
-        } else {
-            apps.filter {
-                it.label.lowercase().contains(needle) ||
-                    it.packageName.lowercase().contains(needle)
-            }
-        }
-    }
-
-    MaxListScreen(
-        title = stringResource(R.string.max_backup_title),
-        subtitle = stringResource(R.string.max_backup_picker_desc),
-        onBack = { navController.popBackStack() },
-        accentIcon = Icons.Rounded.Backup,
-        actions = {
-            MaxHelpAction(
-                title = stringResource(R.string.max_backup_title),
-                body = stringResource(R.string.max_backup_help),
-            )
-        },
-        header = {
-            MaxSection(title = stringResource(R.string.max_backup_mode_title)) {
-                MaxBackupModeSwitch(mode = MaxBackupMode.APPS, onSelect = { onSwitchMode() })
-            }
-
-            MaxSection(title = stringResource(R.string.max_backup_picker_title)) {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(text = stringResource(R.string.max_backup_search_hint)) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Rounded.Search, contentDescription = null)
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(MaxRadius.control),
-                )
-            }
-        },
-    ) {
-        if (matches.isEmpty()) {
-            item {
-                MaxConditionNotice(
-                    MaxCondition(
-                        kind = MaxConditionKind.Empty,
-                        title = stringResource(R.string.max_backup_no_match_title),
-                        detail = stringResource(R.string.max_backup_no_match_detail),
-                    )
-                )
-            }
-        } else {
-            itemsIndexed(items = matches, key = { _, app -> app.packageName }) { index, app ->
-                MaxRow(
-                    title = app.label,
-                    subtitle = app.packageName,
-                    onClick = {
-                        navController.navigate(
-                            MaxDestination.MaxBackup.route.replace("{pkg}", app.packageName)
-                        )
-                    },
-                    trailing = {
-                        AppIconImage(app = app, size = MaxSize.rowIconContainer)
-                    },
-                )
-                if (index < matches.lastIndex) MaxGroupDivider()
-            }
-        }
-
-        item {
-            MaxSection(
-                title = stringResource(R.string.max_backup_storage_title),
-                description = stringResource(
-                    R.string.max_backup_app_count,
-                    matches.size.toString(),
-                    total.toString(),
-                ),
-            ) {
-                MaxBullets(
-                    lines = listOf(
-                        stringResource(R.string.max_backup_storage_location_desc),
-                        stringResource(R.string.max_backup_no_encryption_desc),
-                    )
-                )
-            }
-        }
-    }
-}
-
-// ────────────────────────────────────────────────────────────────────────────
 // تفصيل تطبيق
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -264,6 +168,7 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
 
     var plan by remember(pkg) { mutableStateOf<MaxBackupModel.Plan?>(null) }
     var backups by remember(pkg) { mutableStateOf<List<MaxBackupModel.Handle>>(emptyList()) }
+    var storage by remember(pkg) { mutableStateOf<MaxBackupStorageReadout?>(null) }
     var inventoryLoaded by remember(pkg) { mutableStateOf(false) }
     var busyStage by remember(pkg) { mutableStateOf<String?>(null) }
 
@@ -287,11 +192,13 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
         val loaded = withContext(Dispatchers.IO) {
             val loadedPlan = MaxBackupEngine.inventory(context, pkg)
             val loadedBackups = MaxBackupEngine.list(context, pkg)
-            loadedPlan to loadedBackups
+            val loadedStorage = readStorage(context, loadedBackups)
+            Triple(loadedPlan, loadedBackups, loadedStorage)
         }
         val loadedPlan = loaded.first
         plan = loadedPlan
         backups = loaded.second
+        storage = loaded.third
         inventoryLoaded = true
         // النطاق الافتراضي يتبع الصلاحية المتاحة فعلًا: لا نُشعل ما لا يعمل.
         if (loadedPlan != null && busyStage == null) {
@@ -333,7 +240,6 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
         )
     }
 
-    val totalOnDisk = backups.sumOf { it.bytes }
     val needRootForData = backups.any { !it.complete }
 
     MaxScreen(
@@ -517,7 +423,27 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
                         if (index > 0) MaxGroupDivider()
                         BackupHistoryRow(
                             handle = handle,
+                            title = backupStamp(handle.createdAtMs),
                             enabled = !busy,
+                            onToggleKeep = {
+                                scope.launch {
+                                    val ok = withContext(Dispatchers.IO) {
+                                        MaxBackupEngine.setKeptForever(handle, !handle.keptForever)
+                                    }
+                                    reload()
+                                    // الرسالة من **قيمة ما قبل التبديل**: إن كانت محفوظة فقد
+                                    // أُزيل وسمها، والعكس.
+                                    snackbarHostState.showSnackbar(
+                                        context.getString(
+                                            when {
+                                                !ok -> R.string.max_backup_keep_failed
+                                                handle.keptForever -> R.string.max_backup_keep_off
+                                                else -> R.string.max_backup_keep_on
+                                            }
+                                        )
+                                    )
+                                }
+                            },
                             busyReason = busyReason,
                             onVerify = {
                                 scope.launch {
@@ -548,32 +474,11 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
         }
 
         // ── التخزين ─────────────────────────────────────────────────────────
-        MaxSection(title = stringResource(R.string.max_backup_storage_title)) {
-            MaxGroup {
-                MaxRow(
-                    title = stringResource(R.string.max_backup_storage_count),
-                    subtitle = backups.size.toString(),
-                    icon = Icons.Rounded.Backup,
-                    iconTone = MaxTone.Neutral,
-                )
-                MaxGroupDivider()
-                MaxRow(
-                    title = stringResource(R.string.max_backup_storage_total),
-                    subtitle = MaxBackupModel.humanBytes(totalOnDisk),
-                    icon = Icons.AutoMirrored.Rounded.FactCheck,
-                    iconTone = MaxTone.Neutral,
-                )
-                MaxGroupDivider()
-                MaxRow(
-                    title = stringResource(R.string.max_backup_storage_location),
-                    subtitle = MaxBackupEngine.backupsRoot(context).absolutePath,
-                    icon = Icons.Rounded.Shield,
-                    iconTone = MaxTone.Neutral,
-                )
-            }
-            if (needRootForData) {
-                MaxBullets(lines = listOf(stringResource(R.string.max_backup_incomplete_note)))
-            }
+        // بطاقة واحدة مشتركة مع الشاشة الرئيسية: مسار واحد لا مساران يُصانان معًا
+        // وينفصلان عند أول تعديل (`onGrant = null` لأن منح الصلاحية في الشاشة الرئيسية).
+        MaxBackupStorageSection(readout = storage, onGrant = null)
+        if (needRootForData) {
+            MaxBullets(lines = listOf(stringResource(R.string.max_backup_incomplete_note)))
         }
 
         if (verdicts != null) {
@@ -644,7 +549,15 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
         MaxConfirmDialog(
             visible = true,
             title = stringResource(R.string.max_backup_delete_title),
-            message = stringResource(R.string.max_backup_delete_message),
+            // نسخة محفوظة: نقول ذلك في الحوار نفسه، فنعلم أن التقليم لم يكن ليحذفها وأن
+            // الحذف الآن فعلٌ مقصود لا أثر جانبي لتنظيف.
+            message = stringResource(
+                if (handle.keptForever) {
+                    R.string.max_backup_delete_kept_message
+                } else {
+                    R.string.max_backup_delete_message
+                }
+            ),
             confirmLabel = stringResource(R.string.max_backup_delete_confirm),
             destructive = true,
             onConfirm = {
@@ -744,39 +657,71 @@ private data class RestorePrompt(
     val decision: MaxBackupModel.RestoreDecision,
 )
 
-/** كم نسخة نحتفظ بها لكل تطبيق. ليست قابلًا للتعديل هنا: الحدّ الأدنى ١ غير قابل للكسر. */
-private const val KEEP_VERSIONS = 3
+/**
+ * كم نسخة نحتفظ بها لكل تطبيق. ليست قابلًا للتعديل هنا: الحدّ الأدنى ١ غير قابل للكسر.
+ *
+ * `internal` لا `private`: المنتقي يستعملها بعد النسخ الجماعي، والمصدر واحد فلا
+ * يختلف الاحتفاظ بين مسار ومسار.
+ */
+internal const val KEEP_VERSIONS = 3
 
 // ────────────────────────────────────────────────────────────────────────────
 // صفوف مساعدة
 // ────────────────────────────────────────────────────────────────────────────
 
+/**
+ * صفّ نسخة واحدة مع أدواتها (فحص · استرجاع · حذف).
+ *
+ * @param title ما يميّز هذه النسخة في مكان عرضها: اسم التطبيق في الشاشة الرئيسية
+ *        (حيث تختلط نسخ كل التطبيقات)، وطابعها الزمني في تفصيل تطبيق واحد (حيث الاسم
+ *        مكرّر في كل صف بلا فائدة). ولذلك عنوان لا طابع ثابت.
+ */
 @Composable
-private fun BackupHistoryRow(
+internal fun BackupHistoryRow(
     handle: MaxBackupModel.Handle,
+    title: String,
     enabled: Boolean,
     busyReason: String,
     onVerify: () -> Unit,
     onRestore: () -> Unit,
+    onToggleKeep: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    val stamp = remember(handle.createdAtMs) {
-        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
-            .format(Date(handle.createdAtMs))
-    }
     val summary = stringResource(
         R.string.max_backup_entry_summary,
         MaxBackupModel.humanBytes(handle.bytes),
         handle.entryCount.toString(),
     )
+    // الوسوم تُبنى قائمةً ثم تُلحق: النسخة قد تكون ناقصة **ومحفوظة** معًا، و«إحداهما تحلّ
+    // محلّ الأخرى» تكذب على المستخدم في واحدة منهما.
+    val flags = buildList {
+        if (!handle.complete) add(stringResource(R.string.max_backup_incomplete))
+        if (handle.keptForever) add(stringResource(R.string.max_backup_keep_badge))
+    }
+    val subtitle = if (flags.isEmpty()) summary else summary + " · " + flags.joinToString(" · ")
 
     MaxRow(
-        title = stamp,
-        subtitle = if (handle.complete) summary else "$summary · ${stringResource(R.string.max_backup_incomplete)}",
+        title = title,
+        subtitle = subtitle,
         icon = Icons.Rounded.Backup,
         iconTone = if (handle.complete) MaxTone.Positive else MaxTone.Caution,
         trailing = {
             Row(horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
+                IconButton(onClick = onToggleKeep, enabled = enabled) {
+                    Icon(
+                        imageVector = if (handle.keptForever) {
+                            Icons.Rounded.Lock
+                        } else {
+                            Icons.Rounded.LockOpen
+                        },
+                        contentDescription = stringResource(R.string.max_backup_keep_title),
+                        tint = if (handle.keptForever) {
+                            MaxTone.Accent.content()
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                }
                 IconButton(onClick = onVerify, enabled = enabled) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.FactCheck,
@@ -849,7 +794,7 @@ private fun integrityText(integrity: MaxBackupModel.Integrity): String = stringR
 )
 
 @Composable
-private fun blockText(block: MaxBackupModel.RestoreBlock): String = stringResource(
+internal fun blockText(block: MaxBackupModel.RestoreBlock): String = stringResource(
     when (block) {
         MaxBackupModel.RestoreBlock.NONE -> R.string.max_backup_block_none
         MaxBackupModel.RestoreBlock.NO_ENTRIES -> R.string.max_backup_block_no_entries
@@ -864,7 +809,7 @@ private fun blockText(block: MaxBackupModel.RestoreBlock): String = stringResour
  * واجهيًّا، والشاشة لا تحمل منطقًا. والمفتاح بينهما معرّف مُعلَن، لا جملة إنجليزية تُقارَن بمثلها.
  */
 @Composable
-private fun stageLabels(): Map<String, String> = mapOf(
+internal fun stageLabels(): Map<String, String> = mapOf(
     MaxBackupEngine.STAGE_APK to stringResource(R.string.max_backup_stage_apk),
     MaxBackupEngine.STAGE_DATA to stringResource(R.string.max_backup_stage_data),
     MaxBackupEngine.STAGE_EXTERNAL to stringResource(R.string.max_backup_stage_external),
@@ -872,12 +817,12 @@ private fun stageLabels(): Map<String, String> = mapOf(
     MaxBackupEngine.STAGE_MANIFEST to stringResource(R.string.max_backup_stage_manifest),
 )
 
-private fun stageLabel(labels: Map<String, String>, stage: String): String =
+internal fun stageLabel(labels: Map<String, String>, stage: String): String =
     labels[stage] ?: labels.getValue(MaxBackupEngine.STAGE_MANIFEST)
 
 /** تحذيرات الاسترجاع — كل واحدة جملة كاملة تُقرأ وحدها، لا رمزًا يُفكّ. */
 @Composable
-private fun warningText(warning: MaxBackupModel.RestoreWarning): String = stringResource(
+internal fun warningText(warning: MaxBackupModel.RestoreWarning): String = stringResource(
     when (warning) {
         MaxBackupModel.RestoreWarning.DEVICE_MISMATCH -> R.string.max_backup_warn_device
         MaxBackupModel.RestoreWarning.SOC_MISMATCH -> R.string.max_backup_warn_soc

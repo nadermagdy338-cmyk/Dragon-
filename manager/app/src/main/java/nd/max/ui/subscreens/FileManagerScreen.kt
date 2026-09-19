@@ -37,6 +37,8 @@ package nd.max.ui.subscreens
 
 import android.content.ClipData
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -47,10 +49,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.automirrored.rounded.CompareArrows
+import androidx.compose.material.icons.rounded.AspectRatio
 import androidx.compose.material.icons.rounded.CreateNewFolder
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material.icons.rounded.SelectAll
+import androidx.compose.material.icons.rounded.ViewAgenda
+import androidx.compose.material.icons.rounded.ViewColumn
 import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -123,6 +131,8 @@ import nd.max.ui.util.FileSelection
 import nd.max.ui.util.FileSort
 import nd.max.ui.util.FileSortKey
 import nd.max.ui.util.FileSystemEngine
+import nd.max.ui.util.PaneLayout
+import nd.max.ui.util.PaneLayoutRule
 import nd.max.ui.util.PaneSide
 import nd.max.ui.util.RootUtils
 import nd.max.ui.util.TextPreview
@@ -182,6 +192,10 @@ fun FileManagerScreen(navController: NavController) {
     var left by rememberSaveable(stateSaver = PaneSaver) { mutableStateOf(FilePaneState(path = "/")) }
     var right by rememberSaveable(stateSaver = PaneSaver) { mutableStateOf(FilePaneState(path = "/sdcard")) }
     var active by rememberSaveable { mutableStateOf(PaneSide.Left) }
+    // ترتيب اللوحين وقرار الربط يُحفظان: من ضبط لوحينه جنبًا إلى جنب على هاتفه يعيد
+    // الضبط في كل دخول إن لم يُحفظا، وهو أول ما يُشكى منه في هذه الشاشة.
+    var layout by rememberSaveable { mutableStateOf(PaneLayout.Auto) }
+    var linked by rememberSaveable { mutableStateOf(false) }
     var rootGranted by remember { mutableStateOf<Boolean?>(null) }
     var panel by remember { mutableStateOf<FilePanel?>(null) }
     var selinux by remember { mutableStateOf<SelinuxState>(SelinuxState.NotQueried) }
@@ -238,10 +252,43 @@ fun FileManagerScreen(navController: NavController) {
         active = side
     }
 
+    /**
+     * التنقّل المرتبط — يُنقل اللوح الآخر إلى **المجلد ذي الاسم نفسه** من مساره هو،
+     * أو يبقى مكانه إن لم يُوجد. والانتقال يدفع سجل اللوح الآخر أيضًا، فيعمل الرجوع فيه.
+     *
+     * ولا يُطبَّق على القفز المطلق (شريط الأثر): القفز إلى `/sdcard/Download` لا مقابل
+     * اسميّ له في اللوح الآخر، فمقابلته بمسار مخمَّن هي بالضبط ما نمنعه.
+     */
+    val mirrorIntoOther: (PaneSide, FileEntry) -> Unit = { side, entry ->
+        if (linked) {
+            // «الآخر» يُحسب من **اللوح الذي تحرّك** لا من النشط: النقر قد يقع في اللوح
+            // غير النشط، وحينها لو حُسب من النشط لكُتب المسار على اللوح المنقور نفسه.
+            val twin = side.other
+            val other = paneOf(twin)
+            DualPane.mirrorFolder(other, entry)?.let { target ->
+                historyOf(twin).add(other.path)
+                setPane(twin, other.at(target))
+            }
+        }
+    }
+
+    val mirrorUpInOther: (PaneSide) -> Unit = { side ->
+        if (linked) {
+            val twin = side.other
+            val other = paneOf(twin)
+            DualPane.mirrorParent(other)?.let { target ->
+                historyOf(twin).add(other.path)
+                setPane(twin, other.at(target))
+            }
+        }
+    }
+
     val goUp: (PaneSide) -> Unit = { side ->
         val history = historyOf(side)
         if (history.isNotEmpty()) history.removeAt(history.lastIndex)
         FileBrowser.parentOf(paneOf(side).path)?.let { setPane(side, paneOf(side).at(it)) }
+        // الصعود **نسبي** مثل الدخول: خطوة واحدة للأعلى في اللوحين معًا.
+        mirrorUpInOther(side)
     }
 
     val showOutcome: (FileOpOutcome, Int) -> Unit = { outcome, count ->
@@ -395,6 +442,9 @@ fun FileManagerScreen(navController: NavController) {
                 labels = FileSortKey.entries.map { stringResource(sortLabel(it)) },
                 selectedIndex = FileSortKey.entries.indexOf(activePane.sort.key),
                 contentDescription = stringResource(R.string.max_files_sort_cd),
+                // القائمة بأسماء فقط: أيقونة «مجدول/موسّع» بجانب «الاسم/الحجم» لا معنى لها.
+                icons = emptyList(),
+                triggerIcon = Icons.AutoMirrored.Rounded.Sort,
                 onSelect = { index ->
                     val key = FileSortKey.entries[index]
                     val next = if (activePane.sort.key == key) {
@@ -405,33 +455,51 @@ fun FileManagerScreen(navController: NavController) {
                     setPane(active, activePane.copy(sort = next))
                 },
             )
+            MaxViewMenu(
+                labels = listOf(
+                    stringResource(R.string.max_files_layout_auto),
+                    stringResource(R.string.max_files_layout_side),
+                    stringResource(R.string.max_files_layout_stack),
+                ),
+                selectedIndex = PaneLayout.entries.indexOf(layout),
+                contentDescription = stringResource(R.string.max_files_layout_cd),
+                icons = listOf(
+                    Icons.Rounded.AspectRatio,
+                    Icons.Rounded.ViewColumn,
+                    Icons.Rounded.ViewAgenda,
+                ),
+                onSelect = { index -> layout = PaneLayout.entries[index] },
+            )
+            IconButton(onClick = { linked = !linked }) {
+                Icon(
+                    imageVector = if (linked) Icons.Rounded.Link else Icons.Rounded.LinkOff,
+                    contentDescription = stringResource(
+                        if (linked) R.string.max_files_unlink_cd else R.string.max_files_link_cd
+                    ),
+                    // اللون **مع** الرمز: الرمز وحده لا يُقرأه من لا يميّز الأشكال الدقيقة.
+                    tint = if (linked) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
+            }
             MaxHelpAction(
                 title = stringResource(R.string.max_files_help_title),
                 body = stringResource(R.string.max_files_help_body),
             )
-            IconButton(onClick = {
-                setPane(otherSide, DualPane.syncOther(activePane, otherPane))
-            }) {
-                Icon(
-                    imageVector = Icons.Rounded.Sync,
-                    contentDescription = stringResource(R.string.max_files_sync_panes_cd),
-                )
-            }
-            IconButton(onClick = {
-                val (newLeft, newRight) = DualPane.swap(left, right)
-                left = newLeft
-                right = newRight
-            }) {
-                Icon(
-                    imageVector = Icons.Rounded.SwapHoriz,
-                    contentDescription = stringResource(R.string.max_files_swap_panes_cd),
-                )
-            }
         },
     ) {
         ActivePaneStrip(
             side = active,
             pane = activePane,
+            linked = linked,
+            onSync = { setPane(otherSide, DualPane.syncOther(activePane, otherPane)) },
+            onSwap = {
+                val (newLeft, newRight) = DualPane.swap(left, right)
+                left = newLeft
+                right = newRight
+            },
             onRefresh = { refresh(active) },
             onUp = { goUp(active) },
             onNewFolder = {
@@ -491,6 +559,7 @@ fun FileManagerScreen(navController: NavController) {
                     state = pane,
                     // اللوح النشط يُعلن بالإطار واللون **معًا** لا باللون وحده.
                     active = active == side,
+                    linked = linked,
                     modifier = modifier,
                     onActivate = { active = side },
                     onNavigate = { navigate(side, it, true) },
@@ -500,7 +569,13 @@ fun FileManagerScreen(navController: NavController) {
                     onEntryClick = { entry ->
                         when {
                             paneOf(side).selecting -> setPane(side, paneOf(side).toggleSelection(entry.path))
-                            entry.isDirectory -> navigate(side, entry.path, true)
+                            entry.isDirectory -> {
+                                // الربط **قبل** الانتقال: اللوح الآخر يُنقل انطلاقًا من مساره
+                                // هو، لا انطلاقًا من مسار اللوح المنقور بعد تغييره.
+                                mirrorIntoOther(side, entry)
+                                navigate(side, entry.path, true)
+                            }
+
                             else -> openPanel(FilePanel.Preview(entry))
                         }
                     },
@@ -508,7 +583,10 @@ fun FileManagerScreen(navController: NavController) {
                 )
             }
 
-            if (maxWidth >= SplitThreshold) {
+            // الوضع الصريح يتقدّم على قياس الشاشة: من اختار «جنبًا إلى جنب» على هاتف ضيّق
+            // يريده كذلك، ومن اختار «فوق/تحت» لا يُجبَر على عمودين ضيّقين. والقرار في نموذج
+            // يُختبر لا في شرط داخل التركيب.
+            if (PaneLayoutRule.sideBySide(layout, maxWidth.value, SplitThreshold.value)) {
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
@@ -664,6 +742,9 @@ fun FileManagerScreen(navController: NavController) {
 private fun ActivePaneStrip(
     side: PaneSide,
     pane: FilePaneState,
+    linked: Boolean,
+    onSync: () -> Unit,
+    onSwap: () -> Unit,
     onRefresh: () -> Unit,
     onUp: () -> Unit,
     onNewFolder: () -> Unit,
@@ -673,7 +754,11 @@ private fun ActivePaneStrip(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = MaxSpace.sm),
+            .padding(top = MaxSpace.sm)
+            // الشريط صار يحمل فعلين إضافيين (مزامنة المسار · تبديل اللوحين) بعد أن
+            // انتقل الترتيب والربط إلى الشريط العلوي. والتمرير الأفقي يضمن ألا يُقصّ
+            // فعل على هاتف ضيّق بدل أن يُضغط بعضه بعضًا — وهو أسوأ من التمرير.
+            .horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
     ) {
@@ -712,6 +797,27 @@ private fun ActivePaneStrip(
             description = stringResource(R.string.max_files_select_cd),
             onClick = onToggleSelect,
         )
+        StripAction(
+            icon = Icons.Rounded.Sync,
+            description = stringResource(R.string.max_files_sync_panes_cd),
+            onClick = onSync,
+        )
+        StripAction(
+            icon = Icons.Rounded.SwapHoriz,
+            description = stringResource(R.string.max_files_swap_panes_cd),
+            onClick = onSwap,
+        )
+        if (linked) {
+            // الربط يُقال بالكلام أيضًا: من يفتح هذه الشاشة بلا رؤية للأيقونة الصغيرة
+            // في رأس كل لوح يحتاج جملة واحدة تقول إن اللوحين يتحركان معًا.
+            Text(
+                text = stringResource(R.string.max_files_linked_hint),
+                modifier = Modifier.padding(start = MaxSpace.xs),
+                style = MaterialTheme.typography.labelSmall,
+                color = tone.content(),
+                maxLines = 1,
+            )
+        }
     }
 }
 

@@ -162,7 +162,9 @@ object MaxBackupSystemEngine {
         onStage: (String) -> Unit = {},
     ): MaxBackupEngine.CreateOutcome {
         val startedAt = System.currentTimeMillis()
-        val folder = File(MaxBackupEngine.backupsRoot(context), SYSTEM_PKG)
+        // `ensureRoot` لا `backupsRoot`: هذه دالة قرص، فتُثبَّت هنا بفحص كتابة فعلي بدل
+        // الاعتماد على قرار الصلاحية وحده.
+        val folder = File(MaxBackupEngine.ensureRoot(context), SYSTEM_PKG)
             .let { File(it, MaxBackupModel.folderName(startedAt)) }
         if (!folder.exists() && !folder.mkdirs()) {
             EventLog.error(SCREEN, "create_folder")

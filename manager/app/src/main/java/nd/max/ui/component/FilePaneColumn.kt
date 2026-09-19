@@ -85,6 +85,8 @@ fun FilePaneColumn(
     state: FilePaneState,
     active: Boolean,
     modifier: Modifier = Modifier,
+    /** هل تنقّل هذا اللوح مرتبط بالآخر — يُعلَن في الرأس، فلا يبقى الربط حالة مخفية. */
+    linked: Boolean = false,
     onActivate: () -> Unit,
     onNavigate: (String) -> Unit,
     onQueryChange: (String) -> Unit,
@@ -104,7 +106,14 @@ fun FilePaneColumn(
         ),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            PaneHeader(side = side, state = state, active = active, tone = tone, onActivate = onActivate)
+            PaneHeader(
+                side = side,
+                state = state,
+                active = active,
+                linked = linked,
+                tone = tone,
+                onActivate = onActivate,
+            )
 
             FileBreadcrumbs(
                 crumbs = FileBrowser.breadcrumbs(state.path),
@@ -172,6 +181,7 @@ private fun PaneHeader(
     side: PaneSide,
     state: FilePaneState,
     active: Boolean,
+    linked: Boolean,
     tone: MaxTone,
     onActivate: () -> Unit,
 ) {
@@ -198,11 +208,22 @@ private fun PaneHeader(
         }
         Text(
             text = if (state.loading) stringResource(R.string.max_files_cond_loading_title) else state.path,
+            modifier = Modifier.weight(1f, fill = false),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+        // علامة الربط رمزٌ **و**وصف: من لا يرى الأيقونة يسمع الحالة، ولا يعتمد الربط على
+        // مقارنة مسارين لِيُفهَم. وتُعرض في اللوح الآخر أيضًا — لأن الربط علاقة بين اثنين.
+        if (linked) {
+            Icon(
+                imageVector = Icons.Rounded.Link,
+                contentDescription = stringResource(R.string.max_files_linked_cd),
+                modifier = Modifier.size(MaxSize.iconGlyphSmall),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
     }
 }
 

@@ -171,6 +171,29 @@ class LaunchRouteTest {
     }
 
     @Test
+    fun `a route for one package drops the pattern instead of keeping it`() {
+        assertEquals(
+            "max_backup?pkg=com.example.app",
+            packageRouteOf("max_backup?pkg={pkg}", "com.example.app"),
+        )
+        assertFalse(packageRouteOf("max_backup?pkg={pkg}", "com.example.app").contains('{'))
+    }
+
+    @Test
+    fun `the backup app list opens a detail through the registry, never a hand-written route`() {
+        val picker = read("ui/subscreens/MaxBackupPickerScreen.kt")
+        assertTrue(
+            "Max Backup's app list must build the detail route from MaxDestination, the same " +
+                "way the Control page builds its launches.",
+            picker.contains("packageRouteOf(MaxDestination.MaxBackup.route, app.packageName)"),
+        )
+        assertFalse(
+            "A hand-written route string outside the registry (ADR-02).",
+            picker.contains("\"max_backup"),
+        )
+    }
+
+    @Test
     fun `the home dashboard reaches screens through that same gateway`() {
         val home = read("ui/mainscreens/HomeScreen.kt")
         assertTrue(

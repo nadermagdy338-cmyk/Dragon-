@@ -181,6 +181,12 @@ object MaxBackupModel {
         val entries: List<ManifestEntry>,
         /** ملاحظات صريحة عن أجزاء تعذّرت — تُحفَظ لتُقرأ لاحقًا لا لتُنسى. */
         val omissions: List<String> = emptyList(),
+        /**
+         * «تُحفَظ للأبد»: التقليم لا يمسّها.
+         *
+         * والحقل يُكتب في المستند فقط عندما تكون صحيحة، فمستند قديم يُقرأ كما هو (`false`).
+         */
+        val keptForever: Boolean = false,
         val schema: Int = SCHEMA,
     )
 
@@ -193,6 +199,16 @@ object MaxBackupModel {
         val complete: Boolean,
         val entryCount: Int,
         val encrypted: Boolean,
+        /**
+         * اسم التطبيق كما سُجّل في المستند وقت النسخ، أو `null` إن لم يُسجَّل.
+         *
+         * ولماذا يُقرأ من المستند لا من قائمة التطبيقات المثبّتة: نسخة تطبيق **أُزيل**
+         * لا اسم له في القائمة، وكانت تُعرض بمعرّف حزمتها — وهو أسوأ ما يُعرض لنسخة
+         * يعود إليها المستخدم لأنه فقد التطبيق أصلًا.
+         */
+        val label: String? = null,
+        /** نسخة محفوظة لا يمسّها التقليم. */
+        val keptForever: Boolean = false,
     )
 
     /**
@@ -216,6 +232,8 @@ object MaxBackupModel {
             root.put("hadRoot", manifest.hadRoot)
             root.put("encrypted", manifest.encrypted)
             root.put("complete", manifest.complete)
+            // يُكتب فقط عند الصحة: غيابه هو الافتراضي، فالمستندات القديمة تبقى مقروءة بلا هجرة.
+            if (manifest.keptForever) root.put("keptForever", true)
 
             val entries = JSONArray()
             manifest.entries.forEach { entry ->
@@ -280,6 +298,7 @@ object MaxBackupModel {
                 complete = root.optBoolean("complete", false),
                 entries = entries,
                 omissions = omissions,
+                keptForever = root.optBoolean("keptForever", false),
             )
         }
     }
@@ -389,12 +408,22 @@ object MaxBackupModel {
     /**
      * أي نسخ تُقلَّم عند الاحتفاظ بأحدث `keep`.
      *
-     * و**حدّ أدنى إلزامي**: `keep` تُرفع إلى ١ على الأقل. أداة نسخ احتياطي تحذف آخر نسخة
-     * عندها ليست أداة مضبوطة الإعداد، بل فقدان بيانات مؤجَّل.
+     * والقرار نفسه في [MaxBackupRetention] — دالة خالصة تُقاس في اختبار JVM بلا جهاز،
+     * لأن هذه هي القاعدة الوحيدة هنا التي تحذف بيانات بلا سؤال. والدالة تلتصق بها
+     * بترجمة `Handle` إلى عرض القرار، فلا يعيش القرار في مكانين يتفرّقان.
      */
     fun toPrune(handles: List<Handle>, keep: Int): List<Handle> {
-        val effective = keep.coerceAtLeast(1)
-        return handles.sortedByDescending { it.createdAtMs }.drop(effective)
+        val removable = MaxBackupRetention.toRemove(
+            copies = handles.map {
+                MaxBackupRetention.Copy(
+                    folder = it.folder,
+                    createdAtMs = it.createdAtMs,
+                    kept = it.keptForever,
+                )
+            },
+            keep = keep,
+        ).map { it.folder }.toSet()
+        return handles.filter { it.folder in removable }
     }
 
     // ────────────────────────────────────────────────────────────────────────
