@@ -12,16 +12,19 @@ library = "1.2.1"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 composeMarkdown = "0.7.2"
-hilt = "2.59.2"
+hilt = "2.60.1"
 
 # UI & Library
 # SDK-36 ceiling: 1.5.0-alpha23 / 2.11.0-beta02 chains demand compileSdk 37,
 # which is not published on the GitHub-hosted SDK repository. These are the
 # newest versions whose AAR metadata accepts android-36.
-material3 = "1.4.0-alpha15"
+#
+# و`1.4.0` **المستقر** حلّ محل `1.4.0-alpha15`: الخط نفسه (١.٤) لكن بلا لاحقة إصدار
+# تجريبي، وهو ما كان يُشتكى منه ضمنيًّا (شحن alpha في مسار الإنتاج).
+material3 = "1.4.0"
 activity-compose = "1.11.0"
 lifecycle = "2.9.4"
-navigation = "2.9.4"
+navigation = "2.10.1"
 
 # Security & Glassmorphism
 stringfog = "5.1.0"
@@ -35,15 +38,15 @@ appiconloader-coil = "1.5.0"
 ucrop = "2.2.11-native"
 
 # Tools & Core
-appcompat = "1.7.1"
-androidx-transition = "1.7.0"
+appcompat = "1.8.0"
+androidx-transition = "1.7.1"
 lifecycleViewModel = "2.9.4"
 libsu = "6.0.0"
 # Shizuku: طبقة امتياز ثانية بمستوى ADB بلا جذر (AR-20).
 # api = واجهة الاستدعاء، provider = ContentProvider يحمل خدمة الصلاحية في البيان.
 shizuku = "13.1.5"
 documentfile = "1.1.0"
-material = "1.13.0"
+material = "1.14.0"
 coreSplashscreen = "1.2.0"
 
 [libraries]

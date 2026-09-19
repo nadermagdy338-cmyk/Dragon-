@@ -413,7 +413,15 @@ object MaxBackupModel {
      * بترجمة `Handle` إلى عرض القرار، فلا يعيش القرار في مكانين يتفرّقان.
      */
     fun toPrune(handles: List<Handle>, keep: Int): List<Handle> {
-        val removable = MaxBackupRetention.toRemove(
+        val byIdentity = handles.associateBy { it.folder to it.createdAtMs }
+        // الناتج **بترتيب القرار** لا بترتيب القائمة المُدخَلة: `MaxBackupRetention.toRemove`
+        // تُعيد الأحدث-أولًا، وإعادة الترشيح على القائمة الأصلية كانت تُلغي هذا الترتيب
+        // (وهو ما أسقط اختبار `الاحتفاظ يُبقي الأحدث ويُقلّم الباقي` في أول تشغيل حقيقي
+        // للاختبارات). وترتيب «ما سيُحذف» يُعرَض للمستخدم قبل الحذف، فالترتيب جزء من المعنى.
+        //
+        // والمطابقة بـ`(folder, createdAtMs)` لا بالمجلد وحده: مجلد واحد قد يحمل أكثر من
+        // نسخة، والمطابقة بالمجلد كانت ستُدخل في الحذف ما لم يقرّره القرار.
+        return MaxBackupRetention.toRemove(
             copies = handles.map {
                 MaxBackupRetention.Copy(
                     folder = it.folder,
@@ -422,8 +430,7 @@ object MaxBackupModel {
                 )
             },
             keep = keep,
-        ).map { it.folder }.toSet()
-        return handles.filter { it.folder in removable }
+        ).mapNotNull { byIdentity[it.folder to it.createdAtMs] }.distinct()
     }
 
     // ────────────────────────────────────────────────────────────────────────

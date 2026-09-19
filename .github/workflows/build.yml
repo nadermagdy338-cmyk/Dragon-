@@ -29,6 +29,56 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ── الفحص الفوري (lintVital) في مهمة موازية ──
+  #
+  # `assembleRelease` كان يستدعي `lintVitalRelease` تلقائيًّا، وقِسناه في بيئة مطابقة
+  # لـrunner (٤ أنوية · ١٥ جيجابايت): **٣ دقائق و٢٩ ثانية** من أصل ~١٥ دقيقة — وأكثرها
+  # `lintVitalAnalyzeRelease`، أي تحليل كامل للكود من أجل حفنة أخطاء قاتلة.
+  #
+  # **ولماذا مهمة لا إلغاء:** جُرِّب `lint { checkReleaseBuilds = false }` فأثبتنا أنه **يمحو
+  # المهمة نفسها** (اختفت من `:app:tasks --all`)، أي أنه يُسقط الحاجز لا ينقله. أما
+  # `-x :app:lintVitalRelease` في مخطط البناء فيُخرجه من المسار الحرج وتبقى المهمة موجودة
+  # — وهذا ما تفعله هذه المهمة: تُشغّلها كما هي، بالتوازي.
+  #
+  # ولا تُضاف إلى `needs` في مهمة البناء: وجودها بالتوازي هو كل الغرض، وفشلها يُحمرّ
+  # التشغيل كما كان يفعل داخل البناء.
+  lint-vital:
+    name: Lint (fatal gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: "17"
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
+
+      - name: Lint fatal errors on the release variant
+        working-directory: ./manager
+        run: |
+          chmod +x ./gradlew
+          ./gradlew \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
+            ":app:lintVitalRelease" \
+            --build-cache \
+            --parallel
+
   build:
     name: Build MaxManager
     runs-on: ubuntu-latest
@@ -245,6 +295,13 @@ jobs:
       #
       # لا شيء من مخرجات المنتج يتغيّر: نفس الـ APK، نفس الـ minify/R8، نفس
       # اختبارات العقد — فقط بلا عمل مكرَّر.
+      # ── البناء + الاختبارات (نفس الأمر الواحد، ونفس المخرجات) ──
+      #
+      # `-x :app:lintVitalRelease` هو التغيير الوحيد هنا: مخطط `assembleRelease` يحتوي
+      # `lintVitalAnalyzeRelease` + `lintVitalReportRelease` + `lintVitalRelease`، وقِسناه
+      # **٣:٢٩** من أصل ~١٥ دقيقة. أُخرجت من هذا الأمر وتُشغّل مهمة `lint-vital` الأعلاه
+      # بالتوازي — فتوفير الوقت **دون** إسقاط الحاجز (تحقّقنا من الاثنين في المخطط:
+      # `-x` يُخرجها من المسار، وتبقى المهمة قابلة للنداء بخلاف `checkReleaseBuilds = false`).
       - name: Build + test (contract gate)
         working-directory: ./manager
         run: |
@@ -268,9 +325,10 @@ jobs:
           # الاختبارات تُشغَّل على نفس النسخة التي يُبنى منها الـ APK:
           # testReleaseUnitTest + assembleRelease يتقاسمان ترجمة واحدة.
           ./gradlew \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
+            -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
             ":app:test${variant}UnitTest" \
             ":app:assemble${variant}" \
+            -x ":app:lintVitalRelease" \
             --build-cache \
             --parallel
 

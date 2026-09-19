@@ -136,11 +136,30 @@ DeepSeek هو **V4.1 Flash**، وGLM هو **الافتراضي في كل مكا�
 
 كل وكيل يعيد: `{DONE | DONE_WITH_CONCERNS | BLOCKED}` حسب `docs/ai/ENGINEERING-CONTRACT.md` §11، وقالب
 `VALIDATION.md` §8 حرفيًا (TASK / FILES / GATES / BUILD / RESIDUAL RISK / NEXT).
-`DONE_WITH_CONCERNS` هو الوضع الطبيعي في هذا المستودع: **لم يُثبت بعد أن البناء يعمل هنا**. السبب الحقيقي
-(مُصحّح بعد فحص مباشر، لا تخمين): **لا Android SDK** — لا `ANDROID_HOME` ولا `sdkmanager` ولا
-`manager/local.properties` ولا ذاكرة تبعيات في `~/.gradle/caches`. أما «تعارض إصدارات Gradle» فقد زال:
-`gradle` في PATH صار 9.7.0 والشبكة متاحة. حتى يجرّب أحدهم بناءً ويسجّل نتيجته، قل «compilation unverified in
-this environment» ولا تقل «passes».
+**صُحّح في تكملة ٤٠ (تغيير في وضع البيئة، لا في الكود): البناء صار ممكنًا ومُثبتًا.** كان السبب المانع
+**غياب Android SDK**؛ وقد ثُبّت SDK (cmdline-tools + `platforms;android-36` + `build-tools;36.0.0`) في
+`~/android-sdk`، وأُنشئ `manager/local.properties` يشير إليه (وهو في `.gitignore` فلا يدخل المستودع).
+وأول تشغيل حقيقي — لأول مرة في هذا المشروع — أعطى: **٦٤٨ اختبارًا، واحدًا فشل فأُصلح**، و`:app:assembleDebug`
+ينتج APK، وR8/ProGuard يمرّان على نسخة release.
+
+### كيف تبني هنا (محليًّا، بلا سرّ)
+
+```sh
+cd manager
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64          # لا تستعمل JDK 25 الافتراضي
+export ANDROID_HOME="$HOME/android-sdk" ANDROID_SDK_ROOT="$HOME/android-sdk"
+./gradlew :app:testReleaseUnitTest :app:assembleDebug -x :app:lintVitalRelease \
+  -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g" --build-cache --parallel
+```
+
+**وحدود تبقى:** `assembleRelease` **يحتاج `KS_PWD`** (حرس في `build.gradle.kts` يرمي قبل أي عمل)، فالمُتحقَّق
+هنا هو **debug APK** + **R8** (`:app:minifyReleaseWithR8`، بلا توقيع) + **الاختبارات على نسخة release**.
+وتوقيع الإصدار لا يُختبر محليًّا (ولا تسأل عن السرّ ولا تكتبه في أي ملف).
+
+**وفيما عدا الترجمة/الاختبارات:** كل ما يمسّ العتاد أو SELinux أو الإقلاع لا يزال **يحتاج جهازًا** — البناء
+يعني «يترجم ويمرّ الاختبارات»، ولا يعني «يعمل على هاتفك».
+
+وحتى تُشغّل بناءً وتُسجّل نتيجته، قل «compilation unverified in this environment» ولا تقل «passes».
 
 **بوابتان قبل أي تسليم** (كلتاهما خفيفة ولا تحتاج مُصرّفًا):
 

@@ -64,6 +64,17 @@ android {
         }
     }
     
+    // ── ملاحظة عن `lintVitalRelease` (قِيست، ولا تُغيَّر هنا) ──
+    //
+    // `assembleRelease` يستدعي `lintVitalRelease` تلقائيًّا، وقِسناها في هذه البيئة:
+    // **٣ دقائق و٢٩ ثانية** من أصل ~١٥ دقيقة (٤ أنوية · ١٥ جيجابايت، نفس مقاس runner).
+    //
+    // **ولا يُعطَّل هنا:** `checkReleaseBuilds = false` **يمحو المهمة نفسها** (تحقّقنا:
+    // اختفت من `:app:tasks --all`)، فيصير الحاجز غائبًا لا منقولًا — وهذا إسقاط لجودة لا
+    // تسريع لبناء. الفصل جرى في `.github/workflows/build.yml`: مهمة CI موازية تُشغّل
+    // `:app:lintVitalRelease` كما هي، وبناء الحزمة يستثنيها بـ`-x :app:lintVitalRelease`.
+    // الحاجز نفسه، وبالتوازي، وبلا مَسّ سلوك البناء المحلي.
+
     androidResources {
         // [FIX] AGP يرفض الجمع بين توليده الآلي و`android:localeConfig` الصريح في
         // البيان («Locale config generation was requested but user locale config is
