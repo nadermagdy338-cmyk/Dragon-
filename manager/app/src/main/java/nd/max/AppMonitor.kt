@@ -363,48 +363,17 @@ object AppMonitor {
         if (checkAt - lastDriftCheckAt < DRIFT_CHECK_INTERVAL_MS) return
         lastDriftCheckAt = checkAt
 
-        // GPU drift is owned exclusively by hardwareControlRegistry below.
-        // Keeping one owner avoids duplicate writes and gives every reassertion
-        // the same read-back and exact baseline restore contract.
-
+        // The initial apply registers each physical policy/device under its
+        // canonical key. Reassert those exact entries; do not create generic
+        // `cpu_governor`/`gpu_governor` keys here. The old generic keys caused
+        // the drift path to become a second owner, bypassing per-policy
+        // arbitration and sometimes failing on heterogeneous CPU policies.
         runCatching {
-            val cpuGovernor = readAppConfigField(pkg, "cpu_governor")
-            if (cpuGovernor.isNotBlank() && cpuGovernor != "default") {
-                hardwareControlRegistry.ownGovernor(
-                    key = "cpu_governor",
-                    desired = cpuGovernor,
-                    apply = { value -> CpuHardwareBackend.setGovernor(value).successful },
-                    read = {
-                        val values = CpuHardwareBackend.policies().mapNotNull { it.governor }.distinct()
-                        values.singleOrNull()
-                    }
-                )
-            } else hardwareControlRegistry.release("cpu_governor")
-
-            val gpuGovernor = readAppConfigField(pkg, "gpu_governor")
-            if (gpuGovernor.isNotBlank() && gpuGovernor != "default") {
-                val gpuNode = savedGpuNode.takeIf { it.isNotBlank() } ?: PerAppKernelUtil.findGpuNode()
-                hardwareControlRegistry.ownGovernor(
-                    key = "gpu_governor",
-                    desired = gpuGovernor,
-                    apply = { value ->
-                        val generic = gpuNode?.let(GpuHardwareBackend::refresh)
-                            ?: GpuHardwareBackend.selection().device
-                        generic != null && value in generic.governors &&
-                            GpuHardwareBackend.setGovernor(generic, value).successful
-                    },
-                    read = {
-                        (gpuNode?.let(GpuHardwareBackend::refresh)
-                            ?: GpuHardwareBackend.selection().device)?.governor?.takeIf { it.isNotBlank() }
-                    }
-                )
-            } else hardwareControlRegistry.release("gpu_governor")
-
             hardwareControlRegistry.verifyAndRepair().forEach { result ->
                 if (!result.successful) {
-                    AppMonitorLogger.w("EVENT=APPLY_DRIFT_REASSERT_FAILED knob=hardware_registry pkg=$pkg expected=${result.requested} live=${result.actual ?: "none"} sw=$currentSwitchId")
+                    AppMonitorLogger.w("EVENT=APPLY_DRIFT_REASSERT_FAILED knob=${result.key} pkg=$pkg expected=${result.requested} live=${result.actual ?: "none"} error=${result.error ?: "unknown"} sw=$currentSwitchId")
                 } else if (result.attempts > 1) {
-                    AppMonitorLogger.i("EVENT=APPLY_DRIFT_REPAIRED knob=hardware_registry pkg=$pkg expected=${result.requested} attempts=${result.attempts} sw=$currentSwitchId")
+                    AppMonitorLogger.i("EVENT=APPLY_DRIFT_REPAIRED knob=${result.key} pkg=$pkg expected=${result.requested} attempts=${result.attempts} sw=$currentSwitchId")
                 }
             }
         }.onFailure { AppMonitorLogger.e("EVENT=DRIFT_CHECK_FAILED knob=hardware_registry pkg=$pkg sw=$currentSwitchId", it) }

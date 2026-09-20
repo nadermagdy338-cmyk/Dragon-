@@ -4221,3 +4221,37 @@ python3 tools/i18n_coverage.py --assert
   والقرار: مهمة موازية ثانية أم فحص يدويّ قبل كل إصدار؟ سُجّل كسؤال في `NEXT_TASK`.
 - والدفعة **واجهة فقط** — لا عتاد ولا SELinux ولا إقلاع ولا control-plane ⇒ لا تستدعي مراجعة سلامة من Luna
   بموجب `AGENTS.md` §2، ومعيار الفصل كله هو هذا.
+
+## تكملة ٦٢ — `PERAPP-CONTROL-01`: منع البروفايل العام من محو تحكم Per-App — 2026-09-20
+
+**الطلب:** ما زال تغيير GPU/CPU يفشل، بما في ذلك `Thermal & GPU Governor` في إعدادات Per-App.
+
+**السبب المقيس من التتبع:** بعد أن يسجل `AppMonitor` تحكم Per-App عبر `HardwareControlArbiter`، كانت هناك
+مسارات كتابة مستقلة تعيد الحالة القديمة: `Balanced` و`Eco` ومسار `applyfreqbalance`/`applyfreqgame` الدوري
+في `binprofiles`، إضافة إلى مسارات chipset. كما أن مسار drift في `AppMonitor` كان ينشئ owner عامًّا
+`cpu_governor`/`gpu_governor` بدل إعادة استخدام مفاتيح `cpu_governor:<policy>` و`gpu_governor:<device>`
+المسجلة عند التطبيق.
+
+**التغييرات:**
+- حراسة كتابات CPU/GPU ومسارات chipset في `binprofiles/src/profiles/mod.rs` لكل Performance/Balanced/Eco.
+- إضافة حارس `sys.maxmanager.perapp.governor_isolation` إلى `applyfreqbalance` و`applyfreqgame` وكل
+  `dsetfreq*` في `binprofiles/src/utils/mod.rs` لأن هذه نقاط دخول مستقلة.
+- توسيع عزل daemon ليشمل `gpu_profile` و`thermal_profile` و`gpu_max_freq` و`cpu_policy_controls`.
+- تمرير `cpu_policy_controls` من JSON عبر `AppLoader.c` و`ProfileUtility.c` إلى `GameConfig`.
+- جعل `PerAppThermal.c` يحفظ صلاحية عقدة `sconfig`، يكتب عبر mode مؤقت، يتحقق من read-back، ثم يعيد
+  صلاحية العقدة؛ الفشل يبقى `PERAPP_THERMAL_*_FAILED`.
+- جعل drift يعيد إصلاح الإدخالات canonical الموجودة، لا تسجيل مالك عام ثانٍ.
+
+**التحقق:**
+- `python3 tools/kt_balance.py --assert` → `718 ملفًا · 0 عوائق`.
+- `python3 tools/code_health.py --assert` → exit 0، والصحّة صفر، والدَّين `10/29/66/23`.
+- `python3 tools/i18n_coverage.py --assert` → 0 عوائق.
+- `python3 tools/repo_audit.py` → `PROBLEMS: 0`.
+- `git diff --check` → نظيف.
+- فحص الأقواس بعد إزالة التعليقات والنصوص → OK للملفات native/Rust السبعة.
+- لم يُشغّل Gradle/NDK، تنفيذًا لقاعدة المالك «البناء عند الطلب»؛ لم يُختبر جهاز حقيقي.
+
+**المخاطر المتبقية:** تغيّر واجهات vendor بين الأجهزة، SELinux، ووجود كاتب ثانٍ خارج هذا المستودع. يجب إعادة
+بناء الوحدة والتطبيق وتثبيتهما قبل الحكم، ثم إرسال سجل يتضمن `PERAPP_COMMIT` و`PROFILE_SKIP_GPU_FORCE`.
+
+**التسليم:** `DONE_WITH_CONCERNS`.

@@ -75,7 +75,9 @@ void run_profiler(const int profile) {
     // whether the global mode is Performance, Balanced, or Eco. The profile binary
     // consumes this transient property and skips its own governor write when set.
     bool per_app_governor = gamestart != NULL &&
-                            (!IS_DEFAULT(opts.cpu_governor) || !IS_DEFAULT(opts.gpu_governor));
+                            (!IS_DEFAULT(opts.gpu_profile) || !IS_DEFAULT(opts.thermal_profile) ||
+                             !IS_DEFAULT(opts.cpu_governor) || !IS_DEFAULT(opts.gpu_governor) ||
+                             !IS_DEFAULT(opts.gpu_max_freq) || opts.cpu_policy_controls[0] != '\0');
     set_per_app_governor_isolation(per_app_governor);
 
     // Suggestion for future: Replace systemv with native property setting for performance
@@ -121,6 +123,7 @@ char* get_gamestart(GameConfig* options, SystemStateCache* cache) {
                 strcpy(options->cpu_governor, g_game_cache[i].cpu_governor);
                 strcpy(options->gpu_governor, g_game_cache[i].gpu_governor);
                 strcpy(options->gpu_max_freq, g_game_cache[i].gpu_max_freq);
+                strcpy(options->cpu_policy_controls, g_game_cache[i].cpu_policy_controls);
             }
             break;
         }

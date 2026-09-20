@@ -190,6 +190,16 @@ void reload_gamelist_cache(DaemonContext* ctx) {
             else
                 strcpy(g_game_cache[g_game_cache_count].gpu_max_freq, "default");
 
+            // CPU policy ranges are owned and verified by AppMonitor, but the
+            // native thermal guard must still know that an override is active
+            // so vendor thermal code cannot reclaim the policies underneath it.
+            p = strstr(ptr, "\"cpu_policy_controls\":");
+            if (p && (!next_block || p < next_block))
+                extract_string_value(g_game_cache[g_game_cache_count].cpu_policy_controls, p,
+                                     sizeof(g_game_cache[g_game_cache_count].cpu_policy_controls));
+            else
+                g_game_cache[g_game_cache_count].cpu_policy_controls[0] = '\0';
+
             g_game_cache_count++;
         }
         ptr += 4;

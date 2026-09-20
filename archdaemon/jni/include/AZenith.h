@@ -124,6 +124,10 @@ typedef struct {
     char cpu_governor[32];
     char gpu_governor[32];
     char gpu_max_freq[16];
+    // Presence of policy-level CPU controls also requires thermal/profile
+    // isolation, even though the native daemon does not apply the serialized
+    // policy ranges itself; AppMonitor owns and verifies those writes.
+    char cpu_policy_controls[512];
 } GameConfig;
 
 extern GameConfig* g_game_cache;

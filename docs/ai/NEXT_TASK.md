@@ -1,6 +1,7 @@
 # NEXT_TASK — قائمة المهام الحيّة
 
-**آخر تحديث:** 2026-09-20 (بعد **تكملة ٦٠** `I18N-01`: عطب بناء مُبلَّغ عنه — `lintVitalRelease` سقط بـ٦ أخطاء `ExtraTranslation` في `values-es`/`values-fr` (مفاتيح مُيتّمة بعد حذفها من `values/`)، فأُضيف كشف «المفتاح بلا نظير» داخل بوابة `i18n_coverage.py --assert` وأداة `--prune` لتنظيفه — وlint عاد أخضر).
+**آخر تحديث:** 2026-09-20 (بعد إصلاح `PERAPP-CONTROL-01`: عزل مسارات البروفايل العام عن تحكم Per-App، وتثبيت مسار الانجراف، وتحسين كتابة Thermal؛ البناء لم يُشغّل وفق قاعدة «البناء عند الطلب»، والقياس على جهاز ما زال مطلوبًا).
+وقبلها (تكملة ٦٠ `I18N-01`: عطب بناء مُبلَّغ عنه — `lintVitalRelease` سقط بـ٦ أخطاء `ExtraTranslation` في `values-es`/`values-fr` (مفاتيح مُيتّمة بعد حذفها من `values/`)، فأُضيف كشف «المفتاح بلا نظير» داخل بوابة `i18n_coverage.py --assert` وأداة `--prune` لتنظيفه — وlint عاد أخضر).
 وقبلها (تكملة ٥٩ `HOME-04`: بطاقة «ما يحدث الآن؟» محلّ طيف الحِمل +
 موجة ساعة CPU/GPU محلّ الشريط المستقيم — والتفصيل في `HANDOFF` تكملة ٦٠). وقبلها (تكملة ٥٨: كاتب الشحن المتحقَّق `ChargingHardwareBackend` +
 توصيل الواجهة به (الحكم الثلاثي) + `ATLAS-01` كسؤال قرار بعد قياس «ما فائدة أطلس» بالأرقام).
@@ -15,6 +16,40 @@
 > ⚠️ **قبل أي تسليم في هذه المرحلة:** التحقّق الافتراضي **بلا بناء** — `tools/kt_balance.py --assert`
 > (توازن الأقواس/النصوص/التعليقات + صحة XML) + `code_health` + `i18n_coverage`. والبناء يُشغَّل عند طلب
 > المالك أو عند عطب يحتاج مُصرّفًا، وبأضيق نطاق (`:app:compileDebugKotlin` لا `assembleDebug`).
+
+## PERAPP-CONTROL-01 — عزل تحكم Per-App CPU/GPU/Thermal/Governor — **إصلاح ثابت، يحتاج جهازًا وبناء الوحدة** · 2026-09-20
+
+**العطب المقاس من مسار الكود والسجلات السابقة:** إعداد Per-App كان يُسجّل عبر `AppMonitor` والـarbiter، ثم
+كانت مسارات البروفايل العام تعيد الكتابة فوقه. لم يكن الحارس محصورًا في `Performance`: `Balanced` و`Eco`
+والمسار الدوري `applyfreqbalance`/`applyfreqgame` كانا يعيدان حدود CPU، ومسارات chipset كانت تعيد ضبط
+GPU/CPU. كذلك كان مسار الانجراف ينشئ مفاتيح عامة `cpu_governor`/`gpu_governor` بدل إعادة استخدام مفاتيح
+السياسات والأجهزة التي سُجلت عند التطبيق، فيفقد بعض الأجهزة غير المتجانسة نفس الملكية والتحقق.
+
+**ما تغيّر:**
+- `binprofiles/src/profiles/mod.rs`: منع كتابات CPU/GPU ومسارات chipset في Performance/Balanced/Eco عند
+  `sys.maxmanager.perapp.governor_isolation=1`.
+- `binprofiles/src/utils/mod.rs`: حارس مستقل لـ`applyfreqbalance` و`applyfreqgame` و`dsetfreq*`؛ هذا مهم
+  لأن الاستدعاء الدوري لا يمر بالضرورة عبر دالة البروفايل.
+- `archdaemon/jni/src/SystemProfile/SystemProfiles.c` و`ProfileUtility.c`: العزل يشمل `gpu_profile` و`thermal_profile`
+  و`gpu_max_freq` و`cpu_policy_controls`، وليس governor فقط.
+- `archdaemon/jni/include/AZenith.h` و`AppLoader.c` و`ProfileUtility.c`: تمرير `cpu_policy_controls` إلى daemon
+  كي لا يعتبر تحكم CPU المخصص «لا يوجد override».
+- `archdaemon/jni/src/SystemProfile/PerAppThermal.c`: كتابة `sconfig` تحفظ mode العقدة، تغيّر صلاحيتها مؤقتًا،
+  تكتب newline، تقرأ القيمة للتحقق، ثم تعيد الصلاحية؛ الفشل يبقى رفضًا معلنًا ولا يتحول إلى نجاح وهمي.
+- `manager/app/src/main/java/nd/max/AppMonitor.kt`: مسار drift يعيد إصلاح الإدخالات canonical المسجلة عند
+  التطبيق بدل إنشاء owner ثانٍ عام.
+
+**البوابات المقيسة بعد التعديل:** `kt_balance --assert` = 718 ملفًا/0 عوائق · `code_health --assert` = exit 0
+(الدَّين 10/29/66/23) · `i18n_coverage --assert` = 0 عوائق · `repo_audit` = PROBLEMS: 0 · `git diff --check`
+= نظيف. وفحص الأقواس/الأقواس المخصص بعد إزالة التعليقات والنصوص = OK لكل الملفات السبعة المعدلة native/Rust.
+
+**ما لا يمكن إثباته بلا جهاز:** هل عقدة GPU الفعلية هي devfreq أم MTK OPP، وهل SELinux يسمح بـ`sconfig`، وهل
+كاتب vendor ثانٍ يعيد الكتابة بعد العزل. المطلوب: إعادة بناء module + APK وتثبيتهما، اختيار CPU governor أو
+CPU policy أو GPU governor/frequency في تطبيق مُدار، الانتظار 10–20 ثانية مع تبديل البروفايل العام، ثم إرسال
+السجل. ابحث عن `PERAPP_COMMIT ... verified=true` و`PROFILE_SKIP_GPU_FORCE` و`applyfreqbalance skipped`؛
+واعتبر `PERAPP_*_APPLY_FAILED` أو `APPLY_DRIFT_REASSERT_FAILED` فشلًا حقيقيًا لا نجاحًا.
+
+**الحالة:** `DONE_WITH_CONCERNS` — لا بناء ولا جهاز في هذه الجولة.
 
 ## HOME-04 — بطاقة «ما يحدث الآن؟» + موجة الساعة — **منجز تقنيًّا · لم يُرَ على شاشة** · 2026-09-20
 

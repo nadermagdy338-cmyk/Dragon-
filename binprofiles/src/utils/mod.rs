@@ -156,7 +156,19 @@ pub fn setprop_cmd(key: &str, value: &str) {
     let _ = Command::new("setprop").arg(key).arg(value).status();
 }
 
+pub fn per_app_governor_isolation_active() -> bool {
+    getprop("sys.maxmanager.perapp.governor_isolation") == "1"
+}
+
 pub fn applyfreqbalance() {
+    // The daemon invokes this command periodically while Balanced/Eco is
+    // active. It is a separate entry point from the profile functions, so the
+    // profile-level guard cannot protect it. Without this guard it reclaimed
+    // per-app CPU limits immediately after the UI/arbiter verified them.
+    if per_app_governor_isolation_active() {
+        log_info("Per-App governor isolation active: applyfreqbalance skipped");
+        return;
+    }
     if Path::new("/proc/ppm").exists() {
         dsetfreqppm();
     } else {
@@ -165,6 +177,10 @@ pub fn applyfreqbalance() {
 }
 
 pub fn applyfreqgame() {
+    if per_app_governor_isolation_active() {
+        log_info("Per-App governor isolation active: applyfreqgame skipped");
+        return;
+    }
     if Path::new("/proc/ppm").exists() {
         dsetgamefreqppm();
     } else {
@@ -421,6 +437,10 @@ pub fn setgamefreq() {
 }
 
 pub fn dsetfreqppm() {
+    if per_app_governor_isolation_active() {
+        log_info("Per-App governor isolation active: dsetfreqppm skipped");
+        return;
+    }
     if blocked_by_manual_session("dsetfreqppm") {
         return;
     }
@@ -460,6 +480,10 @@ pub fn dsetfreqppm() {
 }
 
 pub fn dsetfreq() {
+    if per_app_governor_isolation_active() {
+        log_info("Per-App governor isolation active: dsetfreq skipped");
+        return;
+    }
     if blocked_by_manual_session("dsetfreq") {
         return;
     }
@@ -499,6 +523,10 @@ pub fn dsetfreq() {
 }
 
 pub fn dsetgamefreqppm() {
+    if per_app_governor_isolation_active() {
+        log_info("Per-App governor isolation active: dsetgamefreqppm skipped");
+        return;
+    }
     if blocked_by_manual_session("dsetgamefreqppm") {
         return;
     }
@@ -538,6 +566,10 @@ pub fn dsetgamefreqppm() {
 }
 
 pub fn dsetgamefreq() {
+    if per_app_governor_isolation_active() {
+        log_info("Per-App governor isolation active: dsetgamefreq skipped");
+        return;
+    }
     if blocked_by_manual_session("dsetgamefreq") {
         return;
     }

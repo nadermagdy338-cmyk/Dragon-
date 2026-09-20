@@ -188,10 +188,18 @@ pub fn balanced_profile() {
         apply_custom_governor_io(&default_gov, &default_io, &default_mali);
     }
 
-    if Path::new("/proc/ppm").exists() {
-        setfreqppm();
+    // A foreground Per-App profile owns CPU/GPU frequency and governor knobs.
+    // Balanced must not undo that ownership after the initial apply: on devices
+    // where this branch ran unconditionally, the UI change appeared to work for
+    // one poll and then the global profile immediately restored its own limits.
+    if !per_app_governor_isolation {
+        if Path::new("/proc/ppm").exists() {
+            setfreqppm();
+        } else {
+            setfreq();
+        }
     } else {
-        setfreq();
+        log_info("Per-App governor isolation active: preserving CPU/GPU frequency controls");
     }
 
     if getprop(CONF_FREQOFFSET) == "Disabled" {
@@ -250,13 +258,17 @@ pub fn balanced_profile() {
         }
     });
 
-    match getprop(SOC_TYPE).as_str() {
-        "1" => mediatek_balance(),
-        "2" => snapdragon_balance(),
-        "3" => exynos_balance(),
-        "4" => unisoc_balance(),
-        "5" => tensor_balance(),
-        _ => {}
+    if !per_app_governor_isolation {
+        match getprop(SOC_TYPE).as_str() {
+            "1" => mediatek_balance(),
+            "2" => snapdragon_balance(),
+            "3" => exynos_balance(),
+            "4" => unisoc_balance(),
+            "5" => tensor_balance(),
+            _ => {}
+        }
+    } else {
+        log_info("Per-App governor isolation active: skipping chipset CPU/GPU frequency profile");
     }
 
     log_verbose("Balanced Profile applied successfully!");
@@ -300,10 +312,17 @@ pub fn eco_mode() {
         apply_custom_governor_io(&powersave_gov, &powersave_io, &custom_eco_mali);
     }
 
-    if Path::new("/proc/ppm").exists() {
-        setfreqppm();
+    // Eco is also a global profile; it must not reclaim CPU/GPU knobs from an
+    // active Per-App profile. The previous unconditional call here was the
+    // remaining path that made Thermal & GPU Governor changes revert in Eco.
+    if !per_app_governor_isolation {
+        if Path::new("/proc/ppm").exists() {
+            setfreqppm();
+        } else {
+            setfreq();
+        }
     } else {
-        setfreq();
+        log_info("Per-App governor isolation active: preserving CPU/GPU frequency controls");
     }
     log_info("Set CPU freq to low Frequencies");
 
@@ -341,13 +360,17 @@ pub fn eco_mode() {
         write_lock("NO_TTWU_QUEUE", sched_feat);
     }
 
-    match getprop(SOC_TYPE).as_str() {
-        "1" => mediatek_powersave(),
-        "2" => snapdragon_powersave(),
-        "3" => exynos_powersave(),
-        "4" => unisoc_powersave(),
-        "5" => tensor_powersave(),
-        _ => {}
+    if !per_app_governor_isolation {
+        match getprop(SOC_TYPE).as_str() {
+            "1" => mediatek_powersave(),
+            "2" => snapdragon_powersave(),
+            "3" => exynos_powersave(),
+            "4" => unisoc_powersave(),
+            "5" => tensor_powersave(),
+            _ => {}
+        }
+    } else {
+        log_info("Per-App governor isolation active: skipping chipset CPU/GPU frequency profile");
     }
 
     log_verbose("ECO Mode applied successfully!");

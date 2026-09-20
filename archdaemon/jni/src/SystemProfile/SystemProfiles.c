@@ -78,7 +78,9 @@ void apply_performance_profile(DaemonContext* ctx) {
     // an explicit per-app governor.
     bool per_app_governor_override =
         gamestart != NULL &&
-        (!IS_DEFAULT(opts.cpu_governor) || !IS_DEFAULT(opts.gpu_governor));
+        (!IS_DEFAULT(opts.gpu_profile) || !IS_DEFAULT(opts.thermal_profile) ||
+         !IS_DEFAULT(opts.cpu_governor) || !IS_DEFAULT(opts.gpu_governor) ||
+         !IS_DEFAULT(opts.gpu_max_freq) || opts.cpu_policy_controls[0] != '\0');
     __system_property_set("sys.maxmanager.perapp.governor_isolation",
                           per_app_governor_override ? "1" : "0");
 
@@ -92,7 +94,8 @@ void apply_performance_profile(DaemonContext* ctx) {
     bool has_per_app_gpu_override =
         !IS_DEFAULT(opts.gpu_profile) || !IS_DEFAULT(opts.thermal_profile) ||
         !IS_DEFAULT(opts.cpu_governor) ||
-        !IS_DEFAULT(opts.gpu_governor) || !IS_DEFAULT(opts.gpu_max_freq);
+        !IS_DEFAULT(opts.gpu_governor) || !IS_DEFAULT(opts.gpu_max_freq) ||
+        opts.cpu_policy_controls[0] != '\0';
 
     if (!has_per_app_gpu_override) {
         EXECUTE("Performance Profile", run_profiler(PERFORMANCE_PROFILE));
@@ -145,7 +148,9 @@ void apply_eco_profile(DaemonContext* ctx) {
     // Preserve explicit Per-App CPU/GPU governors while this global profile is applied.
     bool per_app_governor_override =
         gamestart != NULL &&
-        (!IS_DEFAULT(opts.cpu_governor) || !IS_DEFAULT(opts.gpu_governor));
+        (!IS_DEFAULT(opts.gpu_profile) || !IS_DEFAULT(opts.thermal_profile) ||
+         !IS_DEFAULT(opts.cpu_governor) || !IS_DEFAULT(opts.gpu_governor) ||
+         !IS_DEFAULT(opts.gpu_max_freq) || opts.cpu_policy_controls[0] != '\0');
     __system_property_set("sys.maxmanager.perapp.governor_isolation",
                           per_app_governor_override ? "1" : "0");
     if (ctx->cur_mode == ECO_MODE)
@@ -204,7 +209,9 @@ void apply_balanced_profile(DaemonContext* ctx) {
     // Preserve explicit Per-App CPU/GPU governors while this global profile is applied.
     bool per_app_governor_override =
         gamestart != NULL &&
-        (!IS_DEFAULT(opts.cpu_governor) || !IS_DEFAULT(opts.gpu_governor));
+        (!IS_DEFAULT(opts.gpu_profile) || !IS_DEFAULT(opts.thermal_profile) ||
+         !IS_DEFAULT(opts.cpu_governor) || !IS_DEFAULT(opts.gpu_governor) ||
+         !IS_DEFAULT(opts.gpu_max_freq) || opts.cpu_policy_controls[0] != '\0');
     __system_property_set("sys.maxmanager.perapp.governor_isolation",
                           per_app_governor_override ? "1" : "0");
     if (ctx->is_initialize_complete && ctx->cur_mode == BALANCED_PROFILE)
