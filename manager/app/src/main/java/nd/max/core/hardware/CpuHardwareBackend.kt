@@ -116,6 +116,31 @@ object CpuHardwareBackend {
         return sets.reduce { a, b -> a.intersect(b) }.sorted()
     }
 
+    /**
+     * أكبر تردد **مُعلَن فعليًّا** لا يتجاوز [kHz] — والتردد المُعلَن الأصغر إن كان
+     * المطلوب تحت الجدول كلّه — و[kHz] نفسه حين لا يُعلن النواة أي جدول OPP.
+     *
+     * لماذا لا تكفي حدود العتاد (`cpuinfo_min/max_freq`): الكتابة بقيمة **داخل**
+     * الحدود وليست في جدول OPP لا يفشل السائق في رفضها صراحةً — بل يُبدّلها بقيمة
+     * أخرى مقبولة. فيقرأ المُحكِّم قيمةً ≠ المطلوب، فيحكم على تغييرٍ ناجح بالفشل ثم
+     * يسترجع خط الأساس، ويرى المستخدم المقبض يرتدّ بلا سبب مكتوب.
+     *
+     * والقياس من جهاز حقيقي (MT6899، 2026-09-20) هو سبب وجود الدالة: كتابة
+     * `2200000` إلى `policy4/scaling_max_freq` أعادت `2000000`
+     * (`WRITE_CHECK … verdict=differs`)، فتكرّر «regression rollback … FAILED» ست
+     * مرّات في جلسة واحدة — والمقبض لم يكن في الجدول المُعلن لـ`policy4` أصلًا.
+     * فالطلب يُصاغ من الجدول المُعلَن لا من استنباط حسابي بين حدّين.
+     *
+     * وتُستعمل للحدّين معًا لأن **كليهما يجب أن يكون ترددًا حقيقيًّا**: سقفٌ لا
+     * يتجاوز المطلوب، وأرضيةٌ لا ترفع الحدّ الأدنى للعتاد. ولا تُدّعى معرفة OPP
+     * حين لا يُعلنها الجهاز: تُعاد القيمة كما هي.
+     */
+    fun snapToAvailableAtOrBelow(policy: Policy, kHz: Long): Long {
+        val available = policy.availableFrequenciesKHz
+        if (available.isEmpty()) return kHz
+        return available.lastOrNull { it <= kHz } ?: available.first()
+    }
+
     /** Reads a policy's live clock, which may differ from its configured limits. */
     fun readCurrentFrequencyKHz(policyPath: String, io: DiscoveryIo = SystemDiscoveryIo): Long? =
         io.read("$policyPath/scaling_cur_freq")?.toLongOrNull()

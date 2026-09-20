@@ -26,7 +26,12 @@ class PerAppFrequencyController @Inject constructor(
         val baselinePolicy = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
             ?: return Result("${minKHz ?: ""}:${maxKHz ?: ""}", false, false, error = "unsupported-policy")
         val baseline = "${baselinePolicy.minKHz ?: ""}:${baselinePolicy.maxKHz ?: ""}"
-        val desired = "${minKHz ?: ""}:${maxKHz ?: ""}"
+        // القيمة المطلوبة تُصاغ من جدول OPP المُعلَن: قيمة بين الحدّين وليست في الجدول
+        // لا يرفضها السائق بل يُبدّلها، فيصير التحقق فشلًا لتغيير ناجح ثم يُسترجع خط
+        // الأساس (`CpuHardwareBackend.snapToAvailableAtOrBelow` يحمل القياس).
+        val minSnapped = minKHz?.let { CpuHardwareBackend.snapToAvailableAtOrBelow(baselinePolicy, it) }
+        val maxSnapped = maxKHz?.let { CpuHardwareBackend.snapToAvailableAtOrBelow(baselinePolicy, it) }
+        val desired = "${minSnapped ?: ""}:${maxSnapped ?: ""}"
 
         val r = arbiter.submit(
             key = key,

@@ -439,7 +439,12 @@ class MaxAiEngine @Inject constructor(
                     detail = "انحراف مقيس: المطلوب $desired والقيمة الحية $live",
                 )
             )
-            DiagnosticCenter.record("maxai", "drift ${control.key} desired=$desired live=$live")
+            // WARN لا ERROR: الانحراف **حقيقي ومقيس** (كائن آخر غيّر القيمة)،
+            // لكنه ليس عطلًا في التطبيق — وهو ما يهمّ عدّاد المشاكل في الواجهة.
+            DiagnosticCenter.record(
+                "maxai", "drift ${control.key} desired=$desired live=$live",
+                level = DiagnosticCenter.Level.WARN,
+            )
         }
 
         // Prioritize controls with DynamicIntentLearner
@@ -757,10 +762,15 @@ class MaxAiEngine @Inject constructor(
         // المُحكِّم، ولا طلب MAX_AI باقٍ بعد استرجاع خط أساسه.
         arbiter.release(step.control.key, TOKEN, restore = true)
         val restored = runCatching { step.control.read() }.getOrNull() == baseline
+        // الحكم يتبع النتيجة لا الموضع: استرجاعٌ نجح خبرٌ لا خطأ. وكان يُسجَّل ERROR
+        // دائمًا، فظهر في سجل جهاز حقيقي سطران يفهمان كعطل وهما نقيضه:
+        // `E diag: regression rollback cpu_limits:policy7 → 1000000:2200000 :: verified`
+        // — نجاحٌ مكتوب بمستوى خطأ، ويزيد عدّاد مشاكل الواجهة بلا مشكلة.
         DiagnosticCenter.record(
             "maxai",
             "regression rollback ${step.control.key} → $baseline :: " +
-                if (restored) "verified" else "FAILED (was ${outcome.actual})"
+                if (restored) "verified" else "FAILED (was ${outcome.actual})",
+            level = if (restored) DiagnosticCenter.Level.INFO else DiagnosticCenter.Level.ERROR,
         )
         return restored
     }
@@ -791,6 +801,7 @@ class MaxAiEngine @Inject constructor(
             "maxai",
             "interrupted response window ${step.control.key} → ${step.from} :: " +
                 if (released.verified) "restored" else "restore FAILED (was ${released.actual})",
+            level = if (released.verified) DiagnosticCenter.Level.INFO else DiagnosticCenter.Level.ERROR,
         )
     }
 
@@ -913,7 +924,12 @@ class MaxAiEngine @Inject constructor(
         val effectBefore = planner.effectOf(control.key, direction, appContextKey)
         lastProbeAtMs = System.currentTimeMillis()
         probesThisSession.incrementAndGet()
-        DiagnosticCenter.record("maxai", "probe ${control.key} $from → $to :: $reason")
+        // استكشافٌ محروس نُفِّذ فعلًا: عملٌ اعتيادي لا عطل (كان ERROR فيُلوّث عدّاد
+        // المشاكل ويرفع في السجل خطأً لكل تجربة سليمة).
+        DiagnosticCenter.record(
+            "maxai", "probe ${control.key} $from → $to :: $reason",
+            level = DiagnosticCenter.Level.INFO,
+        )
 
         val transaction = safetyGovernor.execute(
             step = step,
@@ -1116,7 +1132,12 @@ class MaxAiEngine @Inject constructor(
         if (decision.wake) {
             // الإشارة تُحدَّث هنا فقط كي لا يُستهلك التغيّر قبل تنفيذه.
             cadenceSignal = current
-            DiagnosticCenter.record("maxai", "early re-plan: ${decision.reason}")
+            // إعادة تخطيط مبكّرة بإشارة إيقاع: خبر لا عطل. من سجل جهاز حقيقي
+            // (2026-09-20): `E diag: early re-plan: usage` — قرارٌ طبيعي بمستوى خطأ.
+            DiagnosticCenter.record(
+                "maxai", "early re-plan: ${decision.reason}",
+                level = DiagnosticCenter.Level.INFO,
+            )
             scope.launch { runCycleSingleFlight() }
         } else if (decision.reason == null) {
             cadenceSignal = current
@@ -1315,9 +1336,11 @@ class MaxAiEngine @Inject constructor(
             appContext = acted.appContext,
             verified = false,
         )
+        // تدخّل المستخدم معلومةٌ عن تعلّم المحرك، لا عطل.
         DiagnosticCenter.record(
             "maxai",
             "user override $kind :: ${acted.knobKey} after ${(now - acted.atMs) / 1000}s",
+            level = DiagnosticCenter.Level.INFO,
         )
         EventLog.userAction("MaxAiEngine", "override", acted.knobKey, kind)
     }

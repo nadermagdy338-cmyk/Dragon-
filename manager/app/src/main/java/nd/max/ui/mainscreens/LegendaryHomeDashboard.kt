@@ -1,5 +1,14 @@
 package nd.max.ui.mainscreens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +39,8 @@ import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +52,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.delay
 import nd.max.R
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
@@ -49,10 +63,10 @@ import nd.max.ui.component.NeuralBudgetBar
 import nd.max.ui.component.NeuralCaption
 import nd.max.ui.component.NeuralFactTile
 import nd.max.ui.component.NeuralFeedRow
-import nd.max.ui.component.NeuralFrequencyMeter
+import nd.max.ui.component.MaxMotion
+import nd.max.ui.component.NeuralClockWave
 import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralKpiTile
-import nd.max.ui.component.NeuralLoadRibbon
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralSectionHeader
@@ -61,9 +75,14 @@ import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.theme.MonoValueStyleSmall
-import nd.max.ui.util.ClockMeter
-import nd.max.ui.util.Spectrum
+import nd.max.ui.util.ActivityReading
+import nd.max.ui.util.ActivityState
+import nd.max.ui.util.ActivityTone
+import nd.max.ui.util.ClockWave
+import nd.max.ui.util.HomeActivity
+import nd.max.ui.util.HomeActivityModel
 import nd.max.ui.viewmodel.DashboardState
+import nd.max.ui.viewmodel.HomeActivityViewModel
 import nd.max.ui.viewmodel.HomeUiState
 import nd.max.ui.viewmodel.primaryBatteryTemperatureC
 import kotlin.math.roundToInt
@@ -81,8 +100,8 @@ import kotlin.math.roundToInt
  *               uptime, battery and power draw at a glance
  *  2. focus   — appears only when something is actually wrong
  *  3. load    — CPU and GPU now, side by side
- *  4. spectrum— the last window of that same load, per sample, calm to hot; the
- *               only place on this screen where a series is drawn
+ *  4. activity— what MaxManager is doing right now, in one sentence, and what the
+ *               engine itself reported: monitoring, applying, verified, refused
  *  5. memory  — RAM, compressed swap and storage budgets
  *  6. verdict — the limiter, in one sentence, with recent events
  *  7. details — always open: the core matrix by cluster, display, network, voltage
@@ -126,7 +145,7 @@ internal fun LegendaryHomeDashboard(
             onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
             onGpu = { onNavigate(gpuRoute ?: MaxDestination.GpuStudio.route) }
         )
-        SpectrumPanel(dashboard) { onNavigate(MaxDestination.MaxLive.route) }
+        ActivityPanel(dashboard) { onNavigate(MaxDestination.MaxLive.route) }
         MemoryBudgetPanel(
             dashboard = dashboard,
             onMemory = { onNavigate(MaxDestination.ZramManager.route) },
@@ -380,31 +399,31 @@ private fun TrendDuo(dashboard: DashboardState, onCpu: () -> Unit, onGpu: () -> 
     val gpuCeiling = dashboard.gpuCeilingMhz?.takeIf { it > 0 }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         NeuralKpiTile(
-            caption = "CPU",
+            caption = stringResource(R.string.max_home_cpu_label),
             value = "${dashboard.cpuLoadPercent}%",
             accent = p.accent,
             onClick = onCpu,
             modifier = Modifier.weight(1f),
             meter = {
-                NeuralFrequencyMeter(
+                NeuralClockWave(
                     reading = compactFrequency(dashboard.cpuTopCoreMhz),
                     ceiling = frequencyCeilingLabel(dashboard.cpuTopCoreMhz, cpuCeiling),
-                    fraction = ClockMeter.fraction(dashboard.cpuTopCoreMhz, cpuCeiling),
+                    series = ClockWave.series(dashboard.loadSamples.map { it.cpuMhz }, cpuCeiling),
                     accent = p.accent,
                 )
             }
         )
         NeuralKpiTile(
-            caption = "GPU",
+            caption = stringResource(R.string.max_home_gpu_label),
             value = dashboard.gpuLoadPercent?.let { "$it%" } ?: "\u2014",
             accent = p.accentAlt,
             onClick = onGpu,
             modifier = Modifier.weight(1f),
             meter = {
-                NeuralFrequencyMeter(
+                NeuralClockWave(
                     reading = compactFrequency(dashboard.gpuFreqMhz),
                     ceiling = frequencyCeilingLabel(dashboard.gpuFreqMhz, gpuCeiling),
-                    fraction = ClockMeter.fraction(dashboard.gpuFreqMhz ?: 0, gpuCeiling),
+                    series = ClockWave.series(dashboard.loadSamples.map { it.gpuMhz }, gpuCeiling),
                     accent = p.accentAlt,
                 )
             }
@@ -413,72 +432,209 @@ private fun TrendDuo(dashboard: DashboardState, onCpu: () -> Unit, onGpu: () -> 
 }
 
 /**
- * The load spectrum, in two lanes.
+ * «ما يحدث الآن؟» — حالة حيّة واحدة للمحرك والجهاز معًا.
  *
- * A line chart answered "what is the trend" — which the tiles above already answer with a
- * number; lanes of bars answer the more useful question on a phone: how often and how hard
- * does the system spike. The calm-to-hot tint makes that visible without reading a number.
+ * **ولماذا حلّت محلّ طيف الحمل:** الطيف كان يرسم **الحمل نفسه** الذي تُعلنه بطاقتان فوقه
+ * وقدمه، ثم يعيده رقمًا ثالثًا في صفّ (الآن/المتوسط/الذروة) — أي أنه كرّر معلومة قائمة ثلاث
+ * مرات ولم يجب سؤالًا واحدًا لا يجيبه ما فوقه. وأسوأ من التكرار أنه لم يكن يقول **مَن** يفعل
+ * شيئًا: شاشة تدّعي أنها لوحة قيادة وفيها سطر يقيس نفسه أبدًا، والجهاز قد يكون تحت حماية
+ * حرارية أو محجوبًا أو غير مُدار أصلًا.
  *
- * The previous drawing put CPU and GPU **side by side inside one slot**, so each bar was
- * half a slot wide on a 96dp canvas: a barcode. Here each load owns a full-width lane — GPU
- * on top, CPU below — and the newest sample carries a hotter cap, so "now" is visible in
- * the chart itself. The geometry still comes from [Spectrum], so the frame is a full set of
- * slots from the first second and the session's history is restored from disk.
+ * فهذه البطاقة تجيب السؤال الذي يُفتح التطبيق من أجله: **ما الذي يجري الآن، ومن قاله؟**
+ * وثلاثة قرارات تحمي صدقها:
  *
- * The summary now leads with **now**, then average, then peak, because "now" is what a
- * person looks for when they open this card: `avg` and `peak` describe a window they cannot
- * see the edges of, and only the current reading is a fact about this moment. Numbers here
- * come from the same live state as the tiles above, so the two can never disagree.
+ * 1. **لا جملة بلا مصدر**: كل ما يُعرض مشتقّ من حالة المحرك نفسها — لا هناك جدول أحداث
+ *    تُغذّيه الواجهة، ولا مؤقّت يختلق نشاطًا. و`HomeActivityModelTest` يثبت القواعد في JVM.
+ * 2. **الحالة الأساسية ليست فراغًا**: بلا حدث تُعرض حالة هادئة مفيدة (مراقبة/مُتوقف)،
+ *    ومعها ثلاث قياسات حيّة في القدم — فهي بطاقة تُقرأ حتى والمحرك مغلق.
+ * 3. **الحدث عابر ثم يعود**: الحدث يظهر بتغيير متحرّك قصير ثم تعود البطاقة إلى حالتها
+ *    الأساسية تلقائيًّا — فما يبقى على الشاشة هو ما لا يزال صحيحًا.
+ *
+ * وقدم البطاقة (CPU · GPU · الحرارة) لا تكرّر التكرار القديم: تلك الأرقام **ليست** تحت
+ * البطاقة، بل تحت البطاقات السفلى؛ وهذه ثلاث قراءات لحظية مختصرة تخدم من ينظر إلى «حالة
+ * النظام» في سطر واحد.
  */
 @Composable
-private fun SpectrumPanel(dashboard: DashboardState, onLive: () -> Unit) {
+private fun ActivityPanel(dashboard: DashboardState, onLive: () -> Unit) {
     val p = neuralPalette()
-    val samples = dashboard.loadSamples
-    val summary = remember(samples) { Spectrum.summary(samples) }
-    val paired = remember(samples) { samples.any { it.gpu?.isFinite() == true } }
-    NeuralPanel(onClick = onLive) {
+    val viewModel: HomeActivityViewModel = hiltViewModel()
+    val signals by viewModel.signals.collectAsStateWithLifecycle()
+    val labels by viewModel.appLabels.collectAsStateWithLifecycle()
+
+    // الدقّة ثانية واحدة، ووظيفتها واحدة: أن تعرف البطاقة أن نافذة الحدث انتهت فتعود
+    // لحالتها الأساسية. وهي لا تقرأ عتادًا ولا تُنشئ عيّنة — إعادة إسقاط لحالة قائمة.
+    val nowMs by produceState(System.currentTimeMillis()) {
+        while (true) {
+            delay(1_000L)
+            value = System.currentTimeMillis()
+        }
+    }
+
+    // نقص القراءة يُقاس بخصائص الإقلاع (سقف غير معلَن، لا عناقيد) لا بقراءة فاشلة عارضة:
+    // «لا تدعم هذه النواة عقدة الرسوم» حقيقة، و«فشلت قراءة واحدة» ليست عطب قدرة.
+    val missing = remember(dashboard.gpuCeilingMhz, dashboard.cores.size) {
+        buildSet {
+            if (dashboard.gpuCeilingMhz == null) add(ActivityReading.GPU)
+            if (dashboard.cores.isEmpty()) add(ActivityReading.CORES)
+        }
+    }
+    val activity = remember(signals, nowMs, missing) {
+        HomeActivityModel.project(signals.copy(missingReadings = missing), nowMs)
+    }
+
+    val tone = when (activity.tone) {
+        ActivityTone.CALM -> p.accent
+        ActivityTone.WORKING -> p.ok
+        ActivityTone.ATTENTION -> p.warn
+        ActivityTone.DANGER -> p.danger
+    }
+
+    NeuralPanel(onClick = onLive, accent = tone) {
         NeuralSectionHeader(
-            title = stringResource(R.string.home_spectrum_title),
-            caption = stringResource(R.string.home_spectrum_caption),
-            accent = p.accent
+            title = stringResource(R.string.home_activity_title),
+            caption = stringResource(R.string.home_activity_caption),
+            accent = tone,
+            trailing = { ActivityDot(tone, active = activity.state == ActivityState.APPLYING) }
         )
-        if (paired) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                SpectrumLegend("CPU", p.accent)
-                SpectrumLegend("GPU", p.accentAlt)
+        AnimatedContent(
+            targetState = activity,
+            transitionSpec = { MaxMotion.enter() togetherWith MaxMotion.exit },
+            label = "home-activity-body",
+        ) { current ->
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    activityTitle(current, labels),
+                    color = p.text,
+                    fontSize = 16.sp,
+                    lineHeight = 21.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    activityDetail(current, labels),
+                    color = p.muted,
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
-        NeuralLoadRibbon(
-            samples = samples,
-            accent = p.accent,
-            secondaryAccent = p.accentAlt,
-            hot = p.danger,
-            modifier = Modifier.fillMaxWidth().height(if (paired) 104.dp else 86.dp)
-        )
-        if (samples.isNotEmpty()) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                NeuralFactTile(
-                    stringResource(R.string.home_stat_now),
-                    "${dashboard.cpuLoadPercent}%",
-                    p.accent,
-                    Modifier.weight(1f)
-                )
-                NeuralFactTile(
-                    stringResource(R.string.home_stat_avg),
-                    "${summary.average}%",
-                    p.accent,
-                    Modifier.weight(1f)
-                )
-                NeuralFactTile(
-                    stringResource(R.string.home_stat_peak),
-                    "${summary.peak}%",
-                    p.danger,
-                    Modifier.weight(1f)
-                )
-            }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            NeuralFactTile(
+                stringResource(R.string.max_home_cpu_label),
+                "${dashboard.cpuLoadPercent}%",
+                p.accent,
+                Modifier.weight(1f)
+            )
+            NeuralFactTile(
+                stringResource(R.string.max_home_gpu_label),
+                dashboard.gpuLoadPercent?.let { "$it%" } ?: DASH,
+                p.accentAlt,
+                Modifier.weight(1f)
+            )
+            NeuralFactTile(
+                stringResource(R.string.home_activity_temp),
+                primaryBatteryTemperatureC(dashboard)?.let { "${it.roundToInt()}°C" } ?: DASH,
+                p.warn,
+                Modifier.weight(1f)
+            )
         }
     }
 }
+
+/**
+ * سطر الحالة بعنوانه — الترجمة تُقرأ من المورد ولا تُركّب في المنطق.
+ *
+ * والأسماء تستعمل [ActivityState] و[ActivityTone] فقط: لا سلسلة نصية تُقارن، ولا "name"
+ * يُعرض للمستخدم كما يفعل أي عرض آلي للحالة.
+ */
+@Composable
+private fun activityTitle(activity: HomeActivity, labels: Map<String, String>): String = when (activity.state) {
+    ActivityState.SAFETY -> stringResource(R.string.home_activity_safety_title)
+    ActivityState.APPLYING -> stringResource(R.string.home_activity_applying_title)
+    ActivityState.VERIFIED -> when {
+        activity.exploration -> stringResource(R.string.home_activity_probe_title)
+        activity.measured -> stringResource(R.string.home_activity_verified_title)
+        else -> stringResource(R.string.home_activity_applied_title)
+    }
+    ActivityState.ROLLED_BACK -> if (activity.tone == ActivityTone.ATTENTION) {
+        stringResource(R.string.home_activity_rollback_failed_title)
+    } else {
+        stringResource(R.string.home_activity_rollback_title)
+    }
+    ActivityState.REFUSED -> if (activity.tone == ActivityTone.CALM) {
+        stringResource(R.string.home_activity_no_action_title)
+    } else {
+        stringResource(R.string.home_activity_refused_title)
+    }
+    ActivityState.UNSUPPORTED -> stringResource(R.string.home_activity_unsupported_title)
+    ActivityState.APP_SWITCH -> stringResource(
+        R.string.home_activity_app_switch_title,
+        activity.appPackage?.let { labels[it] } ?: activity.appPackage.orEmpty()
+    )
+    ActivityState.MONITORING -> stringResource(R.string.home_activity_monitoring_title)
+    ActivityState.IDLE -> stringResource(R.string.home_activity_idle_title)
+}
+
+/**
+ * السطر الثاني: نصّ **المحرك** إن وُجد، وإلا جملة الحالة.
+ *
+ * والسبب المقيس أولى دائمًا: «wrote 1800000 read 1400000» يقولة المستخدم لغيره، وجملة
+ * عامة مثلا «فشل التطبيق» لا.
+ */
+@Composable
+private fun activityDetail(activity: HomeActivity, labels: Map<String, String>): String {
+    val measured = activity.detail?.takeIf { it.isNotBlank() }
+    return when (activity.state) {
+        ActivityState.SAFETY -> measured ?: stringResource(R.string.home_activity_safety_detail)
+        ActivityState.APPLYING -> stringResource(R.string.home_activity_applying_detail)
+        ActivityState.MONITORING -> stringResource(R.string.home_activity_monitoring_detail)
+        ActivityState.IDLE -> stringResource(R.string.home_activity_idle_detail)
+        ActivityState.APP_SWITCH -> stringResource(R.string.home_activity_app_switch_detail)
+        ActivityState.UNSUPPORTED -> stringResource(
+            R.string.home_activity_unsupported_detail,
+            missingLabels(activity.missingReadings)
+        )
+        // الأحكام: القيمة المقيسة إن وُجدت، وإلا نصّ المحرك، وإلا ما استقرّ عليه المقبض.
+        else -> measured
+            ?: activity.value?.let { "${activity.knobLabel.orEmpty()} · $it" }?.takeIf { activity.knobLabel != null }
+            ?: activity.knobLabel.orEmpty()
+    }
+}
+
+/** أسماء القراءات الناقصة كما يقرؤها المستخدم — من الموراد لا من أسماء الأصناف. */
+@Composable
+private fun missingLabels(missing: Set<ActivityReading>): String = listOfNotNull(
+    if (ActivityReading.GPU in missing) stringResource(R.string.max_home_gpu_label) else null,
+    if (ActivityReading.CORES in missing) stringResource(R.string.home_activity_missing_cores) else null,
+    if (ActivityReading.THERMAL in missing) stringResource(R.string.home_activity_temp) else null,
+).joinToString(" · ")
+
+/**
+ * نقطة الحالة: تنبض **فقط** حين يكون شيء قيد التنفيذ.
+ *
+ * التنفّس المستمر في كل الحالات كان سيصير خلفية متحرّكة لا معلومة؛ فالثابت هنا يقول
+ * «لا شيء يتغيّر الآن» وذلك النبض يقولة «اكتب الآن».
+ */
+@Composable
+private fun ActivityDot(accent: Color, active: Boolean) {
+    val transition = rememberInfiniteTransition(label = "home-activity-dot")
+    val breathing by transition.animateFloat(
+        initialValue = if (active) .4f else .9f,
+        targetValue = if (active) 1f else .9f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1_100, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "home-activity-dot-alpha",
+    )
+    Box(Modifier.size(9.dp).clip(CircleShape).background(accent.copy(alpha = breathing)))
+}
+
+/** علامة غياب قراءة — شرطة، لا صفر: الصفر ادّعاء عن العتاد. */
+private const val DASH = "\u2014"
 
 /**
  * Whether a frequency ceiling can be stated at all.
@@ -494,16 +650,6 @@ private fun frequencyCeilingLabel(currentMhz: Int?, ceilingMhz: Int?): String? {
     if (currentMhz == null || currentMhz <= 0) return null
     if (ceilingMhz == null || ceilingMhz <= 0) return stringResource(R.string.home_freq_ceiling_unknown)
     return stringResource(R.string.home_freq_ceiling, compactFrequency(ceilingMhz))
-}
-
-/** One dot plus the load it stands for, so the two lanes are never guessed at. */
-@Composable
-private fun SpectrumLegend(label: String, accent: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(6.dp).clip(CircleShape).background(accent))
-        Spacer(Modifier.width(6.dp))
-        NeuralCaption(label, color = accent)
-    }
 }
 
 @Composable

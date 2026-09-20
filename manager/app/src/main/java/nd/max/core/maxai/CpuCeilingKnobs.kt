@@ -31,8 +31,15 @@ class CpuCeilingKnobs @Inject constructor(
         return submitPerPolicy(owner, token) { policy ->
             val hwMin = policy.hwMinKHz ?: policy.minKHz ?: 0L
             val hwMax = policy.hwMaxKHz ?: policy.maxKHz ?: return@submitPerPolicy null
+            // الكسر يبقى على **مدى العتاد** (هذا معناه: نسبة من المدى)، وما يُكتب
+            // فعليًّا يُلتقط من الجدول المُعلن. السبب مقيس لا نظري: قيمةٌ بين الحدّين
+            // وليست في جدول OPP لا يرفضها السائق، بل يُبدّلها بقيمة أخرى — فيقرأ
+            // المُحكِّم قيمةً ≠ المطلوب ويحكم على تغييرٍ ناجح بالفشل ثم يسترجع
+            // (التفصيل والقياس في `CpuHardwareBackend.snapToAvailableAtOrBelow`).
             val cappedMax = hwMin + ((hwMax - hwMin) * fraction).toLong()
-            "$hwMin:$cappedMax"
+            val min = CpuHardwareBackend.snapToAvailableAtOrBelow(policy, hwMin)
+            val max = CpuHardwareBackend.snapToAvailableAtOrBelow(policy, cappedMax)
+            "$min:$max"
         }
     }
 
@@ -41,7 +48,12 @@ class CpuCeilingKnobs @Inject constructor(
         submitPerPolicy(owner, token) { policy ->
             val hwMin = policy.hwMinKHz ?: policy.minKHz ?: return@submitPerPolicy null
             val hwMax = policy.hwMaxKHz ?: policy.maxKHz ?: return@submitPerPolicy null
-            "$hwMin:$hwMax"
+            // التحرير أيضًا يُكتب بترددات حقيقية: `cpuinfo_max_freq` قد يكون أكبر من
+            // أكبر OPP مُعلَن، وكتابة قيمة غير مُعلَنة تُبدَّل في النواة فيبدو التحرير
+            // فاشلًا ويُسترجع السقف — أي أن المقبض يبقى مقيّدًا بلا سبب مكتوب.
+            val min = CpuHardwareBackend.snapToAvailableAtOrBelow(policy, hwMin)
+            val max = CpuHardwareBackend.snapToAvailableAtOrBelow(policy, hwMax)
+            "$min:$max"
         }
 
     /** يترك كل مفاتيح هذا المالك (مع استرجاع خط الأساس عند آخر مغادرة). */

@@ -279,11 +279,18 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     networkKbps = network[0] + network[1]
                 )
 
-                // عيّنة واحدة تحمل CPU وGPU معًا، ومعها طابعها: فيبقى الطيف بعد إعادة فتح
-                // التطبيق زوجًا مرتّبًا لا قائمتين قد تنفصلان إحداهما عن الأخرى.
+                // عيّنة واحدة تحمل CPU وGPU معًا، ومعها طابعها: فتبقى الرسوم بعد إعادة فتح
+                // التطبيق زوجًا مرتّبًا لا قائمتين قد تنفصلان إحداهما عن الأخرى. ومع النسبتين
+                // **تردّدهما** لأن موجة الساعة في بطاقتَي الرئيسية ترسم هذه اللحظة نفسها.
                 val sampledAtMs = System.currentTimeMillis()
                 val samples = (
-                    previous.loadSamples + LoadSample(sampledAtMs, cpuLoad.toFloat(), gpu.first?.toFloat())
+                    previous.loadSamples + LoadSample(
+                        atMs = sampledAtMs,
+                        cpu = cpuLoad.toFloat(),
+                        gpu = gpu.first?.toFloat(),
+                        cpuMhz = cpuTopCoreMhz.takeIf { it > 0 },
+                        gpuMhz = gpu.second?.takeIf { it > 0 },
+                    )
                     ).takeLast(LoadHistory.LIMIT)
                 if (sampledAtMs - lastSavedAtMs >= HISTORY_SAVE_INTERVAL_MS) {
                     lastSavedAtMs = sampledAtMs
@@ -296,7 +303,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     cpuTopCoreMhz = cpuTopCoreMhz, cpuCeilingMhz = cpuCeilingMhz,
                     gpuCeilingMhz = gpuCeilingMhz,
                     loadSamples = samples,
-                    // التاريخ التالي يغذّي الرسوم المفصّلة وحدها؛ الشاشة الرئيسية تعرض قيمًا
+                    // تاريخ الذاكرة يغذّي الرسوم المفصّلة وحدها؛ الشاشة الرئيسية تعرض قيمًا
                     // حالية معنونة بالتسمية، بلا خطوط متحرّكة غامضة.
                     ramLoadHistory = (previous.ramLoadHistory + ramPercent).takeLast(36),
                     gpuLoadPercent = gpu.first, gpuFreqMhz = gpu.second,

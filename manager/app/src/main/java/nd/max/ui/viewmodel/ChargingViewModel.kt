@@ -17,6 +17,8 @@
 package nd.max.ui.viewmodel
 
 import nd.max.MaxManagerProps
+import nd.max.core.diagnostics.DiagnosticCenter
+import nd.max.core.hardware.ChargingHardwareBackend
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -273,6 +275,10 @@ class ChargingViewModel : ViewModel() {
             sicModeCurrentValue = Shell.cmd("cat $path 2>/dev/null").exec().out.joinToString("").trim()
                 .ifEmpty { null }
         }
+        // العقدة المقروءة هي الحقيقة الوحيدة للمفتاح: كتابة رفضها السائق أو أزالها
+        // شيء آخر تُظهر نفسها خلال دورة القراءة بدل أن يبقى المفتاح معروضًا "مفعّلًا".
+        // وعقدة غير مقروءة (null) لا تُغيّر الحالة — فالمجهول ليس إثباتًا ولا نفيًا.
+        sicModeCurrentValue?.let { live -> sicBoostEnabled = live == SIC_MODE_BOOST_VALUE }
     }
 
     private fun readInt(path: String): Int? =
@@ -296,27 +302,75 @@ class ChargingViewModel : ViewModel() {
         pollJob?.cancel()
     }
 
+    /**
+     * حكم الكتابة على الحالة والقيمة المحفوظة — من **محصّلة العتاد** لا من الطلب.
+     *
+     * كان الثلاثة يكتبون ثم يُضبطون الحالة والخاصية على المطلوب بلا قراءة بعده، فحدُّ
+     * شحن رفضه السائق يبقى معروضًا «مفعّلًا» والجهاز يشحن إلى ١٠٠٪. والقاعدة الآن:
+     * ما ثبت يُعتمد ويُحفظ · وما رُفض لا يُحفظ وتعود الحالة إلى ما كانت (فلا تغيير
+     * وقع فعلًا) · وما كُتب ولم يُمكن التحقّق منه يُعتمد لكن يُسجّل صريحًا بلا ادّعاء
+     * تحقّق (انظر `ChargingHardwareBackend.Verdict`).
+     *
+     * @return true إن كُتب الطلب (متحقَّقًا أو غير قابل للتحقق) فيُعتمد ويُحفظ.
+     */
+    private fun acceptChargingWrite(
+        knob: String,
+        path: String,
+        outcome: ChargingHardwareBackend.Outcome,
+    ): Boolean {
+        when (outcome.verdict) {
+            ChargingHardwareBackend.Verdict.REFUSED -> {
+                DiagnosticCenter.record(
+                    "charging",
+                    "charging write refused knob=$knob path=$path requested=${outcome.requested} " +
+                        "actual=${outcome.actual ?: "none"} reason=${outcome.error ?: "unknown"}",
+                )
+                return false
+            }
+            ChargingHardwareBackend.Verdict.APPLIED_UNVERIFIED -> DiagnosticCenter.record(
+                "charging",
+                "charging write unverifiable knob=$knob path=$path requested=${outcome.requested} " +
+                    "reason=${outcome.error ?: "node-not-readable-back"}",
+                level = DiagnosticCenter.Level.WARN,
+            )
+            ChargingHardwareBackend.Verdict.VERIFIED -> Unit
+        }
+        return true
+    }
+
     fun applyFastChargeCurrentMa(ma: Int) {
         val path = fastChargeNodePath ?: return
+        val previous = fastChargeCurrentMa
         fastChargeCurrentMa = ma
         viewModelScope.launch(Dispatchers.IO) {
-            Shell.cmd("echo ${ma * 1000} > $path 2>/dev/null").exec()
-            PropertyUtils.set(PROP_FASTCHG_MA, ma.toString())
+            // العقدة بالميكروأمبير والحالة بالمليأمبير — نفس تحويل fastChargeMaxMa أعلاه.
+            val outcome = ChargingHardwareBackend.write(path, (ma * 1000).toString())
+            if (acceptChargingWrite("fast_charge_current", path, outcome)) {
+                PropertyUtils.set(PROP_FASTCHG_MA, ma.toString())
+            } else {
+                // الكبح المعلن أولى من العودة: إن أعاد السائق قيمة أخرى (وهو الشائع —
+                // يثبّت أقرب تردد/تيار معلن) فالمعروض يصير ما يقرؤه العتاد لا ما طلبناه.
+                fastChargeCurrentMa = outcome.actual?.toLongOrNull()?.div(1000)?.toInt() ?: previous
+            }
         }
     }
 
     fun setSicBoost(enabled: Boolean) {
+        val previous = sicBoostEnabled
         sicBoostEnabled = enabled
         viewModelScope.launch(Dispatchers.IO) {
-            applySicBoostInternal(enabled)
-            PropertyUtils.set(PROP_SIC_BOOST, if (enabled) "1" else "0")
+            val outcome = applySicBoostInternal(enabled)
+            if (acceptChargingWrite("sic_mode", outcome.path ?: "none", outcome)) {
+                PropertyUtils.set(PROP_SIC_BOOST, if (enabled) "1" else "0")
+            } else {
+                sicBoostEnabled = outcome.actual?.let { it == SIC_MODE_BOOST_VALUE } ?: previous
+            }
         }
     }
 
-    private fun applySicBoostInternal(enabled: Boolean) {
-        val path = sicModeNodePath ?: return
+    private fun applySicBoostInternal(enabled: Boolean): ChargingHardwareBackend.Outcome {
         val value = if (enabled) SIC_MODE_BOOST_VALUE else SIC_MODE_OFF_VALUE
-        Shell.cmd("echo $value > $path 2>/dev/null").exec()
+        return ChargingHardwareBackend.write(sicModeNodePath, value)
     }
 
     /** Toggles the charge limit on/off, defaulting a fresh enable to [CHARGE_LIMIT_DEFAULT_ON_PERCENT]. */
@@ -326,16 +380,23 @@ class ChargingViewModel : ViewModel() {
 
     /** Sets the exact cutoff percentage; [CHARGE_LIMIT_DISABLED_PERCENT] (100) turns the limit off. */
     fun applyChargeLimit(percent: Int) {
+        val previous = chargeLimitPercent
         chargeLimitPercent = percent
         viewModelScope.launch(Dispatchers.IO) {
-            applyChargeLimitInternal(percent)
-            PropertyUtils.set(PROP_CHARGE_LIMIT, percent.toString())
+            val outcome = applyChargeLimitInternal(percent)
+            if (acceptChargingWrite("charge_limit", outcome.path ?: "none", outcome)) {
+                PropertyUtils.set(PROP_CHARGE_LIMIT, percent.toString())
+            } else {
+                // لا تُحفظ رغبة لم تثبت على العقدة: وإلا فُعِّل الحفظ من جديد عند
+                // الإقلاع التالي على قيمة السائق لم يقبلها. والمعروض يتبع الحيّ إن قُرئ.
+                chargeLimitPercent = outcome.actual?.toIntOrNull() ?: previous
+            }
         }
     }
 
-    private fun applyChargeLimitInternal(percent: Int) {
-        val path = chargeLimitNodePath ?: return
-        Shell.cmd("echo $percent > $path 2>/dev/null").exec()
+    private fun applyChargeLimitInternal(percent: Int): ChargingHardwareBackend.Outcome {
+        val path = chargeLimitNodePath
+        return ChargingHardwareBackend.write(path, percent.toString())
     }
 
     fun setBatterySaver(enabled: Boolean) {

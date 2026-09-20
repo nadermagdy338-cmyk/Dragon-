@@ -24,6 +24,7 @@ import android.os.FileObserver
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.io.SuFile
 import java.io.File
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -46,18 +47,41 @@ object RootUtils {
         return RootFileAccess.read(path)
     }
 
+    /**
+     * يكتب ملفًا تملكه الخدمة (root) داخل مجلّد التطبيق: محاولة مباشرة، ثم طريق الجذر.
+     *
+     * وكان الخلل أن **طريق الجذر لم يكن يُجرَّب أبدًا** في الحالة التي وُجد من أجلها:
+     * كان الحكم على قابلية الكتابة مبنيًّا على **المجلّد** (`parent.canWrite()`)،
+     * بينما الملف الذي أنشأته الخدمة يخصّ root داخل مجلّد يملكه التطبيق — أي أن
+     * `parent.canWrite()` تُعيد `true` بينما `target.writeText()` ترمي `EACCES`،
+     * فيقفز الاستثناء ويكتب السجل خطأً يُفهَم كأن الجذر لم يستطع الكتابة.
+     *
+     * والقياس من حزمة سجلّات جهاز حقيقي (2026-09-20، مرّتين في جلستين مختلفتين):
+     * `UI_ERROR screen=RootUtils operation=write_root_file:/data/data/nd.max/API/current_profile
+     * detail=… open failed: EACCES (Permission denied)` — على مسار تكتبه الخدمة أصلًا
+     * (`PROFILE_MODE_APP` في `AZenith.h`)، فلا يبقى تخمين: مرآة الملف يجب أن تُكتب
+     * بالجذر، والسجل يجب أن يقول الحقيقة عند الفشل الحقيقي وحده.
+     */
     private fun writeRootFile(path: String, content: String) {
-        try {
+        val written = runCatching {
             val target = File(path)
             val parent = target.parentFile
-            if (parent != null && (parent.exists() || parent.mkdirs()) && parent.canWrite()) {
-                target.writeText(content)
-                return
-            }
-            RootFileAccess.write(path, content)
-        } catch (e: Exception) {
-            EventLog.error("RootUtils", "write_root_file:$path", e)
-        }
+            if (parent == null) return@runCatching false
+            if (!parent.exists() && !parent.mkdirs()) return@runCatching false
+            if (!parent.canWrite()) return@runCatching false
+            // الحكم يُبنى على **الملف** لا على المجلّد: ملفٌ يملكه root داخل مجلّد
+            // التطبيق غير قابل للكتابة منه وإن كان المجلّد قابلًا للكتابة.
+            if (target.exists() && !target.canWrite()) return@runCatching false
+            target.writeText(content)
+            true
+        }.getOrDefault(false)
+        if (written) return
+        if (runCatching { RootFileAccess.write(path, content) }.getOrDefault(false)) return
+        EventLog.error(
+            "RootUtils",
+            "write_root_file:$path",
+            IOException("لم تنجح الكتابة مباشرةً ولا عبر الجذر (المسار يملكه root داخل مجلّد التطبيق)")
+        )
     }
 
     private fun syncProfileState() {

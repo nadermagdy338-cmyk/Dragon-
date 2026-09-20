@@ -31,11 +31,22 @@ package nd.max.ui.util
 
 import java.io.File
 
-/** عيّنة حمل واحدة. [gpu] غائبة (`null`) حين لا يُقرأ عقد GPU في تلك الدورة — لا صفرًا. */
+/**
+ * عيّنة حمل واحدة في لحظة واحدة: نسبة CPU ونسبة GPU، **ومعهما تردّدهما**.
+ *
+ * ولماذا الساعة في العيّنة نفسها لا في تاريخ ثانٍ: الرسمان يقيسان اللحظة نفسها، وتاريخان
+ * منفصلان لنفس الدورة يعنيان سطرين يُبقيان متزامنين يدويًّا ثم ينزلقان — وأول ما ينزلق هو
+ * تزامن «الآن» بين البطاقتين. والتردّدات هنا اختيارية (`null`) لأن نواةً قد تُقرأ نسبتها
+ * ولا يُقرأ تردّدها، والقيمة السالبة لا تُخزَّن.
+ */
 data class LoadSample(
     val atMs: Long,
     val cpu: Float,
     val gpu: Float? = null,
+    /** تردّد أعلى نواة حيّة بالميغاهرتز، أو `null` حين لا يُقرأ. */
+    val cpuMhz: Int? = null,
+    /** تردّد الرسوم بالميغاهرتز، أو `null` حين لا يُقرأ. */
+    val gpuMhz: Int? = null,
 )
 
 /** ثوابت التاريخ: سقف الطول ونافذة الصلاحية، في مكان واحد يقرأه النموذج والتخزين. */
@@ -68,7 +79,10 @@ object LoadHistoryCodec {
         samples.takeLast(LoadHistory.LIMIT).joinToString("\n") { sample ->
             val cpu = sample.cpu.takeIf { it.isFinite() } ?: 0f
             val gpu = sample.gpu?.takeIf { it.isFinite() }
-            "${sample.atMs}$FIELD$cpu$FIELD${gpu?.toString() ?: ABSENT}"
+            val cpuMhz = sample.cpuMhz?.takeIf { it > 0 }
+            val gpuMhz = sample.gpuMhz?.takeIf { it > 0 }
+            "${sample.atMs}$FIELD$cpu$FIELD${gpu?.toString() ?: ABSENT}$FIELD" +
+                "${cpuMhz?.toString() ?: ABSENT}$FIELD${gpuMhz?.toString() ?: ABSENT}"
         }
 
     /**
@@ -89,10 +103,16 @@ object LoadHistoryCodec {
             if (!cpu.isFinite()) continue
             val rawGpu = parts.getOrNull(2)?.trim().orEmpty()
             val gpu = if (rawGpu.isEmpty() || rawGpu == ABSENT) null else rawGpu.toFloatOrNull()
+            // الحقلان ٣ و٤ أُضيفا بعد أن كُتبت ملفات بثلاثة حقول — فغيابهما `null` لا صفرًا،
+            // ويُقرأ الملف القديم كما هو (نفس قاعدة `FileStore`: ما لا يُفهم يُسقط نفسه وحده).
+            val cpuMhz = parts.getOrNull(3)?.trim()?.takeIf { it.isNotEmpty() && it != ABSENT }?.toIntOrNull()
+            val gpuMhz = parts.getOrNull(4)?.trim()?.takeIf { it.isNotEmpty() && it != ABSENT }?.toIntOrNull()
             result += LoadSample(
                 atMs = atMs,
                 cpu = cpu.coerceIn(0f, 100f),
                 gpu = gpu?.takeIf { it.isFinite() }?.coerceIn(0f, 100f),
+                cpuMhz = cpuMhz?.takeIf { it > 0 },
+                gpuMhz = gpuMhz?.takeIf { it > 0 },
             )
         }
         return result.sortedBy { it.atMs }.takeLast(LoadHistory.LIMIT)

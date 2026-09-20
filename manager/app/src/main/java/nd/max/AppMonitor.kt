@@ -608,7 +608,23 @@ object AppMonitor {
                     // مسار سريع: تطبيق مُدار جديد (يأخذ الملكية فورًا)،
                     // أو مغادرة تطبيق غير مُدار (لا شيء مؤجل أصلًا).
                     gracePkg = null
-                    if (prevPkg.isNotBlank()) {
+                    // التراجع ليس مجّانيًّا، ولا يُنادى إلا لملكية قائمة.
+                    // سبب هذا الشرط مقيس من حزمة سجلّات جهاز حقيقي (MT6899،
+                    // 2026-09-20): الانتقال بين تطبيقين **غير مُدارين** كان يستدعي
+                    // revertPerAppConfig() فتسير السلسلة: قراءة الملف الحالي ←
+                    // تشغيل `sys.maxmanager-service --profile N` ← إعادة تطبيق
+                    // الملف **كاملًا** ← إشعار. والمقيس في السجل: ٣٠ حدث APP_SWITCH
+                    // تحمل ٢٢ EVENT=CLI_PROFILE_APPLY في ٦٧ ثانية، و٢٣ سطرًا
+                    // «Balanced Profile applied successfully!» في ٥٥٫٦ ثانية —
+                    // ولكل إعادة ≥٣٢ كتابة sysfs (محسوبة بين علامتي نجاح متتاليتين:
+                    // ٨ سقوف + ٨ أرضيات لثماني سياسات، ومُجدوِل I/O، وحاكم dvfsrc،
+                    // وvfs_cache_pressure، ومفاتيح fpsgo/GED، ومؤشر OPP للـGPU) أي
+                    // أكثر من ٢٠٠ كتابة في الدقيقة + ولادة عملية + بثّ إشعار لكل
+                    // تبديل تطبيق. والأسوأ من الكلفة: كل تبديل يمحو أي حدّ وضعه
+                    // المستخدم أو وضعه MAX AI (الملف العام يعيد كتابة حدود الأنوية).
+                    // فالملكية وحدها تُرخَّص: إمّا أن التطبيق المغادر كان مُدارًا،
+                    // وإمّا أن تعديلات per-app حيّة على العتاد الآن.
+                    if (prevPkg.isNotBlank() && (prevManaged || perAppOverridesActive)) {
                         runCatching { revertPerAppConfig() }
                             .onFailure { AppMonitorLogger.e("EVENT=REVERT_FAILED pkg=$prevPkg sw=$currentSwitchId", it) }
                     }
@@ -991,7 +1007,12 @@ object AppMonitor {
             if (!hasPolicyControls && (cpuMin != null || cpuMax != null)) {
                 CpuHardwareBackend.policies().forEach { policy ->
                     val baseline = "${policy.minKHz ?: ""}:${policy.maxKHz ?: ""}"
-                    val desired = "${cpuMin ?: ""}:${cpuMax ?: ""}"
+                    // الترددات المُعلنة هي مرجع الطلب، لا ما بين الحدّين: قيمةٌ غير
+                    // مُعلنة لا يُرفض كتابتها بل تُبدَّل، فيُحكم على النجاح بالفشل
+                    // (`CpuHardwareBackend.snapToAvailableAtOrBelow` يحمل القياس).
+                    val minSnapped = cpuMin?.let { CpuHardwareBackend.snapToAvailableAtOrBelow(policy, it) }
+                    val maxSnapped = cpuMax?.let { CpuHardwareBackend.snapToAvailableAtOrBelow(policy, it) }
+                    val desired = "${minSnapped ?: ""}:${maxSnapped ?: ""}"
                     hardwareControlRegistry.ownValue(
                         key = HardwareControlKey.cpuLimits(policy.name),
                         desired = desired,
@@ -1028,11 +1049,22 @@ object AppMonitor {
                 ?.takeIf { it.rangeWritable || it.exactLockWritable }
                 ?: return@runCatching
             val explicit = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
-            val target = explicit ?: PerAppKernelUtil.pickProfileFrequency(
+            val requested = explicit ?: PerAppKernelUtil.pickProfileFrequency(
                 device.frequencies,
                 profile,
                 ProfilePresetStore.percentFor(systemContext, profile),
             ) ?: return@runCatching
+            // القيمة المطلوبة تُلتقط من ترددات الجهاز المُعلنة **قبل** أن تصير عقدًا.
+            // المُحكِّم يُثبت المعاملة بتساوي نصّين (المطلوب = المقروء)، فأي قيمة لا
+            // يستطيع الجهاز حملها — إعداد محفوظ من نواة أو جهاز آخر، أو ملف مستورد،
+            // أو قائمة OPP تغيّرت بعد تحديث نواة — يُبدّلها السائق بقيمة أخرى، فلا
+            // يتساوى النصّان أبدًا ويُعاد الطلب في كل دورة انحراف بلا نهاية.
+            // والقياس من سجل حقيقي (2026-09-20): `APPLY_VERIFY_FAILED knob=gpu_profile
+            // expected=1300000000 live=754000000` ثم `APPLY_DRIFT_REASSERT_FAILED`
+            // بعد ثانيتين، مرّتين لكل تطبيق — والجهاز لا يبلغ السقف المطلوب أصلًا.
+            val target = device.frequencies.lastOrNull { it <= requested }
+                ?: device.frequencies.firstOrNull()
+                ?: return@runCatching
             val baseline = GpuHardwareBackend.captureBaseline(device)
             val desired = target.toString()
             hardwareControlRegistry.ownValue(
