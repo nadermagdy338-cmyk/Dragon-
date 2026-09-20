@@ -1,0 +1,19 @@
+{
+  "mode": "interactive",
+  "commit_docs": false,
+  "response_language": "ar",
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "nyquist_validation": true,
+    "security_enforcement": true,
+    "security_asvs_level": 1,
+    "security_block_on": "high",
+    "ui_phase": true,
+    "ui_safety_gate": true,
+    "pattern_mapper": true,
+    "context_coverage_gate": true,
+    "post_planning_gaps": true,
+    "auto_advance": false
+  }
+}
