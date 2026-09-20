@@ -43,18 +43,18 @@ to initialize this request-scoped GSD track and complete research/planning/verif
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| ATLAS-01 | Phase 1 | Pending |
-| ATLAS-02 | Phase 1 | Pending |
+| ATLAS-01 | Phase 1 | Pending — partial evidence: P1 catalog schema, provenance and seed entries |
+| ATLAS-02 | Phase 1 | Pending — partial evidence: P1 unknown-vendor fallback; providers land in P3/P4 |
 | ATLAS-03 | Phase 1 | Pending |
-| ATLAS-04 | Phase 1 | Pending |
-| ATLAS-05 | Phase 1 | Pending |
+| ATLAS-04 | Phase 1 | Pending — partial evidence: P1 no-authority guard, P2 boundary is read-only by construction (the transport interface has no mutating call, and the guard scans the boundary file too) |
+| ATLAS-05 | Phase 1 | Pending — partial evidence: P1 orthogonal axes and unit/list rules, P2 preserves all 11 causes and never guesses a unit, P4 keeps battery dimensions separate, thermal scales source-declared, a malformed PSI value null with its raw text and privilege unverified without the control plane |
 | ATLAS-06 | Phase 1 | Pending |
-| ATLAS-07 | Phase 1 | Pending |
+| ATLAS-07 | Phase 1 | Pending — partial evidence: P4 builds a support matrix that cannot omit a domain, with every gap carrying a reason code (`no-source-wired`, `other-provider`, `partial-support`, `no-observation`, `unverified-identity`); the per-domain device matrix still needs P3 and real-device reads |
 | ATLAS-08 | Phase 1 | Pending |
 | ATLAS-09 | Phase 1 | Pending |
 | ATLAS-10 | Phase 1 | Pending |
-| ATLAS-11 | Phase 1 | Pending |
-| ATLAS-12 | Phase 1 | Pending |
+| ATLAS-11 | Phase 1 | Pending — partial evidence: P0 harness and its negative controls |
+| ATLAS-12 | Phase 1 | Pending — partial evidence: P0 deadline/entry-budget tests, P2 enforces operation/job deadlines, entry, byte and operation budgets **before** work and stops cleanly when a limit is reached (concurrency cap and device timing still open) |
 
 Requirements are not marked complete by creating plans. Scope expansions such as new rootless
 privilege transports, Android API/ABI expansion, remote updates and autonomous mutation experiments

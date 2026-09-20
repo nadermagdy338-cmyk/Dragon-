@@ -63,6 +63,7 @@ PROBLEM_LINES = {
     "string_eol": "نص عادي عَبَر نهاية السطر بلا إغلاق",
     "block_comment": "تعليق كتلة لم يُغلق",
     "template_open": "قالب ${...} لم يُغلق",
+    "backtick_open": "اسم بين علامتين مائيّتين لم يُغلق",
     "xml": "XML غير صالح: {detail}",
 }
 
@@ -201,6 +202,18 @@ def check_kotlin(path: str) -> list[str]:
                 add("string_open", opened)
             continue
 
+        # ── اسم بين علامتين مائيّتين (``fun `name with's apostrophe`()``): كود، لا نص
+        #    ولا يُفتح قبله «نص» لمحرف `'` داخله. اسم اختبار فيه فاصلة عليا كان يُسقط الحكم كله.
+        if char == "`":
+            end = text.find("`", i + 1)
+            if end < 0:
+                add("backtick_open", line)
+                i = n
+                continue
+            line += text[i:end].count("\n")
+            i = end + 1
+            continue
+
         if char in ('"', "'"):
             frames.append({"kind": "string", "quote": char, "line": line})
             i += 1
@@ -259,6 +272,9 @@ SELF_TEST_CASES: list[tuple[str, str, int]] = [
     ("قالب نصّي فيه نص داخلي", 'val s = "\'${value.replace("\'", "")}\'"\nfun a() {}\n', 0),
     ("نص عادي ناقص", 'val s = "abc\nfun a() {}\n', 1),
     ("محرف قوس — لا يُحسب", "val c = '{'\nfun a() {}\n", 0),
+    ("اسم بعلامتين مائيّتين فيه فاصلة عليا", "@Test\nfun `a provider's domain`() {}\n", 0),
+    ("اسم بعلامتين مائيّتين فيه قوس", "@Test\nfun `a { bracket }`() {}\n", 0),
+    ("اسم بعلامتين مائيّتين لم يُغلق", "@Test\nfun `a name() {}\n", 1),
 ]
 
 
