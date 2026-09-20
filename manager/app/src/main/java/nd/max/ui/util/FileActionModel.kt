@@ -83,18 +83,32 @@ object FileActionSet {
  * تمييز الأرشيف — **بالاسم لا بالمحتوى**، وهذا حدّ يُعلَن.
  *
  * قراءة أول بايتين من كل ملف لمعرفة نوعه أدقّ، لكنها تمرّ بـshell لكل ملف في القائمة،
- * وثمنها إحساس بالثقَل في كل مرة تُحدَّد. وما يُدعم فعلًا اليوم هو ما ينتجه محرّكنا
- * نفسه: `tar.gz`/`tgz`. فأي اسم آخر يُقال عنه «ليس أرشيفًا مدعومًا» ولا يُخمَّن.
+ * وثمنها إحساس بالثقَل في كل مرة تُحدَّد. وما يُدعم فعلًا اليوم: `zip` (يُنتجه محرّكنا
+ * الداخلي ويُفكّ داخليًّا) و`tar.gz`/`tgz`/`tar` (تنتجها أداة النظام). فأي اسم آخر
+ * يُقال عنه «ليس أرشيفًا مدعومًا» ولا يُخمَّن.
  */
 object FileArchive {
 
-    private val SUPPORTED = listOf(".tar.gz", ".tgz", ".tar")
+    /**
+     * الصيغ القابلة للفكّ. و**zip أولًا** لأنه ما ينتجه محرّكنا اليوم وما يتناقله الناس،
+     * وتليه صيغ `tar` التي ينتجها النظام ويقرؤها بلا أداة إضافية.
+     */
+    private val SUPPORTED = listOf(".zip", ".tar.gz", ".tgz", ".tar")
 
     fun isSupportedArchive(name: String): Boolean {
         val lower = name.lowercase()
         return SUPPORTED.any { lower.endsWith(it) }
     }
 
-    /** اسم الأرشيف الناتج عن ضغط عنصر: يُبنى في مكان واحد فيتفق الصفّ والمحرّك. */
-    fun archiveNameFor(entryName: String): String = "$entryName.tar.gz"
+    /** هل هذا الاسم أرشيف zip؟ الحكم من الامتداد لأنه هو ما يُبنى عليه اسم الأرشيف. */
+    fun isZip(name: String): Boolean = name.lowercase().endsWith(".zip")
+
+    /**
+     * اسم الأرشيف الناتج عن ضغط عنصر: **zip** كما في MT، ويُبنى في مكان واحد فيتفق
+     * الصفّ والمحرّك فلا يفترق ما وُعد به المستخدم عمّا يُكتب على القرص.
+     */
+    fun archiveNameFor(entryName: String): String = "$entryName.zip"
+
+    /** الخيار الثاني (صيغة tar) لمن يريدها صراحةً — باسم معلن لا بخيال في الواجهة. */
+    fun tarNameFor(entryName: String): String = "$entryName.tar.gz"
 }

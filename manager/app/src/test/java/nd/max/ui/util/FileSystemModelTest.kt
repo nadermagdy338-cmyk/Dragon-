@@ -418,6 +418,46 @@ class FileSystemModelTest {
         assertEquals("a (2)", FileOpGuard.uniqueName("a", setOf("a", "a (1)")))
     }
 
+    /**
+     * أين يقع العنصر في الوجهة وبأيّ اسم.
+     *
+     * وهذا هو النصّ الذي يُمرَّر إلى `cp` حرفيًّا: إن اختلف عمّا وعدت به الشاشة بعد حلّ
+     * تعارض الأسماء، صار المستخدم يظنّ أنه احتفظ بالملفين بينما أحدهما كتب فوق الآخر.
+     */
+    @Test
+    fun `the destination name is the new one only when the conflict was resolved`() {
+        assertEquals("/b/a.txt", FileTargets.destinationFor("/a/a.txt", "/b"))
+        assertEquals(
+            "/b/a.txt (1)",
+            FileTargets.destinationFor("/a/a.txt", "/b", mapOf("/a/a.txt" to "a.txt (1)")),
+        )
+        // مصدر آخر في الدفعة نفسها لا يتأثّر بحلّ تعارض غيره.
+        assertEquals(
+            "/b/other.txt",
+            FileTargets.destinationFor("/a/other.txt", "/b", mapOf("/a/a.txt" to "a.txt (1)")),
+        )
+        // والمسار يُطبَّع في الطرفين، فلا يفترق المفتاح عن المصدر بسبب شرطة أخيرة.
+        assertEquals("/b/a (2)", FileTargets.destinationFor("/a/a/", "/b/", mapOf("/a/a" to "a (2)")))
+    }
+
+    /** الحفظ يمرّ بالحرس نفسه: ملف واحد معلوم، ولا جذر، ولا حفظ بلا محتوى. */
+    @Test
+    fun `writing text is guarded like every other operation`() {
+        assertEquals(
+            FileOpVerdict.Refused(FileOpRefusal.EmptySelection),
+            FileOpGuard.check(FileOpRequest(FileOperation.WriteText, sources = listOf("/sdcard/a.txt"))),
+        )
+        assertEquals(
+            FileOpVerdict.Refused(FileOpRefusal.ProtectedPath),
+            FileOpGuard.check(FileOpRequest(FileOperation.WriteText, sources = listOf("/"), content = "x")),
+        )
+        // والحفظ الفارغ **مسموح**: إفراغ ملف قرار مستخدم صريح، لا خطأ يجب منعه.
+        assertEquals(
+            FileOpVerdict.Allowed,
+            FileOpGuard.check(FileOpRequest(FileOperation.WriteText, sources = listOf("/sdcard/a.txt"), content = "")),
+        )
+    }
+
     // ── العدّ وما يُخفى ───────────────────────────────────────────────────────
 
     private fun entry(name: String, directory: Boolean) = FileEntry(

@@ -48,7 +48,7 @@ class FileActionModelTest {
 
     @Test
     fun `a single supported archive offers extract`() {
-        listOf("backup.tar.gz", "backup.tgz", "backup.tar", "BACKUP.TAR.GZ").forEach { name ->
+        listOf("backup.zip", "BACKUP.ZIP", "backup.tar.gz", "backup.tgz", "backup.tar", "BACKUP.TAR.GZ").forEach { name ->
             val actions = FileActionSet.forSelection(listOf(file(name)), selection(name))
             assertTrue("$name should offer extract", FileAction.Extract in actions)
         }
@@ -77,7 +77,7 @@ class FileActionModelTest {
 
     @Test
     fun `wrong archive names do not offer extract`() {
-        listOf("notes.txt", "archive.zip", "photo.png", "tar.gz", "a.targz").forEach { name ->
+        listOf("notes.txt", "archive.zipp", "photo.png", "tar.gz", "a.targz").forEach { name ->
             val actions = FileActionSet.forSelection(listOf(file(name)), selection(name))
             assertFalse("$name must not offer extract", FileAction.Extract in actions)
         }
@@ -123,9 +123,19 @@ class FileActionModelTest {
         assertFalse(FileActionSet.isAvailable(FileAction.Copy, entries, FileSelection()))
     }
 
+    /**
+     * اسم الأرشيف الذي يُوعد به المستخدم هو **zip** (كما في MT) وهو نفسه الذي يبنيه
+     * المحرّك: اسمان مختلفان بين القائمة والقرص يعطيان ملفًا لا يجده من بحث عنه.
+     */
     @Test
     fun `the produced archive name matches what the engine creates`() {
-        assertEquals("DCIM.tar.gz", FileArchive.archiveNameFor("DCIM"))
+        assertEquals("DCIM.zip", FileArchive.archiveNameFor("DCIM"))
         assertTrue(FileArchive.isSupportedArchive(FileArchive.archiveNameFor("any")))
+        assertTrue(FileArchive.isZip(FileArchive.archiveNameFor("any")))
+
+        // والخيار الثاني معلن أيضًا: صيغة tar باسمها الكامل، ويُفكّ كذلك.
+        assertEquals("DCIM.tar.gz", FileArchive.tarNameFor("DCIM"))
+        assertTrue(FileArchive.isSupportedArchive(FileArchive.tarNameFor("any")))
+        assertFalse(FileArchive.isZip(FileArchive.tarNameFor("any")))
     }
 }

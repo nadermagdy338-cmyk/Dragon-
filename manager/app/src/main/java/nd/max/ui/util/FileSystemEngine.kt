@@ -135,27 +135,70 @@ object FileSystemEngine {
      */
     private fun isBinary(text: String): Boolean = text.any { it.code < 0x09 || (it.code in 0x0E..0x1F) }
 
-    fun copy(sources: List<String>, destination: String): FileOpOutcome =
-        transfer(sources, destination, move = false)
+    fun copy(
+        sources: List<String>,
+        destination: String,
+        renamed: Map<String, String> = emptyMap(),
+    ): FileOpOutcome = transfer(sources, destination, move = false, renamed = renamed)
 
-    fun move(sources: List<String>, destination: String): FileOpOutcome =
-        transfer(sources, destination, move = true)
+    fun move(
+        sources: List<String>,
+        destination: String,
+        renamed: Map<String, String> = emptyMap(),
+    ): FileOpOutcome = transfer(sources, destination, move = true, renamed = renamed)
 
-    private fun transfer(sources: List<String>, destination: String, move: Boolean): FileOpOutcome {
+    /**
+     * نقل/نسخ مجموعة إلى مجلد، مع اسم بديل لكل مصدر حُلّ تعارضه.
+     *
+     * والهدف يُكتب **صراحةً لكل عنصر** لا `dest/` مجرّدة: مع حلّ التعارض صار اسم العنصر
+     * في الوجهة قرارًا ([FileTargets])، وتمريره إلى `cp` هو وحده الذي يجعل ما وعدت به
+     * الشاشة هو ما يقع على القرص.
+     */
+    private fun transfer(
+        sources: List<String>,
+        destination: String,
+        move: Boolean,
+        renamed: Map<String, String> = emptyMap(),
+    ): FileOpOutcome {
         if (sources.isEmpty()) return FileOpOutcome(false, false)
         val dir = FileBrowser.normalize(destination)
         val command = if (move) "mv -f" else "cp -a"
-        val quotedTarget = PrivilegedShell.quote("$dir/")
         var executed = true
         for (source in sources) {
-            executed = executed && PrivilegedShell.run("$command ${PrivilegedShell.quote(source)} $quotedTarget") != null
+            val target = FileTargets.destinationFor(source, dir, renamed)
+            executed = executed && PrivilegedShell.run(
+                "$command ${PrivilegedShell.quote(source)} ${PrivilegedShell.quote(target)}"
+            ) != null
         }
-        // الإثبات: كل مصدر يجب أن يكون له مقابل في الهدف.
+        // الإثبات: كل مصدر يجب أن يكون له مقابل في الهدف، **بالاسم الذي وُعد به**.
         val verified = executed && sources.all { source ->
-            val name = FileBrowser.nameOf(source)
-            PrivilegedShell.run("test -e ${PrivilegedShell.quote(FileBrowser.childPath(dir, name))}") != null
+            PrivilegedShell.run(
+                "test -e ${PrivilegedShell.quote(FileTargets.destinationFor(source, dir, renamed))}"
+            ) != null
         }
         return FileOpOutcome(executed, verified)
+    }
+
+    /**
+     * كتابة نصّ في ملف — «حفظ» المحرّر الداخلي.
+     *
+     * والمحتوى يمرّ عبر `base64` لا عبر heredoc داخل أمر: النصّ المحفوظ قد يحوي أي
+     * محرف (سطر يبدأ بـ`EOF`، أو `$`، أو علامة اقتباس)، وقاعدة المستودع أن كل قيمة تأتي
+     * من خارجنا تُقتبس — وbase64 هو الاقتباس الوحيد الذي لا يفهمه shell أصلًا.
+     *
+     * والإثبات **مقاس**: الحجم على القرص يُقرأ بعد الكتابة ويُقارن بحجم النصّ بالبايت،
+     * فلا يُعلَن حفظ لم يقع.
+     */
+    fun writeText(rawPath: String, text: String): FileOpOutcome {
+        val path = FileBrowser.normalize(rawPath)
+        val bytes = text.toByteArray(Charsets.UTF_8)
+        val encoded = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+        val executed = PrivilegedShell.run(
+            "echo ${PrivilegedShell.quote(encoded)} | base64 -d > ${PrivilegedShell.quote(path)}"
+        ) != null
+        val measured = PrivilegedShell.run("stat -c %s ${PrivilegedShell.quote(path)}")
+            ?.firstOrNull()?.trim()?.toLongOrNull()
+        return FileOpOutcome(executed, executed && measured == bytes.size.toLong())
     }
 
     fun delete(paths: List<String>): FileOpOutcome {
@@ -186,14 +229,32 @@ object FileSystemEngine {
     }
 
     /**
-     * ضغط بـ`tar` — **نفس الأداة التي نثق بها في النسخ**، لا مكتبة جديدة.
+     * إنشاء ملف فارغ — نظير «ملف جديد» في MT.
      *
-     * و`-C` مقصود: نضغط من داخل المجلد الأب فتُخزَّن المسارات نسبية، وإلا صار فكّ
-     * الأرشيف على جهاز آخر كتابة في مسار لا وجود له.
+     * و`touch` بلا `-c`: إن كان الملف موجودًا تُحدَّث ساعته ولا يُفرَّغ محتواه (وإلا صار
+     * «ملف جديد» على اسم موجود **ماحيةً** لبيانات المستخدم).
+     */
+    fun createFile(parent: String, name: String): FileOpOutcome {
+        val target = FileBrowser.childPath(FileBrowser.normalize(parent), name)
+        val executed = PrivilegedShell.run("touch ${PrivilegedShell.quote(target)}") != null
+        val verified = executed && PrivilegedShell.run("test -f ${PrivilegedShell.quote(target)}") != null
+        return FileOpOutcome(executed, verified)
+    }
+
+    /**
+     * الضغط: **zip** افتراضيًّا (كما في MT) و`tar.gz` عند طلبه صراحةً باسم الامتداد.
+     *
+     * والاختيار من امتداد الهدف لا من مزاج الواجهة: اسم الأرشيف الذي وُعد به المستخدم هو
+     * نفسه الذي يحدّد الصيغة، فلا يُكتب محتواه بصيغة تخالف اسمه.
      */
     fun compress(paths: List<String>, archivePath: String): FileOpOutcome {
         if (paths.isEmpty()) return FileOpOutcome(false, false)
         val archive = FileBrowser.normalize(archivePath)
+        if (FileArchive.isZip(archive)) {
+            return FileArchiveEngine.createZip(paths, archive).toFileOpOutcome()
+        }
+        // `tar -C` مقصود: نضغط من داخل المجلد الأب فتُخزَّن المسارات نسبية، وإلا صار فكّ
+        // الأرشيف على جهاز آخر كتابة في مسار لا وجود له.
         val parent = FileBrowser.parentOf(paths.first()) ?: return FileOpOutcome(false, false)
         val names = paths.map(FileBrowser::nameOf).joinToString(" ") { PrivilegedShell.quote(it) }
         val executed = PrivilegedShell.run(
@@ -203,9 +264,18 @@ object FileSystemEngine {
         return FileOpOutcome(executed, verified)
     }
 
+    /**
+     * الفكّ: zip بمحرّكنا الداخلي (مع حماية `zip-slip`)، و`tar.gz`/`tgz`/`tar` بالأداة.
+     *
+     * وzip يُفكّ داخليًّا لا بـ`unzip`، لأن `unzip` غير مضمون على كل جهاز أندرويد —
+     * وميزة تعمل على بعض الأجهزة أسوأ من ميزة تقول إنها لم تستطع.
+     */
     fun extract(archivePath: String, destination: String): FileOpOutcome {
         val archive = FileBrowser.normalize(archivePath)
         val dir = FileBrowser.normalize(destination)
+        if (FileArchive.isZip(archive)) {
+            return FileArchiveEngine.extractZip(archive, dir).toFileOpOutcome()
+        }
         val prepared = PrivilegedShell.run("mkdir -p ${PrivilegedShell.quote(dir)}") != null
         val executed = prepared && PrivilegedShell.run(
             "tar -xzf ${PrivilegedShell.quote(archive)} -C ${PrivilegedShell.quote(dir)}"
@@ -230,6 +300,24 @@ object FileSystemEngine {
         val free = runCatching { stats.blockSizeLong * stats.availableBlocksLong }.getOrNull() ?: return null
         if (total <= 0L) return null
         return DiskSpace(totalBytes = total, freeBytes = free)
+    }
+
+    /**
+     * حجم عقدة على القرص بالبايت، أو `null` إن لم يُقرأ.
+     *
+     * ويُستعمل لقياس تقدّم مهمة جارية: حجم العنصر في الوجهة يُقرأ كل فترة ما دام في
+     * الطيران، فتصير النسبة **مقيسة** لا مُخترعة (ADR-07). والمجلد يُقاس بمحتواه (`du -sb`)
+     * لا بصفر، لأن صفرًا سيُقرأ «لا تقدّم» بينما النسخ يعمل.
+     */
+    fun nodeBytes(rawPath: String): Long? {
+        val path = FileBrowser.normalize(rawPath)
+        val line = PrivilegedShell.run("du -sb ${PrivilegedShell.quote(path)}")
+            ?.firstOrNull()
+            ?.trim()
+            ?: return null
+        // الشكل المتوقّع: `<bytes>\t<path>` — والحقل الأول هو الرقم، وما لا يُفهم يُعاد
+        // `null` بدل تخمين رقم من مسار يشبه عددًا.
+        return line.substringBefore('\t').substringBefore(' ').toLongOrNull()
     }
 
     /**

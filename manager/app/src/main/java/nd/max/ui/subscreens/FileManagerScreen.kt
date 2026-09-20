@@ -15,965 +15,966 @@
  */
 
 /**
- * `GAP-09` + `FM-01` + `FM-02` — مدير الملفات بالجذر، **بلوحين**.
+ * `MT-FM` — مدير الملفات كما طلبه المالك: **نافذة واحدة ممتدّة بأسلوب MT Manager**، وعلى
+ * الشاشة العريضة نافذتان جنبًا إلى جنب.
  *
- * القرارات الحاكمة، وكلها مما يميّزها عن «عارض مجلدات»:
+ * «كيف يمكن استخدامه حتى أجعلها كما أخبرتك، كتقليد متناسق لي MT Manager … ويكون full screen
+ * وليس هناك أزرار تحكّم في خارج مدير الملفات، أزلها واجعلها داخل الملفات: عند الضغط الطويل
+ * على ملف تظهر قائمة بها الحذف أو النسخ أو اللصق وخِلافه».
  *
- * 1. **القراءة معلنة.** المدخلات من تمريرة `stat` واحدة بصيغة معلنة، وما لم يُقس يظهر
- *    «مجهولًا» لا صفرًا، والصفوف التي لم تُفهم تُعلَن بعددها. و`ls` **لا يُحلَّل للحصول
- *    على بيانات أبدًا** — الدرس مأخوذ من `MaterialFiles` حرفيًّا.
- * 2. **كل عملية محروسة قبل الـshell.** ومع لوحين يصير الحرس أهمّ لا أقلّ: الوجهة صارت
- *    **مجلدًا اختاره المستخدم في اللوح الآخر**، وهذا هو الشكل الذي يظهر فيه «نسخ مجلد
- *    داخل نفسه». و`FileOpGuard` هو من يحكم — لا تكرار للقواعد هنا.
- * 3. **النتيجة ثلاثة أحكام لا حكمان:** «نُفِّذ وتُحقِّق منه» ≠ «نُفِّذ ولم يُتحقّق» ≠ «فشل».
- * 4. **اللوح النشط معلن.** كل إجراء في الشريط السفلي يُطبَّق على اللوح النشط وحده، وهو
- *    مُعلَّم بإطار أعرض **وبحبّة اسمه** — فاللون وحده ليس جوابًا لمن لا يراه.
- * 5. **السلاسة:** ذاكرة مجلدات LRU — المجلد المزار يُعرض من الذاكرة في الإطار نفسه ثم
- *    تُقرأ نسخته الطازجة في الخلفية، فلا يُستبدل المحتوى بمؤشّر تحميل عند الرجوع.
+ * فأُزيلت اللوحة الثانية بكل ما فرضته (شريطا لوحين · مقارنة · ربط تنقّل · تبديل ترتيب)، وصار:
  *
- * ### جولة FM-02 — إعادة بناء الواجهة (طلب المالك): الشاشة كما تُستعمل لا كما تُوصف
+ * | المنطقة | ما فيها |
+ * | --- | --- |
+ * | الأعلى | **تبويبا نافذة** (مجلدان مصطفّان)، والنشطة معلنة بالشكل |
+ * | تحته | **شريط مسار**: رجوع في التاريخ · المسار يُلمس ليُكتب · بحث · أوامر الشاشة |
+ * | تحته | **سطر حالة**: مجلدات · ملفات · **مخفي معلَن** · مساحة مقروءة أو «لم تُقرأ» |
+ * | الوسط | **قائمة بسطر واحد لكل مدخل** (رمز · اسم · حجم · تاريخ) تمتدّ إلى آخر الشاشة |
+ * | الأسفل | شريط أدوات بأسماء يُستبدل بشريط التحديد، ويعلوه شريط الحافظة وشريط المهام |
  *
- * نصّ الطلب: «أعِد كتابة شاشة مدير الملفات … أريدها كمثل لقطات الشاشة هذه» (مدير ملفات
- * مرجعي بأشرطة تبويبات وشريط مسار وسطر حالة وصفوف كثيفة وشريط أوامر سفلي). والبنية
- * القديمة كانت **تضاعف الصفوف وتُشتّت الإجراءات**:
+ * وما بقي من الجولات السابقة لم يُمَسّ لأنه مُثبت: النموذج الخالص، و`FileOpGuard` قبل كل
+ * نداء، والأحكام الثلاثة للنتيجة، وذاكرة المجلدات LRU، وعدّ المخفيّ، و«لم تُقرأ» بدل صفر.
  *
- * - كل لوح كان يحمل: حبّة اسم · مسارًا · فتات خبز · حقل بحث دائم · ثلاث قوائم مرشّح ·
- *   سطر أفعال نتائج — أربعة أشرطة قبل أن تبدأ قائمة الملفات.
- * - الإجراءات كانت موزّعة على ثلاثة أماكن (شريط الشاشة، شريط اللوح، شريط التحديد) بأيقونات
- *   بلا أسماء، فمن لا يعرف الرمز لا يعرف الفعل.
- * - كل صفّ كان سطرين: الاسم، ثم `مجلد · ١٫٦ KB · drwxr-xr-x · 9/19/26` مجموعةً — الصلاحيات
- *   في كل صفّ بينما تُسأل مرة واحدة عند الحاجة.
+ * والقواعد الأربع الجديدة:
  *
- * والبنية الجديدة تكمل ما هو مُثبت (النموذج الخالص، والحرس، وذاكرة المجلدات) وتبدّل
- * **العرض** وحده:
- *
- * | الشريط | مكانه | ما يحمله |
- * | --- | --- | --- |
- * | شريط الشاشة | الأعلى | الفرز · قائمة أوامر الشاشة (مزامنة · مبادلة · ترتيب اللوحين · ربط · المخفيّ · الطرفية) · الشرح |
- * | شريط اللوح | الأسفل، حين لا تحديد | صعود · تحديث · مجلد جديد · بحث · تحديد الكل · مواقع سريعة |
- * | شريط التحديد | الأسفل، حين يوجد تحديد | العدد واللوح · نسخ · نقل · تسمية · حذف · وقائمة بقيّة الإجراءات بأسمائها |
- *
- * وفي اللوح نفسه: **شريط تبويباته · مساره · سطر حالته · قائمته** — ولا شيء آخر. والبحث
- * يُفتح بطلبه ويُغلق بإغلاقه بدل أن يستهلك سطرًا في كل لوح دائمًا. والملفات المخفيّة مخفيّة
- * افتراضيًّا كما في كل مدير ملفات، **وعددها معلن في سطر الحالة** فلا يُقرأ غيابها كحذف.
+ * 1. **الضغط الطويل يفتح القائمة عند الإصبع** على المدخل نفسه (يحدّده ثم يعرض أوامره
+ *    بأسمائها)، والنقرة تفتح: مجلدًا · نصًّا في المحرّر · ملفًا بالتطبيق الافتراضي.
+ * 2. **الحافظة بدل حوار «إلى أين؟»**: نسخ/قصّ ← تنقّل ← لصق، وتعارض الأسماء يُسأل عنه
+ *    بخطة **تُحسب على الدفعة كاملة** قبل أي كتابة.
+ * 3. **المهام الخلفية** بنسبة **مقيسة بالاستطلاع**، وإلغاء حقيقي بين العناصر.
+ * 4. **التفاصيل في ملفات مجاورة**: `FileManagerCommands.kt` للقوائم، و`FileManagerPanes.kt`
+ *    للعرض، و`FileManagerDialogs.kt` للنوافذ، و`FileManagerState.kt` للحالة — وهذه تركيب.
  */
 package nd.max.ui.subscreens
 
 import android.content.ClipData
+import android.content.Intent
+import android.webkit.MimeTypeMap
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.CompareArrows
-import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.filled.Terminal
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Link
-import androidx.compose.material.icons.rounded.LinkOff
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.SelectAll
-import androidx.compose.material.icons.rounded.SwapHoriz
-import androidx.compose.material.icons.rounded.Sync
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.rounded.Terminal
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
-import nd.max.ui.component.FileDetailsPanel
-import nd.max.ui.component.FilePaneBar
-import nd.max.ui.component.FilePaneColumn
-import nd.max.ui.component.FilePreviewPanel
+import nd.max.ui.component.FileClipboardBar
+import nd.max.ui.component.FileDrawerContent
+import nd.max.ui.component.FileEntryList
+import nd.max.ui.component.FilePathBar
 import nd.max.ui.component.FileSelectionBar
-import nd.max.ui.component.SelinuxState
-import nd.max.ui.component.fileRefusalText
-import nd.max.ui.component.fileRefusalVerdictText
-import nd.max.ui.component.fileSortLabel
+import nd.max.ui.component.FileStatusLine
+import nd.max.ui.component.FileTaskStrip
+import nd.max.ui.component.FileToolBar
+import nd.max.ui.component.FileWindowTabs
 import nd.max.ui.design.MaxCommand
-import nd.max.ui.design.MaxCommandMenu
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
-import nd.max.ui.design.MaxConfirmDialog
-import nd.max.ui.design.MaxHelpAction
-import nd.max.ui.design.MaxInputDialog
-import nd.max.ui.design.MaxScreen
-import nd.max.ui.design.MaxSpace
-import nd.max.ui.design.MaxSplitScreen
-import nd.max.ui.design.MaxTone
-import nd.max.ui.design.MaxViewMenu
-import nd.max.ui.design.content
+import nd.max.ui.design.MaxConditionPanel
+import nd.max.ui.design.MaxContextMenu
+import nd.max.ui.design.MaxDrawer
 import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.util.AccessBit
+import nd.max.ui.util.AccessScope
+import nd.max.ui.util.ApkInspector
+import nd.max.ui.util.ClipboardMode
+import nd.max.ui.util.ConflictChoice
+import nd.max.ui.util.DeepSearchOutcome
 import nd.max.ui.util.DirectoryCache
 import nd.max.ui.util.DiskSpace
-import nd.max.ui.util.DualPane
+import nd.max.ui.util.FileAction
 import nd.max.ui.util.FileActionSet
+import nd.max.ui.util.FileBookmark
+import nd.max.ui.util.FileBookmarks
 import nd.max.ui.util.FileBrowser
+import nd.max.ui.util.FileClipboard
+import nd.max.ui.util.FileClipboardRules
+import nd.max.ui.util.FileConflictRules
 import nd.max.ui.util.FileEntry
-import nd.max.ui.util.FileFormat
+import nd.max.ui.util.FileHistory
+import nd.max.ui.util.FileOpenPlan
+import nd.max.ui.util.FileOpenRoute
 import nd.max.ui.util.FileOpGuard
 import nd.max.ui.util.FileOpOutcome
 import nd.max.ui.util.FileOpRefusal
 import nd.max.ui.util.FileOpRequest
-import nd.max.ui.util.FileOpVerdict
 import nd.max.ui.util.FileOperation
-import nd.max.ui.util.executeFileOperation
-import nd.max.ui.util.FilePaneState
-import nd.max.ui.util.FileSearchFilters
+import nd.max.ui.util.FileOpVerdict
+import nd.max.ui.util.FilePermissionRules
+import nd.max.ui.util.FileSearchEngine
+import nd.max.ui.util.FileSearchPlan
 import nd.max.ui.util.FileSelection
-import nd.max.ui.util.FileSort
 import nd.max.ui.util.FileSortKey
 import nd.max.ui.util.FileSystemEngine
-import nd.max.ui.util.PaneLayout
-import nd.max.ui.util.PaneLayoutRule
-import nd.max.ui.util.PaneSide
-import nd.max.ui.util.PaneTabs
-import nd.max.ui.util.RootUtils
+import nd.max.ui.util.FileTargets
+import nd.max.ui.util.FileTask
+import nd.max.ui.util.FileTaskKind
+import nd.max.ui.util.FileTaskQueue
+import nd.max.ui.util.FileTaskState
+import nd.max.ui.util.FileWindowState
+import nd.max.ui.util.FileWindowsCodec
+import nd.max.ui.util.FileWindowsRule
+import nd.max.ui.util.FileWindowsState
+import nd.max.ui.util.HistoryEntry
+import nd.max.ui.util.MountAccess
+import nd.max.ui.util.RootMount
 import nd.max.ui.util.TextPreview
+import nd.max.ui.util.WindowSide
+import nd.max.ui.util.executeFileOperation
+import java.util.concurrent.atomic.AtomicBoolean
 
-/** عرض يليه الانقسام: تحته يُرصّ اللوحان فوق بعضهما بدل أن يتضايقا. */
-private val SplitThreshold = 600.dp
-
-/**
- * حفظ حالة اللوح عبر إعادة التركيب، وإلا فقد المستخدم مساره بمجرّد تدوير الجهاز.
- *
- * والتبويبات وقرار إظهار المخفيّ يُحفظان معها: هما اختياران وقعا بيد المستخدم، وتدويره
- * للجهاز لا يعني أنه غيّر رأيه.
- */
-private val PaneSaver = listSaver<FilePaneState, Any>(
-    save = {
-        listOf(
-            it.path,
-            it.query,
-            it.sort.key.name,
-            it.sort.ascending,
-            it.sort.directoriesFirst,
-            it.selecting,
-            ArrayList(it.selection.paths),
-            it.showHidden,
-            ArrayList(it.tabs),
-        )
-    },
-    restore = {
-        FilePaneState(
-            path = it[0] as String,
-            query = it[1] as String,
-            sort = FileSort(
-                key = FileSortKey.valueOf(it[2] as String),
-                ascending = it[3] as Boolean,
-                directoriesFirst = it[4] as Boolean,
-            ),
-            selecting = it[5] as Boolean,
-            selection = FileSelection((it[6] as ArrayList<*>).filterIsInstance<String>().toSet()),
-            showHidden = it[7] as Boolean,
-            tabs = (it[8] as ArrayList<*>).filterIsInstance<String>(),
-        )
-    },
+private val WindowsSaver = listSaver<FileWindowsState, String>(
+    save = { FileWindowsCodec.encode(it) },
+    restore = { FileWindowsCodec.decode(it) },
 )
 
 @Composable
 fun FileManagerScreen(navController: NavController) {
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val clipboard = LocalClipboard.current
     val context = LocalContext.current
-
+    val scope = rememberCoroutineScope()
+    val clipboardApi = LocalClipboard.current
+    val snackbar = remember { SnackbarHostState() }
     val cache = remember { DirectoryCache() }
-    var left by rememberSaveable(stateSaver = PaneSaver) { mutableStateOf(FilePaneState(path = "/")) }
-    var right by rememberSaveable(stateSaver = PaneSaver) { mutableStateOf(FilePaneState(path = "/sdcard")) }
-    var active by rememberSaveable { mutableStateOf(PaneSide.Left) }
-    // ترتيب اللوحين وقرار الربط يُحفظان: من ضبط لوحينه جنبًا إلى جنب على هاتفه يعيد
-    // الضبط في كل دخول إن لم يُحفظا، وهو أول ما يُشكى منه في هذه الشاشة.
-    var layout by rememberSaveable { mutableStateOf(PaneLayout.Auto) }
-    var linked by rememberSaveable { mutableStateOf(false) }
-    var searchLeft by rememberSaveable { mutableStateOf(false) }
-    var searchRight by rememberSaveable { mutableStateOf(false) }
+    val searchCancelled = remember { AtomicBoolean(false) }
+    val stores = rememberFileManagerStores()
+
+    var windows by rememberSaveable(stateSaver = WindowsSaver) { mutableStateOf(FileWindowsState()) }
+    var firstView by remember { mutableStateOf(WindowView()) }
+    var secondView by remember { mutableStateOf(WindowView()) }
+    var refreshToken by remember { mutableStateOf(0) }
     var rootGranted by remember { mutableStateOf<Boolean?>(null) }
-    var panel by remember { mutableStateOf<FilePanel?>(null) }
-    var selinux by remember { mutableStateOf<SelinuxState>(SelinuxState.NotQueried) }
-    var previewContent by remember { mutableStateOf<TextPreview?>(null) }
-    var previewLoading by remember { mutableStateOf(false) }
+    var firstDisk by remember { mutableStateOf<DiskSpace?>(null) }
+    var secondDisk by remember { mutableStateOf<DiskSpace?>(null) }
+
+    var fileClipboard by remember { mutableStateOf<FileClipboard?>(null) }
+    var clipboardOriginSide by remember { mutableStateOf<WindowSide?>(null) }
+    var conflict by remember { mutableStateOf<ConflictRequest?>(null) }
+    var tasks by remember { mutableStateOf<List<FileTask>>(emptyList()) }
+    var cancelledTasks by remember { mutableStateOf(setOf<Long>()) }
+    var menuAnchor by remember { mutableStateOf<Offset?>(null) }
+    var drawerOpen by remember { mutableStateOf(false) }
+    var helpOpen by remember { mutableStateOf(false) }
+    var mountAccess by remember { mutableStateOf<MountAccess?>(null) }
+    var bookmarks by rememberStoredBookmarks(stores.bookmarks)
+    var history by rememberStoredHistory(stores.history)
+    var results by remember { mutableStateOf<DeepSearchOutcome?>(null) }
+    var pendingSelect by remember { mutableStateOf<String?>(null) }
+    var rootSize by remember { mutableStateOf(IntSize.Zero) }
+    var rename by remember { mutableStateOf<FileEntry?>(null) }
+    var renameWindowOpen by remember { mutableStateOf(false) }
+    var newFolderOpen by remember { mutableStateOf(false) }
+    var newFileOpen by remember { mutableStateOf(false) }
+    var deleteTargets by remember { mutableStateOf<List<String>?>(null) }
+    var pathEditOpen by remember { mutableStateOf(false) }
+    var inputDraft by remember { mutableStateOf("") }
     var refused by remember { mutableStateOf<FileOpRefusal?>(null) }
-    // مساحة نظام الملفات لكل لوح: تُقاس عند كل انتقال، و`null` يعني «لم تُقرأ» — وسطر
-    // الحالة يقولها بهذه العبارة لا بصفر (ADR-23).
-    var leftSpace by remember { mutableStateOf<DiskSpace?>(null) }
-    var rightSpace by remember { mutableStateOf<DiskSpace?>(null) }
+    var properties by remember { mutableStateOf<PropertiesState?>(null) }
+    var editor by remember { mutableStateOf<EditorState?>(null) }
+    var search by remember { mutableStateOf(SearchState()) }
 
-    var renameTarget by remember { mutableStateOf<Pair<PaneSide, FileEntry>?>(null) }
-    var createFolderIn by remember { mutableStateOf<PaneSide?>(null) }
-    var input by remember { mutableStateOf("") }
-    var deleteTargets by remember { mutableStateOf<Pair<PaneSide, List<String>>?>(null) }
-    var transfer by remember { mutableStateOf<TransferRequest?>(null) }
-    var destination by remember { mutableStateOf("") }
-    var pathEditSide by remember { mutableStateOf<PaneSide?>(null) }
-    var pathInput by remember { mutableStateOf("") }
+    val window = windows.activeWindow
+    val view = if (windows.active == WindowSide.First) firstView else secondView
 
-    val leftHistory = remember { mutableStateListOf<String>() }
-    val rightHistory = remember { mutableStateListOf<String>() }
+    fun viewOf(side: WindowSide): WindowView = if (side == WindowSide.First) firstView else secondView
 
-    fun paneOf(side: PaneSide) = if (side == PaneSide.Left) left else right
-    fun historyOf(side: PaneSide) = if (side == PaneSide.Left) leftHistory else rightHistory
-    fun setPane(side: PaneSide, next: FilePaneState) {
-        if (side == PaneSide.Left) left = next else right = next
+    fun updateView(side: WindowSide, transform: (WindowView) -> WindowView) {
+        if (side == WindowSide.First) firstView = transform(firstView) else secondView = transform(secondView)
     }
 
-    fun searchOpenOf(side: PaneSide) = if (side == PaneSide.Left) searchLeft else searchRight
-    fun setSearchOpen(side: PaneSide, value: Boolean) {
-        if (side == PaneSide.Left) searchLeft = value else searchRight = value
+    /** كل تفاعل مع نافذة **ينشّطها** أولًا: فلا يقع أمر على نافذة يظنّ المستخدم أنه في غيرها. */
+    fun activate(side: WindowSide) {
+        if (windows.active != side) windows = windows.activate(side)
     }
 
-    /**
-     * إغلاق البحث: يمسح الاستعلام **والمرشّح**. ولو بقي المرشّح بعد إغلاق الحقل لقُرئت
-     * قائمة ناقصة بلا سبب ظاهر — وهو أسوأ من فقدان مرشّح لم يعد له حقل يراه المستخدم.
-     */
-    fun closeSearch(side: PaneSide) {
-        setPane(side, paneOf(side).copy(query = "", search = FileSearchFilters.Filter()))
-        setSearchOpen(side, false)
+    fun toast(message: String) {
+        scope.launch { snackbar.showSnackbar(message) }
     }
 
-    /**
-     * تغيير ما يُعرض (بحث · مرشّح · إخفاء) يُعيد التحديد إلى ما هو معروض.
-     *
-     * اختيار اختفى بالترشيح ثم نُسخ بلا أن يُرى هو أسوأ ما يمكن أن يفعله مرشّح في مدير
-     * ملفات — فيُقصّ التحديد عند كل تغيير يعيد تشكيل القائمة.
-     */
-    fun keepVisibleSelection(next: FilePaneState): FilePaneState =
-        next.copy(selection = FileSelection(next.selection.paths intersect next.visible().map { it.path }.toSet()))
-
-    val activePane = paneOf(active)
-    val otherSide = active.other
-    val otherPane = paneOf(otherSide)
-
-    val refresh: (PaneSide) -> Unit = { side ->
-        val requested = paneOf(side)
-        val cached = cache.get(requested.path)
-        // إن كان المجلد في الذاكرة فلا نستبدل المحتوى بمؤشّر تحميل: القائمة تبقى مرئية
-        // وتُستبدل عند وصول القراءة الطازجة — وهذا الفرق هو الإحساس بالسلاسة كلّه.
-        setPane(side, if (cached != null) requested.withListing(cached) else requested.copy(loading = true))
-        scope.launch {
-            val fresh = withContext(Dispatchers.IO) { FileSystemEngine.list(requested.path) }
-            cache.put(fresh)
-            // حرس القراءة العالقة: نتيجة قراءة مجلد غادرناه أثناء القراءة **لا تُكتب عليه**،
-            // وإلا عرض لوحٌ محتوى مجلد آخر.
-            if (paneOf(side).path == requested.path) setPane(side, paneOf(side).withListing(fresh))
-        }
+    fun outcomeText(outcome: FileOpOutcome, count: Int): String = when {
+        outcome.ok -> context.getString(R.string.max_files_outcome_ok) + " " +
+            context.getString(R.string.max_files_outcome_count, count)
+        outcome.executed -> context.getString(R.string.max_files_outcome_unverified)
+        else -> context.getString(R.string.max_files_outcome_failed)
     }
 
-    LaunchedEffect(Unit) {
-        rootGranted = withContext(Dispatchers.IO) {
-            runCatching { RootUtils.isRootGranted() }.getOrDefault(false)
-        }
-    }
-    // قراءة القائمة وقياس المساحة في تأثير واحد لكل لوح: كلاهما يخصّ المسار نفسه،
-    // فلا يُقاس نظام ملفات انطلقنا منه.
-    LaunchedEffect(left.path) {
-        refresh(PaneSide.Left)
-        leftSpace = withContext(Dispatchers.IO) { FileSystemEngine.diskSpace(left.path) }
-    }
-    LaunchedEffect(right.path) {
-        refresh(PaneSide.Right)
-        rightSpace = withContext(Dispatchers.IO) { FileSystemEngine.diskSpace(right.path) }
+    /** انتقال: يسجّل الزيارة، ويمسح نتائج بحث قديم فلا تُقرأ على مجلد آخر. */
+    fun go(side: WindowSide, target: String, push: Boolean = true) {
+        results = null
+        windows = windows.navigate(side, target, push)
+        history = FileHistory.push(history, target, System.currentTimeMillis())
     }
 
-    val navigate: (PaneSide, String, Boolean) -> Unit = { side, target, push ->
-        val before = paneOf(side)
-        // الانتقال إلى المجلد الذي نحن فيه ليس انتقالًا: إدخاله في السجل يُنتج زرّ رجوع
-        // يوصل إلى المكان نفسه، فيبدو معطلًا وهو ليس كذلك.
-        val moved = FileBrowser.normalize(target) != FileBrowser.normalize(before.path)
-        if (push && moved) historyOf(side).add(before.path)
-        setPane(side, before.at(target))
-        active = side
-
-        // Breadcrumb navigation used to bypass the link entirely.  That made the
-        // two panes appear linked until the first tap on a breadcrumb, then silently
-        // diverge.  Ancestor navigation is deterministic: move the other pane one
-        // parent for each breadcrumb jump; never invent a child path that was not read.
-        if (linked && moved) {
-            val twin = side.other
-            val other = paneOf(twin)
-            val mirrored = when {
-                target == FileBrowser.parentOf(before.path) -> DualPane.mirrorParent(other)
-                FileBrowser.isInside(before.path, target) ->
-                    DualPane.mirrorAncestor(other, before.path, target)
-                else -> other.entries.firstOrNull { it.path == target }?.path
-            }
-            mirrored?.let {
-                historyOf(twin).add(other.path)
-                setPane(twin, other.at(it))
-            }
-        }
+    fun selectedEntries(side: WindowSide): List<FileEntry> {
+        val current = viewOf(side)
+        return current.entries.filter { it.path in current.selection.paths }
     }
 
     /**
-     * التنقّل المرتبط — يُنقل اللوح الآخر إلى **المجلد ذي الاسم نفسه** من مساره هو،
-     * أو يبقى مكانه إن لم يُوجد. والانتقال يدفع سجل اللوح الآخر أيضًا، فيعمل الرجوع فيه.
-     *
-     * ولا يُطبَّق على القفز المطلق (المواقع السريعة): القفز إلى `/sdcard/Download` لا مقابل
-     * اسميّ له في اللوح الآخر، فمقابلته بمسار مخمَّن هي بالضبط ما نمنعه.
+     * تنفيذ عملية فورية: الحرس يُسأل **بأسماء نافذة الوجهة** لا نافذة المصدر — تعارض
+     * الأسماء يقع حيث تُكتب.
      */
-    val mirrorIntoOther: (PaneSide, FileEntry) -> Unit = { side, entry ->
-        if (linked) {
-            // «الآخر» يُحسب من **اللوح الذي تحرّك** لا من النشط: النقر قد يقع في اللوح
-            // غير النشط، وحينها لو حُسب من النشط لكُتب المسار على اللوح المنقور نفسه.
-            val twin = side.other
-            val other = paneOf(twin)
-            DualPane.mirrorFolder(other, entry)?.let { target ->
-                historyOf(twin).add(other.path)
-                setPane(twin, other.at(target))
-            }
-        }
-    }
-
-    val mirrorUpInOther: (PaneSide) -> Unit = { side ->
-        if (linked) {
-            val twin = side.other
-            val other = paneOf(twin)
-            DualPane.mirrorParent(other)?.let { target ->
-                historyOf(twin).add(other.path)
-                setPane(twin, other.at(target))
-            }
-        }
-    }
-
-    val goUp: (PaneSide) -> Unit = { side ->
-        val current = paneOf(side)
-        FileBrowser.parentOf(current.path)?.let { parent ->
-            val history = historyOf(side)
-            if (history.lastOrNull() == parent) history.removeAt(history.lastIndex)
-            setPane(side, current.at(parent))
-            // الصعود **نسبي** مثل الدخول: خطوة واحدة للأعلى في اللوحين معًا.
-            mirrorUpInOther(side)
-        }
-    }
-
-    // رجوع النظام ليس «صعودًا».  MT-style navigation must return to the exact
-    // folder the user came from, even when that folder is not the direct parent.
-    val goBack: (PaneSide) -> Unit = { side ->
-        val history = historyOf(side)
-        history.removeLastOrNull()?.let { previous ->
-            setPane(side, paneOf(side).at(previous))
-            if (linked) {
-                val twin = side.other
-                val other = paneOf(twin)
-                DualPane.mirrorAncestor(other, other.path, previous)?.let { target ->
-                    historyOf(twin).add(other.path)
-                    setPane(twin, other.at(target))
-                }
-            }
-        }
-    }
-
-    val showOutcome: (FileOpOutcome, Int) -> Unit = { outcome, count ->
-        val message = when {
-            outcome.ok -> context.getString(R.string.max_files_outcome_ok) + " " +
-                context.getString(R.string.max_files_outcome_count, count)
-            outcome.executed -> context.getString(R.string.max_files_outcome_unverified)
-            else -> context.getString(R.string.max_files_outcome_failed)
-        }
-        scope.launch { snackbarHostState.showSnackbar(message) }
-        // عملية وقعت على القرص تُبطل الذاكرة كلها، ثم يُحدَّث اللوحان معًا: اللوح الآخر
-        // قد يكون هو المقصد، وإبقاءه قديمًا يُنتج قائمة تُكذّب ما حدث للتوّ.
-        cache.invalidateAll()
-        refresh(PaneSide.Left)
-        refresh(PaneSide.Right)
-    }
-
-    /**
-     * تنفيذ عملية على اللوح `side`. الحرس يُسأل بأسماء ومدخلات **لوح الوجهة**، لأن
-     * تعارض الأسماء يقع حيث تُكتب، لا حيث قُرئت.
-     */
-    val runOperation: (PaneSide, FileOpRequest) -> Unit = { side, request ->
-        val pane = paneOf(side)
-        val names = pane.entries.map { it.name }.toSet()
-        val directories = pane.entries.filter { it.isDirectory }.map { it.path }.toSet()
+    fun guardAndRun(request: FileOpRequest, side: WindowSide = windows.active) {
+        val targetView = viewOf(side)
+        val names = targetView.entries.mapTo(HashSet()) { it.name }
+        val directories = targetView.entries.filter { it.isDirectory }.mapTo(HashSet()) { it.path }
         when (val verdict = FileOpGuard.check(request, names, directories)) {
             is FileOpVerdict.Refused -> refused = verdict.reason
             FileOpVerdict.Allowed -> scope.launch {
                 val outcome = withContext(Dispatchers.IO) { executeFileOperation(request) }
-                showOutcome(outcome, request.sources.size.coerceAtLeast(1))
+                cache.invalidateAll()
+                refreshToken++
+                toast(outcomeText(outcome, request.sources.size.coerceAtLeast(1)))
             }
         }
     }
 
-    val openPanel: (FilePanel) -> Unit = { target ->
-        selinux = SelinuxState.NotQueried
-        previewContent = null
-        panel = target
-    }
+    /**
+     * مهمة خلفية لنسخ/نقل عدة عناصر: **عنصرًا عنصرًا**.
+     *
+     * ولماذا عنصرًا عنصرًا لا نداءً واحدًا: لأن الإلغاء يجب أن يكون حقيقيًّا. `cp` واحدة على
+     * عشرين عنصرًا لا تُقطع في المنتصف، فتصير «إلغاء» زرًّا يكذب. هنا يُقطع بين العناصر.
+     *
+     * والنسبة **مقيسة بالاستطلاع**: حجم العنصر في الوجهة يُقرأ كل فترة ما دام في الطيران،
+     * والمجموع من أحجام القائمة. وإن سقط حجم واحد بقي التقدّم «غير معروف» (ADR-07).
+     */
+    fun startTransfer(kind: FileTaskKind, request: FileOpRequest, sourceSide: WindowSide) {
+        val destination = request.destination.orEmpty()
+        val sourceView = viewOf(sourceSide)
+        val sizes = request.sources.map { path -> sourceView.entries.firstOrNull { it.path == path }?.sizeBytes }
+        val total = if (sizes.all { it != null }) sizes.filterNotNull().sum() else null
+        val id = FileTaskQueue.nextId(tasks)
+        tasks = FileTaskQueue.add(
+            tasks,
+            FileTask(
+                id = id,
+                kind = kind,
+                sources = request.sources,
+                destination = destination,
+                totalBytes = total,
+                doneBytes = if (total == null) null else 0L,
+                startedAtMs = System.currentTimeMillis(),
+            ),
+        )
 
-    /** تثبيت المجلد الحالي كتبويب في اللوح — ومسحه لا يتكرّر (‏[PaneTabs.pin] تتكفّل بذلك). */
-    val pinCurrentTab: (PaneSide) -> Unit = { side ->
-        val pane = paneOf(side)
-        setPane(side, pane.copy(tabs = PaneTabs.pin(pane.tabs, pane.path)))
-    }
-
-    // حرس الرجوع بترتيب الأولوية: اللوحة · تحديد اللوح النشط · سجل اللوح النشط.
-    BackHandler(enabled = panel != null) { panel = null }
-    BackHandler(enabled = panel == null && activePane.selecting) {
-        setPane(active, activePane.clearSelection())
-    }
-    BackHandler(enabled = panel == null && !activePane.selecting && historyOf(active).isNotEmpty()) {
-        goBack(active)
-    }
-
-    when (val open = panel) {
-        is FilePanel.Details -> {
-            MaxScreen(
-                title = stringResource(R.string.max_files_details_title),
-                subtitle = open.entry.name,
-                onBack = { panel = null },
-                accentIcon = MaxDestination.FileManager.icon,
-                accent = MaxTone.Neutral.content(),
-            ) {
-                FileDetailsPanel(
-                    entry = open.entry,
-                    selinux = selinux,
-                    onCheckSelinux = {
-                        selinux = SelinuxState.Loading
-                        scope.launch {
-                            val found = withContext(Dispatchers.IO) {
-                                FileSystemEngine.selinuxContext(open.entry.path)
-                            }
-                            selinux = found?.let { SelinuxState.Found(it) } ?: SelinuxState.NotReported
-                        }
-                    },
-                    onCopyPath = {
-                        // النتيجة تُقاس لا تُفترض: الواجهة الحديثة تُعلّق (suspend) فقد تفشل،
-                        // وقول «نُسخ» بلا قياس هو بالضبط الكذب الذي نمنعه في كل شاشة.
-                        scope.launch {
-                            val copied = runCatching {
-                                clipboard.setClipEntry(
-                                    ClipEntry(
-                                        ClipData.newPlainText(
-                                            context.getString(R.string.max_files_detail_copy_label),
-                                            open.entry.path,
-                                        )
-                                    )
-                                )
-                            }.isSuccess
-                            snackbarHostState.showSnackbar(
-                                context.getString(
-                                    if (copied) R.string.max_files_detail_copied
-                                    else R.string.max_files_detail_copy_failed
-                                )
-                            )
-                        }
-                    },
+        scope.launch {
+            var done = 0L
+            var failed = false
+            for ((index, source) in request.sources.withIndex()) {
+                if (id in cancelledTasks) break
+                val single = request.copy(
+                    sources = listOf(source),
+                    renamed = mapOf(source to FileTargets.nameFor(source, request.renamed)),
                 )
-            }
-            return
-        }
-
-        is FilePanel.Preview -> {
-            LaunchedEffect(open.entry.path) {
-                previewLoading = true
-                previewContent = withContext(Dispatchers.IO) { FileSystemEngine.preview(open.entry.path) }
-                previewLoading = false
-            }
-            MaxScreen(
-                title = stringResource(R.string.max_files_preview_title),
-                subtitle = open.entry.name,
-                onBack = { panel = null },
-                accentIcon = MaxDestination.FileManager.icon,
-                accent = MaxTone.Neutral.content(),
-                condition = if (previewLoading) {
-                    MaxCondition(
-                        kind = MaxConditionKind.Loading,
-                        title = stringResource(R.string.max_files_preview_loading_title),
-                        detail = stringResource(
-                            R.string.max_files_preview_loading_detail,
-                            FileFormat.size(FileSystemEngine.MAX_PREVIEW_BYTES).orEmpty(),
-                        ),
-                    )
+                val target = FileTargets.destinationFor(source, destination, request.renamed)
+                val size = sizes.getOrNull(index)
+                val poller = if (size != null && total != null) {
+                    scope.launch {
+                        while (isActive) {
+                            delay(PROGRESS_POLL_MS)
+                            val grown = withContext(Dispatchers.IO) { FileSystemEngine.nodeBytes(target) } ?: 0L
+                            tasks = FileTaskQueue.progress(tasks, id, done + grown)
+                        }
+                    }
                 } else {
                     null
-                },
-            ) {
-                FilePreviewPanel(name = open.entry.name, preview = previewContent)
+                }
+                val outcome = withContext(Dispatchers.IO) { executeFileOperation(single) }
+                poller?.cancel()
+                if (!outcome.ok) {
+                    failed = true
+                    break
+                }
+                done += size ?: 0L
+                tasks = FileTaskQueue.progress(tasks, id, done)
             }
+            // الإلغاء يُقرأ في النهاية أيضًا: من ألغى بينما آخر عنصر في الطيران لا يُقال له
+            // إن العملية «تمّت».
+            val state = when {
+                id in cancelledTasks -> FileTaskState.Cancelled
+                failed -> FileTaskState.Failed
+                else -> FileTaskState.Done
+            }
+            tasks = FileTaskQueue.finish(tasks, id, state, System.currentTimeMillis())
+            cancelledTasks = cancelledTasks - id
+            cache.invalidateAll()
+            refreshToken++
+        }
+    }
+
+    fun pasteIntoActive() {
+        val clip = fileClipboard ?: return
+        if (FileClipboardRules.pointlessHere(clip, window.path)) {
+            toast(context.getString(R.string.max_files_clipboard_same_folder))
             return
         }
-
-        null -> Unit
+        val request = FileClipboardRules.pasteRequest(clip, window.path)
+        val destinationNames = view.entries.mapTo(HashSet()) { it.name }
+        val scan = FileConflictRules.scan(clip.sources.map { FileBrowser.nameOf(it) }, destinationNames)
+        if (scan.hasCollisions) {
+            conflict = ConflictRequest(scan.collisions, destinationNames, request)
+            return
+        }
+        startTransfer(
+            if (clip.mode == ClipboardMode.Cut) FileTaskKind.Move else FileTaskKind.Copy,
+            request,
+            clipboardOriginSide ?: windows.active,
+        )
+        fileClipboard = clip.afterPaste()
     }
 
-    val rootCondition = if (rootGranted == false) {
-        MaxCondition(
-            kind = MaxConditionKind.RootRequired,
-            title = stringResource(R.string.max_files_cond_no_root_title),
-            detail = stringResource(R.string.max_files_cond_no_root_detail),
-        )
+    /** تعارض الأسماء: الخطة تُحسب على الدفعة كاملة، ثم تُنفَّذ بمهمة واحدة. */
+    fun resolveConflict(choice: ConflictChoice, forAll: Boolean) {
+        val pending = conflict ?: return
+        val effective = if (forAll) FileConflictRules.forAll(choice) else choice
+        val sourceNames = pending.request.sources.map { FileBrowser.nameOf(it) }
+        val plan = FileConflictRules.plan(sourceNames, pending.destinationNames, effective)
+        conflict = null
+        if (plan == null || plan.cancel) return
+
+        val byName = pending.request.sources.associateBy { FileBrowser.nameOf(it) }
+        val renamed = plan.rename.mapNotNull { (old, fresh) -> byName[old]?.let { it to fresh } }.toMap()
+        val proceed = plan.proceed.mapNotNull { byName[it] }
+        if (proceed.isNotEmpty() || renamed.isNotEmpty()) {
+            startTransfer(
+                if (pending.request.operation == FileOperation.Move) FileTaskKind.Move else FileTaskKind.Copy,
+                pending.request.copy(sources = proceed + renamed.keys, renamed = renamed),
+                clipboardOriginSide ?: windows.active,
+            )
+        }
+        if (plan.skip.isNotEmpty()) {
+            toast(context.getString(R.string.max_files_conflict_skipped, plan.skip.size))
+        }
+        fileClipboard = fileClipboard?.afterPaste()
+    }
+
+    /** المحرّر: يُفتح بالقراءة أولًا، ويقول امتناعه إن كان ثنائيًّا أو أكبر من الحدّ. */
+    fun openEditor(entry: FileEntry) {
+        editor = EditorState(path = entry.path)
+        scope.launch {
+            val preview = withContext(Dispatchers.IO) { FileSystemEngine.preview(entry.path) }
+            val text = (preview as? TextPreview.Ready)?.content.orEmpty()
+            editor = editor?.copy(preview = preview, text = text, savedText = text)
+        }
+    }
+
+    /**
+     * تسليم ملف لتطبيق آخر — **بالتخزين المشترك وحده**.
+     *
+     * ولماذا الحدّ: `FileProvider` يشارك ما تُعلنه `file_paths.xml`، وهي هنا التخزين المشترك.
+     * وملف في `/data` أو `/system` لا يُسلَّم لتطبيق آخر — ويُقال ذلك بنصّه بدل انهيار
+     * `FileUriExposed` أو مشاركة مسار لا يُقرأ.
+     */
+    fun handOff(entry: FileEntry) {
+        if (!entry.path.startsWith(SHARED_STORAGE_PREFIX)) {
+            toast(context.getString(R.string.max_files_open_external_local))
+            return
+        }
+        val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(FileOpenPlan.extensionOf(entry.name))
+            ?: "*/*"
+        val launched = runCatching {
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                java.io.File(entry.path),
+            )
+            val intent = Intent(Intent.ACTION_VIEW)
+                .setDataAndType(uri, mime)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        }.isSuccess
+        if (!launched) toast(context.getString(R.string.max_files_open_failed))
+    }
+
+    /** مصير النقرة العادية: مجلد يُدخل · نصّ يُفتح في المحرّر · ملف يُسلَّم لتطبيق آخر. */
+    fun openEntry(entry: FileEntry) {
+        when (FileOpenPlan.routeOf(entry)) {
+            FileOpenRoute.EnterFolder -> go(windows.active, entry.path)
+            FileOpenRoute.TextEditor -> openEditor(entry)
+            FileOpenRoute.External -> handOff(entry)
+        }
+    }
+
+    fun perform(action: FileAction, side: WindowSide) {
+        val chosen = selectedEntries(side)
+        val sidePath = windows.of(side).path
+        when (action) {
+            FileAction.Copy -> {
+                FileClipboardRules.of(ClipboardMode.Copy, chosen.map { it.path }, sidePath)?.let { fresh ->
+                    fileClipboard = fresh
+                    clipboardOriginSide = side
+                }
+                updateView(side) { it.copy(selecting = false, selection = FileSelection()) }
+            }
+            FileAction.Move -> {
+                FileClipboardRules.of(ClipboardMode.Cut, chosen.map { it.path }, sidePath)?.let { fresh ->
+                    fileClipboard = fresh
+                    clipboardOriginSide = side
+                }
+                updateView(side) { it.copy(selecting = false, selection = FileSelection()) }
+            }
+            FileAction.Rename -> {
+                rename = chosen.singleOrNull()
+                inputDraft = rename?.name.orEmpty()
+            }
+            FileAction.Details -> properties = chosen.singleOrNull()?.let(PropertiesState::of)
+            FileAction.Delete -> deleteTargets = chosen.map { it.path }
+            FileAction.Clear -> updateView(side) { it.copy(selecting = false, selection = FileSelection()) }
+            FileAction.Compress, FileAction.Extract ->
+                immediateRequest(action, chosen, sidePath)?.let { guardAndRun(it, side) }
+        }
+    }
+
+    // ── القراءة ───────────────────────────────────────────────────────────────
+
+    LaunchedEffect(refreshToken) {
+        rootGranted = withContext(Dispatchers.IO) { RootMount.granted() }
+    }
+
+    LaunchedEffect(windows.first.path, refreshToken) {
+        loadListing(windows.first.path, cache) { fresh ->
+            firstView = firstView.copy(listing = fresh, loading = false)
+        }
+    }
+
+    LaunchedEffect(windows.second.path, refreshToken) {
+        loadListing(windows.second.path, cache) { fresh ->
+            secondView = secondView.copy(listing = fresh, loading = false)
+        }
+    }
+
+    LaunchedEffect(windows.first.path, refreshToken) {
+        firstDisk = withContext(Dispatchers.IO) { FileSystemEngine.diskSpace(windows.first.path) }
+    }
+
+    LaunchedEffect(windows.second.path, refreshToken) {
+        secondDisk = withContext(Dispatchers.IO) { FileSystemEngine.diskSpace(windows.second.path) }
+    }
+
+    LaunchedEffect(window.path, refreshToken) {
+        mountAccess = withContext(Dispatchers.IO) { RootMount.currentAccess(window.path) }
+    }
+
+    // التحديد المعلَّق (من نتائج البحث) يُطبَّق حين يظهر المدخل فعلًا في القائمة.
+    LaunchedEffect(view.listing, pendingSelect) {
+        val target = pendingSelect ?: return@LaunchedEffect
+        if (view.entries.any { it.path == target }) {
+            updateView(windows.active) { it.copy(selecting = true, selection = FileSelection(setOf(target))) }
+            pendingSelect = null
+        }
+    }
+
+    BackHandler(enabled = menuAnchor != null) { menuAnchor = null }
+    BackHandler(enabled = menuAnchor == null && view.selecting) {
+        updateView(windows.active) { it.copy(selecting = false, selection = FileSelection()) }
+    }
+    BackHandler(enabled = menuAnchor == null && !view.selecting && results != null) { results = null }
+    BackHandler(enabled = menuAnchor == null && !view.selecting && results == null && window.canGoBack) {
+        windows = windows.back(windows.active)
+    }
+
+    // ── الأوامر ───────────────────────────────────────────────────────────────
+
+    val screenCommands = fileManagerScreenCommands(
+        window = window,
+        resultsVisible = results != null,
+        onSort = { sort -> windows = windows.with(windows.active, window.withSort(sort)) },
+        onToggleHidden = {
+            val toggled = window.toggleHidden()
+            windows = windows.with(windows.active, toggled)
+            updateView(windows.active) { it.copy(selecting = false).pruned(toggled, nowEpoch()) }
+        },
+        onAddBookmark = { bookmarks = FileBookmarks.add(bookmarks, window.path) },
+        onSelectAll = {
+            updateView(windows.active) {
+                it.copy(selecting = true, selection = FileSelection().selectAll(it.visible(window, nowEpoch())))
+            }
+        },
+        onInvertSelection = {
+            updateView(windows.active) {
+                it.copy(
+                    selecting = true,
+                    selection = it.selection.invert(it.visible(window, nowEpoch())),
+                )
+            }
+        },
+        onClearResults = { results = null },
+        onTerminal = { navController.navigate(MaxDestination.Terminal.route) },
+        onHelp = { helpOpen = true },
+    )
+
+    val windowCommands = fileManagerWindowCommands(
+        window = window,
+        onRenameWindow = {
+            inputDraft = window.title.orEmpty()
+            renameWindowOpen = true
+        },
+        onSetHome = { windows = windows.with(windows.active, window.setHome()) },
+        onGoHome = { go(windows.active, window.homePath) },
+        onOpenInOther = { windows = windows.openInOther(windows.active, window.path) },
+        onSwap = { windows = windows.swap() },
+    )
+
+    val contextCommands: List<MaxCommand> = if (menuAnchor == null) {
+        emptyList()
     } else {
-        null
-    }
-
-    // الاسم القصير لا الطويل: شريط التحديد يحمل العدد واللوح والإجراءات معًا، و«اللوح الأيسر»
-    // كاملةً تُقتطع على هاتف ضيّق فيضيع نصف الإعلان. والاسم الطويل يُقرأ مسموعًا في اللوح نفسه.
-    val activePaneLabel = stringResource(
-        if (active == PaneSide.Left) {
-            R.string.max_files_side_left_short
-        } else {
-            R.string.max_files_side_right_short
-        }
-    )
-
-    /** أوامر الشاشة: كل ما لا يخصّ لوحًا بعينه، بأسمائه لا برموزه. */
-    val screenCommands = buildList {
-        add(
-            MaxCommand(
-                label = stringResource(R.string.max_files_sync_panes_cd),
-                icon = Icons.Rounded.Sync,
-                onSelect = { setPane(otherSide, DualPane.syncOther(activePane, otherPane)) },
-            )
-        )
-        add(
-            MaxCommand(
-                label = stringResource(R.string.max_files_swap_panes_cd),
-                icon = Icons.Rounded.SwapHoriz,
-                onSelect = {
-                    val (swappedLeft, swappedRight) = DualPane.swap(left, right)
-                    left = swappedLeft
-                    right = swappedRight
-                },
-            )
-        )
-        PaneLayout.entries.forEach { mode ->
-            add(
-                MaxCommand(
-                    label = stringResource(layoutLabel(mode)),
-                    icon = layoutIcon(mode),
-                    active = layout == mode,
-                    onSelect = { layout = mode },
-                )
-            )
-        }
-        add(
-            MaxCommand(
-                label = stringResource(
-                    if (linked) R.string.max_files_unlink_cd else R.string.max_files_link_cd
-                ),
-                icon = if (linked) Icons.Rounded.LinkOff else Icons.Rounded.Link,
-                active = linked,
-                onSelect = { linked = !linked },
-            )
-        )
-        add(
-            MaxCommand(
-                // الاسم يقول ما سيحدث لا ما هو كائن: القائمة تعرض الفعل القادم.
-                label = stringResource(
-                    if (activePane.showHidden) R.string.max_files_hide_hidden else R.string.max_files_show_hidden
-                ),
-                active = activePane.showHidden,
-                onSelect = {
-                    val pane = paneOf(active)
-                    setPane(active, keepVisibleSelection(pane.copy(showHidden = !pane.showHidden)))
-                },
-            )
-        )
-        add(
-            MaxCommand(
-                label = stringResource(R.string.max_files_open_terminal),
-                icon = Icons.Filled.Terminal,
-                onSelect = { navController.navigate(MaxDestination.Terminal.route) },
-            )
+        fileManagerContextCommands(
+            entries = view.entries,
+            selection = view.selection,
+            onOpen = ::openEntry,
+            onAction = { action -> perform(action, windows.active) },
         )
     }
 
-    /** المواقع السريعة وأوامر اللوح: تُطبَّق على اللوح النشط لأنها تنقل **هذا** اللوح. */
-    val paneCommands = buildList {
-        quickLocations().forEach { location ->
-            add(
-                MaxCommand(
-                    label = stringResource(location.labelRes),
-                    onSelect = { navigate(active, location.path, true) },
-                )
-            )
-        }
-        add(
-            MaxCommand(
-                label = stringResource(R.string.max_files_tab_pin),
-                icon = Icons.Rounded.Add,
-                active = PaneTabs.isPinned(activePane.tabs, activePane.path),
-                onSelect = { pinCurrentTab(active) },
-            )
-        )
-        add(
-            MaxCommand(
-                label = stringResource(R.string.max_files_edit_path_title),
-                icon = Icons.Rounded.Edit,
-                onSelect = {
-                    pathInput = paneOf(active).path
-                    pathEditSide = active
-                },
-            )
-        )
-    }
-
-    MaxSplitScreen(
-        title = stringResource(R.string.max_files_title),
-        onBack = { navController.popBackStack() },
-        accentIcon = MaxDestination.FileManager.icon,
-        accent = MaxTone.Neutral.content(),
-        condition = rootCondition,
-        snackbarHostState = snackbarHostState,
-        actions = {
-            MaxViewMenu(
-                labels = FileSortKey.entries.map { stringResource(fileSortLabel(it)) },
-                selectedIndex = FileSortKey.entries.indexOf(activePane.sort.key),
-                contentDescription = stringResource(R.string.max_files_sort_cd),
-                // القائمة بأسماء فقط: أيقونة «مجدول/موسّع» بجانب «الاسم/الحجم» لا معنى لها.
-                icons = emptyList(),
-                triggerIcon = Icons.AutoMirrored.Rounded.Sort,
-                onSelect = { index ->
-                    val key = FileSortKey.entries[index]
-                    val next = if (activePane.sort.key == key) {
-                        activePane.sort.copy(ascending = !activePane.sort.ascending)
-                    } else {
-                        activePane.sort.copy(key = key)
-                    }
-                    setPane(active, activePane.copy(sort = next))
-                },
-            )
-            MaxCommandMenu(
-                commands = screenCommands,
-                contentDescription = stringResource(R.string.max_files_menu_cd),
-                triggerIcon = Icons.Rounded.MoreVert,
-            )
-            MaxHelpAction(
-                title = stringResource(R.string.max_files_help_title),
-                body = stringResource(R.string.max_files_help_body),
-            )
-        },
-    ) {
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-        ) {
-            // كل لوح يُوصَّل **مرّة واحدة**، ولا يُكتب وِراؤه مرتين حسب اتجاه التخطيط.
-            // قبل هذا كان سلوك النقر مكتوبًا في **أربعة مواضع** (لوحان × لفّتان)، فأي تغيير
-            // فيه يجب أن يُكتب أربع مرّات — ومن ينسى واحدًا يُنتج لوحين يتصرّفان بشكلين.
-            val renderPane: @Composable (PaneSide, Modifier) -> Unit = { side, modifier ->
-                FilePaneColumn(
-                    side = side,
-                    state = paneOf(side),
-                    // اللوح النشط يُعلن بالإطار واللون **معًا** لا باللون وحده.
-                    active = active == side,
-                    diskSpace = if (side == PaneSide.Left) leftSpace else rightSpace,
-                    linked = linked,
-                    searchOpen = searchOpenOf(side),
-                    modifier = modifier,
-                    onActivate = { active = side },
-                    onPathEdit = {
-                        pathInput = paneOf(side).path
-                        pathEditSide = side
-                    },
-                    onNavigate = { navigate(side, it, true) },
-                    // القراءة الطازجة عند الإدخال (`paneOf`) لا الملتقطة عند التركيب،
-                    // وإلا كتب بحث اللوح في لقطة قديمة بعد أن تغيّر مجلده.
-                    onQueryChange = { query -> setPane(side, paneOf(side).copy(query = query)) },
-                    onSearchChange = { filter ->
-                        val pane = paneOf(side)
-                        // الترشيح يُقاس على الحالة **الجديدة**: القصّ على المجموعة القديمة
-                        // كان يُبقي تحديدًا لم يعد ظاهرًا بعد تطبيق المرشّح نفسه.
-                        setPane(side, keepVisibleSelection(pane.copy(search = filter)))
-                    },
-                    onCloseSearch = { closeSearch(side) },
-                    onPinCurrent = { pinCurrentTab(side) },
-                    onRemoveTab = { path ->
-                        val pane = paneOf(side)
-                        setPane(side, pane.copy(tabs = PaneTabs.unpin(pane.tabs, path)))
-                    },
-                    onEntryClick = { entry ->
-                        when {
-                            paneOf(side).selecting -> setPane(side, paneOf(side).toggleSelection(entry.path))
-                            entry.isDirectory -> {
-                                // الربط **قبل** الانتقال: اللوح الآخر يُنقل انطلاقًا من مساره
-                                // هو، لا انطلاقًا من مسار اللوح المنقور بعد تغييره.
-                                mirrorIntoOther(side, entry)
-                                navigate(side, entry.path, true)
-                            }
-
-                            else -> openPanel(FilePanel.Preview(entry))
-                        }
-                    },
-                    onEntryLongPress = { setPane(side, paneOf(side).toggleSelection(it.path)) },
-                )
+    val callbacks = FileManagerCallbacks(
+        onInput = { inputDraft = it },
+        onRename = { name ->
+            rename?.let { entry ->
+                guardAndRun(FileOpRequest(FileOperation.Rename, sources = listOf(entry.path), newName = name))
             }
-
-            // الوضع الصريح يتقدّم على قياس الشاشة: من اختار «جنبًا إلى جنب» على هاتف ضيّق
-            // يريده كذلك، ومن اختار «فوق/تحت» لا يُجبَر على عمودين ضيّقين. والقرار في نموذج
-            // يُختبر لا في شرط داخل التركيب.
-            if (PaneLayoutRule.sideBySide(layout, maxWidth.value, SplitThreshold.value)) {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
-                ) {
-                    renderPane(PaneSide.Left, Modifier.weight(1f))
-                    renderPane(PaneSide.Right, Modifier.weight(1f))
-                }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(MaxSpace.sm),
-                ) {
-                    renderPane(PaneSide.Left, Modifier.weight(1f))
-                    renderPane(PaneSide.Right, Modifier.weight(1f))
-                }
-            }
-        }
-
-        // شريط واحد في الأسفل يتبدّل بدوره: أدوات اللوح النشط، أو إجراءات التحديد. والتبديل
-        // مقصود: التحديد عملية طارئة تُصلح لها الأوامر، واللوح حالة دائمة تُصلح لها الأدوات.
-        if (activePane.selecting && activePane.selection.isNotEmpty) {
-            FileSelectionBar(
-                label = stringResource(R.string.max_files_selected_count, activePane.selection.count) +
-                    "  ·  " + activePaneLabel,
-                // الإجراءات المنطبقة تُحسب في النموذج: زرّ لا يعد بما لا يمكن فعله.
-                actions = FileActionSet.forSelection(activePane.entries, activePane.selection),
-                onAction = { action ->
-                    onSelectionAction(
-                        side = active,
-                        action = action,
-                        pane = activePane,
-                        onOpenPanel = openPanel,
-                        onRename = { entry ->
-                            input = entry.name
-                            renameTarget = active to entry
-                        },
-                        onDelete = { deleteTargets = active to it },
-                        onTransfer = { operation, sources ->
-                            // الوجهة الافتراضية هي اللوح الآخر — وهذا هو معنى اللوحين:
-                            // لا يكتب المستخدم مسارًا ولا ينسخ إلى مكان لم يره.
-                            destination = otherPane.path
-                            transfer = TransferRequest(operation, sources, active)
-                        },
-                        onRun = { targetSide, request -> runOperation(targetSide, request) },
-                        onClear = { setPane(active, activePane.clearSelection()) },
-                    )
-                },
-                extra = listOf(
-                    MaxCommand(
-                        // «حدّد الكل» على **النتائج** لا على المجلد: من مرّر قائمة يحدّد ما يراها.
-                        label = stringResource(
-                            R.string.max_files_select_all_results,
-                            activePane.visible().size.toString(),
-                        ),
-                        icon = Icons.Rounded.SelectAll,
-                        onSelect = {
-                            val pane = paneOf(active)
-                            setPane(
-                                active,
-                                pane.copy(selecting = true, selection = pane.selection.selectAll(pane.visible())),
-                            )
-                        },
-                    ),
-                    MaxCommand(
-                        label = stringResource(R.string.max_files_invert_results),
-                        icon = Icons.AutoMirrored.Rounded.CompareArrows,
-                        onSelect = {
-                            val pane = paneOf(active)
-                            setPane(
-                                active,
-                                pane.copy(selecting = true, selection = pane.selection.invert(pane.visible())),
-                            )
-                        },
-                    ),
-                ),
-            )
-        } else {
-            FilePaneBar(
-                searchOpen = searchOpenOf(active),
-                modifier = Modifier.padding(top = MaxSpace.sm),
-                onUp = { goUp(active) },
-                onRefresh = { refresh(active) },
-                onNewFolder = {
-                    input = ""
-                    createFolderIn = active
-                },
-                onToggleSearch = {
-                    if (searchOpenOf(active)) closeSearch(active) else setSearchOpen(active, true)
-                },
-                onToggleSelect = {
-                    // الزرّ **يحدّد الكل** لا «يدخل وضع التحديد»: وضع تحديد فارغ شاشةٌ لا
-                    // تعرض شيئًا ولا تفعل شيئًا، ومن ضغطه يريد أن يحدّد. وإن لم يُمكن تحديد
-                    // شيء (مجلد فارغ أو مرشّح لا يطابق) فالنتيجة إلغاء تحديد لا دخول في وضع.
-                    val pane = paneOf(active)
-                    val selectable = pane.visible()
-                    setPane(
-                        active,
-                        if (pane.selecting || selectable.isEmpty()) {
-                            pane.clearSelection()
-                        } else {
-                            pane.copy(selecting = true, selection = pane.selection.selectAll(selectable))
-                        },
-                    )
-                },
-                quickLocations = paneCommands,
-            )
-        }
-    }
-
-    // ── الحوارات ────────────────────────────────────────────────────────────
-
-    val rename = renameTarget
-    val renameVerdict = rename?.let { (side, entry) ->
-        FileOpGuard.check(
-            FileOpRequest(FileOperation.Rename, sources = listOf(entry.path), newName = input),
-            paneOf(side).entries.map { it.name }.toSet(),
-            paneOf(side).entries.filter { it.isDirectory }.map { it.path }.toSet(),
-        )
-    }
-    MaxInputDialog(
-        visible = rename != null,
-        title = stringResource(R.string.max_files_rename_title),
-        fieldLabel = stringResource(R.string.max_files_rename_field),
-        value = input,
-        onValueChange = { input = it },
-        confirmLabel = stringResource(R.string.max_files_confirm),
-        supportingText = fileRefusalVerdictText(renameVerdict),
-        onConfirm = {
-            if (rename != null) runOperation(
-                rename.first,
-                FileOpRequest(FileOperation.Rename, sources = listOf(rename.second.path), newName = input),
-            )
-            renameTarget = null
+            rename = null
         },
-        onDismiss = { renameTarget = null },
-    )
-
-    val folderSide = createFolderIn
-    val folderVerdict = folderSide?.let { side ->
-        FileOpGuard.check(
-            FileOpRequest(
-                FileOperation.CreateDirectory,
-                destination = paneOf(side).path,
-                newName = input,
-            ),
-            paneOf(side).entries.map { it.name }.toSet(),
-            paneOf(side).entries.filter { it.isDirectory }.map { it.path }.toSet(),
-        )
-    }
-    MaxInputDialog(
-        visible = folderSide != null,
-        title = stringResource(R.string.max_files_new_folder_title),
-        fieldLabel = stringResource(R.string.max_files_new_folder_field),
-        value = input,
-        onValueChange = { input = it },
-        confirmLabel = stringResource(R.string.max_files_confirm),
-        supportingText = fileRefusalVerdictText(folderVerdict),
-        onConfirm = {
-            if (folderSide != null) runOperation(
-                folderSide,
-                FileOpRequest(
-                    FileOperation.CreateDirectory,
-                    destination = paneOf(folderSide).path,
-                    newName = input,
-                ),
-            )
-            createFolderIn = null
+        onRenameWindow = { title ->
+            windows = windows.with(windows.active, window.withTitle(title))
+            renameWindowOpen = false
         },
-        onDismiss = { createFolderIn = null },
-    )
-
-    val transferRequest = transfer
-    val transferVerdict = transferRequest?.let {
-        FileOpGuard.check(
-            FileOpRequest(it.operation, sources = it.sources, destination = destination),
-            otherPane.entries.map { entry -> entry.name }.toSet(),
-            otherPane.entries.filter { entry -> entry.isDirectory }.map { entry -> entry.path }.toSet(),
-        )
-    }
-    MaxInputDialog(
-        visible = transferRequest != null,
-        title = stringResource(
-            if (transferRequest?.operation == FileOperation.Move) R.string.max_files_move_title
-            else R.string.max_files_copy_title
-        ),
-        fieldLabel = stringResource(R.string.max_files_destination_field),
-        value = destination,
-        onValueChange = { destination = it },
-        confirmLabel = stringResource(R.string.max_files_confirm),
-        placeholder = stringResource(R.string.max_files_destination_hint),
-        supportingText = fileRefusalVerdictText(transferVerdict),
-        confirmEnabled = destination.isNotBlank(),
-        onConfirm = {
-            if (transferRequest != null) runOperation(
-                transferRequest.from.other,
-                FileOpRequest(
-                    operation = transferRequest.operation,
-                    sources = transferRequest.sources,
-                    destination = destination,
-                ),
-            )
-            transfer = null
+        onNewFolder = { name ->
+            guardAndRun(FileOpRequest(FileOperation.CreateDirectory, destination = window.path, newName = name))
+            newFolderOpen = false
         },
-        onDismiss = { transfer = null },
-    )
-
-    val deletion = deleteTargets
-    MaxConfirmDialog(
-        visible = deletion != null,
-        title = stringResource(R.string.max_files_delete_title),
-        message = stringResource(R.string.max_files_delete_body, deletion?.second?.size ?: 0),
-        confirmLabel = stringResource(R.string.max_files_action_delete),
-        destructive = true,
-        onConfirm = {
-            if (deletion != null) runOperation(
-                deletion.first,
-                FileOpRequest(FileOperation.Delete, sources = deletion.second),
-            )
+        onNewFile = { name ->
+            guardAndRun(FileOpRequest(FileOperation.CreateFile, destination = window.path, newName = name))
+            newFileOpen = false
+        },
+        onDelete = {
+            deleteTargets?.let { targets -> guardAndRun(FileOpRequest(FileOperation.Delete, sources = targets)) }
             deleteTargets = null
         },
-        onDismiss = { deleteTargets = null },
-    )
-
-    val pathSide = pathEditSide
-    MaxInputDialog(
-        visible = pathSide != null,
-        title = stringResource(R.string.max_files_edit_path_title),
-        fieldLabel = stringResource(R.string.max_files_edit_path_field),
-        value = pathInput,
-        onValueChange = { pathInput = it },
-        confirmLabel = stringResource(R.string.max_files_confirm),
-        placeholder = stringResource(R.string.max_files_destination_hint),
-        confirmEnabled = pathInput.isNotBlank(),
-        onConfirm = {
-            pathSide?.let { navigate(it, pathInput.trim(), true) }
-            pathEditSide = null
+        onPath = { raw ->
+            pathEditOpen = false
+            val target = FileBrowser.normalize(raw)
+            if (target.isNotEmpty()) go(windows.active, target)
         },
-        onDismiss = { pathEditSide = null },
+        onProperties = { next -> properties = next },
+        onLoadSelinux = {
+            properties?.let { current ->
+                properties = current.copy(loadingSelinux = true)
+                scope.launch {
+                    val found = withContext(Dispatchers.IO) { FileSystemEngine.selinuxContext(current.entry.path) }
+                    properties = properties?.copy(selinux = found, loadingSelinux = false)
+                }
+            }
+        },
+        onLoadApk = {
+            properties?.let { current ->
+                properties = current.copy(loadingApk = true)
+                scope.launch {
+                    val facts = withContext(Dispatchers.IO) {
+                        ApkInspector.inspect(current.entry.path, context.packageManager)
+                    }
+                    properties = properties?.copy(apk = facts, loadingApk = false)
+                }
+            }
+        },
+        onToggleBit = { accessScope, bit -> properties = properties?.toggled(accessScope, bit) },
+        onApplyPermissions = {
+            properties?.let { current ->
+                guardAndRun(
+                    FileOpRequest(
+                        operation = FileOperation.ChangePermissions,
+                        sources = listOf(current.entry.path),
+                        newName = current.octal,
+                    ),
+                )
+            }
+        },
+        onApplyOwner = {
+            properties?.let { current ->
+                val spec = FilePermissionRules.ownerSpec(current.owner, current.group)
+                if (spec == null) {
+                    refused = FileOpRefusal.InvalidName
+                } else {
+                    guardAndRun(
+                        FileOpRequest(
+                            operation = FileOperation.ChangeOwner,
+                            sources = listOf(current.entry.path),
+                            newName = spec,
+                        ),
+                    )
+                }
+            }
+        },
+        onCopyPath = { value ->
+            // النسخ يُقاس: الواجهة الحديثة قد تفشل، وقول «نُسخ» بلا قياس هو الكذب نفسه الذي
+            // نمنعه في كل شاشة.
+            scope.launch {
+                val copied = runCatching {
+                    clipboardApi.setClipEntry(
+                        ClipEntry(
+                            ClipData.newPlainText(
+                                context.getString(R.string.max_files_detail_copy_label),
+                                value,
+                            ),
+                        ),
+                    )
+                }.isSuccess
+                toast(
+                    context.getString(
+                        if (copied) R.string.max_files_detail_copied else R.string.max_files_detail_copy_failed,
+                    ),
+                )
+            }
+        },
+        onEditor = { next -> editor = next },
+        onSaveEditor = {
+            editor?.let { current ->
+                val request = FileOpRequest(
+                    operation = FileOperation.WriteText,
+                    sources = listOf(current.path),
+                    content = current.text,
+                )
+                when (val verdict = FileOpGuard.check(request)) {
+                    is FileOpVerdict.Refused -> {
+                        editor = current.copy(verdict = context.getString(refusalText(verdict.reason)))
+                    }
+                    FileOpVerdict.Allowed -> {
+                        editor = current.copy(saving = true, verdict = null)
+                        scope.launch {
+                            val outcome = withContext(Dispatchers.IO) { executeFileOperation(request) }
+                            editor = editor?.copy(
+                                saving = false,
+                                savedText = if (outcome.ok) current.text else editor?.savedText.orEmpty(),
+                                verdict = outcomeText(outcome, 1),
+                            )
+                            cache.invalidateAll()
+                            refreshToken++
+                        }
+                    }
+                }
+            }
+        },
+        onReloadEditor = {
+            editor?.let { current ->
+                scope.launch {
+                    val preview = withContext(Dispatchers.IO) { FileSystemEngine.preview(current.path) }
+                    val text = (preview as? TextPreview.Ready)?.content.orEmpty()
+                    editor = editor?.copy(preview = preview, text = text, savedText = text, verdict = null)
+                }
+            }
+        },
+        onSearch = { next -> search = next },
+        onStartSearch = {
+            FileSearchPlan.of(search.root.ifBlank { window.path }, search.query, search.limits)?.let { request ->
+                searchCancelled.set(false)
+                search = search.copy(running = true, outcome = null, startedAtMs = System.currentTimeMillis())
+                results = null
+                scope.launch {
+                    val outcome = withContext(Dispatchers.IO) {
+                        FileSearchEngine.search(
+                            request = request,
+                            lister = { FileSystemEngine.list(it) },
+                            isCancelled = { searchCancelled.get() },
+                        )
+                    }
+                    search = search.copy(running = false, outcome = outcome)
+                    results = outcome
+                }
+            }
+        },
+        onCancelSearch = {
+            searchCancelled.set(true)
+            search = search.copy(running = false)
+        },
+        onConflict = { choice, forAll -> resolveConflict(choice, forAll) },
+        onDismiss = { dialog ->
+            when (dialog) {
+                FileDialog.Rename -> rename = null
+                FileDialog.RenameWindow -> renameWindowOpen = false
+                FileDialog.NewFolder -> newFolderOpen = false
+                FileDialog.NewFile -> newFileOpen = false
+                FileDialog.Delete -> deleteTargets = null
+                FileDialog.Path -> pathEditOpen = false
+                FileDialog.Refused -> refused = null
+                FileDialog.Properties -> properties = null
+                FileDialog.Editor -> editor = null
+                FileDialog.Search -> search = search.copy(open = false)
+                FileDialog.Conflict -> conflict = null
+                FileDialog.Help -> helpOpen = false
+            }
+        },
     )
 
-    val refusal = refused
-    MaxConfirmDialog(
-        visible = refusal != null,
-        title = stringResource(R.string.max_files_refused_title),
-        message = refusal?.let { fileRefusalText(it) }.orEmpty(),
-        confirmLabel = stringResource(R.string.max_files_cancel),
-        onConfirm = { refused = null },
-        onDismiss = { refused = null },
-    )
+    // ── التركيب ──────────────────────────────────────────────────────────────
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+            .onGloballyPositioned { coordinates -> rootSize = coordinates.size },
+    ) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val density = LocalDensity.current
+            val split = FileWindowsRule.sideBySide(with(density) { maxWidth.toPx() })
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding(),
+            ) {
+                FileWindowTabs(
+                    windows = windows,
+                    onSelect = { side -> activate(side) },
+                    menu = windowCommands,
+                    menuDescription = stringResource(R.string.max_files_window_menu_cd),
+                )
+
+                // الشاشة المفردة تحمل مسار النافذة النشطة وسطر حالتها مرّة واحدة. وفي العرض
+                // المزدوج يحمل كل شقّ مساره وحالته بنفسه، فلا يُكرَّر الإعلان.
+                if (!split) {
+                    FilePathBar(
+                        path = window.path,
+                        canGoBack = window.canGoBack,
+                        onBack = { windows = windows.back(windows.active) },
+                        onEditPath = {
+                            inputDraft = window.path
+                            pathEditOpen = true
+                        },
+                        onSearch = { search = SearchState(open = true, root = window.path, query = view.query) },
+                        menu = screenCommands,
+                        menuDescription = stringResource(R.string.max_files_menu_cd),
+                    )
+
+                    FileStatusLine(
+                        counts = view.counts,
+                        disk = if (windows.active == WindowSide.First) firstDisk else secondDisk,
+                        loading = view.loading,
+                    )
+                }
+
+                PaneBody(
+                    windows = windows,
+                    split = split,
+                    viewOf = ::viewOf,
+                    diskOf = { side -> if (side == WindowSide.First) firstDisk else secondDisk },
+                    rootGranted = rootGranted,
+                    results = results,
+                    onActivate = ::activate,
+                    onOpenEntry = { entry ->
+                        if (results != null) {
+                            val parent = FileBrowser.parentOf(entry.path)
+                            results = null
+                            if (parent != null) {
+                                pendingSelect = entry.path
+                                go(windows.active, parent)
+                            }
+                        } else {
+                            openEntry(entry)
+                        }
+                    },
+                    onToggleSelection = { side, entry ->
+                        updateView(side) { it.copy(selecting = true, selection = it.selection.toggle(entry.path)) }
+                    },
+                    onLongPress = { side, entry, anchor ->
+                        val current = viewOf(side)
+                        val onSelection = entry.path in current.selection.paths
+                        updateView(side) {
+                            it.copy(
+                                selecting = true,
+                                selection = if (onSelection) it.selection else FileSelection(setOf(entry.path)),
+                            )
+                        }
+                        activate(side)
+                        menuAnchor = anchor
+                    },
+                    onBack = { side -> windows = windows.back(side) },
+                    onEditPath = { side ->
+                        activate(side)
+                        inputDraft = windows.of(side).path
+                        pathEditOpen = true
+                    },
+                    onSearch = { side ->
+                        activate(side)
+                        search = SearchState(open = true, root = windows.of(side).path, query = viewOf(side).query)
+                    },
+                    menu = screenCommands,
+                    menuDescription = stringResource(R.string.max_files_menu_cd),
+                    onRetry = { refreshToken++ },
+                    modifier = Modifier.weight(1f),
+                )
+
+                fileClipboard?.let { clip ->
+                    FileClipboardBar(
+                        count = clip.count,
+                        origin = clip.origin,
+                        onPaste = { pasteIntoActive() },
+                        onClear = {
+                            fileClipboard = null
+                            clipboardOriginSide = null
+                        },
+                    )
+                }
+
+                if (tasks.isNotEmpty()) {
+                    FileTaskStrip(
+                        tasks = tasks,
+                        labelFor = { task -> stringResource(taskLabel(task.kind)) },
+                        detailFor = ::taskDetail,
+                        onCancel = { id ->
+                            cancelledTasks = cancelledTasks + id
+                            tasks = FileTaskQueue.cancel(tasks, id, System.currentTimeMillis())
+                        },
+                        onClearFinished = { tasks = FileTaskQueue.clearFinished(tasks) },
+                    )
+                }
+
+                if (view.selecting) {
+                    FileSelectionBar(
+                        count = view.selection.count,
+                        onCopy = { perform(FileAction.Copy, windows.active) },
+                        onCut = { perform(FileAction.Move, windows.active) },
+                        onDelete = { perform(FileAction.Delete, windows.active) },
+                        onRename = { perform(FileAction.Rename, windows.active) },
+                        menu = FileActionSet.forSelection(view.entries, view.selection)
+                            .filter { it != FileAction.Copy && it != FileAction.Move }
+                            .map { action ->
+                                MaxCommand(
+                                    label = stringResource(actionLabel(action)),
+                                    icon = actionIcon(action),
+                                    destructive = action.destructive,
+                                    onSelect = { perform(action, windows.active) },
+                                )
+                            },
+                        menuDescription = stringResource(R.string.max_files_action_more_cd),
+                        onClear = { perform(FileAction.Clear, windows.active) },
+                    )
+                } else {
+                    FileToolBar(
+                        upEnabled = FileBrowser.parentOf(window.path) != null,
+                        onUp = { FileBrowser.parentOf(window.path)?.let { parent -> go(windows.active, parent) } },
+                        onRefresh = {
+                            cache.invalidateAll()
+                            refreshToken++
+                        },
+                        onNewFolder = {
+                            inputDraft = ""
+                            newFolderOpen = true
+                        },
+                        onSearch = { search = SearchState(open = true, root = window.path, query = view.query) },
+                        onSelect = { updateView(windows.active) { it.copy(selecting = true) } },
+                        onDrawer = { drawerOpen = true },
+                    )
+                }
+            }
+        }
+
+        SnackbarHost(hostState = snackbar, modifier = Modifier.align(Alignment.BottomCenter))
+
+        MaxDrawer(
+            open = drawerOpen,
+            title = stringResource(R.string.max_files_title),
+            onClose = { drawerOpen = false },
+            closeDescription = stringResource(R.string.max_files_drawer_close),
+        ) {
+            FileDrawerContent(
+                path = window.path,
+                crumbs = FileBrowser.breadcrumbs(window.path),
+                bookmarks = bookmarks,
+                history = history,
+                hiddenShown = window.showHidden,
+                mountAccess = mountAccess,
+                runningTasks = FileTaskQueue.running(tasks).size,
+                onNavigate = { target ->
+                    drawerOpen = false
+                    go(windows.active, target)
+                },
+                onAddBookmark = { bookmarks = FileBookmarks.add(bookmarks, window.path) },
+                onRemoveBookmark = { path -> bookmarks = FileBookmarks.remove(bookmarks, path) },
+                onClearHistory = { history = FileHistory.clear() },
+                onToggleHidden = { windows = windows.with(windows.active, window.toggleHidden()) },
+                onRemount = { readWrite ->
+                    scope.launch {
+                        val outcome = withContext(Dispatchers.IO) { RootMount.remount(window.path, readWrite) }
+                        mountAccess = withContext(Dispatchers.IO) { RootMount.currentAccess(window.path) }
+                        toast(outcomeText(outcome, 1))
+                    }
+                },
+                onTerminal = {
+                    drawerOpen = false
+                    navController.navigate(MaxDestination.Terminal.route)
+                },
+            )
+        }
+
+        MaxContextMenu(
+            visible = menuAnchor != null,
+            anchor = menuAnchor ?: Offset.Zero,
+            commands = contextCommands,
+            onDismiss = { menuAnchor = null },
+            container = rootSize,
+        )
+
+        FileManagerDialogs(
+            windows = windows,
+            rename = rename,
+            renameWindowOpen = renameWindowOpen,
+            newFolderOpen = newFolderOpen,
+            newFileOpen = newFileOpen,
+            deleteTargets = deleteTargets,
+            pathEditOpen = pathEditOpen,
+            inputDraft = inputDraft,
+            refused = refused,
+            properties = properties,
+            editor = editor,
+            search = search,
+            conflict = conflict,
+            helpOpen = helpOpen,
+            callbacks = callbacks,
+        )
+    }
 }
 
+/**
+ * جسم المنطقة الوسطى: نافذة واحدة، أو نافذتان جنبًا إلى جنب على شاشة عريضة.
+ *
+ * والحكم من [FileWindowsRule] (يُمرَّر جاهزًا) لا من شرط مكتوب هنا: القاعدة تُقاس في JVM،
+ * وخطؤها يوقع قائمتين كسولتين في صندوق لا يتّسعهما.
+ */
+private const val SHARED_STORAGE_PREFIX = "/sdcard"

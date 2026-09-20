@@ -6,31 +6,14 @@
 <resources>
 
     <string name="max_files_title">File manager</string>
-    <string name="max_files_subtitle">Browse and modify files as root. Every operation states its own result.</string>
-
     <!-- شريط البحث والفتات -->
-    <string name="max_files_search_placeholder">Search names in this folder</string>
-    <string name="max_files_search_clear">Clear the search</string>
-    <string name="max_files_root_crumb">Root</string>
-    <string name="max_files_pane_left">Left pane</string>
-    <string name="max_files_pane_right">Right pane</string>
-    <string name="max_files_entry_count">%1$d visible entries</string>
-    <string name="max_files_sync_panes_cd">Point both panes at the active pane folder</string>
-    <string name="max_files_swap_panes_cd">Swap the two panes</string>
-    <string name="max_files_pane_no_match_title">No name matches</string>
-    <string name="max_files_pane_no_match_detail">Nothing in this folder matches %1$s. Clear the search to see every entry again.</string>
-    <string name="max_files_up_cd">Go up one folder</string>
     <string name="max_files_back_cd">Go back to the previous folder</string>
-    <string name="max_files_refresh_cd">Re-read this folder</string>
-    <string name="max_files_select_cd">Start selecting entries</string>
     <string name="max_files_selected_count">%1$d selected</string>
     <string name="max_files_open_cd">Open</string>
-    <string name="max_files_edit_path_cd">Enter a path directly</string>
     <string name="max_files_edit_path_title">Go to path</string>
     <string name="max_files_edit_path_field">Absolute path</string>
 
     <!-- ترتيب القائمة -->
-    <string name="max_files_sort_cd">Sort order</string>
     <string name="max_files_sort_name">Name</string>
     <string name="max_files_sort_size">Size</string>
     <string name="max_files_sort_date">Modified</string>
@@ -41,8 +24,6 @@
     <string name="max_files_cond_loading_detail">Running one stat pass so sizes, permissions and owners are measured rather than guessed.</string>
     <string name="max_files_cond_empty_title">This folder is empty</string>
     <string name="max_files_cond_empty_detail">The listing succeeded and returned no entries. That is a reading, not a failure.</string>
-    <string name="max_files_cond_hidden_title">Everything here is hidden</string>
-    <string name="max_files_cond_hidden_detail">The read succeeded, and every entry in this folder is hidden because its name starts with a dot. The folder summary states how many, and the pane menu can show them.</string>
     <string name="max_files_cond_notfound_title">Path not found</string>
     <string name="max_files_cond_notfound_detail">This path does not exist on the device right now.</string>
     <string name="max_files_cond_notdir_title">Not a folder</string>
@@ -71,20 +52,14 @@
     <string name="max_files_kind_fifo">Pipe</string>
     <string name="max_files_kind_socket">Socket</string>
     <string name="max_files_kind_unknown">Unknown type</string>
-    <string name="max_files_link_to">Link to %1$s</string>
-    <string name="max_files_owner_group">%1$s:%2$s</string>
-    <string name="max_files_row_cd">Open entry menu</string>
-
     <!-- الإجراءات -->
     <string name="max_files_action_rename">Rename</string>
     <string name="max_files_action_delete">Delete</string>
     <string name="max_files_action_copy">Copy</string>
-    <string name="max_files_action_move">Move</string>
     <string name="max_files_action_new_folder">New folder</string>
     <string name="max_files_action_compress">Compress to tar.gz</string>
     <string name="max_files_action_extract">Extract tar.gz here</string>
     <string name="max_files_action_details">Details</string>
-    <string name="max_files_action_preview">Preview as text</string>
     <string name="max_files_action_select_all">Select all</string>
     <string name="max_files_action_invert">Invert selection</string>
     <string name="max_files_action_done">Done</string>
@@ -97,9 +72,6 @@
     <string name="max_files_new_folder_field">Folder name</string>
     <string name="max_files_delete_title">Delete permanently</string>
     <string name="max_files_delete_body">%1$d entries will be removed with root. There is no recycle bin and no undo on this screen.</string>
-    <string name="max_files_copy_title">Copy to folder</string>
-    <string name="max_files_move_title">Move to folder</string>
-    <string name="max_files_destination_field">Destination folder</string>
     <string name="max_files_destination_hint">Absolute path, for example /sdcard/Download</string>
     <string name="max_files_confirm">Apply</string>
     <string name="max_files_cancel">Cancel</string>
@@ -120,7 +92,6 @@
     <string name="max_files_outcome_count">%1$d entries processed.</string>
 
     <!-- لوحة التفاصيل -->
-    <string name="max_files_details_title">Entry details</string>
     <string name="max_files_detail_path">Path</string>
     <string name="max_files_detail_kind">Type</string>
     <string name="max_files_detail_size">Size</string>
@@ -133,94 +104,165 @@
     <string name="max_files_detail_selinux_unknown">Not reported by this device</string>
     <string name="max_files_detail_selinux_check">Read SELinux context</string>
     <string name="max_files_detail_not_read">Not read</string>
-    <string name="max_files_flag_setuid">setuid</string>
-    <string name="max_files_flag_setgid">setgid</string>
-    <string name="max_files_flag_sticky">sticky</string>
     <string name="max_files_detail_copy_path">Copy the path</string>
     <string name="max_files_detail_copied">Path copied</string>
     <string name="max_files_detail_copy_failed">The clipboard refused the path — nothing was copied</string>
     <string name="max_files_detail_copy_label">File path</string>
 
     <!-- المعاينة النصّية -->
-    <string name="max_files_preview_title">Text preview</string>
     <string name="max_files_preview_loading_title">Reading the file</string>
-    <string name="max_files_preview_loading_detail">Starting with the first %1$s, then checking whether the content is text at all.</string>
     <string name="max_files_preview_binary_title">Binary file</string>
     <string name="max_files_preview_binary_detail">The content is not text, so it is not rendered as text. Use a hex viewer for this file.</string>
     <string name="max_files_preview_large_title">Too large to preview</string>
     <string name="max_files_preview_large_detail">Only files up to %1$s are previewed here. Open it in another tool.</string>
-    <string name="max_files_preview_truncated">Showing the first part of the file only.</string>
     <string name="max_files_preview_unreadable">The file could not be read.</string>
-    <string name="max_files_preview_readonly">This preview is read-only. Editing files is not offered on this screen.</string>
-
     <!-- الشرح -->
     <string name="max_files_help_title">How this screen decides</string>
-    <string name="max_files_help_body">Entries come from one stat pass with a fixed tab-separated format, so ls output is never parsed for data. Anything not measured is shown as unknown rather than as zero, and each pane summarises its folder: how many folders, how many files, and the space of the filesystem that pane is standing on — reported as \u201cnot read\u201d when it could not be measured. Hidden files are hidden by default and their count stays in that same summary, so hiding is announced instead of silent. Every operation is guarded before it reaches the shell: a folder cannot be copied into itself, a move cannot target its own source, and the filesystem root cannot be deleted. Tabs pin the folders you keep coming back to, inside the pane that uses them, and they survive navigation. The pane arrangement and linked navigation are yours to choose: linked navigation follows the folder by name on the other side, and when the other side has no such folder it stays where it is instead of being sent to a guessed path.</string>
-
-    <!-- ترتيب اللوحين والربط -->
-    <string name="max_files_layout_cd">Pane arrangement</string>
-    <string name="max_files_layout_auto">Automatic</string>
-    <string name="max_files_layout_side">Side by side</string>
-    <string name="max_files_layout_stack">Above and below</string>
-    <string name="max_files_link_cd">Link the navigation of the two panes</string>
-    <string name="max_files_unlink_cd">Unlink the navigation of the two panes</string>
-    <string name="max_files_linked_cd">Navigation linked to the other pane</string>
-    <string name="max_files_linked_hint">Both panes move together</string>
-
-
-    <!-- OCR-10: مرشّح البحث وتحديد النتائج -->
-    <string name="max_files_filter_kind_cd">Filter by content type</string>
-    <string name="max_files_filter_size_cd">Filter by size</string>
-    <string name="max_files_filter_age_cd">Filter by modification date</string>
-    <string name="max_files_filter_active">Filtered list</string>
-    <string name="max_files_filter_kind_any">Any type</string>
-    <string name="max_files_filter_kind_folder">Folders only</string>
-    <string name="max_files_filter_kind_image">Images</string>
-    <string name="max_files_filter_kind_video">Video</string>
-    <string name="max_files_filter_kind_audio">Audio</string>
-    <string name="max_files_filter_kind_document">Documents</string>
-    <string name="max_files_filter_kind_archive">Archives</string>
-    <string name="max_files_filter_kind_apk">Packages (APK)</string>
-    <string name="max_files_filter_size_any">Any size</string>
-    <string name="max_files_filter_size_1mb">Over 1 MB</string>
-    <string name="max_files_filter_size_10mb">Over 10 MB</string>
-    <string name="max_files_filter_size_100mb">Over 100 MB</string>
-    <string name="max_files_filter_age_any">Any date</string>
-    <string name="max_files_filter_age_today">Last 24 hours</string>
-    <string name="max_files_filter_age_week">Last 7 days</string>
-    <string name="max_files_filter_age_month">Last 30 days</string>
-    <string name="max_files_results_count">%1$s results</string>
-    <string name="max_files_results_selected">%1$s selected</string>
-    <string name="max_files_select_all_results">Select all %1$s results</string>
-    <string name="max_files_invert_results">Invert selection</string>
+    <string name="max_files_help_body">There is one extended window with two tabs, and the whole screen belongs to it: no title bar outside it and no second pane. Entries come from one stat pass with a fixed tab-separated format, so ls output is never parsed for data. Anything not measured is shown as unknown rather than as zero, and the status line states how many folders, how many files and how many hidden entries this folder holds, plus the space of its filesystem — reported as “not read” when it could not be measured. Hidden files stay hidden by default and their count stays in that same line, so hiding is announced instead of silent. A long press selects the entry and opens its commands at your finger: copy and cut fill the clipboard, and paste writes into the folder that is open in front of you, asking about name conflicts before anything is written. Every operation is guarded before it reaches the shell: a folder cannot be copied into itself, a move cannot target its own source, and the filesystem root cannot be deleted. Copies, moves, compressions and extractions run as background tasks with a measured percentage — and when a size could not be read, the task says its progress is unknown instead of inventing one. On a screen 600dp or wider the two windows appear side by side, each with its own path and its own count.</string>
 
     <!--
-      إعادة كتابة الشاشة (جولة FM-02): تبويبات اللوح · سطر حالته · شريط أوامره · مواقع سريعة.
+      سطر الحالة · قائمة الشاشة · المواقع السريعة.
       والقاعدة نفسها: لكل زرّ نصّه، ولكل حالة نصّها — لا أيقونة بلا اسم.
     -->
-    <string name="max_files_side_left_short">Left</string>
-    <string name="max_files_side_right_short">Right</string>
-    <string name="max_files_tabs_cd">Pane tabs</string>
-    <string name="max_files_tab_pin">Pin this folder as a tab</string>
-    <string name="max_files_tab_close">Remove this tab</string>
-    <string name="max_files_status_cd">Folder summary</string>
     <string name="max_files_status_folders">%1$d folders</string>
     <string name="max_files_status_files">%1$d files</string>
     <string name="max_files_status_hidden">%1$d hidden</string>
     <string name="max_files_status_disk">%1$s of %2$s</string>
     <string name="max_files_status_disk_unread">Space not read</string>
-    <string name="max_files_tools_cd">Active pane tools</string>
     <string name="max_files_menu_cd">Screen options</string>
     <string name="max_files_action_more_cd">More actions</string>
     <string name="max_files_show_hidden">Show hidden files</string>
     <string name="max_files_hide_hidden">Hide hidden files</string>
     <string name="max_files_open_terminal">Open the terminal</string>
     <string name="max_files_search_open_cd">Search this folder</string>
-    <string name="max_files_search_close_cd">Close the search</string>
-    <string name="max_files_quick_locations_cd">Quick locations</string>
     <string name="max_files_location_root">Root /</string>
     <string name="max_files_location_storage">Internal storage</string>
     <string name="max_files_location_download">Downloads</string>
     <string name="max_files_location_appdata">App data</string>
     <string name="max_files_location_system">System</string>
+
+    <!-- جولة MT-FM: نافذة واحدة بأسلوب MT — درج · حافظة · مهام · محرّر · خصائص · بحث عميق. -->
+
+    <!-- شريط الأدوات السفلي -->
+    <string name="max_files_tool_up">Up</string>
+    <string name="max_files_tool_refresh">Refresh</string>
+    <string name="max_files_tool_search">Search</string>
+    <string name="max_files_tool_select">Select</string>
+    <string name="max_files_tool_drawer">Drawer</string>
+    <string name="max_files_action_cut">Cut</string>
+    <string name="max_files_action_paste">Paste here</string>
+
+    <!-- النوافذ -->
+    <string name="max_files_window_menu_cd">Window commands</string>
+    <string name="max_files_window_rename">Name this window</string>
+    <string name="max_files_window_title_field">Window name</string>
+    <string name="max_files_window_title_note">Leave it empty to use the folder name.</string>
+    <string name="max_files_window_set_home">Set as the home of this window</string>
+    <string name="max_files_window_go_home">Go to home</string>
+    <string name="max_files_window_swap">Swap the two windows</string>
+    <string name="max_files_open_other_window">Open in the other window</string>
+
+    <!-- الحافظة -->
+    <string name="max_files_clipboard_summary">%1$d items ready to paste</string>
+    <string name="max_files_clipboard_clear">Clear the clipboard</string>
+    <string name="max_files_clipboard_same_folder">These items are already in this folder.</string>
+
+    <!-- تعارض الأسماء -->
+    <string name="max_files_conflict_title">Names already exist here</string>
+    <string name="max_files_conflict_body">%1$d names in this paste already exist in the destination folder.</string>
+    <string name="max_files_conflict_overwrite">Replace</string>
+    <string name="max_files_conflict_skip">Skip</string>
+    <string name="max_files_conflict_rename">Keep both</string>
+    <string name="max_files_conflict_for_all">Decide the same for every conflict</string>
+    <string name="max_files_conflict_more">%1$d more names</string>
+    <string name="max_files_conflict_skipped">%1$d items were skipped.</string>
+
+    <!-- المهام الخلفية -->
+    <string name="max_files_task_cancel">Cancel after the current file</string>
+    <string name="max_files_task_clear_finished">Clear the finished tasks</string>
+
+    <!-- الدرج -->
+    <string name="max_files_drawer_close">Close the drawer</string>
+    <string name="max_files_drawer_places">Places</string>
+    <string name="max_files_drawer_bookmarks">Bookmarks</string>
+    <string name="max_files_drawer_history">Visited folders</string>
+    <string name="max_files_drawer_tools">Tools</string>
+    <string name="max_files_drawer_tasks">Background tasks</string>
+    <string name="max_files_drawer_tasks_running">%1$d running now</string>
+    <string name="max_files_drawer_terminal_note">Run a command line as root</string>
+    <string name="max_files_bookmark_add">Add this folder to bookmarks</string>
+    <string name="max_files_bookmark_remove">Remove from bookmarks</string>
+    <string name="max_files_bookmarks_empty">No bookmarks yet — add the folders you keep returning to.</string>
+    <string name="max_files_history_empty">Nothing visited yet in this session.</string>
+    <string name="max_files_history_clear">Clear the history</string>
+    <string name="max_files_drawer_hidden_shown">Hidden files are shown right now</string>
+    <string name="max_files_drawer_hidden_hidden">Hidden files are hidden, and their count stays in the status line</string>
+    <string name="max_files_root_access">Read/write mode</string>
+    <string name="max_files_root_state_rw">Remounted read/write, and read back from /proc/mounts</string>
+    <string name="max_files_root_state_ro">Read-only right now</string>
+    <string name="max_files_root_state_unknown">Not read</string>
+
+    <!-- نافذة الخصائص -->
+    <string name="max_files_tab_info">Info</string>
+    <string name="max_files_tab_package">Package</string>
+    <string name="max_files_tab_permissions">Permissions</string>
+    <string name="max_files_tab_owner">Owner</string>
+    <string name="max_files_perm_owner">Owner</string>
+    <string name="max_files_perm_group">Group</string>
+    <string name="max_files_perm_other">Others</string>
+    <string name="max_files_perm_read">Read</string>
+    <string name="max_files_perm_write">Write</string>
+    <string name="max_files_perm_execute">Execute</string>
+    <string name="max_files_perm_octal">Octal value</string>
+    <string name="max_files_perm_symbolic">Symbolic: %1$s</string>
+    <string name="max_files_perm_special_set">setuid, setgid or sticky is set on this entry.</string>
+    <string name="max_files_perm_apply">Apply the permissions</string>
+    <string name="max_files_owner_apply">Apply the owner</string>
+    <string name="max_files_apk_not_read">This package has not been read yet.</string>
+    <string name="max_files_apk_read">Read the package</string>
+    <string name="max_files_apk_package">Package name</string>
+    <string name="max_files_apk_version">Version</string>
+    <string name="max_files_apk_min_sdk">Minimum SDK</string>
+    <string name="max_files_apk_activities">Activities</string>
+    <string name="max_files_apk_permissions">Requested permissions</string>
+    <string name="max_files_apk_permissions_more">… and %1$d more</string>
+    <string name="max_files_apk_signature">Signature fingerprints</string>
+
+    <!-- المحرّر -->
+    <string name="max_files_editor_close">Close the editor</string>
+    <string name="max_files_editor_save">Save the file</string>
+    <string name="max_files_editor_reload">Re-read the file from disk</string>
+    <string name="max_files_editor_undo">Undo</string>
+    <string name="max_files_editor_redo">Redo</string>
+    <string name="max_files_editor_wide_lines">Wide lines</string>
+    <string name="max_files_editor_unreadable_detail">The file could not be read, so there is nothing to edit.</string>
+    <string name="max_files_preview_limit">512 KB</string>
+
+    <!-- البحث العميق -->
+    <string name="max_files_search_title">Search by name</string>
+    <string name="max_files_search_root">Starting at %1$s</string>
+    <string name="max_files_search_query">Name contains</string>
+    <string name="max_files_search_depth">Depth</string>
+    <string name="max_files_search_results">Max results</string>
+    <string name="max_files_search_timeout">Seconds</string>
+    <string name="max_files_search_start">Search</string>
+    <string name="max_files_search_cancel">Stop</string>
+    <string name="max_files_search_hits">%1$d results after reading %2$d folders</string>
+    <string name="max_files_search_complete">The search finished without hitting any limit.</string>
+    <string name="max_files_search_hit_limit">Stopped at the result limit</string>
+    <string name="max_files_search_depth_limit">Stopped at the depth limit</string>
+    <string name="max_files_search_timed_out">Stopped at the time limit</string>
+    <string name="max_files_search_unreadable">%1$d folders could not be read</string>
+    <string name="max_files_search_cancelled">Stopped by you</string>
+    <string name="max_files_search_clear_results">Close the results</string>
+    <string name="max_files_search_results_title">%1$d search results</string>
+
+    <!-- الترتيب والفتح والإنشاء -->
+    <string name="max_files_sort_ascending">Ascending</string>
+    <string name="max_files_sort_folders_first">Folders first</string>
+    <string name="max_files_open_external_local">This file is not in shared storage, so it is not handed to another app.</string>
+    <string name="max_files_open_failed">No app accepted this file.</string>
+    <string name="max_files_new_file_title">Create a file</string>
+    <string name="max_files_new_file_field">File name</string>
+    <string name="max_files_new_file_note">An empty file. It never overwrites a file with the same name.</string>
 </resources>

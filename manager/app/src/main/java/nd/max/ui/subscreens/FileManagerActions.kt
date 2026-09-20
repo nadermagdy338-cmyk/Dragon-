@@ -15,58 +15,63 @@
  */
 
 /**
- * عقود شاشة مدير الملفات ودالّة تنفيذ إجراءات التحديد — **خارج ملف الشاشة** لسبب
- * يُقاس: الشاشة كانت تتجاوز حدّ الحجم المعلن في المستودع (١٠٠٠ سطر)، والحدّ ليس ذوقًا
- * بل كلفة قراءة: من يعدّل في الشاشة يقرأ ٩٠٠ سطر لا ١٠٦٣.
+ * عقود شاشة مدير الملفات: **ماذا يعني كل إجراء، وكيف يُبنى طلبه** — خارج ملف الشاشة.
  *
- * والمفصول هنا ليس «بقايا»: هو **الجزء الذي يُقرأ بمعزل** — أنواع اللوحة المفتوحة،
- * وطلب النقل، وخريطة الإجراء → النداء، ومواقع التنقّل السريع. أما الشاشة نفسها فتبقى
- * تركيب الحالة والواجهة.
+ * وهذا الفصل ليس تنظيمًا شكليًّا: الشاشة صارت أكبر (نوافذ · حافظة · مهام · درج · محرّر)،
+ * وحدّ الحجم المعلن في المستودع (١٠٠٠ سطر) يجعل أي إضافة إليها قرضًا على القارئ. فيبقى
+ * هنا كل ما **يُقرأ بمعزل**: موقع سريع، وترجمة إجراء إلى طلب، ونصّ سبب رفض، وتحويل فشل
+ * قراءة إلى حالة معلنة. أما الشاشة فتبقى تركيب الحالة والواجهة.
  *
- * والرؤية `internal` لا `private`: الحدّ في Kotlin على مستوى **الملف**، وهذه تصريحات
- * تُستدعى من ملف الشاشة — فالرؤية تُوسَّع إلى الحزمة وحدها، ولا تصير جزءًا من واجهة
- * التطبيق.
+ * والقاعدتان الثابتتان:
+ *
+ * 1. **الإجراء غير المناسب لا يُعرض** (‏[FileActionSet] تحكم أيّها ينطبق) — لا زرّ معطّل
+ *    يَعِد بما لا يمكن.
+ * 2. **طلب واحد يُبنى هنا ثم يُسأل [FileOpGuard] في الشاشة** — لا تُكتب قواعد الحماية مرتين.
  */
 package nd.max.ui.subscreens
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AspectRatio
-import androidx.compose.material.icons.rounded.ViewAgenda
-import androidx.compose.material.icons.rounded.ViewColumn
+import androidx.compose.material.icons.rounded.Category
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.ContentCut
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.DriveFileRenameOutline
+import androidx.compose.material.icons.rounded.FolderZip
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Schedule
+import androidx.compose.material.icons.rounded.Straighten
+import androidx.compose.material.icons.rounded.Unarchive
+import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import nd.max.R
+import nd.max.ui.design.MaxCondition
+import nd.max.ui.design.MaxConditionKind
+import nd.max.ui.util.DirectoryListing
 import nd.max.ui.util.FileAction
 import nd.max.ui.util.FileArchive
 import nd.max.ui.util.FileBrowser
 import nd.max.ui.util.FileEntry
+import nd.max.ui.util.FileFormat
+import nd.max.ui.util.FileOpGuard
+import nd.max.ui.util.FileOpRefusal
 import nd.max.ui.util.FileOpRequest
 import nd.max.ui.util.FileOperation
-import nd.max.ui.util.FilePaneState
-import nd.max.ui.util.PaneLayout
-import nd.max.ui.util.PaneSide
-
-/** اللوحة المفتوحة بدل اللوحين: تفاصيل أو معاينة. */
-internal sealed interface FilePanel {
-    data class Details(val entry: FileEntry) : FilePanel
-    data class Preview(val entry: FileEntry) : FilePanel
-}
-
-/** طلب نسخ/نقل: أيّ لوح طلبه، وماذا، وإلى أين. */
-internal data class TransferRequest(
-    val operation: FileOperation,
-    val sources: List<String>,
-    val from: PaneSide,
-)
+import nd.max.ui.util.FileSortKey
+import nd.max.ui.util.FileTask
+import nd.max.ui.util.FileTaskKind
+import nd.max.ui.util.ListingFailure
 
 /** موقع سريع: اسمه في الموارد ومساره — ولا يُخمَّن مسار في الواجهة. */
 internal data class QuickLocation(val labelRes: Int, val path: String)
 
 /**
- * المواقع السريعة: الخمسة التي يزورها المستخدم في هذه الشاشة فعلًا.
+ * المواقع السريعة: الخمسة التي تُزار فعلًا في هذه الشاشة.
  *
  * ولا «مواقع ذكية» تُخترع من القرص: قائمة المواقع قرار تصميمي معلن، ومن احتاج غيرها كتب
- * مسارًا أو ثبّت تبويبًا. وكل موقع منها قد لا يكون موجودًا على جهاز بعينه — واللوح سيقول
- * ذلك بنصّه (`Path not found`) بدل أن يُخفي الموقع أو يخمّن بديلًا عنه.
+ * مسارًا أو ثبّت مفضّلًا. وكل موقع قد لا يكون موجودًا على جهاز بعينه — والدرج يقوله بنصّه
+ * (`Path not found`) بدل أن يُخفي الموقع أو يخمّن بديلًا عنه.
  */
 internal fun quickLocations(): List<QuickLocation> = listOf(
     QuickLocation(R.string.max_files_location_root, "/"),
@@ -76,62 +81,234 @@ internal fun quickLocations(): List<QuickLocation> = listOf(
     QuickLocation(R.string.max_files_location_system, "/system"),
 )
 
-internal fun layoutLabel(layout: PaneLayout): Int = when (layout) {
-    PaneLayout.Auto -> R.string.max_files_layout_auto
-    PaneLayout.SideBySide -> R.string.max_files_layout_side
-    PaneLayout.Stacked -> R.string.max_files_layout_stack
+/** اسم الإجراء كما يُقرأ. */
+internal fun actionLabel(action: FileAction): Int = when (action) {
+    FileAction.Copy -> R.string.max_files_action_copy
+    FileAction.Move -> R.string.max_files_action_cut
+    FileAction.Compress -> R.string.max_files_action_compress
+    FileAction.Extract -> R.string.max_files_action_extract
+    FileAction.Rename -> R.string.max_files_action_rename
+    FileAction.Details -> R.string.max_files_action_details
+    FileAction.Delete -> R.string.max_files_action_delete
+    FileAction.Clear -> R.string.max_files_action_clear_selection
 }
 
-internal fun layoutIcon(layout: PaneLayout): ImageVector = when (layout) {
-    PaneLayout.Auto -> Icons.Rounded.AspectRatio
-    PaneLayout.SideBySide -> Icons.Rounded.ViewColumn
-    PaneLayout.Stacked -> Icons.Rounded.ViewAgenda
+/** رمز الإجراء — للمسح البصري فقط، والاسم دائمًا معه. */
+internal fun actionIcon(action: FileAction): ImageVector = when (action) {
+    FileAction.Copy -> Icons.Rounded.ContentCopy
+    FileAction.Move -> Icons.Rounded.ContentCut
+    FileAction.Compress -> Icons.Rounded.FolderZip
+    FileAction.Extract -> Icons.Rounded.Unarchive
+    FileAction.Rename -> Icons.Rounded.DriveFileRenameOutline
+    FileAction.Details -> Icons.Rounded.Info
+    FileAction.Delete -> Icons.Rounded.Delete
+    FileAction.Clear -> Icons.Rounded.Delete
 }
 
 /**
- * إجراءات شريط التحديد — دالّة واحدة تأخذ الحالة وترجع الأفعال، فتبقى الشاشة قابلة
- * للقراءة ولا تتفرّع قائمة `when` داخل تركيب الواجهة.
+ * طلب العملية لإجراء فوري — أو `null` حين لا يُنفَّذ من هنا.
  *
- * وملاحظة تحمي بيانات: **الفكّ يذهب إلى مجلد اللوح الحالي** لا إلى حوار وجهة إضافي،
- * و**الضغط** يبني اسم الأرشيف من محرّك الأرشيف نفسه ([FileArchive.archiveNameFor]) فلا
- * يفترق اسم الأرشيف الموعود عن اسمه المكتوب.
+ * والنسخ والقصّ **لا يُنفَّذان هنا**: يملآن الحافظة فينتظران لصقًا. ومن احتاج نقلًا فوريًّا
+ * يقطع مسافة أقلّ: قصّ ثم لصق في النافذة الأخرى — وهي رحلة يدعمها النموذج صراحةً.
  */
-internal fun onSelectionAction(
-    side: PaneSide,
-    action: FileAction,
-    pane: FilePaneState,
-    onOpenPanel: (FilePanel) -> Unit,
-    onRename: (FileEntry) -> Unit,
-    onDelete: (List<String>) -> Unit,
-    onTransfer: (FileOperation, List<String>) -> Unit,
-    onRun: (PaneSide, FileOpRequest) -> Unit,
-    onClear: () -> Unit,
-) {
-    val sources = pane.selection.paths.toList().sorted()
-    // المدخلات المختارة فعلًا، لا المسارات وحدها: نوع المدخل (أرشيف؟) يحدّد الإجراء.
-    val chosen = pane.entries.filter { it.path in pane.selection.paths }
-    when (action) {
-        FileAction.Copy -> onTransfer(FileOperation.Copy, sources)
-        FileAction.Move -> onTransfer(FileOperation.Move, sources)
-        FileAction.Delete -> onDelete(sources)
-        FileAction.Clear -> onClear()
+internal fun immediateRequest(action: FileAction, selected: List<FileEntry>, windowPath: String): FileOpRequest? {
+    val paths = selected.map { it.path }.sorted()
+    return when (action) {
+        FileAction.Delete -> FileOpRequest(FileOperation.Delete, sources = paths)
         FileAction.Compress -> {
-            val first = chosen.firstOrNull() ?: return
-            val archive = FileBrowser.childPath(pane.path, FileArchive.archiveNameFor(first.name))
-            onRun(side, FileOpRequest(FileOperation.Compress, sources = sources, destination = archive))
-        }
-        FileAction.Extract -> {
-            val archive = chosen.singleOrNull() ?: return
-            onRun(
-                side,
-                FileOpRequest(
-                    operation = FileOperation.Extract,
-                    sources = listOf(archive.path),
-                    destination = pane.path,
-                )
+            val first = selected.firstOrNull() ?: return null
+            // الاسم من محرّك الأرشيف نفسه، ثم يُزاح إن كان مشغولًا: فما وعد به الصفّ
+            // («اضغط إلى x.zip») هو ما يُكتب على القرص.
+            val name = FileOpGuard.uniqueName(
+                FileArchive.archiveNameFor(first.name),
+                selected.map { it.name }.toSet(),
+            )
+            FileOpRequest(
+                operation = FileOperation.Compress,
+                sources = paths,
+                destination = FileBrowser.childPath(windowPath, name),
             )
         }
-        FileAction.Rename -> chosen.singleOrNull()?.let(onRename) ?: return
-        FileAction.Details -> onOpenPanel(FilePanel.Details(chosen.singleOrNull() ?: return))
+        FileAction.Extract -> {
+            val archive = selected.singleOrNull() ?: return null
+            FileOpRequest(
+                operation = FileOperation.Extract,
+                sources = listOf(archive.path),
+                destination = windowPath,
+            )
+        }
+        FileAction.Copy, FileAction.Move, FileAction.Rename, FileAction.Details, FileAction.Clear -> null
     }
+}
+
+/** سبب الرفض بنصّه لا برقمه. */
+internal fun refusalText(reason: FileOpRefusal): Int = when (reason) {
+    FileOpRefusal.EmptySelection -> R.string.max_files_refuse_empty
+    FileOpRefusal.ProtectedPath -> R.string.max_files_refuse_protected
+    FileOpRefusal.SelfTarget -> R.string.max_files_refuse_self
+    FileOpRefusal.TargetInsideSource -> R.string.max_files_refuse_inside
+    FileOpRefusal.InvalidName -> R.string.max_files_refuse_name
+    FileOpRefusal.NameTaken -> R.string.max_files_refuse_taken
+}
+
+/** عنوان ترتيب القائمة. */
+internal fun sortLabel(key: FileSortKey): Int = when (key) {
+    FileSortKey.Name -> R.string.max_files_sort_name
+    FileSortKey.Size -> R.string.max_files_sort_size
+    FileSortKey.Modified -> R.string.max_files_sort_date
+    FileSortKey.Kind -> R.string.max_files_sort_kind
+}
+
+internal fun sortIcon(key: FileSortKey): ImageVector = when (key) {
+    FileSortKey.Name -> Icons.AutoMirrored.Rounded.Sort
+    FileSortKey.Size -> Icons.Rounded.Straighten
+    FileSortKey.Modified -> Icons.Rounded.Schedule
+    FileSortKey.Kind -> Icons.Rounded.Category
+}
+
+/** اسم المهمة كما يُقرأ في شريط المهام. */
+internal fun taskLabel(kind: FileTaskKind): Int = when (kind) {
+    FileTaskKind.Copy -> R.string.max_files_action_copy
+    FileTaskKind.Move -> R.string.max_files_action_cut
+    FileTaskKind.Compress -> R.string.max_files_action_compress
+    FileTaskKind.Extract -> R.string.max_files_action_extract
+    FileTaskKind.Delete -> R.string.max_files_action_delete
+}
+
+/**
+ * تقدّم مقيس أو `null`.
+ *
+ * و`null` تعني «لم تُقس الوجهة»، وتُعرض شريطًا غير محدَّد — لا صفرًا ولا نسبة مُخترعة
+ * (ADR-07: المجهول يبقى مجهولًا).
+ */
+internal fun taskDetail(task: FileTask): String? {
+    val done = FileFormat.size(task.doneBytes) ?: return null
+    val total = FileFormat.size(task.totalBytes) ?: return null
+    return "$done / $total"
+}
+
+/**
+ * حالة القراءة كما تُعرض. وهي **قرار خالص** يُختبر وحده، والنصّ يُترجم عند العرض.
+ *
+ * ولماذا الفصل: الشاشة تبني الحالة في دالّة عاديّة، و`stringResource` لا تُستدعى هناك؛
+ * ودفن النصوص في نموذج يخالف قاعدة المستودع (النماذج لا تعرف `R`). فالنموذج يقول **أيّ
+ * حالة**، والواجهة تقول **ماذا نقول عنها**.
+ */
+internal enum class ListingState {
+    Ready,
+    Loading,
+    ShellDown,
+    NotFound,
+    NotADirectory,
+    Denied,
+    Empty,
+    EmptyFiltered,
+    EmptyHidden,
+}
+
+internal fun listingState(
+    listing: DirectoryListing?,
+    loading: Boolean,
+    visibleCount: Int,
+    hiddenCount: Int,
+    filtering: Boolean,
+): ListingState = when {
+    listing == null && loading -> ListingState.Loading
+    listing == null -> ListingState.ShellDown
+    listing is DirectoryListing.Unreadable -> when (listing.reason) {
+        ListingFailure.NotFound -> ListingState.NotFound
+        ListingFailure.NotADirectory -> ListingState.NotADirectory
+        ListingFailure.PermissionDenied -> ListingState.Denied
+        ListingFailure.ShellUnavailable -> ListingState.ShellDown
+    }
+    visibleCount == 0 && filtering -> ListingState.EmptyFiltered
+    visibleCount == 0 && hiddenCount > 0 -> ListingState.EmptyHidden
+    visibleCount == 0 -> ListingState.Empty
+    else -> ListingState.Ready
+}
+
+/**
+ * حالة القراءة بنصّها وإجرائها — `null` تعني «اعرض القائمة».
+ *
+ * وكل فشل يميّز نفسه: «لا جذر» ≠ «المسار غير موجود» ≠ «ليس مجلدًا» ≠ «فارغ فعلًا». ودمجها
+ * في «تعذّرت القراءة» هو ما يجعل مدير ملفات بلا فائدة.
+ */
+@Composable
+internal fun listingCondition(
+    state: ListingState,
+    retryLabel: String,
+    onRetry: () -> Unit,
+): MaxCondition? {
+    @Composable
+    fun condition(kind: MaxConditionKind, title: Int, detail: Int, retry: Boolean = false) = MaxCondition(
+        kind = kind,
+        title = stringResource(title),
+        detail = stringResource(detail),
+        primaryActionLabel = retryLabel.takeIf { retry },
+        onPrimaryAction = onRetry.takeIf { retry },
+    )
+
+    return when (state) {
+        ListingState.Ready -> null
+        ListingState.Loading -> condition(
+            MaxConditionKind.Loading,
+            R.string.max_files_cond_loading_title,
+            R.string.max_files_cond_loading_detail,
+        )
+        ListingState.ShellDown -> condition(
+            MaxConditionKind.RootRequired,
+            R.string.max_files_cond_shell_title,
+            R.string.max_files_cond_shell_detail,
+            retry = true,
+        )
+        ListingState.NotFound -> condition(
+            MaxConditionKind.Error,
+            R.string.max_files_cond_notfound_title,
+            R.string.max_files_cond_notfound_detail,
+            retry = true,
+        )
+        ListingState.NotADirectory -> condition(
+            MaxConditionKind.Error,
+            R.string.max_files_cond_notdir_title,
+            R.string.max_files_cond_notdir_detail,
+        )
+        ListingState.Denied -> condition(
+            MaxConditionKind.RootRequired,
+            R.string.max_files_cond_denied_title,
+            R.string.max_files_cond_denied_detail,
+            retry = true,
+        )
+        ListingState.Empty, ListingState.EmptyFiltered, ListingState.EmptyHidden -> condition(
+            MaxConditionKind.Empty,
+            R.string.max_files_cond_empty_title,
+            R.string.max_files_cond_empty_detail,
+        )
+    }
+}
+
+/**
+ * شريط صدق فوق القائمة: قراءة ناقصة تُعلن نقصها ولا تُخفيه.
+ *
+ * - `attributesAvailable = false`: الأسماء وحدها وصلت، فالأحجام والصلاحيات **مجهولة**
+ *   لا صفر.
+ * - `skippedLines > 0`: أسطر لم تُفهم فهناك مداخل قد لا تظهر.
+ */
+@Composable
+internal fun listingBanner(entries: DirectoryListing.Entries?): MaxCondition? {
+    if (entries == null) return null
+    if (!entries.attributesAvailable) {
+        return MaxCondition(
+            kind = MaxConditionKind.Unavailable,
+            title = stringResource(R.string.max_files_degraded_title),
+            detail = stringResource(R.string.max_files_degraded_detail),
+        )
+    }
+    if (entries.skippedLines > 0) {
+        return MaxCondition(
+            kind = MaxConditionKind.Unavailable,
+            title = stringResource(R.string.max_files_skipped_title),
+            detail = stringResource(R.string.max_files_skipped_detail, entries.skippedLines),
+        )
+    }
+    return null
 }

@@ -131,38 +131,47 @@ class MaxViewMenuContractTest {
     }
 
     /**
-     * ترتيب اللوحين قرار نموذج لا شرط في التركيب، والدليل: الشاشة تستدعي القاعدة.
-     * والداعي: شرط داخل التركيب لا يمكن قياسه بلا جهاز، وخطؤه يُنتج لوحين متراكبين في
-     * صندوق لا يتّسعهما (قياس لا نهائي ← انهيار في `LazyColumn`).
+     * قرار العرض المزدوج يأتي من النموذج لا من شرط مكتوب في التركيب.
+     *
+     * والداعي: خطؤه يقع في **التخطيط** لا في السلوك — قائمتان كسولتان في صندوق لا يتّسعهما
+     * ترفعان استثناء قياس على جهاز المستخدم، لا في اختبار. فالقاعدة تُقاس في JVM، والشاشة
+     * تستدعيها.
      */
     @Test
-    fun thePaneArrangementComesFromTheModelRule() {
+    fun theSplitLayoutComesFromTheModelRule() {
         val screen = source("ui/subscreens/FileManagerScreen.kt")
         assertTrue(
-            "الشاشة لم تستدعِ قاعدة الترتيب المشتركة",
-            screen.contains("PaneLayoutRule.sideBySide("),
+            "الشاشة لم تستدعِ قاعدة العرض المزدوج المشتركة",
+            screen.contains("FileWindowsRule.sideBySide("),
         )
         assertFalse(
-            "قرار الترتيب مكتوب مرة ثانية داخل التركيب",
-            Regex("""maxWidth\s*>=?\s*SplitThreshold""").containsMatchIn(screen),
+            "قرار العرض مكتوب مرة ثانية بعرض ثابت داخل التركيب",
+            Regex("""maxWidth\s*>=?\s*\d""").containsMatchIn(screen),
         )
     }
 
     /**
-     * التنقّل المرتبط يُبنى في النموذج (بحثٌ في **قراءة** اللوح الآخر)، لا بدمج نصّي لمسار.
-     * والداعي: مسار مُخترع بالدمج يُنزل لوحًا على مجلد لم نقسه — و`/sdcard/Android/data`
-     * محجوب على كثير من الإصدارات، فيصير اللوح «تعذّرت القراءة» بلا سبب من المستخدم.
+     * الشاشة **تُركّب** ولا تُنفّذ: لا shell ولا دمج مسارات نصّي فيها.
+     *
+     * والداعيان مقاسان في هذه الجولة: سؤال الجذر كان يُنفَّذ بـ`PrivilegedShell` من طبقة
+     * العرض (وقد نُقل إلى `RootMount.granted()`)، والاسم الجديد في الوجهة كان يمكن أن يُبنى
+     * بدمج نصّي في الشاشة بدل `FileTargets` — ودمجٌ كهذا يجعل ما وعدت به الواجهة مختلفًا
+     * عن الاسم الذي يُكتب على القرص.
      */
     @Test
-    fun linkedNavigationAsksTheModelInsteadOfJoiningPaths() {
+    fun theScreenComposesInsteadOfRunningShellOrJoiningPaths() {
         val screen = source("ui/subscreens/FileManagerScreen.kt")
-        assertTrue(
-            "الشاشة لا تستدعي قاعدة الربط في النموذج",
-            screen.contains("DualPane.mirrorFolder(") && screen.contains("DualPane.mirrorParent("),
+        assertFalse(
+            "الشاشة تنادي shell مباشرة (ADR-11 يمنعه من طبقة العرض)",
+            screen.contains("Shell.cmd(") || screen.contains("PrivilegedShell"),
         )
         assertFalse(
-            "مسار اللوح المقابل يُبنى بدمج نصّي",
+            "مسار يُبنى بدمج نصّي داخل الشاشة بدل النموذج",
             Regex("""path\s*\+\s*"/""").containsMatchIn(screen),
+        )
+        assertTrue(
+            "اسم الوجهة لم يُطلب من النموذج",
+            screen.contains("FileTargets.destinationFor(") || screen.contains("immediateRequest("),
         )
     }
 }

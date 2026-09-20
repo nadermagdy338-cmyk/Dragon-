@@ -2,31 +2,14 @@
 <resources>
 
     <string name="max_files_title">مدير الملفات</string>
-    <string name="max_files_subtitle">تصفّح الملفات وعدّلها بالجذر. وكل عملية تعلن نتيجتها بنفسها.</string>
-
     <!-- شريط البحث والفتات -->
-    <string name="max_files_search_placeholder">ابحث في أسماء هذا المجلد</string>
-    <string name="max_files_search_clear">امسح البحث</string>
-    <string name="max_files_root_crumb">الجذر</string>
-    <string name="max_files_pane_left">اللوح الأيسر</string>
-    <string name="max_files_pane_right">اللوح الأيمن</string>
-    <string name="max_files_entry_count">%1$d مدخلًا ظاهرًا</string>
-    <string name="max_files_sync_panes_cd">اجعَل اللوحين على مجلد اللوح النشط</string>
-    <string name="max_files_swap_panes_cd">بدّل اللوحين</string>
-    <string name="max_files_pane_no_match_title">لا اسم يطابق</string>
-    <string name="max_files_pane_no_match_detail">لا شيء في هذا المجلد يطابق %1$s. امسح البحث لترى كل المدخلات مجددًا.</string>
-    <string name="max_files_up_cd">اصعد مجلدًا واحدًا</string>
     <string name="max_files_back_cd">ارجع إلى المجلد السابق</string>
-    <string name="max_files_refresh_cd">أعد قراءة هذا المجلد</string>
-    <string name="max_files_select_cd">ابدأ تحديد المدخلات</string>
     <string name="max_files_selected_count">المحدَّد: %1$d</string>
     <string name="max_files_open_cd">افتح</string>
-    <string name="max_files_edit_path_cd">أدخل مسارًا مباشرة</string>
     <string name="max_files_edit_path_title">اذهب إلى مسار</string>
     <string name="max_files_edit_path_field">المسار المطلق</string>
 
     <!-- ترتيب القائمة -->
-    <string name="max_files_sort_cd">ترتيب القائمة</string>
     <string name="max_files_sort_name">الاسم</string>
     <string name="max_files_sort_size">الحجم</string>
     <string name="max_files_sort_date">تاريخ التعديل</string>
@@ -37,8 +20,6 @@
     <string name="max_files_cond_loading_detail">تمريرة stat واحدة، ليكون الحجم والصلاحيات والمالك مقيسًا لا مقدَّرًا.</string>
     <string name="max_files_cond_empty_title">هذا المجلد فارغ</string>
     <string name="max_files_cond_empty_detail">نجحت القراءة ولم تُرجع أي مدخل. هذه قراءة، لا فشل.</string>
-    <string name="max_files_cond_hidden_title">كل ما هنا مُخفى</string>
-    <string name="max_files_cond_hidden_detail">القراءة نجحت، وكل مدخلات المجلد مخفيّة لأن أسماءها تبدأ بنقطة. وعددها مذكور في سطر حالة اللوح، وقائمة أوامر الشاشة تُظهرها.</string>
     <string name="max_files_cond_notfound_title">المسار غير موجود</string>
     <string name="max_files_cond_notfound_detail">هذا المسار غير موجود على الجهاز الآن.</string>
     <string name="max_files_cond_notdir_title">ليس مجلدًا</string>
@@ -67,20 +48,14 @@
     <string name="max_files_kind_fifo">أنبوب</string>
     <string name="max_files_kind_socket">مقبس</string>
     <string name="max_files_kind_unknown">نوع غير معروف</string>
-    <string name="max_files_link_to">رابط إلى %1$s</string>
-    <string name="max_files_owner_group">%1$s:%2$s</string>
-    <string name="max_files_row_cd">افتح قائمة المدخل</string>
-
     <!-- الإجراءات -->
     <string name="max_files_action_rename">أعد التسمية</string>
     <string name="max_files_action_delete">احذف</string>
     <string name="max_files_action_copy">انسخ</string>
-    <string name="max_files_action_move">انقل</string>
     <string name="max_files_action_new_folder">مجلد جديد</string>
     <string name="max_files_action_compress">اضغط إلى tar.gz</string>
     <string name="max_files_action_extract">فكّ tar.gz هنا</string>
     <string name="max_files_action_details">التفاصيل</string>
-    <string name="max_files_action_preview">اعرض كنصّ</string>
     <string name="max_files_action_select_all">حدّد الكل</string>
     <string name="max_files_action_invert">اعكس التحديد</string>
     <string name="max_files_action_done">تمّ</string>
@@ -93,9 +68,6 @@
     <string name="max_files_new_folder_field">اسم المجلد</string>
     <string name="max_files_delete_title">حذف نهائي</string>
     <string name="max_files_delete_body">سيُحذف %1$d مدخلًا بصلاحية الجذر. لا سلة مهملات ولا رجوع في هذه الشاشة.</string>
-    <string name="max_files_copy_title">انسخ إلى مجلد</string>
-    <string name="max_files_move_title">انقل إلى مجلد</string>
-    <string name="max_files_destination_field">المجلد الهدف</string>
     <string name="max_files_destination_hint">مسار مطلق، مثل ‎/sdcard/Download</string>
     <string name="max_files_confirm">طبّق</string>
     <string name="max_files_cancel">إلغاء</string>
@@ -116,7 +88,6 @@
     <string name="max_files_outcome_count">عُولج %1$d مدخلًا.</string>
 
     <!-- لوحة التفاصيل -->
-    <string name="max_files_details_title">تفاصيل المدخل</string>
     <string name="max_files_detail_path">المسار</string>
     <string name="max_files_detail_kind">النوع</string>
     <string name="max_files_detail_size">الحجم</string>
@@ -129,94 +100,154 @@
     <string name="max_files_detail_selinux_unknown">لا يُعلنه هذا الجهاز</string>
     <string name="max_files_detail_selinux_check">اقرأ سياق SELinux</string>
     <string name="max_files_detail_not_read">لم يُقرأ</string>
-    <string name="max_files_flag_setuid">setuid</string>
-    <string name="max_files_flag_setgid">setgid</string>
-    <string name="max_files_flag_sticky">sticky</string>
     <string name="max_files_detail_copy_path">انسخ المسار</string>
     <string name="max_files_detail_copied">نُسخ المسار</string>
     <string name="max_files_detail_copy_failed">رفضت الحافظة المسار — لم يُنسخ شيء</string>
     <string name="max_files_detail_copy_label">مسار الملف</string>
 
     <!-- المعاينة النصّية -->
-    <string name="max_files_preview_title">معاينة نصّية</string>
     <string name="max_files_preview_loading_title">يُقرأ الملف</string>
-    <string name="max_files_preview_loading_detail">نبدأ بأول %1$s، ثم نفحص هل المحتوى نصّ أصلًا.</string>
     <string name="max_files_preview_binary_title">ملف ثنائي</string>
     <string name="max_files_preview_binary_detail">المحتوى ليس نصًّا، فلا يُعرض كنصّ. استعمل عارضًا سادس عشريًّا لهذا الملف.</string>
     <string name="max_files_preview_large_title">أكبر من أن يُعاين</string>
     <string name="max_files_preview_large_detail">لا نعاين هنا إلا الملفات حتى %1$s. افتحه في أداة أخرى.</string>
-    <string name="max_files_preview_truncated">يُعرض الجزء الأول من الملف فقط.</string>
     <string name="max_files_preview_unreadable">لم نستطع قراءة الملف.</string>
-    <string name="max_files_preview_readonly">هذه المعاينة للقراءة فقط. وتحرير الملفات غير معروض في هذه الشاشة.</string>
-
     <!-- الشرح -->
     <string name="max_files_help_title">كيف تقرّر هذه الشاشة</string>
-    <string name="max_files_help_body">المدخلات تأتي من تمريرة stat واحدة بصيغة ثابتة مفصولة بتبويب، فلا يُحلَّل مخرج ls للحصول على بيانات أبدًا. وكل ما لم يُقس يُعرض مجهولًا لا صفرًا، وسطر حالة كل لوح يلخّص مجلده: كم مجلدًا وكم ملفًا، ومساحة نظام الملفات الذي يقف عليه اللوح — ويقول «غير مقروءة» حين يتعذّر قياسها. والملفات المخفيّة مخفيّة افتراضيًّا وعددها مذكور في السطر نفسه، فالإخفاء مُعلَن لا صامت. وكل عملية تُحرس قبل أن تصل إلى shell: لا يُنسخ مجلد داخل نفسه، ولا يُنقل شيء إلى مصدره، ولا يُحذف جذر نظام الملفات. والتبويبات تُثبّت المجلدات التي تعود إليها، داخل اللوح الذي يخصّها، وتبقى مع التنقّل. وترتيب اللوحين اختيارك، والتنقّل المرتبط كذلك: يتبع المجلد بالاسم في اللوح الآخر، وإن لم يوجد ذلك المجلد هناك بقي اللوح مكانه بدل أن يُرسَل إلى مسار مخمَّن.</string>
-
-    <!-- ترتيب اللوحين والربط -->
-    <string name="max_files_layout_cd">ترتيب اللوحين</string>
-    <string name="max_files_layout_auto">تلقائي</string>
-    <string name="max_files_layout_side">جنبًا إلى جنب</string>
-    <string name="max_files_layout_stack">فوق وتحت</string>
-    <string name="max_files_link_cd">اربط تنقّل اللوحين</string>
-    <string name="max_files_unlink_cd">افصل تنقّل اللوحين</string>
-    <string name="max_files_linked_cd">التنقّل مرتبط باللوح الآخر</string>
-    <string name="max_files_linked_hint">اللوحان يتحرّكان معًا</string>
-
-
-    <!-- OCR-10: مرشّح البحث وتحديد النتائج -->
-    <string name="max_files_filter_kind_cd">رشّح بنوع المحتوى</string>
-    <string name="max_files_filter_size_cd">رشّح بالحجم</string>
-    <string name="max_files_filter_age_cd">رشّح بتاريخ التعديل</string>
-    <string name="max_files_filter_active">قائمة مرشّحة</string>
-    <string name="max_files_filter_kind_any">كل الأنواع</string>
-    <string name="max_files_filter_kind_folder">المجلدات فقط</string>
-    <string name="max_files_filter_kind_image">صور</string>
-    <string name="max_files_filter_kind_video">فيديو</string>
-    <string name="max_files_filter_kind_audio">صوت</string>
-    <string name="max_files_filter_kind_document">مستندات</string>
-    <string name="max_files_filter_kind_archive">أرشيفات</string>
-    <string name="max_files_filter_kind_apk">حزم (APK)</string>
-    <string name="max_files_filter_size_any">كل الأحجام</string>
-    <string name="max_files_filter_size_1mb">أكبر من ١ م.ب</string>
-    <string name="max_files_filter_size_10mb">أكبر من ١٠ م.ب</string>
-    <string name="max_files_filter_size_100mb">أكبر من ١٠٠ م.ب</string>
-    <string name="max_files_filter_age_any">كل التواريخ</string>
-    <string name="max_files_filter_age_today">آخر ٢٤ ساعة</string>
-    <string name="max_files_filter_age_week">آخر ٧ أيام</string>
-    <string name="max_files_filter_age_month">آخر ٣٠ يومًا</string>
-    <string name="max_files_results_count">%1$s نتيجة</string>
-    <string name="max_files_results_selected">حُدَّد %1$s</string>
-    <string name="max_files_select_all_results">حدّد النتائج كلها (%1$s)</string>
-    <string name="max_files_invert_results">اعكس الاختيار</string>
+    <string name="max_files_help_body">نافذة واحدة ممتدّة بتبويبين، والشاشة كلها لها: لا شريط عنوان خارجها ولا لوح ثانٍ. والمدخلات من تمريرة stat واحدة بصيغة معلنة، فلا يُحلَّل مخرج ls للحصول على بيانات. وما لم يُقس يظهر مجهولًا لا صفرًا، وسطر الحالة يقول كم مجلدًا وكم ملفًا وكم مدخلًا مخفيًّا في هذا المجلد، ومعها مساحة نظام ملفاته — ويُقال «لم تُقرأ» حين لا تُقاس. والملفات المخفيّة تبقى مخفيّة افتراضيًّا وعددها باقٍ في السطر نفسه، فلا يكون الإخفاء صامتًا. والضغط الطويل يحدّد المدخل ويفتح أوامره عند إصبعك: النسخ والقصّ يملآن الحافظة، واللصق يكتب في المجلد المفتوح أمامك، ويسأل عن تعارض الأسماء قبل أن يُكتب شيء. وكل عملية محروسة قبل أن تصل إلى shell: لا يُنسخ مجلد داخل نفسه، ولا يُنقل عنصر فوق مصدره، ولا يُحذف جذر نظام الملفات. والنسخ والنقل والضغط والفكّ تعمل مهامَّ خلفية بنسبة مقيسة — وحين يتعذّر قراءة حجم يقول الشريط إن التقدّم غير معروف بدل أن يخترع نسبة. وعلى شاشة بعرض ٦٠٠dp فأكثر تظهر النافذتان جنبًا إلى جنب، ولكل واحدة مسارها وعددها.</string>
 
     <!--
-      إعادة كتابة الشاشة (جولة FM-02): تبويبات اللوح · سطر حالته · شريط أوامره · مواقع سريعة.
+      سطر الحالة · قائمة الشاشة · المواقع السريعة.
       والقاعدة نفسها: لكل زرّ نصّه، ولكل حالة نصّها — لا أيقونة بلا اسم.
     -->
-    <string name="max_files_side_left_short">الأيسر</string>
-    <string name="max_files_side_right_short">الأيمن</string>
-    <string name="max_files_tabs_cd">تبويبات اللوح</string>
-    <string name="max_files_tab_pin">ثبّت المجلد الحالي كتبويب</string>
-    <string name="max_files_tab_close">أزل هذا التبويب</string>
-    <string name="max_files_status_cd">ملخّص المجلد</string>
     <string name="max_files_status_folders">مجلدات: %1$d</string>
     <string name="max_files_status_files">ملفات: %1$d</string>
     <string name="max_files_status_hidden">مخفية: %1$d</string>
     <string name="max_files_status_disk">%1$s من %2$s</string>
     <string name="max_files_status_disk_unread">المساحة غير مقروءة</string>
-    <string name="max_files_tools_cd">أدوات اللوح النشط</string>
     <string name="max_files_menu_cd">خيارات الشاشة</string>
     <string name="max_files_action_more_cd">إجراءات أخرى</string>
     <string name="max_files_show_hidden">إظهار الملفات المخفية</string>
     <string name="max_files_hide_hidden">إخفاء الملفات المخفية</string>
     <string name="max_files_open_terminal">افتح الطرفية</string>
     <string name="max_files_search_open_cd">ابحث في هذا المجلد</string>
-    <string name="max_files_search_close_cd">أغلق البحث</string>
-    <string name="max_files_quick_locations_cd">مواقع سريعة</string>
     <string name="max_files_location_root">الجذر /</string>
     <string name="max_files_location_storage">التخزين الداخلي</string>
     <string name="max_files_location_download">التنزيلات</string>
     <string name="max_files_location_appdata">بيانات التطبيقات</string>
     <string name="max_files_location_system">النظام</string>
+
+    <!-- جولة MT-FM: نافذة واحدة بأسلوب MT — درج · حافظة · مهام · محرّر · خصائص · بحث عميق. -->
+    <string name="max_files_tool_up">أعلى</string>
+    <string name="max_files_tool_refresh">تحديث</string>
+    <string name="max_files_tool_search">بحث</string>
+    <string name="max_files_tool_select">تحديد</string>
+    <string name="max_files_tool_drawer">الدرج</string>
+    <string name="max_files_action_cut">قصّ</string>
+    <string name="max_files_action_paste">لصق هنا</string>
+
+    <string name="max_files_window_menu_cd">أوامر النافذة</string>
+    <string name="max_files_window_rename">سمِّ هذه النافذة</string>
+    <string name="max_files_window_title_field">اسم النافذة</string>
+    <string name="max_files_window_title_note">اتركه فارغًا لاستعمال اسم المجلد.</string>
+    <string name="max_files_window_set_home">اجعلها رئيسية لهذه النافذة</string>
+    <string name="max_files_window_go_home">الذهاب إلى الرئيسي</string>
+    <string name="max_files_window_swap">تبديل النافذتين</string>
+    <string name="max_files_open_other_window">افتح في النافذة الأخرى</string>
+
+    <string name="max_files_clipboard_summary">%1$d عناصر جاهزة للّصق</string>
+    <string name="max_files_clipboard_clear">إفراغ الحافظة</string>
+    <string name="max_files_clipboard_same_folder">هذه العناصر في هذا المجلد أصلًا.</string>
+
+    <string name="max_files_conflict_title">أسماء موجودة هنا بالفعل</string>
+    <string name="max_files_conflict_body">%1$d أسماء في هذا اللصق موجودة في مجلد الوجهة.</string>
+    <string name="max_files_conflict_overwrite">استبدال</string>
+    <string name="max_files_conflict_skip">تخطٍّ</string>
+    <string name="max_files_conflict_rename">إبقاء الاثنين</string>
+    <string name="max_files_conflict_for_all">القرار نفسه لكل تعارض</string>
+    <string name="max_files_conflict_more">%1$d أسماء أخرى</string>
+    <string name="max_files_conflict_skipped">%1$d عناصر تُخطّيت.</string>
+
+    <string name="max_files_task_cancel">إلغاء بعد الملف الحالي</string>
+    <string name="max_files_task_clear_finished">إزالة المهام المنتهية</string>
+
+    <string name="max_files_drawer_close">إغلاق الدرج</string>
+    <string name="max_files_drawer_places">الأماكن</string>
+    <string name="max_files_drawer_bookmarks">المفضّلة</string>
+    <string name="max_files_drawer_history">المجلدات المزارة</string>
+    <string name="max_files_drawer_tools">الأدوات</string>
+    <string name="max_files_drawer_tasks">المهام الخلفية</string>
+    <string name="max_files_drawer_tasks_running">%1$d جارية الآن</string>
+    <string name="max_files_drawer_terminal_note">سطر أوامر بصلاحية الجذر</string>
+    <string name="max_files_bookmark_add">أضف هذا المجلد إلى المفضّلة</string>
+    <string name="max_files_bookmark_remove">إزالة من المفضّلة</string>
+    <string name="max_files_bookmarks_empty">لا مفضّلة بعد — أضف المجلدات التي تعود إليها.</string>
+    <string name="max_files_history_empty">لم تُزر مجلدات بعد في هذه الجلسة.</string>
+    <string name="max_files_history_clear">مسح السجل</string>
+    <string name="max_files_drawer_hidden_shown">الملفات المخفيّة ظاهرة الآن</string>
+    <string name="max_files_drawer_hidden_hidden">الملفات المخفيّة مخفيّة، وعددها باقٍ في سطر الحالة</string>
+    <string name="max_files_root_access">وضع القراءة والكتابة</string>
+    <string name="max_files_root_state_rw">مُعلَّق للقراءة والكتابة، ومقروء من /proc/mounts</string>
+    <string name="max_files_root_state_ro">للقراءة فقط الآن</string>
+    <string name="max_files_root_state_unknown">لم تُقرأ</string>
+
+    <string name="max_files_tab_info">معلومات</string>
+    <string name="max_files_tab_package">الحزمة</string>
+    <string name="max_files_tab_permissions">الصلاحيات</string>
+    <string name="max_files_tab_owner">المالك</string>
+    <string name="max_files_perm_owner">المالك</string>
+    <string name="max_files_perm_group">المجموعة</string>
+    <string name="max_files_perm_other">الآخرون</string>
+    <string name="max_files_perm_read">قراءة</string>
+    <string name="max_files_perm_write">كتابة</string>
+    <string name="max_files_perm_execute">تنفيذ</string>
+    <string name="max_files_perm_octal">القيمة الثمانية</string>
+    <string name="max_files_perm_symbolic">الرمزية: %1$s</string>
+    <string name="max_files_perm_special_set">على هذا المدخل بتّة setuid أو setgid أو sticky.</string>
+    <string name="max_files_perm_apply">تطبيق الصلاحيات</string>
+    <string name="max_files_owner_apply">تطبيق المالك</string>
+    <string name="max_files_apk_not_read">لم تُقرأ هذه الحزمة بعد.</string>
+    <string name="max_files_apk_read">اقرأ الحزمة</string>
+    <string name="max_files_apk_package">اسم الحزمة</string>
+    <string name="max_files_apk_version">الإصدار</string>
+    <string name="max_files_apk_min_sdk">أدنى SDK</string>
+    <string name="max_files_apk_activities">الأنشطة</string>
+    <string name="max_files_apk_permissions">الأذونات المطلوبة</string>
+    <string name="max_files_apk_permissions_more">… و%1$d أخرى</string>
+    <string name="max_files_apk_signature">بصمات الإمضاء</string>
+
+    <string name="max_files_editor_close">إغلاق المحرّر</string>
+    <string name="max_files_editor_save">حفظ الملف</string>
+    <string name="max_files_editor_reload">أعِد قراءة الملف من القرص</string>
+    <string name="max_files_editor_undo">تراجع</string>
+    <string name="max_files_editor_redo">إعادة</string>
+    <string name="max_files_editor_wide_lines">سطور عريضة</string>
+    <string name="max_files_editor_unreadable_detail">لم يُقرأ الملف، فلا شيء لتعديله.</string>
+    <string name="max_files_preview_limit">512 KB</string>
+
+    <string name="max_files_search_title">بحث بالاسم</string>
+    <string name="max_files_search_root">بدءًا من %1$s</string>
+    <string name="max_files_search_query">الاسم يحتوي</string>
+    <string name="max_files_search_depth">العمق</string>
+    <string name="max_files_search_results">أقصى النتائج</string>
+    <string name="max_files_search_timeout">ثوانٍ</string>
+    <string name="max_files_search_start">ابحث</string>
+    <string name="max_files_search_cancel">أوقف</string>
+    <string name="max_files_search_hits">%1$d نتيجة بعد قراءة %2$d مجلدًا</string>
+    <string name="max_files_search_complete">انتهى البحث دون بلوغ أي حدّ.</string>
+    <string name="max_files_search_hit_limit">توقّف عند حدّ النتائج</string>
+    <string name="max_files_search_depth_limit">توقّف عند حدّ العمق</string>
+    <string name="max_files_search_timed_out">توقّف عند حدّ الوقت</string>
+    <string name="max_files_search_unreadable">%1$d مجلدات لم تُقرأ</string>
+    <string name="max_files_search_cancelled">أوقفته أنت</string>
+    <string name="max_files_search_clear_results">إغلاق النتائج</string>
+    <string name="max_files_search_results_title">%1$d نتيجة بحث</string>
+
+    <string name="max_files_sort_ascending">تصاعدي</string>
+    <string name="max_files_sort_folders_first">المجلدات أولًا</string>
+    <string name="max_files_open_external_local">هذا الملف ليس في التخزين المشترك، فلا يُسلَّم لتطبيق آخر.</string>
+    <string name="max_files_open_failed">لم يقبل أي تطبيق هذا الملف.</string>
+    <string name="max_files_new_file_title">إنشاء ملف</string>
+    <string name="max_files_new_file_field">اسم الملف</string>
+    <string name="max_files_new_file_note">ملف فارغ. لا يمحو ملفًا بالاسم نفسه.</string>
 </resources>

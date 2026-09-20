@@ -418,13 +418,45 @@ data class FileSelection(val paths: Set<String> = emptySet()) {
         FileSelection(entries.map { it.path }.filterNot { it in paths }.toSet())
 }
 
-enum class FileOperation { Copy, Move, Delete, Rename, CreateDirectory, Compress, Extract }
+/**
+ * العمليات المعلنة. والعضوان الجديدان (`CreateFile` و`Change*`) أُضيفا مع واجهة MT:
+ * إنشاء ملف فارغ، وتغيير صلاحيات/مالك من نافذة الخصائص — وكلاهما يمرّ بالحرس نفسه.
+ */
+enum class FileOperation {
+    Copy,
+    Move,
+    Delete,
+    Rename,
+    CreateDirectory,
+    CreateFile,
+    Compress,
+    Extract,
+    ChangePermissions,
+    ChangeOwner,
+
+    /**
+     * كتابة نصّ في ملف — «حفظ» في المحرّر الداخلي.
+     *
+     * والعملية معلنة هنا لا مُخفاة في واجهة: الحفظ يمرّ بالحرس نفسه الذي تمرّ به كل
+     * عملية، ولذلك يُرفض على الجذر ويُرفض بلا محتوى، ولا يُكتب بطرف ثالث لا يُقاس.
+     */
+    WriteText,
+}
 
 data class FileOpRequest(
     val operation: FileOperation,
     val sources: List<String> = emptyList(),
     val destination: String? = null,
     val newName: String? = null,
+    /** نصّ الحفظ — يُقرأ في [FileOperation.WriteText] وحده. */
+    val content: String? = null,
+    /**
+     * حلّ تعارض الأسماء: لكل مصدر (بمساره المطبَّع) الاسم الذي يُكتب في الوجهة.
+     *
+     * وموضعه الطلب لا ملفَّ حافظات في الشاشة: القرار قرار العملية ذاتها، والمنفّذ يقرأه
+     * فيكتب العنصر باسمه الجديد — ويُثبت الوجود على الاسم الجديد لا على القديم.
+     */
+    val renamed: Map<String, String> = emptyMap(),
 )
 
 sealed interface FileOpVerdict {
@@ -463,7 +495,7 @@ object FileOpGuard {
     ): FileOpVerdict {
         val sources = request.sources.map(FileBrowser::normalize).filter { it.isNotEmpty() }
 
-        if (request.operation == FileOperation.CreateDirectory) {
+        if (request.operation == FileOperation.CreateDirectory || request.operation == FileOperation.CreateFile) {
             val name = request.newName?.trim().orEmpty()
             return when {
                 !isValidName(name) -> FileOpVerdict.Refused(FileOpRefusal.InvalidName)
@@ -483,6 +515,30 @@ object FileOpGuard {
                 if (!isValidName(name)) return FileOpVerdict.Refused(FileOpRefusal.InvalidName)
                 if (name in existingNames) return FileOpVerdict.Refused(FileOpRefusal.NameTaken)
                 if (sources.any { it in PROTECTED }) return FileOpVerdict.Refused(FileOpRefusal.ProtectedPath)
+            }
+            FileOperation.ChangePermissions -> {
+                // الرقم يُتحقّق **قبل** أن يصل إلى shell: رقم فيه `8` أو حروف كان يُفسَّر
+                // شيء آخر عند التنفيذ، ولا يمكن التراجع عنه بعد أن وقع.
+                val octal = request.newName?.trim().orEmpty()
+                if (!FilePermissionRules.isValidOctal(octal)) {
+                    return FileOpVerdict.Refused(FileOpRefusal.InvalidName)
+                }
+                if (sources.any { it in PROTECTED }) return FileOpVerdict.Refused(FileOpRefusal.ProtectedPath)
+            }
+            FileOperation.ChangeOwner -> {
+                val spec = request.newName?.trim().orEmpty()
+                val owner = spec.substringBefore(':')
+                val group = spec.substringAfter(':', "")
+                if (FilePermissionRules.ownerSpec(owner, group) == null) {
+                    return FileOpVerdict.Refused(FileOpRefusal.InvalidName)
+                }
+                if (sources.any { it in PROTECTED }) return FileOpVerdict.Refused(FileOpRefusal.ProtectedPath)
+            }
+            FileOperation.WriteText -> {
+                val target = sources.singleOrNull()
+                    ?: return FileOpVerdict.Refused(FileOpRefusal.EmptySelection)
+                if (target in PROTECTED) return FileOpVerdict.Refused(FileOpRefusal.ProtectedPath)
+                if (request.content == null) return FileOpVerdict.Refused(FileOpRefusal.EmptySelection)
             }
             FileOperation.Copy, FileOperation.Compress, FileOperation.Extract -> Unit
         }
@@ -521,6 +577,30 @@ object FileOpGuard {
     }
 }
 
+/**
+ * إلى أين يذهب العنصر في الوجهة، وبأيّ اسم.
+ *
+ * ولماذا دالّة منفصلة: حلّ تعارض الأسماء قرار يُتّخذ في نموذج ([FileConflictRules])
+ * ويُنفَّذ في المحرّك، وكان يمكن أن يُنسى في أحدهما فينسخ المحرّك باسم قديم بعد أن
+ * وعدت الشاشة باسم جديد. فالحساب هنا مرة واحدة، ويُقاس في JVM.
+ */
+object FileTargets {
+
+    /** اسم العنصر في الوجهة: الاسم الجديد إن حُلّ تعارضه، وإلا اسمه هو. */
+    fun nameFor(source: String, renamed: Map<String, String>): String {
+        val normalized = FileBrowser.normalize(source)
+        val fresh = renamed[normalized]
+        if (fresh.isNullOrBlank()) return FileBrowser.nameOf(normalized)
+        return fresh
+    }
+
+    fun destinationFor(
+        source: String,
+        destinationDir: String,
+        renamed: Map<String, String> = emptyMap(),
+    ): String = FileBrowser.childPath(FileBrowser.normalize(destinationDir), nameFor(source, renamed))
+}
+
 /** تنسيق الحجم والزمن — في مكان واحد كي لا يختلف بين صفّ ولوحة تفاصيل. */
 object FileFormat {
 
@@ -542,6 +622,19 @@ object FileFormat {
         val rendered = if (value >= 100) String.format(Locale.US, "%.0f", value)
         else String.format(Locale.US, "%.1f", value)
         return "$rendered ${UNITS[unit]}"
+    }
+
+    /**
+     * تاريخ التعديل بصيغة مضغوطة ثابتة (`MM/dd/yy HH:mm`).
+     *
+     * والنمط **ثابت** لا مشتقّ من لغة الجهاز عن قصد: شاشة مدير الملفات كلها LTR بقرار
+     * المالك، وأعمدة التاريخ فيها ثابتة العرض، فتاريخ يُعاد تشكيله حسب اللغة يُنتج عرضًا
+     * يتغيّر طوله فينهار العمود. و`null` تبقى `null` (لم يُقرأ) ولا تصير تاريخ اليوم.
+     */
+    fun date(epochSec: Long?): String? {
+        if (epochSec == null || epochSec <= 0L) return null
+        val formatter = java.text.SimpleDateFormat("MM/dd/yy HH:mm", Locale.US)
+        return formatter.format(java.util.Date(epochSec * 1000L))
     }
 
     /** الصلاحيات الرمزية إن وُجدت، وإلا الرقم الثماني. */
