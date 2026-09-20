@@ -1519,6 +1519,17 @@
     <string name="diagnostics_workflow_title">مسار التحقيق</string>
     <string name="diagnostics_workflow_desc">ابدأ بالعمليات الحية ثم افحص الأحداث والسجلات ثم استخدم طرفية الجذر فقط عند الحاجة إلى تحقق أعمق.</string>
     <string name="diagnostics_inspection_only">فحص فقط</string>
+    <string name="diagnostics_capability_matrix">مصفوفة قدرات العتاد</string>
+    <string name="diagnostics_detecting_interfaces">جارٍ الكشف عن واجهات العتاد…</string>
+    <string name="diagnostics_refresh">تحديث</string>
+    <string name="diagnostics_access_read_write">مدعوم · قراءة/كتابة</string>
+    <string name="diagnostics_access_read_only">مكتشَف · قراءة فقط</string>
+    <string name="diagnostics_access_none">غير مكتشَف على هذا الجهاز</string>
+    <string name="diagnostics_capability_matrix_hint">تبقى أدوات التحكم غير المتاحة ظاهرة ليتمكّن المستخدم من الإبلاغ عن جهازه وتوسيع الدعم.</string>
+    <string name="diagnostics_route_eligible">مسار مُتحقَّق · %1$s</string>
+    <string name="diagnostics_route_blocked">لا مسار مُتحقَّق · %1$s</string>
+    <string name="diagnostics_route_not_reviewed">المسار غير مُراجَع · %1$s</string>
+    <string name="diagnostics_route_unknown">لا دليل على مسار</string>
     <string name="diagnostics_step_01">01</string>
     <string name="diagnostics_step_02">02</string>
     <string name="diagnostics_step_03">03</string>

@@ -372,8 +372,12 @@ object AppMonitor {
             hardwareControlRegistry.verifyAndRepair().forEach { result ->
                 if (!result.successful) {
                     AppMonitorLogger.w("EVENT=APPLY_DRIFT_REASSERT_FAILED knob=${result.key} pkg=$pkg expected=${result.requested} live=${result.actual ?: "none"} error=${result.error ?: "unknown"} sw=$currentSwitchId")
-                } else if (result.attempts > 1) {
-                    AppMonitorLogger.i("EVENT=APPLY_DRIFT_REPAIRED knob=${result.key} pkg=$pkg expected=${result.requested} attempts=${result.attempts} sw=$currentSwitchId")
+                } else if (result.driftedBefore == true) {
+                    // Only a knob that had actually diverged is a repair. The previous condition here
+                    // (`attempts > 1`) was unreachable: `attempts` is 1 or 0 by construction, so a
+                    // successful repair of a vendor reclaim was logged as nothing at all — the one
+                    // event worth seeing in a drift log.
+                    AppMonitorLogger.i("EVENT=APPLY_DRIFT_REPAIRED knob=${result.key} pkg=$pkg expected=${result.requested} live=${result.actual ?: "none"} sw=$currentSwitchId")
                 }
             }
         }.onFailure { AppMonitorLogger.e("EVENT=DRIFT_CHECK_FAILED knob=hardware_registry pkg=$pkg sw=$currentSwitchId", it) }
@@ -1023,6 +1027,13 @@ object AppMonitor {
                 profile,
                 ProfilePresetStore.percentFor(systemContext, profile),
             ) ?: return@runCatching
+            // ملاحظة عقد (مقصودة، لا عطب): هذا المقبض يتحقّق من **السقف** (`max`) لا من المدى
+            // كاملًا، ولهذا لا يستعمل `encodeLive` المشتركة: لو قارنّا المدى أيضًا، لأدى أدنى
+            // تثبيت من السائق للحدّ الأدنى (`min`) — وهو ما يفعله كثير من السائقين — إلى تصنيف
+            // سقفٍ ناجح فاشلًا ثم استرجاعه. التحقق من السقف هو ما طلبه المستخدم وما يفعله
+            // التطبيق فعليًا. أما `encodeLive` فهي الصيغة القياسية في مواضعها (GPU Studio و
+            // `PerAppFrequencyController`) حيث الطلب مدى كامل وليس سقفًا فقط.
+            //
             // القيمة المطلوبة تُلتقط من ترددات الجهاز المُعلنة **قبل** أن تصير عقدًا.
             // المُحكِّم يُثبت المعاملة بتساوي نصّين (المطلوب = المقروء)، فأي قيمة لا
             // يستطيع الجهاز حملها — إعداد محفوظ من نواة أو جهاز آخر، أو ملف مستورد،
@@ -1043,7 +1054,7 @@ object AppMonitor {
                         val live = GpuHardwareBackend.refresh(device.path) ?: return@let false
                         val low = live.frequencies.firstOrNull() ?: return@let false
                         val capped = live.frequencies.lastOrNull { it <= target } ?: return@let false
-                        GpuHardwareBackend.apply(
+                        GpuHardwareBackend.applyValidated(
                             live,
                             if (live.rangeWritable) {
                                 GpuHardwareBackend.Request(low, capped)
@@ -1057,10 +1068,11 @@ object AppMonitor {
                         GpuHardwareBackend.effectiveFrequency(live)?.toString()
                     }
                 },
-                baseline = GpuHardwareBackend.encodeBaseline(baseline),
-                restore = { value ->
-                    GpuHardwareBackend.decodeBaseline(value)?.let(GpuHardwareBackend::restoreBaseline) == true
-                },
+                // The arbiter owns the encoded live value for this request; the backend baseline
+                // object is captured separately so rollback never tries to decode a scalar as a
+                // five-field baseline record.
+                baseline = GpuHardwareBackend.effectiveFrequency(device)?.toString(),
+                restore = { GpuHardwareBackend.restoreBaseline(baseline) },
             )
         }.onFailure { AppMonitorLogger.e("ownership: GPU frequency registration failed for '$pkgName' sw=$currentSwitchId", it) }
 

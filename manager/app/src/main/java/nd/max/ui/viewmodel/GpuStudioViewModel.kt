@@ -253,7 +253,7 @@ class GpuStudioViewModel @Inject constructor(
                 // الطلب نفسه يُطبَّق لا نصّ يُفكّ من جديد: المُحكِّم لا يُطبِّق إلا
                 // `desired` الخاص بهذا الطلب، فإعادة الترميز هنا كانت تُسقط
                 // `releaseLock` لو أُضيف حقل للمخطط لاحقًا.
-                apply = { GpuHardwareBackend.apply(device, pending).verified },
+                apply = { GpuHardwareBackend.applyValidated(device, pending).writeSucceeded },
                 read = {
                     GpuHardwareBackend.refresh(device.path)?.let { live ->
                         GpuHardwareBackend.encodeLive(live, pending)

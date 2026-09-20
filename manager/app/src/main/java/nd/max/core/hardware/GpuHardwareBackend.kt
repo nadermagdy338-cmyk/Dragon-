@@ -386,6 +386,19 @@ object GpuHardwareBackend {
             )
         val error = validate(live, request)
         if (error != null) return TransactionResult(request, live, false, false, error = error)
+        return applyValidated(live, request, io)
+    }
+
+    /**
+     * Applies a request to an already-selected and already-validated provider.
+     *
+     * The caller must own the control transaction (normally through
+     * [HardwareControlArbiter]). This seam prevents a control arbiter callback
+     * from selecting and transacting the same hardware a second time.
+     */
+    fun applyValidated(live: Device, request: Request, io: Io = SystemIo): TransactionResult {
+        val error = validate(live, request)
+        if (error != null) return TransactionResult(request, live, false, false, error = error)
         return when {
             request.releaseLock -> applyMtkRelease(live, request, io)
             request.minFreq != null && request.minFreq == request.maxFreq && live.mtkFixedIndexPath != null -> applyMtkExact(live, request, io)

@@ -4255,3 +4255,161 @@ python3 tools/i18n_coverage.py --assert
 بناء الوحدة والتطبيق وتثبيتهما قبل الحكم، ثم إرسال سجل يتضمن `PERAPP_COMMIT` و`PROFILE_SKIP_GPU_FORCE`.
 
 **التسليم:** `DONE_WITH_CONCERNS`.
+
+## تكملة ٦٣ — `ATLAS-SELF-REPAIR-01`: تنفيذ حلقة القرار والتحقق — 2026-09-20
+
+**الطلب:** جعل Max Atlas يفهم هدف التحكم، يختار الطريق الآمن، ينفذ عبر الـarbiter، يتحقق من القراءة والثبات، ويتراجع عند الفشل، مع إصلاح مسار GPU Studio وPer-App الذي كان يكتب عبر backend داخل كاتب آخر.
+
+**ما أُنجز:**
+- إضافة `AtlasControlIntent` لأهداف وتحكمات typed بدل تمرير مسارات أو أوامر shell من الواجهة.
+- إضافة `AtlasRoutePlanner` لاختيار transport بالترتيب: platform hint ثم vendor bridge ثم daemon ثم arbiter، مع رفض route الغامض أو غير القابل للتراجع.
+- إضافة `HardwareRepairExecutor` بمعاملة واحدة، read-back، نافذة ثبات bounded، وإرجاع baseline عند drift.
+- جعل `GpuHardwareBackend.applyValidated` seam للتطبيق بعد امتلاك الـarbiter، ومنع GPU Studio من إعادة اختيار provider أو فتح معاملة داخل callback الـarbiter.
+- توصيل GPU Studio بالـarbiter بصيغة تحقق تشمل المدى، governor، وقفل OPP بدل مقارنة المدى وحده.
+- إصلاح `PerAppFrequencyController` ليستعمل `applyValidated` بعد اختيار ownership، بدل nested transaction في `GpuHardwareBackend.apply`.
+- تحديث حارس `AtlasArchitectureTest` ليتضمن ملفات Atlas الجديدة (`19` ملفًا) بدل فشل اختبار بنيوي بسبب العدد الثابت القديم.
+
+**التحقق:**
+- `python3 tools/kt_balance.py --assert` → `723 ملفًا · 0 عوائق`.
+- `python3 tools/code_health.py --assert` → exit 0، والصحّة صفر.
+- `python3 tools/i18n_coverage.py --assert` → exit 0، `0` عوائق.
+- `python3 tools/repo_audit.py` → `PROBLEMS: 0`.
+- `git diff --check` → نظيف.
+- الاختبارات المستهدفة → نجاح.
+- `:app:testReleaseUnitTest` → **1167 اختبارًا · 0 فشل**.
+- `:app:assembleDebug` → **BUILD SUCCESSFUL**.
+
+**الملاحظات:** ظهرت محاولة أولى فاشلة لاختبار `AtlasArchitectureTest` لأن الاختبار كان يتوقع `17` ملفًا بعد إضافة ملفي intent/route؛ تم تصحيح الاختبار وإعادة تشغيل الاختبارات كاملة بنجاح. ما زالت تحذيرات Kotlin/Deprecated الموجودة في المشروع تظهر، ولم تُعامل كأخطاء.
+
+**الحدود:** لم يُثبت أي مسار على هاتف فعلي في هذه الجولة؛ نجاح Gradle يثبت الترجمة والاختبارات وAPK debug فقط، لا صلاحيات SELinux أو اختلاف vendor أو نجاح كتابة sysfs في 90% من الأجهزة. توقيع release لم يُختبر لغياب `KS_PWD` عمدًا.
+
+**التسليم:** `DONE_WITH_CONCERNS`.
+
+### تصحيح في المراجعة (نفس اليوم) — ثلاثة قيود لم تُذكر أعلاه
+
+المراجعة عثرت على ما يلي، ويُسجَّل لأنه يمنع استنتاجًا خاطئًا من هذا السجل:
+
+1. **الطبقة الجديدة غير موصولة بأي مسار إنتاجي.** `HardwareRepairExecutor(`, `AtlasRoutePlanner.choose`,
+   `AtlasControlIntent(` لا تظهر إلا في `app/src/test/**`. فما أُنجز **ركيزة مُختبرة**، وليس أن Atlas صار
+   يقرر ويصلح في التطبيق المُشحون. عَرْض "Atlas أصلح" غير صحيح اليوم.
+2. **نافذة الثبات أقصر من العطب الذي وُضعت له.** `HardwareRepairExecutor` = ٣ عيّنات × ٤٠ مللي (أول
+   عيّنة فورية ⇒ نافذة ≈ ٨٠ مللي)، و`PerAppControlRegistry.stable()` مثله — بينما العدو موثّق في هذا
+   الملف بأنه كاتب vendor دوري، ووتيرة إعادة الإثبات في `AppMonitor` هي `10_000` مللي. فالعملية تُعلن
+   `VERIFIED_STABLE` في كل الحالات تقريبًا، والثبات الحقيقي يظلّ مسؤولية حلقة الانحراف لا هذه النافذة.
+3. **انحراف عابر يُسقط مقبض Per-App لجلسة التطبيق كلها.** في `PerAppControlRegistry.own` فشل الثبات
+   ⇒ `release` + `refusals[key]` و**لا يُسجَّل الإدخال**، و`verifyAndRepair()` لا يمرّ إلا على `entries`،
+   فلا إعادة محاولة ما دام التطبيق في المقدمة. أي كتابة vendor تقع داخل ٨٠ مللي تُنتج الأثر نفسه الذي
+   جاءت هذه الجولة لإزالته: "أضبط GPU فلا يتغير شيء".
+
+وما تحقّق صحيحًا وأُبقي: لا كاتب متداخل — `applyValidated` في المواضع الثلاثة المقصودة فقط؛ والملكية عبر
+`SharedHardwareOwnershipStore` فيها `removeStaleIntents` بفحص حياة العملية، فلا تسرّب عقدة لعملية ميتة.
+
+## تكملة ٦٤ — `ATLAS-SELF-REPAIR-02`: إصلاح ما كشفته المراجعة — 2026-09-20
+
+**الطلب:** إصلاح ملاحظات المراجعة نفسها، لا إعادة وصفها.
+
+**عطبان حقيقيان أُثبتا بالمخالفة قبل الإصلاح (وهذا جوهر هذا التسليم):**
+
+1. **انحراف عابر كان يُسقط مقبض Per-App لجلسة التطبيق كلها.** `PerAppControlRegistry.own` كان لا
+   يسجّل الإدخال عند فشل الثبات، و`verifyAndRepair()` لا يمرّ إلا على المسجَّل — فلا إعادة محاولة أبدًا.
+2. **`ConcurrentModificationException` في حلقة الانحراف.** كانت تُكرِّر على `entries.values` (عرض حيّ)
+   وتحذف منه في الوقت ذاته، فأول مقبض يخفق كان يُسقط الدورة كاملة ولا تُصلح المقابض التالية — وهو
+   بالضبط ما كُتبت الحلقة من أجله. كان المستهلك يلتقطها داخل `runCatching` فيسجّل
+   `EVENT=DRIFT_CHECK_FAILED` بلا أثر مرئي على المستخدم.
+
+**الإصلاحات:**
+- `PerAppControlRegistry` صار يمرّر كل كتابة عبر `HardwareRepairExecutor` — تطبيق واحد لـ«اكتب، أكِّد
+  داخل نافذة، استرجع عند الفشل» بدل نسختين (حُذفت `stable()` المكرّرة).
+- `record()`: فشل الانحراف **يُبقي الإدخال** ليُصلحه مرور الانحراف المُقيَّد (كل ١٠ ثوانٍ) بدل ضياعه؛
+  والحظر (قفل يدوي/مالك آخر) أو فشل لم يُستَعد **يُحجَز ولا يُعاد** — فالحلقة تبقى مُقيَّدة.
+- `verifyAndRepair()` تُكرِّر على **لقطة** `entries.entries.toList()`.
+- `HardwareRepairState.VERIFIED_STABLE` → `CONFIRMED_WINDOW` مع توثيق صريح: النافذة ≈٨٠ مللي تأكيد
+  **سريع**، والثبات المستدام ملك حلقة الانحراف (١٠ ثوانٍ). الاسم القديم كان يدّعي ما لا يقيسه القياس.
+- `HardwareRepairRequest.confirmationWindowMs` مشتقة ومعروضة بدل ضمْن الرقم في اسم الحالة.
+- `HardwareRepairExecutor.labelFor(key)` لتوليد معرّف معاملة قانوني من أي مفتاح (`cpu_limits:/sys/...`
+  ← `cpu-limits-sys-devices-...`) — للتقارير فقط، والملكية تبقى على `Request.key` غير الممسوس.
+- `PerAppFrequencyController` ترك صيغته المحلية وصار يستعمل `encodeRequest`/`encodeLive` القياسيتين،
+  وصار الطلب المُطبَّق هو نفسه المُتحقَّق منه. أُبقي عقد AppMonitor كما هو **مقصودًا** (يتحقّق من السقف
+  وحده) ووُثِّق سبب عدم استعماله `encodeLive`: مقارنة المدى كاملًا كانت ستُعيد سقوفًا ناجحة لأن كثيرًا من
+  السائقين يثبّتون الحدّ الأدنى.
+- حارس `AtlasArchitectureTest` لم يعد رقمًا ثابتًا: كل ملف في حزمة Atlas إما في مسار القراءة المُحرَّم أو
+  في قائمة معلَنة بسببها، والعدد **مُشتق** لا مكتوب. ونُقل `AtlasBackendProvider` و`AtlasDeviceIdentity`
+  إلى مسار القراءة لأنها تقرأ الجهاز فعلًا.
+
+**دليل إثبات أن الاختبارين يمسكان العطب حقًا (وليسا زينة):**
+
+```
+# أعِد السلوك القديم مؤقتًا (إسقاط الإدخال + التكرار على العرض الحي):
+PerAppControlRegistryTest > the drift pass reports every knob instead of aborting on the first failure FAILED
+    java.util.ConcurrentModificationException at PerAppControlRegistryTest.kt:87
+PerAppControlRegistryTest > a knob taken back inside the window stays registered so the drift pass can repair it FAILED
+3 tests completed, 2 failed
+```
+ثم أُعيد الإصلاح وتشغّلت الحزمة كاملة: `1173 اختبارًا · 0 فشل`.
+
+**التحقق:** `kt_balance` 724/0 · `code_health` exit 0 · `i18n` exit 0 · `repo_audit` PROBLEMS: 0 ·
+`git diff --check` نظيف · `:app:testReleaseUnitTest` **1173 · 0 فشل** · `:app:assembleDebug` ناجح ·
+APK ‎121,084,120‎ بايت.
+
+**ما بقي غير موصول:** الطبقة الجديدة لم تعد ميتة في مسار Per-App (صارت المسار الوحيد هناك)، لكن
+`AtlasRoutePlanner`/`AtlasControlIntent` لا يزالان بلا مستهلك إنتاجي: لا شاشة ولا مجموعة مرشّحين تبني
+`AtlasRouteEvidence` من عتاد حقيقي. وربطهما يحتاج قرارًا حول مسار الكتابة في الواجهة، ولا يُنفَّذ بلا جهاز
+للاختبار.
+
+**الحدود:** لا دليل جهاز. نجاح Gradle يثبت الترجمة والاختبارات وحزمة debug. ولم يُختبر `assembleRelease`
+لغياب `KS_PWD`. وهذا التغيير يمسّ `core/hardware` ⇒ يبقى **مفتوحًا** حتى حكم سلامة من Luna (`AGENTS.md` §2،
+`docs/ai/REVIEW.md` §6).
+
+**التسليم:** `DONE_WITH_CONCERNS`.
+
+## تكملة ٦٥ — `ATLAS-ROUTE-01`: إعطاء مخطط المسارات مستهلكًا إنتاجيًا + إغلاق آخر ثغرة مُعلنة — 2026-09-20
+
+**الطلب:** «أكمل» — أي إغلاق ما بقي مفتوحًا صراحة في تكملة ٦٣/٦٤.
+
+**١. `AtlasRoutePlanner` لم يعد كودًا ميتًا.** المخطِّط كان مُختبرًا وبلا مستهلك، وهذا ما يستحيل إثباته من
+الواجهة. أُضيف `core/diagnostics/HardwareRouteHealth.kt`:
+
+- يبني أدلة كل مسار من **حواجز القراءة فقط** (`CpuHardwareBackend.DiscoveryIo` و`GpuHardwareBackend.ReadIo`
+  — لا أحد منهما يملك عضو كتابة أصلًا) للوحدة وخط الأساس، ومن `HardwareCapabilitySnapshot` للصلاحية.
+- يُعيد حُكمًا لكل تحكم: `ELIGIBLE` مع النقل المُختار، أو `BLOCKED` بسبب بعينه، أو `REVIEW_REQUIRED`.
+- **موضعه `core/diagnostics` لا `core/atlas` عن قصد:** حارس `AtlasArchitectureTest` يمنع ذكر `writable` داخل
+  `core/atlas`، فبناء الأدلة هناك كان سيُضعف الحارس أو يُكسره.
+- **لا مسارات مُختلقة:** المسار الوحيد المُعلَن هو مسار الـarbiter المُتحقَّق (المُنفَّذ فعلًا في هذا البناء).
+  Thermal/Display/ZRAM تُعاد `REVIEW_REQUIRED` أي «لم يُراجَع» — وهي حقيقة عن معرفتنا، لا «غير مدعوم» وهي
+  ادّعاء عن الجهاز لم يُثبته أحد.
+
+**٢. ظهوره للمستخدم.** في `DiagnosticsScreen` تُعرض الآن تحت كل قدرة، إلى جانب مستوى الوصول، سطرُ حكم المسار:
+كلمة الحالة مُترجَمة + كود `AtlasRouteReason` كما هو (`blocked:privilege_unavailable`،
+`review_required:route_not_reviewed`) — لأن هذا سطح الفحص، والكود هو ما يُقارَن في تقرير دعم، وسببٌ مترجم
+يكون سببًا مختلفًا في كل لغة. **١١ نصًا جديدًا في `values/` و`values-ar/` معًا** (ADR-14).
+
+**٣. ثغرة سجل أُغلقت.** كان `EVENT=APPLY_DRIFT_REPAIRED` غير قابل للوصول: شرطه `attempts > 1` و`attempts`
+لا تكون إلا ١ أو ٠ بالبناء. أُضيف `RepairResult.driftedBefore` (يُقاس بقراءة **قبل** المحاولة — و`applied`
+وحدها لا تصلح لأن الـarbiter يعيد `applied = true` للقيمة الصحيحة أصلًا، فلو اشتُقّ الإصلاح منها لتكرر السجل
+كل عشر ثوانٍ على مقبض سليم)، وصار السجل يعني: كاتب خارجي أخذ القيمة فعلًا وأُعيدت.
+
+**٤. البوابة أمسكتني — وهذا صحيح.** إضافتي إلى `DiagnosticsScreen` دفعته إلى `1019` سطرًا وتجاوز سقف
+«الملفات الضخمة» (10 ← 11)، فسقطت `code_health --assert`. ولم أُخفِّض العتبة: **أُخرجت البطاقة إلى مكوّن**
+`ui/component/CapabilityMatrixCard.kt` (102 سطرًا) + `RouteVerdictLabel.kt` (57 سطرًا)، فنزل الملف من
+`981` (قبل هذا التسليم) إلى **`948`** — أي بعيد عن السقف لا على حرفه، وهو التقسيم الصحيح أصلًا (شاشة لا
+ينبغي أن تملك بطاقة بخمسين سطرًا). وثلاثة نصوص صلبة صارت `R.string`، فنزل دَين `hardcoded_ui_literals`
+من `66` إلى `63`، و**خُفِّض السقف في `tools/code_health_baseline.json`** كما تشترط قاعدة الدَّين.
+
+**التحقق:** `:app:testReleaseUnitTest` **1180 اختبارًا · 0 فشل · 0 خطأ · 0 متخطّى** (كان 1173 ⇒ +7) ·
+`:app:assembleDebug` ناجح · APK ‎121,089,848‎ بايت · `kt_balance` 728/0 · `code_health --assert` exit 0
+(الصحّة صفر والسقف `10/29/63/23`) · `i18n_coverage --assert` exit 0 · `repo_audit` `PROBLEMS: 0` ·
+`git diff --check` نظيف.
+
+**الاختبارات الجديدة مُثبتة لا مُفترضة:** `HardwareRouteHealthTest` (٦) تبني أجهزة وهمية:
+جهاز قابل للكتابة بخط أساس مقروء ⇒ `ELIGIBLE` عبر arbiter · جهاز للقراءة فقط ⇒ `BLOCKED` بسبب
+`PRIVILEGE_UNAVAILABLE` · سياسة بلا حدود مُثبتة ⇒ `BLOCKED` بسبب `UNIT_AMBIGUOUS` **بينما حاكم CPU
+العام لا يزال مؤهلًا** (الفشل محلي لا يُسقط الجهاز) · معالجان GPU متساويان في الإثبات ⇒ `BLOCKED` بسبب
+`PROVIDER_AMBIGUOUS` (تنبيه: كان الفلتر يُسقط المرشّح الغامض فيُحوّل «لا أعرف أي GPU» إلى «لا GPU» — وهو
+ادّعاء آخر، وأُصلح) · جهاز فارغ ⇒ `REVIEW_REQUIRED` لا «مدعوم» ولا «معطوب».
+
+**ما يظل غير مُدَّعى:** الحُكم يُخبر بوجود مسار تفعيل مُثبت، **ولا** يُخبر أن هدفًا معيّنًا (إطارات أو حرارة)
+سيُبلَغ — وهذا الفصل مقصود ومكتوب في الكود. ولا دليل جهاز على أن الحُكم يطابق هاتفًا حقيقيًا؛ ولا يزال
+`assembleRelease` غير مُختبر (غياب `KS_PWD`)، وهذا التسليم يمسّ `core/hardware` و`core/diagnostics` ⇒ يبقى
+مفتوحًا حتى حكم سلامة من Luna (`AGENTS.md` §2).
+
+**التسليم:** `DONE_WITH_CONCERNS`.

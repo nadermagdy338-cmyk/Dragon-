@@ -83,28 +83,30 @@ class PerAppFrequencyController @Inject constructor(
         } else {
             GpuHardwareBackend.Request(minFreq = target, maxFreq = target)
         }
-        val desired = "${request.minFreq}:${request.maxFreq}"
+        // الصيغة القياسية نفسها التي يستعملها GPU Studio: حقل المدى مع المُحكِّم وقفل OPP.
+        // مفتاح GPU مشترك بين الكاتبين (`gpu_frequency:<device>`)، فوَصْفٌ مختلف لكل كاتب يجعل
+        // نصوص «المطلوب» و«المقروء» غير قابلين للمقارنة بين الكتابين — وهو فخّ لأي قارئ لاحق
+        // للـjournal المشترك. صيغة واحدة تعني أن التساوي يعني الشيء نفسه في كل مكان.
+        val desired = GpuHardwareBackend.encodeRequest(request)
 
         val r = arbiter.submit(
             key = key,
             owner = ControlOwnership.Owner.PER_APP,
             token = token,
             desired = desired,
-            apply = { value ->
-                val split = value.split(":", limit = 2)
-                val min = split.getOrNull(0)?.takeIf { it.isNotBlank() }?.toLongOrNull()
-                val max = split.getOrNull(1)?.takeIf { it.isNotBlank() }?.toLongOrNull()
-                GpuHardwareBackend.apply(
-                    device,
-                    GpuHardwareBackend.Request(minFreq = min, maxFreq = max),
-                ).verified
+            // الطلب المُتحقَّق منه هو نفسه الذي حُسبت منه القيمة المطلوبة: إعادةُ بناء طلب من
+            // النصّ كانت تُسقط أي حقل يُضاف للمخطط لاحقًا (نفس العطب الذي أُصلح في GPU Studio).
+            apply = {
+                GpuHardwareBackend.refresh(device.path)?.let { live ->
+                    GpuHardwareBackend.applyValidated(live, request).verified
+                } ?: false
             },
             read = {
                 GpuHardwareBackend.refresh(device.path)?.let { live ->
-                    "${live.minFreq ?: ""}:${live.maxFreq ?: ""}"
+                    GpuHardwareBackend.encodeLive(live, request)
                 }
             },
-            baseline = "${baseline.minFreq ?: ""}:${baseline.maxFreq ?: ""}",
+            baseline = GpuHardwareBackend.encodeLive(device, request),
             restore = { GpuHardwareBackend.restoreBaseline(baseline) },
         )
         return Result(desired, r.applied, r.verified, r.actual, r.error)

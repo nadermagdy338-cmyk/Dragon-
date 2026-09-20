@@ -57,6 +57,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import nd.max.ui.component.CapabilityMatrixCard
 import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.R
 import nd.max.ui.component.ExpressiveList
@@ -64,6 +65,7 @@ import nd.max.ui.component.ExpressiveListItem
 import nd.max.ui.component.MaxManagerSubScreenTopBar
 import nd.max.ui.component.MaxScreenHelpDialog
 import nd.max.ui.component.MaxStatusPill
+import nd.max.ui.component.RouteVerdictLabel
 import nd.max.ui.theme.MaxTextRole
 import nd.max.ui.component.MaxSurface
 import androidx.compose.runtime.setValue
@@ -71,6 +73,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.height
 import nd.max.ui.component.StudioSectionHeader
 import nd.max.core.hardware.AccessLevel
+import nd.max.core.diagnostics.HardwareRouteHealth
 import nd.max.core.hardware.HardwareCapabilityResolver
 import nd.max.core.hardware.HardwareCapabilitySnapshot
 import nd.max.core.hardware.HardwareRuntime
@@ -109,10 +112,16 @@ fun DiagnosticsScreen(navController: NavHostController) {
     val listState = rememberLazyListState()
     val context = LocalContext.current
     var capabilities by remember { mutableStateOf<HardwareCapabilitySnapshot?>(null) }
+    // Route verdicts are computed from the same snapshot the matrix renders, so the matrix can say
+    // *why* a control has no verified activation route instead of only that it exists. Read-only: the
+    // verdict is built from read seams and never from a write path.
+    var routes by remember { mutableStateOf<List<HardwareRouteHealth.Verdict>>(emptyList()) }
     var runtime by remember { mutableStateOf<HardwareRuntime.Snapshot?>(null) }
     var showScreenHelp by remember { mutableStateOf(false) }
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        capabilities = HardwareCapabilityResolver.resolve(context)
+        capabilities = HardwareCapabilityResolver.resolve(context).also { snapshot ->
+            routes = runCatching { HardwareRouteHealth.verdicts(snapshot) }.getOrDefault(emptyList())
+        }
         runtime = runCatching { HardwareRuntime.snapshot(context) }.getOrNull()
     }
 
@@ -183,8 +192,10 @@ fun DiagnosticsScreen(navController: NavHostController) {
                 )
             }
             item {
-                CapabilityMatrixCard(capabilities) {
-                    capabilities = HardwareCapabilityResolver.resolve(context)
+                CapabilityMatrixCard(capabilities, routes) {
+                    capabilities = HardwareCapabilityResolver.resolve(context).also { snapshot ->
+                        routes = runCatching { HardwareRouteHealth.verdicts(snapshot) }.getOrDefault(emptyList())
+                    }
                     runtime = runCatching { HardwareRuntime.snapshot(context) }.getOrNull()
                 }
             }
@@ -277,50 +288,6 @@ fun DiagnosticsScreen(navController: NavHostController) {
 
 }
 
-
-
-@Composable
-private fun CapabilityMatrixCard(snapshot: HardwareCapabilitySnapshot?, onRefresh: () -> Unit) {
-    MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            IconBadge(Icons.Outlined.Memory, MaterialTheme.colorScheme.primary, 36)
-            Column(Modifier.weight(1f)) {
-                Text("Hardware capability matrix", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text(
-                    snapshot?.let { "${it.vendor} • ${it.platform}" } ?: "Detecting hardware interfaces…",
-                    style = MaxTextRole.description, color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            nd.max.ui.component.StudioTextButton(onClick = onRefresh) { Text("Refresh") }
-        }
-        Spacer(Modifier.height(10.dp))
-        snapshot?.features?.values?.forEach { capability ->
-            val label = capability.feature.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
-            val status = when (capability.access) {
-                AccessLevel.READ_WRITE -> "Supported • read/write"
-                AccessLevel.READ_ONLY -> "Detected • read only"
-                AccessLevel.NONE -> "Not detected on this device"
-            }
-            Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                    Text("${capability.backend} • $status", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (capability.evidence.isNotEmpty()) {
-                        Text(
-                            capability.evidence.take(3).joinToString("  ·  "),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
-                        )
-                    }
-                }
-            }
-        }
-        Text(
-            "Unavailable controls stay visible so users can report their device and expand support.",
-            style = MaxTextRole.description, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp)
-        )
-    }
-}
 
 
 @Composable

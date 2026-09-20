@@ -34,21 +34,85 @@ class AtlasArchitectureTest {
         "src/main/java/nd/max/core/atlas/AtlasFixture.kt",
         "src/main/java/nd/max/core/atlas/AtlasFixtureRecorder.kt",
         "src/main/java/nd/max/core/atlas/AtlasPlatformProvider.kt",
+        "src/main/java/nd/max/core/atlas/AtlasBackendProvider.kt",
+        "src/main/java/nd/max/core/atlas/AtlasDeviceIdentity.kt",
         "src/main/java/nd/max/core/hardware/ReadOnlyProbeAccess.kt",
     )
+
+    /**
+     * Every file of the Atlas package that is deliberately *not* on the read path, each with the reason
+     * it carries no reader. The list exists so a new file cannot enter the package unclassified: it
+     * either joins [readPath] (and is then token-guarded) or joins this list on purpose.
+     *
+     * - `AtlasModels` / `AtlasFreshness` / `AtlasFailureLedger` / `AtlasProbeSchedule`: vocabulary,
+     *   expiry and scheduling types — no I/O of any kind.
+     * - `AtlasControlIntent` / `AtlasRoutePlanner`: the decision layer. It is pure by construction: it
+     *   chooses between routes it is *given* and holds no reader, which is what keeps "deciding" and
+     *   "reading the kernel" separate.
+     * - `AtlasFileStoreIo`: the evidence cache. It writes, but only into the app's own private
+     *   directory — never a device node, and never through a privileged transport, so the read-path
+     *   token rule (which exists to keep a writer off the kernel) does not apply to it.
+     */
+    private val declaredOffReadPath = listOf(
+        "AtlasModels.kt",
+        "AtlasFreshness.kt",
+        "AtlasFailureLedger.kt",
+        "AtlasProbeSchedule.kt",
+        "AtlasControlIntent.kt",
+        "AtlasRoutePlanner.kt",
+        "AtlasFileStoreIo.kt",
+    )
+
+    private fun packageFileNames(): Set<String> = AtlasSourceGuard
+        .projectFile("src/main/java/nd/max/core/atlas/AtlasCatalog.kt")
+        .parentFile
+        ?.listFiles()
+        .orEmpty()
+        .filter { it.isFile && it.extension == "kt" }
+        .map { it.name }
+        .toSet()
 
     @Test
     fun `the guard reads a non-trivial number of files instead of silently scanning nothing`() {
         // A guard that passes because it found no files is worse than no guard: it certifies a tree it
-        // never read. The count is asserted, and every file below is read through a call that throws.
+        // never read. Every file below is read through a call that throws.
         val packageDirectory = AtlasSourceGuard.projectFile("src/main/java/nd/max/core/atlas/AtlasCatalog.kt").parentFile
-        val files = packageDirectory?.listFiles().orEmpty().filter { it.isFile && it.extension == "kt" }
+        val names = packageFileNames()
 
-        assertTrue("the Atlas package must be readable: ${packageDirectory?.absolutePath}", files.isNotEmpty())
-        assertEquals("and the guard sees every file in it: ${files.map { it.name }}", 17, files.size)
+        assertTrue("the Atlas package must be readable: ${packageDirectory?.absolutePath}", names.isNotEmpty())
         readPath.forEach { relative ->
             assertTrue("$relative must exist", AtlasSourceGuard.read(relative).isNotBlank())
         }
+    }
+
+    @Test
+    fun `every file in the Atlas package is either on the read path or declared off it`() {
+        // This test replaces a hard-coded file count. A count can only be satisfied by editing the
+        // number, which is exactly the rubber stamp it was supposed to prevent: the three files that
+        // joined this package for the route/decision layer were absorbed by changing `17` to `19` and
+        // nothing forced anyone to ask whether they read a device. Classifying by name makes every
+        // addition a decision, and the count below is derived rather than typed.
+        val packageFiles = packageFileNames()
+        val onReadPath = readPath
+            .filter { it.startsWith(ATLAS_PACKAGE_PREFIX) }
+            .map { it.removePrefix(ATLAS_PACKAGE_PREFIX) }
+            .toSet()
+
+        assertEquals(
+            "a new atlas file must be either token-guarded or declared off the read path with a reason",
+            emptySet<String>(),
+            packageFiles - onReadPath - declaredOffReadPath.toSet(),
+        )
+        assertEquals(
+            "a declared name that no longer exists must be removed from the declaration",
+            emptySet<String>(),
+            (onReadPath + declaredOffReadPath) - packageFiles,
+        )
+        assertEquals(packageFiles.size, onReadPath.size + declaredOffReadPath.size)
+    }
+
+    private companion object {
+        const val ATLAS_PACKAGE_PREFIX = "src/main/java/nd/max/core/atlas/"
     }
 
     @Test

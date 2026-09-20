@@ -891,6 +891,22 @@
     <string name="diagnostics_workflow_title">Investigation workflow</string>
     <string name="diagnostics_workflow_desc">Start with live processes, inspect events and logs, then use the rooted shell only when deeper verification is needed.</string>
     <string name="diagnostics_inspection_only">Inspection only</string>
+    <!--
+      Activation-route verdicts. Max Atlas decides which route may be used for a control and the
+      screen states the outcome; the machine code beside it comes from AtlasRouteReason and is shown
+      untranslated because this screen is the raw inspection surface.
+    -->
+    <string name="diagnostics_capability_matrix">Hardware capability matrix</string>
+    <string name="diagnostics_detecting_interfaces">Detecting hardware interfaces…</string>
+    <string name="diagnostics_refresh">Refresh</string>
+    <string name="diagnostics_access_read_write">Supported • read/write</string>
+    <string name="diagnostics_access_read_only">Detected • read only</string>
+    <string name="diagnostics_access_none">Not detected on this device</string>
+    <string name="diagnostics_capability_matrix_hint">Unavailable controls stay visible so users can report their device and expand support.</string>
+    <string name="diagnostics_route_eligible">Verified route · %1$s</string>
+    <string name="diagnostics_route_blocked">No verified route · %1$s</string>
+    <string name="diagnostics_route_not_reviewed">Route not reviewed · %1$s</string>
+    <string name="diagnostics_route_unknown">No route evidence</string>
     <string name="diagnostics_step_01">01</string>
     <string name="diagnostics_step_02">02</string>
     <string name="diagnostics_step_03">03</string>
