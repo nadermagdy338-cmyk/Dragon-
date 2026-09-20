@@ -111,6 +111,55 @@ object DiagnosticCenter {
         entries.any { it.level != Level.INFO }
     }
 
+    /**
+     * A structured entry as a **report** may carry it (`P6`/`T6.7`).
+     *
+     * There is deliberately no message field. A message is free text a caller interpolated, so it can
+     * contain a path, a package name, an account id or anything else that happened to be in scope at
+     * the failure site; a diagnostic report is the last place that should become a channel for those.
+     * Component, level and count answer "what failed, how badly, how often" without carrying content.
+     */
+    data class StructuredEntry(
+        val component: String,
+        val level: Level,
+        val count: Int,
+        val firstSeenMs: Long,
+        val lastSeenMs: Long,
+    )
+
+    /** The whole allowlisted projection, ordered from the most recent failure backwards. */
+    data class StructuredSummary(
+        val entries: List<StructuredEntry>,
+        val warnCount: Int,
+        val errorCount: Int,
+        val distinctComponents: Int,
+    )
+
+    /**
+     * The allowlisted projection of this session's ring buffer.
+     *
+     * Distinct from [formatBlock], which exists for a human reading a log and includes messages. This
+     * one exists for a report that may leave the device, so it exposes only component names (which the
+     * codebase's own call sites define) and counts.
+     */
+    fun structured(): StructuredSummary = synchronized(lock) {
+        val projected = entries.map { entry ->
+            StructuredEntry(
+                component = entry.component,
+                level = entry.level,
+                count = entry.count,
+                firstSeenMs = entry.firstTimeMs,
+                lastSeenMs = entry.lastTimeMs,
+            )
+        }.sortedByDescending { it.lastSeenMs }
+        StructuredSummary(
+            entries = projected,
+            warnCount = projected.count { it.level == Level.WARN },
+            errorCount = projected.count { it.level == Level.ERROR },
+            distinctComponents = projected.map { it.component }.distinct().size,
+        )
+    }
+
     /** الكتلة التي تُدمج في كل تصدير تشخيصي. */
     fun formatBlock(): String = synchronized(lock) {
         val fmt = SimpleDateFormat("HH:mm:ss", Locale.US)

@@ -33,10 +33,25 @@ class AtlasCatalogTest {
     // ---- validation negatives ---------------------------------------------------------------------
 
     @Test
-    fun `an unsupported schema version is rejected instead of read as this one`() {
-        val result = AtlasCatalog.validate("atlas-catalog-99", AtlasReviewedSeeds.entries())
+    fun `an unsupported grammar is rejected instead of read as this one`() {
+        // The grammar is the schema, and a list written against another one is refused. The catalog's
+        // *content* revision is a separate axis (`P7`): two banks share this grammar and still cite
+        // their own revision, so a bank cannot serve evidence under a stale name.
+        val result = AtlasCatalog.validate(
+            version = AtlasCatalog.SCHEMA_VERSION,
+            entries = AtlasReviewedSeeds.entries(),
+            schema = "atlas-catalog-99",
+        )
         assertTrue(result is AtlasCatalogValidation.Invalid)
         assertTrue((result as AtlasCatalogValidation.Invalid).problems.contains("unsupported-schema:atlas-catalog-99"))
+    }
+
+    @Test
+    fun `a bank's own content revision is accepted while the grammar stays the same`() {
+        val result = AtlasCatalog.validate("atlas-bank-7", AtlasReviewedSeeds.entries())
+
+        val valid = result as AtlasCatalogValidation.Valid
+        assertEquals("atlas-bank-7", valid.catalog.version)
     }
 
     @Test
@@ -190,7 +205,10 @@ class AtlasCatalogTest {
 
     @Test
     fun `the catalog refuses a proc surface that is not on the reviewed file list`() {
-        val seed = AtlasReviewedSeeds.entries().first()
+        // The seed is taken explicitly as a root-level entry: the first entry in the list is a
+        // *child-scoped* one now, and an enumerated entry pinned outside the approved roots is refused
+        // by its own rule (`P7`), which would make this test pass for the wrong reason.
+        val seed = AtlasReviewedSeeds.entries().first { it.scope == AtlasCatalogScope.ROOT_FILE }
         val smuggled = seed.copy(id = "cpu.info.stat", parentRoot = "/proc", attribute = "stat")
 
         val validation = AtlasCatalog.validate(AtlasCatalog.SCHEMA_VERSION, AtlasReviewedSeeds.entries() + smuggled)
@@ -213,6 +231,7 @@ class AtlasCatalogTest {
             "src/main/java/nd/max/core/atlas/AtlasFreshness.kt",
             "src/main/java/nd/max/core/atlas/AtlasFailureLedger.kt",
             "src/main/java/nd/max/core/atlas/AtlasProbeSchedule.kt",
+            "src/main/java/nd/max/core/atlas/AtlasBackendProvider.kt",
             "src/main/java/nd/max/core/hardware/ReadOnlyProbeAccess.kt",
         )
         sources.forEach { relative ->

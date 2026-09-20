@@ -42,13 +42,13 @@ plans (P0-P9) over the pattern-map allowlists A-I, dependency-ordered and exclus
 | P0 | Wave-zero test harness (read-only fakes, clock, budgets, fixtures, privacy canaries) | — | **done** |
 | P1 | Evidence contract + reviewed provenance catalog (slice A) | P0 | **done** |
 | P2 | Bounded read-only transport (slice B) | P0, P1 | **done except T2.5 (needs reviewed adapter)** |
-| P3 | CPU/GPU reuse + facade projection (slice C) | P1 |
+| P3 | CPU/GPU reuse + facade projection (slice C) | P1 | **done** (plan §21.1) |
 | P4 | Other domain observations + support matrix (slice D) | P1 | **done** |
-| P5 | Ordered resolver + context-keyed evidence cache + DI (slice E) | P1-P4 |
-| P6 | Privacy, minimized support report, local export (slice F) | P5 |
-| P7 | Settings/Diagnostics integration (slice G) | P5, P6 |
-| P8 | No-root read-only entry acceptance (slice H) | P7 |
-| P9 | Fixtures, maintainer handoff, closure (slice I) | all |
+| P5 | Ordered resolver + context-keyed evidence cache + DI (slice E) | P1-P4 | **done** (plan §21.2) |
+| P6 | Privacy, minimized support report, local export (slice F) | P5 | **done** (plan §21.3) |
+| P7 | Settings/Diagnostics integration (slice G) | P5, P6 | **done** (plan §20.3) |
+| P8 | No-root read-only entry acceptance (slice H) | P7 | **done as a source/render claim** (plan §20.4) |
+| P9 | Fixtures, maintainer handoff, closure (slice I) | all | **done** — `P9.1` (fixture format, recorder, replay transport) and `P9.2` (architecture guard), plan §20.4 and §22.1 |
 
 Four more plans came out of the gap review (`01-GAPS-AND-IDEAS.md`, plan §18) — they are **not** part of
 the original ten and are recorded here only because the owner said "نفذ" and two of them are delivered:
@@ -58,13 +58,15 @@ the original ten and are recorded here only because the owner said "نفذ" and 
 | P10 | Device identity from declared-public surfaces (slice J) — plan §19.1 | — | **done** |
 | P11 | Quirk base + availability tiers (`EXPECTED`/`DEVICE_DEPENDENT`/`EXPECTED_DENIED`) | — | proposed — should follow `P13`, or it becomes a base of assumptions |
 | P12 | Evidence lifetime, negative evidence, probe plan (slice K) — plan §19.2 | — | **done** |
-| P13 | On-device doctor + report→fixture loop | — | proposed |
+| P13 | On-device doctor + report→fixture loop | — | **done** (`AtlasDoctor`, plan §22.2) — the loop is built; running it on a phone is what remains |
 
 Six decisions in `01-PLAN.md` §15 are open. `DECISION-1` (one reconciled budget set) is now
 **implemented as recommended** in `AtlasReadBudget.DEFAULT` — the single source the test harness
 delegates to, so changing it later is a one-file change — and it still wants the owner's word.
 The owner authorized execution on 2026-09-20 ("start and make it the best", later "continue" then "نفذ");
-`P0`, `P1`, `P2`, `P4`, `P10` and `P12` are delivered and measured (128 Atlas/boundary tests, 0 failures),
+`P0`, `P1`, `P3`, `P4`, `P5`, `P6`, `P7`, `P8`, `P9.1`, `P9.2`, `P10`, `P12` and `P13` are delivered and
+measured — the newest full release run is **1103 tests / 0 failures / 0 errors / 0 skipped** with the debug
+APK produced, and the Atlas plus diagnostics scope inside it is 22 classes / 306 tests with 0 failures —
 and the standing rule remains
 *do not build by default* — only the modified scope is compiled
 (`:app:testDebugUnitTest --tests 'nd.max.core.atlas.*'`). `P2`'s T2.5 (the adapter over an existing
@@ -75,4 +77,4 @@ available in this runtime, and `UnavailableAtlasReadTransport` keeps that honest
 
 | Phase | Plans Complete | Status | Completed |
 | --- | --- | --- | --- |
-| 1. Max Atlas compatibility and safe discovery | 6/14 | In progress — of the ten planned: `P0`, `P1`, `P4` delivered and `P2` delivered except its reviewed adapter (T2.5); of the four proposed: `P10` and `P12` delivered, `P11`/`P13` proposed. `P3` and `P5` next. Nothing is reachable from the app yet (zero call sites) | - |
+| 1. Max Atlas compatibility and safe discovery | 12/14 | In progress — of the ten planned: `P0`, `P1`, `P3`, `P4`, `P5`, `P6`, `P7`, `P8` and `P9` delivered; `P2` delivered except its reviewed adapter (T2.5). Of the four proposed: `P10`, `P12` and `P13` delivered, `P11` not started (it can only *lower* confidence, so it must be built on real reports — which now have a mechanism). **The app reaches Atlas** (`AtlasViewModel` → `AtlasDiagnosticsSection`, plus a Settings entry), and a real run is now replayable data, so "needs device" is no longer permanent. What no run here can still prove is the device itself | - |

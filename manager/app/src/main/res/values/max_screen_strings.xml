@@ -411,4 +411,86 @@
     <string name="max_source_other_store">Other store</string>
     <string name="max_source_by_app">Installed by another app</string>
     <string name="max_source_unknown">Unknown</string>
+
+    <!--
+      Max Atlas on the diagnostics screen (P7). Two rules are visible in the wording itself:
+      a reading is never called "live" (every Atlas read is one bounded attempt), and the two evidence
+      tiers are never summed into one number.
+    -->
+    <string name="max_atlas_section_title">Max Atlas · device interfaces</string>
+    <string name="max_atlas_section_desc">Reads the interfaces this device exposes, reviewed knowledge first, then the accumulated interface vocabulary. Read-only: nothing is written.</string>
+    <string name="max_atlas_start">Read</string>
+    <string name="max_atlas_retry">Read again</string>
+    <string name="max_atlas_cancel">Stop</string>
+    <string name="max_atlas_reading">Reading interfaces…</string>
+    <string name="max_atlas_progress_detail">%1$s of %2$s interfaces</string>
+    <string name="max_atlas_phase_idle">Not read yet</string>
+    <string name="max_atlas_phase_running">Reading now</string>
+    <string name="max_atlas_phase_complete">Every interface answered</string>
+    <string name="max_atlas_phase_incomplete">Some interfaces did not answer</string>
+    <string name="max_atlas_phase_cancelled">Stopped by you</string>
+    <string name="max_atlas_phase_denied">Not permitted on this device</string>
+    <string name="max_atlas_phase_unavailable">No backend available</string>
+    <string name="max_atlas_status_idle">A read takes a moment and changes nothing.</string>
+    <string name="max_atlas_status_reading">One bounded pass, on a fixed budget.</string>
+    <string name="max_atlas_status_limited">A budget bound stopped this pass, so a missing answer is not the device\'s answer.</string>
+    <string name="max_atlas_status_counts">%1$s readings of %2$s interfaces</string>
+    <string name="max_atlas_tier_reviewed">Reviewed knowledge</string>
+    <string name="max_atlas_tier_candidates">Accumulated vocabulary</string>
+    <string name="max_atlas_tier_candidates_note">Interface names known to exist, with meaning not yet reviewed. Counted apart from reviewed readings on purpose.</string>
+    <string name="max_atlas_tier_gaps">Reviewed interfaces with no answer</string>
+    <string name="max_atlas_tier_gaps_note">These are the ones a report is worth sending about.</string>
+    <string name="max_atlas_domain_count">%1$s readings</string>
+    <string name="max_atlas_domain_more">%1$s more readings</string>
+    <string name="max_atlas_source_reviewed">reviewed</string>
+    <string name="max_atlas_source_candidate">candidate</string>
+    <string name="max_atlas_age_seconds">%1$s s ago</string>
+    <string name="max_atlas_meaning_not_established">The interface answered; what the number means is not established by review.</string>
+    <string name="max_atlas_domain_cpu">CPU</string>
+    <string name="max_atlas_domain_gpu">GPU</string>
+    <string name="max_atlas_domain_thermal">Thermal</string>
+    <string name="max_atlas_domain_memory">Memory</string>
+    <string name="max_atlas_domain_power">Power</string>
+    <string name="max_atlas_domain_display">Display</string>
+    <string name="max_atlas_domain_sensor">Sensors</string>
+    <string name="max_atlas_domain_storage">Storage</string>
+    <string name="max_atlas_domain_network">Network</string>
+    <string name="max_atlas_domain_privilege">Privilege</string>
+    <string name="max_atlas_condition_reading">Reading the device</string>
+    <string name="max_atlas_condition_reading_desc">A single bounded pass. Progress is counted in interfaces, never in seconds.</string>
+    <string name="max_atlas_condition_partial">Part of the device did not answer</string>
+    <string name="max_atlas_condition_partial_desc">Interfaces that were not there, or that this device does not permit, are listed with their reason in the report.</string>
+    <string name="max_atlas_condition_limit">A budget bound was reached</string>
+    <string name="max_atlas_condition_limit_desc">Time, operations, entries or bytes ran out. "It did not answer" would be our limit, not the device\'s absence, so nothing is reported as missing here.</string>
+    <string name="max_atlas_condition_cancelled">You stopped the pass</string>
+    <string name="max_atlas_condition_cancelled_desc">An interrupted pass says nothing about the device, so it offers no report.</string>
+    <string name="max_atlas_condition_denied">Recent attempts were refused</string>
+    <string name="max_atlas_condition_denied_desc">A path that failed recently is not retried immediately; the retry budget is bounded.</string>
+    <string name="max_atlas_condition_no_backend">No read backend</string>
+    <string name="max_atlas_condition_no_backend_desc">No reviewed read path is wired in this build, so every interface reports an unknown rather than a guess.</string>
+    <string name="max_atlas_report_title">Prepare a support report</string>
+    <string name="max_atlas_report_desc">Preview the exact artifact first, then choose an app to send it to. It stays on this device until you pick a destination.</string>
+    <string name="max_atlas_report_blocked_title">No report right now</string>
+    <string name="max_atlas_refusal_not_finished">Nothing has finished reading yet.</string>
+    <string name="max_atlas_refusal_cancelled">The pass was stopped, so its outcomes describe an interrupted read.</string>
+    <string name="max_atlas_refusal_bound">A budget bound stopped the pass; retry instead.</string>
+    <string name="max_atlas_refusal_too_many">More interfaces than a summary may carry.</string>
+    <string name="max_atlas_refusal_answered">Everything reviewed answered, so there is nothing to report.</string>
+    <string name="max_atlas_refusal_write_failed">The report could not be written to this app\'s cache.</string>
+    <string name="max_atlas_preview_title">Report preview</string>
+    <string name="max_atlas_preview_tab_summary">Summary</string>
+    <string name="max_atlas_preview_tab_interfaces">Interfaces</string>
+    <string name="max_atlas_preview_tab_artifact">Artifact</string>
+    <string name="max_atlas_preview_status">Status</string>
+    <string name="max_atlas_preview_readings">Readings</string>
+    <string name="max_atlas_preview_gaps">Reviewed gaps</string>
+    <string name="max_atlas_preview_suppressed">Suppressed attempts</string>
+    <string name="max_atlas_preview_cache_hits">Answered from held evidence</string>
+    <string name="max_atlas_preview_line">%1$s: %2$s</string>
+    <string name="max_atlas_preview_dismiss">Close</string>
+    <string name="max_atlas_preview_confirm">Share…</string>
+    <string name="max_atlas_share_confirm_title">Share this report?</string>
+    <string name="max_atlas_share_confirm_message">The report carries interface names, units, ages and a coarse device description. It carries no identifier, no account, no file path of yours, no package list and no log line. You choose the destination next.</string>
+    <string name="max_atlas_share">Choose an app</string>
+    <string name="max_atlas_share_cancel">Cancel</string>
 </resources>

@@ -818,3 +818,232 @@ value, so it compared a key with itself).
   `P11`, and it should follow `P13` so it is built from device reports.
 - No device: every lifetime and retry value remains a **design value**. `P2/T2.5` and `P3` remain
   `UNREVIEWED` until an independent-family reviewer exists.
+
+---
+
+## 20. Plans P7, P8 and P9 — **DELIVERED (P7, P8) · PARTIAL (P9)** (2026-09-20)
+
+**Trigger.** The owner's instruction in one batch: *"اكمل كل شيء دفعة واحدة، وخذ من SmartPack وغيرها من
+مشاريع مفتوحة المصدر معرفتهم، لأن ما هو مخزّن عندنا لا يعمل يقوم أطلس بإكماله تلقائيًا"* — finish
+everything, and let Atlas complete itself from the interface knowledge the community accumulated over years
+when our own stored knowledge does not answer.
+
+### 20.1 A **real defect** was found before any of it was written
+
+Twelve of the fifteen reviewed catalog entries named a **class directory** as if an attribute lived directly
+inside it — `/sys/class/devfreq/cur_freq`, `/sys/class/thermal/temp`,
+`/sys/class/power_supply/charge_full`, `/sys/class/kgsl/...`, `/sys/devices/system/cpu/cpufreq/scaling_cur_freq`,
+`/sys/block/disksize`. On every real device those directories contain **devices**, and the interface lives
+one level down, so those twelve entries addressed paths that cannot exist while the interface they describe
+is present and readable. Nothing in the grammar refused the shape and no test could see it: the strings
+parsed perfectly and resolved never.
+
+**The correction is a grammar, not twelve edits.** `AtlasCatalogScope` (`ROOT_FILE` / `CHILD_FILE`) plus an
+optional `childPrefix` that selects which enumerated children are interfaces of that kind — a plain name
+fragment compared against names the kernel returned, never a glob. `AtlasAnchors.ENUMERABLE` is the new
+grant: a root that may be **walked** is a stronger authorization than one whose known file may be read, and
+`PUBLIC_API` is excluded from it because it has no children and no file transport to open.
+
+### 20.2 The second line of defense (`AtlasCommunityBank`)
+
+| Rule | How it is enforced |
+| --- | --- |
+| One grammar, many banks | The bank passes **the same validator** as the reviewed catalog; `validate(version, entries, schema)` now separates the *content revision* from the *grammar*, so a bank owns its revision (and therefore its cache key) without inventing a second schema |
+| Vocabulary, not path tables | What is recorded is *which attribute means which unit under which enumerable root*. No device-by-device path map, no script, no conversion factor, and no code was copied from the GPL-3.0 projects credited as inventories |
+| It may never claim meaning | Everything read from it is `semanticStatus = INFERRED` with stage `CANDIDATE_INTERFACE`; a candidate can never be promoted to `REVIEWED_MATCH` |
+| It is asked second, and only for a gap | The completion pass runs **only** for the domains the reviewed bank could not answer, never re-asks an addressed interface, and is bounded (`≤ 32` candidates per scan, on top of the transport's own op/byte/time budgets) |
+| It cannot move the report gate | `AtlasScanState.reviewedUnresolved` counts reviewed gaps only: a candidate name that is missing is the expected case, not a finding, so it neither opens nor closes the report path |
+
+Size as delivered: 50 interfaces, `≥ 40` and `≤ 128` asserted. Deliberately absent and recorded in the file:
+nested attribute paths (`topology/core_id`, `stats/time_in_state`), sensor/display domains (no approved root),
+and command nodes in `/proc/gpufreq` (naming a control surface in a knowledge bank is how it ends up read as
+a command).
+
+### 20.3 P7 — the reachable surface
+
+`AtlasViewModel` (`@HiltViewModel`, no hardware I/O, no shell, no policy; nothing scans on construction) ·
+`AtlasDiagnosticsSection` (`MaxSection`/`MaxGroup`/`MaxRow`/`MaxMetricLine`/`MaxProgressStrip`/
+`MaxConditionNotice`/`MaxTabbedDialog`/`MaxConfirmDialog`) · one `ExpressiveListItem` in Settings' feature
+area, outside every `isLoaded` gate · paired `max_atlas_*` EN/AR strings (76 keys, specifier-identical) ·
+`AtlasPresentation` as **pure functions** so the rules can fail a test instead of only a screenshot.
+
+The rules that are now tested: an unknown total is `null` and never `0%`; a one-shot read is never `Live`;
+a read-only pass has no `Applied` state to render at all; cancellation is not exhaustion; a candidate
+reading is never counted as a reviewed one; and the report is offered only after a finished, non-cancelled,
+non-bound-stopped pass — preview (frozen bytes) → confirm → system chooser, with no clipboard shortcut.
+
+### 20.4 P8 and P9
+
+- **P8 delivered as a source-and-graph claim** (`AtlasReadOnlyEntryTest`): the destination is registered
+  under Settings, Settings links to it from a screen, the diagnostics screen renders the section, the wired
+  transport is the rootless one, and privilege is `{ false }` unless a caller turns it on. The half that
+  needs a finger on a device stays `needs device`.
+- **P9.2 delivered** (`AtlasArchitectureTest`): fail-closed source guard over the whole read path — no
+  writer, no shell, no privileged transport, no upward dependency from `core/atlas`, a transport with no
+  write verb at all, and both banks read-only.
+- **P9.1 (fixtures) not delivered.** The report→fixture files are not written; the real-device integration
+  suite (`AtlasRealReadIntegrationTest`) and the candidate tests cover the same ground from the other side.
+  Recorded as a residual, not implied.
+
+### 20.5 What this batch does **not** claim
+
+- **No device.** Everything about what a vendor kernel actually answers stays `needs device`, including
+  whether the Adreno/MediaTek units asserted by community inventory are right. They are labelled `CLAIMED`
+  and read as `INFERRED` for exactly that reason.
+- **`P11` is not done.** The quirk base that could only *lower* confidence still needs a device report to
+  be built on, and `P13` (the Atlas doctor) is still the right predecessor.
+- **`P2/T2.5` and `P3` remain `UNREVIEWED`** — no independent-family reviewer has run.
+- **`P7` is not a review pass over the rest of the diagnostics screen.** `HardwareReportCard`'s immediate
+  generate-and-copy was left alone: it produces a different artifact (a hardware dump, not the Atlas
+  report), and replacing it belongs with that artifact's own reviewed design.
+
+## 21. Plans P3, P5 and P6 — **DELIVERED** (2026-09-20, recorded here late)
+
+**Why this section exists.** Those three plans were executed and measured in the same session as §20, but
+they were never written into this file or into `HANDOFF`. That is a defect of the record, not of the work:
+a verified batch with no entry reads later as work that was never done, and §0 of `AGENTS.md` forbids
+paying for it twice. What follows is what was measured at the time, and nothing more.
+
+### 21.1 P3 — the read seam that lets the existing parsers feed Atlas
+
+`AtlasBackendProvider` turns the CPU/GPU backends that already exist into `AtlasBackend` values, so Atlas
+does not open a second reading path to the same files. A read seam was added to `CpuHardwareBackend` and
+`GpuHardwareBackend` **without moving any existing writer**: every current writer keeps its path, and the
+seam's contract is fixed as "trimmed text or `null`". A test asserts that reading cannot write.
+
+**A real defect came out of building it.** The GPU parser accepted only text that was *already trimmed*, so
+it worked for the one reader in the app and would have silently lost the clock for any other reader. The
+parser was fixed, not the test. Measured at the time: **184 tests, 0 failures.**
+
+### 21.2 P5 — the resolver and the evidence store
+
+| File | Rule it holds |
+| --- | --- |
+| `AtlasResolver` | Stages run in a fixed order; a cancellation is **rethrown** and never reported as exhaustion |
+| `AtlasEvidenceStore` | Explicit-field JSON, atomic write, and a corrupt file is dropped so the scan is redone rather than half-trusted |
+| `AtlasRepository` | One coalesced scan; a cancellation publishes immediately and outranks a late-arriving answer |
+| `AtlasFileReadTransport` / `AtlasFileStoreIo` | The real `java.io` transport and the store's I/O seam, both injected so the tested rules are the shipped ones |
+| `DataModule` | The single wiring point; Atlas is a singleton, not a per-screen construction |
+
+**23 of the P5 tests run against the real host filesystem and real syscalls** — `AtlasRealReadIntegrationTest`
+and `AtlasFileReadTransportTest` resolve symlinks, read actual files and measure `canonicalPath`. That real
+run found a defect no fake could: `canonicalPath` returns a **host-rooted** path while a read expects a
+**device** path, so the same file was addressed twice-prefixed. The transport now normalizes both sides to
+the same coordinate space. Measured at the time: **227 tests, 0 failures.**
+
+### 21.3 P6 — the minimized report, with canaries
+
+`AtlasSupportReport` emits a schema that is numbered and minimal: it refuses what it cannot parse, caps the
+whole artifact at 256 KiB **before** a file exists (a reading count can otherwise ask for a number that
+cannot be written), and the preview is literally the bytes that get shared. `AtlasReportExporter` writes
+atomically, prunes by age, and has no network or upload path. `DiagnosticCenter.structured()` is a
+projection that has **no message field at all**, so a human message cannot leak by forgetting to strip it.
+Canary tests plant a secret in every raw field and in every exception, and the tests assert its absence.
+
+### 21.4 Evidence and residuals for this section
+
+- Green at the time of each plan (184 / 227 / all-P6 tests), and still green in the newest full run: the
+  Atlas **and diagnostics** scope inside `:app:testReleaseUnitTest` is **22 classes / 306 tests /
+  0 failing**, out of **1103 tests, 0 failed / 0 errors / 0 skipped** (the count rose from 19/273 and 1070
+  when §22's fixtures and doctor landed — those numbers were correct when this section was written).
+- **No device was involved in any of it.** The 23 real-execution tests exercise *this host's* kernel, not a
+  phone's, so they prove the transport is correct — not that a vendor kernel answers.
+- `P2/T2.5` (the reviewed adapter over an existing authorized privileged transport) is still unbuilt, so
+  `P3`'s provider is wired to the rootless transport and stays `UNREVIEWED` with `P2` and `P4`.
+- `AtlasFailure.STALE` remains without an emitter; §19.2 and `HANDOFF` تكملة ٥٤ already record that the
+  producer belongs here, in the resolver, and that this is still open.
+
+## 22. Plan P9.1 (fixtures) and P13 (the Atlas doctor) — **DELIVERED** (2026-09-20)
+
+**Trigger.** The remainder of the owner's one-batch instruction, and the last open item that does not
+need a phone: `P9.1` was the only undelivered plan among the original ten, and `P13` is the plan that
+was supposed to precede `P11` so the quirk base is built on reports rather than on assumptions.
+
+**The gap these two close.** Every previous section ended with the same sentence — "`needs device`" — and
+it was permanent. A real device's answers could be described in prose and never executed again, so every
+later change was tested against a fake its own author wrote: testing the author's assumption, not the
+machine. A fixture is not a story about a device; it is the **byte-level answers one real run received**,
+kept as data and replayed later through the *shipped* transport interface.
+
+### 22.1 `P9.1` — the fixture format, the recorder and the replay transport
+
+| File | What it owns |
+| --- | --- |
+| `core/atlas/AtlasFixture.kt` | The format: `origin` (`DEVICE` / `HOST` / `SYNTHETIC`), the catalog revision, and one answer per path — `Text`, `Missing(cause, reason)`, `Listing(names, truncated)`, `Canonical(resolved)`, `Unresolvable`. A hand-written, explicit codec; and `AtlasFixtureTransport`. |
+| `core/atlas/AtlasFixtureRecorder.kt` | Captures a real run into a fixture, over the same `AtlasReadTransport` the app uses. Names every path it refuses; the entry ceiling is the job's. |
+
+Four rules make the replay worth something, and each has a test:
+
+1. **An unrecorded path is never "absent".** It answers `UNKNOWN_CAUSE`, because a fixture that stayed
+   silent proves nothing about the path. Silence must not become a claim about a device.
+2. **Absence is still proven the only way the boundary accepts it** — from an enumeration *this run*
+   performed. A fixture that asserts `ABSENT` for a path whose parent nobody listed is refused, and the
+   test asserts that through `ReadOnlyProbeAccess`, where the real rule lives.
+3. **The origin is data.** A capture on a build host is labelled `HOST`. That single enum is what stops
+   "we have fixtures now" from being read as device coverage.
+4. **The format refuses what it cannot vouch for:** missing schema (`MALFORMED`), unknown schema
+   (`UNSUPPORTED_SCHEMA`), oversize artifact, an unsafe or unapproved path, an unsafe name inside a
+   listing, and a repeated path. The anchor check runs where the data is parsed, so a fixture can never
+   be the door that widens what this app is willing to address.
+
+**The equivalence test is the point of the file.** `AtlasFixtureRecorderTest` builds a real directory
+tree, runs the same three requests twice — once over the shipped `AtlasFileReadTransport`, once over the
+fixture captured from it — and asserts the two lists of `AtlasReadResult` are **equal object by object**.
+If a field is dropped, a cause rewritten or a listing reordered, that equality fails.
+
+### 22.2 `P13` — `AtlasDoctor`, the report→fixture comparison
+
+`core/diagnostics/AtlasDoctor.kt` answers one question: does a replayed device still reproduce the
+[`AtlasSupportReport`] it came from? It is pure — no device, no file, no scan — and its verdict is
+`Reproduced(features, advisories)`, `Diverged(differences, advisories)` or `Refused(reason)`.
+
+Four decisions carry the design:
+
+- **An unfinished or cancelled replay is refused, not compared.** A partial run differs because it
+  stopped; comparing it would report a harness artefact as a behaviour change.
+- **A different catalog revision is refused.** Outcomes produced under different knowledge are not a
+  reproduction of anything, so the revision is compared rather than mentioned.
+- **A missing candidate interface is advice, never divergence.** The community bank is a second line of
+  defense; a name it knows being absent on this device is the expected case, so a candidate difference
+  cannot open a support loop.
+- **Each difference names both sides** (`reported`, `replayed`) and is sorted by id, because "it changed"
+  is not actionable and two runs of the same comparison must read the same.
+
+The doctor also settled one duplication properly instead of copying it: the outcome vocabulary
+(`observed` / `unresolved` / `suppressed` / `cancelled`) is now **published by `AtlasSupportReport`** and
+imported by the doctor. A second copy would be a copy that drifts, and a drifted comparison reports
+spelling as behaviour.
+
+### 22.3 Evidence (measured)
+
+```
+:app:testDebugUnitTest --tests 'nd.max.core.atlas.*' --tests 'nd.max.core.diagnostics.*'
+  --tests 'nd.max.ui.navigation.AtlasReadOnlyEntryTest' --tests 'nd.max.ui.viewmodel.AtlasPresentationTest'
+= BUILD SUCCESSFUL 2m54s · 21 classes · 279 tests · 0 failed · 0 errors · 0 skipped
+new: AtlasFixtureTest 16 · AtlasFixtureRecorderTest 4 · AtlasDoctorTest 11 · AtlasArchitectureTest 6→8
+warnings: zero from any touched file (the only warning in the run is the pre-existing
+          MemoryStallTest.kt:122, which is out of scope and untouched)
+gates: code_health exit 0 · i18n_coverage exit 0 (0 obstacles) · kt_balance 706 files / 0 obstacles ·
+       repo_audit PROBLEMS: 0
+```
+
+Four defects were found by execution rather than by reading, and all four were fixed at the right layer:
+
+| # | What the run showed | Where it was fixed |
+| --- | --- | --- |
+| 1 | The recorder recorded the **same refusal twice**, because `record` asked the gate once per operation | `record` now asks the gate once per path; a duplicated skip line would read as two different things having been skipped |
+| 2 | `{}` was reported as `UNSUPPORTED_SCHEMA` — a version that was never written down | Missing schema is `MALFORMED`; present-but-different stays `UNSUPPORTED_SCHEMA` |
+| 3 | A fixture asserting `ABSENT` for a child whose parent was never listed was reported as absence by my first test | The **test** was wrong: the boundary was right to refuse it, and the test now proves that refusal |
+| 4 | The `P9.2` architecture guard hard-coded 15 files in the Atlas package and would have passed over the two new ones | The guard now asserts 17 and reads both new files, so the count cannot drift silently |
+
+### 22.4 What this section does **not** claim
+
+- **No fixture from a real phone exists.** The only captures that exist are `HOST` captures created by
+  the tests, and they are labelled that way. Device coverage still begins with someone running the
+  doctor on a device and keeping the file.
+- **`P11` is still not built.** It is now unblocked in the only way that matters — it has a mechanism to
+  be built on real reports instead of guesses — but it is not built.
+- **`P2/T2.5` remains unbuilt and `P2`/`P3`/`P4` remain `UNREVIEWED`**: no independent-family reviewer
+  has run in this environment.
+- **`P9` is closed as `P9.1` + `P9.2`, not as a device protocol.** `T9.4`'s on-device protocol is
+  written, not executed: there is still no device and no emulator here.

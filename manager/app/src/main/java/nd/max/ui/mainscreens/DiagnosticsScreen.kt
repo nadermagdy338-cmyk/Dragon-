@@ -221,6 +221,13 @@ fun DiagnosticsScreen(navController: NavHostController) {
             item {
                 HardwareReportCard(context)
             }
+            //
+            // Max Atlas (`P7`). Its own item, outside every module-loaded gate, because a device fact
+            // must not depend on the native module being installed: the reading path is app-private and
+            // rootless. The section reads the repository's state and performs no reading of its own.
+            item {
+                AtlasDiagnosticsSection()
+            }
             item {
                 StudioSectionHeader(
                     title = stringResource(R.string.diagnostics_tools_title),

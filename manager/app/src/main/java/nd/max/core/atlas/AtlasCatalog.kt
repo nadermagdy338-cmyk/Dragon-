@@ -16,6 +16,36 @@ package nd.max.core.atlas
  *    admissible knowledge; the validator rejects it instead of trusting an anonymous claim.
  */
 
+/**
+ * How an entry's attribute is reached (`scope` correction, 2026-09-20).
+ *
+ * This enum exists because of a **measured defect**: twelve of the fifteen reviewed entries named a
+ * class directory (`/sys/class/devfreq`, `/sys/class/thermal`, `/sys/class/power_supply`,
+ * `/sys/class/kgsl`, `/sys/devices/system/cpu/cpufreq`, `/sys/block`) as if an attribute lived
+ * directly inside it. On a real device those directories contain *devices*, and the attribute lives
+ * inside a device directory, so every one of those paths addresses a file that cannot exist while the
+ * interface it describes is present and readable one level down.
+ *
+ * The distinction is not cosmetic: absence is only ever claimed for a path whose parent was
+ * enumerated, so the wrong shape can turn "read from the device" into a statement about a device that
+ * was never asked. The corrected grammar has exactly two shapes, and both of them are concrete paths:
+ *
+ * - [ROOT_FILE]: the attribute is a file inside [AtlasCatalogEntry.parentRoot].
+ * - [CHILD_FILE]: [AtlasCatalogEntry.parentRoot] is enumerated, and the attribute is read inside each
+ *   child whose name matches [AtlasCatalogEntry.childPrefix].
+ *
+ * A child *prefix* is deliberately not a pattern: it is a plain string compared against names the
+ * kernel itself returned, so it can select `zram0`/`zram1` without ever becoming a glob that a caller
+ * could widen.
+ */
+enum class AtlasCatalogScope {
+    /** `parentRoot` is a directory of devices; the attribute lives one level down, inside a child. */
+    CHILD_FILE,
+
+    /** `parentRoot` holds the file itself: `parentRoot/attribute`. */
+    ROOT_FILE,
+}
+
 /** One reviewed interface. `vendorTags` empty means "applies to any device", including an unknown one. */
 data class AtlasCatalogEntry(
     val id: String,
@@ -29,6 +59,9 @@ data class AtlasCatalogEntry(
     val provenance: AtlasProvenance,
     val featureTag: String?,
     val note: String,
+    val scope: AtlasCatalogScope = AtlasCatalogScope.ROOT_FILE,
+    /** Which enumerated children are interfaces of this entry's kind. `null` means every child. */
+    val childPrefix: String? = null,
 ) {
     init {
         require(AtlasIds.isValidObservationId(id)) { "catalog id is not canonical: $id" }
@@ -38,8 +71,28 @@ data class AtlasCatalogEntry(
         if (provider == AtlasProviderKind.VENDOR) {
             require(vendorTags.isNotEmpty()) { "a vendor entry must name its vendor tag" }
         }
+        when (scope) {
+            AtlasCatalogScope.ROOT_FILE ->
+                require(childPrefix == null) { "a root-level entry addresses one file and cannot filter children" }
+
+            AtlasCatalogScope.CHILD_FILE -> {
+                require(AtlasAnchors.isEnumerable(parentRoot)) {
+                    "an enumerated entry needs an enumerable approved root: $parentRoot"
+                }
+                require(childPrefix == null || CHILD_PREFIX.matches(childPrefix)) {
+                    "a child prefix is a plain name fragment, not a pattern: $childPrefix"
+                }
+            }
+        }
     }
 }
+
+/**
+ * A child prefix is a name fragment, never a pattern: letters, digits, dot, dash and underscore.
+ * `*`, `?`, `[`, `]` and every shell metacharacter are refused above, and the fragment is only ever
+ * compared with `startsWith` against names a listing returned.
+ */
+private val CHILD_PREFIX = Regex("^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$")
 
 /** Result of validating a catalog. Invalid problems are stable, sorted and human-readable. */
 sealed interface AtlasCatalogValidation {
@@ -94,22 +147,41 @@ data class AtlasCatalog(
 
         /**
          * Validates a whole catalog and collects every problem instead of stopping at the first one,
-         * so an author sees the complete list. Nothing is coerced: an unknown schema version is
-         * rejected rather than read as if it were this one.
+         * so an author sees the complete list. Nothing is coerced: an entry list written against
+         * another grammar is rejected rather than read as if it were this one.
+         *
+         * Two axes are deliberately separate. [schema] is the **grammar** an entry list is written
+         * against — one grammar, one validator, however many banks. [version] is the **content
+         * revision**, which each bank owns: it is what a cache key and a report cite, so a bank that
+         * changes a unit without changing its revision would be serving evidence under a stale name.
          */
-        fun validate(version: String, entries: List<AtlasCatalogEntry>): AtlasCatalogValidation {
+        fun validate(
+            version: String,
+            entries: List<AtlasCatalogEntry>,
+            schema: String = SCHEMA_VERSION,
+        ): AtlasCatalogValidation {
             val problems = mutableListOf<String>()
-            if (version != SCHEMA_VERSION) problems.add("unsupported-schema:$version")
+            if (schema != SCHEMA_VERSION) problems.add("unsupported-schema:$schema")
+            if (version.isBlank()) problems.add("blank-version")
             if (entries.isEmpty()) problems.add("empty-catalog")
 
             val ids = mutableListOf<String>()
             entries.forEach { entry ->
                 if (ids.contains(entry.id)) problems.add("duplicate-id:${entry.id}")
                 ids.add(entry.id)
-                // Either the parent directory is approved (so the entry is one attribute inside it),
-                // or the entry addresses one specific reviewed file outside any approved root.
-                if (!AtlasAnchors.isAddressable(entry.parentRoot, entry.attribute)) {
-                    problems.add("unapproved-root:${entry.parentRoot}")
+                // A root-level entry either sits inside an approved directory, or addresses one
+                // specific reviewed file outside any approved root. An enumerated entry needs a root
+                // that may actually be walked.
+                when (entry.scope) {
+                    AtlasCatalogScope.ROOT_FILE ->
+                        if (!AtlasAnchors.isAddressable(entry.parentRoot, entry.attribute)) {
+                            problems.add("unapproved-root:${entry.parentRoot}")
+                        }
+
+                    AtlasCatalogScope.CHILD_FILE ->
+                        if (!AtlasAnchors.isEnumerable(entry.parentRoot)) {
+                            problems.add("unapproved-child-root:${entry.parentRoot}")
+                        }
                 }
                 if (!AtlasIds.isSafeBasename(entry.attribute)) problems.add("unsafe-attribute:${entry.attribute}")
                 if (!entry.provenance.sourceId.startsWith("local:") && entry.provenance.revision.isBlank()) {
@@ -125,12 +197,16 @@ data class AtlasCatalog(
             }
         }
 
-        /** Two entries describing one interface must agree on the unit, or the catalog is ambiguous. */
+        /**
+         * Two entries describing one interface must agree on the unit, or the catalog is ambiguous.
+         * The key includes the scope and the child prefix because two entries may legitimately read
+         * one attribute under different children (`cur_state` under cooling devices and nothing else).
+         */
         private fun conflicts(entries: List<AtlasCatalogEntry>): List<String> {
             val units = mutableMapOf<String, AtlasUnit>()
             val found = mutableListOf<String>()
             entries.forEach { entry ->
-                val key = "${entry.parentRoot}/${entry.attribute}"
+                val key = "${entry.parentRoot}|${entry.scope}|${entry.childPrefix}/${entry.attribute}"
                 val previous = units.put(key, entry.unit)
                 if (previous != null && previous != entry.unit) {
                     found.add("unit-conflict:$key:$previous!=$entry.unit")
@@ -179,6 +255,17 @@ object AtlasAnchors {
         "/proc/gpufreq",
         PUBLIC_API,
     )
+
+    /**
+     * The subset of [APPROVED] that may be **enumerated**. A directory listing is what proves absence,
+     * so the ability to walk a root is a stronger grant than the ability to read one known file in it,
+     * and the public-API virtual root is excluded because it has no children and no file transport to
+     * open.
+     */
+    val ENUMERABLE: Set<String> = APPROVED - PUBLIC_API
+
+    /** True when `root` is an approved root Atlas may list. */
+    fun isEnumerable(root: String): Boolean = root in ENUMERABLE
 
     /**
      * The only individual files Atlas may read outside an approved directory root.
@@ -242,6 +329,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/devices/system/cpu/cpufreq",
             attribute = "scaling_cur_freq",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "policy",
             unit = AtlasUnit.KILO_HERTZ,
             source = "L02",
             reference = "https://docs.kernel.org/admin-guide/pm/cpufreq.html",
@@ -255,6 +344,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/devices/system/cpu/cpufreq",
             attribute = "scaling_available_frequencies",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "policy",
             unit = AtlasUnit.KILO_HERTZ,
             source = "L02",
             reference = "https://docs.kernel.org/admin-guide/pm/cpufreq.html",
@@ -268,6 +359,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/devices/system/cpu/cpufreq",
             attribute = "scaling_available_governors",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "policy",
             unit = AtlasUnit.UNKNOWN,
             source = "L02",
             reference = "https://docs.kernel.org/admin-guide/pm/cpufreq.html",
@@ -281,6 +374,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/devices/system/cpu/cpufreq",
             attribute = "related_cpus",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "policy",
             unit = AtlasUnit.UNKNOWN,
             source = "L02",
             reference = "https://docs.kernel.org/admin-guide/pm/cpufreq.html",
@@ -294,6 +389,7 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/class/devfreq",
             attribute = "cur_freq",
+            scope = AtlasCatalogScope.CHILD_FILE,
             unit = AtlasUnit.HERTZ,
             source = "L04",
             reference = "https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux/+/v6.12/drivers/devfreq/devfreq.c",
@@ -307,6 +403,7 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/class/devfreq",
             attribute = "available_frequencies",
+            scope = AtlasCatalogScope.CHILD_FILE,
             unit = AtlasUnit.HERTZ,
             source = "L03",
             reference = "https://docs.kernel.org/admin-guide/abi-testing.html",
@@ -320,6 +417,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/class/thermal",
             attribute = "temp",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "thermal_zone",
             unit = AtlasUnit.MILLI_CELSIUS,
             source = "L05",
             reference = "https://docs.kernel.org/driver-api/thermal/sysfs-api.html",
@@ -333,6 +432,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/class/thermal",
             attribute = "type",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "thermal_zone",
             unit = AtlasUnit.UNKNOWN,
             source = "L05",
             reference = "https://docs.kernel.org/driver-api/thermal/sysfs-api.html",
@@ -346,6 +447,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/class/power_supply",
             attribute = "charge_full",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "bat",
             unit = AtlasUnit.MICRO_AMP_HOUR,
             source = "L06",
             reference = "https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux/+/v6.12/Documentation/power/power_supply_class.rst",
@@ -359,6 +462,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/class/power_supply",
             attribute = "energy_full",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "bat",
             unit = AtlasUnit.MICRO_WATT_HOUR,
             source = "L06",
             reference = "https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux/+/v6.12/Documentation/power/power_supply_class.rst",
@@ -372,6 +477,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/class/power_supply",
             attribute = "voltage_now",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "bat",
             unit = AtlasUnit.MICRO_VOLT,
             source = "L06",
             reference = "https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux/+/v6.12/Documentation/power/power_supply_class.rst",
@@ -397,6 +504,8 @@ object AtlasReviewedSeeds {
             provider = AtlasProviderKind.GENERIC,
             root = "/sys/block",
             attribute = "disksize",
+            scope = AtlasCatalogScope.CHILD_FILE,
+            childPrefix = "zram",
             unit = AtlasUnit.BYTES,
             source = "LOCAL-ZRAM",
             reference = "local:manager/app/src/main/java/nd/max/core/hardware/ZramHardwareBackend.kt",
@@ -445,6 +554,8 @@ object AtlasReviewedSeeds {
         note: String,
         vendorTags: Set<String> = emptySet(),
         local: String? = null,
+        scope: AtlasCatalogScope = AtlasCatalogScope.ROOT_FILE,
+        childPrefix: String? = null,
     ): AtlasCatalogEntry = AtlasCatalogEntry(
         id = id,
         domain = domain,
@@ -453,6 +564,8 @@ object AtlasReviewedSeeds {
         parentRoot = root,
         attribute = attribute,
         unit = unit,
+        scope = scope,
+        childPrefix = childPrefix,
         safety = AtlasSafetyClass.READ_ONLY,
         provenance = AtlasProvenance(
             sourceId = source,

@@ -19,8 +19,34 @@ object CpuHardwareBackend {
         val provenMaxKHz: Long? get() = hwMaxKHz ?: availableFrequenciesKHz.lastOrNull()
     }
 
-    private fun policyFrequencies(path: String): List<Long> {
-        val advertised = RootFileAccess.read("$path/scaling_available_frequencies")
+    /**
+     * Discovery-only read seam (plan `P3`/`T3.1`).
+     *
+     * The cpufreq parser is shared with `Max Atlas`, so it has to be runnable over an injected reader
+     * without touching a single writer. [SystemDiscoveryIo] is the default, so every existing call
+     * site — including every writer below — behaves exactly as it did before this seam existed. This
+     * interface deliberately has no write, no exists and no writability member: a discovery caller
+     * cannot ask the question, which is stronger than answering it `false`.
+     *
+     * **Contract**, matching [RootFileAccess] exactly, because a parser cannot be correct against a
+     * reader that is friendlier than the real one: [read] returns the attribute's text **trimmed**, or
+     * `null` when the interface is absent, unreadable or blank; [listDirectories] returns names and an
+     * empty list when the directory could not be listed (the caller cannot distinguish "empty" from
+     * "failed", which is why absence is never inferred from an empty listing).
+     */
+    interface DiscoveryIo {
+        fun read(path: String): String?
+        fun listDirectories(path: String): List<String>
+    }
+
+    object SystemDiscoveryIo : DiscoveryIo {
+        // RootFileAccess already trims and already turns blank into null, which is the contract above.
+        override fun read(path: String): String? = RootFileAccess.read(path)
+        override fun listDirectories(path: String): List<String> = RootFileAccess.listDirectories(path)
+    }
+
+    private fun policyFrequencies(path: String, io: DiscoveryIo = SystemDiscoveryIo): List<Long> {
+        val advertised = io.read("$path/scaling_available_frequencies")
             .orEmpty()
             .split(Regex("\\s+"))
             .mapNotNull(String::toLongOrNull)
@@ -29,7 +55,7 @@ object CpuHardwareBackend {
         // A number of modern kernels omit scaling_available_frequencies while
         // retaining the cpufreq statistics table. It is still a kernel-reported
         // OPP list, unlike a guessed range, so it is safe to expose in the UI.
-        return RootFileAccess.read("$path/stats/time_in_state")
+        return io.read("$path/stats/time_in_state")
             .orEmpty()
             .lineSequence()
             .mapNotNull { line -> line.trim().split(Regex("\\s+")).firstOrNull()?.toLongOrNull() }
@@ -39,15 +65,18 @@ object CpuHardwareBackend {
             .toList()
     }
 
-    private fun readPolicy(name: String, path: String): Policy? {
-        val gov = RootFileAccess.read("$path/scaling_governor")
-        val governors = RootFileAccess.read("$path/scaling_available_governors")
+    private fun readPolicy(name: String, path: String, io: DiscoveryIo = SystemDiscoveryIo): Policy? {
+        val gov = io.read("$path/scaling_governor")
+        val governors = io.read("$path/scaling_available_governors")
             .orEmpty().split(Regex("\\s+")).filter(String::isNotBlank).distinct()
-        val min = RootFileAccess.read("$path/scaling_min_freq")?.toLongOrNull()
-        val max = RootFileAccess.read("$path/scaling_max_freq")?.toLongOrNull()
-        val hwMin = RootFileAccess.read("$path/cpuinfo_min_freq")?.toLongOrNull()
-        val hwMax = RootFileAccess.read("$path/cpuinfo_max_freq")?.toLongOrNull()
-        val availableFrequencies = policyFrequencies(path)
+        // Trimmed at the parse site rather than trusting the reader: a sysfs value carries a trailing
+        // newline, and a reader that returned the bytes unchanged would turn every bound into a `null`
+        // — silence, not an error, which is the failure mode this project refuses.
+        val min = io.read("$path/scaling_min_freq")?.trim()?.toLongOrNull()
+        val max = io.read("$path/scaling_max_freq")?.trim()?.toLongOrNull()
+        val hwMin = io.read("$path/cpuinfo_min_freq")?.trim()?.toLongOrNull()
+        val hwMax = io.read("$path/cpuinfo_max_freq")?.trim()?.toLongOrNull()
+        val availableFrequencies = policyFrequencies(path, io)
         return if (gov == null && governors.isEmpty() && min == null && max == null) null
         else Policy(path, name, gov, governors, min, max, hwMin, hwMax, availableFrequencies)
     }
@@ -57,23 +86,23 @@ object CpuHardwareBackend {
      * only cpuN/cpufreq, which we use only when policy directories are absent
      * to avoid aliasing the same hardware policy twice.
      */
-    fun policies(): List<Policy> {
-        val policyNodes = RootFileAccess.listDirectories(ROOT)
+    fun policies(io: DiscoveryIo = SystemDiscoveryIo): List<Policy> {
+        val policyNodes = io.listDirectories(ROOT)
             .filter { it.matches(Regex("policy\\d+")) }
-            .mapNotNull { name -> readPolicy(name, "$ROOT/$name") }
+            .mapNotNull { name -> readPolicy(name, "$ROOT/$name", io) }
             .sortedBy { it.name }
         if (policyNodes.isNotEmpty()) return policyNodes
 
-        val legacyPolicies = RootFileAccess.listDirectories("/sys/devices/system/cpu")
+        val legacyPolicies = io.listDirectories("/sys/devices/system/cpu")
             .filter { it.matches(Regex("cpu\\d+")) }
-            .mapNotNull { cpu -> readPolicy(cpu, "/sys/devices/system/cpu/$cpu/cpufreq") }
+            .mapNotNull { cpu -> readPolicy(cpu, "/sys/devices/system/cpu/$cpu/cpufreq", io) }
         // Older kernels often expose one cpuN/cpufreq symlink per core. Group
         // aliases by related_cpus/affected_cpus so one hardware policy is never
         // presented or written multiple times.
         return legacyPolicies
             .groupBy { policy ->
-                RootFileAccess.read("${policy.path}/related_cpus")
-                    ?: RootFileAccess.read("${policy.path}/affected_cpus")
+                io.read("${policy.path}/related_cpus")
+                    ?: io.read("${policy.path}/affected_cpus")
                     ?: policy.path
             }
             .values
@@ -81,16 +110,16 @@ object CpuHardwareBackend {
             .sortedBy { it.name.removePrefix("cpu").toIntOrNull() ?: Int.MAX_VALUE }
     }
 
-    fun commonGovernors(): List<String> {
-        val sets = policies().map { it.governors.toSet() }.filter(Set<String>::isNotEmpty)
+    fun commonGovernors(io: DiscoveryIo = SystemDiscoveryIo): List<String> {
+        val sets = policies(io).map { it.governors.toSet() }.filter(Set<String>::isNotEmpty)
         if (sets.isEmpty()) return emptyList()
         return sets.reduce { a, b -> a.intersect(b) }.sorted()
     }
 
     /** Reads a policy's live clock, which may differ from its configured limits. */
-    fun readCurrentFrequencyKHz(policyPath: String): Long? =
-        RootFileAccess.read("$policyPath/scaling_cur_freq")?.toLongOrNull()
-            ?: RootFileAccess.read("$policyPath/cpuinfo_cur_freq")?.toLongOrNull()
+    fun readCurrentFrequencyKHz(policyPath: String, io: DiscoveryIo = SystemDiscoveryIo): Long? =
+        io.read("$policyPath/scaling_cur_freq")?.toLongOrNull()
+            ?: io.read("$policyPath/cpuinfo_cur_freq")?.toLongOrNull()
 
     /** Apply a governor to exactly one policy, preserving heterogeneous policy setups. */
     fun setPolicyGovernor(policyPath: String, governor: String): VerificationResult<String> {

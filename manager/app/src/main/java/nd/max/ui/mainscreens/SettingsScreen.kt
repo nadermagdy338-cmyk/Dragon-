@@ -318,11 +318,26 @@ fun SettingsScreen(
                 item { SettingsSectionTitle(stringResource(R.string.section_features)) }
 
                 item {
-                    // Diagnostics + log viewer were removed from Settings: they are
-                    // developer surfaces, not preferences. Backup/restore moved here
-                    // from the retired flat tweaks workspace instead.
+                    // The log viewer stays out of Settings: it is a developer surface, not a preference.
+                    // Diagnostics came back for a narrower reason — Max Atlas reports what this device
+                    // exposes, and a device fact belongs next to the other device facts, reachable without
+                    // the native module and without root. Backup/restore moved here earlier from the
+                    // retired flat tweaks workspace.
+                    //
+                    // It is deliberately outside every `isLoaded` gate: a gate on the settings profile
+                    // would have made the one screen that explains an unreadable device unreachable
+                    // exactly when reading is already failing.
                     ExpressiveList(
                         content = listOf(
+                            {
+                                ExpressiveListItem(
+                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Diagnostics) },
+                                    headlineContent = { Text(stringResource(R.string.section_diagnostics)) },
+                                    supportingContent = { Text(stringResource(R.string.diagnostics_intro)) },
+                                    leadingContent = { LeadingIcon(icon = Icons.Rounded.Memory) },
+                                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                                )
+                            },
                             {
                                 ExpressiveListItem(
                                     onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ConfigBackup) },

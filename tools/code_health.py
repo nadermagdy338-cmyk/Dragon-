@@ -153,7 +153,10 @@ R_REF = re.compile(r"(?<!android\.)\bR\.(\w+)\.(\w+)")
 WILDCARD = re.compile(r"^import\s+([\w.]+)\.\*$", re.M)
 PKG = re.compile(r"^package\s+([\w.]+)", re.M)
 # نص واجهة صلب: Text("…") أو Text(text = "…") بنص حرفي لا قالب ولا رموز فقط.
-TEXT_LITERAL = re.compile(r'\bText\(\s*(?:text\s*=\s*)?"([^"\\]*(?:\\.[^"\\]*)*)"')
+# نص واجهة صلب = استدعاء Compose `Text("...")`. و`\b` وحدها لا تكفي: نقطة قبلها
+# (`AtlasTransportRead.Text("42000\n")`) تجعل الحدّ قائمًا، فيُحسب **نصّ اختبار** نصًّا صلبًا
+# ويصير السقف عددًا يتغيّر بكتابة اختبار. الاستثناء الصريح: لا نقطة ولا محرف كلمة قبل `Text(`.
+TEXT_LITERAL = re.compile(r'(?<![\w.])Text\(\s*(?:text\s*=\s*)?"([^"\\]*(?:\\.[^"\\]*)*)"')
 HAS_LETTER = re.compile(r"[A-Za-z\u0600-\u06FF]")
 
 

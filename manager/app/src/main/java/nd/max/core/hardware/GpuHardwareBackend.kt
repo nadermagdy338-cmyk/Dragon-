@@ -32,12 +32,30 @@ object GpuHardwareBackend {
         HZ(1L), KHZ(1_000L), MHZ(1_000_000L), AMBIGUOUS(0L)
     }
 
-    interface Io {
+    /**
+     * The read half of [Io] (plan `P3`/`T3.2`).
+     *
+     * A discovery caller — `Max Atlas` — gets this and nothing more. It has no `write` and no
+     * `writable` member, so it cannot *ask* whether something could be written, which is stronger
+     * than asking and being told `false`. The legacy [Io] extends it, so every existing implementation
+     * and call site is unchanged.
+     *
+     * **Contract:** [read] returns the value as the interface reported it, `null` when it did not
+     * answer. `SystemIo` is backed by [RootFileAccess], which trims; the scanner below does not rely on
+     * that, because a sysfs value arrives with a trailing newline and a reader that handed back the
+     * bytes unchanged used to make every frequency parse to `null` — a device that *has* a clock would
+     * have been reported as having none. Trimming at the parse site is what makes both readers behave
+     * the same.
+     */
+    interface ReadIo {
         fun exists(path: String): Boolean
-        fun writable(path: String): Boolean
         fun read(path: String): String?
-        fun write(path: String, value: String): Boolean
         fun listDirectories(path: String): List<String>
+    }
+
+    interface Io : ReadIo {
+        fun writable(path: String): Boolean
+        fun write(path: String, value: String): Boolean
     }
 
     object SystemIo : Io {
@@ -114,8 +132,102 @@ object GpuHardwareBackend {
 
     private data class Candidate(val device: Device, val score: Int)
 
-    fun selection(io: Io = SystemIo): Selection {
-        val candidates = discoverCandidates(io)
+    /**
+     * A GPU **fact** as Atlas may hold it.
+     *
+     * Every writability flag of [Device] is absent, not `false`: a projection that cannot express
+     * "this could be written" cannot leak a control decision, and `P3`/`T3.4` requires exactly that.
+     * The frequency unit stays attached because it is the one thing that decides whether a number
+     * means anything at all.
+     */
+    data class GpuFact(
+        val path: String,
+        val name: String,
+        val family: Family,
+        val governor: String?,
+        val governors: List<String>,
+        val minFreq: Long?,
+        val maxFreq: Long?,
+        val currentFreq: Long?,
+        val frequencies: List<Long>,
+        val frequencyUnit: FrequencyUnit,
+        val loadPercent: Int?,
+        val thermalC: Int?,
+        val evidence: List<String>,
+    ) {
+        val unitTrusted: Boolean get() = frequencyUnit != FrequencyUnit.AMBIGUOUS
+        val provenMinFreq: Long? get() = frequencies.firstOrNull()
+        val provenMaxFreq: Long? get() = frequencies.lastOrNull()
+    }
+
+    enum class GpuObservationState { AVAILABLE, AMBIGUOUS, UNAVAILABLE }
+
+    data class GpuObservation(
+        val state: GpuObservationState,
+        /** Every candidate, so an ambiguous device is visible rather than silently narrowed. */
+        val devices: List<GpuFact>,
+        /** The provider the scanner considers best; `null` when nothing qualified or several tied. */
+        val bestPath: String?,
+        val reason: String,
+        val observedAtMs: Long,
+    )
+
+    /**
+     * Adapts a reader to the legacy [Io] by answering the writer half **locally**.
+     *
+     * It never delegates `writable` and never performs `write`, so running discovery through it is
+     * not "a read that happened to be refused" — the attempt does not exist. This is what lets Atlas
+     * reuse the shipped candidate/selection code without a second copy of it.
+     */
+    class ReadOnlyIo(private val reads: ReadIo) : Io {
+        override fun exists(path: String): Boolean = reads.exists(path)
+        override fun read(path: String): String? = reads.read(path)
+        override fun listDirectories(path: String): List<String> = reads.listDirectories(path)
+        override fun writable(path: String): Boolean = false
+        override fun write(path: String, value: String): Boolean = false
+    }
+
+    fun selection(io: Io = SystemIo): Selection = select(discoverCandidates(io))
+
+    /**
+     * Read-only discovery for Atlas: one pass over the same candidate code, reported as facts.
+     *
+     * Ambiguity is preserved exactly as [selection] computes it (no "first GPU wins"), and the unit
+     * ambiguity survives too, so a caller cannot read a value whose meaning was never established.
+     */
+    fun observe(reads: ReadIo): GpuObservation {
+        val candidates = discoverCandidates(ReadOnlyIo(reads))
+        val selection = select(candidates)
+        return GpuObservation(
+            state = when (selection.state) {
+                SelectionState.UNAVAILABLE -> GpuObservationState.UNAVAILABLE
+                SelectionState.AMBIGUOUS -> GpuObservationState.AMBIGUOUS
+                else -> GpuObservationState.AVAILABLE
+            },
+            devices = candidates.map { fact(it.device) },
+            bestPath = selection.device?.path,
+            reason = selection.reason,
+            observedAtMs = selection.observedAtMs,
+        )
+    }
+
+    private fun fact(device: Device): GpuFact = GpuFact(
+        path = device.path,
+        name = device.name,
+        family = device.family,
+        governor = device.governor,
+        governors = device.governors,
+        minFreq = device.minFreq,
+        maxFreq = device.maxFreq,
+        currentFreq = device.currentFreq,
+        frequencies = device.frequencies,
+        frequencyUnit = device.frequencyUnit,
+        loadPercent = device.loadPercent,
+        thermalC = device.thermalC,
+        evidence = device.evidence,
+    )
+
+    private fun select(candidates: List<Candidate>): Selection {
         if (candidates.isEmpty()) return Selection(SelectionState.UNAVAILABLE, reason = "no-gpu-provider")
         val bestScore = candidates.maxOf(Candidate::score)
         val best = candidates.filter { it.score == bestScore }
@@ -473,9 +585,10 @@ object GpuHardwareBackend {
         if (identityScore == 0) return null
 
         val rawFrequencies = parseLongList(io.read("$path/available_frequencies"))
-        val rawMin = io.read("$path/min_freq")?.toLongOrNull()
-        val rawMax = io.read("$path/max_freq")?.toLongOrNull()
-        val rawCurrent = io.read("$path/cur_freq")?.toLongOrNull()
+        // Trimmed here, not assumed trimmed by the reader: see the [ReadIo] contract.
+        val rawMin = io.read("$path/min_freq")?.trim()?.toLongOrNull()
+        val rawMax = io.read("$path/max_freq")?.trim()?.toLongOrNull()
+        val rawCurrent = io.read("$path/cur_freq")?.trim()?.toLongOrNull()
         val governor = io.read("$path/governor")?.trim()
         val governors = io.read("$path/available_governors").orEmpty()
             .split(Regex("\\s+")).filter(String::isNotBlank).distinct()
