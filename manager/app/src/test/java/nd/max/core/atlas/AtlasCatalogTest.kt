@@ -23,7 +23,11 @@ class AtlasCatalogTest {
         assertTrue(catalog.entries.size >= 10)
         assertTrue(catalog.entries.all { it.safety == AtlasSafetyClass.READ_ONLY })
         assertTrue(catalog.entries.all { it.provenance.sourceId.isNotBlank() })
-        assertTrue(catalog.entries.all { AtlasAnchors.isApproved(it.parentRoot) })
+        assertTrue(
+            "every seed must address a surface the boundary would allow: " +
+                catalog.entries.filterNot { AtlasAnchors.isAddressable(it.parentRoot, it.attribute) },
+            catalog.entries.all { AtlasAnchors.isAddressable(it.parentRoot, it.attribute) },
+        )
     }
 
     // ---- validation negatives ---------------------------------------------------------------------
@@ -167,6 +171,37 @@ class AtlasCatalogTest {
         assertTrue(truncated.truncated)
     }
 
+    // ---- the reviewed single-file surface (`P10`) ---------------------------------------------------
+
+    @Test
+    fun `one reviewed proc file is addressable and the rest of proc is not`() {
+        assertTrue(AtlasAnchors.isApproved("/proc/cpuinfo"))
+        assertTrue(AtlasAnchors.isReviewedFile("/proc/cpuinfo"))
+        assertTrue("the approved directory stays approved", AtlasAnchors.isApproved("/proc/pressure/memory"))
+
+        // Every one of these is denied to app domains by platform policy, so the anchor rule refuses
+        // them before a device is ever asked. This is a *reviewed* refusal, not an unexplored path.
+        listOf("/proc/stat", "/proc/uptime", "/proc/version", "/proc/vmstat", "/proc/loadavg", "/proc/mounts", "/proc/swaps")
+            .forEach { path ->
+                assertFalse("$path must not be addressable", AtlasAnchors.isApproved(path))
+            }
+        assertFalse("the /proc directory itself is never enumerated", AtlasAnchors.isApproved("/proc"))
+    }
+
+    @Test
+    fun `the catalog refuses a proc surface that is not on the reviewed file list`() {
+        val seed = AtlasReviewedSeeds.entries().first()
+        val smuggled = seed.copy(id = "cpu.info.stat", parentRoot = "/proc", attribute = "stat")
+
+        val validation = AtlasCatalog.validate(AtlasCatalog.SCHEMA_VERSION, AtlasReviewedSeeds.entries() + smuggled)
+
+        assertTrue(validation is AtlasCatalogValidation.Invalid)
+        assertTrue(
+            "a /proc entry outside the reviewed list must be rejected, not merely discouraged",
+            (validation as AtlasCatalogValidation.Invalid).problems.any { it == "unapproved-root:/proc" },
+        )
+    }
+
     // ---- structural guard ---------------------------------------------------------------------------
 
     @Test
@@ -174,6 +209,10 @@ class AtlasCatalogTest {
         val sources = listOf(
             "src/main/java/nd/max/core/atlas/AtlasModels.kt",
             "src/main/java/nd/max/core/atlas/AtlasCatalog.kt",
+            "src/main/java/nd/max/core/atlas/AtlasDeviceIdentity.kt",
+            "src/main/java/nd/max/core/atlas/AtlasFreshness.kt",
+            "src/main/java/nd/max/core/atlas/AtlasFailureLedger.kt",
+            "src/main/java/nd/max/core/atlas/AtlasProbeSchedule.kt",
             "src/main/java/nd/max/core/hardware/ReadOnlyProbeAccess.kt",
         )
         sources.forEach { relative ->

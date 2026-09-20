@@ -1,5 +1,7 @@
 package nd.max.core.atlas.support
 
+import nd.max.core.atlas.AtlasFailureRetryPolicy
+import nd.max.core.atlas.AtlasFreshnessPolicy
 import nd.max.core.hardware.AtlasReadBudget
 
 /**
@@ -10,8 +12,9 @@ import nd.max.core.hardware.AtlasReadBudget
  * artifacts disagreed (8 s / 250 ms / 256 KiB versus 12 s / 1 s / 512 KiB); the reconciliation lives
  * in the product so a test cannot enforce a limit the shipped code does not.
  *
- * The remaining constants (cache lifetimes, concurrency, report bounds) are design values for later
- * plans (`P5`, `P6`) and are still unmeasured.
+ * The evidence lifetimes and retry delays are **not** copied either (`P12`): they are read from the
+ * product's own policy objects, for the same reason — a test that enforces a lifetime the shipped code
+ * does not use is a test that agrees with nobody. The report bound is still a design value for `P6`.
  */
 object AtlasBudgets {
 
@@ -40,9 +43,12 @@ object AtlasBudgets {
     val MAX_CONCURRENT_PRIVILEGED: Int = BUDGET.maxConcurrentPrivileged
 
     /** Evidence lifetimes. Positive evidence is capped; negative evidence retries briefly. */
-    const val POSITIVE_TTL_MS = 10 * 60_000L
-    const val NEGATIVE_TTL_MS = 60_000L
-    const val DENIAL_RETRY_MS = 5 * 60_000L
+    const val POSITIVE_TTL_MS = AtlasFreshnessPolicy.MAX_POSITIVE_CACHE_TTL_MS
+    const val NEGATIVE_TTL_MS = AtlasFailureRetryPolicy.NEGATIVE_TTL_MS
+    const val DENIAL_RETRY_MS = AtlasFailureRetryPolicy.DENIAL_RETRY_MS
+
+    /** One instant value must be re-read before it is shown as live (`P12`). */
+    const val INSTANT_TTL_MS = AtlasFreshnessPolicy.INSTANT_TTL_MS
 
     /** Support report bounds (P6). */
     const val REPORT_MAX_BYTES = 256 * 1024

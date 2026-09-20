@@ -299,6 +299,9 @@ object AtlasThermalTypes {
  *
  * @param clockMs monotonic milliseconds for observation vintage. Injected, so tests are exact.
  * @param catalog the reviewed catalog, used only to count the reviewed entries per domain.
+ * @param identity the declared device identity (`P10`), used **only** to widen catalog selection with
+ *   vendor tags. It cannot narrow selection, and it cannot make an entry readable; an inapplicable
+ *   vendor entry simply reads and fails, and the failure is recorded as evidence.
  */
 class AtlasPlatformProvider(
     private val source: AtlasPlatformSource = UnavailableAtlasPlatformSource,
@@ -306,7 +309,16 @@ class AtlasPlatformProvider(
     private val providerId: String = "atlas-platform-1",
     private val catalog: AtlasCatalog = AtlasReviewedSeeds.catalog(),
     private val clockMs: () -> Long = { 0L },
+    private val identity: AtlasDeviceIdentity? = null,
 ) {
+
+    /**
+     * Device hints for this provider: what the source observed, plus what the platform declared.
+     *
+     * The two are unioned rather than merged, so a declaration can only ever add candidates, and an
+     * unknown vendor loses the vendor entries and keeps every generic one.
+     */
+    private val deviceHints: Set<String> = source.vendorHints() + identity?.vendorHints().orEmpty()
 
     fun matrix(): AtlasSupportMatrix =
         AtlasSupportMatrix(catalogVersion = catalogVersion, supports = AtlasDomain.entries.map(::row))
@@ -317,7 +329,7 @@ class AtlasPlatformProvider(
         // entries for the domain has to be done explicitly — otherwise a matched vendor entry would
         // look like more knowledge than the catalog holds.
         val entries = catalog.entries.count { it.domain == domain }
-        val matched = catalog.candidates(domain, source.vendorHints()).size
+        val matched = catalog.candidates(domain, deviceHints).size
         if (observations.isEmpty()) {
             return AtlasDomainSupport(
                 domain = domain,

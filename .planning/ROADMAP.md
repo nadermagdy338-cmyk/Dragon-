@@ -50,11 +50,22 @@ plans (P0-P9) over the pattern-map allowlists A-I, dependency-ordered and exclus
 | P8 | No-root read-only entry acceptance (slice H) | P7 |
 | P9 | Fixtures, maintainer handoff, closure (slice I) | all |
 
+Four more plans came out of the gap review (`01-GAPS-AND-IDEAS.md`, plan §18) — they are **not** part of
+the original ten and are recorded here only because the owner said "نفذ" and two of them are delivered:
+
+| Plan | Scope | Same plan text | Status |
+| --- | --- | --- | --- |
+| P10 | Device identity from declared-public surfaces (slice J) — plan §19.1 | — | **done** |
+| P11 | Quirk base + availability tiers (`EXPECTED`/`DEVICE_DEPENDENT`/`EXPECTED_DENIED`) | — | proposed — should follow `P13`, or it becomes a base of assumptions |
+| P12 | Evidence lifetime, negative evidence, probe plan (slice K) — plan §19.2 | — | **done** |
+| P13 | On-device doctor + report→fixture loop | — | proposed |
+
 Six decisions in `01-PLAN.md` §15 are open. `DECISION-1` (one reconciled budget set) is now
 **implemented as recommended** in `AtlasReadBudget.DEFAULT` — the single source the test harness
 delegates to, so changing it later is a one-file change — and it still wants the owner's word.
-The owner authorized execution on 2026-09-20 ("start and make it the best"); `P0`, `P1`, `P2` and `P4`
-are delivered and measured (74 Atlas tests, 0 failures), and the standing rule remains
+The owner authorized execution on 2026-09-20 ("start and make it the best", later "continue" then "نفذ");
+`P0`, `P1`, `P2`, `P4`, `P10` and `P12` are delivered and measured (128 Atlas/boundary tests, 0 failures),
+and the standing rule remains
 *do not build by default* — only the modified scope is compiled
 (`:app:testDebugUnitTest --tests 'nd.max.core.atlas.*'`). `P2`'s T2.5 (the adapter over an existing
 authorized transport) is deliberately unbuilt: it needs the independent safety review that is not
@@ -64,4 +75,4 @@ available in this runtime, and `UnavailableAtlasReadTransport` keeps that honest
 
 | Phase | Plans Complete | Status | Completed |
 | --- | --- | --- | --- |
-| 1. Max Atlas compatibility and safe discovery | 4/10 | In progress — `P0`, `P1`, `P4` delivered; `P2` delivered except its reviewed adapter (T2.5); `P3` and `P5` next | - |
+| 1. Max Atlas compatibility and safe discovery | 6/14 | In progress — of the ten planned: `P0`, `P1`, `P4` delivered and `P2` delivered except its reviewed adapter (T2.5); of the four proposed: `P10` and `P12` delivered, `P11`/`P13` proposed. `P3` and `P5` next. Nothing is reachable from the app yet (zero call sites) | - |

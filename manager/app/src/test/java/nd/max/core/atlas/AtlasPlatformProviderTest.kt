@@ -84,6 +84,40 @@ class AtlasPlatformProviderTest {
     }
 
     @Test
+    fun `a declared identity widens catalog selection to its vendor entries and never narrows it`() {
+        val unknown = provider().matrix()
+        val declared = provider(
+            identity = AtlasDeviceIdentity(
+                socManufacturer = "MediaTek",
+                socModel = "MT6983",
+                supportedAbis = listOf("arm64-v8a"),
+                apiLevel = 35,
+            ),
+        ).matrix()
+
+        AtlasDomain.entries.forEach { domain ->
+            assertTrue(
+                "$domain must not lose candidates to a declaration",
+                declared.byDomain(domain).matchedEntries >= unknown.byDomain(domain).matchedEntries,
+            )
+            assertEquals(
+                "a declaration cannot invent catalog entries",
+                unknown.byDomain(domain).catalogEntries,
+                declared.byDomain(domain).catalogEntries,
+            )
+        }
+        assertTrue(
+            "the mediatek GPU entry participates for a mediatek declaration",
+            declared.byDomain(AtlasDomain.GPU).matchedEntries > unknown.byDomain(AtlasDomain.GPU).matchedEntries,
+        )
+        assertEquals(
+            "a declaration is not a reading",
+            AtlasSupportState.DEFERRED,
+            declared.byDomain(AtlasDomain.GPU).state,
+        )
+    }
+
+    @Test
     fun `catalog coverage is reported per domain so a gap is visible next to it`() {
         val matrix = provider().matrix()
         val power = matrix.byDomain(AtlasDomain.POWER)
@@ -429,9 +463,11 @@ class AtlasPlatformProviderTest {
         storage: AtlasStorageReading? = null,
         network: AtlasNetworkReading? = null,
         privilege: AtlasPrivilegeReading? = null,
+        identity: AtlasDeviceIdentity? = null,
     ): AtlasPlatformProvider = AtlasPlatformProvider(
         source = FakePlatformSource(vendorHints, thermal, battery, memory, zram, display, sensors, storage, network, privilege),
         clockMs = { 1_000L },
+        identity = identity,
     )
 
     private class FakePlatformSource(

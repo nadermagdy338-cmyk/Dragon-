@@ -659,6 +659,12 @@ bytes; a budget value is a design choice until measured.
   virtual root with a boundary refusal; `AtlasDomainSupport` gained `matchedEntries`; and
   `tools/kt_balance.py` gained backticked-identifier support after it produced a false positive on a
   test name containing an apostrophe (self-test 17 cases, 0 failures).
+- **2026-09-20 (gap review):** a second research round produced `01-GAPS-AND-IDEAS.md` (see §18). Two
+  of its findings **correct assumptions this plan was built on**: several surfaces the plan intended to
+  probe are denied to unprivileged apps by AOSP policy (so they must be catalogued as
+  `EXPECTED_DENIED`, not as "try and see"), and the one sysfs label AOSP explicitly grants to app
+  domains is `sysfs_gpu`. No plan text below is rewritten by that review; `P10`–`P13` are proposals
+  awaiting the owner, and `P5`–`P9` keep their allowlists.
 - **2026-09-20 (execution, P2):** owner said "continue". `P2` T2.1–T2.4/T2.6 delivered and measured
   (see §5.1); T2.5 remains open because it needs the reviewed adapter and is the reason P2's safety
   review is still outstanding. **Amendment A-2** records the cross-plan edits this forced: the P0
@@ -666,3 +672,149 @@ bytes; a budget value is a design choice until measured.
   moved from test support into the product, `AtlasBudgets` now delegates to `AtlasReadBudget.DEFAULT`
   instead of holding a second copy, and `AtlasProbeKinds` gained `canonical` as a read-only kind.
   No file outside P0's and P2's allowlists was touched, and no product behaviour outside Atlas changed.
+- **2026-09-20 (execution, P10 + P12):** owner said "نفذ" after the gap review. Both plans delivered and
+  compiled (§19). **Amendment A-4** records the three design decisions this forced: (1) a reviewed
+  *single file* anchor (`REVIEWED_FILES`) rather than approving `/proc` as a root, because approving the
+  directory would have opened the seven platform-denied `/proc` surfaces to a careless future entry;
+  (2) the boot generation became a **function** in the failure ledger, because a captured value made the
+  "another boot invalidates this" branch unreachable while looking correct; (3) declared platform
+  capabilities (`getSystemAvailableFeatures`) were **dropped** from P10 — they had no honest consumer yet
+  and an unused product field is the vanity surface the contract forbids, so they move to `P11`/`P13`
+  where they carry availability evidence. **A review pass over this section's own sentences against the
+the code** then removed two false claims: `AtlasFailure.STALE` has **no emitter** (the ledger already
+documents why a read attempt must not be one, so `P5`'s resolver owns it, not `P12`), and the first G-01
+command did not reproduce. The same pass found a real defect worth fixing: `isStaleAt` threw its reason
+away, so `AtlasStaleness` now carries it with fixed precedence, `isStaleAt` is its summary, and three
+tests pin every branch plus a 224-case equivalence matrix.
+
+---
+
+## 18. Gap Review, Round 2 (2026-09-20) — Analysis Only
+
+**Artifact:** [`01-GAPS-AND-IDEAS.md`](./01-GAPS-AND-IDEAS.md). **No code was written or built in this
+round**; it is analysis, sources and proposals, in the same edition of the plan.
+
+**What it contains**
+- Fourteen confirmed gaps (`G-01`–`G-14`), each with a `file:line` or command as its evidence. The two
+  with the widest reach are **G-01** (Atlas still has **zero call sites** — and its first stated command did
+  not reproduce: §G-01 now carries the corrected, reproducible pair of commands; what holds is that nothing
+  calls the boundary and not one UI-layer file mentions an Atlas type) and **G-07** (the catalog's one-basename grammar cannot express
+  `cpufreq/policy*/stats/time_in_state`, `zram*/mm_stat`, `cooling_device*/cur_state` or `block/*/stat`,
+  while the provider hand-builds those paths outside the catalog, which breaks the single-source rule the
+  catalog exists to enforce).
+- Nine **denied-by-policy** surfaces (`R-01`–`R-09`) with AOSP `neverallow` citations. This is the part
+  that saves work: `cgroup`/`cgroup_v2` files, debugfs reads, `selinuxfs`, uevent netlink, `sysfs_net`,
+  any sysfs write, and the `/proc` list (`stat`, `uptime`, `version`, `vmstat`, `loadavg`, `mounts`,
+  `swaps`, `slabinfo`, `proc_uid_*`, `proc_net_tcp_udp`) are not "unexplored" — they are closed.
+- The mirror image: what **is** granted (`sysfs_gpu` to app domains, `sysfs_devices_system_cpu` and
+  `proc_cpuinfo` domain-wide, `proc_meminfo` granted-but-deprecated), which is where the catalog should
+  concentrate, and which lets a source **tier** (`EXPECTED` / `DEVICE_DEPENDENT` / `EXPECTED_DENIED`) be
+  added to entries instead of letting every denial read as a code defect.
+- Twenty-two ranked ideas, four proposed plans (`P10` identity-from-public-APIs, `P11` quirk base,
+  `P12` cost/freshness scheduling, `P13` on-device doctor and report→fixture), and ready-to-run device
+  measurement commands.
+
+**Status after the owner said "نفذ":** `P10` and `P12` are **delivered** (§19). `P11` and `P13` are still
+proposals, and the order between them matters: `P11` without `P13` would be a quirk base assembled from
+assumptions instead of from reports.
+
+**Effect on this plan's open decisions:** none of `DECISION-1`–`DECISION-6` changes. `DECISION-3`'s domain
+list stays valid; what changes is the *confidence* attached to each domain's sources, which is exactly
+what `P11` would encode.
+
+**Not claimed:** no device was measured, no licence file was opened, no build or test ran, and every
+"what an app can read on *your* phone" statement remains `unverified — needs device` until §8's commands
+are run and recorded.
+
+---
+
+## 19. Plans P10 and P12 — **DELIVERED** (2026-09-20)
+
+Owner said "نفذ" after §18. These two were chosen first because they are the two that can be *finished*
+without a device, and because everything later depends on them: `P10` supplies the identity that `P11`'s
+matching needs, and `P12` supplies the lifetime and retry rules that `P5`'s cache needs.
+
+### 19.1 Plan P10 — Identity From Public Surfaces (slice J)
+
+**Objective:** know the device from what the platform *declares*, and give the catalog's vendor selection
+a real input instead of an unwired `vendorHints()`.
+
+**Allowlist as delivered:** `NEW APP/core/atlas/AtlasDeviceIdentity.kt`,
+`EXISTING APP/core/atlas/AtlasCatalog.kt` (anchors + one seed), `EXISTING APP/core/atlas/AtlasPlatformProvider.kt`
+(one constructor parameter), `NEW TEST/core/atlas/AtlasDeviceIdentityTest.kt`,
+`EXISTING TEST/core/atlas/AtlasCatalogTest.kt`, `EXISTING TEST/core/atlas/AtlasPlatformProviderTest.kt`.
+
+**Delivered**
+
+| Item | What it does now |
+| --- | --- |
+| `AtlasDeviceIdentity` | SoC manufacturer/model, hardware, board, ABIs, API level, kernel release, low-RAM flag and memory class — **no `import android`** in the file, so the model is pure and testable |
+| `privateCacheKey()` | Deterministic per-device invalidation key. Declared names may not contain control characters precisely so the key's separator cannot be forged into a field boundary (that check was **added because a test failed**, not by inspection) |
+| `AtlasVendorTags` | Reviewed aliases plus reviewed model-prefix families (`mt`, `sm`, `gs`, `exynos`, `ums`, …) with a minimum token length so a short accident is not read as a vendor. Unknown text yields **no** hint, so an unknown device keeps every generic entry |
+| `AtlasKernelRelease` | `major.minor[.patch]` plus "something follows"; its type has nowhere to put a platform level, and a test asserts that a kernel suffix is never read as an Android version |
+| `AtlasAnchors.REVIEWED_FILES` + `isAddressable` | `/proc/cpuinfo` is addressable **and never enumerable**; `/proc/stat`, `/proc/uptime`, `/proc/version`, `/proc/vmstat`, `/proc/loadavg`, `/proc/mounts`, `/proc/swaps` are refused before a device is asked. The catalog validator and the boundary now ask one shared question |
+| `cpu.info.cpuinfo` seed | The 15th reviewed entry, sourced to AOSP `private/domain.te` (blob `6999586eaf…`), free text with no field promotion |
+| `AtlasPlatformProvider(identity = …)` | Union of observed hints and declared hints; a declaration can only **add** candidates, never remove one, and a test proves it across every domain |
+
+**Not built, on purpose:** no Android adapter fills the identity yet (`Build`/`Os`/`ActivityManager` are read
+by a later plan), and `getSystemAvailableFeatures()` is not in the type — see Amendment A-4.
+
+### 19.2 Plan P12 — Evidence Lifetime, Negative Evidence And The Probe Plan (slice K)
+
+**Objective:** give the freshness axis a producer, stop re-asking closed doors, and decide *which* probes a
+job runs instead of only whether an attempt is allowed.
+
+**Allowlist as delivered:** `NEW APP/core/atlas/AtlasFreshness.kt`,
+`NEW APP/core/atlas/AtlasFailureLedger.kt`, `NEW APP/core/atlas/AtlasProbeSchedule.kt`,
+`NEW TEST/core/atlas/AtlasFreshnessTest.kt`, `NEW TEST/core/atlas/AtlasFailureLedgerTest.kt`,
+`EXISTING TEST/core/atlas/support/AtlasBudgets.kt`.
+
+**Delivered**
+
+| Item | What it does now |
+| --- | --- |
+| `AtlasVolatility` + `AtlasFreshness` | Separates "is this value still about now" from "is this capability still true". A clock that moved backwards is **stale**, not fresh: an unmeasurable age is not a young age |
+| `AtlasStaleness` | The reason, not just the verdict: `FRESH` · `EXPIRED_BY_TIME` · `SUPERSEDED_BY_BOOT` · `SUPERSEDED_BY_PRIVILEGE` · `UNMEASURABLE_CLOCK`, in a **fixed precedence** so one piece of evidence yields one cause. `isStaleAt` is now the summary of the reason, so no call site changed meaning. Added after the review below found the axis was collapsing four situations into one boolean |
+| `AtlasFreshnessPolicy` | 1 s / 10 s / 60 s / generation-bounded, plus the 10-minute cap for *value* cache. One source: `AtlasBudgets` now delegates here instead of holding a second copy |
+| `AtlasFailureRetryPolicy` | Per-cause lifetimes (`ABSENT` 60 s, denial 5 min **or** a generation change, malformed 5 min, unknown 30 s, transient doubling 1 s→60 s) |
+| `AtlasFailureLedger` | Records failed attempts by path, drops them on a boot or privilege change, counts the attempts it saved, and **erases a record the moment the interface answers**. `CANCELLED` and `STALE` are never remembered: a cancelled job is evidence about the job, not the device |
+| `AtlasProbeScheduler` / `AtlasProbePlan` | Deterministic cheapest-first planning over the same budget `P2` enforces, with a skip reason per probe (`suppressed:<CAUSE>`, `not-due`, `over-budget`) so a report can say why a probe did not run rather than implying the device lacked it |
+
+### 19.3 Evidence (measured, this session)
+
+| Command | Result |
+| --- | --- |
+| `bash gradlew :app:testDebugUnitTest --tests 'nd.max.core.atlas.*' --tests 'nd.max.core.hardware.ReadOnlyProbeAccessTest'` | **BUILD SUCCESSFUL 2m30s** · **131 tests · 0 failed · 0 errors · 0 skipped** in 7 classes (was 74 ⇒ +57: catalog 17, identity 16, ledger 18, freshness/plan **20**, harness 10, provider 23, probe access 27) |
+| full recompile, `bash gradlew :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --rerun` | **BUILD SUCCESSFUL 2m42s · zero warnings from any Atlas file** (including the boundary); the app's pre-existing warnings elsewhere are unchanged |
+| `code_health --assert` · `i18n_coverage --assert` · `kt_balance` · `repo_audit` · `git diff --check` | exit 0 · exit 0 (0 obstacles) · 677 files / 0 obstacles · `PROBLEMS: 0` · clean |
+
+**A sixth finding, from reviewing this section's own claims against the code:** the sentence "`AtlasFailure.STALE`
+now has a producer" was **false** — the only mention of it in `AtlasFreshness.kt` was a comment asserting a
+producer, and nothing emits it. `AtlasFailureLedger` already documents why a *read attempt* must not emit
+it (staleness says "we hold an old value", not "reading failed"), so its rightful emitter is `P5`'s
+resolver and **this plan does not pretend to be one**. What was a real defect is what the audit found
+beside it: `isStaleAt` collapsed four distinct situations into one boolean, while `P2` preserves all
+eleven causes precisely so a report can name one. `AtlasStaleness` now carries the reason with fixed
+precedence, three tests pin every branch and the equivalence, and the false claim was corrected in this
+plan, `01-GAPS-AND-IDEAS.md` G-02, `STATE.md`, `NEXT_TASK.md` and `REQUIREMENTS.md`.
+
+**Five test failures on first run, and what each was:** one **real product defect** (declared names could
+carry control characters — implemented after the test demanded it), one **real design defect** (the ledger
+captured the boot generation, making its own invalidation branch unreachable), one **stale invariant in an
+existing test** (it asserted every entry's parent root is an approved *root*, which the reviewed single-file
+anchor deliberately changes — the assertion was strengthened to the addressability question), and two wrong
+expectations of mine (a raw token list including `9200`, and a "different key" case that used the default
+value, so it compared a key with itself).
+
+### 19.4 What P10 and P12 do **not** do
+
+- No adapter: nothing reads `Build`/`Os`/`ActivityManager` yet, so the identity is a declared model with no
+  producer, exactly as the transport and platform adapters are still unwired. **Atlas still has zero call
+  sites** — measured, not assumed: `grep -rn 'ReadOnlyProbeAccess' manager/app/src/main` outside its own
+  file returns nothing, and `grep -rln 'Atlas[A-Z]' manager/app/src/main` outside `core/atlas/` returns
+  exactly one file, the boundary itself, which imports the vocabulary and calls into nothing.
+- No cache: freshness and the ledger are rules with tests; the store that uses them is `P5`.
+- No quirk base and no availability tiers (`EXPECTED` / `DEVICE_DEPENDENT` / `EXPECTED_DENIED`) — that is
+  `P11`, and it should follow `P13` so it is built from device reports.
+- No device: every lifetime and retry value remains a **design value**. `P2/T2.5` and `P3` remain
+  `UNREVIEWED` until an independent-family reviewer exists.

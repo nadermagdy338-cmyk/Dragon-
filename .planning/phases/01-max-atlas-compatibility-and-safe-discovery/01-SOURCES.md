@@ -119,6 +119,39 @@ the specific source/Javadoc contracts above are the verified fallback, not a cla
 latest web guide was inspected. No Context7/MCP lookup tool was available; no package was
 installed to obtain one.
 
+## Batch 2 — Gap-Review Sources (2026-09-20)
+
+These were read in a second research round whose analysis lives in
+[`01-GAPS-AND-IDEAS.md`](./01-GAPS-AND-IDEAS.md) §3–§5. This table is an **index only**; the
+claim-level analysis (what each source establishes, its limit, and its disposition) is kept in that
+one document so the two cannot drift apart.
+
+| ID | Exact Source / Revision Captured | Why It Was Fetched |
+| --- | --- | --- |
+| S18a | AOSP `platform/system/sepolicy`, `private/app.te`, `refs/heads/main`, blob `3219fbe9623f4b0a6a68da525534cbb85ee39cd3` | The explicit allow-list for app domains: `sysfs_gpu` read is granted; `proc_meminfo` is granted **and marked for removal**; `sysfs_devices_system_cpu` and `proc_cpuinfo` are domain-wide |
+| S18b | same repo, `private/app_neverallows.te`, blob `434fb132e7adb545dc511564ca3b631ec617115a` | The deny-list that rules out `/proc/stat`, `/proc/uptime`, `/proc/version`, `/proc/vmstat`, `/proc/loadavg`, `/proc/mounts`, `/proc/swaps`, cgroup v1/v2 files, debugfs reads, `selinuxfs`, `sysfs_net`, uevent netlink, `proc_uid_*` |
+| S18c | same repo, `private/domain.te`, blob `6999586eaf09978949b1ab3fce5bba738870c47a` | `r_dir_file(domain, sysfs_devices_system_cpu)` and `allow domain proc_cpuinfo:file r_file_perms;` — i.e. CPU surfaces are granted broadly, while `cgroup`/`debugfs`/`selinuxfs` are search-only |
+| S19 | AOSP `device/google/gs201`, `powerhint.json`, commit `a1deb18`, blob `131af2098740f22438f777a27c848ca60e474cdb` | An upstream **per-device node catalog** (`Name`/`Path`/`Values`, `ResetOnInit`, `Type: "Property"`) that also proves many of these nodes are Power HAL **write** surfaces and that one logical interface sits at different paths per SoC |
+| S20 | Chromium `src/gpu/config/gpu_driver_bug_list.json`, `refs/heads/main`, blob `b6c228eaa074f0122baec1510617eba50f48aef0` | A mature per-driver exception database: `id`, `description`, `cr_bugs`, matching on GL vendor/renderer/version and driver version, `features`/`disabled_extensions`, and an `exceptions` escape hatch |
+| S21 | libinput device-quirks documentation (1.31) and `90-libinput-model-quirks.hwdb` | Plain-text, independently updatable quirk storage with a diagnosis tool — the maintainability pattern for a quirk base |
+| S22 | `saschabrunner/Android-Thermal-Monitor` (README) | Independent statement that thermal sysfs access is device-dependent: some devices deny it without root, some never expose it |
+| S23 | `google/battery-historian` (README, analyzer) | Precedent for turning a device report into an analysis pipeline — the shape a report-to-fixture tool would take |
+| S24 | Linux UFS health descriptor ABI (`life_time_a/b`, `pre_eol_info`) and its LKML patch series | A read-only storage-health surface that may exist but is permission/label dependent |
+| S25 | Linux `Documentation/ABI/testing/sysfs-class-powercap` (`energy_uj`), observed via `android.googlesource.com/kernel/common` at `d4504d1eba95` | Energy counters exist in the kernel, but no evidence was found that an unprivileged Android app may read them — recorded as conditional, not adopted |
+| A06 | `android.os.Build.SOC_MANUFACTURER` / `SOC_MODEL` (API 31) plus `get_prop(domain, soc_prop)` | SoC identity from a public surface, which is what `vendorHints()` needs |
+| A07 | Android 14 battery-health APIs in `BatteryManager` (cycle count, charging status, state of health) | A public replacement for vendor battery nodes |
+| A08 | AOSP *Thermal mitigation* (source.android.com, fetched 2026-09-20) | App-facing thermal truth is `PowerManager` status codes; detailed sensors and cooling devices go to **trusted** clients only; the thermal HAL is the authoritative throttling reporter |
+| A09 | Google Issue Tracker 37140047 (title and snippet only; the page is script-rendered) | Independent confirmation that Android O removed app access to `/proc/stat` through SELinux |
+| A10 | ADPF `PerformanceHintManager` and the Android *Thermal API* pages | The public interfaces that actually exist for performance/thermal observation |
+
+**Batch-2 licence status:** no licence file was opened for any source above, and **no code, path table,
+script, quirk list or profile was imported** from them. They are architectural and policy references
+only. Reproduce any row by reading its immutable `blob/REV/PATH` URL.
+
+**Batch-2 open question:** no `allow` and no `neverallow` was found for `/proc/pressure` in the policy
+files read here, so its availability to an app is **not settled** by these sources — the existing
+`MemoryStall.kt` reader is not evidence of platform support. Measure it per `01-GAPS-AND-IDEAS.md` §8.
+
 ## Unresolved Claims And Reproduction Notes
 
 - README statements about test counts, device results, ML gains, sensor correctness, thermal safety and benchmark improvements remain unverified unless the specific behavior above is marked S. None is hardware proof.

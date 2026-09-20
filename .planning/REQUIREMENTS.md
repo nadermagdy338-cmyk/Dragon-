@@ -43,18 +43,18 @@ to initialize this request-scoped GSD track and complete research/planning/verif
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| ATLAS-01 | Phase 1 | Pending — partial evidence: P1 catalog schema, provenance and seed entries |
-| ATLAS-02 | Phase 1 | Pending — partial evidence: P1 unknown-vendor fallback; providers land in P3/P4 |
+| ATLAS-01 | Phase 1 | Pending — partial evidence: P1 catalog schema, provenance and seed entries (15 entries after P10's `cpu.info.cpuinfo`), P10 device identity from declared-public surfaces only, P12 attaches lifetime to the freshness axis |
+| ATLAS-02 | Phase 1 | Pending — partial evidence: P1 unknown-vendor fallback, reinforced by P10 (declared identity can only *add* vendor candidates, never remove one, and unknown text yields no hint, so an unknown device keeps every generic entry); providers land in P3/P4 |
 | ATLAS-03 | Phase 1 | Pending |
 | ATLAS-04 | Phase 1 | Pending — partial evidence: P1 no-authority guard, P2 boundary is read-only by construction (the transport interface has no mutating call, and the guard scans the boundary file too) |
-| ATLAS-05 | Phase 1 | Pending — partial evidence: P1 orthogonal axes and unit/list rules, P2 preserves all 11 causes and never guesses a unit, P4 keeps battery dimensions separate, thermal scales source-declared, a malformed PSI value null with its raw text and privilege unverified without the control plane |
-| ATLAS-06 | Phase 1 | Pending |
+| ATLAS-05 | Phase 1 | Pending — partial evidence: P1 orthogonal axes and unit/list rules, P2 preserves all 11 causes and never guesses a unit, P4 keeps battery dimensions separate, thermal scales source-declared, a malformed PSI value null with its raw text and privilege unverified without the control plane; P12 separates "still about now" from "still true" and gives staleness a **reason** (`AtlasStaleness`: expired by time · superseded by boot · superseded by privilege · unmeasurable clock) instead of one boolean — but `AtlasFailure.STALE` still has **no emitter**, and its rightful one is P5's resolver, because the ledger documents that staleness is not a read failure |
+| ATLAS-06 | Phase 1 | Pending — partial evidence: P12 supplies the rules (per-volatility lifetimes, reason-preserving staleness, per-cause retry, invalidation on a boot or privilege change, cancellation never remembered) but **not the cache**: the store that uses them is P5, so nothing is persisted yet |
 | ATLAS-07 | Phase 1 | Pending — partial evidence: P4 builds a support matrix that cannot omit a domain, with every gap carrying a reason code (`no-source-wired`, `other-provider`, `partial-support`, `no-observation`, `unverified-identity`); the per-domain device matrix still needs P3 and real-device reads |
 | ATLAS-08 | Phase 1 | Pending |
 | ATLAS-09 | Phase 1 | Pending |
 | ATLAS-10 | Phase 1 | Pending |
 | ATLAS-11 | Phase 1 | Pending — partial evidence: P0 harness and its negative controls |
-| ATLAS-12 | Phase 1 | Pending — partial evidence: P0 deadline/entry-budget tests, P2 enforces operation/job deadlines, entry, byte and operation budgets **before** work and stops cleanly when a limit is reached (concurrency cap and device timing still open) |
+| ATLAS-12 | Phase 1 | Pending — partial evidence: P0 deadline/entry-budget tests, P2 enforces operation/job deadlines, entry, byte and operation budgets **before** work and stops cleanly when a limit is reached, T2.4's concurrency cap is atomic (increment-then-check with rollback), and P12 plans which probes a job runs over the same budget with a skip reason per probe; device timing and off-main-thread execution are still open |
 
 Requirements are not marked complete by creating plans. Scope expansions such as new rootless
 privilege transports, Android API/ABI expansion, remote updates and autonomous mutation experiments

@@ -106,7 +106,11 @@ data class AtlasCatalog(
             entries.forEach { entry ->
                 if (ids.contains(entry.id)) problems.add("duplicate-id:${entry.id}")
                 ids.add(entry.id)
-                if (!AtlasAnchors.isApproved(entry.parentRoot)) problems.add("unapproved-root:${entry.parentRoot}")
+                // Either the parent directory is approved (so the entry is one attribute inside it),
+                // or the entry addresses one specific reviewed file outside any approved root.
+                if (!AtlasAnchors.isAddressable(entry.parentRoot, entry.attribute)) {
+                    problems.add("unapproved-root:${entry.parentRoot}")
+                }
                 if (!AtlasIds.isSafeBasename(entry.attribute)) problems.add("unsafe-attribute:${entry.attribute}")
                 if (!entry.provenance.sourceId.startsWith("local:") && entry.provenance.revision.isBlank()) {
                     problems.add("missing-revision:${entry.id}")
@@ -141,6 +145,15 @@ data class AtlasCatalog(
  * Anchor roots Atlas is allowed to look at. A root is approved only when it is a fixed kernel
  * interface directory; a path outside this list is rejected by validation, which keeps the catalog
  * from growing into "scan everything under /sys".
+ *
+ * Two shapes are approved, and the difference matters (`P10`):
+ * - **A directory root** ([APPROVED]) may be enumerated *and* read, which is the only way absence can
+ *   ever be claimed.
+ * - **A single file** ([REVIEWED_FILES]) may be read but **never enumerated**, which exists because
+ *   the platform grants a few individual `/proc` files to app domains while the `/proc` directory
+ *   itself is not ours to walk. Approving `/proc` as a root would be the cheap version of this and it
+ *   would open `stat`, `uptime`, `version`, `vmstat`, `loadavg`, `mounts` and `swaps` — all denied to
+ *   apps by platform policy — to a future careless catalog entry.
  */
 object AtlasAnchors {
 
@@ -167,8 +180,31 @@ object AtlasAnchors {
         PUBLIC_API,
     )
 
+    /**
+     * The only individual files Atlas may read outside an approved directory root.
+     *
+     * Each one is here because a reviewed platform grant makes it readable to an ordinary app; a file
+     * whose only argument is "some apps seem to read it" does not belong here. See
+     * `01-GAPS-AND-IDEAS.md` §3 and §4 for the granted-versus-denied table this list is derived from.
+     */
+    val REVIEWED_FILES: Set<String> = setOf(
+        // `allow domain proc_cpuinfo:file r_file_perms;` in AOSP private/domain.te.
+        "/proc/cpuinfo",
+    )
+
+    fun isReviewedFile(path: String): Boolean = REVIEWED_FILES.contains(path)
+
+    /**
+     * True when this (parent root, attribute) pair addresses something the boundary would allow.
+     *
+     * It exists so the rule is stated once: validation, the boundary and the tests all ask this
+     * question instead of each re-deriving "approved root, or one reviewed file outside a root".
+     */
+    fun isAddressable(parentRoot: String, attribute: String): Boolean =
+        isApproved(parentRoot) || isReviewedFile("$parentRoot/$attribute")
+
     fun isApproved(path: String): Boolean =
-        APPROVED.any { approved -> path == approved || path.startsWith("$approved/") }
+        isReviewedFile(path) || APPROVED.any { approved -> path == approved || path.startsWith("$approved/") }
 
     /** True for the public-API virtual root, which no file transport may open. */
     fun isPublicApiSurface(path: String): Boolean =
@@ -366,6 +402,20 @@ object AtlasReviewedSeeds {
             reference = "local:manager/app/src/main/java/nd/max/core/hardware/ZramHardwareBackend.kt",
             revision = LOCAL_TREE,
             note = "Enumerate every zram device; a hardcoded zram0 is not the device set.",
+        ),
+        entry(
+            id = "cpu.info.cpuinfo",
+            domain = AtlasDomain.CPU,
+            provider = AtlasProviderKind.PLATFORM,
+            root = "/proc",
+            attribute = "cpuinfo",
+            unit = AtlasUnit.UNKNOWN,
+            source = "S18c",
+            reference = "https://android.googlesource.com/platform/system/sepolicy/+/refs/heads/main/private/domain.te",
+            revision = "blob 6999586eaf09978949b1ab3fce5bba738870c47a",
+            note = "The one /proc text surface with a reviewed platform grant to app domains " +
+                "(allow domain proc_cpuinfo:file r_file_perms). Free text: it is reported raw, and its " +
+                "fields are never promoted to typed values from a name match. Read-only, and never enumerated.",
         ),
         entry(
             id = "gpu.mediatek.stack_signed_opp_table",
