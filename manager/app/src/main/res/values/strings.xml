@@ -1510,7 +1510,6 @@
     <string name="max_home_gpu_identity">Graphics processor</string>
     <string name="max_home_gpu_unknown_desc">GPU family unavailable on this device</string>
     <string name="max_home_cpu_activity">CPU activity</string>
-    <string name="max_home_waiting_samples">Waiting for live samples…</string>
     <string name="max_home_active_profile">Base profile</string>
     <string name="max_home_profile_managed">Manual base profile is available</string>
     <string name="max_home_profile_ready">Manual base profile is available</string>
@@ -1529,8 +1528,6 @@
     <string name="max_home_ai_idle">No AI decision recorded yet</string>
 
     <!-- Legendary live dashboard -->
-    <string name="home_engine_ready">Performance engine online</string>
-    <string name="home_engine_offline">Performance engine offline</string>
     <string name="home_system_stable">SYSTEM STABLE</string>
     <string name="home_system_attention">SYSTEM NEEDS ATTENTION</string>
     <string name="home_system_vitals">System vitals</string>
@@ -1763,7 +1760,6 @@
     <!-- Neural home dashboard v2 -->
     <string name="home_spectrum_title">Load spectrum</string>
     <string name="home_spectrum_caption">Recent load distribution</string>
-    <string name="home_stat_now">Now</string>
     <string name="home_stat_avg">Average</string>
     <string name="home_stat_peak">Peak</string>
     <string name="home_details_title">Details</string>

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.mainscreens.HomeDashboardContent
+import nd.max.ui.util.LoadSample
 import nd.max.ui.viewmodel.DashboardState
 import nd.max.ui.viewmodel.HomeUiState
 import com.materialkolor.rememberDynamicColorScheme
@@ -130,11 +131,19 @@ private fun HomeMissingPreview() = HomeCommandPreview(missing = true)
 
 @Composable
 private fun HomeCommandPreview(missing: Boolean = false) {
+    // تاريخ مصنوع للعرض: الشكل الذي يُراجع به الطيف كامل الفتحات بأعمدة CPU+GPU.
+    val previewSamples = List(20) { index ->
+        LoadSample(
+            atMs = index * 2_000L,
+            cpu = (28 + (index * 9) % 58).toFloat(),
+            gpu = (18 + (index * 6) % 44).toFloat(),
+        )
+    }
     val colors = rememberDynamicColorScheme(seedColor = MaxManagerBrandSeed, isDark = true, primary = MaxManagerBrandSeed, secondary = androidx.compose.ui.graphics.Color(0xFF00B7C7), tertiary = androidx.compose.ui.graphics.Color(0xFF9B7BFF))
     MaterialTheme(colorScheme = colors, typography = Typography, shapes = Shapes) {
         HomeDashboardContent(
             ui = HomeUiState(rootStatus = true, moduleInstalled = true, autoMode = "0"),
-            dashboard = if (missing) DashboardState(chipsetName = "Unknown SoC") else DashboardState(ramUsedMb = 4300, ramTotalMb = 8192, cpuLoadPercent = 48, cpuFreqMhz = 2400, chipsetName = "Snapdragon 8 Gen 3", batteryPercent = 74, batteryTempC = 37.4f, batteryStatus = "Discharging", storageUsedGb = 128f, storageTotalGb = 256f, downloadSpeedKbps = 850, uploadSpeedKbps = 120, displayWidth = 1440, displayHeight = 3200, displayRefreshHz = 120, cpuLoadHistory = listOf(18f, 34f, 29f, 52f, 48f)),
+            dashboard = if (missing) DashboardState(chipsetName = "Unknown SoC") else DashboardState(ramUsedMb = 4300, ramTotalMb = 8192, cpuLoadPercent = 48, cpuFreqMhz = 2400, chipsetName = "Snapdragon 8 Gen 3", batteryPercent = 74, batteryTempC = 37.4f, batteryStatus = "Discharging", storageUsedGb = 128f, storageTotalGb = 256f, downloadSpeedKbps = 850, uploadSpeedKbps = 120, displayWidth = 1440, displayHeight = 3200, displayRefreshHz = 120, loadSamples = previewSamples),
             maxAi = MaxAiState(aiEnabled = true, strategyLabel = "Balanced"),
             profileRequest = ProfileRequestState(),
             deviceName = "MAX Preview Device",

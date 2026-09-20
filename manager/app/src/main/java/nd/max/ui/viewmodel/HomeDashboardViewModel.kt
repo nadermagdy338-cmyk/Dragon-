@@ -27,9 +27,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nd.max.ui.util.CpuTopologyUtil
 import nd.max.ui.util.FpsMonitorUtil
+import nd.max.ui.util.LoadHistory
+import nd.max.ui.util.LoadHistoryStore
+import nd.max.ui.util.LoadSample
 import nd.max.ui.util.MtkUtils
 import nd.max.ui.util.ThermalUtil
 import nd.max.ui.util.getChipsetName
+import java.io.File
 
 /**
  * One live core as the dashboard's core matrix renders it.
@@ -80,8 +84,12 @@ data class DashboardState(
     val displayHeight: Int = 0,
     val displayRefreshHz: Int = 0,
     val displayDensityDpi: Int = 0,
-    /** CPU load history reserved for the detailed telemetry view. */
-    val cpuLoadHistory: List<Float> = emptyList(),
+    /**
+     * تاريخ الحمل: مصدر واحد لـCPU وGPU معًا، لأن الطيف يرسمهما زوجًا على مقياس واحد.
+     * وطابع كل عيّنة محفوظ معها، فيبقى الطيف صادقًا بعد إعادة فتح التطبيق: ما قيس قبل
+     * أكثر من نافذة الصلاحية لا يُعرض على أنه «آخر فترة» (انظر `LoadHistory`).
+     */
+    val loadSamples: List<LoadSample> = emptyList(),
     val uptimeMinutes: Long = 0L,
     /** Per-core live frequencies; empty until the first poll resolves topology. */
     val cores: List<CpuCoreState> = emptyList(),
@@ -89,10 +97,8 @@ data class DashboardState(
     val gpuLoadPercent: Int? = null,
     /** GPU clock in MHz, or null when unreadable. */
     val gpuFreqMhz: Int? = null,
-    /** RAM history for the live chart, same cadence as [cpuLoadHistory]. */
+    /** RAM history for the live chart, same cadence as [loadSamples]. */
     val ramLoadHistory: List<Float> = emptyList(),
-    /** GPU history for the live chart; only appended when a real GPU reading exists. */
-    val gpuLoadHistory: List<Float> = emptyList(),
     /** Battery drain/charge power in watts; 0 when current_now is unreadable. */
     val powerWatt: Float = 0f,
     /** ZRAM/swap usage in MB, or null when the device has no swap configured. */
@@ -136,6 +142,12 @@ internal fun primaryBatteryTemperatureC(state: DashboardState): Float? =
 /** First unsigned integer in a preformatted vendor string ("47%", "1200 MHz"). */
 private val LEADING_INTEGER = Regex("\\d+")
 
+/**
+ * كل ٣٠ ثانية تُكتب العيّنات المتراكمة مرّة واحدة (١٥ دورة قياس)، لا في كل دورة: الملف
+ * أربع مئة بايت، لكن الكتابة كل ثانيتين عملٌ لا يلزم.
+ */
+private const val HISTORY_SAVE_INTERVAL_MS = 30_000L
+
 class HomeDashboardViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context: Context = application.applicationContext
@@ -156,8 +168,17 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
      */
     private var coreTopology: List<CpuCoreState>? = null
 
+    /**
+     * تاريخ الحمل على القرص: كل جلسة تكمل من حيث انتهت التي قبلها، فلا يبدأ الطيف من
+     * الصفر في كل فتح للتطبيق. والكتابة **مجزّأة** (انظر [HISTORY_SAVE_INTERVAL_MS]) فلا
+     * تتحوّل الشاشة إلى كاتب ملفات كل ثانيتين.
+     */
+    private val historyStore = LoadHistoryStore(File(context.filesDir, "max_load_history.txt"))
+    private var lastSavedAtMs = 0L
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            restoreLoadHistory()
             val chip = getChipsetName(context)
             val dispInfo = getDisplayInfo()
             _dashboardState.value = _dashboardState.value.copy(
@@ -168,10 +189,26 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
+    /**
+     * ما قيس في الجلسة السابقة ويقع داخل نافذة الصلاحية يُعاد إلى الطيف كما هو — بلا
+     * إعادة ترتيب ولا تصنيع: `LoadHistoryCodec` هو من يقرّر ما يُقبل (انظر `LoadHistoryTest`).
+     */
+    private fun restoreLoadHistory() {
+        // الشرط الثاني ليس زينة: لو سبقتنا دورة قياس حيّة فلا نستبدل عيّنةً قيست الآن
+        // بعيّنة من الجلسة السابقة — الاسترجاع يملأ فراغًا، لا يُزاحم قياسًا فعلًا.
+        if (_dashboardState.value.loadSamples.isNotEmpty()) return
+        val restored = historyStore.load(System.currentTimeMillis())
+        if (restored.isNotEmpty()) {
+            _dashboardState.value = _dashboardState.value.copy(loadSamples = restored)
+        }
+    }
+
     fun setPollingActive(active: Boolean) {
         if (!active) {
             pollingJob?.cancel()
             pollingJob = null
+            // آخر ما قيس يُحفظ عند مغادرة الشاشة، فلا يعتمد الاستمرار على أن يمرّ وقتٌ كافٍ.
+            persistLoadHistory(_dashboardState.value.loadSamples)
             return
         }
         if (pollingJob?.isActive == true) return
@@ -208,16 +245,24 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     networkKbps = network[0] + network[1]
                 )
 
+                // عيّنة واحدة تحمل CPU وGPU معًا، ومعها طابعها: فيبقى الطيف بعد إعادة فتح
+                // التطبيق زوجًا مرتّبًا لا قائمتين قد تنفصلان إحداهما عن الأخرى.
+                val sampledAtMs = System.currentTimeMillis()
+                val samples = (
+                    previous.loadSamples + LoadSample(sampledAtMs, cpuLoad.toFloat(), gpu.first?.toFloat())
+                    ).takeLast(LoadHistory.LIMIT)
+                if (sampledAtMs - lastSavedAtMs >= HISTORY_SAVE_INTERVAL_MS) {
+                    lastSavedAtMs = sampledAtMs
+                    persistLoadHistory(samples)
+                }
+
                 _dashboardState.value = previous.copy(
                     ramUsedMb = ram.usedMb, ramTotalMb = ram.totalMb,
                     cpuLoadPercent = cpuLoad, cpuFreqMhz = cpuFreq,
-                    cpuLoadHistory = (previous.cpuLoadHistory + cpuLoad.toFloat()).takeLast(36),
-                    // Histories feed detailed telemetry only. The home dashboard
-                    // renders current, labeled values; no ambiguous animated lines.
+                    loadSamples = samples,
+                    // التاريخ التالي يغذّي الرسوم المفصّلة وحدها؛ الشاشة الرئيسية تعرض قيمًا
+                    // حالية معنونة بالتسمية، بلا خطوط متحرّكة غامضة.
                     ramLoadHistory = (previous.ramLoadHistory + ramPercent).takeLast(36),
-                    gpuLoadHistory = gpu.first
-                        ?.let { (previous.gpuLoadHistory + it.toFloat()).takeLast(36) }
-                        ?: previous.gpuLoadHistory,
                     gpuLoadPercent = gpu.first, gpuFreqMhz = gpu.second,
                     cores = cores,
                     batteryPercent = battery[0].toInt(), batteryVoltageV = battery[1] / 1000f,
@@ -244,6 +289,12 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         }.also { job ->
             job.invokeOnCompletion { if (pollingJob === job) pollingJob = null }
         }
+    }
+
+    /** كتابة تجزئة تاريخ الحمل — على مسار IO أصلًا (حلقة القياس)، فلا تجمّد الواجهة. */
+    private fun persistLoadHistory(samples: List<LoadSample>) {
+        if (samples.isEmpty()) return
+        historyStore.save(samples)
     }
 
     private fun dispInfoPixelCount(): Long {

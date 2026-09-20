@@ -37,14 +37,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -68,6 +66,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.ui.theme.MonoValueStyleSmall
+import nd.max.ui.util.LoadSample
+import nd.max.ui.util.Spectrum
 
 /**
  * Neural dashboard kit — the single visual language for MAX's data surfaces.
@@ -465,56 +465,120 @@ fun NeuralAreaPlot(
 }
 
 /**
- * Load spectrum: one rounded bar per sample, tinted from calm to hot by value.
- * Bars beat a line here because the question is "how often does it spike",
- * which is a comparison of quantities rather than a trend.
+ * Load spectrum: one sample per slot, tinted from calm to hot by value, and — when the
+ * device reports GPU load — the two loads side by side on one scale, so "who is doing the
+ * work" is a comparison of columns rather than of two numbers in two panels.
+ *
+ * Bars beat a line here because the question is "how often does it spike".
+ *
+ * Three rules keep it from ever looking like a broken chart:
+ *  - the geometry comes from [Spectrum.frame], so the frame is **always the full slot
+ *    count**: a slot with no sample yet is drawn as its empty track, never omitted. Three
+ *    samples used to become three fat bars across the whole width and then narrow as the
+ *    session grew, which read as a defect;
+ *  - filled height is animated **per slot toward its own value**, so a composition that
+ *    re-enters (scrolling away and back, a resumed session) never replays a whole-chart
+ *    reveal from zero;
+ *  - an absent sample and a sample at 0% are different drawings: the first is an empty
+ *    track, the second is its rounded nub on the baseline.
+ *
+ * The animation calls are deliberately unconditional over the fixed slot count (both
+ * loads, paired or not): the number of `animateFloatAsState` calls must not change between
+ * recompositions, or their state would be re-keyed and the bars would jump.
  */
 @Composable
 fun NeuralBarSpectrum(
-    values: List<Float>,
+    samples: List<LoadSample>,
     accent: Color,
+    secondaryAccent: Color,
     hot: Color,
     modifier: Modifier = Modifier,
-    maxValue: Float = 100f,
-    maxBars: Int = 26,
+    slots: Int = Spectrum.SLOTS,
 ) {
     val p = neuralPalette()
-    var shown by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { shown = true }
-    val appear by animateFloatAsState(
-        targetValue = if (shown) 1f else 0f,
-        animationSpec = tween(700, easing = FastOutSlowInEasing),
-        label = "neural-spectrum",
-    )
+    val frame = remember(samples, slots) { Spectrum.frame(samples, slots) }
+    val cpuHeights = ArrayList<Float>(frame.bars.size)
+    val gpuHeights = ArrayList<Float>(frame.bars.size)
+    for (bar in frame.bars) {
+        val cpuValue = bar?.cpu
+        val gpuValue = bar?.gpu
+        cpuHeights += animateFloatAsState(
+            targetValue = if (cpuValue == null) 0f else cpuValue / 100f,
+            animationSpec = tween(620, easing = FastOutSlowInEasing),
+            label = "neural-spectrum-cpu",
+        ).value
+        gpuHeights += animateFloatAsState(
+            targetValue = if (gpuValue == null) 0f else gpuValue / 100f,
+            animationSpec = tween(620, easing = FastOutSlowInEasing),
+            label = "neural-spectrum-gpu",
+        ).value
+    }
     Canvas(modifier) {
-        val series = values.takeLast(maxBars)
-        if (series.isEmpty()) return@Canvas
-        val ceiling = if (maxValue <= 0f) 1f else maxValue
-        val slot = size.width / series.size
-        val barWidth = (slot * .55f).coerceAtLeast(2f)
+        val count = frame.bars.size
+        if (count == 0) return@Canvas
+        val slot = size.width / count
+        val columns = if (frame.paired) 2 else 1
+        val gap = if (frame.paired) 2.dp.toPx() else 0f
+        val pairWidth = slot * .68f
+        val barWidth = (((pairWidth - gap) / columns).coerceAtLeast(1f))
+        val bandWidth = barWidth * columns + gap * (columns - 1)
         val radius = barWidth / 2f
-        series.forEachIndexed { index, raw ->
-            val t = (raw / ceiling).coerceIn(0f, 1f)
-            val barHeight = (size.height * t * appear).coerceAtLeast(barWidth)
-            val x = slot * index + (slot - barWidth) / 2f
-            val top = size.height - barHeight
-            drawRoundRect(
-                color = p.grid,
-                topLeft = Offset(x, 0f),
-                size = Size(barWidth, size.height),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
-            )
-            drawRoundRect(
+        val corner = CornerRadius(radius, radius)
+        frame.bars.forEachIndexed { index, bar ->
+            val bandLeft = slot * index + (slot - bandWidth) / 2f
+            drawColumn(left = bandLeft, top = 0f, width = barWidth, height = size.height, corner = corner, color = p.grid)
+            if (columns == 2) {
+                drawColumn(left = bandLeft + barWidth + gap, top = 0f, width = barWidth, height = size.height, corner = corner, color = p.grid)
+            }
+            val cpuT = bar?.cpu?.div(100f) ?: 0f
+            val cpu = (size.height * cpuHeights[index]).coerceAtLeast(barWidth)
+            drawColumn(
+                left = bandLeft,
+                top = size.height - cpu,
+                width = barWidth,
+                height = cpu,
+                corner = corner,
                 brush = Brush.verticalGradient(
-                    colors = listOf(lerp(accent, hot, t), accent.copy(alpha = .55f)),
-                    startY = top,
+                    colors = listOf(lerp(accent, hot, cpuT), accent.copy(alpha = .55f)),
+                    startY = size.height - cpu,
                     endY = size.height,
                 ),
-                topLeft = Offset(x, top),
-                size = Size(barWidth, barHeight),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
             )
+            val gpuT = bar?.gpu?.div(100f)
+            if (columns == 2 && gpuT != null) {
+                val gpu = (size.height * gpuHeights[index]).coerceAtLeast(barWidth)
+                drawColumn(
+                    left = bandLeft + barWidth + gap,
+                    top = size.height - gpu,
+                    width = barWidth,
+                    height = gpu,
+                    corner = corner,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(lerp(secondaryAccent, hot, gpuT), secondaryAccent.copy(alpha = .55f)),
+                        startY = size.height - gpu,
+                        endY = size.height,
+                    ),
+                )
+            }
         }
+    }
+}
+
+/** عمود واحد داخل فتحة: تعبئة بلون ثابت (المسار الفارغ) أو بتدرّج (الشريط المملوء). */
+private fun DrawScope.drawColumn(
+    left: Float,
+    top: Float,
+    width: Float,
+    height: Float,
+    corner: CornerRadius,
+    color: Color? = null,
+    brush: Brush? = null,
+) {
+    val at = Offset(left, top)
+    val extent = Size(width, height)
+    when {
+        brush != null -> drawRoundRect(brush = brush, topLeft = at, size = extent, cornerRadius = corner)
+        color != null -> drawRoundRect(color = color, topLeft = at, size = extent, cornerRadius = corner)
     }
 }
 

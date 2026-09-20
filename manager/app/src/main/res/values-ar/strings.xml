@@ -811,7 +811,6 @@
     <string name="max_home_gpu_identity">معالج الرسوميات</string>
     <string name="max_home_gpu_unknown_desc">عائلة GPU غير متاحة على هذا الجهاز</string>
     <string name="max_home_cpu_activity">نشاط المعالج</string>
-    <string name="max_home_waiting_samples">بانتظار العينات الحية…</string>
     <string name="max_home_active_profile">ملف الأساس</string>
     <string name="max_home_profile_managed">ملف الأساس اليدوي متاح</string>
     <string name="max_home_profile_ready">ملف الأساس اليدوي متاح</string>
@@ -852,8 +851,6 @@
     <string name="charging_limit_full">100٪ · بلا حد</string>
 
     <!-- لوحة النظام الحية -->
-    <string name="home_engine_ready">محرك الأداء متصل</string>
-    <string name="home_engine_offline">محرك الأداء غير متصل</string>
     <string name="home_system_stable">النظام مستقر</string>
     <string name="home_system_attention">النظام يحتاج إلى انتباه</string>
     <string name="home_system_vitals">مؤشرات النظام</string>
@@ -941,7 +938,6 @@
     <!-- Neural home dashboard v2 -->
     <string name="home_spectrum_title">طيف الحِمل</string>
     <string name="home_spectrum_caption">توزيع الحِمل في آخر فترة</string>
-    <string name="home_stat_now">الآن</string>
     <string name="home_stat_avg">المتوسط</string>
     <string name="home_stat_peak">الذروة</string>
     <string name="home_details_title">التفاصيل</string>
