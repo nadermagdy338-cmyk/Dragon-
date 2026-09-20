@@ -65,6 +65,19 @@ data class DashboardState(
     val ramTotalMb: Int = 0,
     val cpuLoadPercent: Int = 0,
     val cpuFreqMhz: Int = 0,
+    /**
+     * أعلى تردّد **حيّ** بين الأنوية المتصلة — وهو رقم مقياس المعالج.
+     *
+     * ولا يُستعمل [cpuFreqMhz] لهذا: هو `cpu0` وحده، وعلى big.LITTLE يكون نواة صغيرة
+     * تبقى في أدنى درجاته بينما العمل الحقيقي على العنقود الرئيسي — فيقرأ الشريط «هادئًا»
+     * وجهاز يعمل بكامل قوّته. والصفر يعني «لا نواة متصلة تُقرأ»، لا «تردّد صفري».
+     */
+    val cpuTopCoreMhz: Int = 0,
+    /**
+     * سقف المعالج المعلَن: أعلى سقف مقروء من سياسات العناقيد (`cpuinfo_max_freq`).
+     * والصفر يعني «النواة لا تُعلن سقفًا» — فيُعرض الرقم بلا مدرّج بدل اختراع مدى.
+     */
+    val cpuCeilingMhz: Int = 0,
     val chipsetName: String = "...",
     val batteryPercent: Int = 0,
     val batteryVoltageV: Float = 0f,
@@ -97,6 +110,13 @@ data class DashboardState(
     val gpuLoadPercent: Int? = null,
     /** GPU clock in MHz, or null when unreadable. */
     val gpuFreqMhz: Int? = null,
+    /**
+     * سقف تردّد الرسوم بالـMHz، أو null حين لا تُعلنه هذه النواة.
+     *
+     * ويُقرأ من عقدة `devfreq` (`max_freq` ثم `available_frequencies`) أو من جدول OPP،
+     * ويُحفظ بعد أول قراءة: هو خاصية مدى الإقلاع، لا قياس يتغيّر كل دورتين.
+     */
+    val gpuCeilingMhz: Int? = null,
     /** RAM history for the live chart, same cadence as [loadSamples]. */
     val ramLoadHistory: List<Float> = emptyList(),
     /** Battery drain/charge power in watts; 0 when current_now is unreadable. */
@@ -169,6 +189,16 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
     private var coreTopology: List<CpuCoreState>? = null
 
     /**
+     * سقف تردّد GPU: خاصية مدى إقلاع لا قياس لحظي، فتُقرأ مرة واحدة.
+     *
+     * وقراءتها كل دورتين تعني ثلاث نداءات إلى العقدة في الدقيقة بلا نتيجة جديدة، ونداءً
+     * لجدول OPP في كل مرة على جهاز حساس للحرارة. والقيمة `null` محفوظة كما هي: «لا سقف
+     * معلَن» نتيجة نهائية، لا «لم نجرب بعد».
+     */
+    private var gpuCeilingCacheMhz: Int? = null
+    private var gpuCeilingResolved: Boolean = false
+
+    /**
      * تاريخ الحمل على القرص: كل جلسة تكمل من حيث انتهت التي قبلها، فلا يبدأ الطيف من
      * الصفر في كل فتح للتطبيق. والكتابة **مجزّأة** (انظر [HISTORY_SAVE_INTERVAL_MS]) فلا
      * تتحوّل الشاشة إلى كاتب ملفات كل ثانيتين.
@@ -227,6 +257,10 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 val cores = readCores()
                 val gpu = readGpu()
                 val swap = readSwap()
+                val onlineCores = cores.filter { it.online }
+                val cpuTopCoreMhz = onlineCores.maxOfOrNull { it.freqMhz } ?: 0
+                val cpuCeilingMhz = cores.maxOfOrNull { it.maxFreqMhz } ?: 0
+                val gpuCeilingMhz = gpuCeiling()
 
                 val previous = _dashboardState.value
                 val ramPercent = if (ram.totalMb > 0) {
@@ -259,6 +293,8 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 _dashboardState.value = previous.copy(
                     ramUsedMb = ram.usedMb, ramTotalMb = ram.totalMb,
                     cpuLoadPercent = cpuLoad, cpuFreqMhz = cpuFreq,
+                    cpuTopCoreMhz = cpuTopCoreMhz, cpuCeilingMhz = cpuCeilingMhz,
+                    gpuCeilingMhz = gpuCeilingMhz,
                     loadSamples = samples,
                     // التاريخ التالي يغذّي الرسوم المفصّلة وحدها؛ الشاشة الرئيسية تعرض قيمًا
                     // حالية معنونة بالتسمية، بلا خطوط متحرّكة غامضة.
@@ -457,6 +493,57 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
             load to freq
         } catch (_: Exception) {
             null to null
+        }
+    }
+
+    /** سقف GPU مرة واحدة لكل إقلاع؛ ما بعده يُقرأ من الذاكرة. */
+    private fun gpuCeiling(): Int? {
+        if (!gpuCeilingResolved) {
+            gpuCeilingResolved = true
+            gpuCeilingCacheMhz = readGpuCeilingMhz()
+        }
+        return gpuCeilingCacheMhz
+    }
+
+    /**
+     * سقف تردّد الرسوم، من المصادر الثلاثة التي يملكها هذا المسار بهذا الترتيب:
+     *
+     * 1. **`max_freq` في عقدة `devfreq`** — تصريح النواة الصريح (بالكيلوهرتز).
+     * 2. **`available_frequencies`** — سلّم العقدة؛ أعلاه هو ما تقدر عليه فعلاً. يُقرأ حين
+     *    لا يوجد `max_freq`، لأن قفل التردّد على بعض أنوية MTK يخفي الحدّ الأعلى ويُبقي السلّم.
+     * 3. **جدول OPP** — للمسار GED/MTK وحده، ومفاتيحه بالهرتز لا بالـMHz (لهذا تُقسم على
+     *    1_000_000؛ أخذ الرقم كما هو يعطي «2400000 MHz»).
+     *
+     * وما لم يُقرأ شيء منها فهي `null` صريحة: الشاشة تعرض التردّد **بلا مدرّج** بدل أن
+     * تخترع سقفًا من أعلى قيمة رآها التطبيق — وهو ليس مدى الشريحة.
+     */
+    private fun readGpuCeilingMhz(): Int? {
+        return try {
+            val node = MtkUtils.getGpuDevfreqNode()
+            val declaredKhz = node?.let { path ->
+                Shell.cmd("cat $path/max_freq 2>/dev/null").exec().out
+                    .firstOrNull()?.trim()?.toLongOrNull()?.takeIf { it > 0L }
+            }
+            declaredKhz?.div(1_000L)?.toInt()?.takeIf { it > 0 }?.let { return it }
+
+            val ladderKhz = node?.let { path ->
+                Shell.cmd("cat $path/available_frequencies 2>/dev/null").exec().out
+                    .flatMap { line -> line.trim().split(Regex("\\s+")) }
+                    .mapNotNull { it.toLongOrNull() }
+                    .filter { it > 0L }
+                    .maxOrNull()
+            }
+            ladderKhz?.div(1_000L)?.toInt()?.takeIf { it > 0 }?.let { return it }
+
+            MtkUtils.getMtkFreqMap().keys
+                .mapNotNull { it.trim().toLongOrNull() }
+                .filter { it > 0L }
+                .maxOrNull()
+                ?.div(1_000_000L)
+                ?.toInt()
+                ?.takeIf { it > 0 }
+        } catch (_: Exception) {
+            null
         }
     }
 

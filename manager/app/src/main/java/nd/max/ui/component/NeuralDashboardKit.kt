@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.ui.theme.MonoValueStyleSmall
+import nd.max.ui.util.ClockMeter
 import nd.max.ui.util.LoadSample
 import nd.max.ui.util.Spectrum
 
@@ -465,29 +466,25 @@ fun NeuralAreaPlot(
 }
 
 /**
- * Load spectrum: one sample per slot, tinted from calm to hot by value, and — when the
- * device reports GPU load — the two loads side by side on one scale, so "who is doing the
- * work" is a comparison of columns rather than of two numbers in two panels.
+ * شريط طيف الحمل — **مسارَان لا عمودان متلاصقان**.
  *
- * Bars beat a line here because the question is "how often does it spike".
+ * التصميم السابق كان يضع عمودَي CPU وGPU **جنبًا إلى جنب داخل الفتحة نفسها**، فيصير عرض
+ * العمود نصف الفتحة: أشرطة رقيقة تشبه باركود، وارتفاع ٩٦dp لا يسعها. والتصميم هنا يعطي كل
+ * حمل **مسارًا أفقيًّا كامل العرض**: GPU في الأعلى (٣٤٪ من الارتفاع) وCPU في الأسفل، فيُقرأ
+ * من يعمل بترتيب الصفحة نفسها (المسار الأعلى = الرسوم) بدل أن يُفكَّ شفرة عمودين.
  *
- * Three rules keep it from ever looking like a broken chart:
- *  - the geometry comes from [Spectrum.frame], so the frame is **always the full slot
- *    count**: a slot with no sample yet is drawn as its empty track, never omitted. Three
- *    samples used to become three fat bars across the whole width and then narrow as the
- *    session grew, which read as a defect;
- *  - filled height is animated **per slot toward its own value**, so a composition that
- *    re-enters (scrolling away and back, a resumed session) never replays a whole-chart
- *    reveal from zero;
- *  - an absent sample and a sample at 0% are different drawings: the first is an empty
- *    track, the second is its rounded nub on the baseline.
+ * وثلاث قواعد بقيت كما هي لأنها كانت الصواب:
+ *  - الهندسة من [Spectrum.frame]، فالإطار **كامل العدد دائمًا** من الثانية الأولى؛
+ *  - القيمة تُحرَّك **لكل فتحة نحو قيمتها**، فلا يُعاد كشف الرسم كله عند إعادة التركيب؛
+ *  - **الفتحة الفارغة وفتحة الصفر ليستا رسمًا واحدًا**: الأولى «مقعد» رماديّ على خط الأساس
+ *    (لم تُقس)، والثانية نُبَيضة بلون المسار (قِيست فكانت هادئة).
  *
- * The animation calls are deliberately unconditional over the fixed slot count (both
- * loads, paired or not): the number of `animateFloatAsState` calls must not change between
- * recompositions, or their state would be re-keyed and the bars would jump.
+ * ويُضاف: أحدث عيّنة تأخذ **غطاءً** بلون الحرارة فوق عمودها، فموضع «الآن» في الرسم معروف
+ * بلا سهم ولا تسمية. ولا أعمدة خلفية بطول الإطار: خطّ أساس ومساقط رمادية تكفي، والامتلاء
+ * هو المعلومة — لا الفراغ خلفها.
  */
 @Composable
-fun NeuralBarSpectrum(
+fun NeuralLoadRibbon(
     samples: List<LoadSample>,
     accent: Color,
     secondaryAccent: Color,
@@ -505,63 +502,121 @@ fun NeuralBarSpectrum(
         cpuHeights += animateFloatAsState(
             targetValue = if (cpuValue == null) 0f else cpuValue / 100f,
             animationSpec = tween(620, easing = FastOutSlowInEasing),
-            label = "neural-spectrum-cpu",
+            label = "neural-ribbon-cpu",
         ).value
         gpuHeights += animateFloatAsState(
             targetValue = if (gpuValue == null) 0f else gpuValue / 100f,
             animationSpec = tween(620, easing = FastOutSlowInEasing),
-            label = "neural-spectrum-gpu",
+            label = "neural-ribbon-gpu",
         ).value
     }
     Canvas(modifier) {
         val count = frame.bars.size
         if (count == 0) return@Canvas
         val slot = size.width / count
-        val columns = if (frame.paired) 2 else 1
-        val gap = if (frame.paired) 2.dp.toPx() else 0f
-        val pairWidth = slot * .68f
-        val barWidth = (((pairWidth - gap) / columns).coerceAtLeast(1f))
-        val bandWidth = barWidth * columns + gap * (columns - 1)
-        val radius = barWidth / 2f
-        val corner = CornerRadius(radius, radius)
+        // الفاصل ثابت صغير: الأشرطة شبه متلاصقة فيُقرأ الطيف كتوزيع، لا كخطوط منفصلة.
+        val barGap = 1.8.dp.toPx().coerceAtMost(slot * .34f)
+        val barWidth = (slot - barGap).coerceAtLeast(1f)
+        val radius = CornerRadius(barWidth / 2.4f, barWidth / 2.4f)
+        val seat = 2.5.dp.toPx()
+        val capHeight = 2.5.dp.toPx()
+        val laneGap = if (frame.paired) 7.dp.toPx() else 0f
+        val gpuLaneHeight = if (frame.paired) ((size.height - laneGap) * .34f) else 0f
+        val cpuLaneHeight = size.height - gpuLaneHeight - laneGap
+        val cpuBase = size.height
+        val gpuBase = gpuLaneHeight
+
         frame.bars.forEachIndexed { index, bar ->
-            val bandLeft = slot * index + (slot - bandWidth) / 2f
-            drawColumn(left = bandLeft, top = 0f, width = barWidth, height = size.height, corner = corner, color = p.grid)
-            if (columns == 2) {
-                drawColumn(left = bandLeft + barWidth + gap, top = 0f, width = barWidth, height = size.height, corner = corner, color = p.grid)
-            }
-            val cpuT = bar?.cpu?.div(100f) ?: 0f
-            val cpu = (size.height * cpuHeights[index]).coerceAtLeast(barWidth)
-            drawColumn(
-                left = bandLeft,
-                top = size.height - cpu,
-                width = barWidth,
-                height = cpu,
-                corner = corner,
-                brush = Brush.verticalGradient(
-                    colors = listOf(lerp(accent, hot, cpuT), accent.copy(alpha = .55f)),
-                    startY = size.height - cpu,
-                    endY = size.height,
-                ),
-            )
-            val gpuT = bar?.gpu?.div(100f)
-            if (columns == 2 && gpuT != null) {
-                val gpu = (size.height * gpuHeights[index]).coerceAtLeast(barWidth)
+            val left = slot * index + (slot - barWidth) / 2f
+            val newest = index == frame.bars.lastIndex
+
+            // ---- مسار CPU ----
+            if (bar == null) {
+                drawSeat(left, barWidth, cpuBase, seat, radius, p.grid.copy(alpha = .55f))
+            } else {
+                val heat = bar.cpu / 100f
+                val height = (cpuLaneHeight * cpuHeights[index]).coerceAtLeast(seat)
                 drawColumn(
-                    left = bandLeft + barWidth + gap,
-                    top = size.height - gpu,
+                    left = left,
+                    top = cpuBase - height,
                     width = barWidth,
-                    height = gpu,
-                    corner = corner,
+                    height = height,
+                    corner = radius,
                     brush = Brush.verticalGradient(
-                        colors = listOf(lerp(secondaryAccent, hot, gpuT), secondaryAccent.copy(alpha = .55f)),
-                        startY = size.height - gpu,
-                        endY = size.height,
+                        colors = listOf(lerp(accent, hot, heat), accent.copy(alpha = .45f)),
+                        startY = cpuBase - height,
+                        endY = cpuBase,
                     ),
                 )
+                if (newest) {
+                    drawColumn(
+                        left = left,
+                        top = cpuBase - height - capHeight,
+                        width = barWidth,
+                        height = capHeight,
+                        corner = radius,
+                        color = lerp(accent, hot, maxOf(heat, .55f)),
+                    )
+                }
+            }
+
+            // ---- مسار GPU (زوج فقط) ----
+            if (frame.paired) {
+                val gpu = bar?.gpu
+                if (gpu == null) {
+                    drawSeat(left, barWidth, gpuBase, seat, radius, p.grid.copy(alpha = .4f))
+                } else {
+                    val heat = gpu / 100f
+                    val height = (gpuLaneHeight * gpuHeights[index]).coerceAtLeast(seat)
+                    drawColumn(
+                        left = left,
+                        top = gpuBase - height,
+                        width = barWidth,
+                        height = height,
+                        corner = radius,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(lerp(secondaryAccent, hot, heat), secondaryAccent.copy(alpha = .45f)),
+                            startY = gpuBase - height,
+                            endY = gpuBase,
+                        ),
+                    )
+                    if (newest) {
+                        drawColumn(
+                            left = left,
+                            top = gpuBase - height - capHeight,
+                            width = barWidth,
+                            height = capHeight,
+                            corner = radius,
+                            color = lerp(secondaryAccent, hot, maxOf(heat, .55f)),
+                        )
+                    }
+                }
             }
         }
+
+        // خطّ الأساس: أرضية يُقرأ منها الارتفاع بدل فراغ مفتوح.
+        drawLine(p.border.copy(alpha = .55f), Offset(0f, cpuBase - .5f), Offset(size.width, cpuBase - .5f), 1f)
+        if (frame.paired) {
+            drawLine(p.border.copy(alpha = .35f), Offset(0f, gpuBase - .5f), Offset(size.width, gpuBase - .5f), 1f)
+        }
     }
+}
+
+/** «مقعد» فتحة بلا عيّنة: ارتفاعه عرض الفتحة، فيُرى موضع الزمن حتى قبل وصول القياس. */
+private fun DrawScope.drawSeat(
+    left: Float,
+    width: Float,
+    base: Float,
+    height: Float,
+    corner: CornerRadius,
+    color: Color,
+) {
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(left, base - height),
+        size = Size(width, height),
+        cornerRadius = corner,
+    )
 }
 
 /** عمود واحد داخل فتحة: تعبئة بلون ثابت (المسار الفارغ) أو بتدرّج (الشريط المملوء). */
@@ -587,6 +642,84 @@ private fun DrawScope.drawColumn(
 
 // ---------------------------------------------------------------- readouts
 
+/**
+ * مقياس تردد: القراءة الحالية، وسقفها، ومدرّج بينهما.
+ *
+ * وهذا هو «شريط التردد» الذي كان على الشاشة ثم سقط إلى سطر نصّي: الرقم وحده يقول ٢.٤ جيجاهرتز،
+ * ولا يقول إن ذلك **قريب من السقف أم بعيد عنه** — وهي المعلومة التي تُتّخذ بها قرار (أهذا
+ * الجهاز يخنق نفسه حرارياً أم يعمل بطبيعته؟). والمدرّج يجيبها بلا حساب في الرأس، ونقاط
+ * الفصل فيه تجعله يُقرأ كمدارج تردد معروفة في أدوات النواة.
+ *
+ * وأربع حالات تُرسم مختلفات، لا ثلاث:
+ *  - **مقروء**: تعبئة بنسبة القراءة/السقف؛
+ *  - **سقف غير معلَن**: النسبة `null` ⇒ **لا تعبئة**، والرقم يبقى معروضًا (قراءة حقيقية
+ *    بلا مقياس — ولا يُخترع سقف من أعلى قيمة رآها التطبيق)؛
+ *  - **لا قراءة**: الرقم `—` والمدرّج فارغ؛
+ *  - و**التعبئة تُقلَّص إلى عرض المدرّج** حتى لا يتجاوز غطاء التردد حدَّ الشريط.
+ *
+ * وفي RTL تبدأ التعبئة من اليمين: المقياس يقيس اتجاه القراءة لا اتجاه الكود.
+ */
+@Composable
+fun NeuralFrequencyMeter(
+    reading: String,
+    ceiling: String?,
+    fraction: Float?,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    steps: Int = ClockMeter.STEPS,
+) {
+    val p = neuralPalette()
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val fill by animateFloatAsState(
+        targetValue = (fraction ?: 0f).coerceIn(0f, 1f),
+        animationSpec = tween(520, easing = FastOutSlowInEasing),
+        label = "neural-frequency-fill",
+    )
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            NeuralValue(
+                reading,
+                style = MonoValueStyleSmall.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold),
+                color = if (fraction == null) p.muted else accent,
+            )
+            Spacer(Modifier.weight(1f))
+            if (ceiling != null) {
+                NeuralValue(
+                    ceiling,
+                    style = MonoValueStyleSmall.copy(fontSize = 9.sp),
+                    color = p.muted,
+                )
+            }
+        }
+        Canvas(Modifier.fillMaxWidth().height(7.dp)) {
+            val corner = CornerRadius(size.height / 2f, size.height / 2f)
+            drawRoundRect(color = p.grid, size = size, cornerRadius = corner)
+            val width = size.width * fill
+            if (width > 0f) {
+                // قراءة موجبة تبقى مرئية ولو كانت نسبتها جزءًا من مقطع واحد.
+                val lit = width.coerceAtLeast(size.height)
+                val left = if (rtl) size.width - lit else 0f
+                drawRoundRect(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(accent.copy(alpha = .85f), accent),
+                        startX = left,
+                        endX = left + lit,
+                    ),
+                    topLeft = Offset(left, 0f),
+                    size = Size(lit, size.height),
+                    cornerRadius = corner,
+                )
+            }
+            if (steps > 1) {
+                for (step in 1 until steps) {
+                    val x = size.width * step / steps
+                    drawLine(p.tile, Offset(x, 0f), Offset(x, size.height), 1f)
+                }
+            }
+        }
+    }
+}
+
 /** KPI tile: caption, large readout, support line, smoothed trend. */
 @Composable
 fun NeuralKpiTile(
@@ -595,6 +728,8 @@ fun NeuralKpiTile(
     accent: Color,
     modifier: Modifier = Modifier,
     support: String? = null,
+    /** شريط تحت الرقم (مقياس التردد) — يُمرَّر من الشاشة فلا تُكرَّر معلومة الرقم نفسه. */
+    meter: (@Composable () -> Unit)? = null,
     history: List<Float> = emptyList(),
     maxValue: Float = 100f,
     onClick: (() -> Unit)? = null,
@@ -611,6 +746,7 @@ fun NeuralKpiTile(
             color = p.text,
         )
         if (support != null) NeuralValue(support, style = MonoValueStyleSmall.copy(fontSize = 11.sp), color = p.muted)
+        if (meter != null) meter()
         if (history.size > 1) {
             NeuralSparkline(history, accent, Modifier.fillMaxWidth().height(28.dp), maxValue = maxValue)
         }

@@ -938,8 +938,11 @@
     <!-- Neural home dashboard v2 -->
     <string name="home_spectrum_title">طيف الحِمل</string>
     <string name="home_spectrum_caption">توزيع الحِمل في آخر فترة</string>
+    <string name="home_stat_now">الآن</string>
     <string name="home_stat_avg">المتوسط</string>
     <string name="home_stat_peak">الذروة</string>
+    <string name="home_freq_ceiling">الأقصى %1$s</string>
+    <string name="home_freq_ceiling_unknown">لا سقف معلن</string>
     <string name="home_details_title">التفاصيل</string>
     <string name="home_details_caption">الأنوية والشاشة والشبكة والطاقة</string>
     <string name="home_focus_heat">ضغط حراري</string>

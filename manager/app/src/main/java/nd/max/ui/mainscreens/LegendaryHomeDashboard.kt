@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BatteryChargingFull
@@ -44,13 +45,14 @@ import nd.max.R
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.component.NeuralActionTile
-import nd.max.ui.component.NeuralBarSpectrum
 import nd.max.ui.component.NeuralBudgetBar
 import nd.max.ui.component.NeuralCaption
 import nd.max.ui.component.NeuralFactTile
 import nd.max.ui.component.NeuralFeedRow
+import nd.max.ui.component.NeuralFrequencyMeter
 import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralKpiTile
+import nd.max.ui.component.NeuralLoadRibbon
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralSectionHeader
@@ -59,6 +61,7 @@ import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.theme.MonoValueStyleSmall
+import nd.max.ui.util.ClockMeter
 import nd.max.ui.util.Spectrum
 import nd.max.ui.viewmodel.DashboardState
 import nd.max.ui.viewmodel.HomeUiState
@@ -356,69 +359,110 @@ private fun FocusCard(dashboard: DashboardState, onNavigate: (String) -> Unit) {
 }
 
 /**
- * Current CPU and GPU load. Readouts only — the trend of these two series is drawn once,
- * below, in the spectrum. A sparkline in a tile *and* bars for the same values in the
- * next card was the same message twice on one screen, so the tiles kept the number and
- * the frequency, and the chart kept the history.
+ * Current CPU and GPU load — each with the frequency meter it belongs to.
+ *
+ * The load number is the tile's own reading; the meter answers the second question a bare
+ * number cannot: **how far into its range is this clock**? A phone at 1.8 GHz is loafing on
+ * a 3.2 GHz chip and pinned on a 2.0 GHz one, and only the meter says which.
+ *
+ * The frequency is stated **once**, by the meter. It used to be a support line *and* would
+ * have been a bar; a number that appears twice under two names is how a screen teaches
+ * people not to trust it. The trend of these same series is still drawn once, below, in the
+ * spectrum — the tiles own "now", the chart owns "recently".
+ *
+ * CPU reads the **highest live core clock**, not `cpu0`: on big.LITTLE the first core idles
+ * while the prime cluster does the work, so `cpu0` would draw a calm meter on a busy device.
  */
 @Composable
 private fun TrendDuo(dashboard: DashboardState, onCpu: () -> Unit, onGpu: () -> Unit) {
     val p = neuralPalette()
+    val cpuCeiling = dashboard.cpuCeilingMhz.takeIf { it > 0 }
+    val gpuCeiling = dashboard.gpuCeilingMhz?.takeIf { it > 0 }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         NeuralKpiTile(
             caption = "CPU",
             value = "${dashboard.cpuLoadPercent}%",
             accent = p.accent,
-            support = compactFrequency(dashboard.cpuFreqMhz),
             onClick = onCpu,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            meter = {
+                NeuralFrequencyMeter(
+                    reading = compactFrequency(dashboard.cpuTopCoreMhz),
+                    ceiling = frequencyCeilingLabel(dashboard.cpuTopCoreMhz, cpuCeiling),
+                    fraction = ClockMeter.fraction(dashboard.cpuTopCoreMhz, cpuCeiling),
+                    accent = p.accent,
+                )
+            }
         )
         NeuralKpiTile(
             caption = "GPU",
             value = dashboard.gpuLoadPercent?.let { "$it%" } ?: "\u2014",
             accent = p.accentAlt,
-            support = compactFrequency(dashboard.gpuFreqMhz),
             onClick = onGpu,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            meter = {
+                NeuralFrequencyMeter(
+                    reading = compactFrequency(dashboard.gpuFreqMhz),
+                    ceiling = frequencyCeilingLabel(dashboard.gpuFreqMhz, gpuCeiling),
+                    fraction = ClockMeter.fraction(dashboard.gpuFreqMhz ?: 0, gpuCeiling),
+                    accent = p.accentAlt,
+                )
+            }
         )
     }
 }
 
 /**
- * The load spectrum. A line chart answered "what is the trend" — which the pulse and the
- * tiles already answer with numbers; bars answer the more useful question on a phone: how
- * often and how hard does the system spike. The calm-to-hot tint makes that visible
- * without reading a single number.
+ * The load spectrum, in two lanes.
  *
- * It is also the only thing here that looks different in its first second, so it is built
- * to look finished from the first frame: a full set of empty slots, filled from the right
- * as samples arrive (the geometry lives in [Spectrum]), and the session's history is
- * restored from disk — opening the app no longer restarts the chart from nothing.
+ * A line chart answered "what is the trend" — which the tiles above already answer with a
+ * number; lanes of bars answer the more useful question on a phone: how often and how hard
+ * does the system spike. The calm-to-hot tint makes that visible without reading a number.
  *
- * The two summary tiles are the window's average and peak. There is deliberately no
- * "now" tile: the current CPU reading is the tile directly above this panel, and a second
- * copy of one number is not information.
+ * The previous drawing put CPU and GPU **side by side inside one slot**, so each bar was
+ * half a slot wide on a 96dp canvas: a barcode. Here each load owns a full-width lane — GPU
+ * on top, CPU below — and the newest sample carries a hotter cap, so "now" is visible in
+ * the chart itself. The geometry still comes from [Spectrum], so the frame is a full set of
+ * slots from the first second and the session's history is restored from disk.
+ *
+ * The summary now leads with **now**, then average, then peak, because "now" is what a
+ * person looks for when they open this card: `avg` and `peak` describe a window they cannot
+ * see the edges of, and only the current reading is a fact about this moment. Numbers here
+ * come from the same live state as the tiles above, so the two can never disagree.
  */
 @Composable
 private fun SpectrumPanel(dashboard: DashboardState, onLive: () -> Unit) {
     val p = neuralPalette()
     val samples = dashboard.loadSamples
     val summary = remember(samples) { Spectrum.summary(samples) }
+    val paired = remember(samples) { samples.any { it.gpu?.isFinite() == true } }
     NeuralPanel(onClick = onLive) {
         NeuralSectionHeader(
             title = stringResource(R.string.home_spectrum_title),
             caption = stringResource(R.string.home_spectrum_caption),
             accent = p.accent
         )
-        NeuralBarSpectrum(
+        if (paired) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                SpectrumLegend("CPU", p.accent)
+                SpectrumLegend("GPU", p.accentAlt)
+            }
+        }
+        NeuralLoadRibbon(
             samples = samples,
             accent = p.accent,
             secondaryAccent = p.accentAlt,
             hot = p.danger,
-            modifier = Modifier.fillMaxWidth().height(96.dp)
+            modifier = Modifier.fillMaxWidth().height(if (paired) 104.dp else 86.dp)
         )
         if (samples.isNotEmpty()) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NeuralFactTile(
+                    stringResource(R.string.home_stat_now),
+                    "${dashboard.cpuLoadPercent}%",
+                    p.accent,
+                    Modifier.weight(1f)
+                )
                 NeuralFactTile(
                     stringResource(R.string.home_stat_avg),
                     "${summary.average}%",
@@ -433,6 +477,32 @@ private fun SpectrumPanel(dashboard: DashboardState, onLive: () -> Unit) {
                 )
             }
         }
+    }
+}
+
+/**
+ * Whether a frequency ceiling can be stated at all.
+ *
+ * Three answers, not two: a ceiling, an explicit "this kernel declares none", and `null`
+ * when the reading itself is missing — there is no point labelling the range of a clock we
+ * never read. A ceiling is never inferred from readings we happened to see: the highest
+ * value this app observed is not the chip's range, and a meter drawn against it would
+ * measure our own sample history.
+ */
+@Composable
+private fun frequencyCeilingLabel(currentMhz: Int?, ceilingMhz: Int?): String? {
+    if (currentMhz == null || currentMhz <= 0) return null
+    if (ceilingMhz == null || ceilingMhz <= 0) return stringResource(R.string.home_freq_ceiling_unknown)
+    return stringResource(R.string.home_freq_ceiling, compactFrequency(ceilingMhz))
+}
+
+/** One dot plus the load it stands for, so the two lanes are never guessed at. */
+@Composable
+private fun SpectrumLegend(label: String, accent: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(6.dp).clip(CircleShape).background(accent))
+        Spacer(Modifier.width(6.dp))
+        NeuralCaption(label, color = accent)
     }
 }
 

@@ -1760,8 +1760,11 @@
     <!-- Neural home dashboard v2 -->
     <string name="home_spectrum_title">Load spectrum</string>
     <string name="home_spectrum_caption">Recent load distribution</string>
+    <string name="home_stat_now">Now</string>
     <string name="home_stat_avg">Average</string>
     <string name="home_stat_peak">Peak</string>
+    <string name="home_freq_ceiling">max %1$s</string>
+    <string name="home_freq_ceiling_unknown">no ceiling reported</string>
     <string name="home_details_title">Details</string>
     <string name="home_details_caption">Cores, display, network and power</string>
     <string name="home_focus_heat">Thermal pressure</string>
