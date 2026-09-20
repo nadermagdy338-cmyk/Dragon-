@@ -69,6 +69,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
@@ -164,6 +165,8 @@ internal fun MaxBackupModeSwitch(mode: MaxBackupMode, onSelect: (MaxBackupMode) 
 @Composable
 private fun MaxBackupDetail(navController: NavController, pkg: String) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: الرسائل تُبنى داخل `launch` واللامبدات، لا في التركيب.
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -435,7 +438,7 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
                                     // الرسالة من **قيمة ما قبل التبديل**: إن كانت محفوظة فقد
                                     // أُزيل وسمها، والعكس.
                                     snackbarHostState.showSnackbar(
-                                        context.getString(
+                                        resources.getString(
                                             when {
                                                 !ok -> R.string.max_backup_keep_failed
                                                 handle.keptForever -> R.string.max_backup_keep_off
@@ -536,9 +539,9 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
                 busyStage = null
                 reload()
                 val message = when {
-                    outcome.success -> context.getString(R.string.max_backup_msg_created)
-                    outcome.entryCount > 0 -> context.getString(R.string.max_backup_msg_created_partial)
-                    else -> context.getString(R.string.max_backup_msg_failed)
+                    outcome.success -> resources.getString(R.string.max_backup_msg_created)
+                    outcome.entryCount > 0 -> resources.getString(R.string.max_backup_msg_created_partial)
+                    else -> resources.getString(R.string.max_backup_msg_failed)
                 }
                 snackbarHostState.showSnackbar(message)
             }
@@ -568,7 +571,7 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
                     if (verdicts?.first?.folder == handle.folder) verdicts = null
                     reload()
                     snackbarHostState.showSnackbar(
-                        context.getString(
+                        resources.getString(
                             if (removed) R.string.max_backup_delete_done else R.string.max_backup_delete_failed
                         )
                     )
@@ -592,7 +595,7 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
                 }
                 reload()
                 snackbarHostState.showSnackbar(
-                    context.getString(R.string.max_backup_prune_done, deleted.size.toString())
+                    resources.getString(R.string.max_backup_prune_done, deleted.size.toString())
                 )
             }
         },
@@ -626,12 +629,12 @@ private fun MaxBackupDetail(navController: NavController, pkg: String) {
                     busyStage = null
                     snackbarHostState.showSnackbar(
                         when {
-                            outcome.success -> context.getString(R.string.max_backup_restore_done)
-                            outcome.failedStage != null -> context.getString(
+                            outcome.success -> resources.getString(R.string.max_backup_restore_done)
+                            outcome.failedStage != null -> resources.getString(
                                 R.string.max_backup_restore_failed,
                                 stageLabel(stageLabels, outcome.failedStage),
                             )
-                            else -> context.getString(R.string.max_backup_restore_failed, "")
+                            else -> resources.getString(R.string.max_backup_restore_failed, "")
                         }
                     )
                 }

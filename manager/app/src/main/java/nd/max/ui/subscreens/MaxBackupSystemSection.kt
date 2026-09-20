@@ -62,6 +62,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import java.io.File
@@ -106,6 +107,8 @@ internal fun MaxBackupSystemMode(
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: كل النصوص هنا تُبنى داخل `launch` أو لامبدات الإجراءات.
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -420,7 +423,7 @@ internal fun MaxBackupSystemMode(
                 busyStage = null
                 reload()
                 snackbarHostState.showSnackbar(
-                    context.getString(
+                    resources.getString(
                         when {
                             outcome.success -> R.string.max_backup_msg_created
                             outcome.entryCount > 0 -> R.string.max_backup_msg_created_partial
@@ -447,7 +450,7 @@ internal fun MaxBackupSystemMode(
                     if (verdicts?.first?.folder == handle.folder) verdicts = null
                     reload()
                     snackbarHostState.showSnackbar(
-                        context.getString(
+                        resources.getString(
                             if (removed) R.string.max_backup_delete_done else R.string.max_backup_delete_failed
                         )
                     )
@@ -471,7 +474,7 @@ internal fun MaxBackupSystemMode(
                 }
                 reload()
                 snackbarHostState.showSnackbar(
-                    context.getString(R.string.max_backup_prune_done, deleted.size.toString())
+                    resources.getString(R.string.max_backup_prune_done, deleted.size.toString())
                 )
             }
         },
@@ -523,14 +526,14 @@ internal fun MaxBackupSystemMode(
                     reload()
                     val messageText = when {
                         outcome.success && outcome.inserted + outcome.skipped + outcome.undedupable > 0 ->
-                            context.getString(
+                            resources.getString(
                                 R.string.max_backup_system_restore_summary,
                                 outcome.inserted.toString(),
                                 outcome.skipped.toString(),
                                 outcome.undedupable.toString(),
                             )
-                        outcome.success -> context.getString(R.string.max_backup_restore_done)
-                        else -> context.getString(
+                        outcome.success -> resources.getString(R.string.max_backup_restore_done)
+                        else -> resources.getString(
                             R.string.max_backup_system_restore_failed,
                             outcome.failedKind?.let { kindLabels[it] }
                                 ?: unknownLabel,

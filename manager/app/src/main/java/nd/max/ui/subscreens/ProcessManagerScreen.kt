@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -80,6 +81,8 @@ fun ProcessManagerScreen(
     val listState = rememberLazyListState()
     val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: الرسائل تُبنى داخل `launch`/`LaunchedEffect` ولامبدات الإجراءات.
+    val resources = LocalResources.current
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -108,8 +111,8 @@ fun ProcessManagerScreen(
         } else {
             coroutineScope.launch {
                 val result = snackbarHostState.showSnackbar(
-                    message = context.getString(R.string.processmgr_overlay_permission_needed),
-                    actionLabel = context.getString(R.string.open_settings)
+                    message = resources.getString(R.string.processmgr_overlay_permission_needed),
+                    actionLabel = resources.getString(R.string.open_settings)
                 )
                 if (result == SnackbarResult.ActionPerformed) {
                     overlayPermissionLauncher.launch(
@@ -126,10 +129,10 @@ fun ProcessManagerScreen(
         viewModel.actionResult?.let { result ->
             val (kind, name) = result.split(":", limit = 2).let { it[0] to it.getOrElse(1) { "" } }
             val message = when (kind) {
-                "killed" -> context.getString(R.string.processmgr_result_killed, name)
-                "kill_failed" -> context.getString(R.string.processmgr_result_kill_failed, name)
-                "stopped" -> context.getString(R.string.processmgr_result_stopped, name)
-                else -> context.getString(R.string.processmgr_result_stop_failed, name)
+                "killed" -> resources.getString(R.string.processmgr_result_killed, name)
+                "kill_failed" -> resources.getString(R.string.processmgr_result_kill_failed, name)
+                "stopped" -> resources.getString(R.string.processmgr_result_stopped, name)
+                else -> resources.getString(R.string.processmgr_result_stop_failed, name)
             }
             snackbarHostState.showSnackbar(message)
             viewModel.clearActionResult()
@@ -263,18 +266,18 @@ fun ProcessManagerScreen(
                 process = process,
                 onForceStop = {
                     forceStopDialog.showConfirm(
-                        title = context.getString(R.string.processmgr_force_stop_confirm_title, process.appName),
-                        content = context.getString(R.string.processmgr_force_stop_confirm_desc, process.appName),
-                        confirm = context.getString(R.string.processmgr_action_force_stop),
-                        dismiss = context.getString(R.string.no)
+                        title = resources.getString(R.string.processmgr_force_stop_confirm_title, process.appName),
+                        content = resources.getString(R.string.processmgr_force_stop_confirm_desc, process.appName),
+                        confirm = resources.getString(R.string.processmgr_action_force_stop),
+                        dismiss = resources.getString(R.string.no)
                     )
                 },
                 onKill = {
                     killDialog.showConfirm(
-                        title = context.getString(R.string.processmgr_kill_confirm_title),
-                        content = context.getString(R.string.processmgr_kill_confirm_desc, process.pid),
-                        confirm = context.getString(R.string.processmgr_action_kill),
-                        dismiss = context.getString(R.string.no)
+                        title = resources.getString(R.string.processmgr_kill_confirm_title),
+                        content = resources.getString(R.string.processmgr_kill_confirm_desc, process.pid),
+                        confirm = resources.getString(R.string.processmgr_action_kill),
+                        dismiss = resources.getString(R.string.no)
                     )
                 },
                 onAppInfo = {

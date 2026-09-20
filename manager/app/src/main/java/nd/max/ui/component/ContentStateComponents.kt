@@ -117,13 +117,21 @@ fun MaxErrorState(title: String, message: String, retryLabel: String, onRetry: (
     MaxContentState(title, message, Icons.Rounded.ErrorOutline, modifier, retryLabel, onRetry)
 }
 
+/**
+ * انتقال بين حالتين بمحتوى **مُفتاح بالحالة**: اللامبدا تستقبل `targetState` وتُعيد محتواها.
+ *
+ * كان التوقيع `content: @Composable () -> Unit` يُهمل الوسيط، وهو ما يمنع `AnimatedContent` من رسم
+ * انتقال صحيح: محتواها لا يتغيّر بتغيّر الحالة فيصير الانتقال بين شيئين متطابقين (وهذا نصّ بلاغ
+ * `UnusedContentLambdaTargetStateParameter`). ولذلك يُمرَّر الوسيط صريحًا — وهو تغيير في عقد الدالة،
+ * و**لا مستهلك لها اليوم** (بحث في المستودع: لا نداء خارج تعريفها)، فلا نداء يُكسَر.
+ */
 @Composable
-fun MaxStateTransition(targetState: Any, content: @Composable () -> Unit) {
+fun MaxStateTransition(targetState: Any, content: @Composable (Any) -> Unit) {
     AnimatedContent(
         targetState = targetState,
         transitionSpec = { fadeIn() togetherWith fadeOut() },
         label = "maxContentState"
-    ) { content() }
+    ) { state -> content(state) }
 }
 
 

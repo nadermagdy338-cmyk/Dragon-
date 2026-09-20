@@ -67,6 +67,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -224,6 +225,9 @@ fun KernelFlasherScreen(
     val bgUriString by settingsViewModel.backgroundImageUri.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: كل نصوص هذه الشاشة تُقرأ في `remember`/`LaunchedEffect`/
+    // لامبدات الاستدعاء — سياقات لا تُبطل فيها قراءة `LocalContext.current.resources` عند تغيّر التكوين.
+    val resources = LocalResources.current
     val effectivePrimary = if (isDynamic) MaterialTheme.colorScheme.primary
     else if (isCustomColor) Color(customPrimary) else themeColorName.primary
     val isCustomBg = bgType != BgType.SYSTEM
@@ -238,7 +242,8 @@ fun KernelFlasherScreen(
 
     var currentMode by remember { mutableStateOf(FlasherMode.CAPNTRIPS) }
     var fsManager by remember { mutableStateOf<FileSystemManager?>(null) }
-    var extractionStatus by remember { mutableStateOf(context.getString(R.string.flasher_init)) }
+    // `mutableStateOf` تُنفّذ في لامبدا `remember` (لا في التركيب)، فالمصدر المراقَب يُقتبس مسبقًا.
+    var extractionStatus by remember { mutableStateOf(resources.getString(R.string.flasher_init)) }
     var mainViewModel by remember { mutableStateOf<MainViewModel?>(null) }
 
     DisposableEffect(Unit) {
@@ -260,7 +265,7 @@ fun KernelFlasherScreen(
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            extractionStatus = context.getString(R.string.flasher_checking_tools)
+            extractionStatus = resources.getString(R.string.flasher_checking_tools)
             val result = setupFlashTools(context)
             Shell.cmd("cd ${context.filesDir.absolutePath}").exec()
             extractionStatus = result
@@ -729,6 +734,8 @@ fun HorizonFlasherContent(
     primaryColor: Color
 ) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current` — النصوص تُبنى داخل لامبدا منتقي الملفات و`scope.launch`.
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
 
     var logs by remember { mutableStateOf("") }
@@ -746,7 +753,7 @@ fun HorizonFlasherContent(
     ) { uri: Uri? ->
         if (uri != null) {
             isFlashing = true
-            logs = context.getString(R.string.flasher_init_process) + "\nTarget: $uri\n"
+            logs = resources.getString(R.string.flasher_init_process) + "\nTarget: $uri\n"
             scope.launch {
                 val worker = nd.max.ui.flasher.FlasherWorker(context, uri) { newLog ->
                     logs += "$newLog\n"
@@ -754,11 +761,11 @@ fun HorizonFlasherContent(
                 val success = worker.startFlashing()
                 isFlashing = false
                 if (success) {
-                    logs += "\n" + context.getString(R.string.flasher_success)
+                    logs += "\n" + resources.getString(R.string.flasher_success)
                     showRebootDialog = true
                 } else {
-                    logs += "\n" + context.getString(R.string.flasher_failed)
-                    Toast.makeText(context, context.getString(R.string.flasher_toast_failed), Toast.LENGTH_SHORT).show()
+                    logs += "\n" + resources.getString(R.string.flasher_failed)
+                    Toast.makeText(context, resources.getString(R.string.flasher_toast_failed), Toast.LENGTH_SHORT).show()
                 }
             }
         }

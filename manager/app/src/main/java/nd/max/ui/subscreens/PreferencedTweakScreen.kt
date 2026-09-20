@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -88,6 +89,8 @@ import nd.max.ui.util.getChipsetVendor
 fun PreferenceTweakScreen(navController: NavController) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: النصوص تُقرأ داخل دالة محلية غير composable.
+    val resources = LocalResources.current
     val listState = rememberLazyListState()
     val colorScheme = MaterialTheme.colorScheme
     
@@ -110,10 +113,10 @@ fun PreferenceTweakScreen(navController: NavController) {
         if (RebootManager.wouldRequireReboot(key, isChecked)) {
             pendingToggle = apply
             rebootDialog.showConfirm(
-                title = context.getString(R.string.dialog_reboot_required_title),
-                content = context.getString(R.string.reboot_required_content),
-                confirm = context.getString(R.string.yes),
-                dismiss = context.getString(R.string.no)
+                title = resources.getString(R.string.dialog_reboot_required_title),
+                content = resources.getString(R.string.reboot_required_content),
+                confirm = resources.getString(R.string.yes),
+                dismiss = resources.getString(R.string.no)
             )
         } else {
             apply()

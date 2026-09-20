@@ -74,6 +74,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -954,6 +955,8 @@ fun RunningGameCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    // موارد مُقتبسة من `LocalResources.current` لتُبطل التركيب عند تغيّر التكوين (لغة/كثافة/اتجاه).
+    val resources = LocalResources.current
     val pm = context.packageManager
     val density = LocalDensity.current
     
@@ -964,8 +967,9 @@ fun RunningGameCard(
     val appInfo = remember(pkgName, isNoApp) {
         if (isNoApp) null else try { pm.getApplicationInfo(pkgName, 0) } catch (e: Exception) { null }
     }
-    val appName = remember(appInfo, isNoApp) {
-        if (isNoApp) context.getString(R.string.str_performance_profile) else appInfo?.loadLabel(pm)?.toString() ?: pkgName
+    // `resources` مفتاح أيضًا: بدونه يحتفظ `remember` بالاسم المترجم بلغة قديمة بعد تبديل اللغة.
+    val appName = remember(appInfo, isNoApp, resources) {
+        if (isNoApp) resources.getString(R.string.str_performance_profile) else appInfo?.loadLabel(pm)?.toString() ?: pkgName
     }
 
 

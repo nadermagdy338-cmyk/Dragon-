@@ -82,6 +82,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -223,7 +224,7 @@ fun AppListScreen(
     var sortOption by rememberSaveable { mutableStateOf(SortOption.NAME_ASC) }
     var isRefreshing by remember { mutableStateOf(false) }
     var inspectorActive by remember { mutableStateOf(FloatingActivityService.isRunning) }
-    val isArabic = java.util.Locale.getDefault().language == "ar"
+    val isArabic = isArabicUiLocale()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val displayedApps by remember(allApps, searchQuery, filterOption, sortOption) {
@@ -502,7 +503,7 @@ private fun AnimatedAppRow(app: AppData, onClick: () -> Unit, isArabic: Boolean)
 fun AppDetailScreen(packageName: String, onBack: () -> Unit) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
-    val isArabic = java.util.Locale.getDefault().language == "ar"
+    val isArabic = isArabicUiLocale()
     var appData by remember { mutableStateOf<AppData?>(null) }
     var activities by remember { mutableStateOf<List<ActivityItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -1070,6 +1071,16 @@ fun SortOutlinedButton(text: String, icon: ImageVector, selected: Boolean, onCli
     val borderColor = if (selected) Color.Transparent else MaterialTheme.colorScheme.outline
     nd.max.ui.component.StudioOutlinedButton(onClick = onClick, modifier = modifier, colors = ButtonDefaults.outlinedButtonColors(containerColor = containerColor, contentColor = contentColor), border = androidx.compose.foundation.BorderStroke(1.dp, borderColor)) { Icon(icon, null, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(text) }
 }
+
+/**
+ * هل لغة الواجهة العربية؟
+ *
+ * من `LocalConfiguration` لا من `Locale.getDefault()`: الثانية غير مراقَبة، فلو بدّل المستخدم اللغة
+ * لم يُعد تركيب هذه الشاشات وبقيت الأشرطة والتنسيقات على اتجاه/لغة قديمة (بلاغ `NonObservableLocale`).
+ * وتُقرأ هنا مرة واحدة لتُشارك بين شاشتي القائمة والتفاصيل بدل تكرار التعبير.
+ */
+@Composable
+private fun isArabicUiLocale(): Boolean = LocalConfiguration.current.locales[0].language == "ar"
 
 @Composable
 fun FilterCard(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {

@@ -6,7 +6,16 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <!--
+      `WRITE_SECURE_SETTINGS` صلاحية محمية تُمنح لتطبيقات النظام وحدها — وMaxManager يُبنى ليُركّب
+      **priv-app على صورة النظام** (لهذا يرفض `build.gradle.kts` إنتاج حزمة release بلا توقيع).
+      وlint يبلّغ عنها `ProtectedPermissions` بحق لقاعدة عامة، فالإسكات هنا **تصريح بموديل التوزيع**
+      لا إخفاء لعطب: `AppMonitor` يستعمل `Settings.Global/System` خلفها ويعلن فشلها إن لم تُمنح
+      (اقرأ `AppMonitor.kt:580` و`:880`) — فلا سلوك يعتمد على منحها. والبديل الاختياري الذي
+      تسلكه بقية المسارات هو التنفيذ بجذر/shell. ولذلك `tools:ignore` صريح هنا لا في `lint.xml`.
+    -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -30,6 +39,13 @@
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_SMS" />
+
+    <!--
+      `READ_SMS` وحدها تُشير ضمناً إلى وجود عتاد اتصال (telephony)، فيستثني Google Play — بلا هذا
+      السطر — كل جهاز بلا شريحة (تابلت/Wi-Fi فقط) من التثبيت. و`required="false"` تقول: الصلاحية
+      **تُطلَب عند الاستعمال**، والقدرة ليست شرط تشغيل — وهو نفس ما يقوله تعليق فئات النسخ أعلاه.
+    -->
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
     <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
     <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY" />
 

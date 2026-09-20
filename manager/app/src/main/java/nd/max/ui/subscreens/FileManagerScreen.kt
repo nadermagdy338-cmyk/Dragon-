@@ -84,6 +84,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntSize
@@ -169,6 +170,9 @@ private val WindowsSaver = listSaver<FileWindowsState, String>(
 @Composable
 fun FileManagerScreen(navController: NavController) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: كل نصوص هذا الملف تُقرأ داخل دوال محلية ولامبدات أحداث
+    // (لا في التركيب)، وهذه هي الطريقة التي تُبطل بها Compose قراءتها عند تغيّر التكوين.
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val clipboardApi = LocalClipboard.current
     val snackbar = remember { SnackbarHostState() }
@@ -229,10 +233,10 @@ fun FileManagerScreen(navController: NavController) {
     }
 
     fun outcomeText(outcome: FileOpOutcome, count: Int): String = when {
-        outcome.ok -> context.getString(R.string.max_files_outcome_ok) + " " +
-            context.getString(R.string.max_files_outcome_count, count)
-        outcome.executed -> context.getString(R.string.max_files_outcome_unverified)
-        else -> context.getString(R.string.max_files_outcome_failed)
+        outcome.ok -> resources.getString(R.string.max_files_outcome_ok) + " " +
+            resources.getString(R.string.max_files_outcome_count, count)
+        outcome.executed -> resources.getString(R.string.max_files_outcome_unverified)
+        else -> resources.getString(R.string.max_files_outcome_failed)
     }
 
     /** انتقال: يسجّل الزيارة، ويمسح نتائج بحث قديم فلا تُقرأ على مجلد آخر. */
@@ -342,7 +346,7 @@ fun FileManagerScreen(navController: NavController) {
     fun pasteIntoActive() {
         val clip = fileClipboard ?: return
         if (FileClipboardRules.pointlessHere(clip, window.path)) {
-            toast(context.getString(R.string.max_files_clipboard_same_folder))
+            toast(resources.getString(R.string.max_files_clipboard_same_folder))
             return
         }
         val request = FileClipboardRules.pasteRequest(clip, window.path)
@@ -380,7 +384,7 @@ fun FileManagerScreen(navController: NavController) {
             )
         }
         if (plan.skip.isNotEmpty()) {
-            toast(context.getString(R.string.max_files_conflict_skipped, plan.skip.size))
+            toast(resources.getString(R.string.max_files_conflict_skipped, plan.skip.size))
         }
         fileClipboard = fileClipboard?.afterPaste()
     }
@@ -404,7 +408,7 @@ fun FileManagerScreen(navController: NavController) {
      */
     fun handOff(entry: FileEntry) {
         if (!entry.path.startsWith(SHARED_STORAGE_PREFIX)) {
-            toast(context.getString(R.string.max_files_open_external_local))
+            toast(resources.getString(R.string.max_files_open_external_local))
             return
         }
         val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(FileOpenPlan.extensionOf(entry.name))
@@ -420,7 +424,7 @@ fun FileManagerScreen(navController: NavController) {
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }.isSuccess
-        if (!launched) toast(context.getString(R.string.max_files_open_failed))
+        if (!launched) toast(resources.getString(R.string.max_files_open_failed))
     }
 
     /** مصير النقرة العادية: مجلد يُدخل · نصّ يُفتح في المحرّر · ملف يُسلَّم لتطبيق آخر. */
@@ -649,14 +653,14 @@ fun FileManagerScreen(navController: NavController) {
                     clipboardApi.setClipEntry(
                         ClipEntry(
                             ClipData.newPlainText(
-                                context.getString(R.string.max_files_detail_copy_label),
+                                resources.getString(R.string.max_files_detail_copy_label),
                                 value,
                             ),
                         ),
                     )
                 }.isSuccess
                 toast(
-                    context.getString(
+                    resources.getString(
                         if (copied) R.string.max_files_detail_copied else R.string.max_files_detail_copy_failed,
                     ),
                 )
@@ -672,7 +676,7 @@ fun FileManagerScreen(navController: NavController) {
                 )
                 when (val verdict = FileOpGuard.check(request)) {
                     is FileOpVerdict.Refused -> {
-                        editor = current.copy(verdict = context.getString(refusalText(verdict.reason)))
+                        editor = current.copy(verdict = resources.getString(refusalText(verdict.reason)))
                     }
                     FileOpVerdict.Allowed -> {
                         editor = current.copy(saving = true, verdict = null)

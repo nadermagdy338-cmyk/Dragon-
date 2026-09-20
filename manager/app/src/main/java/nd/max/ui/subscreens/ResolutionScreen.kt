@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -90,6 +91,8 @@ fun ResolutionScreen(
     viewModel: ResolutionViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current` لأن النصوص تُقرأ داخل `onClick` (سياق غير composable).
+    val resources = LocalResources.current
     val scheme = MaterialTheme.colorScheme
     val resetDialog = rememberConfirmDialog(
         onConfirm = viewModel::resetToNative,
@@ -353,10 +356,10 @@ fun ResolutionScreen(
                         enabled = panelReadable,
                         onClick = {
                             resetDialog.showConfirm(
-                                title = context.getString(R.string.resolution_reset_title),
-                                content = context.getString(R.string.resolution_reset_body),
-                                confirm = context.getString(R.string.yes),
-                                dismiss = context.getString(R.string.no)
+                                title = resources.getString(R.string.resolution_reset_title),
+                                content = resources.getString(R.string.resolution_reset_body),
+                                confirm = resources.getString(R.string.yes),
+                                dismiss = resources.getString(R.string.no)
                             )
                         }
                     )

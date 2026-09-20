@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,6 +49,9 @@ fun HomeScreen(
     maxAiViewModel: nd.max.ui.viewmodel.MaxAiViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current` (لا `LocalContext.current.resources`): تُبطل التركيب عند تغيّر
+    // التكوين، فتُبنى رسالة الشريط السفلي بلغة اللحظة لا بلغة إنشاء الشاشة.
+    val resources = LocalResources.current
     val navActions = MaxNavActions(navController)
     val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
     val ui by homeViewModel.uiState.collectAsStateWithLifecycle()
@@ -103,7 +107,7 @@ fun HomeScreen(
                 homeViewModel.applyProfile(reason) { appliedNow ->
                     scope.launch {
                         snackbar.showSnackbar(
-                            context.getString(
+                            resources.getString(
                                 if (appliedNow) R.string.toast_applying_profile
                                 else R.string.max_home_ai_failed
                             )

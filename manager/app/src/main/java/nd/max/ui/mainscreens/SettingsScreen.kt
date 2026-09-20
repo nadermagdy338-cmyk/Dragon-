@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -108,6 +109,9 @@ fun SettingsScreen(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: نصوص هذه الشاشة تُقرأ داخل دوال محلية و`onClick`
+    // و`LaunchedEffect`، وهي سياقات لا تُبطل فيها قراءة `LocalContext.current.resources`.
+    val resources = LocalResources.current
     val listState = rememberLazyListState()
 
     var showLogBottomSheet by remember { mutableStateOf(false) }
@@ -138,7 +142,7 @@ fun SettingsScreen(
             try {
                 changelogText = context.assets.open("changelog.md").bufferedReader().use { it.readText() }
             } catch (e: Exception) {
-                changelogText = context.getString(R.string.err_failed_load_changelog) + "\n${e.message}"
+                changelogText = resources.getString(R.string.err_failed_load_changelog) + "\n${e.message}"
             }
         }
     }
@@ -169,10 +173,10 @@ fun SettingsScreen(
         if (RebootManager.wouldRequireReboot(key, isChecked)) {
             pendingToggle = apply
             rebootDialog.showConfirm(
-                title = context.getString(R.string.dialog_reboot_required_title),
-                content = context.getString(R.string.reboot_required_content),
-                confirm = context.getString(R.string.yes),
-                dismiss = context.getString(R.string.no)
+                title = resources.getString(R.string.dialog_reboot_required_title),
+                content = resources.getString(R.string.reboot_required_content),
+                confirm = resources.getString(R.string.yes),
+                dismiss = resources.getString(R.string.no)
             )
         } else {
             apply()
@@ -214,9 +218,9 @@ fun SettingsScreen(
                 }
 
                 if (success) {
-                    snackbarHostState.showSnackbar(context.getString(R.string.toast_log_save_success))
+                    snackbarHostState.showSnackbar(resources.getString(R.string.toast_log_save_success))
                 } else {
-                    snackbarHostState.showSnackbar(context.getString(R.string.toast_log_save_fail))
+                    snackbarHostState.showSnackbar(resources.getString(R.string.toast_log_save_fail))
                 }
             }
         }
@@ -541,10 +545,10 @@ fun SettingsScreen(
                                     ExpressiveListItem(
                                         onClick = {
                                             uninstallDialog.showConfirm(
-                                                title = context.getString(R.string.uninstall),
-                                                content = context.getString(R.string.uninstall_confirm_content),
-                                                confirm = context.getString(R.string.yes),
-                                                dismiss = context.getString(R.string.no)
+                                                title = resources.getString(R.string.uninstall),
+                                                content = resources.getString(R.string.uninstall_confirm_content),
+                                                confirm = resources.getString(R.string.yes),
+                                                dismiss = resources.getString(R.string.no)
                                             )
                                         },
                                         headlineContent = { Text(stringResource(R.string.uninstall), color = MaterialTheme.colorScheme.error) },
@@ -666,7 +670,7 @@ fun SettingsScreen(
                                                 val intent = getShareLogIntent(context, logFile)
                                                 shareLogLauncher.launch(intent)
                                             } else {
-                                                snackbarHostState.showSnackbar(context.getString(R.string.toast_log_gather_fail))
+                                                snackbarHostState.showSnackbar(resources.getString(R.string.toast_log_gather_fail))
                                             }
                                         }
                                     }

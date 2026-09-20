@@ -51,6 +51,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -153,6 +154,9 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(fromTileType: String? = null) {
     val navController = rememberNavController()
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: كل نصوص هذه الشاشة ودوالها تُقرأ داخل `launch`/`onClick`،
+    // وهي سياقات لا تُبطل فيها قراءة `LocalContext.current.resources` عند تغيّر التكوين.
+    val resources = LocalResources.current
     val settingsPrefs = remember { context.getSharedPreferences("settings", Context.MODE_PRIVATE) }
     val primaryRoutes = remember { MaxDestination.PrimaryRoutes }
     val navActions = remember(navController) { MaxNavActions(navController) }
@@ -226,10 +230,10 @@ fun MainScreen(fromTileType: String? = null) {
                         ).exec()
                     }
                     if (result.isSuccess) {
-                        Toast.makeText(context, context.getString(R.string.toast_update_success), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, resources.getString(R.string.toast_update_success), Toast.LENGTH_SHORT).show()
                     } else {
-                        val errorLog = result.out.joinToString("\n").ifEmpty { context.getString(R.string.status_unknown) }
-                        Toast.makeText(context, context.getString(R.string.toast_install_fail, errorLog), Toast.LENGTH_LONG).show()
+                        val errorLog = result.out.joinToString("\n").ifEmpty { resources.getString(R.string.status_unknown) }
+                        Toast.makeText(context, resources.getString(R.string.toast_install_fail, errorLog), Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -254,18 +258,18 @@ fun MainScreen(fromTileType: String? = null) {
             val appVC = VersionIdentity.readApp(context).versionCode
             if (appVC >= 0L && appVC < moduleVC.toLong() && apkAvailable) {
                 updateDialog.showConfirm(
-                    title = context.getString(R.string.dialog_update_available_title),
-                    content = context.getString(R.string.dialog_update_available_content, appVC, moduleVC),
-                    confirm = context.getString(R.string.dialog_update_available_confirm),
-                    dismiss = context.getString(R.string.dialog_update_available_dismiss),
+                    title = resources.getString(R.string.dialog_update_available_title),
+                    content = resources.getString(R.string.dialog_update_available_content, appVC, moduleVC),
+                    confirm = resources.getString(R.string.dialog_update_available_confirm),
+                    dismiss = resources.getString(R.string.dialog_update_available_dismiss),
                 )
             }
             if (rebootPending) {
                 rebootDialog.showConfirm(
-                    title = context.getString(R.string.dialog_module_update_title),
-                    content = context.getString(R.string.dialog_module_update_content),
-                    confirm = context.getString(R.string.dialog_module_update_confirm),
-                    dismiss = context.getString(R.string.dialog_module_update_dismiss),
+                    title = resources.getString(R.string.dialog_module_update_title),
+                    content = resources.getString(R.string.dialog_module_update_content),
+                    confirm = resources.getString(R.string.dialog_module_update_confirm),
+                    dismiss = resources.getString(R.string.dialog_module_update_dismiss),
                 )
             }
         }
@@ -464,10 +468,10 @@ fun MainScreen(fromTileType: String? = null) {
                     ExtendedFloatingActionButton(
                         onClick = {
                             rebootDialog.showConfirm(
-                                title = context.getString(R.string.dialog_reboot_required_title),
-                                content = context.getString(R.string.dialog_reboot_required_content),
-                                confirm = context.getString(R.string.reboot),
-                                dismiss = context.getString(R.string.dialog_update_available_dismiss),
+                                title = resources.getString(R.string.dialog_reboot_required_title),
+                                content = resources.getString(R.string.dialog_reboot_required_content),
+                                confirm = resources.getString(R.string.reboot),
+                                dismiss = resources.getString(R.string.dialog_update_available_dismiss),
                             )
                         },
                         icon = { Icon(Icons.Rounded.RestartAlt, contentDescription = stringResource(R.string.reboot)) },

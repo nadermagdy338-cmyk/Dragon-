@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -87,6 +88,9 @@ fun AppSettingsScreen(
     appListViewModel: ApplistViewmodel = viewModel()
 ) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current` لا من `LocalContext.current.resources`: الأولى تُبطل التركيب عند
+    // تغيّر التكوين (لغة/كثافة/اتجاه)، والثانية تُبقي النصّ بلغته القديمة حتى يُعاد إنشاء الشاشة.
+    val resources = LocalResources.current
     val appDetails = remember(packageName) { getAppDetails(context, packageName) }
     val isGameApp = remember(packageName) { isGameCategory(context, packageName) }
     val colorScheme = MaterialTheme.colorScheme
@@ -163,7 +167,7 @@ fun AppSettingsScreen(
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 context.startActivity(intent)
                             } else {
-                                Toast.makeText(context, context.getString(R.string.toast_app_launch_fail), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, resources.getString(R.string.toast_app_launch_fail), Toast.LENGTH_SHORT).show()
                             }
                         }
                     },

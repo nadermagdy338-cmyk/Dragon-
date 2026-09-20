@@ -68,6 +68,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -126,6 +127,9 @@ private const val BUSY_FRACTION = 0.75f
 @Composable
 fun StorageDetailScreen(navController: NavHostController) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: نصوص تُقرأ داخل `scope.launch` (سياق غير composable)،
+    // وهي تُبطل التركيب عند تغيّر التكوين بخلاف `LocalContext.current.resources`.
+    val resources = LocalResources.current
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -251,7 +255,7 @@ fun StorageDetailScreen(navController: NavHostController) {
                         // العُقد: أسماء الملفات لا محتواها. جهاز بغيغابايت حرّة قد يرفض ملفًّا
                         // جديدًا لأن أسماءه نفدت، وهذا الرقم هو ما يكشف ذلك.
                         MaxMetricLine(
-                            metric = inodesMetric(primary, context.getString(R.string.detail_storage_inodes))
+                            metric = inodesMetric(primary, stringResource(R.string.detail_storage_inodes))
                         )
                         MaxGroupDivider()
                         MaxMetricLine(
@@ -400,14 +404,14 @@ fun StorageDetailScreen(navController: NavHostController) {
                                                 clipboard.setClipEntry(
                                                     ClipEntry(
                                                         ClipData.newPlainText(
-                                                            context.getString(R.string.max_files_detail_copy_label),
+                                                            resources.getString(R.string.max_files_detail_copy_label),
                                                             item.path
                                                         )
                                                     )
                                                 )
                                             }.isSuccess
                                             snackbarHostState.showSnackbar(
-                                                context.getString(
+                                                resources.getString(
                                                     if (copied) R.string.max_files_detail_copied
                                                     else R.string.max_files_detail_copy_failed
                                                 )

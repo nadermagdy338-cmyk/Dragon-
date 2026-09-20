@@ -1383,7 +1383,6 @@
     <string name="max_home_gpu_identity">Processeur graphique</string>
     <string name="max_home_gpu_unknown_desc">Famille de GPU indisponible sur cet appareil</string>
     <string name="max_home_cpu_activity">Activité CPU</string>
-    <string name="max_home_waiting_samples">En attente d\'échantillons en direct…</string>
     <string name="max_home_active_profile">Profil de base</string>
     <string name="max_home_profile_managed">Un profil de base manuel est disponible</string>
     <string name="max_home_profile_ready">Un profil de base manuel est disponible</string>
@@ -1400,8 +1399,6 @@
     <string name="max_home_ai_failed">La dernière action de l\'IA a échoué</string>
     <string name="max_home_retry">Réessayer</string>
     <string name="max_home_ai_idle">Aucune décision de l\'IA enregistrée pour l\'instant</string>
-    <string name="home_engine_ready">Moteur de performance en ligne</string>
-    <string name="home_engine_offline">Moteur de performance hors ligne</string>
     <string name="home_system_stable">SYSTÈME STABLE</string>
     <string name="home_system_attention">LE SYSTÈME REQUIERT VOTRE ATTENTION</string>
     <string name="home_system_vitals">Constantes du système</string>

@@ -57,6 +57,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -114,6 +115,8 @@ private val keyColorOptions = listOf(
 @Composable
 fun ColorPaletteScreen(navController: NavController) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: رسائل الشريط السفلي تُبنى داخل `launch`/لامبدات النتائج.
+    val resources = LocalResources.current
     val configuration = LocalConfiguration.current
     val isLandscape =
         configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
@@ -141,7 +144,7 @@ fun ColorPaletteScreen(navController: NavController) {
                 context.saveHeaderImage(it.toString())
                 customBannerUri = it.toString()
                 coroutineScope.launch {
-                    snackbarHostState.showSnackbar(context.getString(R.string.str_banner_updated))
+                    snackbarHostState.showSnackbar(resources.getString(R.string.str_banner_updated))
                 }
             }
         } else {
@@ -172,7 +175,7 @@ fun ColorPaletteScreen(navController: NavController) {
             }
             if (sizeBytes > 50 * 1024 * 1024L) {
                 coroutineScope.launch {
-                    snackbarHostState.showSnackbar(context.getString(R.string.str_max_video_size))
+                    snackbarHostState.showSnackbar(resources.getString(R.string.str_max_video_size))
                 }
                 return@let
             }
@@ -192,7 +195,7 @@ fun ColorPaletteScreen(navController: NavController) {
                 }
                 if (durationMs > 30_000L) {
                     coroutineScope.launch {
-                        snackbarHostState.showSnackbar(context.getString(R.string.str_video_too_long))
+                        snackbarHostState.showSnackbar(resources.getString(R.string.str_video_too_long))
                     }
                     return@let
                 }
@@ -205,9 +208,9 @@ fun ColorPaletteScreen(navController: NavController) {
                     if (saved != null) {
                         context.saveHeaderImage(saved)
                         customBannerUri = saved
-                        snackbarHostState.showSnackbar(context.getString(R.string.str_pick_media_success))
+                        snackbarHostState.showSnackbar(resources.getString(R.string.str_pick_media_success))
                     } else {
-                        snackbarHostState.showSnackbar(context.getString(R.string.str_pick_media_fail))
+                        snackbarHostState.showSnackbar(resources.getString(R.string.str_pick_media_fail))
                     }
                 }
             } else {

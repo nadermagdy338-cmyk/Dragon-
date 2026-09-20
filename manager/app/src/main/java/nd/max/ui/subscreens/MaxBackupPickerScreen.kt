@@ -76,6 +76,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -125,6 +126,8 @@ internal fun MaxBackupAppsPicker(
     onSwitchMode: () -> Unit,
 ) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: الرسالة تُبنى داخل دالة تغيّر الحالة لا في التركيب.
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val appListViewModel: ApplistViewmodel = viewModel()
@@ -264,9 +267,9 @@ internal fun MaxBackupAppsPicker(
         reload()
         snackbarHostState.showSnackbar(
             if (saved == 0) {
-                context.getString(R.string.max_backup_batch_none)
+                resources.getString(R.string.max_backup_batch_none)
             } else {
-                context.getString(R.string.max_backup_batch_done, saved.toString(), skipped.toString())
+                resources.getString(R.string.max_backup_batch_done, saved.toString(), skipped.toString())
             }
         )
     }

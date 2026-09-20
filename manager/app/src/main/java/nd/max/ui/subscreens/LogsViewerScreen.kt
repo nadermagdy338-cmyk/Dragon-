@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -76,6 +77,8 @@ fun LogsViewerScreen(
     val listState = rememberLazyListState()
     val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: كل النصوص هنا تُقرأ داخل `onClick` أو `launch`.
+    val resources = LocalResources.current
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var settingsVisible by remember { mutableStateOf(false) }
@@ -111,12 +114,12 @@ fun LogsViewerScreen(
                             IconButton(onClick = {
                                 val isUnified = viewModel.viewerMode == LogsViewerViewModel.ViewerMode.UNIFIED
                                 clearConfirmDialog.showConfirm(
-                                    title = context.getString(R.string.logsviewer_clear_confirm_title),
-                                    content = context.getString(
+                                    title = resources.getString(R.string.logsviewer_clear_confirm_title),
+                                    content = resources.getString(
                                         if (isUnified) R.string.logsviewer_clear_confirm_desc_unified else R.string.logsviewer_clear_confirm_desc
                                     ),
-                                    confirm = context.getString(R.string.yes),
-                                    dismiss = context.getString(R.string.no)
+                                    confirm = resources.getString(R.string.yes),
+                                    dismiss = resources.getString(R.string.no)
                                 )
                             }) {
                                 Icon(Icons.Outlined.DeleteSweep, contentDescription = stringResource(R.string.logsviewer_clear_cd))
@@ -135,12 +138,12 @@ fun LogsViewerScreen(
                                         context.startActivity(Intent.createChooser(intent, file.name))
                                         coroutineScope.launch {
                                             snackbarHostState.showSnackbar(
-                                                context.getString(R.string.logsviewer_save_success, viewModel.totalLineCount, file.name)
+                                                resources.getString(R.string.logsviewer_save_success, viewModel.totalLineCount, file.name)
                                             )
                                         }
                                     } else {
                                         coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(context.getString(R.string.logsviewer_save_failed))
+                                            snackbarHostState.showSnackbar(resources.getString(R.string.logsviewer_save_failed))
                                         }
                                     }
                                 }

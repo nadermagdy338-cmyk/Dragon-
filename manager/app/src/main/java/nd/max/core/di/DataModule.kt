@@ -25,7 +25,7 @@ import nd.max.core.hardware.AtlasReadTransport
 import nd.max.core.hardware.HardwareDataSource
 import nd.max.core.threading.DispatcherProvider
 import nd.max.data.datasources.HardwareDataSourceImpl
-import java.nio.file.Path
+import java.nio.file.Paths
 import javax.inject.Singleton
 
 /**
@@ -66,10 +66,13 @@ object DataModule {
     //    no business in a backup, and a restored cache from another device would be evidence about a
     //    machine the user no longer has.
 
+    // `Paths.get` لا `Path.of`: الآخيرة أُضيفت في API 34 (أو تحتاج core library desugaring) و`minSdk`
+    // هنا 29، فكان النداء يرمي `NoSuchMethodError` على 29–33. `Paths.get` هي الطريق المتاح من API 26
+    // لنفس النوع `java.nio.file.Path` — فالإصلاح استبدال النداء لا إسكات التحذير.
     @Provides
     @Singleton
     fun provideAtlasStoreIo(@ApplicationContext context: Context): AtlasStoreIo =
-        AtlasFileStoreIo(Path.of(AtlasFileStoreIo.directoryFor(context.noBackupFilesDir).absolutePath))
+        AtlasFileStoreIo(Paths.get(AtlasFileStoreIo.directoryFor(context.noBackupFilesDir).absolutePath))
 
     @Provides
     @Singleton
@@ -86,9 +89,17 @@ object DataModule {
     @Singleton
     fun provideAtlasDeviceIdentity(@ApplicationContext context: Context): AtlasDeviceIdentity {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+        // `Build.SOC_MANUFACTURER` و`Build.SOC_MODEL` أُضيفا في API 31، و`minSdk` هنا 29 — وهما
+        // **ليسا ثابتين يُدمجان** وقت الترجمة (قيمتهما تُقرأ من خصائص النظام في مُهيّئ الحقل)، فقراءتهما
+        // على 29/30 ترمي `NoSuchFieldError`. والحماية صريحة هنا، ومجهولهما `null` لا نصًّا بديلًا
+        // يشبه اسم جهاز حقيقي (وهو نفس المبدأ الذي يشرحه التعليق أعلاه).
         return AtlasDeviceIdentity(
-            socManufacturer = Build.SOC_MANUFACTURER.ifBlank { null },
-            socModel = Build.SOC_MODEL.ifBlank { null },
+            socManufacturer =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MANUFACTURER.ifBlank { null }
+                else null,
+            socModel =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MODEL.ifBlank { null }
+                else null,
             hardware = Build.HARDWARE.ifBlank { null },
             board = Build.BOARD.ifBlank { null },
             supportedAbis = Build.SUPPORTED_ABIS.toList(),

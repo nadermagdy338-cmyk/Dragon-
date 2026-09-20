@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,10 +71,13 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
         }
     }
 
-    val hourFormat = SimpleDateFormat("HH", Locale.getDefault())
-    val minuteFormat = SimpleDateFormat("mm", Locale.getDefault())
-    val buildDateString = remember {
-        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(BuildConfig.BUILD_TIME))
+    // اللغة من التكوين لا من `Locale.getDefault()`: الأخير غير مراقَب، فلو بدّل المستخدم اللغة بقيت
+    // الساعة وجزء التاريخ بلغة قديمة حتى تُعاد الشاشة — والتطبيق يشحن ٨٥ لغة ومبدّل لغة داخلي.
+    val locale = LocalConfiguration.current.locales[0]
+    val hourFormat = SimpleDateFormat("HH", locale)
+    val minuteFormat = SimpleDateFormat("mm", locale)
+    val buildDateString = remember(locale) {
+        SimpleDateFormat("yyyy-MM-dd", locale).format(Date(BuildConfig.BUILD_TIME))
     }
 
     val totalSeconds = SystemClock.elapsedRealtime() / 1000
@@ -134,7 +138,7 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = context.getString(R.string.app_name),
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1

@@ -30,7 +30,10 @@ class PredictiveSafety @Inject constructor() {
 
             thermalHistory.add(currentThermalC)
             if (thermalHistory.size > 50) {
-                thermalHistory.removeFirst()
+                // `removeAt(0)` لا `removeFirst()`: الثانية على `MutableList` تُحلّ إلى
+                // `java.util.List#removeFirst` (Java 21 → API 35)، فترمي `NoSuchMethodError` على
+                // 29–34. والقائمة هنا محدودة بـ50 قياسًا فالتحريك الذي تكلّفه `removeAt` تافه.
+                thermalHistory.removeAt(0)
             }
 
             // Not enough data to predict

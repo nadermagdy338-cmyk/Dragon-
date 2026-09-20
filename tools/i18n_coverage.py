@@ -11,6 +11,7 @@
     python3 tools/i18n_coverage.py --manifest de    # كتابة manifest CSV لترجمتها
     python3 tools/i18n_coverage.py --check-codes    # تطابق قائمة AppLanguage مع مجلدات values-*
     python3 tools/i18n_coverage.py --assert         # يخرج بخطأ فقط عند عيب حقيقي (ليس عند نقص تغطية)
+    python3 tools/i18n_coverage.py --prune all --dry-run   # المفاتيح اليتيمة في كل لغة (بلا كتابة)
 
 مخرجات --manifest تُكتب في `build/i18n/` ولا تُودع في git (مجلد بناء).
 """
@@ -115,12 +116,25 @@ def app_language_codes() -> list[str]:
 
 
 def real_defects(en: LocaleStrings, target: LocaleStrings) -> list[str]:
-    """عيب حقيقي = ما يمكن أن يُسقط التطبيق، لا نقص ترجمة."""
+    """عيب حقيقي = ما يمكن أن يُسقط التطبيق أو يُسقط البناء، لا نقص ترجمة.
+
+    العيب الثاني (مفتاح بلا نظير في `values/`) أُضيف بعد قياس، لا تقديرًا: سقط
+    `:app:lintVitalRelease` بـ**٦ أخطاء قاتلة** `ExtraTranslation` في `values-es` و`values-fr`
+    (ثلاثة مفاتيح حُذفت من `values/` و`values-ar/` وبقيت فيهما)، وهذه البوابة كانت **خضراء في
+    اللحظة نفسها** (exit 0 · عوائق 0) — أي أنها لم تكن ترى الصنف الذي يراه lint، بينما lint هو
+    ما يُسقط `assembleRelease` فعلًا. فالبوابة الآن ترى ما يراه الحاجز الذي يُسقط البناء.
+    """
     problems = []
     for file_name, en_keys in en.files.items():
-        ar_keys = target.keys(file_name)
-        for key, value in ar_keys.items():
-            extra = set(SPECIFIER.findall(value)) - set(SPECIFIER.findall(en_keys.get(key, "")))
+        target_keys = target.keys(file_name)
+        for key, value in target_keys.items():
+            if key not in en_keys:
+                problems.append(
+                    f"{file_name}:{key} موجود في values-{target.locale} ولا نظير له في values/ "
+                    f"(lint: ExtraTranslation — خطأ قاتل يُسقط assembleRelease)"
+                )
+                continue
+            extra = set(SPECIFIER.findall(value)) - set(SPECIFIER.findall(en_keys[key]))
             if extra:
                 problems.append(f"{file_name}:{key} يطلب {sorted(extra)} ولا يمرّره الكود")
         path = os.path.join(RES, f"values-{target.locale}", file_name)
@@ -358,6 +372,63 @@ def cmd_apply_csv(args: argparse.Namespace) -> int:
     return 1 if rejected else 0
 
 
+def prune_locale(locale: str, dry_run: bool) -> tuple[int, list[str]]:
+    """يحذف من `values-<locale>/` كل مفتاح لا نظير له في `values/`، ويعيد (العدد، ملاحظات).
+
+    لماذا وُجد: `--apply-csv` **يضيف فقط ولا يحذف شيئًا** — وهذا مبدأ صحيح في مكانه (لا يُعاد
+    كتابة ملف قائم فتُفقد تعليقاته وترتيبه)، لكن ثمنه أن إعادة تسمية مفتاح في `values/` تُبقي
+    القديم في كل لغة مترجمة إلى الأبد، ولا يراه إلا lint (ExtraTranslation، خطأ قاتل).
+
+    والحذف **سطري** لا بإعادة التسلسل: يُزال السطر الذي يحمل الاسم وحده، فلا يتغيّر تنسيق الملف
+    ولا ترتيبه ولا تعليقاته — وهو نفس الأسلوب الذي يكتب به `--apply-csv`. وعنصر لا يُغلق في سطره
+    (`</string>` غائب) يُترك ويُذكر صريحًا لئلا يُقطع عنصر متعدّد الأسطر.
+    """
+    en = english()
+    removed = 0
+    notes: list[str] = []
+    for file_name, en_keys in en.files.items():
+        path = os.path.join(RES, f"values-{locale}", file_name)
+        if not os.path.exists(path):
+            continue
+        lines = open(path, encoding="utf-8").read().splitlines(keepends=True)
+        stale: list[int] = []
+        for index, line in enumerate(lines):
+            match = re.match(r'\s*<(?:string|plurals)\s+name="([^"]+)"', line)
+            if not match or match.group(1) in en_keys:
+                continue
+            if not re.search(r"</(?:string|plurals)>|/>", line):
+                notes.append(f"{file_name}:{match.group(1)} عنصر متعدّد الأسطر — يُترك للحذف اليدوي")
+                continue
+            stale.append(index)
+        if not stale:
+            continue
+        removed += len(stale)
+        if not dry_run:
+            drop = set(stale)
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.writelines(line for index, line in enumerate(lines) if index not in drop)
+    return removed, notes
+
+
+def cmd_prune(args: argparse.Namespace) -> int:
+    targets = locale_folders() if args.prune == "all" else [args.prune]
+    total = 0
+    for locale in targets:
+        if not os.path.isdir(os.path.join(RES, f"values-{locale}")):
+            print(f"  لا يوجد مجلد values-{locale}")
+            continue
+        removed, notes = prune_locale(locale, args.dry_run)
+        total += removed
+        if removed or notes:
+            print(f"values-{locale}: يتيمة محذوفة={removed}")
+        for note in notes:
+            print("   ", note)
+    print(f"لغات مفحوصة: {len(targets)}  ·  مفاتيح يتيمة: {total}")
+    if args.dry_run:
+        print("(--dry-run: لم تُكتب أي ملفات)")
+    return 0
+
+
 def cmd_check_codes(args: argparse.Namespace) -> int:
     """يطابق ثلاثة أشياء يجب ألا تتباعد: مجلدات `values-*`، المنتقي في الكوتلن، و`locales_config`."""
     expected = {"en"} | {folder_to_tag(f) for f in locale_folders()}  # `en` = `values/` الافتراضية
@@ -404,6 +475,11 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true", help="مع --apply-csv: تحقق بلا كتابة")
     parser.add_argument("--check-codes", action="store_true", help="تطابق AppLanguage مع مجلدات values-*")
     parser.add_argument(
+        "--prune",
+        metavar="LOCALE",
+        help="حذف المفاتيح التي لا نظير لها في values/ من لغة واحدة (أو all) — يقبل --dry-run",
+    )
+    parser.add_argument(
         "--assert", dest="gate", action="store_true", help="ضع بوابة: يخرج بخطأ عند عيب حقيقي فقط"
     )
     parser.add_argument("--limit", type=int, default=25, help="عدد المفاتيح المعروضة في --locale")
@@ -413,6 +489,8 @@ def main() -> int:
         return cmd_assert(args)
     if args.check_codes:
         return cmd_check_codes(args)
+    if args.prune:
+        return cmd_prune(args)
     if args.apply_csv:
         if not args.locale:
             parser.error("--apply-csv يستلزم --locale لتحديد مجلد الهدف")

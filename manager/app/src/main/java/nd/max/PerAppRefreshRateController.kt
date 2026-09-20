@@ -7,7 +7,9 @@
 package nd.max
 
 import android.content.Context
+import android.hardware.display.DisplayManager
 import android.provider.Settings
+import android.view.Display
 import java.util.Locale
 
 object PerAppRefreshRateController {
@@ -24,7 +26,10 @@ object PerAppRefreshRateController {
     private data class XiaomiProfile(val namespace: String, val key: String)
 
     fun supportedRates(context: Context): List<Int> = runCatching {
-        context.display?.supportedModes
+        // `Context#display` يطلب API 30 و`minSdk` هنا 29، و`DisplayManager.getDisplay` متاح من API 17
+        // (`supportedModes` من API 23) — نفس النتيجة، وبلا سقف إصدار يرمي استثناءً على 29.
+        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager
+        displayManager?.getDisplay(Display.DEFAULT_DISPLAY)?.supportedModes
             ?.map { it.refreshRate.toInt() }
             ?.filter { it > 0 }
             ?.distinct()

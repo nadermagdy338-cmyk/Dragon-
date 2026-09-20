@@ -64,6 +64,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -261,6 +262,8 @@ internal fun MaxBackupHub(
     onOpenSystem: () -> Unit,
 ) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: كل نصوص هذه الشاشة تُقرأ داخل دوال محلية و`launch`.
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val appListViewModel: ApplistViewmodel = viewModel()
@@ -340,7 +343,7 @@ internal fun MaxBackupHub(
         val listScreen = publicStorageListIntent()
         val openedList = listScreen != null && runCatching { context.startActivity(listScreen) }.isSuccess
         if (!openedList) {
-            scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.max_backup_storage_grant_failed)) }
+            scope.launch { snackbarHostState.showSnackbar(resources.getString(R.string.max_backup_storage_grant_failed)) }
         }
     }
 
@@ -365,7 +368,7 @@ internal fun MaxBackupHub(
                 folderSets = next
                 if (removed != null) plan = cleaned
             } else {
-                snackbarHostState.showSnackbar(context.getString(R.string.max_backup_set_save_failed))
+                snackbarHostState.showSnackbar(resources.getString(R.string.max_backup_set_save_failed))
             }
         }
     }
@@ -393,7 +396,7 @@ internal fun MaxBackupHub(
             plan = withContext(Dispatchers.IO) { MaxBackupScheduler.readPlan(context) }
             reload()
             snackbarHostState.showSnackbar(
-                context.getString(
+                resources.getString(
                     when (result) {
                         MaxBackupSchedule.Result.OK -> R.string.max_backup_schedule_done_ok
                         MaxBackupSchedule.Result.FAILED -> R.string.max_backup_schedule_done_failed
@@ -423,7 +426,7 @@ internal fun MaxBackupHub(
             reload()
             // الرسالة من قيمة ما قبل التبديل: كانت محفوظة ⇒ أُزيل وسمها، والعكس.
             snackbarHostState.showSnackbar(
-                context.getString(
+                resources.getString(
                     when {
                         !ok -> R.string.max_backup_keep_failed
                         handle.keptForever -> R.string.max_backup_keep_off
@@ -460,9 +463,9 @@ internal fun MaxBackupHub(
         reload()
         snackbarHostState.showSnackbar(
             if (restored == 0) {
-                context.getString(R.string.max_backup_restore_device_none_done)
+                resources.getString(R.string.max_backup_restore_device_none_done)
             } else {
-                context.getString(
+                resources.getString(
                     R.string.max_backup_restore_device_done,
                     restored.toString(),
                     skipped.toString(),
@@ -632,7 +635,7 @@ internal fun MaxBackupHub(
                 onRejected = {
                     scope.launch {
                         snackbarHostState.showSnackbar(
-                            context.getString(R.string.max_backup_set_save_failed)
+                            resources.getString(R.string.max_backup_set_save_failed)
                         )
                     }
                 },
@@ -839,12 +842,12 @@ internal fun MaxBackupHub(
                     reload()
                     snackbarHostState.showSnackbar(
                         when {
-                            outcome.success -> context.getString(R.string.max_backup_restore_done)
-                            outcome.failedStage != null -> context.getString(
+                            outcome.success -> resources.getString(R.string.max_backup_restore_done)
+                            outcome.failedStage != null -> resources.getString(
                                 R.string.max_backup_restore_failed,
                                 stageLabel(stageLabels, outcome.failedStage),
                             )
-                            else -> context.getString(R.string.max_backup_restore_failed, "")
+                            else -> resources.getString(R.string.max_backup_restore_failed, "")
                         }
                     )
                 }
@@ -900,7 +903,7 @@ internal fun MaxBackupHub(
                     val removed = withContext(Dispatchers.IO) { MaxBackupEngine.delete(handle) }
                     reload()
                     snackbarHostState.showSnackbar(
-                        context.getString(
+                        resources.getString(
                             if (removed) R.string.max_backup_delete_done else R.string.max_backup_delete_failed
                         )
                     )

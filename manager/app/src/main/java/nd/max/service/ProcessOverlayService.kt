@@ -46,6 +46,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -247,7 +248,7 @@ class ProcessOverlayService : LifecycleService(), SavedStateRegistryOwner, ViewM
                             Icon(Icons.Filled.DragHandle, contentDescription = null, tint = Color.White.copy(0.6f), modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                text = context.getString(R.string.processmgr_title),
+                                text = stringResource(R.string.processmgr_title),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White

@@ -69,6 +69,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -148,6 +149,9 @@ fun PermissionsScreen(navController: NavController, pkg: String? = null) {
 @Composable
 private fun AppOpsDetail(navController: NavController, pkg: String) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: كل نصوص هذه الشاشة تُقرأ داخل `onClick` أو `scope.launch`،
+    // وهي السياقات التي لا تُبطل فيها قراءة `LocalContext.current.resources` عند تغيّر التكوين.
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -328,7 +332,7 @@ private fun AppOpsDetail(navController: NavController, pkg: String) {
                                 val found = PermissionPolicy.drift(stored, current)
                                 drift = found
                                 if (found.isEmpty()) {
-                                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.max_perms_ref_drift_none)) }
+                                    scope.launch { snackbarHostState.showSnackbar(resources.getString(R.string.max_perms_ref_drift_none)) }
                                 } else {
                                     askRestore = true
                                 }
@@ -481,7 +485,7 @@ private fun AppOpsDetail(navController: NavController, pkg: String) {
                 withContext(Dispatchers.IO) { AppOpsUtil.deleteReference(context, pkg) }
                 drift = null
                 reload()
-                snackbarHostState.showSnackbar(context.getString(R.string.max_perms_ref_deleted))
+                snackbarHostState.showSnackbar(resources.getString(R.string.max_perms_ref_deleted))
             }
         },
         onDismiss = { askDeleteReference = false },
@@ -532,7 +536,7 @@ private fun AppOpsDetail(navController: NavController, pkg: String) {
                     // الأعداد تُبلَّغ منفصلة: دمج «رُفع التجاوز» (نجاح) مع «الجهاز أبقى قيمته»
                     // (ليس نجاحًا) يُفقد التمييز الذي تُصرّ عليه هذه الشاشة في كل موضع آخر.
                     snackbarHostState.showSnackbar(
-                        context.getString(
+                        resources.getString(
                             R.string.max_perms_ref_restore_done,
                             tally.applied.toString(),
                             tally.asDefault.toString(),

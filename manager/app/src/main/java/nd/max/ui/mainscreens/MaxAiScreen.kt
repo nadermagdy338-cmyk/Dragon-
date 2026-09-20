@@ -31,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -1548,6 +1549,9 @@ private fun ProfilesSection(
     viewModel: MaxAiViewModel,
 ) {
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: الأسماء تُقرأ داخل `onClick` لتمريرها إلى المحرك،
+    // فتُقرأ بلغة اللحظة لا بلغة إنشاء الشاشة.
+    val resources = LocalResources.current
     val active = state.currentProfile
 
     MaxSection(
@@ -1582,7 +1586,7 @@ private fun ProfilesSection(
                 onClick = {
                     viewModel.requestProfile(
                         ProfileApplier.PROFILE_PERFORMANCE,
-                        context.getString(R.string.max_ai_profile_performance),
+                        resources.getString(R.string.max_ai_profile_performance),
                     )
                 },
             )
@@ -1594,7 +1598,7 @@ private fun ProfilesSection(
                 onClick = {
                     viewModel.requestProfile(
                         ProfileApplier.PROFILE_BALANCED,
-                        context.getString(R.string.max_ai_profile_balanced),
+                        resources.getString(R.string.max_ai_profile_balanced),
                     )
                 },
             )
@@ -1606,7 +1610,7 @@ private fun ProfilesSection(
                 onClick = {
                     viewModel.requestProfile(
                         ProfileApplier.PROFILE_ECO,
-                        context.getString(R.string.max_ai_profile_eco),
+                        resources.getString(R.string.max_ai_profile_eco),
                     )
                 },
             )

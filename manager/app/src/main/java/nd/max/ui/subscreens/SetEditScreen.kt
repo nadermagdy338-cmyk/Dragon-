@@ -43,6 +43,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -68,6 +69,9 @@ fun SetEditScreen(
     val listState = rememberLazyListState()
     val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: كل نصوص هذه الشاشة تُقرأ داخل لامبدات استجابة (onSave/onDelete/…)
+    // التي لا تُبطل فيها قراءة `LocalContext.current.resources` عند تغيّر التكوين.
+    val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     var selectedItem by remember { mutableStateOf<SetEditItem?>(null) }
@@ -80,11 +84,11 @@ fun SetEditScreen(
             pendingDelete?.let { item ->
                 viewModel.deleteItem(item) { ok, key ->
                     if (!ok && item.category == SetEditCategory.ANDROID_PROP) {
-                        context.getString(R.string.setedit_msg_delete_unsupported)
+                        resources.getString(R.string.setedit_msg_delete_unsupported)
                     } else if (ok) {
-                        context.getString(R.string.setedit_msg_deleted, key)
+                        resources.getString(R.string.setedit_msg_deleted, key)
                     } else {
-                        context.getString(R.string.setedit_msg_delete_failed, key)
+                        resources.getString(R.string.setedit_msg_delete_failed, key)
                     }
                 }
             }
@@ -191,18 +195,18 @@ fun SetEditScreen(
                 item = item,
                 onSave = { newValue ->
                     viewModel.saveItem(item, newValue) { ok, key ->
-                        if (ok) context.getString(R.string.setedit_msg_saved, key) else context.getString(R.string.setedit_msg_save_failed, key)
+                        if (ok) resources.getString(R.string.setedit_msg_saved, key) else resources.getString(R.string.setedit_msg_save_failed, key)
                     }
                     selectedItem = null
                 },
                 onDelete = {
                     pendingDelete = item
                     deleteConfirmDialog.showConfirm(
-                        title = context.getString(R.string.setedit_delete_confirm_title, item.key),
-                        content = context.getString(R.string.setedit_delete_confirm_desc) +
-                            if (isSensitiveSetEditKey(item.key)) "\n\n" + context.getString(R.string.setedit_sensitive_warning) else "",
-                        confirm = context.getString(R.string.setedit_action_delete),
-                        dismiss = context.getString(R.string.no)
+                        title = resources.getString(R.string.setedit_delete_confirm_title, item.key),
+                        content = resources.getString(R.string.setedit_delete_confirm_desc) +
+                            if (isSensitiveSetEditKey(item.key)) "\n\n" + resources.getString(R.string.setedit_sensitive_warning) else "",
+                        confirm = resources.getString(R.string.setedit_action_delete),
+                        dismiss = resources.getString(R.string.no)
                     )
                 }
             )
@@ -214,7 +218,7 @@ fun SetEditScreen(
             history = viewModel.deletedHistory,
             onRestore = { entry ->
                 viewModel.restoreFromHistory(entry) { ok, key ->
-                    if (ok) context.getString(R.string.setedit_msg_restored, key) else context.getString(R.string.setedit_msg_restore_failed, key)
+                    if (ok) resources.getString(R.string.setedit_msg_restored, key) else resources.getString(R.string.setedit_msg_restore_failed, key)
                 }
             }
         )
@@ -224,7 +228,7 @@ fun SetEditScreen(
         SetEditAddSheetContent(
             onCreate = { category, key, value ->
                 viewModel.createItem(category, key, value) { ok, k ->
-                    if (ok) context.getString(R.string.setedit_msg_created, k) else context.getString(R.string.setedit_msg_create_failed, k)
+                    if (ok) resources.getString(R.string.setedit_msg_created, k) else resources.getString(R.string.setedit_msg_create_failed, k)
                 }
                 showAddSheet = false
             }

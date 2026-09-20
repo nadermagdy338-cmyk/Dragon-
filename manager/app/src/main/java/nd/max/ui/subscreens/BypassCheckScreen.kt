@@ -61,6 +61,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -89,6 +90,9 @@ fun BypassChargeCheckScreen(navController: NavController) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
+    // موارد من `LocalResources.current`: نصوص هذه الشاشة تُقرأ داخل `scope.launch`/`withContext`
+    // ولامبدات `onClick` — وهي سياقات لا تُبطل فيها قراءة `LocalContext.current.resources`.
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
 
 
@@ -125,7 +129,7 @@ fun BypassChargeCheckScreen(navController: NavController) {
                     if (parts.size < 3) return@mapNotNull null
                     val name = parts[0].replace("[FOUND]", "", ignoreCase = true).trim()
                     val path = parts.drop(2).joinToString("|").trim()
-                    if (path.isBlank()) null else Pair(name.ifBlank { context.getString(R.string.status_unknown) }, path)
+                    if (path.isBlank()) null else Pair(name.ifBlank { resources.getString(R.string.status_unknown) }, path)
                 }
                 .distinctBy { it.second }
             withContext(Dispatchers.Main) {
@@ -204,10 +208,10 @@ fun BypassChargeCheckScreen(navController: NavController) {
                 if (successNode != null) {
                     scope.launch {
                         val dialogResult = confirmDialogHandle.awaitConfirm(
-                            title = context.getString(R.string.dialog_diagnosis_complete_title),
-                            content = context.getString(R.string.dialog_diagnosis_complete_content, successNode),
-                            confirm = context.getString(R.string.dialog_apply),
-                            dismiss = context.getString(R.string.dialog_dismiss)
+                            title = resources.getString(R.string.dialog_diagnosis_complete_title),
+                            content = resources.getString(R.string.dialog_diagnosis_complete_content, successNode),
+                            confirm = resources.getString(R.string.dialog_apply),
+                            dismiss = resources.getString(R.string.dialog_dismiss)
                         )
                         if (dialogResult == ConfirmResult.Confirmed) {
                             PropertyUtils.set(MaxManagerProps.Conf.BYPASS_PATH, successNode)
@@ -346,10 +350,10 @@ fun BypassChargeCheckScreen(navController: NavController) {
                                     onClick = {
                                         scope.launch {
                                             val result = confirmDialogHandle.awaitConfirm(
-                                                title = context.getString(R.string.dialog_start_hw_test_title),
-                                                content = context.getString(R.string.dialog_start_hw_test_content),
-                                                confirm = context.getString(R.string.dialog_begin_check),
-                                                dismiss = context.getString(R.string.dialog_cancel)
+                                                title = resources.getString(R.string.dialog_start_hw_test_title),
+                                                content = resources.getString(R.string.dialog_start_hw_test_content),
+                                                confirm = resources.getString(R.string.dialog_begin_check),
+                                                dismiss = resources.getString(R.string.dialog_cancel)
                                             )
                                             if (result == ConfirmResult.Confirmed) {
                                                 runCompatibilityCheck()
@@ -461,10 +465,10 @@ fun BypassChargeCheckScreen(navController: NavController) {
                                             if (!isRunning) {
                                                 scope.launch {
                                                     val result = confirmDialogHandle.awaitConfirm(
-                                                        title = context.getString(R.string.dialog_switch_node_title),
-                                                        content = context.getString(R.string.dialog_switch_node_content, pathNode.first),
-                                                        confirm = context.getString(R.string.dialog_apply_path),
-                                                        dismiss = context.getString(R.string.dialog_dismiss)
+                                                        title = resources.getString(R.string.dialog_switch_node_title),
+                                                        content = resources.getString(R.string.dialog_switch_node_content, pathNode.first),
+                                                        confirm = resources.getString(R.string.dialog_apply_path),
+                                                        dismiss = resources.getString(R.string.dialog_dismiss)
                                                     )
                                                     if (result == ConfirmResult.Confirmed) {
                                                         PropertyUtils.set(MaxManagerProps.Conf.BYPASS_PATH, pathNode.first)
