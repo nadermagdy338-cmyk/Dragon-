@@ -425,6 +425,26 @@ class GpuControlModelTest {
         }
     }
 
+    @Test fun providerReadingsKeepTheProvidersOwnUnit() {
+        // عقدة تتكلّم kHz: السلّم والمقروءات تُحفظ كما قرأها السائق، و`frequencyUnit` يسمّي تلك
+        // اللغة. تحويلها إلى Hz في الاكتشاف كان يضاعف التحويل عند العرض (`frequencyMHz`) ويسجّل
+        // قيمة لا تساويها `encodeLive`، فتنجح الكتابة وتُصنَّف فاشلة.
+        val fake = io()
+        listOf(
+            "available_frequencies" to "100000 200000 400000 800000",
+            "min_freq" to "100000",
+            "max_freq" to "800000",
+            "cur_freq" to "200000",
+        ).forEach { (field, value) -> fake.put("/sys/class/devfreq/test-gpu/$field", value) }
+        val device = GpuHardwareBackend.selection(fake).device!!
+        assertEquals(GpuHardwareBackend.FrequencyUnit.KHZ, device.frequencyUnit)
+        assertEquals(listOf(100_000L, 200_000L, 400_000L, 800_000L), device.frequencies)
+        assertEquals(100_000L, device.minFreq)
+        assertEquals(800_000L, device.maxFreq)
+        assertEquals(200_000L, device.currentFreq)
+        assertEquals(200L, GpuHardwareBackend.frequencyMHz(device, device.currentFreq))
+    }
+
     @Test fun unitConversionUsesSnapshotUnit() {
         val gpu = GpuHardwareBackend.selection(io()).device!!
         assertEquals(650L, GpuHardwareBackend.frequencyMHz(gpu, 650_000_000L))

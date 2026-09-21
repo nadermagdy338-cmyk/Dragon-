@@ -734,19 +734,29 @@ object GpuHardwareBackend {
             current = effectiveMtkFrequency ?: normalizeToAdvertisedHz(rawCurrent, frequencies)
             unit = FrequencyUnit.HZ
         } else {
-            val mtkCapability = if (family == Family.MALI) mtkDiscovery.frequencies else emptySet()
-            frequencies = (rawFrequencies.map { raw ->
-                when (genericUnit) {
-                    FrequencyUnit.HZ -> raw
-                    FrequencyUnit.KHZ -> raw * 1_000L
-                    FrequencyUnit.MHZ -> raw * 1_000_000L
-                    FrequencyUnit.AMBIGUOUS -> raw
-                }
-            } + mtkCapability).filter { it > 0L }.distinct().sorted()
-            min = rawMin?.let { toHz(it, genericUnit) } ?: frequencies.firstOrNull()
-            max = rawMax?.let { toHz(it, genericUnit) } ?: frequencies.lastOrNull()
-            current = rawCurrent?.let { toHz(it, genericUnit) }
-                ?: normalizeToAdvertisedHz(rawCurrent, frequencies)
+            // لغة أرقام هذا الكائن هي **لغة العقدة نفسها**، لا Hz.
+            //
+            // `min_freq`/`max_freq`/`cur_freq` و`available_frequencies` تُحفظ كما قرأها السائق،
+            // و`frequencyUnit` يسمّي تلك اللغة: `frequencyMHz()` هي التي تحوّل للعرض،
+            // و`writeRange()` تكتب القيمة كما هي. وتحويلها هنا إلى Hz كان: (١) يضاعف التحويل في
+            // كل عرض (MHZ × MHZ)، (٢) ويسجّل قيمة غير متطابقة لما يقرأه `encodeLive` فيُصنَّف
+            // تطبيقٌ ناجح فاشلًا، (٣) ويكتب Hz في عقدة تتكلّم kHz — أي يفسد `min_freq` على كل جهاز
+            // لا يستعمل Hz. وجدول MediaTek وحده معلوم الوحدة (Hz) فيُدمج **فقط** حين يكون الجدول
+            // العام بنفس اللغة أو غير موجود أصلًا؛ وإلا لَخُلطت وحدتان في سلّم واحد.
+            val mtkCapability = if (genericUnit == FrequencyUnit.HZ || rawFrequencies.isEmpty()) {
+                mtkDiscovery.frequencies
+            } else {
+                emptySet()
+            }
+            frequencies = (rawFrequencies + mtkCapability).filter { it > 0L }.distinct().sorted()
+            // حدّ أدنى/أعلى غير مقروء **لا يُخترع** من السلّم. الاختراع كان يجعل خط الأساس يبدو
+            // مقروءًا، فيمرّ المدى من [validate] وتنجح كتابة لا يمكن التراجع عنها إلى ما كان عليه
+            // فعلًا (وقد كُشف ذلك في `GpuControlModelTest.unreadableBaselineBlocksRangeMutation`).
+            // والغياب هنا هو بالضبط ما يجعل `rangeWritable` كاذبًا و[validate] تُجيب
+            // `range-read-only-or-unproven`: الفشل الصريح خير من نجاح لا خط أساس له.
+            min = rawMin
+            max = rawMax
+            current = rawCurrent
             unit = if (mtkCapability.isNotEmpty()) FrequencyUnit.HZ else genericUnit
         }
         val evidence = buildList {
@@ -841,13 +851,6 @@ object GpuHardwareBackend {
             }
         }
         return MtkOppDiscovery(frequencies, indexedResult)
-    }
-
-    private fun toHz(raw: Long, unit: FrequencyUnit): Long = when (unit) {
-        FrequencyUnit.HZ -> raw
-        FrequencyUnit.KHZ -> raw * 1_000L
-        FrequencyUnit.MHZ -> raw * 1_000_000L
-        FrequencyUnit.AMBIGUOUS -> raw
     }
 
     private fun normalizeToAdvertisedHz(raw: Long?, advertisedHz: List<Long>): Long? {
