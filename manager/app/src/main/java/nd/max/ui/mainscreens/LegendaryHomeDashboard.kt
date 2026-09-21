@@ -138,9 +138,8 @@ internal fun LegendaryHomeDashboard(
     val online = ui.rootStatus && ui.moduleInstalled
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         HomeHeader(online, onSettings, onReboot)
-        // "ما فعلته اختياراتك" قبل أي قياس: البيان الأول في الشاشة، لأنه جواب السؤال الذي
-        // تُفتح الرئيسية من أجله (هل فعّلت؟ وهل عمل؟) — والأرقام اللحظية بعده.
-        StoryboardBand(maxAi = maxAi)
+        // بطاقة نشاط واحدة: تحكي الأثر المؤكد فقط، وتترك القياسات لشاشاتها المالكة.
+        UnifiedActivityCard(maxAi = maxAi)
         PulsePanel(
             deviceName = deviceName,
             dashboard = dashboard,
@@ -152,7 +151,6 @@ internal fun LegendaryHomeDashboard(
             onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
             onGpu = { onNavigate(gpuRoute ?: MaxDestination.GpuStudio.route) }
         )
-        ActivityPanel(dashboard) { onNavigate(MaxDestination.MaxLive.route) }
         MemoryBudgetPanel(
             dashboard = dashboard,
             onMemory = { onNavigate(MaxDestination.ZramManager.route) },

@@ -311,6 +311,18 @@ class GpuControlModelTest {
         assertEquals(mapOf(800_000_000L to "0", 700_000_000L to "1", 600_000_000L to "2", 500_000_000L to "3"), map)
     }
 
+    @Test fun mixedIndexedAndUnindexedTablesNeverPinToTheSmallerIndexedTable() {
+        val fake = mtkIo()
+        fake.put(
+            "/proc/gpufreq/gpufreq_opp_dump",
+            "freq = 1300000\\nfreq = 975000\\nfreq = 546000",
+        )
+        val device = GpuHardwareBackend.selection(fake).device!!
+        assertEquals(1_300_000_000L, device.frequencies.maxOrNull())
+        assertNull(device.mtkFixedIndexPath)
+        assertFalse(device.exactLockWritable)
+    }
+
     @Test fun capabilityIsDiscoveredFromLegacyDumpWithoutADeviceSpecificConstant() {
         val fake = mtkIo()
         fake.put(

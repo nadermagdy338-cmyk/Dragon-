@@ -144,6 +144,12 @@ object GpuHardwareBackend {
 
     private data class Candidate(val device: Device, val score: Int)
 
+    /** Capability frequencies and safe fixed-index mappings are different facts. */
+    private data class MtkOppDiscovery(
+        val frequencies: Set<Long>,
+        val indexed: Map<Long, String>,
+    )
+
     /**
      * A GPU **fact** as Atlas may hold it.
      *
@@ -693,8 +699,18 @@ object GpuHardwareBackend {
             .split(Regex("\\s+")).filter(String::isNotBlank).distinct()
         if (governor == null && rawFrequencies.isEmpty() && rawCurrent == null) return null
 
-        val mtkMap = if (family == Family.MALI) readMtkOppMap(io) else emptyMap()
-        val mtkLockPath = if (mtkMap.isNotEmpty()) MTK_LOCK_PATHS.firstOrNull(io::exists) else null
+        val mtkDiscovery = if (family == Family.MALI) readMtkOppMap(io) else MtkOppDiscovery(emptySet(), emptyMap())
+        val mtkMap = mtkDiscovery.indexed
+        // An unindexed OPP proves capability but cannot safely be written through a
+        // fixed-index node. Never invent an index for it.
+        val mtkLockPath = if (
+            mtkMap.isNotEmpty() &&
+            // A fixed-index writer is safe only when every discovered capability
+            // has a real kernel index. If another OPP surface exposes an unindexed
+            // higher capability, prefer a generic devfreq range (when writable)
+            // instead of silently pinning the GPU to the smaller indexed table.
+            mtkDiscovery.frequencies.all { it in mtkMap }
+        ) MTK_LOCK_PATHS.firstOrNull(io::exists) else null
         val genericUnit = inferFrequencyUnit(rawFrequencies + listOfNotNull(rawMin, rawMax, rawCurrent))
         val frequencies: List<Long>
         val min: Long?
@@ -706,17 +722,26 @@ object GpuHardwareBackend {
             activeIndex?.let { index -> mtkMap.entries.firstOrNull { parseMtkIndex(it.value) == index }?.key }
         } else null
         if (mtkLockPath != null) {
-            frequencies = mtkMap.keys.sorted()
+            frequencies = (mtkDiscovery.frequencies + mtkMap.keys).toList().sorted()
             min = effectiveMtkFrequency ?: frequencies.firstOrNull()
             max = effectiveMtkFrequency ?: frequencies.lastOrNull()
             current = effectiveMtkFrequency ?: normalizeToAdvertisedHz(rawCurrent, frequencies)
             unit = FrequencyUnit.HZ
         } else {
-            frequencies = rawFrequencies
-            min = rawMin
-            max = rawMax
-            current = rawCurrent
-            unit = genericUnit
+            val mtkCapability = if (family == Family.MALI) mtkDiscovery.frequencies else emptySet()
+            frequencies = (rawFrequencies.map { raw ->
+                when (genericUnit) {
+                    FrequencyUnit.HZ -> raw
+                    FrequencyUnit.KHZ -> raw * 1_000L
+                    FrequencyUnit.MHZ -> raw * 1_000_000L
+                    FrequencyUnit.AMBIGUOUS -> raw
+                }
+            } + mtkCapability).filter { it > 0L }.distinct().sorted()
+            min = rawMin?.let { toHz(it, genericUnit) } ?: frequencies.firstOrNull()
+            max = rawMax?.let { toHz(it, genericUnit) } ?: frequencies.lastOrNull()
+            current = rawCurrent?.let { toHz(it, genericUnit) }
+                ?: normalizeToAdvertisedHz(rawCurrent, frequencies)
+            unit = if (mtkCapability.isNotEmpty()) FrequencyUnit.HZ else genericUnit
         }
         val evidence = buildList {
             add(if (family == Family.QUALCOMM) "qualcomm-gpu-identity" else "gpu-device-identity")
@@ -753,7 +778,7 @@ object GpuHardwareBackend {
     private fun parseLongList(raw: String?): List<Long> = raw.orEmpty().split(Regex("\\s+"))
         .mapNotNull(String::toLongOrNull).filter { it > 0L }.distinct().sorted()
 
-    private fun readMtkOppMap(io: Io): Map<Long, String> {
+    private fun readMtkOppMap(io: Io): MtkOppDiscovery {
         // MTK exposes more than one OPP surface. The signed table can be a filtered
         // runtime table (for example ending at 546 MHz), while gpufreq_opp_dump
         // still exposes the hardware capability (1300 MHz on the reported device).
@@ -762,9 +787,9 @@ object GpuHardwareBackend {
         val contents = MTK_OPP_TABLES.mapNotNull { path ->
             io.read(path)?.takeIf(String::isNotBlank)
         }
-        if (contents.isEmpty()) return emptyMap()
-        val result = linkedMapOf<Long, String>()
-        var syntheticIndex = 0
+        if (contents.isEmpty()) return MtkOppDiscovery(emptySet(), emptyMap())
+        val frequencies = linkedSetOf<Long>()
+        val indexedResult = linkedMapOf<Long, String>()
         contents.asSequence().flatMap { it.lineSequence() }.forEach { line ->
             // Kernels expose both indexed tables (`[3] freq=...`) and the legacy
             // dump format (`freq = 1300000`). The latter is still authoritative
@@ -775,8 +800,9 @@ object GpuHardwareBackend {
             val tail = line.substringAfterLast(']').trim()
             val labelledFrequency = Regex("""(?i)\bfreq(?:uency)?\s*[=:]\s*""").containsMatchIn(tail)
             if (indexed == null && !labelledFrequency) return@forEach
-            val index = indexed ?: syntheticIndex.toString()
-            syntheticIndex += 1
+            // A synthetic ordinal is not a kernel OPP index. It may be used for
+            // capability discovery only, never for a write.
+            val index = indexed
             val matches = Regex("""(?i)(\d+(?:\.\d+)?)\s*(GHz|MHz|kHz)?""").findAll(tail).toList()
             fun isFrequencyLabeled(candidate: MatchResult): Boolean {
                 val prefix = tail.substring(0, candidate.range.first)
@@ -803,9 +829,19 @@ object GpuHardwareBackend {
                     else -> (value * 1_000_000.0).toLong()
                 }
             }
-            if (hz in 1_000_000L..10_000_000_000L) result[hz] = index
+            if (hz in 1_000_000L..10_000_000_000L) {
+                frequencies += hz
+                if (index != null) indexedResult[hz] = index
+            }
         }
-        return result
+        return MtkOppDiscovery(frequencies, indexedResult)
+    }
+
+    private fun toHz(raw: Long, unit: FrequencyUnit): Long = when (unit) {
+        FrequencyUnit.HZ -> raw
+        FrequencyUnit.KHZ -> raw * 1_000L
+        FrequencyUnit.MHZ -> raw * 1_000_000L
+        FrequencyUnit.AMBIGUOUS -> raw
     }
 
     private fun normalizeToAdvertisedHz(raw: Long?, advertisedHz: List<Long>): Long? {

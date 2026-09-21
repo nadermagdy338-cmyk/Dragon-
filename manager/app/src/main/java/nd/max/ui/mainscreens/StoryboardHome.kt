@@ -46,6 +46,9 @@ import nd.max.core.maxai.KnobOwnershipSnapshot
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.OwnershipCommitState
 import nd.max.ui.component.MaxSurface
+import nd.max.ui.component.NeuralPanel
+import nd.max.ui.component.NeuralSectionHeader
+import nd.max.ui.component.neuralPalette
 import nd.max.ui.util.StoryboardSources
 
 /**
@@ -118,6 +121,85 @@ internal fun StoryboardBand(
             SceneCard(scene, scheme)
         }
         scenes.drop(1).forEach { scene -> SceneCard(scene, scheme) }
+    }
+}
+
+/**
+ * The only activity surface on the home screen. It combines verified story scenes
+ * and the current engine signal; it never renders CPU/GPU/thermal measurements.
+ */
+@Composable
+internal fun UnifiedActivityCard(
+    maxAi: MaxAiState,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val liveScenes by produceState(initialValue = emptyList<StoryboardScene>()) {
+        value = withContext(Dispatchers.IO) { StoryboardSources.scenes(context) }
+        while (true) {
+            delay(STORYBOARD_REFRESH_MS)
+            value = withContext(Dispatchers.IO) { StoryboardSources.scenes(context) }
+        }
+    }
+    val scenes = StoryboardModel.storyboard(liveScenes + maxAiSceneFrom(maxAi))
+        .mapNotNull { candidate ->
+            val visibleLines = candidate.lines.filter { line ->
+                // The home card is success-only. A measured before/after is proof;
+                // Max AI's active marker is a state proof; manual locks are already
+                // verified by their source. Choices without a hardware result stay
+                // in the settings screen, not here.
+                line.tone == LineTone.DONE && (
+                    line.from != null ||
+                        line.knob.startsWith("max_ai_") ||
+                        candidate.kind == SceneKind.MANUAL
+                    )
+            }
+            candidate.copy(lines = visibleLines).takeIf { visibleLines.isNotEmpty() }
+        }
+    if (scenes.isEmpty()) return
+
+    val palette = neuralPalette()
+    val scene = scenes.first()
+    NeuralPanel(modifier = modifier.fillMaxWidth(), accent = palette.accent) {
+        NeuralSectionHeader(
+            title = stringResource(R.string.home_activity_title),
+            caption = stringResource(R.string.storyboard_title),
+            accent = palette.accent,
+        )
+        AnimatedContent(
+            targetState = scene,
+            transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(120)) },
+            label = "unified-activity-scene",
+        ) { current ->
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        Modifier.size(8.dp).clip(CircleShape).background(palette.ok),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(sceneLabelRes(current.kind)),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = palette.text,
+                    )
+                    current.appLabel?.let {
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = palette.muted,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                current.lines.forEach { line -> SceneLine(line, MaterialTheme.colorScheme) }
+            }
+        }
+        scenes.drop(1).flatMap { it.lines }.distinctBy { it.knob }.take(3).forEach { line ->
+            SceneLine(line, MaterialTheme.colorScheme)
+        }
     }
 }
 

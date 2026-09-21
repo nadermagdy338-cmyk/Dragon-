@@ -170,6 +170,7 @@ object AppMonitor {
     private var savedGpuNode = ""
     private var savedGpuMinFreq = ""
     private var savedGpuMaxFreq = ""
+    private var savedGpuBaseline: GpuHardwareBackend.Baseline? = null
     private var savedThermalProfile = ""
     private var savedZenMode: Int? = null
     private var savedPeakRefreshRate = ""
@@ -1055,6 +1056,7 @@ object AppMonitor {
         savedGpuGovernor = gpu?.governor.orEmpty()
         savedGpuMinFreq = gpu?.minFreq?.toString().orEmpty()
         savedGpuMaxFreq = gpu?.maxFreq?.toString().orEmpty()
+        savedGpuBaseline = gpu?.let { GpuHardwareBackend.captureBaseline(it) }
         savedCpuGovernors.clear()
         shellRead("for p in /sys/devices/system/cpu/cpufreq/policy*; do [ -f \"\$p/scaling_governor\" ] && echo \"\$p=\$(cat \$p/scaling_governor)\"; done").split("\n").forEach { line ->
             val eq = line.indexOf('=')
@@ -1544,6 +1546,17 @@ object AppMonitor {
                 return@runCatching
             }
             val liveCap = GpuHardwareBackend.configurableMaxFrequency(liveAtPlan)
+            AppMonitorLogger.i(
+                "EVENT=PERAPP_GPU_CAPABILITY_SCAN pkg=$pkgName profile=$profile" +
+                    " provider=${liveAtPlan.name} path=${liveAtPlan.path}" +
+                    " advertised_max=${liveAtPlan.frequencies.maxOrNull() ?: "none"}" +
+                    " live_max=${liveAtPlan.maxFreq ?: "none"}" +
+                    " current=${liveAtPlan.currentFreq ?: "none"}" +
+                    " opp_count=${liveAtPlan.frequencies.size}" +
+                    " fixed_index=${liveAtPlan.mtkFixedIndexPath ?: "none"}" +
+                    " evidence=${liveAtPlan.evidence.joinToString(",")}" +
+                    " sw=$currentSwitchId"
+            )
             if (liveCap == null) {
                 noteHardware("gpu_profile", Outcome.UNSUPPORTED, "no-advertised-frequency-range", profile)
                 return@runCatching
@@ -2059,7 +2072,9 @@ object AppMonitor {
         // If the global profile cannot be re-applied, restore the exact live state snapshot.
         if (!globalRestored) {
             runCatching {
-                GpuHardwareBackend.refresh(savedGpuNode)?.let { live ->
+                savedGpuBaseline?.let { baseline ->
+                    GpuHardwareBackend.restoreBaseline(baseline)
+                } ?: GpuHardwareBackend.refresh(savedGpuNode)?.let { live ->
                     GpuHardwareBackend.restoreBaseline(
                         GpuHardwareBackend.Baseline(
                             devicePath = live.path,
@@ -2179,6 +2194,7 @@ object AppMonitor {
         savedGpuNode = ""
         savedGpuMinFreq = ""
         savedGpuMaxFreq = ""
+        savedGpuBaseline = null
         savedThermalProfile = ""
         savedCpuGovernors.clear()
         savedCpuMinFreqs.clear()
