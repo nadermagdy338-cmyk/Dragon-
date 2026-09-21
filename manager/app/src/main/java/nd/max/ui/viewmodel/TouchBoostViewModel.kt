@@ -63,16 +63,62 @@ class TouchBoostViewModel : ViewModel() {
         )
 
         /**
-         * The daemon and UI share this single ordered provider selection. Xiaomi
-         * HAL takes precedence only when no verified sysfs provider is present.
+         * زمن الانتظار بعد محاولة فاشلة: العقدة التي لا تُكتب لا تُعاد محاولتها كل ٥٠٠ م.ث.
+         *
+         * والسبب مقيس لا مفترض: كل محاولة تكتب سطر `WRITE_CHECK`، فتكون عقدة معطوبة سببًا
+         * لدَفق سجلات يدفن العطل الذي جاء الملف ليشرحه. والمهلة تقصر كل الأثر على سطر واحد كل
+         * دقيقة — وهذا حدّ أعلى معلَن، لا صمت. وتُصفَّر المهلة عند نجاح لاحق، فلا رجوع تدريجيًا.
          */
-        fun applyBestEffortBoost(enabled: Boolean): Boolean {
+        private const val RETRY_BACKOFF_MS = 60_000L
+        @Volatile private var retryNotBeforeMs = 0L
+
+        /** آخر قرار أُرسل إلى محوّل المنصّة — فلا يُنادى في كل دورة بلا تغيّر مطلوب. */
+        @Volatile private var lastVendorRequest: Boolean? = null
+
+        /**
+         * **يُصلح حالة المقبض عند الحاجة فقط** — والقراءة قبل الكتابة هي الفرق بين «حلقة كتابة»
+         * و«حلقة مراقبة».
+         *
+         * ولماذا لزم: كان `AppMonitor.buildStatus` ينادي الكتابة في كل دورة (٥٠٠ م.ث)، فسُجّلت على
+         * جهاز حقيقي ٣٠١٦ كتابة إلى `/proc/touch_boost/enable` في ٣٦ دقيقة — ٩٤% من ملف السجل،
+         * وكلها بالقيمة نفسها (`wrote=0 read=0`). فأفسدت شيئين معًا: **قابلية التشخيص** (العطل
+         * الحقيقي مدفون تحت ثلاثة آلاف سطر)، و**كلفة بلا فائدة** على محرّك اللمس كل ٠.٧ ثانية.
+         *
+         * والقاعدة الآن: لا كتابة إلا إذا كانت العقدة **لا تحمل** القيمة المطلوبة. والقراءة أرخص
+         * من الكتابة هنا (لا `chmod` ولا `printf`)، وهي **أدقّ** من الحفظ في الذاكرة: تكشف أن
+         * شيئًا آخر غيّر العقدة، فيُصلَح في نفس الدورة لا بعد مهلة.
+         *
+         * @return `null` حين لا شيء يُفعَل (العقدة تحمل المطلوب، أو لا مسار متحقّق على هذا الجهاز)،
+         *         `true` إذا كُتبت وتحقّقت، `false` إذا فشلت.
+         */
+        fun reconcileBestEffortBoost(enabled: Boolean): Boolean? {
             val provider = discoverBoostNode()
-            return if (provider != null) {
-                writeAndVerify(provider, enabled)
-            } else {
-                runCatching { XiaomiVendorFeatures.applyTouchBoost(enabled) }.getOrDefault(false)
+            if (provider == null) {
+                // لا مسار sysfs متحقّق: تبقى قناة محوّل المنصّة (وهي بلا عقد مُثبَت اليوم، فغيابها
+                // لا يعني فشلًا). ولا تُنادى إلا عند تغيّر القرار، فلا تُربَط خدمة AIDL كل ٥٠٠ م.ث.
+                if (lastVendorRequest == enabled) return null
+                val applied = runCatching { XiaomiVendorFeatures.applyTouchBoost(enabled) }.getOrDefault(false)
+                if (applied) lastVendorRequest = enabled
+                return applied
             }
+            if (nodeHolds(provider, enabled)) return null
+            val now = System.currentTimeMillis()
+            if (now < retryNotBeforeMs) return null
+            val written = writeAndVerify(provider, enabled)
+            if (written) retryNotBeforeMs = 0L else retryNotBeforeMs = now + RETRY_BACKOFF_MS
+            return written
+        }
+
+        /**
+         * هل تحمل العقدة القيمة المطلوبة **الآن**؟ — سؤال قراءة لا كتابة.
+         *
+         * والمقارنة تمرّ بـ[WriteVerification.compare] لا بمقارنة نصّية، فتُقبل التكافؤ العددي
+         * (`1` و`01`) وتوحيد الفراغات — وإلا قرأنا «مختلفة» في عقدة سليمة فكتبنا بلا داعٍ.
+         */
+        private fun nodeHolds(node: TouchNode, enabled: Boolean): Boolean {
+            val wanted = if (enabled) node.onValue else node.offValue
+            val live = RootFileAccess.read(node.path) ?: return false
+            return WriteVerification.compare(wanted, live) == WriteVerification.Outcome.MATCHED
         }
 
         private fun discoverBoostNode(): TouchNode? =

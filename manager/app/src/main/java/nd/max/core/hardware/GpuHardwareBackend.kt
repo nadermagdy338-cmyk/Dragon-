@@ -56,6 +56,16 @@ object GpuHardwareBackend {
     interface Io : ReadIo {
         fun writable(path: String): Boolean
         fun write(path: String, value: String): Boolean
+
+        /**
+         * يحرّر سقف المنصّة قبل الكتابة على مدى `devfreq`. والمُهلة الافتراضية **بلا فعل** عن قصد:
+         * كاتب مُوجَّه باختبار لا يجب أن يلمس عقد سلطة حقيقية، و[MockIo] وأخواته يُرثان هذه
+         * القيمة فلا يتغيّر سلوك أي اختبار قائم. أما [SystemIo] فينفّذها فعلًا.
+         *
+         * ولماذا هي في هذا الموصل لا نداء مباشر داخل [applyDevfreq]: لأن نقطة الكتابة نفسها
+         * تُستبدل في الاختبارات، فالوصول إلى العتاد من داخل دالة تُختبر بمُوجّه وهمي يُبطل الوهم.
+         */
+        fun permitVendorCeiling(lock: Boolean): Boolean = false
     }
 
     object SystemIo : Io {
@@ -64,6 +74,8 @@ object GpuHardwareBackend {
         override fun read(path: String) = RootFileAccess.read(path)
         override fun write(path: String, value: String) = RootFileAccess.write(path, value)
         override fun listDirectories(path: String) = RootFileAccess.listDirectories(path)
+        override fun permitVendorCeiling(lock: Boolean): Boolean =
+            PlatformCeilingAuthority.permitGpu(lock = lock).anyChannel
     }
 
     data class Device(
@@ -492,6 +504,10 @@ object GpuHardwareBackend {
             return TransactionResult(request, live, false, false, error = "baseline-unreadable")
         }
         val baseline = captureBaseline(live, io)
+        // سلطة المنصّة **قبل** الكتابة، والترتيب مقصود: على MediaTek يقمع جهاز تبريد الحرارة وسقف
+        // GED أي رفع فوقهما، فيُقرأ `differs` بلا سبب ظاهر في السجل (قيس على جهاز حقيقي:
+        // 1300000000 ⇒ 754000000). ولو كتبنا أولًا لبقي أثر القمع مسجّلًا عطلًا انتهى.
+        if (touchesRange) io.permitVendorCeiling(lock = request.minFreq == request.maxFreq)
         var wrote = true
         if (touchesRange) wrote = writeRange(live, request.minFreq, request.maxFreq, io)
         if (wrote && touchesGovernor) wrote = io.write("${live.path}/governor", request.governor)
@@ -499,6 +515,9 @@ object GpuHardwareBackend {
         if (wrote && matches(actual, request)) return TransactionResult(request, actual, true, true)
 
         val rollbackVerified = restoreTouchedBaseline(baseline, request, io)
+        // وبعد التراجع يُعاد الوضع الطبيعي للسلطة: طلب تثبيت فشل كان قد أوقف DVFS في GED، وإبقاؤه
+        // موقوفًا يُثبّت التردد الذي صادف وجوده — أي يُنتج العطب الذي جاء التراجع لإلغائه.
+        io.permitVendorCeiling(lock = false)
         return TransactionResult(
             requested = request,
             actual = refresh(live.path, io),

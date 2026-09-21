@@ -951,8 +951,12 @@ object AppMonitor {
             "false" -> false
             else -> globalTouchBoost || isKnownGameApp(pkgName)
         }
+        // والنداء **مُسوّي لا كاتب**: هذه الدالة تُنادى كل ٥٠٠ م.ث، وكانت الكتابة فيها بلا شرط —
+        // فسُجّلت على جهاز حقيقي ٣٠١٦ كتابة إلى عقدة اللمس في ٣٦ دقيقة (٩٤% من ملف السجل) بنفس
+        // القيمة. الآن لا كتابة إلا عند تغيّر القرار أو انحراف العقدة، والقراءة تكشف الانحراف في
+        // نفس الدورة. التفصيل في [TouchBoostViewModel.reconcileBestEffortBoost].
         runCatching {
-            TouchBoostViewModel.applyBestEffortBoost(screenAwake == 1 && touchBoostDecision)
+            TouchBoostViewModel.reconcileBestEffortBoost(screenAwake == 1 && touchBoostDecision)
             XiaomiVendorFeatures.applyAodColorOverride(
                 context = systemContext,
                 screenAwake = screenAwake == 1,

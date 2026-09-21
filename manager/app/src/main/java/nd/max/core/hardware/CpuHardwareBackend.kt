@@ -231,6 +231,12 @@ object CpuHardwareBackend {
         var targetMax = maxKHz?.coerceIn(hwMin, hwMax)
         if (targetMin != null && targetMax != null && targetMin > targetMax) targetMin = targetMax
 
+        // سلطة المنصّة **قبل** الكتابة: على MediaTek يقمع وضع حرارة MI وحاكم طاقة MTK أي رفع
+        // فوق حدّهما، فتقرأ العقدة `1200000` بعد كتابة `1800000` بلا سبب في السجل (مقيس على
+        // جهاز حقيقي: policy7 `2500000` ⇒ `2200000`). التحرير هنا، والكتابة والتحقّق كما هما أدناه.
+        PlatformCeilingAuthority.policyIndex(policyPath)
+            ?.let { PlatformCeilingAuthority.permitCpu(it, targetMin, targetMax) }
+
         var ok = true
         val currentMax = policy.maxKHz
         // Keep min <= max after every write. When raising the floor above the
