@@ -1,0 +1,286 @@
+package nd.max.core.diagnostics
+
+/**
+ * قاموس السجل: **معنى كل حقل وكل رمز** — يُكتب داخل ملف السجل نفسه، لا في المستودع.
+ *
+ * لماذا وُجد
+ * ----------
+ * الغرض المعلَن: أن يُرسَل ملف السجل وحده فيُشخَّص العطل منه بلا جهاز ولا واجهة ولا سؤال. وهذا
+ * يفرض شرطًا لم يكن قائمًا: **الملف يجب أن يشرح نفسه**. وقبل هذا الملف كان السطر يقول
+ * `expected=1300000000 live=754000000 verdict=differs` — وثلاثة أرقام ورموز لا تعني شيئًا
+ * لمن لا يعرف أن `gpu_profile` بالهرتز و`cpu_limits:policy0` بالكيلوهرتز، وأن `differs` تعني
+ * «كُتب ثم قُرئ مختلفًا» لا «فشل الأمر».
+ *
+ * فالقاموس هنا **ثلاث طبقات**:
+ *
+ * 1. [fieldGuide] — شكل السطر ومعنى كل حقل موجود فيه.
+ * 2. [unitGuide] — **وحدة كل مقبض**؛ وهذا أخطر ما كان غائبًا: `1300000000` و`1300000` قد يكونان
+ *    الطلب نفسه بوحدتين، ومن يقرأ بلا وحدة يستنتج عطلًا غير موجود.
+ * 3. [codes] — معنى كل `reason`/`outcome`/`verdict` يكتبه المحرّك، مع **ما يعنيه عمليًّا** لا
+ *    ترجمة حرفية له.
+ *
+ * وقواعد هذا الملف:
+ *
+ * - **كل رمز هنا موجود في الكود.** لا رمز مُتخيَّل ولا مُترجَم من الذاكرة؛ والقائمة جُمعت من
+ *   مواضع الكتابة الفعلية (`HardwareControlArbiter` · `PerAppHardwareStatus` · `WriteVerification` ·
+ *   `ThermalCeilingRouter` · `AtlasAdaptiveExecutor` · `AtlasRoutePlanner` · `AppMonitor`).
+ * - **النصّ بلا علامة `=`** لأن السطر يُفكَّك على «بداية حقل»؛ فمعنى فيه `=` كان سيُقسَم إلى حقلين.
+ * - **الترتيب ثابت** (لا مُرتَّب أبجديًّا): الرموز المتقاربة تبقى متجاورة ليُقرأ الفرق بينها بلمحة.
+ */
+object LogCodeGlossary {
+
+    /** شكل السطر ومعنى كل حقل — أول ما يحتاجه من يفتح الملف. */
+    val fieldGuide: List<Pair<String, String>> = listOf(
+        // بلا علامة `=` داخل النصّ: الترويسة تُكتب في السجل بنفس صيغة الحقول، وعلامة `=` هنا
+        // كانت ستُقسّم هذا السطر إلى حقلين عند القراءة.
+        "line" to "TIME LEVEL TAG: an EVENT token followed by space-separated key-value fields; TAG says which process wrote it",
+        "knob" to "the control being written: cpu_limits:POLICY gpu_frequency:DEVICE cpu_boost gpu_profile thermal refresh_rate",
+        "path" to "the exact node a write went to when the event is not knob-scoped",
+        "outcome" to "applied | not-verified | not-writable | unsupported | blocked | skipped",
+        "reason" to "stable machine code; each one is explained in the legend below",
+        "expected" to "what the app asked for, in the unit of that knob",
+        "live" to "the value read back after the write (unreadable means the read itself failed)",
+        "verdict" to "matched | differs | write_failed | unreadable",
+        "ok" to "true only when the operation itself finished without an error",
+        "duration_ms" to "measured duration of the operation, not an estimate",
+        "decision" to "the Atlas route decision: status-REASON (for example eligible-selected)",
+        "chosen" to "the Atlas route that was actually executed; none means no route was picked",
+        "skipped" to "routes not attempted, each with its own reason code",
+        "pressure" to "platform thermal status: unknown none light moderate severe critical emergency shutdown",
+        "from" to "the value before this decision",
+        "to" to "the value this decision requested",
+        "pkg" to "the app the decision was scoped to; absent for global settings",
+        "sw" to "the session id, so events from one session can be separated from the next",
+        "screen" to "the UI screen that caused the action (user actions only)",
+        "action" to "the operation name (user actions and measured results only)",
+        "field/old/new" to "the setting that changed and its before and after values",
+    )
+
+    /**
+     * وحدة كل مقبض — **الطبقة التي كان غيابها يُنتج استنتاجات خاطئة**.
+     *
+     * والمبدأ: الوحدة تتبع المقبض لا السطر، لأن نفس السطر يحمل مقابض مختلفة الوحدات في نفس الجلسة.
+     */
+    val unitGuide: List<Pair<String, String>> = listOf(
+        "cpu_limits:POLICY" to "kHz, as min:max (an empty side means leave that side alone)",
+        "cpu_boost" to "kHz, as min:max over the policy minimums",
+        "gpu_frequency:DEVICE" to "Hz, a single ceiling value",
+        "gpu_profile" to "percent of the highest advertised GPU step, not a frequency",
+        "refresh_rate" to "Hz",
+        "thermal" to "platform thermal status 0..6, not a temperature",
+        "value_ms/duration_ms/worst_ms" to "milliseconds",
+        "snapshot values" to "whatever unit the source node prints; the unit is recorded in the text itself",
+    )
+
+    /**
+     * كل رمز يكتبه المحرّك، ومعناه العمليّ.
+     *
+     * والشرح مقصود أن يقول **ما يترتّب على الرمز** لا أن يعيد صياغته: الفرق بين
+     * `apply-not-verified-baseline-restored` و`...-and-rollback-failed` هو الفرق بين «تعافى»
+     * و«الحالة غير معروفة» — وهذا هو ما يُبنى عليه القرار التالي.
+     */
+    val codes: List<Pair<String, String>> = listOf(
+        // نتائج المقابض
+        "applied" to "the request is satisfied (for a ceiling: the live value does not exceed it)",
+        "skipped" to "not attempted on purpose, for example the user chose default",
+        "blocked" to "refused by precedence: a manual user lock or a higher-priority owner holds the knob",
+        "unsupported" to "the device does not advertise this control at all",
+        "not-writable" to "the control exists but cannot be written here (read-only or measurement provider)",
+        "not-verified" to "written and then not satisfied, so the baseline was restored",
+        // لماذا لم يُطبَّق (أسباب per-app)
+        "verified" to "the write was read back and satisfied the request",
+        "profile-is-default" to "the user left this knob at default, so nothing is enforced",
+        "governor-is-default" to "the user left the governor at default",
+        "governor-not-advertised" to "the requested governor name is not in this kernel's list",
+        "policy-unavailable" to "the CPU policy named in the key does not exist right now",
+        "no-gpu-provider" to "no GPU frequency provider was discovered on this device",
+        "no-advertised-frequency-range" to "the GPU node exposes no frequency list to clamp against",
+        "provider-disappeared" to "the provider existed at discovery time and is gone now",
+        "unsupported-frequency" to "the requested frequency is below the lowest advertised step",
+        "outside-proven-hardware-bounds" to "the request is outside the range the device proved it accepts",
+        "live-value-mismatch" to "the read back value differs from what was asked for",
+        "restored" to "the baseline was put back",
+        "undecided" to "the route planner returned no decision for this attempt",
+        "unknown" to "the cause was not recognised; kept as unknown instead of guessed",
+        // بوّابة الملكية (المُحكِّم)
+        "manual-lock" to "the user pinned this knob; automated owners must not write it",
+        "preempted-by-OWNER" to "a higher-priority owner holds the knob; OWNER is SYSTEM MAX_AI or PER_APP",
+        "no-winner" to "the shared journal has no winner for this knob",
+        "baseline-unreadable" to "the current value could not be read, so no transaction may start",
+        "live-read-unavailable" to "the read failed inside the transaction",
+        "apply-not-verified-baseline-restored" to "the write did not take and the baseline came back verified",
+        "apply-not-verified-and-rollback-failed" to "the write did not take and the baseline could not be confirmed: state unknown",
+        "restore-not-verified" to "the restore ran but the read back did not match the baseline",
+        "handoff-awaiting-owner-process" to "another process owns the knob; this one only registered its intent",
+        // حكم الكتابة
+        "matched" to "wrote and read back the same value",
+        "differs" to "wrote a value and read back a different one; a vendor governor or a driver clamp can do this",
+        "write_failed" to "the write command itself failed",
+        "unreadable" to "the write happened but the read back failed; no verdict is claimed",
+        // الحارس الحراري (Atlas)
+        "route-verified" to "the chosen route was executed and confirmed",
+        "ceiling-already-held" to "the platform route needs no write: the live ceiling already satisfies the request",
+        "user-ceiling-already-held" to "the user ceiling is already in place and the platform signal is unavailable",
+        "ceiling-not-planable" to "the requested ceiling could not be parsed into a plan",
+        "knob-not-owned" to "this process does not own the knob, so the guard refuses to touch it",
+        "no-route-transaction" to "no route produced a usable transaction",
+        "thermal-router-unavailable" to "the Atlas route router could not be initialised; the guard stays silent",
+        "rollback-not-verified" to "fallback stopped because the baseline could not be confirmed",
+        "guard-static-only:platform-thermal-status-unavailable" to
+            "the platform thermal signal is unavailable, so only the user ceiling is enforced",
+        "guard-idle:PRESSURE" to "the platform reports no thermal throttling; nothing to change",
+        // Atlas
+        "route-quarantined-after-unverified-rollback" to
+            "this route stranded the baseline earlier in this boot; it is not attempted again until reboot",
+        "privilege-unavailable" to "the route needs a privilege this process does not have",
+        "rollback-unproven" to "the route has no proven way to restore the baseline",
+        "unit-ambiguous" to "the route's value unit could not be established",
+        "provider-ambiguous" to "more than one provider matched, so none was chosen",
+        "goal-unmeasurable" to "the route has no measurable signal for the goal it claims",
+        "route-not-reviewed" to "the route is not reviewed yet, so it is not executed",
+        "selected" to "the planner selected this route; no rejection reason applies",
+        "platform-route-available" to "a platform-owned route exists",
+        "verified-vendor-route" to "a vendor bridge route was verified on this device",
+        "verified-daemon-route" to "a root daemon route was verified on this device",
+        "verified-arbiter-route" to "an arbiter sysfs route was verified on this device",
+    )
+
+    /**
+     * ما يُفعل عند كل عطل — طبقة **العمل** لا الشرح.
+     *
+     * ولماذا لزمت: `explain` يقول «كُتب فلم يتحقّق فاستُرجع خط الأساس»، وهي جملة صحيحة ولا تعين
+     * على شيء. الفرق بين ملف سجل يُقرأ وملف يُشخَّص هو أن الثاني يجيب «وبعدين؟» — وقد كُتب هذا
+     * الجدول ليكون ذلك الجواب: **ما يفعله من يقرأ الملف**، لا معنى الرمز مرّة أخرى.
+     *
+     * وقاعدة صارمة: لا يدخل هنا رمز **يُعدّ عملًا صحيحًا** (`applied` · `verified` ·
+     * `profile-is-default`)، لأن إدراجه يزرع في القارئ فشلًا غير موجود. ومن لا يوجد له إصلاح
+     * يُعلَن صراحةً في التقرير بـ`fix=no-fix-encoded` — فهو رمز جديد يحتاج درسًا، لا عطلًا يُخفي.
+     */
+    val remedies: List<Pair<String, String>> = listOf(
+        // فشل التطبيق: القيمة نفسها
+        "unsupported-frequency" to "raise the request to at least the lowest advertised step printed in this line",
+        "outside-proven-hardware-bounds" to "bring the request back into the proven range, or clear the proven-bounds record after a kernel update",
+        "no-advertised-frequency-range" to "the node exposes no step list, so no ceiling can be clamped; treat this control as unsupported on this unit",
+        "no-gpu-provider" to "support gap, not a setting; check the module install and this device's GPU node list",
+        "provider-disappeared" to "re-open the app screen to re-discover the provider; if it keeps disappearing the vendor driver is resetting",
+        "live-value-mismatch" to "re-read the node after a few seconds; if it keeps differing the vendor governor is rewriting it and the control is effectively unsupported",
+        "unsupported" to "support gap: the control does not exist on this device; no setting makes it work",
+        "not-writable" to "the node is read-only or a measurement provider; no app-side fix exists",
+        "write_failed" to "the write command failed; check root and write permission on the path named in this line",
+        "unreadable" to "the write may still have succeeded; read the node by hand before judging",
+        "differs" to "a governor or driver clamped the value; request a value inside the advertised range",
+        // الملكية والتزامن
+        "manual-lock" to "expected when you pin a knob; unpin it in the app screen to let automated owners write again",
+        "preempted-by-OWNER" to "another owner holds the knob: the log names it; release that owner or wait for the handoff",
+        "no-winner" to "the shared journal has no owner for this knob; re-apply from the app screen to re-register",
+        "baseline-unreadable" to "no transaction may start until the node can be read; check the path and permissions",
+        "live-read-unavailable" to "the read failed inside the transaction, so the end state is unconfirmed; read the node by hand",
+        "handoff-awaiting-owner-process" to "working as designed: another process holds the knob and will apply this intent",
+        "undecided" to "the planner returned no decision; check that the knob is routed at all (router initialisation)",
+        "unknown" to "the cause was not recognised: repeat the action and read the raw line above it; if it repeats the engine is missing a reason code for it",
+        // التراجع
+        "not-verified" to "the request was written and not satisfied, so the baseline came back; retry with a value inside the advertised range",
+        "restored" to "the baseline is back at the value this line names; the request is the part that failed",
+        "apply-not-verified-baseline-restored" to "the value was refused and the baseline is safe; retry with a value inside the advertised range",
+        "apply-not-verified-and-rollback-failed" to "state unknown: read the node by hand and re-apply the intended value before anything else",
+        "restore-not-verified" to "compare expected with live before assuming the baseline is back",
+        "rollback-not-verified" to "the fallback stopped to avoid stranding the baseline; read the knob by hand",
+        // الحارس الحراري وAtlas
+        "thermal-router-unavailable" to "the Atlas thermal router failed to initialise; verify access to the route memory directory",
+        "guard-static-only:platform-thermal-status-unavailable" to "expected on this unit: the platform exposes no thermal status, so only your ceiling is enforced",
+        "ceiling-not-planable" to "the ceiling has no plan; check the unit recorded in this line (kHz against Hz)",
+        "knob-not-owned" to "apply the app from its own screen first; the guard only touches knobs this process owns",
+        "no-route-transaction" to "the planner picked a route but produced no transaction; report the skipped reasons",
+        "route-quarantined-after-unverified-rollback" to "a reboot frees the quarantine; the other routes still apply until then",
+        "privilege-unavailable" to "root or the required privilege is missing for this route; the fallback route should run instead",
+        "rollback-unproven" to "the route cannot prove it restores the baseline, so it is refused on purpose",
+        "unit-ambiguous" to "fix the route definition, not the device: its value unit was never established",
+        "provider-ambiguous" to "more than one provider matched, so the route is refused to avoid writing the wrong node",
+        "goal-unmeasurable" to "the route cannot measure the goal it claims; do not enable it without a measurable signal",
+        "route-not-reviewed" to "the route has not been reviewed; review it before enabling",
+        "policy-unavailable" to "the CPU policy named in the key is not present now (hotplug or rename); target a policy that exists",
+        "governor-not-advertised" to "pick a governor from this device's list; the requested name is not in this kernel",
+    )
+
+    /**
+     * كيف يُقرأ الملف — بترتيب العمل لا بترتيب الأقسام.
+     *
+     * ولماذا هي أول ما يُكتب: من يستلم الملف بلا هذه الأسطر يبدأ من أوّله فيقرأ مئة سطر شرحي
+     * قبل أن يصل إلى سطر واحد مفيد. والخطوات هنا هي **مسار الفشل** مضغوطًا: من الإعداد إلى
+     * الفشل إلى رمزه إلى إصلاحه.
+     */
+    val howToRead: List<String> = listOf(
+        "the file opens with LOG_HEADER lines grouped by kind: device, settings, field, unit, code, fix, howto, then the live events oldest first",
+        "when something did not work, look for lines whose outcome is not applied or whose verdict reads differs, write_failed or unreadable; then take the reason code to the code block and its action to the fix block",
+        "expected is the value that was asked for and live is the value read back; both are in the unit named by the unit block, and a knob left at default or held by a manual lock means nothing was enforced",
+    )
+
+    /**
+     * يشرح رمزًا، أو `null` حين لا نعرفه — ولا يُخترع شرح.
+     *
+     * ويُدعم بادئة الرمز لأن بعض الرموز تُبنى: `preempted-by-SYSTEM` و`guard-idle:severe`.
+     * والقاعدة: البادئة الأطول المطابقة تفوز، فلا يبتلع `guard-` معنى `guard-idle:`.
+     */
+    fun explain(code: String): String? = resolve(codes, code)
+
+    /**
+     * ما يُفعل برمز عطل، أو `null` حين لا إصلاح مُرمَّز له.
+     *
+     * والغياب مقصود ومفيد: هو علامة «رمز جديد لم يُدرَس» — والتقارير تُعلنه بدل أن تمرّ عليه.
+     */
+    fun remedyOf(code: String): String? = resolve(remedies, code)
+
+    /**
+     * الحلّ المشترك: مطابقة مباشرة، ثم قوالب الرموز المبنيّة، ثم أطول لاحقة معروفة.
+     *
+     * ووُحِّد لأن الشرح والإصلاح يجب أن يتطابقا على الرمز نفسه؛ لو تفرّقت المطابقتان لصار
+     * `preempted-by-SYSTEM` مشروحًا في موضع ومجهولًا في آخر.
+     */
+    private fun resolve(table: List<Pair<String, String>>, code: String): String? {
+        val trimmed = code.trim()
+        if (trimmed.isEmpty()) return null
+        table.firstOrNull { it.first == trimmed }?.let { return it.second }
+
+        // الرموز المبنيّة من قالب: `preempted-by-SYSTEM` و`guard-idle:severe`.
+        if (trimmed.startsWith("preempted-by-")) return meaningOf(table, "preempted-by-OWNER")
+        if (trimmed.startsWith("guard-idle:")) return meaningOf(table, "guard-idle:PRESSURE")
+        if (trimmed.startsWith("guard-static-only:")) return meaningOf(table, "guard-static-only:platform-thermal-status-unavailable")
+
+        // وقرار Atlas يُكتب `STATUS-REASON` (`blocked-privilege-unavailable`)، فالتطابق على الذيل
+        // بأطول رمز معروف — والأطول قبل الأقصر لأن `-restored` قد تطابق وحدها وتبتلع معنى أطول منها.
+        return table
+            .sortedByDescending { it.first.length }
+            .firstOrNull { (known, _) -> trimmed.endsWith("-$known") }
+            ?.second
+    }
+
+    private fun meaningOf(table: List<Pair<String, String>>, code: String): String? =
+        table.firstOrNull { it.first == code }?.second
+
+    /** أسطر الدليل كما تُكتب في التقرير وفي ملف السجل — نصّ واحد لمصدر واحد. */
+    fun fieldGuideLines(): List<String> =
+        fieldGuide.map { (name, meaning) -> "$name = $meaning" } +
+            unitGuide.map { (knob, unit) -> "unit $knob = $unit" }
+
+    /** أسطر القاموس كاملة، بترتيبها الثابت. */
+    fun codeLines(): List<String> = codes.map { (code, meaning) -> "$code = $meaning" }
+
+    /** القاموس بصيغة حقول ملف السجل: `code=... meaning=...`. */
+    fun codeLogLines(): List<String> = codes.map { (code, meaning) -> "code=$code meaning=$meaning" }
+
+    /** أسطر الإصلاح كما تُقرأ في التقرير: `code = fix`. */
+    fun fixLines(): List<String> = remedies.map { (code, fix) -> "$code = $fix" }
+
+    /** أسطر الإصلاح بصيغة حقول ملف السجل: `code=... fix=...`. */
+    fun fixLogLines(): List<String> = remedies.map { (code, fix) -> "code=$code fix=$fix" }
+
+    /** أسطر «كيف يُقرأ» بصيغة حقول ملف السجل: `kind=howto step=... text=...`. */
+    fun howToLogLines(): List<String> = howToRead.mapIndexed { index, text ->
+        "kind=howto step=${index + 1} text=$text"
+    }
+
+    /** الدليل بصيغة حقول ملف السجل. */
+    fun guideLogLines(): List<String> =
+        fieldGuide.map { (name, meaning) -> "kind=field name=$name meaning=$meaning" } +
+            unitGuide.map { (knob, unit) -> "kind=unit knob=$knob unit=$unit" }
+}

@@ -27,10 +27,7 @@ import nd.max.core.hardware.AtlasReadBudget
 import nd.max.core.hardware.AtlasRouteMemory
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.HardwareRepairExecutor
-import nd.max.core.hardware.AtlasRepairPort
 import nd.max.core.hardware.AtlasReadTransport
-import nd.max.core.hardware.HardwareRepairRequest
-import nd.max.core.hardware.HardwareRepairResult
 import nd.max.core.hardware.HardwareDataSource
 import nd.max.core.privilege.PrivilegeManager
 import nd.max.core.threading.DispatcherProvider
@@ -122,10 +119,10 @@ object DataModule {
         repairExecutor: HardwareRepairExecutor,
         routeMemory: AtlasRouteMemory,
     ): AtlasAdaptiveExecutor = AtlasAdaptiveExecutor(
-        repairExecutor = object : AtlasRepairPort {
-            override fun execute(request: HardwareRepairRequest): HardwareRepairResult =
-                repairExecutor.execute(request)
-        },
+        // `HardwareRepairExecutor` يُنفّذ `AtlasRepairPort` بنفسه، فلا غلاف مجهول هنا: كان
+        // الغلاف يبدو كطبقة تُخفي التبعية وهو لا يُخفي شيئًا — والبناء كشفه لأنه لم يُوفِّر
+        // النوع المطلوب في مسار آخر (AppMonitor) فسقطت الترجمة.
+        repairExecutor = repairExecutor,
         memory = routeMemory,
     )
 

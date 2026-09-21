@@ -94,8 +94,8 @@ data class HardwareRepairResult(
 class HardwareRepairExecutor(
     private val arbiter: HardwareControlArbiter,
     private val sleep: (Long) -> Unit = { delay -> if (delay > 0L) Thread.sleep(delay) },
-) {
-    fun execute(request: HardwareRepairRequest): HardwareRepairResult {
+) : AtlasRepairPort {
+    override fun execute(request: HardwareRepairRequest): HardwareRepairResult {
         val result = arbiter.submit(
             key = request.key,
             owner = request.owner,

@@ -4638,3 +4638,196 @@ RESIDUAL RISK: المسار الأول يحتاج جهازًا — `getCurrentTh
 NEXT: قياس المسارين على Rodin (MTK) وXiaomi (sconfig) · تشغيل الاختبارات عند توفر SDK/JDK 17 ·
        ثم إعادة استخدام النمط نفسه لمسارات الشحن والشاشة والذاكرة (هدف واحد + مرشّحان + حكم مُعاد استخدامه).
 ```
+
+### تصحيح من البناء (نفس اليوم) — خطأ ترجمة حقيقي في الربط
+
+CI أسقط `:app:compileReleaseKotlin` عند `AppMonitor.kt:328`:
+
+```
+Argument type mismatch: actual type is 'HardwareRepairExecutor', but 'AtlasRepairPort' was expected.
+```
+
+**السبب:** `AtlasAdaptiveExecutor` يطلب `AtlasRepairPort`، و`HardwareRepairExecutor` **لم يكن يُنفّذه**.
+و`DataModule` كان يخفي ذلك بغلاف مجهول (`object : AtlasRepairPort { ... }`) يبدو كطبقة تُخفي التبعية،
+فمرّ مسار واحد وبقي مسار المراقب مكسورًا. وهذا هو النمط الذي يُنتج عطبًا متأخرًا: نوعان يقبلان نفس
+الشيء إلا في موضع واحد.
+
+**الإصلاح:** `HardwareRepairExecutor` صار يُنفّذ `AtlasRepairPort` بنفسه
+(`class HardwareRepairExecutor(...) : AtlasRepairPort` + `override fun execute`)، وحُذف الغلاف المجهول
+من `DataModule` مع استيرادَين صارا بلا مستخدم.
+
+**إصلاحان مصاحبان كشفهما مراجعة الربط نفسه:**
+
+1. `measuredGoalAvailable` كان مربوطًا بقراءة إشارة المنصة. ومعناه في المخطِّط «هل الهدف **قابل
+   للقياس**؟» وهو يرفض كل مسار غير `PLATFORM_HINT` حين يكون `false`. فكان **المساران مرفوضَين معًا**
+   عند ضغط مجهول (المنصة غير مقروءة، وسقف المستخدم يُرفض بـ`GOAL_UNMEASURABLE` لأن نقله
+   `ARBITER_SYSFS`) ⇒ «لا مسار» وسقف المستخدم لا يُنفَّذ. صار `true` عن قصد، والأهليّة يحملها
+   `readable` وحدها. وهذا هو فرق السلوك الذي وُعد به الربط، وقد كان مقلوبًا في أول تنفيذ.
+2. تعليقان مضلِّلان معًا فوق `thermalRouter` و`hardwareUserIntent` (الأول كان مُعلَّقًا بلا صاحب)،
+   وتوثيق `ThermalGuard` و`PerAppControlRegistry.retarget` كان يقول إن الحارس ينادي `retarget`
+   مباشرة — وقد صار يُمرّر إلى `ThermalCeilingRouter`.
+
+**وما لم يُثبت بعد الإصلاح:** لا Android SDK ولا JDK 17 هنا، فالترجمة الثانية لم تُشغَّل محليًّا؛
+الخطأ الأصلي مُثبت من CI، والإصلاح مُراجَع يدويًّا مقابل كل موضع استعمال. وحدود الواجهات التي
+تستعملها الاختبارات الجديدة (تواقيع `AtlasReadTransport` · `AtlasTransportRead` · `HardwareRepairResult` ·
+`AtlasRouteEvidence` · `PerAppHardwareStatus.encode/parse`) قوبلت واحدة واحدة مع مصدرها.
+
+## تكملة ٦٩ — `LOG-CONSOLE-01`: من سجل نصّي إلى سجل يفهم الأحداث ويشرح الفشل — 2026-09-21
+
+**الطلب:** «اريد تطوير سجل في شاشة الاعدادات» — وبعد السؤال اختار صاحب القرار **ستّة** اتجاهات دفعة
+واحدة، وحدّد المكان: `Log Console` نفسها، و**نفس زرّ مشاركة السجل**.
+
+**العطب الحقيقي الذي كان:** كتابة السطر كانت منظَّمة (`EVENT=<NAME> k=v k=v`) وقراءته لم تكن.
+`LogsViewerScreen` كان يُبرز `EVENT=` وحده ويترك `knob`/`outcome`/`reason`/`expected`/`live` مدفونة
+في سطر واحد طويل. فأيّ تشخيص كان يعني `grep` في ملف، لا قراءة واجهة — وأربعة من الاتجاهات الستّة
+كانت مستحيلة على البنية القديمة: التصفية بالميزة تحتاج معرفة الميزة، والتصفية بالنتيجة تحتاج حكمًا،
+وتاريخ المقبض يحتاج تجميعًا، والتقرير يحتاج حقولًا لا سطورًا.
+
+**ما نُفِّذ:**
+
+1. **نواة الفكّ والتصنيف** — `core/diagnostics/LogEventLine.kt`:
+   - `LogEventParser` يفكّ `EVENT=` وكل `k=v` مع الحفاظ على **قيمة تحتوي فراغًا** (`EventLog.error`
+     يضع رسالة استثناء في `detail=`، والفصل على الفراغ كان سيقسمها).
+   - `LogArea` قائم على **قواعد بادئات** (`PERAPP_*` · `THERMAL*` · `GPU_*` …) لا على جدول يدوي
+     لكل حدث — والجدول اليدوي ينمو مع كل حدث جديد ثم يشيخ. ويُقدَّم المقبض على اسم الحدث حين
+     يوجد، ويُستعمل `HardwareControlKey` نفسه لتصنيف مفاتيح CPU/GPU بدل تكرار بادئاته.
+   - `LogVerdict` يُشتقّ من الحقول أولًا (`ok` · `verified` · `outcome` · `verdict`) ثم من المستوى
+     ثم من اسم الحدث. و`skipped` تُركت `UNKNOWN` عن قصد: «تُرك عمدًا» ليست «نجاحًا».
+   - `LogTargetHistory` يُجمّع بالمقبض، ويُرتّب الفشل أولًا، ويُبقي **آخر قيمة مُقاسة** حتى لو جاء
+     بعدها سطر بلا قياس.
+2. **التقرير التشخيصي** — `core/diagnostics/LogDiagnosticReport.kt`: ترويسة الجهاز، ثم الفشل
+   موزَّعًا بالميزة، ثم **الأسباب المتكرّرة مرتّبة بعددها**، ثم أسطر الفشل، ثم ذيل النافذة. محدود
+   السطور والحجم، والمقتطَع يُعلَن (`window_truncated`). وليس تكرارًا لـ`AtlasSupportReport`
+   (مسح قدرات، JSON) ولا لـ`dumpDiagnosticLogs` (أرشيف كامل): هذا **ملخّص مقروء** لِما جرى الآن.
+3. **الواجهة** — تبويب `MaxManager Log` صار: حقول السطر على ضغطة · شرائح الميزة · «الفشل» حكمًا
+   لا مستوى سطر · عرض «المقابض» إلى جانب الخط الزمني · تركيز على مقبض واحد قابل للإلغاء في مكانه.
+4. **زرّ المشاركة** واحد: ورقة فيها «تقرير تشخيصي» أو «ملف السجل الخام» — نفس المسار ونفس القناع.
+5. **تسجيل أعمق** — `ThermalCeilingRouter.Outcome` صار يحمل **قرار المخطط** والمسارات **المتخطّاة**،
+   و`AppMonitor` يكتبهما في `PERAPP_THERMAL_GUARD`. وهذه كانت الحالة الصامتة تمامًا: مسار محجور
+   بعد استرجاع غير مؤكَّد يُتخطّى بلا سطر، فيبدو «لا شيء حدث» ويُقرأ فشلًا بلا سبب.
+6. **إدارة الملف والمستوى** — حدّ الحجم وأدنى مستوى في الأصل (`max_log_file_bytes()` في
+   `FileHandler.c` و`external_log_floor()` في `SystemLogger.c`)، **مقيَّدان**: 64KB..16MB و0..4،
+   وأيّ قيمة خارجهما أو غير مقروءة تعود إلى الحدّ المُصرَّف (3MB / DEBUG) لا إلى قيمة غير محدودة.
+   والمرشّح يسري على `--log` وحده — أسطر `log_zenith()` في الخدمة تُكتب دائمًا، فلا يُخفي تخفيف
+   التفصيل عطلًا في المحرّك.
+
+**فصل ملف لا تجميل:** `LogsViewerScreen.kt` بلغ 1019 سطرًا فأسقط بوابة `code_health`. فنُقلت الصفوف
+والورقتان إلى `LogsViewerSections.kt` (نفس الحزمة، بلا استيراد جديد في الشاشة) — وهذا هو الحدّ
+الطبيعي: الشاشة تنسّق الحالة، والملف الثاني يرسم ما يُعطى.
+
+**سلوك تغيّر فعلًا:** فشلٌ كُتب `I` كان يختفي من «المشاكل» إذا كان الحكم من المستوى؛ الآن الحكم من
+`verdict` فيظهر. ورسالة «حُفظت N سطرًا» كانت تعرض عدد logcat دائمًا حتى عند مشاركة سجل MaxManager.
+
+**التحقق المقيس:**
+
+- `kt_balance --assert`: 749 ملفًا · 0 عوائق.
+- `code_health --assert`: exit 0 · صحّة 0 · الدَّين **لم ينمُ**: `10/29/63/23`.
+- `i18n_coverage --assert`: exit 0 · 0 عوائق · **19** مفتاحًا جديدًا في `values/` و`values-ar/`
+  معًا، ومفتاح أُعيدت تسميته (`logsviewer_problems_only` ← `logsviewer_failures_only`) لأنه لم يعد
+  يعني المستوى نفسه.
+- `repo_audit.py`: `PROBLEMS: 0`.
+- اختبارات جديدة (غير مُشغَّلة في هذه البيئة): `LogEventLineTest` · `LogDiagnosticReportTest`،
+  واختبار جديد في `ThermalCeilingRouterTest` يُثبت أن مسارًا محجورًا **لا يُنفَّذ** و**يُعلَن تخطّيه**.
+
+```
+TASK: LOG-CONSOLE-01
+FILES: added — core/diagnostics/LogEventLine.kt · core/diagnostics/LogDiagnosticReport.kt ·
+       ui/subscreens/LogsViewerSections.kt · 2 ملفات اختبار
+       modified — ui/subscreens/LogsViewerScreen.kt · ui/viewmodel/LogsViewerViewModel.kt ·
+       core/hardware/ThermalCeilingRouter.kt · AppMonitor.kt · MaxManagerProps.kt ·
+       res/values/strings.xml · res/values-ar/strings.xml ·
+       archdaemon/jni/include/AZenith.h · archdaemon/jni/src/FileUtility/FileHandler.c ·
+       archdaemon/jni/src/SystemLogger/SystemLogger.c ·
+       app/src/test/.../ThermalCeilingRouterTest.kt
+deleted — none
+GATES: 1 ✓  2 ✓ (debt unchanged 10/29/63/23)  3 ✓ (ar parity: 22 new keys, specifiers 0)  6 ✓
+BUILD: not verified — لا Kotlin ولا Android SDK ولا مخزن Gradle في هذه البيئة (`java`=25،
+       `local.properties` يشير إلى مسار غير موجود). وتغييرات C في `archdaemon` **لم تُترجَم أيضًا**.
+RESIDUAL RISK: (أ) فكّ الحقول يفصل على «بداية حقل»، فقيمة تحتوي `x=y` في وسطها تُنتج حقلًا زائدًا —
+       مقبول ومُعلَن ومُختبَر؛ (ب) مفتاح `SOC_MODEL` محميّ بـ API 31 كما في `DataModule`، وعلى 29/30
+       يبقى `null` فيُعرض `-`؛ (ج) حدّ الملف والمستوى يقرأهما الأصل من خصائص، فإن مُنع `setprop` في
+       بيئة بلا جذر تبقى القيمة المعروضة هي المُصرَّفة؛ (د) كل شيء يحتاج جهازًا: واجهة، وقراءة
+       خصائص، وحدّ ملف.
+NEXT: قياس الحقول والتصنيف على سجل حقيقي من جهاز (Qualcomm/MTK) · ثم توسيع `LogArea` إن ظهرت عائلة
+       أحداث جديدة · ثم نسخ اتجاه «التقرير» إلى `DiagnosticsScreen` للمقارنة بين تقرير لحظي وبصمة جهاز.
+```
+
+---
+
+## تكملة ٧٠ — `LOG-BUNDLE-01`: الملف يشرح نفسه ويُصلح نفسه — «أرسل السجل وحده» — 2026-09-21
+
+### الطلب
+
+أن يُرسَل **ملف السجل وحده** (بلا جهاز ولا وصف ولا سؤال) فيُشخَّص العطل منه. وهذا ليس تحسين
+عرض: هو شرط على **الملف** نفسه، لأن كل ما لا يُكتب داخله يصير سؤالًا لصاحب الجهاز.
+
+### ما كان ناقصًا فعلًا
+
+1. **الملف لا يقول من أين جاء**: لا جهاز ولا إصدار ولا إعداد. وسطر `expected=1300000000 live=754000000`
+   لا يُعرف منه وحدة أيّهما — فيُستنتج عطل غير موجود (GHz؟ kHz؟ Hz؟).
+2. **الرموز بلا شرح**: `apply-not-verified-baseline-restored` رمز ثابت في المحرّك، ولا معناه في الملف.
+3. **ولا «وبعدين؟»**: الشرح وحده لا يُصلح شيئًا. الحاجة الحقيقية أن يحمل الملف **ما يُفعل** بكل عطل.
+4. **`--clearlogs` يمحو الترويسة** مع ما يمحو، فيبقى الملف المُرسَل بعده بلا سياق أبدًا.
+
+### ما نُفِّذ
+
+- **`core/diagnostics/LogHeader.kt`** — الترويسة تُكتب **داخل** الملف في بداية كل عملية تشغيل، كل
+  سطر منها `EVENT=LOG_HEADER` (يُفكّ بنفس المفكّك، ويُستبعد من العرض بمرشّح). والترتيب ترتيب القراءة:
+  `kind=howto` ← `kind=device` ← `kind=settings` ← `kind=field` ← `kind=unit` ← `kind=code` ←
+  `kind=fix`، ثم `kind=session`/`kind=session-knob` مع كل تطبيق. و`SCHEMA=1`، والحدّ `MAX_LINES=256`
+  مع سطر `kind=truncated` يُعلن الاقتطاع (رُفع من ١٦٠ لأن كتلتي `fix` و`howto` كانتا ستُقطعان).
+- **`core/diagnostics/LogCodeGlossary.kt`** — ثلاث طبقات صارت أربعًا: **الحقول** و**الوحدات**
+  (أخطرها: `gpu_frequency:DEVICE` بالهرتز و`cpu_limits:POLICY` بالكيلوهرتز) و**المعاني** (`codes`،
+  ٥٥ رمزًا) و**الإصلاحات** (`remedies`، ٣٩ رمزًا). وقاعدة `remedies`: لا يدخلها رمز سليم
+  (`applied` · `verified` · `profile-is-default`) — لأن إصلاح ما لم يفسد يزرع فشلًا غير موجود.
+- **`LogHeader.sessionLines`** — كتلة الجلسة تحمل `knobs=` أي **ما طُلب فعلًا** لكل مقبض. بدونها
+  يُعرف أن الكتابة فشلت ولا يُعرف أن المطلوب كان 1.3GHz — فيصير السؤال «فشل التطبيق أم فشل الطلب؟».
+- **`core/diagnostics/LogSettingsDigest.kt`** — إعداد التشغيل من موضعه الواحد (نفس قائمة المراقب)،
+  يُقرأ من الخصائص، ويُعاد للترويسة وللحزمة معًا. والقيمة الفارغة تُصرَّح `unset` لا تُترك فراغًا.
+- **`LogDiagnosticReport`**: عنوان يتبع المحتوى (`bundle` لما يحمل كل السجل، `report` لما يحمل ذيله)،
+  ومقطع **`-- what to do --`** يحمل إصلاح **كل عطل وقع فعلًا** مرتّبًا بالتكرار (من `remedies`)،
+  ومن لا إصلاح له يُصرَّح `fix=no-fix-encoded` بدل أن يُمرّ عليه (فالرمز الجديد يُعالَج لا يُخفي)،
+  و**الأسطر الخام تُنقل كما هي** بلا ترويسة مُضافة (من يقارن الملف بالنسخة الأصلية يجد السطر نفسه).
+- **سطور حالة المقابض تدخل التشخيص**: `extraSections` (ملف `per_app_hw_status`) تُقرأ بنفس المفكّك
+  ونفس قواعد `LogVerdict` — فأهمّ مقطع في الحزمة كان الوحيد بلا إصلاح. ولا نسخة ثانية من «ما يُعدّ فشلًا».
+- **مشاركة واحدة، وخياران**: «حزمة كاملة (تقرير + السجل)» أو «ملف السجل الخام وحده»، بنفس مسار
+  المشاركة ونفس القناع. والدالة سُمِّيت `shareDiagnosticBundle` لأنها لم تبقَ تقريرًا فقط.
+- **إعادة كتابة الترويسة بعد `--clearlogs`** في `LogsViewerViewModel` — فلا يبقى الملف المُرسَل بلا سياق.
+
+### عطب كُشف في الطريق (وسُجِّل لأنه ليس من العمل الجديد)
+
+`LogHeaderTest` كان يستخرج نصّ الرسالة بـ`substringAfter(": ")` — وهي طريقة تفترض مسبقًا `TAG: `،
+فتقطع السطر عند أول `: ` **داخل المعنى نفسه** (`TIME LEVEL TAG: an EVENT token …`) فيفشل الفكّ.
+والإصلاح: الفكّ على السطر كما هو — فهو نصّ الرسالة، والـ`TAG` يضيفه الكاتب ولا يمرّ به المفكّك.
+و**القراءة الإنتاجية سليمة**: `LogsViewerViewModel` يستخرج الرسالة بالنمط `UNIFIED_LOG_PATTERN`
+لا بـ`substringAfter` — فالعطب كان في الاختبار وحده.
+
+### التحقق
+
+```
+kt_balance --assert     ✅ 754 ملفًا · 0 عوائق
+i18n_coverage --assert  ✅ 0 عوائق (en + ar)
+code_health --assert    ✅ صحّة 0 · الدَّين لم ينمُ (10/29/63/23)
+repo_audit.py           ✅ PROBLEMS: 0
+```
+
+وفحص نصّي على `remedies` و`howToRead`: صفر رمز فيه `=` (فالسطر يُفكَّك على بداية حقل)، وصفر مفتاح
+مكرّر، و٣٩ مفتاحًا. وحجم الترويسة المحسوب ١٢٧ سطرًا + الإعداد ≤ ٢٥٦ فما قُصّ منه شيء.
+
+```
+TASK: LOG-BUNDLE-01
+FILES: added — core/diagnostics/LogCodeGlossary.kt · core/diagnostics/LogHeader.kt ·
+       core/diagnostics/LogSettingsDigest.kt · 3 ملفات اختبار
+       modified — core/diagnostics/LogDiagnosticReport.kt · ui/util/EventLog.kt ·
+       ui/viewmodel/LogsViewerViewModel.kt · ui/subscreens/LogsViewerScreen.kt · AppMonitor.kt ·
+       res/values/strings.xml · res/values-ar/strings.xml
+deleted — none
+GATES: 1 ✓  2 ✓ (debt unchanged)  3 ✓ (ar parity)  6 ✓
+BUILD: not verified — لا Kotlin ولا Android SDK ولا مخزن Gradle في هذه البيئة.
+RESIDUAL RISK: (أ) الترويسة تُكتب مرّة لكل عملية تشغيل، فتغيّر إعداد بعدها يظهر بـ`USER_ACTION` لا
+       في الكتلة — مقصود ومُعلَن؛ (ب) `remedies` نصّ إنجليزي داخل الكود كبقية القاموس، فلا يخضع
+       لبوابة الترجمة؛ (ج) الذيل السادس (`soc_model`) محميّ بـ API 31 وعلى 29/30 يبقى `-`؛
+       (د) الحكم على سطور الحالة يمرّر مستوى سطر فارغًا فلا يُحكم بالمستوى — مقصود.
+NEXT: تشغيل الاختبارات الثلاثة على CI (لا مُصرّف محليًّا) · ثم قياس ترويسة حقيقية على جهاز والتأكد
+       أن المفكّك يقرأ `kind=fix` كاملًا · ثم قياس مقاطع `per_app_hw_status` الحقيقية في «ما يُفعل».
+```

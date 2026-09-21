@@ -65,6 +65,27 @@
 // --log`/log_zenith()-style plaintext logs both useful and cheap to grep or
 // share, even if the daemon runs for days without a restart.
 #define MAX_LOG_FILE_BYTES (3L * 1024 * 1024)
+
+/**
+ * User-tunable log file bound, in kilobytes.
+ *
+ * The property is optional and bounded: an absent, unparsable or out-of-range value falls back to
+ * MAX_LOG_FILE_BYTES. The floor is 64 KB (below that a rotation would keep almost nothing) and the
+ * ceiling is 16 MB (above that a log file stops being a diagnostic artifact and starts being a
+ * disk-space problem on the same partition as the module).
+ */
+#define LOG_MAX_KB_PROP "persist.sys.maxmanagerconf.logmaxkb"
+#define LOG_MAX_KB_FLOOR 64L
+#define LOG_MAX_KB_CEIL 16384L
+
+/**
+ * User-tunable floor for lines written through the external `--log` hook, as the numeric
+ * LogLevel (0=DEBUG .. 4=FATAL).
+ *
+ * Only the external hook is filtered: the daemon's own log_zenith() lines are engine facts and
+ * are never suppressed by a preference, so lowering verbosity can never hide a daemon failure.
+ */
+#define LOG_MIN_LEVEL_PROP "persist.sys.maxmanagerconf.logminlevel"
 #define PROFILE_MODE "/data/adb/.config/MaxManager/API/current_profile"
 #define PROFILE_MODE_APP "/data/data/nd.max/API/current_profile"
 #define GAME_INFO "/data/adb/.config/MaxManager/API/gameinfo"

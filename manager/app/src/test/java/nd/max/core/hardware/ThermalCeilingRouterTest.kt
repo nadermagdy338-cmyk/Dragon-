@@ -247,6 +247,51 @@ class ThermalCeilingRouterTest {
         return registry
     }
 
+    /**
+     * مسار محجور يُعلَن ولا يُجرَّب.
+     *
+     * وهذه هي الحالة التي كانت **صامتة تمامًا**: مسار حُجر لأنه ترك خط الأساس غير مؤكَّد في إقلاع
+     * سابق، فيتخطّاه Atlas ولا يُجرّبه — فيبدو للحارس أن «لا شيء حدث»، ويقرأ من يُصلح العطل سطرًا
+     * يقول فشلًا بلا سبب. فالاختبار يُثبت الأمرين معًا: أن المحجور لا يُنفَّذ، وأن تخطّيه يُبلَّغ.
+     */
+    @Test
+    fun `a route quarantined in this boot is skipped and the skip is reported`() {
+        var live = "754000000"
+        val gate = HardwareControlArbiter()
+        val registry = registryOwning(gate, KEY, "754000000", { live = it; true }, { live })
+        val memory = AtlasRouteMemory(InMemoryIo(), clockMs = { 0L })
+        memory.noteFailed("gpu_frequency", ThermalCeilingRoutes.PLATFORM_ROUTE_ID, rollbackVerified = false)
+        val router = ThermalCeilingRouter(
+            registry = registry,
+            adaptive = AtlasAdaptiveExecutor(
+                repairExecutor = HardwareRepairExecutor(gate),
+                memory = memory,
+            ),
+        )
+
+        val outcome = router.apply(
+            key = KEY,
+            target = AtlasControlTarget.GPU_FREQUENCY,
+            packageName = "com.example.game",
+            userCeiling = "754000000",
+            ladder = ladder,
+            pressure = ThermalGuard.Pressure.SEVERE,
+        )
+
+        assertEquals(
+            "المسار الذي حُجر لا يُجرَّب: الطلب يذهب إلى سقف المستخدم",
+            ThermalCeilingRoutes.STATIC_ROUTE_ID,
+            outcome.routeId,
+        )
+        assertTrue(outcome.verified)
+        assertEquals("754000000", live)
+        assertEquals(
+            "وتخطّي المسار يُعلَن بسبب ثابت لا بصمت",
+            listOf(ThermalCeilingRoutes.PLATFORM_ROUTE_ID to "route-quarantined-after-unverified-rollback"),
+            outcome.skipped,
+        )
+    }
+
     private fun routerWith(registry: PerAppControlRegistry, gate: HardwareControlArbiter) = ThermalCeilingRouter(
         registry = registry,
         adaptive = AtlasAdaptiveExecutor(

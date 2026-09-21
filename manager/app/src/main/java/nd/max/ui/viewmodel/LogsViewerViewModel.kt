@@ -38,8 +38,23 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nd.max.core.diagnostics.DeviceFacts
+import nd.max.core.diagnostics.LogArea
+import nd.max.core.diagnostics.LogDiagnosticReport
+import nd.max.core.diagnostics.LogEventLine
+import nd.max.core.diagnostics.LogEventParser
+import nd.max.core.diagnostics.LogField
+import nd.max.core.diagnostics.LogHeader
+import nd.max.core.diagnostics.LogObservation
+import nd.max.core.diagnostics.LogSettingsDigest
+import nd.max.core.diagnostics.LogTargetHistory
+import nd.max.core.diagnostics.LogTargetSummary
+import nd.max.core.diagnostics.LogVerdict
+import nd.max.core.diagnostics.ReportLine
 import nd.max.ui.util.EventLog
+import nd.max.ui.util.PropertyUtils
 import nd.max.MaxManagerPaths
+import nd.max.MaxManagerProps
 
 /**
  * Live logcat viewer, adapted from ZKM's LogsView (LogsViewUtils.kt +
@@ -60,6 +75,17 @@ class LogsViewerViewModel : ViewModel() {
         private const val MAX_DISPLAYED = 2000
         private const val MAX_IN_MEMORY = 20_000
         private const val FLUSH_INTERVAL_MS = 300L
+
+        /**
+         * حدود ضبط ملف السجل — مطابقة لما تفرضه `max_log_file_bytes()` في الأصل (64KB..16MB).
+         *
+         * والتكرار مقصود عند حدود نظام آخر: القيمة هي الواجهة نفسها، والأصل يُعيد أيّ شيء خارج
+         * المدى إلى الحدّ المُصرَّف. فلو عرضنا قيمة خارج المدى لَعرضنا رقمًا لا ينفّذه أحد.
+         */
+        private const val LOG_MAX_KB_FLOOR = 64
+        private const val LOG_MAX_KB_CEIL = 16384
+        private const val DEFAULT_LOG_MAX_KB = 3072
+        private const val LOG_LEVEL_DEBUG = 0
 
         private val LOG_PATTERN = Regex(
             """^(\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+([A-Z])\s+(.*?):\s?(.*)$"""
@@ -100,6 +126,15 @@ class LogsViewerViewModel : ViewModel() {
 
     /** Which log this screen is currently showing. */
     enum class ViewerMode { LOGCAT, UNIFIED }
+
+    /**
+     * كيف يقرأ محلّل السجل التبويب الموحّد.
+     *
+     * و`TARGETS` ليس عرضًا آخر للسطور بل **سؤال آخر**: «ما آخر ما عُرف عن هذا المقبض؟» بدل «ما
+     * الذي حدث الآن؟». وهذا السؤال هو الذي يجيب عن «لماذا لا تعمل هذه الميزة» بلا تصفّح مئات
+     * السطور بحثًا عن آخر سطر يخصّ المقبض نفسه.
+     */
+    enum class UnifiedView { TIMELINE, TARGETS }
 
     /**
      * Levels as written by log_zenith()/external_log() (SystemLogger.c's
@@ -149,8 +184,21 @@ class LogsViewerViewModel : ViewModel() {
         val eventType: String?,
         val switchId: String?,
         val message: String,
-        val raw: String
-    )
+        val raw: String,
+        /** الحدث مفكوكًا إلى حقول، أو `null` حين لا يكون السطر حدثًا. */
+        val event: LogEventLine? = null,
+        val area: LogArea = LogArea.OTHER,
+        val verdict: LogVerdict = LogVerdict.UNKNOWN,
+    ) {
+        /** المقبض/العقدة التي يخصّها السطر، إن خصّ واحدًا. */
+        val target: String? get() = event?.target
+
+        /** الحقول كما هي، لإظهارها مفصّلة عند الطلب. */
+        val fields: List<LogField> get() = event?.fields.orEmpty()
+
+        /** الوقت وحده، وقت كتابة السطر (بلا تاريخ) — كما يُعرض وكما يُكتب في التقرير. */
+        val time: String get() = timestamp.substringAfter(' ')
+    }
 
     data class LogEntry(
         val id: Long,
@@ -198,6 +246,40 @@ class LogsViewerViewModel : ViewModel() {
         private set
     var unifiedTotalLineCount by mutableStateOf(0)
         private set
+    var unifiedView by mutableStateOf(UnifiedView.TIMELINE)
+        @JvmName("setUnifiedViewState") private set
+    var selectedAreas by mutableStateOf(LogArea.entries.toSet())
+        private set
+
+    /**
+     * «الفشل فقط» — **حكم مشتقّ من الحقول** لا من مستوى السطر.
+     *
+     * وهذا هو الفرق المقصود: سطر `PERAPP_KNOB outcome=not-verified` يُكتب `W` اليوم، ولكنه كان
+     * يُكتب `I` قبل جولة `PERAPP-CONTROL-03` — والحكم من المستوى وحده كان سيتغيّر بتغيّر عادة
+     * كتابة السطر لا بتغيّر الحقيقة. و`verdict` يحمل الحقيقة.
+     */
+    var failuresOnly by mutableStateOf(false)
+        private set
+
+    /** السطر الذي طلب المستخدم رؤية حقوله كاملة، أو `null`. */
+    var expandedId by mutableStateOf<Long?>(null)
+        private set
+
+    /** المقبض المختار من عرض «المقابض»، يُرشّح الخط الزمني وحده. */
+    var focusedTarget by mutableStateOf<String?>(null)
+        private set
+
+    /** ملخّص كل مقبض ظهر في النافذة المحمّلة — يُحسب مع كل تصفية. */
+    var targetSummaries by mutableStateOf<List<LogTargetSummary>>(emptyList())
+        private set
+
+    /** حدّ حجم ملف السجل بالكيلوبايت كما هو مضبوط الآن (يُقرأ من الخاصية عند البناء). */
+    var logMaxKb by mutableStateOf(0)
+        private set
+
+    /** أدنى مستوى يُكتب من التطبيق (0=DEBUG .. 4=FATAL). */
+    var logMinLevel by mutableStateOf(0)
+        private set
 
     private val allLogs = Collections.synchronizedList(ArrayList<LogEntry>())
     private val pendingBatch = Collections.synchronizedList(ArrayList<LogEntry>())
@@ -216,7 +298,38 @@ class LogsViewerViewModel : ViewModel() {
     fun start() {
         if (started) return
         started = true
+        readLogSettings()
         restartStream()
+    }
+
+    /**
+     * إعدادات الملف تُقرأ من الخصائص وقت البدء — لا تُخزَّن نسخة ثانية في التطبيق.
+     *
+     * ولماذا القراءة لا التخزين: الخاصية يقرأها الأصل (FileHandler.c / SystemLogger.c) وهي
+     * مصدر الحقيقة، ونسخة في الـViewModel قد تنحرف عنها (خصائص تُعاد ضبطها بعد تحديث الوحدة،
+     * أو تُغيّر من ملف مثلًا) فيُعرض رقم لا يطابق ما يجري.
+     */
+    private fun readLogSettings() {
+        logMaxKb = PropertyUtils.get(MaxManagerProps.Conf.LOG_MAX_KB)
+            .toIntOrNull()?.takeIf { it in LOG_MAX_KB_FLOOR..LOG_MAX_KB_CEIL } ?: DEFAULT_LOG_MAX_KB
+        logMinLevel = PropertyUtils.get(MaxManagerProps.Conf.LOG_MIN_LEVEL)
+            .toIntOrNull()?.takeIf { it in 0..4 } ?: LOG_LEVEL_DEBUG
+    }
+
+    fun setLogMaxKb(kb: Int) {
+        if (kb !in LOG_MAX_KB_FLOOR..LOG_MAX_KB_CEIL) return
+        val previous = logMaxKb
+        logMaxKb = kb
+        PropertyUtils.set(MaxManagerProps.Conf.LOG_MAX_KB, kb.toString())
+        EventLog.userAction("LogsViewer", "log_max_kb", previous.toString(), kb.toString())
+    }
+
+    fun setLogMinLevel(level: Int) {
+        if (level !in 0..4) return
+        val previous = logMinLevel
+        logMinLevel = level
+        PropertyUtils.set(MaxManagerProps.Conf.LOG_MIN_LEVEL, level.toString())
+        EventLog.userAction("LogsViewer", "log_min_level", previous.toString(), level.toString())
     }
 
     /**
@@ -431,6 +544,11 @@ class LogsViewerViewModel : ViewModel() {
         unifiedDisplayedLogs = emptyList()
         unifiedTotalLineCount = 0
         unifiedIdCounter = 0
+        // ملخّص المقابض وتركيزه يخصّان ما كان محمّلًا؛ إبقاؤهما بعد تفريغ النافذة يجعل الشاشة
+        // تُظهر «آخر ما عُرف» عن سطور لم تبقَ.
+        targetSummaries = emptyList()
+        focusedTarget = null
+        expandedId = null
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -471,16 +589,24 @@ class LogsViewerViewModel : ViewModel() {
         if (line.isBlank()) return null
         val match = UNIFIED_LOG_PATTERN.find(line) ?: return null
         val (timestamp, levelStr, tag, message) = match.destructured
+        val level = UnifiedLogLevel.fromLetter(levelStr)
+        // الفكّ **مرّة واحدة عند القراءة** لا عند كل إعادة ترتيب أو تصفية: النافذة تحمل 2000 سطر
+        // وتُصفّى مع كل ضغطة، وتفكيكها في العرض كان سيُكرّر العمل بلا سبب.
+        val event = LogEventParser.parse(message)
+        val eventName = event?.event
         return UnifiedLogEntry(
             id = unifiedIdCounter++,
             timestamp = timestamp,
-            level = UnifiedLogLevel.fromLetter(levelStr),
+            level = level,
             source = LogSource.fromTag(tag),
             rawTag = tag,
-            eventType = EVENT_TYPE_PATTERN.find(message)?.groupValues?.get(1),
+            eventType = eventName ?: EVENT_TYPE_PATTERN.find(message)?.groupValues?.get(1),
             switchId = SWITCH_ID_PATTERN.find(message)?.groupValues?.get(1),
             message = message,
-            raw = line
+            raw = line,
+            event = event,
+            area = LogArea.of(eventName.orEmpty(), event?.target),
+            verdict = LogVerdict.of(eventName.orEmpty(), event, level.letter),
         )
     }
 
@@ -498,6 +624,7 @@ class LogsViewerViewModel : ViewModel() {
             }
         }
         unifiedTotalLineCount = allUnifiedLogs.size
+        refreshTargetSummaries()
         applyUnifiedFilter()
     }
 
@@ -512,13 +639,49 @@ class LogsViewerViewModel : ViewModel() {
         val query = unifiedSearchQuery.trim().lowercase()
         val levels = selectedUnifiedLevels
         val sources = selectedSources
+        val areas = selectedAreas
+        val onlyFailures = failuresOnly
+        val focused = focusedTarget
         val snapshot = synchronized(allUnifiedLogs) { ArrayList(allUnifiedLogs) }
         unifiedDisplayedLogs = snapshot.asReversed().asSequence()
             .filter { it.level in levels }
             .filter { it.source in sources }
+            .filter { it.area in areas }
+            .filter { !onlyFailures || it.verdict == LogVerdict.FAIL }
+            .filter { focused == null || it.target == focused }
             .filter { query.isEmpty() || it.raw.lowercase().contains(query) }
             .take(MAX_DISPLAYED)
             .toList()
+    }
+
+    /**
+     * يُعيد بناء ملخّص المقابض من **كل** ما حُمِّل — لا من المعروض ولا بمناسبة تغيّر تصفية.
+     *
+     * ولماذا هنا لا داخل `applyUnifiedFilter`: الملخّص لا يعتمد على أيّ مرشِّح، وحسابه لكل ضغطة
+     * مفتاح في البحث كان يمرّ على عشرين ألف سطر من أجل نتيجة لا تتغيّر. ويُنادى من مسار الطيّ
+     * (`Dispatchers.IO`) مرّة كل [FLUSH_INTERVAL_MS]، وهو نفس إيقاع وصول سطور جديدة.
+     *
+     * و`null` target مستبعَد: التجميع يصنع مدخلًا، ولا مدخل لعقدة غير مسمّاة.
+     */
+    private fun refreshTargetSummaries() {
+        val snapshot = synchronized(allUnifiedLogs) { ArrayList(allUnifiedLogs) }
+        targetSummaries = LogTargetHistory.summarise(
+            snapshot.asSequence()
+                .filter { it.target != null }
+                .map { entry ->
+                    LogObservation(
+                        id = entry.id,
+                        time = entry.time,
+                        target = entry.target.orEmpty(),
+                        verdict = entry.verdict,
+                        reason = entry.event?.field("reason").orEmpty(),
+                        expected = entry.event?.field("expected").orEmpty(),
+                        live = entry.event?.field("live").orEmpty(),
+                        source = entry.source.displayName,
+                    )
+                }
+                .toList(),
+        )
     }
 
     fun onUnifiedSearchQueryChange(query: String) {
@@ -527,24 +690,47 @@ class LogsViewerViewModel : ViewModel() {
     }
 
     /**
-     * «المشاكل فقط» **مشتقّة** لا مخزَّنة: هي بالضبط حالة أن تكون مستويات الطبع كلها غير مختارة.
-     *
-     * ولماذا لا عَلَم مستقل: عَلَمٌ منفصل يمكن أن يخالف المستويات المعروضة، فيقول الزرّ «معمَّم»
-     * والقائمة لا تُظهر إلا التحذيرات. والمشتق لا يخالف ما يُعرض لأنه منه.
+     * «الفشل فقط» — يُبدّل تصفية الحكم المفهوم. الفشل يُشتقّ من الحقول والاسم والمستوى معًا
+     * (انظر `LogVerdict`)، فلا يعتمد على أن يكون الكاتب قد اختار المستوى الصحيح.
      */
-    val problemsOnly: Boolean
-        get() = selectedUnifiedLevels.none { it == UnifiedLogLevel.DEBUG || it == UnifiedLogLevel.INFO }
+    fun toggleFailuresOnly() {
+        failuresOnly = !failuresOnly
+        applyUnifiedFilter()
+    }
+
+    /** تصفية بالميزة — والاختيار الفارغ ممنوع، لأن «لا ميزة معروضة» ليست حالة يفهمها المستخدم. */
+    fun toggleArea(area: LogArea) {
+        val updated = if (area in selectedAreas) selectedAreas - area else selectedAreas + area
+        if (updated.isEmpty()) return
+        selectedAreas = updated
+        applyUnifiedFilter()
+    }
+
+    fun setUnifiedView(view: UnifiedView) {
+        if (view == unifiedView) return
+        unifiedView = view
+        // تنقّل بين العرضين لا يُبقي سطرًا مفتوحًا في عرض آخر: الحقول المفتوحة تخصّ سطرًا في
+        // الخط الزمني وحده.
+        if (view == UnifiedView.TARGETS) expandedId = null
+    }
+
+    /** فتح/ضمّ حقول سطر. سطر واحد مفتوح في المرة — التفصيل يُقرأ، ولا يُقارن. */
+    fun toggleExpanded(id: Long) {
+        expandedId = if (expandedId == id) null else id
+    }
 
     /**
-     * يُبدّل بين «كل المستويات» و«W/E/F وحدها»: فشلٌ يُكتب I(معلوماتي) لا يظهر هنا، ولذلك
-     * صارت أسطر `PERAPP_KNOB` الفاشلة تُكتب W في المحرّك — المستوى من النتيجة لا من العادة.
+     * التركيز على مقبض واحد من عرض «المقابض». الضغط على المقبض نفسه يُلغي التركيز، فيعود
+     * الخط الزمني كما كان — بدل إجبار المستخدم على البحث عن زرّ "إلغاء" في مكان آخر.
      */
-    fun toggleProblemsOnly() {
-        selectedUnifiedLevels = if (problemsOnly) {
-            UnifiedLogLevel.entries.toSet()
-        } else {
-            setOf(UnifiedLogLevel.WARN, UnifiedLogLevel.ERROR, UnifiedLogLevel.FATAL)
-        }
+    fun focusTarget(target: String) {
+        focusedTarget = if (focusedTarget == target) null else target
+        applyUnifiedFilter()
+    }
+
+    fun clearFocus() {
+        if (focusedTarget == null) return
+        focusedTarget = null
         applyUnifiedFilter()
     }
 
@@ -575,7 +761,16 @@ class LogsViewerViewModel : ViewModel() {
             synchronized(allUnifiedLogs) { allUnifiedLogs.clear() }
             synchronized(pendingUnifiedBatch) { pendingUnifiedBatch.clear() }
             unifiedTotalLineCount = 0
-            withContext(Dispatchers.Main) { unifiedDisplayedLogs = emptyList() }
+            // الترويسة تُعاد بعد المسح: الملف الذي يُرسَل لاحقًا يجب أن يحمل جهازه وإعداده،
+            // وأمر المسح نفسه يُسجَّل فتُفهم الفجوة الزمنية في الملف.
+            rewriteLogHeader(context)
+            withContext(Dispatchers.Main) {
+                unifiedDisplayedLogs = emptyList()
+                // لا ملخّص ولا تركيز على ما مُحي: قناة الحالة تشير إلى سطور لم تعد موجودة.
+                targetSummaries = emptyList()
+                focusedTarget = null
+                expandedId = null
+            }
         }
     }
 
@@ -598,6 +793,131 @@ class LogsViewerViewModel : ViewModel() {
                 target
             } catch (e: Exception) {
                 EventLog.error("LogsViewer", "export_unified_log", e)
+                null
+            }
+            withContext(Dispatchers.Main) { onResult(file) }
+        }
+    }
+
+    // --- التقرير التشخيصي -------------------------------------------------------
+
+    /**
+     * يبني **الحزمة**: هوية الجهاز والإعداد، ودليل القراءة والوحدات، وقاموس الرموز، وملخّص الفشل،
+     * ثم السجل الخام كاملًا — ملفًا واحدًا يكفي وحده.
+     *
+     * وهذا هو معنى الطلب: بلا هذه الكتل يبقى الشارِك مضطرًّا لإرسال جهازه وإعداده وشرح رموزه،
+     * فيصير التشخيص أسئلة. ومصدر السطور هو **النافذة المحمّلة**، ولذلك يُقال `truncated` حين
+     * تمتلئ: تقرير مبنيّ على نافذة يجب أن يعلنها، وإلا قُرئ كأنه السجل كامل.
+     *
+     * والترتيب هو ترتيب [allUnifiedLogs] (**الأقدم أولًا**) لا ترتيب العرض المقلوب.
+     */
+    private fun bundleText(context: Context): String {
+        val lines = synchronized(allUnifiedLogs) { ArrayList(allUnifiedLogs) }
+        return LogDiagnosticReport.build(
+            facts = deviceFacts(context),
+            lines = lines.map { entry ->
+                ReportLine(
+                    time = entry.time,
+                    level = entry.level.letter,
+                    source = entry.source.displayName,
+                    event = entry.eventType,
+                    area = entry.area,
+                    verdict = entry.verdict,
+                    reason = entry.event?.field("reason").orEmpty(),
+                    raw = entry.raw,
+                )
+            },
+            generatedAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date()),
+            truncated = lines.size >= MAX_IN_MEMORY,
+            settings = logSettingsDigest(),
+            // الحزمة تشمل السجل كامًلا لا ذيله: تُرسَل وحدها فيجب أن تحمل ما يُحلّل.
+            rawTailLimit = Int.MAX_VALUE,
+            extraSections = listOfNotNull(perAppStatusSection()),
+        )
+    }
+
+    /** إعداد التشغيل كما يُقرأ من التطبيق — نفس قائمة المراقب، ومن موضعها الواحد. */
+    private fun logSettingsDigest(): List<Pair<String, String>> =
+        LogSettingsDigest.of { key -> PropertyUtils.get(key) }
+
+    /**
+     * قناة حالة المقابض لكل تطبيق، مقطوعة إلى أسطر — إن وُجدت وقرئت.
+     *
+     * وتُدرَج في الحزمة لأنها الجواب المباشر عن «لماذا لم يعمل؟» لكل مقبض، وحجمها صفوف قليلة؛
+     * وغيابها يُعبَّر عنه بغياب المقطع، فالحزمة بلا هذا المقطع تعني «لم تُقرأ» لا «لا مشاكل».
+     */
+    private fun perAppStatusSection(): Pair<String, List<String>>? = runCatching {
+        val text = MaxManagerPaths.PER_APP_HW_STATUS
+        val out = Shell.cmd("cat '$text' 2>/dev/null").exec().out
+        val section = "per-app knob status" to out.filter { it.isNotBlank() }
+        section.takeIf { it.second.isNotEmpty() }
+    }.getOrNull()
+
+    /**
+     * يعيد كتابة ترويسة السجل بعد تفريغه.
+     *
+     * ولماذا يلزم: `--clearlogs` يمحو الملف بما فيه ترويسة التشغيل، فيصير الملف الذي يُرسَل بعد
+     * التفريغ بلا جهاز ولا إعداد ولا معنى للرموز — أي أن أمرًا يبدو منزّهًا هو الذي يجعل التشخيص
+     * من الملف وحده مستحيلًا.
+     */
+    private fun rewriteLogHeader(context: Context) {
+        val facts = deviceFacts(context)
+        EventLog.header(LogHeader.startupLines(facts, logSettingsDigest()))
+        EventLog.userTriggered("LogsViewer", "log_cleared", null)
+    }
+
+    /**
+     * حقائق الجهاز للتقرير — من مصادر **معلَنة** لا مُخمَّنة.
+     *
+     * `SOC_MODEL`/`SOC_MANUFACTURER` أُضيفا في API 31 و`minSdk` هنا 29، وقراءتهما على 29/30 ترمي
+     * `NoSuchFieldError` — فالحماية صريحة كما في `DataModule.provideAtlasDeviceIdentity`.
+     */
+    @Suppress("DEPRECATION")
+    private fun deviceFacts(context: Context): DeviceFacts {
+        val versionName = runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        }.getOrNull()
+        val moduleVersion = runCatching {
+            Shell.cmd("grep '^version=' '${MaxManagerPaths.MODULE_DIR}/module.prop' 2>/dev/null | head -n1").exec()
+                .out.firstOrNull()
+        }.getOrNull()?.substringAfter('=', "")?.trim()?.takeIf(String::isNotEmpty)
+        return DeviceFacts(
+            // `null` لا "-": غياب الرقم يبقى غيابًا، والباني هو من يرسمه شرطة.
+            appVersion = versionName,
+            moduleVersion = moduleVersion,
+            socManufacturer = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                android.os.Build.SOC_MANUFACTURER.ifBlank { null }
+            } else {
+                null
+            },
+            socModel = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                android.os.Build.SOC_MODEL.ifBlank { null }
+            } else {
+                null
+            },
+            hardware = android.os.Build.HARDWARE.ifBlank { null },
+            apiLevel = android.os.Build.VERSION.SDK_INT,
+            kernel = System.getProperty("os.version"),
+            rooted = runCatching { Shell.isAppGrantedRoot() == true }.getOrDefault(false),
+        )
+    }
+
+    /**
+     * يكتب حزمة التشخيص في ملف نصّي واحد ويعيده للمشاركة — نفس مسار المشاركة الذي يسلكه
+     * السجل الخام، فالمشاركة واحدة واختيار ما يُشارَك هو ما يختلف.
+     *
+     * ولماذا الحزمة لا «التقرير» وحده: مستقبل هذه الدالة أن يُرسَل الملف **وحده** بلا جهاز ولا
+     * سؤال، فالحزمة تحمل السجل الخام وترويسة الجلسة وشرح الرمز والوحدات وإعداداتنا الفعّالة.
+     */
+    fun shareDiagnosticBundle(context: Context, onResult: (File?) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val file = try {
+                val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                val target = File(context.cacheDir, "MaxManager_Bundle_$timestamp.txt")
+                target.writeText(bundleText(context))
+                target
+            } catch (e: Exception) {
+                EventLog.error("LogsViewer", "export_diagnostic_report", e)
                 null
             }
             withContext(Dispatchers.Main) { onResult(file) }

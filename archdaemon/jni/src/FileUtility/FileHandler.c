@@ -17,6 +17,30 @@
 #include <AZenith.h>
 
 /**
+ * @brief Upper bound for one log file, in bytes, from the user's setting.
+ *
+ * MAX_LOG_FILE_BYTES stays the compiled default and the fallback: a missing property, an
+ * unparsable value or one outside the floor/ceil range all return the default rather than an
+ * unchecked number. That bound is the point of this function -- a mistyped property
+ * (`logmaxkb=999999999`) must not turn into "never rotate", because a log that never rotates
+ * eventually fills the partition the module itself lives on.
+ *
+ * @return Bytes before rotate_log_if_needed() renames the file, always between
+ *         LOG_MAX_KB_FLOOR*1024 and LOG_MAX_KB_CEIL*1024.
+ */
+static long max_log_file_bytes(void) {
+    char val[PROP_VALUE_MAX] = {0};
+    if (__system_property_get(LOG_MAX_KB_PROP, val) <= 0)
+        return MAX_LOG_FILE_BYTES;
+
+    long kb = strtol(val, NULL, 10);
+    if (kb < LOG_MAX_KB_FLOOR || kb > LOG_MAX_KB_CEIL)
+        return MAX_LOG_FILE_BYTES;
+
+    return kb * 1024L;
+}
+
+/**
  * @brief Writes formatted content to the specified file with optional appending and flock
  * protection.
  * @note Avoid using flock on /sdcard due to Android FUSE limitations.
@@ -104,7 +128,7 @@ void rotate_log_if_needed(const char* filename) {
     if (stat(filename, &st) != 0)
         return; // doesn't exist yet -- nothing to rotate
 
-    if (st.st_size < MAX_LOG_FILE_BYTES)
+    if (st.st_size < max_log_file_bytes())
         return;
 
     char rotated[PATH_MAX];

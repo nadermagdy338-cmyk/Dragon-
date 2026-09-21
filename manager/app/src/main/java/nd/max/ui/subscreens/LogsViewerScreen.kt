@@ -25,7 +25,6 @@
 package nd.max.ui.subscreens
 
 import android.content.Intent
-import android.widget.Toast
 import java.io.File
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -46,24 +45,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import nd.max.R
+import nd.max.core.diagnostics.LogArea
 import nd.max.ui.component.*
 import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.viewmodel.LogsViewerViewModel
@@ -82,6 +75,7 @@ fun LogsViewerScreen(
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var settingsVisible by remember { mutableStateOf(false) }
+    var shareVisible by remember { mutableStateOf(false) }
 
     val clearConfirmDialog = rememberConfirmDialog(
         onConfirm = {
@@ -91,6 +85,41 @@ fun LogsViewerScreen(
     )
 
     LaunchedEffect(Unit) { viewModel.start() }
+
+    /**
+     * مشاركة ملف واحد — مسار واحد مهما كان الملف: ملف السجل الخام أو التقرير التشخيصي.
+     *
+     * وهذا هو معنى «نفس زرّ المشاركة»: الزرّ والمسار والقناع واحد، والذي يختلف هو الملفّ الناتج.
+     */
+    // اسم المعامل `mimeType` لا `type`: داخل `apply` يكون `this` هو الـIntent، ولو سُمّي `type`
+    // لقُرئ `this.type = type` كإسناد الخاصيّة إلى نفسها (أي `null`).
+    val shareFileNow: (File, String) -> Unit = { file, mimeType ->
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            setType(mimeType)
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(intent, file.name))
+    }
+    val announceExport: (File?) -> Unit = { file ->
+        // العدد من التبويب المفتوح لا من تبويب logcat دائمًا: كانت الرسالة تقول «حفظت N سطرًا»
+        // برقم لا يخصّ الملف الذي خُرج.
+        val count = if (viewModel.viewerMode == LogsViewerViewModel.ViewerMode.UNIFIED) {
+            viewModel.unifiedTotalLineCount
+        } else {
+            viewModel.totalLineCount
+        }
+        coroutineScope.launch {
+            snackbarHostState.showSnackbar(
+                if (file != null) {
+                    resources.getString(R.string.logsviewer_save_success, count, file.name)
+                } else {
+                    resources.getString(R.string.logsviewer_save_failed)
+                }
+            )
+        }
+    }
 
     ScreenAccentProvider(colorScheme.secondary) {
             Scaffold(
@@ -124,33 +153,16 @@ fun LogsViewerScreen(
                             }) {
                                 Icon(Icons.Outlined.DeleteSweep, contentDescription = stringResource(R.string.logsviewer_clear_cd))
                             }
+                            // المشاركة واحدة، وما يُشارَك هو ما يختار: نفس الزرّ يخدّم ملف السجل
+                            // الخام والتقرير التشخيصي. ولو صار لكل واحد زرّه لصار عندنا زرّان يفعلان
+                            // شيئًا واحدًا بصيغتين — وهذا ما يُنسى أحدهما.
                             IconButton(onClick = {
-                                val isUnified = viewModel.viewerMode == LogsViewerViewModel.ViewerMode.UNIFIED
-                                val exportShareType = if (isUnified) "application/zip" else "text/plain"
-                                val onExportResult: (File?) -> Unit = { file ->
-                                    if (file != null) {
-                                        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-                                        val intent = Intent(Intent.ACTION_SEND).apply {
-                                            type = exportShareType
-                                            putExtra(Intent.EXTRA_STREAM, uri)
-                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                        }
-                                        context.startActivity(Intent.createChooser(intent, file.name))
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                resources.getString(R.string.logsviewer_save_success, viewModel.totalLineCount, file.name)
-                                            )
-                                        }
-                                    } else {
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(resources.getString(R.string.logsviewer_save_failed))
-                                        }
+                                when (viewModel.viewerMode) {
+                                    LogsViewerViewModel.ViewerMode.UNIFIED -> shareVisible = true
+                                    LogsViewerViewModel.ViewerMode.LOGCAT -> viewModel.saveLogs(context) { file ->
+                                        announceExport(file)
+                                        file?.let { shareFileNow(it, "text/plain") }
                                     }
-                                }
-                                if (isUnified) {
-                                    viewModel.exportUnifiedLogs(context, onExportResult)
-                                } else {
-                                    viewModel.saveLogs(context, onExportResult)
                                 }
                             }) {
                                 Icon(Icons.Outlined.IosShare, contentDescription = stringResource(R.string.logsviewer_save_cd))
@@ -359,17 +371,77 @@ fun LogsViewerScreen(
                                     )
                                 )
                             }
-                            // اختصار «المشاكل فقط»: فشل مقبض واحد (مثلًا `PERAPP_KNOB outcome=not-verified`)
-                            // ليس خطأً فادحًا، لكنه بالضبط ما يُبحث عنه عند تقرير «لماذا لا يعمل».
+                            // «الفشل» حكم **مفهوم** لا مستوى سطر: `PERAPP_KNOB outcome=not-verified`
+                            // و`APPLY_DRIFT_REASSERT_FAILED` فشلان مهما كان الحرف الذي كُتبا به،
+                            // ومن يبحث عن عطل لا يعرف مسبقًا أيّ حرف اختاره الكاتب.
                             FilterChip(
-                                selected = viewModel.problemsOnly,
-                                onClick = { viewModel.toggleProblemsOnly() },
-                                label = { Text(stringResource(R.string.logsviewer_problems_only)) },
+                                selected = viewModel.failuresOnly,
+                                onClick = { viewModel.toggleFailuresOnly() },
+                                label = { Text(stringResource(R.string.logsviewer_failures_only)) },
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = colorScheme.error.copy(alpha = 0.20f),
                                     selectedLabelColor = colorScheme.error
                                 )
                             )
+                        }
+
+                        // الميزة: «أرني الحرارة» يحتاج معرفة الميزة من الحدث أو من المقبض، لا قراءة
+                        // مئات الأسطر. والرمز تقني (GPU/CPU/thermal) كما بقية معرفات هذا السجل.
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState())
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            LogArea.entries.forEach { area ->
+                                FilterChip(
+                                    selected = area in viewModel.selectedAreas,
+                                    onClick = { viewModel.toggleArea(area) },
+                                    label = { Text(area.token) }
+                                )
+                            }
+                        }
+
+                        // عرضان لسؤالين مختلفين: «ماذا حدث الآن» و«ما آخر ما عُرف عن هذا المقبض».
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            LogsViewerViewModel.UnifiedView.entries.forEach { view ->
+                                FilterChip(
+                                    selected = viewModel.unifiedView == view,
+                                    onClick = { viewModel.setUnifiedView(view) },
+                                    label = {
+                                        Text(
+                                            stringResource(
+                                                when (view) {
+                                                    LogsViewerViewModel.UnifiedView.TIMELINE -> R.string.logsviewer_view_events
+                                                    LogsViewerViewModel.UnifiedView.TARGETS -> R.string.logsviewer_view_controls
+                                                }
+                                            )
+                                        )
+                                    }
+                                )
+                            }
+                            viewModel.focusedTarget?.let { target ->
+                                // التركيز معلَن وقابل للإلغاء في مكانه: مرشِّح خفيّ يجعل الشاشة
+                                // تبدو ناقصة بلا سبب.
+                                Text(
+                                    text = stringResource(R.string.logsviewer_focused_target, target),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                TextButton(onClick = { viewModel.clearFocus() }) {
+                                    Text(stringResource(R.string.logsviewer_clear_focus))
+                                }
+                            }
                         }
 
                         Spacer(Modifier.height(8.dp))
@@ -403,22 +475,50 @@ fun LogsViewerScreen(
                             }
                         }
 
-                        if (viewModel.unifiedDisplayedLogs.isEmpty()) {
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text(
-                                    text = stringResource(R.string.logsviewer_empty_state),
-                                    color = colorScheme.onSurfaceVariant
-                                )
-                            }
-                        } else {
-                            LazyColumn(
+                        val bottomPadding = PaddingValues(
+                            bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                        )
+                        when {
+                            viewModel.unifiedView == LogsViewerViewModel.UnifiedView.TARGETS && viewModel.targetSummaries.isEmpty() ->
+                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = stringResource(R.string.logsviewer_no_controls),
+                                        color = colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                            viewModel.unifiedView == LogsViewerViewModel.UnifiedView.TARGETS -> LazyColumn(
                                 modifier = Modifier.fillMaxSize().weight(1f, fill = true),
-                                contentPadding = PaddingValues(
-                                    bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                                )
+                                contentPadding = bottomPadding
+                            ) {
+                                items(viewModel.targetSummaries, key = { it.target }) { summary ->
+                                    TargetSummaryRow(
+                                        summary = summary,
+                                        focused = viewModel.focusedTarget == summary.target,
+                                        onClick = { viewModel.focusTarget(summary.target) }
+                                    )
+                                }
+                            }
+
+                            viewModel.unifiedDisplayedLogs.isEmpty() ->
+                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = stringResource(R.string.logsviewer_empty_state),
+                                        color = colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                            else -> LazyColumn(
+                                modifier = Modifier.fillMaxSize().weight(1f, fill = true),
+                                contentPadding = bottomPadding
                             ) {
                                 items(viewModel.unifiedDisplayedLogs, key = { it.id }) { entry ->
-                                    UnifiedLogLineRow(entry = entry)
+                                    UnifiedLogLineRow(
+                                        entry = entry,
+                                        expanded = viewModel.expandedId == entry.id,
+                                        onToggle = { viewModel.toggleExpanded(entry.id) },
+                                        onFocusTarget = { viewModel.focusTarget(it) }
+                                    )
                                 }
                             }
                         }
@@ -430,6 +530,25 @@ fun LogsViewerScreen(
 
     ConfirmDialogHost(handle = clearConfirmDialog)
 
+    LogsShareSheet(
+        visible = shareVisible,
+        onDismiss = { shareVisible = false },
+        onRawLog = {
+            shareVisible = false
+            viewModel.exportUnifiedLogs(context) { file ->
+                announceExport(file)
+                file?.let { shareFileNow(it, "application/zip") }
+            }
+        },
+        onReport = {
+            shareVisible = false
+            viewModel.shareDiagnosticBundle(context) { file ->
+                announceExport(file)
+                file?.let { shareFileNow(it, "text/plain") }
+            }
+        }
+    )
+
     LogsViewerSettingsSheet(
         visible = settingsVisible,
         onDismiss = { settingsVisible = false },
@@ -437,210 +556,3 @@ fun LogsViewerScreen(
     )
 }
 
-@Composable
-private fun LogViewerStatusHeader(
-    mode: LogsViewerViewModel.ViewerMode,
-    lineCount: Int,
-    paused: Boolean,
-    filtered: Int
-) {
-    val colors = MaterialTheme.colorScheme
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = if (mode == LogsViewerViewModel.ViewerMode.LOGCAT) "System log" else "MaxManager log",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = if (paused) "Stream paused" else "Live stream",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (paused) colors.error else colors.onSurfaceVariant
-            )
-        }
-        Column(horizontalAlignment = Alignment.End) {
-            Text(
-                text = lineCount.toString(),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "${filtered} shown",
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
-private fun LogLineRow(
-    entry: LogsViewerViewModel.LogEntry,
-    showPid: Boolean,
-    showTid: Boolean
-) {
-    val colorScheme = MaterialTheme.colorScheme
-    val highlight = entry.level == LogsViewerViewModel.LogLevel.ERROR || entry.level == LogsViewerViewModel.LogLevel.ASSERT
-    val text = buildAnnotatedString {
-        withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) {
-            append(entry.time)
-            append("  ")
-        }
-        if (showPid) {
-            withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) {
-                append(entry.pid.padStart(6))
-                append(' ')
-            }
-        }
-        if (showTid) {
-            withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) {
-                append(entry.tid.padStart(6))
-                append(' ')
-            }
-        }
-        withStyle(SpanStyle(color = entry.level.color, fontWeight = FontWeight.Bold)) {
-            append(entry.level.letter)
-            append(' ')
-        }
-        withStyle(SpanStyle(color = entry.level.color, fontWeight = FontWeight.SemiBold)) {
-            append(entry.tag)
-        }
-        withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) { append(": ") }
-        withStyle(SpanStyle(color = colorScheme.onSurface)) { append(entry.message) }
-    }
-
-    Text(
-        text = text,
-        fontFamily = FontFamily.Monospace,
-        fontSize = 11.sp,
-        lineHeight = 15.sp,
-        overflow = TextOverflow.Clip,
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (highlight) Modifier.background(entry.level.color.copy(alpha = 0.07f)) else Modifier
-            )
-            .padding(horizontal = 16.dp, vertical = 3.dp)
-    )
-}
-
-@Composable
-private fun UnifiedLogLineRow(entry: LogsViewerViewModel.UnifiedLogEntry) {
-    val colorScheme = MaterialTheme.colorScheme
-    val highlight = entry.level == LogsViewerViewModel.UnifiedLogLevel.ERROR ||
-        entry.level == LogsViewerViewModel.UnifiedLogLevel.FATAL
-    val text = buildAnnotatedString {
-        withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) {
-            append(entry.timestamp.substringAfter(' ')) // time only, date rarely needed inline
-            append("  ")
-        }
-        withStyle(SpanStyle(color = entry.level.color, fontWeight = FontWeight.Bold)) {
-            append(entry.level.letter)
-            append(' ')
-        }
-        withStyle(SpanStyle(color = entry.level.color, fontWeight = FontWeight.SemiBold)) {
-            append(entry.source.displayName.ifEmpty { entry.rawTag })
-        }
-        withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) { append(": ") }
-        if (entry.eventType != null) {
-            withStyle(
-                SpanStyle(
-                    color = colorScheme.onSecondaryContainer,
-                    fontWeight = FontWeight.Bold,
-                    background = colorScheme.secondaryContainer
-                )
-            ) {
-                append(' ')
-                append(entry.eventType)
-                append(' ')
-            }
-            withStyle(SpanStyle(color = colorScheme.onSurface)) {
-                append(' ')
-                append(entry.message.substringAfter("EVENT=${entry.eventType}").trim())
-            }
-        } else {
-            withStyle(SpanStyle(color = colorScheme.onSurface)) { append(entry.message) }
-        }
-    }
-
-    Text(
-        text = text,
-        fontFamily = FontFamily.Monospace,
-        fontSize = 11.sp,
-        lineHeight = 15.sp,
-        overflow = TextOverflow.Clip,
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (highlight) Modifier.background(entry.level.color.copy(alpha = 0.07f)) else Modifier
-            )
-            .padding(horizontal = 16.dp, vertical = 3.dp)
-    )
-}
-
-@Composable
-private fun LogsViewerSettingsSheet(
-    visible: Boolean,
-    onDismiss: () -> Unit,
-    viewModel: LogsViewerViewModel
-) {
-    CustomBottomSheet(visible = visible, onDismiss = onDismiss) {
-        Text(
-            text = stringResource(R.string.logsviewer_settings_title),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp)
-        )
-
-        ExpressiveList(
-            title = stringResource(R.string.logsviewer_buffers_section),
-            content = LogsViewerViewModel.LogBuffer.entries.map { buffer ->
-                {
-                    ExpressiveCheckboxItem(
-                        title = buffer.displayName,
-                        checked = buffer in viewModel.selectedBuffers,
-                        onCheckedChange = { checked ->
-                            val updated = if (checked) {
-                                viewModel.selectedBuffers + buffer
-                            } else {
-                                viewModel.selectedBuffers - buffer
-                            }
-                            viewModel.setBuffers(updated)
-                        }
-                    )
-                }
-            }
-        )
-        Text(
-            text = stringResource(R.string.logsviewer_buffers_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-
-        ExpressiveList(
-            title = stringResource(R.string.logsviewer_display_section),
-            content = listOf(
-                {
-                    ExpressiveSwitchItem(
-                        title = stringResource(R.string.logsviewer_show_pid),
-                        checked = viewModel.showPid,
-                        onCheckedChange = { viewModel.setShowPid(it) }
-                    )
-                },
-                {
-                    ExpressiveSwitchItem(
-                        title = stringResource(R.string.logsviewer_show_tid),
-                        checked = viewModel.showTid,
-                        onCheckedChange = { viewModel.setShowTid(it) }
-                    )
-                }
-            )
-        )
-
-        Spacer(Modifier.height(16.dp))
-        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
-    }
-}

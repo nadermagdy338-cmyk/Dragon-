@@ -94,6 +94,22 @@ object MaxManagerProps {
         const val JUST_IN_TIME = "persist.sys.maxmanagerconf.justintime"
         const val LITE_MODE = "persist.sys.maxmanagerconf.litemode"
         const val LOGD = "persist.sys.maxmanagerconf.logd"
+
+        /**
+         * حدّ حجم ملف السجل بالكيلوبايت — يُقرأ في `max_log_file_bytes()` (FileHandler.c).
+         *
+         * والقيمة تُقصّ هناك إلى 64..16384 كيلوبايت: قيمة شاذّة تعود إلى الحدّ المُصرَّف
+         * (3 ميجابايت) بدل أن تُلغي التدوير، لأن سجلًّا لا يتدوّر يملأ القسم الذي تعيش فيه
+         * الوحدة نفسها.
+         */
+        const val LOG_MAX_KB = "persist.sys.maxmanagerconf.logmaxkb"
+
+        /**
+         * أدنى مستوى يُكتب من `--log` (0=DEBUG .. 4=FATAL) — يُقرأ في `external_log_floor()`
+         * (SystemLogger.c). ويسري على ما يرسله التطبيق وحده: أسطر `log_zenith()` في الخدمة
+         * تُكتب دائمًا، فلا تُخفي رغبة في التخفّف عطلًا في الخدمة.
+         */
+        const val LOG_MIN_LEVEL = "persist.sys.maxmanagerconf.logminlevel"
         const val MALI_SCHED = "persist.sys.maxmanagerconf.malisched"
         const val PRELOAD_BUDGET = "persist.sys.maxmanagerconf.preloadbudget"
         const val REFRESH_RATE = "persist.sys.maxmanagerconf.refreshrate"

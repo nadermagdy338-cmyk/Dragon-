@@ -22,6 +22,30 @@ char* custom_log_tag = NULL;
 const char* level_str[] = {"D", "I", "W", "E", "F"};
 
 /**
+ * @brief Floor for lines arriving through the external `--log` hook, from the user's setting.
+ *
+ * Distinct from the daemon's own logging on purpose: this filters what the app process sends
+ * (`EventLog`, `AppMonitorLogger`), and only that. `log_zenith()` keeps writing every engine
+ * event regardless -- a verbosity preference must never be able to hide a daemon failure.
+ *
+ * An absent or out-of-range value means LOG_DEBUG, i.e. everything: the safe direction is to
+ * keep lines, never to drop them by accident.
+ *
+ * @return A LogLevel between LOG_DEBUG and LOG_FATAL.
+ */
+static int external_log_floor(void) {
+    char val[PROP_VALUE_MAX] = {0};
+    if (__system_property_get(LOG_MIN_LEVEL_PROP, val) <= 0)
+        return LOG_DEBUG;
+
+    int level = atoi(val);
+    if (level < LOG_DEBUG || level > LOG_FATAL)
+        return LOG_DEBUG;
+
+    return level;
+}
+
+/**
  * @brief Prints and logs a formatted message with a timestamp to a log file and Android logcat.
  * @param level Log level enum (LOG_INFO, LOG_WARN, etc.).
  * @param message Format string for the log message.
@@ -143,6 +167,9 @@ void log_verbose(LogLevel level, const char* message, ...) {
  * @param message Raw log message string.
  */
 void external_log(LogLevel level, const char* tag, const char* message, ...) {
+    if (level < external_log_floor())
+        return;
+
     char* timestamp = timern();
     char logMesg[MAX_OUTPUT_LENGTH];
     va_list args;

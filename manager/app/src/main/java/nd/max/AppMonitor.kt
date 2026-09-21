@@ -44,8 +44,14 @@ import android.view.Display
 import android.provider.Settings
 import android.media.AudioManager
 import android.net.wifi.WifiManager
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import nd.max.core.atlas.AtlasControlTarget
 import nd.max.core.atlas.AtlasFileStoreIo
+import nd.max.core.diagnostics.DeviceFacts
+import nd.max.core.diagnostics.LogHeader
+import nd.max.core.diagnostics.LogSettingsDigest
 import nd.max.ui.util.PerAppKernelUtil
 import nd.max.ui.util.ProfilePresetStore
 import nd.max.core.hardware.AtlasAdaptiveExecutor
@@ -66,6 +72,7 @@ import nd.max.core.hardware.SharedHardwareOwnershipStore
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.hardware.PerAppControlRegistry
 import nd.max.core.hardware.PerAppRecoveryStore
+import nd.max.ui.util.PropertyUtils
 import nd.max.ui.util.decodePerAppCpuPolicyControls
 import nd.max.ui.viewmodel.TouchBoostViewModel
 
@@ -199,6 +206,8 @@ object AppMonitor {
      * عند البرودة، فيبقى التطبيق مُقيَّدًا بعد أن يزول سبب التقييد.
      * وتُلتقط عند التطبيق وتُطرح عند التراجع — فلا تبقى نيّة تطبيق على تطبيق آخر.
      */
+    private val hardwareUserIntent = mutableMapOf<String, String>()
+
     /**
      * مُخطِّط سقف الحرارة — Atlas هو من يقرّر أيّ مسار يُنفَّذ، لا حلقة خاصة في هذا الملف.
      *
@@ -206,7 +215,10 @@ object AppMonitor {
      * فبقي `null` حتى ذلك الحين و`serviceThermalGuard` تتصرّف مع الغياب صراحةً لا بصمت.
      */
     @Volatile private var thermalRouter: ThermalCeilingRouter? = null
-    private val hardwareUserIntent = mutableMapOf<String, String>()
+
+    /** مفتاح آخر كتلة جلسة كُتبت (`sw|pkg`) — كتلة واحدة لكل جلسة تطبيق، لا واحدة كل دورة. */
+    private var lastSessionHeaderKey: String? = null
+    private var logHeaderWritten = false
     /** هل أُعلنت حالة الحارس الحراري لهذه الجلسة؟ سطر واحد لكل جلسة لا واحد كل عشر ثوانٍ. */
     private var thermalGuardNoted = false
     private var cpuBoostThread: Thread? = null
@@ -258,6 +270,10 @@ object AppMonitor {
             AppMonitorLogger.fatal("Failed to initialize services (ActivityTaskManager/PowerManager/etc.), exiting")
             return
         }
+
+        // ترويسة السجل بعد تهيئة الخدمات: تحتاج `packageManager` لقراءة إصدار التطبيق، وتُكتب
+        // قبل الحلقة فتصير في أعلى الجلسة لا في وسطها.
+        writeLogStartupHeader()
 
         runCatching { GpuTweakPersistence.applySaved() }
             .onFailure { AppMonitorLogger.e("startup: saved GPU Studio state failed", it) }
@@ -328,6 +344,78 @@ object AppMonitor {
                 adaptive = AtlasAdaptiveExecutor(HardwareRepairExecutor(mutationGate), memory),
             )
         }.onFailure { AppMonitorLogger.e("EVENT=THERMAL_ROUTER_INIT_FAILED", it) }
+    }
+
+    // ── ترويسة السجل: تجعل ملف السجل يشرح نفسه ─────────────────────────────────
+
+    /**
+     * حقائق الجهاز والبناء كما تُقرأ هنا — لا تُخمَّن ولا تُترك فارغة.
+     *
+     * و`SOC_MODEL`/`SOC_MANUFACTURER` محميّان بـ API 31 (كما في `DataModule` و`LogsViewerViewModel`):
+     * قراءتهما على 29/30 ترمي `NoSuchFieldError`، والمجهول يبقى `null` لا نصًّا يشبه اسم جهاز.
+     */
+    private fun logDeviceFacts(): DeviceFacts {
+        val appVersion = runCatching {
+            systemContext?.packageManager?.getPackageInfo("nd.max", 0)?.versionName
+        }.getOrNull()
+        val moduleVersion = runCatching {
+            shellRead("grep '^version=' '${MaxManagerPaths.MODULE_DIR}/module.prop' 2>/dev/null | head -n1")
+        }.getOrNull()?.substringAfter('=', "")?.trim()?.takeIf(String::isNotEmpty)
+        return DeviceFacts(
+            appVersion = appVersion,
+            moduleVersion = moduleVersion,
+            socManufacturer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MANUFACTURER.ifBlank { null } else null,
+            socModel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MODEL.ifBlank { null } else null,
+            hardware = Build.HARDWARE.ifBlank { null },
+            apiLevel = Build.VERSION.SDK_INT,
+            kernel = System.getProperty("os.version"),
+            // قياس لا ادّعاء: هذه العملية يبدأها `service.sh` بجذر، و"جذر" هنا هو هويّة العملية.
+            rooted = runCatching { android.os.Process.myUid() == 0 }.getOrDefault(false),
+            board = Build.BOARD.ifBlank { null },
+            abi = Build.SUPPORTED_ABIS.firstOrNull(),
+        )
+    }
+
+    /**
+     * الإعداد الذي كان قائمًا وقت التشغيل — هو ما يجيب سؤال «عطل جهاز أم عطل إعداد؟».
+     *
+     * والقائمة تأتي من [LogSettingsDigest] لا من هنا: نفس القائمة تُكتب من عملية التطبيق أيضًا،
+     * وقائمتان تتباعدان تُنتجان ملفين يبدوان صورة واحدة وهما ليستا كذلك.
+     *
+     * والقراءة عبر [PropertyUtils] (انعكاس على `SystemProperties`، بلا صندوق أوامر): أربعة عشر
+     * `getprop` عند بدء العملية تعني أربعة عشر إنشاء عمل — كلفة بلا مقابل.
+     */
+    private fun logSettingsDigest(): List<Pair<String, String>> =
+        LogSettingsDigest.of { key -> PropertyUtils.get(key) }
+
+    /**
+     * ترويسة التشغيل: الجهاز، والإعداد، ودليل القراءة، وقاموس الرموز — مرّة لكل عملية.
+     *
+     * ولماذا قبل الحلقة لا في تقرير منفصل: الملف المُرسَل هو الذي يجب أن يشرح نفسه، وترويسة
+     * تُبنى عند المشاركة وحدها تترك أيّ نسخة مربوطة (`logcat` مثلًا) بلا سياق.
+     */
+    private fun writeLogStartupHeader() {
+        if (logHeaderWritten) return
+        logHeaderWritten = true
+        runCatching { LogHeader.startupLines(logDeviceFacts(), logSettingsDigest()).forEach(AppMonitorLogger::i) }
+            .onFailure { AppMonitorLogger.e("EVENT=LOG_HEADER_WRITE_FAILED", it) }
+    }
+
+    /**
+     * كتلة جلسة التطبيق — تُكتب **بعد** محاولة تطبيق إعداداته، فتحمل ما طُلب فعلًا لا ما كان مأمورًا به.
+     *
+     * وهذا هو الفرق العملي: بلا `desired` في الملف يُعرف أن الكتابة فشلت ولا يُعرف أن المطلوب
+     * كان `300000:2000000` — فيصير السؤال «هل فشل التطبيق أم فشل الطلب؟» بلا جواب.
+     */
+    private fun writeLogSessionHeader(pkgName: String) {
+        val key = "$currentSwitchId|$pkgName"
+        if (key == lastSessionHeaderKey) return
+        lastSessionHeaderKey = key
+        runCatching {
+            val knobs = hardwareControlRegistry.ownedDesired().entries.map { (name, desired) -> name to desired }
+            val startedAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
+            LogHeader.sessionLines(currentSwitchId, pkgName, startedAt, knobs).forEach(AppMonitorLogger::i)
+        }.onFailure { AppMonitorLogger.e("EVENT=LOG_HEADER_WRITE_FAILED pkg=$pkgName", it) }
     }
 
     private fun acquireLock(): FileChannel? {
@@ -580,7 +668,10 @@ object AppMonitor {
         val reason = if (outcome.verified) {
             "thermal-guard:${outcome.routeId ?: "unknown-route"}"
         } else {
-            "thermal-guard-failed:${outcome.reason}"
+            // سبب الفشل **وقرار المسار معًا**: «فشل» وحدها لا تُصلح شيئًا، والفرق بين «كل
+            // المسارات محجورة بعد استرجاع غير مؤكَّد» و«الهدف غير قابل للقياس» هو الفرق بين
+            // عطل في جهاز وعطل في منطق.
+            "thermal-guard-failed:${outcome.reason}@${outcome.decision.ifBlank { "undecided" }}"
         }
         noteHardware(
             statusKnob,
@@ -589,12 +680,23 @@ object AppMonitor {
             outcome.desired.orEmpty(),
             outcome.previous.orEmpty(),
         )
-        AppMonitorLogger.i(
-            "EVENT=PERAPP_THERMAL_GUARD knob=$statusKnob=" +
-                "${outcome.routeId ?: "none"} pressure=${pressure.name}" +
-                " from=${outcome.previous ?: "none"} to=${outcome.desired ?: "none"}" +
-                " verified=${outcome.verified} reason=${outcome.reason} pkg=$lastAppliedPkg sw=$currentSwitchId"
-        )
+        // الاسم نفسه الذي وُجد في الجولة السابقة (`PERAPP_THERMAL_GUARD`) لأن اسم الحدث عقد لمن
+        // يبحث عنه؛ ولكن الحقول الجديدة تُضاف إليه: **قرار المسار** والمسارات التي **لم تُجرَّب**.
+        // وقبلهما كان السطر يقول «فشل» ولا يقول أيّ مسار رُفض ولا لماذا.
+        val routeLine = "EVENT=PERAPP_THERMAL_GUARD knob=$statusKnob pressure=${pressure.name}" +
+            " decision=${outcome.decision.ifBlank { "undecided" }}" +
+            " chosen=${outcome.routeId ?: "none"}" +
+            " verified=${outcome.verified}" +
+            " reason=${outcome.reason}" +
+            " from=${outcome.previous ?: "none"} to=${outcome.desired ?: "none"}" +
+            " skipped=${outcome.skipped.joinToString(",") { (route, why) -> "$route:$why" }.ifEmpty { "none" }}" +
+            " pkg=$lastAppliedPkg sw=$currentSwitchId"
+        // المستوى من النتيجة: مسار لم يتحقّق يجب أن يظهر في مُرشِّح الفشل بلا استثناء.
+        if (outcome.verified) {
+            AppMonitorLogger.i(routeLine)
+        } else {
+            AppMonitorLogger.w(routeLine)
+        }
     }
 
     private fun writeStatus() {
@@ -1496,6 +1598,9 @@ object AppMonitor {
                         "live=${result.actual ?: "none"} error=${result.error ?: "none"} sw=$currentSwitchId"
                 )
             }
+            // كتلة الجلسة هنا لا في `beginApp`: هنا تُعرف النوايا المُنشورة فعلًا (وما رُفض قبلها
+            // لا يصير نيّة)، فتسجّل الكتلة ما طُلب لا ما كان مرغوبًا.
+            writeLogSessionHeader(pkgName)
             if (activePerAppCpuPackage == pkgName) {
                 val failure = commitResults.firstOrNull { HardwareControlKey.isCpuLimits(it.key) && !it.successful }
                 // A knob refused at the gate never becomes an owned entry, so it

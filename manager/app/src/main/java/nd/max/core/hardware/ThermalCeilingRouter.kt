@@ -115,6 +115,16 @@ class ThermalCeilingRouter(
         val previous: String?,
         val reason: String,
         val fallbackStopped: Boolean = false,
+        /**
+         * حكم المخطِّط (`ELIGIBLE`/`BLOCKED`/`UNSUPPORTED`/`REVIEW_REQUIRED`) — وسبب رفضه إن رفض.
+         *
+         * ووجوده هنا لأن **قرار المسار كان صامتًا**: حين لا يُختار مسار كان يُسجّل «فشل» بلا
+         * ذكر السبب، والفرق بين «كل المسارات محجورة» و«الهدف غير قابل للقياس» فرق يُبنى عليه
+         * إصلاح، وكلاهما كان يُقرأ سطرًا واحدًا.
+         */
+        val decision: String = "",
+        /** مسارات لم تُجرَّب وسبب كل واحد (رمز ثابت من Atlas، لا جملة). */
+        val skipped: List<Pair<String, String>> = emptyList(),
     )
 
     fun apply(
@@ -157,10 +167,19 @@ class ThermalCeilingRouter(
             desired = userCeiling,
             packageName = packageName?.takeIf(::isPlausiblePackage),
         )
+        // `measuredGoalAvailable` يبقى `true` عن قصد، ولا يُربط بقراءة إشارة المنصة.
+        //
+        // معناها في المخطِّط: "هل الهدف **قابل للقياس**؟" — وهي ترفض كل مسار غير `PLATFORM_HINT`
+        // حين تكون `false`. وربطها بغياب الإشارة كان يجعل **المسارين مرفوضَين معًا** عند ضغط مجهول:
+        // المنصة غير مقروءة، وسقف المستخدم يُرفض بـ`GOAL_UNMEASURABLE` لأن نقله `ARBITER_SYSFS`.
+        // فتصير النتيجة «لا مسار» وسقف المستخدم لا يُنفَّذ — وهو عكس ما وُجد الربط من أجله.
+        //
+        // والقياس هنا حقيقي لا مُدَّعى: هدف سقف المستخدم يُقاس بقراءة مرتجعة عبر نفس المُحكِّم
+        // ونفس `verify`، وحكمه في [HardwareVerification]. أما أهليّة مسار المنصة فتحملها
+        // `readable` وحدها: منصة لا تُجيب ⇒ مسارها غير مقروء ⇒ يُرفض، ويبقى سقف المستخدم.
         val result = adaptive.execute(
             intent = intent,
             bindings = bindings,
-            measuredGoalAvailable = platformEligible,
         )
 
         val chosen = result.selectedRouteId?.let(valueByRoute::get)
@@ -184,6 +203,9 @@ class ThermalCeilingRouter(
                 else -> failure
             },
             fallbackStopped = result.fallbackStopped,
+            decision = result.decision.status.name.lowercase() +
+                "-" + (result.decision.reason?.name?.lowercase() ?: "selected"),
+            skipped = result.skipped,
         )
     }
 
