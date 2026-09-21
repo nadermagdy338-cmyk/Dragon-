@@ -1566,7 +1566,10 @@ object AppMonitor {
             // المستخدم: جهاز يعرض ١٣٠٠ كأعلى درجة، وسياسته الحالية تسمح بـ٧٥٤ — فتقيد بـ`liveCap`
             // كان يجعل «Gaming ١٠٠٪» يطلب ٧٥٤ (لا فرق عن غير الممسوس)، و«Gaming ٨٥٪» يطلب ٦٢٤
             // أي **أدنى من الجهاز كما هو**. وما دون ١٠٠٪ يبقى من السقف الحيّ لأن غرضه التبريد.
-            val fullCapabilityRequest = ThermalCurve.atFullCapability(presetPercent)
+            // كل نسب Per-App الجديدة (بما فيها Gaming 85 وBalanced 60 وPower 40)
+            // تُحسب من قدرة الجهاز المكتشفة، لا من سقف Balanced الحي. يسمح ذلك بأن
+            // يبقى معنى النسبة ثابتًا حتى لو غيّر النظام سقفه قبل وصول التطبيق للمقدمة.
+            val fullCapabilityRequest = explicit == null
             val requested = explicit ?: PerAppKernelUtil.pickProfileFrequency(
                 liveAtPlan.frequencies,
                 profile,

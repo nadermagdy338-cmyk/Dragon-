@@ -13,22 +13,20 @@ object ProfilePresetStore {
     private const val PERFORMANCE = "performance"
     private const val CUSTOM = "custom"
 
-    private const val DEFAULT_POWER = 65
-    private const val DEFAULT_BALANCED = 70
+    private const val DEFAULT_POWER = 40
+    private const val DEFAULT_BALANCED = 60
 
     /**
-     * ١٠٠٪ تعني **بلا سقف** لا «سقف كامل» (`ThermalCurve.cappingPercent` تُرجع `null` عندها،
-     * فلا يُكتب سقف على CPU ولا GPU).
-     *
-     * وكان ٨٥ هنا، أي أن اختيار «Gaming» يترك الجهاز **أدنى من الحالة الافتراضية** التي لا تسقّف
-     * شيئًا. وهذا يقرأه صاحبه كما هو: «اخترت الأداء للعبة فصار أضعف من غير اختيار». فصار المنحنى
-     * كلّه بلا سقف عند `gaming`؛ والفرق بينه وبين `performance` يبقى في سلوك اللعب نفسه (DND،
-     * preload، الأولوية…) لا في اقتطاع قدرة العتاد.
+     * نسب البروفايلات الافتراضية: Gaming 85%، Balanced 60%، Power 40%.
+     * تُحسب من القدرة المكتشفة، ثم يظل التحقق الفعلي هو المرجع إذا فرض النظام سقفًا أقل.
+     * Performance وحده يظل وضع القدرة الكاملة بنسبة 100%.
      */
-    private const val DEFAULT_GAMING = 100
+    private const val DEFAULT_GAMING = 85
 
     private const val DEFAULT_PERFORMANCE = 100
     private const val DEFAULT_CUSTOM = 55
+    private const val LEGACY_POWER_SEED = 65
+    private const val LEGACY_BALANCED_SEED = 70
 
     /**
      * البذرة القديمة لـ`gaming` (٨٥٪) — تُهاجَر بقيمتها عند القراءة.
@@ -39,7 +37,6 @@ object ProfilePresetStore {
      * (فهي تحسم المصدر بنفس المقارنة). ومن ضبط ٨٥ بنفسه فقد صارت هي القيمة الجديدة ١٠٠ له — وهي
      * الحالة التي رُفضت أصلًا، فلا معنى للإبقاء عليها في أي جهاز.
      */
-    private const val LEGACY_GAMING_SEED = 85
 
     @Volatile
     private var packageContext: Context? = null
@@ -72,12 +69,12 @@ object ProfilePresetStore {
         if (context == null) return defaultPercent(profile)
         return runCatching {
             val stored = prefs(context).getInt(profile.lowercase(), defaultPercent(profile))
-            // ترحيل البذرة القديمة: جهاز حفظ ٨٥ قبل هذا الإصدار يقرأ ١٠٠ بدلًا منها بلا أي خطوة من
-            // المستخدم (وإلا لبقي «Gaming» أدنى من الافتراضي على كل جهاز سبق أن فتح المحرّر).
-            val migrated = if (profile.equals(GAMING, true) && stored == LEGACY_GAMING_SEED) {
-                DEFAULT_GAMING
-            } else {
-                stored
+            // Migrate the previous built-in seeds so an existing installation does
+            // not silently keep Power 65% or Balanced 70% after the policy change.
+            val migrated = when (profile.lowercase()) {
+                POWER if stored == LEGACY_POWER_SEED -> DEFAULT_POWER
+                BALANCED if stored == LEGACY_BALANCED_SEED -> DEFAULT_BALANCED
+                else -> stored
             }
             migrated.coerceIn(20, 100)
         }.getOrDefault(defaultPercent(profile))

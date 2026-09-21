@@ -51,7 +51,8 @@ object PerAppKernelUtil {
      *
      * Power is device-adaptive: it uses the highest frequency currently usable
      * by the GPU's OPP/available-frequency table as the stock/reference maximum,
-     * then reduces that value by 35% (65% of stock max remains). The result is
+     * then reduces that value according to the selected profile (Power defaults
+     * to 40% of the discovered capability). The result is
      * rounded down to the nearest real OPP so we never request a frequency that
      * the device does not expose.
      *
@@ -77,7 +78,7 @@ object PerAppKernelUtil {
 
         if (profile.equals("power", true)) {
             val stockMaxHz = capped.last()
-            val targetHz = (stockMaxHz * (customPercent ?: 65).coerceIn(20, 100).toLong()) / 100L
+            val targetHz = (stockMaxHz * (customPercent ?: 40).coerceIn(20, 100).toLong()) / 100L
 
             // Prefer an OPP at or below the target. If the device's lowest OPP
             // is already above the calculated target, use that lowest real OPP.
@@ -85,9 +86,8 @@ object PerAppKernelUtil {
         }
 
         val percent = when (profile.lowercase()) {
-            "balanced" -> customPercent ?: 70
-            // ١٠٠ = بلا سقف: «Gaming» لا يقتطع من قدرة العتاد أدنى من الحالة الافتراضية.
-            "gaming" -> customPercent ?: 100
+            "balanced" -> customPercent ?: 60
+            "gaming" -> customPercent ?: 85
             "performance" -> customPercent ?: 100
             "power" -> customPercent ?: 65
             "custom" -> customPercent ?: 55
