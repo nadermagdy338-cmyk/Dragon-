@@ -57,7 +57,7 @@ class AtlasAdaptiveExecutorTest {
     @Test
     fun `a route that previously stranded the baseline is not retried in this boot`() {
         val calls = mutableListOf<String>()
-        val memory = AtlasRouteMemory(InMemoryIo(), clockMs = { 0L }, bootGeneration = { 0L })
+        val memory = AtlasRouteMemory(InMemoryIo(), clockMs = { 0L }, bootGeneration = { 1L })
         memory.noteFailed("cpu_frequency", "route-first", rollbackVerified = false)
         val executor = AtlasAdaptiveExecutor(port { request ->
             calls += request.routeId
@@ -77,7 +77,7 @@ class AtlasAdaptiveExecutorTest {
     @Test
     fun `a verified route is attempted before its equally safe alternatives`() {
         val calls = mutableListOf<String>()
-        val memory = AtlasRouteMemory(InMemoryIo(), clockMs = { 0L }, bootGeneration = { 0L })
+        val memory = AtlasRouteMemory(InMemoryIo(), clockMs = { 0L }, bootGeneration = { 1L })
         memory.noteVerified("cpu_frequency", "route-second")
         val executor = AtlasAdaptiveExecutor(port { request ->
             calls += request.routeId
@@ -95,7 +95,7 @@ class AtlasAdaptiveExecutorTest {
     @Test
     fun `learning never promotes a route past a safer transport tier`() {
         val calls = mutableListOf<String>()
-        val memory = AtlasRouteMemory(InMemoryIo(), clockMs = { 0L }, bootGeneration = { 0L })
+        val memory = AtlasRouteMemory(InMemoryIo(), clockMs = { 0L }, bootGeneration = { 1L })
         // The remembered route is a sysfs writer; the alternative is a platform-owned hint.
         memory.noteVerified("cpu_frequency", "route-sysfs")
         val executor = AtlasAdaptiveExecutor(port { request ->
@@ -116,12 +116,51 @@ class AtlasAdaptiveExecutorTest {
 
     @Test
     fun `a successful attempt is remembered for the next time`() {
-        val memory = AtlasRouteMemory(InMemoryIo(), clockMs = { 0L }, bootGeneration = { 0L })
+        val memory = AtlasRouteMemory(InMemoryIo(), clockMs = { 0L }, bootGeneration = { 1L })
         val executor = AtlasAdaptiveExecutor(port { request -> success(request) }, memory = memory)
 
         executor.execute(intent = intent(), bindings = listOf(binding("route-first")))
 
         assertEquals("route-first", memory.preferredRoute("cpu_frequency"))
+    }
+
+    @Test
+    fun `a reboot recovers a quarantined route and subsequent calls keep using it`() {
+        val io = InMemoryIo()
+        val firstBoot = AtlasRouteMemory(io, clockMs = { 1_000L }, bootGeneration = { 7L })
+        val firstExecutor = AtlasAdaptiveExecutor(port { failed(it, rollbackVerified = false) }, firstBoot)
+        assertTrue(firstExecutor.execute(intent(), listOf(binding("route-first"))).fallbackStopped)
+
+        val calls = mutableListOf<String>()
+        val afterReboot = AtlasRouteMemory(io, clockMs = { 1_000L }, bootGeneration = { 8L })
+        val recovered = AtlasAdaptiveExecutor(port { request ->
+            calls += request.routeId
+            success(request)
+        }, afterReboot)
+
+        repeat(2) {
+            assertTrue(recovered.execute(intent(), listOf(binding("route-first"))).successful)
+        }
+        assertEquals(listOf("route-first", "route-first"), calls)
+        assertEquals(0, afterReboot.entries().single().rollbackFailures)
+    }
+
+    @Test
+    fun `process restart with unknown boot does not retry a quarantined writer`() {
+        val io = InMemoryIo()
+        AtlasRouteMemory(io, clockMs = { 1_000L }, bootGeneration = { 7L })
+            .noteFailed("cpu_frequency", "route-first", rollbackVerified = false)
+        var called = false
+        val executor = AtlasAdaptiveExecutor(port {
+            called = true
+            success(it)
+        }, AtlasRouteMemory(io, clockMs = { 2_000L }))
+
+        val result = executor.execute(intent(), listOf(binding("route-first")))
+
+        assertFalse(called)
+        assertFalse(result.successful)
+        assertEquals(listOf("route-first" to "route-quarantined-after-unverified-rollback"), result.skipped)
     }
 
     private fun port(block: (HardwareRepairRequest) -> HardwareRepairResult) = object : AtlasRepairPort {

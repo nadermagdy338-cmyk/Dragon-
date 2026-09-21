@@ -25,6 +25,7 @@ import nd.max.core.hardware.AtlasAdaptiveReadTransport
 import nd.max.core.hardware.AtlasPrivilegedReadTransport
 import nd.max.core.hardware.AtlasReadBudget
 import nd.max.core.hardware.AtlasRouteMemory
+import nd.max.core.hardware.AtlasRouteMemoryFactory
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.HardwareRepairExecutor
 import nd.max.core.hardware.AtlasReadTransport
@@ -105,13 +106,7 @@ object DataModule {
     fun provideAtlasRouteMemory(
         @ApplicationContext context: Context,
         clockMs: () -> Long,
-    ): AtlasRouteMemory = AtlasRouteMemory(
-        io = AtlasFileStoreIo(
-            Paths.get(AtlasFileStoreIo.directoryFor(context.noBackupFilesDir).absolutePath, ROUTE_MEMORY_DIR)
-                .toAbsolutePath(),
-        ),
-        clockMs = clockMs,
-    )
+    ): AtlasRouteMemory = AtlasRouteMemoryFactory.create(context, clockMs)
 
     @Provides
     @Singleton
@@ -224,12 +219,4 @@ object DataModule {
         catalog = AtlasReviewedSeeds.catalog(),
         dispatcher = dispatchers.io,
     )
-
-    /**
-     * Subdirectory of the Atlas store that holds learned routes, kept apart from evidence.
-     *
-     * ويشير إلى ثابت `AtlasFileStoreIo` بدل نصّ ثانٍ: الرفيق (`AppMonitor`) يكتب المسارات في
-     * عملية أخرى، وذاكرة مسارات بمجلدين مختلفين ليست ذاكرة واحدة.
-     */
-    private const val ROUTE_MEMORY_DIR = AtlasFileStoreIo.ROUTE_MEMORY_DIRECTORY_NAME
 }

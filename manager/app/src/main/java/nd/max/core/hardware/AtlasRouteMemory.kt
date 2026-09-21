@@ -2,6 +2,9 @@ package nd.max.core.hardware
 
 import nd.max.core.atlas.AtlasStoreIo
 import org.json.JSONObject
+import java.nio.ByteBuffer
+import java.security.MessageDigest
+import java.util.Locale
 
 /** What the last attempt of one route did. Three facts, not two: see the class documentation. */
 enum class AtlasRouteOutcome {
@@ -33,15 +36,17 @@ data class AtlasRouteMemoryEntry(
     val failures: Int,
     val rollbackFailures: Int,
 ) {
-    /** Whether this route may still be attempted in the generation the entry was recorded in. */
+    /** An unknown boot cannot prove that a previous unsafe state has gone away. */
     fun isQuarantinedIn(bootGeneration: Long, privilegeGeneration: Long): Boolean =
         rollbackFailures > 0 &&
-            this.bootGeneration == bootGeneration &&
-            this.privilegeGeneration == privilegeGeneration
+            (this.bootGeneration == 0L || bootGeneration == 0L ||
+                (this.bootGeneration == bootGeneration && this.privilegeGeneration == privilegeGeneration))
 
     fun isVerifiedIn(bootGeneration: Long, privilegeGeneration: Long): Boolean =
         lastOutcome == AtlasRouteOutcome.VERIFIED &&
             successes > 0 &&
+            rollbackFailures == 0 &&
+            bootGeneration > 0L &&
             this.bootGeneration == bootGeneration &&
             this.privilegeGeneration == privilegeGeneration
 }
@@ -80,19 +85,34 @@ class AtlasRouteMemory(
     }
 
     /** The last route verified on this device for [target], or `null` when there is none. */
-    fun preferredRoute(target: String): String? = entries()
-        .filter { it.target == target && it.isVerifiedIn(bootGeneration(), privilegeGeneration()) }
-        .maxByOrNull { it.lastVerifiedElapsedMs ?: Long.MIN_VALUE }
-        ?.routeId
+    fun preferredRoute(target: String): String? {
+        val boot = bootGeneration()
+        val privilege = privilegeGeneration()
+        return entries()
+            .filter { it.target == target && it.isVerifiedIn(boot, privilege) }
+            .maxByOrNull { it.lastVerifiedElapsedMs ?: Long.MIN_VALUE }
+            ?.routeId
+    }
 
     /** Routes that must not be attempted again in this boot generation. */
-    fun quarantinedRoutes(target: String): Set<String> = entries()
-        .filter { it.target == target && it.isQuarantinedIn(bootGeneration(), privilegeGeneration()) }
-        .map { it.routeId }
-        .toSet()
+    fun quarantinedRoutes(target: String): Set<String> {
+        val boot = bootGeneration()
+        val privilege = privilegeGeneration()
+        return entries()
+            .filter { it.target == target && it.isQuarantinedIn(boot, privilege) }
+            .onEach { entry ->
+                if (entry.bootGeneration == 0L && boot > 0L) {
+                    // Legacy/unknown failures remain blocked now. Anchor them to this known boot so
+                    // a later real reboot can release them without a manual memory reset.
+                    store(entry.copy(bootGeneration = boot, privilegeGeneration = privilege))
+                }
+            }
+            .map { it.routeId }
+            .toSet()
+    }
 
     fun noteVerified(target: String, routeId: String) {
-        val entry = load(target, routeId) ?: newEntry(target, routeId)
+        val entry = currentEntry(target, routeId)
         store(copy(entry, AtlasRouteOutcome.VERIFIED, successes = entry.successes + 1))
     }
 
@@ -101,7 +121,7 @@ class AtlasRouteMemory(
      * not restore the baseline" is the one failure that changes what may be attempted next.
      */
     fun noteFailed(target: String, routeId: String, rollbackVerified: Boolean) {
-        val entry = load(target, routeId) ?: newEntry(target, routeId)
+        val entry = currentEntry(target, routeId)
         store(
             copy(
                 entry,
@@ -126,17 +146,30 @@ class AtlasRouteMemory(
 
     // ---- helpers -----------------------------------------------------------------------------------
 
-    private fun newEntry(target: String, routeId: String) = AtlasRouteMemoryEntry(
-        target = target,
-        routeId = routeId,
-        lastOutcome = AtlasRouteOutcome.FAILED,
-        lastVerifiedElapsedMs = null,
-        bootGeneration = bootGeneration(),
-        privilegeGeneration = privilegeGeneration(),
-        successes = 0,
-        failures = 0,
-        rollbackFailures = 0,
-    )
+    private fun currentEntry(target: String, routeId: String): AtlasRouteMemoryEntry {
+        val boot = bootGeneration()
+        val privilege = privilegeGeneration()
+        val previous = load(target, routeId)
+        if (previous != null && (
+                (previous.bootGeneration == boot && previous.privilegeGeneration == privilege) ||
+                    previous.isQuarantinedIn(boot, privilege)
+            )) {
+            return previous.copy(bootGeneration = boot, privilegeGeneration = privilege)
+        }
+        // Counters describe one generation. Copying an old rollback failure here would quarantine
+        // the route again immediately after its first successful recovery in the new boot.
+        return AtlasRouteMemoryEntry(
+            target = target,
+            routeId = routeId,
+            lastOutcome = AtlasRouteOutcome.FAILED,
+            lastVerifiedElapsedMs = null,
+            bootGeneration = boot,
+            privilegeGeneration = privilege,
+            successes = 0,
+            failures = 0,
+            rollbackFailures = 0,
+        )
+    }
 
     private fun copy(
         entry: AtlasRouteMemoryEntry,
@@ -148,10 +181,7 @@ class AtlasRouteMemory(
         lastOutcome = outcome,
         lastVerifiedElapsedMs =
             if (outcome == AtlasRouteOutcome.VERIFIED) clockMs() else entry.lastVerifiedElapsedMs,
-        // The generations are refreshed on every write: the record always describes the context it was
-        // last observed in, which is what makes the boot/privilege checks meaningful.
-        bootGeneration = bootGeneration(),
-        privilegeGeneration = privilegeGeneration(),
+        // currentEntry captured one context for the whole update, including counter reset.
         successes = successes,
         failures = failures,
         rollbackFailures = rollbackFailures,
@@ -178,8 +208,9 @@ class AtlasRouteMemory(
     /** Keeps the store bounded; the entry being written is always kept. */
     private fun pruneIfNeeded(target: String, routeId: String) {
         val names = io.list().filter { it.startsWith(NAME_PREFIX) && it.endsWith(NAME_SUFFIX) }
-        if (names.size < maxEntries) return
         val keep = nameOf(target, routeId)
+        // Refreshing an existing entry consumes no capacity and must not evict other quarantines.
+        if (keep in names || names.size < maxEntries) return
         names.filter { it != keep }.forEach { io.delete(it) }
     }
 
@@ -238,6 +269,18 @@ class AtlasRouteMemory(
     companion object {
         const val SCHEMA: Int = 1
 
+        /**
+         * A stable token for a validated kernel boot UUID; zero means unknown, including legacy records.
+         * A digest collision can only retain quarantine too long, never release it inside one boot.
+         * The raw boot identity is neither stored nor reported.
+         */
+        fun generationForBootId(bootId: String?): Long {
+            val normalized = bootId?.trim()?.lowercase(Locale.ROOT) ?: return 0L
+            if (!BOOT_UUID.matches(normalized) || normalized == "00000000-0000-0000-0000-000000000000") return 0L
+            val digest = MessageDigest.getInstance("SHA-256").digest(normalized.toByteArray(Charsets.US_ASCII))
+            return (ByteBuffer.wrap(digest).long and Long.MAX_VALUE).coerceAtLeast(1L)
+        }
+
         const val NAME_PREFIX: String = "route."
         const val NAME_SUFFIX: String = ".json"
         const val NAME_SEPARATOR: String = "."
@@ -245,6 +288,8 @@ class AtlasRouteMemory(
         private const val MAX_ENTRIES = 64
         private const val MAX_ENTRY_CHARS = 2 * 1024
         private const val MAX_SLUG_CHARS = 48
+
+        private val BOOT_UUID = Regex("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 
         private const val KEY_SCHEMA = "schema"
         private const val KEY_TARGET = "target"

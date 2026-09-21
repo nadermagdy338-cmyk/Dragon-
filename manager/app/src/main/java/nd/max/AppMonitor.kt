@@ -36,7 +36,6 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.nio.channels.FileChannel
 import java.nio.channels.FileLock
-import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import android.hardware.display.DisplayManager
@@ -48,14 +47,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import nd.max.core.atlas.AtlasControlTarget
-import nd.max.core.atlas.AtlasFileStoreIo
 import nd.max.core.diagnostics.DeviceFacts
 import nd.max.core.diagnostics.LogHeader
 import nd.max.core.diagnostics.LogSettingsDigest
 import nd.max.ui.util.PerAppKernelUtil
 import nd.max.ui.util.ProfilePresetStore
 import nd.max.core.hardware.AtlasAdaptiveExecutor
-import nd.max.core.hardware.AtlasRouteMemory
+import nd.max.core.hardware.AtlasRouteMemoryFactory
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.GpuHardwareBackend
 import nd.max.core.hardware.HardwareRepairExecutor
@@ -322,23 +320,12 @@ object AppMonitor {
      * `PerAppControlRegistry` (مُحكِّمان في عملية واحدة = جداول طلبات متنافرة)، بل غلاف رقيق حول
      * نفس البوّابة، والملكية تبقى في مكان واحد.
      *
-     * وذاكرة المسارات في نفس مجلد الواجهة (`noBackupFilesDir/atlas/routes`) عبر ثابت مشترك في
-     * `AtlasFileStoreIo` — فمساران مختلفان يعنيان ذاكرتين لا واحدة.
-     *
-     * **حدّ معروف ومعلن:** `bootGeneration`/`privilegeGeneration` تُترك على الافتراضي (صفر) كما
-     * في مزوّد Hilt في الواجهة. فالنتيجة أن حجر مسار بعد استرجاع غير مؤكَّد يبقى حتى يُقلَّم المخزن،
-     * لا حتى الإقلاع — أي أن قاعدة «الحجر ينتهي بالإقلاع» في `AtlasRouteMemory` غير مُشغَّلة بعد في
-     * المسارين. ربط جيل إقلاع حقيقي تغيير يمسّ الواجهة والرفيق معًا، فلم يُفعل ضمنيًّا هنا.
+     * المصنع المشترك مع Hilt يربط الذاكرة بنفس المجلد ونفس عدّاد إقلاع الجهاز.
+     * إعادة تشغيل الرفيق ليست إقلاعًا جديدًا، وتعذّر قراءة العدّاد لا يرفع الحجر.
      */
     private fun configureThermalRouter(controlContext: Context) {
         runCatching {
-            val io = AtlasFileStoreIo(
-                Paths.get(
-                    AtlasFileStoreIo.directoryFor(controlContext.noBackupFilesDir).absolutePath,
-                    AtlasFileStoreIo.ROUTE_MEMORY_DIRECTORY_NAME,
-                ).toAbsolutePath(),
-            )
-            val memory = AtlasRouteMemory(io = io, clockMs = { android.os.SystemClock.elapsedRealtime() })
+            val memory = AtlasRouteMemoryFactory.create(controlContext) { android.os.SystemClock.elapsedRealtime() }
             thermalRouter = ThermalCeilingRouter(
                 registry = hardwareControlRegistry,
                 adaptive = AtlasAdaptiveExecutor(HardwareRepairExecutor(mutationGate), memory),
