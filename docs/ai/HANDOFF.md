@@ -4413,3 +4413,50 @@ APK ‎121,084,120‎ بايت.
 مفتوحًا حتى حكم سلامة من Luna (`AGENTS.md` §2).
 
 **التسليم:** `DONE_WITH_CONCERNS`.
+
+
+## تكملة ٦٦ — `PERAPP-CONTROL-02`: منع سقف GPU غير القابل للتحقيق وتحسين تشخيص CPU — 2026-09-20
+
+**الطلب:** إصلاح ما يظهر في شاشة التطبيقات حين لا يعمل تحكم GPU/CPU/Per-App، بناءً على سجل جهاز حقيقي لا على
+افتراض أن «write=true» يساوي «hardware state changed».
+
+**إعادة الإنتاج من السجل:**
+- GPU: `/sys/class/devfreq/13000000.mali/max_freq` طُلب له `1300000000` وقرأ الجهاز `754000000` عدة مرات؛
+  ثم fallback إلى `676000000` نجح. هذا يثبت أن جدول OPP وحده ليس سقفًا تنفيذيًا صالحًا.
+- CPU: `policy0/scaling_max_freq` و`scaling_min_freq` طُلب لهما `1800000` وقرأ الجهاز `1200000`؛ في المقابل
+  `cpu_governor:policy0/4/7` نجحت عبر Per-App مع `verified=true`. إذن governor route مثبت، أما frequency route
+  فما زال مقيدًا بسقف/كاتب خارجي ويجب أن يُعرض كفشل مقاس، لا نجاحًا.
+
+**الإصلاح:**
+- `GpuHardwareBackend.kt`: `configurableMaxFrequency()` + `snapToAvailableAtOrBelow()`؛ كل intent GPU الآن
+  يُقصّ إلى السقف الحي إن كان مقروءًا.
+- `PerAppKernelUtil.kt`: خيارات GPU في شاشة التطبيقات تُبنى من OPP القابل للاستخدام حاليًا، وpicker البروفايل
+  يدعم `maximumHz` كسقف runtime.
+- `AppMonitor.kt`: قراءة حية قبل التخطيط + قراءة حية قبل كل apply + قصّ explicit request مع سجل
+  `PERAPP_GPU_TARGET_CAPPED`، وخط الأساس مأخوذ من القراءة الحية.
+- `PerAppFrequencyController.kt`: اتساق نفس قاعدة السقف الحي في المسار الموازي.
+- `AppSettingsScreen.kt`: تصحيح معنى المقبض من «Fixed Frequency» إلى «Maximum Frequency».
+- `AppMonitor.kt` CPU policy path: الطلب الحي يُقصّ إلى `scaling_max_freq` إن كان أقل من الحدّ المعلن، مع
+  بقاء النية المحفوظة وتسجيل `PERAPP_CPU_TARGET_CAPPED`; status يضم `requested` و`live`.
+- `AppSettingsScreen.kt`: اختيارات CPU frequency لا تعرض OPP فوق السقف الحي المقروء عند فتح الشاشة.
+- `GpuControlModelTest.kt`: اختبارا regression للسقف الحي فوق OPP المعلن.
+
+**لماذا هذا مهم معماريًا:** Atlas/Arbiter لا ينبغي أن يحول جدول capability إلى promise. هنا أصبح الفصل صريحًا:
+`advertised OPPs` = catalogue، `live max_freq` = runtime evidence، والكتابة لا تعتمد إلا على intersection
+المتاح. هذا يمنع حلقة «أطلب 1.3G → 754M → rollback → أكرر» من شاشة التطبيقات.
+
+**التحقق المقيس:**
+- `kt_balance --assert`: 728 ملفًا، 0 عوائق.
+- `code_health --assert`: exit 0؛ الدين `10/29/63/23`.
+- `i18n_coverage --assert`: exit 0، 0 عوائق.
+- `kt_balance --self-test`: 17/17.
+- K2 source regression لـGPU → `PASS`.
+- K2 source regression لتكامل GPU/CPU/PerApp util → `PASS`.
+- محاولة `:app:testReleaseUnitTest`: لم تبدأ الترجمة بسبب `UnknownHostException: services.gradle.org` أثناء تنزيل
+  Gradle 9.5.1؛ لذلك لا يوجد ادعاء Build ناجح.
+
+**الحدود:** المصدر الحالي لم يُثبت بعد على هاتف بعد إعادة بنائه. قصّ CPU إلى live ceiling هو تكيف مقصود للطلب
+مع دليل حي، وليس إخفاءً للفشل؛ إذا ظلّت القيمة الحية مختلفة بعد القص، تبقى العملية فاشلة ويظهر السبب. المطلوب
+بعد توفر build هو قياس route الصحيح على Rodin ثم تقرير هل تحتاج طبقة CPU vendor route إضافية.
+
+**التسليم:** `DONE_WITH_CONCERNS`.

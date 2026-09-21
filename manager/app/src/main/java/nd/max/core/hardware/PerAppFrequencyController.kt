@@ -71,14 +71,18 @@ class PerAppFrequencyController @Inject constructor(
         if (device.frequencies.isEmpty()) {
             return Result(maxHz.toString(), false, false, error = "no-advertised-frequency-range")
         }
-        val low = device.frequencies.first()
-        val target = device.frequencies.lastOrNull { it <= maxHz }
+        // Refresh immediately before planning: the advertised OPP table is a
+        // capability catalogue, while a vendor daemon may lower live max_freq.
+        val liveAtPlan = GpuHardwareBackend.refresh(device.path)
+            ?: return Result(maxHz.toString(), false, false, error = "provider-disappeared")
+        val target = GpuHardwareBackend.snapToAvailableAtOrBelow(liveAtPlan, maxHz)
             ?: return Result(maxHz.toString(), false, false, error = "unsupported-frequency")
+        val low = liveAtPlan.frequencies.firstOrNull { it <= target } ?: target
 
         val key = HardwareControlKey.gpuFrequency(device.name)
         val token = "per-app-gpu-${System.currentTimeMillis()}"
-        val baseline = GpuHardwareBackend.captureBaseline(device)
-        val request = if (device.rangeWritable) {
+        val baseline = GpuHardwareBackend.captureBaseline(liveAtPlan)
+        val request = if (liveAtPlan.rangeWritable) {
             GpuHardwareBackend.Request(minFreq = low, maxFreq = target)
         } else {
             GpuHardwareBackend.Request(minFreq = target, maxFreq = target)
@@ -98,7 +102,15 @@ class PerAppFrequencyController @Inject constructor(
             // النصّ كانت تُسقط أي حقل يُضاف للمخطط لاحقًا (نفس العطب الذي أُصلح في GPU Studio).
             apply = {
                 GpuHardwareBackend.refresh(device.path)?.let { live ->
-                    GpuHardwareBackend.applyValidated(live, request).verified
+                    val boundedTarget = GpuHardwareBackend.snapToAvailableAtOrBelow(live, maxHz)
+                        ?: return@let false
+                    val boundedRequest = if (live.rangeWritable) {
+                        val boundedLow = live.frequencies.firstOrNull { it <= boundedTarget } ?: boundedTarget
+                        request.copy(minFreq = boundedLow, maxFreq = boundedTarget)
+                    } else {
+                        request.copy(minFreq = boundedTarget, maxFreq = boundedTarget)
+                    }
+                    GpuHardwareBackend.applyValidated(live, boundedRequest).verified
                 } ?: false
             },
             read = {
@@ -106,7 +118,7 @@ class PerAppFrequencyController @Inject constructor(
                     GpuHardwareBackend.encodeLive(live, request)
                 }
             },
-            baseline = GpuHardwareBackend.encodeLive(device, request),
+            baseline = GpuHardwareBackend.encodeLive(liveAtPlan, request),
             restore = { GpuHardwareBackend.restoreBaseline(baseline) },
         )
         return Result(desired, r.applied, r.verified, r.actual, r.error)

@@ -372,8 +372,8 @@ fun AppSettingsScreen(
                                         val selected = freqItems.indexOf(cfg.gpu_max_freq).coerceAtLeast(0)
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.Tune,
-                                            title = "GPU Fixed Frequency",
-                                            summary = if (viewModel.availableGpuFrequencies.isEmpty()) "Frequency control is unavailable on this kernel" else "Locks the GPU to exactly this frequency while the app is open, overriding GPU Governor above. Default leaves it dynamic.",
+                                            title = "GPU Maximum Frequency",
+                                            summary = if (viewModel.availableGpuFrequencies.isEmpty()) "Frequency control is unavailable on this kernel" else "Sets the highest GPU frequency while the app is open, using only values the live driver can currently hold. Default leaves it dynamic.",
                                             items = freqLabels,
                                             selectedIndex = selected,
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "gpu_max_freq", freqItems[i]) } }
@@ -680,8 +680,14 @@ private fun PerAppCpuControlSection(
                     Text("CPU frequency control is unavailable on this kernel.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 controllable.forEach { policy ->
-                    val choices = policy.cpuFrequencyChoices()
-                    val draft = drafts[policy.name] ?: PerAppCpuPolicyControl(policy.name, PerAppCpuControlMode.DEFAULT, policy.minKHz ?: choices.first(), policy.maxKHz ?: choices.last())
+                    // The OPP table is a catalogue; a vendor/thermal policy may lower the live
+                    // `scaling_max_freq`. Do not present impossible choices that the active kernel
+                    // will immediately clamp back down. The saved intent can still be higher and
+                    // will be reconsidered on a later app switch when the live ceiling changes.
+                    val liveCap = policy.maxKHz?.takeIf { it > 0L }
+                    val choices = policy.cpuFrequencyChoices().filter { liveCap == null || it <= liveCap }
+                    if (choices.isEmpty()) return@forEach
+                    val draft = drafts[policy.name] ?: PerAppCpuPolicyControl(policy.name, PerAppCpuControlMode.DEFAULT, policy.minKHz ?: choices.first(), policy.maxKHz?.let { minOf(it, choices.last()) } ?: choices.last())
                     val modes = listOf(PerAppCpuControlMode.DEFAULT, PerAppCpuControlMode.DYNAMIC_RANGE, PerAppCpuControlMode.EXACT_LOCK)
                     val labels = listOf("Default", "Dynamic Range", "Exact Lock")
                     val minIndex = choices.cpuIndexFor(draft.minKHz)

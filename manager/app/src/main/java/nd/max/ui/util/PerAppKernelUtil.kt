@@ -20,10 +20,14 @@ object PerAppKernelUtil {
     fun readGpuCapabilities(): GpuCapabilities {
         val device = GpuHardwareBackend.selection().device
             ?: return GpuCapabilities(null, emptyList(), emptyList())
+        val liveCap = GpuHardwareBackend.configurableMaxFrequency(device)
+        val usableFrequencies = liveCap?.let { cap ->
+            device.frequencies.filter { it > 0L && it <= cap }.distinct().sorted()
+        } ?: device.frequencies.filter { it > 0L }.distinct().sorted()
         return GpuCapabilities(
             node = device.path,
             governors = device.governors,
-            frequencies = device.frequencies,
+            frequencies = usableFrequencies,
         )
     }
 
@@ -45,29 +49,39 @@ object PerAppKernelUtil {
     /**
      * Picks an actual supported OPP for a profile.
      *
-     * Power is device-adaptive: it uses the highest frequency reported by the
-     * GPU's own OPP/available-frequency table as the stock/reference maximum,
+     * Power is device-adaptive: it uses the highest frequency currently usable
+     * by the GPU's OPP/available-frequency table as the stock/reference maximum,
      * then reduces that value by 35% (65% of stock max remains). The result is
      * rounded down to the nearest real OPP so we never request a frequency that
      * the device does not expose.
      *
+     * When [maximumHz] is supplied it is treated as a live runtime ceiling, not
+     * as a hardware capability claim. The catalogue may still contain higher OPPs.
      * This is deliberately based on frequency, not OPP-list position. OPP tables
      * are not guaranteed to be evenly spaced, and index-based "50%" selection
      * previously produced an unexpectedly high value on Rodin (~780 MHz while
      * its normal maximum is ~752 MHz).
      */
-    fun pickProfileFrequency(frequencies: List<Long>, profile: String, customPercent: Int? = null): Long? {
+    fun pickProfileFrequency(
+        frequencies: List<Long>,
+        profile: String,
+        customPercent: Int? = null,
+        maximumHz: Long? = null,
+    ): Long? {
         if (frequencies.isEmpty()) return null
         val normalized = frequencies.filter { it > 0L }.distinct().sorted()
         if (normalized.isEmpty()) return null
+        val capped = maximumHz?.takeIf { it > 0L }?.let { cap ->
+            normalized.filter { it <= cap }
+        }.orEmpty().ifEmpty { normalized }
 
         if (profile.equals("power", true)) {
-            val stockMaxHz = normalized.last()
+            val stockMaxHz = capped.last()
             val targetHz = (stockMaxHz * (customPercent ?: 65).coerceIn(20, 100).toLong()) / 100L
 
             // Prefer an OPP at or below the target. If the device's lowest OPP
             // is already above the calculated target, use that lowest real OPP.
-            return normalized.lastOrNull { it <= targetHz } ?: normalized.first()
+            return capped.lastOrNull { it <= targetHz } ?: capped.first()
         }
 
         val percent = when (profile.lowercase()) {
@@ -78,8 +92,8 @@ object PerAppKernelUtil {
             "custom" -> customPercent ?: 55
             else -> return null
         }.coerceIn(20, 100)
-        val targetHz = (normalized.last() * percent.toLong()) / 100L
-        return normalized.lastOrNull { it <= targetHz } ?: normalized.first()
+        val targetHz = (capped.last() * percent.toLong()) / 100L
+        return capped.lastOrNull { it <= targetHz } ?: capped.first()
     }
 
     /** Backward-compatible percentage picker for other callers. */

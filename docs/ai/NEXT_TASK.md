@@ -51,6 +51,53 @@ CPU policy أو GPU governor/frequency في تطبيق مُدار، الانتظ
 
 **الحالة:** `DONE_WITH_CONCERNS` — لا بناء ولا جهاز في هذه الجولة.
 
+## PERAPP-CONTROL-02 — سقف GPU الحي + صدق فشل CPU في شاشة التطبيقات — **إصلاح مصدر/اختبارات، يحتاج جهازًا** · 2026-09-20
+
+**العطب المقاس من سجل الجهاز:** شاشة/مسار Per-App كانا يختاران من جدول OPP المُعلن فقط. على Rodin كان
+`available_frequencies` يصل إلى `1300000000` بينما `devfreq/max_freq` الحي كان `754000000`؛ لذلك تكرّر:
+`WRITE_CHECK ... wrote=1300000000 read=754000000 verdict=differs` ثم fallback إلى `676000000`. هذا ليس فشلًا في
+الكتابة بقدر ما هو طلب قيمة أعلى من السقف الحي الذي يفرضه المسار الحراري/الطاقة أو vendor policy.
+
+**ما تغيّر:**
+- `GpuHardwareBackend`: إضافة `configurableMaxFrequency()` لدمج جدول OPP مع `max_freq` الحي، وإضافة
+  `snapToAvailableAtOrBelow()` حتى لا يصبح OPP معلن فوق السقف الحي عقدًا تنفيذية.
+- `requestForMode()` صار يخطط داخل الترددات القابلة للاستخدام حاليًا بدل آخر OPP مُعلن.
+- `PerAppKernelUtil.readGpuCapabilities()` صار لا يعرض للواجهة OPP أعلى من السقف الحي،
+  و`pickProfileFrequency()` يقبل سقفًا حيًا صريحًا.
+- `AppMonitor` يلتقط الجهاز حيًا قبل التخطيط، ويعيد الالتقاط داخل callback التطبيق قبل الكتابة؛ وإذا خُفِّض طلب
+  صريح يُسجّل `EVENT=PERAPP_GPU_TARGET_CAPPED` مع `requested/live_cap/applied` بدل محاولة مؤكدة الفشل.
+- `PerAppFrequencyController.applyGpuCeiling()` يطبق نفس قاعدة السقف الحي بدل استخدام catalogue ثابت.
+- شاشة `AppSettingsScreen` سمّت المقبض **GPU Maximum Frequency** وشرحت أنه سقف أعلى، لا «قفل تردد ثابت».
+- مسار CPU policy controls صار يطبع عند فشل read-back القيمة المطلوبة والقيمة الحية وعبارة
+  `kernel/vendor cap or route rejection` بدل رسالة عامة.
+
+**ما لم أفعله عمدًا:** لم أحوّل سقف CPU الحي إلى «نجاح زائف» عبر قصّه في الواجهة. سجل الجهاز يثبت أن
+`policy0` رفض/بدّل `1800000 → 1200000`، بينما governors الخاصة بـPer-App أثبتت نجاحها عدة مرات؛ لذلك
+الـfrequency route يجب أن يعلن السقف/الرفض حتى نثبت route الصحيح على الجهاز بدل إخفاء القيد.
+
+**اختبارات المصدر:**
+- `GpuControlModelTest.liveGpuCapWinsOverHigherAdvertisedOpp`.
+- `GpuControlModelTest.liveGpuCapSelectsHighestUsableOppForPerformanceIntent`.
+- تشغيل مصغّر بـK2 لـ`GpuHardwareBackend` → `GPU dynamic-cap regression: PASS`.
+- تشغيل مصغّر بـK2 لـ`GpuHardwareBackend + CpuHardwareBackend + PerAppKernelUtil` →
+  `Per-app profile live-cap regression: PASS`.
+- `python3 tools/kt_balance.py --assert` → `728/0`.
+- `python3 tools/code_health.py --assert` → exit 0، الدَّين `10/29/63/23`.
+- `python3 tools/i18n_coverage.py --assert` → exit 0، 0 عوائق.
+- `python3 tools/kt_balance.py --self-test` → `17/17`.
+
+**البناء:** أُحاول بناء `:app:testReleaseUnitTest` لأن التغيير يمس `core/hardware`، لكن Gradle wrapper لم يصل
+إلى مرحلة الترجمة: بيئة التنفيذ بلا DNS/إنترنت و`services.gradle.org` أعاد `UnknownHostException` عند تنزيل
+Gradle 9.5.1. لذلك **لا أدّعي نجاح Android build**.
+
+**الدليل المتبقي:** بعد إعادة بناء APK/الوحدة على بيئة فيها Gradle مثبت، ثبّت النسخة واختبر من شاشة التطبيقات:
+CPU governor + CPU policy range/lock + GPU governor + GPU max، ثم بدّل البروفايل العام وانتظر 10–20 ثانية.
+السجل المطلوب: `PERAPP_COMMIT ... verified=true`، و`PERAPP_GPU_TARGET_CAPPED` عند القص المقصود، وعدم ظهور
+`PERAPP_*_APPLY_FAILED` أو `APPLY_DRIFT_REASSERT_FAILED`.
+
+**الحالة:** `DONE_WITH_CONCERNS` — الإصلاح موجود ومقاس بمصادر/اختبارات مصغرة؛ إثبات Android/device مؤجل بسبب
+غياب build قابل للتنفيذ والجهاز الحالي.
+
 ## HOME-04 — بطاقة «ما يحدث الآن؟» + موجة الساعة — **منجز تقنيًّا · لم يُرَ على شاشة** · 2026-09-20
 
 **المنجز:** إزالة بطاقة طيف الحِمل من الرئيسية · `HomeActivityModel` (إسقاط صافٍ + ٢٤ اختبارًا) ·

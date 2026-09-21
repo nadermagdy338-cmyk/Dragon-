@@ -105,6 +105,29 @@ class GpuControlModelTest {
         )
     }
 
+    @Test fun liveGpuCapWinsOverHigherAdvertisedOpp() {
+        val fake = io(max = "754000000")
+        fake.put(
+            "/sys/class/devfreq/test-gpu/available_frequencies",
+            "100000000 200000000 400000000 676000000 754000000 800000000",
+        )
+        val device = GpuHardwareBackend.selection(fake).device!!
+        assertEquals(754_000_000L, GpuHardwareBackend.configurableMaxFrequency(device))
+        assertEquals(800_000_000L, device.frequencies.maxOrNull())
+        assertEquals(754_000_000L, GpuHardwareBackend.snapToAvailableAtOrBelow(device, 1_300_000_000L))
+    }
+
+    @Test fun liveGpuCapSelectsHighestUsableOppForPerformanceIntent() {
+        val fake = io(max = "754000000")
+        fake.put(
+            "/sys/class/devfreq/test-gpu/available_frequencies",
+            "100000000 200000000 400000000 676000000 754000000 800000000",
+        )
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val request = GpuHardwareBackend.requestForMode(device, GpuHardwareBackend.IntentMode.ADAPTIVE)!!
+        assertEquals(754_000_000L, request.maxFreq)
+    }
+
     @Test fun intentModesUseOnlyAdvertisedFrequencies() {
         val gpu = GpuHardwareBackend.selection(io()).device!!
         val modes = GpuHardwareBackend.IntentMode.entries.map { GpuHardwareBackend.requestForMode(gpu, it)!! }

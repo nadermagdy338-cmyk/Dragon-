@@ -913,16 +913,35 @@ object AppMonitor {
                     val supported = policy.availableFrequenciesKHz
                     val provenMin = policy.hwMinKHz ?: supported.firstOrNull()
                     val provenMax = policy.hwMaxKHz ?: supported.lastOrNull()
+                    // `provenMax` is the hardware bound; the live `scaling_max_freq` may be lower
+                    // because a vendor/thermal/power policy currently owns the ceiling. A saved
+                    // Per-App target above that live ceiling can therefore never verify. Bound only
+                    // the runtime request here, keep the saved intent intact, and log the adaptation.
+                    val liveMax = policy.maxKHz?.takeIf { it > 0L }
+                    val runtimeMax = listOfNotNull(provenMax, liveMax).minOrNull()
+                    val normalizedMin = control.minKHz.let { requested ->
+                        val bounded = runtimeMax?.let { requested.coerceAtMost(it) } ?: requested
+                        supported.lastOrNull { it <= bounded } ?: supported.firstOrNull() ?: bounded
+                    }
+                    val normalizedMax = control.maxKHz.let { requested ->
+                        val bounded = runtimeMax?.let { requested.coerceAtMost(it) } ?: requested
+                        supported.lastOrNull { it <= bounded } ?: supported.firstOrNull() ?: bounded
+                    }.coerceAtLeast(normalizedMin)
+                    if (normalizedMin != control.minKHz || normalizedMax != control.maxKHz) {
+                        AppMonitorLogger.w(
+                            "EVENT=PERAPP_CPU_TARGET_CAPPED pkg=$pkgName policy=${policy.name} requested=${control.minKHz}:${control.maxKHz} live_cap=${runtimeMax ?: "?"} applied=$normalizedMin:$normalizedMax sw=$currentSwitchId"
+                        )
+                    }
                     when {
-                        supported.isNotEmpty() && (control.minKHz !in supported || control.maxKHz !in supported) -> {
-                            if (firstFailure == null) firstFailure = "${control.policyName} frequency is unavailable"
+                        supported.isEmpty() -> {
+                            if (firstFailure == null) firstFailure = "${control.policyName} has no discoverable frequency table"
                             null
                         }
-                        provenMin == null || provenMax == null || control.minKHz < provenMin || control.maxKHz > provenMax -> {
-                            if (firstFailure == null) firstFailure = "${control.policyName} range is unsupported"
+                        provenMin == null || provenMax == null || normalizedMin < provenMin || normalizedMax > provenMax -> {
+                            if (firstFailure == null) firstFailure = "${control.policyName} range is outside proven hardware bounds"
                             null
                         }
-                        else -> control to policy
+                        else -> control.copy(minKHz = normalizedMin, maxKHz = normalizedMax) to policy
                     }
                 }
                 val acquiredKeys = mutableListOf<String>()
@@ -955,7 +974,10 @@ object AppMonitor {
                     if (owned && verified) {
                         acquiredKeys += key
                     } else if (firstFailure == null) {
-                        firstFailure = "${policy.name} was not verified"
+                        val actual = CpuHardwareBackend.policies().firstOrNull { it.name == policy.name }?.let {
+                            "${it.minKHz ?: "?"}:${it.maxKHz ?: "?"}"
+                        } ?: "unreadable"
+                        firstFailure = "${policy.name} requested=$requested live=$actual (kernel/vendor cap or route rejection)"
                     }
                 }
                 if (firstFailure != null) acquiredKeys.asReversed().forEach(hardwareControlRegistry::release)
@@ -1021,11 +1043,19 @@ object AppMonitor {
             val device = GpuHardwareBackend.selection().device
                 ?.takeIf { it.rangeWritable || it.exactLockWritable }
                 ?: return@runCatching
+            // The OPP list is a capability catalogue, while the live max_freq
+            // is a runtime ceiling that vendor thermal/power policy may lower.
+            // Read it immediately before planning the per-app target so a stale
+            // catalogue cannot make us request an impossible frequency.
+            val liveAtPlan = GpuHardwareBackend.refresh(device.path) ?: return@runCatching
+            val liveCap = GpuHardwareBackend.configurableMaxFrequency(liveAtPlan)
+                ?: return@runCatching
             val explicit = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
             val requested = explicit ?: PerAppKernelUtil.pickProfileFrequency(
-                device.frequencies,
+                liveAtPlan.frequencies,
                 profile,
                 ProfilePresetStore.percentFor(systemContext, profile),
+                maximumHz = liveCap,
             ) ?: return@runCatching
             // ملاحظة عقد (مقصودة، لا عطب): هذا المقبض يتحقّق من **السقف** (`max`) لا من المدى
             // كاملًا، ولهذا لا يستعمل `encodeLive` المشتركة: لو قارنّا المدى أيضًا، لأدى أدنى
@@ -1042,18 +1072,22 @@ object AppMonitor {
             // والقياس من سجل حقيقي (2026-09-20): `APPLY_VERIFY_FAILED knob=gpu_profile
             // expected=1300000000 live=754000000` ثم `APPLY_DRIFT_REASSERT_FAILED`
             // بعد ثانيتين، مرّتين لكل تطبيق — والجهاز لا يبلغ السقف المطلوب أصلًا.
-            val target = device.frequencies.lastOrNull { it <= requested }
-                ?: device.frequencies.firstOrNull()
+            val target = GpuHardwareBackend.snapToAvailableAtOrBelow(liveAtPlan, requested)
                 ?: return@runCatching
-            val baseline = GpuHardwareBackend.captureBaseline(device)
+            if (explicit != null && target != explicit) {
+                AppMonitorLogger.w(
+                    "EVENT=PERAPP_GPU_TARGET_CAPPED pkg=$pkgName requested=$explicit live_cap=$liveCap applied=$target sw=$currentSwitchId"
+                )
+            }
+            val baseline = GpuHardwareBackend.captureBaseline(liveAtPlan)
             val desired = target.toString()
             hardwareControlRegistry.ownValue(
                 key = HardwareControlKey.gpuFrequency(device.name),
                 desired = desired,
                 apply = { value -> value.toLongOrNull()?.let { target ->
                         val live = GpuHardwareBackend.refresh(device.path) ?: return@let false
-                        val low = live.frequencies.firstOrNull() ?: return@let false
-                        val capped = live.frequencies.lastOrNull { it <= target } ?: return@let false
+                        val capped = GpuHardwareBackend.snapToAvailableAtOrBelow(live, target) ?: return@let false
+                        val low = live.frequencies.firstOrNull { it <= capped } ?: return@let false
                         GpuHardwareBackend.applyValidated(
                             live,
                             if (live.rangeWritable) {
@@ -1071,7 +1105,7 @@ object AppMonitor {
                 // The arbiter owns the encoded live value for this request; the backend baseline
                 // object is captured separately so rollback never tries to decode a scalar as a
                 // five-field baseline record.
-                baseline = GpuHardwareBackend.effectiveFrequency(device)?.toString(),
+                baseline = GpuHardwareBackend.effectiveFrequency(liveAtPlan)?.toString(),
                 restore = { GpuHardwareBackend.restoreBaseline(baseline) },
             )
         }.onFailure { AppMonitorLogger.e("ownership: GPU frequency registration failed for '$pkgName' sw=$currentSwitchId", it) }

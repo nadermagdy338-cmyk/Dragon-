@@ -259,6 +259,38 @@ object GpuHardwareBackend {
         currentExactLockFrequency(device, io) ?: device.maxFreq
 
     /**
+     * Returns the highest frequency that is both advertised by the provider and
+     * currently allowed by its live `max_freq` ceiling.  The advertised OPP
+     * table is a capability catalogue; `max_freq` is a runtime constraint and
+     * can be lowered by a vendor thermal/power daemon. Treating the catalogue
+     * maximum as the live maximum made per-app profiles repeatedly request an
+     * impossible value (for example 1.3 GHz while the driver was capped at
+     * 754 MHz).
+     */
+    fun configurableMaxFrequency(device: Device): Long? {
+        val advertisedMax = device.frequencies.filter { it > 0L }.maxOrNull()
+        val liveMax = device.maxFreq?.takeIf { it > 0L }
+        return when {
+            advertisedMax == null -> liveMax
+            liveMax == null -> advertisedMax
+            else -> minOf(advertisedMax, liveMax)
+        }
+    }
+
+    /**
+     * Maps a requested frequency to a real OPP that the provider can currently
+     * carry.  It never returns an OPP above the live configurable ceiling.
+     */
+    fun snapToAvailableAtOrBelow(device: Device, requestedHz: Long): Long? {
+        val frequencies = device.frequencies.filter { it > 0L }.distinct().sorted()
+        if (frequencies.isEmpty()) return null
+        val cap = configurableMaxFrequency(device)
+        val usable = if (cap != null) frequencies.filter { it <= cap } else frequencies
+        if (usable.isEmpty()) return null
+        return usable.lastOrNull { it <= requestedHz } ?: usable.first()
+    }
+
+    /**
      * الصيغة القياسية لقيمة مفتاح `gpu_frequency:<device>`.
      *
      * المُحكِّم يُثبت المعاملة بـ**تساوي نصّين**: القيمة المطلوبة والقيمة
@@ -331,7 +363,10 @@ object GpuHardwareBackend {
     )
 
     fun requestForMode(device: Device, mode: IntentMode): Request? {
-        val frequencies = device.frequencies
+        val advertised = device.frequencies.filter { it > 0L }.distinct().sorted()
+        if (advertised.isEmpty()) return null
+        val liveCap = configurableMaxFrequency(device)
+        val frequencies = if (liveCap != null) advertised.filter { it <= liveCap } else advertised
         if (frequencies.isEmpty()) return null
         val last = frequencies.lastIndex
         val min = frequencies.first()
