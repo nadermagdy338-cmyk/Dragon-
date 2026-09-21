@@ -1,8 +1,18 @@
 package nd.max.core.maxai
 
+import nd.max.core.atlas.AtlasControlGoal
+import nd.max.core.atlas.AtlasControlIntent
+import nd.max.core.atlas.AtlasControlTarget
+import nd.max.core.atlas.AtlasRouteCandidate
+import nd.max.core.atlas.AtlasRouteEvidence
+import nd.max.core.atlas.AtlasControlTransport
+import nd.max.core.hardware.AtlasAdaptiveExecutor
+import nd.max.core.hardware.AtlasRouteBinding
 import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.DeviceStateCollector.DeviceSnapshot
-import nd.max.core.hardware.HardwareControlArbiter
+import nd.max.core.hardware.HardwareFeature
+import nd.max.core.hardware.HardwareRepairExecutor
+import nd.max.core.hardware.HardwareRepairState
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,7 +37,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class MinimalPlanner @Inject constructor(
-    private val arbiter: HardwareControlArbiter,
+    private val atlasExecutor: AtlasAdaptiveExecutor,
     private val credibility: CredibilityStore,
     private val outcomeModel: ControlOutcomeModel,
     private val responseModel: ResponseModel,
@@ -290,32 +300,77 @@ class MinimalPlanner @Inject constructor(
      * بالنتيجة الحقيقية المقروءة.
      */
     fun execute(step: Step, appContext: String, token: String): Outcome {
-        val baseline = step.from
-        val result = arbiter.submit(
-            key = step.control.key,
-            owner = ControlOwnership.Owner.MAX_AI,
-            token = token,
-            desired = step.to,
-            apply = { value -> runCatching { step.control.apply(value) }.getOrNull() == value },
-            read = { runCatching { step.control.read() }.getOrNull() },
-            baseline = baseline,
-            restore = { value -> runCatching { step.control.apply(value) }.getOrNull() == value },
+        val target = atlasTarget(step.control.feature)
+        val routeId = HardwareRepairExecutor.labelFor(step.control.key)
+        val adaptive = atlasExecutor.execute(
+            intent = AtlasControlIntent(
+                target = target,
+                goal = when (step.direction) {
+                    ControlRegistry.Direction.RAISE_PERFORMANCE -> AtlasControlGoal.PERFORMANCE
+                    ControlRegistry.Direction.SAVE_ENERGY -> AtlasControlGoal.EFFICIENCY
+                },
+                desired = step.to,
+                packageName = appContext.takeIf { it.contains('.') },
+            ),
+            bindings = listOf(
+                AtlasRouteBinding(
+                    candidate = AtlasRouteCandidate(
+                        id = routeId,
+                        priority = 0,
+                        evidence = AtlasRouteEvidence(
+                            providerId = "max-ai-control",
+                            transport = AtlasControlTransport.ARBITER_SYSFS,
+                            target = target,
+                            readable = step.from != null,
+                            privilegeAvailable = true,
+                            unitProven = true,
+                            baselineReadable = step.from != null,
+                            rollbackProven = step.from != null,
+                            reviewed = true,
+                        ),
+                    ),
+                    request = nd.max.core.hardware.HardwareRepairRequest(
+                        routeId = routeId,
+                        key = step.control.key,
+                        owner = ControlOwnership.Owner.MAX_AI,
+                        token = token,
+                        desired = step.to,
+                        apply = { value -> runCatching { step.control.apply(value) == value }.getOrDefault(false) },
+                        read = { runCatching { step.control.read() }.getOrNull() },
+                        restore = { value -> runCatching { step.control.apply(value) == value }.getOrDefault(false) },
+                        baseline = step.from,
+                    ),
+                ),
+            ),
         )
-
-        // المصداقية تُسجَّل فقط عندما لم يحجب مالك أعلى المحاولة: الحجب
-        // ليس فشل المقبض، بل قرار ملكية.
-        if (!result.blocked) {
-            credibility.record(step.control.key, step.direction, appContext, result.verified)
+        val result = adaptive.attempts.lastOrNull()
+        val blocked = result?.state == HardwareRepairState.BLOCKED
+        // المصداقية تُسجَّل فقط عندما لم يُحجب المقبض ولم تُسترجع قيمته: الحجب
+        // قرار ملكية، وفشل الاسترجاع يعني أن الحالة غير معروفة — وكلاهما لا
+        // يقول شيئًا عن المقبض، فتسجيله يسمّم إشارة التعلّم.
+        if (!blocked && result?.rollbackAttempted != true) {
+            credibility.record(step.control.key, step.direction, appContext, result?.verified == true)
         }
 
         return Outcome(
             step = step,
-            verified = result.verified,
-            blocked = result.blocked,
-            actual = result.actual,
+            verified = result?.verified == true,
+            blocked = blocked,
+            actual = result?.actual,
             detail = "${step.control.key}: ${step.from ?: "?"} → ${step.to}" +
-                if (result.blocked) " (محجوب: ${result.winner})" else " (حي: ${result.actual ?: "?"})",
+                if (adaptive.fallbackStopped) " (Atlas stopped: ${adaptive.detail})" else " (Atlas: ${adaptive.detail})",
         )
+    }
+
+    private fun atlasTarget(feature: HardwareFeature): AtlasControlTarget = when (feature) {
+        HardwareFeature.CPU_FREQUENCY -> AtlasControlTarget.CPU_FREQUENCY
+        HardwareFeature.CPU_GOVERNOR -> AtlasControlTarget.CPU_GOVERNOR
+        HardwareFeature.GPU_FREQUENCY -> AtlasControlTarget.GPU_FREQUENCY
+        HardwareFeature.GPU_GOVERNOR -> AtlasControlTarget.GPU_GOVERNOR
+        HardwareFeature.THERMAL_COOLING, HardwareFeature.THERMAL_ZONES -> AtlasControlTarget.THERMAL_PROFILE
+        HardwareFeature.DISPLAY_REFRESH, HardwareFeature.DISPLAY_RESOLUTION -> AtlasControlTarget.DISPLAY_REFRESH
+        HardwareFeature.ZRAM -> AtlasControlTarget.MEMORY
+        else -> AtlasControlTarget.STORAGE
     }
 
     /**

@@ -1,5 +1,10 @@
 package nd.max.core.hardware
 
+/** A mutation seam for Atlas; production uses [HardwareRepairExecutor], tests can replay route outcomes. */
+interface AtlasRepairPort {
+    fun execute(request: HardwareRepairRequest): HardwareRepairResult
+}
+
 /** The externally meaningful state of one route transaction. */
 enum class HardwareRepairState {
     /**

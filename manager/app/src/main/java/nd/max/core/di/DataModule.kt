@@ -20,9 +20,19 @@ import nd.max.core.atlas.AtlasResolver
 import nd.max.core.atlas.AtlasReviewedSeeds
 import nd.max.core.atlas.AtlasStoreIo
 import nd.max.core.hardware.AndroidContextDataSource
+import nd.max.core.hardware.AtlasAdaptiveExecutor
+import nd.max.core.hardware.AtlasAdaptiveReadTransport
+import nd.max.core.hardware.AtlasPrivilegedReadTransport
 import nd.max.core.hardware.AtlasReadBudget
+import nd.max.core.hardware.AtlasRouteMemory
+import nd.max.core.hardware.HardwareControlArbiter
+import nd.max.core.hardware.HardwareRepairExecutor
+import nd.max.core.hardware.AtlasRepairPort
 import nd.max.core.hardware.AtlasReadTransport
+import nd.max.core.hardware.HardwareRepairRequest
+import nd.max.core.hardware.HardwareRepairResult
 import nd.max.core.hardware.HardwareDataSource
+import nd.max.core.privilege.PrivilegeManager
 import nd.max.core.threading.DispatcherProvider
 import nd.max.data.datasources.HardwareDataSourceImpl
 import java.nio.file.Paths
@@ -79,6 +89,47 @@ object DataModule {
     fun provideAtlasEvidenceStore(io: AtlasStoreIo): AtlasEvidenceStore = AtlasEvidenceStore(io)
 
     /**
+     * Atlas mutations reuse the existing transaction boundary. The adaptive layer may choose another
+     * route after a verified rollback, but it never owns a writer or bypasses the arbiter.
+     */
+    @Provides
+    @Singleton
+    fun provideAtlasRepairExecutor(arbiter: HardwareControlArbiter): HardwareRepairExecutor =
+        HardwareRepairExecutor(arbiter)
+
+    /**
+     * What has actually worked on this device.
+     *
+     * It reuses the same atomic, app-private, non-backed-up store as the evidence cache but lives in
+     * its own directory, so clearing one never clears the other.
+     */
+    @Provides
+    @Singleton
+    fun provideAtlasRouteMemory(
+        @ApplicationContext context: Context,
+        clockMs: () -> Long,
+    ): AtlasRouteMemory = AtlasRouteMemory(
+        io = AtlasFileStoreIo(
+            Paths.get(AtlasFileStoreIo.directoryFor(context.noBackupFilesDir).absolutePath, ROUTE_MEMORY_DIR)
+                .toAbsolutePath(),
+        ),
+        clockMs = clockMs,
+    )
+
+    @Provides
+    @Singleton
+    fun provideAtlasAdaptiveExecutor(
+        repairExecutor: HardwareRepairExecutor,
+        routeMemory: AtlasRouteMemory,
+    ): AtlasAdaptiveExecutor = AtlasAdaptiveExecutor(
+        repairExecutor = object : AtlasRepairPort {
+            override fun execute(request: HardwareRepairRequest): HardwareRepairResult =
+                repairExecutor.execute(request)
+        },
+        memory = routeMemory,
+    )
+
+    /**
      * The identity, from what the platform **declares**.
      *
      * `Build.SOC_MODEL` and friends are the vendor's own statement; they are read here rather than
@@ -128,10 +179,17 @@ object DataModule {
     fun provideAtlasResolver(store: AtlasEvidenceStore, clockMs: () -> Long): AtlasResolver =
         AtlasResolver(store = store, clockMs = clockMs)
 
-    /** The real read path: rootless file reads, no shell, no module, no prompt. */
+    /**
+     * The real read path. Atlas prefers an already-authorized root read for protected kernel nodes,
+     * while retaining the ordinary app read path for unrooted devices. Neither branch prompts or writes.
+     */
     @Provides
     @Singleton
-    fun provideAtlasReadTransport(): AtlasReadTransport = AtlasFileReadTransport()
+    fun provideAtlasReadTransport(): AtlasReadTransport = AtlasAdaptiveReadTransport(
+        ordinary = AtlasFileReadTransport(),
+        privileged = AtlasPrivilegedReadTransport(),
+        privilegedAvailable = PrivilegeManager::cachedRootGranted,
+    )
 
     /**
      * The two knowledge banks, in the order they are consulted: reviewed knowledge first, the
@@ -169,4 +227,7 @@ object DataModule {
         catalog = AtlasReviewedSeeds.catalog(),
         dispatcher = dispatchers.io,
     )
+
+    /** Subdirectory of the Atlas store that holds learned routes, kept apart from evidence. */
+    private const val ROUTE_MEMORY_DIR = "routes"
 }

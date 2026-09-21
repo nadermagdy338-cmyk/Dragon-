@@ -62,6 +62,48 @@ MaxManager has a strong engine and a fragmented surface. `core/maxai` + `core/ha
 
 <!-- Append one entry per completed task: task id, files, gate results, deferred items, next suggestion. -->
 
+### ATLAS-ADAPTIVE-01 — أطلس ينفّذ ويتحقق ويتعلم بدل أن يكتفي بالقراءة — 2026-09-20
+
+**TASK:** ATLAS-ADAPTIVE-01 (large) — `DONE_WITH_CONCERNS`
+**FILES:** جديد منتج — `core/hardware/AtlasAdaptiveExecutor.kt` · `core/hardware/AtlasRouteMemory.kt` ·
+`core/hardware/AtlasPrivilegedReadTransport.kt` · جديد اختبار — `test/.../hardware/AtlasAdaptiveExecutorTest.kt` ·
+`test/.../hardware/AtlasRouteMemoryTest.kt` · `test/.../hardware/AtlasAdaptiveReadTransportTest.kt` ·
+معدَّل منتج — `core/hardware/HardwareRepairExecutor.kt` (واجهة `AtlasRepairPort`) · `core/hardware/RootFileAccess.kt`
+(`listNames`) · `core/maxai/MinimalPlanner.kt` (التنفيذ عبر Atlas بدل `arbiter.submit` المباشر) · `core/di/DataModule.kt`.
+
+**الفجوة التي كان التسليم يجيب عنها:** `AtlasRoutePlanner` كان مخطِّطًا مُختبرًا **بلا مستهلك إنتاجي**
+لكتابة، وقارئ أطلس كان **بلا مسار مميز** على جهاز مروّت، فكانت كل عقدة `/sys`/`/proc` محمية تُقرأ
+`PERMISSION_DENIED` ويُظنّ أنها غير موجودة. الآن: التنفيذ يمرّ بـ`HardwareRepairExecutor` (خط أساس +
+read-back + نافذة تأكيد + استرجاع)، و**التراجع المتحقَّق يفتح المسار التالي** بدل إعلان «الميزة لا تعمل»،
+وفشل الاسترجاع **يوقف** التتابع لأن الحالة الفيزيائية صارت مجهولة.
+
+**التعلّم لكل جهاز:** `AtlasRouteMemory` (JSON صريح الحقول، كتابة ذرّية عبر `AtlasStoreIo`، مدخل تالف
+يُطرح لا يُقرأ جزئيًا، سقف مدخلات). قاعدتان ملزمتان: ① **التفضيل لا يتجاوز ترتيب السلامة** — يُطبَّق
+كسر تعادل **داخل** طبقة النقل نفسها، فمسار sysfs متعلَّم لا يسبق مسار المنصّة؛ ② **الحجر ينتهي بالإقلاع**
+(أو بتغيّر جيل الصلاحية) لأن حالة الـvendor تُبنى من جديد، فالاسترجاع الفاشل لا يمنع إعادة المحاولة أبدًا.
+
+**القراءة privileged:** `AtlasAdaptiveReadTransport` يجرّب الجذر **المُخزَّن مسبقًا فقط** (لا نافذة صلاحية
+عند فتح شاشة)، ويسقط إلى المسار العادي عند `PERMISSION_DENIED`/`BACKEND_UNAVAILABLE` — **ولا يسقط عند
+`ABSENT`**، لأن «غير موجود» نتيجة معلنة لا خطأ صلاحية. والقصّ صار على حدّ محرف كي لا يُقسم محرف متعدد البايتات.
+
+**إصلاح انحدار في التعلّم (وجدته بالمراجعة لا بالاختبار):** النسخة الأولى كانت تسجّل فشل المصداقية
+أيضًا عند **الحجب** (قفل يدوي أو أسبقية مالك) — أي أن قرار ملكية كان يسمّم إشارة تعلّم المقبض. القاعدة
+المُستعادة: لا تسجيل عند `BLOCKED` ولا عند فشل الاسترجاع.
+
+**GATES:** `kt_balance --assert` = **734** ملفًا/0 عوائق · `code_health --assert` = exit 0 (الأربعة أصفار،
+والدَّين **لم ينمُ**: 10 · 29 · 63 · 23) · `i18n_coverage --assert` = 0 عوائق والأكواد الثلاثة متطابقة ·
+`repo_audit` = `PROBLEMS: 0`. لا نصّ واجهة جديد ⇒ لا ترجمة، ولا كتابة عتاد من الواجهة.
+**BUILD:** **لم يُشغَّل ولا يُدَّعى.** محاولة التشغيل فشلت لأن هذه الشجرة **بلا JDK 17 وبلا Android SDK**
+(`local.properties` يشير إلى مسار غير موجود، و`java` على PATH = 25) ⇒ «compilation unverified in this
+environment»، والاختبارات الـ**٢٠** الجديدة (executor 6 · memory 10 · transport 2 + planner القائم) مكتوبة
+وغير مُنفَّذة.
+**RESIDUAL RISK:** ① لا route فعلية ثانية لأي هدف بعد (المستهلك يبني binding واحدًا) ⇒ التتابع مبنيّ ومُختبر
+لكن مساحته لم تُملأ بعد. ② `HardwareRepairState.CONFIRMED_WINDOW` ≈ ٨٠ مللي ⇒ كاتب vendor دوري لا يُرى فيه؛
+الانجراف الطويل يبقى على `AppMonitor` (كما كان). ③ الحجر لا يُميّز بين فشل استرجاع عابر وفشل بنيوي — القرار
+عن قصد: إعادة المحاولة بعد إقلاع، لا حظر دائم.
+**NEXT:** ملء الطبقات بمسارات فعلية لكل هدف (platform hint · vendor bridge · daemon · arbiter) وتشغيل
+`:app:testReleaseUnitTest` عند توفر SDK على جهاز حقيقي.
+
 ### AR-RESEARCH-2 — **فهرسة المستودعات** وتصحيح ادّعاء خاطئ — 2026-09-18
 
 **TASK:** AR-RESEARCH-2 (medium) — `DONE_WITH_CONCERNS`

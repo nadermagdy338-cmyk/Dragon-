@@ -87,6 +87,13 @@ object RootFileAccess {
         return outcome
     }
 
+    /** Read-only listing of both files and directories for discovery transports. */
+    fun listNames(path: String): List<String> = runCatching {
+        val result = Shell.cmd("ls -1A ${quote(path)} 2>/dev/null").exec()
+        if (!result.isSuccess) emptyList()
+        else result.out.map(String::trim).filter { it.isNotEmpty() && it != "." && it != ".." }.distinct()
+    }.getOrDefault(emptyList())
+
     fun listDirectories(path: String): List<String> {
         RootIpcManager.ipc?.let { service ->
             runCatching { service.listDirectories(path).filter(String::isNotBlank) }
