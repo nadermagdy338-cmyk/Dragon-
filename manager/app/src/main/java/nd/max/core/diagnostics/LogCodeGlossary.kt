@@ -1,5 +1,7 @@
 package nd.max.core.diagnostics
 
+import nd.max.core.hardware.HardwareControlKey
+
 /**
  * قاموس السجل: **معنى كل حقل وكل رمز** — يُكتب داخل ملف السجل نفسه، لا في المستودع.
  *
@@ -29,12 +31,24 @@ package nd.max.core.diagnostics
  */
 object LogCodeGlossary {
 
+    /**
+     * المقابض ذات البادئة، **مكتوبة من [HardwareControlKey] لا منسوخة منه**.
+     *
+     * ولماذا لزم هذا: الدليل يشرح الوحدة بالاسم الكامل للمقبض (`cpu_limits:<policy>`)، وهي
+     * الكتابة الثانية للمقبض نفسه. ونسخها نصًّا يجعل تعديل البادئة في موضع يترك الدليل يشرح
+     * مقبضًا لم يبقَ له وجود — وهو نفس ما تمنعه بوابة عدم اختراع المفاتيح. فيُبنى النصّ من مالكه.
+     *
+     * والقيمة المعروضة لم تتغيّر حرفًا واحدًا: `POLICY` و`DEVICE` هما ما يطبع القراءة.
+     */
+    private val cpuLimitsKnob: String = HardwareControlKey.CPU_LIMITS_PREFIX + "POLICY"
+    private val gpuFrequencyKnob: String = HardwareControlKey.GPU_FREQUENCY_PREFIX + "DEVICE"
+
     /** شكل السطر ومعنى كل حقل — أول ما يحتاجه من يفتح الملف. */
     val fieldGuide: List<Pair<String, String>> = listOf(
         // بلا علامة `=` داخل النصّ: الترويسة تُكتب في السجل بنفس صيغة الحقول، وعلامة `=` هنا
         // كانت ستُقسّم هذا السطر إلى حقلين عند القراءة.
         "line" to "TIME LEVEL TAG: an EVENT token followed by space-separated key-value fields; TAG says which process wrote it",
-        "knob" to "the control being written: cpu_limits:POLICY gpu_frequency:DEVICE cpu_boost gpu_profile thermal refresh_rate",
+        "knob" to "the control being written: $cpuLimitsKnob $gpuFrequencyKnob cpu_boost gpu_profile thermal refresh_rate",
         "path" to "the exact node a write went to when the event is not knob-scoped",
         "outcome" to "applied | not-verified | not-writable | unsupported | blocked | skipped",
         "reason" to "stable machine code; each one is explained in the legend below",
@@ -62,9 +76,9 @@ object LogCodeGlossary {
      * والمبدأ: الوحدة تتبع المقبض لا السطر، لأن نفس السطر يحمل مقابض مختلفة الوحدات في نفس الجلسة.
      */
     val unitGuide: List<Pair<String, String>> = listOf(
-        "cpu_limits:POLICY" to "kHz, as min:max (an empty side means leave that side alone)",
+        cpuLimitsKnob to "kHz, as min:max (an empty side means leave that side alone)",
         "cpu_boost" to "kHz, as min:max over the policy minimums",
-        "gpu_frequency:DEVICE" to "Hz, a single ceiling value",
+        gpuFrequencyKnob to "Hz, a single ceiling value",
         "gpu_profile" to "percent of the highest advertised GPU step, not a frequency",
         "refresh_rate" to "Hz",
         "thermal" to "platform thermal status 0..6, not a temperature",

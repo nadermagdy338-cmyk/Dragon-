@@ -8,8 +8,17 @@ package nd.max.core.hardware
  * the physical knob identically.
  */
 object HardwareControlKey {
-    private const val CPU_LIMITS_PREFIX = "cpu_limits:"
-    private const val GPU_FREQUENCY_PREFIX = "gpu_frequency:"
+    /**
+     * بادئة مفتاح مقبض سياسة cpufreq.
+     *
+     * وليست خاصة لأن **التوثيق نفسه يحتاجها**: دليل السجل يشرح وحدة `cpu_limits:<policy>`، ولو
+     * نسخ البادئة لصار للمقبض الواحد كتابتان — وهو بالضبط ما تمنعه بوابة
+     * `ControlPlaneArchitectureTest.canonicalKeysAreNotReinvented`. فالتوثيق يُبنى من هنا أيضًا.
+     */
+    const val CPU_LIMITS_PREFIX = "cpu_limits:"
+
+    /** بادئة مفتاح مقبض تردد جهاز GPU — عامّة للسبب نفسه. */
+    const val GPU_FREQUENCY_PREFIX = "gpu_frequency:"
 
     fun cpuLimits(policyName: String): String = CPU_LIMITS_PREFIX + policyName
     fun gpuFrequency(deviceName: String): String = GPU_FREQUENCY_PREFIX + deviceName
