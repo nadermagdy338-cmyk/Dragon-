@@ -1632,7 +1632,11 @@ object AppMonitor {
                         GpuHardwareBackend.applyValidated(
                             live,
                             if (live.rangeWritable) {
-                                GpuHardwareBackend.Request(low, capped)
+                                GpuHardwareBackend.Request(
+                                    minFreq = low,
+                                    maxFreq = capped,
+                                    releaseVendorCeiling = fullCapabilityRequest,
+                                )
                             } else {
                                 GpuHardwareBackend.Request(capped, capped)
                             },

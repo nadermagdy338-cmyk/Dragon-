@@ -122,6 +122,8 @@ object GpuHardwareBackend {
         val governor: String? = null,
         /** Release a fixed-index lock so the governor scales the GPU dynamically again. */
         val releaseLock: Boolean = false,
+        /** Allow a full-capability request to remove a lower vendor ceiling before writing. */
+        val releaseVendorCeiling: Boolean = false,
     )
 
     data class Baseline(
@@ -520,7 +522,11 @@ object GpuHardwareBackend {
         // سلطة المنصّة **قبل** الكتابة، والترتيب مقصود: على MediaTek يقمع جهاز تبريد الحرارة وسقف
         // GED أي رفع فوقهما، فيُقرأ `differs` بلا سبب ظاهر في السجل (قيس على جهاز حقيقي:
         // 1300000000 ⇒ 754000000). ولو كتبنا أولًا لبقي أثر القمع مسجّلًا عطلًا انتهى.
-        if (touchesRange) io.permitVendorCeiling(lock = request.minFreq == request.maxFreq)
+        if (touchesRange) {
+            io.permitVendorCeiling(
+                lock = request.releaseVendorCeiling || request.minFreq == request.maxFreq,
+            )
+        }
         var wrote = true
         if (touchesRange) wrote = writeRange(live, request.minFreq, request.maxFreq, io)
         if (wrote && touchesGovernor) wrote = io.write("${live.path}/governor", request.governor)
