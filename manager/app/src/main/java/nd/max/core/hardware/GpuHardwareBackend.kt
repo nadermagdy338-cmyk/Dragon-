@@ -328,6 +328,31 @@ object GpuHardwareBackend {
      * أصلًا (لا شيئ لنحرّره)، وخاطئ إن كان المسار موجودًا وغير مقروء — لا يُدّعى
      * تحرير قفل لم يُقرأ.
      */
+    /**
+     * هل الحالة الحية تُلبّي الطلب المُرمَّز؟ — حكم [requestSatisfied] وحده يُمرَّر للمُحكِّم.
+     *
+     * ولماذا لا يكفي التساوي الحرفي: حقول المدى (`min:max`) تُدمج/تُقيَّد من السائق
+     * وسياسة الـvendor. فطلبٌ `500000000:754000000` مقابل قراءة `500000000:600000000`
+     * هو **تلبية** (السقف لم يُخرَق) لا فشل، والتساوي كان يسترجع خط الأساس ثم يُعاد
+     * الطلب في كل دورة انحراف بلا نتيجة. وبقية الحقول تبقى تساويًا حرفيًّا لأن معناها
+     * الوحيد كذلك: مُحكِّم اخترناه، أو تحرير قفل OPP ثابت. والصيغة تعيش هنا وحدها
+     * لأن هذا الملف هو الذي يُنشئها ([encodeRequest]/[encodeLive])، فلا تُنسخ في مكان آخر.
+     */
+    fun requestSatisfied(desired: String, actual: String?): Boolean {
+        if (actual == null) return false
+        if (!desired.contains(SCHEMA_SEPARATOR) && !actual.contains(SCHEMA_SEPARATOR)) {
+            return HardwareVerification.rangeContained(desired, actual)
+        }
+        val want = desired.split(SCHEMA_SEPARATOR)
+        val live = actual.split(SCHEMA_SEPARATOR)
+        if (want.size != live.size) return false
+        return want.indices.all { index ->
+            if (index != 0) return@all want[index] == live[index]
+            if (want[index] == UNTOUCHED) live[index] == UNTOUCHED
+            else HardwareVerification.rangeContained(want[index], live[index])
+        }
+    }
+
     fun fixedLockReleased(device: Device, io: Io = SystemIo): Boolean {
         val path = device.mtkFixedIndexPath ?: return true
         val raw = io.read(path) ?: return false

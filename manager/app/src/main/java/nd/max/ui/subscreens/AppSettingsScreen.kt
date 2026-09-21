@@ -62,6 +62,7 @@ import nd.max.ui.component.*
 import nd.max.ui.util.AppConfig
 import nd.max.ui.util.PerAppCpuControlMode
 import nd.max.ui.util.PerAppCpuPolicyControl
+import nd.max.ui.util.PerAppHardwareRuntimeStatus
 import nd.max.ui.util.decodePerAppCpuPolicyControls
 import nd.max.ui.util.encodePerAppCpuPolicyControls
 import nd.max.ui.util.getSupportedDownscaleFactors
@@ -388,6 +389,21 @@ fun AppSettingsScreen(
                                 onSave = { encoded -> packageName?.let { viewModel.updateSetting(it, "cpu_policy_controls", encoded) } },
                                 onRefreshStatus = { viewModel.refreshCpuRuntimeStatus(packageName) }
                             )
+                            // نتيجة كل مقبض عتاد مع سبب فشله — يجيب عن «لماذا لم يعمل؟» في الشاشة
+                            // نفسها بدل تتبّع السجل. وهي **قراءة فقط**: لا تكتب عتادًا ولا تُعدّل ملفًا،
+                            // فالواجهة تعلن ولا تنفّذ (ADR-11).
+                            PerAppHardwareDiagnosticsCard(
+                                packageName = packageName,
+                                config = cfg,
+                                status = viewModel.hardwareRuntimeStatus,
+                                onRefresh = { viewModel.refreshCpuRuntimeStatus(packageName) }
+                            )
+                            Text(
+                                text = stringResource(R.string.perapp_thermal_guard_note),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
                             Spacer(Modifier.height(8.dp))
                             nd.max.ui.component.StudioOutlinedButton(
                                 onClick = { showProfileEditor = true },
@@ -634,6 +650,150 @@ private fun PerAppSystemBridge(
             Spacer(Modifier.width(6.dp))
             Text(stringResource(R.string.app_settings_open_control))
         }
+    }
+}
+
+/**
+ * بطاقة «لماذا لم يعمل؟»: كل مقبض عتاد لهذا التطبيق، ونتيجته، و**رمز سببه** كما كتبه المحرّك.
+ *
+ * ولماذا في هذه الشاشة بالذات: العطل الذي وُجدت من أجله هو «ضبطت شيئًا ولم يحدث شيء». وكان
+ * الجواب يحتاج قراءة `MaxManager.log` بمُرشِّحين و`grep`. ورمز السبب هو ما يفرّق بين «رُفض
+ * بقفل يدوي» و«النواة لا تُعلن هذا الحاكم» — وهما إجراءان مختلفان تمامًا.
+ *
+ * والبطاقة لا تكتب في أي عقدة: تقرأ ملف حالة وتُنسخ نصًّا للتقارير.
+ */
+@Composable
+private fun PerAppHardwareDiagnosticsCard(
+    packageName: String?,
+    config: AppConfig,
+    status: PerAppHardwareRuntimeStatus,
+    onRefresh: () -> Unit,
+) {
+    val context = LocalContext.current
+    val resources = LocalResources.current
+    val colorScheme = MaterialTheme.colorScheme
+    val failures = status.failures
+    val accent = if (failures.isEmpty()) colorScheme.secondary else colorScheme.error
+    var copied by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            color = colorScheme.surfaceContainerLow,
+            border = androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = .24f))
+        ) {
+            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = if (failures.isEmpty()) Icons.Rounded.CheckCircle else Icons.Outlined.ErrorOutline,
+                        contentDescription = null,
+                        tint = accent
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.perapp_diag_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = if (status.outcomes.isEmpty()) {
+                                stringResource(R.string.perapp_diag_idle)
+                            } else {
+                                stringResource(R.string.perapp_diag_summary, status.outcomes.size, failures.size)
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant
+                        )
+                    }
+                    IconButton(onClick = onRefresh) {
+                        Icon(Icons.Rounded.Refresh, contentDescription = stringResource(R.string.perapp_diag_copy))
+                    }
+                }
+                // الفشل أولًا: من يفتح هذه البطاقة يسأل عن عطل، لا عن قائمة نجاحات.
+                (failures + status.outcomes.filter { !it.isFailure }).forEach { outcome ->
+                    val rowAccent = if (outcome.isFailure) colorScheme.error else colorScheme.onSurfaceVariant
+                    Column {
+                        Text(
+                            text = outcome.knob,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = rowAccent
+                        )
+                        Text(
+                            text = stringResource(R.string.perapp_diag_reason, outcome.reason),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = rowAccent
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.perapp_diag_values,
+                                outcome.expected.ifBlank { "—" },
+                                outcome.live.ifBlank { "—" }
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Text(
+                    text = stringResource(R.string.perapp_diag_hint),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colorScheme.onSurfaceVariant
+                )
+                StudioTextButton(
+                    onClick = {
+                        val report = buildPerAppDiagnosticsReport(packageName, config, status)
+                        val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                            as? android.content.ClipboardManager
+                        clipboard?.setPrimaryClip(
+                            android.content.ClipData.newPlainText(
+                                resources.getString(R.string.perapp_diag_title), report
+                            )
+                        )
+                        copied = true
+                    }
+                ) {
+                    Icon(Icons.Rounded.ContentCopy, contentDescription = null)
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        if (copied) stringResource(R.string.perapp_diag_copied)
+                        else stringResource(R.string.perapp_diag_copy)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * تقرير نصّي واحد يجمع ما طلبه المستخدم وما حدث فعلًا — ليُلصَق في تقرير عطل بلا سياق مفقود.
+ *
+ * والحقول بأسماء المفاتيح نفسها المستعملة في ملف الإعدادات والسجل، فيمكن مقارنة ما هنا بما
+ * هناك بالبحث لا بالتفسير.
+ */
+private fun buildPerAppDiagnosticsReport(
+    packageName: String?,
+    config: AppConfig?,
+    status: PerAppHardwareRuntimeStatus,
+): String = buildString {
+    appendLine("MaxManager per-app control report")
+    appendLine("app=${packageName ?: "unknown"}")
+    appendLine("recorded_at_ms=${status.atMs}")
+    appendLine("gpu_profile=${config?.gpu_profile ?: "unknown"}")
+    appendLine("gpu_max_freq=${config?.gpu_max_freq ?: "unknown"}")
+    appendLine("gpu_governor=${config?.gpu_governor ?: "unknown"}")
+    appendLine("cpu_governor=${config?.cpu_governor ?: "unknown"}")
+    appendLine("cpu_policy_controls=${config?.cpu_policy_controls.orEmpty().ifBlank { "default" }}")
+    appendLine("thermal_profile=${config?.thermal_profile ?: "unknown"}")
+    appendLine("refresh_rate=${config?.refresh_rate ?: "unknown"}")
+    appendLine("outcomes=${status.outcomes.size} failed=${status.failures.size}")
+    status.outcomes.forEach { outcome ->
+        appendLine(
+            "knob=${outcome.knob} outcome=${outcome.outcome} reason=${outcome.reason}" +
+                " expected=${outcome.expected} live=${outcome.live}"
+        )
     }
 }
 

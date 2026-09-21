@@ -228,6 +228,11 @@ object DataModule {
         dispatcher = dispatchers.io,
     )
 
-    /** Subdirectory of the Atlas store that holds learned routes, kept apart from evidence. */
-    private const val ROUTE_MEMORY_DIR = "routes"
+    /**
+     * Subdirectory of the Atlas store that holds learned routes, kept apart from evidence.
+     *
+     * ويشير إلى ثابت `AtlasFileStoreIo` بدل نصّ ثانٍ: الرفيق (`AppMonitor`) يكتب المسارات في
+     * عملية أخرى، وذاكرة مسارات بمجلدين مختلفين ليست ذاكرة واحدة.
+     */
+    private const val ROUTE_MEMORY_DIR = AtlasFileStoreIo.ROUTE_MEMORY_DIRECTORY_NAME
 }

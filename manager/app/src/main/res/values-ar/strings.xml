@@ -16,6 +16,16 @@
     <string name="app_priority_control">التحكم في أولوية التطبيق</string>
     <string name="app_priority_control_desc">رفع أولوية جدولة I/O للألعاب النشطة في ملف تعريف الأداء</string>
     <string name="app_priority_desc">رفع أولوية جدولة I/O</string>
+    <string name="logsviewer_problems_only">المشاكل</string>
+    <string name="perapp_diag_title">لماذا لم يعمل؟</string>
+    <string name="perapp_diag_idle">لا نتيجة مسجَّلة لهذا التطبيق بعد. افتح التطبيق مرة واحدة ليطبّق المحرّك الملف ثم حدِّث.</string>
+    <string name="perapp_diag_summary">%1$d مقبضًا · %2$d فشل</string>
+    <string name="perapp_diag_copy">نسخ التقرير</string>
+    <string name="perapp_diag_copied">تم نسخ التقرير</string>
+    <string name="perapp_diag_reason">السبب: %1$s</string>
+    <string name="perapp_diag_values">المطلوب %1$s ← المقروء %2$s</string>
+    <string name="perapp_diag_hint">التفصيل الكامل في تبويب السجل: EVENT=PERAPP_KNOB</string>
+    <string name="perapp_thermal_guard_note">حارس حراري يخفض هذا السقف تلقائيًا أثناء خنق الجهاز ويعيده عند برودته — ولا يتجاوز السقف الذي اخترته أبدًا.</string>
     <string name="app_settings_title">إعدادات التطبيق</string>
     <string name="appearance">المظهر</string>
     <string name="maxmanager_version">إصدار Max Manager</string>

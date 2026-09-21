@@ -42,4 +42,11 @@ object MaxManagerPaths {
     const val MODULE_APK = "$MODULE_DIR/system/product/priv-app/MaxManager/MaxManager.apk"
     const val MAXMANAGER_LOG = "$MODULE_CONFIG/debug/MaxManager.log"
     const val PER_APP_CPU_STATUS = "$MODULE_CONFIG/runtime/per_app_cpu_status"
+
+    /**
+     * نتيجة **كل مقبض** per-app (CPU · GPU · الحكام · الحرارة) مع رمز سببه —
+     * يُكتب من مراقب الخلفية وتقرؤه الواجهة والتشخيص. التفصيل في
+     * [nd.max.core.hardware.PerAppHardwareStatus].
+     */
+    const val PER_APP_HW_STATUS = "$MODULE_CONFIG/runtime/per_app_hw_status"
 }

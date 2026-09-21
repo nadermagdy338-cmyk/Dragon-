@@ -4502,3 +4502,139 @@ APK ‎121,084,120‎ بايت.
 بعد توفر build هو قياس route الصحيح على Rodin ثم تقرير هل تحتاج طبقة CPU vendor route إضافية.
 
 **التسليم:** `DONE_WITH_CONCERNS`.
+
+
+## تكملة ٦٧ — `PERAPP-CONTROL-03`: جعل تحكّم GPU/CPU/الحرارة **يعمل**، وقناة حالة تُشخّصه بلا `grep` — 2026-09-21
+
+**الطلب:** «لماذا يفشل التحكّم في شاشة GPU و CPU و ثيرمل في شاشة التطبيقات؟» ثم: «اجعل كل شيء يعمل، وحسّن السجل
+في الإعدادات ليكون أقدر على إصلاح مشاكل مثل هذه بسهولة». أي: إصلاح لا تشخيص فقط، وقناة تشخيص دائمة.
+
+**العطل المُعاد بناؤه من الكود (خمس علل مستقلّة، لا واحدة):**
+
+1. **«ثيرمل» في شاشة التطبيقات لم يكن تحكّمًا حراريًّا.** الواجهة تكتب `gpu_profile` في `ThermalProfilePicker`،
+   و`AppSettingsViewmodel.kt:170,174` تُجبر `thermal_profile = "default"` في **كل** كتابة لأي من الحقلين. فالقيمة
+   الحرارية لا تصل إلى الملف أبدًا؛ والمسار الحراري الوحيد الموجود في `PerAppThermal.c` خاصّ بXiaomi (`sconfig`)
+   ويسجّل `PERAPP_THERMAL_UNSUPPORTED reason=sconfig_missing` على غيره. فالنتيجة على أكثر الأجهزة: لا أثر حراري.
+2. **GPU كان يفشل بصمت.** خمس بوابات في كتلة GPU في `AppMonitor` كانت تخرج بـ`return@runCatching` عارية: لا مزوّد،
+   غير قابل للكتابة، `refresh` فاشل، لا سقف حيّ، لا OPP مُعلن. ولا **ملف حالة** إلا `PER_APP_CPU_STATUS` — أي أن
+   الحالة الوحيدة المرئية كانت CPU. وهذا هو تعريف «ضبطت ولم يحدث شيء» بلا سبب مكتوب.
+3. **الحكم كان تساويًا حرفيًّا.** `HardwareControlArbiter.reconcileLocked` يتحقّق فقط إذا `read() == desired`، وإلا
+   `failAndForget` ⇒ استرجاع خط الأساس. فالقياس المعروف `APPLY_VERIFY_FAILED knob=gpu_profile expected=1300000000
+   live=754000000` كان يُقرأ فشلًا وطلبٌ **مُلبّى** يُعاد كتابته ويتُراجع كل دورة انحراف.
+4. **CPU: سياسة واحدة تُسقط الكل.** `if (firstFailure != null) acquiredKeys.forEach(release)` — سياسة يقيّدها الـvendor
+   كانت تُسترجع معها كل المقابض الناجحة، فيقرأ المستخدم «فشل» ونصف العمل كان قد نجح.
+5. **ناتج الحكام كان يُهمَل.** `ownGovernor(...)` يُنادى ونتيجته لا تُقرأ — فلا `manual-lock` ولا `preempted-by-*`
+   يظهران ولا يُسجَّلان. وكان معها عطب مفتاح: `PerAppFrequencyController` يستعمل `cpuLimits(policyPath)` بينما
+   `AppMonitor`/`CpuCeilingKnobs`/`ControlRegistry`/`CpuCoreControlViewModel` تستعمل `cpuLimits(policy.name)` —
+   مفتاحان لنفس المقبض ⇒ الأقفال والأسبقية لا تتطابق بين الكاتبين.
+
+**الإصلاح:**
+
+- `core/hardware/HardwareVerification.kt` (جديد): حكم صريح — `ceilingAtMost` (السقف = لا يتجاوز)، `rangeContained`
+  (القفل = تساوٍ، والمدى الحقيقي = داخل الطلب)، و`exact` هو الافتراض فلم يتغيّر سلوك أي كاتب قائم.
+- `HardwareControlArbiter` + `HardwareRepairExecutor`: حقل `verify` اختياري يمرّ إلى **نافذة التأكيد أيضًا** (حكم
+  واحد في الموضعين، وإلا سقط طلب صحيح عند أول عيّنة).
+- `GpuHardwareBackend.requestSatisfied`: حكم الصيغة المُرمَّزة يعيش في الملف الذي يُنشئها (field 0 داخل الطلب،
+  وبقية الحقول تساوٍ حرفي).
+- `core/hardware/PerAppHardwareStatus.kt` (جديد) + `MaxManagerPaths.PER_APP_HW_STATUS`: قناة حالة **لكل مقبض**
+  مع رمز السبب، يكتبها المحرّك وحده (كسول واحد) وتقرؤها الواجهة؛ والترميز/الفكّ دالتان خالصتان مُختبَرتان.
+- `AppMonitor`: كل تخطٍّ صار له رمز سبب مكتوب (`no-gpu-provider` · `gpu-provider-not-writable` ·
+  `provider-disappeared` · `no-advertised-frequency-range` · `unsupported-profile` · `unsupported-frequency` ·
+  `governor-not-advertised` · `outside-proven-hardware-bounds` …) وسطر `EVENT=PERAPP_KNOB` في السجل الموحّد.
+- CPU: **عزل السياسات** — الناجح يبقى، والفاشل يُعلن بحدّه، وحالة جزئية صريحة
+  (`EVENT=PERAPP_CPU_PARTIAL … kept=N/M`)، مع `rangeContained` كحكم.
+- الحكام: نتيجة التسجيل تُقرأ، والرفض يُميَّز عن «غير مدعوم».
+- `PerAppFrequencyController`: توحيد المفتاح على `policy.name` ليطابق كل كاتب آخر (فالقفل اليدوي يُرى الآن).
+- `core/hardware/ThermalGuard.kt` (جديد): حارس حراري **يعمل على كل جهاز** — يقرأ `PowerManager.getCurrentThermalStatus()`
+  (بلا جذر، API 29+، وهو ما كان في `NEXT_TASK` كـ`NT-20`) ولا يخترع عتبات درجة. عند الخنق يخفض **درجة OPP واحدة**
+  من المقبض المملوك عبر `PerAppControlRegistry.retarget` (نفس المُحكِّم ونفس خط الأساس)، وعند البرودة يعيد نيّة
+  المستخدم. وحدّاه: لا يرفع فوق ما طلبه المستخدم أبدًا، ولا ينزل تحت أدنى تردد مُعلن.
+- الواجهة: بطاقة **«لماذا لم يعمل؟»** في شاشة التطبيقات (الفشل أولًا، ورمز السبب، و`المطلوب → المقروء`،
+  وزرّ نسخ تقرير نصّي)، وكل نصوصها من `values/` + `values-ar/`.
+- **السجل في الإعدادات**: مستوى سطر `PERAPP_KNOB` صار من **النتيجة** لا من العادة (نجاح/متخطّى ⇒ I،
+  وفشل ⇒ W)؛ لأن فشلًا يُكتب I كان يختفي من مُرشِّح التحذيرات والأخطاء — وهو المُرشِّح الذي يبحث فيه
+  من يُصلح عطلًا. وأُضيفت شرائح **«المشاكل فقط»** في عارض السجل الموحّد، وحالتها **مشتقّة** من المستويات
+  المعروضة (`problemsOnly`) لا عَلَمًا مستقلًّا يمكن أن يخالف ما يُعرض.
+
+**لماذا هذا ليس «تقليل صلاحية»:** لا ميزة أُلغيت ولا عقدة مُنعت. الحارس يقيّد داخل طلب المستخدم فقط، وقائمة
+الأسباب تجعل الفشل **مرئيًّا** بدل أن يُترجَم إلى «لا يدعم».
+
+**التحقق المقيس:**
+
+- `kt_balance --assert`: 742 ملفًا · 0 عوائق.
+- `code_health --assert`: exit 0 · صحّة 0 · الدَّين **لم ينمُ**: `10/29/63/23` (كان كذلك قبل الجولة).
+- `i18n_coverage --assert`: exit 0 · 0 عوائق (specifiers/تكرار/تطابق الأكواد)، والنصوص الجديدة في الإنجليزية والعربية معًا.
+- اختبارات جديدة (غير مُشغَّلة في هذه البيئة): `HardwareVerificationTest` · `ThermalGuardTest` ·
+  `PerAppHardwareStatusTest` · `HardwareControlArbiterVerificationTest` · `PerAppControlRegistryRetargetTest`.
+
+```
+TASK: PERAPP-CONTROL-03
+FILES: added — core/hardware/HardwareVerification.kt · core/hardware/PerAppHardwareStatus.kt ·
+       core/hardware/ThermalGuard.kt · 5 ملفات اختبار جديدة
+       modified — core/hardware/{HardwareControlArbiter,HardwareRepairExecutor,PerAppControlRegistry,
+       PerAppFrequencyController,GpuHardwareBackend,HardwareControlKey}.kt · AppMonitor.kt · MaxManagerPaths.kt ·
+       ui/util/AppConfigUtil.kt · ui/viewmodel/AppSettingsViewmodel.kt · ui/subscreens/AppSettingsScreen.kt ·
+       ui/viewmodel/LogsViewerViewModel.kt · ui/subscreens/LogsViewerScreen.kt ·
+       res/values/strings.xml · res/values-ar/strings.xml
+deleted — none
+GATES: 1 ✓  2 ✓ (debt unchanged 10/29/63/23)  3 ✓ (ar parity: new keys present, specifiers 0)  6 ✓
+BUILD: not verified — لا Android SDK ولا JDK 17 في هذه البيئة (`~/android-sdk` غير موجود، `/usr/lib/jvm` غير موجود،
+       و`java -version` = 25). فلم تُشغَّل الاختبارات ولا الترجمة، ولا يُدّعى عكس ذلك.
+RESIDUAL RISK: الحارس الحراري يحتاج جهازًا: `getCurrentThermalStatus()` داخل عملية بسياق نظام مُزيَّف
+       (`setupSystemContext`) قد يُعيد 0 أو يرمي — وفي هذه الحالة يُسجَّل `unsupported` ويصمت الحارس (لا تخمين).
+       والحكم المرن يَعُدّ سقفًا أضيق من الطلب «مُلبّى»: صحيح دلاليًّا، لكنه يعني أن المستخدم قد يرى «applied» ولا
+       يُرفع تردده فوق سقف الـvendor — وهذا هو المقصود، ويظهر في `live=`. وما لم يُثبت أيضًا: سلوك العزل الجزئي
+       لسياسات CPU على نواة تُعلن جداول OPP متغايرة لكل عنقود.
+NEXT: تشغيل الاختبارات والبناء عند توفر SDK/JDK 17 · قياس الحارس على Rodin (MTK) وXiaomi (sconfig) · ثم إعادة
+       استخدام مقابض الحارس نفسها في Atlas كـroute بديل مسجَّل بدل تكرار المنطق.
+```
+
+**التسليم:** `DONE_WITH_CONCERNS`.
+
+## تكملة ٦٨ — `ATLAS-THERMAL-01`: ربط الحارس الحراري بـAtlas كهدف لا كحلقة خاصة — 2026-09-21
+
+**الطلب:** «بالتأكيد اربط أطلس، وإلا ما فائدته».
+
+**الحالة قبل:** كانت آليّتان منفصلتان تعملان نفس الحلقة تمامًا:
+`ThermalGuard` داخل `AppMonitor` يقرأ الضغط ⇒ يخفض درجة ⇒ ينادي `retarget` مباشرة، ثم يقرأ النتيجة بنفسه.
+و`Atlas` يملك مخطِّط مسارات آمنًا وبديلًا عند الفشل وذاكرة لكل جهاز — لكن لا مسار حراري فيه.
+أي أن كل تدبير للأداء المستدام كان يُخترع في المراقب، وإصلاحٌ في أحد الموضعين لا يصل للآخر.
+
+**ما نُفِّذ:**
+
+- `core/hardware/ThermalCeilingRouter.kt` (جديد): هدف Atlas الحراري ومساراه.
+  - `thermal.platform-status`: القيمة من إشارة المنصة (`getCurrentThermalStatus`)، ونقلها `PLATFORM_HINT`
+    لأنها إشارة منصة لا عقدة vendor خمّنّاها. **أهليّتها مشروطة بقراءة الإشارة**: منصة لا تُجيب ⇒ غير
+    مؤهّلة، فلا تُختار ولا يُخمَّن عليها.
+  - `thermal.static-ceiling`: سقف المستخدم نفسه بلا تدخّل آليّ، ونقله `ARBITER_SYSFS` — وهو البديل حين
+    تغيب الإشارة وحين يفشل الأول بعد استرجاع مُتحقَّق.
+  - الترتيب ما زال يقرّره `AtlasRoutePlanner` بالنقل؛ والأولوية (`0`/`1`) تفصل داخل النقل نفسه فقط،
+    فلا يستطيع مسار متعلَّم أن يسبق مسار منصة.
+- `ThermalGuard.nextCeiling` / `nextRangeCeiling`: الحساب نُقل من المراقب إلى الحارس — **قرار واحد في
+  موضع واحد** — والتنفيذ صار في Atlas.
+- `AppMonitor`: لم تبقَ كتابة مباشرة. `applyThermalGuard` تُمرّر (المقبض، السلّم، الضغط) إلى الراوتر،
+  وهي **لا تختار أيّ مسار**.
+- عقد المعاملة نفس عقد per-app المُثبت: خط أساس + قراءة مرتجعة + نافذة تأكيد + استرجاع. المعاملة تُبنى
+  من `retargetRequest` (تُعيد `null` لمقبض غير مملوك) ⇒ **مخطط لا يستطيع اختراع عقدة**.
+
+**حدود لم تُخترق:** لا رفع فوق نيّة المستخدم أبدًا؛ ولا نزول تحت أدنى تردد مُعلن؛ ولا كتابة لمقبض غير مملوك؛
+والمسار الثاني هو نيّة المستخدم حرفيًّا. لم تُلغَ ميزة ولم تُقيَّد عقدة.
+
+**سلوك تغيّر فعلًا (لا تجميلًا):** قبل الربط، ضغط **مجهول** كان يُسكِت الحارس بالكامل. الآن المسار الأوّل
+يُصبح غير مؤهّل و**سقف المستخدم نفسه يبقى يُنفَّذ**. وكذلك القيمة المطلوبة تساوي القائمة ⇒ «مُثبَّتة أصلًا»
+لا سطر عطل؛ لأن سطر فشل لقيمة لم تتغيّر هو الضجيج الذي يُفقد السجل قيمته.
+
+```
+TASK: ATLAS-THERMAL-01
+FILES: added — core/hardware/ThermalCeilingRouter.kt · app/src/test/.../ThermalCeilingRouterTest.kt
+       modified — core/hardware/ThermalGuard.kt (نقل حساب السقف إلى الحارس) · AppMonitor.kt (من كتابة مباشرة
+       إلى مسار Atlas) · core/atlas/AtlasFileStoreIo.kt + di/DataModule.kt (دليل مشترك لذاكرة المسارات)
+deleted — none
+GATES: 1 ✓  2 ✓ (الدَّين كما هو 10/29/63/23)  3 ✓  6 ✓
+BUILD: not verified — لا Android SDK ولا JDK 17 في هذه البيئة، فلم تُشغَّل الاختبارات ولا الترجمة.
+RESIDUAL RISK: المسار الأول يحتاج جهازًا — `getCurrentThermalStatus()` داخل عملية بسياق نظام مُزيَّف قد
+       يُعيد 0 أو يرمي؛ وفي هذه الحالة يُصبح غير مؤهّل ويسقط إلى سقف المستخدم (لا تخمين، ولا سكوت).
+       وسلّم OPP يُقرأ من الباك-إند، فجهاز يُعلن سلّمًا غير متدرّج يبقى على درجته الحالية بدل أن يقفز.
+NEXT: قياس المسارين على Rodin (MTK) وXiaomi (sconfig) · تشغيل الاختبارات عند توفر SDK/JDK 17 ·
+       ثم إعادة استخدام النمط نفسه لمسارات الشحن والشاشة والذاكرة (هدف واحد + مرشّحان + حكم مُعاد استخدامه).
+```

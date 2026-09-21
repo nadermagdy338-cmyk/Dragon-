@@ -16,6 +16,16 @@
     <string name="app_priority_control">Foreground Priority Lock</string>
     <string name="app_priority_control_desc">Pushes the active game to the front of the I/O queue while a performance profile is running</string>
     <string name="app_priority_desc">Boost I/O scheduling priority</string>
+    <string name="logsviewer_problems_only">Problems</string>
+    <string name="perapp_diag_title">Why didn\'t it work?</string>
+    <string name="perapp_diag_idle">No outcome recorded for this app yet. Open the app once so the engine applies the profile, then refresh.</string>
+    <string name="perapp_diag_summary">%1$d knobs · %2$d failed</string>
+    <string name="perapp_diag_copy">Copy report</string>
+    <string name="perapp_diag_copied">Report copied</string>
+    <string name="perapp_diag_reason">reason: %1$s</string>
+    <string name="perapp_diag_values">wanted %1$s → live %2$s</string>
+    <string name="perapp_diag_hint">Full detail in the Logs tab: EVENT=PERAPP_KNOB</string>
+    <string name="perapp_thermal_guard_note">A thermal guard lowers this ceiling automatically while the device is throttling and restores it when it cools — never above the ceiling you chose.</string>
     <string name="app_settings_title">App Settings</string>
     <string name="app_tab_performance">Performance</string>
     <string name="app_tab_display">Display</string>

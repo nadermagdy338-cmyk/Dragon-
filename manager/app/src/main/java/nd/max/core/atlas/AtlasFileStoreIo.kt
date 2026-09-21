@@ -92,6 +92,14 @@ class AtlasFileStoreIo(private val directory: Path) : AtlasStoreIo {
         /** The app-private directory the store lives in, relative to a context's private storage. */
         const val DIRECTORY_NAME: String = "atlas"
 
+        /**
+         * مجلد ذاكرة المسارات داخل مخزن Atlas — **منفصل عن مجلد الأدلة** كي لا يمحو أحدهما الآخر.
+         *
+         * والثابت هنا لا في كل مستدعٍ: المسار نفسه يحتاج أن يتّفق عليه مزوّد Hilt في الواجهة
+         * والرفيق الذي يكتب المسارات في عملية أخرى — ومساران مختلفان يعنيان ذاكرتين لا واحدة.
+         */
+        const val ROUTE_MEMORY_DIRECTORY_NAME: String = "routes"
+
         /** The directory under a private files root. */
         fun directoryFor(privateRoot: File): File = File(privateRoot, DIRECTORY_NAME)
     }

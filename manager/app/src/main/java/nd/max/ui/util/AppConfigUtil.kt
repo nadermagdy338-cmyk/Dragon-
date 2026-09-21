@@ -19,6 +19,7 @@ package nd.max.ui.util
 
 import kotlinx.serialization.Serializable
 import nd.max.MaxManagerPaths
+import nd.max.core.hardware.PerAppHardwareStatus
 import nd.max.core.hardware.RootFileAccess
 
 /**
@@ -64,6 +65,57 @@ fun readPerAppCpuRuntimeStatus(packageName: String?): PerAppCpuRuntimeStatus {
     return if (values["package"] == packageName) {
         PerAppCpuRuntimeStatus(packageName, values["state"].orEmpty().ifBlank { "idle" }, values["message"].orEmpty())
     } else PerAppCpuRuntimeStatus()
+}
+
+/**
+ * نتيجة مقبض عتاد واحد للقراءة في الواجهة — نفس ما كتبه المحرّك، بلا تفسير مُضاف.
+ *
+ * والرمز [reason] هو المفتاح: «رُفض» و«غير مدعوم» و«لم يتحقّق» أعطال مختلفة تمامًا، وكل واحد
+ * منها له إجراء آخر (حرّر القفل · غيّر الاختيار · أبلغ عن العتاد).
+ */
+data class PerAppHardwareOutcome(
+    val knob: String,
+    val outcome: String,
+    val reason: String,
+    val expected: String,
+    val live: String,
+) {
+    /**
+     * ورمز لا نعرفه يُعدّ فشلًا لا نجاحًا: مجهولٌ في قناة تشخيص يجب أن يلفت النظر، لا أن يمرّ
+     * سليمًا — وسطر برمز لا نعرفه يعني إصدارًا أحدث كتب شيئًا لم نتعلّم قراءته بعد.
+     */
+    val isFailure: Boolean
+        get() = PerAppHardwareStatus.Outcome.fromToken(outcome)?.let {
+            it != PerAppHardwareStatus.Outcome.APPLIED && it != PerAppHardwareStatus.Outcome.SKIPPED
+        } ?: true
+}
+
+data class PerAppHardwareRuntimeStatus(
+    val packageName: String = "",
+    val atMs: Long = 0L,
+    val outcomes: List<PerAppHardwareOutcome> = emptyList(),
+) {
+    val failures: List<PerAppHardwareOutcome> get() = outcomes.filter { it.isFailure }
+}
+
+/**
+ * يقرأ سجل نتائج per-app المكتوب من مراقب الخلفية.
+ *
+ * ويُشترط تطابق اسم الحزمة: السجل يخصّ التطبيق الذي طُبِّق عليه آخر مرة، وعرض نتيجة تطبيق آخر
+ * على هذا التطبيق أسوأ من عدم عرض شيء.
+ */
+fun readPerAppHardwareRuntimeStatus(packageName: String?): PerAppHardwareRuntimeStatus {
+    if (packageName.isNullOrBlank()) return PerAppHardwareRuntimeStatus()
+    val snapshot = runCatching { PerAppHardwareStatus.read() }.getOrNull()
+        ?: return PerAppHardwareRuntimeStatus()
+    if (snapshot.pkg != packageName) return PerAppHardwareRuntimeStatus()
+    return PerAppHardwareRuntimeStatus(
+        packageName = snapshot.pkg,
+        atMs = snapshot.atMs,
+        outcomes = snapshot.records.map {
+            PerAppHardwareOutcome(it.knob, it.outcome, it.reason, it.expected, it.live)
+        },
+    )
 }
 
 fun decodePerAppCpuPolicyControls(encoded: String): List<PerAppCpuPolicyControl> = encoded

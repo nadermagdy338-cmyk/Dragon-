@@ -20,6 +20,14 @@ class HardwareControlArbiter @Inject constructor() {
         val baseline: String,
         val sequence: Long,
         val requestId: String,
+        /**
+         * حكم تلبية الطلب. `null` = تساوٍ حرفيّ (الافتراض القديم بلا تغيير).
+         *
+         * وُجد لأن بعض المقابض **سقف** أو **مدى** لا قيمة واحدة: مقارنتها بالتساوي
+         * تُصنّف تلبيةً حقيقية فشلًا ثم تسترجع خط الأساس. انظر
+         * [HardwareVerification] للتفصيل والقياس الذي أوجب هذا الحقل.
+         */
+        val verify: ((String, String?) -> Boolean)? = null,
     )
 
     data class Result(
@@ -48,6 +56,7 @@ class HardwareControlArbiter @Inject constructor() {
         read: () -> String?,
         baseline: String? = null,
         restore: ((String) -> Boolean)? = null,
+        verify: ((String, String?) -> Boolean)? = null,
     ): Result = sharedTransaction(key, owner, token) { journal ->
         // INV-3: a knob the user locked manually is never written by an
         // automated owner. Safety/recovery stay above every user preference.
@@ -71,7 +80,7 @@ class HardwareControlArbiter @Inject constructor() {
             ?: liveBaseline
         val request = Request(
             key, owner, token, desired, apply, read, restore ?: existing?.restore ?: apply,
-            effectiveBaseline, ++sequence, requestId(key, owner, token),
+            effectiveBaseline, ++sequence, requestId(key, owner, token), verify,
         )
         list.removeAll { it.token == token }
         list += request
@@ -168,19 +177,29 @@ class HardwareControlArbiter @Inject constructor() {
 
         val current = runCatching { winner.read() }.getOrNull()
             ?: return failAndForget(key, winner, journal, false, null, "live-read-unavailable")
-        if (current == winner.desired) {
+        // الطلب مُلبّى أصلًا بالمعنى لا بالحرف: لا يُكتب شيء ولا يُخفق في وجه مُلطِّف
+        // حراري/طاقي فعّل سقفًا أضيق من طلبنا. هذا هو المسار الذي كان يقرأ «فشل»
+        // فيُعيد الكتابة والاسترجاع كل دورة انحراف بلا أثر.
+        if (satisfied(winner, current)) {
             commitWinner(journal, winner)
             return Result(key, winner.owner, winner.desired, current, true, true, false)
         }
 
         val applied = runCatching { winner.apply(winner.desired) }.getOrDefault(false)
         val actual = runCatching { winner.read() }.getOrNull()
-        if (applied && actual == winner.desired) {
+        if (applied && satisfied(winner, actual)) {
             commitWinner(journal, winner)
             return Result(key, winner.owner, winner.desired, actual, true, true, false)
         }
         return failAndForget(key, winner, journal, applied, actual, "apply-not-verified")
     }
+
+    /**
+     * هل تلبّى الطلب؟ الحكم يأتي من الطلب نفسه حين يحدّده ([Request.verify])، وإلا فالتساوي
+     * الحرفي — وهو سلوك كل كاتب قائم لم يُمرّر حكمًا، فلا يتغيّر شيء من غير إعلان.
+     */
+    private fun satisfied(request: Request, actual: String?): Boolean =
+        request.verify?.invoke(request.desired, actual) ?: (actual != null && actual == request.desired)
 
     private fun localRequestFor(intent: SharedHardwareOwnershipStore.Intent?): Request? = intent?.let { target ->
         requests[target.key].orEmpty().firstOrNull {

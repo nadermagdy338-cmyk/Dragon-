@@ -33,6 +33,14 @@ class PerAppControlRegistry(
         val read: () -> String?,
         val baseline: String? = null,
         val restore: ((String) -> Boolean)? = null,
+        /**
+         * حكم تلبية الطلب لهذا المقبض — `null` يعني التساوي الحرفي.
+         *
+         * يُمرَّر كما هو إلى المُحكِّم وإلى نافذة التأكيد. سقوف GPU وأمدية CPU تحتاجه:
+         * مقارنتها بالتساوي الحرفي تُصنّف تلبيةً حقيقية فشلًا (سياسة vendor أضيق، أو
+         * إدماج الحاكم للسقف بقيمة مُعلنة أخرى)، ثم تسترجع خط الأساس بلا سبب مفهوم.
+         */
+        val verify: ((String, String?) -> Boolean)? = null,
     )
 
     data class RepairResult(
@@ -74,17 +82,83 @@ class PerAppControlRegistry(
     /** The gate's refusal reasons for the current app, keyed by control key. */
     @Synchronized fun refusalReasons(): Map<String, String> = refusals.toMap()
 
-    @Synchronized fun ownGovernor(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String? = null, restore: ((String) -> Boolean)? = null): Boolean =
-        own(key, desired, apply, read, baseline, restore)
+    @Synchronized fun ownGovernor(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String? = null, restore: ((String) -> Boolean)? = null, verify: ((String, String?) -> Boolean)? = null): Boolean =
+        own(key, desired, apply, read, baseline, restore, verify)
 
-    @Synchronized fun ownValue(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String? = null, restore: ((String) -> Boolean)? = null): Boolean =
-        own(key, desired, apply, read, baseline, restore)
+    @Synchronized fun ownValue(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String? = null, restore: ((String) -> Boolean)? = null, verify: ((String, String?) -> Boolean)? = null): Boolean =
+        own(key, desired, apply, read, baseline, restore, verify)
 
-    @Synchronized private fun own(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String?, restore: ((String) -> Boolean)?): Boolean {
-        val entry = Entry(key, desired, apply, read, baseline, restore)
+    @Synchronized private fun own(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String?, restore: ((String) -> Boolean)?, verify: ((String, String?) -> Boolean)?): Boolean {
+        val entry = Entry(key, desired, apply, read, baseline, restore, verify)
         val outcome = executor.execute(requestFor(entry))
         record(entry, outcome)
         return outcome.successful
+    }
+
+    /**
+     * المقابض المُملوكة الآن والقيمة المطلوبة لكل منها — للقراءة والتشخيص والحارس الحراري.
+     *
+     * نسخة لا مرجع: من يقرأ لا يستطيع أن يعدّل طلبًا وهو يمرّ، فتبقى الأسبقية في مكان واحد.
+     */
+    @Synchronized fun ownedDesired(): Map<String, String> = entries.mapValues { it.value.desired }
+
+    /**
+     * إعادة استهداف مقبض مملوك بقيمة أخرى **دون** فقدان خط الأساس ولا نيّة المستخدم.
+     *
+     * الطلب يُنقل داخل حدود ما طلبه المستخدم نفسه، والمعاملة تمرّ من نفس المُحكِّم ونفس خط
+     * الأساس، فيبقى الاسترجاع عند نهاية جلسة التطبيق صحيحًا (بصمة التوكِن نفسها ⇒ خط الأساس
+     * الأصلي محفوظ).
+     *
+     * وعلى فشل إعادة الاستهداف: تُحفظ النيّة السابقة ويبقى المقبض مُسجّلًا — إعادة الاستهداف
+     * قرار آليّ، ولا يجوز أن يُسقط هو نفسه إعدادًا اختاره المستخدم. ودورة الانحراف التالية
+     * تُعيد تأكيد النيّة المحفوظة بلا مؤقّت جديد.
+     *
+     * **ومن له مخطِّط فليستعمل [retargetRequest] + [commitRetarget]:** هذه الدالة تنفّذ معاملة
+     * واحدة بلا اختيار مسار ولا بديل ولا تذكّر. ومسار الحارس الحراري الإنتاجي يمرّ بالزوج
+     * المفصول (`ThermalCeilingRouter` ⇒ `AtlasAdaptiveExecutor`)، فلا قراران لسلوك واحد.
+     */
+    @Synchronized fun retarget(key: String, desired: String): Boolean {
+        val request = retargetRequest(key, desired) ?: return false
+        val outcome = executor.execute(request)
+        return commitRetarget(key, desired, outcome.successful, outcome.error)
+    }
+
+    /**
+     * معاملة إعادة استهداف **جاهزة** لمقبض مملوك، بلا تنفيذ.
+     *
+     * ولماذا تُسلَّم بدل تنفيذها هنا: من يخطط (Atlas) يحتاج أن يرى المعاملة كاملة — المفتاح، وخط
+     * الأساس، وحكم التلبية — ليقرّر أيّ مسار يُقدّم. والإغلاقات (`apply`/`read`/`restore`) لا تخرج
+     * من هذا السجل أبدًا، فلا يستطيع مخطط أن يكتب في عقدة لم يعرفها السجل. فالفصل: السجل يملك
+     * **الوصول**، والمخطط يملك **الاختيار**، والمُحكِّم يملك **التنفيذ**.
+     *
+     * ويُعاد `null` حين لا يكون المقبض مملوكًا: لا معاملة لمن لا يملك شيئًا.
+     */
+    @Synchronized fun retargetRequest(key: String, desired: String): HardwareRepairRequest? =
+        entries[key]?.let { entry -> requestFor(entry, desired) }
+
+    /**
+     * يُثبّت نتيجة إعادة الاستهداف في النيّة المنشورة — أو يبقيها السابقة عند الفشل.
+     *
+     * وهذا هو نصف العقد الذي يجعل تنفيذ المخطط آمنًا: بعد أن ينفّذ Atlas المعاملة، يجب أن تُحدَّث
+     * النيّة حتى لا تُعيد دورة الانحراف الطلب القديم في نفس الدقيقة.
+     */
+    @Synchronized fun commitRetarget(
+        key: String,
+        desired: String,
+        successful: Boolean,
+        error: String? = null,
+    ): Boolean {
+        val entry = entries[key] ?: return false
+        return if (successful) {
+            entry.desired = desired
+            entries[key] = entry
+            refusals.remove(key)
+            true
+        } else {
+            entries[key] = entry
+            refusals[key] = error ?: "retarget-not-verified"
+            false
+        }
     }
 
     @Synchronized fun release(key: String) {
@@ -126,16 +200,17 @@ class PerAppControlRegistry(
         )
     }
 
-    private fun requestFor(entry: Entry): HardwareRepairRequest = HardwareRepairRequest(
+    private fun requestFor(entry: Entry, desired: String = entry.desired): HardwareRepairRequest = HardwareRepairRequest(
         routeId = HardwareRepairExecutor.labelFor(entry.key),
         key = entry.key,
         owner = ControlOwnership.Owner.PER_APP,
         token = currentToken,
-        desired = entry.desired,
+        desired = desired,
         apply = entry.apply,
         read = entry.read,
         restore = entry.restore ?: entry.apply,
         baseline = entry.baseline,
+        verify = entry.verify,
         stabilitySamples = confirmationSamples,
         stabilityIntervalMs = confirmationIntervalMs,
     )

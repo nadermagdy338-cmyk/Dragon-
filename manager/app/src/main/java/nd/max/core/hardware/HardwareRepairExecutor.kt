@@ -40,6 +40,14 @@ data class HardwareRepairRequest(
     val read: () -> String?,
     val restore: (String) -> Boolean,
     val baseline: String? = null,
+    /**
+     * حكم تلبية الطلب — `null` يعني التساوي الحرفي.
+     *
+     * يُمرَّر إلى المُحكِّم **وإلى نافذة التأكيد هنا** (`request.read()` مقارنًا بالمطلوب
+     * عيّنةً بعد عيّنة): لو حكم المُحكِّم بالسقف وحكمت النافذة بالتساوي، لسقط طلبٌ صحيح
+     * عند أول عيّنة. فحكم واحد يُستعمل في الموضعين وإلا تناقض المساران.
+     */
+    val verify: ((String, String?) -> Boolean)? = null,
     val stabilitySamples: Int = 3,
     val stabilityIntervalMs: Long = 40L,
 ) {
@@ -97,6 +105,7 @@ class HardwareRepairExecutor(
             read = request.read,
             baseline = request.baseline,
             restore = request.restore,
+            verify = request.verify,
         )
         if (!result.verified) {
             return HardwareRepairResult(
@@ -125,7 +134,7 @@ class HardwareRepairExecutor(
         for (sample in 0 until request.stabilitySamples) {
             if (sample > 0) sleep(request.stabilityIntervalMs)
             lastActual = runCatching { request.read() }.getOrNull()
-            if (lastActual != request.desired) {
+            if (!satisfied(request, lastActual)) {
                 stable = false
                 break
             }
@@ -167,6 +176,10 @@ class HardwareRepairExecutor(
     }
 
     companion object {
+
+        /** نفس حكم المُحكِّم بالضبط: الطلب هو مصدر الحكم، والتساوي الحرفي هو الافتراض. */
+        private fun satisfied(request: HardwareRepairRequest, actual: String?): Boolean =
+            request.verify?.invoke(request.desired, actual) ?: (actual != null && actual == request.desired)
 
         /**
          * A canonical transaction label for any control key.

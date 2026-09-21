@@ -359,6 +359,17 @@ fun LogsViewerScreen(
                                     )
                                 )
                             }
+                            // اختصار «المشاكل فقط»: فشل مقبض واحد (مثلًا `PERAPP_KNOB outcome=not-verified`)
+                            // ليس خطأً فادحًا، لكنه بالضبط ما يُبحث عنه عند تقرير «لماذا لا يعمل».
+                            FilterChip(
+                                selected = viewModel.problemsOnly,
+                                onClick = { viewModel.toggleProblemsOnly() },
+                                label = { Text(stringResource(R.string.logsviewer_problems_only)) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = colorScheme.error.copy(alpha = 0.20f),
+                                    selectedLabelColor = colorScheme.error
+                                )
+                            )
                         }
 
                         Spacer(Modifier.height(8.dp))

@@ -36,6 +36,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.nio.channels.FileChannel
 import java.nio.channels.FileLock
+import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import android.hardware.display.DisplayManager
@@ -43,14 +44,24 @@ import android.view.Display
 import android.provider.Settings
 import android.media.AudioManager
 import android.net.wifi.WifiManager
+import nd.max.core.atlas.AtlasControlTarget
+import nd.max.core.atlas.AtlasFileStoreIo
 import nd.max.ui.util.PerAppKernelUtil
 import nd.max.ui.util.ProfilePresetStore
+import nd.max.core.hardware.AtlasAdaptiveExecutor
+import nd.max.core.hardware.AtlasRouteMemory
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.GpuHardwareBackend
+import nd.max.core.hardware.HardwareRepairExecutor
 import nd.max.core.hardware.GpuTweakPersistence
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.HardwareControlKey
+import nd.max.core.hardware.HardwareVerification
+import nd.max.core.hardware.PerAppHardwareStatus
+import nd.max.core.hardware.PerAppHardwareStatus.Outcome
 import nd.max.core.hardware.RootFileAccess
+import nd.max.core.hardware.ThermalCeilingRouter
+import nd.max.core.hardware.ThermalGuard
 import nd.max.core.hardware.SharedHardwareOwnershipStore
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.hardware.PerAppControlRegistry
@@ -180,6 +191,24 @@ object AppMonitor {
     private var forcedHwUi = false
     private var savedHwUiProp: String? = null
     private var savedDisableHwProp: String? = null
+    /**
+     * نيّة المستخدم لكل مقبض عتاد قبل أي تدخل آليّ من الحارس الحراري.
+     *
+     * ولماذا لزمت: الحارس يخفض المقبض المملوك نفسه، فيصير «المطلوب» في السجل هو قيمة
+     * الحارس لا ما طلبه المستخدم. بلا حفظ النيّة الأصلية لا يمكن أن يُعاد السقف إليها
+     * عند البرودة، فيبقى التطبيق مُقيَّدًا بعد أن يزول سبب التقييد.
+     * وتُلتقط عند التطبيق وتُطرح عند التراجع — فلا تبقى نيّة تطبيق على تطبيق آخر.
+     */
+    /**
+     * مُخطِّط سقف الحرارة — Atlas هو من يقرّر أيّ مسار يُنفَّذ، لا حلقة خاصة في هذا الملف.
+     *
+     * ويُبنى في [main] بعد معرفة سياق التطبيق (مخزن ذاكرة المسارات يعيش في تخزين التطبيق الخاص)،
+     * فبقي `null` حتى ذلك الحين و`serviceThermalGuard` تتصرّف مع الغياب صراحةً لا بصمت.
+     */
+    @Volatile private var thermalRouter: ThermalCeilingRouter? = null
+    private val hardwareUserIntent = mutableMapOf<String, String>()
+    /** هل أُعلنت حالة الحارس الحراري لهذه الجلسة؟ سطر واحد لكل جلسة لا واحد كل عشر ثوانٍ. */
+    private var thermalGuardNoted = false
     private var cpuBoostThread: Thread? = null
     private var cpuBoostOriginalMins = mutableMapOf<String, String>()
     @Volatile private var cpuBoostGeneration = 0L
@@ -223,6 +252,7 @@ object AppMonitor {
         // Same directory as the journal, so this process honours the exact locks
         // the UI wrote: a per-app rule must never move a knob the user pinned.
         ManualControlLocks.configure(controlContext.filesDir)
+        configureThermalRouter(controlContext)
 
         if (!initializeServices()) {
             AppMonitorLogger.fatal("Failed to initialize services (ActivityTaskManager/PowerManager/etc.), exiting")
@@ -250,6 +280,10 @@ object AppMonitor {
             runCatching { shellExec("setprop sys.maxmanager.manual_freq_session 0") }
         }
         recoverStalePerAppState()
+        // سجل نتائج الجلسة السابقة يخصّ عملية ماتت (والإقلاع يُصفّر العتاد أصلًا)، فإبقاؤه
+        // يجعل الواجهة تعرض «نتيجة الآن» وهي نتيجة أمس. والتاريخ يبقى كاملًا في
+        // `MaxManager.log` بأسطر `EVENT=PERAPP_KNOB` — فالمحو هنا لا يُفقد دليلًا.
+        runCatching { PerAppHardwareStatus.clear() }
         AppMonitorLogger.i("AppMonitor companion started (pid=${android.os.Process.myPid()})")
 
         val lockChannel = acquireLock()
@@ -263,6 +297,37 @@ object AppMonitor {
         })
 
         runMonitorLoop()
+    }
+
+    /**
+     * بناء مخطِّط مسارات سقف الحرارة مرّة واحدة في بداية العملية.
+     *
+     * `HardwareRepairExecutor` ثانٍ فوق **نفس** `mutationGate`: هذا ليس العطب المحذور في
+     * `PerAppControlRegistry` (مُحكِّمان في عملية واحدة = جداول طلبات متنافرة)، بل غلاف رقيق حول
+     * نفس البوّابة، والملكية تبقى في مكان واحد.
+     *
+     * وذاكرة المسارات في نفس مجلد الواجهة (`noBackupFilesDir/atlas/routes`) عبر ثابت مشترك في
+     * `AtlasFileStoreIo` — فمساران مختلفان يعنيان ذاكرتين لا واحدة.
+     *
+     * **حدّ معروف ومعلن:** `bootGeneration`/`privilegeGeneration` تُترك على الافتراضي (صفر) كما
+     * في مزوّد Hilt في الواجهة. فالنتيجة أن حجر مسار بعد استرجاع غير مؤكَّد يبقى حتى يُقلَّم المخزن،
+     * لا حتى الإقلاع — أي أن قاعدة «الحجر ينتهي بالإقلاع» في `AtlasRouteMemory` غير مُشغَّلة بعد في
+     * المسارين. ربط جيل إقلاع حقيقي تغيير يمسّ الواجهة والرفيق معًا، فلم يُفعل ضمنيًّا هنا.
+     */
+    private fun configureThermalRouter(controlContext: Context) {
+        runCatching {
+            val io = AtlasFileStoreIo(
+                Paths.get(
+                    AtlasFileStoreIo.directoryFor(controlContext.noBackupFilesDir).absolutePath,
+                    AtlasFileStoreIo.ROUTE_MEMORY_DIRECTORY_NAME,
+                ).toAbsolutePath(),
+            )
+            val memory = AtlasRouteMemory(io = io, clockMs = { android.os.SystemClock.elapsedRealtime() })
+            thermalRouter = ThermalCeilingRouter(
+                registry = hardwareControlRegistry,
+                adaptive = AtlasAdaptiveExecutor(HardwareRepairExecutor(mutationGate), memory),
+            )
+        }.onFailure { AppMonitorLogger.e("EVENT=THERMAL_ROUTER_INIT_FAILED", it) }
     }
 
     private fun acquireLock(): FileChannel? {
@@ -382,6 +447,11 @@ object AppMonitor {
             }
         }.onFailure { AppMonitorLogger.e("EVENT=DRIFT_CHECK_FAILED knob=hardware_registry pkg=$pkg sw=$currentSwitchId", it) }
 
+        // الحارس الحراري يلي التحقّق مباشرةً: يقرأ ضغط المنصة ثمّ يعدّل **المقبض المملوك نفسه**
+        // في حدود ما طلبه المستخدم. تفصيل التصميم في [ThermalGuard].
+        runCatching { serviceThermalGuard() }
+            .onFailure { AppMonitorLogger.e("EVENT=THERMAL_GUARD_FAILED pkg=$pkg sw=$currentSwitchId", it) }
+
         // Refresh-rate is another vendor-owned setting that can be reset after
         // an app switch (display/HAL policy changes are enough to do it). Verify
         // only explicit per-app requests and reapply them at the same coarse
@@ -404,6 +474,127 @@ object AppMonitor {
                 }
             }
         }.onFailure { AppMonitorLogger.e("EVENT=DRIFT_CHECK_FAILED knob=refresh_rate pkg=$pkg sw=$currentSwitchId", it) }
+    }
+
+    /**
+     * الحارس الحراري لكل تطبيق: يخفض السقف المملوك حين تُعلن المنصة خنقًا، ويعيده حين يزول.
+     *
+     * ولماذا هنا بالذات: هذه الدورة تعمل كل عشر ثوانٍ ما دام تطبيق مُدار في المقدّمة — نفس
+     * الإيقاع الذي يكشف إعادة كتابة مُلطِّف الـvendor، وهو نفس الإيقاع المناسب لإشارة حرارية
+     * (لا حلقة تحكّم ضيقة).
+     *
+     * والأهم: **هذه الدالة لا تقرّر أيّ مسار**. تُمرّر الضغط والسلّم والنيّة إلى
+     * [ThermalCeilingRouter]، ويختار Atlas المسار (إشارة المنصة، أو سقف المستخدم الثابت عند غيابها،
+     * أو البديل بعد فشل مُسترجع).
+     *
+     * حدود صريحة:
+     * - لا يعمل إلّا بوجود مقبض مملوك فعلًا، فلا يُحرّك شيئًا على جهاز لم يُطبَّق عليه شيء.
+     * - ولا يعمل إلّا بنيّة محفوظة للمستخدم؛ ولولا حفظها لكان خفضُ السقف يمحو ما اختاره
+     *   المستخدم بدل أن يتحرّك داخله.
+     * - وضغط مجهول لا يُخمَّن عليه: المسار الأوّل يصير غير مؤهّل، و**سقف المستخدم نفسه يبقى
+     *   يُنفَّذ** بدل أن يُسكت كل شيء (وهو ما كان يحدث قبل الربط).
+     */
+    private fun serviceThermalGuard() {
+        val pkg = lastAppliedPkg
+        if (pkg.isBlank() || !perAppOverridesActive) return
+        val owned = hardwareControlRegistry.ownedDesired()
+        if (owned.isEmpty()) return
+
+        val router = thermalRouter
+        if (router == null) {
+            if (!thermalGuardNoted) {
+                thermalGuardNoted = true
+                noteHardware("thermal", Outcome.UNSUPPORTED, "thermal-router-unavailable")
+                PerAppHardwareStatus.flush()
+            }
+            return
+        }
+        val pressure = ThermalGuard.readPressure(powerManager)
+        if (pressure == ThermalGuard.Pressure.UNKNOWN && !thermalGuardNoted) {
+            // إشارة المنصة غائبة: لا يخفض الحارس على تخمين، **لكنّ السقف الذي اختاره المستخدم
+            // يبقى مسارًا يُنفَّذ** — وهذا فرق حقيقي عن السابق حيث كان غياب الإشارة يُسكت كل شيء.
+            thermalGuardNoted = true
+            noteHardware("thermal", Outcome.APPLIED, "guard-static-only:platform-thermal-status-unavailable")
+            PerAppHardwareStatus.flush()
+        }
+
+        // سقف GPU
+        val gpuKey = owned.keys.firstOrNull(HardwareControlKey::isGpuFrequency)
+        if (gpuKey != null) {
+            val device = GpuHardwareBackend.selection().device?.takeIf { HardwareControlKey.gpuFrequency(it.name) == gpuKey }
+            val userCeiling = hardwareUserIntent[gpuKey]
+            if (device != null && userCeiling != null) {
+                routeThermal(
+                    statusKnob = "gpu_profile",
+                    outcome = router.apply(
+                        key = gpuKey,
+                        target = AtlasControlTarget.GPU_FREQUENCY,
+                        packageName = pkg,
+                        userCeiling = userCeiling,
+                        ladder = device.frequencies,
+                        pressure = pressure,
+                    ),
+                    pressure = pressure,
+                )
+            }
+        }
+
+        // سقوف CPU — لكل سياسة سلّمها المُعلن.
+        owned.keys.filter(HardwareControlKey::isCpuLimits).forEach { key ->
+            val userCeiling = hardwareUserIntent[key] ?: return@forEach
+            val policyName = HardwareControlKey.cpuLimitsPolicy(key) ?: return@forEach
+            val policy = CpuHardwareBackend.policies().firstOrNull { it.name == policyName } ?: return@forEach
+            routeThermal(
+                statusKnob = key,
+                outcome = router.apply(
+                    key = key,
+                    target = AtlasControlTarget.CPU_FREQUENCY,
+                    packageName = pkg,
+                    userCeiling = userCeiling,
+                    ladder = policy.availableFrequenciesKHz,
+                    pressure = pressure,
+                ),
+                pressure = pressure,
+            )
+        }
+
+        if (!pressure.isThrottling && !thermalGuardNoted) {
+            thermalGuardNoted = true
+            noteHardware("thermal", Outcome.APPLIED, "guard-idle:${pressure.name}")
+        }
+        PerAppHardwareStatus.flush()
+    }
+
+    /**
+     * تسجيل ناتج التخطيط: **مسار مُتحقَّق** أو فشل بسببه — ولا سطر لقيمة لم تحتج تغييرًا.
+     *
+     * و`acted = false` تعني «لا شيء يحتاج فعلًا» (السقف المطلوب هو القائم، أو المقبض غير مملوك)،
+     * وهي ليست عطلًا: كتابتها كفشل تجعل السجل يصرخ كل عشر ثوانٍ على جهاز سليم.
+     */
+    private fun routeThermal(
+        statusKnob: String,
+        outcome: ThermalCeilingRouter.Outcome,
+        pressure: ThermalGuard.Pressure,
+    ) {
+        if (!outcome.acted) return
+        val reason = if (outcome.verified) {
+            "thermal-guard:${outcome.routeId ?: "unknown-route"}"
+        } else {
+            "thermal-guard-failed:${outcome.reason}"
+        }
+        noteHardware(
+            statusKnob,
+            if (outcome.verified) Outcome.APPLIED else Outcome.NOT_VERIFIED,
+            reason,
+            outcome.desired.orEmpty(),
+            outcome.previous.orEmpty(),
+        )
+        AppMonitorLogger.i(
+            "EVENT=PERAPP_THERMAL_GUARD knob=$statusKnob=" +
+                "${outcome.routeId ?: "none"} pressure=${pressure.name}" +
+                " from=${outcome.previous ?: "none"} to=${outcome.desired ?: "none"}" +
+                " verified=${outcome.verified} reason=${outcome.reason} pkg=$lastAppliedPkg sw=$currentSwitchId"
+        )
     }
 
     private fun writeStatus() {
@@ -751,6 +942,9 @@ object AppMonitor {
     @Synchronized
     private fun applyPerAppConfig(pkgName: String) {
         hardwareControlRegistry.beginApp(pkgName)
+        // سجل نتائج جلسة جديدة: حالة تطبيق سابق تُقرأ على أنها حالة الآن = تشخيص كاذب.
+        PerAppHardwareStatus.beginSession(pkgName)
+        thermalGuardNoted = false
         // Refresh cache and verify this package has an enabled Per-App entry.
         refreshConfigCacheIfChanged()
         if (cachedGameListText?.contains("\"$pkgName\":") != true) return
@@ -861,15 +1055,29 @@ object AppMonitor {
             if (cpuGovernor.isNotBlank() && cpuGovernor != "default") {
                 CpuHardwareBackend.policies().forEach { policy ->
                     val baseline = policy.governor
-                    hardwareControlRegistry.ownGovernor(
-                        key = "cpu_governor:${policy.name}",
+                    val key = "cpu_governor:${policy.name}"
+                    // ناتج التسجيل كان يُهمَل هنا تمامًا: لا حالة في الواجهة ولا سطر في السجل.
+                    // فحاكمٌ رُفض بقفل يدوي كان يبدو كأنه «لم يعمل» بلا سبب مكتوب، والسبب
+                    // موجود في المُحكِّم أصلًا. صار يُقرأ ويُسجَّل.
+                    val owned = hardwareControlRegistry.ownGovernor(
+                        key = key,
                         desired = cpuGovernor,
                         apply = { value -> CpuHardwareBackend.setPolicyGovernor(policy.path, value).successful },
                         read = { CpuHardwareBackend.policies().firstOrNull { it.name == policy.name }?.governor },
                         baseline = baseline,
                         restore = { value -> CpuHardwareBackend.setPolicyGovernor(policy.path, value).successful },
                     )
+                    val refusal = hardwareControlRegistry.refusalReasons()[key]
+                    if (!owned && refusal == null && policy.governors.isNotEmpty() && cpuGovernor !in policy.governors) {
+                        // سبب قبل المُحكِّم: النواة لا تُعلن هذا الحاكم لهذه السياسة أصلًا. وتمييزه
+                        // مهم: «غير مدعوم» إصلاحه تغيير الاختيار، و«مرفوض» إصلاحه تحرير القفل.
+                        noteHardware(key, Outcome.UNSUPPORTED, "governor-not-advertised", cpuGovernor, policy.governor.orEmpty())
+                    } else {
+                        noteOwnedOutcome(key, owned, refusal, cpuGovernor, policy.governor.orEmpty())
+                    }
                 }
+            } else {
+                noteHardware("cpu_governor", Outcome.SKIPPED, "governor-is-default")
             }
 
             val gpuGovernor = readAppConfigField(pkgName, "gpu_governor")
@@ -878,17 +1086,24 @@ object AppMonitor {
                     ?: PerAppKernelUtil.findGpuNode()
                 val generic = gpuNode?.let(GpuHardwareBackend::refresh)
                     ?: GpuHardwareBackend.selection().device
-                if (generic != null && gpuGovernor in generic.governors) {
-                    val baseline = generic.governor
-                    hardwareControlRegistry.ownGovernor(
-                        key = "gpu_governor:${generic.name}",
+                if (generic == null) {
+                    noteHardware("gpu_governor", Outcome.UNSUPPORTED, "no-gpu-provider", gpuGovernor)
+                } else if (gpuGovernor !in generic.governors) {
+                    noteHardware("gpu_governor", Outcome.UNSUPPORTED, "governor-not-advertised", gpuGovernor, generic.governor.orEmpty())
+                } else {
+                    val key = "gpu_governor:${generic.name}"
+                    val owned = hardwareControlRegistry.ownGovernor(
+                        key = key,
                         desired = gpuGovernor,
                         apply = { value -> GpuHardwareBackend.setGovernor(generic, value).successful },
                         read = { GpuHardwareBackend.refresh(generic.path)?.governor },
-                        baseline = baseline,
+                        baseline = generic.governor,
                         restore = { value -> GpuHardwareBackend.setGovernor(generic, value).successful },
                     )
+                    noteOwnedOutcome(key, owned, hardwareControlRegistry.refusalReasons()[key], gpuGovernor, generic.governor.orEmpty())
                 }
+            } else {
+                noteHardware("gpu_governor", Outcome.SKIPPED, "governor-is-default")
             }
         }.onFailure { AppMonitorLogger.e("ownership: governor registration failed for '$pkgName' sw=$currentSwitchId", it) }
 
@@ -903,12 +1118,20 @@ object AppMonitor {
                 activePerAppCpuPackage = pkgName
                 writePerAppCpuStatus(pkgName, "applying", "Applying CPU controls")
                 val policies = CpuHardwareBackend.policies().associateBy { it.name }
-                var firstFailure: String? = null
-                val validated = policyControls.mapNotNull { control ->
+                // كل سياسة تُحاكَم وحدها. كان `firstFailure` واحدًا يُسقط **كل** السياسات
+                // (`acquiredKeys.asReversed().forEach(release)`): سياسةٌ واحدة يقيّدها الـvendor
+                // كانت تُلغي تحكّمًا ناجحًا على بقية العناقيد ثم تُسترجع مقابضها — فالمستخدم يقرأ
+                // «فشل» بينما نصف العمل كان قد نجح. والأصحّ عزل الفشل: الناجح يبقى مفعّلًا، والفاشل
+                // يُعلن بحدّه ومع سببه.
+                val failures = mutableListOf<String>()
+                var appliedPolicies = 0
+                policyControls.forEach { control ->
                     val policy = policies[control.policyName]
+                    val key = HardwareControlKey.cpuLimits(control.policyName)
                     if (policy == null) {
-                        if (firstFailure == null) firstFailure = "${control.policyName} is unavailable"
-                        return@mapNotNull null
+                        failures += "${control.policyName} is unavailable"
+                        noteHardware(key, Outcome.UNSUPPORTED, "policy-unavailable", "${control.minKHz}:${control.maxKHz}")
+                        return@forEach
                     }
                     val supported = policy.availableFrequenciesKHz
                     val provenMin = policy.hwMinKHz ?: supported.firstOrNull()
@@ -932,24 +1155,27 @@ object AppMonitor {
                             "EVENT=PERAPP_CPU_TARGET_CAPPED pkg=$pkgName policy=${policy.name} requested=${control.minKHz}:${control.maxKHz} live_cap=${runtimeMax ?: "?"} applied=$normalizedMin:$normalizedMax sw=$currentSwitchId"
                         )
                     }
-                    when {
-                        supported.isEmpty() -> {
-                            if (firstFailure == null) firstFailure = "${control.policyName} has no discoverable frequency table"
-                            null
-                        }
-                        provenMin == null || provenMax == null || normalizedMin < provenMin || normalizedMax > provenMax -> {
-                            if (firstFailure == null) firstFailure = "${control.policyName} range is outside proven hardware bounds"
-                            null
-                        }
-                        else -> control.copy(minKHz = normalizedMin, maxKHz = normalizedMax) to policy
+                    if (supported.isEmpty()) {
+                        failures += "${control.policyName} has no discoverable frequency table"
+                        noteHardware(key, Outcome.UNSUPPORTED, "no-advertised-frequency-range", "${control.minKHz}:${control.maxKHz}")
+                        return@forEach
                     }
-                }
-                val acquiredKeys = mutableListOf<String>()
-                if (firstFailure == null && validated.size == policyControls.size) validated.forEach { (control, policy) ->
-                    if (firstFailure != null) return@forEach
-                    val requested = "${control.minKHz}:${control.maxKHz}"
+                    if (provenMin == null || provenMax == null || normalizedMin < provenMin || normalizedMax > provenMax) {
+                        failures += "${control.policyName} range is outside proven hardware bounds"
+                        noteHardware(
+                            key,
+                            Outcome.UNSUPPORTED,
+                            "outside-proven-hardware-bounds",
+                            "$normalizedMin:$normalizedMax",
+                            "$provenMin:$provenMax",
+                        )
+                        return@forEach
+                    }
+                    val requested = "$normalizedMin:$normalizedMax"
                     val liveRange = "${policy.minKHz ?: ""}:${policy.maxKHz ?: ""}"
-                    val key = HardwareControlKey.cpuLimits(policy.name)
+                    fun liveRangeNow(): String? = CpuHardwareBackend.policies().firstOrNull { it.name == policy.name }?.let {
+                        "${it.minKHz ?: ""}:${it.maxKHz ?: ""}"
+                    }
                     val owned = hardwareControlRegistry.ownValue(
                         key = key,
                         desired = requested,
@@ -957,36 +1183,42 @@ object AppMonitor {
                             val parts = value.split(":", limit = 2)
                             CpuHardwareBackend.setPolicyLimits(policy.path, parts[0].toLongOrNull(), parts[1].toLongOrNull()).successful
                         },
-                        read = {
-                            CpuHardwareBackend.policies().firstOrNull { it.name == policy.name }?.let {
-                                "${it.minKHz ?: ""}:${it.maxKHz ?: ""}"
-                            }
-                        },
+                        read = { liveRangeNow() },
                         baseline = liveRange,
                         restore = { value ->
                             val parts = value.split(":", limit = 2)
                             CpuHardwareBackend.setPolicyLimits(policy.path, parts[0].toLongOrNull(), parts[1].toLongOrNull()).successful
                         },
+                        // المدى الحيّ **داخل** الطلب = مُلبّى: السائق يرفع الأرضية أو يهبط بالسقف
+                        // إلى OPP مُعلن، وذلك تلبية لا فشل. والتساوي كان يسترجع خط الأساس فيرى
+                        // المستخدم المقبض يرتدّ بلا سبب.
+                        verify = HardwareVerification::rangeContained,
                     )
-                    val verified = CpuHardwareBackend.policies().firstOrNull { it.name == policy.name }?.let {
-                        "${it.minKHz ?: ""}:${it.maxKHz ?: ""}" == requested
-                    } == true
-                    if (owned && verified) {
-                        acquiredKeys += key
-                    } else if (firstFailure == null) {
-                        val actual = CpuHardwareBackend.policies().firstOrNull { it.name == policy.name }?.let {
-                            "${it.minKHz ?: "?"}:${it.maxKHz ?: "?"}"
-                        } ?: "unreadable"
-                        firstFailure = "${policy.name} requested=$requested live=$actual (kernel/vendor cap or route rejection)"
+                    val live = liveRangeNow()
+                    val refusal = hardwareControlRegistry.refusalReasons()[key]
+                    if (owned) {
+                        appliedPolicies++
+                        hardwareUserIntent[key] = requested
+                        noteOwnedOutcome(key, true, null, requested, live.orEmpty())
+                    } else {
+                        failures += "${policy.name} requested=$requested live=${live ?: "unreadable"} (${refusal ?: "not-verified"})"
+                        noteOwnedOutcome(key, false, refusal, requested, live.orEmpty())
                     }
                 }
-                if (firstFailure != null) acquiredKeys.asReversed().forEach(hardwareControlRegistry::release)
-                if (firstFailure == null) {
-                    writePerAppCpuStatus(pkgName, "applied", "CPU controls verified")
-                    AppMonitorLogger.i("EVENT=PERAPP_CPU_APPLIED pkg=$pkgName policies=${policyControls.size} sw=$currentSwitchId")
-                } else {
-                    writePerAppCpuStatus(pkgName, "failed", firstFailure)
-                    AppMonitorLogger.w("EVENT=PERAPP_CPU_FAILED pkg=$pkgName reason=$firstFailure sw=$currentSwitchId")
+                when {
+                    appliedPolicies == policyControls.size -> {
+                        writePerAppCpuStatus(pkgName, "applied", "CPU controls verified")
+                        AppMonitorLogger.i("EVENT=PERAPP_CPU_APPLIED pkg=$pkgName policies=${policyControls.size} sw=$currentSwitchId")
+                    }
+                    appliedPolicies > 0 -> {
+                        // جزئي: ما نجح يبقى على العتاد، والرسالة تقول الصدق بعددِ ما بقي.
+                        writePerAppCpuStatus(pkgName, "failed", "${failures.first()} — kept $appliedPolicies/${policyControls.size}")
+                        AppMonitorLogger.w("EVENT=PERAPP_CPU_PARTIAL pkg=$pkgName kept=$appliedPolicies total=${policyControls.size} reason=${failures.first()} sw=$currentSwitchId")
+                    }
+                    else -> {
+                        writePerAppCpuStatus(pkgName, "failed", failures.first())
+                        AppMonitorLogger.w("EVENT=PERAPP_CPU_FAILED pkg=$pkgName reason=${failures.first()} sw=$currentSwitchId")
+                    }
                 }
             }
         }.onFailure {
@@ -1008,8 +1240,9 @@ object AppMonitor {
                     val minSnapped = cpuMin?.let { CpuHardwareBackend.snapToAvailableAtOrBelow(policy, it) }
                     val maxSnapped = cpuMax?.let { CpuHardwareBackend.snapToAvailableAtOrBelow(policy, it) }
                     val desired = "${minSnapped ?: ""}:${maxSnapped ?: ""}"
-                    hardwareControlRegistry.ownValue(
-                        key = HardwareControlKey.cpuLimits(policy.name),
+                    val key = HardwareControlKey.cpuLimits(policy.name)
+                    val owned = hardwareControlRegistry.ownValue(
+                        key = key,
                         desired = desired,
                         apply = { value ->
                             val parts = value.split(":", limit = 2)
@@ -1029,6 +1262,16 @@ object AppMonitor {
                             val max = parts.getOrNull(1)?.takeIf { it.isNotBlank() }?.toLongOrNull()
                             CpuHardwareBackend.setPolicyLimits(policy.path, min, max).successful
                         },
+                        verify = HardwareVerification::rangeContained,
+                    )
+                    if (owned) hardwareUserIntent[key] = desired
+                    noteOwnedOutcome(
+                        knob = key,
+                        owned = owned,
+                        refusal = hardwareControlRegistry.refusalReasons()[key],
+                        expected = desired,
+                        live = CpuHardwareBackend.policies().firstOrNull { it.name == policy.name }
+                            ?.let { "${it.minKHz ?: ""}:${it.maxKHz ?: ""}" }.orEmpty(),
                     )
                 }
             }
@@ -1040,23 +1283,51 @@ object AppMonitor {
                 val legacy = readAppConfigField(pkgName, "thermal_profile")
                 when (legacy) { "powersave" -> "power"; else -> legacy }
             }
-            val device = GpuHardwareBackend.selection().device
-                ?.takeIf { it.rangeWritable || it.exactLockWritable }
-                ?: return@runCatching
+            // "default" تعني **لا شيء يُنفَّذ**، وهي تختلف عن "لم نستطع": الأولى نتيجة
+            // مقصودة تُسجَّل `skipped`، والثانية فشل يحمل سببه. وخلطهما هو ما يجعل الواجهة
+            // تقول «فشل» لقيمة لم تُطلب أصلًا.
+            val explicit = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
+            if (explicit == null && (profile.isBlank() || profile == "default")) {
+                noteHardware("gpu_profile", Outcome.SKIPPED, "profile-is-default")
+                return@runCatching
+            }
+            // كل بوابة تخرج أدناه كانت تخرج بـ`return@runCatching` **صامتًا**: لا سطر في
+            // السجل ولا حالة في الواجهة، فيرى المستخدم «لم يحدث شيء» ولا يعرف أيّ بوابة
+            // أُغلقت. صار لكل خروج رمز سببه، والسبب يأتي من الجهاز نفسه لا من تخميننا.
+            val gpuSelection = GpuHardwareBackend.selection()
+            val device = gpuSelection.device
+            if (device == null) {
+                noteHardware("gpu_profile", Outcome.UNSUPPORTED, "no-gpu-provider:${gpuSelection.reason}", profile)
+                return@runCatching
+            }
+            if (!(device.rangeWritable || device.exactLockWritable)) {
+                noteHardware("gpu_profile", Outcome.NOT_WRITABLE, "gpu-provider-not-writable:${device.name}", profile)
+                return@runCatching
+            }
             // The OPP list is a capability catalogue, while the live max_freq
             // is a runtime ceiling that vendor thermal/power policy may lower.
             // Read it immediately before planning the per-app target so a stale
             // catalogue cannot make us request an impossible frequency.
-            val liveAtPlan = GpuHardwareBackend.refresh(device.path) ?: return@runCatching
+            val liveAtPlan = GpuHardwareBackend.refresh(device.path)
+            if (liveAtPlan == null) {
+                noteHardware("gpu_profile", Outcome.UNSUPPORTED, "provider-disappeared", profile)
+                return@runCatching
+            }
             val liveCap = GpuHardwareBackend.configurableMaxFrequency(liveAtPlan)
-                ?: return@runCatching
-            val explicit = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
+            if (liveCap == null) {
+                noteHardware("gpu_profile", Outcome.UNSUPPORTED, "no-advertised-frequency-range", profile)
+                return@runCatching
+            }
             val requested = explicit ?: PerAppKernelUtil.pickProfileFrequency(
                 liveAtPlan.frequencies,
                 profile,
                 ProfilePresetStore.percentFor(systemContext, profile),
                 maximumHz = liveCap,
-            ) ?: return@runCatching
+            )
+            if (requested == null) {
+                noteHardware("gpu_profile", Outcome.UNSUPPORTED, "unsupported-profile:$profile", profile, liveCap.toString())
+                return@runCatching
+            }
             // ملاحظة عقد (مقصودة، لا عطب): هذا المقبض يتحقّق من **السقف** (`max`) لا من المدى
             // كاملًا، ولهذا لا يستعمل `encodeLive` المشتركة: لو قارنّا المدى أيضًا، لأدى أدنى
             // تثبيت من السائق للحدّ الأدنى (`min`) — وهو ما يفعله كثير من السائقين — إلى تصنيف
@@ -1073,7 +1344,10 @@ object AppMonitor {
             // expected=1300000000 live=754000000` ثم `APPLY_DRIFT_REASSERT_FAILED`
             // بعد ثانيتين، مرّتين لكل تطبيق — والجهاز لا يبلغ السقف المطلوب أصلًا.
             val target = GpuHardwareBackend.snapToAvailableAtOrBelow(liveAtPlan, requested)
-                ?: return@runCatching
+            if (target == null) {
+                noteHardware("gpu_profile", Outcome.UNSUPPORTED, "unsupported-frequency", requested.toString(), liveCap.toString())
+                return@runCatching
+            }
             if (explicit != null && target != explicit) {
                 AppMonitorLogger.w(
                     "EVENT=PERAPP_GPU_TARGET_CAPPED pkg=$pkgName requested=$explicit live_cap=$liveCap applied=$target sw=$currentSwitchId"
@@ -1081,12 +1355,13 @@ object AppMonitor {
             }
             val baseline = GpuHardwareBackend.captureBaseline(liveAtPlan)
             val desired = target.toString()
-            hardwareControlRegistry.ownValue(
-                key = HardwareControlKey.gpuFrequency(device.name),
+            val gpuKey = HardwareControlKey.gpuFrequency(device.name)
+            val owned = hardwareControlRegistry.ownValue(
+                key = gpuKey,
                 desired = desired,
-                apply = { value -> value.toLongOrNull()?.let { target ->
+                apply = { value -> value.toLongOrNull()?.let { wantedHz ->
                         val live = GpuHardwareBackend.refresh(device.path) ?: return@let false
-                        val capped = GpuHardwareBackend.snapToAvailableAtOrBelow(live, target) ?: return@let false
+                        val capped = GpuHardwareBackend.snapToAvailableAtOrBelow(live, wantedHz) ?: return@let false
                         val low = live.frequencies.firstOrNull { it <= capped } ?: return@let false
                         GpuHardwareBackend.applyValidated(
                             live,
@@ -1107,6 +1382,21 @@ object AppMonitor {
                 // five-field baseline record.
                 baseline = GpuHardwareBackend.effectiveFrequency(liveAtPlan)?.toString(),
                 restore = { GpuHardwareBackend.restoreBaseline(baseline) },
+                // السقف يُحكم عليه بمعناه: لا يتجاوز المطلوب = مُلبّى. والتساوي كان يقرأ
+                // `expected=1300000000 live=754000000` فشلًا فيسترجع خط الأساس ويعيد الكتابة
+                // كل دورة انحراف بلا نتيجة (القياس في HANDOFF.md).
+                verify = HardwareVerification::ceilingAtMost,
+            )
+            // نيّة المستخدم تُحفظ قبل أي تدخّل من الحارس الحراري — الحارس يعدّل «المطلوب»
+            // لاحقًا، ولا سبيل لإعادة السقف إلى ما اختاره المستخدم بلا حفظه هنا.
+            if (owned) hardwareUserIntent[gpuKey] = desired
+            noteOwnedOutcome(
+                knob = "gpu_profile",
+                owned = owned,
+                refusal = hardwareControlRegistry.refusalReasons()[gpuKey],
+                expected = desired,
+                live = GpuHardwareBackend.refresh(device.path)
+                    ?.let(GpuHardwareBackend::effectiveFrequency)?.toString().orEmpty(),
             )
         }.onFailure { AppMonitorLogger.e("ownership: GPU frequency registration failed for '$pkgName' sw=$currentSwitchId", it) }
 
@@ -1169,7 +1459,7 @@ object AppMonitor {
                 val normalized = PerAppRefreshRateController.normalizeRequestedRate(context, requestedRefresh)
                 val baseline = PerAppRefreshRateController.currentEnforcedRate(context)?.toString()
                 if (normalized != null) {
-                    hardwareControlRegistry.ownValue(
+                    val owned = hardwareControlRegistry.ownValue(
                         key = "refresh_rate",
                         desired = normalized.toString(),
                         apply = { value -> value.toIntOrNull()?.let { PerAppRefreshRateController.apply(context, it) } ?: false },
@@ -1179,6 +1469,13 @@ object AppMonitor {
                             val hz = value.toIntOrNull()
                             hz != null && PerAppRefreshRateController.apply(context, hz)
                         },
+                    )
+                    noteOwnedOutcome(
+                        knob = "refresh_rate",
+                        owned = owned,
+                        refusal = hardwareControlRegistry.refusalReasons()["refresh_rate"],
+                        expected = normalized.toString(),
+                        live = PerAppRefreshRateController.currentEnforcedRate(context)?.toString().orEmpty(),
                     )
                 }
             }
@@ -1307,6 +1604,9 @@ object AppMonitor {
         // تعديلات هذا التطبيق حيّة على العتاد الآن: يُعلن في app_status
         // (perapp_active 1) فيدخل محرك MAX AI وضع المراقبة.
         perAppOverridesActive = true
+        // كتابة واحدة في النهاية: الحالة تُقرأ كاملة أو لا تُقرأ، ولا تُعبّئ الواجهة بنصفِ
+        // سجل يبدو سليمًا أثناء تطبيق جارٍ.
+        PerAppHardwareStatus.flush()
     }
 
     private fun readCpuMinFrequencies(): Map<String, String> {
@@ -1409,6 +1709,54 @@ object AppMonitor {
         )
     }
 
+    /**
+     * يسجّل نتيجة مقبض واحد في **مكانين**: سجل الحالة الذي تقرؤه الواجهة، والسجل الموحّد.
+     *
+     * ولماذا الاثنان معًا: الواجهة تحتاج الحالة الآن (بلا `tail`)، ومن يُصلح عطلًا بعد أسبوع
+     * يحتاج سطرًا مؤرَّخًا في `MaxManager.log` يحمل نفس رمز السبب. وسطرٌ في مكان دون آخر هو
+     * بالضبط ما جعل سبب فشل GPU غير معروف في السابق: لا حالة في الواجهة ولا سطر في السجل.
+     */
+    private fun noteHardware(
+        knob: String,
+        outcome: PerAppHardwareStatus.Outcome,
+        reason: String,
+        expected: String = "",
+        live: String = "",
+    ) {
+        PerAppHardwareStatus.note(knob, outcome, reason, expected, live)
+        val line = "EVENT=PERAPP_KNOB knob=$knob outcome=${outcome.token} reason=$reason" +
+            " expected=${expected.ifBlank { "none" }} live=${live.ifBlank { "none" }}" +
+            " pkg=$lastAppliedPkg sw=$currentSwitchId"
+        // المستوى من النتيجة لا من العادة: فشلٌ يُكتب I(معلوماتي) يختفي من مُرشِّح «المشاكل» في
+        // شاشة السجل، وهو المكان الوحيد الذي يبحث فيه مَن يُصلح عطلًا. والسطر نفسه في الحالتين،
+        // فالمستوى إضافة لا تغيير صيغة.
+        if (outcome == Outcome.APPLIED || outcome == Outcome.SKIPPED) AppMonitorLogger.i(line)
+        else AppMonitorLogger.w(line)
+    }
+
+    /**
+     * ترجمة نتيجة التسجيل المُلكيّ إلى نتيجة **مُعلَنة**: النجاح كما هو، والرفض برمز سببه
+     * الحقيقي (`manual-lock` / `preempted-by-*`) لا بـ«فشل» عامّ. والفرق ليس تجميليًّا: قفل
+     * المستخدم يحتاج أن يقرأ «أنت قفلت هذا المقبض» لا «العتاد فشل»، وهما إجراءان مختلفان تمامًا.
+     */
+    private fun noteOwnedOutcome(
+        knob: String,
+        owned: Boolean,
+        refusal: String?,
+        expected: String,
+        live: String,
+    ) {
+        when {
+            owned -> noteHardware(knob, PerAppHardwareStatus.Outcome.APPLIED, "verified", expected, live)
+            refusal == null -> noteHardware(knob, PerAppHardwareStatus.Outcome.NOT_VERIFIED, "not-verified", expected, live)
+            refusal.startsWith("preempted") || refusal == "manual-lock" ||
+                refusal == "handoff-awaiting-owner-process" ->
+                noteHardware(knob, PerAppHardwareStatus.Outcome.BLOCKED, refusal, expected, live)
+            else -> noteHardware(knob, PerAppHardwareStatus.Outcome.NOT_VERIFIED, refusal, expected, live)
+        }
+        PerAppHardwareStatus.flush()
+    }
+
     private fun restoreGlobalMaxManagerProfile(): Boolean {
         val profile = shellRead("cat /data/adb/.config/MaxManager/API/current_profile 2>/dev/null")
         if (profile !in setOf("1", "2", "3")) return false
@@ -1431,6 +1779,10 @@ object AppMonitor {
         runCatching { PerAppKernelUtil.releaseGpuFixedFrequency() }
             .onFailure { AppMonitorLogger.e("revert: releaseGpuFixedFrequency() failed while leaving '$lastAppliedPkg' sw=$currentSwitchId", it) }
         hardwareControlRegistry.releaseAll()
+        // نيّة المستخدم تخصّ هذه الجلسة وحدها: إبقاؤها بعد التراجع يجعل الحارس الحراري
+        // يحرس تطبيقًا لم يبق له مقبض مملوك، ويسجّل نتائج على تطبيق آخر.
+        hardwareUserIntent.clear()
+        PerAppHardwareStatus.flush()
         stopCpuBoostAndRestore()
         // Reapply the current Global MaxManager profile first when possible.
         // This restores the state defined in the main Tweaks page instead of

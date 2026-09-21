@@ -35,7 +35,9 @@ import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.util.AppConfig
 import nd.max.ui.util.PerAppCpuRuntimeStatus
+import nd.max.ui.util.PerAppHardwareRuntimeStatus
 import nd.max.ui.util.readPerAppCpuRuntimeStatus
+import nd.max.ui.util.readPerAppHardwareRuntimeStatus
 import nd.max.ui.util.EventLog
 import nd.max.ui.util.PerAppKernelUtil
 
@@ -63,6 +65,15 @@ class AppSettingsViewModel : ViewModel() {
     var cpuPolicies by mutableStateOf<List<CpuHardwareBackend.Policy>>(emptyList())
         private set
     var cpuRuntimeStatus by mutableStateOf(PerAppCpuRuntimeStatus())
+        private set
+
+    /**
+     * نتيجة **كل** مقبض عتاد لهذا التطبيق (CPU · GPU · الحكام · الحرارة) مع رمز سببه.
+     *
+     * ولماذا لم يكفِ [cpuRuntimeStatus]: ذاك كان يغطّي سياسات CPU وحدها، ففشل GPU أو الحرارة
+     * لا يصل إلى الشاشة أبدًا — وهذا بالضبط سبب أن «التحكّم لا يعمل» بلا سبب مكتوب.
+     */
+    var hardwareRuntimeStatus by mutableStateOf(PerAppHardwareRuntimeStatus())
         private set
 
     fun loadConfig() {
@@ -139,6 +150,7 @@ class AppSettingsViewModel : ViewModel() {
             val cpuPolicyData = CpuHardwareBackend.policies()
             val gpu = PerAppKernelUtil.readGpuCapabilities()
             val status = readPerAppCpuRuntimeStatus(packageName)
+            val hardwareStatus = readPerAppHardwareRuntimeStatus(packageName)
             withContext(Dispatchers.Main) {
                 availableCpuGovernors = cpu
                 cpuPolicies = cpuPolicyData
@@ -146,6 +158,7 @@ class AppSettingsViewModel : ViewModel() {
                 availableGpuFrequencies = gpu.frequencies
                 gpuNode = gpu.node
                 cpuRuntimeStatus = status
+                hardwareRuntimeStatus = hardwareStatus
             }
         }
     }
@@ -153,7 +166,11 @@ class AppSettingsViewModel : ViewModel() {
     fun refreshCpuRuntimeStatus(packageName: String?) {
         viewModelScope.launch(Dispatchers.IO) {
             val status = readPerAppCpuRuntimeStatus(packageName)
-            withContext(Dispatchers.Main) { cpuRuntimeStatus = status }
+            val hardwareStatus = readPerAppHardwareRuntimeStatus(packageName)
+            withContext(Dispatchers.Main) {
+                cpuRuntimeStatus = status
+                hardwareRuntimeStatus = hardwareStatus
+            }
         }
     }
 

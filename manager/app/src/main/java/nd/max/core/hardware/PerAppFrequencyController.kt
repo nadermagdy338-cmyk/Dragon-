@@ -21,10 +21,15 @@ class PerAppFrequencyController @Inject constructor(
 
     fun applyCpuLimits(policyPath: String, minKHz: Long?, maxKHz: Long?): Result {
         if (minKHz == null && maxKHz == null) return Result("default", true, true, "default")
-        val key = HardwareControlKey.cpuLimits(policyPath)
         val token = "per-app-cpu-${System.currentTimeMillis()}"
         val baselinePolicy = CpuHardwareBackend.policies().firstOrNull { it.path == policyPath }
             ?: return Result("${minKHz ?: ""}:${maxKHz ?: ""}", false, false, error = "unsupported-policy")
+        // المفتاح بـ**اسم السياسة** لا بمسارها: هذا هو المفتاح الذي يُنشئه كل كاتب آخر
+        // (`AppMonitor` · `CpuCeilingKnobs` · `ControlRegistry` · `CpuCoreControlViewModel`)
+        // وبه يُقفل المستخدم مقبضًا يدويًّا (`ManualControlLocks`). ومفتاحٌ بمسار كامل لمقبض
+        // واحد يعني سجلَّي أسبقية لمقبض واحد: قفلٌ من شاشة الأنوية لا يرى هذا الطلب، وهذا
+        // الطلب لا يراه ذلك القفل — و«قفل يحترمه كاتب ويجهله آخر» ليس قفلًا.
+        val key = HardwareControlKey.cpuLimits(baselinePolicy.name)
         val baseline = "${baselinePolicy.minKHz ?: ""}:${baselinePolicy.maxKHz ?: ""}"
         // القيمة المطلوبة تُصاغ من جدول OPP المُعلَن: قيمة بين الحدّين وليست في الجدول
         // لا يرفضها السائق بل يُبدّلها، فيصير التحقق فشلًا لتغيير ناجح ثم يُسترجع خط
@@ -60,6 +65,9 @@ class PerAppFrequencyController @Inject constructor(
                     parts.getOrNull(1)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
                 ).verified
             },
+            // السقف والأرضية المُعلنان قد يقيّدهما الـvendor أكثر؛ فيكون المدى الحيّ **داخل**
+            // الطلب = الطلب مُلبّى. والتساوي الحرفي كان يُقرأ فشلًا فيسترجع خط الأساس.
+            verify = HardwareVerification::rangeContained,
         )
         return Result(desired, r.applied, r.verified, r.actual, r.error)
     }
@@ -120,6 +128,7 @@ class PerAppFrequencyController @Inject constructor(
             },
             baseline = GpuHardwareBackend.encodeLive(liveAtPlan, request),
             restore = { GpuHardwareBackend.restoreBaseline(baseline) },
+            verify = GpuHardwareBackend::requestSatisfied,
         )
         return Result(desired, r.applied, r.verified, r.actual, r.error)
     }

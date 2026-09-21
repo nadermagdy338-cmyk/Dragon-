@@ -526,6 +526,28 @@ class LogsViewerViewModel : ViewModel() {
         applyUnifiedFilter()
     }
 
+    /**
+     * «المشاكل فقط» **مشتقّة** لا مخزَّنة: هي بالضبط حالة أن تكون مستويات الطبع كلها غير مختارة.
+     *
+     * ولماذا لا عَلَم مستقل: عَلَمٌ منفصل يمكن أن يخالف المستويات المعروضة، فيقول الزرّ «معمَّم»
+     * والقائمة لا تُظهر إلا التحذيرات. والمشتق لا يخالف ما يُعرض لأنه منه.
+     */
+    val problemsOnly: Boolean
+        get() = selectedUnifiedLevels.none { it == UnifiedLogLevel.DEBUG || it == UnifiedLogLevel.INFO }
+
+    /**
+     * يُبدّل بين «كل المستويات» و«W/E/F وحدها»: فشلٌ يُكتب I(معلوماتي) لا يظهر هنا، ولذلك
+     * صارت أسطر `PERAPP_KNOB` الفاشلة تُكتب W في المحرّك — المستوى من النتيجة لا من العادة.
+     */
+    fun toggleProblemsOnly() {
+        selectedUnifiedLevels = if (problemsOnly) {
+            UnifiedLogLevel.entries.toSet()
+        } else {
+            setOf(UnifiedLogLevel.WARN, UnifiedLogLevel.ERROR, UnifiedLogLevel.FATAL)
+        }
+        applyUnifiedFilter()
+    }
+
     fun toggleUnifiedLevel(level: UnifiedLogLevel) {
         val updated = if (level in selectedUnifiedLevels) selectedUnifiedLevels - level else selectedUnifiedLevels + level
         if (updated.isEmpty()) return
