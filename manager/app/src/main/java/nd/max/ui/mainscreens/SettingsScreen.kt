@@ -74,7 +74,6 @@ import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.BuildConfig
 import nd.max.R
@@ -91,6 +90,13 @@ import nd.max.ui.settings.AppLanguageSheet
 import nd.max.ui.settings.SettingsViewModel as PreferenceSettingsViewModel
 
 
+/**
+ * سجل ظهور الأيقونة الذي تكتبه الوحدة عند كل إقلاع (`service.sh`).
+ *
+ * والأيقونة صارت **ظاهرة دائمًا**: الـalias في البيان مُفعَّل، والوحدة تُعيد تفعيله في كل إقلاع
+ * (لأن حالة المكوّن المحفوظة في `PackageManager` تسبق قيمة البيان). ويُبقى هذا الثابت لأن الملف
+ * نفسه ما زال يُكتب، وقراءته تُجيب «هل حالتها كما تركناها؟» بلا صندوق أوامر.
+ */
 internal const val LAUNCHER_VISIBILITY_PATH = "/data/adb/.config/MaxManager/launcher_visibility"
 
 fun isLauncherIconEnabled(context: Context): Boolean {
@@ -129,9 +135,6 @@ fun SettingsScreen(
         AppLanguage.nativeName(currentLanguage)
     }
 
-    var isLauncherVisible by rememberSaveable {
-        mutableStateOf(isLauncherIconEnabled(context))
-    }
     var showChangelogSheet by remember { mutableStateOf(false) }
     var showScreenHelp by remember { mutableStateOf(false) }
     var showLanguageSheet by remember { mutableStateOf(false) }
@@ -273,23 +276,10 @@ fun SettingsScreen(
                     ExpressiveList(
                         content = listOf(
                             { AppInfoHeaderContent() },
-                            {
-                                ExpressiveListItem(
-                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ColorPalette) },
-                                    headlineContent = { Text(stringResource(R.string.theme)) },
-                                    supportingContent = { Text(stringResource(R.string.theme_desc)) },
-                                    leadingContent = { LeadingIcon(icon = Icons.Filled.Palette) },
-                                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
-                                )
-                            },
-                            {
-                                ExpressiveListItem(
-                                    onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ColorScheme) },
-                                    headlineContent = { Text(stringResource(R.string.color_scheme)) },
-                                    leadingContent = { LeadingIcon(icon = Icons.Filled.ColorLens) },
-                                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
-                                )
-                            },
+                            //
+                            // الألوان ومخطّطها انتقلا إلى `Control → Tools`: هما أداة تُطلب من
+                            // شاشة التحكّم، وليسا تفضيلًا يُقلَّب في قائمة الإعدادات بجانب اللغة
+                            // والمظهر. ومكان واحد لكل أداة هو ما يجعل «أين أجدها؟» سؤالًا بلا لبس.
                             {
                                 ExpressiveListItem(
                                     onClick = { showLanguageSheet = true },
@@ -466,35 +456,40 @@ fun SettingsScreen(
                             content = listOf(
                                 // مفتاح Max AI الرئيسي انتقل إلى شاشة Max AI
                                 // الموحدة (maxai) — مصدر حقيقة واحد للمفتاح.
+                                //
+                                // ومفتاح «إظهار أيقونة التطبيق» أُزيل مع مساره: الأيقونة تبقى
+                                // ظاهرة دائمًا. السبب عَمَليّ لا ذوقيّ: تطبيق الوحدة هو الطريق
+                                // الوحيد إلى مدير الروت بعد التفليش، ومدير إخفائه من الواجهة كان
+                                // يقطع الطريق على من أراد منحه الإذن — ثم يقول «تطبيقي لا يظهر».
+                                // طلب إذن الروت يدويًّا — زرّ واحد يفتح باب مدير الروت.
+                                //
+                                // ولماذا لزم: التطبيق يُثبّته المُثبِّت **تطبيق نظام** (`/product/priv-app`)،
+                                // ومديرو الروت (KernelSU Next · APatch · Magisk) يبنون قائمة القبول من
+                                // **الطلبات** التي تصلهم من التطبيق؛ فمن لم يُسأل لا يظهر في القائمة
+                                // فيقول صاحبه «تطبيقي غير موجود لأمنحه الإذن». والضغط هنا يُنفّذ أمرًا
+                                // بصلاحية جذر عبر `libsu`، فيصل الطلب إلى المدير ويُسجَّل التطبيق في
+                                // قائمته — ولذلك الشرح أدناه يقول ما سيحدث بالضبط لا «جرّب».وعلى كل حال،
+                                // الكتابات الروتينية تأخذ أذوناتها من `service.sh` عند الإقلاع،
+                                // فهذا الزرّ للأذن الشخصي لا لتشغيل التطبيق.
                                 {
-                                    ExpressiveSwitchItem(
-                                        icon = Icons.Rounded.AddHome,
-                                        title = stringResource(R.string.show_icon),
-                                        checked = isLauncherVisible,
-                                        onCheckedChange = { isChecked ->
+                                    ExpressiveListItem(
+                                        onClick = {
                                             coroutineScope.launch {
-                                                val pkg = context.packageManager
-                                                val componentName = ComponentName(context.packageName, "${context.packageName}.Launcher")
-                                                val newState = if (isChecked) {
-                                                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                                                } else {
-                                                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                                                val output = withContext(Dispatchers.IO) {
+                                                    PrivilegedShell.run("id")
                                                 }
-                                                val applied = runCatching {
-                                                    pkg.setComponentEnabledSetting(componentName, newState, PackageManager.DONT_KILL_APP)
-                                                    isLauncherIconEnabled(context) == isChecked
-                                                }.getOrDefault(false)
-                                                if (applied) {
-                                                    isLauncherVisible = isChecked
-                                                    withContext(Dispatchers.IO) {
-                                                        RootFileAccess.atomicWriteText(
-                                                            LAUNCHER_VISIBILITY_PATH,
-                                                            if (isChecked) "shown\n" else "hidden\n"
-                                                        )
-                                                    }
-                                                }
+                                                val granted = output?.any { it.contains("uid=0") } == true
+                                                snackbarHostState.showSnackbar(
+                                                    resources.getString(
+                                                        if (granted) R.string.root_grant_ok else R.string.root_grant_denied,
+                                                    ),
+                                                )
                                             }
-                                        }
+                                        },
+                                        headlineContent = { Text(stringResource(R.string.root_grant_title)) },
+                                        supportingContent = { Text(stringResource(R.string.root_grant_desc)) },
+                                        leadingContent = { LeadingIcon(icon = Icons.Filled.VerifiedUser) },
+                                        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
                                     )
                                 },
                                 {

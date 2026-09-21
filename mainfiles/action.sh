@@ -47,6 +47,19 @@ if ! _app_installed; then
 	fi
 fi
 
+# نسخة تطبيق-مستخدم إلى جانب نسخة الـpriv-app: مديرو الروت (KernelSU Next · APatch · Magisk)
+# يعرضون تطبيقات المستخدم في قوائمهم، فتغيب الحزمة عن قائمة منح الإذن إن كانت **تطبيق نظام فقط**.
+# وزر الوحدة هو المكان الطبيعي لإصلاح ذلك بلا إعادة تفليش: التثبيت مقيَّد بغياب النسخة وبنفس
+# ملف الـAPK، فيصير التطبيق «تطبيق نظام مُحدَّث» ويظهر مع التطبيقات العادية.
+if _app_installed && ! pm path nd.max 2>/dev/null | grep -q '/data/app/' && [ -f "$APK_COMP" ]; then
+	echo "[*] Making MaxManager visible to root managers (user-app copy)..."
+	cp "$APK_COMP" /data/local/tmp/MaxManager.apk
+	chmod 644 /data/local/tmp/MaxManager.apk
+	pm install -r -d --user 0 /data/local/tmp/MaxManager.apk >/dev/null 2>&1 \
+		|| echo "[!] User-app copy not installed (root may be required)."
+	rm -f /data/local/tmp/MaxManager.apk
+fi
+
 if _app_installed; then
 	echo "[*] Launching MaxManager..."
 	exec "$BIN_SVC" --appactivity

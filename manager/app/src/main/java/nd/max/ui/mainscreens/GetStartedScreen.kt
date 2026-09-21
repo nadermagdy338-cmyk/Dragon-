@@ -22,7 +22,6 @@ import nd.max.MaxManagerProps
 
 
 import android.app.Activity
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -70,12 +69,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.topjohnwu.superuser.Shell
 import kotlin.system.exitProcess
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import nd.max.R
-import nd.max.core.hardware.RootFileAccess
 import nd.max.core.privilege.PrivilegeLevel
 import nd.max.core.privilege.PrivilegeManager
 import nd.max.ui.component.ExpressiveList
@@ -239,7 +235,6 @@ fun GetStartedScreen(navController: NavController) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     
-    var isLauncherVisible by remember { mutableStateOf(isLauncherIconEnabled(context)) }
     var stateToast by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
@@ -630,34 +625,10 @@ fun GetStartedScreen(navController: NavController) {
                                 ScreenAccentProvider(MaterialTheme.colorScheme.secondary) {
                                 ExpressiveList(
                                     content = listOf(
-                                        {
-                                            ExpressiveSwitchItem(
-                                                icon = Icons.Rounded.AddHome,
-                                                title = stringResource(R.string.show_icon),
-                                                checked = isLauncherVisible,
-                                                onCheckedChange = { isChecked ->
-                                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                                    coroutineScope.launch {
-                                                        val pkg = context.packageManager
-                                                        val componentName = ComponentName(context.packageName, "${context.packageName}.Launcher")
-                                                        val newState = if (isChecked) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                                                        val applied = runCatching {
-                                                            pkg.setComponentEnabledSetting(componentName, newState, PackageManager.DONT_KILL_APP)
-                                                            isLauncherIconEnabled(context) == isChecked
-                                                        }.getOrDefault(false)
-                                                        if (applied) {
-                                                            isLauncherVisible = isChecked
-                                                            withContext(Dispatchers.IO) {
-                                                                RootFileAccess.atomicWriteText(
-                                                                    LAUNCHER_VISIBILITY_PATH,
-                                                                    if (isChecked) "shown\n" else "hidden\n"
-                                                                )
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            )
-                                        },
+                                        // ولا مفتاح إخفاء للأيقونة: الأيقونة تبقى ظاهرة دائمًا —
+                                        // تطبيق الوحدة هو الطريق إلى مدير الروت بعد التفليش، وإخفاؤه
+                                        // يجعل من أراد منحه الإذن يرى «تطبيقي لا يظهر».
+                                        // (التفصيل في تحويل الأيقونة إلى alias مُفعَّل دائمًا.)
                                         {
                                             ExpressiveSwitchItem(
                                                 icon = Icons.Filled.Notifications,

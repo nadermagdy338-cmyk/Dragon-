@@ -23,6 +23,7 @@ class LogCodeGlossaryTest {
             "applied", "skipped", "blocked", "unsupported", "not-writable", "not-verified",
             // AppMonitor (أسباب per-app)
             "verified", "profile-is-default", "governor-is-default", "governor-not-advertised",
+            "curve-does-not-cap", "no-lower-advertised-step",
             "policy-unavailable", "no-gpu-provider", "no-advertised-frequency-range",
             "provider-disappeared", "unsupported-frequency", "outside-proven-hardware-bounds",
             "live-value-mismatch", "restored", "undecided", "unknown",
@@ -116,6 +117,7 @@ class LogCodeGlossaryTest {
         // وجود إصلاح لرمز سليم يعني أن التقرير يطالب بإصلاح ما لم يفسد — وهو أسوأ من نقص شرح.
         val healthy = listOf(
             "applied", "verified", "matched", "skipped", "profile-is-default", "governor-is-default",
+            "curve-does-not-cap",
             "route-verified", "ceiling-already-held", "user-ceiling-already-held", "selected",
         )
 

@@ -950,7 +950,7 @@ private fun ProfilePresetEditor(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    "Choose how much of the device's detected stock GPU maximum each preset may use. The nearest real OPP is selected automatically, so this works across different GPUs.",
+                    "100% means full device capability: the preset asks for the highest frequency the device advertises, so Gaming and Performance never sit below an untouched device (if the device's own policy holds a lower ceiling, the log says so instead of pretending). Below 100% the percentage is of the ceiling the device allows right now, which is what cooling means, it is rounded down to a real frequency step, and the same cap is applied to every CPU policy you did not set by hand.",
                     style = MaterialTheme.typography.bodySmall
                 )
                 names.forEachIndexed { index, name ->

@@ -25,7 +25,7 @@
     <string name="perapp_diag_reason">السبب: %1$s</string>
     <string name="perapp_diag_values">المطلوب %1$s ← المقروء %2$s</string>
     <string name="perapp_diag_hint">التفصيل الكامل في تبويب السجل: EVENT=PERAPP_KNOB</string>
-    <string name="perapp_thermal_guard_note">حارس حراري يخفض هذا السقف تلقائيًا أثناء خنق الجهاز ويعيده عند برودته — ولا يتجاوز السقف الذي اخترته أبدًا.</string>
+    <string name="perapp_thermal_guard_note">هذه الخيارات مظروف طاقة فعليّ لا اسم: ١٠٠٪ تعني كامل قدرة الجهاز، فيُطلب أعلى تردد يُعلنه الجهاز (فلا يجلس gaming أو performance أدنى من جهاز غير ممسوس، وإن كان سقف الجهاز نفسه أدنى يُقال ذلك في السجل). وما دون ١٠٠٪ فنسبته من السقف الذي عليه الجهاز الآن — وهذا هو معنى التبريد — ويُطبَّق على سقف GPU وكل سياسة CPU لم تضبطها بيدك. وفوق ذلك حارس حراري ينزل بنفس السقوف أثناء خنق الجهاز ويعيدها عند برودته، ولا يتجاوز ما اخترته أبدًا.</string>
     <string name="app_settings_title">إعدادات التطبيق</string>
     <string name="appearance">المظهر</string>
     <string name="maxmanager_version">إصدار Max Manager</string>
@@ -222,6 +222,10 @@
     <string name="resolution_downscale_title">تقليل الدقة</string>
     <string name="resolution_fps_target_desc">تعيين معدل الإطارات المستهدف في وضع تقليل الدقة لهذه اللعبة</string>
     <string name="resolution_fps_target_title">معدل الإطارات المستهدف</string>
+    <string name="root_grant_title">اطلب إذن الروت</string>
+    <string name="root_grant_desc">يُرسل أمرًا واحدًا بصلاحية جذر حتى يسألك مدير الروت (KernelSU Next · APatch · Magisk) ويُدرج التطبيق في قائمته. أما الكتابات الروتينية فتأخذ أذوناتها من الوحدة عند الإقلاع، فهذا للأذن الشخصي وحده.</string>
+    <string name="root_grant_ok">مُنح الإذن — التطبيق صار مُدرَجًا في مدير الروت.</string>
+    <string name="root_grant_denied">لم يظهر طلب الإذن. افتح مدير الروت واختر قائمة التطبيقات وأضف MaxManager (يظهر الآن كتطبيق عادي) ثم أعِد المحاولة.</string>
     <string name="restart_service">إعادة تشغيل الخدمة</string>
     <string name="restart_service_desc">إعادة تهيئة الخفي</string>
     <string name="root_access">صلاحية الجذر</string>
@@ -1809,6 +1813,10 @@
     <string name="control_group_system_desc">مسارات التخزين والشبكة التي تصوغ التحميل والتحديثات والعمل عبر الشبكة.</string>
     <string name="control_advanced_tools_desc">الأدوات عالية الخطورة مكانها مع التحكم لا الإعدادات. تبقى صريحة ومعلّمة وقابلة للتراجع حيث أمكن.</string>
     <string name="max_role_terminal">نفّذ الأوامر المباشرة فقط عندما لا يستطيع تحكم عادي التعبير عن المهمة.</string>
+    <string name="max_role_process_manager">اعرف ما يعمل الآن وأوقف ما لا يجب أن يعمل.</string>
+    <string name="max_role_logs">اقرأ سجل التطبيق نفسه ورشّحه إلى الإخفاقات وحدها.</string>
+    <string name="max_role_color_palette">اختر لون التمييز وهويّة التطبيق اللونية.</string>
+    <string name="max_role_color_scheme">اختر أن يتبع التطبيق ثيم النظام أو يحتفظ بثيمه الخاص.</string>
     <string name="max_role_setedit">افحص إعدادات أندرويد وعدّلها مع تعليم واضح للمخاطرة المتقدمة.</string>
 <string name="max_role_max_backup">انسخ أي تطبيق وبياناته واستعدها، مع فحص بصمة بعد كل كتابة.</string>
     <string name="max_role_permissions">افحص صلاحيات البيان و AppOps لكل تطبيق واضبطها، مقابل مرجع مدوَّن.</string>

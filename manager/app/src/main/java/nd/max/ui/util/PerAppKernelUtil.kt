@@ -86,7 +86,8 @@ object PerAppKernelUtil {
 
         val percent = when (profile.lowercase()) {
             "balanced" -> customPercent ?: 70
-            "gaming" -> customPercent ?: 85
+            // ١٠٠ = بلا سقف: «Gaming» لا يقتطع من قدرة العتاد أدنى من الحالة الافتراضية.
+            "gaming" -> customPercent ?: 100
             "performance" -> customPercent ?: 100
             "power" -> customPercent ?: 65
             "custom" -> customPercent ?: 55

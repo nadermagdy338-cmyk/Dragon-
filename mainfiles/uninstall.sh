@@ -40,11 +40,15 @@ q sys.maxmanager-appmonitoring
     
 # The app was a priv-app mounted from the module tree: removing the
 # module unmounts it, and the package disappears after reboot. Only a
-# genuine user-data install (legacy version or the non-overlay fallback
-# path) needs an explicit uninstall — match on the /data/app path so we
-# never flag the system priv-app as uninstalled-for-user.
+# genuine user-data install (legacy version, the non-overlay fallback, or
+# the user-app copy that makes the app visible to root managers) needs an
+# explicit uninstall.
+#
+# والمطابقة بـ`*` حول النمط مقصودة: في «تطبيق نظام مُحدَّث» يحمل `pm path` **مسارين** — أصلًا في
+# `/product/priv-app` ونسخة في `/data/app` — والمطابقة على البداية كانت تسقط على أول سطر فقط
+# فتترك نسخة البيانات بعد إزالة الوحدة.
 case "$(pm path nd.max 2>/dev/null)" in
-    /data/app/*) pm uninstall --user 0 nd.max >/dev/null 2>&1 ;;
+    *package:/data/app/*) pm uninstall --user 0 nd.max >/dev/null 2>&1 ;;
 esac
 
 for dir in "/data/adb/ap/bin" "/data/adb/ksu/bin"; do

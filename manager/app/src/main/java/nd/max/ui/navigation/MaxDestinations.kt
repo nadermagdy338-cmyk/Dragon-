@@ -163,15 +163,28 @@ sealed class MaxDestination(
     data object NetworkDetail : MaxDestination("network_detail", R.string.detail_network, Icons.Rounded.Wifi, NetworkHub)
 
     // Feature screens: Apps destination
-    data object ProcessManager : MaxDestination("processmanager", R.string.processmgr_title, Icons.Rounded.Timeline, Apps)
+    //
+    // مراقب المهام انتقل إلى `Control → Tools` بقرار المالك: هو **أداة** تُفتح على الجهاز لا
+    // شاشة تخصّ تطبيقًا بعينه، ومكان الأدوات في شاشة التحكّم لا في مسار التشخيص داخل الإعدادات.
+    data object ProcessManager : MaxDestination("processmanager", R.string.processmgr_title, Icons.Rounded.Timeline, Control)
     data object DebloatFreeze : MaxDestination("debloatfreeze", R.string.debloat_freeze_title, Icons.Rounded.CleaningServices, Apps)
     data object AppSettings : MaxDestination("app_settings/{pkg}", R.string.max_title_app_settings, Icons.Rounded.AppSettingsAlt, Apps)
 
     // Settings children
-    data object ColorPalette : MaxDestination("color_palette", R.string.theme, Icons.Rounded.Palette, Settings)
-    data object ColorScheme : MaxDestination("colorscheme", R.string.color_scheme, Icons.Rounded.ColorLens, Settings)
     data object Diagnostics : MaxDestination("diagnostics", R.string.section_diagnostics, Icons.Rounded.BugReport, Settings)
-    data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.AutoMirrored.Rounded.ListAlt, Settings)
+
+    /**
+     * الألوان ومخطّطها ووحدة السجل: أدوات لا تفضيلات، فمكانها `Control → Tools`.
+     *
+     * ونقل الأب هنا ليس تجميليًّا: `ControlLayoutModelTest` يشترط أن **كل** وجهة أبوها
+     * `Control` لها صفّ في الصفحة، ولو بقيت هذه الثلاثة تحت `Settings` لكانت في الأدوات
+     * بلا أب يوافقها — أي مصدران للحقيقة يتناقضان عند أول إضافة.
+     */
+    // والمخاطرة تبقى `Normal`: التصنيف يخصّ ما قد يُربك الجهاز، وهذه الثلاثة تقرأ وتُظهر
+    // ولا تكتب عتادًا. رفعها إلى `Advanced` كان سيصنّفها في بوّابة المخاطرة بلا سبب.
+    data object ColorPalette : MaxDestination("color_palette", R.string.theme, Icons.Rounded.Palette, Control)
+    data object ColorScheme : MaxDestination("colorscheme", R.string.color_scheme, Icons.Rounded.ColorLens, Control)
+    data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.AutoMirrored.Rounded.ListAlt, Control)
     data object ConfigBackup : MaxDestination("config_backup", R.string.max_nav_config_backup, Icons.Rounded.Backup, Settings)
 
     /**

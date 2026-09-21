@@ -104,6 +104,8 @@ object LogCodeGlossary {
         // لماذا لم يُطبَّق (أسباب per-app)
         "verified" to "the write was read back and satisfied the request",
         "profile-is-default" to "the user left this knob at default, so nothing is enforced",
+        "curve-does-not-cap" to "the chosen thermal profile asks for no ceiling (performance or default), so no CPU or GPU cap was written",
+        "no-lower-advertised-step" to "the device advertises no step below the requested percentage, so no cap was written instead of writing one above it",
         "governor-is-default" to "the user left the governor at default",
         "governor-not-advertised" to "the requested governor name is not in this kernel's list",
         "policy-unavailable" to "the CPU policy named in the key does not exist right now",

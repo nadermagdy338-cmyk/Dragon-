@@ -15,9 +15,31 @@ object ProfilePresetStore {
 
     private const val DEFAULT_POWER = 65
     private const val DEFAULT_BALANCED = 70
-    private const val DEFAULT_GAMING = 85
+
+    /**
+     * ١٠٠٪ تعني **بلا سقف** لا «سقف كامل» (`ThermalCurve.cappingPercent` تُرجع `null` عندها،
+     * فلا يُكتب سقف على CPU ولا GPU).
+     *
+     * وكان ٨٥ هنا، أي أن اختيار «Gaming» يترك الجهاز **أدنى من الحالة الافتراضية** التي لا تسقّف
+     * شيئًا. وهذا يقرأه صاحبه كما هو: «اخترت الأداء للعبة فصار أضعف من غير اختيار». فصار المنحنى
+     * كلّه بلا سقف عند `gaming`؛ والفرق بينه وبين `performance` يبقى في سلوك اللعب نفسه (DND،
+     * preload، الأولوية…) لا في اقتطاع قدرة العتاد.
+     */
+    private const val DEFAULT_GAMING = 100
+
     private const val DEFAULT_PERFORMANCE = 100
     private const val DEFAULT_CUSTOM = 55
+
+    /**
+     * البذرة القديمة لـ`gaming` (٨٥٪) — تُهاجَر بقيمتها عند القراءة.
+     *
+     * ولماذا لزم هذا: القيمة تُقرأ من تخزين المستخدم لا من الثابت، فجهاز فتح المحرّر مرّة واحدة
+     * (أو أعاد الإعدادات) يحمل ٨٥ محفوظة، ولو غيّرنا الثابت وحده لقرأ غيرنا… ولم يتغيّر شيء على جهازه.
+     * ويُعامل «القيمة تساوي البذرة» كما يُعامل في `ProfileSharing`: مشتقّة من البذرة لا مضبوطة بيد
+     * (فهي تحسم المصدر بنفس المقارنة). ومن ضبط ٨٥ بنفسه فقد صارت هي القيمة الجديدة ١٠٠ له — وهي
+     * الحالة التي رُفضت أصلًا، فلا معنى للإبقاء عليها في أي جهاز.
+     */
+    private const val LEGACY_GAMING_SEED = 85
 
     @Volatile
     private var packageContext: Context? = null
@@ -49,7 +71,15 @@ object ProfilePresetStore {
     fun percentFor(context: Context?, profile: String): Int {
         if (context == null) return defaultPercent(profile)
         return runCatching {
-            prefs(context).getInt(profile.lowercase(), defaultPercent(profile)).coerceIn(20, 100)
+            val stored = prefs(context).getInt(profile.lowercase(), defaultPercent(profile))
+            // ترحيل البذرة القديمة: جهاز حفظ ٨٥ قبل هذا الإصدار يقرأ ١٠٠ بدلًا منها بلا أي خطوة من
+            // المستخدم (وإلا لبقي «Gaming» أدنى من الافتراضي على كل جهاز سبق أن فتح المحرّر).
+            val migrated = if (profile.equals(GAMING, true) && stored == LEGACY_GAMING_SEED) {
+                DEFAULT_GAMING
+            } else {
+                stored
+            }
+            migrated.coerceIn(20, 100)
         }.getOrDefault(defaultPercent(profile))
     }
 

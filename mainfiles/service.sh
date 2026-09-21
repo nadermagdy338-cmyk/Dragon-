@@ -107,31 +107,58 @@ if [ "$PACKAGE_READY" -eq 1 ]; then
     appops set nd.max SYSTEM_ALERT_WINDOW allow >/dev/null 2>&1
     appops set nd.max WRITE_SETTINGS allow >/dev/null 2>&1
 
-    # Persist explicit user intent rather than trusting a marker that can drift
-    # away from PackageManager's component state. Missing state migrates to the
-    # visible default; hidden is always respected.
-    launcher_visibility=$(cat "$LAUNCHER_STATE" 2>/dev/null)
-    case "$launcher_visibility" in
-        hidden)
-            if pm disable --user 0 nd.max/.Launcher >/dev/null 2>&1; then
-                rm -f "$LEGACY_LAUNCHER_MARKER"
-            fi
-            ;;
-        shown)
-            if pm enable --user 0 nd.max/.Launcher >/dev/null 2>&1; then
-                rm -f "$LEGACY_LAUNCHER_MARKER"
-            fi
-            ;;
-        *)
-            if pm enable --user 0 nd.max/.Launcher >/dev/null 2>&1; then
-                printf '%s\n' shown > "$LAUNCHER_STATE"
-                chmod 600 "$LAUNCHER_STATE" 2>/dev/null
-                rm -f "$LEGACY_LAUNCHER_MARKER"
-            else
-                log_recovery "launcher migration failed"
-            fi
-            ;;
-    esac
+    # الأيقونة تبقى ظاهرة دائمًا — بلا حالة محفوظة تُقلَب.
+    #
+    # وهذا ليس تفضيلًا: التطبيق هو الطريق الوحيد إلى مدير الروت بعد التفليش (منح الإذن يتمّ من
+    # داخل التطبيق أو من قائمة مدير الروت)، وإخفاؤه من المشغّل كان يقطع الطريق على من أراد منحه
+    # الإذن ثم يقول «تطبيقي لا يظهر». وأي إخفاء سابق محفوظ في `PackageManager` يُلغى هنا عند كل
+    # إقلاع، لأن حالة المكوّن المحفوظة تسبق قيمة البيان الافتراضية.
+    if pm enable --user 0 nd.max/.Launcher >/dev/null 2>&1; then
+        printf '%s\n' shown > "$LAUNCHER_STATE"
+        chmod 600 "$LAUNCHER_STATE" 2>/dev/null
+        rm -f "$LEGACY_LAUNCHER_MARKER"
+    else
+        log_recovery "launcher enable failed (component state may still be hidden)"
+    fi
+
+    # نسخة تطبيق-مستخدم مطابقة لنسخة الـpriv-app.
+    #
+    # ولماذا: ما تُثبّته الوحدة هو **تطبيق نظام** (`/product/priv-app`)، ومديرو الروت (KernelSU Next
+    # وAPatch وMagisk) يعرضون في قوائمهم تطبيقات المستخدم — فيغيب تطبيق الوحدة عن القائمة التي
+    # يُمنح منها الإذن. وكتابة النسخة نفسها في قسم البيانات تجعل الحزمة **تطبيق نظام مُحدَّث**:
+    # يبقى أصلها الـpriv-app فتظل صلاحياتها، وتظهر مع التطبيقات العادية في كل قائمة.
+    # والشرط مقيَّد بالغياب فقط، فلا يُعاد تثبيت شيء في كل إقلاع.
+    #
+    # والشرط هو وجود **مسار في قسم البيانات** لا «ظهور في قائمة -3»: معنى الأول دقيق ومقيس
+    # (`pm path` يطبع كل مسارات الحزمة)، ومعنى الثاني يختلف بين إصدارات وأندرويد ومديري الروت
+    # — ولو بنينا الشرط على الثاني لكان كل إقلاع يعيد التثبيت في أي ROM لا يُدرج تطبيق النظام
+    # المُحدَّث في -3. النتيجة واحدة (لا تكرار)، والسبب مقروء من المخرَج نفسه.
+    if ! pm path nd.max 2>/dev/null | grep -q '/data/app/'; then
+        if [ -f "$APK_COMP" ]; then
+            log_recovery "installing user-app copy so root managers list nd.max"
+            cp "$APK_COMP" /data/local/tmp/MaxManager.apk
+            chmod 644 /data/local/tmp/MaxManager.apk
+            pm install -r -d --user 0 /data/local/tmp/MaxManager.apk >> "$RECOVERY_LOG" 2>&1
+            rm -f /data/local/tmp/MaxManager.apk
+            log_recovery "user-app copy path=$(pm path nd.max 2>/dev/null | tr '\n' ' ')"
+        fi
+    fi
+
+    # حالة الحزمة كما يراها `PackageManager` — سطر واحد يُجيب «هل التطبيق تطبيق مستخدم أم نظام فقط؟»
+    # من ملف السجل وحده، فلا نحتاج سؤالًا ولا صندوق أوامر لمعرفة سبب غيابه من قائمة مدير الروت.
+    #
+    # و«تطبيق مستخدم» يُقاس بما يراه مديرو الروت فعلًا: وجود نسخة في قسم البيانات (`/data/app`).
+    # أمّا «ظهوره في قائمة النظام» فيُقاس بالقائمة نفسها — فالسطر يقول الاثنين، وكل واحد يُقاس
+    # بمصدره لا بتخمين العلاقة بينهما.
+    data_copy=no
+    pm path nd.max 2>/dev/null | grep -q '/data/app/' && data_copy=yes
+    listed=no
+    pm list packages -3 2>/dev/null | grep -qx 'package:nd.max' && listed=yes
+    if [ "$data_copy" = "yes" ]; then
+        log_recovery "package state: user_app=yes listed_as_third_party=$listed privileged_base=yes"
+    else
+        log_recovery "package state: user_app=no listed_as_third_party=$listed privileged_base=yes (system-only; root-manager lists may omit it)"
+    fi
 else
     log_recovery "package recovery failed; app companion not started"
 fi

@@ -333,14 +333,28 @@ echo "- Extracting privileged permissions whitelist..."
 extract "$ZIPFILE" "system/product/etc/permissions/privapp-permissions-nd.max.xml" "$MODPATH"
 [ -f "$MODPATH/system/product/etc/permissions/privapp-permissions-nd.max.xml" ] || abort_corrupted
 
-# Remove only a legacy /data/app install. Never mark an already-mounted
-# system package as uninstalled for user 0 during an update.
-case "$(pm path nd.max 2>/dev/null)" in
-    *package:/data/app/*)
-        echo "- Removing legacy user-data app before priv-app migration"
-        pm uninstall --user 0 nd.max >/dev/null 2>&1 || true
-        ;;
-esac
+# نسخة تطبيق-مستخدم بجانب نسخة الـpriv-app — لا بدلًا منها.
+#
+# كان هنا **حذف** أي نسخة في /data/app، والسبب كان منطقيًّا لمن يبحث عن مصدر واحد: ألّا يبقى
+# تطبيق قديم يعارض نسخة النظام. لكن الثمن ظهر في مكان آخر: الحزمة صارت **تطبيق نظام فقط**،
+# ومديرو الروت (KernelSU Next · APatch · Magisk) يعرضون في قوائمهم تطبيقات المستخدم — فتغيب
+# الحزمة عن القائمة التي يُمنح منها إذن الروت، ويقرأ المستخدم «تطبيقي لا يظهر في su next».
+#
+# والحلّ هو الحالة المعيارية في أندرويد: أصل في الـpriv-app ونسخة مطابقة في قسم البيانات =
+# **تطبيق نظام مُحدَّث**. يبقى `isPrivilegedApp` صحيحًا (الأصل في priv-app فلا تُفقد الصلاحيات)
+# ويظهر التطبيق مع التطبيقات العادية في المشغّل وفي قوائم مديري الروت. والنسخة نفسها من نفس
+# الملف، فلا تعارض إصدارات؛ و`-d` تمنع رفض التثبيت لو كانت نسخة النظام أحدث.
+#
+# والمفتاح `-3` لا يُعيد التثبيت عند كل تفليش: إن وُجدت النسخة فلا شيء يُفعل.
+if [ -f "$MODPATH/system/product/priv-app/MaxManager/MaxManager.apk" ] \
+    && ! pm path nd.max 2>/dev/null | grep -q '/data/app/'; then
+    echo "- Installing user-app copy (visible to launcher and root managers)"
+    cp "$MODPATH/system/product/priv-app/MaxManager/MaxManager.apk" /data/local/tmp/MaxManager.apk
+    chmod 644 /data/local/tmp/MaxManager.apk
+    pm install -r -d --user 0 /data/local/tmp/MaxManager.apk >/dev/null 2>&1 \
+        || echo "- user-app copy not installed now; service.sh retries after boot"
+    rm -f /data/local/tmp/MaxManager.apk
+fi
 
 # Remove old module files if available
 echo "- Cleaning old files..."

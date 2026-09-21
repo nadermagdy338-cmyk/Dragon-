@@ -65,6 +65,7 @@ import nd.max.core.hardware.PerAppHardwareStatus
 import nd.max.core.hardware.PerAppHardwareStatus.Outcome
 import nd.max.core.hardware.RootFileAccess
 import nd.max.core.hardware.ThermalCeilingRouter
+import nd.max.core.hardware.ThermalCurve
 import nd.max.core.hardware.ThermalGuard
 import nd.max.core.hardware.SharedHardwareOwnershipStore
 import nd.max.core.hardware.ManualControlLocks
@@ -1320,6 +1321,136 @@ object AppMonitor {
             AppMonitorLogger.e("ownership: per-app CPU control failed for '$pkgName' sw=$currentSwitchId", it)
         }
 
+        // ── منحنى الحرارة: سقف فعليّ على العناقيد التي لم يضبطها المستخدم بنفسه ────────────────
+        //
+        // البروفايل كان يصل إلى GPU وحده، وCPU يبقى على سقفه الأعلى. وجهاز يسحب قوّته من الأنوية
+        // يستمر في السخونة بعد اختيار `power`، فيُقرأ «اخترت تبريدًا ولم يحدث شيء» — وهي تجربة
+        // صحيحة وصفًا: لم يُكتب على العنقود الذي يسخّن. هذه الكتلة تقفل السقف فورًا عند فتح التطبيق
+        // (لا انتظار إشارة حرارية من المنصّة، ولا انتظار دورة انحراف)، وتُحقّقه بقراءة، وتُعلن نتيجته.
+        //
+        // ولماذا هنا ولا في الحارس التفاعليّ: الحارس يخفض داخل النيّة **حين تُعلن المنصّة خنقًا**،
+        // والنيّة نفسها يجب أن تكون قائمة قبل أول إشارة — وإلا كان الجهاز الذي لا يُعلن حالة حرارة
+        // (وهو كثير) بلا أي سقف حراري إطلاقًا.
+        //
+        // والحدود: النسبة لا ترفع أبدًا، ولا تمسّ سياسة ضبطها المستخدم بيده، وسقف لا يستطيع الجهاز
+        // حمله لا يُكتب (وفي الحالتين يُقال السبب في السجل بدل الصمت).
+        runCatching {
+            val curveProfile = readAppConfigField(pkgName, "gpu_profile").ifBlank {
+                readAppConfigField(pkgName, "thermal_profile")
+            }.ifBlank { "default" }
+            val curvePercent = ProfilePresetStore.percentFor(systemContext, curveProfile)
+            val capPercent = ThermalCurve.cappingPercent(curvePercent)
+            if (capPercent == null) {
+                AppMonitorLogger.i(
+                    "EVENT=PERAPP_THERMAL_CURVE pkg=$pkgName curve=$curveProfile percent=$curvePercent" +
+                        " sealed=0 reason=curve-does-not-cap sw=$currentSwitchId"
+                )
+                return@runCatching
+            }
+
+            val explicitPolicies = runCatching {
+                decodePerAppCpuPolicyControls(readAppConfigField(pkgName, "cpu_policy_controls"))
+                    .map { it.policyName }
+                    .toSet()
+            }.getOrDefault(emptySet())
+
+            var sealedKnobs = 0
+            var skippedKnobs = 0
+            CpuHardwareBackend.policies().forEach { policy ->
+                val key = HardwareControlKey.cpuLimits(policy.name)
+                if (policy.name in explicitPolicies) {
+                    // طلب المستخدم على هذه السياسة هو السقف؛ المنحنى لا يعلوه.
+                    skippedKnobs++
+                    return@forEach
+                }
+                val liveMax = policy.maxKHz?.takeIf { it > 0L }
+                if (liveMax == null) {
+                    skippedKnobs++
+                    noteHardware(key, Outcome.UNSUPPORTED, "unreadable")
+                    AppMonitorLogger.w(
+                        "EVENT=PERAPP_THERMAL_CURVE_POLICY pkg=$pkgName curve=$curveProfile policy=${policy.name}" +
+                            " sealed=false reason=unreadable sw=$currentSwitchId"
+                    )
+                    return@forEach
+                }
+                val capHz = ThermalCurve.capMaxHz(liveMax, capPercent, policy.availableFrequenciesKHz)
+                if (capHz >= liveMax) {
+                    // لا درجة مُعلنة تحت النسبة: السقوط إلى أدنى درجة كان سيكتب سقفًا **أعلى** من
+                    // المطلوب، وعدم الكتابة أصدق من كتابة قيمة لم تُطلب.
+                    skippedKnobs++
+                    noteHardware(
+                        key,
+                        Outcome.SKIPPED,
+                        "no-advertised-frequency-range",
+                        ThermalCurve.rangeFor(policy.minKHz, capHz),
+                        "${policy.minKHz ?: ""}:$liveMax",
+                    )
+                    AppMonitorLogger.w(
+                        "EVENT=PERAPP_THERMAL_CURVE_POLICY pkg=$pkgName curve=$curveProfile policy=${policy.name}" +
+                            " sealed=false reason=no-lower-advertised-step live=$liveMax percent=$capPercent sw=$currentSwitchId"
+                    )
+                    return@forEach
+                }
+
+                val floorHz = policy.minKHz?.takeIf { it > 0L }
+                val desired = ThermalCurve.rangeFor(floorHz, capHz)
+                val baseline = "${policy.minKHz ?: ""}:${policy.maxKHz ?: ""}"
+                fun liveRangeNow(): String? = CpuHardwareBackend.policies()
+                    .firstOrNull { it.name == policy.name }
+                    ?.let { "${it.minKHz ?: ""}:${it.maxKHz ?: ""}" }
+                val owned = hardwareControlRegistry.ownValue(
+                    key = key,
+                    desired = desired,
+                    apply = { value ->
+                        val parts = value.split(":", limit = 2)
+                        CpuHardwareBackend.setPolicyLimits(
+                            policy.path,
+                            parts.getOrNull(0)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                            parts.getOrNull(1)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                        ).successful
+                    },
+                    read = { liveRangeNow() },
+                    baseline = baseline,
+                    restore = { value ->
+                        val parts = value.split(":", limit = 2)
+                        CpuHardwareBackend.setPolicyLimits(
+                            policy.path,
+                            parts.getOrNull(0)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                            parts.getOrNull(1)?.takeIf { it.isNotBlank() }?.toLongOrNull(),
+                        ).successful
+                    },
+                    // المدى الحيّ داخل الطلب = مُلبّى: السائق يهبط بالسقف إلى درجة مُعلنة، وذلك
+                    // تنفيذ للنسبة لا فشل فيها. والتساوي كان يسترجع خط الأساس فيرى المستخدم السقف
+                    // يرتدّ بلا سبب بعد كتابته.
+                    verify = HardwareVerification::rangeContained,
+                )
+                val live = liveRangeNow()
+                if (owned) {
+                    sealedKnobs++
+                    hardwareUserIntent[key] = desired
+                    noteOwnedOutcome(key, true, null, desired, live.orEmpty())
+                } else {
+                    skippedKnobs++
+                    noteOwnedOutcome(key, false, hardwareControlRegistry.refusalReasons()[key], desired, live.orEmpty())
+                }
+                AppMonitorLogger.i(
+                    "EVENT=PERAPP_THERMAL_CURVE_POLICY pkg=$pkgName curve=$curveProfile policy=${policy.name}" +
+                        " requested_percent=$capPercent realized_percent=${ThermalCurve.realizedPercent(liveMax, capHz) ?: "none"}" +
+                        " from=$baseline to=$desired live=${live ?: "none"} sealed=$owned sw=$currentSwitchId"
+                )
+            }
+
+            AppMonitorLogger.i(
+                "EVENT=PERAPP_THERMAL_CURVE pkg=$pkgName curve=$curveProfile percent=$capPercent" +
+                    " sealed=$sealedKnobs untouched=$skippedKnobs sw=$currentSwitchId"
+            )
+        }.onFailure { AppMonitorLogger.e("EVENT=PERAPP_THERMAL_CURVE_FAILED pkg=$pkgName sw=$currentSwitchId", it) }
+
+        // الحارس التفاعليّ يُنادى فورًا بعد التطبيق لا في دورة الانحراف فقط: الطلب الجديد لحظته هي
+        // لحظة فتح التطبيق، ومن يفتح تطبيقًا ويتوقّع سقفًا لا ينتظر عشر ثوانٍ لرؤيته.
+        runCatching { serviceThermalGuard() }
+            .onFailure { AppMonitorLogger.e("EVENT=THERMAL_GUARD_FAILED pkg=$pkgName sw=$currentSwitchId", it) }
+
         runCatching {
             val cpuMin = readAppConfigField(pkgName, "cpu_min_freq").toLongOrNull()
             val cpuMax = readAppConfigField(pkgName, "cpu_max_freq").toLongOrNull()
@@ -1411,11 +1542,16 @@ object AppMonitor {
                 noteHardware("gpu_profile", Outcome.UNSUPPORTED, "no-advertised-frequency-range", profile)
                 return@runCatching
             }
+            val presetPercent = ProfilePresetStore.percentFor(systemContext, profile)
+            // ١٠٠٪ تعني **كامل قدرة الجهاز**: لا تُقيَّد بالسقف الحيّ. ومثال القياس الذي رفضه
+            // المستخدم: جهاز يعرض ١٣٠٠ كأعلى درجة، وسياسته الحالية تسمح بـ٧٥٤ — فتقيد بـ`liveCap`
+            // كان يجعل «Gaming ١٠٠٪» يطلب ٧٥٤ (لا فرق عن غير الممسوس)، و«Gaming ٨٥٪» يطلب ٦٢٤
+            // أي **أدنى من الجهاز كما هو**. وما دون ١٠٠٪ يبقى من السقف الحيّ لأن غرضه التبريد.
             val requested = explicit ?: PerAppKernelUtil.pickProfileFrequency(
                 liveAtPlan.frequencies,
                 profile,
-                ProfilePresetStore.percentFor(systemContext, profile),
-                maximumHz = liveCap,
+                presetPercent,
+                maximumHz = if (ThermalCurve.atFullCapability(presetPercent)) null else liveCap,
             )
             if (requested == null) {
                 noteHardware("gpu_profile", Outcome.UNSUPPORTED, "unsupported-profile:$profile", profile, liveCap.toString())
@@ -1444,6 +1580,15 @@ object AppMonitor {
             if (explicit != null && target != explicit) {
                 AppMonitorLogger.w(
                     "EVENT=PERAPP_GPU_TARGET_CAPPED pkg=$pkgName requested=$explicit live_cap=$liveCap applied=$target sw=$currentSwitchId"
+                )
+            }
+            // سؤال «طلبت ١٠٠٪ فلماذا الكروت يقول ٧٥٤؟» يُجاب هنا بلا تفسير منّا: الطلب هو قدرة
+            // الجهاز، والقيمة التي تُقرأ بعد الكتابة هي ما تسمح به سياسة الجهاز الآن. والاثنان
+            // مكتوبان في السطر نفسه، فلا يُقرأ الفرق عطلًا في التطبيق.
+            if (target > liveCap) {
+                AppMonitorLogger.i(
+                    "EVENT=PERAPP_GPU_CAPABILITY_REQUESTED pkg=$pkgName profile=$profile" +
+                        " requested=$target live_before=$liveCap note=device-policy-may-hold-lower sw=$currentSwitchId"
                 )
             }
             val baseline = GpuHardwareBackend.captureBaseline(liveAtPlan)

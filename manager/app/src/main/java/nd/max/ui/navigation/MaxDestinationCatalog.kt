@@ -81,6 +81,11 @@ fun maxDestinationRole(destination: MaxDestination): Int = when (destination) {
     MaxDestination.NetworkScheduler -> R.string.max_role_network_scheduler
     MaxDestination.NetworkDetail -> R.string.max_role_network_detail
     MaxDestination.Terminal -> R.string.max_role_terminal
+    // الأدوات الأربع التي انتقلت من الإعدادات/التشخيص إلى `Control → Tools`.
+    MaxDestination.ProcessManager -> R.string.max_role_process_manager
+    MaxDestination.Logs -> R.string.max_role_logs
+    MaxDestination.ColorPalette -> R.string.max_role_color_palette
+    MaxDestination.ColorScheme -> R.string.max_role_color_scheme
     MaxDestination.SetEdit -> R.string.max_role_setedit
     MaxDestination.ActivityLauncher -> R.string.max_role_activity_launcher
     MaxDestination.MaxBackup -> R.string.max_role_max_backup

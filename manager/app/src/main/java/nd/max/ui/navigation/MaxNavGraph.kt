@@ -70,9 +70,12 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     }
 
     // Settings children
+    composable(MaxDestination.Diagnostics.route) { DiagnosticsScreen(navController) }
+
+    // Control → Tools: الألوان ومخطّطها ووحدة السجل. مسجّلة هنا مع بقية الوجهات، وأبوها في
+    // السجل `Control` ولذلك تُعرض في حزمة الأدوات لا في الإعدادات (انظر `MaxDestinations`).
     composable(MaxDestination.ColorPalette.route) { ColorPaletteScreen(navController) }
     composable(MaxDestination.ColorScheme.route) { ColorSchemeSettings(navController) }
-    composable(MaxDestination.Diagnostics.route) { DiagnosticsScreen(navController) }
     composable(MaxDestination.Logs.route) { LogsViewerScreen(navController) }
     composable(MaxDestination.ConfigBackup.route) { ConfigBackupScreen(navController) }
     composable(MaxDestination.Plugins.route) { PluginsScreen(navController) }
@@ -103,7 +106,7 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.Privilege.route) { PrivilegeScreen(navController) }
     composable(MaxDestination.ModuleHealth.route) { ModuleHealthScreen(navController) }
 
-    // Settings - Advanced tools (risk-gated in SettingsScreen, ADR-16)
+    // Control → Tools — advanced tools, gated by risk where they can wedge the device.
     composable(MaxDestination.Terminal.route) { TerminalScreen() }
     composable(MaxDestination.SetEdit.route) { SetEditScreen(navController) }
     composable(MaxDestination.ActivityLauncher.route) { ActivityLauncherScreen(navController) }

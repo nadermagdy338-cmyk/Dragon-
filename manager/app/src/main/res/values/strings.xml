@@ -25,7 +25,7 @@
     <string name="perapp_diag_reason">reason: %1$s</string>
     <string name="perapp_diag_values">wanted %1$s → live %2$s</string>
     <string name="perapp_diag_hint">Full detail in the Logs tab: EVENT=PERAPP_KNOB</string>
-    <string name="perapp_thermal_guard_note">A thermal guard lowers this ceiling automatically while the device is throttling and restores it when it cools — never above the ceiling you chose.</string>
+    <string name="perapp_thermal_guard_note">These chips are a real power envelope, not a label. 100% means full device capability: the highest frequency the device advertises is requested, so gaming and performance never sit below an untouched device (if the device's own policy holds a lower ceiling, the log says so). Below 100% the percentage is of the ceiling the device allows right now — that is what cooling means — and it is applied to the GPU ceiling and to every CPU policy you did not set by hand. On top of that, a thermal guard lowers the same ceilings while the device is throttling and restores them when it cools, never above what you chose.</string>
     <string name="app_settings_title">App Settings</string>
     <string name="app_tab_performance">Performance</string>
     <string name="app_tab_display">Display</string>
@@ -885,6 +885,10 @@
     <string name="resolution_downscale_title">Downscale Resolution</string>
     <string name="resolution_fps_target_desc">Set a per-app target FPS independently of resolution scaling</string>
     <string name="resolution_fps_target_title">Per-App FPS</string>
+    <string name="root_grant_title">Ask for root access</string>
+    <string name="root_grant_desc">Sends one root command so your root manager (KernelSU Next, APatch, Magisk) prompts you and lists this app. Routine writes already get their permissions from the module at boot; this is only for the personal grant.</string>
+    <string name="root_grant_ok">Root granted — the app is now listed in your root manager.</string>
+    <string name="root_grant_denied">No root prompt appeared. Open your root manager, choose the app list and add MaxManager (it appears now as a normal app), then try again.</string>
     <string name="restart_service">Restart Service</string>
     <string name="restart_service_desc">Reinitialize the daemon</string>
     <string name="root_access">Root Access</string>
@@ -1793,6 +1797,10 @@
     <string name="control_group_system_desc">Storage and network paths that shape loading, updates and online workloads.</string>
     <string name="control_advanced_tools_desc">High-risk utilities belong with Control, not Settings. They stay explicit, labeled and reversible where possible.</string>
     <string name="max_role_terminal">Run direct commands only when a normal control cannot express the task.</string>
+    <string name="max_role_process_manager">See what is running right now and stop what should not be.</string>
+    <string name="max_role_logs">Read the app's own log and filter it down to the failures only.</string>
+    <string name="max_role_color_palette">Pick the accent and the app's own colour identity.</string>
+    <string name="max_role_color_scheme">Choose whether the app follows the system theme or keeps its own.</string>
     <string name="max_role_setedit">Inspect and edit Android settings with clear advanced-risk labeling.</string>
     <string name="max_role_max_backup">Back up and restore any app and its data, with a fingerprint check after every write.</string>
     <string name="max_role_permissions">Inspect and set declared permissions and App ops per app, against a recorded reference.</string>

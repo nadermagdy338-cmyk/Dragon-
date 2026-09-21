@@ -46,14 +46,24 @@ data class ControlGroupSpec(
  * `Max Backup` و`AppOps` انتقلا إلى هنا من شاشة التطبيقات بقرار مالك: كلاهما أداة تفتح
  * على **كل** التطبيقات ولها شاشة رئيسية مستقلة، فلا معنى لعرضها داخل شاشة تطبيق واحد.
  * والترتيب مقصود: الأدوات التي تُفتح بلا نيّة سابقة (نسخ · صلاحيات) قبل أدوات النظام.
+ *
+ * ومراقب المهام ووحدة السجل وطرفية الأوامر انتقلت إلى هنا من **مسار التشخيص في الإعدادات**،
+ * ومعها الألوان ومخطّطها من الإعدادات المباشرة: الأدوات تُطلب من مكان واحد هو شاشة التحكّم،
+ * والتنقل إليها كان يشترط أن يُعرف أنها تحت الإعدادات أو تحت التشخيص — وهذا شرط لا معنى له من
+ * جهة المستخدم (الأربع كلها تقرأ وتُظهر، ولا تكتب سقفًا ولا سياسة عتاد).
  */
 val ControlToolDestinations: List<MaxDestination> = listOf(
     MaxDestination.MaxBackup,
     MaxDestination.Permissions,
     MaxDestination.FileManager,
     MaxDestination.Terminal,
+    MaxDestination.ProcessManager,
+    MaxDestination.Logs,
+    MaxDestination.ColorPalette,
+    MaxDestination.ColorScheme,
     MaxDestination.SetEdit,
     MaxDestination.ActivityLauncher,
+    // الأخطف آخرًا: لا يُفتح بلمسة عابرة.
     MaxDestination.KernelFlasher,
 )
 

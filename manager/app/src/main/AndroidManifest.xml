@@ -210,9 +210,16 @@
             </intent-filter>
         </receiver>
    
+        <!--
+            مُفعَّل افتراضيًّا لا مُعطَّلًا: هذا الـalias هو أيقونة التطبيق على المشغّل، وهو الطريق
+            إلى مدير الروت بعد التفليش. وكان `enabled="false"` يعني أن التطبيق **مخفيّ حتى يظهر
+            شيء يُظهره**، فمن فلّش الوحدة ولا يعرف بوجود مفتاح للإظهار يقرأها «اختفى تطبيقي».
+            والحالة المحفوظة في `PackageManager` (إخفاء سابق) تسبق هذه القيمة، فتُعاد التفعيل
+            عند كل إقلاع في `service.sh` — هنا القيمة الافتراضية لما لا حالة له بعد.
+        -->
         <activity-alias
             android:name=".Launcher"
-            android:enabled="false" 
+            android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"

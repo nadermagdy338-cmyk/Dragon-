@@ -17,8 +17,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
-import nd.max.ui.navigation.MaxDestination
-import nd.max.ui.navigation.MaxNavActions
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,8 +32,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material.icons.filled.Memory
-import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.BatteryChargingFull
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
@@ -239,43 +235,10 @@ fun DiagnosticsScreen(navController: NavHostController) {
             item {
                 AtlasDiagnosticsSection()
             }
-            item {
-                StudioSectionHeader(
-                    title = stringResource(R.string.diagnostics_tools_title),
-                    subtitle = stringResource(R.string.diagnostics_tools_desc),
-                    modifier = Modifier.padding(top = 22.dp, bottom = 10.dp)
-                )
-            }
-            item {
-                ExpressiveList(
-                    content = listOf(
-                        {
-                            ExpressiveListItem(
-                                leadingContent = { IconBadge(Icons.Outlined.Memory, MaterialTheme.colorScheme.primary, 36) },
-                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.ProcessManager) },
-                                headlineContent = { Text(stringResource(R.string.processmgr_title)) },
-                                supportingContent = { Text(stringResource(R.string.processmgr_menu_desc)) }
-                            )
-                        },
-                        {
-                            ExpressiveListItem(
-                                leadingContent = { IconBadge(Icons.Filled.Terminal, MaterialTheme.colorScheme.primary, 36) },
-                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Logs) },
-                                headlineContent = { Text(stringResource(R.string.logsviewer_title)) },
-                                supportingContent = { Text(stringResource(R.string.logsviewer_menu_desc)) }
-                            )
-                        },
-                        {
-                            ExpressiveListItem(
-                                leadingContent = { IconBadge(Icons.Filled.Terminal, MaterialTheme.colorScheme.primary, 36) },
-                                onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Terminal) },
-                                headlineContent = { Text(stringResource(R.string.terminal_shell)) },
-                                supportingContent = { Text(stringResource(R.string.terminal_shell_desc)) }
-                            )
-                        }
-                    )
-                )
-            }
+            //
+            // ولا تُكرَّر هنا روابط مراقب المهام ووحدة السجل وطرفية الأوامر: مكانها
+            // `Control → Tools` وحده. وكان في هذه الشاشة صفّان لثلاث أدوات، فصار للشيء الواحد
+            // مدخلان يفترقان في الوصف — وهو ما تمنعه قائمة الوجهات المفردة (ADR-02).
         }
     }
 
