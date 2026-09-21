@@ -4831,3 +4831,57 @@ RESIDUAL RISK: (أ) الترويسة تُكتب مرّة لكل عملية تش�
 NEXT: تشغيل الاختبارات الثلاثة على CI (لا مُصرّف محليًّا) · ثم قياس ترويسة حقيقية على جهاز والتأكد
        أن المفكّك يقرأ `kind=fix` كاملًا · ثم قياس مقاطع `per_app_hw_status` الحقيقية في «ما يُفعل».
 ```
+
+## تكملة ٧١ — إصلاح ترجمة CI: `context` غير معلَن في `clearUnifiedLogs`
+
+`compileReleaseKotlin` سقط بسطر واحد:
+
+```
+LogsViewerViewModel.kt:766:30  Function invocation 'context(...)' expected.
+```
+
+### العطب
+
+`clearUnifiedLogs()` كانت تنادي `rewriteLogHeader(context)` ولا `context` في متناولها:
+`LogsViewerViewModel : ViewModel()` لا `AndroidViewModel`، والسياق لا يأتيها من أيّ طبقة — بخلاف
+جيرانها في الملف نفسه (`saveLogs` · `exportUnifiedLogs` · `bundleText` · `shareDiagnosticBundle`)
+التي تستقبله من الشاشة معاملًا. فبقي اسمٌ في نطاق لا يُملك، و**حلَّت الترجمة محله دالةً من استيراد**
+بعيدة، فصارت الرسالة «Function invocation» بدل «Unresolved reference» — وهو العَرَض لا السبب.
+
+ولم يكشفه محلّيًّا شيء: لا Kotlin ولا Android SDK ولا مخزن Gradle في البيئة، والبوابات الأربع لا
+تقرأ النطاقات (تُوازن البنية والأقواس والنصوص والترجمة والصحة). أي أن هذا الصنف من الأخطاء لا يلتقطه
+إلا مُصرّف — ولذلك استُعيد الإصلاح إلى **قاعدة الملف نفسه** لا إلى حلّ خاصّ.
+
+### الإصلاح
+
+```
+fun clearUnifiedLogs(context: Context)      // كما saveLogs/exportUnifiedLogs/shareDiagnosticBundle
+    rewriteLogHeader(context.applicationContext)   // سياق التطبيق: الكتابة على Dispatchers.IO
+LogsViewerScreen.kt:82  viewModel.clearUnifiedLogs(context)   // من LocalContext.current
+```
+
+و`context.applicationContext` لا النشاط: إعادة كتابة الترويسة تعيش أطول من دورة حياة الشاشة،
+والسياق المطلوب منها هو `packageManager` وحده. ولم يُغيَّر أيّ سلوك آخر: أمر المسح، وتفريغ الحلقات،
+وإعادة كتابة الترويسة، وإلغاء الملخّص والتركيز — كما هي.
+
+### التحقق
+
+```
+kt_balance --assert     ✅ 754 ملفًا · 0 عوائق
+code_health --assert    ✅ صحّة 0 · الدَّين لم ينمُ (10/29/63/23)
+i18n_coverage --assert  ✅ 0 عوائق (en + ar)
+repo_audit.py           ✅ PROBLEMS: 0
+```
+
+وجُرِّد كل موضع ينادي `clearUnifiedLogs` في المستودع: موضع واحد (الشاشة) وقد مرّر السياق.
+
+```
+TASK: LOG-BUNDLE-02
+FILES: modified — ui/viewmodel/LogsViewerViewModel.kt · ui/subscreens/LogsViewerScreen.kt
+deleted — none
+GATES: 1 ✓  2 ✓ (debt unchanged)  3 ✓  6 ✓
+BUILD: not verified locally — لا مُصرّف؛ الإصلاح مُراجَع يدويًّا وسبب السقوط مُثبت من سطر CI.
+RESIDUAL RISK: بقية الملفّات التي دخلت في الجولة السابقة تُرجِم في نفس تمريرة CI، والخطأ المنشور
+       كان واحدًا؛ فإن ظهر ثانٍ فهو من الصنف نفسه (اسم غير معلَن في نطاق) لا من البنية.
+NEXT: إعادة تشغيل CI حتى يخضرّ `compileReleaseKotlin`، ثم تشغيل الاختبارات الثلاثة الجديدة.
+```

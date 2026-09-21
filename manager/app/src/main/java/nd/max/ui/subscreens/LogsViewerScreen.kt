@@ -79,7 +79,7 @@ fun LogsViewerScreen(
 
     val clearConfirmDialog = rememberConfirmDialog(
         onConfirm = {
-            if (viewModel.viewerMode == LogsViewerViewModel.ViewerMode.LOGCAT) viewModel.clearLogs() else viewModel.clearUnifiedLogs()
+            if (viewModel.viewerMode == LogsViewerViewModel.ViewerMode.LOGCAT) viewModel.clearLogs() else viewModel.clearUnifiedLogs(context)
         },
         onDismiss = {}
     )

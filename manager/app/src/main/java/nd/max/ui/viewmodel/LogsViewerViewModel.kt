@@ -754,8 +754,12 @@ class LogsViewerViewModel : ViewModel() {
      * rotated .1 backups get cleaned up too and the native side's broadcast
      * hook still fires. tail -F transparently reattaches once log_zenith()
      * recreates the file on its next write.
+     *
+     * ويُستقبل `context` من الشاشة كما في [saveLogs] و[exportUnifiedLogs] و[shareDiagnosticBundle]:
+     * إعادة كتابة الترويسة تقرأ اسم الحزمة من `packageManager`، وهذا الـViewModel ليس
+     * `AndroidViewModel` — فلا سياق في متناوله، وأي اسم سياق غير معلَن هنا لا وجود له في هذا النطاق.
      */
-    fun clearUnifiedLogs() {
+    fun clearUnifiedLogs(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             Shell.cmd("'${MaxManagerPaths.SERVICE_BIN}' --clearlogs").exec()
             synchronized(allUnifiedLogs) { allUnifiedLogs.clear() }
@@ -763,7 +767,7 @@ class LogsViewerViewModel : ViewModel() {
             unifiedTotalLineCount = 0
             // الترويسة تُعاد بعد المسح: الملف الذي يُرسَل لاحقًا يجب أن يحمل جهازه وإعداده،
             // وأمر المسح نفسه يُسجَّل فتُفهم الفجوة الزمنية في الملف.
-            rewriteLogHeader(context)
+            rewriteLogHeader(context.applicationContext)
             withContext(Dispatchers.Main) {
                 unifiedDisplayedLogs = emptyList()
                 // لا ملخّص ولا تركيز على ما مُحي: قناة الحالة تشير إلى سطور لم تعد موجودة.
