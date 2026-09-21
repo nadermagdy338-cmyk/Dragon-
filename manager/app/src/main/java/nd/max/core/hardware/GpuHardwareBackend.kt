@@ -293,10 +293,17 @@ object GpuHardwareBackend {
      * Maps a requested frequency to a real OPP that the provider can currently
      * carry.  It never returns an OPP above the live configurable ceiling.
      */
-    fun snapToAvailableAtOrBelow(device: Device, requestedHz: Long): Long? {
+    fun snapToAvailableAtOrBelow(
+        device: Device,
+        requestedHz: Long,
+        respectLiveCeiling: Boolean = true,
+    ): Long? {
         val frequencies = device.frequencies.filter { it > 0L }.distinct().sorted()
         if (frequencies.isEmpty()) return null
-        val cap = configurableMaxFrequency(device)
+        // Cooling profiles respect the live vendor ceiling. A full-capability request
+        // must not: its contract is to ask for the highest advertised OPP and let the
+        // platform authority report any lower ceiling it enforces after the write.
+        val cap = if (respectLiveCeiling) configurableMaxFrequency(device) else null
         val usable = if (cap != null) frequencies.filter { it <= cap } else frequencies
         if (usable.isEmpty()) return null
         return usable.lastOrNull { it <= requestedHz } ?: usable.first()
@@ -747,12 +754,29 @@ object GpuHardwareBackend {
         .mapNotNull(String::toLongOrNull).filter { it > 0L }.distinct().sorted()
 
     private fun readMtkOppMap(io: Io): Map<Long, String> {
-        val content = MTK_OPP_TABLES.firstNotNullOfOrNull { path -> io.read(path)?.takeIf(String::isNotBlank) }
-            ?: return emptyMap()
+        // MTK exposes more than one OPP surface. The signed table can be a filtered
+        // runtime table (for example ending at 546 MHz), while gpufreq_opp_dump
+        // still exposes the hardware capability (1300 MHz on the reported device).
+        // Reading only the first non-empty file silently turns a runtime ceiling into
+        // a hardware maximum, which made Performance 100% write 546 successfully.
+        val contents = MTK_OPP_TABLES.mapNotNull { path ->
+            io.read(path)?.takeIf(String::isNotBlank)
+        }
+        if (contents.isEmpty()) return emptyMap()
         val result = linkedMapOf<Long, String>()
-        content.lineSequence().forEach { line ->
-            val index = Regex("""\[\s*(\d+)\s*]""").find(line)?.groupValues?.getOrNull(1) ?: return@forEach
+        var syntheticIndex = 0
+        contents.asSequence().flatMap { it.lineSequence() }.forEach { line ->
+            // Kernels expose both indexed tables (`[3] freq=...`) and the legacy
+            // dump format (`freq = 1300000`). The latter is still authoritative
+            // capability evidence, but it has no explicit index in some builds.
+            // Give only a labelled, unit-bearing frequency a bounded ordinal; bare
+            // voltage/frequency-looking numbers remain rejected below.
+            val indexed = Regex("""\[\s*(\d+)\s*]""").find(line)?.groupValues?.getOrNull(1)
             val tail = line.substringAfterLast(']').trim()
+            val labelledFrequency = Regex("""(?i)\bfreq(?:uency)?\s*[=:]\s*""").containsMatchIn(tail)
+            if (indexed == null && !labelledFrequency) return@forEach
+            val index = indexed ?: syntheticIndex.toString()
+            syntheticIndex += 1
             val matches = Regex("""(?i)(\d+(?:\.\d+)?)\s*(GHz|MHz|kHz)?""").findAll(tail).toList()
             fun isFrequencyLabeled(candidate: MatchResult): Boolean {
                 val prefix = tail.substring(0, candidate.range.first)

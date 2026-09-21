@@ -311,6 +311,17 @@ class GpuControlModelTest {
         assertEquals(mapOf(800_000_000L to "0", 700_000_000L to "1", 600_000_000L to "2", 500_000_000L to "3"), map)
     }
 
+    @Test fun capabilityIsDiscoveredFromLegacyDumpWithoutADeviceSpecificConstant() {
+        val fake = mtkIo()
+        fake.put(
+            "/proc/gpufreq/gpufreq_opp_dump",
+            "freq = 1300000\\nfreq = 975000\\nfreq = 546000",
+        )
+        val device = GpuHardwareBackend.selection(fake).device!!
+        assertEquals("the discovered table, not a fixed phone value, defines the capability", 1_300_000_000L, device.frequencies.maxOrNull())
+        assertEquals(1_300_000_000L, GpuHardwareBackend.snapToAvailableAtOrBelow(device, Long.MAX_VALUE, respectLiveCeiling = false))
+    }
+
     // ── صيغة قيمة مفتاح gpu_frequency ────────────────────────────────────────
     //
     // المُحكِّم يُثبت المعاملة بتساوي نصّي المطلوب والمقروء. فالمدى وحده لم يكن

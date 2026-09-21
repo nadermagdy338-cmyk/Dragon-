@@ -887,14 +887,20 @@ object AppMonitor {
                             .onFailure { AppMonitorLogger.e("EVENT=APPLY_FAILED pkg=$pkgName sw=$currentSwitchId reason=no_per_app_overrides_applied", it) }
                     }
                 } else {
-                    // مغادرة تطبيق مُدار نحو غير مُدار: مهلة سماح — لا
-                    // تراجع فوريًا. التنقل السريع ذهابًا وإيابًا لا
-                    // يهز العتاد، وموت التطبيق يُعجّل التراجع (أعلاه).
-                    graceDeadlineMs = android.os.SystemClock.elapsedRealtime() + PERAPP_GRACE_MS
-                    gracePkg = prevPkg
-                    AppMonitorLogger.i(
-                        "EVENT=PERAPP_GRACE_BEGIN pkg=$prevPkg duration_ms=$PERAPP_GRACE_MS sw=$currentSwitchId"
-                    )
+                    // مغادرة تطبيق مُدار إلى المشغّل/تطبيق غير مُدار تعني انتهاء الملكية.
+                    // لا نؤجل الاستعادة: إبقاء GPU/CPU على قيمة اللعبة بعد إغلاقها هو
+                    // تسريب جلسة، وقد يرفع الحرارة والبطارية بلا سبب. التبديل السريع
+                    // سيعيد تطبيق إعداد التطبيق عند عودته من جديد، بينما الأسبقية اليدوية
+                    // وMAX AI محفوظة داخل الـarbiter ولا تُستعاد فوقها.
+                    gracePkg = null
+                    graceDeadlineMs = 0L
+                    if (prevPkg.isNotBlank() && (prevManaged || perAppOverridesActive)) {
+                        AppMonitorLogger.i(
+                            "EVENT=PERAPP_REVERT_ON_FOREGROUND_LOSS pkg=$prevPkg reason=foreground-lost sw=$currentSwitchId"
+                        )
+                        runCatching { revertPerAppConfig() }
+                            .onFailure { AppMonitorLogger.e("EVENT=REVERT_FAILED pkg=$prevPkg sw=$currentSwitchId", it) }
+                    }
                 }
             }
             lastAppliedPkg = pkgName
@@ -1547,11 +1553,12 @@ object AppMonitor {
             // المستخدم: جهاز يعرض ١٣٠٠ كأعلى درجة، وسياسته الحالية تسمح بـ٧٥٤ — فتقيد بـ`liveCap`
             // كان يجعل «Gaming ١٠٠٪» يطلب ٧٥٤ (لا فرق عن غير الممسوس)، و«Gaming ٨٥٪» يطلب ٦٢٤
             // أي **أدنى من الجهاز كما هو**. وما دون ١٠٠٪ يبقى من السقف الحيّ لأن غرضه التبريد.
+            val fullCapabilityRequest = ThermalCurve.atFullCapability(presetPercent)
             val requested = explicit ?: PerAppKernelUtil.pickProfileFrequency(
                 liveAtPlan.frequencies,
                 profile,
                 presetPercent,
-                maximumHz = if (ThermalCurve.atFullCapability(presetPercent)) null else liveCap,
+                maximumHz = if (fullCapabilityRequest) null else liveCap,
             )
             if (requested == null) {
                 noteHardware("gpu_profile", Outcome.UNSUPPORTED, "unsupported-profile:$profile", profile, liveCap.toString())
@@ -1572,7 +1579,11 @@ object AppMonitor {
             // والقياس من سجل حقيقي (2026-09-20): `APPLY_VERIFY_FAILED knob=gpu_profile
             // expected=1300000000 live=754000000` ثم `APPLY_DRIFT_REASSERT_FAILED`
             // بعد ثانيتين، مرّتين لكل تطبيق — والجهاز لا يبلغ السقف المطلوب أصلًا.
-            val target = GpuHardwareBackend.snapToAvailableAtOrBelow(liveAtPlan, requested)
+            val target = GpuHardwareBackend.snapToAvailableAtOrBelow(
+                liveAtPlan,
+                requested,
+                respectLiveCeiling = !fullCapabilityRequest,
+            )
             if (target == null) {
                 noteHardware("gpu_profile", Outcome.UNSUPPORTED, "unsupported-frequency", requested.toString(), liveCap.toString())
                 return@runCatching
@@ -1585,7 +1596,7 @@ object AppMonitor {
             // سؤال «طلبت ١٠٠٪ فلماذا الكروت يقول ٧٥٤؟» يُجاب هنا بلا تفسير منّا: الطلب هو قدرة
             // الجهاز، والقيمة التي تُقرأ بعد الكتابة هي ما تسمح به سياسة الجهاز الآن. والاثنان
             // مكتوبان في السطر نفسه، فلا يُقرأ الفرق عطلًا في التطبيق.
-            if (target > liveCap) {
+            if (fullCapabilityRequest && target > liveCap) {
                 AppMonitorLogger.i(
                     "EVENT=PERAPP_GPU_CAPABILITY_REQUESTED pkg=$pkgName profile=$profile" +
                         " requested=$target live_before=$liveCap note=device-policy-may-hold-lower sw=$currentSwitchId"
@@ -1599,7 +1610,11 @@ object AppMonitor {
                 desired = desired,
                 apply = { value -> value.toLongOrNull()?.let { wantedHz ->
                         val live = GpuHardwareBackend.refresh(device.path) ?: return@let false
-                        val capped = GpuHardwareBackend.snapToAvailableAtOrBelow(live, wantedHz) ?: return@let false
+                        val capped = GpuHardwareBackend.snapToAvailableAtOrBelow(
+                            live,
+                            wantedHz,
+                            respectLiveCeiling = !fullCapabilityRequest,
+                        ) ?: return@let false
                         val low = live.frequencies.firstOrNull { it <= capped } ?: return@let false
                         GpuHardwareBackend.applyValidated(
                             live,
