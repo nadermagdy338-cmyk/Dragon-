@@ -76,7 +76,12 @@ class LogHeaderTest {
         val lines = LogHeader.guideLines() + LogHeader.legendLines()
 
         assertTrue("شرح الرمز في مستند آخر يساوي بلا شرح", lines.any { it.contains("code=manual-lock") })
-        assertTrue(lines.any { it.contains("unit=gpu_frequency:DEVICE") })
+        // والصيغة المفحوصة هي ما يُكتب فعلًا (`kind=unit knob=<key> unit=<unit>`) لا صيغة مُتوهَّمة:
+        // الخطأ في توقّع الاختبار يجعل اختبارًا سليمًا يسقط، ثم يُلغي قيمة الاختبار كله.
+        assertTrue(
+            "وحدة المقبض في مستند آخر تعني أن 1300000000 و1300000 قد يكونان الطلب نفسه",
+            lines.any { it.contains("kind=unit knob=gpu_frequency:DEVICE unit=") },
+        )
     }
 
     @Test

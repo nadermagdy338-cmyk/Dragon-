@@ -273,13 +273,20 @@ class LogsViewerViewModel : ViewModel() {
     var targetSummaries by mutableStateOf<List<LogTargetSummary>>(emptyList())
         private set
 
-    /** حدّ حجم ملف السجل بالكيلوبايت كما هو مضبوط الآن (يُقرأ من الخاصية عند البناء). */
+    /**
+     * حدّ حجم ملف السجل بالكيلوبايت كما هو مضبوط الآن (يُقرأ من الخاصية عند البناء).
+     *
+     * ولماذا `@JvmName` على المُسنِد: اسمه المولَّد `setLogMaxKb(I)V` مطابق تمامًا لدالة
+     * الأمر [setLogMaxKb] — وهو تصادم على توقيع JVM لا يمنعه اختلاف النطاق (خاصّ مقابل عام)،
+     * فيوقف الترجمة إلى dex. وإعادة التسمية هنا هي نفس قاعدة [viewerMode] و[unifiedView]
+     * أعلاه: الخاصية تُقرأ باسمها، وكل كتابة تمرّ بدالة الأمر لا بالمُسنِد.
+     */
     var logMaxKb by mutableStateOf(0)
-        private set
+        @JvmName("setLogMaxKbState") private set
 
-    /** أدنى مستوى يُكتب من التطبيق (0=DEBUG .. 4=FATAL). */
+    /** أدنى مستوى يُكتب من التطبيق (0=DEBUG .. 4=FATAL) — ونفس سبب `@JvmName` أعلاه. */
     var logMinLevel by mutableStateOf(0)
-        private set
+        @JvmName("setLogMinLevelState") private set
 
     private val allLogs = Collections.synchronizedList(ArrayList<LogEntry>())
     private val pendingBatch = Collections.synchronizedList(ArrayList<LogEntry>())

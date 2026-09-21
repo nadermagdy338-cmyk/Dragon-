@@ -120,22 +120,34 @@ class LogDiagnosticReportTest {
         )
     }
 
+    /**
+     * سطر تقرير من نصّه الخام — **والحدث والميزة يُشتقّان من النصّ** لا يُفترضان.
+     *
+     * ولماذا لزم التصحيح: الحرفيّ `event = "PERAPP_KNOB"` و`area = CPU` كان يُفرض على كل سطر
+     * مهما قال `raw`، فصار اختبار «السطر الحامل لحرارة» يفحص سطرًا يُعلن نفسه `cpu/PERAPP_KNOB`.
+     * وهذا أسوأ من عطب في الإنتاج: أداة تكذب تجعل اختبارًا سليمًا يمرّ كذبا أو يسقط بلا سبب —
+     * وقد فعلت الثاني.
+     */
     private fun line(
         id: Long,
-        area: LogArea = LogArea.CPU,
+        area: LogArea? = null,
         verdict: LogVerdict = LogVerdict.FAIL,
         reason: String = "apply-not-verified",
         raw: String = "EVENT=PERAPP_KNOB",
-    ) = ReportLine(
-        time = "10:00:${id.toString().padStart(2, '0')}",
-        level = "W",
-        source = "appmonitor",
-        event = "PERAPP_KNOB",
-        area = area,
-        verdict = verdict,
-        reason = reason,
-        raw = raw,
-    )
+    ): ReportLine {
+        val parsed = LogEventParser.parse(raw)
+        val event = parsed?.event ?: "PERAPP_KNOB"
+        return ReportLine(
+            time = "10:00:${id.toString().padStart(2, '0')}",
+            level = "W",
+            source = "appmonitor",
+            event = event,
+            area = area ?: LogArea.of(event, parsed?.target),
+            verdict = verdict,
+            reason = reason,
+            raw = raw,
+        )
+    }
 
     @Test
     fun `the tail keeps the most recent lines in reading order`() {

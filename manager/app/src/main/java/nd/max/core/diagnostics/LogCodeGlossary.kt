@@ -170,6 +170,7 @@ object LogCodeGlossary {
         "unreadable" to "the write may still have succeeded; read the node by hand before judging",
         "differs" to "a governor or driver clamped the value; request a value inside the advertised range",
         // الملكية والتزامن
+        "blocked" to "another owner (or the safety gate) holds this knob, so nothing was written; the same line names the winner, and the app screen names the owner to release",
         "manual-lock" to "expected when you pin a knob; unpin it in the app screen to let automated owners write again",
         "preempted-by-OWNER" to "another owner holds the knob: the log names it; release that owner or wait for the handoff",
         "no-winner" to "the shared journal has no owner for this knob; re-apply from the app screen to re-register",

@@ -154,13 +154,40 @@ enum class LogArea(val token: String) {
         )
 
         /**
-         * الميزة من المقبض أولًا ثم من اسم الحدث.
+         * كلمات العتاد التي يُسمّى بها الحدث نفسه — وهي التي تفوز على استنتاج المقبض.
          *
-         * والمقبض أدقّ حين يكون موجودًا: سطر `PERAPP_KNOB knob=cpu_limits:policy0` يخصّ CPU
-         * وإن كان حدثًا «لتطبيق». ويُستعمل [HardwareControlKey] هنا بدل تكرار بادئاته، فلا
-         * يصير البادئة معرَّفة في موضعين تتباعد نسختاهما.
+         * ولماذا لم تكفِ [RULES] وحدها: تلك تشترط أن تكون الكلمة **بادئة**، و`PERAPP_THERMAL_GUARD`
+         * ليست بادئتها `THERMAL` بل `PERAPP_`. وكان أثر ذلك مزدوجًا: مع مقبض يحتوي `gpu` كان السطر
+         * يُصنَّف GPU، وبدون مقبض كان يُصنَّف «تطبيق» — في الحالتين **يغيب سطر العطل الحراري عن
+         * مرشّح الحرارة**، وهو بالضبط السطر الذي يُفتح المرشّح من أجله.
+         */
+        private val HARDWARE_TOKENS: List<Pair<LogArea, String>> = listOf(
+            THERMAL to "THERMAL",
+            GPU to "GPU",
+            CPU to "CPU",
+            MEMORY to "MEMORY",
+            CHARGING to "CHARGE",
+        )
+
+        /**
+         * الميزة على ثلاث مراحل مرتّبة، وكل مرحلة أعمّ من سابقتها.
+         *
+         * 1. **اسم الحدث إن سمّى عتادًا** ([HARDWARE_TOKENS]): `PERAPP_THERMAL_GUARD` حراري وإن بدأ
+         *    بـ`PERAPP_`، و`knob=gpu_profile` لا يقلبه GPU. والسبب أن اسم الحدث هو **من كتب السطر**
+         *    وهو أعلم بما يقصده.
+         * 2. **المقبض**: `PERAPP_KNOB` لا يسمّي عتادًا، والمقبض هو ما يقول أين وقع العمل —
+         *    `cpu_limits:policy0` يخصّ CPU وإن كان الحدث «لتطبيق». ويُستعمل [HardwareControlKey]
+         *    هنا بدل تكرار بادئاته، فلا تصير البادئة معرَّفة في موضعين تتباعد نسختاهما.
+         * 3. **البادئات العامة** ([RULES]): للتطبيقات والمحرّك والنظام والمقارير — وهي أعمّ من أن
+         *    تحكم على سطر يسمّي عتاده.
          */
         fun of(event: String, target: String? = null): LogArea {
+            val name = event.uppercase()
+
+            HARDWARE_TOKENS.forEach { (area, token) ->
+                if (name.contains(token)) return area
+            }
+
             val knob = target?.trim().orEmpty()
             if (knob.isNotEmpty()) {
                 HardwareControlKey.gpuFrequencyDevice(knob)?.let { return GPU }
@@ -175,7 +202,7 @@ enum class LogArea(val token: String) {
                     knob.contains("cpu", ignoreCase = true) -> return CPU
                 }
             }
-            val name = event.uppercase()
+
             RULES.forEach { (area, prefixes) ->
                 if (prefixes.any { name.startsWith(it) }) return area
             }

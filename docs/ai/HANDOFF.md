@@ -4885,3 +4885,66 @@ RESIDUAL RISK: بقية الملفّات التي دخلت في الجولة ا�
        كان واحدًا؛ فإن ظهر ثانٍ فهو من الصنف نفسه (اسم غير معلَن في نطاق) لا من البنية.
 NEXT: إعادة تشغيل CI حتى يخضرّ `compileReleaseKotlin`، ثم تشغيل الاختبارات الثلاثة الجديدة.
 ```
+
+---
+
+## تكملة ٧٢ — إصلاح ترجمة CI: تصادم توقيع JVM بين `logMaxKb`/`logMinLevel` ودالتي الأمر
+
+`KIND`: fix · `AREA`: log-console (الواجهة/الـViewModel) · `SPEC`: `LOG-FILE-01`
+
+### العَرَض
+```
+LogsViewerViewModel.kt:278: Platform declaration clash: (setLogMaxKb(I)V)
+        fun <set-logMaxKb>(<set-?>: Int)  vs  fun setLogMaxKb(kb: Int)
+LogsViewerViewModel.kt:282: Platform declaration clash: (setLogMinLevel(I)V)
+LogsViewerViewModel.kt:319/327: نفس التصادم من جهة الدالة
+```
+
+### السبب
+الخاصيتان `logMaxKb` و`logMinLevel` مُعلنتان `var … private set`، فيولّد المُصرّف لهما **مُسنِدًا
+خاصًّا باسم `setLogMaxKb(I)V`**. ودالتا الأمر الجديدتان (اللتان تحفظان الخاصية وتُسجّلان فعل
+المستخدم) تحملان الاسم نفسه. اختلاف النطاق (خاصّ مقابل عام) واختلاف المعنى لا يُنقذان التوقيع:
+`JVM` يفرّق بالاسم والوسائط لا بمعنى الدالة، فيسقط الترجمة إلى `dex` عند `compileReleaseKotlin`.
+
+وهذا الصنف لا تُمسكه البوابات الأربع: `kt_balance` يوازن البنية و`code_health` يقيس الدَّين
+و`i18n_coverage` يقابل النصوص — ولا واحد منها يفهم نطاقات `JVM`. المُصرّف وحده يمسكه.
+
+### الإصلاح — بقاعدة الملف القائمة لا بحلّ خاص
+الملف يحمل هذه القاعدة أصلًا في موضعين سابقين لنفس السبب: `viewerMode` (سطر 236) و`unifiedView`
+(سطر 250)، ثم `showPid`/`showTid` (٢٢٦/٢٢٨). فطُبِّقت على الموضعين الجديدين:
+
+```kotlin
+var logMaxKb by mutableStateOf(0)
+    @JvmName("setLogMaxKbState") private set
+var logMinLevel by mutableStateOf(0)
+    @JvmName("setLogMinLevelState") private set
+```
+
+- الخاصية تُقرأ باسمها كما هي (`viewModel.logMaxKb`) — لا تغيير في الواجهة ولا في الشاشة.
+- وكل كتابة تمرّ بدالة الأمر (`setLogMaxKb`) لا بالمُسنِد، وهو الوحيد الذي يُسجَّل ويُدقَّق النطاق.
+- **لا `fun` أُعيدت تسميتها ولا نداء تغيّر**، فلم تُلمس `LogsViewerSections.kt`.
+
+### الفحص الموسَّع
+جرد آلي لكل ملف Kotlin: صنف فيه `var X` ودالة `setX` بنفس نوع الوسيط. النتيجة **مفصَّلة**، ولا
+واحدة منها تصادم فعلي: الباقي إمّا خاصية محسوبة (`val … get()`) أو خاصية خاصة أو مساحة أسماء
+مختلفة (`SettingsPreference` / `SettingsViewModel` لكلٍّ توقيعه). تصادم `LogsViewerViewModel` كان
+الوحيد الذي أبلغ عنه المُصرّف، وقد استُوفي: أربعة أخطاء لخاصيّتين لا أكثر.
+
+### التحقق
+```
+kt_balance --assert     ✅ 754 ملفًا · عوائق 0
+code_health --assert    ✅ صحّة 0 · الدَّين ثابت (10/29/63/23 · Kotlin 573 ملفًا / 134626 سطرًا)
+i18n_coverage --assert  ✅ عوائق 0
+repo_audit.py           ✅ PROBLEMS: 0
+```
+
+```
+FILES: manager/app/src/main/java/nd/max/ui/viewmodel/LogsViewerViewModel.kt (+2 @JvmName، +تعليل)
+GATES: 1 ✓  2 ✓  3 ✓  6 ✓
+BUILD: not verified locally — لا Kotlin ولا Android SDK ولا مخزن Gradle في هذه البيئة (java=25).
+       الخطأ منشور من CI، والإصلاح مُطابق لنمط مُثبَت في الملف نفسه كان قد عبر الترجمة.
+RESIDUAL RISK: التصادم يُبلَّغ عنه من الـbackend مرفوعًا مع الطور نفسه، فالمُتوقَّع انتهاء هذا الصنف؛
+       وأي خطأ تالٍ سيكون من صنف آخر يُقرأ من سطر CI لا من التخمين.
+NEXT: إعادة تشغيل CI حتى يخضرّ `compileReleaseKotlin`، ثم تشغيل الاختبارات الثلاثة الجديدة
+      (`LogEventLineTest` · `LogDiagnosticReportTest` · `LogCodeGlossaryTest` · `LogHeaderTest`).
+```
