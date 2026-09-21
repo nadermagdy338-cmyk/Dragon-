@@ -160,10 +160,48 @@ TEXT_LITERAL = re.compile(r'(?<![\w.])Text\(\s*(?:text\s*=\s*)?"([^"\\]*(?:\\.[^
 HAS_LETTER = re.compile(r"[A-Za-z\u0600-\u06FF]")
 
 
+# فاصلة عليا غير مُهرَّبة داخل قيمة نصية: AAPT2 يرفض الملف كله عندها.
+#
+# لماذا هنا ولا في `i18n_coverage`: العطب ليس ترجميًّا — ملفٌ واحد فيه `app's` يُسقط
+# `mergeReleaseResources` برسالة لا تسمّي السبب («Can not extract resource from ParsedResource»)
+# فيقضي صاحب المشروع جولة CI كاملة (٤ دقائق) على لغز لا علاقة له بما عدّله. والقاعدة في أندرويد
+# واحدة: إمّا `\'` أو إحاطة القيمة بعلامتَي تنصيص `"…"` — وهذا ما يقيسه هذا الفحص.
+APOSTROPHE = re.compile(r"(?<!\\)'")
+QUOTED_VALUE = re.compile(r'^\s*".*"\s*$', re.S)
+VALUE_PARENTS = {"string", "string-array", "plurals", "array"}
+
+
+def apostrophe_offenders() -> list[str]:
+    """كل قيمة نصية في كل موديل تحمل فاصلة عليا لا يقبلها AAPT2."""
+    offenders: list[str] = []
+    for res_dir in sorted(glob.glob(os.path.join(MANAGER, "*", "src", "*", "res"))):
+        for p in glob.glob(os.path.join(res_dir, "values*", "**", "*.xml"), recursive=True):
+            try:
+                root = ET.parse(p).getroot()
+            except ET.ParseError:
+                continue
+            parents = {child: parent for parent in root.iter() for child in parent}
+            for node in root.iter():
+                parent = parents.get(node)
+                is_value = node.tag == "string" or (
+                    node.tag == "item" and parent is not None and parent.tag in VALUE_PARENTS
+                )
+                if not is_value:
+                    continue
+                text = "".join(node.itertext())
+                if not text.strip() or QUOTED_VALUE.match(text):
+                    continue
+                if APOSTROPHE.search(text):
+                    offenders.append(
+                        f"{rel(p)}: <{node.tag} name={node.get('name')}> {text.strip()[:60]!r}"
+                    )
+    return offenders
+
+
 def check_correctness(files: list[str], mods: dict) -> dict:
     result: dict[str, list[str]] = {
         "package_mismatch": [], "unresolved_resource": [], "duplicate_string_key": [],
-        "stray_root_file": [],
+        "unescaped_apostrophe": [], "stray_root_file": [],
     }
 
     for p in files:
@@ -197,6 +235,8 @@ def check_correctness(files: list[str], mods: dict) -> dict:
                     )
                 elif name:
                     seen[name] = os.path.basename(p)
+
+    result["unescaped_apostrophe"].extend(apostrophe_offenders())
 
     # ملف الجذر يُعدّ حطامًا فقط إن لم يكن متعقّبًا **ولم يكن متجاهلًا**: علامة أداة
     # محلية مذكورة في .gitignore ليست ضجيجًا، فلا تُبلَّغ.

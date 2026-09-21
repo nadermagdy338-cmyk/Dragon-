@@ -905,6 +905,29 @@
     <string name="home_open_details">فتح بيانات الحرارة التفصيلية</string>
     <string name="home_available_memory">%1$s متاح</string>
     <string name="home_available_swap">%1$s تبديل متاح</string>
+
+    <!-- لوحة «ما تفعله إعداداتك»: سطر لكل نتيجة بمصدرها -->
+    <string name="storyboard_title">ما تفعله إعداداتك الآن</string>
+    <string name="storyboard_scene_per_app">بروفايل التطبيق</string>
+    <string name="storyboard_scene_max_ai">ذكاء MAX</string>
+    <string name="storyboard_scene_manual">تحكمك اليدوي</string>
+    <string name="storyboard_measured_ago">قيس %1$s قبل</string>
+    <string name="storyboard_age_seconds">%1$d ث</string>
+    <string name="storyboard_age_minutes">%1$d د</string>
+    <string name="storyboard_age_hours">%1$d س</string>
+    <string name="storyboard_why">السبب: %1$s</string>
+    <string name="storyboard_knob_gpu_profile">بروفايل الرسوم</string>
+    <string name="storyboard_knob_gpu_max_freq">سقف تردد الرسوم</string>
+    <string name="storyboard_knob_cpu_limits">حدود المعالج</string>
+    <string name="storyboard_knob_cpu_governor">حاكم المعالج</string>
+    <string name="storyboard_knob_gpu_governor">حاكم الرسوم</string>
+    <string name="storyboard_knob_kill_bg">إغلاق التطبيقات الخلفية</string>
+    <string name="storyboard_knob_refresh">معدل التحديث</string>
+    <string name="storyboard_knob_renderer">محرّك العرض</string>
+    <string name="storyboard_knob_thermal">حارس الحرارة</string>
+    <string name="storyboard_knob_cpu_boost">تسريع المعالج</string>
+    <string name="storyboard_knob_max_ai">محرك ذكاء MAX</string>
+    <string name="storyboard_knob_max_ai_objective">الهدف</string>
     <string name="home_zram_unavailable">التبديل المضغوط غير متاح</string>
     <string name="home_available_storage">%1$s غيغابايت متاحة</string>
 

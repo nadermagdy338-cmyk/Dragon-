@@ -5399,3 +5399,81 @@ RESIDUAL RISK: (١) لم يُجرَّب على جهاز — كل تعديل مُ
 وهذا مكمّل لما سبق لا بديل: النسخة في قسم البيانات (تطبيق نظام مُحدَّث) تجعله **مُدرَجًا**، وهذا الزرّ
 يجعل الطلب **يحدث أمام المستخدم**. والكتابات الروتينية تبقى على أذونات `service.sh` عند الإقلاع، فالزرّ
 للأذن الشخصي وحده.
+
+### ٥ · لوحة «ما تفعله إعداداتك الآن» — صارت **حقيقة معروضة** لا نموذجًا
+
+الطلب: «أهمّ حاجة أن يُظهروا الحقيقة». وكان في الشجرة نموذج قرار (`StoryboardModel`) وملف عرض
+(`StoryboardHome`) **بلا مصدر وبلا موضع**: أي لوحة مُغلقة لا تعرض شيئًا. فأُكمل الطرفان:
+
+**القارئ — `manager/app/src/main/java/nd/max/ui/util/StoryboardSources.kt` (جديد):**
+- **مشهد التطبيق:** `PerAppHardwareStatus.read()` (ما كُتب في العتاد ثم قُرئ، مع رمز سبب كل فشل)
+  + `AppConfig` من `APPLIST_JSON` لاختياراتك (البروفايل/الحاكمان/سقف GPU/الحدود/الإغلاق الخلفي)،
+  واسم التطبيق من `PackageManager`. ووقت القياس من `at` داخل الملف لا من ساعة الواجهة.
+- **مشهد اليدوي:** `ManualControlLocks.snapshot()` — الأقفال الدائمة، فسؤال «هل نسيتُ أن أطفئه؟»
+  يُجاب من العتاد لا من ذاكرة الواجهة.
+- **بلا مصدر ⇒ لا مشهد**: لا دمج ولا قيمة افتراضية ولا «تمّ» بلا دليل.
+
+**الموضع:** `LegendaryHomeDashboard` → `StoryboardBand(maxAi = maxAi)` بعد الترويسة وقبل لوحة
+النُّبض (البند ٠ في وصف الشاشة). ودورة القراءة **١٠ ثوانٍ** على `Dispatchers.IO` عبر `produceState`
+(نمط موجود في الشاشة نفسها)، لأن المعروض *نتيجة اختيار* لا نبضة قياس.
+
+**تصحيحان كشفهما العمل:**
+1. `StoryboardModel` كان يكتب `"cpu_limits:${policy}"` نصًّا — وهو ما ترفضه بوابة
+   `ControlPlaneArchitectureTest.canonicalKeysAreNotReinvented` (وكان سيفشل تصريف CI). صار المفتاح
+   من `HardwareControlKey.cpuLimits(...)`، والنموذج يبقى خالصًا لأن `HardwareControlKey` بلا تبعيات.
+2. `Icons.Rounded.ErrorOutline`/`RemoveCircleOutline` لم تكونا مستعملتين في المستودع — أُبدلتا
+   بـ`Icons.Outlined.ErrorOutline` و`Icons.Rounded.RadioButtonUnchecked` (كلتاهما مستعملة فعلًا)،
+   فرموز جديدة تعني احتمال فشل تصريف في CI لا فشل تجربة.
+
+**إضافة صغيرة مقصودة:** `readableValue`/`readableRange` في النموذج: `1300000000` و`1800000`
+يُعرضان `1.30 GHz` و`1.80 GHz` — تحويل صيغة لا اختراع رقم، وما ليس تردّدًا (`performance` · `on`)
+يُعاد كما هو. و`storyboard_age_hours` أُضيف حتى لا تُقرأ جلسة قبل ساعات «قبل 240 د».
+
+### التحقق
+```
+StoryboardModelTest  ١٣/١٣ في شريحة JVM (round 5: OK with 214 main files)  ✅
+kt_balance 765/0 · code_health --assert نظيفة (unresolved_resource 0) · i18n 0 (ar 100%) · repo_audit 0
+```
+RESIDUAL RISK: **لم يُجرَّب على جهاز، ولم يُصرَّف بـAndroid SDK** (لا SDK في بيئة العمل هنا — التصريف
+على CI). ولذلك بُنيت ملفات الواجهة من أنماط موجودة في المستودع حرفًا بحرف (`produceState` و
+`AnimatedContent` مع `transitionSpec`/`label` و`MaxSurface` والرموز)، لا من أنماط جديدة. المتوقّع على
+الجهاز عند فتح تطبيق مُدار: بطاقة باسمه وسطر لكل مقبض (`gpu_profile 754 MHz → 624 MHz` مع `verified`)،
+والأسطر غير المتحقّقة تحمل رمز سببها — وإن لم تظهر بطاقة فالسجل يقول أي مصدر لم يُقرأ.
+
+### ٦ · فشل `mergeReleaseResources` — السبب الحقيقي: فاصلة عليا غير مُهرَّبة (ثلاثة نصوص)
+
+عطل CI في ٤ دقائق برسالة لا تسمّي شيئًا:
+```
+Can not extract resource from com.android.aaptcompiler.ParsedResource@…  (×٣)
+```
+لا ملف، ولا سطر، ولا سبب — فقط `merged.dir/values/values.xml`.
+
+**التشخيص نُفِّذ محليًّا لا بالتخمين:** نُزّل `aapt2` من نفس إصدار AGP (`9.2.0-15009934`) من
+`dl.google.com/dl/android/maven2`، ثم:
+```
+aapt2 compile --dir <res يحوي كل values*>   ⇒ أخطاء بالملف والسطر
+```
+فخرجت الأسباب الثلاثة صريحة: **`'` داخل قيمة نصية بلا `\'`** — لا علاقة لها بعمل اللوحة:
+`values/strings.xml:28` (`device's` في شرح حارس الحرارة) و`:1824` و`:1825` (`app's` في وصف أدوات
+Control: `max_role_logs` و`max_role_color_palette`). ورسالة AAPT2 المبهمة هي أثره لا سببه.
+
+**الإصلاح:** `\'` في الثلاثة … ثم `aapt2 compile` على **٨٥ مجلد `values*` + موديولَي
+`kernel-flasher` و`terminal-view`** ⇒ **٠ أخطاء**. (وتنبيه `!!` في `UpdatesViewModel` تحذير
+Kotlin وحده، لا علاقة له بالفشل.)
+
+**المنع — بوابة جديدة في `tools/code_health.py`:**
+`unescaped_apostrophe`: يفحص **كل قيمة نصية في كل موديول** (`<string>` وأبناء `<string-array>`
+و`<plurals>`)، ويرفض الفاصلة غير المُهرَّبة إلا إن كانت القيمة محاطة بعلامتَي تنصيص (`"…"`) —
+وهما الطريقتان الوحيدتان المقبولتان في أندرويد. ومُثبَت بفحص تجريبي: يرفض `app's`، ويمرّر `\'`،
+ويمرّر القيمة المحاطة بتنصيص. والفحص داخل `check_correctness` فيسري عليه `--assert` تلقائيًّا.
+
+**الدرس المكتوب في الأداة:** عطلُ موردٍ لا يُشخَّص بقراءة الكود؛ الأداة الرسمية تُشغَّل على الملف
+فتقول السطر. ولذلك أُبقيت نسخة `aapt2` المحلية كأداة تشخيص يمكن تكرارها، وأُضيف فحص لا يحتاج
+تحميل شيء لأن البوابة يجب أن تعمل على أي جهاز.
+
+### التحقق بعد الإصلاح
+```
+aapt2 compile: app (٨٥ مجلد values*) + kernel-flasher + terminal-view  ⇒ ٠ أخطاء  ✅
+kt_balance 765/0 · code_health --assert نظيفة (unescaped_apostrophe 0) · i18n 0 · repo_audit 0
+StoryboardModelTest ١٣/١٣ في شريحة JVM
+```

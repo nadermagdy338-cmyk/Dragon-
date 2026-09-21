@@ -96,6 +96,10 @@ import kotlin.math.roundToInt
  * profile row) is gone; those live in Max AI, Control and Diagnostics.
  *
  * Reading order, each block earning its place exactly once:
+ *  0. storyboard— what your choices are actually doing right now: the last per-app
+ *               session's verified hardware results, MAX AI's owned knobs, and your
+ *               own manual locks. It states outcomes, never instruments: heat, load and
+ *               cores keep living in the screens that own them.
  *  1. pulse   — device identity, heat with a stable/attention read, and
  *               uptime, battery and power draw at a glance
  *  2. focus   — appears only when something is actually wrong
@@ -134,6 +138,9 @@ internal fun LegendaryHomeDashboard(
     val online = ui.rootStatus && ui.moduleInstalled
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         HomeHeader(online, onSettings, onReboot)
+        // "ما فعلته اختياراتك" قبل أي قياس: البيان الأول في الشاشة، لأنه جواب السؤال الذي
+        // تُفتح الرئيسية من أجله (هل فعّلت؟ وهل عمل؟) — والأرقام اللحظية بعده.
+        StoryboardBand(maxAi = maxAi)
         PulsePanel(
             deviceName = deviceName,
             dashboard = dashboard,

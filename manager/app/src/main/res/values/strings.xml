@@ -25,7 +25,7 @@
     <string name="perapp_diag_reason">reason: %1$s</string>
     <string name="perapp_diag_values">wanted %1$s → live %2$s</string>
     <string name="perapp_diag_hint">Full detail in the Logs tab: EVENT=PERAPP_KNOB</string>
-    <string name="perapp_thermal_guard_note">These chips are a real power envelope, not a label. 100% means full device capability: the highest frequency the device advertises is requested, so gaming and performance never sit below an untouched device (if the device's own policy holds a lower ceiling, the log says so). Below 100% the percentage is of the ceiling the device allows right now — that is what cooling means — and it is applied to the GPU ceiling and to every CPU policy you did not set by hand. On top of that, a thermal guard lowers the same ceilings while the device is throttling and restores them when it cools, never above what you chose.</string>
+    <string name="perapp_thermal_guard_note">These chips are a real power envelope, not a label. 100% means full device capability: the highest frequency the device advertises is requested, so gaming and performance never sit below an untouched device (if the device\'s own policy holds a lower ceiling, the log says so). Below 100% the percentage is of the ceiling the device allows right now — that is what cooling means — and it is applied to the GPU ceiling and to every CPU policy you did not set by hand. On top of that, a thermal guard lowers the same ceilings while the device is throttling and restores them when it cools, never above what you chose.</string>
     <string name="app_settings_title">App Settings</string>
     <string name="app_tab_performance">Performance</string>
     <string name="app_tab_display">Display</string>
@@ -1617,6 +1617,29 @@
     <string name="home_open_details">Open detailed thermal data</string>
     <string name="home_available_memory">%1$s available</string>
     <string name="home_available_swap">%1$s swap free</string>
+
+    <!-- Storyboard: what your choices are doing, stated from their own source -->
+    <string name="storyboard_title">WHAT YOUR SETTINGS ARE DOING</string>
+    <string name="storyboard_scene_per_app">App profile</string>
+    <string name="storyboard_scene_max_ai">MAX AI</string>
+    <string name="storyboard_scene_manual">Your manual control</string>
+    <string name="storyboard_measured_ago">measured %1$s ago</string>
+    <string name="storyboard_age_seconds">%1$d s</string>
+    <string name="storyboard_age_minutes">%1$d min</string>
+    <string name="storyboard_age_hours">%1$d h</string>
+    <string name="storyboard_why">reason: %1$s</string>
+    <string name="storyboard_knob_gpu_profile">GPU profile</string>
+    <string name="storyboard_knob_gpu_max_freq">GPU clock ceiling</string>
+    <string name="storyboard_knob_cpu_limits">CPU limits</string>
+    <string name="storyboard_knob_cpu_governor">CPU governor</string>
+    <string name="storyboard_knob_gpu_governor">GPU governor</string>
+    <string name="storyboard_knob_kill_bg">Kill background apps</string>
+    <string name="storyboard_knob_refresh">Refresh rate</string>
+    <string name="storyboard_knob_renderer">Renderer</string>
+    <string name="storyboard_knob_thermal">Thermal guard</string>
+    <string name="storyboard_knob_cpu_boost">CPU boost</string>
+    <string name="storyboard_knob_max_ai">MAX AI engine</string>
+    <string name="storyboard_knob_max_ai_objective">Objective</string>
     <string name="home_zram_unavailable">Compressed swap is unavailable</string>
     <string name="home_available_storage">%1$s GB free</string>
 
@@ -1798,8 +1821,8 @@
     <string name="control_advanced_tools_desc">High-risk utilities belong with Control, not Settings. They stay explicit, labeled and reversible where possible.</string>
     <string name="max_role_terminal">Run direct commands only when a normal control cannot express the task.</string>
     <string name="max_role_process_manager">See what is running right now and stop what should not be.</string>
-    <string name="max_role_logs">Read the app's own log and filter it down to the failures only.</string>
-    <string name="max_role_color_palette">Pick the accent and the app's own colour identity.</string>
+    <string name="max_role_logs">Read the app\'s own log and filter it down to the failures only.</string>
+    <string name="max_role_color_palette">Pick the accent and the app\'s own colour identity.</string>
     <string name="max_role_color_scheme">Choose whether the app follows the system theme or keeps its own.</string>
     <string name="max_role_setedit">Inspect and edit Android settings with clear advanced-risk labeling.</string>
     <string name="max_role_max_backup">Back up and restore any app and its data, with a fingerprint check after every write.</string>
