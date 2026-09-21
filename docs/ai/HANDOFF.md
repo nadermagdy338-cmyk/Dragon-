@@ -4948,3 +4948,66 @@ RESIDUAL RISK: التصادم يُبلَّغ عنه من الـbackend مرفو�
 NEXT: إعادة تشغيل CI حتى يخضرّ `compileReleaseKotlin`، ثم تشغيل الاختبارات الثلاثة الجديدة
       (`LogEventLineTest` · `LogDiagnosticReportTest` · `LogCodeGlossaryTest` · `LogHeaderTest`).
 ```
+
+---
+
+## تكملة ٧٣ — اختبار بناء محليّ حقيقي: شريحة JVM نقيّة + ٤ أعطال أُصلحت — 2026-09-21
+
+`KIND`: verification + fix · `AREA`: log-console · hardware/atlas · `SPEC`: `LOG-*`
+
+### لماذا
+لم يكن ممكنًا تنفيذ أي شيء محليًّا: لا Android SDK ولا JDK 17 ولا مخزن Gradle. وكل إصلاح سابق
+كان «مُراجَع يدويًّا» حتى يسقط في CI — وهذا كلّف ثلاث دورات. فبُني **مُصرّف حقيقي** يُشغِّل ما يمكن
+تشغيله بلا منصّة.
+
+### الحصيلة
+```
+Kotlin 2.3.10 (نفس إصدار المشروع) · JDK 21 · jvmTarget 17 · JUnit 4.13.2
+شريحة نقيّة: 47 ملف مصدر + 51 ملف اختبار (اختيارها آليّ: المُصرّف هو الحكم على «نقيّ»)
+=== OK (499 tests) — 2.5 ثانية
+```
+وتشمل: `ThermalCeilingRouterTest` · `ThermalGuardTest` · `PerAppHardwareStatusTest` ·
+`HardwareControlArbiterTest`/`…VerificationTest` · `PerAppControlRegistryTest`/`…RetargetTest` ·
+`HardwareRepairExecutorTest` · `AtlasRouteMemoryTest` · `AtlasAdaptiveExecutorTest` ·
+`AtlasRoutePlannerTest` · `AtlasFileReadTransportTest` · `ManualControlLocksTest` ·
+`LogEventLineTest` · `LogDiagnosticReportTest` · `LogCodeGlossaryTest` · `LogHeaderTest` … —
+**كلها أوّل مرّة تُشغَّل**، وهي بالضبط ما لم يُثبت في تكملات ٦٨–٧٢.
+
+### الأعطال الأربعة التي كشفها التشغيل (وأصلحها)
+1. **`LogArea` كان يخون تعليقه.** `PERAPP_THERMAL_GUARD` غير معروف كحدث حراري: القاعدة كانت
+   `startsWith("THERMAL")` والاسم يبدأ بـ`PERAPP_`. فأثرُه أن سطر العطل الحراري **يغيب عن مرشّح
+   الحرارة**: مع مقبض فيه `gpu` صار GPU، وبدون مقبض صار «تطبيق». الإصلاح: اسم الحدث **إن سمّى
+   عتادًا** يفوز أولًا ([HARDWARE_TOKENS])، ثم المقبض، ثم البادئات العامة.
+2. **`outcome=blocked` بلا إصلاح مُرمَّز.** `Outcome.BLOCKED("blocked")` رمز يكتبه المحرّك فعلًا،
+   فكان يُرسَل في `fix=no-fix-encoded` — أي «عطل بلا جواب» في أهمّ مقبض فشل ملكية. أُضيف إصلاحه.
+3. **توقّع اختبار خاطئ** في `LogHeaderTest`: كان يفحص `unit=gpu_frequency:DEVICE` والصيغة
+   المُنتَجة `kind=unit knob=gpu_frequency:DEVICE unit=Hz…`. صُحّح التوقّع إلى الصيغة الحقيقية.
+4. **أداة اختبار تكذب**: `LogDiagnosticReportTest.line()` كانت تفرض `event="PERAPP_KNOB"` و
+   `area=CPU` على كل سطر مهما قال `raw`، فيفحص اختبار الحرارة سطرًا يقول عن نفسه `cpu/PERAPP_KNOB`.
+   الآن يُشتقّان من `raw` — وهذا صنف العطب الذي يجعل اختبارًا يسقط بلا سبب أو يمرّ كذبًا.
+
+### العطب نفسه يظهر مرّتين
+شيم `Shell` كتبته في الأدوات وقع في **تصادم توقيع JVM** (`vararg String` مع `Array<String>`) —
+نفس صنف العطب الذي أوقف CI في `LogsViewerViewModel`. وهذا يؤكّد أن التشخيص كان صحيحًا وأن الصنف
+متكرّر في Kotlin لا خاصًّا بموضع واحد.
+
+### حدود ما أُثبت (مهمّ)
+- الشريحة **بلا منصّة**: `Shell` مُفشَلة عن قصد (`isSuccess=false`)، `RootIpcManager.ipc = null`،
+  `PowerManager.currentThermalStatus = NONE`، `android.system.Os` بلا فعل. فما مرّ هنا هو
+  **المنطق** لا سلوك الجهاز.
+- ما لم يُصرَّف: Compose · Hilt · Room · أي شيء يلمس `android.*` حقيقيًّا ·
+  `AtlasAdaptiveReadTransportTest` و`ReadOnlyProbeAccessTest` (يحتاجان نماذج اختبار بلا Android).
+- الأدوات والشيمات في `/tmp` **لا في المستودع** (لا تُلوِّث البناء ولا تُشحن).
+- `:app:compileReleaseKotlin` ما زال الحكم النهائي على الشيفرة التي أُصلحت في تكملة ٧٢.
+
+```
+FILES: manager/app/src/main/java/nd/max/core/diagnostics/LogEventLine.kt (منطق LogArea)
+       manager/app/src/main/java/nd/max/core/diagnostics/LogCodeGlossary.kt (إصلاح blocked)
+       manager/app/src/test/java/nd/max/core/diagnostics/LogHeaderTest.kt (توقّع)
+       manager/app/src/test/java/nd/max/core/diagnostics/LogDiagnosticReportTest.kt (الأداة)
+GATES: 1 ✓  2 ✓ (الدَّين ثابت)  3 ✓  6 ✓
+BUILD: Kotlin 2.3.10 محليًّا — 499 اختبارًا أخضر · 0 خطأ ترجمة في الشريحة
+RESIDUAL RISK: الشريحة لا تحكم على سلوك الجهاز؛ والاختبارات التي تحتاج Android/Shell حقيقيًّا
+       تُثبت في CI وحدها. والمنطق الجديد لـ`LogArea` لم يُختبر على أجهزة (تصنيف فقط، لا كتابة).
+NEXT: إدراج الشريحة كأداة في المستودع (`tools/`) لتُشغَّل قبل CI، ثم `compileReleaseKotlin` في CI.
+```
