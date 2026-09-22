@@ -166,8 +166,10 @@ internal fun UnifiedActivityCard(
                 SceneHeading(event, palette)
                 event.lines.forEach { line -> SceneLine(line, scheme, showReason = model.showReason) }
             }
-            else -> rest.flatMap { it.lines }.forEach { line ->
-                SceneLine(line, scheme, showReason = model.showReason)
+            else -> {
+                for (line in rest.flatMap { it.lines }) {
+                    SceneLine(line, scheme, showReason = model.showReason)
+                }
             }
         }
     }
