@@ -53,6 +53,8 @@ import nd.max.core.diagnostics.LogSettingsDigest
 import nd.max.ui.util.PerAppKernelUtil
 import nd.max.ui.util.ProfilePresetStore
 import nd.max.core.hardware.CpuHardwareBackend
+import nd.max.core.hardware.AtlasAdaptiveExecutor
+import nd.max.core.hardware.AtlasRouteMemoryFactory
 import nd.max.core.hardware.GpuCeilingPolicy
 import nd.max.core.hardware.GpuHardwareBackend
 import nd.max.core.hardware.PlatformCeilingAuthority
@@ -64,10 +66,12 @@ import nd.max.core.hardware.HardwareVerification
 import nd.max.core.hardware.PerAppHardwareStatus
 import nd.max.core.hardware.PerAppHardwareStatus.Outcome
 import nd.max.core.hardware.RootFileAccess
+import nd.max.core.hardware.ThermalCeilingRouter
 import nd.max.core.hardware.SharedHardwareOwnershipStore
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.hardware.PerAppControlRegistry
 import nd.max.core.hardware.PerAppRecoveryStore
+import nd.max.core.hardware.ThermalGuard
 import nd.max.ui.util.PropertyUtils
 import nd.max.ui.util.decodePerAppCpuPolicyControls
 import nd.max.ui.viewmodel.TouchBoostViewModel
@@ -205,6 +209,17 @@ object AppMonitor {
      */
     private val hardwareUserIntent = mutableMapOf<String, String>()
 
+    /**
+     * مُخطِّط سقف الحرارة — Atlas هو من يقرّر أيّ مسار يُنفَّذ، لا حلقة خاصة في هذا الملف.
+     *
+     * ويُبنى في [main] بعد معرفة سياق التطبيق (مخزن ذاكرة المسارات يعيش في تخزين التطبيق الخاص)،
+     * فبقي `null` حتى ذلك الحين و`serviceThermalGuard` تتصرّف مع الغياب صراحةً لا بصمت.
+     */
+    @Volatile private var thermalRouter: ThermalCeilingRouter? = null
+
+    /** هل أُعلنت حالة الحارس الحراري لهذه الجلسة؟ سطر واحد لكل جلسة لا واحد كل عشر ثوانٍ. */
+    private var thermalGuardNoted = false
+
     /** مفتاح آخر كتلة جلسة كُتبت (`sw|pkg`) — كتلة واحدة لكل جلسة تطبيق، لا واحدة كل دورة. */
     private var lastSessionHeaderKey: String? = null
     private var logHeaderWritten = false
@@ -251,6 +266,7 @@ object AppMonitor {
         // Same directory as the journal, so this process honours the exact locks
         // the UI wrote: a per-app rule must never move a knob the user pinned.
         ManualControlLocks.configure(controlContext.filesDir)
+        configureThermalRouter(controlContext)
 
         if (!initializeServices()) {
             AppMonitorLogger.fatal("Failed to initialize services (ActivityTaskManager/PowerManager/etc.), exiting")
@@ -299,6 +315,26 @@ object AppMonitor {
         })
 
         runMonitorLoop()
+    }
+
+    /**
+     * بناء مخطِّط مسارات سقف الحرارة مرّة واحدة في بداية العملية.
+     *
+     * `HardwareRepairExecutor` ثانٍ فوق **نفس** `mutationGate`: هذا ليس العطب المحذور في
+     * `PerAppControlRegistry` (مُحكِّمان في عملية واحدة = جداول طلبات متنافرة)، بل غلاف رقيق حول
+     * نفس البوّابة، والملكية تبقى في مكان واحد.
+     *
+     * المصنع المشترك مع Hilt يربط الذاكرة بنفس المجلد ونفس عدّاد إقلاع الجهاز.
+     * إعادة تشغيل الرفيق ليست إقلاعًا جديدًا، وتعذّر قراءة العدّاد لا يرفع الحجر.
+     */
+    private fun configureThermalRouter(controlContext: Context) {
+        runCatching {
+            val memory = AtlasRouteMemoryFactory.create(controlContext) { android.os.SystemClock.elapsedRealtime() }
+            thermalRouter = ThermalCeilingRouter(
+                registry = hardwareControlRegistry,
+                adaptive = AtlasAdaptiveExecutor(HardwareRepairExecutor(mutationGate), memory),
+            )
+        }.onFailure { AppMonitorLogger.e("EVENT=THERMAL_ROUTER_INIT_FAILED", it) }
     }
 
     // ── ترويسة السجل: تجعل ملف السجل يشرح نفسه ─────────────────────────────────
@@ -490,6 +526,11 @@ object AppMonitor {
             }
         }.onFailure { AppMonitorLogger.e("EVENT=DRIFT_CHECK_FAILED knob=hardware_registry pkg=$pkg sw=$currentSwitchId", it) }
 
+        // الحارس الحراري يلي التحقّق مباشرةً: يقرأ ضغط المنصة ثمّ يعدّل **المقبض المملوك نفسه**
+        // في حدود ما طلبه المستخدم. تفصيل التصميم في [ThermalGuard].
+        runCatching { serviceThermalGuard() }
+            .onFailure { AppMonitorLogger.e("EVENT=THERMAL_GUARD_FAILED pkg=$pkg sw=$currentSwitchId", it) }
+
         // Refresh-rate is another vendor-owned setting that can be reset after
         // an app switch (display/HAL policy changes are enough to do it). Verify
         // only explicit per-app requests and reapply them at the same coarse
@@ -512,6 +553,141 @@ object AppMonitor {
                 }
             }
         }.onFailure { AppMonitorLogger.e("EVENT=DRIFT_CHECK_FAILED knob=refresh_rate pkg=$pkg sw=$currentSwitchId", it) }
+    }
+
+    /**
+     * الحارس الحراري لكل تطبيق: يخفض السقف المملوك حين تُعلن المنصة خنقًا، ويعيده حين يزول.
+     *
+     * ولماذا هنا بالذات: هذه الدورة تعمل كل عشر ثوانٍ ما دام تطبيق مُدار في المقدّمة — نفس
+     * الإيقاع الذي يكشف إعادة كتابة مُلطِّف الـvendor، وهو نفس الإيقاع المناسب لإشارة حرارية
+     * (لا حلقة تحكّم ضيقة).
+     *
+     * والأهم: **هذه الدالة لا تقرّر أيّ مسار**. تُمرّر الضغط والسلّم والنيّة إلى
+     * [ThermalCeilingRouter]، ويختار Atlas المسار (إشارة المنصة، أو سقف المستخدم الثابت عند غيابها،
+     * أو البديل بعد فشل مُسترجع).
+     *
+     * حدود صريحة:
+     * - لا يعمل إلّا بوجود مقبض مملوك فعلًا، فلا يُحرّك شيئًا على جهاز لم يُطبَّق عليه شيء.
+     * - ولا يعمل إلّا بنيّة محفوظة للمستخدم؛ ولولا حفظها لكان خفضُ السقف يمحو ما اختاره
+     *   المستخدم بدل أن يتحرّك داخله.
+     * - وضغط مجهول لا يُخمَّن عليه: المسار الأوّل يصير غير مؤهّل، و**سقف المستخدم نفسه يبقى
+     *   يُنفَّذ** بدل أن يُسكت كل شيء (وهو ما كان يحدث قبل الربط).
+     */
+    private fun serviceThermalGuard() {
+        val pkg = lastAppliedPkg
+        if (pkg.isBlank() || !perAppOverridesActive) return
+        val owned = hardwareControlRegistry.ownedDesired()
+        if (owned.isEmpty()) return
+
+        val router = thermalRouter
+        if (router == null) {
+            if (!thermalGuardNoted) {
+                thermalGuardNoted = true
+                noteHardware("thermal", Outcome.UNSUPPORTED, "thermal-router-unavailable")
+                PerAppHardwareStatus.flush()
+            }
+            return
+        }
+        val pressure = ThermalGuard.readPressure(powerManager)
+        if (pressure == ThermalGuard.Pressure.UNKNOWN && !thermalGuardNoted) {
+            // إشارة المنصة غائبة: لا يخفض الحارس على تخمين، **لكنّ السقف الذي اختاره المستخدم
+            // يبقى مسارًا يُنفَّذ** — وهذا فرق حقيقي عن السابق حيث كان غياب الإشارة يُسكت كل شيء.
+            thermalGuardNoted = true
+            noteHardware("thermal", Outcome.APPLIED, "guard-static-only:platform-thermal-status-unavailable")
+            PerAppHardwareStatus.flush()
+        }
+
+        // سقف GPU
+        val gpuKey = owned.keys.firstOrNull(HardwareControlKey::isGpuFrequency)
+        if (gpuKey != null) {
+            val device = GpuHardwareBackend.selection().device?.takeIf { HardwareControlKey.gpuFrequency(it.name) == gpuKey }
+            val userCeiling = hardwareUserIntent[gpuKey]
+            if (device != null && userCeiling != null) {
+                routeThermal(
+                    statusKnob = "gpu_profile",
+                    outcome = router.apply(
+                        key = gpuKey,
+                        target = AtlasControlTarget.GPU_FREQUENCY,
+                        packageName = pkg,
+                        userCeiling = userCeiling,
+                        ladder = device.frequencies,
+                        pressure = pressure,
+                    ),
+                    pressure = pressure,
+                )
+            }
+        }
+
+        // سقوف CPU — لكل سياسة سلّمها المُعلن.
+        owned.keys.filter(HardwareControlKey::isCpuLimits).forEach { key ->
+            val userCeiling = hardwareUserIntent[key] ?: return@forEach
+            val policyName = HardwareControlKey.cpuLimitsPolicy(key) ?: return@forEach
+            val policy = CpuHardwareBackend.policies().firstOrNull { it.name == policyName } ?: return@forEach
+            routeThermal(
+                statusKnob = key,
+                outcome = router.apply(
+                    key = key,
+                    target = AtlasControlTarget.CPU_FREQUENCY,
+                    packageName = pkg,
+                    userCeiling = userCeiling,
+                    ladder = policy.availableFrequenciesKHz,
+                    pressure = pressure,
+                ),
+                pressure = pressure,
+            )
+        }
+
+        if (!pressure.isThrottling && !thermalGuardNoted) {
+            thermalGuardNoted = true
+            noteHardware("thermal", Outcome.APPLIED, "guard-idle:${pressure.name}")
+        }
+        PerAppHardwareStatus.flush()
+    }
+
+    /**
+     * تسجيل ناتج التخطيط: **مسار مُتحقَّق** أو فشل بسببه — ولا سطر لقيمة لم تحتج تغييرًا.
+     *
+     * و`acted = false` تعني «لا شيء يحتاج فعلًا» (السقف المطلوب هو القائم، أو المقبض غير مملوك)،
+     * وهي ليست عطلًا: كتابتها كفشل تجعل السجل يصرخ كل عشر ثوانٍ على جهاز سليم.
+     */
+    private fun routeThermal(
+        statusKnob: String,
+        outcome: ThermalCeilingRouter.Outcome,
+        pressure: ThermalGuard.Pressure,
+    ) {
+        if (!outcome.acted) return
+        val reason = if (outcome.verified) {
+            "thermal-guard:${outcome.routeId ?: "unknown-route"}"
+        } else {
+            // سبب الفشل **وقرار المسار معًا**: «فشل» وحدها لا تُصلح شيئًا، والفرق بين «كل
+            // المسارات محجورة بعد استرجاع غير مؤكَّد» و«الهدف غير قابل للقياس» هو الفرق بين
+            // عطل في جهاز وعطل في منطق.
+            "thermal-guard-failed:${outcome.reason}@${outcome.decision.ifBlank { "undecided" }}"
+        }
+        noteHardware(
+            statusKnob,
+            if (outcome.verified) Outcome.APPLIED else Outcome.NOT_VERIFIED,
+            reason,
+            outcome.desired.orEmpty(),
+            outcome.previous.orEmpty(),
+        )
+        // الاسم نفسه الذي وُجد في الجولة السابقة (`PERAPP_THERMAL_GUARD`) لأن اسم الحدث عقد لمن
+        // يبحث عنه؛ ولكن الحقول الجديدة تُضاف إليه: **قرار المسار** والمسارات التي **لم تُجرَّب**.
+        // وقبلهما كان السطر يقول «فشل» ولا يقول أيّ مسار رُفض ولا لماذا.
+        val routeLine = "EVENT=PERAPP_THERMAL_GUARD knob=$statusKnob pressure=${pressure.name}" +
+            " decision=${outcome.decision.ifBlank { "undecided" }}" +
+            " chosen=${outcome.routeId ?: "none"}" +
+            " verified=${outcome.verified}" +
+            " reason=${outcome.reason}" +
+            " from=${outcome.previous ?: "none"} to=${outcome.desired ?: "none"}" +
+            " skipped=${outcome.skipped.joinToString(",") { (route, why) -> "$route:$why" }.ifEmpty { "none" }}" +
+            " pkg=$lastAppliedPkg sw=$currentSwitchId"
+        // المستوى من النتيجة: مسار لم يتحقّق يجب أن يظهر في مُرشِّح الفشل بلا استثناء.
+        if (outcome.verified) {
+            AppMonitorLogger.i(routeLine)
+        } else {
+            AppMonitorLogger.w(routeLine)
+        }
     }
 
     private fun writeStatus() {
@@ -1723,6 +1899,11 @@ object AppMonitor {
                     }
             }
         }.onFailure { AppMonitorLogger.e("wifi_no_sleep knob failed for '$pkgName' sw=$currentSwitchId", it) }
+
+        // الحارس التفاعليّ يُنادى فورًا بعد التطبيق لا في دورة الانحراف فقط: الطلب الجديد لحظته هي
+        // لحظة فتح التطبيق، ومن يفتح تطبيقًا ويتوقّع سقفًا لا ينتظر عشر ثوانٍ لرؤيته.
+        runCatching { serviceThermalGuard() }
+            .onFailure { AppMonitorLogger.e("EVENT=THERMAL_GUARD_FAILED pkg=$pkgName sw=$currentSwitchId", it) }
 
         // تعديلات هذا التطبيق حيّة على العتاد الآن: يُعلن في app_status
         // (perapp_active 1) فيدخل محرك MAX AI وضع المراقبة.
