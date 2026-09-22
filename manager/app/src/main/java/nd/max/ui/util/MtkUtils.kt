@@ -31,16 +31,12 @@ object MtkUtils {
     }
 
     fun writeData(path: String, value: String): Boolean {
-        // IPC dulu (super cepat) — tapi exception binder tidak boleh memblokir
-        // fallback shell di bawahnya. writeNode kini menerapkan rumba chmod
-        // HyperOS internal, jadi false/null berarti gagal sungguhan.
-        val viaIpc = try {
-            RootIpcManager.ipc?.writeNode(path, value)
-        } catch (_: Exception) { null }
-        if (viaIpc == true) return true
         return try {
-            // Fallback pakai Shell (Cara lama) dengan rumba chmod
-            Shell.cmd("su -c 'chmod 666 $path 2>/dev/null; echo \"$value\" > $path; chmod 444 $path 2>/dev/null || true'").exec().isSuccess
+            // Coba pakai IPC (Super cepat)
+            RootIpcManager.ipc?.writeNode(path, value) ?: run {
+                // Fallback pakai Shell (Cara lama)
+                Shell.cmd("su -c 'chmod 666 $path 2>/dev/null; echo \"$value\" > $path; chmod 444 $path 2>/dev/null || true'").exec().isSuccess
+            }
         } catch (e: Exception) { false }
     }
 
