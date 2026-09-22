@@ -48,14 +48,31 @@ static bool write_sconfig(int mode) {
     if (mode < 0 || mode > 0x800)
         return false;
 
-    FILE* fp = fopen(MI_THERMAL_SCONFIG, "w");
-    if (!fp)
+    /*
+     * Several Xiaomi kernels expose sconfig as 0444 even to uid 0. Match the
+     * module's other verified sysfs writers: temporarily make the node
+     * writable, write a newline, verify the value, then restore its original
+     * mode. A plain fopen() made Thermal & GPU Governor look enabled while
+     * every acquire silently failed on those kernels.
+     */
+    struct stat metadata;
+    if (stat(MI_THERMAL_SCONFIG, &metadata) != 0)
         return false;
+    const mode_t original_mode = metadata.st_mode & 0777;
+    if (chmod(MI_THERMAL_SCONFIG, 0644) != 0)
+        return false;
+
+    FILE* fp = fopen(MI_THERMAL_SCONFIG, "w");
+    if (!fp) {
+        (void)chmod(MI_THERMAL_SCONFIG, original_mode);
+        return false;
+    }
 
     const int written = fprintf(fp, "%d\n", mode);
     const int flushed = fflush(fp);
-    fclose(fp);
-    if (written <= 0 || flushed != 0)
+    const int close_result = fclose(fp);
+    (void)chmod(MI_THERMAL_SCONFIG, original_mode);
+    if (written <= 0 || flushed != 0 || close_result != 0)
         return false;
 
     int actual = -1;
@@ -102,7 +119,8 @@ static bool has_custom_override(const GameConfig* options) {
            !IS_DEFAULT(options->thermal_profile) ||
            !IS_DEFAULT(options->cpu_governor) ||
            !IS_DEFAULT(options->gpu_governor) ||
-           !IS_DEFAULT(options->gpu_max_freq);
+           !IS_DEFAULT(options->gpu_max_freq) ||
+           options->cpu_policy_controls[0] != '\0';
 }
 
 static void acquire_thermal_ownership(const char* package) {
