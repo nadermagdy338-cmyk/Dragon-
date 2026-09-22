@@ -1,9 +1,9 @@
 # بصمة المصادر — لا تُحرَّر يدويًّا: `python3 tools/source_manifest.py --write`
-3cae1a13828b1424d3b25caed0941b41e34a9a4286762c2a47bc4f35bb79e4b8  .github/workflows/build.yml
+ebba5b4665e63412ff45791a0a91342429568cd7e0fb25b7836593dbe5b625d7  .github/workflows/build.yml
 d077c43daba5c6e57bd507e8a84098c31648fbff8810c8107bc885f3068cac1d  manager/app/build.gradle.kts
 a14ed02ba64003cd3d7964cfc01158d81ece8d7423795b5a8a98bb0cf88e3ab9  manager/app/src/debug/java/nd/max/ui/component/StudioPreviews.kt
 e4d6985d8721bbad976b64d4caec15a8a188675e09f93fa69077a98d0b85935d  manager/app/src/main/AndroidManifest.xml
-4f71fa0718b4857e0723ca036591131dbe6f4ae5f5adde5302bced9f2f56495e  manager/app/src/main/java/nd/max/AppMonitor.kt
+b17c8a75606013f461bf1cf4ba8eed5b3a396f02f98d2b8733a616168f2c753c  manager/app/src/main/java/nd/max/AppMonitor.kt
 a458cc3fee65609ccc2ea53b02b78aab7750a990c504c39437bdb984a649f0ed  manager/app/src/main/java/nd/max/AppMonitorLogger.kt
 5e25b03c1b06b840989d508b018023cbda1f07631e61f184808ddcad826f3b32  manager/app/src/main/java/nd/max/MainActivity.kt
 e3bd0feb9e8a74079b9e3ccadfae3858211e81dddfbbdf874288a2512c859e70  manager/app/src/main/java/nd/max/MaxManagerApplication.kt
@@ -41,7 +41,7 @@ d90f63b999e29fb702f1770768cb13b618c3a57ac4436f148bfa9b09ce83c630  manager/app/sr
 7ce9ee174003402ca304f4dd8fc7fa35d5083b853c610a8fedc208439b008dbf  manager/app/src/main/java/nd/max/core/diagnostics/DeviceBlueprint.kt
 4ea99b0a390ebe5952852c7e3b410f505813d9cad4c219dfa11d608af7afc003  manager/app/src/main/java/nd/max/core/diagnostics/DiagnosticCenter.kt
 55ac57151cac66b63cf7c34d45cca372a8f4ad4db6515f5646d585e374d6eeaf  manager/app/src/main/java/nd/max/core/diagnostics/HardwareRouteHealth.kt
-cc56d864e226c66bf653384fdf4e6d5c96a9525370ad1953193b533962e09855  manager/app/src/main/java/nd/max/core/diagnostics/LogCodeGlossary.kt
+8ffde62de5044d94f9de944e54441f758318288858128aa11b11141134867e77  manager/app/src/main/java/nd/max/core/diagnostics/LogCodeGlossary.kt
 f6500e00232f9310913afc48a0776d7c09af781a17d3dbb60e4736fa3541d845  manager/app/src/main/java/nd/max/core/diagnostics/LogDiagnosticReport.kt
 9be9615d5bb50d82d583c7e1f8c65c9e2ee7ced7aa69aacd749805efa9601663  manager/app/src/main/java/nd/max/core/diagnostics/LogEventLine.kt
 13399cd1c66537a5cea4b81ab473787ec47b209ab26eacebd0eddfec1567797d  manager/app/src/main/java/nd/max/core/diagnostics/LogHeader.kt
@@ -57,7 +57,7 @@ efd75b9c96072d077d437954f1c3f2b2dc2bf2986df0494652b23c965ff64889  manager/app/sr
 d444d521b8fc0a9cd824a03db928730eb5bc2c17a2371e25f6708df728de2de7  manager/app/src/main/java/nd/max/core/hardware/CpuHardwareBackend.kt
 1cd012d3f7c139a63c3b19388d90b5852b9e216ff20d5733628d484bcd6841dd  manager/app/src/main/java/nd/max/core/hardware/DeviceStateCollector.kt
 3bbb377dabefcd5dc64873105d4f587c32a14f905fb762dd324f80493edac93e  manager/app/src/main/java/nd/max/core/hardware/DriftGuard.kt
-6ff846f619a85dbe77558e43ea580d1117825286c754c5609316156cbebcb97a  manager/app/src/main/java/nd/max/core/hardware/GpuCeilingPolicy.kt
+60594ede5a48fa11242afba1c103f8d34c6c3ed60bdb1e019db5c47bb85611da  manager/app/src/main/java/nd/max/core/hardware/GpuCeilingPolicy.kt
 538c8902757abc9c1ebe254f6facfa7318e76b7425cccb59cf15b46f3902f891  manager/app/src/main/java/nd/max/core/hardware/GpuHardwareBackend.kt
 b8a8c62aa8165d28497c35c744daf3ba7567bcfb3e5d9974f18854a01c918078  manager/app/src/main/java/nd/max/core/hardware/GpuTweakPersistence.kt
 0724d03a40d4ce9f07ba77a96a5e99f600437a5f34906fc82b2276637aa595f4  manager/app/src/main/java/nd/max/core/hardware/HardwareCapability.kt
@@ -577,7 +577,7 @@ d27dc6751abc246c22a10981baa09583bf06977f70092829548d786afc29dbb9  manager/app/sr
 1c709a41207cd7cfa19076a4e5ee88d5615afd1ddbc4019d737706357ee495bc  manager/app/src/test/java/nd/max/core/diagnostics/AtlasSupportReportTest.kt
 50f647b2ccff9e35d16e432406b3ac35f068060d836d9cf66d8cf940e9cdf9d9  manager/app/src/test/java/nd/max/core/diagnostics/DiagnosticCenterTest.kt
 1246e1b2623b9ed1b1ce28284e12d0a11b6c6ec3a25a37faecd5ddfe002fd3b6  manager/app/src/test/java/nd/max/core/diagnostics/HardwareRouteHealthTest.kt
-07b13229b078981eeafadbbd18636fad7d070e9bfe99d6e442d3562d34f021ea  manager/app/src/test/java/nd/max/core/diagnostics/LogCodeGlossaryTest.kt
+853b05a1b5b3106f48df5202b3e49130392a01c778215003936125382c5825eb  manager/app/src/test/java/nd/max/core/diagnostics/LogCodeGlossaryTest.kt
 60c7d3b7342fcc1beac385b0bb8be1c34db838cebe78530aaa38ba098a4f4c68  manager/app/src/test/java/nd/max/core/diagnostics/LogDiagnosticReportTest.kt
 22954c46476c4be64c7628ad311c20c3225db5cdcd137e4ff5ad579909d7dc18  manager/app/src/test/java/nd/max/core/diagnostics/LogEventLineTest.kt
 0d900e71905a172f056e23458fef9bac6ba8842beb2952eb5cace1c6d977df11  manager/app/src/test/java/nd/max/core/diagnostics/LogHeaderTest.kt
@@ -589,7 +589,7 @@ ee4efafc10c8f9949d9113382deada5f5a53fc6b3443151019df575a538c4042  manager/app/sr
 1ff97afbbbdec91354ad17005cabb4eea306c244e71f56c0103ef4ade7483d8a  manager/app/src/test/java/nd/max/core/hardware/ControlPlaneArchitectureTest.kt
 b24173e908a013abd751eedf2fa6e8033af85c62550e0e110c0f42367c14a26d  manager/app/src/test/java/nd/max/core/hardware/CpuAvailableFrequencySnapTest.kt
 b7195972efdf5f1f2ee9876f00494e8d8a48fb472812902e5415ec599c090af6  manager/app/src/test/java/nd/max/core/hardware/CpuProvenRangeTest.kt
-56d228585649b05d6a2e132362e52533c2cd8a0cd734d0775da6d80d2801aeb8  manager/app/src/test/java/nd/max/core/hardware/GpuCeilingPolicyTest.kt
+6606465ea11de4fc707e7621f3168fbbfeeb69c3d865b621171b0c6e0765a09b  manager/app/src/test/java/nd/max/core/hardware/GpuCeilingPolicyTest.kt
 e690f38dd98c84a4cd16f3b886ac087289bdf9654869544493acc4513f3d76f5  manager/app/src/test/java/nd/max/core/hardware/GpuControlModelTest.kt
 f98b979588a844b139b68fa41ea50dd3cd57d453dcc3addecdfc1f4967468873  manager/app/src/test/java/nd/max/core/hardware/HardwareControlArbiterTest.kt
 5a501a1a12e6791be0677db01551bc86d8671080fb60184b2d4c36f4da024bbf  manager/app/src/test/java/nd/max/core/hardware/HardwareControlArbiterVerificationTest.kt
