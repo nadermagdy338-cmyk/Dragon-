@@ -8,15 +8,9 @@ package nd.max.core.hardware
 object GpuHardwareBackend {
     private const val ROOT = "/sys/class/devfreq"
     private const val THERMAL_ROOT = "/sys/class/thermal"
-    private val MTK_OPP_TABLES = listOf(
-        "/proc/gpufreqv2/stack_signed_opp_table",
-        "/proc/gpufreqv2/gpu_working_opp_table",
-        "/proc/gpufreq/gpufreq_opp_dump",
-    )
-    private val MTK_LOCK_PATHS = listOf(
-        "/proc/gpufreqv2/fix_target_opp_index",
-        "/proc/gpufreq/gpufreq_opp_freq",
-    )
+
+    /** تردد الGPU الجاري كما تبلّغ به عقدة GED — أداة قياس لا مرجع كتابة. */
+    private const val GED_CURRENT_FREQUENCY = "/sys/kernel/ged/hal/current_freqency"
 
     // شكل صيغة قيمة مفتاح gpu_frequency — انظر explanation في encodeRequest.
     private const val SCHEMA_SEPARATOR = "|"
@@ -58,14 +52,19 @@ object GpuHardwareBackend {
         fun write(path: String, value: String): Boolean
 
         /**
-         * يحرّر سقف المنصّة قبل الكتابة على مدى `devfreq`. والمُهلة الافتراضية **بلا فعل** عن قصد:
-         * كاتب مُوجَّه باختبار لا يجب أن يلمس عقد سلطة حقيقية، و[MockIo] وأخواته يُرثان هذه
-         * القيمة فلا يتغيّر سلوك أي اختبار قائم. أما [SystemIo] فينفّذها فعلًا.
+         * سلطة المنصّة: `release` = هل نرفع سقف المصنّع؟ و`lock` = هل نثبّت قيمة واحدة (فيُطفأ DVFS)؟
+         *
+         * ومعاملان لا معامل: [PlatformCeilingAuthority.permitGpu] يحمل السبب مفصّلًا. وخُلاصته أن
+         * `releaseVendorCeiling` كان يُمرَّر كـ`lock`، فطلبُ سقفٍ عند قدرة الجهاز — وهو عكس التثبيت —
+         * كان **يوقف DVFS** ويثبّت التردد الذي صادف وجوده. وهذا هو الفرق بين «كُتب السقف» و«تحرّك الجهاز».
+         *
+         * والمُهلة الافتراضية **بلا فعل** عن قصد: كاتب مُوجَّه باختبار لا يجب أن يلمس عقد سلطة حقيقية،
+         * و[MockIo] وأخواته يُرثان هذه القيمة فلا يتغيّر سلوك أي اختبار قائم. أما [SystemIo] فينفّذها فعلًا.
          *
          * ولماذا هي في هذا الموصل لا نداء مباشر داخل [applyDevfreq]: لأن نقطة الكتابة نفسها
          * تُستبدل في الاختبارات، فالوصول إلى العتاد من داخل دالة تُختبر بمُوجّه وهمي يُبطل الوهم.
          */
-        fun permitVendorCeiling(lock: Boolean): Boolean = false
+        fun permitVendorCeiling(lock: Boolean, release: Boolean): Boolean = false
     }
 
     object SystemIo : Io {
@@ -74,8 +73,8 @@ object GpuHardwareBackend {
         override fun read(path: String) = RootFileAccess.read(path)
         override fun write(path: String, value: String) = RootFileAccess.write(path, value)
         override fun listDirectories(path: String) = RootFileAccess.listDirectories(path)
-        override fun permitVendorCeiling(lock: Boolean): Boolean =
-            PlatformCeilingAuthority.permitGpu(lock = lock).anyChannel
+        override fun permitVendorCeiling(lock: Boolean, release: Boolean): Boolean =
+            PlatformCeilingAuthority.permitGpu(lock = lock, release = release).anyChannel
     }
 
     data class Device(
@@ -100,8 +99,26 @@ object GpuHardwareBackend {
         val evidence: List<String> = emptyList(),
     ) {
         val unitTrusted: Boolean get() = frequencyUnit != FrequencyUnit.AMBIGUOUS
-        val rangeWritable: Boolean get() =
-            minWritable && maxWritable && frequencies.isNotEmpty() && minFreq != null && maxFreq != null && unitTrusted && mtkFixedIndexPath == null
+
+        /**
+         * هل تقبل عقدتا `min_freq`/`max_freq` كتابة **سقف** (مدى)؟
+         *
+         * وهذا هو السؤال الصحيح لطلب السقف، ووجود مسار تثبيت OPP لا يُبطله — وخلطُ الاثنين هو
+         * العطب المقيس على جهاز حقيقي (rodin · MT6899): `rangeWritable` كان يشترط
+         * `mtkFixedIndexPath == null`، فصار كل بروفايل على هذا الجهاز **تثبيتًا** لدرجة واحدة
+         * بدل أن يكون سقفًا (والجهاز `devfreq` أصلًا، و`max_freq` فيه هو ما يقرأه المتصل سقفًا
+         * حيًّا في [configurableMaxFrequency]). والتثبيت يجمّد التردد: «أداء» يعطي ٦٥٠ عالقًا.
+         */
+        val devfreqCeilingWritable: Boolean get() =
+            minWritable && maxWritable && frequencies.isNotEmpty() && minFreq != null && maxFreq != null && unitTrusted
+
+        /**
+         * مسار «مدى» بالتقييد القديم: يمنع المدى حين يوجد مسار تثبيت MTK.
+         *
+         * وبقي للـ**تثبيت وحده** (اختيار مسار الكتابة في [applyValidated] و[requestForMode]):
+         * كتابةُ مدى على جهاز له قفل OPP معناها «سقف»، والتثبيت يبقى لطلب التثبيت الصريح.
+         */
+        val rangeWritable: Boolean get() = devfreqCeilingWritable && mtkFixedIndexPath == null
         val exactLockWritable: Boolean get() = rangeWritable ||
             (mtkFixedIndexPath != null && mtkLockWritable && mtkOppIndexByFrequency.isNotEmpty() && unitTrusted)
         val provenMinFreq: Long? get() = frequencies.firstOrNull()
@@ -122,8 +139,17 @@ object GpuHardwareBackend {
         val governor: String? = null,
         /** Release a fixed-index lock so the governor scales the GPU dynamically again. */
         val releaseLock: Boolean = false,
-        /** Allow a full-capability request to remove a lower vendor ceiling before writing. */
-        val releaseVendorCeiling: Boolean = false,
+        /**
+         * هل يرفع هذا الطلب سقف المصنّع قبل الكتابة؟
+         *
+         * `true` (الافتراضي: سلوك كل كاتب قائم لم يُعلن غيره) لمن يطلب **قدرة الجهاز** — كبروفايل
+         * أداء لكل تطبيق، أو «المدى الكامل» في GPU Studio. ولا يعني تثبيتًا: يُمرَّر مع [lock]
+         * المستقلّ في [Io.permitVendorCeiling] (كان مخلوطًا به فصار الطلب يُطفئ DVFS).
+         *
+         * و`false` لمن يكتب **سقفًا أدنى من قدرة الجهاز** (بروفايل تبريد): طلب تبريد لا يجوز أن
+         * يرفع حماية المصنّع ثم يكتب سقفه فوقها، وإلا صار تسخينًا.
+         */
+        val releaseVendorCeiling: Boolean = true,
     )
 
     data class Baseline(
@@ -145,12 +171,6 @@ object GpuHardwareBackend {
     )
 
     private data class Candidate(val device: Device, val score: Int)
-
-    /** Capability frequencies and safe fixed-index mappings are different facts. */
-    private data class MtkOppDiscovery(
-        val frequencies: Set<Long>,
-        val indexed: Map<Long, String>,
-    )
 
     /**
      * A GPU **fact** as Atlas may hold it.
@@ -298,6 +318,79 @@ object GpuHardwareBackend {
     }
 
     /**
+     * يحرّر سقف المصنّع **بلا معاملة** — ويُنادى **قبل** أي حكم «مُلبّى».
+     *
+     * ولماذا خارج المعاملة: قياس من جهاز حقيقي (rodin · MTK6899) يقول إن `max_freq` يقرأ أعلى
+     * درجة مُعلنة **أصلًا** (1300000000) بينما الجهاز يعمل على 260MHz. فيقرأ المُحكِّم قيمة تساوي
+     * الطلب، فيحكم «مُلبّى» ويتخطّى `apply` — و**تحرير السلطة كان يسكن داخل `apply`**. فلم يُنفَّذ
+     * ولا مرة واحدة في الحزمة كاملة (صفر كتابة على عقد GED والتبريد، مقابل ١٢ كتابة على نظيرها
+     * في CPU). فالتحرير هنا: يُنفَّذ ولو كان الحكم «مُلبّى» — لأن الطلب عند قدرة الجهاز **هو**
+     * التحرير نفسه، لا كتابة تردد.
+     *
+     * والكتابة تمرّ بعقدها **عند الحاجة فقط** ([PlatformCeilingAuthority] تقرأ قبل أن تكتب)، فنداؤه
+     * في كل جلسة تطبيق لا يُنتج سطرًا على جهاز مُحرَّر أصلًا.
+     */
+    fun releaseVendorCeiling(io: Io = SystemIo): Boolean =
+        io.permitVendorCeiling(lock = false, release = true)
+
+    /**
+     * سقف العقدة بوحدة Hz — و`null` تعني «لا قياس» لا «صفر».
+     *
+     * والوحدة تُحوَّل هنا لأن الكائن يحفظ أرقامه بلغة العقدة نفسها (انظر `frequencyUnit`)، والحكم
+     * على السقف يُقارَن بطلب المستخدم بالهرتز. ووحدة غير مؤكَّدة ⇒ `null`: لا يُبنى حكم على وحدة مجهولة.
+     */
+    fun nodeCeilingHz(device: Device): Long? {
+        if (device.frequencyUnit == FrequencyUnit.AMBIGUOUS) return null
+        val raw = device.maxFreq?.takeIf { it > 0L }
+            ?: device.frequencies.filter { it > 0L }.maxOrNull()
+            ?: return null
+        return raw * device.frequencyUnit.hzMultiplier
+    }
+
+    /**
+     * قراءة السقف الفعلي: سقف العقدة + ما تقوله عقد سلطة المنصّة.
+     *
+     * وهذا هو المُقاس الذي يصحّ الحكم عليه في طلب «سقف»: `max_freq` وحده لا يكفي — على هذا
+     * الجهاز يقرأ 1300 بينما التبريد وسقف GED هما من يقصّ. ولا يوجد وهم `Io` للنصف الثاني عن
+     * قصد: `PlatformCeilingAuthority` تقرأ عقد العتاد مباشرة (لا موصل فيها)، فالاختبار يبني
+     * [GpuCeilingPolicy.CeilingReading] بنفسه ويحكم بـ[GpuCeilingPolicy.ceilingSatisfied] — وهي خالصة.
+     */
+    fun ceilingReading(device: Device, io: Io = SystemIo): GpuCeilingPolicy.CeilingReading {
+        val platform = PlatformCeilingAuthority.gpuPlatformCeiling()
+        return GpuCeilingPolicy.CeilingReading(
+            nodeCeilingHz = nodeCeilingHz(device),
+            platformUpbound = platform.upboundRaw,
+            platformCoolingHeld = platform.coolingHeld,
+            // وقفل OPP الثابت يُقرأ **هنا** معثر لم يكن يُقرأ في أي حكم سقف: على MediaTek يقصّ
+            // `fix_target_opp_index` التردد من خارج `devfreq`، فجهاز مُثبَّت يقرأ `max_freq` عند
+            // القدرة بينما هو عالق على درجة واحدة — والقراءة وحدها كانت تُصدّقه «مُلبّى».
+            // وعدم القراءة (`null`) لا يُدَّعى قفلًا ولا حرية: مسار القفل غير موجود أصلًا هو
+            // الحالة الوحيدة التي تُعطي `null` (ووجود المسار يُكتشف قبل ذلك في [readCandidate]).
+            lockActive = device.mtkFixedIndexPath?.let { path ->
+                io.read(path)?.let { MtkGpuOppTable.parseIndex(it) != "-1" }
+            },
+        )
+    }
+
+    /**
+     * التردد الذي **يجري عليه الجهاز فعلًا** — لا ما نظنّ أننا كتبناه.
+     *
+     * وله موضعان لسبيين: عقدة GED هي ما يبلّغ به MTK عن تردد الGPU الجاري، وعقدة `cur_freq` هي
+     * البديل العام. ولا يُخترع تردد: قيمة لا تطابق أي درجة مُعلنة تُعاد `null` (قد تكون وحدة أخرى
+     * لا نعرفها)، ولا يُبنى عليها حكم — بل يُقال «لم يُقس». وهذا ما يجعل فرقًا بين «ثبّتنا الفهرس»
+     * و«الجهاز يعمل عليه» مرئيًّا بدل أن يبقى صدى النواة هو الدليل الوحيد.
+     */
+    fun currentFrequencyHz(device: Device, io: Io = SystemIo): Long? {
+        val advertised = device.frequencies.filter { it > 0L }
+        for (path in listOf(GED_CURRENT_FREQUENCY, "${device.path}/cur_freq")) {
+            val raw = io.read(path)?.trim()?.toLongOrNull() ?: continue
+            if (raw <= 0L) continue
+            normalizeToAdvertisedHz(raw, advertised)?.let { return it }
+        }
+        return null
+    }
+
+    /**
      * Maps a requested frequency to a real OPP that the provider can currently
      * carry.  It never returns an OPP above the live configurable ceiling.
      */
@@ -380,11 +473,8 @@ object GpuHardwareBackend {
         }
     }
 
-    fun fixedLockReleased(device: Device, io: Io = SystemIo): Boolean {
-        val path = device.mtkFixedIndexPath ?: return true
-        val raw = io.read(path) ?: return false
-        return parseMtkIndex(raw) == "-1"
-    }
+    fun fixedLockReleased(device: Device, io: Io = SystemIo): Boolean =
+        MtkGpuOppTable.isReleased(device, io)
 
     fun encodeBaseline(baseline: Baseline): String = listOf(
         baseline.devicePath,
@@ -411,7 +501,7 @@ object GpuHardwareBackend {
         minFreq = device.minFreq,
         maxFreq = device.maxFreq,
         governor = device.governor,
-        fixedIndex = device.mtkFixedIndexPath?.let(io::read)?.let(::parseMtkIndex),
+        fixedIndex = device.mtkFixedIndexPath?.let(io::read)?.let(MtkGpuOppTable::parseIndex),
     )
 
     fun requestForMode(device: Device, mode: IntentMode): Request? {
@@ -423,8 +513,13 @@ object GpuHardwareBackend {
         val last = frequencies.lastIndex
         val min = frequencies.first()
         val max = frequencies.last()
-        if (device.rangeWritable) return when (mode) {
-            IntentMode.EFFICIENCY -> Request(min, frequencies[(last * 0.40f).toInt().coerceIn(0, last)])
+        // وسقف المقصود يُنفَّذ بكتابة مدى كلّما قبل الجهاز المدى، ولو كان له مسار تثبيت OPP:
+        // التثبيت يجمّد التردد، ولا يُستعمل إلا حين لا يُقبل المدى فعلًا.
+        if (device.devfreqCeilingWritable) return when (mode) {
+            // `efficiency` **طلب تبريد**: يسقّف دون القدرة، فلا يجوز أن يرفع حماية وضعها المصنّع
+            // (وإلا صار طلبُ تبريد تسخينًا — وهو نفس السبب الذي فُصل من أجله المعاملان).
+            // و`adaptive`/`sustained` طلبا قدرة (مدى كامل · وسقف عند القدرة) فيَرفعانها.
+            IntentMode.EFFICIENCY -> Request(min, frequencies[(last * 0.40f).toInt().coerceIn(0, last)], releaseVendorCeiling = false)
             IntentMode.ADAPTIVE -> Request(min, max)
             IntentMode.SUSTAINED -> Request(frequencies[(last * 0.65f).toInt().coerceIn(0, last)], max)
         }
@@ -455,7 +550,7 @@ object GpuHardwareBackend {
             if (request.minFreq !in device.frequencies || request.maxFreq !in device.frequencies) return "unsupported-frequency"
             val exact = request.minFreq == request.maxFreq
             if (exact && !device.exactLockWritable) return "exact-lock-read-only-or-unproven"
-            if (!exact && !device.rangeWritable) return "range-read-only-or-unproven"
+            if (!exact && !device.devfreqCeilingWritable) return "range-read-only-or-unproven"
             if (device.mtkFixedIndexPath == null && (device.minFreq == null || device.maxFreq == null)) return "baseline-unreadable"
         }
         return null
@@ -487,30 +582,12 @@ object GpuHardwareBackend {
         val error = validate(live, request)
         if (error != null) return TransactionResult(request, live, false, false, error = error)
         return when {
-            request.releaseLock -> applyMtkRelease(live, request, io)
-            request.minFreq != null && request.minFreq == request.maxFreq && live.mtkFixedIndexPath != null -> applyMtkExact(live, request, io)
+            // مسارا القفل الثابت يسكنان `MtkGpuFixedIndex` (فصل ملف بحجم الحدّ وبكائنه الأصلي):
+            // تحرير الفهرس، أو تثبيت درجة واحدة بفهرسها.
+            request.releaseLock -> MtkGpuFixedIndex.release(live, request, io)
+            request.minFreq != null && request.minFreq == request.maxFreq && live.mtkFixedIndexPath != null -> MtkGpuFixedIndex.pin(live, request, io)
             else -> applyDevfreq(live, request, io)
         }
-    }
-
-    private fun applyMtkRelease(live: Device, request: Request, io: Io): TransactionResult {
-        val path = live.mtkFixedIndexPath ?: return TransactionResult(request, live, false, false, error = "fixed-lock-unavailable")
-        val baselineIndex = io.read(path)?.let(::parseMtkIndex)
-            ?: return TransactionResult(request, live, false, false, error = "baseline-unreadable")
-        if (baselineIndex == "-1") return TransactionResult(request, refresh(live.path, io), true, true)
-        // مقابل `lock = true` في applyMtkExact: تحرير القفل يعني عودة GED لإدارة OPP
-        // بنفسه، فيجب أن يعمل DVFS من جديد وإلا بقي التردد مثبَّتًا على آخر قيمة
-        // صادف وجودها لحظة الإيقاف — وهو ما وثّقه permitGpu نفسه.
-        io.permitVendorCeiling(lock = false)
-        val wrote = io.write(path, "-1")
-        val verified = wrote && io.read(path)?.let(::parseMtkIndex) == "-1"
-        if (verified) return TransactionResult(request, refresh(live.path, io), true, true)
-        val rollbackWrote = io.write(path, baselineIndex)
-        val rollbackVerified = rollbackWrote && io.read(path)?.let(::parseMtkIndex) == baselineIndex
-        return TransactionResult(
-            request, refresh(live.path, io), wrote, false, true, rollbackVerified,
-            if (rollbackVerified) "apply-not-verified-baseline-restored" else "apply-and-rollback-failed",
-        )
     }
 
     private fun applyDevfreq(live: Device, request: Request, io: Io): TransactionResult {
@@ -528,8 +605,22 @@ object GpuHardwareBackend {
         // 1300000000 ⇒ 754000000). ولو كتبنا أولًا لبقي أثر القمع مسجّلًا عطلًا انتهى.
         if (touchesRange) {
             io.permitVendorCeiling(
-                lock = request.releaseVendorCeiling || request.minFreq == request.maxFreq,
+                // `lock` = تثبيت قيمة واحدة، لا «تحرير السقف». خلطهما كان يُطفئ DVFS في كل طلب
+                // سقف (والسقف عكس التثبيت)، فيثبت التردد الذي صادف وجوده لحظة الطلب.
+                lock = request.minFreq == request.maxFreq,
+                release = request.releaseVendorCeiling,
             )
+        }
+        // وقفل OPP ثابت قائم يُرفع **مع** كتابة السقف: هو ليس السقف الذي طُلب، بل جمودٌ من جلسة
+        // سابقة (أو من أداة أخرى) — وإبقاؤه يجعل كتابة المدى بلا أثر مرئي: الجهاز يبقى على درجته
+        // المجمَّدة، ويُقرأ السقف عند القدرة فيُقال «نُفِّذ». والفهرس المُرفوع محفوظ في خط الأساس
+        // ([Baseline.fixedIndex]) فيُعاده [restoreBaseline] عند الخروج أو [restoreTouchedBaseline]
+        // عند فشل الكتابة.
+        val lockPath = live.mtkFixedIndexPath
+        val heldIndex = lockPath?.let { io.read(it)?.let(MtkGpuOppTable::parseIndex) }?.takeIf { it != "-1" }
+        if (touchesRange && heldIndex != null && lockPath != null) {
+            io.write(lockPath, "-1")
+            MtkGpuFixedIndex.restoreDynamicScaling(io)
         }
         var wrote = true
         if (touchesRange) wrote = writeRange(live, request.minFreq, request.maxFreq, io)
@@ -540,7 +631,9 @@ object GpuHardwareBackend {
         val rollbackVerified = restoreTouchedBaseline(baseline, request, io)
         // وبعد التراجع يُعاد الوضع الطبيعي للسلطة: طلب تثبيت فشل كان قد أوقف DVFS في GED، وإبقاؤه
         // موقوفًا يُثبّت التردد الذي صادف وجوده — أي يُنتج العطب الذي جاء التراجع لإلغائه.
-        io.permitVendorCeiling(lock = false)
+        // و`release = false`: التراجع يُعيد DVFS ولا يلمس سقف المصنّع (رفعه هنا كان سيصير تهرّبًا
+        // من قمع فشل طلبُناه نحن).
+        io.permitVendorCeiling(lock = false, release = false)
         return TransactionResult(
             requested = request,
             actual = refresh(live.path, io),
@@ -549,42 +642,6 @@ object GpuHardwareBackend {
             rollbackAttempted = true,
             rollbackVerified = rollbackVerified,
             error = if (rollbackVerified) "apply-not-verified-baseline-restored" else "apply-and-rollback-failed",
-        )
-    }
-
-    private fun applyMtkExact(live: Device, request: Request, io: Io): TransactionResult {
-        val path = live.mtkFixedIndexPath ?: return TransactionResult(request, live, false, false, error = "fixed-lock-unavailable")
-        val frequency = request.minFreq ?: return TransactionResult(request, live, false, false, error = "incomplete-range")
-        val targetIndex = live.mtkOppIndexByFrequency[frequency]
-            ?: return TransactionResult(request, live, false, false, error = "unsupported-frequency")
-        val baselineIndex = io.read(path)?.let(::parseMtkIndex)
-            ?: return TransactionResult(request, live, false, false, error = "baseline-unreadable")
-        val touchesGovernor = request.governor != null
-        val baselineGovernor = if (touchesGovernor) {
-            live.governor ?: return TransactionResult(request, live, false, false, error = "baseline-unreadable")
-        } else null
-        // نفس سلطة المنصّة التي أُطلقت في applyDevfreq، وللسبب نفسه: القراءة الفورية بعد
-        // الكتابة هنا تنجح دائمًا (السائق يقبل رقم الـindex فورًا)، لكن GED يواصل DVFS
-        // الخاص به فوق هذا القفل ويُعيد التردد خلال ثوانٍ — فيرى المستخدم «تحقّق ناجح»
-        // في السجل وتذبذبًا فعليًّا على الجهاز. `lock = true` هنا توقف DVFS في GED تحديدًا
-        // لأجل هذا (انظر توثيق `PlatformCeilingAuthority.permitGpu`)، وهو ما كان ناقصًا في
-        // هذا المسار وحده من بين مسارات الكتابة الثلاثة.
-        io.permitVendorCeiling(lock = true)
-        val wroteLock = io.write(path, targetIndex)
-        val wroteGovernor = !touchesGovernor || (wroteLock && io.write("${live.path}/governor", request.governor))
-        val actual = refresh(live.path, io)
-        val verified = wroteLock && wroteGovernor &&
-            io.read(path)?.let(::parseMtkIndex) == parseMtkIndex(targetIndex) &&
-            (request.governor == null || actual?.governor.equals(request.governor, true))
-        if (verified) return TransactionResult(request, actual, true, true)
-        val rollbackLock = io.write(path, baselineIndex) && io.read(path)?.let(::parseMtkIndex) == baselineIndex
-        val rollbackGovernor = baselineGovernor == null ||
-            (io.write("${live.path}/governor", baselineGovernor) && refresh(live.path, io)?.governor == baselineGovernor)
-        val rollbackVerified = rollbackLock && rollbackGovernor
-        io.permitVendorCeiling(lock = false)
-        return TransactionResult(
-            request, refresh(live.path, io), wroteLock && wroteGovernor, false, true, rollbackVerified,
-            if (rollbackVerified) "apply-not-verified-baseline-restored" else "apply-and-rollback-failed",
         )
     }
 
@@ -600,6 +657,16 @@ object GpuHardwareBackend {
             val governor = baseline.governor
             restoredAll = if (governor == null) false else io.write("${live.path}/governor", governor) && restoredAll
         }
+        // والفهرس الذي رفعناه مع السقف يُعاد معه: تراجعٌ يُبقي الجهاز مجمَّدًا على درجة كان قد
+        // تحرّر منها **ليس** تراجعًا. ويُكتب فقط حين كان خط الأساس فهرسًا حقيقًّا.
+        val lockPath = live.mtkFixedIndexPath
+        val baselineIndex = baseline.fixedIndex
+        if (request.minFreq != null && request.maxFreq != null && lockPath != null &&
+            baselineIndex != null && baselineIndex != "-1"
+        ) {
+            val wroteIndex = io.write(lockPath, baselineIndex)
+            restoredAll = wroteIndex && io.read(lockPath)?.let(MtkGpuOppTable::parseIndex) == baselineIndex && restoredAll
+        }
         val restored = refresh(baseline.devicePath, io) ?: return false
         return restoredAll &&
             (request.minFreq == null || (restored.minFreq == baseline.minFreq && restored.maxFreq == baseline.maxFreq)) &&
@@ -613,7 +680,11 @@ object GpuHardwareBackend {
         if (baseline.fixedIndex != null && live.mtkFixedIndexPath != null) {
             touched = true
             val wrote = io.write(live.mtkFixedIndexPath, baseline.fixedIndex)
-            restoredAll = wrote && io.read(live.mtkFixedIndexPath)?.let(::parseMtkIndex) == baseline.fixedIndex && restoredAll
+            restoredAll = wrote && io.read(live.mtkFixedIndexPath)?.let(MtkGpuOppTable::parseIndex) == baseline.fixedIndex && restoredAll
+            // والقفل يُعاد إلى ما كان، فالتوسّع الديناميكي يُعاد معه: إبقاء DVFS مطفأً بعد أن زال
+            // سبب إطفائه يُجمّد التردد المنخفض الذي صادف وجوده — وهو العطب الذي تُسمّيه هذه الطبقة
+            // «أسوأ من عدم التثبيت» لأنه لا يظهر في أي شاشة.
+            MtkGpuFixedIndex.restoreDynamicScaling(io)
         }
         if (baseline.minFreq != null && baseline.maxFreq != null && live.mtkFixedIndexPath == null) {
             touched = true
@@ -643,18 +714,18 @@ object GpuHardwareBackend {
     fun currentExactLockFrequency(device: Device, io: Io = SystemIo): Long? {
         val live = selection(io).device?.takeIf { it.path == device.path } ?: return null
         val path = live.mtkFixedIndexPath ?: return null
-        val index = io.read(path)?.let(::parseMtkIndex)?.takeIf { it != "-1" } ?: return null
-        return live.mtkOppIndexByFrequency.entries.firstOrNull { parseMtkIndex(it.value) == index }?.key
+        val index = io.read(path)?.let(MtkGpuOppTable::parseIndex)?.takeIf { it != "-1" } ?: return null
+        return live.mtkOppIndexByFrequency.entries.firstOrNull { MtkGpuOppTable.parseIndex(it.value) == index }?.key
     }
 
     fun releaseExactLock(io: Io = SystemIo): Boolean {
         val device = selection(io).device ?: return true
         val path = device.mtkFixedIndexPath ?: return true
         if (!device.mtkLockWritable) return false
-        val baselineIndex = io.read(path)?.let(::parseMtkIndex) ?: return false
+        val baselineIndex = io.read(path)?.let(MtkGpuOppTable::parseIndex) ?: return false
         if (baselineIndex == "-1") return true
         val wrote = io.write(path, "-1")
-        val verified = wrote && io.read(path)?.let(::parseMtkIndex) == "-1"
+        val verified = wrote && io.read(path)?.let(MtkGpuOppTable::parseIndex) == "-1"
         if (verified) return true
         io.write(path, baselineIndex)
         return false
@@ -717,7 +788,7 @@ object GpuHardwareBackend {
             .split(Regex("\\s+")).filter(String::isNotBlank).distinct()
         if (governor == null && rawFrequencies.isEmpty() && rawCurrent == null) return null
 
-        val mtkDiscovery = if (family == Family.MALI) readMtkOppMap(io) else MtkOppDiscovery(emptySet(), emptyMap())
+        val mtkDiscovery = if (family == Family.MALI) MtkGpuOppTable.discover(io) else MtkGpuOppTable.Discovery(emptySet(), emptyMap())
         val mtkMap = mtkDiscovery.indexed
         // An unindexed OPP proves capability but cannot safely be written through a
         // fixed-index node. Never invent an index for it.
@@ -728,7 +799,7 @@ object GpuHardwareBackend {
             // higher capability, prefer a generic devfreq range (when writable)
             // instead of silently pinning the GPU to the smaller indexed table.
             mtkDiscovery.frequencies.all { it in mtkMap }
-        ) MTK_LOCK_PATHS.firstOrNull(io::exists) else null
+        ) MtkGpuOppTable.LOCK_PATHS.firstOrNull(io::exists) else null
         val genericUnit = inferFrequencyUnit(rawFrequencies + listOfNotNull(rawMin, rawMax, rawCurrent))
         val frequencies: List<Long>
         val min: Long?
@@ -736,13 +807,33 @@ object GpuHardwareBackend {
         val current: Long?
         val unit: FrequencyUnit
         val effectiveMtkFrequency = if (mtkLockPath != null) {
-            val activeIndex = io.read(mtkLockPath)?.let(::parseMtkIndex)?.takeIf { it != "-1" }
-            activeIndex?.let { index -> mtkMap.entries.firstOrNull { parseMtkIndex(it.value) == index }?.key }
+            val activeIndex = io.read(mtkLockPath)?.let(MtkGpuOppTable::parseIndex)?.takeIf { it != "-1" }
+            activeIndex?.let { index -> mtkMap.entries.firstOrNull { MtkGpuOppTable.parseIndex(it.value) == index }?.key }
         } else null
+        // ودمج سلّم `devfreq` يُشترط فيه اتفاق الوحدة: جدول MediaTek بالهرتز معلوم، فلو أضفنا
+        // إليه سلّمًا بلغة أخرى لَخُلطت وحدتان في سلّم واحد.
+        val mtkScaleIsHertz = genericUnit == FrequencyUnit.HZ || rawFrequencies.isEmpty()
         if (mtkLockPath != null) {
-            frequencies = (mtkDiscovery.frequencies + mtkMap.keys).toList().sorted()
-            min = effectiveMtkFrequency ?: frequencies.firstOrNull()
-            max = effectiveMtkFrequency ?: frequencies.lastOrNull()
+            // وأعلى درجات الجهاز = ما تُعلنه **العقدتان** معًا: كتالوج MediaTek يحمل الفهرس، وسلّم
+            // `devfreq` هو ما تُكتب عليه الحدود — فرق يُسقط درجاتٍ قابلة للكتابة لو أُخذ أحدهما.
+            frequencies = (mtkDiscovery.frequencies + mtkMap.keys +
+                if (mtkScaleIsHertz) rawFrequencies else emptyList())
+                .filter { it > 0L }.distinct().sorted()
+            // وسقف المصنّع الحيّ (`min_freq`/`max_freq`) **لا يُسقَط** حين يوجد مسار تثبيت OPP.
+            //
+            // كان الفرع يأخذ الحدّين من القفل وحده (`effectiveMtkFrequency ?: أطراف الجدول`)، فسقف
+            // الحرارة/الطاقة الحيّ — وهو ٧٥٤ على الجهاز المقيس بينما أعلى درجة معلنة ١٣٠٠ — لا يُقرأ
+            // في التطبيق **أبدًا**: `live_max` في سطر الفحص كان يقول ١٣٠٠ والجهاز يعمل على ٧٥٤.
+            // والإسقاط لم يكن حيادًا: هو ما جعل الحاكم يقرأ «القدرة» فيحكم «مُلبّى» بلا كتابة.
+            //
+            // والمقروء يُصدَّق على ذاته: إن كان القفل قائمًا فالتحديد هو ما يقصّ (فالحدّان = تردد القفل)،
+            // وإن لم يكن قائمًا فالحدّ الحيّ هو ما تقوله العقدتان، وغيابهما وحده يُعيد أطراف الجدول.
+            // وتُحوَّل قيمة العقدة بوحدة معلومة قبل أن تُقبل كحدّ (`normalizeToAdvertisedHz` كما في
+            // `current`): قيمة ليست من درجات معلنة لا تُفسَّر Hz بالحدس.
+            val devfreqMin = if (mtkScaleIsHertz) normalizeToAdvertisedHz(rawMin, frequencies) else null
+            val devfreqMax = if (mtkScaleIsHertz) normalizeToAdvertisedHz(rawMax, frequencies) else null
+            min = effectiveMtkFrequency ?: devfreqMin ?: frequencies.firstOrNull()
+            max = effectiveMtkFrequency ?: devfreqMax ?: frequencies.lastOrNull()
             current = effectiveMtkFrequency ?: normalizeToAdvertisedHz(rawCurrent, frequencies)
             unit = FrequencyUnit.HZ
         } else {
@@ -806,74 +897,9 @@ object GpuHardwareBackend {
     private fun parseLongList(raw: String?): List<Long> = raw.orEmpty().split(Regex("\\s+"))
         .mapNotNull(String::toLongOrNull).filter { it > 0L }.distinct().sorted()
 
-    private fun readMtkOppMap(io: Io): MtkOppDiscovery {
-        // MTK exposes more than one OPP surface. The signed table can be a filtered
-        // runtime table (for example ending at 546 MHz), while gpufreq_opp_dump
-        // still exposes the hardware capability (1300 MHz on the reported device).
-        // Reading only the first non-empty file silently turns a runtime ceiling into
-        // a hardware maximum, which made Performance 100% write 546 successfully.
-        val contents = MTK_OPP_TABLES.mapNotNull { path ->
-            io.read(path)?.takeIf(String::isNotBlank)
-        }
-        if (contents.isEmpty()) return MtkOppDiscovery(emptySet(), emptyMap())
-        val frequencies = linkedSetOf<Long>()
-        val indexedResult = linkedMapOf<Long, String>()
-        contents.asSequence().flatMap { it.lineSequence() }.forEach { line ->
-            // Kernels expose both indexed tables (`[3] freq=...`) and the legacy
-            // dump format (`freq = 1300000`). The latter is still authoritative
-            // capability evidence, but it has no explicit index in some builds.
-            // Give only a labelled, unit-bearing frequency a bounded ordinal; bare
-            // voltage/frequency-looking numbers remain rejected below.
-            val indexed = Regex("""\[\s*(\d+)\s*]""").find(line)?.groupValues?.getOrNull(1)
-            val tail = line.substringAfterLast(']').trim()
-            val labelledFrequency = Regex("""(?i)\bfreq(?:uency)?\s*[=:]\s*""").containsMatchIn(tail)
-            if (indexed == null && !labelledFrequency) return@forEach
-            // A synthetic ordinal is not a kernel OPP index. It may be used for
-            // capability discovery only, never for a write.
-            val index = indexed
-            val matches = Regex("""(?i)(\d+(?:\.\d+)?)\s*(GHz|MHz|kHz)?""").findAll(tail).toList()
-            fun isFrequencyLabeled(candidate: MatchResult): Boolean {
-                val prefix = tail.substring(0, candidate.range.first)
-                return listOf("freq", "frequency").any { prefix.contains(it, true) }
-            }
-            // Selection is proof-driven, never a guess: prefer a labeled frequency,
-            // then any unit-bearing number, then a single bare number. Multiple bare
-            // numbers without labels are ambiguous (frequency vs voltage) and the
-            // whole line is rejected rather than misread.
-            val match = matches.firstOrNull { candidate ->
-                candidate.groupValues.getOrNull(2)?.isNotBlank() == true && isFrequencyLabeled(candidate)
-            } ?: matches.firstOrNull { candidate -> isFrequencyLabeled(candidate) }
-                ?: matches.firstOrNull { candidate -> candidate.groupValues.getOrNull(2)?.isNotBlank() == true }
-                ?: matches.singleOrNull()
-                ?: return@forEach
-            val value = match.groupValues[1].toDoubleOrNull() ?: return@forEach
-            val hz = when (match.groupValues.getOrNull(2)?.lowercase().orEmpty()) {
-                "ghz" -> (value * 1_000_000_000.0).toLong()
-                "mhz" -> (value * 1_000_000.0).toLong()
-                "khz" -> (value * 1_000.0).toLong()
-                else -> when {
-                    value >= 10_000_000.0 -> value.toLong()
-                    value >= 10_000.0 -> (value * 1_000.0).toLong()
-                    else -> (value * 1_000_000.0).toLong()
-                }
-            }
-            if (hz in 1_000_000L..10_000_000_000L) {
-                frequencies += hz
-                if (index != null) indexedResult[hz] = index
-            }
-        }
-        return MtkOppDiscovery(frequencies, indexedResult)
-    }
-
     private fun normalizeToAdvertisedHz(raw: Long?, advertisedHz: List<Long>): Long? {
         if (raw == null || raw <= 0L) return null
         return listOf(raw, raw * 1_000L, raw * 1_000_000L).distinct().singleOrNull { it in advertisedHz }
-    }
-
-    private fun parseMtkIndex(raw: String): String {
-        val clean = raw.trim()
-        if (clean.isEmpty() || clean == "-1" || clean.contains("disabled", true) || clean.contains("dynamic", true)) return "-1"
-        return Regex("-?\\d+").findAll(clean).map { it.value }.toList().lastOrNull() ?: "-1"
     }
 
     private fun readLoad(path: String, family: Family, io: Io): Int? {

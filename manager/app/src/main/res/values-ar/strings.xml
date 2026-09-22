@@ -25,7 +25,7 @@
     <string name="perapp_diag_reason">السبب: %1$s</string>
     <string name="perapp_diag_values">المطلوب %1$s ← المقروء %2$s</string>
     <string name="perapp_diag_hint">التفصيل الكامل في تبويب السجل: EVENT=PERAPP_KNOB</string>
-    <string name="perapp_thermal_guard_note">هذه الخيارات مظروف طاقة فعليّ لا اسم: ١٠٠٪ تعني كامل قدرة الجهاز، فيُطلب أعلى تردد يُعلنه الجهاز (فلا يجلس gaming أو performance أدنى من جهاز غير ممسوس، وإن كان سقف الجهاز نفسه أدنى يُقال ذلك في السجل). وما دون ١٠٠٪ فنسبته من السقف الذي عليه الجهاز الآن — وهذا هو معنى التبريد — ويُطبَّق على سقف GPU وكل سياسة CPU لم تضبطها بيدك. وفوق ذلك حارس حراري ينزل بنفس السقوف أثناء خنق الجهاز ويعيدها عند برودته، ولا يتجاوز ما اخترته أبدًا.</string>
+    <string name="perapp_thermal_guard_note">هذه الخيارات مظروف طاقة فعليّ لا اسم: كل نسبة تُحسب من القدرة التي يُعلنها الجهاز (أعلى درجة يقولها سائقه) لا من السقف الذي عليه الجهاز الآن. فلا يجلس gaming أو performance أدنى من جهاز غير ممسوس: وإن كان سقف سياسة الجهاز أدنى فهما يطلبان القدرة المُعلنة، ويكتب السجل ما كان وما يستطيعه الجهاز وما طُلب. وما دون ذلك فالنسبة تُسقِف GPU وكل سياسة CPU لم تضبطها بيدك، وتُقرَّب إلى درجة تردد حقيقية إلى أسفل؛ وبروفايل تبريد (balanced · power · custom) لا ينزل بسقف إلا ولا يرفعه أبدًا. وفوق ذلك حارس حراري ينزل بنفس السقوف أثناء خنق الجهاز ويعيدها عند برودته، ولا يتجاوز ما اخترته أبدًا.</string>
     <string name="app_settings_title">إعدادات التطبيق</string>
     <string name="appearance">المظهر</string>
     <string name="maxmanager_version">إصدار Max Manager</string>
@@ -928,6 +928,40 @@
     <string name="storyboard_knob_cpu_boost">تسريع المعالج</string>
     <string name="storyboard_knob_max_ai">محرك ذكاء MAX</string>
     <string name="storyboard_knob_max_ai_objective">الهدف</string>
+
+    <!-- بطاقة النشاط في الشاشة الرئيسية: تفضيلات عرض فقط — لا مقبض عتاد -->
+    <string name="settings_home_section">الشاشة الرئيسية</string>
+    <string name="settings_activity_card_title">بطاقة النشاط</string>
+    <string name="settings_activity_card_desc">ما تعرضه البطاقة وكيف. لا يظهر فيها إلا ما تُحقّق منه فعلًا: لا يُكتب سطر بلا قياس كإنجاز، والفشل مكانه السجل.</string>
+    <string name="activity_card_summary_auto">تلقائي</string>
+    <string name="activity_card_summary_custom">مخصّص</string>
+    <string name="activity_card_auto">اختيار الشكل تلقائيًا</string>
+    <string name="activity_card_auto_desc">تختار البطاقة بين مشهد واحد وقائمة مختصرة وشارات، بحسب ما يحدث فعلًا.</string>
+    <string name="activity_card_style_title">الشكل</string>
+    <string name="activity_card_style_auto">تلقائي</string>
+    <string name="activity_card_style_cinematic">مشهد واحد</string>
+    <string name="activity_card_style_summary">قائمة مختصرة</string>
+    <string name="activity_card_style_timeline">كل حدث بوقته</string>
+    <string name="activity_card_style_chips">شارات</string>
+    <string name="activity_card_detail_title">التفاصيل</string>
+    <string name="activity_card_detail_simple">مبسّط</string>
+    <string name="activity_card_detail_technical">تقني (مع السبب)</string>
+    <string name="activity_card_motion_title">الحركة</string>
+    <string name="activity_card_motion_full">كاملة</string>
+    <string name="activity_card_motion_reduced">مخفّفة</string>
+    <string name="activity_card_motion_off">موقوفة</string>
+    <string name="activity_card_content_title">ما تعرضه البطاقة</string>
+    <string name="activity_card_show_per_app_desc">البروفايل والحاكمان والحدود التي اخترتها لتطبيق.</string>
+    <string name="activity_card_show_max_ai_desc">مشهد ذكاء MAX والمقابض التي يملكها فعلًا.</string>
+    <string name="activity_card_show_manual_desc">التغييرات التي أجريتها بنفسك من شاشات التحكم.</string>
+    <string name="activity_card_show_monitoring">حالة عمل المحرك</string>
+    <string name="activity_card_show_monitoring_desc">سطر حالة: يقول إن المحرك يعمل بلا أن يدّعي تغييرًا.</string>
+    <string name="activity_card_session_title">آخر جلسة تطبيق</string>
+    <string name="activity_card_session_always">دائمًا</string>
+    <string name="activity_card_session_recent">إن كانت حديثة</string>
+    <string name="activity_card_session_hide">إخفاء</string>
+    <string name="activity_card_close">تم</string>
+    <string name="activity_card_restore">استعادة الافتراضي</string>
     <string name="home_zram_unavailable">التبديل المضغوط غير متاح</string>
     <string name="home_available_storage">%1$s غيغابايت متاحة</string>
 

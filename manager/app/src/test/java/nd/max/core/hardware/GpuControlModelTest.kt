@@ -52,6 +52,21 @@ class GpuControlModelTest {
             "/sys/class/thermal" -> emptyList()
             else -> emptyList()
         }
+
+        /**
+         * نداءات سلطة المنصّة كـ`lock` و`release` مستقلّين.
+         *
+         * ووُجد ليسجّل **الفصل** بينهما: كان `releaseVendorCeiling` يُمرَّر كـ`lock`، فطلبٌ عند قدرة
+         * الجهاز (وهو عكس التثبيت) كان **يطفئ DVFS** ويثبّت التردد الذي صادف وجوده. وهذا لا يظهر
+         * في أي عقدة وهمية — يظهر في الوسيطين.
+         */
+        val vendorCeilingCalls = mutableListOf<Pair<Boolean, Boolean>>()
+
+        override fun permitVendorCeiling(lock: Boolean, release: Boolean): Boolean {
+            vendorCeilingCalls += lock to release
+            return false
+        }
+
         fun value(path: String) = values[path]
         fun put(path: String, value: String) { values[path] = value }
     }
@@ -103,6 +118,123 @@ class GpuControlModelTest {
             setOf(lock, "$base/governor"),
             failWrites,
         )
+    }
+
+    /**
+     * جهاز MediaTek حقيقي التركيب: `min_freq`/`max_freq` قابلان للكتابة **و**مسار قفل OPP موجود،
+     * وسقف المصنّع الحيّ (٧٥٤) أقلّ من أعلى درجة معلنة (١٣٠٠) — أي الشكل المقيس على rodin.
+     *
+     * وهذا بالضبط ما كان يُبطل كل شيء: الشرط القديم `rangeWritable = … && mtkFixedIndexPath == null`
+     * كان يجعل المسار الوحيد المتاح هو **تثبيت** درجة واحدة (تجميد)، ويُسقط سقف المصنّع من القراءة.
+     */
+    private fun mtkCeilingIo(activeIndex: String = "-1"): FakeIo {
+        val base = "/sys/class/devfreq/mali0"
+        val lock = "/proc/gpufreqv2/fix_target_opp_index"
+        return FakeIo(
+            mutableMapOf(
+                "$base/device_name" to "mali-gpu",
+                "$base/available_frequencies" to "260000000 400000000 650000000 754000000 1300000000",
+                "$base/min_freq" to "260000000",
+                "$base/max_freq" to "754000000",
+                "$base/cur_freq" to "400000000",
+                "$base/governor" to "simple_ondemand",
+                "$base/available_governors" to "simple_ondemand performance",
+                "/proc/gpufreqv2/stack_signed_opp_table" to
+                    "[0] freq=1300 MHz volt=900000\n[1] freq=754 MHz volt=850000\n[2] freq=650 MHz volt=800000",
+                lock to activeIndex,
+            ),
+            setOf(lock, "$base/min_freq", "$base/max_freq", "$base/governor"),
+        )
+    }
+
+    @Test fun mtkVendorCeilingIsNotDiscardedByTheFixedIndexPath() {
+        // قياس rodin: السقف الحيّ ٧٥٤ وأعلى درجة معلنة ١٣٠٠ — وكان سطر الفحص يقول `live_max=1300000000`
+        // لأن الفرع أخذ الحدّين من جدول القفل وحده. الإسقاط هو ما جعل الحاكم يحكم «مُلبّى» بلا كتابة.
+        val device = GpuHardwareBackend.selection(mtkCeilingIo()).device!!
+        assertEquals(1_300_000_000L, device.frequencies.maxOrNull())
+        assertEquals(754_000_000L, device.maxFreq)
+        assertEquals(754_000_000L, GpuHardwareBackend.configurableMaxFrequency(device))
+        // ومع ذلك القدرة كاملة معلنة، فالطلب عند القدرة يبقى تحريرًا لا كتابة.
+        assertEquals(754_000_000L, GpuHardwareBackend.snapToAvailableAtOrBelow(device, 1_300_000_000L))
+    }
+
+    @Test fun mtkCeilingWritesTheRangeInsteadOfPinningAnOpp() {
+        val fake = mtkCeilingIo()
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val lock = "/proc/gpufreqv2/fix_target_opp_index"
+        // السؤال الصحيح للسقف: هل تقبل عقدتا المدى كتابة؟ ومكان القفل لا يُبطله.
+        assertTrue(device.devfreqCeilingWritable)
+        assertFalse("المسار القديم يمنع المدى عند وجود قفل — وهذا ما حوّل السقف إلى تثبيت", device.rangeWritable)
+
+        val result = GpuHardwareBackend.applyValidated(
+            device,
+            GpuHardwareBackend.Request(260_000_000L, 650_000_000L, releaseVendorCeiling = false),
+            fake,
+        )
+        assertTrue(result.verified)
+        assertEquals("650000000", fake.value("/sys/class/devfreq/mali0/max_freq"))
+        assertEquals("-1", fake.value(lock))
+        assertFalse("لا كتابة على عقدة القفل لطلب سقف", fake.writes.any { it.first == lock })
+        assertTrue("ولا يُطلب إطفاء DVFS لطلب سقف", fake.vendorCeilingCalls.none { it.first })
+    }
+
+    @Test fun mtkCeilingClearsAStaleOppLockAndRestoresItOnExit() {
+        // قفل باقٍ من جلسة سابقة يجمّد التردد من خارج devfreq: كتابة المدى وحدها بلا أثر مرئي.
+        val fake = mtkCeilingIo(activeIndex = "2")
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val lock = "/proc/gpufreqv2/fix_target_opp_index"
+        assertEquals(650_000_000L, device.maxFreq)
+        // وخط الأساس يُلتقط **قبل** الكتابة (كما يفعل `AppMonitor`) وإلا لكان قد سجّل ما بعدها.
+        val baseline = GpuHardwareBackend.captureBaseline(device, fake)
+
+        val result = GpuHardwareBackend.applyValidated(
+            device,
+            GpuHardwareBackend.Request(260_000_000L, 754_000_000L, releaseVendorCeiling = false),
+            fake,
+        )
+        assertTrue(result.verified)
+        assertEquals("-1", fake.value(lock))
+        assertTrue(GpuHardwareBackend.restoreBaseline(baseline, fake))
+        assertEquals("2", fake.value(lock))
+    }
+
+    @Test fun aFailedPinRestoresDynamicScalingAndTheBaselineIndex() {
+        // التراجع في مسار القفل لا يُعيد الفهرس وحده: التثبيت **يوقف DVFS** (إن طُلب رفع سقف
+        // المصنّع)، فإبقاؤه موقوفًا بعد تراجع يُنتج العطب الذي جاء التراجع لإلغائه: الجهاز يبقى على
+        // الدرجة التي صادف وجودها وقت الطلب. وهذا لا يظهر في أي عقدة — يظهر في نداء سلطة المنصّة.
+        val lock = "/proc/gpufreqv2/fix_target_opp_index"
+        val fake = mtkIo(activeIndex = "1", failWrites = mutableSetOf(lock))
+        val device = GpuHardwareBackend.selection(fake).device!!
+
+        val result = GpuHardwareBackend.applyValidated(
+            device,
+            GpuHardwareBackend.Request(
+                minFreq = 400_000_000L,
+                maxFreq = 400_000_000L,
+                releaseVendorCeiling = true,
+            ),
+            fake,
+        )
+        assertFalse(result.verified)
+        assertTrue(result.rollbackAttempted)
+        assertEquals("الثابت الأصلي يعود", "1", fake.value(lock))
+        assertEquals(
+            "آخر نداء سلطة يجب أن يُعيد التوسّع الديناميكي، لا أن يُبقيه موقوفًا",
+            false to false,
+            fake.vendorCeilingCalls.last(),
+        )
+        assertTrue("وقد طُلب رفع سقف المصنّع قبل الكتابة", fake.vendorCeilingCalls.any { it.first })
+    }
+
+    @Test fun aHeldOppLockIsVisibleInTheCeilingReading() {
+        // ولا تظهر هذه الحالة في أي قراءة تردد: `max_freq` يقرأ القدرة والجهاز مجمَّد على درجة.
+        val held = mtkCeilingIo(activeIndex = "1")
+        val heldDevice = GpuHardwareBackend.selection(held).device!!
+        assertEquals(true, GpuHardwareBackend.ceilingReading(heldDevice, held).lockActive)
+
+        val free = mtkCeilingIo()
+        val freeDevice = GpuHardwareBackend.selection(free).device!!
+        assertEquals(false, GpuHardwareBackend.ceilingReading(freeDevice, free).lockActive)
     }
 
     @Test fun liveGpuCapWinsOverHigherAdvertisedOpp() {
@@ -288,6 +420,54 @@ class GpuControlModelTest {
         )
         assertEquals("release-lock-unavailable", GpuHardwareBackend.validate(generic, GpuHardwareBackend.Request(releaseLock = true)))
         assertNull(GpuHardwareBackend.validate(mtk, GpuHardwareBackend.Request(releaseLock = true)))
+    }
+
+    // ── سلطة المنصّة: معاملان لا معامل ──────────────────────────────────────
+
+    @Test fun aCeilingAtCapabilityNeverTurnsOffDvfs() {
+        // القياس الذي أوجب هذا الاختبار: `lock` كان يُشتقّ من `releaseVendorCeiling`، فصار طلب
+        // سقف عند قدرة الجهاز يُطفئ DVFS ويجمّد التردد الحاضر — أي عكس غرضه.
+        val fake = io()
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val request = GpuHardwareBackend.Request(200_000_000L, 800_000_000L, releaseVendorCeiling = true)
+        assertTrue(GpuHardwareBackend.apply(device, request, fake).verified)
+        assertEquals(listOf(false to true), fake.vendorCeilingCalls)
+    }
+
+    @Test fun aCoolingCeilingLeavesThePlatformCapAlone() {
+        // سقف أدنى من القدرة (بروفايل تبريد) لا يرفع حماية المصنّع: طلب تبريد يجوز أن ينزل، ولا
+        // يجوز أن يرفع السقف ثم يكتب سقفه فوقه.
+        val fake = io()
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val request = GpuHardwareBackend.Request(200_000_000L, 400_000_000L, releaseVendorCeiling = false)
+        assertTrue(GpuHardwareBackend.apply(device, request, fake).verified)
+        assertEquals(listOf(false to false), fake.vendorCeilingCalls)
+    }
+
+    @Test fun anExactPinAsksForBothTheReleaseAndTheDvfsHold() {
+        val fake = io()
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val request = GpuHardwareBackend.Request(400_000_000L, 400_000_000L, releaseVendorCeiling = true)
+        assertTrue(GpuHardwareBackend.apply(device, request, fake).verified)
+        assertEquals(listOf(true to true), fake.vendorCeilingCalls)
+    }
+
+    @Test fun conflictingOppIndicesAreNotGuessed() {
+        // فهرسان مختلفان لنفس التردد في جدولين مختلفين = هذا التردد لا يُفهرَس بأمان. ولو أخذنا
+        // الأخير (سلوك «آخر-يفوز» السابق) لَكتبنا في `fix_target_opp_index` رقمًا يُفسَّر على جدول
+        // آخر، فيُثبَّت تردد غير الذي طُلِب ويُعلَن نجاح لأن التحقّق من صدى الفهرس لا من التردد.
+        // وإسقاط الفهرس يُبطل مسار القفل كلّه: نرفض التخمين ونُعالج الجهاز عبر مسار المدى.
+        val fake = mtkIo()
+        fake.put(
+            "/proc/gpufreqv2/stack_signed_opp_table",
+            "[0] freq=800 MHz volt=900000\n[1] freq=400 MHz volt=800000",
+        )
+        fake.put("/proc/gpufreqv2/gpu_working_opp_table", "[5] freq=800 MHz\n[6] freq=400 MHz")
+        val device = GpuHardwareBackend.selection(fake).device!!
+        assertNull("فهرس متعارض لا يُختار منه واحد", device.mtkFixedIndexPath)
+        assertTrue(device.mtkOppIndexByFrequency.isEmpty())
+        assertFalse(device.exactLockWritable)
+        assertTrue("والسلّم نفسه يبقى مرجع القدرة", device.frequencies.contains(800_000_000L))
     }
 
     @Test fun unprovenBareOppLinesAreRejectedNotGuessed() {

@@ -5297,6 +5297,9 @@ NEXT: (١) أظهر النسبة المتحقّقة في بطاقة «حالة �
 `PerAppKernelUtil.pickProfileFrequency` (الاحتياط لغير مستدعي المخزن). و`performance` كان ١٠٠ أصلًا،
 ويؤكّده تقرير الجهاز: `gpu_profile=performance → expected=754000000 live=754000000` (سقف العتاد نفسه).
 
+> **مُلغى في تكملة ٨٠** (وهذا القسم تاريخيّ يشرح قياس تلك الجولة): المفردات `cappingPercent` و
+> `capMaxHz` و‏`atFullCapability` حُذفت، والنسب النافذة هي ٨٥/٦٠/٤٠ من **القدرة** لا من السقف الحيّ.
+
 القاعدة المكتوبة الآن في نصّ محرّر البروفايل: **١٠٠٪ = بلا سقف**، وهي القيمة التي تُرجع عندها
 `ThermalCurve.cappingPercent` قيمة `null` فلا يُكتب سقف على CPU ولا GPU. الجدول النافذ:
 
@@ -5331,6 +5334,9 @@ note=device-policy-may-hold-lower` — الطلب قدرة الجهاز، وال
 
 `ThermalCurve.atFullCapability` هو الحدّ المختبَر لهذه القاعدة (اختبار JVM)، ونصّ محرّر البروفايل
 وشاشة التطبيق يقولانها صريحة بدل أن تُترك للنسبة تُخمَّن.
+
+> **مُلغى في تكملة ٨٠**: صارت القاعدة أعمّ وأصدق: **لا بروفايل ينزل عن السقف الحيّ**، وبروفايلا
+> القوّة يرفعان إلى القدرة؛ والمفردة المختبَرة الآن `ThermalCurve.requestedCpuCeiling` مع `isPowerProfile`.
 
 ---
 
@@ -5477,3 +5483,307 @@ aapt2 compile: app (٨٥ مجلد values*) + kernel-flasher + terminal-view  ⇒
 kt_balance 765/0 · code_health --assert نظيفة (unescaped_apostrophe 0) · i18n 0 · repo_audit 0
 StoryboardModelTest ١٣/١٣ في شريحة JVM
 ```
+
+---
+
+## تكملة ٨٠ — حرارة Per-App ترفع لا تنقص فقط · ودمج بطاقة النشاط فعليًّا (2026-09-21)
+
+### ١ · العطب المقيس: «الحرارة في شاشة التطبيقات لا تزيد أبدًا عن القيمة الافتراضية، وإنما تنقص»
+
+الوصف صحيح، وله سببان مستقلّان في `AppMonitor` + `ThermalCurve`:
+
+1. **النسبة كانت تُحسب من السقف الحيّ** (`scaling_max_freq` كما هو الآن) لا من قدرة الجهاز. فجهاز
+   سياسة الـvendor فيه تخفض السقف الحيّ إلى جزء من قدرته (نفس قياس GPU: ٧٥٤ من ١٣٠٠) صار فيه
+   «Gaming ٨٥٪» **أدنى من الجهاز غير الممسوس** — وهو ما رُفض سابقًا في مسار GPU وبقي في مسار CPU.
+2. **بروفايلا القوّة كانا لا يفعلان شيئًا**: `cappingPercent(100)` تُعيد `null` فيخرج المسار بـ
+   `curve-does-not-cap` بلا أي كتابة على CPU. فمن اختار «أداء» لم يرفع سقفًا ولم ينزله — أي «لا شيء».
+
+### ٢ · الإصلاح — مرجع واحد هو القدرة، ونمطان لا نمط واحد
+
+`ThermalCurve` صار يعرض قرارًا واحدًا صريحًا:
+
+```
+requestedCpuCeiling(profile, percent, capabilityHz, liveMaxHz, ladder) -> CpuCeiling(hz, direction, reason)
+isPowerProfile(profile) = performance | gaming    ·    Direction = RAISE | LOWER | HOLD
+
+بروفايلا القوّة : target = max(النسبة من القدرة، السقف الحيّ)   ⇒ لا ينزلان أبدًا، ويرفعان إن كانت المنصة تقيّد
+بروفايلات التبريد: target = النسبة من القدرة، ويُكتب **فقط** إذا كان أدنى من السقف الحيّ
+```
+
+و`capabilityHz` من `policy.provenMaxKHz` (`cpuinfo_max_freq` أو أعلى السلّم المُعلن) — **لا ثابت ولا
+رقم جهاز**. والكتابة تمرّ بملكية `HardwareControlKey.cpuLimits` كما هي، و`CpuHardwareBackend.setPolicyLimits`
+يتولّى `PlatformCeilingAuthority.permitCpu` قبل الكتابة (فتُرفع قيود MI thermal وpowerhal) ثم يتحقّق
+ويسترجع عند الخروج — أي أن الرفع **لا يمنح سلطة جديدة**، بل يستعمل المسار المحكوم القائم.
+
+**ما يُقرأ في الحزمة القادمة:**
+
+```
+EVENT=PERAPP_THERMAL_CPU_RAISE  pkg=… curve=gaming policy=policy0 capability=2400000 live_before=1500000 target=2000000
+EVENT=PERAPP_THERMAL_CURVE_POLICY … direction=lower capability=2400000 live_before=2400000 requested_percent=60 realized_percent=54 from=… to=300000:1300000 live=… sealed=true
+EVENT=PERAPP_THERMAL_CURVE pkg=… curve=balanced percent=60 power_profile=false raised=0 sealed=4 untouched=1
+```
+
+وأسباب جديدة في القاموس (`LogCodeGlossary`) مع مفاتيحها في `LogCodeGlossaryTest`:
+`power-profile-above-live` · `power-profile-never-lowers` · `cooling-below-live` ·
+`cooling-already-at-or-below-percent` (و`curve-does-not-cap` لم يبقَ يُكتب، وبقي مشروحًا لقراءة الحزم القديمة).
+
+**الرموز المهاجَرة:** `ThermalCurve.capMaxHz` و`cappingPercent` و`atFullCapability` **حُذفت** — كانت
+المفردات القديمة للنسبة-من-الحيّ. و`ThermalCurveTest` أُعيد كتابته (**١٥ حالة**) على النموذج الجديد،
+ومنها الحالة المقيسة نفسها: قدرة ٢٤٠٠ تخفّضها المنصة إلى ١٥٠٠ ⇒ «Gaming» يطلب ٢٠٠٠ لا ١٢٧٥.
+وثلاثة حدود تُثبتها الحالات: لا سقف **فوق** النسبة المطلوبة، ولا سقف **تحته** الحيّ في بروفايلي القوّة،
+ولا كتابة لدرجة غير مُعلنة (والقدرة تبقى الاحتياط حين لا يُعلن الجهاز سلّمًا أصلًا).
+
+### ٣ · بطاقة النشاط الواحدة — السياسة انتقلت من Compose إلى نموذج مختبر
+
+`UnifiedActivityModel` كان **كودًا ميتًا** (تعريفه واختباره فقط)، والفلتر الحقيقي داخل
+`UnifiedActivityCard` يشترط `from != null` ⇒ **كل اختيار بلا قياس كان يُطرح**: `Kill Background Apps`
+· البروفايل · الحاكمان · معدّل التحديث · المُصيّر — وهو نقضٌ نصّي لطلب «أريد أن أرى ما فعلته اختياراتي».
+وصار الفلتر على `UnifiedActivityModel.select(scenes)`:
+
+- نجاح فقط (`DONE`)، وبلا سطر لا يقول شيئًا (يُستثنى `max_ai_active` لأنه حالة لا قيمة).
+- **لا مقبض مرّتين في البطاقة كلها** (كان الترشيح على قائمة المشهد الثاني وحدها، فيُقرأ `cpu_limits:policy0` مرّتين).
+- الحدود في النموذج (٣ أسطر/مشهد · ٤ أسطر · مشهدان) لا في الواجهة.
+- `StoryboardBand` و`SceneCard` **حُذفا** (ميتان بعد الدمج)، وبقي عرض «متى» على المشهد الأول.
+
+### ٤ · إضافتان صغيرتان أثناء المراجعة
+
+- `PerAppKernelUtil.pickProfileFrequency`: فرع `power` كان مكرَّرًا — فرع أوّلي فعّال بنسبة ٤٠ وفرع
+  ثانٍ غير قابل للوصول بنسبة ٦٥. أُبقي فرع واحد بنسبة ٤٠ (نفس ما في `ProfilePresetStore`).
+- `ProfilePresetStore`: تعليق الهجرة كان يصف هجرة لـ`gaming` لا توجد؛ صار يشرح ما يقع فعلًا: هجرة
+  البذرتين القديمتين (`power 65→40` · `balanced 70→60`) و**عدم** هجرة `gaming` لأن المتخزّن فيها اختيارُ صاحبه.
+
+### التحقق
+```
+kt_balance --assert      : 767 ملفًا · عوائق 0   ✅  (وبوابة الأقواس أمسكت خطأ صياغيًا في نسختي: `""` داخل قالب بدل `""`)
+code_health --assert     : صحّة نظيفة ✅
+i18n_coverage --assert   : 0 عوائق ✅
+Gradle / جهاز            : **لم يُشغَّل** (لا Android SDK في هذه البيئة) — الرفع على الجهاز يُثبت من سطور PERAPP_THERMAL_* أعلاه
+```
+
+### ٥ · المرحلة ٤ من خطة الرئيسية: القياسات المكرّرة عادت إلى شاشاتها
+
+الشاشة الرئيسية كانت تعرض الأرقام نفسها في موضعين (وأحيانًا ثلاثة): بطاقة النشاط القديمة تنتهي بصفّ
+`CPU · GPU · الحرارة`، وفوقها/تحتها `TrendDuo` (حمل CPU وGPU)، و`PulsePanel` (الحرارة)، و
+`MemoryBudgetPanel` (RAM/ZRAM/التخزين)، و`HomeDetailsPanel` (مصفوفة الأنوية · العرض · الشبكة · الجهد).
+وصاحب المشروع وصفها: «غير مفيدة وتعرض معلومات مكرّرة مثل الحرارة والرسوم والمعالج».
+
+الآن الرئيسية هي: الترويسة · بطاقة النشاط الواحدة · `PulsePanel` · `FocusCard` · `VerdictPanel` · الـdeck.
+
+**المحذوف من الرئيسية:**
+- `TrendDuo` — حمل CPU وGPU (شاشاتهما تملكانهما: `CpuCoreControl` و`GpuStudio`).
+- `MemoryBudgetPanel` — RAM/ZRAM/التخزين (`ZramManager` · `StorageDetail`).
+- `HomeDetailsPanel` + **الملف كله `HomeDetailCards.kt`** — مصفوفة الأنوية والعرض والشبكة والجهد (`CpuCoreControl` · شاشات العرض والشبكة).
+- `ActivityPanel` (البطاقة القديمة) ومساعداته: `activityTitle` · `activityDetail` · `missingLabels` ·
+  `ActivityDot` · `DASH` — كانت **كودًا ميتًا بعد الدمج**، وهي نفسها التي كانت تكرّر `CPU · GPU · الحرارة` في قدمها.
+- `frequencyCeilingLabel` (لم يبقَ لها مستدعٍ)، ومعامل `gpuRoute` من `LegendaryHomeDashboard` ومن موضع
+  النداء في `HomeScreen` (كان يُمرَّر إلى صفّ محذوف)، و٢٩ استيرادًا بلا مستهلك.
+
+**ما بقي مقصودًا:** `PulsePanel` — هو الآن **الموضع الوحيد** للأرقام في الرئيسية: هوية الجهاز · الحرارة ·
+وقت التشغيل · البطارية · سحب الطاقة. والثلاثة الأخيرة **لا تملك شاشةً بعد** (قياس من المستودع: `uptime`
+و`power draw` لا يظهران في أي شاشة مالك)، فنقلها كان سيفقد معلومة — وهذا أول شرط في الخطة («فلا معلومة
+تُفقد») وقد كان الافتراض المخالف مسجّلًا. فحرارة ومعلومة واحدة لكل رقم، وبلا تكرار على الشاشة الواحدة.
+
+**ومحفوظ بقصد مع اختباره:** `HomeActivityModel` (+ `HomeActivityModelTest`) و`HomeActivityViewModel`.
+المنطق الخالص الذي كان يكتب جملة حالة المحرك لا يزال قائمًا ومختبرًا في JVM، وهو غير موصول بالواجهة
+بعد قرار «بطاقة واحدة». لم يُحذف لنحفظ ما اختُبر، ولأن حذفه بلا بناء يخسر ٢٠+ حالة قائمة.
+
+### متبقٍّ معلن (بأدلّته)
+1. **`HomeActivityModel`/`HomeActivityViewModel` غير موصولين بالواجهة** — قرارٌ معلن لا سهو (انظر أعلاه): نُبقي منطقًا مختبرًا بدل حذفه بلا بناء.
+2. **بقايا قياس في `HomeDashboardViewModel` بلا مستهلك** — قياس بالبحث على الشجرة كاملة:
+   `loadSamples` · `ramLoadHistory` · `cpuTopCoreMhz` · `cpuCeilingMhz` · `gpuCeilingMhz` و`cores`
+   **لا يقرأها أحد خارج الـViewModel** (كانت للرسوم التي أُزيلت). فالـViewModel ما زال يجمعها ويحفظ
+   `LoadHistory` على القرص كل دورة قياس — أي عمل دوريّ ثمنه بلا عائد. **ولم يُحذف في هذه الجولة** عن
+   قصد: `HomeDashboardViewModel` تخدُم أيبًّا شاشتَي `MaxLiveScreen` و`MaxAiScreen` (`cpuLoadPercent`)،
+   وقطعُ حقول أو عقد قراءة فيه بلا بناء مُصرّف مخاطرةٌ لا تُقابلها فائدة اليوم. هذا أول مرشّح للتقليص بعد أول بناء أخضر.
+3. **المرحلة ٥ من خطة الرئيسية** (تخصيص حر للبطاقة من الإعدادات) — نُفِّذت في تكملة ٨١ (أدناه).
+   وما بقي منها معلنًا هناك بسببه: مفتاح «الميزات النظامية الناجحة» ومفتاح تفاصيل الضغط.
+
+---
+
+## تكملة ٨١ — تخصيص بطاقة النشاط (المرحلة ٥) · 2026-09-21
+
+سؤال المستخدم الذي وُلدت منه: «هل فعّلتُ شيئًا أم نسيته؟» — وقبل هذه الجولة كانت البطاقة تقول **ما وقع**
+ولا تُسأل عن **ما يُعرض**، فمن أراد أن يُسكت مشهدًا أو يوضّح الشكل لم يجد مَقبضًا.
+
+### ما أُضيف
+
+| الجزء | الملف | الدور |
+|---|---|---|
+| `CardOptions` (٩ خيارات) + `CardModel` | `ui/mainscreens/UnifiedActivityModel.kt` | القرار **خالص** ويُقاس في JVM |
+| `ActivityCardPreferences` | `ui/util/ActivityCardPreferences.kt` | تخزين فقط (SharedPreferences)، بلا قرار |
+| `ActivityCardSettingsItem` + حوار الخيارات | `ui/mainscreens/ActivityCardSettings.kt` | واجهة التخصيص |
+| صفّ «بطاقة النشاط» | `ui/mainscreens/SettingsScreen.kt` | قسم «الشاشة الرئيسية» |
+| تقرير النمط + رأس الحدث | `ui/mainscreens/StoryboardHome.kt` | رسم ما يعود من النموذج لا تخمينه |
+
+**الخيارات:** الشكل (تلقائي · مشهد واحد · قائمة مختصرة · كل حدث بوقته · شارات) · التفاصيل (مبسّط ·
+تقني مع السبب) · الحركة (كاملة ٢٢٠ms · مخفّفة ١١٠ms · موقوفة بلا `AnimatedContent` أصلًا) · المحتوى
+(إظهار/إخفاء مشاهد التطبيق والذكاء والتحكّم اليدوي وحالة عمل المحرك) · سياسة آخر جلسة (دائمًا · إن كانت
+حديثة خلال ١٥ د · إخفاء).
+
+### القواعد التي لم تُخالف
+
+1. **التخصيص لا يوسّع الصدق**: لا خيار يجعل سطرًا غير متحقّق يُعرض؛ الخيارات تُضيّق أو تُوسّع ما هو
+   **قائم ومتحقّق** فقط (`isShowable` و`tone == DONE` باقيان بوابةً قبل كل خيار).
+2. **لا خيار بلا أثر**: كل قيمة تغيّر ما يُرسم فعلًا (عدد المشاهد/الأسطر · الشارات · سطر السبب ·
+   رأي الحدث بوقته · وجود الحركة أصلًا).
+3. **الأثر يُقاس حيث يُنفَّذ**: السياسة في النموذج الخالص (١٨ حالة في `UnifiedActivityModelTest`)،
+   والواجهة ترسم `model.style` — فلا نسختان تفترقان (وهو العطب الذي وُلد الملف لإصلاحه).
+4. **التلقائي هو الافتراضي**: `CardOptions.DEFAULT` كله افتراضي، و`isDefault` تُشتقّ للمقارنة في سطر
+   الإعدادات، فلا يُقال «تلقائي» لمن أوقف حركةً أو أخفى مشهدًا.
+
+### انحرافان عن المواصفة — معلنان بسببهما
+
+1. **`TIMELINE` ليست «الأحدث أولًا».** المواصفة (§١١) تطلب «شريطًا زمنيًّا»، والمرشّح الأول كان ترتيب
+   المشاهد بالوقت تنازليًّا — و**رُفض لأنه بلا أثر**: لا يحمل وقتًا إلا مشهد التطبيق (`StoryboardScene.atMs`)
+   وحده، فترتيبُ مشهدٍ موقوت واحد ترتيبٌ لا يُرى. والمنفَّذ هو المعنى الباقي الصادق: **كل حدث برأسه
+   ووقته** (`SceneHeading` يُرسم لكل حدث) بدل دمج الأسطر في قائمة تفقد متى وقع كل حدث — وهذا فرق
+   مرئي ومقيس، ورصيده أضيق (٥ أسطر لا ٦) لأن رأس الحدث يشغل موضعه أيضًا.
+2. **مفتاح «الميزات النظامية الناجحة» (تجاوز الشحن مثلًا) لم يُضَف.** المصدر غير موجود: أصناف المشاهد
+   هي `PER_APP · MAX_AI · MANUAL` (`SceneKind`)، ولا مصدر حالة لتجاوز الشحن في `StoryboardSources`.
+   والخيار الذي لا يُخفي شيئًا خيالٌ — وأخطر منه أنه يُوهم بأن الميزة تحت المراقبة. يُضاف حين يوجد مصدره.
+   ومثله تفاصيل الضغط على البطاقة (Bottom Sheet): يحتاج روابط مالكين لكل سطر، وهي خطوة قائمة بذاتها.
+
+### التحقق
+
+```
+kt_balance --assert     : 768 ملفًا · عوائق 0 ✅
+code_health --assert    : صحّة نظيفة ✅
+i18n_coverage --assert  : ✅
+تطابق مفاتيح EN/AR    : ٣١ مفتاحًا جديدًا، لا ناقص ولا مكرّر ✅
+Gradle / جهاز          : لم يُشغَّل (لا Android SDK) — لم يُثبت العرض أو RTL أو الخط الكبير بعد
+```
+
+---
+
+## تكملة ٧٦ — سقف GPU لكل تطبيق: ثلاثة أعطاب مقيسة، لا واحد
+
+**المهمة:** «per app: لا يزيد عن الافتراضي ٧٥٤ · الأداء يعطي ٦٥٠ · متوازن أحيانًا ١٣٠٠» — ميزانية
+الجهد كاملة (§0)، والتحقق بالقياس لا بالتخمين.
+
+### القياس الذي بُني عليه (لا يُعاد من الصفر)
+
+حزمة سجل المالك (٧.٩MB، `md5` مثبّت) — rodin · MT6899 · HyperOS 3 · app 5.2 (137) · 06:06→07:16:
+
+```
+٧٥ جلسة  PERAPP_KNOB knob=gpu_profile outcome=applied reason=verified expected=1300000000 live=1300000000
+٣ جلسات  PERAPP_KNOB knob=gpu_profile … expected=780000000        ← وهي الوحيدة التي كتبت (فهرس 20)
+صفر كتابة على أي عقدة GPU سلطة (GED · cooling_device · gpu_dvfs_enable)
+٨١ كتابة  WRITE_CHECK fix_target_opp_index wrote=-1 … `fix GPU/STACK OPP index is disabled` verdict=differs
+مقابل ١٢ كتابة ناجحة على نظير الـCPU (thermal_message/sconfig · cpu_limits · perfserv_freq)
+```
+
+أي: مسار **تحرير** سلطة GPU لم يُنفَّذ ولا مرّة، والمسار الوحيد الذي كتب فعلًا هو **تثبيت** فهرس OPP.
+
+### الأعطاب الثلاثة (كل واحد له بوابة تُثبته)
+
+| # | العطب | الدليل في الكود | الأثر المقيس |
+| --- | --- | --- | --- |
+| ١ | الحاكم يقرأ `max_freq` فيحكم «مُلبّى» ويتخطّى `apply` — و**تحرير سلطة GPU كان داخل `apply`** | `HardwareControlArbiter.kt:183` + `read = GpuHardwareBackend.effectiveFrequency` (`= max_freq`) | ٧٥/٧٥ «نجحت» بصفر كتابة |
+| ٢ | وجود مسار قفل OPP يُبطل كتابة المدى: `rangeWritable = … && mtkFixedIndexPath == null` | `GpuHardwareBackend` (كان ١٠٢ → صار `devfreqCeilingWritable`) | كل بروفايل صار **تثبيت درجة** (تجميد تردد) |
+| ٣ | على MTK كان `min_freq`/`max_freq` **يُسقطان** من الحكم (الحدّان يُشتقّان من القفل أو أطراف الجدول)، فسقف المصنّع الحيّ ٧٥٤ لم يُقرأ في التطبيق أبدًا | فرع `mtkLockPath != null` في `readCandidate` | `live_max=1300000000` في سطر الفحص والجهاز على ٧٥٤ |
+| ٤ | القفل الثابت من جلسة سابقة/أداة أخرى **غير مرئي** لأي قراءة تردد | `GpuCeilingPolicy.CeilingReading` (صار له `lockActive`) | «عالق على ٦٥٠» بلا سبب في أي شاشة |
+
+وأضيف إليهما قاعدتان كانتا مُسقَطتين: اقتران `releaseVendorCeiling` بـ`lock` (فأي طلب سقف كان
+**يُطفئ DVFS**)، والتحقّق من التثبيت **بصدى الفهرس** لا بالتردد الحقيقي.
+
+### ما تغيّر
+
+```
+core/hardware/GpuCeilingPolicy.kt      : قرار التنفيذ خالصًا: RELEASE_ONLY | RANGE | PIN | UNSUPPORTED
+                                          + قراءة السقف (nodeCeiling · upbound · cooling · lockActive)
+                                          + اتجاه الحكم يتبع نوع الطلب (سقف أدنى مقابل طلب قدرة)
+                                          + PinVerdict يقيس التردد الحقيقي (pin-clock-mismatch)
+core/hardware/MtkGpuOppTable.kt        : جدول OPP والفهرس والقفل — ملف مستقل (فصل عند الحدّ)
+core/hardware/MtkGpuFixedIndex.kt      : التثبيت والتحرير — أخطر مسار، في ملفه ليُراجع وحده
+core/hardware/GpuHardwareBackend.kt    : ١١٢٤ → ٩٥٦ سطرًا: devfreqCeilingWritable، رفع قفل OPP داخل
+                                          معاملة السقف واستعادته، إسقاط الحدّين ممنوع، رفع القفل في apply
+core/hardware/PlatformCeilingAuthority : معاملان (lock/release) لا واحد (AR-34)
+AppMonitor.kt                          : تحرير السلطة داخل المعاملة المملوكة، ورفع القفل معه، ثم كتابة سقف
+                                          المدى **عند القدرة** (لأن max_freq نفسه هو ما يقصّ: ٧٥٤)، وإسقاط
+                                          اختيار المستخدم لأعلى درجة إلى القدرة، وسطر PERAPP_GPU_REALIZED
+ui/util/PerAppKernelUtil.kt            : قائمة GPU = **القدرة المعلنة** لا السقف الحيّ (كانت لا تتجاوزه أبدًا)
+ui/subscreens/AppSettingsScreen.kt     : وصف يذكر ما يسمح به الجهاز الآن (٧٥٤) ويعِد بالقدرة الكاملة
+core/diagnostics/LogCodeGlossary.kt    : gpu-opp-lock-held + إصلاحاته
+```
+
+### التحقق
+
+```
+kt_balance --assert     : 772 ملفًا · عوائق 0 ✅   (و--self-test: ١٧/١٧)
+code_health --assert    : صحّة 0 · الدَّين لم ينمُ (10/29/63/21) ✅  — كان سقط 10←11 فأُخرجت كتلتان
+                          من GpuHardwareBackend إلى ملفيهما (فصل بحجم الحدّ وبكائنه الأصلي، لا تجميل)
+i18n_coverage --assert  : 85 كودًا · عوائق 0 ✅
+repo_audit              : PROBLEMS: 0 ✅
+اختبارات JVM             : **لم تُشغَّل** — لا Java 17 ولا Android SDK في هذه البيئة (JDK 25 وحده)
+                          فـ«compilation unverified in this environment» — والاختبارات الجديدة
+                          (GpuCeilingPolicyTest · GpuControlModelTest) غير مُنفَّذة هنا.
+```
+
+### ما يبقى **يحتاج جهازًا** (وهو الطلب الوحيد القادم)
+
+مصفوفة الفهرس↔التردد هي الفرق بين «٦٥٠» و«١٣٠٠»، ولا تُقاس إلا من الجهاز. الأمر الذي يُحسم به:
+
+```sh
+su -c 'for f in /proc/gpufreqv2/stack_signed_opp_table /proc/gpufreqv2/gpu_working_opp_table \
+  /proc/gpufreqv2/gpufreq_opp_dump /proc/gpufreqv2/fix_target_opp_index \
+  /sys/class/devfreq/13000000.mali/{min_freq,max_freq,cur_freq,available_frequencies} \
+  /sys/class/thermal/cooling_device*/{type,cur_state} \
+  /sys/kernel/ged/hal/custom_upbound_gpu_freq /sys/module/ged/parameters/gpu_dvfs_enable; do \
+  echo "== $f"; cat "$f" 2>&1; done'
+```
+
+ومعه حزمة سجل جديدة، فيقرأ السطر الجديد `PERAPP_GPU_REALIZED` ما يلي: `realization` (تحرير/مدى/تثبيت)
+· `clock_before/clock_now` (التردد الحقيقي لا `max_freq`) · `pinned` · `ceiling` (سقف العقدة \| GED \|
+تبريد \| قفل) · `judgement`. فإن عاد التثبيت يومًا سيقول `pin-clock-mismatch` بالرقمين لا بالتخمين.
+
+---
+
+## تكملة ٧٧ — العطب الخامس: اختيار البروفايل كان **يُلغى صامتًا** (2026-09-22)
+
+### لماذا جولة ثانية
+
+شكوى المالك كانت بمعنيين لا معنى واحد: «الأداء يعطي ٦٥٠» **و** «متوازن يعطي ١٣٠٠ أحيانًا
+و٦٥٠ أحيانًا». الأول يشرحه مسار الكتابة (تكملة ٧٦)، وأما الثاني — تذبذب البروفايل نفسه بين تطبيق
+وتطبيق — فله سبب آخر مستقلّ، وقد قيس من الكود لا من التخمين:
+
+```
+viewmodel  : "gpu_profile" -> copy(gpu_profile = value, thermal_profile = "default")   ← لا يمسّ gpu_max_freq
+AppMonitor : val explicit = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
+             val requested = explicit ?: PerAppKernelUtil.pickProfileFrequency(…)         ← البروفايل لا يُقرأ
+```
+
+أي: إعداد يحمل `gpu_profile=performance` و`gpu_max_freq=650000000` (الباقي من زمن كانت فيه القائمة
+مقيَّدة بالسقف الحيّ ٧٥٤ — فلا سبيل لاختيار ١٣٠٠ من الشاشة أصلًا) **لا يُنفِّذ البروفايل**. اختيار
+المستخدم يُكتب ثم يُتجاهل، ويُطبَّق الرقم القديم: `PERAPP_KNOB knob=gpu_profile outcome=applied
+expected=650000000 live=650000000`. وهذا يفسّر الاثنين معًا، لأن ما في إعداد كل تطبيق يختلف.
+
+### الإصلاح — مالك واحد للمقبض
+
+| الموضع | قبل | بعد |
+| --- | --- | --- |
+| `ui/util/AppConfigUtil.kt` | — | `applyGpuCeilingChoice(config, key, value)` خالصة: من اختار أحد الاثنين ملك المقبض، و«default» في أيّهما تحرّر الآخر (وتشمل المفتاح القديم `thermal_profile`) |
+| `ui/viewmodel/AppSettingsViewmodel.kt` | `gpu_profile` يكتب نفسه فقط | مفاتيح المقبض الثلاثة تمرّ بالدالّة الخالصة (السبب: العطب مقيس فيُختبر بلا محاكي Android) |
+| `AppMonitor.kt` | تعارض صامت | إعداد يجمع الاختيارين (قديم أو مُستورد) **يُعلن**: `PERAPP_GPU_EXPLICIT_OVERRIDES_PROFILE … reason=explicit-frequency-wins-over-profile` |
+| `core/diagnostics/LogCodeGlossary.kt` | — | الرمز الجديد مُشرَح (القاعدة: كل رمز يُكتب يُشرح) |
+
+والاختبار الجديد `ui/util/GpuCeilingChoiceTest.kt` (٦ حالات) يثبّت القاعدة على القيمة المقيسة نفسها:
+«إعداد فيه ٦٥٠ ثم اختيار performance» ⇒ `gpu_max_freq=default`، ولا يبقى إلا اختيار واحد.
+
+### التحقق
+
+```
+kt_balance --assert     : 773 ملفًا · عوائق 0 ✅
+code_health --assert    : صحّة 0 · الدَّين عند السقف بلا نموّ (10/29/63/21) ✅
+i18n_coverage --assert  : 85 كودًا · عوائق 0 ✅
+اختبارات/ترجمة Kotlin    : **غير مُتحقَّقة في هذه البيئة** — لا Android SDK (`~/android-sdk` غير موجود)
+                          ولا JDK 17 (المُثبَّت JDK 25 وحده) ولا كاش Gradle ⇒ «compilation unverified
+                          in this environment» وتُقال، ولا يُقال «تمرّ». فالاختبارات الثلاثة الجديدة
+                          (GpuCeilingPolicyTest · GpuCeilingChoiceTest · إضافات GpuControlModelTest)
+                          مكتوبة ولم تُنفَّذ هنا.
+```
+
+### ما يبقى **يحتاج جهازًا**
+
+بعد هذا الإصلاح صار لكل طلب سطر واحد يجيب: `PERAPP_GPU_REALIZED` (شكل التنفيذ · التردد الحقيقي قبل
+وبعد · التثبيت · السقف · الحكم). وقراءته على الجهاز هي الفرق بين «نفّذنا ما طلبته» و«ثبّتنا ما كان
+موجودًا» — وهو الطلب الوحيد القادم، مع حزمة السجل.

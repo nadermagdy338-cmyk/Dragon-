@@ -371,10 +371,26 @@ fun AppSettingsScreen(
                                         val freqItems = listOf("default") + viewModel.availableGpuFrequencies.map { it.toString() }
                                         val freqLabels = listOf(defaultLabel) + viewModel.availableGpuFrequencies.map { PerAppKernelUtil.formatFrequency(it) }
                                         val selected = freqItems.indexOf(cfg.gpu_max_freq).coerceAtLeast(0)
+                                        val topStep = viewModel.availableGpuFrequencies.lastOrNull()
+                                        val liveCeiling = viewModel.gpuLiveCeilingHz
+                                        // ولماذا يُذكر السقف الحيّ في الوصف: كان يُستعمل **للقصّ**، فأعلى
+                                        // درجة معروضة تساوي ما عند الجهاز أصلًا («لا تتجاوز الافتراضي»).
+                                        // فالآن يُعرض كل ما تُعلنه النواة، ويُقال بالمقابل كم يسمح الجهاز
+                                        // به الآن — لأن الطلب عند القدرة تحرير للسقف لا كتابة فوقه.
+                                        val freqSummary = when {
+                                            topStep == null -> "Frequency control is unavailable on this kernel"
+                                            liveCeiling != null && liveCeiling < topStep ->
+                                                "Highest GPU frequency while this app is open. Every step the driver advertises is listed " +
+                                                    "(up to ${PerAppKernelUtil.formatFrequency(topStep)}); the device currently allows " +
+                                                    "${PerAppKernelUtil.formatFrequency(liveCeiling)} — picking the top step releases that cap " +
+                                                    "instead of pinning a clock. Default leaves it dynamic."
+                                            else -> "Highest GPU frequency while this app is open, from the steps the driver advertises. " +
+                                                "Default leaves it dynamic."
+                                        }
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.Tune,
                                             title = "GPU Maximum Frequency",
-                                            summary = if (viewModel.availableGpuFrequencies.isEmpty()) "Frequency control is unavailable on this kernel" else "Sets the highest GPU frequency while the app is open, using only values the live driver can currently hold. Default leaves it dynamic.",
+                                            summary = freqSummary,
                                             items = freqLabels,
                                             selectedIndex = selected,
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "gpu_max_freq", freqItems[i]) } }
@@ -950,7 +966,7 @@ private fun ProfilePresetEditor(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    "100% means full device capability: the preset asks for the highest frequency the device advertises, so Gaming and Performance never sit below an untouched device (if the device's own policy holds a lower ceiling, the log says so instead of pretending). Below 100% the percentage is of the ceiling the device allows right now, which is what cooling means, it is rounded down to a real frequency step, and the same cap is applied to every CPU policy you did not set by hand.",
+                    "Every percentage is taken from the capability the device advertises, never from the ceiling the system happens to allow right now. So Gaming (85%) and Performance (100%) never sit below an untouched device: when the device's own policy holds a lower ceiling they ask for the advertised one, and the log records what it was, what the device can do and what was requested. Below that, the percentage caps the GPU ceiling and every CPU policy you did not set by hand, rounded down to a real frequency step; and a cooling preset (Balanced, Power, Custom) only ever lowers a ceiling, never raises one.",
                     style = MaterialTheme.typography.bodySmall
                 )
                 names.forEachIndexed { index, name ->

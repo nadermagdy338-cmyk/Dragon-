@@ -185,3 +185,46 @@ fun AppConfig.customizedFieldCount(): Int = listOf(
     dnd_on_gaming, bypass_charging, touch_boost, haptic_feedback,
     kill_bg_apps, force_hw_ui, disable_notifs, wifi_no_sleep
 ).count { it != "default" } + if (decodePerAppCpuPolicyControls(cpu_policy_controls).isNotEmpty()) 1 else 0
+
+/**
+ * مقبض سقف GPU: **مالك واحد** لكل تطبيق — والاختياران لا يجتمعان.
+ *
+ * ولماذا هذا دالّة خالصة لا سطرين داخل `updateSetting`: لأن العطب الذي أوجبتها **مقيس من سجل
+ * جهاز حقيقي** ولا يجوز أن يبقى بلا اختبار انحدار. والحالة:
+ *
+ * ```
+ * gpu_profile=performance  gpu_max_freq=650000000   ← إعداد باقٍ من زمن كانت فيه القائمة مقيَّدة
+ * PERAPP_KNOB knob=gpu_profile outcome=applied expected=650000000 live=650000000
+ * ```
+ *
+ * فقد كان اختيار البروفايل يكتب `gpu_profile` وحده ويُبقي التردد الصريح، ثم يقدّمه `AppMonitor`
+ * على البروفايل — فالبروفايل **يُلغى صامتًا** ويُنفَّذ الرقم القديم. وهو بالحرف: «أختار الأداء
+ * فيعطيني ٦٥٠».
+ *
+ * والقاعدة: من اختار أحد الاثنين فقد ملك المقبض، و`default` في أيّهما تعني «لا شيء مفروض» فيتحرّر
+ * الآخر. فالبروفايل نسبة من **قدرة** الجهاز، والتردد الصريح خطوة بعينها؛ واجتماعهما كان يجعل ما تراه
+ * في الشاشة غير ما يُنفَّذ. و`thermal_profile` مفتاح قديم يدلّ على الاختيار نفسه (يُرقّى إلى
+ * `gpu_profile` عند القراءة) فيتبع الحكم نفسه.
+ *
+ * وما لا تفعله — عن قصد: لا تُبطل قيمةً لم يطلب المستخدم تبديلها. تمرير المفتاح نفسه بلا تغيير
+ * (إعادة اختيار المعروض) يُفرغ الآخر أيضًا، وهذا مقصود: «اخترت هذا الآن» تعني أن هذا هو المطلوب.
+ */
+fun applyGpuCeilingChoice(config: AppConfig, key: String, value: String): AppConfig = when (key) {
+    "gpu_profile" -> config.copy(
+        gpu_profile = value,
+        thermal_profile = "default",
+        gpu_max_freq = "default",
+    )
+    "gpu_max_freq" -> config.copy(
+        gpu_max_freq = value,
+        gpu_profile = "default",
+        thermal_profile = "default",
+    )
+    // مُرقّى إلى `gpu_profile` (انظر الـViewModel)، والقيمة تحمل الاسم القديم `powersave`.
+    "thermal_profile" -> config.copy(
+        gpu_profile = if (value == "powersave") "power" else value,
+        thermal_profile = "default",
+        gpu_max_freq = "default",
+    )
+    else -> config
+}

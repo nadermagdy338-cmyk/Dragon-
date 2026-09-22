@@ -34,6 +34,7 @@ import kotlinx.serialization.json.Json
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.util.AppConfig
+import nd.max.ui.util.applyGpuCeilingChoice
 import nd.max.ui.util.PerAppCpuRuntimeStatus
 import nd.max.ui.util.PerAppHardwareRuntimeStatus
 import nd.max.ui.util.readPerAppCpuRuntimeStatus
@@ -59,6 +60,10 @@ class AppSettingsViewModel : ViewModel() {
     var availableGpuGovernors by mutableStateOf<List<String>>(emptyList())
         private set
     var availableGpuFrequencies by mutableStateOf<List<Long>>(emptyList())
+        private set
+
+    /** أعلى درجة يسمح بها الجهاز **الآن** — تُعرض للتفسير ولا تُقصر عليها قائمة الخيارات. */
+    var gpuLiveCeilingHz by mutableStateOf<Long?>(null)
         private set
     var gpuNode by mutableStateOf<String?>(null)
         private set
@@ -156,6 +161,7 @@ class AppSettingsViewModel : ViewModel() {
                 cpuPolicies = cpuPolicyData
                 availableGpuGovernors = gpu.governors
                 availableGpuFrequencies = gpu.frequencies
+                gpuLiveCeilingHz = gpu.liveCeilingHz
                 gpuNode = gpu.node
                 cpuRuntimeStatus = status
                 hardwareRuntimeStatus = hardwareStatus
@@ -184,11 +190,14 @@ class AppSettingsViewModel : ViewModel() {
             "game_preload" -> currentAppConfig.copy(game_preload = value)
             "cpu_boost" -> currentAppConfig.copy(cpu_boost = value)
             "cpu_policy_controls" -> currentAppConfig.copy(cpu_policy_controls = value)
-            "gpu_profile" -> currentAppConfig.copy(gpu_profile = value, thermal_profile = "default")
+            // مقبض سقف GPU: **مالك واحد** (البروفايل أو التردد الصريح، ولا يجتمعان). والقاعدة في
+            // [applyGpuCeilingChoice] الخالصة ليست تعقيدًا: العطب الذي أوجبتها مقيس من سجل جهاز
+            // حقيقي، فهو مُختبر هناك بلا محاكي Android. وكان اختيار «Performance» يُبقي
+            // `gpu_max_freq` محفوظًا من قبل فيُقدَّم عليه في `AppMonitor` — أي يُلغى صامتًا.
+            "gpu_profile", "gpu_max_freq", "thermal_profile" ->
+                applyGpuCeilingChoice(currentAppConfig, key, value)
             "cpu_governor" -> currentAppConfig.copy(cpu_governor = value)
             "gpu_governor" -> currentAppConfig.copy(gpu_governor = value)
-            "gpu_max_freq" -> currentAppConfig.copy(gpu_max_freq = value)
-            "thermal_profile" -> currentAppConfig.copy(gpu_profile = if (value == "powersave") "power" else value, thermal_profile = "default")
             "refresh_rate" -> currentAppConfig.copy(refresh_rate = value)
             "renderer" -> currentAppConfig.copy(renderer = value)
             "resolution_downscale" -> currentAppConfig.copy(resolution_downscale = value)

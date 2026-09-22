@@ -25,7 +25,7 @@
     <string name="perapp_diag_reason">reason: %1$s</string>
     <string name="perapp_diag_values">wanted %1$s → live %2$s</string>
     <string name="perapp_diag_hint">Full detail in the Logs tab: EVENT=PERAPP_KNOB</string>
-    <string name="perapp_thermal_guard_note">These chips are a real power envelope, not a label. 100% means full device capability: the highest frequency the device advertises is requested, so gaming and performance never sit below an untouched device (if the device\'s own policy holds a lower ceiling, the log says so). Below 100% the percentage is of the ceiling the device allows right now — that is what cooling means — and it is applied to the GPU ceiling and to every CPU policy you did not set by hand. On top of that, a thermal guard lowers the same ceilings while the device is throttling and restores them when it cools, never above what you chose.</string>
+    <string name="perapp_thermal_guard_note">These chips are a real power envelope, not a label. Every percentage is taken from the capability the device advertises (the highest step its driver states), never from the ceiling the system happens to allow right now. So gaming and performance never sit below an untouched device: when the device\'s own policy holds a lower ceiling they ask for the advertised one, and the log writes what it was, what the device can do and what was requested. Below that, the share caps the GPU ceiling and every CPU policy you did not set by hand, rounded down to a real frequency step, and a cooling preset (balanced, power, custom) only ever lowers a ceiling — it never raises one. On top of that, a thermal guard lowers the same ceilings while the device is throttling and restores them when it cools, never above what you chose.</string>
     <string name="app_settings_title">App Settings</string>
     <string name="app_tab_performance">Performance</string>
     <string name="app_tab_display">Display</string>
@@ -1640,6 +1640,40 @@
     <string name="storyboard_knob_cpu_boost">CPU boost</string>
     <string name="storyboard_knob_max_ai">MAX AI engine</string>
     <string name="storyboard_knob_max_ai_objective">Objective</string>
+
+    <!-- Activity card on the home screen: display preferences only — no hardware knob. -->
+    <string name="settings_home_section">Home screen</string>
+    <string name="settings_activity_card_title">Activity card</string>
+    <string name="settings_activity_card_desc">What the card may show, and how. Only what was actually verified appears in it: a line with no measurement is never written as done, and a failure stays in the log.</string>
+    <string name="activity_card_summary_auto">Automatic</string>
+    <string name="activity_card_summary_custom">Customized</string>
+    <string name="activity_card_auto">Pick the shape automatically</string>
+    <string name="activity_card_auto_desc">The card chooses between one scene, a compact list or chips depending on what is actually happening.</string>
+    <string name="activity_card_style_title">Shape</string>
+    <string name="activity_card_style_auto">Automatic</string>
+    <string name="activity_card_style_cinematic">One scene</string>
+    <string name="activity_card_style_summary">Compact list</string>
+    <string name="activity_card_style_timeline">Each event with its time</string>
+    <string name="activity_card_style_chips">Chips</string>
+    <string name="activity_card_detail_title">Details</string>
+    <string name="activity_card_detail_simple">Simple</string>
+    <string name="activity_card_detail_technical">Technical (with reason)</string>
+    <string name="activity_card_motion_title">Motion</string>
+    <string name="activity_card_motion_full">Full</string>
+    <string name="activity_card_motion_reduced">Reduced</string>
+    <string name="activity_card_motion_off">Off</string>
+    <string name="activity_card_content_title">What the card may show</string>
+    <string name="activity_card_show_per_app_desc">The profile, governors and limits you chose for an app.</string>
+    <string name="activity_card_show_max_ai_desc">The MAX AI scene and the knobs it actually owns.</string>
+    <string name="activity_card_show_manual_desc">The changes you made yourself from the control screens.</string>
+    <string name="activity_card_show_monitoring">Engine running state</string>
+    <string name="activity_card_show_monitoring_desc">A state line: it says the engine is on without claiming a change.</string>
+    <string name="activity_card_session_title">Last app session</string>
+    <string name="activity_card_session_always">Always</string>
+    <string name="activity_card_session_recent">If recent</string>
+    <string name="activity_card_session_hide">Hide</string>
+    <string name="activity_card_close">Done</string>
+    <string name="activity_card_restore">Restore default</string>
     <string name="home_zram_unavailable">Compressed swap is unavailable</string>
     <string name="home_available_storage">%1$s GB free</string>
 

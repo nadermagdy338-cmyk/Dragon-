@@ -23,9 +23,15 @@ class LogCodeGlossaryTest {
             "applied", "skipped", "blocked", "unsupported", "not-writable", "not-verified",
             // AppMonitor (أسباب per-app)
             "verified", "profile-is-default", "governor-is-default", "governor-not-advertised",
-            "curve-does-not-cap", "no-lower-advertised-step",
+            "no-lower-advertised-step", "power-profile-above-live",
+            "power-profile-never-lowers", "cooling-already-at-or-below-percent",
             "policy-unavailable", "no-gpu-provider", "no-advertised-frequency-range",
             "provider-disappeared", "unsupported-frequency", "outside-proven-hardware-bounds",
+            // GpuCeilingPolicy (شكل تنفيذ السقف وحكمه المقيس)
+            "gpu-ceiling-released", "gpu-ceiling-held", "gpu-node-ceiling-unreadable", "gpu-opp-lock-held",
+            "pin-verified", "verified-by-index", "pin-clock-mismatch", "pin-unreadable",
+            // AppMonitor (اختياران على مقبض واحد، من إعداد قديم)
+            "explicit-frequency-wins-over-profile",
             "live-value-mismatch", "restored", "undecided", "unknown",
             // HardwareControlArbiter
             "manual-lock", "no-winner", "baseline-unreadable", "live-read-unavailable",
@@ -97,6 +103,8 @@ class LogCodeGlossaryTest {
             "governor-not-advertised", "policy-unavailable", "no-gpu-provider",
             "no-advertised-frequency-range", "provider-disappeared", "unsupported-frequency",
             "outside-proven-hardware-bounds", "live-value-mismatch", "undecided",
+            "gpu-ceiling-held", "gpu-node-ceiling-unreadable", "gpu-opp-lock-held",
+            "pin-clock-mismatch", "pin-unreadable",
             "manual-lock", "preempted-by-SYSTEM", "no-winner", "baseline-unreadable",
             "live-read-unavailable", "apply-not-verified-baseline-restored",
             "apply-not-verified-and-rollback-failed", "restore-not-verified",
@@ -119,6 +127,7 @@ class LogCodeGlossaryTest {
             "applied", "verified", "matched", "skipped", "profile-is-default", "governor-is-default",
             "curve-does-not-cap",
             "route-verified", "ceiling-already-held", "user-ceiling-already-held", "selected",
+            "gpu-ceiling-released", "pin-verified", "verified-by-index",
         )
 
         val wrongly = healthy.filter { LogCodeGlossary.remedyOf(it) != null }

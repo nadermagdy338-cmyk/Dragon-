@@ -13,21 +13,31 @@ object PerAppKernelUtil {
         val node: String?,
         val governors: List<String>,
         val frequencies: List<Long>,
+        val liveCeilingHz: Long? = null,
     )
 
     fun findGpuNode(): String? = GpuHardwareBackend.selection().device?.path
 
+    /**
+     * قدرة GPU **المُعلنة** للواجهة — كتالوج لا سقف.
+     *
+     * والفرق ليس تفصيلًا: كانت القائمة تُقيَّد بالسقف الحيّ (`configurableMaxFrequency` = الأقل من
+     * المُعلن وسقف `max_freq`)، وهيوس على هذا الجهاز تحمل ٧٥٤ في الوضع العادي — فكانت أعلى درجة
+     * **معروضة** مساويةً لما عنده أصلًا، ولا سبيل لاختيار ١٣٠٠ من الشاشة أبدًا. وهو المقيس بالحرف:
+     * «الخيارات لا تزيد عن الافتراضي». والسقف الحيّ يُعاد منفصلًا ([liveCeilingHz]) ليُقال للمستخدم
+     * لا ليُخفى به ما تجلبه قدرة الجهاز: الطلب عند القدرة صار **تحريرًا** لسلطة المصنّع لا كتابة
+     * تردد فوقها، وما دون القدرة يُقيَّد بالسقف الحيّ عند التنفيذ (فيُعلَن التقييد بسطر
+     * `PERAPP_GPU_TARGET_CAPPED`).
+     */
     fun readGpuCapabilities(): GpuCapabilities {
         val device = GpuHardwareBackend.selection().device
             ?: return GpuCapabilities(null, emptyList(), emptyList())
-        val liveCap = GpuHardwareBackend.configurableMaxFrequency(device)
-        val usableFrequencies = liveCap?.let { cap ->
-            device.frequencies.filter { it > 0L && it <= cap }.distinct().sorted()
-        } ?: device.frequencies.filter { it > 0L }.distinct().sorted()
+        val advertised = device.frequencies.filter { it > 0L }.distinct().sorted()
         return GpuCapabilities(
             node = device.path,
             governors = device.governors,
-            frequencies = usableFrequencies,
+            frequencies = advertised,
+            liveCeilingHz = GpuHardwareBackend.configurableMaxFrequency(device),
         )
     }
 
@@ -76,20 +86,15 @@ object PerAppKernelUtil {
             normalized.filter { it <= cap }
         }.orEmpty().ifEmpty { normalized }
 
-        if (profile.equals("power", true)) {
-            val stockMaxHz = capped.last()
-            val targetHz = (stockMaxHz * (customPercent ?: 40).coerceIn(20, 100).toLong()) / 100L
-
-            // Prefer an OPP at or below the target. If the device's lowest OPP
-            // is already above the calculated target, use that lowest real OPP.
-            return capped.lastOrNull { it <= targetHz } ?: capped.first()
-        }
-
+        // Every profile takes one path: the percentage is applied to the top of [capped], and the
+        // nearest real OPP at or below the target is chosen. `power` used to have a second, earlier
+        // branch with its own default (40) while a later `"power" -> customPercent ?: 65` was
+        // unreachable — two answers for one profile, and the reachable one was undocumented.
         val percent = when (profile.lowercase()) {
+            "power" -> customPercent ?: 40
             "balanced" -> customPercent ?: 60
             "gaming" -> customPercent ?: 85
             "performance" -> customPercent ?: 100
-            "power" -> customPercent ?: 65
             "custom" -> customPercent ?: 55
             else -> return null
         }.coerceIn(20, 100)

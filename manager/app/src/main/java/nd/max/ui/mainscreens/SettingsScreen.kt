@@ -447,6 +447,14 @@ fun SettingsScreen(
                     }
                 }
 
+                // بطاقة النشاط: التخصيص الوحيد الذي يملكه المستخدم على ما تعرضه الرئيسية.
+                //
+                // ومكانه تحت عنوان «الشاشة الرئيسية» لا داخل قسم التنبيهات: عنوان القسم يقول
+                // **ما يُضبط** لا **أين يُضبط**، ومن فتح الإعدادات يبحث عن وجهة لا عن رقم سطر.
+                // والقسم مستقلّ لأنّ كل تفضيل عرض في الرئيسية يقع فيه، فلا يُضاف قسم ثانٍ غدًا.
+                item { SettingsSectionTitle(stringResource(R.string.settings_home_section)) }
+                item { ActivityCardSettingsItem() }
+
                 item {
                     SettingsSectionTitle(stringResource(R.string.section_others))
                 }

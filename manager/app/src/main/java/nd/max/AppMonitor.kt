@@ -55,7 +55,9 @@ import nd.max.ui.util.ProfilePresetStore
 import nd.max.core.hardware.AtlasAdaptiveExecutor
 import nd.max.core.hardware.AtlasRouteMemoryFactory
 import nd.max.core.hardware.CpuHardwareBackend
+import nd.max.core.hardware.GpuCeilingPolicy
 import nd.max.core.hardware.GpuHardwareBackend
+import nd.max.core.hardware.PlatformCeilingAuthority
 import nd.max.core.hardware.HardwareRepairExecutor
 import nd.max.core.hardware.GpuTweakPersistence
 import nd.max.core.hardware.HardwareControlArbiter
@@ -1340,21 +1342,24 @@ object AppMonitor {
         // والنيّة نفسها يجب أن تكون قائمة قبل أول إشارة — وإلا كان الجهاز الذي لا يُعلن حالة حرارة
         // (وهو كثير) بلا أي سقف حراري إطلاقًا.
         //
-        // والحدود: النسبة لا ترفع أبدًا، ولا تمسّ سياسة ضبطها المستخدم بيده، وسقف لا يستطيع الجهاز
-        // حمله لا يُكتب (وفي الحالتين يُقال السبب في السجل بدل الصمت).
+        // والحدود: النسبة تُحسب من **قدرة الجهاز المكتشفة** لا من السقف الحيّ (وهو ما كان يجعل
+        // «Gaming ٨٥٪» أدنى من الجهاز غير الممسوس)، ولا تمسّ سياسة ضبطها المستخدم بيده، وسقف لا
+        // يستطيع الجهاز حمله لا يُكتب، وبروفايلا القوّة (`performance` · `gaming`) يرفعان سقفًا
+        // خُفّضته المنصّة إلى القدرة ولا ينزلان عنه أبدًا. وكل حالة — كتابة أو ترك — تقول سببها
+        // في السجل بدل الصمت.
         runCatching {
             val curveProfile = readAppConfigField(pkgName, "gpu_profile").ifBlank {
                 readAppConfigField(pkgName, "thermal_profile")
-            }.ifBlank { "default" }
-            val curvePercent = ProfilePresetStore.percentFor(systemContext, curveProfile)
-            val capPercent = ThermalCurve.cappingPercent(curvePercent)
-            if (capPercent == null) {
+            }.let { legacy -> if (legacy.equals("powersave", true)) "power" else legacy }
+                .ifBlank { "default" }
+            if (curveProfile == "default") {
                 AppMonitorLogger.i(
-                    "EVENT=PERAPP_THERMAL_CURVE pkg=$pkgName curve=$curveProfile percent=$curvePercent" +
-                        " sealed=0 reason=curve-does-not-cap sw=$currentSwitchId"
+                    "EVENT=PERAPP_THERMAL_CURVE pkg=$pkgName curve=default percent=none" +
+                        " sealed=0 reason=profile-is-default sw=$currentSwitchId"
                 )
                 return@runCatching
             }
+            val curvePercent = ProfilePresetStore.percentFor(systemContext, curveProfile)
 
             val explicitPolicies = runCatching {
                 decodePerAppCpuPolicyControls(readAppConfigField(pkgName, "cpu_policy_controls"))
@@ -1363,6 +1368,7 @@ object AppMonitor {
             }.getOrDefault(emptySet())
 
             var sealedKnobs = 0
+            var raisedKnobs = 0
             var skippedKnobs = 0
             CpuHardwareBackend.policies().forEach { policy ->
                 val key = HardwareControlKey.cpuLimits(policy.name)
@@ -1371,8 +1377,11 @@ object AppMonitor {
                     skippedKnobs++
                     return@forEach
                 }
+                // مرجعان لا واحد: **القدرة** التي أعلنها السائق (سياق النسبة وحدّ الرفع)،
+                // و**الحيّ** الذي قد تكون المنصّة قد خفّضته تحته.
+                val capabilityHz = policy.provenMaxKHz?.takeIf { it > 0L }
                 val liveMax = policy.maxKHz?.takeIf { it > 0L }
-                if (liveMax == null) {
+                if (capabilityHz == null || liveMax == null) {
                     skippedKnobs++
                     noteHardware(key, Outcome.UNSUPPORTED, "unreadable")
                     AppMonitorLogger.w(
@@ -1381,23 +1390,40 @@ object AppMonitor {
                     )
                     return@forEach
                 }
-                val capHz = ThermalCurve.capMaxHz(liveMax, capPercent, policy.availableFrequenciesKHz)
-                if (capHz >= liveMax) {
-                    // لا درجة مُعلنة تحت النسبة: السقوط إلى أدنى درجة كان سيكتب سقفًا **أعلى** من
-                    // المطلوب، وعدم الكتابة أصدق من كتابة قيمة لم تُطلب.
+                val request = ThermalCurve.requestedCpuCeiling(
+                    profile = curveProfile,
+                    percent = curvePercent,
+                    capabilityHz = capabilityHz,
+                    liveMaxHz = liveMax,
+                    ladder = policy.availableFrequenciesKHz,
+                )
+                val capHz = request.hz
+                if (capHz == null) {
+                    // لا كتابة: إمّا أن السقف الحيّ مُلبٍّ للطلب أصلًا، وإمّا أنه لا درجة مُعلنة تحت
+                    // النسبة (والسقوط إلى أدنى درجة كان سيكتب سقفًا **أعلى** من المطلوب). وفي
+                    // الحالتين يُقال السبب ولا يُكتب شيء.
                     skippedKnobs++
                     noteHardware(
                         key,
                         Outcome.SKIPPED,
-                        "no-advertised-frequency-range",
-                        ThermalCurve.rangeFor(policy.minKHz, capHz),
+                        request.reason,
+                        ThermalCurve.rangeFor(policy.minKHz, liveMax),
                         "${policy.minKHz ?: ""}:$liveMax",
                     )
-                    AppMonitorLogger.w(
+                    AppMonitorLogger.i(
                         "EVENT=PERAPP_THERMAL_CURVE_POLICY pkg=$pkgName curve=$curveProfile policy=${policy.name}" +
-                            " sealed=false reason=no-lower-advertised-step live=$liveMax percent=$capPercent sw=$currentSwitchId"
+                            " sealed=false direction=${request.direction.token} reason=${request.reason}" +
+                            " capability=$capabilityHz live=$liveMax percent=$curvePercent sw=$currentSwitchId"
                     )
                     return@forEach
+                }
+                if (request.direction == ThermalCurve.Direction.RAISE) {
+                    // الرفع لا يحدث بصمت: القيمة السابقة والقدرة والهدف في سطر واحد، لأن «طلبت أداء
+                    // ولم يتغيّر شيء» سؤال يُجاب من الملف وحده.
+                    AppMonitorLogger.i(
+                        "EVENT=PERAPP_THERMAL_CPU_RAISE pkg=$pkgName curve=$curveProfile policy=${policy.name}" +
+                            " capability=$capabilityHz live_before=$liveMax target=$capHz sw=$currentSwitchId"
+                    )
                 }
 
                 val floorHz = policy.minKHz?.takeIf { it > 0L }
@@ -1435,6 +1461,7 @@ object AppMonitor {
                 val live = liveRangeNow()
                 if (owned) {
                     sealedKnobs++
+                    if (request.direction == ThermalCurve.Direction.RAISE) raisedKnobs++
                     hardwareUserIntent[key] = desired
                     noteOwnedOutcome(key, true, null, desired, live.orEmpty())
                 } else {
@@ -1443,14 +1470,16 @@ object AppMonitor {
                 }
                 AppMonitorLogger.i(
                     "EVENT=PERAPP_THERMAL_CURVE_POLICY pkg=$pkgName curve=$curveProfile policy=${policy.name}" +
-                        " requested_percent=$capPercent realized_percent=${ThermalCurve.realizedPercent(liveMax, capHz) ?: "none"}" +
+                        " direction=${request.direction.token} capability=$capabilityHz live_before=$liveMax" +
+                        " requested_percent=$curvePercent realized_percent=${ThermalCurve.realizedPercent(capabilityHz, capHz) ?: "none"}" +
                         " from=$baseline to=$desired live=${live ?: "none"} sealed=$owned sw=$currentSwitchId"
                 )
             }
 
             AppMonitorLogger.i(
-                "EVENT=PERAPP_THERMAL_CURVE pkg=$pkgName curve=$curveProfile percent=$capPercent" +
-                    " sealed=$sealedKnobs untouched=$skippedKnobs sw=$currentSwitchId"
+                "EVENT=PERAPP_THERMAL_CURVE pkg=$pkgName curve=$curveProfile percent=$curvePercent" +
+                    " power_profile=${ThermalCurve.isPowerProfile(curveProfile)}" +
+                    " raised=$raisedKnobs sealed=$sealedKnobs untouched=$skippedKnobs sw=$currentSwitchId"
             )
         }.onFailure { AppMonitorLogger.e("EVENT=PERAPP_THERMAL_CURVE_FAILED pkg=$pkgName sw=$currentSwitchId", it) }
 
@@ -1569,7 +1598,24 @@ object AppMonitor {
             // كل نسب Per-App الجديدة (بما فيها Gaming 85 وBalanced 60 وPower 40)
             // تُحسب من قدرة الجهاز المكتشفة، لا من سقف Balanced الحي. يسمح ذلك بأن
             // يبقى معنى النسبة ثابتًا حتى لو غيّر النظام سقفه قبل وصول التطبيق للمقدمة.
-            val fullCapabilityRequest = explicit == null
+            val advertisedMaxHz = liveAtPlan.frequencies.filter { it > 0L }.maxOrNull()
+            // «قدرة الجهاز» ليست حكرًا على البروفايلات: من اختار صراحةً أعلى درجة مُعلنة في
+            // القائمة فقد طلب القدرة أيضًا — والفرق بينهما كان يُنزله إلى السقف الحيّ (٧٥٤) فيقرأ
+            // طلبه ٧٥٤ ويُقال له «نُفِّذ». والاختيار الأقل من القدرة يبقى طلب تبريد يُقيَّد بالسقف.
+            val fullCapabilityRequest = explicit == null ||
+                (advertisedMaxHz != null && explicit >= advertisedMaxHz)
+            // ── وإعداد يحمل الاختيارين معًا لا يُحكَم عليه صامتًا ────────────────────────────
+            //
+            // صار في الشاشة مالك واحد للمقبض (اختيار البروفايل يُفرغ التردد الصريح والعكس)، فاجتماعهما
+            // لا يأتي من الواجهة — يأتي من إعداد قديم كُتب قبل الإصلاح، أو من ملف مُستورد. وحكمُه
+            // الصريح أولى من حكم صامت: التردد الصريح هو ما يُنفَّذ (قيمة يراها المستخدم في الشاشة
+            // أيضًا)، ويُقال ذلك في السجل بدل أن يبدو «الأداء» بلا أثر.
+            if (explicit != null && profile.isNotBlank() && profile != "default") {
+                AppMonitorLogger.w(
+                    "EVENT=PERAPP_GPU_EXPLICIT_OVERRIDES_PROFILE pkg=$pkgName profile=$profile" +
+                        " explicit=$explicit reason=explicit-frequency-wins-over-profile sw=$currentSwitchId"
+                )
+            }
             val requested = explicit ?: PerAppKernelUtil.pickProfileFrequency(
                 liveAtPlan.frequencies,
                 profile,
@@ -1618,6 +1664,42 @@ object AppMonitor {
                         " requested=$target live_before=$liveCap note=device-policy-may-hold-lower sw=$currentSwitchId"
                 )
             }
+            // ── كيف يُنفَّذ هذا السقف على **هذا** الجهاز؟ قرار واحد صريح ────────────────
+            //
+            // وُجد لأن السجل المقيس (rodin · MTK6899 · 2026-09-22) أظهر أن `max_freq` يقرأ أعلى
+            // درجة عند الجهاز **أصلًا** (1300000000) بينما التردد الجاري 260MHz: فالحاكم يقرأ
+            // قيمة تساوي الطلب فيحكم «مُلبّى» ويتخطّى `apply` — و**تحرير سقف المنصّة كان داخل
+            // `apply`**. والنتيجة في الحزمة: ٧٥ جلسة `profile=performance` كلها «نجحت» بصفر كتابة
+            // على أي عقدة GPU (مقابل ١٢ كتابة على نظيرها في CPU). فصار المُقَاس الذي يُحكم به
+            // هو **السقف** لا `max_freq` وحده، وصار للطلب شكل مُعلَن بدل تفرّع ضمني:
+            //
+            //  · `RELEASE_ONLY` — الطلب عند قدرة الجهاز: تُحرَّر سلطة المصنّع، ويُقاس الحكم من
+            //    **قراءة السقف** (سقف العقدة + سقف GED المخصّص + حالة تبريد GPU) لا من `max_freq`
+            //    وحده، لأن `max_freq` على هذا الجهاز ليس ما يقصّ. وهذا وحده يكفي لإصلاح تخطّي
+            //    `apply`: السقف المقروء مقيّد ⇒ الحاكم لا يقول «مُلبّى» ⇒ يُنفَّذ التحرير داخل
+            //    معاملته المملوكة نفسها (بخط أساسها واستعادتها). ولا تحرير خارج المعاملة: تحريرٌ
+            //    بلا ملكية كان يرفع حماية المصنّع حتى حين يرفض الحاكمُ (قفل يدوي) كتابةَ التردد.
+            //  · `RANGE`/`PIN` — سقف أدنى من القدرة: يُكتب كما كان، ولا يُرفع سقف المصنّع (طلب
+            //    تبريد لا يجوز أن يرفع حماية وَضعها المصنّع ثم يكتب سقفه فوقها).
+            val realization = GpuCeilingPolicy.realize(
+                requestedHz = target,
+                advertisedMaxHz = advertisedMaxHz,
+                // والسؤال هو «هل تقبل عقدتا المدى كتابة سقف؟» لا «هل للجهاز مسار تثبيت OPP؟»:
+                // اشتراط غياب مسار التثبيت هو ما حوّل كل سقف على MTK إلى تثبيت درجة واحدة.
+                rangeWritable = liveAtPlan.devfreqCeilingWritable,
+                pinAvailable = liveAtPlan.exactLockWritable,
+            )
+            if (realization == GpuCeilingPolicy.Realization.UNSUPPORTED) {
+                noteHardware("gpu_profile", Outcome.UNSUPPORTED, "unsupported-frequency", target.toString(), liveCap.toString())
+                return@runCatching
+            }
+            val releaseCeiling = realization == GpuCeilingPolicy.Realization.RELEASE_ONLY
+            // وطلب «أعطني قدرة الجهاز» **تحرير** لا كتابة: يُحرَّر سقف المصنّع ويُرفع قفل OPP إن
+            // كان قائمًا، ويُترك الجهاز يتوسّع بنفسه — فلا يُثبَّت تردد ولا يُجمَّد.
+            val ceilingShaped = releaseCeiling
+            val ceilingCapture = if (releaseCeiling) PlatformCeilingAuthority.captureGpuCeiling() else null
+            val clockAtPlan = GpuHardwareBackend.currentFrequencyHz(liveAtPlan)
+
             val baseline = GpuHardwareBackend.captureBaseline(liveAtPlan)
             val desired = target.toString()
             val gpuKey = HardwareControlKey.gpuFrequency(device.name)
@@ -1626,6 +1708,26 @@ object AppMonitor {
                 desired = desired,
                 apply = { value -> value.toLongOrNull()?.let { wantedHz ->
                         val live = GpuHardwareBackend.refresh(device.path) ?: return@let false
+                        if (releaseCeiling) {
+                            // التحرير **داخل** المعاملة المملوكة: بخط أساسها، وباستعادتها، وبإعادة
+                            // المحاولة في حلقة الانحراف. وتحريرٌ قبلها كان يرفع حماية المصنّع حتى
+                            // على مقبض يرفض الحاكم كتابته (قفل يدوي) — أي بلا ملكية.
+                            GpuHardwareBackend.releaseVendorCeiling()
+                            // ويُحرَّر معه **قفل OPP ثابت** إن كان قائمًا: قفلٌ من جلسة سابقة أو من
+                            // أداة أخرى يقصّ التردد من **خارج** `devfreq`، فتبقى قراءة السقف عند
+                            // القدرة بينما الجهاز عالق على درجة واحدة (وهو العطب المقيس: «أداء»
+                            // يعطي ٦٥٠). وفهرس القفل محفوظ في خط الأساس فيُعاد عند الخروج.
+                            GpuHardwareBackend.releaseExactLock()
+                            // ولا تُثبّت درجة عند قدرة الجهاز حين لا مسار كتابة مدى: التثبيت كان
+                            // سيجعل «أداء» يجمّد التردد بدل أن يطلقه.
+                            //
+                            // وإن قبل الجهاز كتابة مدى فنكتب السقف **عند القدرة** بعده: على هذا
+                            // الجهاز يقصّ `max_freq` نفسه (وهو ٧٥٤ في الوضع العادي)، فتحرير قنوات
+                            // السلطة وحده لا يرفع سقفًا كتبته خدمة الحرارة/الألعاب على العقدة.
+                            // والكتابة لا تُخترع قيمة (لا شيء فوق قدرة معلنة)، والنتيجة تُقاس بعدها:
+                            // فإن قُمعت تُقال مقموعة (`gpu-ceiling-held`) ويُستعاد خط الأساس.
+                            if (!live.devfreqCeilingWritable) return@let true
+                        }
                         val capped = GpuHardwareBackend.snapToAvailableAtOrBelow(
                             live,
                             wantedHz,
@@ -1634,43 +1736,122 @@ object AppMonitor {
                         val low = live.frequencies.firstOrNull { it <= capped } ?: return@let false
                         GpuHardwareBackend.applyValidated(
                             live,
-                            if (live.rangeWritable) {
+                            if (live.devfreqCeilingWritable) {
                                 GpuHardwareBackend.Request(
                                     minFreq = low,
                                     maxFreq = capped,
-                                    releaseVendorCeiling = fullCapabilityRequest,
+                                    releaseVendorCeiling = releaseCeiling,
                                 )
                             } else {
-                                GpuHardwareBackend.Request(capped, capped)
+                                // تثبيت فهرس OPP — المسار الوحيد المتاح على هذا الجهاز.
+                                GpuHardwareBackend.Request(
+                                    minFreq = capped,
+                                    maxFreq = capped,
+                                    releaseVendorCeiling = releaseCeiling,
+                                )
                             },
                         ).verified
                     } ?: false },
                 read = {
-                    GpuHardwareBackend.refresh(device.path)?.let { live ->
-                        GpuHardwareBackend.effectiveFrequency(live)?.toString()
+                    if (ceilingShaped) {
+                        GpuHardwareBackend.refresh(device.path)?.let { live ->
+                            GpuHardwareBackend.ceilingReading(live).token
+                        }
+                    } else {
+                        GpuHardwareBackend.refresh(device.path)?.let { live ->
+                            GpuHardwareBackend.effectiveFrequency(live)?.toString()
+                        }
                     }
                 },
                 // The arbiter owns the encoded live value for this request; the backend baseline
                 // object is captured separately so rollback never tries to decode a scalar as a
                 // five-field baseline record.
-                baseline = GpuHardwareBackend.effectiveFrequency(liveAtPlan)?.toString(),
-                restore = { GpuHardwareBackend.restoreBaseline(baseline) },
+                baseline = if (ceilingShaped) {
+                    GpuHardwareBackend.ceilingReading(liveAtPlan).token
+                } else {
+                    GpuHardwareBackend.effectiveFrequency(liveAtPlan)?.toString()
+                },
+                restore = {
+                    val frequencyRestored = GpuHardwareBackend.restoreBaseline(baseline)
+                    // وسقف المصنّع يُعاد معه: التحرير تغيير حقيقي على العتاد، وإبقاؤه بعد خروج
+                    // التطبيق تسريب — وكل مقبض مملوك في هذا المشروع يُستعاد عند الخروج.
+                    val ceilingRestored = ceilingCapture?.let { PlatformCeilingAuthority.restoreGpuCeiling(it) } ?: true
+                    frequencyRestored && ceilingRestored
+                },
                 // السقف يُحكم عليه بمعناه: لا يتجاوز المطلوب = مُلبّى. والتساوي كان يقرأ
                 // `expected=1300000000 live=754000000` فشلًا فيسترجع خط الأساس ويعيد الكتابة
                 // كل دورة انحراف بلا نتيجة (القياس في HANDOFF.md).
-                verify = HardwareVerification::ceilingAtMost,
+                // وفي الشكل المقيس يُقاس **السقف نفسه**: سقف العقدة + سقف المنصّة المخصّص +
+                // حالة تبريد GPU. فحكم «مُلبّى» لا يُطلق على طلب ما زالت المنصّة تقصّه.
+                verify = if (ceilingShaped) {
+                    { wanted, actual ->
+                        // والقدرة تُمرَّر مع الطلب: طلبٌ عند القدرة يُلبّى حين يزول كل سقف **دونها**،
+                        // وقراءةُ سقفٍ أقلّ من القدرة (٧٥٤ لطلب ١٣٠٠) ليست تلبية وإن كانت «لا تُخترَق».
+                        GpuCeilingPolicy.ceilingSatisfied(
+                            wanted.toLongOrNull() ?: 0L,
+                            GpuCeilingPolicy.CeilingReading.parse(actual),
+                            capabilityHz = advertisedMaxHz,
+                        )
+                    }
+                } else {
+                    HardwareVerification::ceilingAtMost
+                },
             )
             // نيّة المستخدم تُحفظ قبل أي تدخّل من الحارس الحراري — الحارس يعدّل «المطلوب»
             // لاحقًا، ولا سبيل لإعادة السقف إلى ما اختاره المستخدم بلا حفظه هنا.
             if (owned) hardwareUserIntent[gpuKey] = desired
-            noteOwnedOutcome(
-                knob = "gpu_profile",
-                owned = owned,
-                refusal = hardwareControlRegistry.refusalReasons()[gpuKey],
-                expected = desired,
-                live = GpuHardwareBackend.refresh(device.path)
-                    ?.let(GpuHardwareBackend::effectiveFrequency)?.toString().orEmpty(),
+            // ── سطر واحد يجيب: ماذا نُفِّذ، وعلى أي تردد يجري الجهاز فعلًا، وهل السقف مُحرَّر؟ ──
+            val liveAfter = GpuHardwareBackend.refresh(device.path)
+            val measuredHz = liveAfter?.let { GpuHardwareBackend.currentFrequencyHz(it) }
+            val pinnedHz = if (realization == GpuCeilingPolicy.Realization.PIN) {
+                liveAfter?.let { GpuHardwareBackend.currentExactLockFrequency(it) }
+            } else null
+            val pinJudgement = if (realization == GpuCeilingPolicy.Realization.PIN) {
+                GpuCeilingPolicy.pinVerdict(pinnedHz, measuredHz)
+            } else null
+            // حكم السقف يُحسب دائمًا ويُطبع دائمًا، حتى في شكل الكتابة: جواب «هل ما زالت المنصّة
+            // تقصّ؟» لا يجوز أن يغيب لأن مسار التنفيذ كان مسار كتابة.
+            val ceilingJudgement = GpuCeilingPolicy.ceilingReason(
+                target,
+                GpuHardwareBackend.ceilingReading(liveAfter ?: liveAtPlan),
+                capabilityHz = advertisedMaxHz,
             )
+            val judgement = when {
+                ceilingShaped -> ceilingJudgement
+                pinJudgement != null -> pinJudgement.token
+                else -> GpuCeilingPolicy.Realization.RANGE.token
+            }
+            AppMonitorLogger.i(
+                "EVENT=PERAPP_GPU_REALIZED pkg=$pkgName profile=$profile realization=${realization.token}" +
+                    " requested=$requested target=$target advertised_max=${advertisedMaxHz ?: "none"}" +
+                    " clock_before=${clockAtPlan ?: "unreadable"} clock_now=${measuredHz ?: "unreadable"}" +
+                    " pinned=${pinnedHz ?: "none"} ceiling=$ceilingJudgement" +
+                    " judgement=$judgement owned=$owned sw=$currentSwitchId"
+            )
+            // والفشل المَقيس يُقال في بطاقة الحالة بنفسه (لا يُطمس بسطر «applied» المجاور):
+            // «أداء» لا يعني أن المنصّة لم تعد تقصّ.
+            val measuredFailure = when {
+                ceilingShaped && judgement != "gpu-ceiling-released" -> judgement
+                pinJudgement == GpuCeilingPolicy.PinVerdict.CLOCK_MISMATCH -> pinJudgement.token
+                else -> null
+            }
+            if (measuredFailure != null) {
+                noteHardware(
+                    "gpu_profile",
+                    Outcome.NOT_VERIFIED,
+                    measuredFailure,
+                    desired,
+                    measuredHz?.toString().orEmpty(),
+                )
+            } else {
+                noteOwnedOutcome(
+                    knob = "gpu_profile",
+                    owned = owned,
+                    refusal = hardwareControlRegistry.refusalReasons()[gpuKey],
+                    expected = desired,
+                    live = liveAfter?.let(GpuHardwareBackend::effectiveFrequency)?.toString().orEmpty(),
+                )
+            }
         }.onFailure { AppMonitorLogger.e("ownership: GPU frequency registration failed for '$pkgName' sw=$currentSwitchId", it) }
 
         // Governors are now applied by the ownership registry below. This keeps the

@@ -167,9 +167,9 @@ fun HomeDashboardContent(
                     maxAi = maxAi,
                     profileRequest = profileRequest,
                     deviceName = deviceName,
-                    // من السجلّ لا حرفيًّا: سلسلة مسار مكتوبة بيد هنا كانت تفلت
-                    // من ADR-02 وتصير غير قابلة للتتبّع بتغيير المسار.
-                    gpuRoute = MaxDestination.GpuStudio.launchRoute,
+                    // ولا مسار GPU هنا: صفّ «الرسوم/المعالج» نُقل إلى شاشاته المالكة (خطة storyboard-home
+                    // المرحلة 4)، والوصول إلى GPU من الـdeck ← Control ← محور الرسوم. وحقل المسار كان
+                    // يُمرَّر إلى صفّ محذوف فلم يبقَ له مستهلك — وحقل بلا مستهلك يبدو كأنه يُوصّل شيئًا.
                     onNavigate = onNavigate,
                     onProfile = onProfile,
                     onReboot = onReboot,

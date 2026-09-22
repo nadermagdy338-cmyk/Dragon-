@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -45,10 +47,11 @@ import nd.max.core.hardware.HardwareControlKey
 import nd.max.core.maxai.KnobOwnershipSnapshot
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.OwnershipCommitState
-import nd.max.ui.component.MaxSurface
+import nd.max.ui.component.NeuralPalette
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.neuralPalette
+import nd.max.ui.util.ActivityCardPreferences
 import nd.max.ui.util.StoryboardSources
 
 /**
@@ -82,51 +85,15 @@ private const val STORYBOARD_REFRESH_MS = 10_000L
  *
  * والحركة مقصودة: تبديل المشهد ينزلق (`AnimatedContent`) ليُقرأ كأنه يروي، لكن **القراءة لا
  * تعتمد عليها**: النصّ كامل في الحالتين (من يستعمل إعدادات تقليل الحركة يرى المحتوى نفسه).
- */
-@Composable
-internal fun StoryboardBand(
-    maxAi: MaxAiState,
-    modifier: Modifier = Modifier,
-) {
-    val context = LocalContext.current
-    // المشهدان الحيّان (آخر جلسة تطبيق، وأقفالك اليدوية) يُقرآن من مصدرَيهما على مسار IO، في
-    // دورة بطيئة. والقراءة الفاشلة تُعطي قائمة فارغة لا محتوى مُخترعًا — فلا بطاقة بلا دليل.
-    val liveScenes by produceState(initialValue = emptyList<StoryboardScene>()) {
-        while (true) {
-            value = withContext(Dispatchers.IO) { StoryboardSources.scenes(context) }
-            delay(STORYBOARD_REFRESH_MS)
-        }
-    }
-    // مشهد الذكاء يُبنى من حالته هنا لا في `HomeDashboardViewModel`: تلك الشاشة تُقاس كل
-    // ثانيتين وليست مالكة لحالة MAX AI، وصاحب الحالة هو مصدرها.
-    val scenes = StoryboardModel.storyboard(liveScenes + maxAiSceneFrom(maxAi))
-    // بلا مشاهد لا بطاقة: «افتراضي» ليست إنجازًا، ولوحة تقول «لا شيء» في كل مرة تُقرأ مرّة
-    // ثم يُلغى النظر إليها — وهذا ضدّ غرضها.
-    if (scenes.isEmpty()) return
-
-    val scheme = MaterialTheme.colorScheme
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(R.string.storyboard_title),
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = scheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 4.dp),
-        )
-        AnimatedContent(
-            targetState = scenes.first(),
-            transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(120)) },
-            label = "storyboard_headline",
-        ) { scene ->
-            SceneCard(scene, scheme)
-        }
-        scenes.drop(1).forEach { scene -> SceneCard(scene, scheme) }
-    }
-}
-
-/**
- * The only activity surface on the home screen. It combines verified story scenes
- * and the current engine signal; it never renders CPU/GPU/thermal measurements.
+ *
+ * وسياسة الأسطر (أيّها يُعرض، وبلا تكرار، وبأي حدّ) ليست هنا بل في [UnifiedActivityModel]:
+ * فالقرار يُقاس في JVM، وهذه الدالة ترسم ما يعود منها وحدها. وكانت السياسة مكتوبة هنا مرّة
+ * واختيارات المستخدم (`Kill Background Apps` · البروفايل · الحاكمان) تُطرح فيها بشرط «وجود قبل» —
+ * فيقرأ المستخدم بطاقةً لا تذكر اختياراته.
+ *
+ * والتخصيص (المرحلة ٥): الخيارات تُقرأ من `ActivityCardPreferences` وتُمرّر للنموذج، **والنمط الفعّال
+ * يعود من النموذج** لأن الرسم يختلف به — شارات · وقت على كل سطر · مشهد واحد بملء العرض. ولا تُخمَّن
+ * السياسة مرّتين في مكانين (وهو العطب الذي وُلد هذا الملف لإصلاحه).
  */
 @Composable
 internal fun UnifiedActivityCard(
@@ -134,124 +101,204 @@ internal fun UnifiedActivityCard(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val liveScenes by produceState(initialValue = emptyList<StoryboardScene>()) {
-        value = withContext(Dispatchers.IO) { StoryboardSources.scenes(context) }
+    val state by produceState(initialValue = CardState()) {
         while (true) {
+            value = withContext(Dispatchers.IO) {
+                CardState(
+                    scenes = StoryboardSources.scenes(context),
+                    options = ActivityCardPreferences.read(context),
+                )
+            }
             delay(STORYBOARD_REFRESH_MS)
-            value = withContext(Dispatchers.IO) { StoryboardSources.scenes(context) }
         }
     }
-    val scenes = StoryboardModel.storyboard(liveScenes + maxAiSceneFrom(maxAi))
-        .mapNotNull { candidate ->
-            val visibleLines = candidate.lines.filter { line ->
-                // The home card is success-only. A measured before/after is proof;
-                // Max AI's active marker is a state proof; manual locks are already
-                // verified by their source. Choices without a hardware result stay
-                // in the settings screen, not here.
-                line.tone == LineTone.DONE && (
-                    line.from != null ||
-                        line.knob.startsWith("max_ai_") ||
-                        candidate.kind == SceneKind.MANUAL
-                    )
-            }
-            candidate.copy(lines = visibleLines).takeIf { visibleLines.isNotEmpty() }
-        }
-    if (scenes.isEmpty()) return
+    // الترتيب والحذف والتكرار والحدّ والشكل: كلّها في النموذج المختبر، لا في هذه الدالة.
+    val model = UnifiedActivityModel.build(
+        scenes = StoryboardModel.storyboard(state.scenes + maxAiSceneFrom(maxAi)),
+        options = state.options,
+        nowMs = System.currentTimeMillis(),
+    )
+    if (model.isEmpty) return
 
     val palette = neuralPalette()
-    val scene = scenes.first()
+    val scheme = MaterialTheme.colorScheme
+    val scene = model.scenes.first()
+    val duration = state.options.motion.enterMs
     NeuralPanel(modifier = modifier.fillMaxWidth(), accent = palette.accent) {
         NeuralSectionHeader(
             title = stringResource(R.string.home_activity_title),
             caption = stringResource(R.string.storyboard_title),
             accent = palette.accent,
         )
-        AnimatedContent(
-            targetState = scene,
-            transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(120)) },
-            label = "unified-activity-scene",
-        ) { current ->
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        Modifier.size(8.dp).clip(CircleShape).background(palette.ok),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(sceneLabelRes(current.kind)),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = palette.text,
-                    )
-                    current.appLabel?.let {
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = palette.muted,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-                current.lines.forEach { line -> SceneLine(line, MaterialTheme.colorScheme) }
+        // «الحركة موقوفة» تُلغي `AnimatedContent` نفسه لا مدّته فقط: صفر مدّة مع عنصر رسوم
+        // متحرّكة يبقى عنصرًا يشارك في إطار الرسم، والإيقاف الحقيقي هو عدم استخدامه.
+        if (duration <= 0) {
+            SceneBody(model, scene, scheme, palette)
+        } else {
+            AnimatedContent(
+                targetState = scene,
+                transitionSpec = { fadeIn(tween(duration)) togetherWith fadeOut(tween(duration / 2)) },
+                label = "unified-activity-scene",
+            ) { current ->
+                SceneBody(model, current, scheme, palette)
             }
         }
-        scenes.drop(1).flatMap { it.lines }.distinctBy { it.knob }.take(3).forEach { line ->
-            SceneLine(line, MaterialTheme.colorScheme)
+        // ما تبقّى: مُرشَّح سلفًا (لا تكرار مع المشهد الأول)، ومحدود برصيد البطاقة، وبشكله.
+        val rest = model.scenes.drop(1)
+        when (model.style) {
+            UnifiedActivityModel.CardStyle.CHIPS -> rest.flatMap { it.lines }.chunked(2).forEach { pair ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    pair.forEach { line -> SceneChip(line, model.showReason, scheme, Modifier.weight(1f)) }
+                }
+            }
+            // «خط زمني»: كل حدث برأسه ووقته (حيث وُجد وقت) بدل دمج الأسطر في قائمة تفقد متى وقع
+            // كل حدث. وهذا هو الفرق المقصود بينه وبين «قائمة مختصرة»: ليست كثافة أسطر بل أحداث.
+            UnifiedActivityModel.CardStyle.TIMELINE -> rest.forEach { event ->
+                Spacer(Modifier.height(10.dp))
+                SceneHeading(event, palette)
+                event.lines.forEach { line -> SceneLine(line, scheme, showReason = model.showReason) }
+            }
+            else -> rest.flatMap { it.lines }.forEach { line ->
+                SceneLine(line, scheme, showReason = model.showReason)
+            }
+        }
+    }
+}
+
+/** حالة القراءة: المشاهد والخيارات معًا — تُقرآن في نفس الدورة، فلا تُرسم بطاقة بخيارات قديمة. */
+private data class CardState(
+    val scenes: List<StoryboardScene> = emptyList(),
+    val options: UnifiedActivityModel.CardOptions = UnifiedActivityModel.CardOptions.DEFAULT,
+)
+
+/**
+ * جسم البطاقة: رأس المشهد ثم أسطره بشكل النمط الفعّال.
+ *
+ * والشارات (`CHIPS`) تُرسم هنا أيضًا لأن المشهد الأول هو ما يُعرض بحركته في كل الأنماط.
+ */
+@Composable
+private fun SceneBody(
+    model: UnifiedActivityModel.CardModel,
+    scene: StoryboardScene,
+    scheme: ColorScheme,
+    palette: NeuralPalette,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        SceneHeading(scene, palette)
+        if (model.style == UnifiedActivityModel.CardStyle.CHIPS) {
+            scene.lines.chunked(2).forEach { pair ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    pair.forEach { line -> SceneChip(line, model.showReason, scheme, Modifier.weight(1f)) }
+                }
+            }
+        } else {
+            scene.lines.forEach { line -> SceneLine(line, scheme, showReason = model.showReason) }
+        }
+    }
+}
+
+/**
+ * رأس الحدث: نقطة الحالة ثم نوعه ثم التطبيق ثم **زمنه**.
+ *
+ * وهو مستخرج لأن نمط «خط زمني» يحتاجه لكل حدث، لا للحدث الأول وحده — ونسخة ثانية منه كانت
+ * ستفترق عن هذه عند أول تعديل (وهو عين العطب الذي وُلد هذا الملف لإصلاحه في السياسة).
+ *
+ * والزمن من وقت المصدر (`atMs`) لا من ساعة الواجهة: الفرق بين «الآن» و«قبل دقيقتين» هو الفرق
+ * بين حكم على الجهاز وحكم على قياس قديم. ومشهد بلا وقت (تحكّم يدوي أو ذكاء) يُكتب بلا زمن
+ * أصلاً، ولا زمن يُخترع له. وإذا كان الزمن **صفراً أو سالباً** لا يُعرض أيضاً: كلاهما قيمة
+ * «لا أعرف» لا لحظة حقيقية (وبدونهما كان يُقرأ «قبل ٥٦ سنة»).
+ */
+@Composable
+private fun SceneHeading(scene: StoryboardScene, palette: NeuralPalette) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier.size(8.dp).clip(CircleShape).background(palette.ok),
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = stringResource(sceneLabelRes(scene.kind)),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = palette.text,
+        )
+        scene.appLabel?.let {
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = palette.muted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        scene.atMs?.takeIf { it > 0L }?.let { atMs ->
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = stringResource(R.string.storyboard_measured_ago, relativeAge(atMs)),
+                style = MaterialTheme.typography.labelSmall,
+                color = palette.muted,
+            )
+        }
+    }
+}
+
+/**
+ * سطر واحد في نمط الشارات: الاسم والقيمة في سطح مختصر واحد.
+ *
+ * وهو يُستعمل حين تكثر الميزات (قاعدة التلقائي) أو حين يختاره المستخدم، لأن السرد الطويل على
+ * شاشة صغيرة يقرأه أحدهم مرّة ثم يتوقّف عن قراءته أصلًا.
+ */
+@Composable
+private fun SceneChip(
+    line: StoryLine,
+    showReason: Boolean,
+    scheme: ColorScheme,
+    modifier: Modifier = Modifier,
+) {
+    val accent = when (line.tone) {
+        LineTone.FAILED -> scheme.error
+        LineTone.HELD -> scheme.onSurfaceVariant
+        LineTone.DONE -> scheme.primary
+        LineTone.OFF -> scheme.onSurfaceVariant
+    }
+    val change = changeText(line)
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(scheme.surfaceVariant.copy(alpha = 0.45f))
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text = knobLabel(line.knob),
+            style = MaterialTheme.typography.labelSmall,
+            color = scheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (change.isNotEmpty()) {
+            Text(
+                text = change,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium,
+                color = accent,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        line.reason?.takeIf { showReason && it.isNotBlank() }?.let { reason ->
+            Text(
+                text = stringResource(R.string.storyboard_why, reason),
+                style = MaterialTheme.typography.labelSmall,
+                color = scheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }
 
 @Composable
-private fun SceneCard(scene: StoryboardScene, scheme: ColorScheme) {
-    MaxSurface(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier.size(8.dp).clip(CircleShape).background(
-                        when (scene.kind) {
-                            SceneKind.PER_APP -> scheme.primary
-                            SceneKind.MAX_AI -> scheme.tertiary
-                            SceneKind.MANUAL -> scheme.secondary
-                        }
-                    )
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = stringResource(sceneLabelRes(scene.kind)),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = scheme.onSurface,
-                )
-                scene.appLabel?.let { label ->
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Spacer(Modifier.weight(1f))
-                scene.atMs?.let { atMs ->
-                    Text(
-                        // «متى» من وقت المصدر نفسه، لا ساعة الواجهة: الفرق بين «الآن» و«قبل
-                        // دقيقتين» هو الفرق بين حكم على الجهاز وحكم على قياس قديم.
-                        text = stringResource(R.string.storyboard_measured_ago, relativeAge(atMs)),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = scheme.onSurfaceVariant,
-                    )
-                }
-            }
-            scene.lines.forEach { line -> SceneLine(line, scheme) }
-        }
-    }
-}
-
-@Composable
-private fun SceneLine(line: StoryLine, scheme: ColorScheme) {
+private fun SceneLine(line: StoryLine, scheme: ColorScheme, showReason: Boolean = false) {
     val accent = when (line.tone) {
         LineTone.FAILED -> scheme.error
         LineTone.HELD -> scheme.onSurfaceVariant
@@ -293,7 +340,9 @@ private fun SceneLine(line: StoryLine, scheme: ColorScheme) {
                     )
                 }
             }
-            line.reason?.takeIf { it.isNotBlank() }?.let { reason ->
+            // والسبب يظهر لسببين فقط: إمّا أن السطر لم يُنفّذ (فيقول لماذا)، وإمّا أن المستخدم
+            // طلب الوضع التقني المختصر — وسطر السبب على كل نجاح هو ما يجعله لا يُقرأ في الحالتين.
+            line.reason?.takeIf { (showReason || line.tone != LineTone.DONE) && it.isNotBlank() }?.let { reason ->
                 Text(
                     // السبب كما كتبه العتاد/المحرّك (`not-verified` · `sconfig_missing` …) لا
                     // ترجمة إنشائية: من يرسل السجل يجد نفس الرمز، ومن يقرأ يعرف ما وقع.

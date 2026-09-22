@@ -14,15 +14,31 @@ package nd.max.core.hardware
  * من ضبط سياسة CPU بيده (`cpu_policy_controls`) فطلبه هو السقف ولا يُمَسّ؛ ومن تركها، فبروفايل
  * الحرارة هو الذي يعطيها حدودها — وهذا هو الفرق بين «حقل يعدّل غيره» و«حقل يعمل».
  *
+ * ومن أين تُحسب النسبة (وهذا ما تغيّر بعد قياس على جهاز حقيقي)
+ * --------------------------------------------------------------
+ * كانت النسبة تُحسب من **السقف الحيّ** (`scaling_max_freq` كما هو الآن). والنتيجة المقيسة: جهاز
+ * سياسة الـvendor فيه تخفض السقف الحيّ إلى جزء من قدرته، فيصير «Gaming ٨٥٪» **أدنى من الجهاز غير
+ * الممسوس**، و«Performance» لا يفعل شيئًا لأنه لا يرى سقفًا ينزله. فيقرأ المستخدم — وصفًا صحيحًا —
+ * «الحرارة في شاشة التطبيقات لا تزيد أبدًا عن القيمة الافتراضية، وإنما تنقص فقط».
+ *
+ * فصار المرجع هو **القدرة المكتشفة** من الجهاز نفسه (`cpuinfo_max_freq`، أو أعلى درجة في سلّمه
+ * المُعلن)، ولها نمطان:
+ *
+ * - **بروفايلا القوّة** (`performance` · `gaming`): سقفهما **قدرة الجهاز**، ولا ينزلان عن السقف
+ *   الحيّ أبدًا. فإن كانت المنصّة تخفض السقف الحيّ، **يُرفع** إلى القدرة (وهو ما يطلبه من اختار
+ *   «أداء» أو «ألعاب»)، ويُسجَّل `direction=raise` بالحيّ والقدرة معًا.
+ * - **بروفايلات التبريد** (`balanced` · `power` · `custom`): نسبتُها من القدرة، وتُكتب **فقط إذا
+ *   كانت أدنى من السقف الحيّ**. فلا يرفع بروفايل تبريد سقفًا، ولا يكتب سقفًا أعلى من المطلوب.
+ *
  * وحدود الأمان، لأنها شرط قبول أي متحكّم تلقائي في هذا المشروع:
  *
- * 1. **لا يرفع أبدًا**: النتيجة إمّا السقف الحيّ كما هو، وإمّا أدنى منه. و`percent >= 100`
- *    تعني «لا سقف» لا «سقف 100٪».
- * 2. **لا يكتب قيمة لا يحملها الجهاز**: القيمة تُختار من سلّم الترددات المُعلن نفسه وتقريبها
- *    **إلى أسفل**؛ ولا تُقرَّب إلى أعلى أبدًا لأن التقريب الأعلى يتجاوز النسبة التي طلبها
- *    المستخدم (وهو الفرق بين «٧٠٪» و«٨٣٪» على سلّم خشن).
- * 3. **وإن لم يوجد في السلّم ما يكفي سفله** فلا سقف: السقوط إلى أدنى درجة مُعلنة يعني كتابة
- *    سقف **أعلى** من المطلوب. وعدم الكتابة أصدق من كتابة قيمة غير مطلوبة.
+ * 1. **لا قيمة لا يحملها الجهاز**: السقف يُختار من سلّم الترددات المُعلن نفسه وتقريبها **إلى
+ *    أسفل**؛ ولا يُقرَّب إلى أعلى أبدًا لأن التقريب الأعلى يتجاوز النسبة التي طلبها المستخدم (وهو
+ *    الفرق بين «٧٠٪» و«٨٣٪» على سلّم خشن). ولا يُرفع إلا إلى **قدرة أعلنها السائق**.
+ * 2. **وإن لم يوجد في السلّم ما يكفي سفله** فلا سقف: السقوط إلى أدنى درجة مُعلنة يعني كتابة سقف
+ *    **أعلى** من المطلوب. وعدم الكتابة أصدق من كتابة قيمة غير مطلوبة.
+ * 3. **ولا خفض في بروفايلي القوّة**: الطلب هناك `max(النسبة من القدرة، السقف الحيّ)`، فلا يصير
+ *    «Gaming» أدنى من الجهاز كما هو — وهو العطب الذي وُلدت هذه النسخة لإصلاحه.
  *
  * والدوال هنا **خالصة** (بلا عتاد وبلا Android) ليُقاس المنطق كاملًا باختبار وحدة، وليكون
  * العتاد طبقة تنفيذ لا مصدر قرار.
@@ -30,45 +46,96 @@ package nd.max.core.hardware
 object ThermalCurve {
 
     /**
-     * نسبة السقف إن كان هذا البروفايل يُسقِف شيئًا، أو `null` إن كان لا يُسقِف.
+     * البروفايلات التي تعني **قوّة** لا تبريد: سقفها قدرة الجهاز، ويجوز أن ترفع السقف الحيّ إليها.
      *
-     * و`null` ليست فراغًا بل **قرار**: `performance` تعني «أعطِ الجهاز كل ما يستطيع»، وحينها
-     * لا يُكتب سقف على أي عنقود. ولذلك تُعاد `null` لا `100` — الرمزان يبدوان متساويين في
-     * الحساب ويفترقان في المعنى، ومن يقرأ السجل يجب أن يرى «لا سقف» لا «سقف كامل».
+     * و`gaming` معها وإن كانت نسبته أقل من ١٠٠٪: نسبته تعني «درجة تشغيل الرسوم»، أمّا سقف CPU
+     * فيها فهو «لا تُقيَّد» — لأن الألعاب تحتاج الأنوية، وتقييدها هناك هو تبريد مُتنكّر بزيّ أداء.
      */
-    fun cappingPercent(percent: Int): Int? = percent.takeIf { it in 1..99 }
+    private val POWER_PROFILES = setOf("performance", "gaming")
+
+    /** هل هذا البروفايل طلبُ قوّة (لا تبريد)؟ */
+    fun isPowerProfile(profile: String): Boolean = profile.trim().lowercase() in POWER_PROFILES
+
+    /** اتجاه سقف CPU المطلوب — يُكتب في السجل حين يكون الفرق بين نيّة وتنفيذ هو ما يُسأل عنه. */
+    enum class Direction(val token: String) {
+        /** يُرفع السقف الحيّ إلى قيمة أعلى (بروفايل قوّة، والمنصّة كانت تقيّد). */
+        RAISE("raise"),
+
+        /** يُنزَل السقف الحيّ (بروفايل تبريد). */
+        LOWER("lower"),
+
+        /** لا كتابة: السقف الحيّ مُلبٍّ للطلب أصلًا، أو لا يمكن إثبات القيمة. */
+        HOLD("hold"),
+    }
 
     /**
-     * هل يطلب هذا البروفايل **كامل قدرة الجهاز**؟ (١٠٠٪ وما فوقها)
+     * طلب سقف سياسة CPU واحدة.
      *
-     * والفرق مقصود ومُعلَن، لأن نسبة واحدة لها معنيان بحسب غرض البروفايل:
-     *
-     * - `percent >= 100` (`performance` · `gaming`): الطلب هو **أعلى درجة مُعلنة من الجهاز**
-     *   (القدرة)، ولا يُقيَّد بالسقف الذي عليه الآن. ولو قُيِّد به لصار «Gaming ١٠٠٪» أدنى من الجهاز
-     *   غير الممسوس حين تكون سياسة الجهاز نفسها قد خفضت السقف (٧٥٤ من أصل ١٣٠٠ مثلًا) — وهو ما
-     *   رُفض صراحةً.
-     * - `percent < 100`: النسبة **من السقف الذي عليه الجهاز الآن**، لأن غرضها التبريد: من يطلب
-     *   «Power» يريد أقلّ من واقعه لا أقلّ من قدرة قد لا يبلغها أصلًا.
+     * @param hz السقف الذي **يُكتب**، أو `null` حين لا كتابة (والسبب في [reason]).
+     * @param capabilityHz أعلى تردّد أعلنه الجهاز — مرجع النسبة وحدّ الرفع المطلق.
+     * @param liveMaxHz السقف الحيّ المقروء الآن.
      */
-    fun atFullCapability(percent: Int): Boolean = percent >= 100
+    data class CpuCeiling(
+        val hz: Long?,
+        val direction: Direction,
+        val reason: String,
+        val capabilityHz: Long,
+        val liveMaxHz: Long,
+    ) {
+        /** هل ينتج عن هذا الطلب كتابة فعلية؟ */
+        val writes: Boolean get() = hz != null
+    }
 
     /**
-     * السقف الذي يجب كتابته على مقبض سقفه الحيّ [liveMaxHz] عند النسبة [percent].
+     * قرار السقف لبروفايل واحد على سياسة واحدة.
      *
-     * @param liveMaxHz السقف المقروء الآن من الجهاز — وهو حدّ التنفيذ الأعلى المطلق.
-     * @param ladder سلّم الترددات المُعلن من الجهاز (غير مرتّب ولا مرشَّح؛ يُرشَّح هنا).
-     * @return السقف الجديد، أو [liveMaxHz] نفسها حين لا يمكن إنزال السقف بأمان.
+     * و`reason` هنا **رموز ثابتة** لا جمل: الواجهة والسجل والقارئ يستعملون الرمز نفسه، والشرح في
+     * `LogCodeGlossary`.
+     *
+     * وترتيب الحدود مقصود: النسبة تحدّ **أعلى** ما يُكتب، والسقف الحيّ يحدّ **أدنى** ما يُكتب في
+     * بروفايلي القوّة، والسلّم يحدّ ما يُكتب أصلًا (لا درجة غير مُعلنة).
      */
-    fun capMaxHz(liveMaxHz: Long, percent: Int, ladder: List<Long>): Long {
-        if (liveMaxHz <= 0L) return liveMaxHz
-        val ratio = cappingPercent(percent) ?: return liveMaxHz
+    fun requestedCpuCeiling(
+        profile: String,
+        percent: Int,
+        capabilityHz: Long,
+        liveMaxHz: Long,
+        ladder: List<Long>,
+    ): CpuCeiling {
+        if (capabilityHz <= 0L || liveMaxHz <= 0L) {
+            return CpuCeiling(null, Direction.HOLD, "unreadable", capabilityHz, liveMaxHz)
+        }
+        val ratio = percent.coerceIn(1, 100)
+        val wantedHz = (capabilityHz * ratio) / 100L
 
-        // التقريب إلى أسفل: النسبة حسابًا حدّ أعلى لا يستطيع الطلب تجاوزه.
-        val targetHz = (liveMaxHz * ratio) / 100L
-        if (targetHz >= liveMaxHz) return liveMaxHz
+        // التقريب إلى أسفل: النسبة حسابًا حدّ أعلى لا يستطيع الطلب تجاوزه. والدرجة تُطلب من
+        // السلّم المُعلن **وفي حدود القدرة** معًا.
+        val declared = ladder
+            .filter { it > 0L && it <= wantedHz && it <= capabilityHz }
+            .maxOrNull()
 
-        val candidates = ladder.filter { it > 0L && it < liveMaxHz && it <= targetHz }
-        return candidates.maxOrNull() ?: liveMaxHz
+        if (isPowerProfile(profile)) {
+            // الطلب في هذا النمط **لا ينزل** عن الحيّ: النسبة تعني «أدنى ما يستحقه هذا البروفايل»،
+            // والقدرة تعني «ما يستطيعه الجهاز». وأيّهما أعلى هو المطلوب — إلا أن الرفع لا يتجاوز
+            // درجة مُعلنة: فإن لم يوجد في السلّم ما يكفي سفله، لا تُكتب درجة **أعلى** من النسبة
+            // المطلوبة. والقدرة نفسها تبقى الاحتياط حين لا يُعلن الجهاز سلّمًا أصلًا (‏`cpuinfo_max_freq`
+            // وحده) — وهي قيمة أعلنها السائق، لا اختراع.
+            val targetHz = maxOf(declared ?: capabilityHz, liveMaxHz)
+            return if (targetHz > liveMaxHz) {
+                CpuCeiling(targetHz, Direction.RAISE, "power-profile-above-live", capabilityHz, liveMaxHz)
+            } else {
+                CpuCeiling(null, Direction.HOLD, "power-profile-never-lowers", capabilityHz, liveMaxHz)
+            }
+        }
+
+        if (declared == null) {
+            return CpuCeiling(null, Direction.HOLD, "no-lower-advertised-step", capabilityHz, liveMaxHz)
+        }
+        return if (declared < liveMaxHz) {
+            CpuCeiling(declared, Direction.LOWER, "cooling-below-live", capabilityHz, liveMaxHz)
+        } else {
+            CpuCeiling(null, Direction.HOLD, "cooling-already-at-or-below-percent", capabilityHz, liveMaxHz)
+        }
     }
 
     /**
@@ -85,8 +152,8 @@ object ThermalCurve {
      * ولماذا تُسجَّل وهي مشتقّة: الفرق بين «طلب ٧٠٪» و«وقع ٦٦٪» هو الفرق بين نية وتنفيذ على
      * سلّم خشن، ومن يقرأ السجل بلا هذا الرقم يحسب أن الطلب لم يُنفَّذ.
      */
-    fun realizedPercent(ceilingHz: Long, capHz: Long): Int? {
-        if (ceilingHz <= 0L || capHz <= 0L || capHz > ceilingHz) return null
-        return ((capHz * 100L) / ceilingHz).toInt()
+    fun realizedPercent(referenceHz: Long, capHz: Long): Int? {
+        if (referenceHz <= 0L || capHz <= 0L || capHz > referenceHz) return null
+        return ((capHz * 100L) / referenceHz).toInt()
     }
 }
