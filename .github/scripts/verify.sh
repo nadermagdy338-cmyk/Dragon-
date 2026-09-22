@@ -18,8 +18,13 @@ readonly GRADLE_FILE="manager/app/build.gradle.kts"
 [ -f "version" ] || { echo "❌ Error: 'version' file not found!"; exit 1; }
 [ -f "version_type" ] || { echo "❌ Error: 'version_type' file not found!"; exit 1; }
 
+# `version_type` بتطهير `compile_zip.sh` حرفيًّا (`tr -d '\n\r '`) — لا أكثر:
+# فهذه السلسلة صار لها **كاتب واحد** هو هذا السكربت (كان في `build.yml` كاتب ثانٍ يعيد
+# كتابتها في `AZenith.h` بنسخة مطهَّرة، فيخفي فرقًا محتومًا بين الخادم و`module.prop` لو حمل
+# الملف فاصلة سطر أو مسافة مخفيّة). و`version` يبقى كما هو: `$(cat …)` تُسقط سطر النهاية
+# وحده، وهو ما يفعله `compile_zip.sh` بالضبط — فلا يتغيّر معنّى نسخة تحمل مسافة داخليًّا.
 readonly VERSION=$(cat version)
-readonly VERSION_TYPE=$(cat version_type)
+readonly VERSION_TYPE=$(cat version_type | tr -d '\n\r ')
 readonly VERSION_CODE=$(git rev-list HEAD --count)
 readonly SHORT_HASH=$(git rev-parse --short HEAD)
 readonly RELEASE_CODE="${VERSION_CODE}-${SHORT_HASH}-${VERSION_TYPE}"

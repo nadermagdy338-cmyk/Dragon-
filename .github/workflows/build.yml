@@ -24,60 +24,32 @@ on:
       - "version"
       - "version_type"
 
+# ⚠️ المجموعة كانت `build` بلا مرجع — أي أن **كل** تشغيلات الملف تتشارك مجموعة واحدة،
+# والجديد منها يُلغي القديم. ومن يدفع إلى `main` ثم يُفتح طلب سحب (أو العكس) كان يلغي
+# بناء نفسه في منتصفه، فيضيع الاستنساخ والمخرجات و«لا ينتهي البناء» أبدًا — وهذا يُحسّ
+# **كبطء** لا كإلغاء. فالمجموعة الآن _لكل مرجع على حدة، ولا يُلغي مرجعٌ مرجعًا آخر.
+# و`cancel-in-progress` باقٍ داخل المرجع نفسه: الدفعة الجديدة تُلغي دفعة قديمة مطابقة
+# لها (وهو المقصود من الأصل: لا تُشغل بناءين لنفس الفرع في وقت واحد).
 concurrency:
-  group: build
+  group: build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # ── الفحص الفوري (lintVital) في مهمة موازية ──
+  # ── مهمة `Lint (fatal gate)` أُزيلت من CI — قرار مالك صريح، مُسجَّل هنا لئلا يُعاد النقاش ──
   #
-  # `assembleRelease` كان يستدعي `lintVitalRelease` تلقائيًّا، وقِسناه في بيئة مطابقة
-  # لـrunner (٤ أنوية · ١٥ جيجابايت): **٣ دقائق و٢٩ ثانية** من أصل ~١٥ دقيقة — وأكثرها
-  # `lintVitalAnalyzeRelease`، أي تحليل كامل للكود من أجل حفنة أخطاء قاتلة.
-  #
-  # **ولماذا مهمة لا إلغاء:** جُرِّب `lint { checkReleaseBuilds = false }` فأثبتنا أنه **يمحو
-  # المهمة نفسها** (اختفت من `:app:tasks --all`)، أي أنه يُسقط الحاجز لا ينقله. أما
-  # `-x :app:lintVitalRelease` في مخطط البناء فيُخرجه من المسار الحرج وتبقى المهمة موجودة
-  # — وهذا ما تفعله هذه المهمة: تُشغّلها كما هي، بالتوازي.
-  #
-  # ولا تُضاف إلى `needs` في مهمة البناء: وجودها بالتوازي هو كل الغرض، وفشلها يُحمرّ
-  # التشغيل كما كان يفعل داخل البناء.
-  lint-vital:
-    name: Lint (fatal gate)
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6.0.2
-        with:
-          fetch-depth: 0
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          java-version: "17"
-          distribution: temurin
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-provider: basic
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
-
-      - name: Lint fatal errors on the release variant
-        working-directory: ./manager
-        run: |
-          chmod +x ./gradlew
-          ./gradlew \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
-            ":app:lintVitalRelease" \
-            --build-cache \
-            --parallel
+  # سببه، ومعه ثمنه (مقيسًا لا مقدَّرًا):
+  #   • المهمة كانت **موازية** لمهمة البناء، وزمن التشغيل هو زمن الأطول لا مجموعهما ⇒
+  #     إزالتها **لا تُقصّر التشغيل**؛ ما تُوفّره دقائق runner ودقائق حساب مدفوعة (المستودع
+  #     خاصّ). وكانت تدفع من الصفر على runner ثانٍ: تنزيل اعتماديات + تهيئة Gradle + ما
+  #     يحتاجه التحليل من تصريف، لتحليل `lintVitalRelease` (٣:٢٩ مقيسة · ٤:١٣ باردة، تكملة ٤٠/٦٠).
+  #   • والصنف الوحيد الذي أمسكته في تاريخ المستودع هو `ExtraTranslation` (تكملة ٦٠)، وصار
+  #     مُغطّى ببوابة أسرع بثلاث مراتب في خطوة «Contract gates» داخل مهمة البناء.
+  #   • ⚠️ **الثمن مُعلَن:** ما تكشفه بوابة lint وحدها بقِيَ بلا حاجز آلي في CI. وموضعه:
+  #     `./gradlew :app:lintVitalRelease` يدويًّا قبل الإصدار — وهي تُنادى تلقائيًّا داخل
+  #     `assembleRelease` إن لم تُستثنَ بـ`-x`.
+  #   • وللإرجاع: أربع خطوات معلومة (checkout + JDK 17 + `gradle/actions/setup-gradle` +
+  #     Android SDK) ثم `./gradlew :app:lintVitalRelease --build-cache --parallel` من مجلد
+  #     `manager` — وهي منقولة حرفيًّا في `HANDOFF` تكملة ٧٩ ومسجَّلة في git history.
 
   build:
     name: Build MaxManager
@@ -88,13 +60,56 @@ jobs:
     timeout-minutes: 45
 
     steps:
+      # ── الاستنساخ: التاريخ كامل، ولقطات المصدر الكبيرة لا تُنزَّل ──
+      #
+      # `fetch-depth: 0` **لازم**: `versionCode = git rev-list HEAD --count` (رقم نسخة
+      # تصاعدي مشتقّ من التاريخ، لا من عداد تشغيلات).
+      #
+      # لكن «التاريخ كامل» في هذا المستودع يعني كل لقطة مصدر (`MaxManager-source.zip`،
+      # ~13 ميجابايت) رُفعت في التزام سابق. ونوع الـzip لا يُضغط ولا يقبل الدلتا، فـ137
+      # التزامًا (رقم النسخة المرصود على الجهاز: `5.2 (137)`) ≈ **~1.8 جيجابايت تُنزَّل في كل
+      # تشغيل** — لا لشيء إلا لحساب رقم.
+      #
+      # و`blob:limit=5m` يُبقي كل ما يحتاجه البناء (أكبر ملف في الشجرة: `devices.db`
+      # 4.0 ميجابايت) ويُسقط الـzips وحدها، وتبقى الألتزامات كلها فـ`rev-list` صحيح. وإن
+      # تجاهل الخادمُ الفلتر (لا يدعمه) سقط إلى استنساخ كامل = السلوك السابق بلا كسر.
       - name: Checkout
         uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
+          filter: blob:limit=5m
+
+      # حرس صريح أمام الفلتر: إن صار يومًا ملف يحتاجه البناء أكبر من الحد، يسقط هنا باسمه
+      # برسالة تُسمّي الملف، لا في مكان غامض لاحقًا.
+      - name: Verify the checkout is complete
+        run: |
+          test -f manager/app/build.gradle.kts || { echo "::error::checkout is incomplete"; exit 1; }
+          test -s manager/app/src/main/assets/devices.db \
+            || { echo "::error::checkout dropped a file the build needs (assets/devices.db)"; exit 1; }
+          echo "✅ working tree complete"
 
       - name: Verify Module
         run: bash .github/scripts/verify.sh
+
+      # ── بوابات المستودع السريعة (ثوانٍ · بلا مُصرّف · بلا تنزيل) ──
+      #
+      # كانت محليّة فقط (AGENTS.md §0.1) فلا يراها CI إطلاقًا. وكلفتها ثوانٍ، وتغطّي
+      # الأصناف التي أنتجت أول عطلَي بناء حقيقيين هنا:
+      #   • مفتاح نصّ بلا نظير = `ExtraTranslation` ⇒ `i18n_coverage.py --assert`
+      #   • فاصلة عليا غير مُهرَّبة أسقطت `mergeReleaseResources` ⇒ `code_health.py`
+      #     (فحص `unescaped_apostrophe` على كل قيمة نصّية في كل موديول)
+      #   • توازن الأقواس/النصوص/التعليقات وصحّة XML ⇒ `kt_balance.py --assert`
+      #
+      # ومكانها **قبل** الأعمال الثقيلة عمدًا: عطلٌ في النصوص أو الموارد يفشل التشغيل في
+      # ثوانٍ، لا بعد دقائق من بناء الأصلي وRust. ولا تُغني عن مُصرّف: ما لا يراه إلا
+      # المصرّف (استيراد ناقص، نداء في سياق خاطئ) يبقى على أمر Gradle أدناه.
+      - name: Contract gates (fast, no compiler)
+        run: |
+          start=$SECONDS
+          python3 tools/kt_balance.py --assert
+          python3 tools/code_health.py --assert
+          python3 tools/i18n_coverage.py --assert
+          echo "✅ Contract gates passed in $((SECONDS - start))s"
 
       - name: Copy changelog file
         run: bash .github/scripts/changelog.sh
@@ -107,20 +122,20 @@ jobs:
           echo "V_TYPE=$V_TYPE" >> "$GITHUB_ENV"
           echo "Build mode set to: $V_TYPE"
 
-      - name: Sync Daemon Version String
+      # كان هذا خطوة كتابة **ثانية** لنفس السلسلة في نفس الملف الذي كتبه `verify.sh` قبله
+      # (بنفس الحساب) — أي مصدرين للحقيقة يمكن أن ينزاحا في صمت. فصار **تحقّقًا** لا كتابة:
+      # يقرأ ما كتبه `verify.sh` ويقارنه بالسلسلة التي سيحسبها `compile_zip.sh` لاحقًا.
+      #
+      # والسبب الذي وُجدت من أجله باقٍ ومُعلَن: `check_module_version()` في الخادم يقارن
+      # `MODULE_VERSION` المطبوعة فيه بسطر `version=` في `module.prop`؛ واختلاف بايت ببايت
+      # يُخرج الخادم عند الإقلاع (ModuleIntegrity.c -> "MaxManager version mismatch").
+      # ويجب أن يقع هذا قبل تصريف الخادم — وهو موضعه بالفعل.
+      - name: Confirm the daemon version string
         run: |
-          # MUST run before the daemon is compiled. check_module_version()
-          # in the daemon compares its baked-in MODULE_VERSION against the
-          # "version=" line compile_zip.sh later writes into module.prop.
-          # If they don't match byte-for-byte, the daemon exits on startup
-          # (see ModuleIntegrity.c -> "MaxManager version mismatch").
-          # This step computes the exact same string compile_zip.sh computes
-          # and bakes it into AZenith.h first, so both sides always agree.
-          version="$(cat version)"
-          version_type="$(cat version_type | tr -d '\n\r ')"
-          release_code="$(git rev-list HEAD --count)-$(git rev-parse --short HEAD)-$version_type"
-          sed -i "s/#define MODULE_VERSION .*/#define MODULE_VERSION \"$version ($release_code)\"/" archdaemon/jni/include/AZenith.h
-          echo "Baked MODULE_VERSION: $version ($release_code)"
+          expected="$(cat version) ($(git rev-list HEAD --count)-$(git rev-parse --short HEAD)-$(cat version_type | tr -d '\n\r '))"
+          grep -qF "MODULE_VERSION \"$expected\"" archdaemon/jni/include/AZenith.h \
+            || { echo "::error::AZenith.h MODULE_VERSION does not match '$expected'"; exit 1; }
+          echo "✅ MODULE_VERSION matches: $expected"
 
       - name: NDK Setup
         uses: nttld/setup-ndk@v1.6.0
@@ -175,10 +190,13 @@ jobs:
             ndk-build
           fi
 
+      # هدف واحد: arm64-v8a (قرار المالك، تكملة ٨٢). و`armv7-linux-androideabi` خرج من
+      # السلسلة كلها (toolchain + الأربعة crates + ndk-build في `Application.mk`) ثم من
+      # الحزمة والمنصّب — فلا يبقى هدف يُبنى ولا هدف يُقلَّب.
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-linux-android, armv7-linux-androideabi
+          targets: aarch64-linux-android
 
       - name: Cache Rust registry and target directories
         uses: Swatinem/rust-cache@v2
@@ -203,27 +221,27 @@ jobs:
         working-directory: ./thermalcore
         run: |
           if [ "$V_TYPE" == "experimental" ]; then
-            cargo ndk -t arm64-v8a -t armeabi-v7a build
+            cargo ndk -t arm64-v8a build
           else
-            cargo ndk -t arm64-v8a -t armeabi-v7a build --release
+            cargo ndk -t arm64-v8a build --release
           fi
 
       - name: Compile MaxManager Profilesettings
         working-directory: ./binprofiles
         run: |
           if [ "$V_TYPE" == "experimental" ]; then
-            cargo ndk -t arm64-v8a -t armeabi-v7a build
+            cargo ndk -t arm64-v8a build
           else
-            cargo ndk -t arm64-v8a -t armeabi-v7a build --release
+            cargo ndk -t arm64-v8a build --release
           fi
 
       - name: Compile MaxManager Utility
         working-directory: ./binutils
         run: |
           if [ "$V_TYPE" == "experimental" ]; then
-            cargo ndk -t arm64-v8a -t armeabi-v7a build
+            cargo ndk -t arm64-v8a build
           else
-            cargo ndk -t arm64-v8a -t armeabi-v7a build --release
+            cargo ndk -t arm64-v8a build --release
           fi
 
       # ── المكتبة الأصلية للتطبيق (JNI) ──
@@ -236,9 +254,9 @@ jobs:
         working-directory: ./manager/src/main/rust
         run: |
           if [ "$V_TYPE" == "experimental" ]; then
-            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build
+            cargo ndk -t arm64-v8a -o ../../../app/src/main/jniLibs build
           else
-            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build --release
+            cargo ndk -t arm64-v8a -o ../../../app/src/main/jniLibs build --release
           fi
 
       - name: Set up JDK 17
@@ -259,6 +277,44 @@ jobs:
 
       - name: Add Android Build Tools to PATH
         run: echo "$ANDROID_SDK_ROOT/build-tools/36.0.0" >> "$GITHUB_PATH"
+
+      # ── حالة مشروع Gradle: من تصريف **بارد** إلى تصريف **تدريجي** ──
+      #
+      # هذا أكبر بند زمني باقٍ في هذا التشغيل: كل دفع يبدأ من checkout نظيف، أي من
+      # `manager/**/build` فارغ — ومن غير تاريخ تنفيذ (`manager/.gradle`) لا يعرف Gradle
+      # أن مخرجات التشغيل السابق صالحة، فيصرف التطبيق كاملًا (٥٩٢ ملف Kotlin · ~139 ألف
+      # سطر · Compose + KSP/Hilt) من الصفر، ثم يعيد R8 وربط الموارد بعده.
+      #
+      # فتخزين **حالة المشروع** يجعل التشغيل التالي تدريجيًا: ملفات لم تتغيّر لا تُعاد،
+      # وما لم يتغيّر مدخله يُقرأ من مخزن Graddle المحلي كما في بناء مطوّر عادي.
+      #
+      # والمقايضة مُعلنة ومقيسة المعنى: استرجاع/حفظ بحجم غيغابايتات يكلّف عشرات الثواني
+      # **تُضاف** إلى زمن المهمة، والمكسب المقابل دقائق (تصريف + KSP + R8). وهي بذا مصمّمة
+      # بأقلّ ضرر ممكن: `continue-on-error` فحفظ أو استرجاع فاشل **لا يُحمرّ التشغيل أبدًا**
+      # (يسقط إلى بناء بارد = السلوك القديم)، وGradle نفسه يتحقّق من تجزئات المدخلات فلا
+      # يُبنى على مخرَج قديم فاسد. وللإلغاء: احذف هذه الخطوة وحدها ولا شيء غيرها.
+      #
+      # و… السقف: تشارك هذه المخازن سقف GitHub (10 جيجابايت للمستودع) مع `rust-cache`
+      # و`ccache`؛ فإن ثقل المخزن وأزاحها صار التشغيل أبطأ لا أسرع. وهذا الأثر لا يُقاس إلا
+      # بتشغيلين متتاليين عند GitHub — فقِسهما قبل الحكم، ومعك مفتاح الإلغاء أعلاه.
+      #
+      # والمفتاح بـ`github.sha`: أي أنه يُصيب بالضبط في «إعادة تشغيل نفس الالتزام»، ويرجع
+      # إلى أحدث مخزن سابق منه عند أي التزام جديد (والتحقّق من الصلاحية عمل Gradle).
+      - name: Restore Gradle project state
+        id: gradle_state
+        continue-on-error: true
+        uses: actions/cache@v4
+        with:
+          path: |
+            manager/.gradle
+            manager/build
+            manager/app/build
+            manager/terminal-emulator/build
+            manager/terminal-view/build
+            manager/kernel-flasher/build
+          key: gradle-state-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            gradle-state-${{ runner.os }}-
 
       - name: Verify Gradle Wrapper Jar
         working-directory: ./manager
@@ -297,11 +353,14 @@ jobs:
       # اختبارات العقد — فقط بلا عمل مكرَّر.
       # ── البناء + الاختبارات (نفس الأمر الواحد، ونفس المخرجات) ──
       #
-      # `-x :app:lintVitalRelease` هو التغيير الوحيد هنا: مخطط `assembleRelease` يحتوي
-      # `lintVitalAnalyzeRelease` + `lintVitalReportRelease` + `lintVitalRelease`، وقِسناه
-      # **٣:٢٩** من أصل ~١٥ دقيقة. أُخرجت من هذا الأمر وتُشغّل مهمة `lint-vital` الأعلاه
-      # بالتوازي — فتوفير الوقت **دون** إسقاط الحاجز (تحقّقنا من الاثنين في المخطط:
-      # `-x` يُخرجها من المسار، وتبقى المهمة قابلة للنداء بخلاف `checkReleaseBuilds = false`).
+      # `-x :app:lintVitalRelease` باقٍ هنا: مخطط `assembleRelease` يحتوي
+      # `lintVitalAnalyzeRelease` + `lintVitalReportRelease` + `lintVitalRelease`، وقِسناها
+      # **٣:٢٩** من أصل ~١٥ دقيقة. وهي أُخرجت من هذا الأمر أولًا إلى مهمة موازية، ثم أُزيلت
+      # تلك المهمة كلها (تكملة ٨٠). فلم يبقَ في CI من يُشغّل lint الفتّاك، ووجود `-x` هنا
+      # يمنع عودته صامتًا إلى المسار الحرج إن أُعيد النداء يومًا.
+      #
+      # والحاجز في هذا الأمر هو: البوابات السريعة أعلاه + مُصرّف + اختبارات عقد.
+      # ومن أراد الفحص الفتّاك فـ`./gradlew :app:lintVitalRelease` يدويًّا قبل الإصدار.
       - name: Build + test (contract gate)
         working-directory: ./manager
         run: |
@@ -349,6 +408,15 @@ jobs:
             apk_path="manager/app/build/outputs/apk/release/app-release.apk"
           fi
           test -f "$apk_path" || { echo "Expected APK is missing: $apk_path" >&2; exit 1; }
+
+          # حرس التركيب 64-بت (تكملة ٨٢): إن تسلّل ثنائيّ 32-بت إلى الـAPK (من موديول أو من
+          # AAR) يسقط البناء بأسمائه — فلا يُشحن حجم لا ينفع جهازًا ولا يُحمّل.
+          if unzip -l "$apk_path" | grep -q "lib/armeabi-v7a/"; then
+            echo "::error::APK carries 32-bit native libraries in a 64-bit-only build" >&2
+            unzip -l "$apk_path" | grep "lib/armeabi-v7a/" >&2
+            exit 1
+          fi
+
           apksigner verify --verbose --print-certs "$apk_path"
 
           badging="$(aapt dump badging "$apk_path" | grep -m1 '^package:')"
@@ -455,8 +523,20 @@ jobs:
             || { echo "module zip: permissions XML missing"; exit 1; }
           unzip -l "$module_zip" | grep -q "system/product/etc/permissions/privapp-permissions-nd.max.xml.sha256" \
             || { echo "module zip: permissions XML checksum missing"; exit 1; }
-          unzip -l "$module_zip" | grep -Eq "libs/(arm64-v8a|armeabi-v7a)/sys\.maxmanager-service" \
-            || { echo "module zip: service binary missing"; exit 1; }
+          # الأسماء الخمسة التي يستخرجها المنصّب بعينها (mainfiles/customize.sh:115-119) —
+          # بلا واحد منها يُركّب الموديول ناقصًا على الجهاز. وكان يُتحقَّق من اسم واحد فقط.
+          for binary in sys.maxmanager-service sys.maxmanager-preloadbin \
+                        sys.maxmanager-profilesettings sys.maxmanager-rianixiathermalcore \
+                        sys.maxmanager-utilityconf; do
+            unzip -l "$module_zip" | grep -qF "libs/arm64-v8a/$binary" \
+              || { echo "module zip: missing libs/arm64-v8a/$binary (installer requires it)" >&2; exit 1; }
+          done
+          # ولا ثنائيّ 32-بت في حزمة 64-بت وحدها (تكملة ٨٢).
+          if unzip -l "$module_zip" | grep -q "libs/armeabi-v7a/"; then
+            echo "::error::module zip: 32-bit binaries present in a 64-bit-only build" >&2
+            unzip -l "$module_zip" | grep "libs/armeabi-v7a/" >&2
+            exit 1
+          fi
           unzip -t MaxManager-developer-bundle.zip > /dev/null
           unzip -l MaxManager-developer-bundle.zip | grep -q "overlay/product/priv-app/MaxManager/MaxManager.apk" \
             || { echo "developer bundle: overlay APK missing"; exit 1; }

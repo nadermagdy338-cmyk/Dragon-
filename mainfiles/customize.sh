@@ -66,9 +66,8 @@ abort_arch() {
   echo "! Installation Aborted"
   echo "! Unsupported CPU Architecture Detected"
   echo "! Your device architecture is not compatible with this build of MaxManager."
-  echo "! Supported architectures:"
-  echo "  • arm64-v8a"
-  abort "  • armeabi-v7a"
+  echo "! Supported architecture:"
+  abort "  • arm64-v8a"
 }
 
 installation_complete() {
@@ -107,7 +106,9 @@ source "$TMPDIR/verify.sh"
 # Target architecture detection
 case $ARCH in
 "arm64") ARCH_TMP="arm64-v8a" ;;
-"arm") ARCH_TMP="armeabi-v7a" ;;
+# 32-بت غير مدعوم (قرار المالك، تكملة ٨٢): الحزمة 64-بت وحدها. والرفض الصريح أصدق من
+# استخراج ثنائيات غير موجودة ثم تركيب ناقص على الجهاز.
+"arm") abort_arch ;;
 *) abort_arch ;;
 esac
 

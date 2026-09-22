@@ -13,6 +13,32 @@ plugins {
     id("dagger.hilt.android.plugin")
 }
 
+/**
+ * زمن البناء الذي يُكتب في `BuildConfig.BUILD_TIME` (يُعرض كتاريخ بناء في ترويسة الإعدادات).
+ *
+ * **لماذا ليس `System.currentTimeMillis()` مباشرةً:** ذاك يتغيّر في كل تشغيل، فيصير
+ * `generateReleaseBuildConfig` **غير up-to-date أبدًا** ⇒ كل من يقرأ `BuildConfig` يُعاد
+ * تصريفه (٤ ملفات) ⇒ ثم dex ثم R8 ثم التغليف — سلسلة كاملة تُعاد من أجل رقم واحد،
+ * و`--build-cache` لا يُصيب منها شيئًا لأن مخرَج المُدخَل يتغيّر في كل بناء.
+ *
+ * **البديل:** زمن الالتزام — ثابتٌ للنُسخة الواحدة (نفس الالتزام ⇒ نفس الرقم)، فيصير البناء
+ * الثاني للنُسخة نفسها شبه مجّاني على الجهاز. وهو أصدق معنًى أيضًا: تاريخ إنتاج النسخة.
+ *
+ * **والسقوط:** بلا `git` أو بلا التزام (نسخة مفكوكة من zip، أو بناء في AndroidIDE) يُعاد
+ * السلوك القديم (ساعة البناء) بدل أن يُرمى خطأ أو يُكتب صفر.
+ */
+fun buildTimeEpochMs(): Long = runCatching {
+    val git = ProcessBuilder("git", "log", "-1", "--format=%ct")
+        .directory(rootDir)
+        .redirectErrorStream(true)
+        .start()
+    val seconds = git.inputStream.bufferedReader().use { it.readText() }.trim()
+    check(git.waitFor() == 0) { "git log exited with ${git.exitValue()}" }
+    val epochSeconds = seconds.toLongOrNull()
+    check(epochSeconds != null) { "git log did not return a commit time: '$seconds'" }
+    epochSeconds * 1000L
+}.getOrElse { System.currentTimeMillis() }
+
 android {
     namespace = "nd.max"
     // API 37 is not published on the GitHub-hosted SDK repository; API 36
@@ -37,9 +63,12 @@ android {
         versionCode = 1
         versionName = "1.0"
         vectorDrawables.useSupportLibrary = true
-        buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
+        buildConfigField("long", "BUILD_TIME", "${buildTimeEpochMs()}L")
         ndk {
-            abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
+            // arm64-v8a وحده — قرار المالك (تكملة ٨٢): الأجهزة 32-بت لم تبقَ مدعومة،
+            // والمنصّب يرفضها برسالة صريحة بدل تركيب ناقص. الفائدة في البناء: نصف حجم
+            // العمل الأصلي، وحزمة أخفّ بما كان مخصّصًا لـ`armeabi-v7a`.
+            abiFilters.addAll(listOf("arm64-v8a"))
         }
     }
 
@@ -117,6 +146,12 @@ android {
             excludes += "META-INF/*.version"
             excludes += "DebugProbesKt.bin"
             excludes += "kotlin-tooling-metadata.json"
+        }
+        // حرس صريح لا يعتمد على دلالات `abiFilters` وحدها: ما تبقّى من ثنائيات 32-بت في
+        // المستودع (مثل `kernel-flasher/src/main/jniLibs/armeabi-v7a`) لا يدخل الحزمة.
+        // وأثره مُتحقَّق منه في CI: بناء الـAPK يفشل إن وُجد `lib/armeabi-v7a/` داخله.
+        jniLibs {
+            excludes += "lib/armeabi-v7a/**"
         }
     }
 

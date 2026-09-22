@@ -45,22 +45,26 @@ if [ "$version_type" == "experimental" ]; then
 fi
 echo "Using Rust build profile: $RUST_PROFILE"
 
+# arm64-v8a وحده (قرار المالك، تكملة ٨٢): الأجهزة 32-بت لم تبقَ مدعومة، والمنصّب يرفضها
+# برسالة صريحة (mainfiles/customize.sh)
 mkdir -p mainfiles/libs/arm64-v8a
-mkdir -p mainfiles/libs/armeabi-v7a
 mkdir -p mainfiles/system/bin
 
 [ -d "libs" ] && cp -r libs/* mainfiles/libs/ 2>/dev/null
 [ -d "archdaemon/libs" ] && cp -r archdaemon/libs/* mainfiles/libs/ 2>/dev/null
 [ -d "preloadbin/libs" ] && cp -r preloadbin/libs/* mainfiles/libs/ 2>/dev/null
 
-# Ambil binari Rust berdasarkan RUST_PROFILE (debug / release)
-cp thermalcore/target/aarch64-linux-android/$RUST_PROFILE/rianixia-thermalcore mainfiles/libs/arm64-v8a/sys.maxmanager-rianixiathermalcore 2>/dev/null || true
-cp binprofiles/target/aarch64-linux-android/$RUST_PROFILE/maxmanager-profilesettings mainfiles/libs/arm64-v8a/sys.maxmanager-profilesettings 2>/dev/null || true
-cp binutils/target/aarch64-linux-android/$RUST_PROFILE/maxmanager-utilityconf mainfiles/libs/arm64-v8a/sys.maxmanager-utilityconf 2>/dev/null || true
+# نسخة تُغلق بما هو مطلوب: ثنائيِّ مفقود يُفشل البناء باسمه ومساره، بدل أن يُسقطه
+# `|| true` فيمرّ الموديول ويُركَّب ناقصًا على الجهاز (وهو ما كان يحدث صامتًا).
+copy_binary() {
+	[ -f "$1" ] || { echo "ERROR: missing built binary: $1" >&2; exit 1; }
+	cp "$1" "$2"
+}
 
-cp thermalcore/target/armv7-linux-androideabi/$RUST_PROFILE/rianixia-thermalcore mainfiles/libs/armeabi-v7a/sys.maxmanager-rianixiathermalcore 2>/dev/null || true
-cp binprofiles/target/armv7-linux-androideabi/$RUST_PROFILE/maxmanager-profilesettings mainfiles/libs/armeabi-v7a/sys.maxmanager-profilesettings 2>/dev/null || true
-cp binutils/target/armv7-linux-androideabi/$RUST_PROFILE/maxmanager-utilityconf mainfiles/libs/armeabi-v7a/sys.maxmanager-utilityconf 2>/dev/null || true
+# Ambil binari Rust berdasarkan RUST_PROFILE (debug / release)
+copy_binary thermalcore/target/aarch64-linux-android/$RUST_PROFILE/rianixia-thermalcore mainfiles/libs/arm64-v8a/sys.maxmanager-rianixiathermalcore
+copy_binary binprofiles/target/aarch64-linux-android/$RUST_PROFILE/maxmanager-profilesettings mainfiles/libs/arm64-v8a/sys.maxmanager-profilesettings
+copy_binary binutils/target/aarch64-linux-android/$RUST_PROFILE/maxmanager-utilityconf mainfiles/libs/arm64-v8a/sys.maxmanager-utilityconf
 
 # Other Files
 cp maxmanagerApplist.json mainfiles/

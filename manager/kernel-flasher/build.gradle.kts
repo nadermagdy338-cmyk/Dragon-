@@ -27,7 +27,8 @@ android {
 
         ndk {
             //noinspection ChromeOsAbiSupport
-            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+            // arm64-v8a وحده — كما في `:app` (قرار المالك، تكملة ٨٢).
+            abiFilters += listOf("arm64-v8a")
         }
 
         vectorDrawables {

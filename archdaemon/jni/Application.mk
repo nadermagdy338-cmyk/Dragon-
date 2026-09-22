@@ -1,3 +1,6 @@
-APP_ABI := arm64-v8a armeabi-v7a
+# arm64-v8a وحده (قرار المالك، تكملة ٨٢): الأجهزة 32-بت لم تبقَ مدعومة، والمنصّب يرفضها
+# برسالة صريحة (mainfiles/customize.sh). وكان بناء 32-بت يكلّف نصف زمن البناء الأصلي
+# مقابل ثنائيات لا تصل إلى جهاز.
+APP_ABI := arm64-v8a
 APP_PLATFORM := android-29
 APP_OPTIM := release
