@@ -487,18 +487,17 @@ jobs:
       #
       # و`SOURCE-DIGEST` يجيب سؤالًا مكرّرًا: «هل شجرة المستودع هي هذه الشجرة؟» — رقم واحد
       # يُقارن بين الطرفين، فلم يُحتج إلى قراءة المستودع (وهو غير متاح من هنا).
-      - name: Written diagnosis (compiler lines + source digest)
+      - name: Written diagnosis (compiler lines + source diff vs reference tree)
         if: always()
         run: |
-          echo "════════ بصمة الشجرة (تُقارَن بأي نسخة أخرى) ════════"
-          roots="manager/app/src/main .github/workflows tools"
-          files=$(find $roots -type f \( -name '*.kt' -o -name '*.kts' -o -name '*.yml' -o -name '*.py' \) 2>/dev/null | sort)
-          if [ -n "$files" ]; then
-            echo "SOURCE-FILES: $(printf '%s\n' "$files" | wc -l)"
-            echo "SOURCE-DIGEST: $(printf '%s\n' "$files" | xargs sha256sum | sha256sum | cut -c1-16)"
-          else
-            echo "SOURCE-DIGEST: unavailable"
-          fi
+          # ولم تكن البصمة كافية وحدها: رقم يقول «مختلفة» ولا يقول «أي ملف». فصارت الأداة
+          # تسمّي الفروق **بالاسم** مقابل الشجرة المرجعية المرفوعة (`docs/ai/source-manifest.txt`)،
+          # فيُقرأ في هذا السجل — لا في جولة مراسلة أخرى — أي ملف لم يصل أو وصل قديمًا.
+          #
+          # و`|| true` مقصودة: اختلاف الشجرة **تشخيص** لا فشل، فلا تُحمرّ هذه الخطوة البناء بنفسها.
+          # وإن تغيّرت المصادر عن قصد: `python3 tools/source_manifest.py --write`.
+          echo "════════ بصمة الشجرة (مقابل الشجرة المرجعية المرفوعة) ════════"
+          python3 tools/source_manifest.py --check || true
 
           log=/tmp/gradle-build.log
           if [ ! -f "$log" ]; then
