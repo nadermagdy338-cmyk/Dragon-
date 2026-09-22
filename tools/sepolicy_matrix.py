@@ -7,12 +7,19 @@
 مسارات AOSP، و`mainfiles/` مسار الموديول. والفرق بينهما لم يكن في جدول واحد، فسؤال
 «هل المسار الذي نكتبه مُعلَّم؟» كان يُجاب بالقراءة اليدوية لكل ملف في كل مراجعة.
 
-والعطب الذي كشفته المراجعة الأولى — ويُقاس هنا لا يُروى:
+والأعطاب التي كشفتها المراجعة الأولى والعميقة — وتُقاس هنا لا تُروى:
 
 * `mainfiles/META-INF/com/google/android/update-binary:138` ينسخ `$MODPATH/sepolicy.rule`
-  **ولا ملف بهذا الاسم في الشجرة كلها** — والفحص `[ -f ]` صامت، فيمرّ غيابه بلا رسالة.
-* و`android/aosp/sepolicy/file_contexts` يُعلّم `/system/bin/maxmanager_daemon`، بينما الموديول
-  يُثبّت `sys.maxmanager-service` في `system/bin/` — أي أن الوسم يشير إلى اسم لا يُنتَج.
+  **ولا ملف بهذا الاسم في الشجرة كلها** — والفحص `[ -f ]` صامت، فيمرّ غيابه بلا رسالة. وهذا
+  **مصدر السياسة الوحيد المتاح للموديول**: وثيقة Magisk وKernelSU تذكران `sepolicy.rule` ملفًّا
+  اختياريًّا في جذر الموديول تُطبَّق أسطره عند الإقلاع؛ فغيابه يعني أن الموديول لا يُضيف قاعدة
+  سياسة واحدة على مساره (وذاك لا يعني خللًا: مساره يعمل بصدفة جذر).
+* و`android/aosp/Android.bp` يُعلن مصادر **غير موجودة**: `runtime/daemon-rust/src/**/*.rs`
+  و`runtime/daemon-rust/src/lib.rs` ولا مجلد `runtime/` في الشجرة أصلًا.
+* و`android/aosp/sepolicy/file_contexts` يُعلّم `/data/misc/maxmanager` وخادمنا يكتب
+  `/data/adb/.config/MaxManager/**` (`archdaemon/jni/include/AZenith.h`) — أي أن قواعد `allow`
+  في `maxmanager.te` تحرس مسارًا لا يُستخدم، والمسار المُستخدم (`adb_data_file` من المنصّة)
+  بلا قاعدة.
 
 فالأداة تجمع **من الشجرة** ثلاث حقائق وتقارنها: ما يُثبَّت، وما هو مُعلَّم، وما يُشار إليه ولا وجود له.
 
@@ -20,26 +27,36 @@
 --------
 | البوابة | ما تحكم عليه |
 | --- | --- |
-| `install-labeled` | كل **ملف** يُثبَّت عندنا لازمٌ وسمٌ في `file_contexts` (ولا يُحاسب مجلدٌ: المجلد لا يُوسَم) |
-| `label-not-stale` | كل سطر وسم يشير إلى مسار **يُنتَج فعلًا** (من الموديول أو من مسار AOSP) وإلا فهو وسم ميت |
+| `install-labeled` | كل **ملف** يُشغَّل **من init** (`service … /system/bin/<name>` في `android/aosp/*.rc`) لازمه وسم `exec_type` في `file_contexts` (ولا يُحاسب مجلدٌ: المجلد لا يُوسَم) |
+| `label-not-stale` | كل سطر وسم يشير إلى مسار **يُنتَج فعلًا** (من الموديول أو من مسار AOSP أو من تعريف Soong) وإلا فهو وسم ميت |
 | `no-dead-reference` | كل ملف يُشار إليه بـ`$MODPATH/<اسم>` موجودٌ في الشجرة أو يُنتجه البناء |
+| `no-dead-source` | كل مصدر يُعلنه `Android.bp` (`srcs:`/`manifest:`) له جذرٌ موجود في الشجرة |
+| `path-conflict` | تعريف Soong لا يجمع قسمين (`vendor: true` + `product_specific: true`)، ومسار الخدمة في `.rc` يطابق ما يُنشره Soong |
+| `policy-gap` | كل مسار حالة **يكتبه خادمنا** إمّا موسوم منّا مع `allow`، وإمّا يُعلَن نوعه من المنصّة صراحةً |
 
-والمصادر الثلاثة للمسارات المُنتَجة معلنة في الرمز: أوامر التثبيت في `mainfiles/`، وأسطر `service`
-في `android/aosp/*.rc` (وهي التي تُنشر الثنائيات في مسار AOSP)، ومسارات الحالة التي تُكتب من الشيفرة.
-والاتحاد هو ما يُقارَن به الوسم — فلا يُسمّى وسمًا ميتًا وهو صحيح في مسار آخر.
+والمصادر المُعلنة للمسارات المُنتَجة: أوامر التثبيت في `mainfiles/`، وأسطر `service` في
+`android/aosp/*.rc`، وتعريفات `Android.bp` (Soong)، ومسارات الحالة التي تُكتب من الشيفرة. والاتحاد هو
+ما يُقارَن به الوسم — فلا يُسمّى وسمًا ميتًا وهو صحيح في مسار آخر.
+
+⚠️ **تصحيح مقيس (جولة المراجعة العميقة):** كانت بوابة `install-labeled` في نسختها الأولى
+تُحاسب **خمسة ثنائيّات** (`sys.maxmanager-*`) يُثبّتها الموديول في `system/bin/`، حكمًا واحدًا مع
+ثنائيّات مسار AOSP. وهي **مقارنة نطاقين مختلفين**، ووسمها في `file_contexts` **لا يُقرأ أصلًا** على
+مسار الموديول: وثيقة Magisk تقول إن `set_perm`/`set_perm_recursive` تُطبّق افتراضًا
+`u:object_r:system_file:s0`، وإن نطاق `magisk` «permissive فعليًّا» (تفاصيل: `topjohnwu.github.io/Magisk/`).
+ونطاقنا نحن (`maxmanager`) لا يُشغّل هذه الثنائيّات: `mainfiles/service.sh` يُشغّلها من مجلد الموديول
+بصدفة جذر، لا من `init`. فالحكم الصحيح لها: **معلومة نطاق** (`ℹ️`) لا عطبًا — و`exec_type` يلزم
+للذي يُشغّله `init` وحده. وهذا الفرق هو سبب وجود البوابة الأولى بشرط «من init».
 
 وحدودها مُعلَنة
 --------------
 * مسارات المنصّة (`/sys/**`, `/proc/**`, `/dev/**`) **ليست ملكنا**، ووسمها يأتي من نطاق النظام
   (`sysfs`, `proc`, `dev_type`). الأداة تُدرجها كـ`platform` بسببها ولا تُحاسبها — ولا تدّعي أنها
   «آمنة»: ما يدخلها من الكتابة يبقى محكومًا بـarbiter ونطاق الجذر.
-* وبوابة `install-labeled` تُحاسب ثنائيّات `bin/` وحدها، وهذا **تصنيف مُعلَن لا تجاهل**: المحتوى
-  المركّب (`product/priv-app`, `product/etc`) يُوسَم بوسوم المنصّة (`system_file`, `priv_app`).
-  ⚠️ وأما `/system/bin/**` في مسار الموديول فهي أسماء **تُرى عبر OverlayFS/magic-mount** لا ملفات
-  حقيقية في القسم، ووسمها يأتي من طبقة التركيب — فوِجدانُ الأداة هنا يخصّ التنصيب المباشر في
-  القسم (مسار AOSP/الصورة) وما يُشغَّل بنطاق خاص بنا. وهذا الحدّ مكتوب لأنه يُغيّر تفسير العطب.
-* الأداة لا تُصرّف سياسة ولا تتحقّق من صحّة `.te` نحويًّا: تقرأ الوسوم والمسارات وتربطها.
-* ولا تكشف `allow` الناقص داخل نطاقنا: ذلك يحتاج `checkpolicy`/جهازًا.
+* وبوابة `install-labeled` تُحاسب ما يُشغّله `init` وحده (وهو ما يحتاج `exec_type`): ثنائيّات `bin/`
+  في مسار AOSP. والمحتوى المركّب (`product/priv-app`, `product/etc`) يُوسَم بوسوم المنصّة
+  (`system_file`, `priv_app`) فلا يُحاسب.
+* والأداة لا تُصرّف سياسة ولا تُصرّف `Android.bp`: تقرأ النصوص وتربطها، ولا تُشغّل `checkpolicy`
+  ولا `soong_build`. وبوابة `path-conflict` تُعلن ما تقرأه من جمع قسمين لا حكم Soong نفسه.
 
 الاستعمال
 --------
@@ -49,6 +66,11 @@ python3 tools/sepolicy_matrix.py --json     # للقراءة الآلية
 python3 tools/sepolicy_matrix.py --assert   # exit 1 عند أي عطب
 python3 tools/sepolicy_matrix.py --self-test
 ```
+
+و`--self-test` يقيس الأداة على شجرة مصغّرة **معلومة الحكم**، وفيه حالة لكل قاعدة جديدة: ثنائيّ
+يُشغّله سكربت جذر (لا init) لا يُحاسب، وثنائيّ يُشغّله init بلا وسم يُحاسب، وتعريف Soong بـ`vendor: true`
+يُبرّئ وسم `/vendor/bin`، ومصدر غائب في `srcs:` يُسمّى، وجمع قسمين في وحدة يُعلَن، ومسار حالة
+يكتبه الخادم بلا وسم ولا قاعدة يُعلَن.
 """
 
 from __future__ import annotations
@@ -65,6 +87,45 @@ ROOT = Path(__file__).resolve().parent.parent
 POLICY_DIR = "android/aosp/sepolicy"
 FILE_CONTEXTS = f"{POLICY_DIR}/file_contexts"
 INSTALLER_SCRIPTS = ("mainfiles/customize.sh", "mainfiles/META-INF/com/google/android/update-binary")
+POLICY_TYPE_FILES = (f"{POLICY_DIR}/maxmanager.te",)
+
+# ملفات تعريف Soong: المصدر الثاني للحقيقة عن «ما يُنشر وأين». وهذا ما جعل حكمًا سابقًا خاطئًا:
+# وسم `/vendor/bin/maxmanager_daemon` كان يُقرأ «ميتًا» لأن مسار AOSP المسحي كان `.rc` وحده،
+# بينما `Android.bp` يُنشر الوحدة بـ`vendor: true` (أي إلى `/vendor/bin` لا `/system/bin`).
+SOONG_FILES = ("android/aosp/Android.bp",)
+
+# مسار التغليف الثاني (KernelSU/APatch) — يُقرأ ليُعلَن ما يطلبه ولا يُنتجه شيء في الشجرة.
+PARALLEL_PACKAGER = "android/kernelsu/customize.sh"
+
+# مسارات حالة يكتبها الخادم/السكربتات، ونوع وسمها من المنصّة حين لا يكون لنا وسم عليها.
+# والأسباب مكتوبة: `adb_data_file` من وثيقة Magisk نفسها (`/data/adb` موسوم بها).
+PLATFORM_DATA_LABELS = (
+    ("/data/adb/", "adb_data_file", "وثيقة Magisk: `/data/adb` موسوم `u:object_r:adb_data_file:s0`"),
+    ("/data/data/", "app_data_file", "بيانات التطبيقات: وسم المنصّة `app_data_file`"),
+    ("/data/system/", "system_data_file", "بيانات النظام: وسم المنصّة `system_data_file`"),
+    ("/data/misc/", "misc_user_data_file", "`/data/misc` وسمه من المنصّة إلا ما وُسِم منه"),
+    ("/data/local/tmp/", "shell_data_file", "`/data/local/tmp` وسمه `shell_data_file` من المنصّة"),
+)
+
+# ما يُعدّ «خادمنا» في بوابة `policy-gap`: الخادم الأصلي وسكربتات التثبيت/الإقلاع وحدها.
+DAEMON_SOURCE_ROOTS = (
+    "archdaemon/",
+    "preloadbin/",
+    "mainfiles/",
+    "android/",
+    "thermalcore/",
+    "binprofiles/",
+    "binutils/",
+)
+
+# جذور الحالة التي تُقرأ من الشيفرة: ما يكتبه **خادمنا** فعلًا (لا ما نتمنى أنه يكتبه).
+STATE_ROOT_PREFIXES = (
+    "/data/misc/maxmanager",
+    "/data/adb/.config/MaxManager",
+    "/data/adb/modules/MaxManager",
+    "/data/system/maxmanager",
+    "/data/data/nd.max",
+)
 
 # ── ما هو **ملكنا** فعلًا ────────────────────────────────────────────────────────────────
 # مسار الموديول على الجهاز يبدأ بـ`/data/adb/modules/...`، وما يُركَّب منه يُقرأ من `/system`
@@ -159,6 +220,10 @@ _CREATED_PATTERNS = (
     r">\s*\"?\$MODPATH/([A-Za-z0-9_][A-Za-z0-9_.-]*)",
     # وجهة النقل: `$MODPATH/<اسم>` في **آخر** السطر = يُنشأ، لا يُقرأ.
     r"\bcp\s+[^\n]*?\s+\"?\$MODPATH/([A-Za-z0-9_][A-Za-z0-9_.-]*)\"?\s*$",
+    # مجلد يُدار من السكربت (`set_perm_recursive`) أو يُنشأ (`mkdir -p`): ليس ملفًا مطلوب الوجود
+    # في الحزمة، فعدّه مرجعًا ميتًا كان يُنتج ضجيجًا فوق الاكتشاف الحقيقي (٣ أعطاب وهمية مقيسة).
+    r"set_perm_recursive\s+\"?\$MODPATH/([A-Za-z0-9_][A-Za-z0-9_.-]*)",
+    r"mkdir\s+-p\s+\"?\$MODPATH/([A-Za-z0-9_][A-Za-z0-9_.-]*)",
 )
 
 
@@ -184,7 +249,7 @@ def binaries_installed_by_glob(root: Path) -> dict[str, list[str]]:
 
 def created_by_scripts(root: Path) -> set[str]:
     created: set[str] = set()
-    for script in INSTALLER_SCRIPTS:
+    for script in (*INSTALLER_SCRIPTS, PARALLEL_PACKAGER):
         text = read(root, script)
         for pattern in _CREATED_PATTERNS:
             # `re.M`: بلاها لا يُطابق `$` إلا نهاية الملف كله، فيسقط كل «وجهة نقل في آخر السطر».
@@ -209,13 +274,117 @@ def aosp_produced_paths(root: Path) -> dict[str, list[str]]:
     return produced
 
 
+def aosp_init_started(root: Path) -> dict[str, list[str]]:
+    """ما يُشغّله `init` (اسم الملف ⇒ مصدره) — وهو **وحده** ما يحتاج `exec_type` منّا.
+
+    والمصدر هو سطر `service <name> <path>` في `android/aosp/*.rc`. وما يُشغّله سكربت جذر
+    (`mainfiles/service.sh`) لا يحتاج وسمًا: يشتغل بصدفة `root`/`magisk` ولا يعبر بوابة `init`.
+    """
+    started: dict[str, list[str]] = {}
+    for rc in (root / "android/aosp").glob("*.rc"):
+        for raw in rc.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = raw.split("#", 1)[0].strip()
+            match = re.match(r"service\s+\S+\s+(/[A-Za-z0-9_./-]+)", line)
+            if match:
+                started.setdefault(match.group(1).rsplit("/", 1)[-1], []).append(str(rc.relative_to(root)))
+    return started
+
+
+def _soong_blocks(text: str) -> list[tuple[str, str, list[str]]]:
+    """يقرأ كتل `Android.bp` الثلاثية (`<kind> { name: … }`) بلا مُصرّف Soong.
+
+    وحدّه المُعلَن: قارئ أسطر لا محلّل أسماء؛ يكفي لـ`name:` و`srcs:` و`vendor:`/`product_specific:`،
+    وهو كل ما تُبنى عليه هنا. وليس بديلًا عن `soong_build` ولا يُدَّعى أنه كذلك.
+    """
+    blocks: list[tuple[str, str, list[str]]] = []
+    kind: str | None = None
+    name = ""
+    body: list[str] = []
+    depth = 0
+    for raw in text.splitlines():
+        line = raw.split("//", 1)[0]
+        if kind is None:
+            match = re.match(r"\s*([A-Za-z_][A-Za-z0-9_]*)\s*\{", line)
+            if match:
+                kind, name, body, depth = match.group(1), "", [], 1
+            continue
+        depth += line.count("{") - line.count("}")
+        if name == "":
+            found = re.search(r"\bname:\s*\"([^\"]+)\"", line)
+            if found:
+                name = found.group(1)
+        body.append(line)
+        if depth <= 0:
+            blocks.append((kind, name, body))
+            kind = None
+    return blocks
+
+
+def _soong_srcs(body: list[str]) -> list[str]:
+    joined = "\n".join(body)
+    values: list[str] = []
+    for match in re.finditer(r"(?:srcs|static_libs|shared_libs):\s*\[(.*?)\]", joined, re.S):
+        values += re.findall(r"\"([^\"]+)\"", match.group(1))
+    for match in re.finditer(r"\bmanifest:\s*\"([^\"]+)\"", joined):
+        values.append(match.group(1))
+    return values
+
+
+def soong_installed_paths(root: Path) -> dict[str, list[str]]:
+    """ما يُنشره Soong وأين — `vendor: true` ⇒ `/vendor/bin`، و`product_specific` ⇒ `/product/priv-app`."""
+    produced: dict[str, list[str]] = {}
+    for file in SOONG_FILES:
+        for kind, name, body in _soong_blocks(read(root, file)):
+            if not name:
+                continue
+            flags = "\n".join(body)
+            vendor = re.search(r"\bvendor:\s*true", flags) is not None
+            product = re.search(r"\bproduct_specific:\s*true", flags) is not None
+            if kind == "cc_binary":
+                partition = "/vendor/bin" if vendor else "/system/bin"
+                produced.setdefault(f"{partition}/{name}", []).append(f"{file}: {kind} {name}")
+            elif kind in ("android_app", "android_app_import"):
+                base = "/product/priv-app" if product else "/system/app"
+                produced.setdefault(f"{base}/{name}/{name}.apk", []).append(f"{file}: {kind} {name}")
+    return produced
+
+
+def declared_sources(root: Path) -> dict[str, list[str]]:
+    """مصادر تُعلنها تعريفات Soong — الفحص: جذرها موجود في الشجرة."""
+    declared: dict[str, list[str]] = {}
+    for file in SOONG_FILES:
+        for kind, name, body in _soong_blocks(read(root, file)):
+            for source in _soong_srcs(body):
+                declared.setdefault(source, []).append(f"{file}: {kind} {name}".strip())
+    return declared
+
+
 def runtime_state_paths(root: Path) -> dict[str, list[str]]:
     """مسارات الحالة التي تُكتب من الشيفرة — وجودها يُبرّر وسمًا لا يُنتجه المثبِّت."""
     return {
         path: sources
-        for path, sources in _device_paths(root, ("/data/misc/maxmanager",)).items()
+        for path, sources in _device_paths(root, STATE_ROOT_PREFIXES).items()
         if not path.endswith("/")
     }
+
+
+def policy_type_tokens(root: Path) -> str:
+    """نصّ ملفات السياسة (`*.te`) — يُقرأ لسؤال واحد: هل النوع مذكور بقاعدة؟"""
+    return "\n".join(read(root, name) for name in POLICY_TYPE_FILES)
+
+
+def platform_label_for(device_path: str) -> tuple[str, str] | None:
+    """نوع وسم المنصّة لأول بادئة تُطابق المسار (والسبب مكتوب معه)."""
+    for prefix, label, reason in PLATFORM_DATA_LABELS:
+        if device_path == prefix.rstrip("/") or device_path.startswith(prefix):
+            return label, reason
+    return None
+
+
+def label_type_of(label_line: str) -> str | None:
+    """`u:object_r:maxmanager_data_file:s0` ⇒ `maxmanager_data_file`."""
+    match = re.search(r"u:object_r:([A-Za-z0-9_]+)", label_line)
+    return match.group(1) if match else None
 
 
 def declared_labels(root: Path) -> dict[str, list[str]]:
@@ -254,19 +423,31 @@ def script_references(root: Path) -> dict[str, list[str]]:
 
     والاقتصار على اسم واحد عن قصد: `$MODPATH/system` مسار مجلد ولا يُنتج ملفًّا، وإدخاله يُنتج
     ضجيجًا يُغرق الاكتشاف الحقيقي (ملف **يطلب نسخه** ولا وجود له).
+
+    ويُضاف إليها سكربت التغليف الموازي (`android/kernelsu/customize.sh`): هو أيضًا يطلب ملفات
+    بـ`$MODPATH/<اسم>` من الحزمة، ولو لم يُقرأ لمرّ مطلبه الذي لا يُنتجه شيء في الشجرة صامتًا.
     """
     references: dict[str, list[str]] = {}
-    for script in (*INSTALLER_SCRIPTS, "mainfiles/META-INF/com/google/android/updater-script"):
+    for script in (*INSTALLER_SCRIPTS, "mainfiles/META-INF/com/google/android/updater-script", PARALLEL_PACKAGER):
         for raw in read(root, script).splitlines():
             line = raw.split("#", 1)[0]
-            for match in re.finditer(r"\$MODPATH/([A-Za-z0-9_][A-Za-z0-9_.-]*)(?![A-Za-z0-9_./-])", line):
-                references.setdefault(match.group(1), []).append(f"{script}:{line.strip()[:70]}")
+            for match in re.finditer(r"\$MODPATH/([A-Za-z0-9_][A-Za-z0-9_.-]*(?:/[A-Za-z0-9_.-]+)?)(?![A-Za-z0-9_./-])", line):
+                name = match.group(1)
+                # ومجلداتنا المُركّبة (`system/**`, `product/**`) تُسقَط: تُنشأ من المثبِّت لا من الحزمة.
+                # وسببُ ذلك مقيس: ذكرها كان يُنتج مراجع «ميتة» لأشياء ليست ملفات في الحزمة أصلًا.
+                if name.startswith(("system/", "product/")):
+                    continue
+                references.setdefault(name, []).append(f"{script}:{line.strip()[:70]}")
     return references
 
 
 def is_produced(root: Path, name: str) -> bool:
     """هل يُنتج البناء هذا الاسم (في الشجرة أو في مخرَج مُعلَن)؟"""
     if (root / name).exists() or (root / "mainfiles" / name).exists():
+        return True
+    # ومسار تغليف موازٍ يُنتج الحزمة في مكان آخر (`android/kernelsu/`) يُحسَب أيضًا: المطلوب
+    # أنه **يُنتَج من شيء في الشجرة**، لا أن يكون في مكان بعينه.
+    if (root / "android" / "kernelsu" / name).exists():
         return True
     produced_names = {
         "module.prop",
@@ -291,32 +472,52 @@ def scan(root: Path) -> tuple[list[Finding], list[dict[str, str]]]:
     targets = install_targets(root)
     labels = declared_labels(root)
     aosp = aosp_produced_paths(root)
+    soong = soong_installed_paths(root)
     state = runtime_state_paths(root)
-    produced = {**targets, **aosp, **state}
+    produced = {**targets, **aosp, **soong, **state}
+    type_text = policy_type_tokens(root)
     # ثنائيّات bin/ المنسوخة جماعيًّا تدخل فحص الوسم أيضًا، وإن لم تُنتج هدفًا صريحًا في السطر.
     glob_binaries = binaries_installed_by_glob(root)
     for device_path, sources in glob_binaries.items():
         targets.setdefault(device_path, sources)
 
-    # ١) كل **ثنائيّ** نضعه في `bin/` يجب أن يحمل وسمًا معلنًا (أو استثناءً مكتوبًا).
+    # ١) كل **ثنائيّ يُشغّله init** نضعه في `bin/` يجب أن يحمل وسم `exec_type` (أو استثناءً مكتوبًا).
     #
-    #    والاقتصار على `bin/` مقصود ومُعلَن: المحتوى المركّب (`product/etc`, `product/priv-app`)
-    #    يُقرأ بوسوم المنصّة (`system_file`, `priv_app`, …) ولا يحتاج وسمًا من سياستنا؛ والفشل هنا
-    #    لو اقتضيناه له لكان **تصنيفًا خاطئًا** يُدفن فيه الاكتشاف الحقيقي.
+    #    ⚠️ والشرط «من init» هو **التصحيح المقيس**: كان كل ملف في `bin/` يُحاسب، فخرجت الخمسة
+    #    `sys.maxmanager-*` «أعطابًا» وهي لا تمرّ ببوابة `init` أصلًا: يشتغلها `mainfiles/service.sh`
+    #    بصدفة جذر، ووسمها يأتي من مثبِّت الموديول (وثيقة Magisk: افتراض `set_perm` هو
+    #    `u:object_r:system_file:s0`، ونطاق `magisk` permissive فعليًّا). فالحكم عليها = معلومة نطاق.
+    #    والاقتصار على `bin/` مقصود ومُعلَن: المحتوى المركّب (`product/priv-app`, `product/etc`)
+    #    يُوسَم بوسوم المنصّة (`system_file`, `priv_app`, …) ولا يحتاج وسمًا من سياستنا.
+    init_started = aosp_init_started(root)
     for device_path in sorted(targets):
         if not device_path.startswith(NEEDS_OUR_LABEL_PREFIXES):
             continue
         if device_path in DOCUMENTED_EXCEPTIONS:
             continue
-        if label_covers(labels, device_path) is None:
-            findings.append(
-                Finding(
-                    gate="install-labeled",
-                    path=device_path,
-                    detail="ثنائيّ يُثبَّت في bin/ بلا وسم في file_contexts (لا نطاق ولا exec_type لنا)",
-                    sources=sorted(set(targets[device_path])),
-                )
+        if label_covers(labels, device_path) is not None:
+            continue
+        basename = device_path.rsplit("/", 1)[-1]
+        if basename not in init_started:
+            platform_notes.append(
+                {
+                    "path": device_path,
+                    "reason": (
+                        "يُثبَّت في bin/ ولا يُشغّله init (يشتغله سكربت جذر) ⇒ لا يحتاج exec_type منّا، "
+                        "ووسمه من مثبِّت الموديول (افتراض set_perm في Magisk = system_file)"
+                    ),
+                    "sources": sorted(set(targets[device_path]))[:2],
+                }
             )
+            continue
+        findings.append(
+            Finding(
+                gate="install-labeled",
+                path=device_path,
+                detail="يُشغّله init بلا وسم في file_contexts (لا exec_type لنا ⇒ منع تحت enforcing)",
+                sources=sorted(set(targets[device_path])) + init_started[basename][:1],
+            )
+        )
 
     # ٢) وسم لا يطابق أي مسار مُنتَج (من الموديول أو من مسار AOSP) = وسم ميت.
     for pattern in sorted(labels):
@@ -349,7 +550,104 @@ def scan(root: Path) -> tuple[list[Finding], list[dict[str, str]]]:
             )
         )
 
-    # ٥) مسارات المنصّة: تُدرج بسببها ولا تُحاسب — ولا تُسمّى «آمنة».
+    # ٤) مصدر يُعلنه Soong وجذره غير موجود في الشجرة (تعريف لا يُصرَّف).
+    #
+    #    والشرط `"/" in source` مقصود: `static_libs` تحمل **أسماء وحدات** (`liblog`, `libc++`) لا
+    #    مسارات، ففحصها كمسارات يُنتج أربعة أعطاب وهمية ويُدفن العطب الحقيقي.
+    for source, sources in sorted(declared_sources(root).items()):
+        if "/" not in source:
+            continue
+        prefix = source.split("*", 1)[0].rstrip("/")
+        if not prefix or (root / prefix).exists():
+            continue
+        findings.append(
+            Finding(
+                gate="no-dead-source",
+                path=source,
+                detail="مصدر يُعلنه Android.bp ولا جذر له في الشجرة (مسار قديم أو شجرة أخرى)",
+                sources=sources,
+            )
+        )
+
+    # ٥) تعارض تنصيب: وحدة تُعلن قسمين، أو `init` يشير إلى مسار وSoong يُنشر آخر.
+    for file in SOONG_FILES:
+        for kind, name, body in _soong_blocks(read(root, file)):
+            flags = "\n".join(body)
+            if re.search(r"\bvendor:\s*true", flags) and re.search(r"\bproduct_specific:\s*true", flags):
+                findings.append(
+                    Finding(
+                        gate="path-conflict",
+                        path=f"{file}: {kind} {name}",
+                        detail="وحدة تُعلن قسمين معًا (`vendor: true` + `product_specific: true`) — قسم واحد لكل وحدة",
+                        sources=[file],
+                    )
+                )
+    soong_by_basename = {path.rsplit("/", 1)[-1]: path for path in soong}
+    for path, sources in sorted(aosp.items()):
+        other = soong_by_basename.get(path.rsplit("/", 1)[-1])
+        if other and other != path:
+            findings.append(
+                Finding(
+                    gate="path-conflict",
+                    path=path,
+                    detail=f"خدمة init تشير إلى `{path}` بينما Soong يُنشر الوحدة إلى `{other}`",
+                    sources=sources + soong[other][:1],
+                )
+            )
+
+    # ٦) مسار حالة يكتبه خادمنا: إمّا موسوم منّا **مع قاعدة**، وإمّا نوعه من المنصّة مُعلَن ومذكور.
+    #
+    #    وهذا هو الفرق بين «الملف موجود» و«النطاق مسموح»: سياسة مكتوبة تحرس مسارًا لا يُستخدم
+    #    (قاعدة `maxmanager_data_file` على `/data/misc/maxmanager`) تترك المسار المُستخدم فعلًا
+    #    (`/data/adb/.config/MaxManager/**`) بلا قاعدة — وهو منع مؤكّد تحت enforcing.
+    #    والتجميع على **جذر المسار** لا على كل ملف: العطب واحد والمواضع كثيرة.
+    grouped_state: dict[str, list[str]] = {}
+    for device_path, sources in sorted(state.items()):
+        # ومصادر الشيفرة **الخادمية/السكربتية** وحدها تُحسَب هنا: مسار يذكره كود التطبيق
+        # (`manager/app/**`) يخصّ نطاق `system_app` لا نطاقنا، فإدخاله في بوابة «خادمنا» كان
+        # سيخلط نطاقين ويُنتج عطبًا لا يخصّ السياسة. والحدّ مُعلَن لا صمت.
+        sources = [source for source in sources if source.startswith(DAEMON_SOURCE_ROOTS)]
+        if not sources:
+            continue
+        root_prefix = max(
+            (prefix for prefix in STATE_ROOT_PREFIXES if device_path == prefix or device_path.startswith(prefix + "/")),
+            key=len,
+            default=device_path,
+        )
+        bucket = grouped_state.setdefault(root_prefix, [])
+        for source in sources:
+            if source not in bucket and len(bucket) < 3:
+                bucket.append(source)
+    for root_prefix, sources in sorted(grouped_state.items()):
+        cover = label_covers(labels, root_prefix)
+        if cover is not None:
+            token = next((label_type_of(line) for line in labels[cover] if label_type_of(line)), None)
+            if token and token not in type_text:
+                findings.append(
+                    Finding(
+                        gate="policy-gap",
+                        path=root_prefix,
+                        detail=f"موسوم لدينا بـ`{token}` ولا قاعدة له في السياسة — نطاقنا يُمنع عن مساره",
+                        sources=labels[cover][:1] + sources[:1],
+                    )
+                )
+            continue
+        platform = platform_label_for(root_prefix)
+        if platform is None:
+            continue
+        label, reason = platform
+        if label in type_text:
+            continue
+        findings.append(
+            Finding(
+                gate="policy-gap",
+                path=root_prefix,
+                detail=f"يكتبه خادمنا ولا وسم لنا عليه: نوعه `{label}` ({reason}) ولا قاعدة في `.te` تشمله",
+                sources=sources[:2],
+            )
+        )
+
+    # ٧) مسارات المنصّة: تُدرج بسببها ولا تُحاسب — ولا تُسمّى «آمنة».
     for path, sources in sorted(platform_paths(root).items())[:400]:
         platform_notes.append(
             {
@@ -418,7 +716,14 @@ def platform_paths(root: Path) -> dict[str, list[str]]:
 
 
 def render(findings: list[Finding], platform_notes: list[dict], out) -> None:
-    gates = ["install-labeled", "label-not-stale", "no-dead-reference"]
+    gates = [
+        "install-labeled",
+        "label-not-stale",
+        "no-dead-reference",
+        "no-dead-source",
+        "path-conflict",
+        "policy-gap",
+    ]
     print("مصفوفة SELinux — ما يُثبَّت · ما هو مُعلَّم · ما يُشار إليه ولا وجود له", file=out)
 
     for gate in gates:
@@ -466,6 +771,13 @@ def self_test() -> int:
             "touch \"$MODPATH/marker\"\n",
             encoding="utf-8",
         )
+        # و`init` هو من يُشغّل، وإلا لصار التسمية معلومة نطاق لا عطبًا (وهو التصحيح المقيس).
+        (root / "android/aosp").mkdir(parents=True, exist_ok=True)
+        (root / "android/aosp/fixture.rc").write_text(
+            "service fixture_a /system/bin/sys.maxmanager-service\n"
+            "service fixture_b /system/bin/sys.maxmanager-utilityconf\n",
+            encoding="utf-8",
+        )
         (root / "mainfiles/META-INF/com/google/android/update-binary").write_text(
             "if [ -f $MODPATH/sepolicy.rule ]; then cp -af $MODPATH/sepolicy.rule /x/; fi\n",
             encoding="utf-8",
@@ -508,6 +820,77 @@ def self_test() -> int:
         stale, _ = scan(root)
         if [finding.path for finding in stale if finding.gate == "label-not-stale"] != ["/data/misc/maxmanager"]:
             failures.append(f"label-not-stale: متوقَّع مسار الحالة المتروك وحده، والمُحصى {[f.path for f in stale]}")
+
+        # ── قواعد المراجعة العميقة: نطاق التسمية، وتعارض المنصّة، ومصادر Soong، ومسارات الحالة ──
+        #
+        #  وهي أربع حالات لا تُقاس بغيرها: ثنائيّ يُشغّله سكربت جذر (لا init) يجب أن يمرّ،
+        #  وثنائيّ يُشغّله init بلا وسم يجب أن يُسمّى، و`vendor: true` يُبرّئ وسم `/vendor/bin`،
+        #  ومصدر غائب في `srcs:` يجب أن يُسمّى، ومسار يكتبه الخادم ولا قاعدة له يجب أن يُعلَن.
+        deep = Path(tmp) / "deep"
+        for directory in (POLICY_DIR, "mainfiles/META-INF/com/google/android", "android/aosp", "archdaemon/jni/include"):
+            (deep / directory).mkdir(parents=True, exist_ok=True)
+        (deep / FILE_CONTEXTS).write_text(
+            "/vendor/bin/maxmanager_daemon   u:object_r:maxmanager_exec:s0\n"
+            "/data/misc/maxmanager(/.*)?     u:object_r:maxmanager_data_file:s0\n",
+            encoding="utf-8",
+        )
+        (deep / f"{POLICY_DIR}/maxmanager.te").write_text(
+            "type maxmanager, domain;\n"
+            "type maxmanager_exec, exec_type, file_type, vendor_file_type;\n"
+            "type maxmanager_data_file, file_type, data_file_type;\n"
+            "allow maxmanager maxmanager_data_file:file { read write };\n",
+            encoding="utf-8",
+        )
+        (deep / "android/aosp/maxmanager.rc").write_text(
+            "service maxmanager_daemon /system/bin/maxmanager_daemon\n",
+            encoding="utf-8",
+        )
+        (deep / SOONG_FILES[0]).write_text(
+            "cc_binary {\n    name: \"maxmanager_daemon\",\n"
+            "    srcs: [\"runtime/daemon-rust/src/**/*.rs\"],\n"
+            "    vendor: true,\n    product_specific: true,\n}\n",
+            encoding="utf-8",
+        )
+        (deep / "mainfiles/customize.sh").write_text(
+            "cp \"$TMPDIR/libs/arm64-v8a/sys.maxmanager-service\" \"$MODPATH/system/bin/\"\n"
+            "cp \"$MODPATH/bin/maxmanager_daemon\" \"$MODPATH/system/bin/maxmanager_daemon\"\n",
+            encoding="utf-8",
+        )
+        (deep / "mainfiles/service.sh").write_text(
+            "$MODPATH/system/bin/sys.maxmanager-service --clearlogs\n", encoding="utf-8"
+        )
+        (deep / "archdaemon/jni/include/AZenith.h").write_text(
+            '#define LOG_FILE "/data/adb/.config/MaxManager/debug/MaxManager.log"\n', encoding="utf-8"
+        )
+        deep_findings, deep_notes = scan(deep)
+        deep_gates: dict[str, list[str]] = {}
+        for finding in deep_findings:
+            deep_gates.setdefault(finding.gate, []).append(finding.path)
+        noted = [note["path"] for note in deep_notes]
+
+        if "/system/bin/sys.maxmanager-service" in deep_gates.get("install-labeled", []):
+            failures.append("install-labeled: حساب ثنائيّ يشتغله سكربت جذر (لا init) — وهو ما صُحّح")
+        if "/system/bin/sys.maxmanager-service" not in noted:
+            failures.append("install-labeled: الثنائيّ الذي لا يُشغّله init لم يُدرَج كمعلومة نطاق")
+        if "/system/bin/maxmanager_daemon" not in deep_gates.get("install-labeled", []):
+            failures.append(
+                f"install-labeled: متوقَّع الثنائيّ الذي يُشغّله init بلا وسم، والمُحصى {deep_gates.get('install-labeled')}"
+            )
+        if "/vendor/bin/maxmanager_daemon" in deep_gates.get("label-not-stale", []):
+            failures.append("label-not-stale: `vendor: true` في Soong لم يُبرّئ `/vendor/bin/...`")
+        if "runtime/daemon-rust/src/**/*.rs" not in deep_gates.get("no-dead-source", []):
+            failures.append(f"no-dead-source: المصدر الغائب لم يُسمَّ، والمُحصى {deep_gates.get('no-dead-source')}")
+        expected_conflicts = {
+            f"{SOONG_FILES[0]}: cc_binary maxmanager_daemon",
+            "/system/bin/maxmanager_daemon",
+        }
+        if not expected_conflicts <= set(deep_gates.get("path-conflict", [])):
+            failures.append(
+                "path-conflict: متوقَّع جمع قسمين في الوحدة وتعاشر المسار مع init، "
+                f"والمُحصى {deep_gates.get('path-conflict')}"
+            )
+        if "/data/adb/.config/MaxManager" not in deep_gates.get("policy-gap", []):
+            failures.append(f"policy-gap: مسار الخادم غير المحروس لم يُعلَن، والمُحصى {deep_gates.get('policy-gap')}")
 
     if failures:
         print("❌ فشل قياس الأداة:")

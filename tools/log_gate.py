@@ -11,7 +11,7 @@
 
 | البوابة | الثابت | لماذا |
 | --- | --- | --- |
-| `write-proof` | كل `PERAPP_COMMIT … verified=true` يجب أن يسبقه سطر كتابة على عقدة ذلك المقبض بقيمة الطلب (أو أن تقرأ العقدة القيمة المطلوبة أصلًا) | «لا ادّعاء نجاح بلا كتابة» — وهو العطب المقيس حرفيًّا |
+| `write-proof` | كل `PERAPP_COMMIT … verified=true` يجب أن يسبقه سطر كتابة على عقدة ذلك المقبض بقيمة الطلب — **أو** سطرُ كتابةٍ لتحرير قفل (`-1` بشهادة تحرير من النواة) — أو أن تقرأ العقدة القيمة المطلوبة أصلًا | «لا ادّعاء نجاح بلا كتابة» — وهو العطب المقيس حرفيًّا |
 | `drift-proof` | `APPLY_DRIFT_REPAIRED` لا يُعلن إصلاحًا وقيمةُ العقدة ليست المطلوبة إلا إن سُجّل السطر الذي يحاول الكتابة | نفس العطب في مسار الانحراف (ظهر مرّتين في حزمة المالك) |
 | `session-label` | كل سطر مقبض يحمل `sw=` و`pkg=` يجب أن يوافق حزمة `APP_SWITCH` لذلك المعرّف | ٧٤٩ حالة عدم تطابق موثّقة (`REPAIR_NOTES`) تجعل العطل يُنسب لتطبيق آخر |
 | `switch-latency` | وسيط وأسوأ زمن من `APP_SWITCH` إلى `PERAPP_COMMIT` لنفس المعرّف | زمن الوصول إلى الهدف مقياس المنتج لا زينته |
@@ -108,6 +108,25 @@ class Write:
     path: str
     wrote: str
     verdict: str
+    read: str = ""
+    #: السطر الخام: شهادة التحرير جملةٌ فيها مسافة (`read=[GPUFREQ-DEBUG] … is disabled`)،
+    #: فيُقرأ من السطر لا من الحقل المقتطع عند أوّل مسافة — والفرق مقيس: بالحقل وحده رسب الاختبار.
+    raw: str = ""
+
+
+# شهادات النواة على أن الكتابة **تحريرُ قفل** لا قيمة تردد.
+#
+# ولماذا يلزم ذلك في الحكم: على MediaTek يُكتب `-1` في `fix_target_opp_index` فتُجيب النواة بجملة
+# (`[GPUFREQ-DEBUG] fix GPU/STACK OPP index is disabled`) لا برقم ⇒ طبقة الكتابة العامة تُسجّل
+# `verdict=differs`، وهو **اختلاف تمثيل لا اختلاف قيمة** (نظيره في Kotlin: `MtkGpuOppTable.parseIndex`
+# يقرأ جملة «disabled» تحريرًا). وحصرُ الدليل في `matched` يجعل كل تحرير قفل يُقرأ «بلا كتابة».
+RELEASE_ACK_TOKENS = ("disabled", "dynamic", "unlimited", "no limit", "unfixed")
+
+
+def is_release_acknowledgement(write: Write) -> bool:
+    """هل هذا سطرُ تحرير قفل شهدته النواة بجملة لا برقم؟"""
+    haystack = (write.raw or write.read).lower()
+    return write.wrote.strip() == "-1" and any(token in haystack for token in RELEASE_ACK_TOKENS)
 
 
 @dataclass
@@ -124,6 +143,8 @@ class Report:
     commits_checked: int = 0
     commits_unchecked: int = 0
     writes: int = 0
+    #: كم ادّعاءَ نجاحٍ استند إلى كتابة **تحرير** لا إلى كتابة تردد مطابقة (يُعلَن في التقرير).
+    release_backed: int = 0
     drift_claims: int = 0
     median_latency_ms: int | None = None
     worst_latency_ms: int | None = None
@@ -167,7 +188,16 @@ def analyse(text: str, window_ms: int = WRITE_WINDOW_MS) -> Report:
         if event == "WRITE_CHECK":
             report.writes += 1
             if at_ms is not None:
-                writes.append(Write(at_ms, data.get("path", ""), data.get("wrote", ""), data.get("verdict", "")))
+                writes.append(
+                    Write(
+                        at_ms,
+                        data.get("path", ""),
+                        data.get("wrote", ""),
+                        data.get("verdict", ""),
+                        data.get("read", ""),
+                        line,
+                    )
+                )
             continue
 
         if event == "PERAPP_COMMIT":
@@ -185,14 +215,25 @@ def analyse(text: str, window_ms: int = WRITE_WINDOW_MS) -> Report:
                     if not enough:
                         # كتابةٌ على عقدة المقبض لا تناقض الطلب — أو الكتابة التي نسقط عندها
                         # هي التي نمنعها: أثرُ خطوةٍ سابقة يُقرأ «مُلبّى».
-                        backed = at_ms is not None and any(
-                            write.at_ms <= at_ms
-                            and at_ms - write.at_ms <= window_ms
-                            and node in write.path
-                            and write.verdict == "matched"
-                            and (ceiling_of(write.wrote) or 0) >= (wanted or 0)
+                        def _frequency_evidence(write: Write) -> bool:
+                            return (
+                                node in write.path
+                                and write.verdict == "matched"
+                                and (ceiling_of(write.wrote) or 0) >= (wanted or 0)
+                            )
+
+                        in_window = [
+                            write
                             for write in writes
-                        )
+                            if at_ms is not None and write.at_ms <= at_ms and at_ms - write.at_ms <= window_ms
+                        ]
+                        backed = any(_frequency_evidence(write) for write in in_window)
+                        if not backed:
+                            # الشكل الثاني للدليل: طلبٌ لا يُلبّى بكتابة تردد بل بزوال قفلٍ يخنقه
+                            # (تحرير سقف المنصّة/قفل OPP) — يُقبل **ويُعلَن** عدده في التقرير.
+                            backed = any(is_release_acknowledgement(write) for write in in_window)
+                            if backed:
+                                report.release_backed += 1
                         if not backed:
                             report.findings.append(
                                 Finding(
@@ -343,6 +384,7 @@ def render(report: Report) -> str:
         f"أسطر مقروءة: {report.lines} · جلسات: {report.sessions} · كتابات: {report.writes}",
         f"PERAPP_COMMIT: {report.commits} (مفحوص {report.commits_checked} · بلا عقدة {report.commits_unchecked})",
         f"إعلانات انحراف: {report.drift_claims}",
+        f"نجاحات مسنودة بكتابة **تحرير** (لا تردد مطابق): {report.release_backed}",
         f"زمن التبديل: وسيط {report.median_latency_ms if report.median_latency_ms is not None else '—'}ms"
         f" · أسوأ {report.worst_latency_ms if report.worst_latency_ms is not None else '—'}ms",
         "",
@@ -422,6 +464,18 @@ def self_test() -> int:
     assert held_report.ok, f"قراءة السقف المرمَّزة رسبت: {[i.detail for i in held_report.findings]}"
     cases.append(("قراءة سقف مُرمَّزة", "PASS", "PASS" if held_report.ok else "FAIL"))
 
+    # ولا يُقرأ**تحرير القفل** «بلا كتابة»: على MTK تُجيب النواة بجملة (`disabled`) فيُسجّل
+    # `verdict=differs`، وهو اختلاف تمثيل لا اختلاف قيمة. والمُدَّعى: الدليل يُقبل **ويُعلَن عدده**.
+    released_log = skipped.replace(
+        "2026-09-22 22:00:03.000 I ui: EVENT=WRITE_CHECK path=/sys/class/devfreq/mali0/min_freq wrote=260000000 read=260000000 verdict=matched\n",
+        "2026-09-22 22:00:03.000 I ui: EVENT=WRITE_CHECK path=/proc/gpufreqv2/fix_target_opp_index"
+        " wrote=-1 read=[GPUFREQ-DEBUG] fix GPU/STACK OPP index is disabled verdict=differs\n",
+    )
+    released_report = analyse(released_log)
+    assert released_report.ok, f"كتابة التحرير رسبت: {[i.detail for i in released_report.findings]}"
+    assert released_report.release_backed == 1, released_report.release_backed
+    cases.append(("تحرير قفل بشهادة النواة", "PASS", "PASS" if released_report.ok else "FAIL"))
+
     print("قياس الأداة نفسها:")
     ok = True
     for title, expected, actual in cases:
@@ -463,6 +517,7 @@ def main(argv: list[str] | None = None) -> int:
                     "commits_checked": report.commits_checked,
                     "commits_unchecked": report.commits_unchecked,
                     "writes": report.writes,
+                    "release_backed": report.release_backed,
                     "median_latency_ms": report.median_latency_ms,
                     "worst_latency_ms": report.worst_latency_ms,
                     "ok": report.ok,
