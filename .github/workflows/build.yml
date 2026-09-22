@@ -13,6 +13,9 @@ on:
     paths:
       - ".github/workflows/build.yml"
       - ".github/scripts/**"
+      # بوابات المستودع التي تُشغّلها خطوة «Contract gates»: تعديل أداة منها كان **لا يُشغّل CI**
+      # إطلاقًا، فيمرّ تعديل البوابة بلا اختبارها.
+      - "tools/**"
       - "manager/**"
       - "archdaemon/**"
       - "mainfiles/**"
@@ -53,7 +56,21 @@ jobs:
 
   build:
     name: Build MaxManager
-    runs-on: ubuntu-latest
+    # ── الأنوية: أكبر مكسب متبقٍّ في هذا الملف (تكملة ٨٦) ──
+    #
+    # الخطوة الطويلة (Gradle: تصريف + R8 + موارد ٨٥ لغة) **CPU-bound**، وسقفها اليوم أربع أنوية.
+    # فصار الوسم **متغيّرًا** لا نصًّا: عيّن في `Settings → Secrets and variables → Actions →
+    # Variables` المتغيّر `BUILD_RUNNER` إلى وسم أكبر (`ubuntu-latest-8-cores`) أو إلى وسوم
+    # runner خاص بك (`self-hosted`, `linux`, `x64`) — **بلا تعديل هذا الملف**.
+    #
+    # **قيمة واحدة فقط** (وسم واحد): `ubuntu-latest-8-cores` مثلًا، أو `self-hosted`. وإن احتجت
+    # عدّة وسوم (`self-hosted` + `linux` + `x64`) فهي مصفوفة YAML لا سلسلة: اجعل قيمة المتغيّر
+    # مصفوفة JSON واستبدل التعبير بـ`fromJSON(vars.BUILD_RUNNER)`.
+    #
+    # والافتراضي `ubuntu-latest` يبقى (فلا تشغيل ينتظر runner غير موجود لو لم تُعيَّن قيمة).
+    # وإن كان الـrunner الخاص بلا NDK/SDK مُسبقين، فالحرسان في خطوتي الإعداد يسقطان إلى التنزيل
+    # والتركيب تلقائيًّا بدل أن يفشلا — ويُقال ذلك في السجل.
+    runs-on: ${{ vars.BUILD_RUNNER || 'ubuntu-latest' }}
     # A hung or wedged step must not sit on a runner for the 6-hour default.
     # 45 minutes is ~2x the observed end-to-end time, so a genuine slowdown
     # reports as a red job instead of silently consuming the afternoon.
@@ -65,13 +82,13 @@ jobs:
       # `fetch-depth: 0` **لازم**: `versionCode = git rev-list HEAD --count` (رقم نسخة
       # تصاعدي مشتقّ من التاريخ، لا من عداد تشغيلات).
       #
-      # لكن «التاريخ كامل» في هذا المستودع يعني كل لقطة مصدر (`MaxManager-source.zip`،
-      # ~13 ميجابايت) رُفعت في التزام سابق. ونوع الـzip لا يُضغط ولا يقبل الدلتا، فـ137
-      # التزامًا (رقم النسخة المرصود على الجهاز: `5.2 (137)`) ≈ **~1.8 جيجابايت تُنزَّل في كل
-      # تشغيل** — لا لشيء إلا لحساب رقم.
+      # و«التاريخ كامل» هنا يعني — حتى بعد حذف اللقطة في تكملة ٨٥ — كل `MaxManager-source.zip`
+      # رُفع سابقًا: ~13 ميجابايت للحظةٍ، ونوعها لا يُضغط ولا يقبل الدلتا، فـ137 التزامًا
+      # (رقم النسخة المرصود على الجهاز: `5.2 (137)`) ≈ **~1.8 جيجابايت تُنزَّل في كل تشغيل** —
+      # لا لشيء إلا لحساب رقم. **والحذف لا يُنقّي التاريخ**، فالفلتر باقٍ لأن الماضي باقٍ.
       #
       # و`blob:limit=5m` يُبقي كل ما يحتاجه البناء (أكبر ملف في الشجرة: `devices.db`
-      # 4.0 ميجابايت) ويُسقط الـzips وحدها، وتبقى الألتزامات كلها فـ`rev-list` صحيح. وإن
+      # 4.0 ميجابايت) ويُسقط تلك اللقطات، وتبقى الالتزامات كلها فـ`rev-list` صحيح. وإن
       # تجاهل الخادمُ الفلتر (لا يدعمه) سقط إلى استنساخ كامل = السلوك السابق بلا كسر.
       - name: Checkout
         uses: actions/checkout@v6.0.2
@@ -137,7 +154,31 @@ jobs:
             || { echo "::error::AZenith.h MODULE_VERSION does not match '$expected'"; exit 1; }
           echo "✅ MODULE_VERSION matches: $expected"
 
+      - name: Use the runner's preinstalled NDK r29 (fall back to downloading it)
+        id: ndk_preinstalled
+        run: |
+          # صورة ubuntu-24.04 على GitHub تشحن NDK **29.0.14206865** = r29، ويشير إليها
+          # `ANDROID_NDK_LATEST_HOME` (وثيقة `actions/runner-images` · Ubuntu2404-Readme).
+          # فتنزيله من Google في كل تشغيل عملٌ بلا مقابل. نتحقّق من إصداره: إن كان ٢٩ نستعمله،
+          # وإلا وقعنا إلى `nttld/setup-ndk` كما كان (فالافتراضي هو التنزيل، والتخطّي للاستثناء).
+          candidate="${ANDROID_NDK_LATEST_HOME:-}"
+          revision=""
+          if [ -n "$candidate" ] && [ -f "$candidate/source.properties" ]; then
+            revision="$(sed -n 's/^Pkg\.Revision[[:space:]]*=[[:space:]]*//p' "$candidate/source.properties" | tr -d '\r' | tr -d ' ')"
+          fi
+          if [ -n "$revision" ] && [ "${revision%%.*}" = "29" ]; then
+            echo "ANDROID_NDK_HOME=$candidate" >> "$GITHUB_ENV"
+            echo "ANDROID_NDK_ROOT=$candidate" >> "$GITHUB_ENV"
+            # المساران معًا: جذر الـNDK فيه `ndk-build`، و`toolchains/…/bin` فيه clang.
+            printf '%s\n' "$candidate" "$candidate/toolchains/llvm/prebuilt/linux-x86_64/bin" >> "$GITHUB_PATH"
+            echo "NDK_PREINSTALLED=1" >> "$GITHUB_ENV"
+            echo "✅ NDK من الصورة: r29 ($revision) — بلا تنزيل"
+          else
+            echo "ℹ️ لا r29 في الصورة (المُحصى: ${revision:-لا شيء}) ⇒ التنزيل كالمعتاد"
+          fi
+
       - name: NDK Setup
+        if: env.NDK_PREINSTALLED != '1'
         uses: nttld/setup-ndk@v1.6.0
         with:
           ndk-version: r29
@@ -158,37 +199,36 @@ jobs:
       # (see the local-cache note above — this is the failure mode it guards).
       - name: Verify NDK Toolchain
         run: |
-          if ! command -v clang >/dev/null 2>&1 || ! command -v clang++ >/dev/null 2>&1; then
-            echo "❌ NDK toolchain is incomplete: clang/clang++ not found on PATH." >&2
+          # `ndk-build` مضاف هنا عمدًا: مسار الـNDK المُمرَّر يدويًّا (حين يكون من الصورة)
+          # يجب أن يحمل جذر الـNDK وفيه السكربت — وبدونه كان الخطأ يظهر متأخّرًا داخل الخطوة
+          # التي تستدعيه بدل أن يقول اسمه هنا.
+          if ! command -v clang >/dev/null 2>&1 || ! command -v clang++ >/dev/null 2>&1 \
+             || ! command -v ndk-build >/dev/null 2>&1; then
+            echo "❌ NDK toolchain is incomplete: clang/clang++/ndk-build not found on PATH." >&2
             echo "   ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-<unset>}" >&2
             exit 1
           fi
-          echo "✅ NDK toolchain OK: $(command -v clang)"
+          echo "✅ NDK toolchain OK: $(command -v clang) · $(command -v ndk-build)"
 
       - name: Setup ccache for native (NDK) builds
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ndk-build-${{ runner.os }}
 
-      - name: Compile Daemon
-        working-directory: ./archdaemon
-        run: |
-          export NDK_CCACHE="$(command -v ccache)"
-          if [ "$V_TYPE" == "experimental" ]; then
-            ndk-build NDK_DEBUG=1
-          else
-            ndk-build
-          fi
-
-      - name: Compile Preload Binary
-        working-directory: ./preloadbin
-        run: |
-          export NDK_CCACHE="$(command -v ccache)"
-          if [ "$V_TYPE" == "experimental" ]; then
-            ndk-build NDK_DEBUG=1
-          else
-            ndk-build
-          fi
+      # ── البناء الأصلي: ما يدخل الـAPK يُبنى الآن، والباقي في الخلفية ──
+      #
+      # قِيس أن خطوة Gradle وحدها ≈ ١٦ دقيقة من ~٢٠ (سجل المالك نفسه: `BUILD FAILED in 16m 23s`)،
+      # وأن الأصلية كلها تقع **قبلها** في مسار متسلسل — فدقائق المُصرّف كله كان لا يفعل فيها شيئًا
+      # سوى الانتظار. فالترتيب هنا مقلوب عن قصد:
+      #   • `libmaxmanager_native.so` وحدها — وهي التي يدخلها الـAPK — تُبنى **قبل** Gradle،
+      #     فلا سباق ولا اعتماد على توقيت (Gradle يتحقّق من تجزئة المخرجات لا من ساعة الحائط).
+      #   • والخمسة الباقية (الخادم · preload · thermalcore · profilesettings · utilityconf) لا
+      #     يدخل منها شيء في الـAPK بل في الحزمة، فتُشغَّل في الخلفية وتُحصَد **قبل** `compile_zip.sh`.
+      #
+      # و**حدّها المُعلن:** الأنوية هنا أربع والمرحلتان CPU-bound ⇒ التوازي على أربع أنوية أقلّ
+      # بكثير من ثمان؛ والمكسب الحقيقي يظهر مع متغيّر `BUILD_RUNNER` أعلاه.
+      # **وللإرجاع:** احذف «Start…» و«Wait…» واستعد الخمسة من `git log` (موضعها القديم في HANDOFF
+      # تكملة ٨٦) — لا يمسّ ذلك صحّة البناء، ترتيبه فقط.
 
       # هدف واحد: arm64-v8a (قرار المالك، تكملة ٨٢). و`armv7-linux-androideabi` خرج من
       # السلسلة كلها (toolchain + الأربعة crates + ndk-build في `Application.mk`) ثم من
@@ -217,33 +257,6 @@ jobs:
       - name: Install cargo-ndk
         run: command -v cargo-ndk >/dev/null 2>&1 || cargo install cargo-ndk
 
-      - name: Build MaxManager Thermalcore
-        working-directory: ./thermalcore
-        run: |
-          if [ "$V_TYPE" == "experimental" ]; then
-            cargo ndk -t arm64-v8a build
-          else
-            cargo ndk -t arm64-v8a build --release
-          fi
-
-      - name: Compile MaxManager Profilesettings
-        working-directory: ./binprofiles
-        run: |
-          if [ "$V_TYPE" == "experimental" ]; then
-            cargo ndk -t arm64-v8a build
-          else
-            cargo ndk -t arm64-v8a build --release
-          fi
-
-      - name: Compile MaxManager Utility
-        working-directory: ./binutils
-        run: |
-          if [ "$V_TYPE" == "experimental" ]; then
-            cargo ndk -t arm64-v8a build
-          else
-            cargo ndk -t arm64-v8a build --release
-          fi
-
       # ── المكتبة الأصلية للتطبيق (JNI) ──
       # crate maxmanager_native هو الذي يوفر: وكيل التعلم المعزز،
       # المتنبئ، التوأم الرقمي، ومحرك السياق. بدونه يعمل التطبيق في
@@ -258,6 +271,43 @@ jobs:
           else
             cargo ndk -t arm64-v8a -o ../../../app/src/main/jniLibs build --release
           fi
+          ls -l ../../../app/src/main/jniLibs/arm64-v8a/
+
+      # والخمسة الباقية تُشغَّل في الخلفية وتُحصَد بعد Gradle (الشرح أعلاه).
+      # ولا `wait` بين الخطوتين: كل خطوة صدفة shell مستقلة، فالشهادة هنا **ملفٌ تكتبه الخلفية**
+      # بصدفة خروجها — وهذا ما تقرأه خطوة الحصاد.
+      #
+      # ⚠️ و`set -e` **داخل صدفة داخلية** لا في المجموعة `{ }` مباشرة: `{ }` تُنفَّذ في الصدفة
+      # الحالية، فـ`set -e` يُسرّب إلى ما بعدها ويُقفل الصدفة عند أوّل فشل **قبل** كتابة ملف
+      # الشهادة — فينتظر الحصاد عشر دقائق على ملف لن يُكتب. مُقيس في محاكاة محليّة (تكملة ٨٦) لا مفترض.
+      - name: Start the remaining native builds in the background
+        run: |
+          (
+            (
+              set -e
+              export NDK_CCACHE="$(command -v ccache)"
+              if [ "$V_TYPE" == "experimental" ]; then
+                rust_profile=""
+                ndk_debug="NDK_DEBUG=1"
+              else
+                rust_profile="--release"
+                ndk_debug=""
+              fi
+              echo "── archdaemon (ndk-build $ndk_debug) ──"
+              (cd archdaemon && ndk-build $ndk_debug)
+              echo "── preloadbin (ndk-build $ndk_debug) ──"
+              (cd preloadbin && ndk-build $ndk_debug)
+              echo "── thermalcore ($rust_profile) ──"
+              (cd thermalcore && cargo ndk -t arm64-v8a build $rust_profile)
+              echo "── binprofiles ($rust_profile) ──"
+              (cd binprofiles && cargo ndk -t arm64-v8a build $rust_profile)
+              echo "── binutils ($rust_profile) ──"
+              (cd binutils && cargo ndk -t arm64-v8a build $rust_profile)
+            ) > native-build.log 2>&1
+            echo $? > native-build.exit
+          ) &
+          echo $! > native-build.pid
+          echo "⏳ بدأت البناءات الخمسة في الخلفية (pid $!) ⇒ native-build.log"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -270,7 +320,23 @@ jobs:
         with:
           cache-provider: basic
 
+      - name: Use the runner's preinstalled Android SDK (fall back to installing it)
+        id: android_sdk_preinstalled
+        run: |
+          # الصورة تشحن `android-36` و`build-tools;36.0.0` و`platform-tools` مسبقًا (الوثيقة نفسها)،
+          # فنداء `sdkmanager` يصير كلفة بلا مقابل. نتحقّق ونستعمل، وإلا نادينا الإجراء كما كان.
+          sdk="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          if [ -d "$sdk/platforms/android-36" ] && [ -d "$sdk/build-tools/36.0.0" ]; then
+            echo "ANDROID_SDK_ROOT=$sdk" >> "$GITHUB_ENV"
+            echo "ANDROID_HOME=$sdk" >> "$GITHUB_ENV"
+            echo "SDK_PREINSTALLED=1" >> "$GITHUB_ENV"
+            echo "✅ SDK من الصورة: android-36 + build-tools 36.0.0"
+          else
+            echo "ℹ️ SDK ناقص في الصورة ⇒ التنزيل كالمعتاد"
+          fi
+
       - name: Set up Android SDK
+        if: env.SDK_PREINSTALLED != '1'
         uses: android-actions/setup-android@v3
         with:
           packages: "platform-tools platforms;android-36 build-tools;36.0.0"
@@ -383,8 +449,21 @@ jobs:
           # gradle.properties disables that optimization so testReleaseUnitTest exists.
           # الاختبارات تُشغَّل على نفس النسخة التي يُبنى منها الـ APK:
           # testReleaseUnitTest + assembleRelease يتقاسمان ترجمة واحدة.
+          # ── ثلاثة مفاتيح قياس، بلا مسّ بالمخرَج ──
+          #
+          # • `kotlin.compiler.execution.strategy=daemon`: `manager/gradle.properties` يفرض
+          #   `in-process` (قرار AndroidIDE: جافا واحدة على الجهاز) وCI يرثه — وهو **أبطأ** بحكم
+          #   توثيق Kotlin نفسها: «Kotlin daemon: الافتراضية **والأسرع**… تُشارَك بين عمليات بناء
+          #   متعدّدة **وبين تصريفات متوازية**». والسقوط مضمون: إن تعذّر الاتصال بالمُشغّل رجع المصرّف
+          #   إلى `in-process` بتحذير (Compiler execution strategy §Fallback) — فلا انحدار جامد.
+          # • `kotlin.daemon.jvmargs=-Xmx4g`: يحدّ ذاكرة المُشغّل فلا يقاسم مقياس Gradle كاملًا.
+          # • `kotlin.build.report.output=file`: يقيس كل مهمة تصريف على حدة **ويقول لماذا لم تكن
+          #   تزايدية** — وهو سؤال «من أين ١٦ دقيقة؟»؛ ويُطبع في الخطوة التالية.
           ./gradlew \
             -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
+            -Pkotlin.compiler.execution.strategy=daemon \
+            -Pkotlin.daemon.jvmargs=-Xmx4g \
+            -Pkotlin.build.report.output=file \
             ":app:test${variant}UnitTest" \
             ":app:assemble${variant}" \
             -x ":app:lintVitalRelease" \
@@ -393,6 +472,56 @@ jobs:
 
         env:
           KS_PWD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      # ── تقرير تصريف Kotlin: ما لا يُخمَّن يُقاس ──
+      #
+      # `kotlin.build.report.output=file` (في الأمر أعلاه) يكتب لكل مهمة: مدّتها، ومجموع أطوارها،
+      # **وسبب عدم التزايد إن لم تكن تزايدية**. هذا هو جواب سؤال «من أين ١٦ دقيقة؟» — ويُطبع هنا
+      # داخل سجل التشغيل نفسه (لا في ملف لا يُقرأ)، و`always()` ليعمل حتى حين يفشل البناء، وهو
+      # الوقت الذي يكون فيه التقرير أنفع ما يكون.
+      - name: Kotlin build report (per-task compile times + incremental reasons)
+        if: always()
+        run: |
+          shopt -s nullglob
+          reports=(manager/*/build/reports/kotlin-build/*.txt manager/build/reports/kotlin-build/*.txt)
+          if [ ${#reports[@]} -eq 0 ]; then
+            echo "⚠️ لا تقرير تصريف: لم تصل مهمة Kotlin إلى نهايتها (أو عُطِّل التقرير)."
+            exit 0
+          fi
+          for report in "${reports[@]}"; do
+            echo "════════ $report"
+            cat "$report"
+          done
+
+      # ── حصاد الخلفية: لا يُبنى شيء بعدها قبل أن تكون انتهت، ولا يُسكَت فشل ──
+      #
+      # ولا سقف صامت: إن انتهت الصدفة فالملف مكتوب؛ وإن ماتت بلا ملف (قتلٌ من النظام مثلًا)
+      # يُكشف ذلك من `native-build.pid` فورًا بدل انتظار عشر دقائق على شيء لن يُكتب.
+      - name: Wait for the background native builds
+        run: |
+          pid="$(cat native-build.pid 2>/dev/null || true)"
+          for _ in $(seq 1 120); do
+            [ -f native-build.exit ] && break
+            if [ -n "$pid" ] && ! kill -0 "$pid" 2>/dev/null; then
+              echo "::error::background native builds died without recording their exit code"
+              tail -200 native-build.log || true
+              exit 1
+            fi
+            sleep 5
+          done
+          if [ ! -f native-build.exit ]; then
+            echo "::error::background native builds did not finish within 10 minutes"
+            tail -200 native-build.log || true
+            exit 1
+          fi
+          code="$(tr -d '[:space:]' < native-build.exit)"
+          if [ "$code" != "0" ]; then
+            echo "::error::a background native build failed (exit $code)"
+            cat native-build.log
+            exit 1
+          fi
+          echo "✅ انتهت البناءات الأصلية في الخلفية (كانت مخفيّة تحت خطوة Gradle)"
+          tail -25 native-build.log
 
       - name: Validate Manager APK
         env:

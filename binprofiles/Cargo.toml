@@ -7,9 +7,12 @@ description = "MaxManager Profiler binaries"
 [dependencies]
 glob = "0.3.1"
 
+# قرار المالك (تكملة ٨٦): `thin` + `16` مكان fat LTO ووحدة ترجمة واحدة — نفس السبب المشروح
+# في `thermalcore/Cargo.toml`: الربط الكامل غير تزايدي فيُعاد كاملًا كل بناء. و`opt-level = 'z'`
+# يبقى كما هو (الحجم هو الهدف هنا، لا الأداء).
 [profile.release]
 opt-level = 'z'
-lto = true
-codegen-units = 1
+lto = "thin"
+codegen-units = 16
 panic = 'abort'
 strip = true

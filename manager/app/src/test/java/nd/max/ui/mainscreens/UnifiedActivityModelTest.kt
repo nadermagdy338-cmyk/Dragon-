@@ -157,15 +157,31 @@ class UnifiedActivityModelTest {
 
     @Test
     fun `a fixed style keeps its own budgets instead of the adaptive one`() {
+        // المادة (٦ مفاتيح في مشهد واحد) أطول من رصيد كل نمط، فيُقاس **الحدّ** نفسه لا ما صادف
+        // أنه أقصر منه. والقاعدة كما تُنفَّذ فعلًا — لا كما كانت تُظنَّ: الأرقام الأربعة سقوف،
+        // ورصيد المشهد (`linesPerScene`) هو الأضيق فيُرسم في السينمائي سطران لا رصيد بطاقته ٣.
+        // والقياس بالعدد الصريح مقصود: من يُغيّر رصيدًا يعرف من هذا السطر ما الذي تغيّر فعلًا.
         val scenes = listOf(perApp((1..6).map { done("knob$it") }))
 
         val cinematic = UnifiedActivityModel.build(scenes, CardOptions(auto = false, style = CardStyle.CINEMATIC))
         val chips = UnifiedActivityModel.build(scenes, CardOptions(auto = false, style = CardStyle.CHIPS))
 
-        assertEquals(CardStyle.CINEMATIC, cinematic.style)
-        assertEquals(CardStyle.CINEMATIC.maxLines, cinematic.scenes.single().lines.size)
+        assertEquals("النمط الثابت يُنفَّذ كما اختاره صاحبه", CardStyle.CINEMATIC, cinematic.style)
         assertEquals(CardStyle.CHIPS, chips.style)
-        assertEquals(CardStyle.CHIPS.maxLines, chips.scenes.single().lines.size)
+        assertEquals(2, cinematic.scenes.single().lines.size)
+        assertEquals(4, chips.scenes.single().lines.size)
+        assertTrue(
+            "الرصيدان سقفان لا يُتجاوزان",
+            cinematic.scenes.single().lines.size <= CardStyle.CINEMATIC.linesPerScene &&
+                cinematic.scenes.single().lines.size <= CardStyle.CINEMATIC.maxLines &&
+                chips.scenes.single().lines.size <= CardStyle.CHIPS.linesPerScene &&
+                chips.scenes.single().lines.size <= CardStyle.CHIPS.maxLines,
+        )
+        assertEquals(
+            "التلقائي كان سيختار الشارات لهذه المادة — والنمط الثابت يجب أن يُخالفه",
+            CardStyle.CHIPS,
+            UnifiedActivityModel.adaptiveStyle(scenes),
+        )
         assertTrue(
             "الأسلوب يجب أن يُغيّر ما يُرسم فعلًا لا عنوانه",
             chips.scenes.single().lines.size > cinematic.scenes.single().lines.size,

@@ -2,7 +2,13 @@
 
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import com.android.build.gradle.tasks.PackageAndroidArtifact
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import org.gradle.process.ExecOperations
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 plugins {
     alias(libs.plugins.kotlin.serialization)
@@ -24,20 +30,71 @@ plugins {
  * **البديل:** زمن الالتزام — ثابتٌ للنُسخة الواحدة (نفس الالتزام ⇒ نفس الرقم)، فيصير البناء
  * الثاني للنُسخة نفسها شبه مجّاني على الجهاز. وهو أصدق معنًى أيضًا: تاريخ إنتاج النسخة.
  *
- * **والسقوط:** بلا `git` أو بلا التزام (نسخة مفكوكة من zip، أو بناء في AndroidIDE) يُعاد
- * السلوك القديم (ساعة البناء) بدل أن يُرمى خطأ أو يُكتب صفر.
+ * **ولماذا `ValueSource` لا `ProcessBuilder` في جسم السكربت** — عطب قِيس في CI، لا تخمين.
+ * تشغيل عملية خارجية في زمن التهيئة مباشرةً يجعل Gradle **يتخلّى عن مخزن التهيئة كلّه**:
+ *
+ * ```
+ * Configuration cache problems found in this build.
+ * 1 problem was found storing the configuration cache.
+ * - Build file 'app/build.gradle.kts': external process started 'git log -1 --format=%ct'
+ * ```
+ *
+ * أي أن كل تشغيل كان يُهدِر المخزن من أجل رقم واحد. والطريق الذي توثّقه Gradle نفسها
+ * (Configuration Cache Requirements §Running External Processes) هو تشغيل العملية **داخل
+ * `ValueSource`** بمُشغِّل محقون، وحينها: «تُشغَّل العملية في كل بناء لتقرير هل المخزن ما زال
+ * صالحًا، وإن تغيّرت القيمة فُسد المخزن» — وهو المطلوب بالضبط: نفس الالتزام ⇒ نفس الرقم ⇒
+ * المخزن صالح، والتزام جديد ⇒ الرقم يتغيّر ⇒ تُعاد التهيئة مرّة واحدة.
+ *
+ * **والسقوط:** بلا `git` أو بلا التزام (نسخة مفكوكة من zip، أو بناء في AndroidIDE) يُكتب يوم
+ * البناء الحالي بدل أن يُرمى خطأ أو يُكتب صفرًا. وتدويرُه إلى اليوم **مقصود** لا تهاون: القارئ
+ * الوحيد لهذا الرقم يرسمه `yyyy-MM-dd` (SettingsHeaderComponent)، فالتدوير لا يكذب في شيء
+ * ويُبقي المخزن صالحًا داخل اليوم نفسه على جهاز بلا `git`.
  */
-fun buildTimeEpochMs(): Long = runCatching {
-    val git = ProcessBuilder("git", "log", "-1", "--format=%ct")
-        .directory(rootDir)
-        .redirectErrorStream(true)
-        .start()
-    val seconds = git.inputStream.bufferedReader().use { it.readText() }.trim()
-    check(git.waitFor() == 0) { "git log exited with ${git.exitValue()}" }
-    val epochSeconds = seconds.toLongOrNull()
-    check(epochSeconds != null) { "git log did not return a commit time: '$seconds'" }
-    epochSeconds * 1000L
-}.getOrElse { System.currentTimeMillis() }
+abstract class GitCommitTimeValueSource : ValueSource<Long, GitCommitTimeValueSource.Parameters> {
+
+    interface Parameters : ValueSourceParameters {
+        /**
+         * مسار المستودع. `String` لا `DirectoryProperty` عن قصد: بصمة شجرة كاملة تُفسد المخزن
+         * عند كل ملف يتغيّر، بينما مسارٌ ثابت لا يتغيّر أبدًا.
+         */
+        val repositoryPath: Property<String>
+    }
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    override fun obtain(): Long {
+        val output = ByteArrayOutputStream()
+        val ran = runCatching {
+            execOperations.exec {
+                workingDir = File(parameters.repositoryPath.get())
+                commandLine("git", "log", "-1", "--format=%ct")
+                standardOutput = output
+                // بلا مستودع يعود `git` بغير صفر: لا نُفشل البناء، بل نسقط إلى يوم البناء.
+                isIgnoreExitValue = true
+            }
+        }.isSuccess
+        val epochSeconds = output.toByteArray().toString(Charsets.UTF_8).trim().toLongOrNull()
+        return if (ran && epochSeconds != null) epochSeconds * 1000L else todayEpochMs()
+    }
+
+    /** يوم البناء الحالي — سقوطٌ صادق (لا صفر = ١٩٧٠) وثابتٌ داخل اليوم. */
+    private fun todayEpochMs(): Long {
+        val millisPerDay = 24L * 60L * 60L * 1000L
+        return System.currentTimeMillis().let { now -> now - now % millisPerDay }
+    }
+}
+
+/**
+ * ويُقاس **في زمن التهيئة** عن قصد: القيمة الفعلية هي ما يُخزَّن في مدخلات التهيئة، فالنداء
+ * يُعاد في كل بناء ليعرف Gradle هل المخزن ما زال صالحًا. والكلفة مقيسة لا مُقدَّرة: تشغيلان
+ * كاملان في تجربة هذا الإصلاح استغرقا ٨٥٦ و٧٦١ ملّي ثانية، وفي كلٍّ منهما نداء `git` واحد.
+ */
+val buildTimeEpochMs: Long = providers.of(GitCommitTimeValueSource::class) {
+    parameters {
+        repositoryPath.set(rootDir.absolutePath)
+    }
+}.get()
 
 android {
     namespace = "nd.max"
@@ -63,7 +120,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         vectorDrawables.useSupportLibrary = true
-        buildConfigField("long", "BUILD_TIME", "${buildTimeEpochMs()}L")
+        buildConfigField("long", "BUILD_TIME", "${buildTimeEpochMs}L")
         ndk {
             // arm64-v8a وحده — قرار المالك (تكملة ٨٢): الأجهزة 32-بت لم تبقَ مدعومة،
             // والمنصّب يرفضها برسالة صريحة بدل تركيب ناقص. الفائدة في البناء: نصف حجم
@@ -100,9 +157,10 @@ android {
     //
     // **ولا يُعطَّل هنا:** `checkReleaseBuilds = false` **يمحو المهمة نفسها** (تحقّقنا:
     // اختفت من `:app:tasks --all`)، فيصير الحاجز غائبًا لا منقولًا — وهذا إسقاط لجودة لا
-    // تسريع لبناء. الفصل جرى في `.github/workflows/build.yml`: مهمة CI موازية تُشغّل
-    // `:app:lintVitalRelease` كما هي، وبناء الحزمة يستثنيها بـ`-x :app:lintVitalRelease`.
-    // الحاجز نفسه، وبالتوازي، وبلا مَسّ سلوك البناء المحلي.
+    // تسريع لبناء. والفصل جرى بـ`-x :app:lintVitalRelease` في أمر البناء داخل
+    // `.github/workflows/build.yml` (والمهمة الموازية التي كانت تشغّله أُزيلت في تكملة ٨٠)
+    // ⇒ **لا حاجز آليّ اليوم لِما تكشفه هذه المهمة وحدها**، ومسار الفحص اليدوي قبل الإصدار:
+    // `./gradlew :app:lintVitalRelease`.
 
     androidResources {
         // [FIX] AGP يرفض الجمع بين توليده الآلي و`android:localeConfig` الصريح في
