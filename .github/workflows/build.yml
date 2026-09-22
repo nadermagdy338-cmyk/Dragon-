@@ -459,6 +459,11 @@ jobs:
           # • `kotlin.daemon.jvmargs=-Xmx4g`: يحدّ ذاكرة المُشغّل فلا يقاسم مقياس Gradle كاملًا.
           # • `kotlin.build.report.output=file`: يقيس كل مهمة تصريف على حدة **ويقول لماذا لم تكن
           #   تزايدية** — وهو سؤال «من أين ١٦ دقيقة؟»؛ ويُطبع في الخطوة التالية.
+          # يُجمع سجل Gradle في ملف واحد، وعليه تُبنى خطوة «التشخيص المكتوب» التالية
+          # (تعمل بـ`always()`)، فلا تضيع أسطر المترجم إذا لصق أحدثهم الذيل وحده.
+          # و`pipefail` ليست تزيّدًا: بلا `pipefail` يصير رمز خروج الأنبوب هو `tee` (نجاح)
+          # فيمرّ فشل المُصرّف بلا أن يُحمرّ التشغيل — وهذا أسوأ من غياب السجل.
+          set -o pipefail
           ./gradlew \
             -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
             -Pkotlin.compiler.execution.strategy=daemon \
@@ -468,10 +473,53 @@ jobs:
             ":app:assemble${variant}" \
             -x ":app:lintVitalRelease" \
             --build-cache \
-            --parallel
+            --parallel 2>&1 | tee /tmp/gradle-build.log
 
         env:
           KS_PWD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      # ── تشخيص مكتوب: أسطر المترجم مضغوطة + بصمة الشجرة ──
+      #
+      # سبب وجود هذه الخطوة مُقاس في هذه الجلسة: فشلان متتاليان في CI وصل منهما **ذيل السجل**
+      # وحده، وأسطر `e: file://…` (وهي الوحيدة التي تُسمّي الملف والسطر) بقيت فوقه. فبقيت
+      # المطاردة تخمينًا جولةً كاملة. هنا تُطبع هذه الأسطر في **آخر** السجل، بلا مسار طويل وبعدد
+      # لكل ملف — فيكفي أن يُلصق الذيل.
+      #
+      # و`SOURCE-DIGEST` يجيب سؤالًا مكرّرًا: «هل شجرة المستودع هي هذه الشجرة؟» — رقم واحد
+      # يُقارن بين الطرفين، فلم يُحتج إلى قراءة المستودع (وهو غير متاح من هنا).
+      - name: Written diagnosis (compiler lines + source digest)
+        if: always()
+        run: |
+          echo "════════ بصمة الشجرة (تُقارَن بأي نسخة أخرى) ════════"
+          roots="manager/app/src/main .github/workflows tools"
+          files=$(find $roots -type f \( -name '*.kt' -o -name '*.kts' -o -name '*.yml' -o -name '*.py' \) 2>/dev/null | sort)
+          if [ -n "$files" ]; then
+            echo "SOURCE-FILES: $(printf '%s\n' "$files" | wc -l)"
+            echo "SOURCE-DIGEST: $(printf '%s\n' "$files" | xargs sha256sum | sha256sum | cut -c1-16)"
+          else
+            echo "SOURCE-DIGEST: unavailable"
+          fi
+
+          log=/tmp/gradle-build.log
+          if [ ! -f "$log" ]; then
+            echo "لا سجل بناء محفوظ (لم تصل خطوة البناء إلى نهايتها)."
+            exit 0
+          fi
+          errors=$(grep -E "^e: " "$log" || true)
+          if [ -z "$errors" ]; then
+            echo "لا أسطر مترجم في هذا التشغيل."
+            exit 0
+          fi
+          echo "════════ أسطر المترجم ════════"
+          echo "العدد: $(printf '%s\n' "$errors" | wc -l)"
+          echo "لكل ملف:"
+          printf '%s\n' "$errors" \
+            | sed -E "s|^e: file://${GITHUB_WORKSPACE}/([^:]+):.*|\1|" \
+            | sort | uniq -c | sort -rn | head -15
+          echo "التفصيل (بلا مسارات مكرّرة، حتى 40 سطرًا):"
+          printf '%s\n' "$errors" \
+            | sed "s|^e: file://${GITHUB_WORKSPACE}/||" \
+            | sort -u | head -40
 
       # ── تقرير تصريف Kotlin: ما لا يُخمَّن يُقاس ──
       #

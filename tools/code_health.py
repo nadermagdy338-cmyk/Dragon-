@@ -336,6 +336,7 @@ def content_contract_offenders(files: list[str]) -> list[str]:
                 continue
             offenders.append(
                 f"{rel(p)}:{i + 1}: '{name}: {typ.strip()}' — مكوّن قابل للرسم بمحتوى بلا @Composable"
+                f" ⟶ الإصلاح: '{name}: @Composable {typ.strip()},'"
             )
     return offenders
 
