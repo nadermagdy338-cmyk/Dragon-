@@ -121,6 +121,8 @@ object LogCodeGlossary {
         "gpu-ceiling-released" to "the ceiling was measured after the request and nothing caps the GPU below the requested value: a platform ceiling was released, or none was held",
         "gpu-ceiling-held" to "the ceiling was measured and something still caps the GPU below the request: a custom GED upbound or a raised GPU cooling state",
         "gpu-opp-lock-held" to "a fixed-OPP lock is active on the GPU, so the clock is frozen at one step no matter what the frequency nodes say: the ceiling was not achieved",
+        "gpu-ceiling-open-below-request" to "the release was executed and measured: every channel this app owns is open, and a ceiling it does not own still sits below the request, so the device is as open as this platform allows; the number after the colon is that live ceiling in Hz",
+        "gpu-pinned-at-request" to "the range could not carry the request, so the GPU was pinned through a fixed OPP index at or above it; the index in use before the pin is restored when the app leaves",
         "gpu-node-ceiling-unreadable" to "the node ceiling could not be read, or its frequency unit is unknown, so no claim is made either way",
         "explicit-frequency-wins-over-profile" to "this app config carries both a GPU profile and an explicit GPU frequency, which the screen no longer allows: the explicit frequency is what runs, because it is the value shown in the app's own frequency row",
         "pin-verified" to "the OPP index was accepted and the device reports exactly the pinned frequency as its running clock",
@@ -257,7 +259,8 @@ object LogCodeGlossary {
     /**
      * يشرح رمزًا، أو `null` حين لا نعرفه — ولا يُخترع شرح.
      *
-     * ويُدعم بادئة الرمز لأن بعض الرموز تُبنى: `preempted-by-SYSTEM` و`guard-idle:severe`.
+     * ويُدعم بادئة الرمز لأن بعض الرموز تُبنى: `preempted-by-SYSTEM` و`guard-idle:severe`
+     * و`gpu-ceiling-open-below-request:754000000`.
      * والقاعدة: البادئة الأطول المطابقة تفوز، فلا يبتلع `guard-` معنى `guard-idle:`.
      */
     fun explain(code: String): String? = resolve(codes, code)
@@ -284,6 +287,12 @@ object LogCodeGlossary {
         if (trimmed.startsWith("preempted-by-")) return meaningOf(table, "preempted-by-OWNER")
         if (trimmed.startsWith("guard-idle:")) return meaningOf(table, "guard-idle:PRESSURE")
         if (trimmed.startsWith("guard-static-only:")) return meaningOf(table, "guard-static-only:platform-thermal-status-unavailable")
+        // ورمز تحرير السقف يُلحَق **برقمه المقيس** (`gpu-ceiling-open-below-request:754000000`)،
+        // وهو الرقم الذي يفرّق «حرّرنا فانفتح كل شيء» من «حرّرنا والمنصّة تحتفظ بسقف» — فلا
+        // يجوز أن يسقط شرحه لأن اللاحقة ليست رمزًا نعرفه.
+        if (trimmed.startsWith("gpu-ceiling-open-below-request:")) {
+            return meaningOf(table, "gpu-ceiling-open-below-request")
+        }
 
         // وقرار Atlas يُكتب `STATUS-REASON` (`blocked-privilege-unavailable`)، فالتطابق على الذيل
         // بأطول رمز معروف — والأطول قبل الأقصر لأن `-restored` قد تطابق وحدها وتبتلع معنى أطول منها.

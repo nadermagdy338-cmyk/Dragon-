@@ -176,7 +176,14 @@ object GpuCeilingPolicy {
         return node <= desiredHz
     }
 
-    /** حكم [ceilingSatisfied] نفسه كرمز سجل ثابت — ليكون الفشل مقروءًا لا صامتًا. */
+    /**
+     * حكم [ceilingSatisfied] نفسه كرمز سجل ثابت — ليكون الفشل مقروءًا لا صامتًا.
+     *
+     * وموقع الحكمين من بعضهما مقصود ولا يتكرّر: [releaseVerdict] هي ما يُحكَم به على مقبض
+     * per-app (لأن التحقّق من **فعل نملكه**)، و[ceilingReason] يُكتب في سطر التشخيص معها.
+     * أما [ceilingSatisfied] فهي سؤال أضيق: «هل بلغ الجهاز القدرة؟» — يُستعمل حين يكون الطلب
+     * **عند قدرة معلنة** ويُحكم بمعناها لا بمعنى التحرير.
+     */
     fun ceilingReason(desiredHz: Long, reading: CeilingReading?, capabilityHz: Long? = null): String = when {
         reading?.nodeCeilingHz == null -> "gpu-node-ceiling-unreadable"
         reading.platformUpbound != null && reading.platformUpbound > 0L -> "gpu-ceiling-held"
@@ -185,6 +192,73 @@ object GpuCeilingPolicy {
         capabilityHz != null && capabilityHz > 0L && desiredHz >= capabilityHz && reading.nodeCeilingHz < capabilityHz -> "gpu-ceiling-held"
         reading.nodeCeilingHz > desiredHz -> "gpu-ceiling-held"
         else -> "gpu-ceiling-released"
+    }
+
+    /**
+     * هل يحتاج هذا الطلب **تحرير سقف المنصّة** قبل كتابته؟
+     *
+     * والسؤال ليس «هل النسبة ١٠٠٪؟» بل **أين يقع الطلب من السقف الحيّ**:
+     *
+     * - طلبٌ **عند السقف الحيّ أو فوقه** (١٣٠٠ لجهاز يسمح بـ٧٥٤، أو ١١٠٥ لسقف ٧٥٤) طلبُ قدرة:
+     *   كتابتُه بلا رفع سقف المصنّع لا تُنفَّذ — النواة تقصّه إلى السقف فتقرأ القيمة نفسها، فيبدو
+     *   الأمر «طُبِّق» بلا فرق. وهذا بالحرف سبب «Performance لا يعمل»: الحكم على التحرير كان
+     *   `request >= capability` وحدها، فطلبٌ قدرته ١١٥٪ من سقفه الحيّ (gaming ٨٥٪ من ١٣٠٠) كان
+     *   يُكتب فيُقصّ، والتحرير الذي كان يُنفِّذه لا يُنادى أبدًا.
+     * - وطلبٌ **دون السقف الحيّ** طلبُ تبريد: لا يجوز أن يرفع حمايةً وضعها المصنّع (وإلا صار طلب
+     *   التبريد تسخينًا)، ويكفيه أن يُكتب.
+     *
+     * و`liveCeilingHz == null` («لا سقف حيّ مقروء») تعني **قدرة**: بلا قياس لا يُدَّعى أن الطلب
+     * تحت سقف، فيُسلَك مسلك التحرير (وهو المسلك الذي يترك الكتابة للنواة إن رفضت).
+     */
+    fun releaseRequired(requestedHz: Long, liveCeilingHz: Long?): Boolean =
+        liveCeilingHz == null || liveCeilingHz <= 0L || requestedHz >= liveCeilingHz
+
+    /**
+     * حكم طلب **تحرير السقف** (أي طلب عند السقف الحيّ أو فوقه) كما يُقاس بعد التنفيذ.
+     *
+     * ولماذا حكم ثانٍ غير [ceilingSatisfied]: لأن التحرير **فعل نملكه** وبلوغ القدرة **حكم منصّة**.
+     * فحين تُرفع كل قنواتنا (تبريد GPU · سقف GED · قفل OPP) ويبقى سقف العقدة أدنى من الطلب، فالحقيقة
+     * أنّنا فعلنا كل ما نملك وما تحتفظ به المنصّة قياسٌ يُعلَن — لا فشلٌ يُعاد به الجهاز إلى ما كان
+     * عليه. وإعادة خط الأساس في تلك الحالة **تمحو التحرير نفسه** وتضمن ألّا يقع تغيير أبدًا (وهو
+     * ما جعل «Performance» بلا أثر على الجهاز المقيس).
+     *
+     * والحالات:
+     * - **قفل OPP ثابت** قائم: يُقبل إن كان عند الطلب أو فوقه (تثبيتٌ على أعلى درجة هو مسلك الجهاز
+     *   الوحيد حين لا يقبل المدى)، ويُرفض إن كان دونه — ذاك جمودٌ من جلسة سابقة يخنق الجهاز.
+     * - **تبريد GPU رافع** أو **سقف GED مخصّص**: أحدٌ يقصّ ⇒ لم يُحرَّر ⇒ لا نجاح كاذب.
+     * - **بلا قفل وبلا سقف مخصّص**: بلوغ الطلب = تحرير كامل، وسقفٌ أدنى منه = `OPEN_BELOW_REQUEST`:
+     *   نجاحٌ لِما نملك، ورقمٌ يُعرض للذي لا نملك.
+     */
+    data class ReleaseVerdict(val token: String, val satisfied: Boolean, val measuredHz: Long?) {
+        /**
+         * نصّ السبب كما يُكتب في السجل واللوحة: الرمز، ومعه الرقم حين كان الرقم هو الفرق بين
+         * «تحرير كامل» و«منصّةٌ تحتفظ بسقف» — بلا الرقم يصير السطر عتابًا بلا مقدار.
+         */
+        val reason: String
+            get() = if (measuredHz != null && token == OPEN_BELOW_REQUEST) "$token:$measuredHz" else token
+
+        companion object {
+            const val RELEASED = "gpu-ceiling-released"
+            const val OPEN_BELOW_REQUEST = "gpu-ceiling-open-below-request"
+            const val PINNED = "gpu-pinned-at-request"
+            const val HELD = "gpu-ceiling-held"
+            const val LOCK_HELD = "gpu-opp-lock-held"
+            const val UNREADABLE = "gpu-node-ceiling-unreadable"
+        }
+    }
+
+    fun releaseVerdict(reading: CeilingReading?, requestedHz: Long): ReleaseVerdict {
+        val node = reading?.nodeCeilingHz ?: return ReleaseVerdict(ReleaseVerdict.UNREADABLE, false, null)
+        if (reading.platformCoolingHeld == true) return ReleaseVerdict(ReleaseVerdict.HELD, false, node)
+        if (reading.lockActive == true) {
+            return if (node >= requestedHz) ReleaseVerdict(ReleaseVerdict.PINNED, true, node)
+            else ReleaseVerdict(ReleaseVerdict.LOCK_HELD, false, node)
+        }
+        if (reading.platformUpbound != null && reading.platformUpbound > 0L) {
+            return ReleaseVerdict(ReleaseVerdict.HELD, false, node)
+        }
+        return if (node >= requestedHz) ReleaseVerdict(ReleaseVerdict.RELEASED, true, node)
+        else ReleaseVerdict(ReleaseVerdict.OPEN_BELOW_REQUEST, true, node)
     }
 
     /**

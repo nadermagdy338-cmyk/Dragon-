@@ -93,6 +93,10 @@ object AppMonitor {
     // يُعجّل التراجع فورًا دون انتظار. 10 ثوانٍ توافق مهلة الوحدة
     // الأصلية عند إطفاء الشاشة.
     private const val PERAPP_GRACE_MS = 10_000L
+    // كم دورة متتابعة (٥٠٠ م.ث لكل دورة) يجب أن يثبت فيها غياب معرّف العملية قبل تسليم الحالة
+    // إلى مهلة السماح. ثلاث دورات = ١٫٥ ثانية: أطول من أي تأخير عابر في تحديث قائمة العمليات،
+    // وأقصر من أن يبقى الجهاز مُقيَّدًا بعد تطبيق أُغلق.
+    private const val FOREGROUND_UNCONFIRMED_LIMIT = 3
 
     private val FOREGROUND_METHOD_CANDIDATES = listOf(
         "getFocusedRootTaskInfo",
@@ -133,6 +137,14 @@ object AppMonitor {
 
     private var outputPath = ""
     private var cachedGameListModified = -1L
+
+    // زمن آخر تعديل لملف إعدادات التطبيقات **عند آخر تطبيق فعليّ** — لا عند آخر قراءة.
+    //
+    // والمقارنة به لا بـ[cachedGameListModified]: ذاك يُحدَّث في كل قراءة (ودورة الانحراف تقرأ
+    // الملف كل عشر ثوانٍ)، فأي قراءة تقع بين تغيير المستخدم وفحص التغيير تُسقط الفحص ويبقى
+    // الإعداد القديم ساريًا حتى تبديل تطبيق تالٍ — وهو بالحرف: «أختار gaming فيظهر أثره بعد
+    // كم دقيقة». هذا الحقل لا يُحدَّث إلا عند تنفيذ تطبيق/تراجع حقيقي، فيبقى الفرق مرئيًّا.
+    private var appliedConfigModified = -1L
     private var backgroundOutputPath = ""
     private var lockFilePath: String? = null
 
@@ -150,6 +162,23 @@ object AppMonitor {
     // التراجع دون انتظار المؤقت. الحالة الحقيقية للتطبيق هي المرجع.
     @Volatile private var gracePkg: String? = null
     @Volatile private var graceDeadlineMs: Long = 0L
+
+    // عدد الدورات المتتابعة التي قُرئ فيها التطبيق نفسه في المقدّمة **بلا معرّف عملية**.
+    //
+    // ولماذا عدّاد لا قراءة واحدة: قراءة واحدة بـ`0 0` عابرة (عملية تُولَد، أو خدمة إدارة
+    // المهام لم تُحدَّث بعد)؛ والثبات عليها هو الدليل. وبعد [FOREGROUND_UNCONFIRMED_LIMIT]
+    // دورة تُسلَّم الحالة إلى مهلة السماح، وهي التي تتحقّق من موت العملية فعليًّا قبل التراجع.
+    private var missingFocusPkg: String? = null
+    private var missingFocusCount = 0
+
+    // جلسة تطبيق **انتهت** لأن عمليتها لم تعد موجودة. وتبقى معلومةً حتى يعود للتطبيق معرّف
+    // عملية (أي: فُتح من جديد) أو يتغيّر التطبيق في المقدّمة.
+    //
+    // وبلا هذا الحقل كان كلُّ دورة تعيد تسليح مهلة السماح ثم تُتراجع من جديد: قراءة المقدّمة
+    // تبقى `pkg 0 0` بعد موت التطبيق (المهمة تُعاد لفترة قبل أن تزول)، فتُقرأ على أنها «نفس
+    // التطبيق ما زال في المقدّمة» — فلا تراجع، ولا عودة للنبضات/التردد إلى ما كانا عليه،
+    // والبطاقة تكتب تطبيقًا مُغلقًا. وهو المقيس حرفيًّا: «أغلق كل شيء ويبقى التردد ٦٥٠».
+    private var endedForegroundPkg: String? = null
     // Correlation id for the app switch currently being applied/reverted, e.g.
     // "sw-1798...". Regenerated every time the focused app changes (see
     // buildStatus()) and written into app_status so the native daemon's
@@ -470,9 +499,36 @@ object AppMonitor {
             )
             runCatching { revertPerAppConfig() }
                 .onFailure { AppMonitorLogger.e("EVENT=REVERT_FAILED pkg=$pkg sw=$currentSwitchId (deferred)", it) }
+            // الجلسة انتهت: تُعلَم الحزمة بذلك فلا تُقرأ قراءةُ المقدّمة بلا معرّف عملية — التي
+            // تبقى بعد الموت دهرًا — على أنها «التطبيق نفسه ما زال سارٍ» فتُعاد الدورة كل ثانيتين.
+            endedForegroundPkg = pkg
+            missingFocusPkg = null
+            missingFocusCount = 0
             gracePkg = null
         }
     }
+
+    /**
+     * تُسلِّم الحزمة إلى مهلة السماح: التراجع يقع عند موت العملية فعليًّا أو عند انتهاء المهلة.
+     *
+     * ولماذا مهلة لا تراجع فوري: قراءة المقدّمة بلا معرّف عملية قد تكون **عابرة** (تطبيق يُولَد،
+     * أو خدمة إدارة المهام لم تُحدَّث بعد). فالحسم من حالة العملية الحقيقية
+     * ([isAppProcessAlive]) لا من القراءة وحدها، والمهلة هي هامش الأمان بينهما.
+     */
+    private fun armGraceRevert(pkg: String) {
+        if (gracePkg == pkg) return
+        gracePkg = pkg
+        graceDeadlineMs = android.os.SystemClock.elapsedRealtime() + PERAPP_GRACE_MS
+        AppMonitorLogger.i(
+            "EVENT=PERAPP_GRACE_ARMED pkg=$pkg reason=foreground-process-missing grace_ms=$PERAPP_GRACE_MS sw=$currentSwitchId"
+        )
+    }
+
+    /** زمن تعديل ملف إعدادات التطبيقات — القيمة الوحيدة التي يُبنى عليها قرار «تغيّر الإعداد». */
+    private fun appListModified(): Long = runCatching {
+        val file = File(MaxManagerPaths.APPLIST_JSON)
+        if (file.exists()) file.lastModified() else -1L
+    }.getOrDefault(-1L)
 
     /** هل ما زالت عملية التطبيق حية؟ فشل الاستعلام يُعامل كحي (ننتظر المؤقت). */
     private fun isAppProcessAlive(pkg: String): Boolean = runCatching {
@@ -692,7 +748,12 @@ object AppMonitor {
 
     private fun writeStatus() {
         val focusedApp = waitForValidFocusedApp() ?: return
-        val currentStatus = runCatching { buildStatus(focusedApp) }
+        // ومعرّف العملية **جزء من الدليل** لا زينة: `pkg 0 0` تعني «لم أجد عملية هذا التطبيق»،
+        // وهي إشارة نهاية جلسة لا «نفس التطبيق ما زال في المقدّمة». وكانت تُسقَط هنا (الدالة
+        // التي تعرفها موجودة وتُنادى في مكان آخر فقط)، فيبقى التطبيق «ساريًا» بعد موته، فلا
+        // تتراجع تعديلات per-app، وتبقى البطاقة تكتبه، والإشعار يعلن «Per-App active».
+        val foregroundConfirmed = !hasMissingPid(focusedApp)
+        val currentStatus = runCatching { buildStatus(focusedApp, foregroundConfirmed) }
             .onFailure { AppMonitorLogger.e("buildStatus() failed for focused app '$focusedApp'", it) }
             .getOrNull() ?: return
         if (currentStatus == lastStatus) return
@@ -821,7 +882,7 @@ object AppMonitor {
         }.onFailure { AppMonitorLogger.e("EVENT=PERAPP_RECOVERY_FAILED", it) }
     }
 
-    private fun buildStatus(focusedApp: String): String {
+    private fun buildStatus(focusedApp: String, foregroundConfirmed: Boolean): String {
         val screenAwake = if (powerManager?.isInteractive == true) 1 else 0
         val batterySaver = if (powerManager?.isPowerSaveMode == true) 1 else 0
         val zenMode = getZenMode()
@@ -842,6 +903,13 @@ object AppMonitor {
         // forever on every poll. lastAppliedPkg is now updated unconditionally
         // so the daemon always moves on, even when apply/revert partially fail.
         if (pkgName != lastAppliedPkg) {
+            // تغيّر التطبيق: الجلسة المُنتهية السابقة لم تعد هي الحالة — وهذه العلامة تُصفَّر
+            // هنا لا في مكان آخر، فلا تبقى حزمة «منتهية» تمنع مسارًا شرعيًّا لاحقًا.
+            if (pkgName != endedForegroundPkg) endedForegroundPkg = null
+            missingFocusPkg = null
+            missingFocusCount = 0
+            // زمن الملف **قبل** التنفيذ: تغيير يقع أثناء التطبيق يبقى مرئيًّا في الدورة التالية.
+            val modifiedAtSwitch = appListModified()
             // عاد التطبيق المُدار خلال مهلة السماح؟ التعديلات ما زالت
             // حية على العتاد — إلغاء التراجع المؤجل بلا خفقان ولا
             // إعادة تطبيق.
@@ -858,7 +926,11 @@ object AppMonitor {
                 val prevPkg = lastAppliedPkg
                 val prevManaged = prevPkg.isNotBlank() &&
                     cachedGameListText?.contains("\"$prevPkg\":") == true
-                val newManaged = pkgName.isNotBlank() && pkgName != "unknown" && pkgName != "none" &&
+                // و«مُدار» تشترط عملية في المقدّمة: تطبيق بلا عملية لا جلسة له، فتطبيق إعداده في
+                // قائمة الإعدادات لا يُشغّل عليه شيء لأنه ما زال مكتوبًا في المهمة العليا بعد
+                // موته. وهذا هو مسار التسريب المقيس: التردد يبقى والبطاقة تكتب تطبيقًا مُغلقًا.
+                val newManaged = foregroundConfirmed && pkgName.isNotBlank() &&
+                    pkgName != "unknown" && pkgName != "none" &&
                     cachedGameListText?.contains("\"$pkgName\":") == true
 
                 if (newManaged || !prevManaged) {
@@ -885,7 +957,7 @@ object AppMonitor {
                         runCatching { revertPerAppConfig() }
                             .onFailure { AppMonitorLogger.e("EVENT=REVERT_FAILED pkg=$prevPkg sw=$currentSwitchId", it) }
                     }
-                    if (pkgName.isNotBlank() && pkgName != "unknown" && pkgName != "none") {
+                    if (foregroundConfirmed && pkgName.isNotBlank() && pkgName != "unknown" && pkgName != "none") {
                         runCatching { applyPerAppConfig(pkgName) }
                             .onFailure { AppMonitorLogger.e("EVENT=APPLY_FAILED pkg=$pkgName sw=$currentSwitchId reason=no_per_app_overrides_applied", it) }
                     }
@@ -907,10 +979,15 @@ object AppMonitor {
                 }
             }
             lastAppliedPkg = pkgName
+            appliedConfigModified = modifiedAtSwitch
             val parts = focusedApp.split(" ")
             val focusedPid = parts.getOrNull(1) ?: "0"
             val focusedUid = parts.getOrNull(2) ?: "0"
-            val managed = cachedGameListText?.contains("\"$pkgName\":") == true
+            // و«مُدار» تعني: مُدرَج في قائمة الإعدادات **وأن له عملية في المقدّمة**. تطبيق مُغلق
+            // لا جلسة له: كتابة اسمه في بطاقة النشاط وإشعار «Per-App active» حينها تصف حالة
+            // غير موجودة، وهي الشكوى الحرفية: «التطبيق ما زال مكتوبًا في بطاقة النشاط وأنا
+            // متأكد أنه مغلق».
+            val managed = foregroundConfirmed && cachedGameListText?.contains("\"$pkgName\":") == true
             if (managed) {
                 writeAppGameInfo(pkgName, focusedPid, focusedUid)
                 updateActiveAppNotification(pkgName, focusedApp)
@@ -921,19 +998,56 @@ object AppMonitor {
             baselineCaptured = if (managed) baselineCaptured else false
         }
 
-        // If the user changes the current app's JSON profile while the app is already
-        // in the foreground, apply the new values without requiring an app restart.
-        // This is deliberately keyed to the file mtime, so normal 500 ms polling does
-        // not repeatedly revert/reapply the same configuration.
+        // انتهت جلسة التطبيق الحالي (ماتت عمليته) ثم عاد إلى المقدّمة: تُفتح له جلسة جديدة.
+        //
+        // وبلا هذا يبقى `lastAppliedPkg` هو الحزمة نفسها، فلا يرى المسار تبديلًا ولا يُعاد
+        // التطبيق أبدًا: تطبيق فُتح من جديد يظل بلا تعديلات حتى يغادر ويُفتح ثانية.
+        if (pkgName == lastAppliedPkg && foregroundConfirmed && pkgName == endedForegroundPkg) {
+            endedForegroundPkg = null
+            AppMonitorLogger.i("EVENT=PERAPP_SESSION_REOPENED pkg=$pkgName sw=$currentSwitchId")
+            // تصفير «المُطبَّق» يجعل الدورة التالية تمرّ بمسار التبديل: تراجع ثم تطبيق كاملين.
+            lastAppliedPkg = ""
+        }
+
+        // التطبيق نفسه في المقدّمة لكن **بلا معرّف عملية**: ليست حالةً سارية، وتُعامل كإشارة
+        // نهاية جلسة بعد ثباتها (العابرة تُحتمل، والثابتة لا). ومهلة السماح هي التي تتحقّق من
+        // موت العملية فعليًّا قبل أي تراجع — فلا خفقان على تطبيق حيّ.
         if (pkgName == lastAppliedPkg) {
-            val configFile = File(MaxManagerPaths.APPLIST_JSON)
-            val modified = if (configFile.exists()) configFile.lastModified() else -1L
-            if (modified != cachedGameListModified) {
+            val unconfirmed = !foregroundConfirmed &&
+                pkgName.isNotBlank() && pkgName != "unknown" && pkgName != "none"
+            if (unconfirmed) {
+                if (missingFocusPkg == pkgName) missingFocusCount++ else {
+                    missingFocusPkg = pkgName
+                    missingFocusCount = 1
+                }
+                if (pkgName != endedForegroundPkg && missingFocusCount >= FOREGROUND_UNCONFIRMED_LIMIT) {
+                    armGraceRevert(pkgName)
+                }
+            } else {
+                missingFocusPkg = null
+                missingFocusCount = 0
+                if (gracePkg != null) {
+                    AppMonitorLogger.i("EVENT=PERAPP_GRACE_ABORTED pkg=$pkgName sw=$currentSwitchId reason=foreground-process-confirmed")
+                    gracePkg = null
+                }
+            }
+        }
+
+        // تغيّر إعداد التطبيق الحالي وهو في المقدّمة: يُنفَّذ في هذه الدورة لا عند تبديل تالٍ.
+        //
+        // والمقارنة بزمن **آخر تطبيق** لا بزمن آخر قراءة: الكاش يُحدَّث في كل قراءة (ودورة
+        // الانحراف تقرأ `refresh_rate` كل عشر ثوانٍ)، فقراءة تقع بين تغيير المستخدم وفحصه كانت
+        // تُسقط الفحص ويبقى الإعداد القديم ساريًا حتى تبديل تطبيق تالٍ — وهو المقيس: «أختار
+        // gaming فيظهر أثره بعد كم دقيقة».
+        if (pkgName == lastAppliedPkg && foregroundConfirmed) {
+            val modified = appListModified()
+            if (modified != appliedConfigModified) {
+                appliedConfigModified = modified
                 runCatching {
                     revertPerAppConfig()
                     applyPerAppConfig(pkgName)
                     lastAppliedPkg = pkgName
-                    updateActiveAppNotification(pkgName, focusedApp)
+                    if (foregroundConfirmed) updateActiveAppNotification(pkgName, focusedApp)
                 }.onFailure { AppMonitorLogger.e("EVENT=LIVE_CONFIG_REAPPLY_FAILED pkg=$pkgName sw=$currentSwitchId", it) }
             }
         }
@@ -1034,8 +1148,10 @@ object AppMonitor {
         refreshConfigCacheIfChanged()
         val json = cachedGameListText ?: return ""
         return try {
-            // Fast regex-based extraction: find the package block and the field inside it
-            val pkgPattern = Regex(""""$pkgName"\s*:\s*\{([^}]+)\}""")
+            // Fast regex-based extraction: find the package block and the field inside it.
+            // واسم الحزمة يُهرَّب قبل أن يصير نمطًا: أسماء الحزم تحمل نقاطًا (أي محرفًا يقبل
+            // أي حرف) — فلا يخطئ المطابقة اليوم ولا يهرب حرف خاص لو تغيّر نطاق الأسماء لاحقًا.
+            val pkgPattern = Regex(""""${Regex.escape(pkgName)}"\s*:\s*\{([^}]+)\}""")
             val pkgBlock = pkgPattern.find(json)?.groupValues?.getOrNull(1) ?: return ""
             val fieldPattern = Regex(""""$field"\s*:\s*"([^"]*)"|\b$field\b\s*:\s*([^,}\n]+)""")
             fieldPattern.find(pkgBlock)?.groupValues?.let { it[1].ifEmpty { it[2].trim() } } ?: ""
@@ -1433,19 +1549,12 @@ object AppMonitor {
                 return@runCatching
             }
             val presetPercent = ProfilePresetStore.percentFor(systemContext, profile)
-            // ١٠٠٪ تعني **كامل قدرة الجهاز**: لا تُقيَّد بالسقف الحيّ. ومثال القياس الذي رفضه
-            // المستخدم: جهاز يعرض ١٣٠٠ كأعلى درجة، وسياسته الحالية تسمح بـ٧٥٤ — فتقيد بـ`liveCap`
-            // كان يجعل «Gaming ١٠٠٪» يطلب ٧٥٤ (لا فرق عن غير الممسوس)، و«Gaming ٨٥٪» يطلب ٦٢٤
-            // أي **أدنى من الجهاز كما هو**. وما دون ١٠٠٪ يبقى من السقف الحيّ لأن غرضه التبريد.
-            // كل نسب Per-App الجديدة (بما فيها Gaming 85 وBalanced 60 وPower 40)
-            // تُحسب من قدرة الجهاز المكتشفة، لا من سقف Balanced الحي. يسمح ذلك بأن
-            // يبقى معنى النسبة ثابتًا حتى لو غيّر النظام سقفه قبل وصول التطبيق للمقدمة.
+            // نسبة البروفايل من **قدرة الجهاز** لا من سقفه الحيّ: ٨٥٪ من ١٣٠٠ = ١١٠٥، بينما
+            // ٨٥٪ من سقف حيّ عند ٧٥٤ تطلب ٦٢٤ — أي **أدنى من الجهاز كما هو**، فيصير «gaming»
+            // أبردَ من عدم المسّ. فيبقى معنى النسبة ثابتًا وإن غيّرت المنصّة سقفها قبل وصول
+            // التطبيق إلى المقدّمة. والسقف الحيّ يُستعمل في موضعه الصحيح بعد قليل: ليقرّر هل
+            // الطلب يزيد عليه (فيلزمه تحرير) أم هو طلب تبريد دونه.
             val advertisedMaxHz = liveAtPlan.frequencies.filter { it > 0L }.maxOrNull()
-            // «قدرة الجهاز» ليست حكرًا على البروفايلات: من اختار صراحةً أعلى درجة مُعلنة في
-            // القائمة فقد طلب القدرة أيضًا — والفرق بينهما كان يُنزله إلى السقف الحيّ (٧٥٤) فيقرأ
-            // طلبه ٧٥٤ ويُقال له «نُفِّذ». والاختيار الأقل من القدرة يبقى طلب تبريد يُقيَّد بالسقف.
-            val fullCapabilityRequest = explicit == null ||
-                (advertisedMaxHz != null && explicit >= advertisedMaxHz)
             // ── وإعداد يحمل الاختيارين معًا لا يُحكَم عليه صامتًا ────────────────────────────
             //
             // صار في الشاشة مالك واحد للمقبض (اختيار البروفايل يُفرغ التردد الصريح والعكس)، فاجتماعهما
@@ -1462,7 +1571,9 @@ object AppMonitor {
                 liveAtPlan.frequencies,
                 profile,
                 presetPercent,
-                maximumHz = if (fullCapabilityRequest) null else liveCap,
+                // القدرة أساس النسبة لكل البروفايلات: ما دونها يُقيَّد عند التنفيذ بالسقف الحيّ
+                // لأّنه طلب تبريد — والتقييد يُعلَن (`PERAPP_GPU_TARGET_CAPPED`) ولا يُسكَت عنه.
+                maximumHz = null,
             )
             if (requested == null) {
                 noteHardware("gpu_profile", Outcome.UNSUPPORTED, "unsupported-profile:$profile", profile, liveCap.toString())
@@ -1483,10 +1594,26 @@ object AppMonitor {
             // والقياس من سجل حقيقي (2026-09-20): `APPLY_VERIFY_FAILED knob=gpu_profile
             // expected=1300000000 live=754000000` ثم `APPLY_DRIFT_REASSERT_FAILED`
             // بعد ثانيتين، مرّتين لكل تطبيق — والجهاز لا يبلغ السقف المطلوب أصلًا.
+            // ── وهل يلزم **تحرير سقف المصنّع** لهذا الطلب؟ ─────────────────────────────────
+            //
+            // السؤال ليس «هل النسبة ١٠٠٪؟» بل «هل الطلب يزيد على ما يسمح به الجهاز الآن؟».
+            // وبالفارق بينهم وقع العطب المقيس («Performance لا يعمل» و«gaming بلا أثر»):
+            //
+            //  · الحكم القديم كان `explicit == null || explicit >= capability` — أي أن **كل**
+            //    طلب بروفايل (بلا تردد صريح) يُعدّ طلب قدرة، فلا يُقيَّد بالسقف الحيّ.
+            //  · والحكم النهائي (`ceilingSatisfied` لطلب القدرة) كان يسأل عن **بلوغ القدرة**؛
+            //    وعلى جهاز تحتفظ منصّته بسقف ٧٥٤ دون ١٣٠٠ لا تُلبّى أبدًا ⇒ فشل ⇒ استرجاع خط
+            //    الأساس — و**استرجاع خط الأساس يمحو التحرير نفسه**، فأصبح «Performance» بلا أثر
+            //    بالبناء لا بالعتاد.
+            //
+            // فالفصل الآن صريح: [GpuCeilingPolicy.releaseRequired] تقول هل نحتاج التحرير،
+            // و[GpuCeilingPolicy.releaseVerdict] تحكم **على التحرير** (وهو ما نملكه) لا على
+            // سياسة المنصّة (وهي ما نقيسه ونعلنه).
+            val releaseRequired = GpuCeilingPolicy.releaseRequired(requested, liveCap)
             val target = GpuHardwareBackend.snapToAvailableAtOrBelow(
                 liveAtPlan,
                 requested,
-                respectLiveCeiling = !fullCapabilityRequest,
+                respectLiveCeiling = !releaseRequired,
             )
             if (target == null) {
                 noteHardware("gpu_profile", Outcome.UNSUPPORTED, "unsupported-frequency", requested.toString(), liveCap.toString())
@@ -1500,7 +1627,7 @@ object AppMonitor {
             // سؤال «طلبت ١٠٠٪ فلماذا الكروت يقول ٧٥٤؟» يُجاب هنا بلا تفسير منّا: الطلب هو قدرة
             // الجهاز، والقيمة التي تُقرأ بعد الكتابة هي ما تسمح به سياسة الجهاز الآن. والاثنان
             // مكتوبان في السطر نفسه، فلا يُقرأ الفرق عطلًا في التطبيق.
-            if (fullCapabilityRequest && target > liveCap) {
+            if (releaseRequired && target > liveCap) {
                 AppMonitorLogger.i(
                     "EVENT=PERAPP_GPU_CAPABILITY_REQUESTED pkg=$pkgName profile=$profile" +
                         " requested=$target live_before=$liveCap note=device-policy-may-hold-lower sw=$currentSwitchId"
@@ -1535,16 +1662,20 @@ object AppMonitor {
                 noteHardware("gpu_profile", Outcome.UNSUPPORTED, "unsupported-frequency", target.toString(), liveCap.toString())
                 return@runCatching
             }
-            val releaseCeiling = realization == GpuCeilingPolicy.Realization.RELEASE_ONLY
-            // وطلب «أعطني قدرة الجهاز» **تحرير** لا كتابة: يُحرَّر سقف المصنّع ويُرفع قفل OPP إن
-            // كان قائمًا، ويُترك الجهاز يتوسّع بنفسه — فلا يُثبَّت تردد ولا يُجمَّد.
-            val ceilingShaped = releaseCeiling
-            val ceilingCapture = if (releaseCeiling) PlatformCeilingAuthority.captureGpuCeiling() else null
+            // وطلبٌ فوق ما يسمح به الجهاز **تحرير** لا كتابة فقط: يُحرَّر سقف المصنّع ويُرفع قفل
+            // OPP إن كان قائمًا، ثم يُكتب السقف المطلوب — ولا يُثبَّت تردد إلا حين لا يحمل المدى
+            // الطلبَ فعلًا (يُقاس، لا يُفترض)، وطلبُ التبريد (دون السقف الحيّ) لا يلمس حماية المصنّع.
+            val releaseCeiling = releaseRequired
+            val ceilingShaped = releaseRequired
+            val ceilingCapture = if (releaseRequired) PlatformCeilingAuthority.captureGpuCeiling() else null
             val clockAtPlan = GpuHardwareBackend.currentFrequencyHz(liveAtPlan)
 
             val baseline = GpuHardwareBackend.captureBaseline(liveAtPlan)
             val desired = target.toString()
             val gpuKey = HardwareControlKey.gpuFrequency(device.name)
+            // هل نُفِّذ الطلب بتثبيت درجة (لأن المدى لم يحمله)؟ يُعلَم من داخل المعاملة — وهي
+            // المعلومة التي تحوّل «فشل المدى» إلى «نجاح بتثبيت» أو إلى فشل صريح بالتردد المقيس.
+            var pinnedViaIndex = false
             val owned = hardwareControlRegistry.ownValue(
                 key = gpuKey,
                 desired = desired,
@@ -1573,10 +1704,10 @@ object AppMonitor {
                         val capped = GpuHardwareBackend.snapToAvailableAtOrBelow(
                             live,
                             wantedHz,
-                            respectLiveCeiling = !fullCapabilityRequest,
+                            respectLiveCeiling = !releaseRequired,
                         ) ?: return@let false
                         val low = live.frequencies.firstOrNull { it <= capped } ?: return@let false
-                        GpuHardwareBackend.applyValidated(
+                        val rangeResult = GpuHardwareBackend.applyValidated(
                             live,
                             if (live.devfreqCeilingWritable) {
                                 GpuHardwareBackend.Request(
@@ -1592,6 +1723,30 @@ object AppMonitor {
                                     releaseVendorCeiling = releaseCeiling,
                                 )
                             },
+                        )
+                        if (rangeResult.verified) return@let true
+                        // ── والمدى لم يحمل الطلب: هل للتثبيت مسار؟ ────────────────────────────────
+                        //
+                        // وهذا هو ما يفرّق «تحرير لم يُنفَّذ» من «تحرير لا يكفي وحده». على MTK
+                        // تُعلن عقد `devfreq` حتى ٧٥٤ بينما جدول OPP الموقّع يحمل ١٣٠٠، فكتابة
+                        // السقف تُقصّ عند ٧٥٤ مهما فُتحت قنوات السلطة — والمسار الوحيد للدرجة
+                        // الأعلى هو **فهرس OPP** (`fix_target_opp_index`)، وهو نفسه ما يفعله
+                        // بروفايل الأداء في الوحدة نفسها.
+                        //
+                        // وحدوده مقصودة: لطلب التحرير وحده (لا لطلب تبريد)، ومع وجود فهرس حقيقي
+                        // للدرجة المطلوبة (بلا اختراع فهرس)، وبعد أن يُقاس فشل المدى لا أن يُفترض،
+                        // والقيمة تُقاس بعدها بالتردد الجاري (`pinVerdict`) فلا يُصدَّق صدى الفهرس
+                        // وحده. والفهرس السابق محفوظ في خط الأساس فيُعاد عند خروج التطبيق.
+                        if (!releaseCeiling || !live.exactLockWritable || live.mtkFixedIndexPath == null) return@let false
+                        if (capped !in live.mtkOppIndexByFrequency) return@let false
+                        pinnedViaIndex = true
+                        GpuHardwareBackend.applyValidated(
+                            live,
+                            GpuHardwareBackend.Request(
+                                minFreq = capped,
+                                maxFreq = capped,
+                                releaseVendorCeiling = true,
+                            ),
                         ).verified
                     } ?: false },
                 read = {
@@ -1627,13 +1782,16 @@ object AppMonitor {
                 // حالة تبريد GPU. فحكم «مُلبّى» لا يُطلق على طلب ما زالت المنصّة تقصّه.
                 verify = if (ceilingShaped) {
                     { wanted, actual ->
-                        // والقدرة تُمرَّر مع الطلب: طلبٌ عند القدرة يُلبّى حين يزول كل سقف **دونها**،
-                        // وقراءةُ سقفٍ أقلّ من القدرة (٧٥٤ لطلب ١٣٠٠) ليست تلبية وإن كانت «لا تُخترَق».
-                        GpuCeilingPolicy.ceilingSatisfied(
-                            wanted.toLongOrNull() ?: 0L,
+                        // والحكم على **التحرير** لا على سياسة المنصّة: طلبٌ عند السقف أو فوقه يتحقّق
+                        // بزوال كل قنواتنا (تبريد GPU · سقف GED · قفل OPP)، وسقفٌ أدنى يُقاس ويُعلَن
+                        // برقمه (`gpu-ceiling-open-below-request:754000000`) ولا يُحكم به فشلًا —
+                        // لأن الفشل هنا يُعيد خط الأساس، فيمحو التحرير ويضمن ألّا يقع تغيير أبدًا.
+                        // وما بقى **مقصوصًا من عندنا** (تبريد رافع أو سقف GED أو قفل أدنى من الطلب)
+                        // فشلٌ صريح كما كان.
+                        GpuCeilingPolicy.releaseVerdict(
                             GpuCeilingPolicy.CeilingReading.parse(actual),
-                            capabilityHz = advertisedMaxHz,
-                        )
+                            wanted.toLongOrNull() ?: 0L,
+                        ).satisfied
                     }
                 } else {
                     HardwareVerification::ceilingAtMost
@@ -1645,50 +1803,73 @@ object AppMonitor {
             // ── سطر واحد يجيب: ماذا نُفِّذ، وعلى أي تردد يجري الجهاز فعلًا، وهل السقف مُحرَّر؟ ──
             val liveAfter = GpuHardwareBackend.refresh(device.path)
             val measuredHz = liveAfter?.let { GpuHardwareBackend.currentFrequencyHz(it) }
-            val pinnedHz = if (realization == GpuCeilingPolicy.Realization.PIN) {
+            val pinnedHz = if (realization == GpuCeilingPolicy.Realization.PIN || pinnedViaIndex) {
                 liveAfter?.let { GpuHardwareBackend.currentExactLockFrequency(it) }
             } else null
-            val pinJudgement = if (realization == GpuCeilingPolicy.Realization.PIN) {
+            val pinJudgement = if (realization == GpuCeilingPolicy.Realization.PIN || pinnedViaIndex) {
                 GpuCeilingPolicy.pinVerdict(pinnedHz, measuredHz)
             } else null
+            val ceilingAfter = GpuHardwareBackend.ceilingReading(liveAfter ?: liveAtPlan)
             // حكم السقف يُحسب دائمًا ويُطبع دائمًا، حتى في شكل الكتابة: جواب «هل ما زالت المنصّة
             // تقصّ؟» لا يجوز أن يغيب لأن مسار التنفيذ كان مسار كتابة.
             val ceilingJudgement = GpuCeilingPolicy.ceilingReason(
                 target,
-                GpuHardwareBackend.ceilingReading(liveAfter ?: liveAtPlan),
+                ceilingAfter,
                 capabilityHz = advertisedMaxHz,
             )
+            // وحكم **التحرير** — وهو نفسه الذي حكم به المُحكِّم على المعاملة، فلا رقمان لسلوك واحد:
+            // الرمز نفسه يذهب إلى السجل وإلى بطاقة الحالة، ومعه الرقم المقيس حين كان الرقم هو الفرق.
+            val releaseJudgement = if (ceilingShaped) {
+                GpuCeilingPolicy.releaseVerdict(ceilingAfter, target)
+            } else null
             val judgement = when {
-                ceilingShaped -> ceilingJudgement
+                releaseJudgement != null -> releaseJudgement.reason
                 pinJudgement != null -> pinJudgement.token
                 else -> GpuCeilingPolicy.Realization.RANGE.token
             }
             AppMonitorLogger.i(
                 "EVENT=PERAPP_GPU_REALIZED pkg=$pkgName profile=$profile realization=${realization.token}" +
+                    " released=$releaseRequired pinned_by_index=$pinnedViaIndex" +
                     " requested=$requested target=$target advertised_max=${advertisedMaxHz ?: "none"}" +
                     " clock_before=${clockAtPlan ?: "unreadable"} clock_now=${measuredHz ?: "unreadable"}" +
                     " pinned=${pinnedHz ?: "none"} ceiling=$ceilingJudgement" +
                     " judgement=$judgement owned=$owned sw=$currentSwitchId"
             )
             // والفشل المَقيس يُقال في بطاقة الحالة بنفسه (لا يُطمس بسطر «applied» المجاور):
-            // «أداء» لا يعني أن المنصّة لم تعد تقصّ.
+            // «أداء» لا يعني أن المنصّة لم تعد تقصّ — ولا تثبيتٌ يُصدَّق بالفهرس وحده.
             val measuredFailure = when {
-                ceilingShaped && judgement != "gpu-ceiling-released" -> judgement
+                releaseJudgement != null && !releaseJudgement.satisfied -> releaseJudgement.reason
                 pinJudgement == GpuCeilingPolicy.PinVerdict.CLOCK_MISMATCH -> pinJudgement.token
                 else -> null
             }
-            if (measuredFailure != null) {
-                noteHardware(
+            when {
+                measuredFailure != null -> noteHardware(
                     "gpu_profile",
                     Outcome.NOT_VERIFIED,
                     measuredFailure,
                     desired,
                     measuredHz?.toString().orEmpty(),
                 )
-            } else {
-                noteOwnedOutcome(
+                !owned -> noteOwnedOutcome(
                     knob = "gpu_profile",
-                    owned = owned,
+                    owned = false,
+                    refusal = hardwareControlRegistry.refusalReasons()[gpuKey],
+                    expected = desired,
+                    live = liveAfter?.let(GpuHardwareBackend::effectiveFrequency)?.toString().orEmpty(),
+                )
+                releaseJudgement != null -> noteHardware(
+                    "gpu_profile",
+                    Outcome.APPLIED,
+                    // ولماذا قد يقول الرمز «تحرير کامل» أو «تحرير وسقفُ المنصّة أدنى»: الأول يعني
+                    // بلوغ الطلب، والثاني يعني أن كل ما نملكه مفتوح وما تحتفظ به المنصّة مُقَاس
+                    // ومكتوب برقمه — بدل أن يُكتم أو يُدَّعى أنه فشل.
+                    releaseJudgement.reason,
+                    desired,
+                    measuredHz?.toString().orEmpty(),
+                )
+                else -> noteOwnedOutcome(
+                    knob = "gpu_profile",
+                    owned = true,
                     refusal = hardwareControlRegistry.refusalReasons()[gpuKey],
                     expected = desired,
                     live = liveAfter?.let(GpuHardwareBackend::effectiveFrequency)?.toString().orEmpty(),

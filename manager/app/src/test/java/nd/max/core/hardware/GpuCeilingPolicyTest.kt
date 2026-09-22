@@ -197,6 +197,60 @@ class GpuCeilingPolicyTest {
         assertNull(GpuCeilingPolicy.CeilingReading.parse("1300000000|0|held|extra"))
     }
 
+    // ── طلب السقف: هل يلزم تحرير، وهل وقع فعلًا؟ ─────────────────────────────
+
+    @Test
+    fun `a request above the live ceiling needs the vendor cap released`() {
+        // العطب المقيس: طلبٌ فوق السقف الحيّ يُكتب بلا تحرير فتقع كتابته على سقف مكتوب أصلًا،
+        // فيقرأ المستخدم القيمة نفسها ولا يرى أثرًا — «أختار gaming ولا شيء يتغيّر».
+        assertTrue(GpuCeilingPolicy.releaseRequired(1_105_000_000L, 754_000_000L))
+        assertTrue(GpuCeilingPolicy.releaseRequired(1_300_000_000L, 754_000_000L))
+        // وطلب عند السقف نفسه: تحرير أيضًا — فالكتابة تساويه ولا تُنفّذ شيئًا بنفسها.
+        assertTrue(GpuCeilingPolicy.releaseRequired(754_000_000L, 754_000_000L))
+        // وطلب تبريد (دون السقف الحيّ) لا يرفع حماية وضعها المصنّع — وإلا صار التبريد تسخينًا.
+        assertFalse(GpuCeilingPolicy.releaseRequired(650_000_000L, 754_000_000L))
+        // وسقف حيّ غير مقروء يُسلَك به مسلك التحرير: لا يُدَّعى أن الطلب تحت حماية لم تُقس.
+        assertTrue(GpuCeilingPolicy.releaseRequired(400_000_000L, null))
+    }
+
+    @Test
+    fun `a release is judged on what we own, not on the policy the device keeps`() {
+        val released = GpuCeilingPolicy.CeilingReading(1_300_000_000L, 0L, false, lockActive = false)
+        val verdict = GpuCeilingPolicy.releaseVerdict(released, 1_300_000_000L)
+        assertTrue(verdict.satisfied)
+        assertEquals(GpuCeilingPolicy.ReleaseVerdict.RELEASED, verdict.token)
+
+        // وكل قنواتنا مرفوعة والمنصّة تحتفظ بسقف أدنى: نجاحٌ لِما نملك، ورقمٌ يُعلن لما لا نملك.
+        // وهذه بالحرف الحالة التي كان الحكم فيها «فشل» فيُستعاد خط الأساس — **فيمحو التحرير نفسه**
+        // ويضمن ألّا يقع تغيير أبدًا («Performance لا يعمل»).
+        val kept = GpuCeilingPolicy.CeilingReading(754_000_000L, 0L, false, lockActive = false)
+        val below = GpuCeilingPolicy.releaseVerdict(kept, 1_300_000_000L)
+        assertTrue(below.satisfied)
+        assertEquals("gpu-ceiling-open-below-request:754000000", below.reason)
+
+        // وسقفٌ من عندنا لم يُرفع: فشل صريح — لا نجاح كاذب ولا حذف لرقم.
+        val heldUpbound = GpuCeilingPolicy.releaseVerdict(kept.copy(platformUpbound = 650_000_000L), 1_300_000_000L)
+        assertFalse(heldUpbound.satisfied)
+        assertEquals(GpuCeilingPolicy.ReleaseVerdict.HELD, heldUpbound.token)
+        assertFalse(GpuCeilingPolicy.releaseVerdict(kept.copy(platformCoolingHeld = true), 1_300_000_000L).satisfied)
+
+        // وقفل OPP: يُقبل عند الطلب أو فوقه (تثبيت على أعلى درجة هو مسلك الجهاز الوحيد حين لا
+        // يقبل المدى)، ويُرفض دونه: ذاك جمود من جلسة سابقة يخنق التردد.
+        val pinnedTop = kept.copy(nodeCeilingHz = 1_300_000_000L, lockActive = true)
+        assertEquals(GpuCeilingPolicy.ReleaseVerdict.PINNED, GpuCeilingPolicy.releaseVerdict(pinnedTop, 1_300_000_000L).token)
+        assertTrue(GpuCeilingPolicy.releaseVerdict(pinnedTop, 1_300_000_000L).satisfied)
+        val pinnedLow = kept.copy(nodeCeilingHz = 650_000_000L, lockActive = true)
+        assertFalse(GpuCeilingPolicy.releaseVerdict(pinnedLow, 1_300_000_000L).satisfied)
+
+        // وقراءة غير ممكنة ليست تحريرًا: «لم أقِس» ليست «نجح».
+        assertFalse(GpuCeilingPolicy.releaseVerdict(null, 1_300_000_000L).satisfied)
+        assertFalse(GpuCeilingPolicy.releaseVerdict(kept.copy(nodeCeilingHz = null), 1_300_000_000L).satisfied)
+        assertEquals(
+            GpuCeilingPolicy.ReleaseVerdict.UNREADABLE,
+            GpuCeilingPolicy.releaseVerdict(null, 1_300_000_000L).token,
+        )
+    }
+
     // ── حكم التثبيت ──────────────────────────────────────────────────────────
 
     @Test

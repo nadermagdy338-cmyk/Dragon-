@@ -29,6 +29,7 @@ class LogCodeGlossaryTest {
             "provider-disappeared", "unsupported-frequency", "outside-proven-hardware-bounds",
             // GpuCeilingPolicy (شكل تنفيذ السقف وحكمه المقيس)
             "gpu-ceiling-released", "gpu-ceiling-held", "gpu-node-ceiling-unreadable", "gpu-opp-lock-held",
+            "gpu-ceiling-open-below-request", "gpu-pinned-at-request",
             "pin-verified", "verified-by-index", "pin-clock-mismatch", "pin-unreadable",
             // AppMonitor (اختياران على مقبض واحد، من إعداد قديم)
             "explicit-frequency-wins-over-profile",
@@ -59,6 +60,10 @@ class LogCodeGlossaryTest {
             LogCodeGlossary.explain("preempted-by-SYSTEM"),
         )
         assertNotNull(LogCodeGlossary.explain("guard-idle:severe"))
+        assertNotNull(
+            "رمز التحرير يُلحَق بسقف المنصّة المقيس؛ بلا شرح تسقط اللاحقة وحدها",
+            LogCodeGlossary.explain("gpu-ceiling-open-below-request:754000000"),
+        )
         assertTrue(
             "القالب يجب أن يذكر المالك وإلا لم يُفهم الرمز",
             LogCodeGlossary.explain("preempted-by-MAX_AI")!!.contains("OWNER"),
@@ -128,6 +133,7 @@ class LogCodeGlossaryTest {
             "curve-does-not-cap",
             "route-verified", "ceiling-already-held", "user-ceiling-already-held", "selected",
             "gpu-ceiling-released", "pin-verified", "verified-by-index",
+            "gpu-ceiling-open-below-request", "gpu-pinned-at-request",
         )
 
         val wrongly = healthy.filter { LogCodeGlossary.remedyOf(it) != null }
