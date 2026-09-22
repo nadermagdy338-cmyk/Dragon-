@@ -7036,3 +7036,156 @@ configuration is available` من 16:23:32 إلى 16:26:12 = **2م40ث**.
 **NEXT:** (١) رفع التعديل وتشغيل واحد على `main` للتأكّد أنه **ينتهي** لا يُقتل؛ (٢) إن تكرّر القتل
 بلا دفعة جديدة ⇒ السبب من جهة GitHub، والعلاج تقصير الزمن (`BUILD_RUNNER`) لا الكود؛ (٣) قياس
 مخزن التهيئة على CI (§٤) قبل إدخاله؛ (٤) حكم العتاد/SELinux/الإقلاع يبقى **يحتاج جهازًا**.
+
+## تكملة ٩٧ — أطلس صار **يكتب من دليله**: جسر من الاكتشاف المقيس إلى معاملة كتابة حقيقية (2026-09-22)
+
+**الطلب:** «أهم شيء: أطلس أن يكون قادرًا على الكتابة والعمل بشكل حقيقي».
+
+### ١ · أين كانت الانقطاع بالضبط (لا تخمين — من قراءة الكود)
+
+لأطلس نصفان:
+
+- **الاكتشاف** (`AtlasBackendProvider`) **يقيس**: سياسات cpufreq، سلّم الترددات، التردد الحالي،
+  ثقة وحدة القياس، حدّي النواة المُعلنين.
+- **التحكم** (`AtlasAdaptiveExecutor` · `ThermalCeilingRouter` · `MinimalPlanner`) **يكتب**، لكن
+  أدلّة مساراه **حرفية مكتوبة باليد**: `unitProven = true` و`baselineReadable = true`
+  و`rollbackProven = true` و`privileged = true` و`reviewed = true` — بلا قياس.
+
+وبوابة الأمان في `AtlasRoutePlanner` قويّة (ترفض بـ`UNIT_AMBIGUOUS` · `BASELINE_UNREADABLE` ·
+`ROLLBACK_UNPROVEN` · `ROUTE_NOT_REVIEWED`)، لكنها كانت **تُغذّى بادّعاءات كاتب المسار لا بقياس
+الجهاز**. فالجسر كان ناقصًا: لا يستطيع أطلس أن يُنزل ما اكتشفه إلى معاملة كتابة.
+
+### ٢ · ما أُضيف
+
+`manager/app/src/main/java/nd/max/core/hardware/AtlasDiscoveredControl.kt` + اختباره:
+
+| القاعدة | كيف تُفرض |
+| --- | --- |
+| **لا عقدة مُخترعة** | المسار يُبنى من سياسة اكتشفها أطلس، بمفتاحها القياسي `HardwareControlKey.cpuLimits(name)` ومعرّف المسار `HardwareRepairExecutor.labelFor(key)` — لا مالكَين ولا صيغتين لنفس المقبض |
+| **ما لم يُقس لا يُدَّعى** | `readable` = التردد قُرئ فعلًا؛ `baselineReadable` = عقدة السقف أجابت الآن؛ `unitProven` = النواة أعلنت حدّيها **و**نشرت سلّمًا؛ `rollbackProven` = خط أساس مقروء **و**كاتب متاح |
+| **الفشل مغلق** | `reviewed` تأتي من المستدعي والافتراضي `false` ⇒ مخطِّط أطلس يرفض بـ`ROUTE_NOT_REVIEWED` ولا تُكتب عقدة لم يراجعها أحد |
+| **الكاتب ليس ثانيًا** | الكتابة والقراءة والاسترجاع عبر `AtlasCeilingAccess` (يُفوّض إنتاجيًّا إلى `setPolicyLimits` المُتحقَّق)، والحكم `HardwareVerification.rangeContained` — نفس ما يفعله `PerAppFrequencyController` |
+| **لا رفع فوق المُعلن** | السقف المطلوب يُقصّ إلى سلّم الترددات؛ و۹,۰۰۰,۰۰۰ يُصبح أقصى سلّم، لا قيمة مُخترعة |
+| **القفل اليدوي فوق الجميع** | أطلس مالك آليّ (`MAX_AI` افتراضيًا) ⇒ `ManualControlLocks` تحجبه، ويُعاد `BLOCKED` بلا كتابة |
+
+### ٣ · التحقق (مُشغَّل هنا، لا مُدَّعى)
+
+| البوابة/القياس | النتيجة |
+| --- | --- |
+| `kt_balance --assert` | **775 ملفًا · 0 عوائق** ✅ |
+| `code_health --assert` | **صحّة نظيفة · exit 0** ✅ |
+| `:app:testReleaseUnitTest --tests "*AtlasDiscoveredControlTest"` | **BUILD SUCCESSFUL in 5m 41s** · ١٣ حالة · **0 فشل** |
+| حالات الرفض مع صفر كتابة | عقدة غير مقروءة ⇒ `BASELINE_UNREADABLE` · غير مُراجعة ⇒ `REVIEW_REQUIRED` · وحدة غير مُثبتة ⇒ `UNIT_AMBIGUOUS` · بلا كاتب ⇒ `PRIVILEGE_UNAVAILABLE` · مقفولة يدويًّا ⇒ `BLOCKED` — وكلها `writes = 0` مقيسًا |
+| الكتابة الحقيقية | تسجيل واحد على العقدة و`CONFIRMED_WINDOW`؛ والانحراف داخل النافذة ⇒ `DRIFT_ROLLED_BACK` وعودة خط الأساس |
+| سقف مُلبّى أصلًا | `verified` **بلا كتابة** — فلا خفقان في وجه مُلطِّف |
+
+**والحدود المعلنة:** هذا **يمنح القدرة** ولا يوصّلها بواجهة؛ ومن يُنادي `applyCpuCeiling` (شاشة
+أطلس أو حلقة المطوّر) قرار تصميم لم يُتخذ. ولا `reviewed` إنتاجية بعد: لا بدّ من مشتقّ من
+`AtlasCatalog`/`AtlasAnchors` يُمرَّر من المُستدعي، وإلا فالسلوك المعلن هو **الرفض**.
+
+**وما لا يُثبته:** لا جهاز هنا، فسلوك عقدة حقيقية (devfreq/MTK OPP، SELinux) باقٍ **يحتاج جهازًا**؛ ولأن
+التغيير يمسّ `core/hardware` فالمراجعة الأمنية من Luna شرطٌ لم يُنفَّذ في هذه الجولة.
+
+### ٤ · عطب مقيس من تقرير الجهاز (فتحته رسالة المالك مع هذا التسليم)
+
+تقرير Per-App على `com.google.android.apps.translate`:
+`gpu_profile=balanced · cpu_governor=default · gpu_governor=default · cpu_policy_controls=default`
+و«لا تعمل كل الخيارات ما عدا performance». السبب مقروء من الكود لا مُفترض:
+
+1. منتقي البروفايل في per-app يكتب **حقلًا واحدًا** (`gpu_profile`) — `AppSettingsScreen` سطر ٣٣٩ —
+   و`ProfilePresetStore` تعني به **نسبة من سقف GPU المخزون** (Power 40 · Balanced 60 · Gaming 85 ·
+   Performance 100). أما CPU governor / GPU governor / CPU policy controls / thermal / refresh
+   فمقابض **منفصلة** تبقى `default` ⇒ `AppMonitor` تُسجّل `governor-is-default` و`skipped`.
+2. والسقف يُثبت فقط حين **يخفض** سقفًا قائمًا: على هذا الجهاز الحيّ `754 MHz`، وBalanced يطلب ٦٠٪
+   ≈ `780 MHz` ⇒ `754 ≤ 780` مُلبَّى ابتداءً، فلا تُكتب عقدة و«لا يتغيّر شيء». أما Performance (١٠٠٪)
+   فيتجاوز السقف الحيّ فيُحرّره ⇒ **هو وحده يُرى**. وهذا سلوك صحيح لسقف، لا عطبًا في المسار.
+3. و`live=unreadable` في سطري الحاكمين **عطب تشخيص**: لم تُقرأ عقدة أصلًا لأن الكتابة لم تُحاول،
+   فالسطر يُقرأ «فشل قراءة» وهو «لم يُحاول» — أُدرج في `NEXT_TASK`.
+
+**NEXT:** (١) قرار المالك: هل يصير البروفايل **حزمة** (يضبط `cpu_policy_controls` أيضًا بنفس النسب)؟
+(٢) تصحيح سطر التشخيص (`not-attempted` لا `unreadable`)؛ (٣) مُشتقّ `reviewed` إنتاجي من الكتالوج وتوصيل
+`applyCpuCeiling` بمُستدعٍ حقيقي؛ (٤) مراجعة سلامة (Luna) لتغيير `core/hardware`.
+
+---
+
+## تكملة ٩٨ — «الترددات تنقص ولا تزيد عمّا نقص»: **سبب جذري واحد في كل المقابض** (2026-09-22)
+
+**المهمة (نصّ المالك):** «عندما أختار أقصى شيء يعمل الجميع، وعندما أنقص لا يزيد عمّا نقص… نحتاج
+معرفة السبب الجذري، وأيضًا في شاشة max ai وشاشة gpu».
+
+**الجواب بجملة واحدة:** **سقفُ العقدة (`max_freq`) يُقرأ في ثلاثة مواضع كأنه «قدرة الجهاز»، وهو في
+الحقيقة قيمةٌ كتبناها نحن في الخطوة السابقة. فبعد أول خفض يصير خفضُنا سقفًا للجهاز: الطلب الأعلى
+إمّا يُقصّ إليه (`snap`)، وإمّا يُقرأ «مُلبّى» (`verify`) فيُتخطّى `apply` بالكامل — والتردد لا يزيد
+عمّا نُقص، والتقرير يقول «نجح».**
+
+### ١ · القياس الذي بُني عليه (حزمة المالك الثانية، 2026-09-22 · rodin · MT6899)
+
+```
+22:46:20  WRITE_CHECK …mali/max_freq wrote=1092000000 read=1092000000 verdict=matched   (gaming)
+22:46:49  WRITE_CHECK …mali/max_freq wrote=780000000  read=780000000  verdict=matched   (balanced)
+22:47:28  WRITE_CHECK …mali/max_freq wrote=520000000  read=520000000  verdict=matched   (power)
+22:48:27  PERAPP_GPU_CAPABILITY_REQUESTED requested=702000000 live_before=520000000
+22:48:33  PERAPP_COMMIT knob=gpu_frequency:13000000.mali requested=702000000 applied=true verified=true live=520000000
+22:48:37  APPLY_DRIFT_REPAIRED knob=gpu_frequency:13000000.mali expected=702000000 live=520000000
+```
+
+**صفر سطر `WRITE_CHECK` على `max_freq`** بين ٢٢:٤٨:٢٧ و٢٢:٤٨:٣٧، ومع ذلك «applied/verified» بنفس
+السطر. و٥٢٠ ليست قمعًا من المنصّة: هي كتابتنا نحن قبل ستّين ثانية (والعقدة قبلت ١٣٠٠ في السطر الأول،
+فلا قمع على هذه النواة أصلًا).
+
+**وهذا ينقض ما كُتب في تكملة ٩٧ §٤ البند (٢) حرفيًّا** — كان الحكم: «`754 ≤ 780` مُلبّى ابتداءً فلا
+تُكتب عقدة… وهذا سلوك صحيح لسقف لا عطبًا». والحكم الأول (تخطّي الكتابة) كان مقيسًا صحيحًا، وأما
+«سلوك صحيح» فسقط بالقياس الجديد: السقف الذي قُرئ لم يكن سقف الجهاز بل أثر خطوتنا. **يُصحَّح ويُترك
+في السجل** لأن إعادة قراءة الخطأ نفسه هي مَن وَلَّد العطب.
+
+### ٢ · الأعطال الأربعة (وكل واحد له بوابة تُثبته)
+
+| # | العطب | الدليل | الأثر المقيس |
+| --- | --- | --- | --- |
+| ١ | المُحكِّم يقرأ القراءة الحيّة «مُلبّاة» ثم **يتخطّى الكتابة**، وحكمُ التلبية أحاديّ (`live ≤ wanted`) | `HardwareControlArbiter.reconcileLocked` + `HardwareVerification.ceilingAtMost`/`rangeContained` | طلب ٧٠٢ على سقف ٥٢٠: صفر كتابة + `verified=true` (per-app، وكل مقبض سقف) |
+| ٢ | أمانة استعادة الحرارة (`ThermalGuard`) تعيد سقف المستخدم عبر نفس المعاملة ⇒ نفس التخطّي | `PerAppControlRegistry.retargetRequest` ⇒ `HardwareControlArbiter` | «الخنق يزول والسقف لا يعود» — سلّم أحاديّ النزول |
+| ٣ | `requestForMode` و`PerAppFrequencyController` يُخطّطان **من السقف الحيّ** (`configurableMaxFrequency`) فتصير نسب البروفايل من خفضنا | `GpuHardwareBackend.requestForMode` · `PerAppFrequencyController.applyGpuCeiling` | شاشة GPU: اختيار القدرة الكاملة بعد خفض لا يتجاوز الخفض أبدًا |
+| ٤ | «سقف GPU» في MAX AI: شرط `rangeWritable` (يشترط غياب مسار قفل OPP) ⇒ **تثبيت درجة** بدل كتابة سقف، و`read` = `effectiveFrequency` (يقدّم التثبيت على `max_freq`) | `core/maxai/ControlRegistry.gpuCeilingControl` + سجل الجهاز: `fix_target_opp_index` ٣٠←٣١←٣٢ وحده مع `custom_upbound_gpu_freq=0`، ثم `regression rollback gpu_frequency:13000000.mali → 468000000 :: FAILED (was 442000000)` | MAX AI: كل قراراته تنزل (`1800→1700→1600`)، و«الاسترجاع» يقرأ درجةً مثبَّتة فيحكم بالفشل |
+
+### ٣ · الإصلاح — فصل سؤال **الكتابة** عن سؤال **التلبية**
+
+المرض واحد: سؤالان في موضع واحد. فصار حكمٌ ثانٍ صريح لا يُخلط بالأول:
+
+| الملف | التغيير |
+| --- | --- |
+| `core/hardware/HardwareVerification.kt` | `ceilingReached(desired, actual)` — «هل القراءة الحيّة **دليل** على أن طلبنا نُفِّذ؟» (سقف القراءة ≥ المطلوب). وفيه قارئ واحد للصيغ الثلاث (`min:max` · `node\|…` · رقم مجرّد)، وما لا يُقاس لا يُجبر كتابة |
+| `HardwareControlArbiter.kt` | حقل اختياري `realized`؛ ويُقرأ في **موضع واحد** هو قرار تخطّي الكتابة. والاسترجاع يبقى بقاعدة `verify` المتسامحة، فلا استرجاع مدمِّر حين تحتفظ المنصّة بسقف أدنى بحقّ |
+| `HardwareRepairModels.kt` · `HardwareRepairExecutor.kt` · `PerAppControlRegistry.kt` | تمرير `realized` في المعاملة وفي دورة الانحراف (`Entry`)، فلا مقبض مسقوف بلا دليل |
+| `AppMonitor.kt` | `realized` على مقابض سقف GPU وحدود CPU (٣ مواضع) + **الحزمة في سطر `PERAPP_KNOB` تُقرأ من جلسة قناة الحالة** لا من `lastAppliedPkg` (الأخير يُحدَّث بعد التطبيق ⇒ ٧٤٩ حالة عدم تطابق موثّقة في `REPAIR_NOTES`) |
+| `core/hardware/PerAppHardwareStatus.kt` | `sessionPackage()` — مصدر واحد لاسم صاحب السطر |
+| `GpuHardwareBackend.kt` | `requestForMode` يُخطَّط من القدرة المُعلنة؛ و`restoreBaseline` يُعيد المدى عند **انحرافه** لا عند غياب مسار قفل OPP (كان على MediaTek لا يُعيده أبدًا ⇒ «بعد إغلاق التطبيق لا يرجع للوضع الافتراضي») |
+| `PerAppFrequencyController.kt` | `applyGpuCeiling` يُخطَّط من القدرة + `realized` (CPU وGPU) |
+| `core/maxai/ControlRegistry.kt` | «سقف GPU» صار يكتب **سقفًا** (`devfreqCeilingWritable`) ويقرأ **سقفه** (`maxFreq`) — فالتثبيت لطلب التثبيت وحده |
+| `AtlasDiscoveredControl.kt` | نفس الدليل على مسار أطلس المسقوف (يطابق سلوك كل كاتب آخر) |
+
+**وما لا يتغيّر (عن قصد):** كل من لم يُمرّر `realized` يبقى على سلوكه **بالحرف** — وحرس انحدار واحد
+يثبت ذلك (`CeilingRaiseTest · the same submit without the proof keeps the old behaviour`).
+
+### ٤ · التحقق (مُقيس هنا لا مُدّعى)
+
+| البوابة | النتيجة |
+| --- | --- |
+| `kt_balance --assert` | **776** ملفًا · عوائق **0** |
+| `code_health --assert` | exit 0 · صحّة 0 · الدَّين لم ينمُ |
+| `i18n_coverage --assert` | 0 عوائق |
+| `:app:compileReleaseKotlin` + `:app:testReleaseUnitTest` | **BUILD SUCCESSFUL** · **١٤١٨ اختبارًا في ١٣٦ صنفًا · فشل ٠ · أخطاء ٠ · متخطّى ٠** (كانت ١٣٩٥) |
+
+والاختبارات الجديدة تثبّت **العطب** لا الشكل: `CeilingRaiseTest` (الحالة المقيسة ٥٢٠→٧٠٢ تُكتب ·
+بلا `realized` لا تُكتب · منصّة تُمسك ٧٥٤ تُحاول مرّة ولا تُسترجع · السجل يمرّر الدليل)، وتوقّع قديم في
+`GpuControlModelTest` كان **يثبّت** العطب (`ADAPTIVE ⇒ 754` مع قدرة ٨٠٠) صُحّح إلى القدرة المُعلنة مع
+نقل القياس في التعليق، وثلاث حالات جديدة: خفضنا السابق لا يصير قدرة الجهاز · استرجاع المدى المنحرف على
+شكل MediaTek · ولا كتابة على مدى لم يُمَسّ.
+
+**وما لا يُثبته هذا:** سلوك العقدة الحقيقي (devfreq/MTK OPP/SELinux) يبقى **يحتاج جهازًا**؛ ومسار
+`ControlRegistry` في MAX AI لا يُقاس في JVM (لا seam لـ`Io` فيه) فإصلاحه مُستند إلى دلالة العَلَم
+المُثبتة في `GpuControlModelTest` وإلى أثر التثبيت المقيس في السجل — **غير مُتحقّق على جهاز في هذه
+البيئة**. ولأن التغيير يمسّ `core/hardware` فالمراجعة الأمنية (Luna) شرطٌ باقٍ.
+
+**NEXT:** (١) إعادة تشغيل على الجهاز وحزمة سجل جديدة: المتوقَّع ظهور `WRITE_CHECK … max_freq wrote=702000000`
+لطلب ٧٠٢، و`PERAPP_COMMIT … live=702000000`؛ (٢) `reviewed` إنتاجي لأطلس وتوصيل `applyCpuCeiling` بمُستدعٍ؛
+(٣) سطر `not-attempted` بدل `live=unreadable` للحاكمين الذين لم تُحاول كتابتهما؛ (٤) مراجعة سلامة (Luna).

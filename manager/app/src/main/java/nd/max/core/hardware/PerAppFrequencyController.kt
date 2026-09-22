@@ -68,6 +68,9 @@ class PerAppFrequencyController @Inject constructor(
             // السقف والأرضية المُعلنان قد يقيّدهما الـvendor أكثر؛ فيكون المدى الحيّ **داخل**
             // الطلب = الطلب مُلبّى. والتساوي الحرفي كان يُقرأ فشلًا فيسترجع خط الأساس.
             verify = HardwareVerification::rangeContained,
+            // والسقف الأدنى الذي **نحن** كتبناه ليس سقفًا للجهاز: طلبُ الرفع يُكتب
+            // ([HardwareVerification.ceilingReached])، وإلا بقي الجهاز على أدنى قيمة اخترناها.
+            realized = HardwareVerification::ceilingReached,
         )
         return Result(desired, r.applied, r.verified, r.actual, r.error)
     }
@@ -83,7 +86,12 @@ class PerAppFrequencyController @Inject constructor(
         // capability catalogue, while a vendor daemon may lower live max_freq.
         val liveAtPlan = GpuHardwareBackend.refresh(device.path)
             ?: return Result(maxHz.toString(), false, false, error = "provider-disappeared")
-        val target = GpuHardwareBackend.snapToAvailableAtOrBelow(liveAtPlan, maxHz)
+        // والتخطيط من **القدرة المُعلنة** لا من السقف الحيّ: `max_freq` قيمةٌ يكتبها هذا التطبيق
+        // نفسه (سقف بروفايل/شاشة)، فتصير بعد أول خفض «سقفَ الجهاز» في نظر كل طلب تالٍ — وهو
+        // العطب المقيس (rodin · MT6899 · 2026-09-22): سقفٌ ٥٢٠ كتبناه، ثم طلبُ ٧٠٢ لم يُكتب على
+        // العقدة أصلًا فبقي التردد على ٥٢٠. فالسقف الحيّ يُقاس ويُعلَن بعد الكتابة، ولا يُستخدم
+        // في التخطيط ضدّ المستخدم.
+        val target = GpuHardwareBackend.snapToAvailableAtOrBelow(liveAtPlan, maxHz, respectLiveCeiling = false)
             ?: return Result(maxHz.toString(), false, false, error = "unsupported-frequency")
         val low = liveAtPlan.frequencies.firstOrNull { it <= target } ?: target
 
@@ -110,7 +118,8 @@ class PerAppFrequencyController @Inject constructor(
             // النصّ كانت تُسقط أي حقل يُضاف للمخطط لاحقًا (نفس العطب الذي أُصلح في GPU Studio).
             apply = {
                 GpuHardwareBackend.refresh(device.path)?.let { live ->
-                    val boundedTarget = GpuHardwareBackend.snapToAvailableAtOrBelow(live, maxHz)
+                    val boundedTarget = GpuHardwareBackend
+                        .snapToAvailableAtOrBelow(live, maxHz, respectLiveCeiling = false)
                         ?: return@let false
                     val boundedRequest = if (live.rangeWritable) {
                         val boundedLow = live.frequencies.firstOrNull { it <= boundedTarget } ?: boundedTarget
@@ -129,6 +138,7 @@ class PerAppFrequencyController @Inject constructor(
             baseline = GpuHardwareBackend.encodeLive(liveAtPlan, request),
             restore = { GpuHardwareBackend.restoreBaseline(baseline) },
             verify = GpuHardwareBackend::requestSatisfied,
+            realized = HardwareVerification::ceilingReached,
         )
         return Result(desired, r.applied, r.verified, r.actual, r.error)
     }

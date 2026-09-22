@@ -48,6 +48,13 @@ data class HardwareRepairRequest(
      * عند أول عيّنة. فحكم واحد يُستعمل في الموضعين وإلا تناقض المساران.
      */
     val verify: ((String, String?) -> Boolean)? = null,
+    /**
+     * هل القراءة الحيّة **دليل** على أن الطلب نُفِّذ؟ — `null` = «نعم» (السلوك القائم).
+     *
+     * يُمرَّر كما هو إلى [HardwareControlArbiter]، وهو الذي يقرّر به تخطّي الكتابة. وبدونه كان
+     * رفعُ سقفٍ كتبناه نحن يُقرأ «مُلبًّى» فلا يُكتب أبدًا (القياس في [HardwareVerification.ceilingReached]).
+     */
+    val realized: ((String, String?) -> Boolean)? = null,
     val stabilitySamples: Int = 3,
     val stabilityIntervalMs: Long = 40L,
 ) {

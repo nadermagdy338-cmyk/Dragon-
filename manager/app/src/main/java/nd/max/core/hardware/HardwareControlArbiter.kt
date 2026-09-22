@@ -28,6 +28,20 @@ class HardwareControlArbiter @Inject constructor() {
          * [HardwareVerification] للتفصيل والقياس الذي أوجب هذا الحقل.
          */
         val verify: ((String, String?) -> Boolean)? = null,
+
+        /**
+         * هل القيمة المقروءة **دليل** على أن هذا الطلب نُفِّذ؟ — `null` تعني «نعم» (السلوك القائم).
+         *
+         * ولماذا سؤال ثانٍ غير [verify]: `verify` حكم **تلبية** متسامح — سقفٌ حيٌّ أدنى من الطلب
+         * يُقرأ مُلبًّى — وهو يُستعمل هنا في موضع واحد يجمع قرارين: «لا تكتب» و«لا تسترجع». ولِما
+         * تملكه أنت (سقف `max_freq` كتبتَه بنفسك) تفسير التسامح خاطئ: القيمة الحيّة التي تقرأها
+         * **هي أثر خطوتك السابقة** لا قمعٌ من المنصّة. فتمرير `realized` (`HardwareVerification
+         * .ceilingReached`) يفصل القرارين: لا كتابة بلا دليل، والاسترجاع يبقى بقاعدة [verify].
+         *
+         * والقياس الذي أوجبه (rodin · MT6899 · 2026-09-22): طلب رفعٍ إلى ٧٠٢ على سقفٍ ٥٢٠ كتبناه
+         * بأنفسنا مرّ بلا كتابة مع `applied=true verified=true`، فبقي الجهاز على ٥٢٠.
+         */
+        val realized: ((String, String?) -> Boolean)? = null,
     )
 
     data class Result(
@@ -57,6 +71,7 @@ class HardwareControlArbiter @Inject constructor() {
         baseline: String? = null,
         restore: ((String) -> Boolean)? = null,
         verify: ((String, String?) -> Boolean)? = null,
+        realized: ((String, String?) -> Boolean)? = null,
     ): Result = sharedTransaction(key, owner, token) { journal ->
         // INV-3: a knob the user locked manually is never written by an
         // automated owner. Safety/recovery stay above every user preference.
@@ -80,7 +95,7 @@ class HardwareControlArbiter @Inject constructor() {
             ?: liveBaseline
         val request = Request(
             key, owner, token, desired, apply, read, restore ?: existing?.restore ?: apply,
-            effectiveBaseline, ++sequence, requestId(key, owner, token), verify,
+            effectiveBaseline, ++sequence, requestId(key, owner, token), verify, realized,
         )
         list.removeAll { it.token == token }
         list += request
@@ -180,7 +195,12 @@ class HardwareControlArbiter @Inject constructor() {
         // الطلب مُلبّى أصلًا بالمعنى لا بالحرف: لا يُكتب شيء ولا يُخفق في وجه مُلطِّف
         // حراري/طاقي فعّل سقفًا أضيق من طلبنا. هذا هو المسار الذي كان يقرأ «فشل»
         // فيُعيد الكتابة والاسترجاع كل دورة انحراف بلا أثر.
-        if (satisfied(winner, current)) {
+        //
+        // وشرط ثانٍ لازم كي يعمل الأول في الاتجاهين: التلبية المتسامحة وحدها تجعل **رفع**
+        // سقفٍ كتبناه نحن بلا كتابة أبدًا (القيمة الحيّة أثرنا لا قمع المنصّة). فيُشترط أن تكون
+        // القراءة دليلًا على التنفيذ أيضًا ([Request.realized])، وإلا فالكتابة تجب وما بعدها
+        // يبقى بقاعدة [satisfied] (فتسامحها هو ما يمنع الاسترجاع المدمِّر).
+        if (satisfied(winner, current) && realized(winner, current)) {
             commitWinner(journal, winner)
             return Result(key, winner.owner, winner.desired, current, true, true, false)
         }
@@ -200,6 +220,21 @@ class HardwareControlArbiter @Inject constructor() {
      */
     private fun satisfied(request: Request, actual: String?): Boolean =
         request.verify?.invoke(request.desired, actual) ?: (actual != null && actual == request.desired)
+
+    /**
+     * هل القراءة دليل على أن هذا الطلب نُفِّذ؟ — `null` = «لا سؤال» ⇒ نعم، فالسلوك القائم محفوظ.
+     *
+     * ويُقرأ **في موضع واحد**: تخطّي الكتابة قبل أول محاولة. وبعده لا يُسأل مرة أخرى، حتى لا
+     * يُصنَّف طلبٌ كتبناه ولم تبلغه المنصّة فاشلًا فيُسترجع (وهو العطب الذي وُجد التسامح لمنعه).
+     */
+    private fun realized(request: Request, actual: String?): Boolean =
+        request.realized?.invoke(request.desired, actual) ?: true
+
+    // وكلفة هذا الفصل **معلنة**: مقبضٌ يطلب ما لا تبلغه المنصّة يُعاد فحصه — وتُعاد كتابته — في كل دورة
+    // انحراف (`AppMonitor.DRIFT_CHECK_INTERVAL_MS` = ١٠ ثوانٍ)، وهو نفس الإيقاع الذي كان يسجّل
+    // `APPLY_DRIFT_REPAIRED` قبل هذا التغيير أيضًا (لأن `driftedBefore` يقيس القراءة لا الكتابة).
+    // والبديل — عدم الكتابة — هو العطب المقيس. ولا استرجاع في هذه الحالة: حكم [satisfied] المتسامح
+    // يبقى الفيصل، فلا يُمحى ما فُتح.
 
     private fun localRequestFor(intent: SharedHardwareOwnershipStore.Intent?): Request? = intent?.let { target ->
         requests[target.key].orEmpty().firstOrNull {

@@ -249,7 +249,15 @@ class GpuControlModelTest {
         assertEquals(754_000_000L, GpuHardwareBackend.snapToAvailableAtOrBelow(device, 1_300_000_000L))
     }
 
-    @Test fun liveGpuCapSelectsHighestUsableOppForPerformanceIntent() {
+    /**
+     * القياس الذي أوجب تغيير هذا التوقّع (rodin · MT6899 · 2026-09-22): طلبُ وضع القدرة كان
+     * يُقصّ إلى **السقف الحيّ** — وهو قيمةٌ يكتبها هذا التطبيق نفسه (سقف بروفايل per-app) —
+     * فيصير خفضُنا نحن «قدرةَ الجهاز» في نظر الطلب التالي، ولا يزيد التردد عمّا نُقص أبدًا.
+     *
+     * والتوقّع القديم كان يثبّت العطب: `ADAPTIVE` ⇒ ٧٥٤ بينما القدرة المُعلنة ٨٠٠.
+     * والتخطيط الآن من القدرة المُعلنة، والسقف الحيّ يبقى مقروءًا ويُعلَن بعد الكتابة.
+     */
+    @Test fun capabilityIntentIsPlannedFromAdvertisedCapacityNotFromTheLiveCeiling() {
         val fake = io(max = "754000000")
         fake.put(
             "/sys/class/devfreq/test-gpu/available_frequencies",
@@ -257,7 +265,59 @@ class GpuControlModelTest {
         )
         val device = GpuHardwareBackend.selection(fake).device!!
         val request = GpuHardwareBackend.requestForMode(device, GpuHardwareBackend.IntentMode.ADAPTIVE)!!
-        assertEquals(754_000_000L, request.maxFreq)
+        assertEquals("وضع القدرة الكاملة يطلب أعلى درجة مُعلنة", 800_000_000L, request.maxFreq)
+        assertEquals("والسقف الحيّ يبقى مقروءًا كما هو — يُقاس ولا يُستخدم ضدّ المستخدم", 754_000_000L, GpuHardwareBackend.configurableMaxFrequency(device))
+    }
+
+    /**
+     * ونفس القياس على شكل الجهاز نفسه: قفل OPP موجود، وسقف حيّ ٦٥٠ **كتبناه نحن**، ثم طلب قدرة.
+     */
+    @Test fun aRaiseAfterOurOwnLoweringPlansTheAdvertisedTopOpp() {
+        val fake = mtkCeilingIo()
+        fake.put("/sys/class/devfreq/mali0/max_freq", "650000000")
+        val device = GpuHardwareBackend.selection(fake).device!!
+        assertEquals(650_000_000L, GpuHardwareBackend.configurableMaxFrequency(device))
+        assertEquals(
+            "خفضنا السابق ليس قدرة الجهاز",
+            1_300_000_000L,
+            GpuHardwareBackend.requestForMode(device, GpuHardwareBackend.IntentMode.ADAPTIVE)!!.maxFreq,
+        )
+    }
+
+    /**
+     * و«بعد إغلاق التطبيق لا يرجع للوضع الافتراضي»: على MediaTek كان شرط استرجاع المدى
+     * `live.mtkFixedIndexPath == null` — أي أن المدى **لا يُستعاد أبدًا** على جهاز به مسار قفل OPP،
+     * فيبقى `max_freq` على آخر قيمة كتبناها. والشرط الآن هو الانحراف نفسه لا وجود المسار.
+     */
+    @Test fun mtkRangeIsRestoredWhenItDriftedFromTheBaseline() {
+        val fake = mtkCeilingIo()
+        val base = "/sys/class/devfreq/mali0"
+        val device = GpuHardwareBackend.selection(fake).device!!
+        val baseline = GpuHardwareBackend.captureBaseline(device, fake)
+
+        assertTrue(
+            GpuHardwareBackend.applyValidated(
+                device,
+                GpuHardwareBackend.Request(260_000_000L, 400_000_000L, releaseVendorCeiling = false),
+                fake,
+            ).verified,
+        )
+        assertEquals("400000000", fake.value("$base/max_freq"))
+
+        assertTrue("الاسترجاع يجب أن يُعيد المدى لا الفهرس وحده", GpuHardwareBackend.restoreBaseline(baseline, fake))
+        assertEquals("754000000", fake.value("$base/max_freq"))
+        assertEquals("260000000", fake.value("$base/min_freq"))
+    }
+
+    @Test fun anUndriftedRangeIsNotRewrittenOnExit() {
+        val fake = mtkCeilingIo()
+        val baseline = GpuHardwareBackend.captureBaseline(GpuHardwareBackend.selection(fake).device!!, fake)
+        val before = fake.writes.size
+        assertTrue(GpuHardwareBackend.restoreBaseline(baseline, fake))
+        assertFalse(
+            "لا كتابة على المدى إن كان هو خط الأساس — فلا ضجيج على مقبض لم يُمَسّ",
+            fake.writes.drop(before).any { it.first.endsWith("max_freq") },
+        )
     }
 
     @Test fun intentModesUseOnlyAdvertisedFrequencies() {

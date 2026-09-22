@@ -458,13 +458,8 @@ jobs:
       #    أجل البناء على الجهاز عبر AndroidIDE) كان يجعل البدء باردًا في
       #    المرة الثانية — لذلك تُتجاوَز قيمته هنا فقط، ويبقى الملف كما هو حتى
       #    لا يتغيّر أسلوب البناء المحلي منخفض الذاكرة.
-      # 4. 2GB (افتراضي المستودع) ضيّقة أمام R8 + ترجمة Kotlin؛ ورفعها إلى 4GB يلغي معظم
-      #    ضغط الـ GC. **ولا تُرفع فوق ذلك**: هذا مستودع **خاص**، و`ubuntu-latest` في
-      #    المستودعات الخاصة = **2 CPU · 8GB RAM** (وثائق GitHub)، لا 16GB. وقيمتا
-      #    `-Xmx6g` (Gradle) + `-Xmx4g` (Kotlin daemon) كانتا تعِدان 10GB على آلة 8GB ⇒
-      #    الـ OOM killer يقتل المُشغِّل (exit 143 = SIGTERM) ولا تعمل حتى خطوات `always()`.
-      #    فالقيم أدناه مجموعها 6GB وتُبقي هامشًا للأعمال الأصلية الخلفية وللنظام.
-      #    وإن عُيِّن `BUILD_RUNNER` إلى وسم أكبر يمكن رفعها ثانيةً.
+      # 4. 2GB (افتراضي المستودع) ضيّقة أمام R8 + ترجمة Kotlin in-process على
+      #    runner فيه 16GB؛ رفعها إلى 4GB يلغي معظم ضغط الـ GC.
       #
       # لا شيء من مخرجات المنتج يتغيّر: نفس الـ APK، نفس الـ minify/R8، نفس
       # اختبارات العقد — فقط بلا عمل مكرَّر.
@@ -514,9 +509,9 @@ jobs:
           # فيمرّ فشل المُصرّف بلا أن يُحمرّ التشغيل — وهذا أسوأ من غياب السجل.
           set -o pipefail
           ./gradlew \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=768m -Dfile.encoding=UTF-8" \
+            -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
             -Pkotlin.compiler.execution.strategy=daemon \
-            -Pkotlin.daemon.jvmargs=-Xmx2g \
+            -Pkotlin.daemon.jvmargs=-Xmx4g \
             -Pkotlin.build.report.output=file \
             ":app:test${variant}UnitTest" \
             ":app:assemble${variant}" \

@@ -140,7 +140,14 @@ object ControlRegistry {
     private fun gpuCeilingControl(): Control? {
         val selection = GpuHardwareBackend.selection()
         val device = selection.device ?: return null
-        if (!device.rangeWritable && !device.exactLockWritable) return null
+        // والسؤال الصحيح للسقف: «هل تقبل عقدتا المدى كتابة؟» — لا «هل يوجد مسار تثبيت OPP؟».
+        //
+        // و`rangeWritable` يشترط `mtkFixedIndexPath == null`، فكان هذا المقبض على MediaTek — وهو
+        // الجهاز المقيس — يسلك فرع `minFreq == maxFreq`، أي **تثبيت درجة واحدة** بدل كتابة سقف.
+        // والقياس في سجّل الجهاز (2026-09-22، شاشة MAX AI): كل قرار `gpu_frequency:13000000.mali`
+        // مكتوبٌ بأثره `fix_target_opp_index` وحده (٣٠ ← ٣١ ← ٣٢ ← ٣٣) مع
+        // `custom_upbound_gpu_freq=0` — والمقبض اسمه «سقف GPU»، فكان يُجمَّد التردد لا يُسقَّف.
+        if (!device.devfreqCeilingWritable && !device.exactLockWritable) return null
         val ladder = device.frequencies.map(Long::toString)
         if (ladder.size < 2) return null
         return Control(
@@ -149,19 +156,27 @@ object ControlRegistry {
             label = "سقف GPU",
             ladder = ladder,
             cost = 0.25f,
-            read = {
-                GpuHardwareBackend.refresh(device.path)?.let(GpuHardwareBackend::effectiveFrequency)?.toString()
-            },
+            // والسقف يُقرأ **سقفه** لا التردد الجاري: `effectiveFrequency` يقدّم تثبيت OPP على
+            // `max_freq`، فكان المقبض يقرأ درجةً مثبَّتة (٤٤٢) ويساويها بطلبٍ هو سقفٌ (٤٦٨) فيحكم
+            // بالفشل ثم يسترجع — وهو المسجّل نصًّا: `regression rollback
+            // gpu_frequency:13000000.mali → 468000000 :: FAILED (was 442000000)`، ومعه انحرافٌ
+            // كاذب كل دورة لأن المطلوب سقفٌ والقراءة كانت درجة. فالتردد الجاري يُعرض من موضعه
+            // ([GpuHardwareBackend.currentFrequencyHz])، وهذا المقبض يعلن قيمته التي يملكها.
+            read = { GpuHardwareBackend.refresh(device.path)?.maxFreq?.toString() },
             apply = { value ->
                 val target = value.toLongOrNull() ?: return@Control null
                 val live = GpuHardwareBackend.refresh(device.path) ?: return@Control null
-                val request = if (live.rangeWritable) {
-                    GpuHardwareBackend.Request(minFreq = live.frequencies.first(), maxFreq = target)
+                val request = if (live.devfreqCeilingWritable) {
+                    // وأرضية المدى هي أعلى درجة معلنة لا تتجاوز الطلب (نفس ما يفعله مسار per-app).
+                    GpuHardwareBackend.Request(
+                        minFreq = live.frequencies.firstOrNull { it <= target } ?: target,
+                        maxFreq = target,
+                    )
                 } else {
                     GpuHardwareBackend.Request(minFreq = target, maxFreq = target)
                 }
                 val result = GpuHardwareBackend.apply(live, request)
-                if (!result.verified) null else result.actual?.let(GpuHardwareBackend::effectiveFrequency)?.toString()
+                if (!result.verified) null else result.actual?.maxFreq?.toString()
             },
         )
     }

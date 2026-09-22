@@ -507,8 +507,19 @@ object GpuHardwareBackend {
     fun requestForMode(device: Device, mode: IntentMode): Request? {
         val advertised = device.frequencies.filter { it > 0L }.distinct().sorted()
         if (advertised.isEmpty()) return null
-        val liveCap = configurableMaxFrequency(device)
-        val frequencies = if (liveCap != null) advertised.filter { it <= liveCap } else advertised
+        // والسقف الحيّ **لا** يُقيَّد به التخطيط هنا، وهو تغيير مقصود لا إسقاط سهو.
+        //
+        // كان `frequencies` مُرشَّحًا بـ`configurableMaxFrequency` (= أدنى ما بين المُعلن والسقف
+        // الحيّ)، والسقف الحيّ على `devfreq/max_freq` قيمةٌ **يكتبها هذا التطبيق نفسه** لسقف
+        // بروفايل. فيصير خفضُنا نحن هو «قدرة الجهاز» في نظر الطلب التالي: اختيار «power» (٥٢٠)
+        // ثم وضعُ القدرة الكاملة يعطي طلبًا أقصاه **٥٢٠**، فلا يزيد التردد عمّا نُقص أبدًا،
+        // والتقرير يقول «نُفِّذ». وهذا العطب المقيس على rodin · MT6899 · 2026-09-22 في per-app
+        // وشاشة GPU وMAX AI معًا.
+        //
+        // والكتابة فوق السقف الحيّ ليست مخاطرة كتمان: القيمة تُكتب فعلًا، ثم يُقاس ما تقبل
+        // المنصّة أن تُبقيه ويُعلَن برقمه (`gpu-ceiling-open-below-request`)، بل إن النسبة تُحسب
+        // من **القدرة** كما هو مُوثَّق لكل بروفايل.
+        val frequencies = advertised
         if (frequencies.isEmpty()) return null
         val last = frequencies.lastIndex
         val min = frequencies.first()
@@ -686,9 +697,21 @@ object GpuHardwareBackend {
             // «أسوأ من عدم التثبيت» لأنه لا يظهر في أي شاشة.
             MtkGpuFixedIndex.restoreDynamicScaling(io)
         }
-        if (baseline.minFreq != null && baseline.maxFreq != null && live.mtkFixedIndexPath == null) {
+        // والمدى يُعاد حين **يخالف** ما كان — ولو وُجد مسار قفل OPP على هذا الجهاز.
+        //
+        // وكان الشرط `live.mtkFixedIndexPath == null`: أي أنه على MediaTek — وهو الجهاز المقيس —
+        // **لا يُستعاد المدى أبدًا**. فتبقى `max_freq` على آخر قيمة كتبناها بعد خروج التطبيق أو
+        // بعد التراجع، وهو ما يُقرأ من المستخدم حرفيًّا: «بعد إغلاق التطبيق لا يرجع للوضع
+        // الافتراضي» — وفي السجل: `WRITE_CHECK path=/sys/class/devfreq/13000000.mali/min_freq
+        // wrote=260000000 matched` ثم `max_freq wrote=520000000 matched` ولا استرجاع بعدهما.
+        //
+        // والشرط الجديد هو الفرق نفسه لا وجود المسار: لا كتابة إن كان المدى الحيّ هو خط الأساس
+        // (فلا ضجيج على مقبض لم يُمَسّ)، وكتابة إن انحرف — ومعها يُحكم على النتيجة كما كان.
+        val rangeDrifted = baseline.minFreq != null && baseline.maxFreq != null &&
+            (live.minFreq != baseline.minFreq || live.maxFreq != baseline.maxFreq)
+        if (rangeDrifted) {
             touched = true
-            restoredAll = writeRangeRaw(live, baseline.minFreq, baseline.maxFreq, io) && restoredAll
+            restoredAll = writeRangeRaw(live, baseline.minFreq!!, baseline.maxFreq!!, io) && restoredAll
         }
         if (baseline.governor != null && live.governorWritable) {
             touched = true
@@ -697,7 +720,7 @@ object GpuHardwareBackend {
         if (!touched) return false
         val restored = refresh(baseline.devicePath, io) ?: return false
         return restoredAll &&
-            (baseline.minFreq == null || live.mtkFixedIndexPath != null || (restored.minFreq == baseline.minFreq && restored.maxFreq == baseline.maxFreq)) &&
+            (baseline.minFreq == null || (restored.minFreq == baseline.minFreq && restored.maxFreq == baseline.maxFreq)) &&
             (baseline.governor == null || !live.governorWritable || restored.governor == baseline.governor)
     }
 

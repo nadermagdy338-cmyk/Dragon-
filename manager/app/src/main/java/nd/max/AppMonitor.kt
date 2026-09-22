@@ -1412,6 +1412,10 @@ object AppMonitor {
                         // إلى OPP مُعلن، وذلك تلبية لا فشل. والتساوي كان يسترجع خط الأساس فيرى
                         // المستخدم المقبض يرتدّ بلا سبب.
                         verify = HardwareVerification::rangeContained,
+                        // ولا تُتخطّى الكتابة إن كان سقفنا السابق هو ما نقرؤه: طلبُ **رفع** السقف
+                        // يجب أن يُكتب، وإلا بقي الجهاز على أدنى قيمة كتبناها (القياس في
+                        // [HardwareVerification.ceilingReached]). والاسترجاع يبقى بقاعدة [verify].
+                        realized = HardwareVerification::ceilingReached,
                     )
                     val live = liveRangeNow()
                     val refusal = hardwareControlRegistry.refusalReasons()[key]
@@ -1482,6 +1486,7 @@ object AppMonitor {
                             CpuHardwareBackend.setPolicyLimits(policy.path, min, max).successful
                         },
                         verify = HardwareVerification::rangeContained,
+                        realized = HardwareVerification::ceilingReached,
                     )
                     if (owned) hardwareUserIntent[key] = desired
                     noteOwnedOutcome(
@@ -1796,6 +1801,15 @@ object AppMonitor {
                 } else {
                     HardwareVerification::ceilingAtMost
                 },
+                // ── ولا تُتخطّى الكتابة لأن السقف الحيّ أدنى من الطلب ──────────────────────────
+                //
+                // هذا هو العطب المقيس في حزمة ٢٠٢٦-٠٩-٢٢ حرفيًّا: `max_freq` يقرأ ٥٢٠ (وهو **خفضنا
+                // نحن** لبروفايل «power»)، ثم طلبُ ٧٠٢ يقرؤه المُحكِّم مُلبًّى (`live ≤ wanted`)
+                // فيتخطّى `apply` بالكامل — ولو قُرئ السطر وحده لبدا «نجاحًا» (`applied=true
+                // verified=true live=520000000`). فصار الدليل شرطًا للنجاح: القراءة الحيّة
+                // لا تشهد لطلبٍ لم تبلغه، وتُكتب القيمة ثم يحكم [verify] كما كان (فلا استرجاع
+                // مدمِّر حين تحتفظ المنصّة بسقف أدنى بحقّ).
+                realized = HardwareVerification::ceilingReached,
             )
             // نيّة المستخدم تُحفظ قبل أي تدخّل من الحارس الحراري — الحارس يعدّل «المطلوب»
             // لاحقًا، ولا سبيل لإعادة السقف إلى ما اختاره المستخدم بلا حفظه هنا.
@@ -2209,9 +2223,13 @@ object AppMonitor {
         live: String = "",
     ) {
         PerAppHardwareStatus.note(knob, outcome, reason, expected, live)
+        // والحزمة تُقرأ من مصدرها الواحد (جلسة قناة الحالة) لا من `lastAppliedPkg`: الأخير يُحدَّث
+        // **بعد** التطبيق، فكانت أسطر المقابض تُنسَب إلى التطبيق السابق (٧٤٩ حالة في حزمة ٢٠٢٦-٠٩-٢٢،
+        // وموثّقة في `REPAIR_NOTES`). والأثر تشخيصي: اسم صاحب السطر يكذب فيُصنَّف العطل على تطبيق آخر.
+        val statusPkg = PerAppHardwareStatus.sessionPackage().ifBlank { lastAppliedPkg }
         val line = "EVENT=PERAPP_KNOB knob=$knob outcome=${outcome.token} reason=$reason" +
             " expected=${expected.ifBlank { "none" }} live=${live.ifBlank { "none" }}" +
-            " pkg=$lastAppliedPkg sw=$currentSwitchId"
+            " pkg=$statusPkg sw=$currentSwitchId"
         // المستوى من النتيجة لا من العادة: فشلٌ يُكتب I(معلوماتي) يختفي من مُرشِّح «المشاكل» في
         // شاشة السجل، وهو المكان الوحيد الذي يبحث فيه مَن يُصلح عطلًا. والسطر نفسه في الحالتين،
         // فالمستوى إضافة لا تغيير صيغة.

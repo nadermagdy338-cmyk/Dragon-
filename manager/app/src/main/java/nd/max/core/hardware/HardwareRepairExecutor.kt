@@ -24,6 +24,7 @@ class HardwareRepairExecutor(
             baseline = request.baseline,
             restore = request.restore,
             verify = request.verify,
+            realized = request.realized,
         )
         if (!result.verified) {
             return HardwareRepairResult(

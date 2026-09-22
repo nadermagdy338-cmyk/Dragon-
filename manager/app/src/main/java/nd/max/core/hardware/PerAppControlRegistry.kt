@@ -41,6 +41,13 @@ class PerAppControlRegistry(
          * إدماج الحاكم للسقف بقيمة مُعلنة أخرى)، ثم تسترجع خط الأساس بلا سبب مفهوم.
          */
         val verify: ((String, String?) -> Boolean)? = null,
+        /**
+         * هل القراءة الحيّة **دليل** على أن الطلب نُفِّذ؟ — `null` = «نعم».
+         *
+         * وموضعه هنا لا في المُحكِّم لأن المقبض هو من يعرف دلالة قيمته: مقبض سقفٍ نكتبه نحن
+         * لا تُقرأ قيمته الأدنى «مُلبّاة» لطلبٍ أعلى ([HardwareVerification.ceilingReached]).
+         */
+        val realized: ((String, String?) -> Boolean)? = null,
     )
 
     data class RepairResult(
@@ -82,14 +89,14 @@ class PerAppControlRegistry(
     /** The gate's refusal reasons for the current app, keyed by control key. */
     @Synchronized fun refusalReasons(): Map<String, String> = refusals.toMap()
 
-    @Synchronized fun ownGovernor(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String? = null, restore: ((String) -> Boolean)? = null, verify: ((String, String?) -> Boolean)? = null): Boolean =
-        own(key, desired, apply, read, baseline, restore, verify)
+    @Synchronized fun ownGovernor(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String? = null, restore: ((String) -> Boolean)? = null, verify: ((String, String?) -> Boolean)? = null, realized: ((String, String?) -> Boolean)? = null): Boolean =
+        own(key, desired, apply, read, baseline, restore, verify, realized)
 
-    @Synchronized fun ownValue(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String? = null, restore: ((String) -> Boolean)? = null, verify: ((String, String?) -> Boolean)? = null): Boolean =
-        own(key, desired, apply, read, baseline, restore, verify)
+    @Synchronized fun ownValue(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String? = null, restore: ((String) -> Boolean)? = null, verify: ((String, String?) -> Boolean)? = null, realized: ((String, String?) -> Boolean)? = null): Boolean =
+        own(key, desired, apply, read, baseline, restore, verify, realized)
 
-    @Synchronized private fun own(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String?, restore: ((String) -> Boolean)?, verify: ((String, String?) -> Boolean)?): Boolean {
-        val entry = Entry(key, desired, apply, read, baseline, restore, verify)
+    @Synchronized private fun own(key: String, desired: String, apply: (String) -> Boolean, read: () -> String?, baseline: String?, restore: ((String) -> Boolean)?, verify: ((String, String?) -> Boolean)?, realized: ((String, String?) -> Boolean)?): Boolean {
+        val entry = Entry(key, desired, apply, read, baseline, restore, verify, realized)
         val outcome = executor.execute(requestFor(entry))
         record(entry, outcome)
         return outcome.successful
@@ -211,6 +218,7 @@ class PerAppControlRegistry(
         restore = entry.restore ?: entry.apply,
         baseline = entry.baseline,
         verify = entry.verify,
+        realized = entry.realized,
         stabilitySamples = confirmationSamples,
         stabilityIntervalMs = confirmationIntervalMs,
     )

@@ -66,6 +66,39 @@ class HardwareVerificationTest {
     }
 
     @Test
+    fun `a live ceiling below the request is not proof that a raise was executed`() {
+        // القياس الذي أوجب هذا الحكم (rodin · MT6899 · 2026-09-22): سقفٌ ٥٢٠ كتبناه لبروفايل
+        // «power»، ثم طلب ٧٠٢ — قُرئ «مُلبًّى» (`live ≤ wanted`) فلم تُكتب زائدة أبدًا.
+        assertFalse(HardwareVerification.ceilingReached("702000000", "520000000"))
+        assertFalse(
+            "وصيغة المدى أيضًا: سقفها هو حقلها الثاني لا أرضيتها",
+            HardwareVerification.ceilingReached("260000000:702000000", "260000000:520000000"),
+        )
+        assertFalse(
+            "وقراءة السقف المُرمَّزة (`node|upbound|cooling|lock`) تُقرأ من حقلها الأول",
+            HardwareVerification.ceilingReached("702000000", "520000000|0|released|unlocked"),
+        )
+    }
+
+    @Test
+    fun `a live ceiling at or above the request proves the write landed`() {
+        assertTrue(HardwareVerification.ceilingReached("702000000", "702000000"))
+        assertTrue(HardwareVerification.ceilingReached("520000000", "1300000000"))
+        assertTrue(HardwareVerification.ceilingReached("260000000:702000000", "260000000:780000000"))
+        assertTrue(HardwareVerification.ceilingReached("702000000", "754000000|0|released|unlocked"))
+    }
+
+    @Test
+    fun `an unreadable or non numeric value never forces a write`() {
+        // وبلا قياس لا يُدَّعى «لم يُنفَّذ»: الصمت يُبقي السلوك القائم، ولا يُضاف ضجيج كتابة.
+        assertTrue(HardwareVerification.ceilingReached("702000000", null))
+        assertTrue(HardwareVerification.ceilingReached("702000000", "unreadable"))
+        assertTrue(HardwareVerification.ceilingReached("702000000", "unreadable|absent|absent|absent"))
+        assertTrue(HardwareVerification.ceilingReached("boost", "powersave"))
+        assertTrue(HardwareVerification.ceilingReached("300000:", "300000:2000000"))
+    }
+
+    @Test
     fun `exact remains the default meaning of a single value`() {
         assertTrue(HardwareVerification.exact("performance", "performance"))
         assertFalse(HardwareVerification.exact("performance", "performance "))

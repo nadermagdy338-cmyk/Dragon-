@@ -19,6 +19,13 @@ package nd.max.core.hardware
  * تساويًا حرفيًّا، لأن معناه الوحيد هو التساوي.
  *
  * و[exact] هو الافتراض في كل مسار لم يُذكر فيه غيره، فلم يتغيّر سلوك أي كاتب قائم.
+ *
+ * وحكمان لا حكم واحد، لأن سؤالين لا سؤال واحد:
+ *
+ * | الحكم | سؤاله | يُستعمل في |
+ * | --- | --- | --- |
+ * | [exact] · [ceilingAtMost] · [rangeContained] | «هل الحالة المقروءة **مقبولة** فلا يُسترجع خط الأساس؟» | تحقق المعاملة ونافذة التأكيد |
+ * | [ceilingReached] | «هل القراءة الحيّة **دليل** على أن طلبنا نُفِّذ؟» | قرار **الكتابة** في [HardwareControlArbiter] |
  */
 object HardwareVerification {
 
@@ -61,6 +68,50 @@ object HardwareVerification {
         if (wantMax != null && live.second != null && live.second!! > wantMax) return false
         // مدى بلا أي حدّ مقروء لا يُثبت شيئًا — لا يُدّعى تلبية بلا قياس.
         return live.first != null || live.second != null
+    }
+
+    /**
+     * هل **بلغت** القيمة المقروءة ما طلبناه؟ — سؤال *الكتابة*، لا سؤال *التلبية*.
+     *
+     * لماذا حكم ثالث غير [ceilingAtMost] و[rangeContained]
+     * --------------------------------------------------
+     * الحكمان السابقان **متسامحان بطبيعتهما**: سقفٌ حيٌّ أدنى من الطلب يُقرأ مُلبًّى (`live ≤ wanted`).
+     * وهذا صحيح لِما لا نملكه، وخاطئ لِما **نملكه نحن**: عقدة `max_freq` نحن من كتبها في الخطوة
+     * السابقة، فقيمةٌ ٥٢٠ كتبناها بأنفسنا لبروفايل «power» تُقرأ لطلبٍ ٧٠٢ «مُلبّاة» — فلا تُكتب
+     * أبدًا، ويبقى الجهاز على ٥٢٠ كلّما حاول المستخدم الرفع.
+     *
+     * والقياس (rodin · MT6899 · 2026-09-22) حرفيّ: بروفايلات `gaming`/`balanced`/`power` كتبت
+     * `max_freq` فعلًا (`WRITE_CHECK … mali/max_freq wrote=1092000000/780000000/520000000 matched`)،
+     * ثم طلبٌ عند ٧٠٢ **بلا أي كتابة** على العقدة، ومع ذلك `PERAPP_GPU_REALIZED … clock_now`
+     * و`PERAPP_COMMIT … applied=true verified=true live=520000000`. أي أن المقبض كان يُعلن نجاحًا
+     * وقيمته الحيّة هي **خفضُنا السابق** لا قمعٌ من المنصّة. وهذا هو «الترددات تنقص ولا تزيد عمّا نقص»
+     * في per-app و«max ai» و«gpu» معًا: العطب واحد، وأثره في كل مقبض سقف.
+     *
+     * فالسؤال هنا: هل القراءة الحيّة **دليل** على أن طلبنا نُفِّذ؟ الجواب: سقف القراءة ≥ المطلوب.
+     * و`false` ليست فشلًا ولا استرجاعًا — تعني «اكتب أولًا»، والحكم بعد الكتابة يبقى بيد
+     * [ceilingAtMost]/[rangeContained] كما كان (فتسامحُهما هو ما يمنع الاسترجاع المدمِّر حين
+     * تحتفظ المنصّة بسقف أدنى حقًّا).
+     *
+     * وما لا يُقاس لا يُجبر كتابة: صيغة غير مفهومة أو حقل غير رقمي ⇒ `true`، فيبقى سلوك أي مقبض
+     * لا نعرف صيغته على ما كان بلا ضجيج كتابة جديد.
+     */
+    fun ceilingReached(desired: String, actual: String?): Boolean {
+        val want = ceilingOf(desired) ?: return true
+        val live = ceilingOf(actual ?: return true) ?: return true
+        return live >= want
+    }
+
+    /**
+     * سقف القيمة في أي من صيغ هذا المشروع الثلاث: `min:max` (مدى)، أو `node|…` (قراءة سقف
+     * مُرمَّزة من `GpuCeilingPolicy.CeilingReading`)، أو رقم مجرّد (تردد فعلي).
+     *
+     * و«سقف» هو **آخر** رقم في مدى (الحقل الثاني)، وأول حقل في القراءة المرمَّزة. وحقل غير رقمي
+     * يعني «لا قياس» (`null`) لا صفرًا — فصفرٌ في عقدة تردد دليل قراءة فاشلة كما في [ceilingAtMost].
+     */
+    private fun ceilingOf(value: String): Long? {
+        val head = value.substringBefore('|').trim()
+        val field = if (head.contains(':')) head.substringAfterLast(':').trim() else head
+        return field.takeIf(String::isNotEmpty)?.toLongOrNull()
     }
 
     private fun parsePair(value: String): Pair<Long?, Long?>? {
