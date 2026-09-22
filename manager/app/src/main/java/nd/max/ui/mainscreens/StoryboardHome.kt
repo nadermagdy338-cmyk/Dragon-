@@ -154,17 +154,25 @@ internal fun UnifiedActivityCard(
         // ما تبقّى: مُرشَّح سلفًا (لا تكرار مع المشهد الأول)، ومحدود برصيد البطاقة، وبشكله.
         val rest = model.scenes.drop(1)
         when (model.style) {
-            UnifiedActivityModel.CardStyle.CHIPS -> rest.flatMap { it.lines }.chunked(2).forEach { pair ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    pair.forEach { line -> SceneChip(line, model.showReason, scheme, Modifier.weight(1f)) }
+            UnifiedActivityModel.CardStyle.CHIPS -> {
+                for (pair in rest.flatMap { it.lines }.chunked(2)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        for (line in pair) {
+                            SceneChip(line, model.showReason, scheme, Modifier.weight(1f))
+                        }
+                    }
                 }
             }
             // «خط زمني»: كل حدث برأسه ووقته (حيث وُجد وقت) بدل دمج الأسطر في قائمة تفقد متى وقع
             // كل حدث. وهذا هو الفرق المقصود بينه وبين «قائمة مختصرة»: ليست كثافة أسطر بل أحداث.
-            UnifiedActivityModel.CardStyle.TIMELINE -> rest.forEach { event ->
-                Spacer(Modifier.height(10.dp))
-                SceneHeading(event, palette)
-                event.lines.forEach { line -> SceneLine(line, scheme, showReason = model.showReason) }
+            UnifiedActivityModel.CardStyle.TIMELINE -> {
+                for (event in rest) {
+                    Spacer(Modifier.height(10.dp))
+                    SceneHeading(event, palette)
+                    for (line in event.lines) {
+                        SceneLine(line, scheme, showReason = model.showReason)
+                    }
+                }
             }
             else -> {
                 for (line in rest.flatMap { it.lines }) {
@@ -196,13 +204,17 @@ private fun SceneBody(
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         SceneHeading(scene, palette)
         if (model.style == UnifiedActivityModel.CardStyle.CHIPS) {
-            scene.lines.chunked(2).forEach { pair ->
+            for (pair in scene.lines.chunked(2)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    pair.forEach { line -> SceneChip(line, model.showReason, scheme, Modifier.weight(1f)) }
+                    for (line in pair) {
+                        SceneChip(line, model.showReason, scheme, Modifier.weight(1f))
+                    }
                 }
             }
         } else {
-            scene.lines.forEach { line -> SceneLine(line, scheme, showReason = model.showReason) }
+            for (line in scene.lines) {
+                SceneLine(line, scheme, showReason = model.showReason)
+            }
         }
     }
 }
