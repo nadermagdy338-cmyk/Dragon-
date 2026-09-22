@@ -712,13 +712,16 @@ object AppMonitor {
         pressure: ThermalGuard.Pressure,
     ) {
         if (!outcome.acted) return
+        // والأدلّة المقيسة تُكتب في السطرين: `evidence=none` تعني «لم يُقس شيء على هذه العقدة»،
+        // وهي الفرق بين عطل منطق وعطل جهاز — وكانتا تُقرآن كلمة "فشل" واحدة.
+        val evidence = outcome.evidence.ifBlank { "unmeasured" }
         val reason = if (outcome.verified) {
-            "thermal-guard:${outcome.routeId ?: "unknown-route"}"
+            "thermal-guard:${outcome.routeId ?: "unknown-route"}@evidence=$evidence"
         } else {
             // سبب الفشل **وقرار المسار معًا**: «فشل» وحدها لا تُصلح شيئًا، والفرق بين «كل
             // المسارات محجورة بعد استرجاع غير مؤكَّد» و«الهدف غير قابل للقياس» هو الفرق بين
             // عطل في جهاز وعطل في منطق.
-            "thermal-guard-failed:${outcome.reason}@${outcome.decision.ifBlank { "undecided" }}"
+            "thermal-guard-failed:${outcome.reason}@${outcome.decision.ifBlank { "undecided" }}@evidence=$evidence"
         }
         noteHardware(
             statusKnob,
@@ -1672,7 +1675,16 @@ object AppMonitor {
             // الطلبَ فعلًا (يُقاس، لا يُفترض)، وطلبُ التبريد (دون السقف الحيّ) لا يلمس حماية المصنّع.
             val releaseCeiling = releaseRequired
             val ceilingShaped = releaseRequired
-            val ceilingCapture = if (releaseRequired) PlatformCeilingAuthority.captureGpuCeiling() else null
+            // ── ولا يُجمَّد قرار التحرير عند تسجيل المقبض ──────────────────────────────
+            //
+            // وهذا `var` لا `val` لأنه يُملأ **داخل** الكتابة إن احتاجها إعادة استهداف لم تُخطَّط
+            // عند التسجيل، والاسترجاع يقرأ منه في موضعه (الصيادتان تُلتقطان بالمرجع نفسه).
+            //
+            // وسببُ إمكانية ذلك: المقبض يُسجَّل مرّة بقيمة (`owenedDesired`) ثم يعدّله الحارس الحراري
+            // وهو يمرّ (`retargetRequest`) — والطلب الجديد قد يكون **رفعًا** لم يُحسب له تحرير،
+            // فيُقصّ إلى سقفنا نحن ولا يزيد أبدًا. التفصيل والمقارنة الصارمة في
+            // [GpuCeilingPolicy.releaseRequiredForRetarget].
+            var ceilingCapture = if (releaseRequired) PlatformCeilingAuthority.captureGpuCeiling() else null
             val clockAtPlan = GpuHardwareBackend.currentFrequencyHz(liveAtPlan)
 
             val baseline = GpuHardwareBackend.captureBaseline(liveAtPlan)
@@ -1686,7 +1698,19 @@ object AppMonitor {
                 desired = desired,
                 apply = { value -> value.toLongOrNull()?.let { wantedHz ->
                         val live = GpuHardwareBackend.refresh(device.path) ?: return@let false
-                        if (releaseCeiling) {
+                        // الحكم يُحسب **لكل قيمة** لا مرّة عند التسجيل: من لم يُمرّر هذا الحكم
+                        // كان خفضُه سقفًا دائمًا (المقارنة الصارمة في التحرير).
+                        val releaseNow = GpuCeilingPolicy.releaseRequiredForRetarget(
+                            requestedHz = wantedHz,
+                            liveCeilingHz = GpuHardwareBackend.configurableMaxFrequency(live),
+                            plannedRelease = releaseCeiling,
+                        )
+                        if (releaseNow && ceilingCapture == null) {
+                            // تحرير لم يُخطَّط له (إعادة استهداف برفع): يُلتقط السقف الآن كي يُعاد
+                            // عند خروج التطبيق — وإلا صار التحرير تسريبًا دائمًا على الجهاز.
+                            ceilingCapture = PlatformCeilingAuthority.captureGpuCeiling()
+                        }
+                        if (releaseNow) {
                             // التحرير **داخل** المعاملة المملوكة: بخط أساسها، وباستعادتها، وبإعادة
                             // المحاولة في حلقة الانحراف. وتحريرٌ قبلها كان يرفع حماية المصنّع حتى
                             // على مقبض يرفض الحاكم كتابته (قفل يدوي) — أي بلا ملكية.
@@ -1709,7 +1733,7 @@ object AppMonitor {
                         val capped = GpuHardwareBackend.snapToAvailableAtOrBelow(
                             live,
                             wantedHz,
-                            respectLiveCeiling = !releaseRequired,
+                            respectLiveCeiling = !releaseNow,
                         ) ?: return@let false
                         val low = live.frequencies.firstOrNull { it <= capped } ?: return@let false
                         val rangeResult = GpuHardwareBackend.applyValidated(
@@ -1718,7 +1742,7 @@ object AppMonitor {
                                 GpuHardwareBackend.Request(
                                     minFreq = low,
                                     maxFreq = capped,
-                                    releaseVendorCeiling = releaseCeiling,
+                                    releaseVendorCeiling = releaseNow,
                                 )
                             } else {
                                 // تثبيت فهرس OPP — المسار الوحيد المتاح على هذا الجهاز.
@@ -1742,7 +1766,7 @@ object AppMonitor {
                         // للدرجة المطلوبة (بلا اختراع فهرس)، وبعد أن يُقاس فشل المدى لا أن يُفترض،
                         // والقيمة تُقاس بعدها بالتردد الجاري (`pinVerdict`) فلا يُصدَّق صدى الفهرس
                         // وحده. والفهرس السابق محفوظ في خط الأساس فيُعاد عند خروج التطبيق.
-                        if (!releaseCeiling || !live.exactLockWritable || live.mtkFixedIndexPath == null) return@let false
+                        if (!releaseNow || !live.exactLockWritable || live.mtkFixedIndexPath == null) return@let false
                         if (capped !in live.mtkOppIndexByFrequency) return@let false
                         pinnedViaIndex = true
                         GpuHardwareBackend.applyValidated(

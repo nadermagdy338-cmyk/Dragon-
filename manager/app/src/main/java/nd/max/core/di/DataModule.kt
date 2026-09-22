@@ -9,6 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import nd.max.core.atlas.AtlasBackendProvider
 import nd.max.core.atlas.AtlasDeviceIdentity
 import nd.max.core.atlas.AtlasDiscovery
 import nd.max.core.atlas.AtlasEvidenceStore
@@ -107,6 +108,19 @@ object DataModule {
         @ApplicationContext context: Context,
         clockMs: () -> Long,
     ): AtlasRouteMemory = AtlasRouteMemoryFactory.create(context, clockMs)
+
+    /**
+     * ما اكتشفته الواجهات الخلفية، مُسقَطًا في مفردات أطلس — بمُصرِّف واحد لا اثنين.
+     *
+     * ويُوفَّر لأن مسار الكتابة الإنتاجي (`CpuCeilingKnobs.cap`) يُخطَّط من **دليل مقيس** قبل أن
+     * يكتب: بلا هذا الربط كان أطلس يُقاس في اختبارات JVM ولا يُقاس على جهاز. والأجيال
+     * (`bootGeneration`/`privilegeGeneration`) تبقى `0` — وهي معناها «جيل غير معروف» في هذا المُصرِّف،
+     * ولا تُنقَض على القارئ: ما نستعمله هنا هو سياسات cpufreq المُكتشفة وسلّمها المُعلن.
+     */
+    @Provides
+    @Singleton
+    fun provideAtlasBackendProvider(clockMs: () -> Long): AtlasBackendProvider =
+        AtlasBackendProvider(elapsedMs = clockMs)
 
     @Provides
     @Singleton

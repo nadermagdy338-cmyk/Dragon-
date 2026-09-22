@@ -17,15 +17,20 @@ import nd.max.core.atlas.AtlasRouteEvidence
  *
  * - **الاكتشاف** ([nd.max.core.atlas.AtlasBackendProvider]) يقيس فعلًا: سياسات cpufreq
  *   المُعلنة، وسلّم الترددات، والتردد الحالي، وجذر وحدة القياس، ومصداقية كل ذلك.
- * - **التحكم** ([AtlasAdaptiveExecutor] ومَن يبني `AtlasRouteBinding`) يكتب، لكن أدلّة مساراته
- *   **حرفيّة مكتوبة باليد**: `ThermalCeilingRoutes.candidates` تجعل `unitProven = true`
- *   و`baselineReadable = true` و`rollbackProven = true` و`privileged = true` و`reviewed = true`
- *   بلا قياس، وكذلك يفعل `MinimalPlanner.execute`.
+ * - **التحكم** ([AtlasAdaptiveExecutor] ومَن يبني `AtlasRouteBinding`) يكتب، وكانت أدلّة مساراته
+ *   **حرفيّة مكتوبة باليد**: `ThermalCeilingRoutes.candidates` كانت تجعل `unitProven = true`
+ *   و`baselineReadable = true` و`rollbackProven = true` و`privileged = true` بلا قياس، وكذلك
+ *   يفعل `MinimalPlanner.execute`.
  *
  * وبوابة الأمان في [nd.max.core.atlas.AtlasRoutePlanner] تُرفض بـ`UNIT_AMBIGUOUS` و
  * `BASELINE_UNREADABLE` و`ROLLBACK_UNPROVEN` و`ROUTE_NOT_REVIEWED`. أي أنها **بوابة قوية**،
  * لكنها كانت تُغذّى بادّعاءات كاتب المسار لا بقياسات الجهاز. فهذا الملف هو ما يجعل أدلّة
  * المسار **مشتقّة من قياس**، ويبقى القرار للمخطِّط كما هو مقصود.
+ *
+ * وقد تحوّلت أدلّة مسار الحارس الحراري إلى قياس أيضًا ([RouteEvidenceFacts] يُقاس في
+ * `PerAppControlRegistry.routeFacts`)، فلم يبقَ في مسار الكتابة هذا حقلٌ مصدره ادّعاء — إلا
+ * `reviewed`، وهي حكمٌ على **شكل المسار** (معاملة المُحكِّم المُتحقَّقة) لا على الجهاز، ومكتوبة
+ * بذلك صراحةً في موضعها.
  *
  * القواعد التي يقوم عليها
  * ----------------------
@@ -33,7 +38,8 @@ import nd.max.core.atlas.AtlasRouteEvidence
  *    (`HardwareControlKey.cpuLimits`) وبمعرّف المسار القياسي نفسه ([HardwareRepairExecutor.labelFor])
  *    الذي يستعمله كل كاتب آخر للمقبض ذاته — فلا مالكَين ولا صيغتين لعقدة واحدة.
  * 2. **ما لم يُقس لا يُدَّعى.** `readable` و`baselineReadable` و`unitProven` و`rollbackProven`
- *    كلها تُشتق من قراءة الآن ومن إعلان النواة، لا تُكتب `true`.
+ *    كلها تُشتق من قراءة الآن ومن إعلان النواة، لا تُكتب `true` — والمرشّحون يأتون من
+ *    [RouteEvidenceFacts] ذاتها في مسار الحارس الحراري، فلا معنيانِ لأدلّة واحدة.
  * 3. **الفشل مغلق.** `reviewed` تأتي من المستدعي (كتالوج أطلس المُراجَع)، وقيمتها الافتراضية
  *    `false` ⇒ مخطِّط أطلس يرفض بـ`ROUTE_NOT_REVIEWED` ولا تُكتب عقدة لم يراجعها أحد.
  * 4. **الكاتب ليس ثانيًا.** الكتابة تمرّ من `AtlasCeilingAccess`، ومُنفِّذها الإنتاجي يفوّض إلى
@@ -280,6 +286,20 @@ class AtlasDiscoveredControl(
     companion object {
         /** مَن يقدّم الأدلّة: إعادة استخدام مُصرِّفات الواجهات الخلفية القائمة، لا مُصرِّف جديد. */
         const val PROVIDER_ID: String = "atlas-discovery"
+
+        /**
+         * هل راجع هذا التطبيق **شكل** مسار الكتابة الآلية لهذا المفتاح؟
+         *
+         * وليست ادّعاءً عن جهاز بعينه: هي حكمٌ على الشكل — معاملة المُحكِّم المُتحقَّقة (خط أساس من
+         * قراءة حيّة · كتابة عبر الكاتب المُتحقَّق · قراءة مرتجعة · نافذة تأكيد · استرجاع عند
+         * الانحراف) على مفتاح سقف cpufreq (`cpu_limits:<policy>`). وهذا الشكل نفسه هو ما يُنتج
+         * مقابض per-app، ويمرّ به الحارس الحراري — فلا مسار كتابة جديد يستحقّ مراجعة منفصلة.
+         *
+         * والفرق بينها وبين `unitProven`/`baselineReadable` مقصود: تلك **تُقاس من الجهاز الآن**،
+         * وهذه إعلانٌ عن الشيفرة. ولو خُلط بينهما لصار كل مسار "مُراجَعًا" بمجرّد أن يُقاس — وهو
+         * عكس المقصود من الحقل (يُرفض ما لم يُراجعه أحد).
+         */
+        fun isReviewedControlRoute(key: String): Boolean = HardwareControlKey.isCpuLimits(key)
 
         /** لا نيّة مطلوبة لهذه السياسة ⇒ لا مسار ولا كتابة. */
         const val SKIP_NO_REQUEST: String = "no-ceiling-requested"

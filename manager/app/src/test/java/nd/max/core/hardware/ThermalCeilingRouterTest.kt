@@ -23,6 +23,8 @@ import java.nio.file.Files
  *    الثابت بدل إسكات كل شيء — وهذا فرق حقيقي عن السلوك السابق.
  * 3. الحارس لا يرفع فوق نيّة المستخدم أبدًا، ولا ينزل تحت أدنى تردد مُعلن.
  * 4. «لا تغيير مطلوب» ليست فشلًا ولا تُنفَّذ معاملة من أجلها.
+ * 5. وأدلّة المسار **مقيسة لا حرفيّة**: مسارٌ بلا قراءة حيّة أو بسلّم ترددات غير مُعلن يُرفض برمز
+ *    سببه القياسي، والرمز يُنقل إلى المستدعي (`evidence=`) ليعرف أيّ دليلٍ نقص.
  *
  * وملاحظة على بناء الاختبار نفسه: السجل وAtlas يتشاركان **نفس** `HardwareControlArbiter`. ومُحكِّم
  * ثانٍ في الاختبار كان يجعل الطلب يبدو بلا مالك، فيُصنَّف حجبًا لا تنفيذًا — أي أن الاختبار كان
@@ -47,7 +49,11 @@ class ThermalCeilingRouterTest {
 
     @Test
     fun `the platform route is ordered before the static ceiling`() {
-        val candidates = ThermalCeilingRoutes.candidates(AtlasControlTarget.GPU_FREQUENCY, ThermalGuard.Pressure.MODERATE)
+        val candidates = ThermalCeilingRoutes.candidates(
+            AtlasControlTarget.GPU_FREQUENCY,
+            ThermalGuard.Pressure.MODERATE,
+            gpuFacts(),
+        )
 
         assertEquals(ThermalCeilingRoutes.PLATFORM_ROUTE_ID, candidates.first().id)
         assertEquals(2, candidates.size)
@@ -59,7 +65,11 @@ class ThermalCeilingRouterTest {
 
     @Test
     fun `an unanswered platform signal makes the platform route ineligible`() {
-        val candidates = ThermalCeilingRoutes.candidates(AtlasControlTarget.GPU_FREQUENCY, ThermalGuard.Pressure.UNKNOWN)
+        val candidates = ThermalCeilingRoutes.candidates(
+            AtlasControlTarget.GPU_FREQUENCY,
+            ThermalGuard.Pressure.UNKNOWN,
+            gpuFacts(),
+        )
 
         val platform = candidates.first { it.id == ThermalCeilingRoutes.PLATFORM_ROUTE_ID }
         val static = candidates.first { it.id == ThermalCeilingRoutes.STATIC_ROUTE_ID }
@@ -75,7 +85,11 @@ class ThermalCeilingRouterTest {
                 goal = AtlasControlGoal.SUSTAINED_PERFORMANCE,
                 desired = "754000000",
             ),
-            candidates = ThermalCeilingRoutes.candidates(AtlasControlTarget.GPU_FREQUENCY, ThermalGuard.Pressure.MODERATE),
+            candidates = ThermalCeilingRoutes.candidates(
+                AtlasControlTarget.GPU_FREQUENCY,
+                ThermalGuard.Pressure.MODERATE,
+                gpuFacts(),
+            ),
         )
 
         assertEquals(AtlasRouteStatus.ELIGIBLE, decision.status)
@@ -90,11 +104,113 @@ class ThermalCeilingRouterTest {
                 goal = AtlasControlGoal.SUSTAINED_PERFORMANCE,
                 desired = "754000000",
             ),
-            candidates = ThermalCeilingRoutes.candidates(AtlasControlTarget.GPU_FREQUENCY, ThermalGuard.Pressure.UNKNOWN),
+            candidates = ThermalCeilingRoutes.candidates(
+                AtlasControlTarget.GPU_FREQUENCY,
+                ThermalGuard.Pressure.UNKNOWN,
+                gpuFacts(),
+            ),
         )
 
         assertEquals(AtlasRouteStatus.ELIGIBLE, decision.status)
         assertEquals(ThermalCeilingRoutes.STATIC_ROUTE_ID, decision.selected?.id)
+    }
+
+    // ---- أدلّة مقيسة لا حرفيّة ----------------------------------------------------------------
+
+    /**
+     * عقدة تُقرأ الآن، ومعاملة قائمة عليها، وسلّم مُعلن ⇒ مسار مؤهّل. وهذا ما يُقارَن به ما يليه.
+     */
+    private fun gpuFacts(liveReadable: Boolean = true) = RouteEvidenceFacts.gpu(
+        liveReadable = liveReadable,
+        transactionHeld = true,
+        unitTrusted = true,
+        ladder = ladder,
+    )
+
+    @Test
+    fun `an unmeasured knob is refused, and the refusal names the missing evidence`() {
+        val candidates = ThermalCeilingRoutes.candidates(
+            AtlasControlTarget.GPU_FREQUENCY,
+            ThermalGuard.Pressure.SEVERE,
+            RouteEvidenceFacts.UNMEASURED,
+        )
+
+        assertEquals("لا يُقاس شيء ⇒ لا مسار مؤهّل", false, candidates.any { it.evidence.readable })
+        val decision = AtlasRoutePlanner.choose(
+            intent = AtlasControlIntent(
+                target = AtlasControlTarget.GPU_FREQUENCY,
+                goal = AtlasControlGoal.SUSTAINED_PERFORMANCE,
+                desired = "754000000",
+            ),
+            candidates = candidates,
+        )
+        assertEquals(AtlasRouteStatus.BLOCKED, decision.status)
+        assertNull(decision.selected)
+        assertEquals("none", RouteEvidenceFacts.UNMEASURED.codes())
+    }
+
+    @Test
+    fun `a knob with no published ladder is refused as an ambiguous unit`() {
+        val facts = RouteEvidenceFacts.cpu(liveReadable = true, transactionHeld = true, ladder = emptyList())
+        val candidates = ThermalCeilingRoutes.candidates(
+            AtlasControlTarget.CPU_FREQUENCY,
+            ThermalGuard.Pressure.NONE,
+            facts,
+        )
+
+        assertEquals(false, facts.unitProven)
+        assertTrue("المقروء يُقاس ويُعلن", candidates.all { it.evidence.readable })
+        val decision = AtlasRoutePlanner.choose(
+            intent = AtlasControlIntent(
+                target = AtlasControlTarget.CPU_FREQUENCY,
+                goal = AtlasControlGoal.SUSTAINED_PERFORMANCE,
+                desired = "300000:2000000",
+            ),
+            candidates = candidates,
+        )
+        assertEquals(AtlasRouteStatus.BLOCKED, decision.status)
+        assertEquals("unit_ambiguous", decision.reason?.name?.lowercase())
+    }
+
+    @Test
+    fun `the registry measures the evidence of an owned knob from a live read`() {
+        var live = "754000000"
+        val gate = HardwareControlArbiter()
+        val registry = registryOwning(gate, KEY, "754000000", { live = it; true }, { live })
+
+        val facts = registry.routeFacts(KEY, unitProven = ladder.any { it > 0L })
+
+        assertEquals(true, facts.readable)
+        assertEquals(true, facts.attemptAvailable)
+        assertEquals("read+attempt+unit+baseline+rollback", facts.codes())
+        // ومقبض لا يملكه السجل: لا أدلّة أصلًا — فشل مغلق لا تخمين.
+        assertEquals(RouteEvidenceFacts.UNMEASURED, registry.routeFacts("gpu_frequency:absent", unitProven = true))
+    }
+
+    /**
+     * وملاحظة على الحدّ بين القياسين: في هذا المسار **السلّم نفسه** هو دليل الوحدة، وهو نفسه ما
+     * يخطّط الحارس به خفضًا — فجهاز لا يُعلن سلّمًا لا يُخطَّط له خفض (`planned == previous`)؛
+     * والحارس حينها **يثبت ولا يكتب**، ولا يصل إلى باب الوحدة أصلًا. فلا تُدَّعى وحدة، ولا يُخمَّن
+     * ما يُكتب، ولا يُسجَّل أن عملًا وقع — وهذا هو المقصود، لا أن يُرفض الطلب بفشل.
+     */
+    @Test
+    fun `a knob with no published ladder is held, not written`() {
+        var live = "754000000"
+        val router = routerOwning(KEY, "754000000", { live = it; true }, { live })
+
+        val outcome = router.apply(
+            key = KEY,
+            target = AtlasControlTarget.GPU_FREQUENCY,
+            packageName = null,
+            userCeiling = "754000000",
+            ladder = emptyList(),
+            pressure = ThermalGuard.Pressure.SEVERE,
+        )
+
+        assertEquals(false, outcome.acted)
+        assertEquals(false, outcome.verified)
+        assertEquals("ceiling-already-held", outcome.reason)
+        assertEquals("754000000", live)
     }
 
     @Test

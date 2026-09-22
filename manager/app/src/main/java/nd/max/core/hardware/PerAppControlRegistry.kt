@@ -110,6 +110,31 @@ class PerAppControlRegistry(
     @Synchronized fun ownedDesired(): Map<String, String> = entries.mapValues { it.value.desired }
 
     /**
+     * أدلّة أهليّة المسار لهذا المقبض — **مقيسة الآن من هذه العقدة**، لا قيمًا حرفيّة.
+     *
+     * ولماذا تُقاس هنا: هذا السجل هو من يملك القارئ والكاتب، فمن يسأل عن الأهليّة لا يحقّ له أن
+     * يخمّنها (ولا أن يقرأ العقدة بنفسه فيصير قارئان لعقدة واحدة). القراءة تُجرَّب مرّة واحدة،
+     * ونتيجتها هي `readable` و`baselineReadable` معًا — فخط الأساس في كل معاملة من هذا السجل هو
+     * قراءة حيّة، لا قيمة محفوظة.
+     *
+     * والمسجَّل غير المملوك يُعيد [RouteEvidenceFacts.UNMEASURED]: لا معاملة ⇒ لا أدلّة ⇒ المخطِّط
+     * يرفض برمزه القياسي بدل أن يُخمَّن مسار لعقدة لا يملكها أحد.
+     *
+     * @param unitProven هل أثبت الجهاز وحدة هذا المقبض؟ يحملها المستدعي لأنه يعرف سلّم المقبض
+     *   المُعلن (سياسة cpufreq أو جهاز devfreq)، والسجل لا يعرف شيئًا عن الوحدات.
+     */
+    @Synchronized fun routeFacts(key: String, unitProven: Boolean): RouteEvidenceFacts {
+        val entry = entries[key] ?: return RouteEvidenceFacts.UNMEASURED
+        val live = runCatching { entry.read() }.getOrNull()?.trim()?.takeIf(String::isNotEmpty)
+        return RouteEvidenceFacts.of(
+            liveReadable = live != null,
+            // وهذا السجل لا يحمل إدخالًا بلا كاتب أصلًا (النوع يمنعه)، فالمعاملة قائمة بنيويًّا.
+            transactionHeld = true,
+            unitProven = unitProven,
+        )
+    }
+
+    /**
      * إعادة استهداف مقبض مملوك بقيمة أخرى **دون** فقدان خط الأساس ولا نيّة المستخدم.
      *
      * الطلب يُنقل داخل حدود ما طلبه المستخدم نفسه، والمعاملة تمرّ من نفس المُحكِّم ونفس خط

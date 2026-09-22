@@ -214,6 +214,41 @@ class GpuCeilingPolicyTest {
     }
 
     @Test
+    fun `a retarget above our own lowered cap is released, so the ceiling can rise again`() {
+        // العطب المُبلَّغ عنه حرفيًّا: «اختر power ثم ارجع إلى performance — يبقى عالقًا على 520».
+        // والمسار: المقبض يُسجَّل مرّة بطلب تبريد، والحارس الحراري يُعيد استهدافه **برفع** — وكتلة
+        // الرفع كانت تُقيَّد بالسقف الحيّ، وهو **خفضُنا نحن** (٥٢٠)، فلا يرتفع أبدًا.
+        assertTrue(
+            "رفعٌ فوق خفضنا ⇒ يلزم تحرير، وإلا انقصّ الطلب إلى ٥٢٠",
+            GpuCeilingPolicy.releaseRequiredForRetarget(
+                requestedHz = 1_300_000_000L,
+                liveCeilingHz = 520_000_000L,
+                plannedRelease = false,
+            ),
+        )
+        assertTrue(
+            "والقيمة الوسطى كذلك (٧٠٢ كطلب المستخدم بعد خفض إلى ٥٢٠)",
+            GpuCeilingPolicy.releaseRequiredForRetarget(702_000_000L, 520_000_000L, plannedRelease = false),
+        )
+        assertFalse(
+            "وطلب تبريدٍ يساوي السقف الحيّ لا يرفع حماية المصنّع (وإلا صار التبريد تسخينًا)",
+            GpuCeilingPolicy.releaseRequiredForRetarget(520_000_000L, 520_000_000L, plannedRelease = false),
+        )
+        assertFalse(
+            "وطلبٌ دون السقف الحيّ تبريدٌ محض: يُكتب ولا يلمس السلطة",
+            GpuCeilingPolicy.releaseRequiredForRetarget(416_000_000L, 1_300_000_000L, plannedRelease = false),
+        )
+        assertTrue(
+            "وقرارُ تحرير اتُّخذ عند التسجيل لا يُلغى بإعادة استهداف (بنية المعاملة شُكِّلت عليه)",
+            GpuCeilingPolicy.releaseRequiredForRetarget(520_000_000L, 416_000_000L, plannedRelease = true),
+        )
+        assertFalse(
+            "وسقف حيّ غير مقروء لا يُضيف تحريرًا بالتشقيق (لا يُدَّعى ما لم يُقس)",
+            GpuCeilingPolicy.releaseRequiredForRetarget(780_000_000L, null, plannedRelease = false),
+        )
+    }
+
+    @Test
     fun `a release is judged on what we own, not on the policy the device keeps`() {
         val released = GpuCeilingPolicy.CeilingReading(1_300_000_000L, 0L, false, lockActive = false)
         val verdict = GpuCeilingPolicy.releaseVerdict(released, 1_300_000_000L)

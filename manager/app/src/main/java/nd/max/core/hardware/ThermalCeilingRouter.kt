@@ -40,6 +40,12 @@ import nd.max.core.atlas.AtlasRouteEvidence
  *   تمرّ بها مقابض per-app أصلًا (خط أساس + قراءة مرتجعة + استرجاع)، فلا مسار كتابة جديد هنا.
  *   ولو تُرك `reviewed = false` لسقط التخطيط إلى `REVIEW_REQUIRED` ولم يعمل الحارس أصلًا — وهذا
  *   هو المعنى المقصود للحقل: مسار **مُراجَع** يمكن أن يُنفَّذ، لا مسار مختبر.
+ *
+ *   و`reviewed` هي **الحقل الوحيد** الذي يبقى إعلانًا عن الشكل: حكمٌ على مسار الشيفرة (نفس معاملة
+ *   المُحكِّم المُتحقَّقة التي تمرّ بها مقابض per-app المُنتَجة أصلًا). وأما بقية الحقول فلم تبقَ
+ *   حرفيّة: `readable` و`baselineReadable` و`rollbackProven` و`unitProven` تُشتق الآن من
+ *   [RouteEvidenceFacts] المقيسة على هذه العقدة (قراءة حيّة · سلّم مُعلن · معاملة قائمة) — وما لا
+ *   يُقاس لا يُدَّعى، والمخطِّط يُسمّي السبب برمزه القياسي.
  */
 object ThermalCeilingRoutes {
 
@@ -52,8 +58,16 @@ object ThermalCeilingRoutes {
     /**
      * مرشّحا المسار لهذا الهدف. ترتيب الأمان هو ما يقرّره المخطِّط بالنقل (`PLATFORM_HINT` قبل
      * `ARBITER_SYSFS`)، والأولوية هنا تفصل داخل النقل نفسه فقط.
+     *
+     * @param facts أدلّة مقيسة من الجهاز لهذا المقبض ([RouteEvidenceFacts]). ولا افتراض لها:
+     *   المستدعي يملك القياس، وغيابه يعني «لم نُقس» — والمخطِّط يرفض حينها بسببٍ مُسمّى.
      */
-    fun candidates(target: AtlasControlTarget, pressure: ThermalGuard.Pressure): List<AtlasRouteCandidate> {
+    fun candidates(
+        target: AtlasControlTarget,
+        pressure: ThermalGuard.Pressure,
+        facts: RouteEvidenceFacts,
+    ): List<AtlasRouteCandidate> {
+        // إشارة المنصة مسارها مقروء أو ليس مسارًا: الضغط المجهول يعني أن إشارتها لم تُقرأ.
         val platformReadable = pressure != ThermalGuard.Pressure.UNKNOWN
         return listOf(
             AtlasRouteCandidate(
@@ -63,11 +77,13 @@ object ThermalCeilingRoutes {
                     providerId = PLATFORM_PROVIDER,
                     transport = AtlasControlTransport.PLATFORM_HINT,
                     target = target,
-                    readable = platformReadable,
-                    privilegeAvailable = true,
-                    unitProven = true,
-                    baselineReadable = true,
-                    rollbackProven = true,
+                    // هذا المسار **لا يكتب عقدة**: إشارة المنصة تقرّر القيمة، والكتابة تقع عبر مسار
+                    // المُحكِّم. فالمقيس هنا هو الإشارة (والقراءة الحيّة للمقبض شرط أن يُنفَّذ شيء).
+                    readable = platformReadable && facts.readable,
+                    privilegeAvailable = facts.attemptAvailable,
+                    unitProven = facts.unitProven,
+                    baselineReadable = facts.baselineReadable,
+                    rollbackProven = facts.rollbackProven,
                     reviewed = true,
                     reason = "thermal-status-${pressure.name.lowercase()}",
                 ),
@@ -79,11 +95,11 @@ object ThermalCeilingRoutes {
                     providerId = ARBITER_PROVIDER,
                     transport = AtlasControlTransport.ARBITER_SYSFS,
                     target = target,
-                    readable = true,
-                    privilegeAvailable = true,
-                    unitProven = true,
-                    baselineReadable = true,
-                    rollbackProven = true,
+                    readable = facts.readable,
+                    privilegeAvailable = facts.attemptAvailable,
+                    unitProven = facts.unitProven,
+                    baselineReadable = facts.baselineReadable,
+                    rollbackProven = facts.rollbackProven,
                     reviewed = true,
                     reason = "user-ceiling",
                 ),
@@ -125,6 +141,14 @@ class ThermalCeilingRouter(
         val decision: String = "",
         /** مسارات لم تُجرَّب وسبب كل واحد (رمز ثابت من Atlas، لا جملة). */
         val skipped: List<Pair<String, String>> = emptyList(),
+        /**
+         * رموز الأدلّة **المقيسة الموجودة** لهذا المقبض، مفصولة بـ`+` (`none` إن لم يُقس شيء).
+         *
+         * ووجودها في الناتج لأن سبب رفض مخطِّط أطلس كان يُقرأ رمزًا واحدًا (`UNIT_AMBIGUOUS` مثلًا)
+         * بلا معرفة **أيّ** دليل نقص: `unitProven = false` لأن النواة لم تُعلن سلّمًا، أم لأن سلّم
+         * الترددات لم يُقرأ أصلًا. وسطرٌ واحد يحمل الرموز يحسم الفرق في اللقطة القادمة.
+         */
+        val evidence: String = "",
     )
 
     fun apply(
@@ -151,15 +175,25 @@ class ThermalCeilingRouter(
             return Outcome(false, false, null, planned, previous, reason)
         }
 
+        // الأدلّة تُقاس **قبل** بناء المعاملة: قراءة حيّة لهذا المقبض بعينه، وسلّم الترددات المُعلن
+        // الذي يقرّر وحدة ما نكتبه (`unitProven`)، والمعاملة القائمة على القبض.
+        val facts = registry.routeFacts(key, unitProven = ladder.any { it > 0L })
+
         val valueByRoute = linkedMapOf(
             ThermalCeilingRoutes.PLATFORM_ROUTE_ID to guarded,
             ThermalCeilingRoutes.STATIC_ROUTE_ID to userCeiling,
         )
-        val bindings = ThermalCeilingRoutes.candidates(target, pressure).mapNotNull { candidate ->
+        val bindings = ThermalCeilingRoutes.candidates(target, pressure, facts).mapNotNull { candidate ->
             val value = valueByRoute[candidate.id] ?: return@mapNotNull null
             registry.retargetRequest(key, value)?.let { request -> AtlasRouteBinding(candidate, request) }
         }
-        if (bindings.isEmpty()) return Outcome(false, false, null, planned, previous, "no-route-transaction")
+        if (bindings.isEmpty()) {
+            // لا معاملة: المقبض غير مملوك (لا أدلّة تُقاس) أو لا طلب له. والرموز تفرّق بينهما.
+            return Outcome(
+                acted = false, verified = false, routeId = null, desired = planned, previous = previous,
+                reason = "no-route-transaction", evidence = facts.codes(),
+            )
+        }
 
         val intent = AtlasControlIntent(
             target = target,
@@ -206,6 +240,7 @@ class ThermalCeilingRouter(
             decision = result.decision.status.name.lowercase() +
                 "-" + (result.decision.reason?.name?.lowercase() ?: "selected"),
             skipped = result.skipped,
+            evidence = facts.codes(),
         )
     }
 

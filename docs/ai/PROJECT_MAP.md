@@ -28,7 +28,8 @@ binprofiles/      ملفات تهيئة النظام (bin profiles)
 android/          aosp/ · kernelsu/ · overlay/ — تكامل المنصّة لا كود التطبيق
 manager/          مشروع Gradle: app + kernel-flasher + terminal-emulator + terminal-view
 docs/             ai/ (هذه الذاكرة) · aegis/ (سجلات أقدم)
-tools/            بوّابات ثابتة بلا مُصرّف: kt_balance · code_health · i18n_coverage · repo_audit …
+tools/            بوّابات ثابتة بلا مُصرّف: kt_balance · code_health · i18n_coverage · repo_audit ·
+                  log_gate (حزمة سجل جهاز) · sepolicy_matrix (تثبيت/وسم/مراجع SELinux) …
 module.json version version_type update.json maxmanagerApplist.json crowdin.yml AGENTS.md
 ```
 

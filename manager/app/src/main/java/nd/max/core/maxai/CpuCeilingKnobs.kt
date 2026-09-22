@@ -1,5 +1,10 @@
 package nd.max.core.maxai
 
+import nd.max.core.atlas.AtlasBackendProvider
+import nd.max.core.atlas.AtlasCpuPolicyFact
+import nd.max.core.hardware.AtlasAdaptiveExecutor
+import nd.max.core.hardware.AtlasCeilingAccess
+import nd.max.core.hardware.AtlasDiscoveredControl
 import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.HardwareControlArbiter
@@ -19,16 +24,42 @@ import javax.inject.Singleton
 @Singleton
 class CpuCeilingKnobs @Inject constructor(
     private val arbiter: HardwareControlArbiter,
+    /**
+     * ما اكتشفته الواجهات الخلفية على هذا الجهاز — يُقاس عند الطلب، ولا يُخزَّن ادّعاء.
+     */
+    private val atlasDiscovery: AtlasBackendProvider,
+    /**
+     * مُنفِّذ أطلس المُتكيِّف. وجوده هنا هو ما يجعل هذا المقبض **مسار أطلس إنتاجيًا** لا مخطِّطًا
+     * لا مُستدعي له: الطلب يُخطَّط من دليلٍ مقيس ثم يُنفَّذ بمعاملة المُحكِّم الكاملة.
+     */
+    private val atlasAdaptive: AtlasAdaptiveExecutor,
 ) {
     data class KnobOutcome(val applied: Int, val blocked: Int, val failed: Int, val detail: String)
 
     /**
      * يثبّت سقفًا لكل سياسة عند جزء محدد من مدى العتاد
      * ([fractionOfRange] من 0.0 إلى 1.0؛ 1.0 = تحرير كامل).
+     *
+     * والمسارات اثنان، بالترتيب:
+     *
+     * 1. **مسار أطلس** ([capDiscovered]): يُخطَّط من **دليلٍ مقيس** (سياسات اكتشفها أطلس فعلًا،
+     *    وسلّم تردداتها المُعلن) ويُنتفَّذ بمعاملة المُحكِّم الكاملة. وهذا هو ما يجعل أطلس يكتب
+     *    في الإنتاج لا في الاختبارات وحدها.
+     * 2. **المسار المُتحقَّق القائم** ([submitPerPolicy]): يُستعمل حين لا يُخطَّط مسار أطلس أصلًا
+     *    (جهاز لا يُعلن سياسات، أو وحدة غير مُثبتة، أو مسار لم يُراجَع) — **وسلوكه لم يتغيّر
+     *    بالحرف**، ودليله يُلحَق بالتفصيل (`atlas=…`) فيُعرف من السجل أيّ المسارين كتب.
+     *
+     * ولا يُنفَّذ المساران معًا على السياسة نفسها: أطلس إن كتب سياسة فلا تُعاد كتابتها مباشرة.
      */
     fun cap(fractionOfRange: Float, owner: ControlOwnership.Owner, token: String): KnobOutcome {
         val fraction = fractionOfRange.coerceIn(0.1f, 1f)
-        return submitPerPolicy(owner, token) { policy ->
+
+        val discovered = measuredPolicies()
+        val viaAtlas = discovered.takeIf { it.isNotEmpty() }
+            ?.let { facts -> capDiscovered(facts, fraction, owner, token) }
+        if (viaAtlas != null && viaAtlas.applied > 0) return viaAtlas
+
+        val direct = submitPerPolicy(owner, token) { policy ->
             val hwMin = policy.hwMinKHz ?: policy.minKHz ?: 0L
             val hwMax = policy.hwMaxKHz ?: policy.maxKHz ?: return@submitPerPolicy null
             // الكسر يبقى على **مدى العتاد** (هذا معناه: نسبة من المدى)، وما يُكتب
@@ -41,9 +72,17 @@ class CpuCeilingKnobs @Inject constructor(
             val max = CpuHardwareBackend.snapToAvailableAtOrBelow(policy, cappedMax)
             "$min:$max"
         }
+        // ودليل محاولة أطلس يُلحق بالتفصيل: يُعرف من السجل أيّ المسارين كتب، ولماذا لم يُكتب
+        // شيء من مسار أطلس (سياسة بلا سلّم مُعلن، أو مسار لم يُراجَع).
+        return direct.copy(detail = direct.detail + viaAtlas?.detail.orEmpty())
     }
 
-    /** يحرر السقف إلى مدى العتاد الكامل (أداء مفتوح). */
+    /**
+     * يحرر السقف إلى مدى العتاد الكامل (أداء مفتوح).
+     *
+     * ولا يمرّ بمسار أطلس عن قصد: هذا **استرجاع** إلى مدى العتاد المُعلن كما هو لا تخطيط سقف،
+     * وطرحُه على مخطِّط كان سيُدخل قرارًا في عملية لا قرار فيها. والكاتب واحد في الحالتين.
+     */
     fun release(owner: ControlOwnership.Owner, token: String): KnobOutcome =
         submitPerPolicy(owner, token) { policy ->
             val hwMin = policy.hwMinKHz ?: policy.minKHz ?: return@submitPerPolicy null
@@ -111,6 +150,99 @@ class CpuCeilingKnobs @Inject constructor(
             }
         }
         return KnobOutcome(applied, blocked, failed, details.toString())
+    }
+
+    /**
+     * كتابة السقف عبر أطلس — من دليلٍ مقيس إلى معاملة المُحكِّم.
+     *
+     * وهي **قابلة للاختبار** عن قصد (أدلّة مُمرَّرة + وصول مُمرَّر)، لأن المسار الإنتاجي يقرأ من
+     * `/sys` فلا يُقاس في JVM. ومعاملاتها الثلاثة هي ما يُغيَّر في الاختبار فقط.
+     *
+     * @param access الوصول إلى العقد. الإنتاجي يفوّض إلى الكاتب المُتحقَّق القائم
+     *   (`CpuHardwareBackend.setPolicyLimits`) — لا كاتب ثانٍ ينجرف عن الأول.
+     * @param reviewed هل راجع التطبيق شكل هذا المسار؟ ([AtlasDiscoveredControl.isReviewedControlRoute]).
+     * @return ملخّص المحاولة. `applied > 0` تعني أن أطلس كتب فعلًا؛ و`applied == 0` تعني «لم يُكتب
+     *   شيء» — والمستدعي حينها يتراجع إلى المسار المُتحقَّق، وسبب التخطّي يبقى في `detail` للتسجيل.
+     */
+    fun capDiscovered(
+        facts: List<AtlasCpuPolicyFact>,
+        fraction: Float,
+        owner: ControlOwnership.Owner,
+        token: String,
+        access: AtlasCeilingAccess = SystemCeilingAccess,
+        reviewed: (AtlasCpuPolicyFact) -> Boolean = { fact ->
+            AtlasDiscoveredControl.isReviewedControlRoute(HardwareControlKey.cpuLimits(fact.name))
+        },
+    ): KnobOutcome {
+        val control = AtlasDiscoveredControl(access = access, token = token, owner = owner)
+        val result = control.applyCpuCeiling(
+            executor = atlasAdaptive,
+            facts = facts,
+            ceilingKHz = { fact -> fractionCeiling(fact, fraction) },
+            reviewed = reviewed,
+        )
+        val planned = result.plan.bindings.size
+        val detail = buildString {
+            append("atlas=")
+            append(result.selectedRouteId ?: "no-route:" + (result.adaptive?.detail ?: "not-planned"))
+            append(";planned=").append(planned)
+            append(";skipped=").append(result.plan.skipped.size)
+            result.adaptive?.skipped?.takeIf { it.isNotEmpty() }?.let { skipped ->
+                append(";routes-skipped=").append(skipped.joinToString(",") { it.first + ":" + it.second })
+            }
+            append(";")
+        }
+        return if (result.verified) {
+            KnobOutcome(applied = planned, blocked = 0, failed = 0, detail = detail)
+        } else {
+            KnobOutcome(applied = 0, blocked = 0, failed = 0, detail = detail)
+        }
+    }
+
+    /**
+     * السياسات كما اكتشفها أطلس الآن. فشل الاكتشاف لا يُسقط المقبض: يُعيد قائمة فارغة فيمرّ
+     * الطلب على المسار المُتحقَّق — فالاكتشاف إضافة، لا شرط لعمل التحكم.
+     */
+    private fun measuredPolicies(): List<AtlasCpuPolicyFact> =
+        runCatching { atlasDiscovery.cpu().cpuPolicies }.getOrDefault(emptyList())
+
+    /**
+     * السقف المطلوب لسياسة عند جزء من **مدىها** المُثبت (أدنى وأقصى ما أثبتته النواة أو السلّم).
+     *
+     * والفرق عن المسار المُتحقَّق معلن: المسار المُتحقَّق يحسب الجزء على `hwMin/hwMax` وإلا على
+     * الحدود الحيّة، وهذا يحسبه على `provenMin/provenMax` (وقد يكونان طرفي السلّم حين لا تُعلن
+     * النواة حدّيها) — وهي أقرب إلى معنى «جزء من مدى العتاد»؛ والقيمة تُقصُّ بعدها إلى السلّم في
+     * [AtlasDiscoveredControl.desiredRange] فلا تُكتب قيمة غير مُعلنة.
+     */
+    private fun fractionCeiling(fact: AtlasCpuPolicyFact, fraction: Float): Long? {
+        val min = fact.provenMinKHz ?: return null
+        val max = fact.provenMaxKHz ?: return null
+        if (max <= min) return null
+        return min + ((max - min) * fraction).toLong()
+    }
+
+    /**
+     * الوصول الإنتاجي إلى مقابض سقف CPU: قراءة من السياسات المكتشفة، وكتابة عبر
+     * `CpuHardwareBackend.setPolicyLimits` — نفس ما يستعمله كل كاتب آخر لهذا المفتاح.
+     *
+     * و`privileged` هنا تعني حرفيًّا «معاملة قابلة للمحاولة» (السياسات موجودة، والكتابة تمرّ
+     * بالكاتب المُتحقَّق): **لا قراءة تُثبت صلاحية الكتابة**، والحكم النهائي عند `writeLimits`
+     * نفسه — وقبولها الكاذب لا يُنتج ادّعاء نجاح، لأن `false` تُسقط المعاملة فيُعلن الفشل.
+     */
+    private object SystemCeilingAccess : AtlasCeilingAccess {
+        override val privileged: Boolean get() = CpuHardwareBackend.policies().isNotEmpty()
+
+        override fun readLimits(policyPath: String): String? =
+            CpuHardwareBackend.policies()
+                .firstOrNull { it.path == policyPath }
+                ?.let { "${it.minKHz ?: ""}:${it.maxKHz ?: ""}" }
+
+        override fun writeLimits(policyPath: String, range: String): Boolean {
+            val parts = range.split(":", limit = 2)
+            val min = parts.getOrNull(0)?.trim()?.takeIf(String::isNotEmpty)?.toLongOrNull()
+            val max = parts.getOrNull(1)?.trim()?.takeIf(String::isNotEmpty)?.toLongOrNull()
+            return CpuHardwareBackend.setPolicyLimits(policyPath, min, max).successful
+        }
     }
 
     private fun setLimits(policy: CpuHardwareBackend.Policy, value: String): Boolean {
