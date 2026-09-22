@@ -20,6 +20,14 @@
 
 قاعدة صارمة نتعلّمناها في هذه الشجرة: **لا تحكم على رمز من اسم ملف، ولا على ملف من
 مجلد**. كل فحص هنا يقرأ الرمز أو المصدر، لا الاسم.
+
+عقد المحتوى القابل للرسم (أُضيف بعد عطب CI حقيقي)
+-------------------------------------------------
+`content: ColumnScope.() -> Unit` بلا `@Composable` لا يُفسد ملفه وحده: يُفسد **كل موضع
+نداء** له، برسالة `@Composable invocations can only happen from the context of a @Composable
+function` على أسطر لا علاقة لها بالملف المعطوب. وهذا جعل عطب سطر واحد يظهر كخمسة أخطاء في
+ملف آخر، فبُحث عنه في المكان الخطأ. الفحص هنا يقرأ **التصريح** (لا موضع الاستعمال) ويقول
+الملف والسطر الحقيقيان.
 """
 from __future__ import annotations
 
@@ -48,10 +56,12 @@ if not os.path.isdir(APP):
 OVERSIZE_LINES = 1000
 
 # ملفات الجذر المسموح بها. أي ملف آخر في الجذر = حطام أو ملف شخصي تسرّب.
+# `REPAIR_NOTES.md` مُعلَن هنا لأنه **نثر مشروع** (تحليل إصلاح مُسلَّم في الحزمة)، لا ملف
+# شخصي ولا حطام. والقائمة نفسها هي القرار: ما عداها = يُسأل عنه لا يُسمح به صامتًا.
 ROOT_ALLOWED = {
     ".gitattributes", ".gitignore", "AGENTS.md", "LICENSE", "NOTICE.md", "README.md",
-    "changelog.md", "crowdin.yml", "logo.jpg", "maxmanagerApplist.json", "module.json",
-    "update.json", "version", "version_type",
+    "REPAIR_NOTES.md", "changelog.md", "crowdin.yml", "logo.jpg", "maxmanagerApplist.json",
+    "module.json", "update.json", "version", "version_type",
 }
 
 
@@ -202,6 +212,7 @@ def check_correctness(files: list[str], mods: dict) -> dict:
     result: dict[str, list[str]] = {
         "package_mismatch": [], "unresolved_resource": [], "duplicate_string_key": [],
         "unescaped_apostrophe": [], "stray_root_file": [],
+        "noncomposable_content_lambda": [],
     }
 
     for p in files:
@@ -237,6 +248,7 @@ def check_correctness(files: list[str], mods: dict) -> dict:
                     seen[name] = os.path.basename(p)
 
     result["unescaped_apostrophe"].extend(apostrophe_offenders())
+    result["noncomposable_content_lambda"].extend(content_contract_offenders(files))
 
     # ملف الجذر يُعدّ حطامًا فقط إن لم يكن متعقّبًا **ولم يكن متجاهلًا**: علامة أداة
     # محلية مذكورة في .gitignore ليست ضجيجًا، فلا تُبلَّغ.
@@ -257,6 +269,75 @@ def check_correctness(files: list[str], mods: dict) -> dict:
             result["stray_root_file"].append(name)
 
     return {k: sorted(set(v)) for k, v in result.items()}
+
+
+# عقد المحتوى القابل للرسم.
+# القاعدة مشتقّة من قياس المستودع كاملًا: 31 بارامتر محتوى في واجهات المكوّنات، 30 منها
+# `@Composable` والوحيد الشاذ شرعيّ (نطاق `LazyListScope` لا يُرسم أصلًا). فالقاعدة تصف
+# الواقع القائم، لا رأيًا جديدًا. والاستثناء مبنيّ على **نوع النطاق** لا على اسم ملف،
+# فلا يحتاج قائمة استثناءات تفنى مع أول إعادة تسمية.
+CONTENT_PARAM = re.compile(r"^\s*(content[A-Za-z]*)\s*:\s*(.*->.*?)\s*,?\s*$")
+DECL_FUN = re.compile(r"^\s*(?:@\w+\s+)*(?:public|private|internal|protected|external|override|actual|expect|operator|infix|inline|suspend|tailrec|open|final|abstract|sealed|const|lateinit|\s)*fun\s")
+DECL_TYPE = re.compile(r"^\s*(?:@\w+\s+)*(?:data|sealed|enum|value|annotation|abstract|open|private|internal|public|\s)*(?:class|interface|object)\s")
+LAZY_SCOPE = re.compile(r"\bLazy[A-Za-z]*Scope\b")
+
+
+def _enclosing_owner(lines: list[str], idx: int) -> str | None:
+    """نوع المالك الذي ينتمي إليه السطر: 'fun' أو 'type' أو None."""
+    for j in range(idx - 1, -1, -1):
+        line = lines[j]
+        if DECL_FUN.match(line):
+            return "fun"
+        if DECL_TYPE.match(line):
+            return "type"
+    return None
+
+
+def _is_composable_fun(lines: list[str], idx: int) -> bool:
+    """هل الدالة الحاوية لهذا السطر موسومة `@Composable`؟"""
+    owner = None
+    for j in range(idx - 1, -1, -1):
+        if DECL_FUN.match(lines[j]):
+            owner = j
+            break
+        if DECL_TYPE.match(lines[j]):
+            return False
+    if owner is None:
+        return False
+    k = owner - 1
+    while k >= 0:
+        stripped = lines[k].strip()
+        if not stripped or stripped.startswith("//"):
+            k -= 1
+            continue
+        if stripped == "@Composable" or stripped.startswith("@Composable("):
+            return True
+        if stripped.startswith("@"):
+            k -= 1
+            continue
+        return False
+    return False
+
+
+def content_contract_offenders(files: list[str]) -> list[str]:
+    offenders: list[str] = []
+    for p in files:
+        lines = open(p, encoding="utf-8", errors="replace").read().splitlines()
+        for i, line in enumerate(lines):
+            m = CONTENT_PARAM.match(line)
+            if not m:
+                continue
+            name, typ = m.group(1), m.group(2)
+            if "@Composable" in typ or LAZY_SCOPE.search(typ):
+                continue
+            if _enclosing_owner(lines, i) != "fun":
+                continue
+            if not _is_composable_fun(lines, i):
+                continue
+            offenders.append(
+                f"{rel(p)}:{i + 1}: '{name}: {typ.strip()}' — مكوّن قابل للرسم بمحتوى بلا @Composable"
+            )
+    return offenders
 
 
 # كتابة العتاد من طبقة العرض (ADR-11).

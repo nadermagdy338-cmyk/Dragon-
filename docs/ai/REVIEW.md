@@ -107,9 +107,11 @@ git diff --check                                                 # بلا مخر
 ### 3.1 Verifier — صحّة الروابط والموارد
 
 - **يقرأ**: `tools/code_health.py` (قسم الصحّة)، `VALIDATION.md` §2 §3 §5.
-- **يحكم على**: `package_mismatch` · `unresolved_resource` · `duplicate_string_key` · `stray_root_file` — الأربعة أصفار.
+- **يحكم على**: `package_mismatch` · `unresolved_resource` · `duplicate_string_key` · `stray_root_file` · `noncomposable_content_lambda` — الخمسة أصفار.
 - **يرفض إذا**: وُجد `R.string.x` بلا مفتاح، أو ملف Kotlin لا تطابق حزمته مساره، أو حزمة قديمة
-  (مثل `nd.max.ui.components`) لا يزال أحد يستوردها.
+  (مثل `nd.max.ui.components`) لا يزال أحد يستوردها، أو مكوّن قابل للرسم يقبل محتواه بلا
+  `@Composable` (`content: ColumnScope.() -> Unit`) — وهذا الأخير لا يُفسد ملفه وحده بل **كل**
+  موضع نداء له، فتظهر أخطاؤه على أسطر ملف آخر (عطب CI حقيقي في تكملة ٨٨).
 - **حدّ لا يتجاوزه**: لا يعدّل كود المنتج. يكتب تقريرًا واختبارًا فقط.
 
 ### 3.2 Safety Reviewer — ما يلمس العتاد والامتيازات
