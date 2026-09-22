@@ -128,6 +128,8 @@ class StoryboardModelTest {
         assertEquals("performance", StoryboardModel.readableValue("performance"))
         assertEquals("on", StoryboardModel.readableValue("on"))
         assertEquals("300 MHz \u2192 1.80 GHz", StoryboardModel.readableRange(300_000L, 1_800_000L))
+        assertEquals("1.30 GHz–2.60 GHz", StoryboardModel.readableValue("1300000:2600000"))
+        assertEquals("1.00 GHz–2.20 GHz", StoryboardModel.readableValue("1000000:2200000"))
     }
 
     @Test

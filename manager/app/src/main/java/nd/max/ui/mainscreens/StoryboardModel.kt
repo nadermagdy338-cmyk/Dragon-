@@ -83,6 +83,7 @@ data class StoryboardScene(
     val kind: SceneKind,
     val labelKey: String,
     val appLabel: String?,
+    val packageName: String? = null,
     val lines: List<StoryLine>,
     val atMs: Long?,
 )
@@ -208,6 +209,7 @@ object StoryboardModel {
             kind = SceneKind.PER_APP,
             labelKey = "scene.per_app",
             appLabel = input.appLabel.ifBlank { input.packageName },
+            packageName = input.packageName.takeIf { it.isNotBlank() },
             lines = ordered.take(MAX_LINES_PER_SCENE),
             atMs = input.measuredAtMs,
         )
@@ -332,10 +334,24 @@ object StoryboardModel {
      */
     fun readableValue(raw: String): String {
         val value = raw.trim()
-        if (value.isEmpty() || !value.all(Char::isDigit)) return raw
+        if (value.isEmpty()) return raw
+
+        // Kernel CPU policy values often arrive as `min:max`. Convert each endpoint
+        // instead of leaking the raw kHz/Hz payload into the home card.
+        if (value.contains(':')) {
+            val parts = value.split(':')
+            if (parts.size == 2 && parts.all { it.trim().all(Char::isDigit) }) {
+                val left = readableValue(parts[0].trim())
+                val right = readableValue(parts[1].trim())
+                return "$left–$right"
+            }
+        }
+
+        if (!value.all(Char::isDigit)) return raw
+        val number = value.toLongOrNull() ?: return raw
         val mhz = when (value.length) {
-            in 9..12 -> value.toLong() / 1_000_000L      // هرتز ⇒ ميجاهرتز
-            in 5..7 -> value.toLong() / 1_000L           // كيلوهرتز ⇒ ميجاهرتز
+            in 9..12 -> number / 1_000_000L      // Hz → MHz
+            in 5..7 -> number / 1_000L           // kHz → MHz
             else -> return raw
         }
         return when {

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ErrorOutline
@@ -30,13 +31,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -49,6 +55,7 @@ import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.OwnershipCommitState
 import nd.max.ui.component.NeuralPalette
 import nd.max.ui.component.NeuralPanel
+import nd.max.ui.component.AppIconCache
 import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.util.ActivityCardPreferences
@@ -210,33 +217,81 @@ private fun SceneBody(
  */
 @Composable
 private fun SceneHeading(scene: StoryboardScene, palette: NeuralPalette) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            Modifier.size(8.dp).clip(CircleShape).background(palette.ok),
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = stringResource(sceneLabelRes(scene.kind)),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = palette.text,
-        )
-        scene.appLabel?.let {
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodySmall,
-                color = palette.muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val iconSize = with(density) { 38.dp.roundToPx() }
+    var appIcon by remember(scene.packageName) { mutableStateOf<ImageBitmap?>(null) }
+
+    LaunchedEffect(scene.packageName, iconSize) {
+        val pkg = scene.packageName ?: return@LaunchedEffect
+        runCatching {
+            val appInfo = context.packageManager.getApplicationInfo(pkg, 0)
+            appIcon = AppIconCache.loadIcon(context.packageManager, appInfo, iconSize)
+        }
+    }
+
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        if (scene.kind == SceneKind.PER_APP && appIcon != null) {
+            Image(
+                bitmap = appIcon!!,
+                contentDescription = scene.appLabel,
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(RoundedCornerShape(11.dp)),
+            )
+        } else {
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(palette.ok),
             )
         }
-        scene.atMs?.takeIf { it > 0L }?.let { atMs ->
-            Spacer(Modifier.weight(1f))
+        Spacer(Modifier.width(9.dp))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(sceneLabelRes(scene.kind)),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = palette.muted,
+                )
+                scene.atMs?.takeIf { it > 0L }?.let { atMs ->
+                    Spacer(Modifier.width(7.dp))
+                    Text(
+                        text = stringResource(R.string.storyboard_measured_ago, relativeAge(atMs)),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = palette.muted,
+                    )
+                }
+            }
+            scene.appLabel?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = palette.text,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        if (scene.kind == SceneKind.PER_APP) {
+            val failed = scene.lines.count { it.tone == LineTone.FAILED }
+            val applied = scene.lines.count { it.tone == LineTone.DONE }
+            val accent = when {
+                failed > 0 -> MaterialTheme.colorScheme.error
+                applied > 0 -> palette.ok
+                else -> palette.muted
+            }
             Text(
-                text = stringResource(R.string.storyboard_measured_ago, relativeAge(atMs)),
+                text = when {
+                    failed > 0 -> "LIMITED"
+                    applied > 0 -> "ACTIVE"
+                    else -> "IDLE"
+                },
                 style = MaterialTheme.typography.labelSmall,
-                color = palette.muted,
+                fontWeight = FontWeight.Bold,
+                color = accent,
             )
         }
     }

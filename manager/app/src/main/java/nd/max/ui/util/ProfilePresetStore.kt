@@ -13,32 +13,11 @@ object ProfilePresetStore {
     private const val PERFORMANCE = "performance"
     private const val CUSTOM = "custom"
 
-    private const val DEFAULT_POWER = 40
-    private const val DEFAULT_BALANCED = 60
-
-    /**
-     * نسب البروفايلات الافتراضية: Gaming 85%، Balanced 60%، Power 40%.
-     * تُحسب من القدرة المكتشفة، ثم يظل التحقق الفعلي هو المرجع إذا فرض النظام سقفًا أقل.
-     * Performance وحده يظل وضع القدرة الكاملة بنسبة 100%.
-     */
+    private const val DEFAULT_POWER = 65
+    private const val DEFAULT_BALANCED = 70
     private const val DEFAULT_GAMING = 85
-
     private const val DEFAULT_PERFORMANCE = 100
     private const val DEFAULT_CUSTOM = 55
-    private const val LEGACY_POWER_SEED = 65
-    private const val LEGACY_BALANCED_SEED = 70
-
-    /**
-     * هجرة البذور القديمة — لـ`power` و`balanced` وحدهما، **وليس لـ`gaming`**: المتخزّن في
-     * `gaming` اختيارُ صاحبه (٨٥ ثابت افتراضي للتركيب الجديد)، ورفعُ ما اختاره بيده تغييرُ نيّة
-     * لا تصحيح بذرة. والبذرتان المهاجَرتان كانتا أعلى من غرض بروفايلهما المعلن (Power للتبريد).
-     *
-     * ولماذا لزم هذا: القيمة تُقرأ من تخزين المستخدم لا من الثابت، فجهاز فتح المحرّر مرّة واحدة
-     * (أو أعاد الإعدادات) يحمل ٨٥ محفوظة، ولو غيّرنا الثابت وحده لقرأ غيرنا… ولم يتغيّر شيء على جهازه.
-     * ويُعامل «القيمة تساوي البذرة» كما يُعامل في `ProfileSharing`: مشتقّة من البذرة لا مضبوطة بيد
-     * (فهي تحسم المصدر بنفس المقارنة). ومن ضبط ٨٥ بنفسه فقد صارت هي القيمة الجديدة ١٠٠ له — وهي
-     * الحالة التي رُفضت أصلًا، فلا معنى للإبقاء عليها في أي جهاز.
-     */
 
     @Volatile
     private var packageContext: Context? = null
@@ -70,15 +49,7 @@ object ProfilePresetStore {
     fun percentFor(context: Context?, profile: String): Int {
         if (context == null) return defaultPercent(profile)
         return runCatching {
-            val stored = prefs(context).getInt(profile.lowercase(), defaultPercent(profile))
-            // Migrate the previous built-in seeds so an existing installation does
-            // not silently keep Power 65% or Balanced 70% after the policy change.
-            val migrated = when (profile.lowercase()) {
-                POWER if stored == LEGACY_POWER_SEED -> DEFAULT_POWER
-                BALANCED if stored == LEGACY_BALANCED_SEED -> DEFAULT_BALANCED
-                else -> stored
-            }
-            migrated.coerceIn(20, 100)
+            prefs(context).getInt(profile.lowercase(), defaultPercent(profile)).coerceIn(20, 100)
         }.getOrDefault(defaultPercent(profile))
     }
 

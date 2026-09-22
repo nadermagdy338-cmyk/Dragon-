@@ -3,6 +3,7 @@ package nd.max.ui.mainscreens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,13 +34,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.max
 import nd.max.R
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
@@ -57,6 +63,7 @@ import nd.max.ui.theme.MonoValueStyleSmall
 import nd.max.ui.viewmodel.DashboardState
 import nd.max.ui.viewmodel.HomeUiState
 import nd.max.ui.viewmodel.primaryBatteryTemperatureC
+import nd.max.ui.util.LoadSample
 import kotlin.math.roundToInt
 
 /**
@@ -111,13 +118,18 @@ internal fun LegendaryHomeDashboard(
     val online = ui.rootStatus && ui.moduleInstalled
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         HomeHeader(online, onSettings, onReboot)
-        // بطاقة نشاط واحدة: تحكي الأثر المؤكد فقط، وتترك القياسات لشاشاتها المالكة.
-        UnifiedActivityCard(maxAi = maxAi)
         PulsePanel(
             deviceName = deviceName,
             dashboard = dashboard,
             onOverview = { onNavigate(MaxDestination.Diagnostics.route) }
         )
+        HardwarePulseCards(
+            dashboard = dashboard,
+            onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
+            onGpu = { onNavigate(MaxDestination.GpuStudio.route) }
+        )
+        // بطاقة نشاط واحدة: تحكي الأثر المؤكد فقط، وتترك القياسات لشاشاتها المالكة.
+        UnifiedActivityCard(maxAi = maxAi)
         FocusCard(dashboard, onNavigate)
         VerdictPanel(
             dashboard = dashboard,
@@ -193,6 +205,201 @@ private fun HeaderButton(icon: ImageVector, description: String, onClick: () -> 
  * beat a dial here: they share one baseline, so three values are comparable at a
  * glance and every label has room to breathe in either writing direction.
  */
+/**
+ * CPU/GPU live hardware pair for the home screen.
+ *
+ * The card intentionally shows load as the headline and the *actual current clock*
+ * underneath it. The sparkline is frequency history, not load history, so a user can
+ * immediately see clock stepping/boost behavior instead of getting a second copy of
+ * the same percentage graph.
+ */
+@Composable
+private fun HardwarePulseCards(
+    dashboard: DashboardState,
+    onCpu: () -> Unit,
+    onGpu: () -> Unit
+) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        FrequencyMetricCard(
+            title = "GPU",
+            percent = dashboard.gpuLoadPercent,
+            frequencyMhz = dashboard.gpuFreqMhz,
+            ceilingMhz = dashboard.gpuCeilingMhz,
+            samples = dashboard.loadSamples,
+            isGpu = true,
+            accent = neuralPalette().accentAlt,
+            onClick = onGpu,
+            modifier = Modifier.weight(1f)
+        )
+        FrequencyMetricCard(
+            title = "CPU",
+            percent = dashboard.cpuLoadPercent,
+            frequencyMhz = dashboard.cpuTopCoreMhz.takeIf { it > 0 },
+            ceilingMhz = dashboard.cpuCeilingMhz.takeIf { it > 0 },
+            samples = dashboard.loadSamples,
+            isGpu = false,
+            accent = neuralPalette().accent,
+            onClick = onCpu,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun FrequencyMetricCard(
+    title: String,
+    percent: Int?,
+    frequencyMhz: Int?,
+    ceilingMhz: Int?,
+    samples: List<LoadSample>,
+    isGpu: Boolean,
+    accent: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val p = neuralPalette()
+    val current = frequencyMhz?.takeIf { it > 0 }
+    val history = samples.mapNotNull { sample ->
+        val value = if (isGpu) sample.gpuMhz else sample.cpuMhz
+        value?.takeIf { it > 0 }?.toFloat()
+    }
+    val graphCeiling = max(
+        ceilingMhz?.takeIf { it > 0 }?.toFloat() ?: 0f,
+        max(current?.toFloat() ?: 0f, history.maxOrNull() ?: 0f)
+    )
+    val graph = if (graphCeiling > 0f) {
+        samples.mapNotNull { sample ->
+            val value = if (isGpu) sample.gpuMhz else sample.cpuMhz
+            value?.takeIf { it > 0 }?.toFloat()?.div(graphCeiling)
+        }.takeLast(36)
+    } else emptyList()
+
+    Column(
+        modifier
+            .clip(RoundedCornerShape(22.dp))
+            .background(p.tile.copy(alpha = .92f))
+            .border(BorderStroke(1.dp, accent.copy(alpha = .26f)), RoundedCornerShape(22.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier.size(7.dp).clip(RoundedCornerShape(50)).background(accent)
+                )
+                Spacer(Modifier.width(7.dp))
+                Text(
+                    title,
+                    color = p.muted,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+            Text(
+                "${percent?.coerceIn(0, 100) ?: 0}%",
+                color = p.text,
+                fontSize = 25.sp,
+                lineHeight = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Text(
+            formatHardwareFrequency(current),
+            color = p.muted,
+            fontSize = 12.sp,
+            lineHeight = 16.sp
+        )
+
+        FrequencySparkline(
+            samples = graph,
+            accent = accent,
+            modifier = Modifier.fillMaxWidth().height(48.dp)
+        )
+    }
+}
+
+private fun formatHardwareFrequency(mhz: Int?): String {
+    val value = mhz?.takeIf { it > 0 } ?: return "—"
+    return if (value >= 1000) {
+        val ghz = value / 1000f
+        if (ghz >= 10f) "${ghz.toInt()} GHz"
+        else "${"%.1f".format(java.util.Locale.US, ghz)} GHz"
+    } else "$value MHz"
+}
+
+@Composable
+private fun FrequencySparkline(
+    samples: List<Float>,
+    accent: Color,
+    modifier: Modifier = Modifier
+) {
+    val grid = neuralPalette().muted.copy(alpha = .07f)
+    Canvas(modifier) {
+        if (samples.size < 2) return@Canvas
+        val w = size.width
+        val h = size.height
+        val top = 5f
+        val bottom = h - 5f
+        val usable = (bottom - top).coerceAtLeast(1f)
+        val step = w / (samples.size - 1).toFloat()
+        val points = samples.mapIndexed { index, value ->
+            Offset(step * index, top + usable * (1f - value.coerceIn(0f, 1f)))
+        }
+
+        drawLine(grid, Offset(0f, top), Offset(w, top), 1f)
+        drawLine(grid, Offset(0f, h / 2f), Offset(w, h / 2f), 1f)
+        drawLine(grid, Offset(0f, bottom), Offset(w, bottom), 1f)
+
+        val path = androidx.compose.ui.graphics.Path().apply {
+            moveTo(points.first().x, points.first().y)
+            for (i in 0 until points.lastIndex) {
+                val a = points[i]
+                val b = points[i + 1]
+                quadraticTo(a.x, a.y, (a.x + b.x) / 2f, (a.y + b.y) / 2f)
+            }
+            lineTo(points.last().x, points.last().y)
+        }
+        val fill = androidx.compose.ui.graphics.Path().apply {
+            addPath(path)
+            lineTo(points.last().x, bottom)
+            lineTo(points.first().x, bottom)
+            close()
+        }
+        drawPath(
+            fill,
+            brush = Brush.verticalGradient(
+                listOf(accent.copy(alpha = .20f), accent.copy(alpha = .015f)),
+                startY = top,
+                endY = bottom
+            )
+        )
+        drawPath(
+            path,
+            color = accent.copy(alpha = .14f),
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 7.dp.toPx())
+        )
+        drawPath(
+            path,
+            color = accent,
+            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                width = 2.2.dp.toPx(),
+                cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                join = androidx.compose.ui.graphics.StrokeJoin.Round
+            )
+        )
+        drawCircle(accent, radius = 3.dp.toPx(), center = points.last())
+    }
+}
+
 @Composable
 private fun PulsePanel(
     deviceName: String,
