@@ -6622,3 +6622,58 @@ NeuralDashboardKit.kt:188:19 Argument type mismatch:
 - `libmaxmanager_native.so` **غائب محليًّا** لأن `cargo` غير موجود هنا (يُبنى في CI)، فلا معنى لغيابه من الحزمة هنا.
 - **JDK 21** هنا والـCI على **17** (17 غير مثبَّت في هذه البيئة) — وفحص أدوات JDK 21+ في الشجرة أعطى لا شيء.
 - وبوابة سرعة البناء الفعلية تبقى على تشغيل CI أخضر كامل: زمن خطوة Gradle.
+
+## تكملة ٩٢ — بناء كامل للنسختين + **إهمال Gradle 10** كان قائمًا ولا أحد رآه (2026-09-22)
+
+الطلب: «اكمل بناء كامل لنكتشف كل المشاكل ونحلها». فالمنهج: أوسع تغطية ممكنة (نسختا الاختبار **والتغليف**)
+لا مهمة واحدة، ثم جرد كل تحذير وحكم عليه بالقياس.
+
+### ما شُغّل فعلًا ونتيجته
+
+| التشغيل | النتيجة |
+| --- | --- |
+| **بارد** `testReleaseUnitTest` + `testDebugUnitTest` (بلا مخزن) | **١٦٢ مهمة · ١٦٢ منفَّذة** · `BUILD SUCCESSFUL in 6m 2s` |
+| نتائج `testReleaseUnitTest` | **١٣٩٣** في ١٣٤ صنفًا · فشل ٠ · أخطاء ٠ · متخطّى ٠ |
+| نتائج `testDebugUnitTest` | **١٣٩٣** في ١٣٤ صنفًا · فشل ٠ · أخطاء ٠ · متخطّى ٠ |
+| `:app:minifyReleaseWithR8` | ✓ `BUILD SUCCESSFUL in 6m 12s` (١٢ منفَّذة · ٧٦ محدَّثة) وخريطة R8 كاملة |
+| `:app:assembleDebug` | ✓ `BUILD SUCCESSFUL in 2m 53s` · APK = **١١٤٫٩ م.ب** · `sha256=82a1ee1b…` |
+
+### العطب الحقيقي: إهمال يُعطّل الترقية إلى Gradle 10
+
+`manager/terminal-emulator/build.gradle` و`manager/terminal-view/build.gradle` كانتا تستعملان **الاستدعاء بالفراغ**
+(`namespace 'x'` · `compileSdk 36` · `minSdk 24` · `targetSdk 36` · `minifyEnabled false` ·
+`sourceCompatibility JavaVersion.VERSION_17`) — وهي البنية التي **قال Gradle نفسه إنها «ستُزال في Gradle 10»**
+وهي التي كانت تطبع في كل تشغيل CI: «Deprecated Gradle features were used in this build, making it
+incompatible with Gradle 10.1». أُصلحت إلى الإسناد (`= `).
+
+**والقياس قبل/بعد صريح** (والسجل البارد كان يطبع التفصيل لا السطر الموجز، فلذلك قيس العدد بالتفصيل):
+
+| القياس | قبل | بعد |
+| --- | --- | --- |
+| تفصيل الإهمال في السجل البارد (`Properties should be assigned… propName = value`) | **٢** | — |
+| `./gradlew help --warning-mode all` (تهيئة كاملة) | — | **٠** سطر إهمال |
+| حقول الإهمال في تشغيلَي R8 وAPK | — | **٠** |
+| `package=` في `AndroidManifest` المُدمج للمكتبتين | `com.termux.terminal` · `com.termux.view` | **هما بعينهما** (لا تغيّر مُخرَج) |
+
+وبقيت كل ملفات `.gradle` في المستودع مفحوصة: **لا استدعاء بالفراغ باقٍ** (`find` + نمط على عشر خصائص).
+
+### جرد التحذيرات: ١٤٢ سطرًا = ٧١ فريدة (لأن النسختين تُصرَّفان)
+
+| الصنف | العدد الفريد | الحكم |
+| --- | --- | --- |
+| `@StringRes`/`@ApplicationContext` على بارامتر بناء: «in the future it will also be applied to field» | **٢٢** | **لا يُلمَس**: لا إهمال ولا عطب — إعلان عن سلوك مستقبلي للمترجم. وتغييره يعني تحريك ٢٢ ملفًا لصفر فائدة (ADR-18) |
+| `Unnecessary non-null assertion (!!)` + `Unnecessary safe call` | **١٥** | **لا يُلمَس**: المترجم يثبت أن المستقبِل غير فارغ، فـ`!!`/`?.` بلا أثر. و١٥ منها في `kernel-flasher` **موروثة من capntrips** فتحريفها يزيد الانحراف عن المصدر |
+| `Java type mismatch: inferred type is 'Nothing?', but 'String' was expected` في `ConfigBackupInventory.kt:295` و`ProfileSharing.kt:235` | **٢** | **يُشرح لا يُصلَح**: هي `optString("v", null)` — البديل المعلَن لتمييز **الغائب** عن **الفارغ** (`""` قيمة نصية مشروعة)، و`?: return null` يُنفِّذ الرفض في محلّه. تغييره يغيّر سلوك مُدقِّق رفضٍ أمنيّ لأجل صفر |
+| `Condition is always 'true'` في `GpuHardwareBackend.kt:621` | **١** | **ليس عطبًا بل إثبات**: `heldIndex` مشتقّ من `lockPath`، فالمترجم يثبت أن `heldIndex != null ⇒ lockPath != null`؛ والشرط الثالث زائد لا خاطئ. وملف `core/hardware` يُلمس بقرار لا لأجل زخرفة |
+
+⇒ فلا عطب كامن في التحذيرات: كلها إمّا إعلان سلوك مستقبلي، أو زائد يثبته المترجم، أو أسلوب مقصود في رفض آمن.
+
+### حدود هذه الجولة
+
+- **التوقيع لم يُنفَّذ** (لا `KS_PWD`)، و`:app:lintVitalRelease` مستثنى عمدًا كما في CI.
+- `libmaxmanager_native.so` **غائب محليًّا** (لا `cargo` هنا)، والـAPK يظهر بست مكتبات كلها `arm64-v8a` وصفر مدخل ٣٢-بت.
+- **درس بيئي يُسجَّل**: البناء المُطلَق في خلفية الصدفة (`nohup … &`) **يُقتل مع الجلسة** في هذه البيئة
+  (قيس مرتين: توقّف السجل ولا عملية `java` بعدها) ⇒ البناء هنا **في المقدّمة** أو مقسّمًا على دورات، لا مُخلَّفًا.
+
+**التحقق:** `kt_balance ٧٧٣·٠` ✅ · `code_health صحّة ٠` ✅ · `i18n ٨٥·٠` ✅ · `repo_audit ٠` ✅ ·
+`unzip` على الـAPK: ٦ مكتبات `arm64-v8a` · ٠ مدخل ٣٢-بت ✅ · `--warning-mode all`: ٠ إهمال ✅.

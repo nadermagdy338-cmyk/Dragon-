@@ -3,19 +3,20 @@ plugins {
 }
 
 android {
-    namespace 'com.termux.terminal'
-    compileSdk 36
+    // كتابة الإسناد (`=`) لا الاستدعاء بالفراغ: الأخير مهمَل و«سيُزال في Gradle 10».
+    namespace = 'com.termux.terminal'
+    compileSdk = 36
 
     defaultConfig {
-        minSdk 24
-        targetSdk 36
+        minSdk = 24
+        targetSdk = 36
         // HAPUS externalNativeBuild di sini
         // HAPUS ndk { abiFilters ... } di sini
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -23,8 +24,8 @@ android {
     // HAPUS externalNativeBuild { ndkBuild ... } di sini juga!
     
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
