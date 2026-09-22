@@ -73,6 +73,31 @@ object PerAppKernelUtil {
      * previously produced an unexpectedly high value on Rodin (~780 MHz while
      * its normal maximum is ~752 MHz).
      */
+    /**
+     * Returns whether a per-app GPU request is asking for the device's full advertised capability.
+     *
+     * A named profile reaches full capability only at 100%. Lower profiles intentionally stay
+     * bounded by the live vendor ceiling. A direct frequency selection reaches full capability
+     * only when it explicitly selects the highest advertised OPP.
+     */
+    fun isFullCapabilityRequest(
+        explicitHz: Long?,
+        advertisedMaxHz: Long?,
+        profilePercent: Int,
+    ): Boolean =
+        explicitHz?.let { explicit ->
+            advertisedMaxHz != null && explicit >= advertisedMaxHz
+        } ?: (profilePercent >= 100)
+
+    /**
+     * Returns the explicit GPU ceiling only when no named profile owns the same control.
+     *
+     * The UI contract is one owner: selecting a profile clears the explicit frequency. This
+     * runtime guard also heals stale/imported configurations where both survived on disk.
+     */
+    fun effectiveExplicitGpuCeiling(profile: String, explicitHz: Long?): Long? =
+        explicitHz?.takeIf { profile.isBlank() || profile == "default" }
+
     fun pickProfileFrequency(
         frequencies: List<Long>,
         profile: String,

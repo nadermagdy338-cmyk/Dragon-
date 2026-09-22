@@ -427,6 +427,39 @@ jobs:
       #
       # والحاجز في هذا الأمر هو: البوابات السريعة أعلاه + مُصرّف + اختبارات عقد.
       # ومن أراد الفحص الفتّاك فـ`./gradlew :app:lintVitalRelease` يدويًّا قبل الإصدار.
+
+      # ── مفتاح التوقيع: موجود على كل جهاز مطوّر، وغائب عن المستودع ──
+      #
+      # `app/build.gradle.kts` يقرأ `KS_PWD` من السرّ ✓، لكنه يشير أيضًا إلى الملفّ
+      # `manager/app/azenith.jks`. وهذا الملفّ **ليس في `HEAD`** في هذه الشجرة ولا خطوة في
+      # هذا الملفّ تكتبه ⇒ نسخة release تسقط عند `:app:validateSigningRelease`
+      # («Keystore file not found») **بعد** أن تنجح الاختبارات. وهو أصدق ما كشفه أوّل تشغيل
+      # كامل محليًّا (تكملة ٨٧) — لا تخمينًا.
+      #
+      # والخطوة **لا تكتب شيئًا إن كان الملفّ في الشجرة** (أي إن كان مُتتبَّعًا في مستودعك):
+      # فهي شبكة أمان لا تستبدل شيئًا. وإن غاب ولم يُضبط `KEYSTORE_B64` تُنذر وتكمل — فيبقى
+      # السلوك كما هو (فشل واضح عند التوقيع) بدل فشل غامض لاحقًا.
+      - name: Restore release keystore (only if the repository does not carry it)
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          if [ -f manager/app/azenith.jks ]; then
+            echo "✅ keystore present in the workspace — nothing to restore."
+            exit 0
+          fi
+          if [ -z "${KEYSTORE_B64:-}" ]; then
+            echo "::warning::manager/app/azenith.jks is missing and KEYSTORE_B64 is not set, so release signing will fail."
+            exit 0
+          fi
+          printf '%s' "$KEYSTORE_B64" | base64 -d > manager/app/azenith.jks
+          size="$(wc -c < manager/app/azenith.jks)"
+          if [ "$size" -lt 100 ]; then
+            echo "::error::decoded keystore looks empty ($size bytes) — check the KEYSTORE_B64 secret."
+            exit 1
+          fi
+          echo "✅ release keystore restored from KEYSTORE_B64 ($size bytes)."
+
       - name: Build + test (contract gate)
         working-directory: ./manager
         run: |
@@ -449,20 +482,18 @@ jobs:
           # gradle.properties disables that optimization so testReleaseUnitTest exists.
           # الاختبارات تُشغَّل على نفس النسخة التي يُبنى منها الـ APK:
           # testReleaseUnitTest + assembleRelease يتقاسمان ترجمة واحدة.
-          # ── ثلاثة مفاتيح قياس، بلا مسّ بالمخرَج ──
+          # ── مفتاح القياس، بلا مسّ بالمخرَج ──
           #
-          # • `kotlin.compiler.execution.strategy=daemon`: `manager/gradle.properties` يفرض
-          #   `in-process` (قرار AndroidIDE: جافا واحدة على الجهاز) وCI يرثه — وهو **أبطأ** بحكم
-          #   توثيق Kotlin نفسها: «Kotlin daemon: الافتراضية **والأسرع**… تُشارَك بين عمليات بناء
-          #   متعدّدة **وبين تصريفات متوازية**». والسقوط مضمون: إن تعذّر الاتصال بالمُشغّل رجع المصرّف
-          #   إلى `in-process` بتحذير (Compiler execution strategy §Fallback) — فلا انحدار جامد.
-          # • `kotlin.daemon.jvmargs=-Xmx4g`: يحدّ ذاكرة المُشغّل فلا يقاسم مقياس Gradle كاملًا.
-          # • `kotlin.build.report.output=file`: يقيس كل مهمة تصريف على حدة **ويقول لماذا لم تكن
-          #   تزايدية** — وهو سؤال «من أين ١٦ دقيقة؟»؛ ويُطبع في الخطوة التالية.
+          # `kotlin.build.report.output=file`: يقيس كل مهمة تصريف على حدة **ويقول لماذا لم تكن
+          # تزايدية** — وهو جواب سؤال «من أين ١٦ دقيقة؟»؛ ويُطبع في الخطوة التالية.
+          #
+          # ⚠️ **ولا يُضاف `kotlin.compiler.execution.strategy=daemon` هنا — جُرِّب وقِيس.**
+          # توثيق Kotlin يقول إن daemon «الأسرع»، لكن القياس المحلّي على الوحدة الكبرى
+          # (`:app:compileReleaseKotlin`، بارد، بلا مخزن بناء، ٤ أنوية) أعطى: daemon **92.3** ث ·
+          # in-process **93.9** ث (بـ`-Xmx6g` كما في CI) · in-process **95.1** ث ⇒ الفرق داخل
+          # ضجيج التشغيل. فبقي المشروع على `in-process` (قرار AndroidIDE) بلا مفتاح زائد.
           ./gradlew \
             -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
-            -Pkotlin.compiler.execution.strategy=daemon \
-            -Pkotlin.daemon.jvmargs=-Xmx4g \
             -Pkotlin.build.report.output=file \
             ":app:test${variant}UnitTest" \
             ":app:assemble${variant}" \

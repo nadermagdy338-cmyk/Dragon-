@@ -1547,7 +1547,14 @@ object AppMonitor {
             // "default" تعني **لا شيء يُنفَّذ**، وهي تختلف عن "لم نستطع": الأولى نتيجة
             // مقصودة تُسجَّل `skipped`، والثانية فشل يحمل سببه. وخلطهما هو ما يجعل الواجهة
             // تقول «فشل» لقيمة لم تُطلب أصلًا.
-            val explicit = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
+            val rawExplicit = readAppConfigField(pkgName, "gpu_max_freq").toLongOrNull()
+            val explicit = PerAppKernelUtil.effectiveExplicitGpuCeiling(profile, rawExplicit)
+            if (rawExplicit != null && rawExplicit != explicit) {
+                AppMonitorLogger.w(
+                    "EVENT=PERAPP_GPU_STALE_EXPLICIT_IGNORED pkg=$pkgName profile=$profile" +
+                        " explicit=$rawExplicit reason=profile-owns-gpu-ceiling sw=$currentSwitchId"
+                )
+            }
             if (explicit == null && (profile.isBlank() || profile == "default")) {
                 noteHardware("gpu_profile", Outcome.SKIPPED, "profile-is-default")
                 return@runCatching
@@ -1599,23 +1606,19 @@ object AppMonitor {
             // تُحسب من قدرة الجهاز المكتشفة، لا من سقف Balanced الحي. يسمح ذلك بأن
             // يبقى معنى النسبة ثابتًا حتى لو غيّر النظام سقفه قبل وصول التطبيق للمقدمة.
             val advertisedMaxHz = liveAtPlan.frequencies.filter { it > 0L }.maxOrNull()
-            // «قدرة الجهاز» ليست حكرًا على البروفايلات: من اختار صراحةً أعلى درجة مُعلنة في
-            // القائمة فقد طلب القدرة أيضًا — والفرق بينهما كان يُنزله إلى السقف الحيّ (٧٥٤) فيقرأ
-            // طلبه ٧٥٤ ويُقال له «نُفِّذ». والاختيار الأقل من القدرة يبقى طلب تبريد يُقيَّد بالسقف.
-            val fullCapabilityRequest = explicit == null ||
-                (advertisedMaxHz != null && explicit >= advertisedMaxHz)
-            // ── وإعداد يحمل الاختيارين معًا لا يُحكَم عليه صامتًا ────────────────────────────
+            // «قدرة الجهاز» لا تعني «أي بروفايل بلا تردد صريح»: بروفايل 100% وحده
+            // يطلب القدرة الكاملة. أما Power/Balanced/Gaming/Custom فتظل نسب تبريد
+            // مقيدة بالسقف الحي. والاختيار الصريح لا يطلب القدرة إلا إذا بلغ أعلى OPP مُعلن.
+            val fullCapabilityRequest = PerAppKernelUtil.isFullCapabilityRequest(
+                explicitHz = explicit,
+                advertisedMaxHz = advertisedMaxHz,
+                profilePercent = presetPercent,
+            )
+            // ── إن احتوى إعداد قديم على الاثنين معًا ───────────────────────────────────────
             //
-            // صار في الشاشة مالك واحد للمقبض (اختيار البروفايل يُفرغ التردد الصريح والعكس)، فاجتماعهما
-            // لا يأتي من الواجهة — يأتي من إعداد قديم كُتب قبل الإصلاح، أو من ملف مُستورد. وحكمُه
-            // الصريح أولى من حكم صامت: التردد الصريح هو ما يُنفَّذ (قيمة يراها المستخدم في الشاشة
-            // أيضًا)، ويُقال ذلك في السجل بدل أن يبدو «الأداء» بلا أثر.
-            if (explicit != null && profile.isNotBlank() && profile != "default") {
-                AppMonitorLogger.w(
-                    "EVENT=PERAPP_GPU_EXPLICIT_OVERRIDES_PROFILE pkg=$pkgName profile=$profile" +
-                        " explicit=$explicit reason=explicit-frequency-wins-over-profile sw=$currentSwitchId"
-                )
-            }
+            // الواجهة تملك المقبض في جهة واحدة فقط (البروفايل أو التردد الصريح). وإذا بقي تردد
+            // صريح من إعداد قديم/مستورد، فاختيار البروفايل هو النيّة الظاهرة الآن، لذلك يُتجاهل
+            // الرقم القديم وتُسجّل الواقعة بدل أن يتحول Performance إلى 650 بصمت.
             val requested = explicit ?: PerAppKernelUtil.pickProfileFrequency(
                 liveAtPlan.frequencies,
                 profile,

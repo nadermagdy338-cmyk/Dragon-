@@ -1,6 +1,8 @@
 package nd.max.ui.util
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -36,6 +38,65 @@ class GpuCeilingChoiceTest {
         // والعطب الآخر في الحالة نفسها: «متوازن يعطي ١٣٠٠ أحيانًا و٦٥٠ أحيانًا» — بحسب ما في إعداد
         // كل تطبيق من قيمة صريحة. فبعد الاختيار لم يبقَ للتطبيق إلا ما اختاره المستخدم.
         assertEquals(1, chosen.customizedFieldCount())
+    }
+
+    @Test
+    fun `a named profile ignores a stale explicit GPU ceiling`() {
+        assertEquals(
+            null,
+            PerAppKernelUtil.effectiveExplicitGpuCeiling("performance", 650_000_000L),
+        )
+        assertEquals(
+            null,
+            PerAppKernelUtil.effectiveExplicitGpuCeiling("balanced", 650_000_000L),
+        )
+        assertEquals(
+            650_000_000L,
+            PerAppKernelUtil.effectiveExplicitGpuCeiling("default", 650_000_000L),
+        )
+        assertEquals(
+            null,
+            PerAppKernelUtil.effectiveExplicitGpuCeiling("", null),
+        )
+    }
+
+    @Test
+    fun `only 100 percent or an explicit top OPP requests full capability`() {
+        assertTrue(
+            PerAppKernelUtil.isFullCapabilityRequest(
+                explicitHz = null,
+                advertisedMaxHz = 1_300_000_000L,
+                profilePercent = 100,
+            )
+        )
+        assertFalse(
+            PerAppKernelUtil.isFullCapabilityRequest(
+                explicitHz = null,
+                advertisedMaxHz = 1_300_000_000L,
+                profilePercent = 60,
+            )
+        )
+        assertFalse(
+            PerAppKernelUtil.isFullCapabilityRequest(
+                explicitHz = null,
+                advertisedMaxHz = 1_300_000_000L,
+                profilePercent = 40,
+            )
+        )
+        assertTrue(
+            PerAppKernelUtil.isFullCapabilityRequest(
+                explicitHz = 1_300_000_000L,
+                advertisedMaxHz = 1_300_000_000L,
+                profilePercent = 60,
+            )
+        )
+        assertFalse(
+            PerAppKernelUtil.isFullCapabilityRequest(
+                explicitHz = 754_000_000L,
+                advertisedMaxHz = 1_300_000_000L,
+                profilePercent = 100,
+            )
+        )
     }
 
     @Test
