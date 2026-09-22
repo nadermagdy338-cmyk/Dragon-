@@ -498,6 +498,10 @@ object GpuHardwareBackend {
         val baselineIndex = io.read(path)?.let(::parseMtkIndex)
             ?: return TransactionResult(request, live, false, false, error = "baseline-unreadable")
         if (baselineIndex == "-1") return TransactionResult(request, refresh(live.path, io), true, true)
+        // مقابل `lock = true` في applyMtkExact: تحرير القفل يعني عودة GED لإدارة OPP
+        // بنفسه، فيجب أن يعمل DVFS من جديد وإلا بقي التردد مثبَّتًا على آخر قيمة
+        // صادف وجودها لحظة الإيقاف — وهو ما وثّقه permitGpu نفسه.
+        io.permitVendorCeiling(lock = false)
         val wrote = io.write(path, "-1")
         val verified = wrote && io.read(path)?.let(::parseMtkIndex) == "-1"
         if (verified) return TransactionResult(request, refresh(live.path, io), true, true)
@@ -559,6 +563,13 @@ object GpuHardwareBackend {
         val baselineGovernor = if (touchesGovernor) {
             live.governor ?: return TransactionResult(request, live, false, false, error = "baseline-unreadable")
         } else null
+        // نفس سلطة المنصّة التي أُطلقت في applyDevfreq، وللسبب نفسه: القراءة الفورية بعد
+        // الكتابة هنا تنجح دائمًا (السائق يقبل رقم الـindex فورًا)، لكن GED يواصل DVFS
+        // الخاص به فوق هذا القفل ويُعيد التردد خلال ثوانٍ — فيرى المستخدم «تحقّق ناجح»
+        // في السجل وتذبذبًا فعليًّا على الجهاز. `lock = true` هنا توقف DVFS في GED تحديدًا
+        // لأجل هذا (انظر توثيق `PlatformCeilingAuthority.permitGpu`)، وهو ما كان ناقصًا في
+        // هذا المسار وحده من بين مسارات الكتابة الثلاثة.
+        io.permitVendorCeiling(lock = true)
         val wroteLock = io.write(path, targetIndex)
         val wroteGovernor = !touchesGovernor || (wroteLock && io.write("${live.path}/governor", request.governor))
         val actual = refresh(live.path, io)
@@ -570,6 +581,7 @@ object GpuHardwareBackend {
         val rollbackGovernor = baselineGovernor == null ||
             (io.write("${live.path}/governor", baselineGovernor) && refresh(live.path, io)?.governor == baselineGovernor)
         val rollbackVerified = rollbackLock && rollbackGovernor
+        io.permitVendorCeiling(lock = false)
         return TransactionResult(
             request, refresh(live.path, io), wroteLock && wroteGovernor, false, true, rollbackVerified,
             if (rollbackVerified) "apply-not-verified-baseline-restored" else "apply-and-rollback-failed",

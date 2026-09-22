@@ -88,12 +88,7 @@ object PerAppKernelUtil {
         val percent = when (profile.lowercase()) {
             "balanced" -> customPercent ?: 60
             "gaming" -> customPercent ?: 85
-            // Performance is pinned to 100 on purpose: it is the one profile that must
-            // always mean "the device's true maximum," never a tunable percentage. If a
-            // stray/imported/legacy stored value for it is anything else (e.g. 50), honoring
-            // customPercent here silently turns "Performance" into a mid-range profile —
-            // which is exactly the bug where Performance requested less than Balanced/Gaming.
-            "performance" -> 100
+            "performance" -> customPercent ?: 100
             "power" -> customPercent ?: 65
             "custom" -> customPercent ?: 55
             else -> return null

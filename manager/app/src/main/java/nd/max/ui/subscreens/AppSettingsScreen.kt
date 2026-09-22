@@ -954,8 +954,7 @@ private fun ProfilePresetEditor(
                     style = MaterialTheme.typography.bodySmall
                 )
                 names.forEachIndexed { index, name ->
-                    val isPerformance = name == "performance"
-                    val value = if (isPerformance) 100 else (values[name] ?: ProfilePresetStore.defaultPercent(name))
+                    val value = values[name] ?: ProfilePresetStore.defaultPercent(name)
                     Column {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -963,17 +962,13 @@ private fun ProfilePresetEditor(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(labels[index], fontWeight = FontWeight.SemiBold)
-                            Text(if (isPerformance) "100% · locked" else "$value%")
+                            Text("$value%")
                         }
-                        // Performance is intentionally not draggable: it must always mean
-                        // the device's full advertised capability, never a percentage that
-                        // can end up below Balanced/Gaming by accident.
                         MaxSlider(
                             value = value.toFloat(),
                             onValueChange = { v -> values = values + (name to v.toInt().coerceIn(20, 100)) },
                             valueRange = 20f..100f,
-                            steps = 79,
-                            enabled = !isPerformance
+                            steps = 79
                         )
                     }
                 }
