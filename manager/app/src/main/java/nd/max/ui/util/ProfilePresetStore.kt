@@ -66,6 +66,11 @@ object ProfilePresetStore {
     }
 
     fun percentFor(context: Context?, profile: String): Int {
+        // Performance is not a customizable percentage — it always means the device's
+        // full advertised capability. Returning the pinned constant here (instead of
+        // whatever happens to be in SharedPreferences) fixes an install that already has
+        // a stray/imported value stored for it, with no reset/migration step required.
+        if (profile.lowercase() == PERFORMANCE) return DEFAULT_PERFORMANCE
         if (context == null) return defaultPercent(profile)
         return runCatching {
             val stored = prefs(context).getInt(profile.lowercase(), defaultPercent(profile))
@@ -81,6 +86,10 @@ object ProfilePresetStore {
     }
 
     fun setPercent(context: Context, profile: String, percent: Int) {
+        // No-op for Performance: see percentFor() above. Without this guard, an imported
+        // preset bundle (ProfileSharing) or any future caller could still write a non-100
+        // value directly, bypassing the slider-level lock in the editor UI.
+        if (profile.lowercase() == PERFORMANCE) return
         prefs(context).edit().putInt(profile.lowercase(), percent.coerceIn(20, 100)).apply()
     }
 
