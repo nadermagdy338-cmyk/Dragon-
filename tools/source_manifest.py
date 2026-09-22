@@ -18,6 +18,15 @@
 
 **وحدّها المعلن:** تقول **أيّ** ملف اختلف ولا تقول **لماذا**؛ ولماذا يبقى عملًا بشريًّا.
 ولا تُعدّ الأداة بوابة إلزامية (`--assert` لا يُستعمل في CI): اختلاف البصمة **تشخيص**، لا فشل.
+
+**وثقبٌ سُدَّ فيها (تكملة ٩٤):** كانت تغطّي `manager/*/build.gradle` (Groovy) وحده، وملفات
+`build.gradle.kts` — وهي ما يهيّئ الوحدات فعلا في هذا المشروع — **خارجها**. فالاختلاف في
+إعداد البناء لا يُرى، وهو أوّل ما يُشتهى سؤاله عند «يبني عندك ولا يبني عندي».
+
+**والتطبيع الوحيد المسموح:** سطرا `versionCode`/`versionName` في `app/build.gradle.kts`
+يكتبهما `.github/scripts/verify.sh` من وسم الإصدار عند كل تشغيل، فهما **مشتقّان** لا مؤلَّفان —
+ولو دخلًا البصمة لصار كل تشغيل «مختلفًا» بلا معنى. يُطبَّعان هما وحدهما، وأي تعديل آخر في
+الملف نفسه يُكتشف كما هو.
 """
 
 from __future__ import annotations
@@ -26,6 +35,7 @@ import argparse
 import glob
 import hashlib
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -51,6 +61,7 @@ EXACT_FILES = (
 
 GLOBS = (
     "manager/*/build.gradle",
+    "manager/*/build.gradle.kts",
 )
 
 # امتدادات النصّ التي تُصرَّف أو تُقرأ: المحرك الأصلي للبناء ووحداته.
@@ -63,6 +74,9 @@ EXTS = frozenset(
 
 # مجلّدات لا تُقرأ أبدًا: مخرجات بناء أو مخازن أو نسخ.
 SKIP_DIRS = frozenset({"build", ".gradle", "target", "node_modules", ".git", ".idea"})
+
+# السطران اللذان يحقنهما `.github/scripts/verify.sh` من وسم الإصدار (لا مؤلَّفان).
+INJECTED_VERSION_LINE = re.compile(rb"(?m)^[ \t]*(versionCode|versionName)[ \t]*=.*$")
 
 MANIFEST_REL = "docs/ai/source-manifest.txt"
 HEADER = "# بصمة المصادر — لا تُحرَّر يدويًّا: `python3 tools/source_manifest.py --write`\n"
@@ -118,18 +132,23 @@ def collect(root: str) -> list[str]:
     return sorted(found)
 
 
-def _sha256(path: str) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(65536), b""):
-            h.update(chunk)
-    return h.hexdigest()
+def _file_bytes(root: str, rel: str) -> bytes:
+    """محتوى الملف كما يدخل البصمة — وأي اختلاف في المفهوم هنا يُسجَّل في الوثيقة أعلاه."""
+    with open(os.path.join(root, rel), "rb") as fh:
+        data = fh.read()
+    if os.path.basename(rel) == "build.gradle.kts":
+        data = INJECTED_VERSION_LINE.sub(b"", data)
+    return data
+
+
+def _sha256(root: str, rel: str) -> str:
+    return hashlib.sha256(_file_bytes(root, rel)).hexdigest()
 
 
 def lines(root: str, paths: list[str] | None = None) -> list[str]:
     """أسطر `sha256  مسار` — صيغة `sha256sum` نفسها، فلا تحتاج أداة خصوصية للقراءة."""
     paths = collect(root) if paths is None else paths
-    return [f"{_sha256(os.path.join(root, p))}  {p}" for p in paths]
+    return [f"{_sha256(root, p)}  {p}" for p in paths]
 
 
 def digest(manifest_lines: list[str]) -> str:
@@ -237,6 +256,7 @@ def mode_self_test() -> int:
         put("tools/t.py", "p")
         put("manager/settings.gradle.kts", "s")
         put("manager/app/build.gradle", "g")
+        put("manager/app/build.gradle.kts", 'versionCode = 156\nversionName = "old"\nandroid {}\n')
         put("manager/app/build/Generated.kt", "x")          # داخل build: مُستثنى
         put("docs/ai/source-manifest.txt", "")              # ليس مصدرًا
 
@@ -245,6 +265,7 @@ def mode_self_test() -> int:
             [
                 ".github/workflows/w.yml",
                 "manager/app/build.gradle",
+                "manager/app/build.gradle.kts",
                 "manager/app/src/main/A.kt",
                 "manager/app/src/main/sub/B.xml",
                 "manager/app/src/test/T.kt",
@@ -270,6 +291,26 @@ def mode_self_test() -> int:
         put("manager/app/src/main/sub/B.xml", "b3")
         d = compare(ref, lines(root))
         checks.append(("المُعدَّل يُسمّى في changed", d["changed"] == ["manager/app/src/main/sub/B.xml"], f"{d['changed']}"))
+
+        # التطبيع: حقن الإصدار (كما يفعله verify.sh) لا يغيّر البصمة…
+        before = digest(lines(root, ["manager/app/build.gradle.kts"]))
+        put("manager/app/build.gradle.kts", 'versionCode = 157\nversionName = "5.2 (157-abc-Dazzling)"\nandroid {}\n')
+        checks.append(
+            (
+                "حقن الإصدار لا يغيّر بصمة ملف البناء",
+                digest(lines(root, ["manager/app/build.gradle.kts"])) == before,
+                "",
+            )
+        )
+        # …وتعديل حقيقي في الملف نفسه يُكتشف (وإلا فالتطبيع يمحو الملف).
+        put("manager/app/build.gradle.kts", 'versionCode = 157\nversionName = "x"\nandroid { minSdk = 26 }\n')
+        checks.append(
+            (
+                "تعديل حقيقي في ملف البناء يُكتشف",
+                digest(lines(root, ["manager/app/build.gradle.kts"])) != before,
+                "",
+            )
+        )
 
         # الجذر يُكتشف من موضع الأداة لا من مجلّد العمل.
         checks.append(("اكتشاف الجذر", repo_root(os.path.join(root, "tools")) == root, ""))
