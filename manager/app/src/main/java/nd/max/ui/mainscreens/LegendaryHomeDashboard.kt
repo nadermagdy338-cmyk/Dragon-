@@ -62,7 +62,6 @@ import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.theme.MonoValueStyleSmall
 import nd.max.ui.viewmodel.DashboardState
 import nd.max.ui.viewmodel.HomeUiState
-import nd.max.ui.viewmodel.primaryBatteryTemperatureC
 import nd.max.ui.util.LoadSample
 import kotlin.math.roundToInt
 
@@ -407,7 +406,7 @@ private fun PulsePanel(
     onOverview: () -> Unit
 ) {
     val p = neuralPalette()
-    val heat = primaryBatteryTemperatureC(dashboard)?.roundToInt()
+    val heat = dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt()
         ?: dashboard.cpuTempC.takeIf { it > 0 }
     val heatAccent = temperatureAccent(heat)
     val calm = heat == null || heat < 43
@@ -490,7 +489,7 @@ private fun PulsePanel(
 @Composable
 private fun FocusCard(dashboard: DashboardState, onNavigate: (String) -> Unit) {
     val p = neuralPalette()
-    val heat = primaryBatteryTemperatureC(dashboard)?.roundToInt() ?: dashboard.cpuTempC
+    val heat = dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt() ?: dashboard.cpuTempC
     val ram = fractionOf(dashboard.ramUsedMb, dashboard.ramTotalMb)
     val storageFree = if (dashboard.storageTotalGb <= 0f) 1f else
         ((dashboard.storageTotalGb - dashboard.storageUsedGb) / dashboard.storageTotalGb).coerceIn(0f, 1f)
