@@ -43,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -271,26 +270,4 @@ fun NeuralSensorPicker(
             }
         }
     }
-}
-
-/**
- * هيكلي: صورة ظلّية لهيكل بطاقة قبل أول قياس — لا صفر ولا `—` يُقرأ كقياس حقيقي.
- * والنبض هادئ بطيء، ويسكن تلقائيًّا مع تعطيل حركة النظام (`ANIMATOR_DURATION_SCALE = 0`).
- */
-@Composable
-fun NeuralSkeleton(modifier: Modifier = Modifier, shape: Shape = NeuralTileShape) {
-    val p = neuralPalette()
-    val transition = rememberInfiniteTransition(label = "neural-skeleton")
-    val alpha by transition.animateFloat(
-        initialValue = .30f,
-        targetValue = .55f,
-        animationSpec = infiniteRepeatable(tween(1_100), RepeatMode.Reverse),
-        label = "neural-skeleton-alpha",
-    )
-    Box(
-        modifier
-            .clip(shape)
-            .background(p.tile)
-            .graphicsLayer { this.alpha = alpha },
-    )
 }

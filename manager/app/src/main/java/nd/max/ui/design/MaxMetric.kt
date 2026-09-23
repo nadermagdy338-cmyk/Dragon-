@@ -34,6 +34,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -102,14 +104,22 @@ fun MaxTrustChip(
     val content = tone.content()
     val icon = trustIcon(trust)
 
+    // الشارة مصبوغة بتدرّج لا بلون مسطّح: هي «حكم على القياس» تُقرأ من بعيد، ولها نفس مفردات
+    // شارات المكتبة (`NeuralPill`) — فالشارة نفسها في كل شاشة.
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(MaxRadius.pill),
-        color = tone.container(),
-        border = BorderStroke(MaxSize.hairlineBorder, tone.border())
+        color = Color.Transparent,
+        border = BorderStroke(MaxSize.hairlineBorder, content.copy(alpha = MaxAlpha.borderStrong))
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = MaxSpace.sm, vertical = MaxSpace.xs),
+            modifier = Modifier
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(content.copy(alpha = .26f), content.copy(alpha = .10f))
+                    )
+                )
+                .padding(horizontal = MaxSpace.sm, vertical = MaxSpace.xs),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)
         ) {

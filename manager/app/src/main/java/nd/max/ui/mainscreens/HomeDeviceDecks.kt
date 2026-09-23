@@ -74,13 +74,18 @@ import nd.max.ui.viewmodel.DashboardState
  * بعد إغلاق الشاشة (`ThermalGridPreferences`). وما لا تقيسه هذه النواة لا يُعرض له صفّ.
  */
 @Composable
-internal fun ThermalPanel(dashboard: DashboardState, onThermal: () -> Unit) {
+internal fun ThermalPanel(dashboard: DashboardState, measured: Boolean, onThermal: () -> Unit) {
     val context = LocalContext.current
     val p = neuralPalette()
-    val headline = dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt()
-        ?: dashboard.cpuTempC.takeIf { it > 0 }
+    // قبل أول قياس لا حكم: شارة «مستقر» لجهاز لم يُقرأ بعد ادّعاء، ومجسّ صفري يُكتب `—`
+    // لا `0°` (وتفصيله في `ThermalTile`).
+    val headline = if (measured) {
+        dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt() ?: dashboard.cpuTempC.takeIf { it > 0 }
+    } else {
+        null
+    }
     val headlineAccent = temperatureAccent(headline)
-    val calm = headline == null || headline < 43
+    val calm = measured && (headline == null || headline < 43)
     var pinned by remember { mutableStateOf(ThermalGridPreferences.read(context)) }
     var picking by remember { mutableStateOf(false) }
     val available = remember(dashboard.thermalByCategory) {
@@ -99,9 +104,13 @@ internal fun ThermalPanel(dashboard: DashboardState, onThermal: () -> Unit) {
                 ) {
                     NeuralPill(
                         text = stringResource(
-                            if (calm) R.string.home_system_stable else R.string.home_system_attention
+                            when {
+                                !measured -> R.string.max_home_unavailable
+                                calm -> R.string.home_system_stable
+                                else -> R.string.home_system_attention
+                            }
                         ),
-                        accent = if (calm) p.ok else headlineAccent,
+                        accent = if (!measured) p.muted else if (calm) p.ok else headlineAccent,
                         dot = true,
                     )
                     SensorPickerButton(onClick = { picking = true })
@@ -218,6 +227,7 @@ private fun ThermalTile(caption: String, value: Int, modifier: Modifier) {
 @Composable
 internal fun DeviceDetailsPanel(
     dashboard: DashboardState,
+    measured: Boolean,
     onDisplay: () -> Unit,
     onNetwork: () -> Unit,
     onPower: () -> Unit,
@@ -275,14 +285,16 @@ internal fun DeviceDetailsPanel(
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NeuralFactTile(
                 caption = stringResource(R.string.home_download),
-                value = netSpeed(dashboard.downloadSpeedKbps),
+                // **صفرُ الشبكة ادّعاء قبل أول قياس**: «0 KB/s» تقول «الشبكة ساكنة» وهي لم
+                // تُقرأ بعد. بعد أول دورة يبقى `0 KB/s` صحيحًا (سكون مقيس).
+                value = if (measured) netSpeed(dashboard.downloadSpeedKbps) else dash,
                 accent = p.ok,
                 modifier = Modifier.weight(1f),
                 onClick = onNetwork
             )
             NeuralFactTile(
                 caption = stringResource(R.string.home_upload),
-                value = netSpeed(dashboard.uploadSpeedKbps),
+                value = if (measured) netSpeed(dashboard.uploadSpeedKbps) else dash,
                 accent = p.accentAlt,
                 modifier = Modifier.weight(1f),
                 onClick = onNetwork

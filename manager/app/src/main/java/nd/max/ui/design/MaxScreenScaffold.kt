@@ -14,6 +14,7 @@
 package nd.max.ui.design
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import nd.max.ui.component.MaxManagerSubScreenTopBar
 import nd.max.ui.component.MaxSnackbarHost
 import nd.max.ui.component.maxAdaptiveContentWidth
+import nd.max.ui.component.neuralPageBackdrop
 
 /**
  * Rendered height of the floating bottom navigation pill, published by the app
@@ -108,119 +110,53 @@ fun MaxScreen(
         .calculateBottomPadding()
     val bottomPadding = floatingBottomBarPadding(MaxSpace.pageBottom + navigationBarPadding)
 
-    Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = Color.Transparent,
-        // A transparent container makes contentColorFor() return an unresolved colour, so
-        // every Text/Icon that relies on the ambient content colour (a row headline, an
-        // untinted caret) used to render black on the dark surface. State the theme's
-        // on-surface colour explicitly — the same one Material would pick for this page.
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        topBar = {
-            MaxManagerSubScreenTopBar(
-                scrollBehavior = scrollBehavior,
-                title = title,
-                subtitle = subtitle,
-                onBack = onBack,
-                accentIcon = accentIcon,
-                accent = accent,
-                actions = actions
-            )
-        },
-        snackbarHost = {
-            if (snackbarHostState != null) MaxSnackbarHost(snackbarHostState)
-        },
-        floatingActionButton = { floatingAction?.invoke() }
-    ) { scaffoldPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(scaffoldPadding)
-                .maxAdaptiveContentWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = MaxSpace.gutter)
-                .padding(bottom = bottomPadding),
-            verticalArrangement = Arrangement.spacedBy(MaxSpace.section)
-        ) {
-            if (condition != null) {
-                MaxConditionPanel(condition)
-            } else {
-                banner?.let { MaxConditionNotice(it, modifier = Modifier.fillMaxWidth()) }
-                content()
-            }
-        }
-    }
-}
-
-/**
- * Split-layout screen shell: the same top bar, condition and snackbar handling as
- * [MaxScreen], but the body is a **fixed-height slot instead of a vertical scroll**.
- *
- * Why it has to exist rather than reusing [MaxScreen]: a `LazyColumn` nested inside a
- * vertically scrolling `Column` is measured with an infinite maximum height and throws.
- * So any page that owns more than one lazy list — the file manager's two panes are the
- * first — cannot use [MaxScreen] at all. The alternative, a screen-local `Scaffold`,
- * is exactly the drift this file was written to stop.
- *
- * The body fills the available height and arranges itself; the shell deliberately adds
- * no vertical spacing between children, because a split layout's gaps belong to the
- * panes, not to the page.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MaxSplitScreen(
-    title: String,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    subtitle: String? = null,
-    accentIcon: ImageVector? = null,
-    accent: Color = MaterialTheme.colorScheme.primary,
-    condition: MaxCondition? = null,
-    banner: MaxCondition? = null,
-    snackbarHostState: SnackbarHostState? = null,
-    actions: @Composable RowScope.() -> Unit = {},
-    floatingAction: (@Composable () -> Unit)? = null,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-        rememberTopAppBarState()
-    )
-    val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
-        .calculateBottomPadding()
-    val bottomPadding = floatingBottomBarPadding(MaxSpace.pageBottom + navigationBarPadding)
-
-    Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        topBar = {
-            MaxManagerSubScreenTopBar(
-                scrollBehavior = scrollBehavior,
-                title = title,
-                subtitle = subtitle,
-                onBack = onBack,
-                accentIcon = accentIcon,
-                accent = accent,
-                actions = actions
-            )
-        },
-        snackbarHost = {
-            if (snackbarHostState != null) MaxSnackbarHost(snackbarHostState)
-        },
-        floatingActionButton = { floatingAction?.invoke() }
-    ) { scaffoldPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(scaffoldPadding)
-                .padding(horizontal = MaxSpace.gutter)
-                .padding(bottom = bottomPadding)
-        ) {
-            if (condition != null) {
-                MaxConditionPanel(condition)
-            } else {
-                banner?.let { MaxConditionNotice(it, modifier = Modifier.fillMaxWidth()) }
-                content()
+    // إضاءة الصفحة قبل المحتوى: كل شاشة فرعية تُضاء من **حافة القراءة** كما تُضاء الرئيسية
+    // (`neuralPageBackdrop`)، فلا يوجد سطح مسطّح في التطبيق لأن الصفحة نفسها بلا ضوء.
+    Box(
+        Modifier
+            .fillMaxSize()
+            .neuralPageBackdrop(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
+    ) {
+        Scaffold(
+            modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            containerColor = Color.Transparent,
+            // A transparent container makes contentColorFor() return an unresolved colour, so
+            // every Text/Icon that relies on the ambient content colour (a row headline, an
+            // untinted caret) used to render black on the dark surface. State the theme's
+            // on-surface colour explicitly — the same one Material would pick for this page.
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            topBar = {
+                MaxManagerSubScreenTopBar(
+                    scrollBehavior = scrollBehavior,
+                    title = title,
+                    subtitle = subtitle,
+                    onBack = onBack,
+                    accentIcon = accentIcon,
+                    accent = accent,
+                    actions = actions
+                )
+            },
+            snackbarHost = {
+                if (snackbarHostState != null) MaxSnackbarHost(snackbarHostState)
+            },
+            floatingActionButton = { floatingAction?.invoke() }
+        ) { scaffoldPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(scaffoldPadding)
+                    .maxAdaptiveContentWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = MaxSpace.gutter)
+                    .padding(bottom = bottomPadding),
+                verticalArrangement = Arrangement.spacedBy(MaxSpace.section)
+            ) {
+                if (condition != null) {
+                    MaxConditionPanel(condition)
+                } else {
+                    banner?.let { MaxConditionNotice(it, modifier = Modifier.fillMaxWidth()) }
+                    content()
+                }
             }
         }
     }
@@ -285,6 +221,12 @@ fun MaxListScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    // إضاءة الصفحة ثابتة أثناء التمرير: ترسم على حاوية العرض لا على المحتوى
+                    // المتدحرج، فالشاشة مُضاءة من حافة القراءة كما تُضاء الرئيسية.
+                    .neuralPageBackdrop(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.tertiary
+                    )
                     .padding(scaffoldPadding)
                     .maxAdaptiveContentWidth()
                     .padding(horizontal = MaxSpace.gutter)
@@ -295,6 +237,10 @@ fun MaxListScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
+                    .neuralPageBackdrop(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.tertiary
+                    )
                     .padding(scaffoldPadding)
                     .maxAdaptiveContentWidth(),
                 contentPadding = PaddingValues(

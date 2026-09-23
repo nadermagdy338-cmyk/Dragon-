@@ -62,7 +62,6 @@ import nd.max.ui.component.NeuralPanelShape
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.NeuralSegmented
-import nd.max.ui.component.NeuralSkeleton
 import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.component.neuralSurface
@@ -169,12 +168,11 @@ internal fun MaxHomeDashboard(
 ) {
     val online = ui.rootStatus && ui.moduleInstalled
     val context = LocalContext.current
-    if (!dashboard.ready) {
-        // قبل أول دورة قياس: هياكل لا أصفار — صفرٌ في الثانية الأولى ليس برودةً مقيسة،
-        // و`—` هنا ليس «لا قراءة» بل «لم يُسأل العتاد بعد».
-        HomeSkeleton(modifier)
-        return
-    }
+    // **لا هياكل تحميل** (قرار المالك): الصفحة تُرسم فورًا. والصدق محفوظ بالطريقة الأنظف —
+    // ما لم يُقرأ بعد يُقال `—` بلون خافت، لا مستطيل فارغ يخفي معلومة، ولا صفر يبدو قياسًا.
+    // و[measured] هو الفرق بين «لم يُسأل العتاد بعد» و«صفر مقيس» — يُمرَّر للألواح التي
+    // يكون فيها الصفر **ادّعاءً** (حمل المعالج، سرعة الشبكة).
+    val measured = dashboard.ready
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         MaxReveal(visible = true, delayMillis = 0, modifier = Modifier.fillMaxWidth()) {
             HomeHeader(online, onSettings, onReboot)
@@ -204,6 +202,7 @@ internal fun MaxHomeDashboard(
         MaxReveal(visible = true, delayMillis = 180, modifier = Modifier.fillMaxWidth()) {
             ComputeDeck(
                 dashboard = dashboard,
+                measured = measured,
                 onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
                 onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
             )
@@ -231,6 +230,7 @@ internal fun MaxHomeDashboard(
         MaxReveal(visible = true, delayMillis = 360, modifier = Modifier.fillMaxWidth()) {
             ThermalPanel(
                 dashboard = dashboard,
+                measured = measured,
                 onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
             )
         }
@@ -240,6 +240,7 @@ internal fun MaxHomeDashboard(
         MaxReveal(visible = true, delayMillis = 450, modifier = Modifier.fillMaxWidth()) {
             DeviceDetailsPanel(
                 dashboard = dashboard,
+                measured = measured,
                 onDisplay = { onNavigate(MaxDestination.DisplayStudio.route) },
                 onNetwork = { onNavigate(MaxDestination.NetworkDetail.route) },
                 onPower = { onNavigate(MaxDestination.Charging.route) },
@@ -429,7 +430,8 @@ private fun IdentityCard(
             // لا شرح: الشرح كان يُعيد صياغة الأرقام المعروضة أسفلها في نصّ.
             NeuralCaption(stringResource(R.string.home_story_bottleneck))
             Text(
-                intel.primaryLimiter,
+                // المحرّك قد لا يكون كتب محدِّدًا بعد (أول لحظات التشغيل): `—` لا شريحة فارغة.
+                intel.primaryLimiter.ifBlank { "\u2014" },
                 color = limiterAccent(intel.primaryLimiter, heatAccent),
                 fontSize = 13.sp,
                 lineHeight = 17.sp,
@@ -697,23 +699,30 @@ private fun ControlBand(
  * المعالج العرض كلّه بدل نصف فارغ.
  */
 @Composable
-private fun ComputeDeck(dashboard: DashboardState, onCpu: () -> Unit, onGpu: () -> Unit) {
+private fun ComputeDeck(
+    dashboard: DashboardState,
+    measured: Boolean,
+    onCpu: () -> Unit,
+    onGpu: () -> Unit,
+) {
     val p = neuralPalette()
-    val cpuLoad = dashboard.cpuLoadPercent.coerceIn(0, 100)
-    val gpuLoad = dashboard.gpuLoadPercent?.coerceIn(0, 100)
-    val gpuAvailable = dashboard.gpuLoadPercent != null || dashboard.gpuFreqMhz != null
-    val cpuCeiling = dashboard.cpuCeilingMhz.takeIf { it > 0 }
-    val cpuTop = dashboard.cpuTopCoreMhz.takeIf { it > 0 }
-    val gpuCeiling = dashboard.gpuCeilingMhz?.takeIf { it > 0 }
-    val gpuFreq = dashboard.gpuFreqMhz?.takeIf { it > 0 }
+    // قبل أول دورة قياس: **لا رقم**. صفرُ حمل ليس قياسًا بل غياب قراءة، فتمرّ `null` فيُرسم
+    // الإطار فارغًا ويُكتب `—` — وهو ما يجعل «لم يُقرأ» تختلف عن «هادئ».
+    val cpuLoad = if (measured) dashboard.cpuLoadPercent.coerceIn(0, 100) else null
+    val gpuLoad = if (measured) dashboard.gpuLoadPercent?.coerceIn(0, 100) else null
+    val gpuAvailable = !measured || dashboard.gpuLoadPercent != null || dashboard.gpuFreqMhz != null
+    val cpuCeiling = dashboard.cpuCeilingMhz.takeIf { measured && it > 0 }
+    val cpuTop = dashboard.cpuTopCoreMhz.takeIf { measured && it > 0 }
+    val gpuCeiling = dashboard.gpuCeilingMhz?.takeIf { measured && it > 0 }
+    val gpuFreq = dashboard.gpuFreqMhz?.takeIf { measured && it > 0 }
 
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         NeuralGaugeCard(
             caption = stringResource(R.string.home_cpu_tag),
-            value = "$cpuLoad%",
+            value = if (cpuLoad == null) "\u2014" else "$cpuLoad%",
             accent = p.accent,
             modifier = Modifier.weight(1f),
-            ringFraction = cpuLoad / 100f,
+            ringFraction = cpuLoad?.let { it / 100f },
             icon = Icons.Rounded.Memory,
             ringSize = 106.dp,
             onClick = onCpu,
@@ -937,25 +946,4 @@ private fun CapacityDeck(dashboard: DashboardState, onStorage: () -> Unit, onBat
     }
 }
 
-/**
- * الهيكل قبل أول قياس — صور ظلّية بنفس مقاطع الصفحة (بطل · تحكّم · زوجان · سجل · تفاصيل):
- * لا صفر يقول «صفر درجة» ولا `—` يقول «لا قراءة» في الثانية التي سبقت أول دورة قياس.
- */
-@Composable
-private fun HomeSkeleton(modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        NeuralSkeleton(Modifier.fillMaxWidth().height(108.dp), NeuralPanelShape)
-        NeuralSkeleton(Modifier.fillMaxWidth().height(132.dp), NeuralPanelShape)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            NeuralSkeleton(Modifier.weight(1f).height(156.dp))
-            NeuralSkeleton(Modifier.weight(1f).height(156.dp))
-        }
-        NeuralSkeleton(Modifier.fillMaxWidth().height(124.dp), NeuralPanelShape)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            NeuralSkeleton(Modifier.weight(1f).height(112.dp))
-            NeuralSkeleton(Modifier.weight(1f).height(112.dp))
-        }
-        NeuralSkeleton(Modifier.fillMaxWidth().height(168.dp), NeuralPanelShape)
-    }
-}
 

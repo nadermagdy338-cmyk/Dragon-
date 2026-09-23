@@ -690,7 +690,7 @@ def draw_home(path: Path, rtl: bool, dark: bool) -> None:
 
 def draw_components(path: Path, rtl: bool, dark: bool) -> None:
     s = Scheme(dark)
-    page = Sheet(dp(1200), rtl, s, home_footnote(rtl))
+    page = Sheet(dp(1300), rtl, s, home_footnote(rtl))
     y = MARGIN
     page.text(MARGIN if not rtl else PAGE_W - MARGIN, y,
               "Component sheet — MaxKit families (§8)" if not rtl
@@ -762,14 +762,42 @@ def draw_components(path: Path, rtl: bool, dark: bool) -> None:
         oy += dp(38)
     y += dp(342)
 
-    # الهيكل (§11)
-    page.text(MARGIN if not rtl else PAGE_W - MARGIN, y,
-              "Skeleton — first paint before the first measurement" if not rtl
-              else "الهيكل — قبل أول قياس", dp(12), s.accent, align="start")
-    y += dp(30)
-    for h in (dp(70), dp(90)):
-        page.rrect((MARGIN, y, PAGE_W - MARGIN, y + h), s.tile, dp(24))
-        y += h + dp(12)
+    # عائلة ز: بنية الشاشات الفرعية — نفس السطوح التي ترسمها الرئيـسية، عبر `ui/design`
+    # (`MaxSection` · `MaxGroup` · `MaxRow`). وهي المُشتركة التي تصل ٢٧ شاشة فتكون شاشة
+    # واحدة في المنتج لا نظامان.
+    box = page.panel(y, dp(232))
+    page.text(box[0] + dp(20) if not rtl else box[2] - dp(20), y + dp(16),
+              "G · Sub-screen structure (ui/design)" if not rtl
+              else "ز · بنية الشاشات الفرعية", dp(12), s.accent, align="start")
+    # ترويسة مقطع: شرطة ملوّنة + عنوان
+    ry = y + dp(48)
+    page.rrect((box[0] + dp(20), ry + dp(2), box[0] + dp(24), ry + dp(18)), s.accent, dp(2))
+    page.text(box[0] + dp(32) if not rtl else box[2] - dp(32), ry,
+              "Thermal control" if not rtl else "التحكّم الحراري", dp(14), s.text, align="start")
+    ry += dp(30)
+    # لوحة مجموعة بثلاثة صفوف: رقعة أيقونة متدرجة + عنوان + قيمة + سهم
+    group = (box[0] + dp(20), ry, box[2] - dp(20), ry + dp(128))
+    page.rrect(group, mix(s.panel, s.accent, 0.05), dp(22), outline=s.border, width=dp(0.7))
+    rows = (("Governor" if not rtl else "الموزّع", "schedutil", True),
+            ("Max frequency" if not rtl else "التردّد الأقصى", "3.20 GHz", False),
+            ("State" if not rtl else "الحالة", "—", False))
+    row_y = group[1] + dp(10)
+    for label, value, chevron in rows:
+        chip = (group[0] + dp(12), row_y + dp(6), group[0] + dp(46), row_y + dp(40))
+        page.rrect(chip, mix(s.accent, s.panel, 0.80), dp(12), outline=mix(s.accent, s.panel, 0.60), width=dp(0.7))
+        page.text(chip[0] + dp(17), row_y + dp(14), "•", dp(12), s.accent, align="center")
+        page.text(group[0] + dp(58) if not rtl else group[2] - dp(58), row_y + dp(15),
+                  label, dp(12), s.text, align="start")
+        page.text_end(group[2] - dp(40) if not rtl else group[0] + dp(40), row_y + dp(15),
+                      value, dp(11), s.muted, mono=True)
+        if chevron:
+            page.text(group[2] - dp(26) if not rtl else group[0] + dp(26), row_y + dp(14),
+                      "›" if not rtl else "‹", dp(14), s.muted, align="center")
+        row_y += dp(38)
+    y += dp(244)
+
+    # **لا هيكل تحميل** (قرار المالك): لا مستطيلات فارغة تنتظر البيانات — الصفحة تُرسم فورًا،
+    # وما لم يُقرأ بعد يُقال `—` بلون خافت. فورقة المكوّنات لا ترسم هيكلًا لأن المنتج لا يرسمه.
     page.finish(path)
 
 

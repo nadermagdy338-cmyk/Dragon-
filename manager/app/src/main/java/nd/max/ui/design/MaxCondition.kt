@@ -13,12 +13,6 @@
  */
 package nd.max.ui.design
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,13 +42,17 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import nd.max.ui.component.StudioTextButton
 import nd.max.ui.component.StudioTonalButton
+import nd.max.ui.component.neuralPalette
+import nd.max.ui.component.neuralSurface
 import nd.max.ui.theme.MonoValueStyleSmall
 
 /**
@@ -168,22 +166,28 @@ fun MaxConditionPanel(
     val tone = condition.kind.tone
     val toneContent = tone.content()
 
-    Surface(
+    // السطح هنا ليس مستطيلًا مسطّحًا بل **لوح المكتبة نفسه**: تدرّج مصبوغ + هالة بلون الحالة
+    // + لمعة حافة + عمق مُلوَّن. فالحالة الطارئة تبدو قطعة من المنتج لا صندوقًا أُقحم فيه.
+    val p = neuralPalette()
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .widthIn(max = MaxSize.readingMaxWidth)
-            .semantics { liveRegion = LiveRegionMode.Polite },
-        shape = RoundedCornerShape(MaxRadius.group),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        border = BorderStroke(MaxSize.hairlineBorder, tone.border())
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaxSpace.xl, vertical = MaxSpace.xxl),
+            .semantics { liveRegion = LiveRegionMode.Polite }
+            .neuralSurface(
+                shape = RoundedCornerShape(MaxRadius.group),
+                top = p.panelTop.copy(alpha = .94f),
+                bottom = p.panel,
+                border = toneContent.copy(alpha = MaxAlpha.borderStrong),
+                glow = toneContent,
+                elevation = 5.dp,
+                glowStrength = .8f,
+                rtl = LocalLayoutDirection.current == LayoutDirection.Rtl,
+            )
+            .padding(horizontal = MaxSpace.xl, vertical = MaxSpace.xxl),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(MaxSpace.md)
-        ) {
+    ) {
             Surface(
                 shape = RoundedCornerShape(MaxRadius.row),
                 color = tone.container()
@@ -241,8 +245,7 @@ fun MaxConditionPanel(
                 }
             }
 
-            MaxConditionActions(condition)
-        }
+        MaxConditionActions(condition)
     }
 }
 
@@ -258,13 +261,23 @@ fun MaxConditionNotice(
     val tone = condition.kind.tone
     val toneContent = tone.content()
 
-    Surface(
+    // نفس مفردات `MaxConditionPanel` بلغة أخفّ: شريط ملوّن بالحالة على لوح المكتبة، فلا
+    // يوجد في التطبيق «صندوق أحمر» بنمط خاص به.
+    val p = neuralPalette()
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .semantics { liveRegion = LiveRegionMode.Polite },
-        shape = RoundedCornerShape(MaxRadius.row),
-        color = tone.container(),
-        border = BorderStroke(MaxSize.hairlineBorder, tone.border())
+            .semantics { liveRegion = LiveRegionMode.Polite }
+            .neuralSurface(
+                shape = RoundedCornerShape(MaxRadius.row),
+                top = toneContent.copy(alpha = .17f),
+                bottom = toneContent.copy(alpha = .07f),
+                border = toneContent.copy(alpha = MaxAlpha.borderStrong),
+                glow = toneContent,
+                elevation = 3.dp,
+                sheen = .05f,
+                rtl = LocalLayoutDirection.current == LayoutDirection.Rtl,
+            )
     ) {
         Column(
             modifier = Modifier.padding(
@@ -339,30 +352,3 @@ private fun MaxConditionActions(condition: MaxCondition) {
     }
 }
 
-/**
- * Renders [content] when [condition] is null, otherwise renders the condition.
- * Transient conditions (Applying/Applied) never hide content — they are shown
- * by the caller as a notice instead, because hiding controls mid-write is what
- * made the old screens feel unstable.
- */
-@Composable
-fun MaxConditionGate(
-    condition: MaxCondition?,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    AnimatedContent(
-        targetState = condition?.kind,
-        transitionSpec = {
-            fadeIn(tween(MaxDuration.standard)) togetherWith fadeOut(tween(MaxDuration.quick))
-        },
-        modifier = modifier,
-        label = "max_condition_gate"
-    ) { kind ->
-        if (kind == null || condition == null) {
-            content()
-        } else {
-            MaxConditionPanel(condition)
-        }
-    }
-}
