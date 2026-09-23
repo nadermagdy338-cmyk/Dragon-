@@ -81,8 +81,8 @@ internal fun Modifier.neuralSurface(
             elevation = elevation,
             shape = shape,
             clip = false,
-            ambientColor = tint.copy(alpha = .50f),
-            spotColor = tint.copy(alpha = .65f),
+            ambientColor = tint.copy(alpha = .25f),
+            spotColor = tint.copy(alpha = .32f),
         )
     }
     m = m.clip(shape).background(Brush.verticalGradient(listOf(top, bottom)))
@@ -164,14 +164,14 @@ private fun drawNeuralAura(
     val backX = if (rtl) 0f else scope.size.width
     scope.drawRect(
         Brush.radialGradient(
-            colors = listOf(glow.copy(alpha = .22f * strength), Color.Transparent),
+            colors = listOf(glow.copy(alpha = .16f * strength), Color.Transparent),
             center = Offset(frontX, 0f),
             radius = scope.size.maxDimension * .78f,
         )
     )
     scope.drawRect(
         Brush.radialGradient(
-            colors = listOf(back.copy(alpha = .11f * strength), Color.Transparent),
+            colors = listOf(back.copy(alpha = .07f * strength), Color.Transparent),
             center = Offset(backX, scope.size.height),
             radius = scope.size.maxDimension * .55f,
         )

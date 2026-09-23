@@ -5,7 +5,6 @@ import nd.max.ui.design.floatingBottomBarPadding
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +13,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -133,7 +131,6 @@ fun MaxHomeContent(
     val backdrop = Modifier.neuralPageBackdrop(colors.primary, colors.tertiary)
 
     Box(Modifier.fillMaxSize().background(colors.background).then(backdrop)) {
-        TechnicalBackdrop()
         LazyColumn(
             state = rememberLazyListState(),
             modifier = Modifier.maxAdaptiveContentWidth(),
@@ -186,19 +183,6 @@ private fun EdgeScrim(base: Color, top: Boolean, modifier: Modifier = Modifier) 
             .height(if (top) 26.dp else 34.dp)
             .background(Brush.verticalGradient(stops))
     )
-}
-
-@Composable
-private fun TechnicalBackdrop() {
-    val line = MaterialTheme.colorScheme.primary.copy(alpha = .035f)
-    Canvas(Modifier.fillMaxSize()) {
-        val step = 44.dp.toPx()
-        var x = 0f
-        while (x < size.width) { drawLine(line, Offset(x, 0f), Offset(x, size.height), 1f); x += step }
-        var y = 0f
-        while (y < size.height) { drawLine(line, Offset(0f, y), Offset(size.width, y), 1f); y += step }
-        drawCircle(line.copy(alpha = .08f), radius = size.minDimension * .38f, center = Offset(size.width * .84f, size.height * .1f), style = androidx.compose.ui.graphics.drawscope.Stroke(1.dp.toPx()))
-    }
 }
 
 /**

@@ -72,7 +72,7 @@ import nd.max.ui.util.ClockMeter
  *
  *  - Three depth levels only: panel (outlined, optional accent glow), tile
  *    (filled, no border) and accent tile (accent wash + accent hairline).
- *    Radii are fixed at 24 / 18 / 12 and padding at 16 / 14 / 12.
+ *    Radii are fixed at 26 / 20 / 12 and padding at 16 / 14 / 12.
  *  - One measurement per tile, number first, caption above it, trend below.
  *  - Plots are smoothed (Catmull-Rom) and auto-scaled to the visible window:
  *    a metric that hovers at 75% must still show its shape, not a flat line.
@@ -83,8 +83,8 @@ import nd.max.ui.util.ClockMeter
  *    reordered or clipped by an RTL locale.
  */
 
-val NeuralPanelShape = RoundedCornerShape(24.dp)
-val NeuralTileShape = RoundedCornerShape(18.dp)
+val NeuralPanelShape = RoundedCornerShape(26.dp)
+val NeuralTileShape = RoundedCornerShape(20.dp)
 private val ChipShape = RoundedCornerShape(12.dp)
 
 @Immutable
@@ -194,7 +194,7 @@ fun NeuralPanel(
             border = accent?.copy(alpha = .32f) ?: p.border,
             glow = accent ?: p.accent,
             elevation = if (accent == null) 3.dp else 7.dp,
-            glowStrength = if (accent == null) .55f else 1f,
+            glowStrength = if (accent == null) .30f else .55f,
             rtl = rtl,
         )
     Column(
@@ -221,12 +221,12 @@ fun NeuralTile(
         .neuralClickable(onClick)
         .neuralSurface(
             shape = NeuralTileShape,
-            top = accent?.copy(alpha = .17f) ?: p.tile,
-            bottom = accent?.copy(alpha = .07f) ?: p.tile,
-            border = accent?.copy(alpha = .26f) ?: p.border.copy(alpha = .60f),
+            top = accent?.copy(alpha = .12f) ?: p.tile,
+            bottom = accent?.copy(alpha = .055f) ?: p.tile,
+            border = accent?.copy(alpha = .22f) ?: p.border.copy(alpha = .52f),
             glow = accent,
-            elevation = if (accent == null) 0.dp else 3.dp,
-            sheen = if (accent == null) -1f else .05f,
+            elevation = if (accent == null) 0.dp else 2.dp,
+            sheen = if (accent == null) -1f else .025f,
             rtl = LocalLayoutDirection.current == LayoutDirection.Rtl,
         )
     Column(
@@ -370,6 +370,29 @@ fun NeuralIconChip(icon: ImageVector, accent: Color, modifier: Modifier = Modifi
         contentAlignment = Alignment.Center,
     ) {
         Icon(icon, null, Modifier.size(size * 0.52f), tint = accent)
+    }
+}
+
+/** Compact icon button shared by headers and dense dashboard controls. */
+@Composable
+fun NeuralIconButton(
+    icon: ImageVector,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    accent: Color? = null,
+    onClick: () -> Unit,
+) {
+    val p = neuralPalette()
+    val tone = accent ?: p.muted
+    Box(
+        modifier
+            .clip(ChipShape)
+            .background(Brush.verticalGradient(listOf(tone.copy(alpha = .12f), tone.copy(alpha = .05f))))
+            .border(BorderStroke(1.dp, tone.copy(alpha = .18f)), ChipShape)
+            .neuralClickable(onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription, Modifier.size(18.dp), tint = tone)
     }
 }
 

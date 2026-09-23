@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -125,6 +126,73 @@ fun NeuralCategoryRow(
             )
         }
         NeuralTrack(fraction ?: 0f, accent, Modifier.fillMaxWidth(), height = 5.dp)
+    }
+}
+
+/**
+ * Compact live metric card used for CPU/GPU and other high-frequency signals.
+ * The layout follows the reference dashboards: label + large value + technical
+ * secondary value + a readable trend chart, without decorative gauge chrome.
+ */
+@Composable
+fun NeuralMetricTrendCard(
+    title: String,
+    value: String,
+    secondaryValue: String,
+    accent: Color,
+    series: List<Float?>,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+) {
+    val p = neuralPalette()
+    NeuralPanel(
+        modifier = modifier,
+        accent = accent,
+        onClick = onClick,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(14.dp),
+        verticalSpacing = 8.dp,
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            androidx.compose.foundation.layout.Box(
+                Modifier.size(7.dp).clip(CircleShape).background(accent),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                title,
+                color = p.text,
+                fontSize = 13.sp,
+                lineHeight = 17.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                stringResource(nd.max.R.string.home_active),
+                color = accent,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+        NeuralValue(
+            value,
+            style = nd.max.ui.theme.MonoValueStyleSmall.copy(fontSize = 28.sp, lineHeight = 31.sp, fontWeight = FontWeight.Black),
+            color = if (value == "—") p.muted else p.text,
+        )
+        NeuralValue(
+            secondaryValue,
+            style = nd.max.ui.theme.MonoValueStyleSmall.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold),
+            color = if (secondaryValue == "—") p.muted else accent,
+        )
+        if (series.size >= 2) {
+            NeuralAreaPlot(
+                values = series,
+                accent = accent,
+                maxValue = 100f,
+                adaptive = false,
+                modifier = Modifier.fillMaxWidth().height(74.dp),
+            )
+        } else {
+            androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth().height(74.dp))
+        }
     }
 }
 
