@@ -1633,6 +1633,9 @@
     <string name="home_density">Density</string>
     <string name="home_battery_current">Battery current</string>
     <string name="home_battery_voltage">Battery voltage</string>
+    <string name="home_history_title">Load history</string>
+    <string name="home_history_desc">Last 36 readings · windowed average</string>
+    <string name="home_android_version">Android version</string>
 
     <!-- Storyboard: what your choices are doing, stated from their own source -->
     <string name="storyboard_title">WHAT YOUR SETTINGS ARE DOING</string>

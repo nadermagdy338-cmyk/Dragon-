@@ -921,6 +921,9 @@
     <string name="home_density">الكثافة</string>
     <string name="home_battery_current">تيار البطارية</string>
     <string name="home_battery_voltage">جهد البطارية</string>
+    <string name="home_history_title">سجل الحمل</string>
+    <string name="home_history_desc">آخر ٣٦ قراءة · متوسط النافذة</string>
+    <string name="home_android_version">إصدار أندرويد</string>
 
     <!-- لوحة «ما تفعله إعداداتك»: سطر لكل نتيجة بمصدرها -->
     <string name="storyboard_title">ما تفعله إعداداتك الآن</string>

@@ -79,6 +79,9 @@ private const val RingSweepAngle = 270f
  *     تقدّم مسطّح — وهي نفس مفردات `NeuralPanel` (تدرّج + حافة ملوّنة).
  *  4. **الأرقام تُرسم بـ[NeuralValue]** أي LTR مثبّت: «٧٨٪» و«٢.٤ جيجاهرتز» تبقى بترتيبها
  *     اللاتيني في لغة RTL، ولا يقلبها محلّل النصّ ثنائي الاتجاه.
+ *  5. **رقم القوس يكبر بكبر قوسه** (`size × 0.22`)، فلا تُمرّر مقاسات خطّ من كل شاشة: قاعدة
+ *     التدرّج البصري صارت في الأداة نفسها — عام ٩٤dp يُقرأ ٢١sp، وقوس رئيسي ١٠٤dp يُقرأ ٢٣sp.
+ *     وهذا ما تفعله نماذج التصميم فعلًا: الرقم هو البطاقة، والاسم تسمية له.
  */
 @Composable
 fun NeuralRing(
@@ -95,6 +98,9 @@ fun NeuralRing(
         animationSpec = tween(560, easing = FastOutSlowInEasing),
         label = "neural-ring",
     )
+    // الرقم يكبر مع القوس (مقيّد بين 15 و30sp) — تقاطعٌ هرميّ يمنع أن يُمرَّر مقاس خطّ يدويًّا
+    // من كل نداء، ويمنع في الوقت نفسه «رقمًا صغيرًا في قوس كبير» وهو أول ما يظهر في اللقطة.
+    val readout = (size.value * .22f).coerceIn(15f, 30f).sp
     Box(modifier.size(size), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val stroke = strokeWidth.toPx()
@@ -113,7 +119,7 @@ fun NeuralRing(
             )
             if (fraction != null && animated > 0f) {
                 drawArc(
-                    color = accent.copy(alpha = .20f),
+                    color = accent.copy(alpha = .26f),
                     startAngle = RingStartAngle,
                     sweepAngle = RingSweepAngle * animated,
                     useCenter = false,
@@ -130,11 +136,27 @@ fun NeuralRing(
                     size = arcSize,
                     style = Stroke(width = stroke, cap = StrokeCap.Round),
                 )
+                // رأس القوس: نقطة عند الطرف المتحرّك. وهي أرخص ما يفرّق مقياسًا «حيًّا» عن قوس
+                // ثابت — وفي اللقطات المرجعية يشغل اللون مساحة أكبر بكثير مما تشغله حافةٌ رقيقة.
+                val tip = Math.toRadians((RingStartAngle + RingSweepAngle * animated).toDouble())
+                val radius = arcSize.width.coerceAtMost(arcSize.height) / 2f
+                drawCircle(
+                    color = accent,
+                    radius = stroke * .62f,
+                    center = Offset(
+                        topLeft.x + arcSize.width / 2f + radius * kotlin.math.cos(tip).toFloat(),
+                        topLeft.y + arcSize.height / 2f + radius * kotlin.math.sin(tip).toFloat(),
+                    ),
+                )
             }
         }
         NeuralValue(
             value,
-            style = MonoValueStyleSmall.copy(fontSize = 21.sp, lineHeight = 24.sp, fontWeight = FontWeight.Bold),
+            style = MonoValueStyleSmall.copy(
+                fontSize = readout,
+                lineHeight = readout * 1.14f,
+                fontWeight = FontWeight.Bold
+            ),
             color = if (fraction == null) p.muted else p.text,
         )
     }
@@ -158,6 +180,7 @@ fun NeuralGaugeCard(
     badge: String? = null,
     support: String? = null,
     onClick: (() -> Unit)? = null,
+    ringSize: Dp = 94.dp,
     footer: (@Composable () -> Unit)? = null,
 ) {
     val p = neuralPalette()
@@ -187,7 +210,15 @@ fun NeuralGaugeCard(
             }
         }
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            NeuralRing(fraction = ringFraction, value = value, accent = accent, size = 94.dp)
+            NeuralRing(
+                fraction = ringFraction,
+                value = value,
+                accent = accent,
+                size = ringSize,
+                // قوس أكثف: المراجع تُشبع المساحة باللون؛ و٩dp هو آخر عرض تحتمله بطاقة بنصف العرض
+                // بلا أن يتحوّل القوس إلى حلقة تُنافس الرقم بدل أن تخدمه.
+                strokeWidth = 9.dp,
+            )
         }
         if (support != null) {
             NeuralValue(

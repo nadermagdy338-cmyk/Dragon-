@@ -10,9 +10,11 @@
  */
 package nd.max.ui.mainscreens
 
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.BatteryChargingFull
@@ -26,11 +28,16 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import nd.max.R
 import nd.max.ui.component.NeuralActionTile
+import nd.max.ui.component.NeuralAreaPlot
+import nd.max.ui.component.NeuralCategoryRow
+import nd.max.ui.component.NeuralDataRow
+import nd.max.ui.component.NeuralDivider
 import nd.max.ui.component.NeuralFactTile
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralReadoutTile
 import nd.max.ui.component.NeuralSectionHeader
+import nd.max.ui.component.NeuralStatCard
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.viewmodel.DashboardState
 
@@ -131,6 +138,18 @@ internal fun DeviceDetailsPanel(
             caption = stringResource(R.string.home_device_details_desc),
             accent = p.accent,
         )
+        // هوية النظام صفوفًا لا بلاطات: هذه قراءات ثابتة (تُقرأ مرة من `Build`) لا تتغيّر كل
+        // دقيقتَي قياس، فصفّها هو ما لا يُنافس الأرقام الحيّة على الانتباه — وهي في الوقت نفسه
+        // ما يضعه DevCheck أسفل لوحته: الإصدار والموديل بالنصّ كاملًا.
+        NeuralDataRow(
+            label = stringResource(R.string.home_android_version),
+            value = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})",
+        )
+        NeuralDataRow(
+            label = stringResource(R.string.device_model),
+            value = Build.MODEL.ifBlank { dash },
+        )
+        NeuralDivider()
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NeuralFactTile(
                 caption = stringResource(R.string.max_home_uptime),
@@ -194,6 +213,67 @@ internal fun DeviceDetailsPanel(
                 onClick = onPower
             )
         }
+    }
+}
+
+/**
+ * بطاقة الأداء التاريخي — الجواب عن سؤال لا يجيبه أي رقم لحظي: **ماذا كان الحمل طوال النافذة؟**
+ *
+ * والبيانات كلها مقيسة ومحفوظة: `LoadHistory` يحفظ 36 عيّنة بطابعها الزمني، و`ramLoadHistory`
+ * يحفظ نسبة الذاكرة على الإيقاع نفسه. ولا صفر يُرسم حيث لا قراءة: مخطط المكتبة صار يترك
+ * **فجوة** عند العيّنة المجهولة (`gpu = null` على جهاز لا تُعلن نواته عقدة رسوم) — فالمنحنى
+ * ينكسر بدل أن ينزل إلى القاع ويقول كذبة «الرسوم كانت هادئة».
+ *
+ * وصفوف التلخيص تعرض **متوسط النافذة** لا اللحظة — فلا تكرّر الأقواس الأربعة فوقها، وهي في
+ * الوقت نفسه صيغة «قوائم التصنيفات بأشرطة التقدّم» التي جاءت من الصورة `5.jpg`.
+ */
+@Composable
+internal fun PerformanceHistoryCard(dashboard: DashboardState) {
+    val p = neuralPalette()
+    val samples = dashboard.loadSamples
+    val windowed = samples.size >= 3
+    val cpuAvg = if (windowed) samples.map { it.cpu }.average().toFloat() else null
+    val gpuSeries = samples.map { it.gpu }
+    val gpuMeasured = gpuSeries.filterNotNull()
+    val gpuAvg = if (gpuMeasured.size >= 3) gpuMeasured.average().toFloat() else null
+    val ramSeries = dashboard.ramLoadHistory
+    val ramAvg = if (ramSeries.size >= 3) ramSeries.average().toFloat() else null
+
+    NeuralStatCard(
+        title = stringResource(R.string.home_history_title),
+        caption = stringResource(R.string.home_history_desc),
+        accent = p.accent,
+        badge = if (windowed) null else stringResource(R.string.max_home_unavailable),
+        chart = {
+            NeuralAreaPlot(
+                values = samples.map { it.cpu },
+                accent = p.accent,
+                secondary = gpuSeries,
+                secondaryAccent = p.accentAlt,
+                maxValue = 100f,
+                adaptive = false,
+                modifier = Modifier.fillMaxWidth().height(84.dp),
+            )
+        },
+    ) {
+        NeuralCategoryRow(
+            label = stringResource(R.string.home_cpu_tag),
+            value = if (cpuAvg == null) "\u2014" else "${cpuAvg.roundToInt()}%",
+            fraction = cpuAvg?.let { it / 100f },
+            accent = p.accent,
+        )
+        NeuralCategoryRow(
+            label = stringResource(R.string.home_gpu_tag),
+            value = if (gpuAvg == null) "\u2014" else "${gpuAvg.roundToInt()}%",
+            fraction = gpuAvg?.let { it / 100f },
+            accent = p.accentAlt,
+        )
+        NeuralCategoryRow(
+            label = stringResource(R.string.home_ram_tag),
+            value = if (ramAvg == null) "\u2014" else "${ramAvg.roundToInt()}%",
+            fraction = ramAvg?.let { it / 100f },
+            accent = p.warn,
+        )
     }
 }
 

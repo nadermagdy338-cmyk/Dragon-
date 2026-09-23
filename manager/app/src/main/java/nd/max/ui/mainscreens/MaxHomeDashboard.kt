@@ -88,9 +88,9 @@ import nd.max.ui.viewmodel.HomeUiState
  *     the same question. This is also where every hardware-operation outcome surfaces:
  *     applying, applied, or failed with a retry.
  *  4. **What is the hardware doing?** — `ComputeDeck` (**CPU and GPU side by side**, each a
- *     ring plus its own clock meter), `CoreMatrixPanel` (per-core clocks), `MemoryDeck`
- *     (RAM | ZRAM), `CapacityDeck` (storage | battery), `ThermalPanel` (four sensors) and
- *     `DeviceDetailsPanel` (display, network, power as dense readouts).
+ *     ring plus its own clock meter), `CoreMatrixPanel` (per-core clocks), `MemoryDeck` *    (RAM | ZRAM), `CapacityDeck` (storage | battery), `ThermalPanel` (four sensors),
+ *    `PerformanceHistoryCard` (the window's measured history as a chart plus windowed averages)
+ *    and `DeviceDetailsPanel` (display, network, power as dense readouts).
  *  5. **What did control actually change?** — `UnifiedActivityCard` (measured outcomes) and
  *     `CommandDeck` (the four destinations this screen does not duplicate).
  *
@@ -222,6 +222,9 @@ internal fun MaxHomeDashboard(
             )
         }
         MaxReveal(visible = true, delayMillis = 405, modifier = Modifier.fillMaxWidth()) {
+            PerformanceHistoryCard(dashboard)
+        }
+        MaxReveal(visible = true, delayMillis = 450, modifier = Modifier.fillMaxWidth()) {
             DeviceDetailsPanel(
                 dashboard = dashboard,
                 onDisplay = { onNavigate(MaxDestination.DisplayStudio.route) },
@@ -229,10 +232,10 @@ internal fun MaxHomeDashboard(
                 onPower = { onNavigate(MaxDestination.Charging.route) },
             )
         }
-        MaxReveal(visible = true, delayMillis = 450, modifier = Modifier.fillMaxWidth()) {
+        MaxReveal(visible = true, delayMillis = 495, modifier = Modifier.fillMaxWidth()) {
             UnifiedActivityCard(maxAi = maxAi)
         }
-        MaxReveal(visible = true, delayMillis = 495, modifier = Modifier.fillMaxWidth()) {
+        MaxReveal(visible = true, delayMillis = 540, modifier = Modifier.fillMaxWidth()) {
             CommandDeck(
                 onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
                 onBattery = { onNavigate(MaxDestination.Charging.route) },
@@ -653,6 +656,7 @@ private fun ComputeDeck(dashboard: DashboardState, onCpu: () -> Unit, onGpu: () 
             modifier = Modifier.weight(1f),
             ringFraction = cpuLoad / 100f,
             icon = Icons.Rounded.Memory,
+            ringSize = 106.dp,
             onClick = onCpu,
             footer = {
                 NeuralFrequencyMeter(
@@ -676,6 +680,7 @@ private fun ComputeDeck(dashboard: DashboardState, onCpu: () -> Unit, onGpu: () 
                 modifier = Modifier.weight(1f),
                 ringFraction = gpuLoad?.let { it / 100f },
                 icon = Icons.Rounded.Speed,
+                ringSize = 106.dp,
                 onClick = onGpu,
                 footer = {
                     NeuralFrequencyMeter(
@@ -779,6 +784,7 @@ private fun MemoryDeck(dashboard: DashboardState, onRam: () -> Unit, onZram: () 
             modifier = Modifier.weight(1f),
             ringFraction = if (ramKnown) ramFraction else null,
             icon = Icons.Rounded.Storage,
+            ringSize = 106.dp,
             onClick = onRam,
             support = if (ramKnown) {
                 "${gigabytes(dashboard.ramUsedMb)} / ${gigabytes(dashboard.ramTotalMb)}"
@@ -794,6 +800,7 @@ private fun MemoryDeck(dashboard: DashboardState, onRam: () -> Unit, onZram: () 
                 modifier = Modifier.weight(1f),
                 ringFraction = swapFraction,
                 icon = Icons.Rounded.Memory,
+                ringSize = 106.dp,
                 onClick = onZram,
                 support = if (swapUsed != null) {
                     "${gigabytes(swapUsed)} / ${gigabytes(swapTotal)}"
@@ -845,6 +852,7 @@ private fun CapacityDeck(dashboard: DashboardState, onStorage: () -> Unit, onBat
             modifier = Modifier.weight(1f),
             ringFraction = if (storageKnown) storageFraction else null,
             icon = Icons.Rounded.Storage,
+            ringSize = 106.dp,
             onClick = onStorage,
             support = if (storageKnown) {
                 stringResource(R.string.home_available_memory, "${storageFreeGb.oneDecimal()} GB")
@@ -859,6 +867,7 @@ private fun CapacityDeck(dashboard: DashboardState, onStorage: () -> Unit, onBat
             modifier = Modifier.weight(1f),
             ringFraction = if (batteryKnown) dashboard.batteryPercent / 100f else null,
             icon = Icons.Rounded.BatteryChargingFull,
+            ringSize = 106.dp,
             badge = if (dashboard.isCharging) stringResource(R.string.max_home_charging) else null,
             onClick = onBattery,
             // الاستهلاك هو السطر الطبيعي تحت نسبة الشحن (يُشحن أم يُسحب؟ وبقوّة كم؟)،

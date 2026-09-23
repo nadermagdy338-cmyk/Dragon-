@@ -108,13 +108,29 @@ data class NeuralPalette(
     val danger: Color,
 )
 
+/**
+ * نسبة لون المفتاح الممزوجة في أسطح المكتبة.
+ *
+ * والرقم **مقيس لا مُختار**: حُلّلت ثماني لقطات تصميم مرجعية بكسلًا بكسل، فظهر أن أسطحها مصبوغة
+ * بلون مفتاحها — `#200050` (بنفسجي) فوق خلفية `#100020`، و`#203050` (كحلي) في لقطة أخرى،
+ * و`#003040` (تركواز) في ثالثة — بينما تولّد تدرّجات Material محايدات شبه رمادية عن قصد
+ * (انظر تعليق `Theme.kt`: «generated neutrals keep surfaces calm»).
+ *
+ * وسبعة بالمئة تفي بالغرض لأن الدمج **يُضيف صبغة ولا يُطيح بالإضاءة**: أسود + ٧٪ من لون ساطع
+ * ما زال أسود (تباين النصّ الأبيض فوقه > ١٤:١)، وأبيض + ٧٪ من لون غامق ما زال فاتحًا. فالمكسب
+ * بصريّ والثمن صفر في القراءة — وهو الشرط الذي لا أتنازل عنه في أي تغيير يمسّ كل الشاشات.
+ */
+private const val SurfaceHueFraction = .07f
+
 @Composable
 fun neuralPalette(): NeuralPalette {
     val c = MaterialTheme.colorScheme
+    // أسطح المكتبة تحمل **هويّة اللون** لا الرمادي: هو الفرق الواحد الأظهر بين تطبيقنا ونماذج
+    // التصميم المرجعية، وهو تغيير ينتقل إلى كل شاشة تستعمل المكتبة بلا لمس أي شاشة منها.
     return NeuralPalette(
-        panel = c.surfaceContainerLow,
-        panelTop = c.surfaceContainerHigh,
-        tile = c.surfaceContainerHighest.copy(alpha = .40f),
+        panel = lerp(c.surfaceContainerLow, c.primary, SurfaceHueFraction),
+        panelTop = lerp(c.surfaceContainerHigh, c.primary, SurfaceHueFraction),
+        tile = lerp(c.surfaceContainerHighest, c.primary, SurfaceHueFraction * .7f).copy(alpha = .40f),
         text = c.onSurface,
         muted = c.onSurfaceVariant,
         border = c.outlineVariant.copy(alpha = .45f),
@@ -349,18 +365,21 @@ fun NeuralIconChip(icon: ImageVector, accent: Color, modifier: Modifier = Modifi
  * instead of a straight line glued to the top edge.
  */
 private fun plotPoints(
-    values: List<Float>,
+    values: List<Float?>,
     width: Float,
     height: Float,
     ceiling: Float,
     adaptive: Boolean,
-): List<Offset> {
+): List<Offset?> {
     if (values.isEmpty()) return emptyList()
+    // المقياس يُحسب من القيم **المقيسة فقط**، والقيمة المجهولة تُصبح فجوة (null) لا صفرًا:
+    // صفرٌ يُرسم كقاعٍ في المنحنى، والفجوة تقول الحقيقة — «لم تُقرأ».
+    val measured = values.filterNotNull()
     val lo: Float
     val hi: Float
     if (adaptive) {
-        val low = values.minOrNull() ?: 0f
-        val high = values.maxOrNull() ?: ceiling
+        val low = measured.minOrNull() ?: 0f
+        val high = measured.maxOrNull() ?: ceiling
         val pad = ((high - low) * .25f).coerceAtLeast(ceiling * .04f)
         lo = (low - pad).coerceAtLeast(0f)
         hi = (high + pad).coerceAtMost(ceiling).coerceAtLeast(lo + ceiling * .08f)
@@ -371,8 +390,10 @@ private fun plotPoints(
     val span = (hi - lo).coerceAtLeast(0.001f)
     val step = if (values.size > 1) width / (values.size - 1) else width
     return values.mapIndexed { index, raw ->
-        val t = ((raw - lo) / span).coerceIn(0f, 1f)
-        Offset(step * index, height - t * height)
+        raw?.let {
+            val t = ((it - lo) / span).coerceIn(0f, 1f)
+            Offset(step * index, height - t * height)
+        }
     }
 }
 
@@ -399,40 +420,57 @@ private fun smoothPath(points: List<Offset>): Path {
 }
 
 private fun DrawScope.drawSeries(
-    points: List<Offset>,
+    points: List<Offset?>,
     color: Color,
     strokeWidth: Float,
     fill: Boolean,
     marker: Boolean,
 ) {
-    if (points.size < 2) return
-    val line = smoothPath(points)
-    if (fill) {
-        val area = Path()
-        area.addPath(line)
-        area.lineTo(points.last().x, size.height)
-        area.lineTo(points.first().x, size.height)
-        area.close()
-        drawPath(
-            area,
-            Brush.verticalGradient(
-                listOf(color.copy(alpha = .34f), color.copy(alpha = .10f), Color.Transparent)
-            ),
-        )
+    // كل قطعة متصلة تُرسم وحدها، والقيمة المجهولة تُبقي **فجوة** في الرسم: خطٌّ يملأ الفجوة
+    // بين عيّنتين لم تُقرأا معًا يخترع قياسًا لا وجود له.
+    var open = ArrayList<Offset>()
+    val segments = ArrayList<List<Offset>>()
+    for (point in points) {
+        if (point == null) {
+            if (open.size > 1) segments.add(open)
+            open = ArrayList()
+        } else {
+            open.add(point)
+        }
     }
-    drawPath(line, color.copy(alpha = .22f), style = Stroke(width = strokeWidth * 2.6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    drawPath(line, color, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    if (open.size > 1) segments.add(open)
+
+    for (segment in segments) {
+        val line = smoothPath(segment)
+        if (fill) {
+            val area = Path()
+            area.addPath(line)
+            area.lineTo(segment.last().x, size.height)
+            area.lineTo(segment.first().x, size.height)
+            area.close()
+            drawPath(
+                area,
+                Brush.verticalGradient(
+                    listOf(color.copy(alpha = .34f), color.copy(alpha = .10f), Color.Transparent)
+                ),
+            )
+        }
+        drawPath(line, color.copy(alpha = .22f), style = Stroke(width = strokeWidth * 2.6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawPath(line, color, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
     if (marker) {
-        val last = points.last()
-        drawCircle(color.copy(alpha = .25f), radius = strokeWidth * 3.2f, center = last)
-        drawCircle(color, radius = strokeWidth * 1.3f, center = last)
+        val last = points.lastOrNull { it != null }
+        if (last != null) {
+            drawCircle(color.copy(alpha = .25f), radius = strokeWidth * 3.2f, center = last)
+            drawCircle(color, radius = strokeWidth * 1.3f, center = last)
+        }
     }
 }
 
 /** Compact smoothed trend for KPI tiles. */
 @Composable
 fun NeuralSparkline(
-    values: List<Float>,
+    values: List<Float?>,
     accent: Color,
     modifier: Modifier = Modifier,
     maxValue: Float = 100f,
@@ -447,10 +485,10 @@ fun NeuralSparkline(
 /** Full-width smoothed plot with grid, used where two series must be compared. */
 @Composable
 fun NeuralAreaPlot(
-    values: List<Float>,
+    values: List<Float?>,
     accent: Color,
     modifier: Modifier = Modifier,
-    secondary: List<Float> = emptyList(),
+    secondary: List<Float?> = emptyList(),
     secondaryAccent: Color? = null,
     maxValue: Float = 100f,
     adaptive: Boolean = true,
@@ -735,7 +773,7 @@ fun NeuralKpiTile(
     support: String? = null,
     /** شريط تحت الرقم (مقياس التردد) — يُمرَّر من الشاشة فلا تُكرَّر معلومة الرقم نفسه. */
     meter: (@Composable () -> Unit)? = null,
-    history: List<Float> = emptyList(),
+    history: List<Float?> = emptyList(),
     maxValue: Float = 100f,
     onClick: (() -> Unit)? = null,
 ) {
@@ -887,7 +925,9 @@ fun NeuralFactTile(
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
     ) {
         NeuralCaption(caption, color = accent)
-        NeuralValue(value, style = MonoValueStyleSmall.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold), color = p.text)
+        // الرقم أكبر من اسمه بدرجتين: هو المعلومة، والاسم تسمية لها. 14sp هو ما يسع
+        // «1080×2400» في ثلث العرض بلا قصّ (قاسها `NeuralValue` بـLTR مثبّت).
+        NeuralValue(value, style = MonoValueStyleSmall.copy(fontSize = 14.sp, fontWeight = FontWeight.SemiBold), color = p.text)
     }
 }
 
