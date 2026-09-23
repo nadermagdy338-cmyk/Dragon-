@@ -283,7 +283,7 @@ fun NetworkDetailScreen(navController: NavController) {
                     title = if (dlKbps == 0L && ulKbps == 0L) stringResource(R.string.detail_network_quiet) else stringResource(R.string.detail_network_active),
                     subtitle = stringResource(R.string.detail_trafficstats_subtitle),
                     accent = accent,
-                    value = formatNetSpeed(dlKbps),
+                    value = netSpeed(dlKbps),
                     valueLabel = stringResource(R.string.detail_download_value),
                     icon = Icons.Rounded.NetworkCheck
                 )
@@ -291,8 +291,8 @@ fun NetworkDetailScreen(navController: NavController) {
 
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    DetailStatCard(Icons.Rounded.ArrowDownward, stringResource(R.string.detail_download), formatNetSpeed(dlKbps), accent, Modifier.weight(1f))
-                    DetailStatCard(Icons.Rounded.ArrowUpward, stringResource(R.string.detail_upload), formatNetSpeed(ulKbps), secondary, Modifier.weight(1f))
+                    DetailStatCard(Icons.Rounded.ArrowDownward, stringResource(R.string.detail_download), netSpeed(dlKbps), accent, Modifier.weight(1f))
+                    DetailStatCard(Icons.Rounded.ArrowUpward, stringResource(R.string.detail_upload), netSpeed(ulKbps), secondary, Modifier.weight(1f))
                 }
             }
 
@@ -347,8 +347,8 @@ fun NetworkDetailScreen(navController: NavController) {
             }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    DetailStatCard(Icons.AutoMirrored.Rounded.TrendingDown, stringResource(R.string.detail_peak_download), formatNetSpeed(peakDl), accent, Modifier.weight(1f))
-                    DetailStatCard(Icons.AutoMirrored.Rounded.TrendingUp, stringResource(R.string.detail_peak_upload), formatNetSpeed(peakUl), secondary, Modifier.weight(1f))
+                    DetailStatCard(Icons.AutoMirrored.Rounded.TrendingDown, stringResource(R.string.detail_peak_download), netSpeed(peakDl), accent, Modifier.weight(1f))
+                    DetailStatCard(Icons.AutoMirrored.Rounded.TrendingUp, stringResource(R.string.detail_peak_upload), netSpeed(peakUl), secondary, Modifier.weight(1f))
                 }
             }
         }

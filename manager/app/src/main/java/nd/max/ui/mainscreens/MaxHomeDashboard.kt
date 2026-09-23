@@ -42,6 +42,7 @@ import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.component.MaxReveal
 import nd.max.ui.component.NeuralDivider
 import nd.max.ui.component.NeuralCoreGrid
+import nd.max.ui.component.NeuralCoreReading
 import nd.max.ui.component.NeuralGaugeCard
 import nd.max.ui.component.NeuralIconButton
 import nd.max.ui.component.NeuralIconChip
