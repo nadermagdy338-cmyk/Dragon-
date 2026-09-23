@@ -1620,6 +1620,19 @@
     <string name="home_open_details">Open detailed thermal data</string>
     <string name="home_available_memory">%1$s available</string>
     <string name="home_available_swap">%1$s swap free</string>
+    <string name="max_brand_mark">MAX</string>
+    <string name="home_cpu_tag">CPU</string>
+    <string name="home_gpu_tag">GPU</string>
+    <string name="home_ram_tag">RAM</string>
+    <string name="home_zram_tag">ZRAM</string>
+    <string name="home_skin_tag">Skin</string>
+    <string name="home_device_details">Device details</string>
+    <string name="home_device_details_desc">Display, network and power readings</string>
+    <string name="home_download">Download</string>
+    <string name="home_upload">Upload</string>
+    <string name="home_density">Density</string>
+    <string name="home_battery_current">Battery current</string>
+    <string name="home_battery_voltage">Battery voltage</string>
 
     <!-- Storyboard: what your choices are doing, stated from their own source -->
     <string name="storyboard_title">WHAT YOUR SETTINGS ARE DOING</string>

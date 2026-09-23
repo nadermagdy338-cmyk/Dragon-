@@ -1,10 +1,5 @@
 package nd.max.ui.mainscreens
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,19 +7,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PowerSettingsNew
 import androidx.compose.material.icons.rounded.Settings
@@ -32,13 +25,14 @@ import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Timeline
-import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -53,20 +47,20 @@ import nd.max.core.maxai.DecisionResult
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.component.MaxReveal
-import nd.max.ui.component.NeuralActionTile
 import nd.max.ui.component.NeuralCaption
+import nd.max.ui.component.NeuralCoreGrid
+import nd.max.ui.component.NeuralCoreReading
 import nd.max.ui.component.NeuralDivider
-import nd.max.ui.component.NeuralFactTile
 import nd.max.ui.component.NeuralFeedRow
 import nd.max.ui.component.NeuralFrequencyMeter
+import nd.max.ui.component.NeuralGaugeCard
 import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralLiveDot
-import nd.max.ui.component.NeuralLoadRibbon
 import nd.max.ui.component.NeuralPanel
+import nd.max.ui.component.NeuralPanelShape
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.NeuralSegmented
-import nd.max.ui.component.NeuralTile
 import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.navigation.MaxDestination
@@ -75,52 +69,62 @@ import nd.max.ui.viewmodel.DashboardState
 import nd.max.ui.viewmodel.HomeUiState
 
 /**
- * The MAX home — **one instrument, one control band, one log**.
+ * The MAX home — **a device instrument panel, not a stack of cards**.
  *
- * The screen answers three questions in reading order and never repeats itself:
+ * The screen is read top to bottom as five answers, and nothing is drawn twice:
  *
- *  1. **How is the device right now?** — `DevicePulseHero`: identity, one headline
- *     reading (heat), one verdict sentence (the limiter), the CPU/GPU load spectrum
- *     with the clock meters that used to be two separate cards, and the three facts
- *     that have no owner screen (uptime, battery shortcut, power draw).
- *  2. **Who is in control?** — `ControlBand`: the base-profile rail (your hand) and
- *     the Max AI strip (the engine's hand) on one surface, because they are the two
- *     faces of the same question. This is also where every hardware-operation
- *     outcome surfaces: applying, applied, or failed with a retry.
- *  3. **What did that actually do?** — `UnifiedActivityCard`: measured outcomes only.
- *     The Max AI scene lives there (knob-level changes), so this band deliberately
- *     shows intent and confidence — never the same knob lines again.
+ *  1. **Who am I attached to, and what is wrong?** — header (engine state, one word) and
+ *     `FocusCard`, which appears **only** when a measured threshold is crossed, so its
+ *     presence itself carries meaning.
+ *  2. **What device is this?** — `IdentityCard`: name, chipset, system state, and the
+ *     current limiter as a one-word chip. The paragraph that used to explain the limiter
+ *     is gone on purpose: it restated the readings below it in prose
+ *     (and, at baseline, said "no single limiter dominates yet" — true, but a sentence the
+ *     panel already said better by showing calm numbers). The engine's limiter *name* is
+ *     kept because it is one fact, and it stays as the engine wrote it (see the
+ *     engine-authored-text rule in the activity card).
+ *  3. **Who is in control?** — `ControlBand`: the base-profile rail (your hand) and the
+ *     Max AI strip (the engine's hand) on one surface, because they are the two faces of
+ *     the same question. This is also where every hardware-operation outcome surfaces:
+ *     applying, applied, or failed with a retry.
+ *  4. **What is the hardware doing?** — `ComputeDeck` (**CPU and GPU side by side**, each a
+ *     ring plus its own clock meter), `CoreMatrixPanel` (per-core clocks), `MemoryDeck`
+ *     (RAM | ZRAM), `CapacityDeck` (storage | battery), `ThermalPanel` (four sensors) and
+ *     `DeviceDetailsPanel` (display, network, power as dense readouts).
+ *  5. **What did control actually change?** — `UnifiedActivityCard` (measured outcomes) and
+ *     `CommandDeck` (the four destinations this screen does not duplicate).
  *
- * What was deleted from the old home and why (each was drawn twice somewhere):
+ * What changed from the previous home, and why:
  *
- *  - **Two big CPU/GPU cards** → merged into the hero's spectrum + clock meters.
- *    The sparklines they carried were the *third* drawing of the same series.
- *  - **`VerdictPanel` ("performance story")** → its one useful sentence (the limiter)
- *    became the hero's verdict line; its confidence track duplicated the AI strip's
- *    confidence, and its event feed duplicated the live loop's journal.
- *  - **`CommandDeck`'s profile tile** → the profile rail applies in one tap now;
- *    a dialog on top of a rail is a step nobody asked for.
- *  - **The profile dialog itself** — the rail *is* the picker.
+ *  - **The spectrum ("load ribbon") is gone.** It was the third drawing of the same load
+ *    series and it read as a chart in a screen that had none. Load is now a ring on the CPU
+ *    and GPU cards — the reading, the clock it is pinned to, and its ceiling in one glance.
+ *  - **CPU and GPU are two cards, left and right.** Stacking them made the page taller to
+ *    compare two numbers that mean the same thing; side by side they compare themselves.
+ *  - **Device data that was hidden in other screens is back as widgets.** RAM, ZRAM,
+ *    storage, battery, per-core clocks, display, network and power are the numbers people
+ *    open a device-info app for, and they belong on the first screen of a performance app.
+ *  - **Plots were replaced by ratios.** Every ring is «used of total» with a real
+ *    denominator: RAM, ZRAM, storage, battery percent, load percent. A ring cannot be drawn
+ *    without a denominator, which is exactly the honesty rule this screen keeps — an
+ *    unknown total renders `—` with an empty ring, never a full one.
  *
  * Honesty rules kept from the old screen and tightened:
  *
  *  - every number comes from `DashboardState` / `MaxAiState` measurement; nothing is
- *    estimated. Power draw shows `—` at 0 (0 means `current_now` unreadable, not 0 W),
- *    GPU hides entirely when the kernel exposes no node, and a missing frequency
- *    ceiling renders a meter with **no fill** instead of an invented range;
- *  - no metric is drawn twice on this screen — heat is one number in the hero, the
- *    engine state is said once (the header pill), and knob changes live only in the
- *    activity card;
- *  - engine-authored text (limiter names, automation reason/next action, safety
- *    reasons) is shown as the engine wrote it — the same rule the activity card uses
- *    for hardware reasons: a translated paraphrase would break the line to log text.
+ *    estimated. Power draw shows `—` at 0 (0 means `current_now` unreadable, not 0 W), the
+ *    GPU card disappears entirely when the kernel exposes no node, a battery at 0% is
+ *    treated as unreadable rather than empty, and a core with no readable clock shows `—`;
+ *  - the same datum is never drawn twice on this screen: heat lives in the thermal panel
+ *    (the identity card carries state, not a second temperature), knob changes live only in
+ *    the activity card, and the engine state is said once in the header;
+ *  - engine-authored text (limiter names, automation reason/next action, safety reasons) is
+ *    shown as the engine wrote it — a translated paraphrase would break the line to log text.
  *
- * Motion is choreography, not decoration: blocks enter staggered once via
- * [MaxReveal], the heat headline crossfades on real change, the profile rail's lit
- * segment slides by color only, and the AI dot pulses **while the engine runs** and
- * rests when it stops. Motion is never on the reading path — the activity card's
- * own `CardMotion` setting is the user-facing kill switch (`off` skips the
- * transition composable entirely, it is not a zero-duration animation).
+ * Motion is choreography, not decoration: blocks enter staggered once via [MaxReveal], every
+ * ring and every core column animates to its value instead of re-mounting, and the AI dot
+ * pulses **while the engine runs** and rests when it stops. The activity card's own
+ * `CardMotion` setting is the user-facing kill switch.
  */
 
 /** مقطع واحد في سلّم الملفات: المفتاح الذي يمرّ للمحرّك، واسمه المعروض. */
@@ -158,25 +162,21 @@ internal fun MaxHomeDashboard(
     onAiRetry: () -> Unit,
 ) {
     val online = ui.rootStatus && ui.moduleInstalled
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         MaxReveal(visible = true, delayMillis = 0, modifier = Modifier.fillMaxWidth()) {
             HomeHeader(online, onSettings, onReboot)
         }
-        MaxReveal(visible = true, delayMillis = 55, modifier = Modifier.fillMaxWidth()) {
-            DevicePulseHero(
+        MaxReveal(visible = true, delayMillis = 45, modifier = Modifier.fillMaxWidth()) {
+            FocusCard(dashboard, maxAi, onNavigate)
+        }
+        MaxReveal(visible = true, delayMillis = 90, modifier = Modifier.fillMaxWidth()) {
+            IdentityCard(
                 dashboard = dashboard,
                 deviceName = deviceName,
-                onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
-                onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
-                onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
-                onBattery = { onNavigate(MaxDestination.Charging.route) },
                 onOverview = { onNavigate(MaxDestination.Diagnostics.route) },
             )
         }
-        MaxReveal(visible = true, delayMillis = 110, modifier = Modifier.fillMaxWidth()) {
-            FocusCard(dashboard, maxAi, onNavigate)
-        }
-        MaxReveal(visible = true, delayMillis = 165, modifier = Modifier.fillMaxWidth()) {
+        MaxReveal(visible = true, delayMillis = 135, modifier = Modifier.fillMaxWidth()) {
             ControlBand(
                 profileRes = ui.currentProfileRes,
                 manualProfileAllowed = ui.autoMode == "0",
@@ -188,10 +188,51 @@ internal fun MaxHomeDashboard(
                 onRetry = onAiRetry,
             )
         }
-        MaxReveal(visible = true, delayMillis = 220, modifier = Modifier.fillMaxWidth()) {
+        MaxReveal(visible = true, delayMillis = 180, modifier = Modifier.fillMaxWidth()) {
+            ComputeDeck(
+                dashboard = dashboard,
+                onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
+                onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
+            )
+        }
+        MaxReveal(visible = true, delayMillis = 225, modifier = Modifier.fillMaxWidth()) {
+            CoreMatrixPanel(
+                dashboard = dashboard,
+                onCores = { onNavigate(MaxDestination.CpuCoreControl.route) },
+            )
+        }
+        MaxReveal(visible = true, delayMillis = 270, modifier = Modifier.fillMaxWidth()) {
+            MemoryDeck(
+                dashboard = dashboard,
+                onRam = { onNavigate(MaxDestination.MemoryHub.route) },
+                onZram = { onNavigate(MaxDestination.ZramManager.route) },
+            )
+        }
+        MaxReveal(visible = true, delayMillis = 315, modifier = Modifier.fillMaxWidth()) {
+            CapacityDeck(
+                dashboard = dashboard,
+                onStorage = { onNavigate(MaxDestination.StorageDetail.route) },
+                onBattery = { onNavigate(MaxDestination.Charging.route) },
+            )
+        }
+        MaxReveal(visible = true, delayMillis = 360, modifier = Modifier.fillMaxWidth()) {
+            ThermalPanel(
+                dashboard = dashboard,
+                onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
+            )
+        }
+        MaxReveal(visible = true, delayMillis = 405, modifier = Modifier.fillMaxWidth()) {
+            DeviceDetailsPanel(
+                dashboard = dashboard,
+                onDisplay = { onNavigate(MaxDestination.DisplayStudio.route) },
+                onNetwork = { onNavigate(MaxDestination.NetworkDetail.route) },
+                onPower = { onNavigate(MaxDestination.Charging.route) },
+            )
+        }
+        MaxReveal(visible = true, delayMillis = 450, modifier = Modifier.fillMaxWidth()) {
             UnifiedActivityCard(maxAi = maxAi)
         }
-        MaxReveal(visible = true, delayMillis = 275, modifier = Modifier.fillMaxWidth()) {
+        MaxReveal(visible = true, delayMillis = 495, modifier = Modifier.fillMaxWidth()) {
             CommandDeck(
                 onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
                 onBattery = { onNavigate(MaxDestination.Charging.route) },
@@ -212,7 +253,7 @@ private fun HomeHeader(online: Boolean, onSettings: () -> Unit, onReboot: () -> 
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(
-                "MAX",
+                stringResource(R.string.max_brand_mark),
                 color = p.text,
                 fontSize = 26.sp,
                 lineHeight = 28.sp,
@@ -251,42 +292,57 @@ private fun HeaderButton(icon: ImageVector, description: String, onClick: () -> 
 }
 
 /**
- * The signature block: heat headline → verdict → load spectrum → clock meters →
- * facts. One panel instead of the old three, because all of it answers one
- * question and every datum in it is drawn exactly once on this screen.
+ * هويّة الجهاز: اسمه، وشريحته، وحالة النظام، والمحدِّد الحالي بكلمة واحدة.
  *
- * The spectrum is the identity element: two lanes (GPU above CPU, same 0–100%
- * scale), empty slots rendered as seats so the frame is whole from the first
- * second, and the newest column capped in the heat color — "now" is visible
- * without an arrow or a label.
+ * ولا رقم حرارة هنا، ولا شارة حالة: الحرارة وحكمها في لوحة الحرارة أسفل الصفحة (حيث
+ * المجسّات نفسها)، والشارة هناك تعني ما تراه العين بجانب الرقم. وما تحمله هذه البطاقة هو
+ * **ما لا تملكه لوحة**: اسم الجهاز، وشريحته، والمحدِّد الحالي — أي العنوان الذي يُقرأ منه
+ * ما تحته. ورقم يظهر في مكانين يعني رقمين مختلفين بعد أول تحديث لأحدهما.
+ *
+ * وهي **السطح الوحيد المُدرَّج في الشاشة** (تدرّج رأسي + هالة لونية من الركن): الألواح الباقية
+ * مسطّحة متساوية عن قصد، فتقرأ العينُ الأولى فورًا على أنها الترويسة، وفي الوقت نفسه لا يسحب
+ * تدرّجُها الانتباه عن القراءات. ومعها الاسم يكبُر إلى 20sp — أول تمييز هرمي في الصفحة.
  */
 @Composable
-private fun DevicePulseHero(
+private fun IdentityCard(
     dashboard: DashboardState,
     deviceName: String,
-    onCpu: () -> Unit,
-    onGpu: () -> Unit,
-    onThermal: () -> Unit,
-    onBattery: () -> Unit,
     onOverview: () -> Unit,
 ) {
     val p = neuralPalette()
-    val heat = dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt()
-        ?: dashboard.cpuTempC.takeIf { it > 0 }
-    val heatAccent = temperatureAccent(heat)
-    val calm = heat == null || heat < 43
     val intel = dashboard.intelligence
+    // لون الحكم يحتاج حرارة اللحظة وإن لم يُعرض رقمها: محدد «Thermal» يجب أن يُقرأ بلون
+    // الحرارة لا بأخضر الحالة — وإلا صار اللون جزءًا من معلومة غير معروضة.
+    val heatAccent = temperatureAccent(
+        dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt() ?: dashboard.cpuTempC
+    )
 
-    NeuralPanel(accent = heatAccent, contentPadding = PaddingValues(18.dp), verticalSpacing = 14.dp) {
+    val shape = NeuralPanelShape
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Brush.verticalGradient(listOf(p.panelTop.copy(alpha = .96f), p.panel)))
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(p.accent.copy(alpha = .18f), Color.Transparent),
+                    center = Offset(0f, 0f),
+                    radius = 820f,
+                )
+            )
+            .border(BorderStroke(1.dp, p.accent.copy(alpha = .30f)), shape)
+            .padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(13.dp),
+    ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralIconChip(Icons.Rounded.PhoneAndroid, p.accent, size = 40.dp)
-            Spacer(Modifier.width(12.dp))
+            NeuralIconChip(Icons.Rounded.PhoneAndroid, p.accent, size = 48.dp)
+            Spacer(Modifier.width(13.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
                     deviceName,
                     color = p.text,
-                    fontSize = 16.sp,
-                    lineHeight = 20.sp,
+                    fontSize = 20.sp,
+                    lineHeight = 24.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -294,193 +350,44 @@ private fun DevicePulseHero(
                 Text(
                     dashboard.chipsetName,
                     color = p.muted,
-                    fontSize = 11.sp,
-                    lineHeight = 15.sp,
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            NeuralPill(
-                text = stringResource(if (calm) R.string.home_system_stable else R.string.home_system_attention),
-                accent = if (calm) p.ok else heatAccent,
-                dot = true,
-                onClick = onThermal
-            )
         }
-
-        // العنوان الوحيد الكبير على الشاشة: الحرارة. الرقم يتقاطع هادئًا عند تغيّره فقط،
-        // فلا حركة على قراءة ثابتة — وهي أهم قاعدة في حركة هذه الشاشة.
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                NeuralCaption(stringResource(R.string.home_temperature_short), color = heatAccent)
-                Row(verticalAlignment = Alignment.Bottom) {
-                    AnimatedContent(
-                        targetState = heat,
-                        transitionSpec = {
-                            fadeIn(tween(200)) togetherWith fadeOut(tween(140))
-                        },
-                        label = "hero-heat",
-                    ) { value ->
-                        NeuralValue(
-                            value?.toString() ?: "\u2014",
-                            style = MonoValueStyleSmall.copy(
-                                fontSize = 44.sp,
-                                lineHeight = 48.sp,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = p.text
-                        )
-                    }
-                    Spacer(Modifier.width(4.dp))
-                    NeuralCaption("\u00b0C", color = p.muted)
-                }
-            }
-        }
-
-        // الحكم في جملة: ما المحدِّد الآن ولماذا — السطر الذي كان بطاقة كاملة قديمًا.
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralCaption(stringResource(R.string.home_story_bottleneck), color = p.muted)
-            Spacer(Modifier.width(8.dp))
+        NeuralDivider()
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // المحدِّد كما كتبه المحرّك («Baseline» · «Thermal» · «Memory») — كلمة واحدة،
+            // لا شرح: الشرح كان يُعيد صياغة الأرقام المعروضة أسفلها في نصّ.
+            NeuralCaption(stringResource(R.string.home_story_bottleneck))
             Text(
                 intel.primaryLimiter,
                 color = limiterAccent(intel.primaryLimiter, heatAccent),
-                fontSize = 12.sp,
-                lineHeight = 16.sp,
+                fontSize = 13.sp,
+                lineHeight = 17.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-        }
-        Text(
-            intel.explanation,
-            color = p.muted,
-            fontSize = 11.sp,
-            lineHeight = 15.sp,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        NeuralLoadRibbon(
-            samples = dashboard.loadSamples,
-            accent = p.accent,
-            secondaryAccent = p.accentAlt,
-            hot = heatAccent,
-            modifier = Modifier.fillMaxWidth().height(96.dp),
-        )
-
-        // مسار GPU يظهر فقط حين توجد قراءة حقيقية: لا نصف فارغ يوهم بأن الرسوم هادئة،
-        // ولا صف يقول «صفر» لعدة لا تُقرأ أصلًا.
-        if (dashboard.gpuLoadPercent != null || dashboard.gpuFreqMhz != null) {
-            HardwareLane(
-                tag = "GPU",
-                accent = p.accentAlt,
-                loadPercent = dashboard.gpuLoadPercent,
-                freqMhz = dashboard.gpuFreqMhz,
-                ceilingMhz = dashboard.gpuCeilingMhz,
-                onClick = onGpu,
-            )
-        }
-        HardwareLane(
-            tag = "CPU",
-            accent = p.accent,
-            loadPercent = dashboard.cpuLoadPercent,
-            freqMhz = dashboard.cpuTopCoreMhz.takeIf { it > 0 },
-            ceilingMhz = dashboard.cpuCeilingMhz.takeIf { it > 0 },
-            onClick = onCpu,
-        )
-
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NeuralFactTile(
-                caption = stringResource(R.string.max_home_uptime),
-                value = compactUptime(dashboard.uptimeMinutes),
-                accent = p.accent,
-                modifier = Modifier.weight(1f)
-            )
-            NeuralFactTile(
-                caption = stringResource(R.string.max_home_battery),
-                value = "${dashboard.batteryPercent}%",
-                accent = if (dashboard.isCharging) p.ok else p.accentAlt,
-                modifier = Modifier.weight(1f),
-                onClick = onBattery
-            )
-            NeuralFactTile(
-                caption = stringResource(R.string.home_power_draw),
-                // الصفر هنا «لا قراءة» لا «صفر واط»: `current_now` غير مقروء يُعرض هكذا،
-                // ورقم مُخترع من عدَّاد صامت أسوأ من علامة نقص صادقة.
-                value = if (dashboard.powerWatt > 0f) "${dashboard.powerWatt.oneDecimal()} W" else "\u2014",
-                accent = p.warn,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        NeuralPill(
-            text = stringResource(R.string.home_device_overview),
-            accent = p.muted,
-            onClick = onOverview
-        )
-    }
-}
-
-/**
- * صفّ مسار واحد: الاسم ونسبة الحمل، وتحته مقياس التردد (القراءة · السقف · المدرّج).
- *
- * والمقياس يجيب سؤالًا لا يجيبه الرقم وحده: هل التردد **قريب من سقفه** (يعمل بقوّته)
- * أم مضغوط تحته (يخنق نفسه)؟ والسقف غير المعلَن ⇒ لا تعبئة، لا مدى مُخترع.
- */
-@Composable
-private fun HardwareLane(
-    tag: String,
-    accent: Color,
-    loadPercent: Int?,
-    freqMhz: Int?,
-    ceilingMhz: Int?,
-    onClick: () -> Unit,
-) {
-    val p = neuralPalette()
-    val current = freqMhz?.takeIf { it > 0 }
-    val ceiling = ceilingMhz?.takeIf { it > 0 }
-    NeuralTile(accent = accent, onClick = onClick) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(6.dp).clip(CircleShape).background(accent))
-            Spacer(Modifier.width(8.dp))
-            Text(
-                tag,
-                color = p.muted,
-                fontSize = 11.sp,
-                lineHeight = 14.sp,
-                fontWeight = FontWeight.SemiBold
-            )
             Spacer(Modifier.weight(1f))
-            NeuralValue(
-                if (loadPercent == null) "\u2014" else "${loadPercent.coerceIn(0, 100)}%",
-                style = MonoValueStyleSmall.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold),
-                color = if (loadPercent == null) p.muted else p.text
+            NeuralPill(
+                text = stringResource(R.string.home_device_overview),
+                accent = p.muted,
+                onClick = onOverview
             )
         }
-        NeuralFrequencyMeter(
-            reading = compactFrequency(current),
-            ceiling = ceiling?.let { compactFrequency(it) },
-            fraction = if (current != null && ceiling != null) current.toFloat() / ceiling else null,
-            accent = accent,
-        )
-    }
-}
-
-/** لون الحكم: خط الأساس هادئ، والحرارة بلون الحرارة، وما عدا ذلك بلون المسار. */
-@Composable
-private fun limiterAccent(limiter: String, heatAccent: Color): Color {
-    val p = neuralPalette()
-    return when (limiter) {
-        "Baseline" -> p.ok
-        "Thermal", "Power/Thermal" -> heatAccent
-        "CPU", "GPU" -> p.accent
-        "Memory" -> p.accentAlt
-        else -> p.muted
     }
 }
 
 /**
- * Shown only when a real problem exists (measured thresholds, or the safety
- * engine actively capping), so its presence itself means something.
+ * الشاشة **لا تفترض أن المشكلة موجودة**. هذه البطاقة تُرسم فقط عند عتبة مقيسة (حرارة، أو
+ * سعة، أو ذاكرة، أو تدخّل أمان فعلي)، فوجودها نفسه معلومة. وغيابها هو الحالة الطبيعية.
  */
 @Composable
 private fun FocusCard(dashboard: DashboardState, maxAi: MaxAiState, onNavigate: (String) -> Unit) {
@@ -716,59 +623,249 @@ private fun ControlBand(
 }
 
 /**
- * Where to go next. Four destinations that people actually reach for; the profile
- * action is gone (the rail replaced it) and every tile here owns a screen this
- * home does not duplicate.
+ * المعالج والرسوم **جنبًا إلى جنب** — لأن المقارنة هي المعنى.
+ *
+ * عمودان بنفس الأبعاد يجعلان الرقمين يُقارنان بلا تحريك العين رأسًا، والبطاقة الواحدة
+ * تحمل: نسبة الحمل (القوس) وتردّد الوحدة من سقفه (المقياس السفلي). وحرارة الوحدة ليست
+ * هنا بل في لوحة الحرارة مع المجسّات الأربعة: قراءة واحدة، في المكان الذي تُجمع فيه.
+ * والحدّ معلن في الصورة نفسها: قوس فارغ يعني «لا نقرأ»، لا «الحمل صفر».
+ *
+ * ومسار GPU يغيب كاملًا حين لا تُعلنه النواة (`gpuLoadPercent` و`gpuFreqMhz` كلاهما
+ * مجهول): بطاقة GPU فارغة تقول «الرسوم هادئة» وهي لا تقول الحقيقة. وفي هذه الحالة يأخذ
+ * المعالج العرض كلّه بدل نصف فارغ.
  */
 @Composable
-private fun CommandDeck(
-    onThermal: () -> Unit,
-    onBattery: () -> Unit,
-    onApps: () -> Unit,
-    onAdvanced: () -> Unit,
-) {
+private fun ComputeDeck(dashboard: DashboardState, onCpu: () -> Unit, onGpu: () -> Unit) {
     val p = neuralPalette()
-    NeuralPanel {
-        NeuralSectionHeader(
-            title = stringResource(R.string.home_quick_actions),
-            caption = stringResource(R.string.home_quick_actions_desc),
-            accent = p.accentAlt
+    val cpuLoad = dashboard.cpuLoadPercent.coerceIn(0, 100)
+    val gpuLoad = dashboard.gpuLoadPercent?.coerceIn(0, 100)
+    val gpuAvailable = dashboard.gpuLoadPercent != null || dashboard.gpuFreqMhz != null
+    val cpuCeiling = dashboard.cpuCeilingMhz.takeIf { it > 0 }
+    val cpuTop = dashboard.cpuTopCoreMhz.takeIf { it > 0 }
+    val gpuCeiling = dashboard.gpuCeilingMhz?.takeIf { it > 0 }
+    val gpuFreq = dashboard.gpuFreqMhz?.takeIf { it > 0 }
+
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        NeuralGaugeCard(
+            caption = stringResource(R.string.home_cpu_tag),
+            value = "$cpuLoad%",
+            accent = p.accent,
+            modifier = Modifier.weight(1f),
+            ringFraction = cpuLoad / 100f,
+            icon = Icons.Rounded.Memory,
+            onClick = onCpu,
+            footer = {
+                NeuralFrequencyMeter(
+                    reading = compactFrequency(cpuTop),
+                    ceiling = cpuCeiling?.let { compactFrequency(it) },
+                    // السقف غير المعلَن ⇒ لا تعبئة: نسبة من مقام مُخترع ليست قياسًا.
+                    fraction = if (cpuTop != null && cpuCeiling != null) {
+                        cpuTop.toFloat() / cpuCeiling
+                    } else {
+                        null
+                    },
+                    accent = p.accent,
+                )
+            },
         )
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            NeuralActionTile(
-                icon = Icons.Rounded.Thermostat,
-                title = stringResource(R.string.home_action_thermal),
-                support = stringResource(R.string.home_action_thermal_desc),
-                accent = p.warn,
-                onClick = onThermal,
-                modifier = Modifier.weight(1f)
-            )
-            NeuralActionTile(
-                icon = Icons.Rounded.BatteryChargingFull,
-                title = stringResource(R.string.home_action_battery),
-                support = stringResource(R.string.home_action_battery_desc),
-                accent = p.ok,
-                onClick = onBattery,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            NeuralActionTile(
-                icon = Icons.Rounded.Apps,
-                title = stringResource(R.string.max_home_app_profiles),
-                support = stringResource(R.string.home_action_apps_desc),
-                accent = p.accent,
-                onClick = onApps,
-                modifier = Modifier.weight(1f)
-            )
-            NeuralActionTile(
-                icon = Icons.Rounded.Tune,
-                title = stringResource(R.string.home_action_advanced),
-                support = stringResource(R.string.home_action_advanced_desc),
+        if (gpuAvailable) {
+            NeuralGaugeCard(
+                caption = stringResource(R.string.home_gpu_tag),
+                value = if (gpuLoad == null) "\u2014" else "$gpuLoad%",
                 accent = p.accentAlt,
-                onClick = onAdvanced,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                ringFraction = gpuLoad?.let { it / 100f },
+                icon = Icons.Rounded.Speed,
+                onClick = onGpu,
+                footer = {
+                    NeuralFrequencyMeter(
+                        reading = compactFrequency(gpuFreq),
+                        ceiling = gpuCeiling?.let { compactFrequency(it) },
+                        fraction = if (gpuFreq != null && gpuCeiling != null) {
+                            gpuFreq.toFloat() / gpuCeiling
+                        } else {
+                            null
+                        },
+                        accent = p.accentAlt,
+                    )
+                },
             )
         }
     }
 }
+
+/**
+ * مصفوفة الأنوية — قراءة الجهاز لكل نواة على حدة.
+ *
+ * والقراءة **لكل نواة** لا لكل عنقود: هذا هو الفرق الذي يفسّر «لماذا لا يرفع تردّده وقد
+ * طلبت الأداء؟» — نواة واحدة من العنقود الصغير تخنق والباقي هادئ. والقيمة تُقصّ على سقف
+ * نواتها هي (`cpuinfo_max_freq` الخاص بعنقودها)، فلا تُقارن نواة صغيرة قوية بنواة كبيرة.
+ *
+ * وحالتا الانتظار صريحتان: نواة متصلة بلا قراءة تعرض `—` وتبقى فارغة، ونواة مطفأة تُرسم
+ * رماديةً بحالتها (hotplug حقيقي) — لا «صفر ميجاهرتز» لعدّة لم تُقرأ.
+ */
+@Composable
+private fun CoreMatrixPanel(dashboard: DashboardState, onCores: () -> Unit) {
+    val p = neuralPalette()
+    val unavailable = stringResource(R.string.max_home_unavailable)
+    val readings = dashboard.cores.map { core ->
+        NeuralCoreReading(
+            id = "C${core.cpu}",
+            frequency = if (core.online && core.freqMhz > 0) {
+                compactFrequency(core.freqMhz)
+            } else {
+                unavailable
+            },
+            fraction = core.loadFraction,
+            online = core.online,
+        )
+    }
+    val online = dashboard.cores.count { it.online }
+
+    NeuralPanel(accent = p.accentAlt, onClick = onCores, verticalSpacing = 12.dp) {
+        NeuralSectionHeader(
+            title = stringResource(R.string.home_cpu_cores),
+            caption = if (readings.isEmpty()) {
+                null
+            } else {
+                stringResource(R.string.home_cpu_cores_online, online, readings.size)
+            },
+            accent = p.accentAlt,
+        )
+        if (readings.isEmpty()) {
+            Text(
+                stringResource(R.string.home_waiting_core_data),
+                color = p.muted,
+                fontSize = 11.sp,
+                lineHeight = 15.sp,
+            )
+        } else {
+            NeuralCoreGrid(cores = readings, accent = p.accentAlt)
+        }
+    }
+}
+
+/**
+ * الذاكرة: RAM بجانب ZRAM — وهما نفس السؤال بمقامين مختلفين.
+ *
+ * وZRAM تُخفى كاملةً حين لا يكون في النظام swap مُهيّأ (`swapTotalMb` = null): صفٌّ يقول
+ * «ZRAM: ٠ / ٠» لجهاز لا يملكها يوهم بعطب. وفي غيابها يأخذ RAM العرض كلّه.
+ */
+@Composable
+private fun MemoryDeck(dashboard: DashboardState, onRam: () -> Unit, onZram: () -> Unit) {
+    val p = neuralPalette()
+    val ramKnown = dashboard.ramTotalMb > 0
+    val ramFraction = fractionOf(dashboard.ramUsedMb, dashboard.ramTotalMb)
+    val ramAccent = when {
+        !ramKnown -> p.muted
+        ramFraction >= .90f -> p.danger
+        ramFraction >= .75f -> p.warn
+        else -> p.accent
+    }
+    val swapUsed = dashboard.swapUsedMb
+    val swapTotal = dashboard.swapTotalMb
+    val swapKnown = swapTotal != null && swapTotal > 0
+    val swapFraction = if (swapKnown && swapUsed != null) {
+        (swapUsed.toFloat() / swapTotal).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        NeuralGaugeCard(
+            caption = stringResource(R.string.home_ram_tag),
+            value = if (ramKnown) "${(ramFraction * 100).roundToInt()}%" else "\u2014",
+            accent = ramAccent,
+            modifier = Modifier.weight(1f),
+            ringFraction = if (ramKnown) ramFraction else null,
+            icon = Icons.Rounded.Storage,
+            onClick = onRam,
+            support = if (ramKnown) {
+                "${gigabytes(dashboard.ramUsedMb)} / ${gigabytes(dashboard.ramTotalMb)}"
+            } else {
+                stringResource(R.string.max_home_unavailable)
+            },
+        )
+        if (swapKnown) {
+            NeuralGaugeCard(
+                caption = stringResource(R.string.home_zram_tag),
+                value = "${(swapFraction * 100).roundToInt()}%",
+                accent = p.accentAlt,
+                modifier = Modifier.weight(1f),
+                ringFraction = swapFraction,
+                icon = Icons.Rounded.Memory,
+                onClick = onZram,
+                support = if (swapUsed != null) {
+                    "${gigabytes(swapUsed)} / ${gigabytes(swapTotal)}"
+                } else {
+                    stringResource(R.string.max_home_unavailable)
+                },
+            )
+        }
+    }
+}
+
+/**
+ * السعة: التخزين بجانب البطارية — أكثر رقمين يفتح الناس تطبيق معلومات جهاز من أجلهما.
+ *
+ * وقاعدة الصدق هنا صارمة لأن الرقم مُغري بالتدوير: تخزين بلا مقام (`storageTotalGb` = ٠)
+ * لا يُرسم قوسه، والبطارية عند ٠٪ تُعامَل «لا قراءة» لا «فارغة» — والجهاز الذي يعرض
+ * الصفحة لا يكون بطاريته صفرًا.
+ */
+@Composable
+private fun CapacityDeck(dashboard: DashboardState, onStorage: () -> Unit, onBattery: () -> Unit) {
+    val p = neuralPalette()
+    val storageKnown = dashboard.storageTotalGb > 0f
+    val storageFreeGb = (dashboard.storageTotalGb - dashboard.storageUsedGb).coerceAtLeast(0f)
+    val storageFraction = if (storageKnown) {
+        (dashboard.storageUsedGb / dashboard.storageTotalGb).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+    val storageAccent = when {
+        !storageKnown -> p.muted
+        storageFreeGb / dashboard.storageTotalGb < .10f -> p.danger
+        storageFreeGb / dashboard.storageTotalGb < .20f -> p.warn
+        else -> p.accent
+    }
+    val batteryKnown = dashboard.batteryPercent > 0
+    val batteryAccent = when {
+        !batteryKnown -> p.muted
+        dashboard.isCharging -> p.ok
+        dashboard.batteryPercent <= 20 -> p.danger
+        dashboard.batteryPercent <= 40 -> p.warn
+        else -> p.ok
+    }
+
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        NeuralGaugeCard(
+            caption = stringResource(R.string.max_home_storage),
+            value = if (storageKnown) "${(storageFraction * 100).roundToInt()}%" else "\u2014",
+            accent = storageAccent,
+            modifier = Modifier.weight(1f),
+            ringFraction = if (storageKnown) storageFraction else null,
+            icon = Icons.Rounded.Storage,
+            onClick = onStorage,
+            support = if (storageKnown) {
+                stringResource(R.string.home_available_memory, "${storageFreeGb.oneDecimal()} GB")
+            } else {
+                stringResource(R.string.max_home_unavailable)
+            },
+        )
+        NeuralGaugeCard(
+            caption = stringResource(R.string.max_home_battery),
+            value = if (batteryKnown) "${dashboard.batteryPercent}%" else "\u2014",
+            accent = batteryAccent,
+            modifier = Modifier.weight(1f),
+            ringFraction = if (batteryKnown) dashboard.batteryPercent / 100f else null,
+            icon = Icons.Rounded.BatteryChargingFull,
+            badge = if (dashboard.isCharging) stringResource(R.string.max_home_charging) else null,
+            onClick = onBattery,
+            // الاستهلاك هو السطر الطبيعي تحت نسبة الشحن (يُشحن أم يُسحب؟ وبقوّة كم؟)،
+            // ولذلك لا يتكرّر في شبكة التفاصيل: قراءة واحدة في السياق الذي تُسأل فيه.
+            // والصفر «لا قراءة» لا «صفر واط» (`current_now` صامت).
+            support = if (dashboard.powerWatt > 0f) "${dashboard.powerWatt.oneDecimal()} W" else "\u2014",
+        )
+    }
+}
+

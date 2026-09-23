@@ -908,6 +908,19 @@
     <string name="home_open_details">فتح بيانات الحرارة التفصيلية</string>
     <string name="home_available_memory">%1$s متاح</string>
     <string name="home_available_swap">%1$s تبديل متاح</string>
+    <string name="max_brand_mark">MAX</string>
+    <string name="home_cpu_tag">المعالج</string>
+    <string name="home_gpu_tag">الرسوميات</string>
+    <string name="home_ram_tag">RAM</string>
+    <string name="home_zram_tag">ZRAM</string>
+    <string name="home_skin_tag">الغلاف</string>
+    <string name="home_device_details">تفاصيل الجهاز</string>
+    <string name="home_device_details_desc">قراءات الشاشة والشبكة والطاقة</string>
+    <string name="home_download">تنزيل</string>
+    <string name="home_upload">رفع</string>
+    <string name="home_density">الكثافة</string>
+    <string name="home_battery_current">تيار البطارية</string>
+    <string name="home_battery_voltage">جهد البطارية</string>
 
     <!-- لوحة «ما تفعله إعداداتك»: سطر لكل نتيجة بمصدرها -->
     <string name="storyboard_title">ما تفعله إعداداتك الآن</string>
