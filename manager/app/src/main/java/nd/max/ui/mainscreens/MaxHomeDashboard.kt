@@ -95,7 +95,7 @@ internal fun MaxHomeDashboard(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         MaxReveal(true, 0, Modifier.fillMaxWidth()) {
-            HomeHeader(online = online, onSettings = onSettings, onReboot = onReboot)
+            HomeHeader(onSettings = onSettings, onReboot = onReboot)
         }
 
         MaxReveal(true, 25, Modifier.fillMaxWidth()) {
@@ -105,7 +105,6 @@ internal fun MaxHomeDashboard(
                 measured = measured,
                 online = online,
                 maxAi = maxAi,
-                profileRes = ui.currentProfileRes,
                 onOverview = { onNavigate(MaxDestination.Diagnostics.route) },
             )
         }
@@ -119,7 +118,6 @@ internal fun MaxHomeDashboard(
 
         MaxReveal(true, 55, Modifier.fillMaxWidth()) {
             ModeControlStrip(
-                profileRes = ui.currentProfileRes,
                 manualProfileAllowed = ui.autoMode == "0",
                 maxAi = maxAi,
                 request = profileRequest,
@@ -152,7 +150,6 @@ internal fun MaxHomeDashboard(
                 onRam = { onNavigate(MaxDestination.MemoryHub.route) },
                 onZram = { onNavigate(MaxDestination.ZramManager.route) },
                 onStorage = { onNavigate(MaxDestination.StorageDetail.route) },
-                onBattery = { onNavigate(MaxDestination.Charging.route) },
             )
         }
 
@@ -187,20 +184,11 @@ internal fun MaxHomeDashboard(
             UnifiedActivityCard(maxAi = maxAi)
         }
 
-        MaxReveal(true, 255, Modifier.fillMaxWidth()) {
-            CommandDeck(
-                onApps = { onNavigate(MaxDestination.Apps.route) },
-                onControl = { onNavigate(MaxDestination.Control.route) },
-                onAi = { onNavigate(MaxDestination.MaxAi.route) },
-                onDiagnostics = { onNavigate(MaxDestination.Diagnostics.route) },
-            )
-        }
     }
 }
 
 @Composable
 private fun HomeHeader(
-    online: Boolean,
     onSettings: () -> Unit,
     onReboot: () -> Unit,
 ) {
@@ -226,13 +214,6 @@ private fun HomeHeader(
                 fontWeight = FontWeight.Medium,
             )
         }
-        Spacer(Modifier.width(10.dp))
-        NeuralPill(
-            text = stringResource(if (online) R.string.home_active else R.string.home_idle),
-            accent = if (online) p.ok else p.danger,
-            filled = true,
-            dot = true,
-        )
         Spacer(Modifier.weight(1f))
         HomeHeaderButton(Icons.Rounded.PowerSettingsNew, stringResource(R.string.max_home_power), onReboot)
         Spacer(Modifier.width(6.dp))
@@ -257,7 +238,6 @@ private fun DeviceHeroCard(
     measured: Boolean,
     online: Boolean,
     maxAi: MaxAiState,
-    profileRes: Int,
     onOverview: () -> Unit,
 ) {
     val p = neuralPalette()
@@ -281,7 +261,6 @@ private fun DeviceHeroCard(
         heat != null && heat >= 45 -> stringResource(R.string.home_system_attention)
         else -> stringResource(R.string.home_system_stable)
     }
-    val profileLabel = stringResource(PROFILE_CHOICES.firstOrNull { it.reason == profileReasonFor(profileRes) }?.labelRes ?: R.string.Profile_Balanced)
 
     NeuralPanel(
         accent = accent,
@@ -313,16 +292,8 @@ private fun DeviceHeroCard(
                         )
                     }
                 }
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     NeuralPill(statusLabel, statusAccent, filled = true, dot = true)
-                    NeuralPill(profileLabel, p.accent, icon = Icons.Rounded.Tune)
-                    if (maxAi.aiEnabled) {
-                        NeuralPill(stringResource(R.string.max_home_ai_on), p.accentAlt, filled = true, dot = true)
-                    }
                 }
             }
             Spacer(Modifier.width(12.dp))
@@ -356,9 +327,9 @@ private fun DeviceHeroCard(
                 modifier = Modifier.weight(1f),
             )
             HeroMiniStat(
-                label = stringResource(R.string.home_current_refresh),
-                value = dashboard.displayRefreshHz.takeIf { it > 0 }?.let { "$it Hz" } ?: "—",
-                accent = p.muted,
+                label = stringResource(R.string.max_home_battery),
+                value = if (dashboard.batteryPercent > 0) "${dashboard.batteryPercent}%" else "—",
+                accent = if (dashboard.isCharging) p.ok else p.muted,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -499,7 +470,7 @@ private fun ModeControlStrip(
     ) {
         NeuralSectionHeader(
             title = stringResource(R.string.max_home_control_center),
-            caption = stringResource(R.string.max_home_control_desc),
+            caption = null,
             accent = p.accent,
             trailing = {
                 NeuralPill(
@@ -559,7 +530,7 @@ private fun PerformanceDeck(
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         NeuralSectionHeader(
             title = stringResource(R.string.home_live_performance),
-            caption = stringResource(R.string.home_live_performance_desc),
+            caption = null,
             accent = p.accent,
             modifier = Modifier.padding(horizontal = 3.dp),
         )
@@ -628,7 +599,6 @@ private fun ResourceDeck(
     onRam: () -> Unit,
     onZram: () -> Unit,
     onStorage: () -> Unit,
-    onBattery: () -> Unit,
 ) {
     val p = neuralPalette()
     val ramKnown = dashboard.ramTotalMb > 0
@@ -652,18 +622,9 @@ private fun ResourceDeck(
         storageFreeGb / dashboard.storageTotalGb < .20f -> p.warn
         else -> p.accent
     }
-    val batteryKnown = dashboard.batteryPercent > 0
-    val batteryAccent = when {
-        !batteryKnown -> p.muted
-        dashboard.isCharging -> p.ok
-        dashboard.batteryPercent <= 20 -> p.danger
-        dashboard.batteryPercent <= 40 -> p.warn
-        else -> p.ok
-    }
-
     NeuralSectionHeader(
         title = stringResource(R.string.max_home_resources),
-        caption = stringResource(R.string.max_home_resources_desc),
+        caption = null,
         accent = p.accentAlt,
         modifier = Modifier.padding(horizontal = 3.dp),
     )
@@ -692,28 +653,21 @@ private fun ResourceDeck(
                 )
             }
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NeuralGaugeCard(
-                caption = stringResource(R.string.max_home_storage),
-                value = if (storageKnown) "${(storageFraction * 100).roundToInt()}%" else "—",
-                accent = storageAccent,
-                modifier = Modifier.weight(1f),
-                ringFraction = if (storageKnown) storageFraction else null,
-                support = if (storageKnown) stringResource(R.string.home_available_memory, "${storageFreeGb.oneDecimal()} GB") else stringResource(R.string.max_home_unavailable),
-                onClick = onStorage,
-                ringSize = 88.dp,
-            )
-            NeuralGaugeCard(
-                caption = stringResource(R.string.max_home_battery),
-                value = if (batteryKnown) "${dashboard.batteryPercent}%" else "—",
-                accent = batteryAccent,
-                modifier = Modifier.weight(1f),
-                ringFraction = if (batteryKnown) dashboard.batteryPercent / 100f else null,
-                badge = if (dashboard.isCharging) stringResource(R.string.max_home_charging) else null,
-                support = if (dashboard.powerWatt > 0f) "${dashboard.powerWatt.oneDecimal()} W" else stringResource(R.string.max_home_unavailable),
-                onClick = onBattery,
-                ringSize = 88.dp,
-            )
-        }
+        NeuralCapacityCard(
+            title = stringResource(R.string.max_home_storage),
+            value = if (storageKnown) "${(storageFraction * 100).roundToInt()}%" else "—",
+            detail = if (storageKnown) {
+                stringResource(
+                    R.string.home_available_memory,
+                    "${storageFreeGb.oneDecimal()} GB"
+                )
+            } else {
+                stringResource(R.string.max_home_unavailable)
+            },
+            fraction = if (storageKnown) storageFraction else null,
+            accent = storageAccent,
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onStorage,
+        )
     }
 }

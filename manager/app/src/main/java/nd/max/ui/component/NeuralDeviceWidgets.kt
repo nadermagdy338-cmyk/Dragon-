@@ -227,7 +227,7 @@ fun NeuralGaugeCard(
         accent = accent,
         onClick = onClick,
         verticalSpacing = 9.dp,
-        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 13.dp),
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 10.dp),
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             if (icon != null) {
@@ -248,14 +248,14 @@ fun NeuralGaugeCard(
                 fraction = ringFraction,
                 value = value,
                 accent = accent,
-                size = ringSize.coerceAtMost(76.dp),
+                size = ringSize.coerceAtMost(82.dp),
                 strokeWidth = 7.dp,
             )
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (support != null) {
                     NeuralValue(
                         support,
-                        style = MonoValueStyleSmall.copy(fontSize = 10.5.sp, lineHeight = 13.sp, fontWeight = FontWeight.SemiBold),
+                        style = MonoValueStyleSmall.copy(fontSize = 9.5.sp, lineHeight = 12.sp, fontWeight = FontWeight.SemiBold),
                         color = p.text,
                         maxLines = 2,
                     )
@@ -352,9 +352,9 @@ fun NeuralCoreGrid(
     val p = neuralPalette()
     val tone = accent ?: p.accent
     val rows = if (perRow > 0) cores.chunked(perRow) else listOf(cores)
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(7.dp)) {
         rows.forEach { row ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 row.forEach { core -> CoreCell(core, tone, barHeight, Modifier.weight(1f)) }
                 // صفّ ناقص يُكمل بفراغات بنفس الأوزان، فلا تتوسّع الأنوية الأخيرة وحدها
                 // ويبدو الصفّ كأنه يُقارن أنوية بعرض مختلف.

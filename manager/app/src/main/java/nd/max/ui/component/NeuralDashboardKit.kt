@@ -175,8 +175,8 @@ fun NeuralPanel(
     modifier: Modifier = Modifier,
     accent: Color? = null,
     onClick: (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(13.dp),
-    verticalSpacing: Dp = 9.dp,
+    contentPadding: PaddingValues = PaddingValues(12.dp),
+    verticalSpacing: Dp = 8.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val p = neuralPalette()
@@ -210,8 +210,8 @@ fun NeuralTile(
     modifier: Modifier = Modifier,
     accent: Color? = null,
     onClick: (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(12.dp),
-    verticalSpacing: Dp = 7.dp,
+    contentPadding: PaddingValues = PaddingValues(11.dp),
+    verticalSpacing: Dp = 6.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val p = neuralPalette()
@@ -346,7 +346,7 @@ fun NeuralPill(
     Row(
         chip
             .border(BorderStroke(1.dp, accent.copy(alpha = if (filled) .46f else .28f)), CircleShape)
-            .padding(horizontal = 10.dp, vertical = 5.dp),
+            .padding(horizontal = 9.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {

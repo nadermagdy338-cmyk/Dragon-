@@ -101,8 +101,8 @@ import androidx.compose.ui.draw.alpha
 import kotlin.math.roundToInt
 
 
-private val largeCorner = 26.dp
-private val smallCorner = 4.dp
+private val largeCorner = 22.dp
+private val smallCorner = 3.dp
 
 // Grouped-list geometry is intentionally different from standalone cards:
 // only the outer top/bottom edges are rounded, while the rows remain visually
@@ -133,11 +133,19 @@ private val iconContainerShape = RoundedCornerShape(12.dp)
  */
 @Composable
 private fun Modifier.expressiveCardSurface(shape: RoundedCornerShape): Modifier {
-    val colorScheme = MaterialTheme.colorScheme
+    val p = neuralPalette()
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     return this
-        .clip(shape)
-        .background(colorScheme.surfaceContainerLow, shape)
-        .border(BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.32f)), shape)
+        .neuralSurface(
+            shape = shape,
+            top = p.panelTop.copy(alpha = .88f),
+            bottom = p.panel.copy(alpha = .96f),
+            border = p.border.copy(alpha = .42f),
+            glow = p.accent,
+            elevation = 0.5.dp,
+            glowStrength = .05f,
+            rtl = rtl,
+        )
 }
 
 /**
@@ -154,7 +162,7 @@ fun ExpressiveList(
     modifier: Modifier = Modifier,
     title: String = "",
     content: List<@Composable () -> Unit>,
-    rowSpacing: Dp = 6.dp,
+    rowSpacing: Dp = 4.dp,
 ) {
     if (content.isEmpty()) return
 
@@ -212,7 +220,7 @@ fun <T> ExpressiveLazyList(
         LazyColumn(
             state = state,
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
             contentPadding = contentPadding
         ) {
             itemsIndexed(
@@ -276,7 +284,7 @@ fun ExpressiveListItem(
                 }
             }
             .then(modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (leadingContent != null) {
@@ -365,7 +373,7 @@ fun ExpressiveListItemHighlight(
                 }
             }
             .then(modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (leadingContent != null) {
@@ -453,7 +461,7 @@ fun ExpressiveInfoCard(
                 }
             }
             .then(modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (leadingContent != null) {

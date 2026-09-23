@@ -18,12 +18,10 @@ package nd.max.ui.component
 
 
 import android.os.SystemClock
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
@@ -34,7 +32,6 @@ import androidx.compose.material.icons.outlined.Numbers
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.Surface
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -90,14 +87,11 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
         "${hours}h ${minutes}m"
     }
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
-        )
+    NeuralPanel(
+        modifier = modifier,
+        accent = MaterialTheme.colorScheme.primary,
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
+        verticalSpacing = 10.dp,
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
@@ -110,7 +104,7 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(52.dp)
+                        .size(46.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
@@ -139,8 +133,8 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
                         maxLines = 1
                     )
                     Text(
@@ -166,7 +160,7 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
                 }
             }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.28f))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

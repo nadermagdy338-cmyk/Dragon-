@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -38,8 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -167,50 +166,85 @@ fun NeuralMetricTrendCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(
-                secondaryValue,
-                color = if (secondaryValue == "—") p.muted else accent,
-                fontSize = 9.sp,
-                lineHeight = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
         }
 
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
             NeuralValue(
                 value,
-                modifier = Modifier.weight(1f),
-                style = nd.max.ui.theme.MonoValueStyleSmall.copy(fontSize = 22.sp, lineHeight = 25.sp, fontWeight = FontWeight.Black),
+                style = nd.max.ui.theme.MonoValueStyleSmall.copy(fontSize = 24.sp, lineHeight = 27.sp, fontWeight = FontWeight.Bold),
                 color = if (value == "—") p.muted else p.text,
             )
-            Text(
-                stringResource(nd.max.R.string.home_active),
-                color = accent.copy(alpha = .82f),
-                fontSize = 8.sp,
-                lineHeight = 11.sp,
-                fontWeight = FontWeight.Bold,
+            NeuralValue(
+                secondaryValue,
+                style = nd.max.ui.theme.MonoValueStyleSmall.copy(fontSize = 10.sp, lineHeight = 13.sp, fontWeight = FontWeight.SemiBold),
+                color = if (secondaryValue == "—") p.muted else accent,
             )
         }
 
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .clip(RoundedCornerShape(11.dp))
-                .background(p.grid.copy(alpha = .24f))
-        ) {
+        Box(Modifier.fillMaxWidth().height(56.dp)) {
             if (series.size >= 2) {
                 NeuralAreaPlot(
                     values = series,
                     accent = accent,
                     maxValue = 100f,
                     adaptive = false,
-                    modifier = Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 4.dp, vertical = 4.dp),
+                    showGrid = false,
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                 )
             }
         }
+    }
+}
+
+/** Compact capacity widget: large percentage, used/total line and progress track. */
+@Composable
+fun NeuralCapacityCard(
+    title: String,
+    value: String,
+    detail: String,
+    fraction: Float?,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+) {
+    val p = neuralPalette()
+    NeuralTile(
+        modifier = modifier,
+        accent = accent,
+        onClick = onClick,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+        verticalSpacing = 7.dp,
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(7.dp).clip(CircleShape).background(accent))
+            Spacer(Modifier.width(8.dp))
+            Text(
+                title,
+                color = p.text,
+                fontSize = 11.5.sp,
+                lineHeight = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            NeuralValue(
+                value,
+                style = MonoValueStyleSmall.copy(fontSize = 18.sp, lineHeight = 21.sp, fontWeight = FontWeight.Bold),
+                color = if (fraction == null) p.muted else p.text,
+            )
+        }
+        NeuralTrack(fraction ?: 0f, accent, Modifier.fillMaxWidth(), height = 6.dp)
+        NeuralValue(
+            detail,
+            style = MonoValueStyleSmall.copy(fontSize = 9.5.sp, lineHeight = 12.sp),
+            color = p.muted,
+            maxLines = 1,
+        )
     }
 }
 

@@ -15,15 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Apps
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -40,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import nd.max.R
-import nd.max.ui.component.NeuralActionTile
 import nd.max.ui.component.NeuralAreaPlot
 import nd.max.ui.component.NeuralCategoryRow
 import nd.max.ui.component.NeuralDataRow
@@ -343,56 +335,6 @@ internal fun PerformanceHistoryCard(dashboard: DashboardState) {
                 value = "${ramAvg.roundToInt()}%",
                 fraction = ramAvg / 100f,
                 accent = p.warn,
-            )
-        }
-    }
-}
-
-@Composable
-internal fun CommandDeck(
-    onApps: () -> Unit,
-    onControl: () -> Unit,
-    onAi: () -> Unit,
-    onDiagnostics: () -> Unit,
-) {
-    val p = neuralPalette()
-    NeuralPanel(contentPadding = PaddingValues(14.dp), verticalSpacing = 9.dp) {
-        NeuralSectionHeader(
-            title = stringResource(R.string.home_quick_actions),
-            caption = stringResource(R.string.home_quick_actions_desc),
-            accent = p.accentAlt,
-        )
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            NeuralActionTile(
-                icon = Icons.Rounded.Tune,
-                title = stringResource(R.string.home_action_advanced),
-                accent = p.accentAlt,
-                onClick = onControl,
-                modifier = Modifier.width(118.dp),
-            )
-            NeuralActionTile(
-                icon = Icons.Rounded.Apps,
-                title = stringResource(R.string.max_home_app_profiles),
-                accent = p.accent,
-                onClick = onApps,
-                modifier = Modifier.width(118.dp),
-            )
-            NeuralActionTile(
-                icon = Icons.Rounded.AutoAwesome,
-                title = stringResource(R.string.max_nav_max_ai),
-                accent = p.accentAlt,
-                onClick = onAi,
-                modifier = Modifier.width(118.dp),
-            )
-            NeuralActionTile(
-                icon = Icons.Rounded.Info,
-                title = stringResource(R.string.home_device_overview),
-                accent = p.muted,
-                onClick = onDiagnostics,
-                modifier = Modifier.width(118.dp),
             )
         }
     }
