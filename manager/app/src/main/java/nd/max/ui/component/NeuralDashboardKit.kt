@@ -83,8 +83,8 @@ import nd.max.ui.util.ClockMeter
  *    reordered or clipped by an RTL locale.
  */
 
-val NeuralPanelShape = RoundedCornerShape(26.dp)
-val NeuralTileShape = RoundedCornerShape(20.dp)
+val NeuralPanelShape = RoundedCornerShape(24.dp)
+val NeuralTileShape = RoundedCornerShape(18.dp)
 private val ChipShape = RoundedCornerShape(12.dp)
 
 @Immutable
@@ -193,8 +193,8 @@ fun NeuralPanel(
             bottom = p.panel,
             border = accent?.copy(alpha = .32f) ?: p.border,
             glow = accent ?: p.accent,
-            elevation = if (accent == null) 3.dp else 7.dp,
-            glowStrength = if (accent == null) .30f else .55f,
+            elevation = if (accent == null) 2.dp else 4.dp,
+            glowStrength = if (accent == null) .20f else .36f,
             rtl = rtl,
         )
     Column(
@@ -293,7 +293,7 @@ fun NeuralSectionHeader(
         Box(
             Modifier
                 .width(3.dp)
-                .height(if (caption == null) 18.dp else 32.dp)
+                .height(if (caption == null) 16.dp else 30.dp)
                 .clip(CircleShape)
                 .background(Brush.verticalGradient(listOf(tone, tone.copy(alpha = .38f))))
         )
