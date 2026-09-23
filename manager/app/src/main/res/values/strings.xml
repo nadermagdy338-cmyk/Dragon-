@@ -1598,6 +1598,9 @@
     <string name="home_action_battery_desc">Battery and charging data</string>
     <string name="home_action_advanced">Advanced controls</string>
     <string name="home_action_advanced_desc">Full device tuning</string>
+    <string name="home_action_apps_desc">Per-app tuning and profiles</string>
+    <string name="home_ai_next_step">Next step</string>
+    <string name="home_ai_confidence">Confidence %1$d%%</string>
     <string name="home_memory_storage">Memory matrix</string>
     <string name="home_memory_storage_desc">RAM, ZRAM and internal storage pressure</string>
     <string name="home_details">DETAILS</string>

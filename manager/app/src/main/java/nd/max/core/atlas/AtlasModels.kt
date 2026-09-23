@@ -92,7 +92,17 @@ enum class AtlasFailure {
     UNKNOWN_CAUSE,
 }
 
-/** Provenance confidence, mirroring the legend used by the phase source matrix (F/R/S/N/D). */
+/** Provenance confidence, mirroring the legend used by the phase source matrix (F/R/S/N/D), plus
+ *  one member the matrix did not have:
+ *
+ *  - **[REPORTED]**: what a person observed on a specific device (a bug report, a user measurement).
+ *    It is *not* a lower rank of `FETCHED` — a fetch asserts nothing while a report asserts a real
+ *    behavior — and it is *not* `SOURCE_VERIFIED`: nobody who could inspect the implementation has
+ *    confirmed it, and it speaks about one device, not about the interface in general.
+ *
+ *  That distinction exists because the model forbids one specific mistake: a human report silently
+ *  becoming a reviewed fact. [AtlasConfidenceRules] keeps the order in one place, and
+ *  [AtlasQuirkBase] may only ever **lower** along it. */
 enum class AtlasSourceConfidence {
     /** Fetched, but fetching alone validates nothing about the claims. */
     FETCHED,
@@ -103,11 +113,42 @@ enum class AtlasSourceConfidence {
     /** The named source was inspected and implements the described behavior. */
     SOURCE_VERIFIED,
 
+    /** Observed by a person on one device. Weaker than an inspected source, stronger than a fetch. */
+    REPORTED,
+
     /** No implementation-level assertion is supported. */
     NOT_INSPECTED,
 
     /** Independently authored design choice, not a measured property of anything. */
     DESIGN,
+}
+
+/**
+ * ترتيب الثقة في مكان **واحد** (I-17).
+ *
+ * ولماذا دالّة ترتيب لا مقارنة ذهنية في كل موضع: التعديل الوحيد المسموح على ثقة معرفة قائمة هو
+ * **الخفض**. فوجود الترتيب هنا يجعل القاعدة قابلة للاختبار (و[AtlasQuirkBase] يختبرها)، بدلًا من
+ * أن تُصبح عُرفًا يُنسى في موضع واحد فيرتفع ادّعاء بلاغ إلى «مصدر مُتحقَّق».
+ *
+ * و`NOT_INSPECTED` و`DESIGN` في الرتبة نفسها: كلتاهما **لا تقول شيئًا عن جهاز** (إحداهما غياب فحص،
+ * والأخرى اختيار تصميم)، فلا تصلح أيّ منهما سندًا لادّعاء عن العتاد.
+ */
+object AtlasConfidenceRules {
+
+    fun rank(confidence: AtlasSourceConfidence): Int = when (confidence) {
+        AtlasSourceConfidence.SOURCE_VERIFIED -> 4
+        AtlasSourceConfidence.CLAIMED -> 3
+        AtlasSourceConfidence.REPORTED -> 2
+        AtlasSourceConfidence.FETCHED -> 1
+        AtlasSourceConfidence.NOT_INSPECTED -> 0
+        AtlasSourceConfidence.DESIGN -> 0
+    }
+
+    /** الأدنى من الاثنتين — ولا يرفع أبدًا، فاستعماله لا يمكن أن يُنتج ادّعاءً أقوى. */
+    fun lower(
+        current: AtlasSourceConfidence,
+        ceiling: AtlasSourceConfidence,
+    ): AtlasSourceConfidence = if (rank(current) <= rank(ceiling)) current else ceiling
 }
 
 /**

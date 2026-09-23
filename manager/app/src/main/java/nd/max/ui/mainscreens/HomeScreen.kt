@@ -30,7 +30,6 @@ import nd.max.R
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.component.MaxSnackbarHost
-import nd.max.ui.component.ProfileDialog
 import nd.max.ui.component.RebootBottomSheet
 import nd.max.ui.component.RootAppDialog
 import nd.max.ui.component.maxAdaptiveContentWidth
@@ -61,7 +60,6 @@ fun HomeScreen(
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var showReboot by remember { mutableStateOf(false) }
-    var showProfile by remember { mutableStateOf(false) }
     val deviceName = remember(context) { getRealDeviceName(context) }
 
     LifecycleStartEffect(dashboardViewModel, isVisible) {
@@ -75,7 +73,7 @@ fun HomeScreen(
         containerColor = Color.Transparent,
         snackbarHost = { MaxSnackbarHost(snackbar) }
     ) { padding ->
-        HomeDashboardContent(
+        MaxHomeContent(
             ui = ui,
             dashboard = dashboard,
             maxAi = maxAi,
@@ -85,7 +83,20 @@ fun HomeScreen(
             // المسار يمرّ ببوّابة التنقّل نفسها التي تمرّ بها بقية الشاشات، فلا
             // يُنقل نمط `?pkg={pkg}` خامًّا إلى الـNavigator.
             onNavigate = navActions::navigateRoute,
-            onProfile = { if (ui.autoMode == "0") showProfile = true },
+            // سلّم الملفات يطبّق مباشرةً — نفس مسار المحرّك القديم بلا طبقة حوار
+            // زائدة، ونتيجة كل تطبيق عتاد تظهر في شريط الحالة وsnackbar هنا.
+            onProfile = { reason ->
+                homeViewModel.applyProfile(reason) { appliedNow ->
+                    scope.launch {
+                        snackbar.showSnackbar(
+                            resources.getString(
+                                if (appliedNow) R.string.toast_applying_profile
+                                else R.string.max_home_ai_failed
+                            )
+                        )
+                    }
+                }
+            },
             onReboot = { showReboot = true },
             onSettings = { navActions.navigateTo(MaxDestination.Settings) },
             onAiRetry = maxAiViewModel::refresh
@@ -99,28 +110,10 @@ fun HomeScreen(
             onReboot = homeViewModel::rebootDevice
         )
     }
-    RootAppDialog {
-        ProfileDialog(
-            show = showProfile,
-            onDismiss = { showProfile = false },
-            onProfile = { reason ->
-                homeViewModel.applyProfile(reason) { appliedNow ->
-                    scope.launch {
-                        snackbar.showSnackbar(
-                            resources.getString(
-                                if (appliedNow) R.string.toast_applying_profile
-                                else R.string.max_home_ai_failed
-                            )
-                        )
-                    }
-                }
-            }
-        )
-    }
 }
 
 @Composable
-fun HomeDashboardContent(
+fun MaxHomeContent(
     ui: HomeUiState,
     dashboard: DashboardState,
     maxAi: MaxAiState,
@@ -128,7 +121,7 @@ fun HomeDashboardContent(
     deviceName: String,
     topPadding: androidx.compose.ui.unit.Dp = 0.dp,
     onNavigate: (String) -> Unit,
-    onProfile: () -> Unit,
+    onProfile: (String) -> Unit,
     onReboot: () -> Unit,
     onSettings: () -> Unit,
     onAiRetry: () -> Unit
@@ -161,7 +154,7 @@ fun HomeDashboardContent(
             )
         ) {
             item {
-                LegendaryHomeDashboard(
+                MaxHomeDashboard(
                     ui = ui,
                     dashboard = dashboard,
                     maxAi = maxAi,

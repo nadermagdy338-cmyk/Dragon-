@@ -886,6 +886,9 @@
     <string name="home_action_battery_desc">بيانات البطارية والشحن</string>
     <string name="home_action_advanced">تحكم متقدم</string>
     <string name="home_action_advanced_desc">ضبط الجهاز بالكامل</string>
+    <string name="home_action_apps_desc">ضبط كل تطبيق وبروفايلاته</string>
+    <string name="home_ai_next_step">الخطوة التالية</string>
+    <string name="home_ai_confidence">الثقة %1$d%%</string>
     <string name="home_memory_storage">مصفوفة الذاكرة</string>
     <string name="home_memory_storage_desc">ضغط RAM وZRAM والتخزين الداخلي</string>
     <string name="home_details">التفاصيل</string>

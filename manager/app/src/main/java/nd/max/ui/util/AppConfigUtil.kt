@@ -79,6 +79,13 @@ data class PerAppHardwareOutcome(
     val reason: String,
     val expected: String,
     val live: String,
+    /**
+     * حمولة أثر التنفيذ المقيس (`effect=<حمولة>` من `AtlasEffectLines`) أو فراغ.
+     *
+     * والفراغ يُعرض `effect=unmeasured` في التقرير: غياب القياس ليس «لم يتحرّك»، وتقريرُ عطل
+     * بلا هذا التمييز يُعيدنا إلى الحزمة التي كان فيها «نجاح» بلا حركة (٢٠٢٦-٠٩-٢٢).
+     */
+    val effect: String = "",
 ) {
     /**
      * ورمز لا نعرفه يُعدّ فشلًا لا نجاحًا: مجهولٌ في قناة تشخيص يجب أن يلفت النظر، لا أن يمرّ
@@ -113,7 +120,7 @@ fun readPerAppHardwareRuntimeStatus(packageName: String?): PerAppHardwareRuntime
         packageName = snapshot.pkg,
         atMs = snapshot.atMs,
         outcomes = snapshot.records.map {
-            PerAppHardwareOutcome(it.knob, it.outcome, it.reason, it.expected, it.live)
+            PerAppHardwareOutcome(it.knob, it.outcome, it.reason, it.expected, it.live, it.effect)
         },
     )
 }

@@ -127,9 +127,14 @@ fun neuralPalette(): NeuralPalette {
     )
 }
 
-/** Press feedback shared by every tappable surface: 2.5% scale plus theme ripple. */
+/**
+ * Press feedback shared by every tappable surface: 2.5% scale plus theme ripple.
+ *
+ * `internal` because the kit's satellite file (`NeuralControls.kt`) must reuse this
+ * exact interaction — a second press implementation would drift on the first edit.
+ */
 @Composable
-private fun Modifier.neuralClickable(onClick: (() -> Unit)?): Modifier {
+internal fun Modifier.neuralClickable(onClick: (() -> Unit)?): Modifier {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -859,16 +864,28 @@ fun NeuralFeedRow(
     }
 }
 
-/** Caption plus value, the smallest readout unit. */
+/**
+ * Caption plus value, the smallest readout unit.
+ *
+ * The optional [onClick] exists because these tiles are the app's metric
+ * shortcuts (battery → charging center and friends): making the *readout* the
+ * tap target beats adding a chevron that would only steal width from the value.
+ */
 @Composable
 fun NeuralFactTile(
     caption: String,
     value: String,
     accent: Color,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
 ) {
     val p = neuralPalette()
-    NeuralTile(modifier, verticalSpacing = 4.dp, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)) {
+    NeuralTile(
+        modifier,
+        onClick = onClick,
+        verticalSpacing = 4.dp,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+    ) {
         NeuralCaption(caption, color = accent)
         NeuralValue(value, style = MonoValueStyleSmall.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold), color = p.text)
     }

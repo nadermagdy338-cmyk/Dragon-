@@ -52,6 +52,20 @@ class AtlasArchitectureTest {
      * - `AtlasFileStoreIo`: the evidence cache. It writes, but only into the app's own private
      *   directory — never a device node, and never through a privileged transport, so the read-path
      *   token rule (which exists to keep a writer off the kernel) does not apply to it.
+     * - `AtlasEffect` / `AtlasThermalHeadroom`: the **effect** vocabulary and the platform-signal
+     *   policy. Pure types and arithmetic over values handed to them: an effect is compared from
+     *   samples a caller already measured, so there is no reader here either.
+     * - `AtlasEffectAcceptance`: the decision layer of the effect loop, exactly like
+     *   `AtlasRoutePlanner`. It answers keep/revert/inconclusive from deltas it is given and holds no
+     *   reader, which is what keeps "judging an outcome" separate from "touching the kernel".
+     * - `AtlasEffectStore`: the effect ledger. Same rule as `AtlasFileStoreIo` — it writes into the
+     *   app's own private directory and never addresses a device node.
+     * - `AtlasQuirks`: the lower-only knowledge base. It applies declared rules to values a caller
+     *   already holds (availability, role, confidence) and reads nothing.
+     * - `AtlasEvidenceCoverage`: the inventory of our own evidence. It counts samples it is given;
+     *   the question "how much of the map is measured" is arithmetic over the ledger, not a read.
+     * - `AtlasEffectLines`: the reporting bridge. It formats values a caller already measured into
+     *   stable tokens, and formats nothing it did not receive.
      */
     private val declaredOffReadPath = listOf(
         "AtlasModels.kt",
@@ -61,6 +75,13 @@ class AtlasArchitectureTest {
         "AtlasControlIntent.kt",
         "AtlasRoutePlanner.kt",
         "AtlasFileStoreIo.kt",
+        "AtlasEffect.kt",
+        "AtlasThermalHeadroom.kt",
+        "AtlasEffectAcceptance.kt",
+        "AtlasEffectStore.kt",
+        "AtlasQuirks.kt",
+        "AtlasEvidenceCoverage.kt",
+        "AtlasEffectLines.kt",
     )
 
     private fun packageFileNames(): Set<String> = AtlasSourceGuard
