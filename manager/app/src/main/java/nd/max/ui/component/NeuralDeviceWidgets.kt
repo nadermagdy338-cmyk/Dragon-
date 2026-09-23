@@ -45,6 +45,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -235,36 +236,39 @@ fun NeuralGaugeCard(
             }
             NeuralCaption(caption, Modifier.weight(1f), color = accent)
             if (badge != null) {
-                Text(
-                    badge,
-                    color = accent,
-                    fontSize = 10.sp,
-                    lineHeight = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                NeuralPill(badge, accent, filled = true)
             }
         }
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             NeuralRing(
                 fraction = ringFraction,
                 value = value,
                 accent = accent,
-                size = ringSize,
-                // قوس أكثف: المراجع تُشبع المساحة باللون؛ و٩dp هو آخر عرض تحتمله بطاقة بنصف العرض
-                // بلا أن يتحوّل القوس إلى حلقة تُنافس الرقم بدل أن تخدمه.
-                strokeWidth = 9.dp,
+                size = ringSize.coerceAtMost(76.dp),
+                strokeWidth = 7.dp,
             )
-        }
-        if (support != null) {
-            NeuralValue(
-                support,
-                Modifier.fillMaxWidth(),
-                style = MonoValueStyleSmall.copy(fontSize = 10.5.sp),
-                color = p.muted,
-                align = TextAlign.Center,
-            )
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (support != null) {
+                    NeuralValue(
+                        support,
+                        style = MonoValueStyleSmall.copy(fontSize = 10.5.sp, lineHeight = 13.sp, fontWeight = FontWeight.SemiBold),
+                        color = p.text,
+                        maxLines = 2,
+                    )
+                }
+                if (footer == null && support == null) {
+                    Text(
+                        stringResource(nd.max.R.string.max_home_unavailable),
+                        color = p.muted,
+                        fontSize = 9.sp,
+                        lineHeight = 12.sp,
+                    )
+                }
+            }
         }
         if (footer != null) footer()
     }
@@ -296,7 +300,7 @@ fun NeuralReadoutTile(
         NeuralCaption(caption, color = p.muted)
         NeuralValue(
             value,
-            style = MonoValueStyleSmall.copy(fontSize = 16.sp, lineHeight = 19.sp, fontWeight = FontWeight.Bold),
+            style = MonoValueStyleSmall.copy(fontSize = 15.sp, lineHeight = 18.sp, fontWeight = FontWeight.Bold),
             color = accent,
         )
         if (sub != null) {
@@ -343,7 +347,7 @@ fun NeuralCoreGrid(
     modifier: Modifier = Modifier,
     accent: Color? = null,
     perRow: Int = 4,
-    barHeight: Dp = 44.dp,
+    barHeight: Dp = 38.dp,
 ) {
     val p = neuralPalette()
     val tone = accent ?: p.accent
@@ -383,11 +387,11 @@ private fun CoreCell(
     ) {
         NeuralValue(
             core.id,
-            style = MonoValueStyleSmall.copy(fontSize = 9.sp, fontWeight = FontWeight.SemiBold),
+            style = MonoValueStyleSmall.copy(fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold),
             color = p.muted,
         )
         Canvas(Modifier.fillMaxWidth().height(barHeight)) {
-            val barWidth = (size.width * .44f).coerceAtLeast(6.dp.toPx())
+            val barWidth = (size.width * .22f).coerceAtLeast(8.dp.toPx())
             val left = (size.width - barWidth) / 2f
             val corner = CornerRadius(barWidth / 2f, barWidth / 2f)
             drawRoundRect(
@@ -415,16 +419,16 @@ private fun CoreCell(
                     brush = Brush.radialGradient(
                         colors = listOf(barColor.copy(alpha = .38f), Color.Transparent),
                         center = cap,
-                        radius = barWidth * 1.5f,
+                        radius = barWidth * 1.7f,
                     ),
-                    radius = barWidth * 1.5f,
+                    radius = barWidth * 1.7f,
                     center = cap,
                 )
             }
         }
         NeuralValue(
             core.frequency,
-            style = MonoValueStyleSmall.copy(fontSize = 8.5.sp),
+            style = MonoValueStyleSmall.copy(fontSize = 8.sp),
             color = if (core.online) p.muted else p.grid,
         )
     }

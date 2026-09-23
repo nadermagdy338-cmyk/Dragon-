@@ -83,8 +83,8 @@ import nd.max.ui.util.ClockMeter
  *    reordered or clipped by an RTL locale.
  */
 
-val NeuralPanelShape = RoundedCornerShape(24.dp)
-val NeuralTileShape = RoundedCornerShape(18.dp)
+val NeuralPanelShape = RoundedCornerShape(22.dp)
+val NeuralTileShape = RoundedCornerShape(16.dp)
 private val ChipShape = RoundedCornerShape(12.dp)
 
 @Immutable
@@ -175,8 +175,8 @@ fun NeuralPanel(
     modifier: Modifier = Modifier,
     accent: Color? = null,
     onClick: (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(16.dp),
-    verticalSpacing: Dp = 12.dp,
+    contentPadding: PaddingValues = PaddingValues(13.dp),
+    verticalSpacing: Dp = 9.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val p = neuralPalette()
@@ -191,10 +191,10 @@ fun NeuralPanel(
             shape = NeuralPanelShape,
             top = p.panelTop.copy(alpha = .94f),
             bottom = p.panel,
-            border = accent?.copy(alpha = .32f) ?: p.border,
+            border = accent?.copy(alpha = .28f) ?: p.border.copy(alpha = .78f),
             glow = accent ?: p.accent,
-            elevation = if (accent == null) 2.dp else 4.dp,
-            glowStrength = if (accent == null) .20f else .36f,
+            elevation = if (accent == null) 1.dp else 2.dp,
+            glowStrength = if (accent == null) .12f else .20f,
             rtl = rtl,
         )
     Column(
@@ -210,8 +210,8 @@ fun NeuralTile(
     modifier: Modifier = Modifier,
     accent: Color? = null,
     onClick: (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(14.dp),
-    verticalSpacing: Dp = 8.dp,
+    contentPadding: PaddingValues = PaddingValues(12.dp),
+    verticalSpacing: Dp = 7.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val p = neuralPalette()
@@ -223,9 +223,9 @@ fun NeuralTile(
             shape = NeuralTileShape,
             top = accent?.copy(alpha = .12f) ?: p.tile,
             bottom = accent?.copy(alpha = .055f) ?: p.tile,
-            border = accent?.copy(alpha = .22f) ?: p.border.copy(alpha = .52f),
+            border = accent?.copy(alpha = .20f) ?: p.border.copy(alpha = .42f),
             glow = accent,
-            elevation = if (accent == null) 0.dp else 2.dp,
+            elevation = if (accent == null) 0.dp else 1.dp,
             sheen = if (accent == null) -1f else .025f,
             rtl = LocalLayoutDirection.current == LayoutDirection.Rtl,
         )
@@ -244,8 +244,8 @@ fun NeuralCaption(text: String, modifier: Modifier = Modifier, color: Color? = n
         text,
         modifier,
         color = color ?: p.muted,
-        fontSize = 10.sp,
-        lineHeight = 13.sp,
+        fontSize = 9.5.sp,
+        lineHeight = 12.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.9.sp,
     )
@@ -302,16 +302,16 @@ fun NeuralSectionHeader(
             Text(
                 title,
                 color = p.text,
-                fontSize = 15.sp,
-                lineHeight = 19.sp,
+                fontSize = 14.sp,
+                lineHeight = 18.sp,
                 fontWeight = FontWeight.Bold,
             )
             if (caption != null) {
                 Text(
                     caption,
                     color = p.muted,
-                    fontSize = 11.sp,
-                    lineHeight = 15.sp,
+                    fontSize = 10.sp,
+                    lineHeight = 13.sp,
                 )
             }
         }
@@ -352,7 +352,7 @@ fun NeuralPill(
     ) {
         if (dot) Box(Modifier.size(6.dp).clip(CircleShape).background(accent))
         if (icon != null) Icon(icon, null, Modifier.size(13.dp), tint = accent)
-        Text(text, color = accent, fontSize = 11.sp, lineHeight = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        Text(text, color = accent, fontSize = 10.sp, lineHeight = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
     }
 }
 
@@ -667,8 +667,8 @@ fun NeuralFeedRow(
             Text(
                 title,
                 color = p.text,
-                fontSize = 12.5.sp,
-                lineHeight = 16.sp,
+                fontSize = 12.sp,
+                lineHeight = 15.sp,
                 fontWeight = FontWeight.SemiBold,
             )
             if (meta != null) {

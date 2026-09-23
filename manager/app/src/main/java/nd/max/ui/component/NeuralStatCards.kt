@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,8 +71,8 @@ fun NeuralDataRow(
         Text(
             label,
             color = p.muted,
-            fontSize = 11.5.sp,
-            lineHeight = 15.sp,
+            fontSize = 10.5.sp,
+            lineHeight = 14.sp,
             modifier = Modifier.weight(1f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -79,7 +80,7 @@ fun NeuralDataRow(
         Spacer(Modifier.width(10.dp))
         NeuralValue(
             value,
-            style = MonoValueStyleSmall.copy(fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold),
+            style = MonoValueStyleSmall.copy(fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold),
             color = accent ?: p.text,
         )
     }
@@ -113,8 +114,8 @@ fun NeuralCategoryRow(
             Text(
                 label,
                 color = p.text,
-                fontSize = 11.5.sp,
-                lineHeight = 15.sp,
+                fontSize = 10.5.sp,
+                lineHeight = 14.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f),
                 maxLines = 1,
@@ -122,7 +123,7 @@ fun NeuralCategoryRow(
             )
             NeuralValue(
                 value,
-                style = MonoValueStyleSmall.copy(fontSize = 11.5.sp, fontWeight = FontWeight.Bold),
+                style = MonoValueStyleSmall.copy(fontSize = 10.5.sp, fontWeight = FontWeight.Bold),
                 color = if (fraction == null) p.muted else p.text,
             )
         }
@@ -146,53 +147,69 @@ fun NeuralMetricTrendCard(
     onClick: (() -> Unit)? = null,
 ) {
     val p = neuralPalette()
-    NeuralPanel(
+    NeuralTile(
         modifier = modifier,
         accent = accent,
         onClick = onClick,
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(14.dp),
-        verticalSpacing = 8.dp,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 11.dp),
+        verticalSpacing = 7.dp,
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            androidx.compose.foundation.layout.Box(
-                Modifier.size(7.dp).clip(CircleShape).background(accent),
-            )
+            Box(Modifier.size(7.dp).clip(CircleShape).background(accent))
             Spacer(Modifier.width(8.dp))
             Text(
                 title,
                 color = p.text,
-                fontSize = 13.sp,
-                lineHeight = 17.sp,
+                fontSize = 11.5.sp,
+                lineHeight = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                secondaryValue,
+                color = if (secondaryValue == "—") p.muted else accent,
+                fontSize = 9.sp,
+                lineHeight = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+            NeuralValue(
+                value,
+                modifier = Modifier.weight(1f),
+                style = nd.max.ui.theme.MonoValueStyleSmall.copy(fontSize = 22.sp, lineHeight = 25.sp, fontWeight = FontWeight.Black),
+                color = if (value == "—") p.muted else p.text,
             )
             Text(
                 stringResource(nd.max.R.string.home_active),
-                color = accent,
-                fontSize = 9.sp,
-                fontWeight = FontWeight.SemiBold,
+                color = accent.copy(alpha = .82f),
+                fontSize = 8.sp,
+                lineHeight = 11.sp,
+                fontWeight = FontWeight.Bold,
             )
         }
-        NeuralValue(
-            value,
-            style = nd.max.ui.theme.MonoValueStyleSmall.copy(fontSize = 28.sp, lineHeight = 31.sp, fontWeight = FontWeight.Black),
-            color = if (value == "—") p.muted else p.text,
-        )
-        NeuralValue(
-            secondaryValue,
-            style = nd.max.ui.theme.MonoValueStyleSmall.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold),
-            color = if (secondaryValue == "—") p.muted else accent,
-        )
-        if (series.size >= 2) {
-            NeuralAreaPlot(
-                values = series,
-                accent = accent,
-                maxValue = 100f,
-                adaptive = false,
-                modifier = Modifier.fillMaxWidth().height(74.dp),
-            )
-        } else {
-            androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth().height(74.dp))
+
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .clip(RoundedCornerShape(11.dp))
+                .background(p.grid.copy(alpha = .24f))
+        ) {
+            if (series.size >= 2) {
+                NeuralAreaPlot(
+                    values = series,
+                    accent = accent,
+                    maxValue = 100f,
+                    adaptive = false,
+                    modifier = Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 4.dp, vertical = 4.dp),
+                )
+            }
         }
     }
 }

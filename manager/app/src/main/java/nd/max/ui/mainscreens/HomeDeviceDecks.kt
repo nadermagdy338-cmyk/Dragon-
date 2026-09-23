@@ -1,34 +1,32 @@
 /**
- * ألواح الرئيسية السفلية — الحرارة، وتفاصيل الجهاز، وطاولة الأوامر.
+ * Home dashboard lower sections: thermal truth, device facts, history and navigation.
  *
- * فُصلت عن `MaxHomeDashboard.kt` لأن الملف تجاوز سقف المستودع (١٠٠٠ سطر) بالتقسيم الجديد،
- * والفصل **بالمسؤولية** لا بالحجم: الملف الأصلي يحكي **من أنت ومن يتحكّم** (الهوية، وحالات
- * الخطر، وسلّم الملفات، وشريط الذكاء)، وهذا الملف يحكي **ما يقيسه العتاد وما يمكن فتحه**.
- *
- * وكل دوال هذا الملف `internal` لا `private`: الشاشة الأمّ في الملف الآخر تستدعيها، والخصائص
- * الواحدة (نفس `neuralPalette` ونفس `temperatureAccent`) تعني أن الفصل لا يُنتج مظهرين.
+ * These sections deliberately avoid recreating controls that already exist in the hero,
+ * profile strip or resource tiles. Home is a summary surface; deep controls remain one tap away.
  */
 package nd.max.ui.mainscreens
 
 import android.os.Build
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BatteryChargingFull
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.Thermostat
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -53,37 +50,23 @@ import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralReadoutTile
 import nd.max.ui.component.NeuralSectionHeader
-import nd.max.ui.component.NeuralStatCard
 import nd.max.ui.component.NeuralSensorOption
 import nd.max.ui.component.NeuralSensorPicker
+import nd.max.ui.component.NeuralStatCard
 import nd.max.ui.component.neuralClickable
 import nd.max.ui.component.neuralPalette
+import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.util.ThermalGridModel
 import nd.max.ui.util.ThermalGridPreferences
 import nd.max.ui.viewmodel.DashboardState
 
-/**
- * الحرارة — **مجسّات يختارها المستخدم**، ولون الخطر قبل الرقم.
- *
- * ولا رقم واحد «للحرارة العامة»: جهاز قد يكون غلافه هادئًا وبطاريته ساخنة، والاثنان
- * يقودان إلى إجراء مختلف. والغلاف (`Skin`) هو ما يلمسه المستخدم فعلًا، ولهذا يُعرض ضمن
- * الافتراضي إلى جانب ما يقيسه المحرّك.
- *
- * والشبكة **مثبَّتة بالاختيار** (مرجع DevCheck: لمس بطاقة الحرارة يختار المجسّات المعروضة):
- * أربعة مواضع كحدّ أقصى، تُملأ من فئات هذه النواة فعلًا (`ThermalGridModel`)، ويبقى الاختيار
- * بعد إغلاق الشاشة (`ThermalGridPreferences`). وما لا تقيسه هذه النواة لا يُعرض له صفّ.
- */
 @Composable
 internal fun ThermalPanel(dashboard: DashboardState, measured: Boolean, onThermal: () -> Unit) {
     val context = LocalContext.current
     val p = neuralPalette()
-    // قبل أول قياس لا حكم: شارة «مستقر» لجهاز لم يُقرأ بعد ادّعاء، ومجسّ صفري يُكتب `—`
-    // لا `0°` (وتفصيله في `ThermalTile`).
     val headline = if (measured) {
         dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt() ?: dashboard.cpuTempC.takeIf { it > 0 }
-    } else {
-        null
-    }
+    } else null
     val headlineAccent = temperatureAccent(headline)
     val calm = measured && (headline == null || headline < 43)
     var pinned by remember { mutableStateOf(ThermalGridPreferences.read(context)) }
@@ -92,16 +75,18 @@ internal fun ThermalPanel(dashboard: DashboardState, measured: Boolean, onTherma
         ThermalGridModel.options(dashboard.thermalByCategory.keys)
     }
 
-    NeuralPanel(accent = headlineAccent, onClick = onThermal, verticalSpacing = 12.dp) {
+    NeuralPanel(
+        accent = headlineAccent,
+        contentPadding = PaddingValues(14.dp),
+        verticalSpacing = 9.dp,
+        onClick = onThermal,
+    ) {
         NeuralSectionHeader(
             title = stringResource(R.string.home_system_vitals),
             caption = stringResource(R.string.max_home_thermal_desc),
             accent = headlineAccent,
             trailing = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     NeuralPill(
                         text = stringResource(
                             when {
@@ -113,17 +98,21 @@ internal fun ThermalPanel(dashboard: DashboardState, measured: Boolean, onTherma
                         accent = if (!measured) p.muted else if (calm) p.ok else headlineAccent,
                         dot = true,
                     )
-                    SensorPickerButton(onClick = { picking = true })
+                    ThermalSensorButton(onClick = { picking = true })
                 }
             },
         )
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            pinned.forEach { category ->
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            pinned.take(4).forEach { category ->
                 ThermalTile(
                     caption = categoryLabel(category),
                     value = dashboard.sensorReading(category),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
+            }
+            repeat((4 - pinned.take(4).size).coerceAtLeast(0)) {
+                androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
             }
         }
     }
@@ -152,7 +141,6 @@ internal fun ThermalPanel(dashboard: DashboardState, measured: Boolean, onTherma
     }
 }
 
-/** اسم فئة المجسّ بلغة الواجهة؛ ومجهول الإملاء يُعرض كما جاء من العتاد (رمز تقني لا نصّ). */
 @Composable
 private fun categoryLabel(category: String): String = when (category) {
     "CPU" -> stringResource(R.string.home_cpu_tag)
@@ -169,7 +157,6 @@ private fun categoryLabel(category: String): String = when (category) {
     else -> category
 }
 
-/** قراءة فئة: الرقم المخصّص له بأفضل تراجعاته، والبقية من خريطة الدورة. والصفر «لا قراءة». */
 private fun DashboardState.sensorReading(category: String): Int = when (category) {
     "CPU" -> cpuTempC
     "GPU" -> gpuTempC
@@ -178,21 +165,17 @@ private fun DashboardState.sensorReading(category: String): Int = when (category
     else -> thermalByCategory[category] ?: 0
 }
 
-/** صيغة القراءة: الدرجة أو `—` — لا صفر يقول «صفر درجة». */
-private fun thermalReadingText(value: Int): String =
-    if (value > 0) "$value\u00b0" else "\u2014"
+private fun thermalReadingText(value: Int): String = if (value > 0) "$value°" else "—"
 
-/** زر اختيار المجسّات — لمسة صغيرة في الترويسة لا تسرق عرض البطاقة. */
 @Composable
-private fun SensorPickerButton(onClick: () -> Unit) {
+private fun ThermalSensorButton(onClick: () -> Unit) {
     val p = neuralPalette()
-    Box(
+    Row(
         Modifier
             .size(28.dp)
-            .clip(RoundedCornerShape(9.dp))
-            .background(p.tile)
             .neuralClickable(onClick),
-        contentAlignment = Alignment.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
     ) {
         Icon(
             Icons.Rounded.Tune,
@@ -203,27 +186,19 @@ private fun SensorPickerButton(onClick: () -> Unit) {
     }
 }
 
-/** بلاطة مجسّ: صفر تعني «المجسّ لا يُقرأ»، فلا تُلوَّن بالأخضر كأنها برودة مقيسة. */
 @Composable
 private fun ThermalTile(caption: String, value: Int, modifier: Modifier) {
     val p = neuralPalette()
     val known = value > 0
     NeuralReadoutTile(
         caption = caption,
-        value = if (known) "$value\u00b0" else "\u2014",
+        value = if (known) "$value°" else "—",
         accent = if (known) temperatureAccent(value) else p.muted,
         modifier = modifier,
         sub = if (known) null else stringResource(R.string.home_sensor_unavailable),
     )
 }
 
-/**
- * تفاصيل الجهاز — الأرقام التي تُفتح لها تطبيقات «معلومات الجهاز»، في شبكة كثيفة.
- *
- * ولماذا شبكة من ثلاث خانات لا قائمة: القائمة سطر لكل معلومة تُطيل الصفحة، وهذه أرقام
- * تُقرأ بالعين لا تُقرأ كجمل؛ ثلاث خانات بعرض الشاشة تجعل التسع كلّها في ثلاثة أسطر.
- * والقيَم تُرسم بـ[NeuralValue] (LTR مثبّت) فلا يقلب RTL «1080×2400» أو «4.2 V».
- */
 @Composable
 internal fun DeviceDetailsPanel(
     dashboard: DashboardState,
@@ -234,121 +209,91 @@ internal fun DeviceDetailsPanel(
     onDeviceInfo: () -> Unit,
 ) {
     val p = neuralPalette()
-    val dash = "\u2014"
+    val dash = "—"
     val resolution = if (dashboard.displayWidth > 0 && dashboard.displayHeight > 0) {
-        "${dashboard.displayWidth}\u00d7${dashboard.displayHeight}"
-    } else {
-        dash
-    }
+        "${dashboard.displayWidth}×${dashboard.displayHeight}"
+    } else dash
 
-    NeuralPanel(accent = p.accent, verticalSpacing = 12.dp) {
+    NeuralPanel(accent = p.accent, contentPadding = PaddingValues(14.dp), verticalSpacing = 9.dp) {
         NeuralSectionHeader(
             title = stringResource(R.string.home_device_details),
             caption = stringResource(R.string.home_device_details_desc),
             accent = p.accent,
+            trailing = {
+                NeuralPill(
+                    text = stringResource(R.string.home_details),
+                    accent = p.muted,
+                    icon = Icons.Rounded.Info,
+                    onClick = onDeviceInfo,
+                )
+            },
         )
-        // هوية النظام صفوفًا لا بلاطات: هذه قراءات ثابتة (تُقرأ مرة من `Build`) لا تتغيّر كل
-        // دقيقتَي قياس، فصفّها هو ما لا يُنافس الأرقام الحيّة على الانتباه — وهي في الوقت نفسه
-        // ما يضعه DevCheck أسفل لوحته: الإصدار والموديل بالنصّ كاملًا.
-        NeuralDataRow(
-            label = stringResource(R.string.home_android_version),
-            value = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})",
-            onClick = onDeviceInfo,
-        )
-        NeuralDataRow(
-            label = stringResource(R.string.device_model),
-            value = Build.MODEL.ifBlank { dash },
-        )
-        NeuralDivider()
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             NeuralFactTile(
-                caption = stringResource(R.string.max_home_uptime),
-                value = compactUptime(dashboard.uptimeMinutes),
+                caption = stringResource(R.string.home_android_version),
+                value = "${Build.VERSION.RELEASE} / API ${Build.VERSION.SDK_INT}",
                 accent = p.muted,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                onClick = onDeviceInfo,
             )
             NeuralFactTile(
                 caption = stringResource(R.string.home_resolution),
                 value = resolution,
                 accent = p.muted,
                 modifier = Modifier.weight(1f),
-                onClick = onDisplay
+                onClick = onDisplay,
             )
             NeuralFactTile(
                 caption = stringResource(R.string.home_current_refresh),
-                value = if (dashboard.displayRefreshHz > 0) "${dashboard.displayRefreshHz} Hz" else dash,
+                value = dashboard.displayRefreshHz.takeIf { it > 0 }?.let { "$it Hz" } ?: dash,
                 accent = p.muted,
                 modifier = Modifier.weight(1f),
-                onClick = onDisplay
+                onClick = onDisplay,
             )
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             NeuralFactTile(
                 caption = stringResource(R.string.home_download),
-                // **صفرُ الشبكة ادّعاء قبل أول قياس**: «0 KB/s» تقول «الشبكة ساكنة» وهي لم
-                // تُقرأ بعد. بعد أول دورة يبقى `0 KB/s` صحيحًا (سكون مقيس).
                 value = if (measured) netSpeed(dashboard.downloadSpeedKbps) else dash,
                 accent = p.ok,
                 modifier = Modifier.weight(1f),
-                onClick = onNetwork
+                onClick = onNetwork,
             )
             NeuralFactTile(
                 caption = stringResource(R.string.home_upload),
                 value = if (measured) netSpeed(dashboard.uploadSpeedKbps) else dash,
                 accent = p.accentAlt,
                 modifier = Modifier.weight(1f),
-                onClick = onNetwork
+                onClick = onNetwork,
             )
             NeuralFactTile(
                 caption = stringResource(R.string.home_density),
-                value = if (dashboard.displayDensityDpi > 0) "${dashboard.displayDensityDpi} dpi" else dash,
+                value = dashboard.displayDensityDpi.takeIf { it > 0 }?.let { "$it dpi" } ?: dash,
                 accent = p.muted,
                 modifier = Modifier.weight(1f),
-                onClick = onDisplay
-            )
-            NeuralFactTile(
-                caption = stringResource(R.string.home_battery_current),
-                value = dashboard.batteryCurrentMa?.let { "$it mA" } ?: dash,
-                accent = p.muted,
-                modifier = Modifier.weight(1f),
-                onClick = onPower
+                onClick = onDisplay,
             )
             NeuralFactTile(
                 caption = stringResource(R.string.home_battery_voltage),
-                value = if (dashboard.batteryVoltageV > 0f) {
-                    "${dashboard.batteryVoltageV.oneDecimal()} V"
-                } else {
-                    dash
-                },
+                value = if (dashboard.batteryVoltageV > 0f) "${dashboard.batteryVoltageV.oneDecimal()} V" else dash,
                 accent = p.muted,
                 modifier = Modifier.weight(1f),
-                onClick = onPower
+                onClick = onPower,
             )
         }
+        NeuralDataRow(
+            label = stringResource(R.string.device_model),
+            value = Build.MODEL.ifBlank { dash },
+            onClick = onDeviceInfo,
+        )
     }
 }
 
-/**
- * متوسط نافذة السجل — لا يُقال «متوسط» دون ثلاث عيّنات مقيسة، والفجوة (قيمة مجهولة) لا تُحسب
- * أصفارًا تنزل المنحنى نحو القاع. والواجهة تعرض `—` حين تُعيد هذه الدالة `null`.
- * (مُقاس في JVM: `HistoryWindowTest`.)
- */
 internal fun windowedAverage(series: List<Float?>): Float? {
     val measured = series.filterNotNull()
     return if (measured.size >= 3) measured.average().toFloat() else null
 }
 
-/**
- * بطاقة الأداء التاريخي — الجواب عن سؤال لا يجيبه أي رقم لحظي: **ماذا كان الحمل طوال النافذة؟**
- *
- * والبيانات كلها مقيسة ومحفوظة: `LoadHistory` يحفظ 36 عيّنة بطابعها الزمني، و`ramLoadHistory`
- * يحفظ نسبة الذاكرة على الإيقاع نفسه. ولا صفر يُرسم حيث لا قراءة: مخطط المكتبة صار يترك
- * **فجوة** عند العيّنة المجهولة (`gpu = null` على جهاز لا تُعلن نواته عقدة رسوم) — فالمنحنى
- * ينكسر بدل أن ينزل إلى القاع ويقول كذبة «الرسوم كانت هادئة».
- *
- * وصفوف التلخيص تعرض **متوسط النافذة** لا اللحظة — فلا تكرّر الأقواس الأربعة فوقها، وهي في
- * الوقت نفسه صيغة «قوائم التصنيفات بأشرطة التقدّم» التي جاءت من الصورة `5.jpg`.
- */
 @Composable
 internal fun PerformanceHistoryCard(dashboard: DashboardState) {
     val p = neuralPalette()
@@ -357,8 +302,7 @@ internal fun PerformanceHistoryCard(dashboard: DashboardState) {
     val cpuAvg = windowedAverage(samples.map { it.cpu })
     val gpuSeries = samples.map { it.gpu }
     val gpuAvg = windowedAverage(gpuSeries)
-    val ramSeries = dashboard.ramLoadHistory
-    val ramAvg = windowedAverage(ramSeries)
+    val ramAvg = windowedAverage(dashboard.ramLoadHistory)
 
     NeuralStatCard(
         title = stringResource(R.string.home_history_title),
@@ -373,103 +317,82 @@ internal fun PerformanceHistoryCard(dashboard: DashboardState) {
                 secondaryAccent = p.accentAlt,
                 maxValue = 100f,
                 adaptive = false,
-                modifier = Modifier.fillMaxWidth().height(84.dp),
+                modifier = Modifier.fillMaxWidth().height(78.dp),
             )
         },
     ) {
-        NeuralCategoryRow(
-            label = stringResource(R.string.home_cpu_tag),
-            value = if (cpuAvg == null) "\u2014" else "${cpuAvg.roundToInt()}%",
-            fraction = cpuAvg?.let { it / 100f },
-            accent = p.accent,
-        )
-        NeuralCategoryRow(
-            label = stringResource(R.string.home_gpu_tag),
-            value = if (gpuAvg == null) "\u2014" else "${gpuAvg.roundToInt()}%",
-            fraction = gpuAvg?.let { it / 100f },
-            accent = p.accentAlt,
-        )
-        NeuralCategoryRow(
-            label = stringResource(R.string.home_ram_tag),
-            value = if (ramAvg == null) "\u2014" else "${ramAvg.roundToInt()}%",
-            fraction = ramAvg?.let { it / 100f },
-            accent = p.warn,
-        )
+        if (cpuAvg != null) {
+            NeuralCategoryRow(
+                label = stringResource(R.string.home_cpu_tag),
+                value = "${cpuAvg.roundToInt()}%",
+                fraction = cpuAvg / 100f,
+                accent = p.accent,
+            )
+        }
+        if (gpuAvg != null) {
+            NeuralCategoryRow(
+                label = stringResource(R.string.home_gpu_tag),
+                value = "${gpuAvg.roundToInt()}%",
+                fraction = gpuAvg / 100f,
+                accent = p.accentAlt,
+            )
+        }
+        if (ramAvg != null) {
+            NeuralCategoryRow(
+                label = stringResource(R.string.home_ram_tag),
+                value = "${ramAvg.roundToInt()}%",
+                fraction = ramAvg / 100f,
+                accent = p.warn,
+            )
+        }
     }
 }
 
-/** لون الحكم: خط الأساس هادئ، والحرارة بلون الحرارة، وما عدا ذلك بلون المسار. */
-@Composable
-internal fun limiterAccent(limiter: String, heatAccent: Color): Color {
-    val p = neuralPalette()
-    return when (limiter) {
-        "Baseline" -> p.ok
-        "Thermal", "Power/Thermal" -> heatAccent
-        "CPU", "GPU" -> p.accent
-        "Memory" -> p.accentAlt
-        else -> p.muted
-    }
-}
-
-/**
- * Where to go next — **one compact scrolling row** (the DevCheck command row), five
- * destinations this home does not duplicate. The support lines the old 2×2 deck carried
- * went with it: at five destinations the titles say everything those lines repeated,
- * and one row hands the screen back a full band of readings.
- */
 @Composable
 internal fun CommandDeck(
-    onThermal: () -> Unit,
-    onBattery: () -> Unit,
     onApps: () -> Unit,
-    onAdvanced: () -> Unit,
-    onSystemSettings: () -> Unit,
+    onControl: () -> Unit,
+    onAi: () -> Unit,
+    onDiagnostics: () -> Unit,
 ) {
     val p = neuralPalette()
-    NeuralPanel {
+    NeuralPanel(contentPadding = PaddingValues(14.dp), verticalSpacing = 9.dp) {
         NeuralSectionHeader(
             title = stringResource(R.string.home_quick_actions),
             caption = stringResource(R.string.home_quick_actions_desc),
-            accent = p.accentAlt
+            accent = p.accentAlt,
         )
         Row(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             NeuralActionTile(
-                icon = Icons.Rounded.Thermostat,
-                title = stringResource(R.string.home_action_thermal),
-                accent = p.warn,
-                onClick = onThermal,
-                modifier = Modifier.width(116.dp)
-            )
-            NeuralActionTile(
-                icon = Icons.Rounded.BatteryChargingFull,
-                title = stringResource(R.string.home_action_battery),
-                accent = p.ok,
-                onClick = onBattery,
-                modifier = Modifier.width(116.dp)
+                icon = Icons.Rounded.Tune,
+                title = stringResource(R.string.home_action_advanced),
+                accent = p.accentAlt,
+                onClick = onControl,
+                modifier = Modifier.width(118.dp),
             )
             NeuralActionTile(
                 icon = Icons.Rounded.Apps,
                 title = stringResource(R.string.max_home_app_profiles),
                 accent = p.accent,
                 onClick = onApps,
-                modifier = Modifier.width(116.dp)
+                modifier = Modifier.width(118.dp),
             )
             NeuralActionTile(
-                icon = Icons.Rounded.Tune,
-                title = stringResource(R.string.home_action_advanced),
+                icon = Icons.Rounded.AutoAwesome,
+                title = stringResource(R.string.max_nav_max_ai),
                 accent = p.accentAlt,
-                onClick = onAdvanced,
-                modifier = Modifier.width(116.dp)
+                onClick = onAi,
+                modifier = Modifier.width(118.dp),
             )
             NeuralActionTile(
-                icon = Icons.Rounded.Settings,
-                title = stringResource(R.string.home_action_system_settings),
+                icon = Icons.Rounded.Info,
+                title = stringResource(R.string.home_device_overview),
                 accent = p.muted,
-                onClick = onSystemSettings,
-                modifier = Modifier.width(116.dp)
+                onClick = onDiagnostics,
+                modifier = Modifier.width(118.dp),
             )
         }
     }
