@@ -192,7 +192,6 @@ fun NeuralMetricTrendCard(
                     accent = accent,
                     maxValue = 100f,
                     adaptive = false,
-                    showGrid = false,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                 )
             }

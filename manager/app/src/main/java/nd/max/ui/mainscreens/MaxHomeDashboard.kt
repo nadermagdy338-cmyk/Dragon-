@@ -38,6 +38,7 @@ import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.component.MaxReveal
 import nd.max.ui.component.NeuralCoreGrid
+import nd.max.ui.component.NeuralCapacityCard
 import nd.max.ui.component.NeuralGaugeCard
 import nd.max.ui.component.NeuralIconButton
 import nd.max.ui.component.NeuralIconChip
@@ -118,6 +119,7 @@ internal fun MaxHomeDashboard(
 
         MaxReveal(true, 55, Modifier.fillMaxWidth()) {
             ModeControlStrip(
+                profileRes = ui.currentProfileRes,
                 manualProfileAllowed = ui.autoMode == "0",
                 maxAi = maxAi,
                 request = profileRequest,
