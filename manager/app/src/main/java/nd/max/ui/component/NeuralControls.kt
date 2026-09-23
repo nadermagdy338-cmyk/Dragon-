@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -91,18 +92,26 @@ fun NeuralSegmented(
     ) {
         labels.forEachIndexed { index, label ->
             val selected = index == selectedIndex
-            val fill by animateColorAsState(
-                targetValue = if (selected) tone.copy(alpha = .16f) else Color.Transparent,
+            // المقطع المختار **مفتاح مُضاء**: تدرّج رأسي (لا لون مسطّح) + هالة خفيفة تحته،
+            // فيُقرأ الاختيار كضغط مفتاح فيزيائي لا كتغيير لون. والتدرّجان يُحرَّكان معًا، فلا
+            // يقفز الشكل لحظة التبديل.
+            val fillTop by animateColorAsState(
+                targetValue = if (selected) tone.copy(alpha = .28f) else Color.Transparent,
                 animationSpec = tween(MaxMotion.fast, easing = FastOutSlowInEasing),
-                label = "neural-segmented-fill",
+                label = "neural-segmented-fill-top",
+            )
+            val fillBottom by animateColorAsState(
+                targetValue = if (selected) tone.copy(alpha = .10f) else Color.Transparent,
+                animationSpec = tween(MaxMotion.fast, easing = FastOutSlowInEasing),
+                label = "neural-segmented-fill-bottom",
             )
             Box(
                 Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(11.dp))
-                    .background(fill)
+                    .background(Brush.verticalGradient(listOf(fillTop, fillBottom)))
                     .border(
-                        BorderStroke(1.dp, if (selected) tone.copy(alpha = .35f) else Color.Transparent),
+                        BorderStroke(1.dp, if (selected) tone.copy(alpha = .42f) else Color.Transparent),
                         RoundedCornerShape(11.dp),
                     )
                     .neuralClickable {
@@ -151,13 +160,27 @@ fun NeuralLiveDot(
     } else {
         1f
     }
+    // النقطة وهي تعمل تتنفّس **داخل هالة**: هالة بلا نبض تظلّ علامة ساكنة، والنبض بلا هالة
+    // يظلّ نقطة تتلاشى. والاثنان معًا: محرّك يعمل، بلا مؤثّر يدّعي قراءة.
     Box(
         modifier
-            .size(size)
-            .graphicsLayer { this.alpha = alpha }
+            .size(size * 2.6f)
             .clip(CircleShape)
-            .background(color),
-    )
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(color.copy(alpha = if (active) .30f * alpha else 0f), Color.Transparent),
+                )
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            Modifier
+                .size(size)
+                .graphicsLayer { this.alpha = alpha }
+                .clip(CircleShape)
+                .background(color),
+        )
+    }
 }
 
 /** Hairline rule between related sections of one panel. */

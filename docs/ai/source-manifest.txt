@@ -169,9 +169,10 @@ cb2d9efe66e5c0dff33d27e62c4ba4510a3d9c7e852f1007dc245ebd6c8d4dd4  manager/app/sr
 c244b9aac3f1ca07a98704cd24e0f858e9b529777fe19049e367e6f149c48eef  manager/app/src/main/java/nd/max/ui/component/MaxInteractionComponents.kt
 0c106111d877aa11266f433b84738b920547f13fcbc443179e7d8f88c4ad7e5a  manager/app/src/main/java/nd/max/ui/component/MaxMotion.kt
 68a9befc9f6dc9fdb96cad86bd0e96b85b991267dad25af4f5354fdfd0ea768d  manager/app/src/main/java/nd/max/ui/component/ModuleBackupComponent.kt
-4a9ccf4ef855b984c330a54a2ad2c09a89f7acf9dc857b3aaf7e90816a5a25fc  manager/app/src/main/java/nd/max/ui/component/NeuralControls.kt
-203468606b00d4f0d54d09d95e82b416e80c3f24fca8b87e8238b425371e5888  manager/app/src/main/java/nd/max/ui/component/NeuralDashboardKit.kt
-ade3300cfe3fc7626116fd078c1016071c6a2459aaaa9fcca846a62c957914c0  manager/app/src/main/java/nd/max/ui/component/NeuralDeviceWidgets.kt
+71b19730fb7c6b0f706adaf1337f98ba93bfa4f543e7f3562b44e1626aaa3c78  manager/app/src/main/java/nd/max/ui/component/NeuralControls.kt
+fa18888ab7724096e919eae333bd54e7d8889d86badb77e1c56efcf11965f8ce  manager/app/src/main/java/nd/max/ui/component/NeuralDashboardKit.kt
+045d3c7f6f7bed76fec1953e39425032ab96129d47f2cf6e0db2ceb589e64398  manager/app/src/main/java/nd/max/ui/component/NeuralDepth.kt
+9270317c39e9c30b5279ea4ddf3c6dc3883b228ebb6dcc57f9943bcb16d26707  manager/app/src/main/java/nd/max/ui/component/NeuralDeviceWidgets.kt
 73b14f8963970f41a7198be5f8ebf278cbc5836b841fe7c8bd0c1654efa3a4dc  manager/app/src/main/java/nd/max/ui/component/NeuralStatCards.kt
 587c019d049dfce76c15ea472de4d1ecd756e9d515deb0f14e43db4745873be7  manager/app/src/main/java/nd/max/ui/component/PowerCoreCard.kt
 fc85c4204a2c40525ac8787712f128778c09de557781fde5dba08b643f511c1f  manager/app/src/main/java/nd/max/ui/component/PrivilegePanel.kt
@@ -223,12 +224,12 @@ f81f19405b8ed04c707409bf10fdbc73a322a5766f1f2f8dde8df3ae0f49fa36  manager/app/sr
 7078e3a45db9ba9f1a0e314a120bfaf17363e66171423e09c187826b8c86561b  manager/app/src/main/java/nd/max/ui/mainscreens/HomeDashboardComponents.kt
 816a3514a59d66793ceac8e906dc2437fdbe6749fe89352f31b922c0c07ef68e  manager/app/src/main/java/nd/max/ui/mainscreens/HomeDeviceDecks.kt
 e33725c41d22e00795a0580e4bd62eabb83dfeb0ed269965a0c42af833c62ab6  manager/app/src/main/java/nd/max/ui/mainscreens/HomeFormat.kt
-0de3c02e7e5487a52b180bfc992bfcdbac770f32192114a9200bbe96664c1892  manager/app/src/main/java/nd/max/ui/mainscreens/HomeScreen.kt
+4db9fc6519de3cf3565b519115fc06637d659972f7fc9327fc55adab7b37cffe  manager/app/src/main/java/nd/max/ui/mainscreens/HomeScreen.kt
 26812bf61dbda6911336dad724de1f70f629456eeb3a9cbeb7c97b2cb81ad7e4  manager/app/src/main/java/nd/max/ui/mainscreens/LegacyTweakComponents.kt
 adce7488b8ed746c43363cd110b1e155c6b9f3501df36c289473b7fae0332497  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiPresentation.kt
 fb8f6d59a23bfe4e47c84c1f27cd6c33769c6e13f8554ec9540daa77f53bd471  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiRuntimeStatus.kt
 62b16dac02875d4a3abd6750137fbd1e1d596941f0191a73bf5f85a2481a7049  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiScreen.kt
-73b931a62b98127bbc9ebf1ff7190eaf461d983603920ba98cf8ec805547f191  manager/app/src/main/java/nd/max/ui/mainscreens/MaxHomeDashboard.kt
+9d6d2dda680619aa06d7d4ba926d884fd56ecca6f54dde30ede4fa541951f284  manager/app/src/main/java/nd/max/ui/mainscreens/MaxHomeDashboard.kt
 99ba4effe67396d3a17c15a58988763985e4a5715c5daf0c668003fd47ec0924  manager/app/src/main/java/nd/max/ui/mainscreens/MaxLiveScreen.kt
 6f18c003dca3d7634fd6fea61f7d294512837ba9778aaccd4d3744390f6afa2c  manager/app/src/main/java/nd/max/ui/mainscreens/SettingsScreen.kt
 f1424a097a7e2ece26001893d75b8c2cfaa712bbfee538ef4327cdfe0314e112  manager/app/src/main/java/nd/max/ui/mainscreens/StoryboardHome.kt
@@ -724,7 +725,7 @@ b54735dbebf35b7a22d07a6b4e65859e75d2585b5759e665334899be1eede3c1  tools/i18n_cov
 c2ac6e18aa15134b1324a6e591f64a31c14322a44b514f2fc4eadcffb5a2b4a5  tools/kt_balance.py
 303a21e7089a0d19103a014f81b2db6694cfd364cb4338ca1d9956674edcfa2a  tools/log_gate.py
 f4a8276fd5e18642cb02db9931570dd4d0265704add350013cd2de6382259ba0  tools/read_image_text.py
-6571f99bfc9f1ad0ced3ecf64f779830005eb9621f766143f61181d372eeb471  tools/render_design_mockups.py
+cf2064db4c8f32ad7622df6d2c0b785fb6ab6a13fe3337c7e241d117eb3a3b5e  tools/render_design_mockups.py
 26c6c8d5e8aa617a53b0b8454974aea21794e85795c47d34b88e542e012f41d7  tools/repo_audit.py
 6e7af264500d90dcabd15af144808f9b03bb5f585951a31911c92e13544d20d5  tools/sepolicy_matrix.py
 26680c1ceeb42802ccbb0b03bc5cccd0c4d1e0e4fbf2ff2be749ea8e352c6237  tools/source_manifest.py

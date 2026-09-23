@@ -1,9 +1,6 @@
 package nd.max.ui.mainscreens
 
 import android.content.Intent
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,14 +29,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -67,6 +65,7 @@ import nd.max.ui.component.NeuralSegmented
 import nd.max.ui.component.NeuralSkeleton
 import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
+import nd.max.ui.component.neuralSurface
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.theme.MonoValueStyleSmall
 import nd.max.ui.viewmodel.DashboardState
@@ -281,17 +280,47 @@ internal fun MaxHomeDashboard(
 @Composable
 private fun HomeHeader(online: Boolean, onSettings: () -> Unit, onReboot: () -> Unit) {
     val p = neuralPalette()
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(
-                stringResource(R.string.max_brand_mark),
-                color = p.text,
-                fontSize = 26.sp,
-                lineHeight = 28.sp,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 1.4.sp
+    val shape = RoundedCornerShape(22.dp)
+    // الترويسة **لوح بطل**: أوّل ما تقع عليه العين، فيحمل هوية التطبيق بلونَيها (لهجة + لهجة
+    // ثانية) ويكون أعلى درجات العمق في الصفحة (8dp) وأقواها هالةً. وهي في الوقت نفسه أقصر من
+    // شريط نصّ عائم: اللوح يحتوي العلامة والحالة والفعلين في ارتفاع واحد. وحالة المحرّك تُقال
+    // **مرّة واحدة** هنا — شريط الذكاء أسفل الصفحة يجيب سؤالًا آخر (ماذا يفعل المحرّك).
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .neuralSurface(
+                shape = shape,
+                top = p.panelTop.copy(alpha = .96f),
+                bottom = p.panel,
+                border = p.accent.copy(alpha = .30f),
+                glow = p.accent,
+                elevation = 8.dp,
             )
-        }
+            // شريط الهوية: خيط ٢dp بلونَي العلامة يتلاشى على طول الحافة العليا. هذه هي
+            // العلامة التي تميّز MaxManager من غيره: تُقرأ في لمحة حتى ولو غطّيت العين الاسم،
+            // وهي نفسها تحدّد بداية الصفحة فلا يحتاج المستخدم أن يبحث عن أين تبدأ.
+            .drawBehind {
+                drawRect(
+                    Brush.horizontalGradient(
+                        colors = listOf(p.accent, p.accentAlt, Color.Transparent),
+                    ),
+                    size = Size(size.width, 2.dp.toPx()),
+                )
+            }
+            .padding(horizontal = 16.dp, vertical = 13.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            stringResource(R.string.max_brand_mark),
+            style = TextStyle(
+                brush = Brush.horizontalGradient(listOf(p.accent, p.accentAlt)),
+                fontSize = 28.sp,
+                lineHeight = 30.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.5.sp,
+            ),
+        )
+        Spacer(Modifier.weight(1f))
         NeuralPill(
             text = stringResource(if (online) R.string.home_active else R.string.home_idle),
             accent = if (online) p.ok else p.danger,
@@ -309,12 +338,16 @@ private fun HomeHeader(online: Boolean, onSettings: () -> Unit, onReboot: () -> 
 private fun HeaderButton(icon: ImageVector, description: String, onClick: () -> Unit) {
     val p = neuralPalette()
     val shape = RoundedCornerShape(13.dp)
+    // زرّ بلمعة حافة وحدّ رفيع: يقرأ كزرّ يُضغط لا كرقعة لونية مسطّحة.
     Box(
         Modifier
             .size(38.dp)
-            .clip(shape)
-            .background(p.tile)
-            .border(BorderStroke(1.dp, p.border), shape)
+            .neuralSurface(
+                shape = shape,
+                top = p.tile,
+                bottom = p.tile,
+                border = p.border.copy(alpha = .75f),
+            )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -330,9 +363,9 @@ private fun HeaderButton(icon: ImageVector, description: String, onClick: () -> 
  * **ما لا تملكه لوحة**: اسم الجهاز، وشريحته، والمحدِّد الحالي — أي العنوان الذي يُقرأ منه
  * ما تحته. ورقم يظهر في مكانين يعني رقمين مختلفين بعد أول تحديث لأحدهما.
  *
- * وهي **السطح الوحيد المُدرَّج في الشاشة** (تدرّج رأسي + هالة لونية من الركن): الألواح الباقية
- * مسطّحة متساوية عن قصد، فتقرأ العينُ الأولى فورًا على أنها الترويسة، وفي الوقت نفسه لا يسحب
- * تدرّجُها الانتباه عن القراءات. ومعها الاسم يكبُر إلى 20sp — أول تمييز هرمي في الصفحة.
+ * وهي **ثاني أعمق سطح في الشاشة** بعد لوح البطل (تدرّج رأسي + هالتان ركنيتان + لمعة حافة،
+ * بدرجة عمق 6dp مقابل 8dp للترويسة): فتقرأ العين الاثنين فورًا كترويسة الصفحة، وفي الوقت نفسه
+ * لا يسحب تدرّجهما الانتباه عن القراءات. ومعها الاسم يكبُر إلى 20sp — أول تمييز هرمي في الصفحة.
  */
 @Composable
 private fun IdentityCard(
@@ -352,16 +385,14 @@ private fun IdentityCard(
     Column(
         Modifier
             .fillMaxWidth()
-            .clip(shape)
-            .background(Brush.verticalGradient(listOf(p.panelTop.copy(alpha = .96f), p.panel)))
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(p.accent.copy(alpha = .18f), Color.Transparent),
-                    center = Offset(0f, 0f),
-                    radius = 820f,
-                )
+            .neuralSurface(
+                shape = shape,
+                top = p.panelTop.copy(alpha = .96f),
+                bottom = p.panel,
+                border = p.accent.copy(alpha = .30f),
+                glow = p.accent,
+                elevation = 6.dp,
             )
-            .border(BorderStroke(1.dp, p.accent.copy(alpha = .30f)), shape)
             .padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {

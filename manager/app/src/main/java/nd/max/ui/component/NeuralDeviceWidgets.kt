@@ -75,11 +75,14 @@ private const val RingSweepAngle = 270f
  *     الفراغ في اللغة البصرية يعني «صفر مستخدم» — وهي كذبة.
  *  2. **التعبئة تُحرَّك بـ`animateFloatAsState`** لا تقفز: القراءة تتغيّر كل دورتَي قياس،
  *     والقفز المباشر يجعل الرقم يرتجّ بلا أن يحمل معنى.
- *  3. **هالة خلف القوس** (عرض ٢.٥× بشفافية ٢٠٪) تعطي العمق الذي يميّز أداة حديثة عن شريط
- *     تقدّم مسطّح — وهي نفس مفردات `NeuralPanel` (تدرّج + حافة ملوّنة).
- *  4. **الأرقام تُرسم بـ[NeuralValue]** أي LTR مثبّت: «٧٨٪» و«٢.٤ جيجاهرتز» تبقى بترتيبها
+ *  3. **هالتان خلف القوس** (عريضة خافتة وقريبة أقوى) ومعهما **مينا داخلية** خفيفة تحت الرقم:
+ *     هذا هو العمق الذي يميّز أداة قياس حديثة عن شريط تقدّم مسطّح — وهو نفس عمق `NeuralPanel`
+ *     (ظلّ مُلوَّن + هالة + لمعة حافة) بلغة أقواس. وبلا المينا يبدو الرقم معلّقًا في الهواء.
+ *  4. **خمس علامات تدرّج على الأرباع** (٠/٢٥/٥٠/٧٥/١٠٠٪): تُقرأ أداة قياس لا زخرفة،
+ *     و**تُضاء العلامة حين يبلغها القوس** — فالقراءة تُعلَن بموضعها لا بالرقم وحده.
+ *  5. **الأرقام تُرسم بـ[NeuralValue]** أي LTR مثبّت: «٧٨٪» و«٢.٤ جيجاهرتز» تبقى بترتيبها
  *     اللاتيني في لغة RTL، ولا يقلبها محلّل النصّ ثنائي الاتجاه.
- *  5. **رقم القوس يكبر بكبر قوسه** (`size × 0.22`)، فلا تُمرّر مقاسات خطّ من كل شاشة: قاعدة
+ *  6. **رقم القوس يكبر بكبر قوسه** (`size × 0.22`)، فلا تُمرّر مقاسات خطّ من كل شاشة: قاعدة
  *     التدرّج البصري صارت في الأداة نفسها — عام ٩٤dp يُقرأ ٢١sp، وقوس رئيسي ١٠٤dp يُقرأ ٢٣sp.
  *     وهذا ما تفعله نماذج التصميم فعلًا: الرقم هو البطاقة، والاسم تسمية له.
  */
@@ -104,10 +107,14 @@ fun NeuralRing(
     Box(modifier.size(size), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val stroke = strokeWidth.toPx()
-            // نصف عرض الهالة هامش داخل الحدّ، فلا يُقصّ القوس عند حواف الصندوق.
-            val inset = stroke * 1.3f
+            // الهامش يسع أعرض هالة (٢.٦× ⇒ ١.٣×) فلا يُقصّ القوس عند حواف الصندوق.
+            val inset = stroke * 1.35f
             val arcSize = Size(this.size.width - inset * 2f, this.size.height - inset * 2f)
             val topLeft = Offset(inset, inset)
+            val radius = arcSize.width.coerceAtMost(arcSize.height) / 2f
+            val center = Offset(topLeft.x + arcSize.width / 2f, topLeft.y + arcSize.height / 2f)
+
+            // ١ · مسار القياس (الأساس الدائم: يبقى حين لا قراءة، فيُقرأ الإطار فراغًا لا صفرًا).
             drawArc(
                 color = p.grid,
                 startAngle = RingStartAngle,
@@ -117,16 +124,49 @@ fun NeuralRing(
                 size = arcSize,
                 style = Stroke(width = stroke, cap = StrokeCap.Round),
             )
-            if (fraction != null && animated > 0f) {
-                drawArc(
-                    color = accent.copy(alpha = .26f),
-                    startAngle = RingStartAngle,
-                    sweepAngle = RingSweepAngle * animated,
-                    useCenter = false,
-                    topLeft = topLeft,
-                    size = arcSize,
-                    style = Stroke(width = stroke * 2.5f, cap = StrokeCap.Round),
+            // ٢ · التدرّج: خمس علامات على الأرباع، في داخل الحلقة كعدّاد حقيقي. وهي **دائمة**
+            //     (لا داخل شرط القراءة): فرسمها بلا قراءة يعطي «أداة قياس لا قيمة لها»، ورسم
+            //     الإطار بلا تدرّج يعطي «حلقة فارغة». والعلامة المُضاءة تقول أين بلغ القوس.
+            val tickInner = radius - stroke * 2f
+            val tickOuter = radius - stroke * 1.35f
+            for (step in 0..4) {
+                val at = step / 4f
+                val angle = Math.toRadians((RingStartAngle + RingSweepAngle * at).toDouble())
+                val cos = kotlin.math.cos(angle).toFloat()
+                val sin = kotlin.math.sin(angle).toFloat()
+                drawLine(
+                    color = if (fraction != null && animated >= at - 1e-4f) accent.copy(alpha = .85f) else p.grid,
+                    start = Offset(center.x + cos * tickInner, center.y + sin * tickInner),
+                    end = Offset(center.x + cos * tickOuter, center.y + sin * tickOuter),
+                    strokeWidth = stroke * .26f,
+                    cap = StrokeCap.Round,
                 )
+            }
+            if (fraction != null && animated > 0f) {
+                // ٣ · المينا: قرص خافت تحت الرقم يجعل المقياس وعاءً لا حلقة فارغة.
+                val well = (radius - stroke * 1.1f).coerceAtLeast(1f)
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(accent.copy(alpha = .13f), Color.Transparent),
+                        center = center,
+                        radius = well,
+                    ),
+                    radius = well,
+                    center = center,
+                )
+                // ٤ · هالتان: عريضة خافتة ثم قريبة أقوى — تدرّج ضوء لا حدّ واحد.
+                for ((wide, alpha) in listOf(2.6f to .13f, 1.9f to .24f)) {
+                    drawArc(
+                        color = accent.copy(alpha = alpha),
+                        startAngle = RingStartAngle,
+                        sweepAngle = RingSweepAngle * animated,
+                        useCenter = false,
+                        topLeft = topLeft,
+                        size = arcSize,
+                        style = Stroke(width = stroke * wide, cap = StrokeCap.Round),
+                    )
+                }
+                // ٥ · القوس المقيس.
                 drawArc(
                     color = accent,
                     startAngle = RingStartAngle,
@@ -136,18 +176,15 @@ fun NeuralRing(
                     size = arcSize,
                     style = Stroke(width = stroke, cap = StrokeCap.Round),
                 )
-                // رأس القوس: نقطة عند الطرف المتحرّك. وهي أرخص ما يفرّق مقياسًا «حيًّا» عن قوس
-                // ثابت — وفي اللقطات المرجعية يشغل اللون مساحة أكبر بكثير مما تشغله حافةٌ رقيقة.
+                // ٦ · رأس القوس: نقطة وهالة ضوء حولها. وهي أرخص ما يفرّق مقياسًا «حيًّا» عن قوس
+                //     ثابت — وفي اللقطات المرجعية يشغل اللون مساحة أكبر بكثير من حافة رقيقة.
                 val tip = Math.toRadians((RingStartAngle + RingSweepAngle * animated).toDouble())
-                val radius = arcSize.width.coerceAtMost(arcSize.height) / 2f
-                drawCircle(
-                    color = accent,
-                    radius = stroke * .62f,
-                    center = Offset(
-                        topLeft.x + arcSize.width / 2f + radius * kotlin.math.cos(tip).toFloat(),
-                        topLeft.y + arcSize.height / 2f + radius * kotlin.math.sin(tip).toFloat(),
-                    ),
+                val tipCenter = Offset(
+                    center.x + radius * kotlin.math.cos(tip).toFloat(),
+                    center.y + radius * kotlin.math.sin(tip).toFloat(),
                 )
+                drawCircle(accent.copy(alpha = .28f), radius = stroke * 1.9f, center = tipCenter)
+                drawCircle(accent, radius = stroke * .62f, center = tipCenter)
             }
         }
         NeuralValue(
@@ -370,6 +407,18 @@ private fun CoreCell(
                     topLeft = Offset(left, size.height - lit),
                     size = Size(barWidth, lit),
                     cornerRadius = corner,
+                )
+                // رأس العمود يُضاء: مقارنة الأنوية تُقرأ من القمم لا من الأطوال — والنواة
+                // المرفوعة تُلمح في طرفها قبل أن تُقرأ أرقامها.
+                val cap = Offset(left + barWidth / 2f, size.height - lit)
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(barColor.copy(alpha = .38f), Color.Transparent),
+                        center = cap,
+                        radius = barWidth * 1.5f,
+                    ),
+                    radius = barWidth * 1.5f,
+                    center = cap,
                 )
             }
         }

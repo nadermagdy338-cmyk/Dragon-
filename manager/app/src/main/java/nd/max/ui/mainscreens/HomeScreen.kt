@@ -32,6 +32,7 @@ import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.component.MaxSnackbarHost
 import nd.max.ui.component.RebootBottomSheet
 import nd.max.ui.component.RootAppDialog
+import nd.max.ui.component.neuralPageBackdrop
 import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.ui.util.getRealDeviceName
 import nd.max.ui.viewmodel.DashboardState
@@ -127,14 +128,11 @@ fun MaxHomeContent(
     onAiRetry: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
-    val backdrop = remember(colors.background, colors.primary, colors.tertiary) {
-        Brush.radialGradient(
-            listOf(colors.primary.copy(alpha = .14f), colors.tertiary.copy(alpha = .05f), Color.Transparent),
-            center = Offset(220f, 80f), radius = 900f
-        )
-    }
+    // إضاءة الصفحة من المكتبة المشتركة (لا إحداثيات بكسل هنا): مصدرها **حافة القراءة**
+    // ومقاسها نسبة من الشاشة — فتُضاء العربية من اليمين، وعلى اللوحي تبقى هالة لا بقعة.
+    val backdrop = Modifier.neuralPageBackdrop(colors.primary, colors.tertiary)
 
-    Box(Modifier.fillMaxSize().background(colors.background).background(backdrop)) {
+    Box(Modifier.fillMaxSize().background(colors.background).then(backdrop)) {
         TechnicalBackdrop()
         LazyColumn(
             state = rememberLazyListState(),

@@ -180,26 +180,25 @@ fun NeuralPanel(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val p = neuralPalette()
-    val base = modifier
+    // العمق كله في `neuralSurface`: ظلّ مُلوَّن بلون اللوحة أو بلون مخطّطها، وهالتان ركنيتان
+    // (قوية حيث تقع العين أولًا، خافتة في الركن المقابل)، ولمعة حافة عليا مشتقّة من إضاءة
+    // السطح. ولوح مخطَّط يُرفع درجةً فوق أخوته لأن وجوده نفسه معلومة (تركيز أو تحذير).
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val surface = modifier
         .fillMaxWidth()
         .neuralClickable(onClick)
-        .clip(NeuralPanelShape)
-        .background(Brush.verticalGradient(listOf(p.panelTop.copy(alpha = .92f), p.panel)))
-    val glow = if (accent == null) {
-        base
-    } else {
-        base.background(
-            Brush.radialGradient(
-                colors = listOf(accent.copy(alpha = .16f), Color.Transparent),
-                center = Offset(0f, 0f),
-                radius = 620f,
-            )
+        .neuralSurface(
+            shape = NeuralPanelShape,
+            top = p.panelTop.copy(alpha = .94f),
+            bottom = p.panel,
+            border = accent?.copy(alpha = .32f) ?: p.border,
+            glow = accent ?: p.accent,
+            elevation = if (accent == null) 3.dp else 7.dp,
+            glowStrength = if (accent == null) .55f else 1f,
+            rtl = rtl,
         )
-    }
     Column(
-        glow
-            .border(BorderStroke(1.dp, accent?.copy(alpha = .28f) ?: p.border), NeuralPanelShape)
-            .padding(contentPadding),
+        surface.padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(verticalSpacing),
         content = content,
     )
@@ -216,11 +215,20 @@ fun NeuralTile(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val p = neuralPalette()
-    var box = modifier
+    // البلاطة أصغر من اللوحة فتحتاج تدرّجًا أقصر: الصبغة تبدأ أعلى (17٪) وتنزل (7٪) فيُقرأ
+    // السطح مقببًا لا مسطّحًا — والمبلاطة غير الملوّنة تبقى هادئة وتأخذ لمعة الحافة وحدها.
+    val box = modifier
         .neuralClickable(onClick)
-        .clip(NeuralTileShape)
-        .background(accent?.copy(alpha = .10f) ?: p.tile)
-    if (accent != null) box = box.border(BorderStroke(1.dp, accent.copy(alpha = .22f)), NeuralTileShape)
+        .neuralSurface(
+            shape = NeuralTileShape,
+            top = accent?.copy(alpha = .17f) ?: p.tile,
+            bottom = accent?.copy(alpha = .07f) ?: p.tile,
+            border = accent?.copy(alpha = .26f) ?: p.border.copy(alpha = .60f),
+            glow = accent,
+            elevation = if (accent == null) 0.dp else 3.dp,
+            sheen = if (accent == null) -1f else .05f,
+            rtl = LocalLayoutDirection.current == LayoutDirection.Rtl,
+        )
     Column(
         box.padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(verticalSpacing),
@@ -279,12 +287,15 @@ fun NeuralSectionHeader(
 ) {
     val p = neuralPalette()
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        // الشرطة كاملة اللون عند رأسها وخافتة عند ذيلها: تُقرأ كمسطرة تُشير إلى العنوان لا
+        // كخطّ لاصق. وهي أرخص علامة هويّة في الشاشة، وتتكرّر في كل مقطع فيصير الشكل واحدًا.
+        val tone = accent ?: p.accent
         Box(
             Modifier
                 .width(3.dp)
                 .height(if (caption == null) 18.dp else 32.dp)
                 .clip(CircleShape)
-                .background(accent ?: p.accent)
+                .background(Brush.verticalGradient(listOf(tone, tone.copy(alpha = .38f))))
         )
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -322,12 +333,19 @@ fun NeuralPill(
     icon: ImageVector? = null,
     onClick: (() -> Unit)? = null,
 ) {
+    // الشارة الممتلئة مصبوغة بتدرّج (لا لون مسطّح): هي «حالة» تُقرأ من بعيد، والتدرّج يجعلها
+    // قطعة واحدة مع هوية الشاشة بلا أن تصرخ.
+    var chip = modifier
+        .neuralClickable(onClick)
+        .clip(CircleShape)
+    if (filled) {
+        chip = chip.background(
+            Brush.horizontalGradient(listOf(accent.copy(alpha = .26f), accent.copy(alpha = .10f)))
+        )
+    }
     Row(
-        modifier
-            .neuralClickable(onClick)
-            .clip(CircleShape)
-            .background(if (filled) accent.copy(alpha = .16f) else Color.Transparent)
-            .border(BorderStroke(1.dp, accent.copy(alpha = if (filled) .42f else .28f)), CircleShape)
+        chip
+            .border(BorderStroke(1.dp, accent.copy(alpha = if (filled) .46f else .28f)), CircleShape)
             .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -341,11 +359,14 @@ fun NeuralPill(
 /** Square icon chip used by tiles and feed rows. */
 @Composable
 fun NeuralIconChip(icon: ImageVector, accent: Color, modifier: Modifier = Modifier, size: Dp = 32.dp) {
+    // الأيقونة تُقرأ أسرع حين تجلس في رقعة مصبوغة متدرّجة لا في مربّع لون مسطّح، والحدّ
+    // الرفيع يحفظ شكلها على السطح الأبيض في الوضع الفاتح.
     Box(
         modifier
             .size(size)
             .clip(ChipShape)
-            .background(accent.copy(alpha = .16f)),
+            .background(Brush.verticalGradient(listOf(accent.copy(alpha = .28f), accent.copy(alpha = .12f))))
+            .border(BorderStroke(1.dp, accent.copy(alpha = .22f)), ChipShape),
         contentAlignment = Alignment.Center,
     ) {
         Icon(icon, null, Modifier.size(size * 0.52f), tint = accent)
@@ -580,12 +601,15 @@ fun NeuralTrack(fraction: Float, accent: Color, modifier: Modifier = Modifier, h
         animationSpec = tween(520, easing = FastOutSlowInEasing),
         label = "neural-track",
     )
+    // حوض غائر لا شريط لاصق: حدّ رفيع حول المسار يجعل التعبئة تبدو **داخله** — وهي نفس
+    // مفردات العمق التي تحملها الألواح، بلغة ٦dp.
     Box(
         modifier
             .fillMaxWidth()
             .height(height)
             .clip(CircleShape)
             .background(p.grid)
+            .border(BorderStroke(1.dp, p.border.copy(alpha = .45f)), CircleShape)
     ) {
         Box(
             Modifier
