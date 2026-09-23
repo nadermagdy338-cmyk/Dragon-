@@ -169,11 +169,10 @@ cb2d9efe66e5c0dff33d27e62c4ba4510a3d9c7e852f1007dc245ebd6c8d4dd4  manager/app/sr
 c244b9aac3f1ca07a98704cd24e0f858e9b529777fe19049e367e6f149c48eef  manager/app/src/main/java/nd/max/ui/component/MaxInteractionComponents.kt
 0c106111d877aa11266f433b84738b920547f13fcbc443179e7d8f88c4ad7e5a  manager/app/src/main/java/nd/max/ui/component/MaxMotion.kt
 68a9befc9f6dc9fdb96cad86bd0e96b85b991267dad25af4f5354fdfd0ea768d  manager/app/src/main/java/nd/max/ui/component/ModuleBackupComponent.kt
-734a1f246ee294ab619f9fbcfeb766b9d394d7e368df79515ee04221b4a9e9c9  manager/app/src/main/java/nd/max/ui/component/NeuralClockWave.kt
-2e65392e3fb0a6f4c04eeb90ef9e4585170669e53d4294efaad75893559a57bd  manager/app/src/main/java/nd/max/ui/component/NeuralControls.kt
-a5e5e5107b533f481b7ba0ec558a54511897ea6a54ac3f8030594caa89b3d5bc  manager/app/src/main/java/nd/max/ui/component/NeuralDashboardKit.kt
+4a9ccf4ef855b984c330a54a2ad2c09a89f7acf9dc857b3aaf7e90816a5a25fc  manager/app/src/main/java/nd/max/ui/component/NeuralControls.kt
+203468606b00d4f0d54d09d95e82b416e80c3f24fca8b87e8238b425371e5888  manager/app/src/main/java/nd/max/ui/component/NeuralDashboardKit.kt
 ade3300cfe3fc7626116fd078c1016071c6a2459aaaa9fcca846a62c957914c0  manager/app/src/main/java/nd/max/ui/component/NeuralDeviceWidgets.kt
-57767e0f81f8ab8946b3005032ec5cd7aeef4494efe55989a2f5cb14a551261b  manager/app/src/main/java/nd/max/ui/component/NeuralStatCards.kt
+73b14f8963970f41a7198be5f8ebf278cbc5836b841fe7c8bd0c1654efa3a4dc  manager/app/src/main/java/nd/max/ui/component/NeuralStatCards.kt
 587c019d049dfce76c15ea472de4d1ecd756e9d515deb0f14e43db4745873be7  manager/app/src/main/java/nd/max/ui/component/PowerCoreCard.kt
 fc85c4204a2c40525ac8787712f128778c09de557781fde5dba08b643f511c1f  manager/app/src/main/java/nd/max/ui/component/PrivilegePanel.kt
 6c5f659bb2012e7a98793e747cc9636a580cb4fe1df63c433d1fe7fff6f311be  manager/app/src/main/java/nd/max/ui/component/PulseArt.kt
@@ -222,14 +221,14 @@ da92bd860f83446e6aab43ddcda43068d6995f69d1b0276623c79424c9751741  manager/app/sr
 f81f19405b8ed04c707409bf10fdbc73a322a5766f1f2f8dde8df3ae0f49fa36  manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt
 7db2f049b7f143f0a833264e6a35ed6c787c1336020c65e3d0e88eda1f3a2fce  manager/app/src/main/java/nd/max/ui/mainscreens/GetStartedScreen.kt
 7078e3a45db9ba9f1a0e314a120bfaf17363e66171423e09c187826b8c86561b  manager/app/src/main/java/nd/max/ui/mainscreens/HomeDashboardComponents.kt
-68767197b20b6dca0e77bf4e0499ee41910731ded2e9f7771b3563a75aaf8f5b  manager/app/src/main/java/nd/max/ui/mainscreens/HomeDeviceDecks.kt
+816a3514a59d66793ceac8e906dc2437fdbe6749fe89352f31b922c0c07ef68e  manager/app/src/main/java/nd/max/ui/mainscreens/HomeDeviceDecks.kt
 e33725c41d22e00795a0580e4bd62eabb83dfeb0ed269965a0c42af833c62ab6  manager/app/src/main/java/nd/max/ui/mainscreens/HomeFormat.kt
 0de3c02e7e5487a52b180bfc992bfcdbac770f32192114a9200bbe96664c1892  manager/app/src/main/java/nd/max/ui/mainscreens/HomeScreen.kt
 26812bf61dbda6911336dad724de1f70f629456eeb3a9cbeb7c97b2cb81ad7e4  manager/app/src/main/java/nd/max/ui/mainscreens/LegacyTweakComponents.kt
 adce7488b8ed746c43363cd110b1e155c6b9f3501df36c289473b7fae0332497  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiPresentation.kt
 fb8f6d59a23bfe4e47c84c1f27cd6c33769c6e13f8554ec9540daa77f53bd471  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiRuntimeStatus.kt
 62b16dac02875d4a3abd6750137fbd1e1d596941f0191a73bf5f85a2481a7049  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiScreen.kt
-2fccc583544fd6ad851f71aa64e1218b86d1061a78cf071a033890f406aa9982  manager/app/src/main/java/nd/max/ui/mainscreens/MaxHomeDashboard.kt
+73b931a62b98127bbc9ebf1ff7190eaf461d983603920ba98cf8ec805547f191  manager/app/src/main/java/nd/max/ui/mainscreens/MaxHomeDashboard.kt
 99ba4effe67396d3a17c15a58988763985e4a5715c5daf0c668003fd47ec0924  manager/app/src/main/java/nd/max/ui/mainscreens/MaxLiveScreen.kt
 6f18c003dca3d7634fd6fea61f7d294512837ba9778aaccd4d3744390f6afa2c  manager/app/src/main/java/nd/max/ui/mainscreens/SettingsScreen.kt
 f1424a097a7e2ece26001893d75b8c2cfaa712bbfee538ef4327cdfe0314e112  manager/app/src/main/java/nd/max/ui/mainscreens/StoryboardHome.kt
@@ -319,8 +318,7 @@ e8c44dea54bbd99c410bc4bb712ca5bd2177cc7145b3cd72521ad6b31458c53f  manager/app/sr
 87982c840d9d465b52f1747a08c686430f4f408c90b90358a5cacc77c3120fe8  manager/app/src/main/java/nd/max/ui/util/BatteryHealthUtil.kt
 b3c0505e2b45026015552de192b141966f980cc443f7ddeea9031000c6ab3e5e  manager/app/src/main/java/nd/max/ui/util/BootHistoryUtil.kt
 cb88513f212834babfae739a325df0299773b9aed623cdeea6e9fb50ec9661e7  manager/app/src/main/java/nd/max/ui/util/ChargeLedger.kt
-e47cd0f3670c51133f2965328f759f16c4cff19f83751c8dcb72032182871073  manager/app/src/main/java/nd/max/ui/util/ClockMeterModel.kt
-1daed9507ff379ae30c26028b1001e919e0cd395822ced071a5c396765535ed7  manager/app/src/main/java/nd/max/ui/util/ClockWaveModel.kt
+5d294aeb0e27f8b6923806e8ee2f926c46b8dc600945967fac1ecb7225b91b65  manager/app/src/main/java/nd/max/ui/util/ClockMeterModel.kt
 4e1c26b94f66757ea2e92fb65f1aaa92f5ba5ec8e0f8bcc3463199a6903ebcbc  manager/app/src/main/java/nd/max/ui/util/ConfigBackupInventory.kt
 bb38383471dc27635b97638a233dd5997bc2aa25cfac50f8d096392e9d6b0e2d  manager/app/src/main/java/nd/max/ui/util/CpuTopologyUtil.kt
 4a30efeb5bc0117d3e5ea953628e9d379ecd232a0c97e45b19d1483644852d08  manager/app/src/main/java/nd/max/ui/util/CrashLogUtil.kt
@@ -390,11 +388,12 @@ d8373f1b695d36f978fc579ac6e6b15bff008bcd4ae6eb322840903e05083905  manager/app/sr
 47659a7459c68589de497f9f1bed42c29cba4edead7dad58a0291bff6ef81a58  manager/app/src/main/java/nd/max/ui/util/SensorMonitorUtil.kt
 014ae896c88cd3dd2733cef85d6ccc29b60f3222a1fff6f677051f2edc659600  manager/app/src/main/java/nd/max/ui/util/SetEditUtil.kt
 f501061ab7677b4ebb5c7cfde400430a422f0c9aacd2e143390e7d7da2841397  manager/app/src/main/java/nd/max/ui/util/SettingsVisibilityUtil.kt
-d4762e01e8fa3eda353dba2b136909b1af46fb6e019f200d400159f5a3bf620f  manager/app/src/main/java/nd/max/ui/util/SpectrumModel.kt
 38b164c6357780db28b04eb506da659604c38fe74fb0998ee76942bf1b2f6cf2  manager/app/src/main/java/nd/max/ui/util/StorageHealthUtil.kt
 783307618b45c053de7e100771d8a96a93589974457eb539a442319ae12043b5  manager/app/src/main/java/nd/max/ui/util/StorageScanModel.kt
 ce61a3e90ed129b308396c830807f31e9bbc8bdfdaa5152e55ab21a883151608  manager/app/src/main/java/nd/max/ui/util/StorageUtil.kt
 89e7797f58826c4309b30c3bf5f58a9c03eb98b27d64a3e7e2787064c7e913d4  manager/app/src/main/java/nd/max/ui/util/StoryboardSources.kt
+331408dcd0179da77e22a39d5d6331894dbc3bcb1483486d90da73eb0dc8df43  manager/app/src/main/java/nd/max/ui/util/ThermalGridModel.kt
+aa59771a8d690b2e0b547cb9955eb3c17bd79be81c4bbf409370d6038adfd065  manager/app/src/main/java/nd/max/ui/util/ThermalGridPreferences.kt
 4b88cd9dca9e74a8136c270ba15a2f52554a801c834700a8f3de3eaaa059e489  manager/app/src/main/java/nd/max/ui/util/ThermalModel.kt
 1e8d89d1308be6dabf62a7454d5d1369bc39f4b98d74f3aeacf038316d21a25f  manager/app/src/main/java/nd/max/ui/util/ThermalUtil.kt
 aaa6089909951d95d5e7028b49eb697b08c6d056158956ef2ea5d4052bd03565  manager/app/src/main/java/nd/max/ui/util/VersionIdentity.kt
@@ -412,7 +411,7 @@ e35d2c20416386dfe5bfadd37bbf5ea8a6a3c2dc457220a700e3a6f233fb6a0f  manager/app/sr
 87453384a20a97d3786fc8a59ce1a568f3fb0f1bff04bc9682baaf10f7343c59  manager/app/src/main/java/nd/max/ui/viewmodel/DozeModeViewModel.kt
 ea7ab4a68fd11942feb4cf5b0bc458b20df1c0344e27ce2c1127766d95ce0f40  manager/app/src/main/java/nd/max/ui/viewmodel/GpuStudioViewModel.kt
 954de0acbace5d0f57df5d9d0a66ae747a6741cfd98a04e70a7e0a5c7df2c71b  manager/app/src/main/java/nd/max/ui/viewmodel/HomeActivityViewModel.kt
-0d34db7be615784087a69aeeaee5f8b750d7ba4e31e7482a0d52b123f3b2d16f  manager/app/src/main/java/nd/max/ui/viewmodel/HomeDashboardViewModel.kt
+e8dbb98b2698a448748f707ec4915a4b20e63717c50152cb2d5657492a396a04  manager/app/src/main/java/nd/max/ui/viewmodel/HomeDashboardViewModel.kt
 af701b19233b13e87b902a4933018eaef966289c12111afaf1b0602ed16c3e09  manager/app/src/main/java/nd/max/ui/viewmodel/HomeViewmodel.kt
 b5187eb37263393dad283544d4c239a1039751ad4d365a30e92d2b229ea9ed4d  manager/app/src/main/java/nd/max/ui/viewmodel/LogsViewerViewModel.kt
 d8598324149b0ec0cd63066874008546977e27accd53dbe5621810625a784d47  manager/app/src/main/java/nd/max/ui/viewmodel/MaxAiViewModel.kt
@@ -453,7 +452,7 @@ cb37693c8437324763fa0455cdceeba4eec7d4e2caa027adae50b568fdfc2e2f  manager/app/sr
 2eb5caf4886606ecfbc39ed2ca6c79bbeebd4fd0c0d2c9cc9a40993963d97c15  manager/app/src/main/res/values-ar/max_plugins_strings.xml
 80b1f682ac901a88ceeadd9c415ed4eb1acd4b79928ccac197df62ba285e0b5f  manager/app/src/main/res/values-ar/max_screen_strings.xml
 d90f483a69906198db64d09b239e8389eb8509e066f6ea69bff286875f50e1c4  manager/app/src/main/res/values-ar/max_sensor_strings.xml
-0a2209e450d0b0a1cc9ec2573dd87167654ce7157ca6cc85c66f247da2dd72e6  manager/app/src/main/res/values-ar/strings.xml
+c75838304a7a361fda7ff6087722fbd648f954af9d5cfeca2fff4384ffe65a4c  manager/app/src/main/res/values-ar/strings.xml
 cb44377d2b81f433e3e50af4102ede64afb05d637a6d3ff8a4f6ed970a5f0321  manager/app/src/main/res/values-ar/studio_strings.xml
 8c2fa67b6684f6afc8b72035e31470775f4ddd4fa87ca51cb81064e3d15cfc5f  manager/app/src/main/res/values-as/strings.xml
 132a2d23c71c6c8e0993ed42d3da01f9a22ad5cb560d040b74d5be97622d8996  manager/app/src/main/res/values-az/strings.xml
@@ -476,7 +475,7 @@ cf1ea25cad2b6f5cee35ec69be7a10c680b23dd9bfe1019fd9cc11122ea14f17  manager/app/sr
 c1bdf8431ad0e7f33c279717b863ccabd6b5593f69ecc9647b6b57ba6b93e9ed  manager/app/src/main/res/values-es/max_design_strings.xml
 7c30cab030f7af62241f0bf2327640ae1b4fb8adfc54bded4dc5eecd47b0ce63  manager/app/src/main/res/values-es/max_navigation_strings.xml
 6dd70d903c97ecd2943c9ec9ca107d17308bafd222948774d26b59bf16b2df70  manager/app/src/main/res/values-es/max_screen_strings.xml
-5f08c3e2fd763e383b230f7c3721e6fc869c068e25efe488b625d327d4c74715  manager/app/src/main/res/values-es/strings.xml
+7d05947c0b2ccc290db9f20597ac9ffdd78fa9c5973d065b92c789889474c1e4  manager/app/src/main/res/values-es/strings.xml
 9d885f725b13ff515006f9d52a93a0d2faf1888800af73801171c2e0ae2d4084  manager/app/src/main/res/values-es/studio_strings.xml
 78a4f183e3b91ea93a28877da3fcd7faab8ad48a6da52e9d4bedaf3312abdc37  manager/app/src/main/res/values-et/strings.xml
 5ad3dca1b198502ac33ab48769f423136b1725b9ff2d436ed84d1404a3be9f89  manager/app/src/main/res/values-eu/strings.xml
@@ -487,7 +486,7 @@ e34555e0db73340e998e589e0ec7940f06e557cf662d845483617fcb9974a6c6  manager/app/sr
 f248024b13b0b5bc09d894bae0a7dc388b47e66779124ac2c98049a4b6d74372  manager/app/src/main/res/values-fr/max_design_strings.xml
 cb70ac625a6fccfcbb8893f378e1bf840ad38f500b60a8f1d21b3e52f5227936  manager/app/src/main/res/values-fr/max_navigation_strings.xml
 e02bdd0cd4ed6784359c035ba6c991747ef54b6e391938dca7cdf698b58dc40a  manager/app/src/main/res/values-fr/max_screen_strings.xml
-9026892a4df1c7b5eec37a9207c9d7eb5842b8fc892a4a86736fca36683acd91  manager/app/src/main/res/values-fr/strings.xml
+4ff13cf0dcecdc72864c5073b073ca6cb7db4d732e74eff648921c3f1cf65e0c  manager/app/src/main/res/values-fr/strings.xml
 a20b0a2a8c239ad3c23c49a1719c2fd4d9226cfb4327350745a814fdc65a601a  manager/app/src/main/res/values-fr/studio_strings.xml
 140a8262aa9070670bc10c5d0989368c32d011843cd49bf0dd6fde7674ca8007  manager/app/src/main/res/values-gl/strings.xml
 bff6080582457ec4d81679f560c6897ae765f742a11099d2bcd9e0406e8a08dd  manager/app/src/main/res/values-gu/strings.xml
@@ -559,7 +558,7 @@ faf664a55ab9bef25fb3ada7451cecbbbfbbdbff836654b35a9d86d061627c5b  manager/app/sr
 7450b8a978557a301bb7eeea7ea115706fae0d563b32ef1a6a9ef3a3282a2657  manager/app/src/main/res/values/max_plugins_strings.xml
 c669aa6d0f82d18ebaaa2c011975ea7c35df7e36b1cee66841bcdda557ed39ae  manager/app/src/main/res/values/max_screen_strings.xml
 5e1562dac62cad7e20e52f0427b81aa30b340e727bc950c0ecb5a2a087821908  manager/app/src/main/res/values/max_sensor_strings.xml
-1ee0e3924255b7904b04070c1ca4032426d7ebf2faf0e833bf383a42621d4747  manager/app/src/main/res/values/strings.xml
+da6ba8b5706a412258a8a84ffda31de4430f711d6812546f527fcb5ea0e5009b  manager/app/src/main/res/values/strings.xml
 1c0f3d09f5018791ca809d3dfce10a7722d90ceb1197b1efc61de0c72d022b08  manager/app/src/main/res/values/studio_strings.xml
 c7f2ac8a930155886545fcb5a1867036867471b288f582cdf560b0eab0ba0f32  manager/app/src/main/res/values/themes.xml
 e28559422064b162676827d7912ccbb6cd529507b704b562d4db01338b344d82  manager/app/src/main/res/xml/file_paths.xml
@@ -645,6 +644,7 @@ a4ed89b8a2484d74b28f7f5fa47e0276c36ad824349c38febc8d9329b98e45ed  manager/app/sr
 1ac2a4e9b77543bd1614d6f47e7bcdbc870b9c9221fc42b6e8a49f9496b4d306  manager/app/src/test/java/nd/max/ui/design/OutcomeFromCodeNotWordingTest.kt
 51b2d038c107118348a702ef8a6c043190292d16be54b4fa4f80a1e7155e4013  manager/app/src/test/java/nd/max/ui/mainscreens/ApplistPresentationArchitectureTest.kt
 9930518b2984241139a0b635c04f9fdf822a21ee90a927ecb27918374a5d835f  manager/app/src/test/java/nd/max/ui/mainscreens/ControlLayoutModelTest.kt
+79748534c948e6f8a99e860d47ff21afa5f72359ee3f717fd38628cd6e465a5e  manager/app/src/test/java/nd/max/ui/mainscreens/HistoryWindowTest.kt
 a5ce93bfc82e306ce14a1d072f76902932cc9acbbc429c40fceee0da85c4a858  manager/app/src/test/java/nd/max/ui/mainscreens/MaxAiPresentationTest.kt
 29100391fbb7a867415462fd26b6dcd653fc34ed5c35654a8fecf74111a83c37  manager/app/src/test/java/nd/max/ui/mainscreens/MaxAiTimelineFilterTest.kt
 0127c51ff3027b00b78ae9c14c3c9a57516dff8fd24c3192f37f9b5a3c8ec2b9  manager/app/src/test/java/nd/max/ui/mainscreens/MaxLivePresentationArchitectureTest.kt
@@ -661,7 +661,6 @@ b896178616d94359583fb92cef9d0642bc219f8ad87bdfcb4079683e8df0384a  manager/app/sr
 7a2e39d5079434c682aaf25cf12842703b89857e7e0dd81249ea6829a0e2239f  manager/app/src/test/java/nd/max/ui/util/BootHistoryUtilTest.kt
 23b5f4bb289a260ce59e7ba43b27f41f7be12e0cd02c40d9b49f5c6e8b61ec9b  manager/app/src/test/java/nd/max/ui/util/ChargeLedgerTest.kt
 efbe7dd62a5d18ad6e4b85277a91d811e009dbbfd3cb4bb84fa95333437f34bb  manager/app/src/test/java/nd/max/ui/util/ClockMeterModelTest.kt
-60280fa565642c966640c16480674951d064631120a1abf89c43072e96e14a64  manager/app/src/test/java/nd/max/ui/util/ClockWaveTest.kt
 246a99975efbe677ab9af77a7da1fd8094ee39594a51096350d46dbea12a8bd8  manager/app/src/test/java/nd/max/ui/util/ConfigBackupInventoryTest.kt
 a2f636f6f236b40285069d6d6db01aa8103bde36ad74e17e8d4b48732020cad9  manager/app/src/test/java/nd/max/ui/util/CrashLogUtilTest.kt
 7779aa377e01d331b409c33986098e4b80d6b2b42ce476520def1cbf478ef849  manager/app/src/test/java/nd/max/ui/util/EventLogResultTest.kt
@@ -702,8 +701,8 @@ e84d394ea55bc0e5d52cfd7ff857e7db18eea5ef2e3caba9641f10dc251db0b9  manager/app/sr
 d49c3c9cdd550f4f90c11e58a625fa0a13d8fed181510d195f4375ba0d969d02  manager/app/src/test/java/nd/max/ui/util/RootMountTest.kt
 b64153d67d14a6f4e2c4d39453d3e9bd7593b0d8b1e437fb98fddb216bf12b4b  manager/app/src/test/java/nd/max/ui/util/SensorInventoryTest.kt
 f14a2e0f7ff7d59eda459c819f523754f98baf04b8e62f54ff345027a09a1bc8  manager/app/src/test/java/nd/max/ui/util/SetEditUtilTest.kt
-191c47744d5534cdd023ec158cbd1e70573cbd192a1ae9d1e67406a3e588c4fa  manager/app/src/test/java/nd/max/ui/util/SpectrumModelTest.kt
 71e54499562b3faf7d2a545d952667c77d86b3273629543babc4c0f594595b25  manager/app/src/test/java/nd/max/ui/util/StorageScanModelTest.kt
+5c55ed26009712f446e51fc5188f9bc0986c4887b433e870aa95c70f51db9b11  manager/app/src/test/java/nd/max/ui/util/ThermalGridModelTest.kt
 96e575c8dfb2fc0ebee2d2e847f9018b3bcd4376c2c376025f9c6d1d6f0d127d  manager/app/src/test/java/nd/max/ui/util/ThermalModelTest.kt
 2baf518cb4d67ff5ed72530c40223e67a2bc565ff421f6e2ee73a0563143317b  manager/app/src/test/java/nd/max/ui/util/VersionIdentityTest.kt
 160728c8c7ca6298ecf2737200a2215da72c9f72d12fd9044fbb236f0bd01510  manager/app/src/test/java/nd/max/ui/util/ZramPlatformUtilTest.kt
@@ -724,7 +723,7 @@ b54735dbebf35b7a22d07a6b4e65859e75d2585b5759e665334899be1eede3c1  tools/i18n_cov
 8a38752a44b63c5260fd486c7cb305b1e5fec3ec03df09da8594bc66f93f700a  tools/i18n_translate.py
 c2ac6e18aa15134b1324a6e591f64a31c14322a44b514f2fc4eadcffb5a2b4a5  tools/kt_balance.py
 303a21e7089a0d19103a014f81b2db6694cfd364cb4338ca1d9956674edcfa2a  tools/log_gate.py
-2e3ff8b9c6b8f7a2979a0a059de3ce8ba5a65dd638fd490d3da5f8833d6e12e8  tools/read_image_text.py
+f4a8276fd5e18642cb02db9931570dd4d0265704add350013cd2de6382259ba0  tools/read_image_text.py
 26c6c8d5e8aa617a53b0b8454974aea21794e85795c47d34b88e542e012f41d7  tools/repo_audit.py
 6e7af264500d90dcabd15af144808f9b03bb5f585951a31911c92e13544d20d5  tools/sepolicy_matrix.py
 26680c1ceeb42802ccbb0b03bc5cccd0c4d1e0e4fbf2ff2be749ea8e352c6237  tools/source_manifest.py

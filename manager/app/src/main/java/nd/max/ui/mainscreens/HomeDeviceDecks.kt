@@ -11,18 +11,34 @@
 package nd.max.ui.mainscreens
 
 import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -38,23 +54,38 @@ import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralReadoutTile
 import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.NeuralStatCard
+import nd.max.ui.component.NeuralSensorOption
+import nd.max.ui.component.NeuralSensorPicker
+import nd.max.ui.component.neuralClickable
 import nd.max.ui.component.neuralPalette
+import nd.max.ui.util.ThermalGridModel
+import nd.max.ui.util.ThermalGridPreferences
 import nd.max.ui.viewmodel.DashboardState
 
 /**
- * الحرارة — أربعة مجسّات، ولون الخطر قبل الرقم.
+ * الحرارة — **مجسّات يختارها المستخدم**، ولون الخطر قبل الرقم.
  *
  * ولا رقم واحد «للحرارة العامة»: جهاز قد يكون غلافه هادئًا وبطاريته ساخنة، والاثنان
- * يقودان إلى إجراء مختلف. والغلاف (`Skin`) هو ما يلمسه المستخدم فعلًا، ولهذا يُعرض إلى
- * جانب ما يقيسه المحرّك.
+ * يقودان إلى إجراء مختلف. والغلاف (`Skin`) هو ما يلمسه المستخدم فعلًا، ولهذا يُعرض ضمن
+ * الافتراضي إلى جانب ما يقيسه المحرّك.
+ *
+ * والشبكة **مثبَّتة بالاختيار** (مرجع DevCheck: لمس بطاقة الحرارة يختار المجسّات المعروضة):
+ * أربعة مواضع كحدّ أقصى، تُملأ من فئات هذه النواة فعلًا (`ThermalGridModel`)، ويبقى الاختيار
+ * بعد إغلاق الشاشة (`ThermalGridPreferences`). وما لا تقيسه هذه النواة لا يُعرض له صفّ.
  */
 @Composable
 internal fun ThermalPanel(dashboard: DashboardState, onThermal: () -> Unit) {
+    val context = LocalContext.current
     val p = neuralPalette()
     val headline = dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt()
         ?: dashboard.cpuTempC.takeIf { it > 0 }
     val headlineAccent = temperatureAccent(headline)
     val calm = headline == null || headline < 43
+    var pinned by remember { mutableStateOf(ThermalGridPreferences.read(context)) }
+    var picking by remember { mutableStateOf(false) }
+    val available = remember(dashboard.thermalByCategory) {
+        ThermalGridModel.options(dashboard.thermalByCategory.keys)
+    }
 
     NeuralPanel(accent = headlineAccent, onClick = onThermal, verticalSpacing = 12.dp) {
         NeuralSectionHeader(
@@ -62,37 +93,104 @@ internal fun ThermalPanel(dashboard: DashboardState, onThermal: () -> Unit) {
             caption = stringResource(R.string.max_home_thermal_desc),
             accent = headlineAccent,
             trailing = {
-                NeuralPill(
-                    text = stringResource(
-                        if (calm) R.string.home_system_stable else R.string.home_system_attention
-                    ),
-                    accent = if (calm) p.ok else headlineAccent,
-                    dot = true,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    NeuralPill(
+                        text = stringResource(
+                            if (calm) R.string.home_system_stable else R.string.home_system_attention
+                        ),
+                        accent = if (calm) p.ok else headlineAccent,
+                        dot = true,
+                    )
+                    SensorPickerButton(onClick = { picking = true })
+                }
             },
         )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ThermalTile(
-                caption = stringResource(R.string.home_cpu_tag),
-                value = dashboard.cpuTempC,
-                modifier = Modifier.weight(1f)
-            )
-            ThermalTile(
-                caption = stringResource(R.string.home_gpu_tag),
-                value = dashboard.gpuTempC,
-                modifier = Modifier.weight(1f)
-            )
-            ThermalTile(
-                caption = stringResource(R.string.home_skin_tag),
-                value = dashboard.skinTempC,
-                modifier = Modifier.weight(1f)
-            )
-            ThermalTile(
-                caption = stringResource(R.string.max_home_battery),
-                value = dashboard.batteryTempC.roundToInt(),
-                modifier = Modifier.weight(1f)
-            )
+            pinned.forEach { category ->
+                ThermalTile(
+                    caption = categoryLabel(category),
+                    value = dashboard.sensorReading(category),
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
+    }
+
+    if (picking) {
+        NeuralSensorPicker(
+            title = stringResource(R.string.home_sensors_title),
+            caption = stringResource(R.string.home_sensors_desc),
+            limit = ThermalGridModel.LIMIT,
+            options = available.map { key ->
+                val value = dashboard.sensorReading(key)
+                NeuralSensorOption(
+                    key = key,
+                    label = categoryLabel(key),
+                    reading = thermalReadingText(value),
+                    selected = key in pinned,
+                    accent = temperatureAccent(value.takeIf { it > 0 }),
+                )
+            },
+            onToggle = { key ->
+                pinned = ThermalGridModel.toggle(pinned, key)
+                ThermalGridPreferences.write(context, pinned)
+            },
+            onDismiss = { picking = false },
+        )
+    }
+}
+
+/** اسم فئة المجسّ بلغة الواجهة؛ ومجهول الإملاء يُعرض كما جاء من العتاد (رمز تقني لا نصّ). */
+@Composable
+private fun categoryLabel(category: String): String = when (category) {
+    "CPU" -> stringResource(R.string.home_cpu_tag)
+    "GPU" -> stringResource(R.string.home_gpu_tag)
+    "Skin" -> stringResource(R.string.home_skin_tag)
+    "Battery" -> stringResource(R.string.max_home_battery)
+    "Charger" -> stringResource(R.string.home_cat_charger)
+    "Modem" -> stringResource(R.string.home_cat_modem)
+    "WiFi" -> stringResource(R.string.home_cat_wifi)
+    "Camera" -> stringResource(R.string.home_cat_camera)
+    "Flash" -> stringResource(R.string.home_cat_flash)
+    "PA" -> stringResource(R.string.home_cat_pa)
+    "System" -> stringResource(R.string.home_cat_system)
+    else -> category
+}
+
+/** قراءة فئة: الرقم المخصّص له بأفضل تراجعاته، والبقية من خريطة الدورة. والصفر «لا قراءة». */
+private fun DashboardState.sensorReading(category: String): Int = when (category) {
+    "CPU" -> cpuTempC
+    "GPU" -> gpuTempC
+    "Skin" -> skinTempC
+    "Battery" -> batteryTempC.roundToInt()
+    else -> thermalByCategory[category] ?: 0
+}
+
+/** صيغة القراءة: الدرجة أو `—` — لا صفر يقول «صفر درجة». */
+private fun thermalReadingText(value: Int): String =
+    if (value > 0) "$value\u00b0" else "\u2014"
+
+/** زر اختيار المجسّات — لمسة صغيرة في الترويسة لا تسرق عرض البطاقة. */
+@Composable
+private fun SensorPickerButton(onClick: () -> Unit) {
+    val p = neuralPalette()
+    Box(
+        Modifier
+            .size(28.dp)
+            .clip(RoundedCornerShape(9.dp))
+            .background(p.tile)
+            .neuralClickable(onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            Icons.Rounded.Tune,
+            contentDescription = stringResource(R.string.home_sensors_choose),
+            modifier = Modifier.size(15.dp),
+            tint = p.muted,
+        )
     }
 }
 
@@ -123,6 +221,7 @@ internal fun DeviceDetailsPanel(
     onDisplay: () -> Unit,
     onNetwork: () -> Unit,
     onPower: () -> Unit,
+    onDeviceInfo: () -> Unit,
 ) {
     val p = neuralPalette()
     val dash = "\u2014"
@@ -144,6 +243,7 @@ internal fun DeviceDetailsPanel(
         NeuralDataRow(
             label = stringResource(R.string.home_android_version),
             value = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})",
+            onClick = onDeviceInfo,
         )
         NeuralDataRow(
             label = stringResource(R.string.device_model),
@@ -217,6 +317,16 @@ internal fun DeviceDetailsPanel(
 }
 
 /**
+ * متوسط نافذة السجل — لا يُقال «متوسط» دون ثلاث عيّنات مقيسة، والفجوة (قيمة مجهولة) لا تُحسب
+ * أصفارًا تنزل المنحنى نحو القاع. والواجهة تعرض `—` حين تُعيد هذه الدالة `null`.
+ * (مُقاس في JVM: `HistoryWindowTest`.)
+ */
+internal fun windowedAverage(series: List<Float?>): Float? {
+    val measured = series.filterNotNull()
+    return if (measured.size >= 3) measured.average().toFloat() else null
+}
+
+/**
  * بطاقة الأداء التاريخي — الجواب عن سؤال لا يجيبه أي رقم لحظي: **ماذا كان الحمل طوال النافذة؟**
  *
  * والبيانات كلها مقيسة ومحفوظة: `LoadHistory` يحفظ 36 عيّنة بطابعها الزمني، و`ramLoadHistory`
@@ -232,12 +342,11 @@ internal fun PerformanceHistoryCard(dashboard: DashboardState) {
     val p = neuralPalette()
     val samples = dashboard.loadSamples
     val windowed = samples.size >= 3
-    val cpuAvg = if (windowed) samples.map { it.cpu }.average().toFloat() else null
+    val cpuAvg = windowedAverage(samples.map { it.cpu })
     val gpuSeries = samples.map { it.gpu }
-    val gpuMeasured = gpuSeries.filterNotNull()
-    val gpuAvg = if (gpuMeasured.size >= 3) gpuMeasured.average().toFloat() else null
+    val gpuAvg = windowedAverage(gpuSeries)
     val ramSeries = dashboard.ramLoadHistory
-    val ramAvg = if (ramSeries.size >= 3) ramSeries.average().toFloat() else null
+    val ramAvg = windowedAverage(ramSeries)
 
     NeuralStatCard(
         title = stringResource(R.string.home_history_title),
@@ -291,9 +400,10 @@ internal fun limiterAccent(limiter: String, heatAccent: Color): Color {
 }
 
 /**
- * Where to go next. Four destinations that people actually reach for; the profile
- * action is gone (the rail replaced it) and every tile here owns a screen this
- * home does not duplicate.
+ * Where to go next — **one compact scrolling row** (the DevCheck command row), five
+ * destinations this home does not duplicate. The support lines the old 2×2 deck carried
+ * went with it: at five destinations the titles say everything those lines repeated,
+ * and one row hands the screen back a full band of readings.
  */
 @Composable
 internal fun CommandDeck(
@@ -301,6 +411,7 @@ internal fun CommandDeck(
     onBattery: () -> Unit,
     onApps: () -> Unit,
     onAdvanced: () -> Unit,
+    onSystemSettings: () -> Unit,
 ) {
     val p = neuralPalette()
     NeuralPanel {
@@ -309,40 +420,44 @@ internal fun CommandDeck(
             caption = stringResource(R.string.home_quick_actions_desc),
             accent = p.accentAlt
         )
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             NeuralActionTile(
                 icon = Icons.Rounded.Thermostat,
                 title = stringResource(R.string.home_action_thermal),
-                support = stringResource(R.string.home_action_thermal_desc),
                 accent = p.warn,
                 onClick = onThermal,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.width(116.dp)
             )
             NeuralActionTile(
                 icon = Icons.Rounded.BatteryChargingFull,
                 title = stringResource(R.string.home_action_battery),
-                support = stringResource(R.string.home_action_battery_desc),
                 accent = p.ok,
                 onClick = onBattery,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.width(116.dp)
             )
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             NeuralActionTile(
                 icon = Icons.Rounded.Apps,
                 title = stringResource(R.string.max_home_app_profiles),
-                support = stringResource(R.string.home_action_apps_desc),
                 accent = p.accent,
                 onClick = onApps,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.width(116.dp)
             )
             NeuralActionTile(
                 icon = Icons.Rounded.Tune,
                 title = stringResource(R.string.home_action_advanced),
-                support = stringResource(R.string.home_action_advanced_desc),
                 accent = p.accentAlt,
                 onClick = onAdvanced,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.width(116.dp)
+            )
+            NeuralActionTile(
+                icon = Icons.Rounded.Settings,
+                title = stringResource(R.string.home_action_system_settings),
+                accent = p.muted,
+                onClick = onSystemSettings,
+                modifier = Modifier.width(116.dp)
             )
         }
     }

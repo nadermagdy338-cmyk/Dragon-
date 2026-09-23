@@ -1,5 +1,6 @@
 package nd.max.ui.mainscreens
 
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -36,6 +38,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,6 +64,7 @@ import nd.max.ui.component.NeuralPanelShape
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.NeuralSegmented
+import nd.max.ui.component.NeuralSkeleton
 import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.navigation.MaxDestination
@@ -92,7 +96,7 @@ import nd.max.ui.viewmodel.HomeUiState
  *    `PerformanceHistoryCard` (the window's measured history as a chart plus windowed averages)
  *    and `DeviceDetailsPanel` (display, network, power as dense readouts).
  *  5. **What did control actually change?** — `UnifiedActivityCard` (measured outcomes) and
- *     `CommandDeck` (the four destinations this screen does not duplicate).
+ *     `CommandDeck` (the destinations this screen does not duplicate).
  *
  * What changed from the previous home, and why:
  *
@@ -130,6 +134,9 @@ import nd.max.ui.viewmodel.HomeUiState
 /** مقطع واحد في سلّم الملفات: المفتاح الذي يمرّ للمحرّك، واسمه المعروض. */
 private data class ProfileChoice(val reason: String, val labelRes: Int)
 
+/** إجراء صفحة «حول الهاتف» في تطبيق الإعدادات — معلن على كل أندرويد. */
+private const val DEVICE_INFO_ACTION = "android.settings.DEVICE_INFO_SETTINGS"
+
 private val PROFILE_CHOICES = listOf(
     ProfileChoice("1", R.string.Profile_Performance),
     ProfileChoice("2", R.string.Profile_Balanced),
@@ -162,6 +169,13 @@ internal fun MaxHomeDashboard(
     onAiRetry: () -> Unit,
 ) {
     val online = ui.rootStatus && ui.moduleInstalled
+    val context = LocalContext.current
+    if (!dashboard.ready) {
+        // قبل أول دورة قياس: هياكل لا أصفار — صفرٌ في الثانية الأولى ليس برودةً مقيسة،
+        // و`—` هنا ليس «لا قراءة» بل «لم يُسأل العتاد بعد».
+        HomeSkeleton(modifier)
+        return
+    }
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         MaxReveal(visible = true, delayMillis = 0, modifier = Modifier.fillMaxWidth()) {
             HomeHeader(online, onSettings, onReboot)
@@ -230,6 +244,15 @@ internal fun MaxHomeDashboard(
                 onDisplay = { onNavigate(MaxDestination.DisplayStudio.route) },
                 onNetwork = { onNavigate(MaxDestination.NetworkDetail.route) },
                 onPower = { onNavigate(MaxDestination.Charging.route) },
+                onDeviceInfo = {
+                    // لمس صفّ النظام يفتح «حول الهاتف» مباشرة (مرجع DevCheck). وإن رفضته
+                    // هذه النسخة من الإعدادات، الاتجاه العام لا صمت.
+                    runCatching { context.startActivity(Intent(DEVICE_INFO_ACTION)) }.onFailure {
+                        runCatching {
+                            context.startActivity(Intent(android.provider.Settings.ACTION_SETTINGS))
+                        }
+                    }
+                },
             )
         }
         MaxReveal(visible = true, delayMillis = 495, modifier = Modifier.fillMaxWidth()) {
@@ -241,6 +264,11 @@ internal fun MaxHomeDashboard(
                 onBattery = { onNavigate(MaxDestination.Charging.route) },
                 onApps = { onNavigate(MaxDestination.Apps.route) },
                 onAdvanced = { onNavigate(MaxDestination.Control.route) },
+                onSystemSettings = {
+                    runCatching {
+                        context.startActivity(Intent(android.provider.Settings.ACTION_SETTINGS))
+                    }
+                },
             )
         }
     }
@@ -875,6 +903,28 @@ private fun CapacityDeck(dashboard: DashboardState, onStorage: () -> Unit, onBat
             // والصفر «لا قراءة» لا «صفر واط» (`current_now` صامت).
             support = if (dashboard.powerWatt > 0f) "${dashboard.powerWatt.oneDecimal()} W" else "\u2014",
         )
+    }
+}
+
+/**
+ * الهيكل قبل أول قياس — صور ظلّية بنفس مقاطع الصفحة (بطل · تحكّم · زوجان · سجل · تفاصيل):
+ * لا صفر يقول «صفر درجة» ولا `—` يقول «لا قراءة» في الثانية التي سبقت أول دورة قياس.
+ */
+@Composable
+private fun HomeSkeleton(modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        NeuralSkeleton(Modifier.fillMaxWidth().height(108.dp), NeuralPanelShape)
+        NeuralSkeleton(Modifier.fillMaxWidth().height(132.dp), NeuralPanelShape)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            NeuralSkeleton(Modifier.weight(1f).height(156.dp))
+            NeuralSkeleton(Modifier.weight(1f).height(156.dp))
+        }
+        NeuralSkeleton(Modifier.fillMaxWidth().height(124.dp), NeuralPanelShape)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            NeuralSkeleton(Modifier.weight(1f).height(112.dp))
+            NeuralSkeleton(Modifier.weight(1f).height(112.dp))
+        }
+        NeuralSkeleton(Modifier.fillMaxWidth().height(168.dp), NeuralPanelShape)
     }
 }
 

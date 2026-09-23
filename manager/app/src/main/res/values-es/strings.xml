@@ -1415,11 +1415,8 @@
     <string name="home_action_boost">Perfil de rendimiento</string>
     <string name="home_action_boost_desc">Cambiar el comportamiento del sistema</string>
     <string name="home_action_thermal">Centro térmico</string>
-    <string name="home_action_thermal_desc">Examinar el calor y la refrigeración</string>
     <string name="home_action_battery">Centro de energía</string>
-    <string name="home_action_battery_desc">Datos de batería y carga</string>
     <string name="home_action_advanced">Controles avanzados</string>
-    <string name="home_action_advanced_desc">Ajuste completo del dispositivo</string>
     <string name="home_memory_storage">Matriz de memoria</string>
     <string name="home_memory_storage_desc">Presión en la RAM</string>
     <string name="home_details">DETALLES</string>
