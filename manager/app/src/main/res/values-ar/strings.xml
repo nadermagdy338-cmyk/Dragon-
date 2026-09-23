@@ -881,21 +881,11 @@
     <string name="home_action_boost">ملف الأداء</string>
     <string name="home_action_boost_desc">تغيير سلوك النظام</string>
     <string name="home_action_thermal">مركز الحرارة</string>
+    <string name="home_action_thermal_desc">فحص الحرارة والتبريد</string>
     <string name="home_action_battery">مركز الطاقة</string>
+    <string name="home_action_battery_desc">بيانات البطارية والشحن</string>
     <string name="home_action_advanced">تحكم متقدم</string>
-    <string name="home_action_system_settings">إعدادات النظام</string>
-    <string name="home_sensors_title">المجسّات المثبَّتة</string>
-    <string name="home_sensors_desc">اختر ما تعرضه الشبكة — حتى ٤</string>
-    <string name="home_sensors_choose">اختر المجسّات</string>
-    <string name="home_cat_charger">الشاحن</string>
-    <string name="home_cat_modem">المودم</string>
-    <string name="home_cat_wifi">واي فاي</string>
-    <string name="home_cat_camera">الكاميرا</string>
-    <string name="home_cat_flash">الفلاش</string>
-    <string name="home_cat_pa">المضخّم</string>
-    <string name="home_cat_system">النظام</string>
-    <string name="home_ai_next_step">الخطوة التالية</string>
-    <string name="home_ai_confidence">الثقة %1$d%%</string>
+    <string name="home_action_advanced_desc">ضبط الجهاز بالكامل</string>
     <string name="home_memory_storage">مصفوفة الذاكرة</string>
     <string name="home_memory_storage_desc">ضغط RAM وZRAM والتخزين الداخلي</string>
     <string name="home_details">التفاصيل</string>
@@ -915,22 +905,6 @@
     <string name="home_open_details">فتح بيانات الحرارة التفصيلية</string>
     <string name="home_available_memory">%1$s متاح</string>
     <string name="home_available_swap">%1$s تبديل متاح</string>
-    <string name="max_brand_mark">MAX</string>
-    <string name="home_cpu_tag">المعالج</string>
-    <string name="home_gpu_tag">الرسوميات</string>
-    <string name="home_ram_tag">RAM</string>
-    <string name="home_zram_tag">ZRAM</string>
-    <string name="home_skin_tag">الغلاف</string>
-    <string name="home_device_details">تفاصيل الجهاز</string>
-    <string name="home_device_details_desc">قراءات الشاشة والشبكة والطاقة</string>
-    <string name="home_download">تنزيل</string>
-    <string name="home_upload">رفع</string>
-    <string name="home_density">الكثافة</string>
-    <string name="home_battery_current">تيار البطارية</string>
-    <string name="home_battery_voltage">جهد البطارية</string>
-    <string name="home_history_title">سجل الحمل</string>
-    <string name="home_history_desc">آخر ٣٦ قراءة · متوسط النافذة</string>
-    <string name="home_android_version">إصدار أندرويد</string>
 
     <!-- لوحة «ما تفعله إعداداتك»: سطر لكل نتيجة بمصدرها -->
     <string name="storyboard_title">ما تفعله إعداداتك الآن</string>

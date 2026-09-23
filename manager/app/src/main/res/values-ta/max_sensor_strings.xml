@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">இந்தச் சாதனம் மூலம் தெரிவிக்கப்பட்ட சென்சார்கள்</string>
+    <string name="max_sensor_desc">இயங்குதளம் அதன் சொந்த வன்பொருளைப் பற்றி என்ன அறிவிக்கிறது, மேலும் ஒரு எல்லைக்குட்பட்ட ஒளி வாசிப்பு. அளவுத்திருத்தம் இல்லை மற்றும் ஆரோக்கிய மதிப்பெண் இல்லை: இரண்டிற்கும் எங்களிடம் இல்லாத உடல் குறிப்பு தேவைப்படும்.</string>
+    <string name="max_sensor_service">சென்சார் சேவை</string>
+    <string name="max_sensor_service_unavailable">அடைய முடியவில்லை</string>
+    <string name="max_sensor_count">சென்சார்கள் தெரிவிக்கின்றன</string>
+    <string name="max_sensor_kinds">வகைகள் உள்ளன</string>
+    <string name="max_sensor_wakeup">விழித்தெழும் உணரிகள் (சாதனம் தூங்கும் போது தெரிவிக்கவும்)</string>
+    <string name="max_sensor_light">சுற்றுப்புற ஒளி</string>
+    <string name="max_sensor_unit_lux">லக்ஸ்</string>
+    <string name="max_sensor_light_absent">இந்த சாதனம் ஒளி சென்சார் இல்லை என்று தெரிவிக்கிறது</string>
+    <string name="max_sensor_light_unreadable">நேரம் முடிவதற்கு முன் எந்த வாசிப்பும் வரவில்லை - தெரியவில்லை, பூஜ்ஜியம் அல்ல</string>
+    <string name="max_sensor_more">…மற்றும் %1$s மேலும்</string>
+    <string name="max_sensor_no_score">பெயர்கள், வரம்புகள் மற்றும் தாமதங்கள் மேடையில் இருந்து வருகின்றன. புகாரளிக்கும் சென்சார் அது துல்லியமானது என்பதை நிரூபிக்கவில்லை.</string>
+    <string name="max_sensor_kind_motion">இயக்கம்</string>
+    <string name="max_sensor_kind_environment">சுற்றுச்சூழல்</string>
+    <string name="max_sensor_kind_position">பதவி</string>
+    <string name="max_sensor_kind_body">உடல்</string>
+    <string name="max_sensor_kind_unpositioned">நிலைப்படுத்தப்படாதது</string>
+    <string name="max_sensor_kind_other">மற்றவை</string>
+</resources>

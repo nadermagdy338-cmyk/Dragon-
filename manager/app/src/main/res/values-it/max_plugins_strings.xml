@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Plugin di terze parti</string>
+    <string name="max_plugins_subtitle">Il contratto pubblicato: cosa può dichiarare un plugin e cosa è stato accettato o rifiutato qui.</string>
+    <string name="max_plugins_section_contract">Il contratto</string>
+    <string name="max_plugins_contract_api">Livello API %1$d</string>
+    <string name="max_plugins_contract_dir">Cartella manifesto</string>
+    <string name="max_plugins_contract_rules">Una capacità dichiarata è una lettura o una proposta. Non c\'è deliberatamente alcuna capacità di scrivere sull\'hardware: ogni scrittura in questa app passa attraverso l\'arbitro, e un plugin che potesse scrivere direttamente rimuoverebbe la protezione costruita per impedire a due proprietari di scrivere la stessa manopola.</string>
+    <string name="max_plugins_contract_keys">Chiavi lette da un manifest</string>
+    <string name="max_plugins_contract_kinds">Tipi accettati</string>
+    <string name="max_plugins_contract_capabilities">Capacità accettate</string>
+    <string name="max_plugins_template">Modello manifesto</string>
+    <string name="max_plugins_template_note">Questo testo è ciò che legge il parser. Non può derivare dal codice perché viene generato da esso.</string>
+    <string name="max_plugins_copy_template">Copia il modello</string>
+    <string name="max_plugins_template_copied">Modello copiato</string>
+    <string name="max_plugins_section_installed">Trovato su questo dispositivo</string>
+    <string name="max_plugins_loading_title">Lettura della cartella del plugin</string>
+    <string name="max_plugins_loading_detail">Elencare la cartella manifest con root, quindi valutare ciascun manifest rispetto al contratto.</string>
+    <string name="max_plugins_accepted_count">%1$d accettato</string>
+    <string name="max_plugins_rejected_count">%1$d rifiutato</string>
+    <string name="max_plugins_unreadable_count">Cartella %1$d senza manifest leggibile</string>
+    <string name="max_plugins_rejected_section">Rifiutato, con il motivo esatto</string>
+    <string name="max_plugins_detail_label">Dichiarato</string>
+    <string name="max_plugins_refresh_cd">Rileggi la cartella del plugin</string>
+    <string name="max_plugins_capability_source">Segnalato dal plugin, non misurato da noi</string>
+    <string name="max_plugins_cond_empty_title">Nessun plugin installato</string>
+    <string name="max_plugins_cond_empty_detail">La cartella manifest non contiene cartelle di plug-in. Non c\'è niente di sbagliato: questo è lo stato predefinito della funzionalità.</string>
+    <string name="max_plugins_cond_missing_title">La cartella manifest non esiste ancora</string>
+    <string name="max_plugins_cond_missing_detail">%1$s non è stato creato su questo dispositivo, quindi non c\'è nulla da leggere. Crearlo è tutto ciò che un autore di plugin deve fare.</string>
+    <string name="max_plugins_cond_unreadable_title">Impossibile leggere la cartella manifest</string>
+    <string name="max_plugins_cond_unreadable_detail">La cartella esiste in %1$s ma la shell non è riuscita a leggerla. Per elencarlo è necessario il root.</string>
+    <string name="max_plugins_reason_BadId">L\'ID non è utilizzabile come nome di cartella. Utilizza lettere latine minuscole, cifre, punti, trattini o trattini bassi e mai due punti di seguito.</string>
+    <string name="max_plugins_reason_MissingName">Il manifest non dichiara alcun nome.</string>
+    <string name="max_plugins_reason_BadVersion">La versione deve iniziare con cifre, ad esempio 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Il livello API dichiarato manca o è inferiore a 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Il livello API dichiarato è più recente di quanto previsto da questa build, quindi non viene eseguito affatto.</string>
+    <string name="max_plugins_reason_MissingKind">Il manifest non dichiara alcun tipo.</string>
+    <string name="max_plugins_reason_UnknownKind">Il tipo non è uno dei tipi pubblicati.</string>
+    <string name="max_plugins_reason_UnknownCapability">La capacità non è parte del presente contratto. Una capacità sconosciuta viene rifiutata anziché ignorata, quindi nulla viene eseguito con meno diritti di quelli richiesti.</string>
+    <string name="max_plugins_reason_NoCapabilities">Un plugin deve dichiarare almeno una funzionalità.</string>
+    <string name="max_plugins_reason_DuplicateId">Un altro plugin con questo ID è già stato accettato, quindi questo non è utilizzato.</string>
+    <string name="max_plugins_help_title">Perchè proprio un contratto</string>
+    <string name="max_plugins_help_body">Senza un contratto pubblicato, chiunque estenda questa app deve indovinare la forma dei nostri file interni e non possiamo distinguere un\'estensione valida da una danneggiata. Con esso viene stabilito il limite: un plugin dichiara l\'intento e legge; non scrive mai l\'hardware e ogni rifiuto di cui sopra nomina il campo esatto che ha fallito.</string>
+</resources>

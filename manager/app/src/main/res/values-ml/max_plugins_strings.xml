@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">മൂന്നാം കക്ഷി പ്ലഗിനുകൾ</string>
+    <string name="max_plugins_subtitle">പ്രസിദ്ധീകരിച്ച കരാർ: ഒരു പ്ലഗിൻ എന്ത് പ്രഖ്യാപിക്കാം, എന്താണ് ഇവിടെ സ്വീകരിച്ചത് അല്ലെങ്കിൽ നിരസിച്ചത്.</string>
+    <string name="max_plugins_section_contract">കരാർ</string>
+    <string name="max_plugins_contract_api">API ലെവൽ %1$d</string>
+    <string name="max_plugins_contract_dir">മാനിഫെസ്റ്റ് ഫോൾഡർ</string>
+    <string name="max_plugins_contract_rules">പ്രഖ്യാപിത കഴിവ് ഒന്നുകിൽ ഒരു വായനയോ നിർദ്ദേശമോ ആണ്. ഹാർഡ്‌വെയർ എഴുതാനുള്ള കഴിവ് മനഃപൂർവം ഇല്ല: ഈ ആപ്പിലെ ഓരോ എഴുത്തും മദ്ധ്യസ്ഥനിലൂടെ കടന്നുപോകുന്നു, കൂടാതെ നേരിട്ട് എഴുതാൻ കഴിയുന്ന ഒരു പ്ലഗിൻ ഒരേ നോബ് എഴുതുന്ന രണ്ട് ഉടമകളെ തടയാൻ നിർമ്മിച്ച ഗാർഡ് നീക്കം ചെയ്യും.</string>
+    <string name="max_plugins_contract_keys">ഒരു മാനിഫെസ്റ്റിൽ നിന്ന് വായിച്ച കീകൾ</string>
+    <string name="max_plugins_contract_kinds">സ്വീകരിച്ച തരങ്ങൾ</string>
+    <string name="max_plugins_contract_capabilities">സ്വീകാര്യമായ കഴിവുകൾ</string>
+    <string name="max_plugins_template">മാനിഫെസ്റ്റ് ടെംപ്ലേറ്റ്</string>
+    <string name="max_plugins_template_note">ഈ വാചകമാണ് പാഴ്‌സർ വായിക്കുന്നത്. ഇതിന് കോഡിൽ നിന്ന് വ്യതിചലിക്കാനാവില്ല, കാരണം അത് അതിൽ നിന്നാണ് സൃഷ്ടിക്കുന്നത്.</string>
+    <string name="max_plugins_copy_template">ടെംപ്ലേറ്റ് പകർത്തുക</string>
+    <string name="max_plugins_template_copied">ടെംപ്ലേറ്റ് പകർത്തി</string>
+    <string name="max_plugins_section_installed">ഈ ഉപകരണത്തിൽ കണ്ടെത്തി</string>
+    <string name="max_plugins_loading_title">പ്ലഗിൻ ഫോൾഡർ വായിക്കുന്നു</string>
+    <string name="max_plugins_loading_detail">റൂട്ട് ഉപയോഗിച്ച് മാനിഫെസ്റ്റ് ഫോൾഡർ ലിസ്റ്റുചെയ്യുന്നു, തുടർന്ന് കരാറിനെതിരെ ഓരോ മാനിഫെസ്റ്റും വിലയിരുത്തുന്നു.</string>
+    <string name="max_plugins_accepted_count">%1$d അംഗീകരിച്ചു</string>
+    <string name="max_plugins_rejected_count">%1$d നിരസിച്ചു</string>
+    <string name="max_plugins_unreadable_count">വായിക്കാനാകുന്ന മാനിഫെസ്റ്റ് ഇല്ലാത്ത %1$d ഫോൾഡർ</string>
+    <string name="max_plugins_rejected_section">കൃത്യമായ കാരണം സഹിതം നിരസിച്ചു</string>
+    <string name="max_plugins_detail_label">പ്രഖ്യാപിച്ചു</string>
+    <string name="max_plugins_refresh_cd">പ്ലഗിൻ ഫോൾഡർ വീണ്ടും വായിക്കുക</string>
+    <string name="max_plugins_capability_source">പ്ലഗിൻ റിപ്പോർട്ടുചെയ്‌തു, ഞങ്ങൾ അളന്നതല്ല</string>
+    <string name="max_plugins_cond_empty_title">പ്ലഗിന്നുകളൊന്നും ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല</string>
+    <string name="max_plugins_cond_empty_detail">മാനിഫെസ്റ്റ് ഫോൾഡറിൽ പ്ലഗിൻ ഫോൾഡറുകൾ ഇല്ല. തെറ്റൊന്നുമില്ല: ഇതാണ് സവിശേഷതയുടെ സ്ഥിരസ്ഥിതി.</string>
+    <string name="max_plugins_cond_missing_title">മാനിഫെസ്റ്റ് ഫോൾഡർ ഇതുവരെ നിലവിലില്ല</string>
+    <string name="max_plugins_cond_missing_detail">ഈ ഉപകരണത്തിൽ %1$s സൃഷ്ടിച്ചിട്ടില്ല, അതിനാൽ വായിക്കാൻ ഒന്നുമില്ല. ഇത് സൃഷ്ടിക്കുന്നത് ഒരു പ്ലഗിൻ രചയിതാവ് ചെയ്യേണ്ടത് മാത്രമാണ്.</string>
+    <string name="max_plugins_cond_unreadable_title">മാനിഫെസ്റ്റ് ഫോൾഡർ വായിക്കാൻ കഴിയില്ല</string>
+    <string name="max_plugins_cond_unreadable_detail">ഫോൾഡർ %1$s-ൽ നിലവിലുണ്ടെങ്കിലും ഷെല്ലിന് അത് വായിക്കാൻ കഴിഞ്ഞില്ല. ഇത് ലിസ്റ്റുചെയ്യാൻ റൂട്ട് ആവശ്യമാണ്.</string>
+    <string name="max_plugins_reason_BadId">ഐഡി ഒരു ഫോൾഡർ നാമമായി ഉപയോഗിക്കാനാവില്ല. ലാറ്റിൻ അക്ഷരങ്ങൾ, അക്കങ്ങൾ, ഡോട്ടുകൾ, ഡാഷുകൾ അല്ലെങ്കിൽ അടിവരകൾ എന്നിവ ഉപയോഗിക്കുക, തുടർച്ചയായി രണ്ട് ഡോട്ടുകൾ ഉപയോഗിക്കരുത്.</string>
+    <string name="max_plugins_reason_MissingName">മാനിഫെസ്റ്റ് പേരൊന്നും പ്രഖ്യാപിക്കുന്നില്ല.</string>
+    <string name="max_plugins_reason_BadVersion">പതിപ്പ് അക്കങ്ങളിൽ തുടങ്ങണം, ഉദാഹരണത്തിന് 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">പ്രഖ്യാപിത API ലെവൽ കാണുന്നില്ല അല്ലെങ്കിൽ 1-ന് താഴെയാണ്.</string>
+    <string name="max_plugins_reason_ApiTooNew">പ്രഖ്യാപിത API ലെവൽ ഈ ബിൽഡ് മനസ്സിലാക്കുന്നതിനേക്കാൾ പുതിയതാണ്, അതിനാൽ ഇത് പ്രവർത്തിക്കുന്നില്ല.</string>
+    <string name="max_plugins_reason_MissingKind">മാനിഫെസ്റ്റ് ഒരു തരത്തിലും പ്രഖ്യാപിക്കുന്നില്ല.</string>
+    <string name="max_plugins_reason_UnknownKind">ഇനം പ്രസിദ്ധീകരിച്ച തരങ്ങളിൽ ഒന്നല്ല.</string>
+    <string name="max_plugins_reason_UnknownCapability">കഴിവ് ഈ കരാറിൻ്റെ ഭാഗമല്ല. അജ്ഞാതമായ ഒരു കഴിവ് അവഗണിക്കപ്പെടുന്നതിനുപകരം നിരസിക്കപ്പെടും, അതിനാൽ അത് ആവശ്യപ്പെട്ടതിലും കുറഞ്ഞ അവകാശങ്ങളോടെ ഒന്നും പ്രവർത്തിക്കുന്നില്ല.</string>
+    <string name="max_plugins_reason_NoCapabilities">ഒരു പ്ലഗിൻ കുറഞ്ഞത് ഒരു കഴിവെങ്കിലും പ്രഖ്യാപിക്കണം.</string>
+    <string name="max_plugins_reason_DuplicateId">ഈ ഐഡിയുള്ള മറ്റൊരു പ്ലഗിൻ ഇതിനകം സ്വീകരിച്ചു, അതിനാൽ ഇത് ഉപയോഗിക്കുന്നില്ല.</string>
+    <string name="max_plugins_help_title">എന്തിന് ഒരു കരാർ</string>
+    <string name="max_plugins_help_body">പ്രസിദ്ധീകരിച്ച കരാറില്ലാതെ, ഈ ആപ്പ് വിപുലീകരിക്കുന്ന ആർക്കും ഞങ്ങളുടെ ആന്തരിക ഫയലുകളുടെ ആകൃതി ഊഹിക്കേണ്ടതുണ്ട്, കൂടാതെ തകർന്നതിൽ നിന്ന് സാധുവായ വിപുലീകരണം ഞങ്ങൾക്ക് പറയാനാകില്ല. അതിനൊപ്പം, പരിധി പ്രസ്താവിക്കുന്നു: ഒരു പ്ലഗിൻ ഉദ്ദേശ്യം പ്രഖ്യാപിക്കുകയും വായിക്കുകയും ചെയ്യുന്നു; അത് ഒരിക്കലും ഹാർഡ്‌വെയർ എഴുതുന്നില്ല, കൂടാതെ മുകളിലുള്ള ഓരോ നിരസിക്കലും പരാജയപ്പെട്ട കൃത്യമായ ഫീൽഡ് പേരിടുന്നു.</string>
+</resources>

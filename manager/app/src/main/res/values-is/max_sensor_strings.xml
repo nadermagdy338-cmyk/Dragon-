@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Skynjarar tilkynntir af þessu tæki</string>
+    <string name="max_sensor_desc">Það sem pallurinn lýsir yfir um eigin vélbúnað ásamt einum afmörkuðum ljóslestri. Engin kvörðun og ekkert heilsustig: bæði þyrftu líkamlega tilvísun sem við höfum ekki.</string>
+    <string name="max_sensor_service">Skynjaraþjónusta</string>
+    <string name="max_sensor_service_unavailable">náðist ekki</string>
+    <string name="max_sensor_count">Skynjarar tilkynntir</string>
+    <string name="max_sensor_kinds">Flokkar til staðar</string>
+    <string name="max_sensor_wakeup">Vaknunarskynjarar (tilkynna á meðan tækið sefur)</string>
+    <string name="max_sensor_light">Umhverfisljós</string>
+    <string name="max_sensor_unit_lux">lúxus</string>
+    <string name="max_sensor_light_absent">þetta tæki tilkynnir engan ljósnema</string>
+    <string name="max_sensor_light_unreadable">enginn lestur barst fyrir tímamörk - óþekkt, ekki núll</string>
+    <string name="max_sensor_more">…og %1$s fleira</string>
+    <string name="max_sensor_no_score">Nöfn, svið og tafir koma frá pallinum. Skynjari sem tilkynnir er ekki sönnun þess að hann sé nákvæmur.</string>
+    <string name="max_sensor_kind_motion">Hreyfing</string>
+    <string name="max_sensor_kind_environment">Umhverfi</string>
+    <string name="max_sensor_kind_position">Staða</string>
+    <string name="max_sensor_kind_body">Líkami</string>
+    <string name="max_sensor_kind_unpositioned">Óstaðsett</string>
+    <string name="max_sensor_kind_other">Annað</string>
+</resources>

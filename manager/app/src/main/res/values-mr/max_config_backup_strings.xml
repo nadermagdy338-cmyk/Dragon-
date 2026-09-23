@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">स्वरूप आणि इंटरफेस</string>
+    <string name="max_cfg_backup_app_prefs">ॲप प्राधान्ये आणि भाषा</string>
+    <string name="max_cfg_declared_absent_title">समाविष्ट केले जाणार नाही, आणि का</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">या डिव्हाइसमध्ये कोणतेही सत्यापित रूट नाही, त्यामुळे मूल्ये विश्वसनीयरित्या वाचली जाऊ शकत नाहीत</string>
+    <string name="max_cfg_absent_file_missing">प्राधान्य फाइल अद्याप अस्तित्वात नाही</string>
+    <string name="max_cfg_absent_empty">प्राधान्य फाइल अस्तित्वात आहे पण रिकामी आहे, त्यामुळे लिहिण्यासारखे काही नाही</string>
+    <string name="max_cfg_declared_excluded_title">या फाइलमध्ये कधीही समाविष्ट केले नाही</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI सुरक्षा सेटिंग्ज ॲपमध्ये कॉन्फिगर केल्या आहेत, कधीही फाइलमध्ये ठेवल्या जात नाहीत</string>
+    <string name="max_cfg_excluded_other_apps">इतर ॲप्सचा डेटा ॲप बॅकअपचा आहे, कॉन्फिग बॅकअपचा नाही</string>
+    <string name="max_cfg_excluded_secret">स्वाक्षरी की आणि गुपिते तुम्ही शेअर करू शकता अशा फाईलवर कधीही लिहिली जात नाहीत</string>
+    <string name="max_cfg_section_tweaks">कॉन्फिगरेशन चिमटा</string>
+    <string name="max_cfg_section_applist">प्रति-ॲप सूची</string>
+    <string name="max_cfg_section_appearance">स्वरूप आणि इंटरफेस</string>
+    <string name="max_cfg_section_app_prefs">ॲप प्राधान्ये आणि भाषा</string>
+    <string name="max_cfg_restore_merge_note">पुनर्संचयित प्राधान्ये विलीन होतात: फाइलमध्ये उपस्थित की लिहिल्या जातात आणि की ज्या आहेत त्याप्रमाणे राहण्याचा उल्लेख नाही. काहीही क्लिअर होत नाही.</string>
+</resources>

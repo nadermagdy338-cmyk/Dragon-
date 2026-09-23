@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Aspetto e interfaccia</string>
+    <string name="max_cfg_backup_app_prefs">Preferenze e lingua dell\'app</string>
+    <string name="max_cfg_declared_absent_title">Non sarà incluso e perché</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">questo dispositivo non ha una radice verificata, quindi i valori non possono essere letti in modo affidabile</string>
+    <string name="max_cfg_absent_file_missing">il file delle preferenze non esiste ancora</string>
+    <string name="max_cfg_absent_empty">il file delle preferenze esiste ma è vuoto, quindi non c\'è niente da scrivere</string>
+    <string name="max_cfg_declared_excluded_title">Mai incluso in questo file</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI le impostazioni di sicurezza sono configurate all\'interno dell\'app e non vengono mai conservate in un file</string>
+    <string name="max_cfg_excluded_other_apps">i dati di altre app appartengono al backup dell\'app, non al backup della configurazione</string>
+    <string name="max_cfg_excluded_secret">le chiavi e i segreti di firma non vengono mai scritti su un file che potresti condividere</string>
+    <string name="max_cfg_section_tweaks">Modificare la configurazione</string>
+    <string name="max_cfg_section_applist">Elenco per app</string>
+    <string name="max_cfg_section_appearance">Aspetto e interfaccia</string>
+    <string name="max_cfg_section_app_prefs">Preferenze e lingua dell\'app</string>
+    <string name="max_cfg_restore_merge_note">Il ripristino delle preferenze si unisce: le chiavi presenti nel file vengono scritte e le chiavi non menzionate rimangono così come sono. Niente è cancellato.</string>
+</resources>

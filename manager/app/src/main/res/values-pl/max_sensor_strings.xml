@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Czujniki zgłoszone przez to urządzenie</string>
+    <string name="max_sensor_desc">Co platforma deklaruje na temat własnego sprzętu plus jeden ograniczony odczyt światła. Brak kalibracji i brak wyniku zdrowotnego: w obu przypadkach potrzebne byłoby fizyczne odniesienie, którego nie mamy.</string>
+    <string name="max_sensor_service">Serwis czujników</string>
+    <string name="max_sensor_service_unavailable">nie można było dotrzeć</string>
+    <string name="max_sensor_count">Zgłoszono czujniki</string>
+    <string name="max_sensor_kinds">Kategorie obecne</string>
+    <string name="max_sensor_wakeup">Czujniki wybudzenia (raportują, gdy urządzenie śpi)</string>
+    <string name="max_sensor_light">Światło otoczenia</string>
+    <string name="max_sensor_unit_lux">luks</string>
+    <string name="max_sensor_light_absent">to urządzenie nie zgłasza żadnego czujnika światła</string>
+    <string name="max_sensor_light_unreadable">żaden odczyt nie dotarł przed upływem limitu czasu — nieznany, nie zero</string>
+    <string name="max_sensor_more">…i %1$s więcej</string>
+    <string name="max_sensor_no_score">Nazwy, zakresy i opóźnienia pochodzą z platformy. Czujnik zgłaszający nie jest dowodem na jego dokładność.</string>
+    <string name="max_sensor_kind_motion">Ruch</string>
+    <string name="max_sensor_kind_environment">Środowisko</string>
+    <string name="max_sensor_kind_position">Pozycja</string>
+    <string name="max_sensor_kind_body">Ciało</string>
+    <string name="max_sensor_kind_unpositioned">Nieumieszczone</string>
+    <string name="max_sensor_kind_other">Inny</string>
+</resources>

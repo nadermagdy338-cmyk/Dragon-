@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Pamja dhe ndërfaqja</string>
+    <string name="max_cfg_backup_app_prefs">Preferencat dhe gjuha e aplikacionit</string>
+    <string name="max_cfg_declared_absent_title">Nuk do të përfshihet, dhe pse</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">kjo pajisje nuk ka rrënjë të verifikuar, kështu që vlerat nuk mund të lexohen në mënyrë të besueshme</string>
+    <string name="max_cfg_absent_file_missing">skedari i preferencës nuk ekziston ende</string>
+    <string name="max_cfg_absent_empty">skedari i preferencës ekziston por është bosh, kështu që nuk ka asgjë për të shkruar</string>
+    <string name="max_cfg_declared_excluded_title">Nuk është përfshirë kurrë në këtë skedar</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Cilësimet e sigurisë janë konfiguruar brenda aplikacionit, nuk mbahen kurrë në skedar</string>
+    <string name="max_cfg_excluded_other_apps">të dhënat e aplikacioneve të tjera i përkasin rezervimit të aplikacionit, jo rezervimit të konfigurimit</string>
+    <string name="max_cfg_excluded_secret">çelësat dhe sekretet e nënshkrimit nuk shkruhen kurrë në një skedar që mund të ndani</string>
+    <string name="max_cfg_section_tweaks">Ndrysho konfigurimin</string>
+    <string name="max_cfg_section_applist">Lista për aplikacione</string>
+    <string name="max_cfg_section_appearance">Pamja dhe ndërfaqja</string>
+    <string name="max_cfg_section_app_prefs">Preferencat dhe gjuha e aplikacionit</string>
+    <string name="max_cfg_restore_merge_note">Rivendosja e preferencave bashkohet: çelësat e pranishëm në skedar shkruhen dhe çelësat që ai nuk i përmend qëndrojnë ashtu siç janë. Asgjë nuk është pastruar.</string>
+</resources>

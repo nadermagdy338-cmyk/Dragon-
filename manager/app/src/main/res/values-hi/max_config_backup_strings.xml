@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">उपस्थिति और इंटरफ़ेस</string>
+    <string name="max_cfg_backup_app_prefs">ऐप प्राथमिकताएं और भाषा</string>
+    <string name="max_cfg_declared_absent_title">शामिल नहीं किया जाएगा, और क्यों</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">इस डिवाइस में कोई सत्यापित रूट नहीं है, इसलिए मानों को विश्वसनीय रूप से नहीं पढ़ा जा सकता है</string>
+    <string name="max_cfg_absent_file_missing">वरीयता फ़ाइल अभी तक मौजूद नहीं है</string>
+    <string name="max_cfg_absent_empty">वरीयता फ़ाइल मौजूद है लेकिन खाली है, इसलिए लिखने के लिए कुछ भी नहीं है</string>
+    <string name="max_cfg_declared_excluded_title">इस फ़ाइल में कभी शामिल नहीं किया गया</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI सुरक्षा सेटिंग्स ऐप के अंदर कॉन्फ़िगर की जाती हैं, कभी भी फ़ाइल में नहीं रखी जाती हैं</string>
+    <string name="max_cfg_excluded_other_apps">अन्य ऐप्स का डेटा ऐप बैकअप का है, कॉन्फिग बैकअप का नहीं</string>
+    <string name="max_cfg_excluded_secret">आपके द्वारा साझा की जाने वाली फ़ाइल में हस्ताक्षर कुंजियाँ और रहस्य कभी नहीं लिखे जाते हैं</string>
+    <string name="max_cfg_section_tweaks">कॉन्फ़िगरेशन में सुधार करें</string>
+    <string name="max_cfg_section_applist">प्रति-ऐप सूची</string>
+    <string name="max_cfg_section_appearance">उपस्थिति और इंटरफ़ेस</string>
+    <string name="max_cfg_section_app_prefs">ऐप प्राथमिकताएं और भाषा</string>
+    <string name="max_cfg_restore_merge_note">प्राथमिकताओं को पुनर्स्थापित करना मर्ज होता है: फ़ाइल में मौजूद कुंजियाँ लिखी जाती हैं, और जिन कुंजियों का उल्लेख नहीं किया गया है वे वैसी ही रहेंगी। कुछ भी साफ़ नहीं हुआ.</string>
+</resources>

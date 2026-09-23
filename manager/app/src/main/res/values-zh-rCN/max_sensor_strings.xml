@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">该设备报告的传感器</string>
+    <string name="max_sensor_desc">该平台对自己的硬件的声明，以及有限的轻读。无需校准，也无需健康评分：两者都需要我们没有的物理参考。</string>
+    <string name="max_sensor_service">传感器服务</string>
+    <string name="max_sensor_service_unavailable">无法联系到</string>
+    <string name="max_sensor_count">传感器报告</string>
+    <string name="max_sensor_kinds">现有类别</string>
+    <string name="max_sensor_wakeup">唤醒传感器（设备休眠时报告）</string>
+    <string name="max_sensor_light">环境光</string>
+    <string name="max_sensor_unit_lux">勒克斯</string>
+    <string name="max_sensor_light_absent">该设备报告没有光传感器</string>
+    <string name="max_sensor_light_unreadable">超时之前没有读数到达 - 未知，不为零</string>
+    <string name="max_sensor_more">…还有%1$s更多</string>
+    <string name="max_sensor_no_score">名称、范围和延迟来自平台。传感器报告并不能证明其准确。</string>
+    <string name="max_sensor_kind_motion">运动</string>
+    <string name="max_sensor_kind_environment">环境</string>
+    <string name="max_sensor_kind_position">位置</string>
+    <string name="max_sensor_kind_body">身体</string>
+    <string name="max_sensor_kind_unpositioned">未定位</string>
+    <string name="max_sensor_kind_other">其他</string>
+</resources>

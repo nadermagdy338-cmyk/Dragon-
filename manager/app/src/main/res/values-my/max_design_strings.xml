@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">နေထိုင်ပါ။</string>
+    <string name="max_trust_stale">နောက်ဆုံးနမူနာ</string>
+    <string name="max_trust_snapshot">လျှပ်တစ်ပြက်</string>
+    <string name="max_trust_unreadable">စာဖတ်ခြင်း မရှိပါ။</string>
+    <string name="max_trust_unsupported">မထောက်ခံပါ။</string>
+    <string name="max_source_label">အရင်းအမြစ်</string>
+    <string name="max_updated_label">မွမ်းမံထားသည်။</string>
+    <string name="max_provenance_separator">"·"</string>
+    <string name="max_value_unavailable_a11y">တန်ဖိုးမရှိပါ။</string>
+    <string name="max_expand_section">အသေးစိတ်ကိုပြပါ။</string>
+    <string name="max_collapse_section">အသေးစိတ်ကို ဖျောက်ပါ။</string>
+</resources>

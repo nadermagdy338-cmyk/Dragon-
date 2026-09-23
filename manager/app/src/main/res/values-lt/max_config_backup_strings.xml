@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Išvaizda ir sąsaja</string>
+    <string name="max_cfg_backup_app_prefs">Programos nuostatos ir kalba</string>
+    <string name="max_cfg_declared_absent_title">Nebus įtraukta ir kodėl</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">šis įrenginys neturi patvirtintos šaknies, todėl reikšmių negalima patikimai nuskaityti</string>
+    <string name="max_cfg_absent_file_missing">pirmenybės failas dar neegzistuoja</string>
+    <string name="max_cfg_absent_empty">pirmenybės failas yra, bet tuščias, todėl nėra ką rašyti</string>
+    <string name="max_cfg_declared_excluded_title">Niekada neįtraukta į šį failą</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI saugos nustatymai sukonfigūruoti programoje, niekada nenešami į failą</string>
+    <string name="max_cfg_excluded_other_apps">kitų programų duomenys priklauso programos atsarginei kopijai, o ne konfigūracijos atsarginei kopijai</string>
+    <string name="max_cfg_excluded_secret">pasirašymo raktai ir paslaptys niekada neįrašomi į failą, kurį galite bendrinti</string>
+    <string name="max_cfg_section_tweaks">Keisti konfigūraciją</string>
+    <string name="max_cfg_section_applist">Programos sąrašas</string>
+    <string name="max_cfg_section_appearance">Išvaizda ir sąsaja</string>
+    <string name="max_cfg_section_app_prefs">Programos nuostatos ir kalba</string>
+    <string name="max_cfg_restore_merge_note">Nuostatų atkūrimas sujungiamas: faile esantys raktai įrašomi, o raktai, kurių jame nemini, lieka tokie, kokie yra. Niekas nėra išvalytas.</string>
+</resources>

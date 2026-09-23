@@ -195,20 +195,9 @@ def easyocr_read(path: Path, langs: list[str]):
 
 
 def languages(spec: str, engine: str) -> list[str] | str:
-    """`ara+eng` for tesseract, `['ar','en']` for easyocr — one user-facing spelling.
-
-    tesseract names its packs in three letters (`ara`) and easyocr in two (`ar`), so
-    the easyocr branch maps the known three-letter spellings through. Codes already
-    spelled in two letters pass through untouched.
-    """
-    codes = [code.strip() for code in spec.replace("+", ",").split(",") if code.strip()]
+    """`ara+eng` for tesseract, `['ar','en']` for easyocr — one user-facing spelling."""
     if engine == "easyocr":
-        three_letter = {
-            "ara": "ar", "eng": "en", "fas": "fa", "urd": "ur", "rus": "ru",
-            "deu": "de", "fra": "fr", "spa": "es", "tur": "tr", "ind": "id",
-            "por": "pt", "ita": "it", "nld": "nl", "jpn": "ja", "kor": "ko",
-        }
-        return [three_letter.get(code, code) for code in codes]
+        return [code.strip() for code in spec.replace("+", ",").split(",") if code.strip()]
     return spec
 
 

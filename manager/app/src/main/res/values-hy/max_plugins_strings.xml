@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Երրորդ կողմի պլագիններ</string>
+    <string name="max_plugins_subtitle">Հրապարակված պայմանագիր. ինչ կարող է հայտարարել plugin-ը, և ինչն ընդունվել կամ մերժվել է այստեղ:</string>
+    <string name="max_plugins_section_contract">Պայմանագիրը</string>
+    <string name="max_plugins_contract_api">API մակարդակ %1$d</string>
+    <string name="max_plugins_contract_dir">Մանիֆեստի թղթապանակ</string>
+    <string name="max_plugins_contract_rules">Հայտարարված կարողությունը կա՛մ ընթերցում է, կա՛մ առաջարկ: Դիտավորյալ չկա սարքաշար գրելու հնարավորություն. այս հավելվածում յուրաքանչյուր գրություն անցնում է դատավորի միջոցով, և հավելվածը, որը կարող էր ուղղակիորեն գրել, կհեռացնի պահակը, որը ստեղծվել է երկու սեփականատերերի՝ նույն գլխիկը գրելը դադարեցնելու համար:</string>
+    <string name="max_plugins_contract_keys">Ստեղները կարդացվում են մանիֆեստից</string>
+    <string name="max_plugins_contract_kinds">Ընդունված տեսակներ</string>
+    <string name="max_plugins_contract_capabilities">Ընդունված հնարավորություններ</string>
+    <string name="max_plugins_template">Մանիֆեստի ձևանմուշ</string>
+    <string name="max_plugins_template_note">Այս տեքստն այն է, ինչ կարդում է վերլուծիչը: Այն չի կարող շեղվել կոդից, քանի որ այն ստեղծվում է դրանից:</string>
+    <string name="max_plugins_copy_template">Պատճենեք ձևանմուշը</string>
+    <string name="max_plugins_template_copied">Կաղապարը պատճենվեց</string>
+    <string name="max_plugins_section_installed">Գտնվել է այս սարքում</string>
+    <string name="max_plugins_loading_title">Կարդում է plugin-ի թղթապանակը</string>
+    <string name="max_plugins_loading_detail">Մանիֆեստի թղթապանակը նշելով արմատով, այնուհետև գնահատելով յուրաքանչյուր մանիֆեստ՝ համաձայն պայմանագրի:</string>
+    <string name="max_plugins_accepted_count">%1$d ընդունված է</string>
+    <string name="max_plugins_rejected_count">%1$d մերժել է</string>
+    <string name="max_plugins_unreadable_count">%1$d պանակ առանց ընթեռնելի մանիֆեստի</string>
+    <string name="max_plugins_rejected_section">Հրաժարվել է, ստույգ պատճառաբանությամբ</string>
+    <string name="max_plugins_detail_label">Հայտարարվել է</string>
+    <string name="max_plugins_refresh_cd">Կրկին կարդացեք plugin-ի թղթապանակը</string>
+    <string name="max_plugins_capability_source">Հաղորդվում է plugin-ի կողմից, չի չափվում մեր կողմից</string>
+    <string name="max_plugins_cond_empty_title">Տեղադրված պլագիններ չկան</string>
+    <string name="max_plugins_cond_empty_detail">Մանիֆեստի թղթապանակը չի պահում հավելումների թղթապանակներ: Ոչինչ սխալ չէ. սա գործառույթի լռելյայն վիճակն է:</string>
+    <string name="max_plugins_cond_missing_title">Manifest թղթապանակը դեռ գոյություն չունի</string>
+    <string name="max_plugins_cond_missing_detail">%1$s այս սարքում չի ստեղծվել, ուստի կարդալու բան չկա: Դրա ստեղծումն այն ամենն է, ինչ պետք է անի հավելվածի հեղինակը:</string>
+    <string name="max_plugins_cond_unreadable_title">Մանիֆեստի թղթապանակը հնարավոր չէ կարդալ</string>
+    <string name="max_plugins_cond_unreadable_detail">Թղթապանակը գոյություն ունի %1$s հասցեում, սակայն վահանակը չկարողացավ կարդալ այն: Root-ը պահանջվում է այն ցուցակագրելու համար:</string>
+    <string name="max_plugins_reason_BadId">ID-ն օգտագործելի չէ որպես թղթապանակի անուն: Օգտագործեք փոքրատառ լատիներեն տառեր, թվանշաններ, կետեր, գծիկներ կամ ընդգծումներ և ոչ մի դեպքում անընդմեջ երկու կետ:</string>
+    <string name="max_plugins_reason_MissingName">Մանիֆեստում անուն չկա:</string>
+    <string name="max_plugins_reason_BadVersion">Տարբերակը պետք է սկսվի թվանշաններով, օրինակ 1.0.0:</string>
+    <string name="max_plugins_reason_ApiTooOld">Հայտարարված API մակարդակը բացակայում է կամ 1-ից ցածր է:</string>
+    <string name="max_plugins_reason_ApiTooNew">Հայտարարված API-ի մակարդակը ավելի նոր է, քան հասկանում է այս կառուցվածքը, ուստի այն ընդհանրապես չի գործարկվում:</string>
+    <string name="max_plugins_reason_MissingKind">Մանիֆեստը ոչ մի տեսակի չի հայտարարում:</string>
+    <string name="max_plugins_reason_UnknownKind">Տեսակը հրապարակված տեսակներից չէ։</string>
+    <string name="max_plugins_reason_UnknownCapability">Հնարավորությունը այս պայմանագրի մաս չէ: Անհայտ հնարավորությունը մերժվում է, քան անտեսվում, ուստի ոչինչ չի գործում ավելի քիչ իրավունքներով, քան պահանջվում է:</string>
+    <string name="max_plugins_reason_NoCapabilities">Փլագինը պետք է հայտարարի առնվազն մեկ հնարավորություն:</string>
+    <string name="max_plugins_reason_DuplicateId">Այս ID-ով մեկ այլ փլագին արդեն ընդունվել է, ուստի այս մեկը չի օգտագործվում:</string>
+    <string name="max_plugins_help_title">Ինչու՞ ընդհանրապես պայմանագիր</string>
+    <string name="max_plugins_help_body">Առանց հրապարակված պայմանագրի, այս հավելվածը ընդլայնող յուրաքանչյուր ոք պետք է կռահի մեր ներքին ֆայլերի ձևը, և ​​մենք չենք կարող տարբերակել վավեր ընդլայնումը կոտրվածից: Դրա հետ սահմանը նշված է. plugin-ը հայտարարում է մտադրություն և կարդում; այն երբեք չի գրում սարքավորում, և վերևում գտնվող յուրաքանչյուր մերժում նշում է այն ճշգրիտ դաշտը, որը ձախողվել է:</string>
+</resources>

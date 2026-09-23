@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU frekvens</string>
+    <string name="studio_load_history">Seneste CPU aktivitet</string>
+    <string name="studio_waiting_samples">Indsamler live-læsninger...</string>
+    <string name="studio_automatic_profile">Automatisk tilstand administrerer den aktive profil.</string>
+    <string name="studio_temperature">Temperatur</string>
+    <string name="studio_display">Vise</string>
+    <string name="studio_power">Strømmuligheder</string>
+    <string name="studio_settings">Indstillinger</string>
+</resources>

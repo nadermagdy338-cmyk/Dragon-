@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">퍼포먼스 스튜디오</string>
+    <string name="studio_cpu_frequency">CPU 주파수</string>
+    <string name="studio_load_history">최근 CPU 활동</string>
+    <string name="studio_waiting_samples">실시간 독서 자료 수집 중…</string>
+    <string name="studio_automatic_profile">자동 모드는 활성 프로필을 관리합니다.</string>
+    <string name="studio_temperature">온도</string>
+    <string name="studio_display">표시하다</string>
+    <string name="studio_power">전원 옵션</string>
+    <string name="studio_settings">설정</string>
+</resources>

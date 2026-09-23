@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Уживо</string>
+    <string name="max_trust_stale">Последњи узорак</string>
+    <string name="max_trust_snapshot">Снапсхот</string>
+    <string name="max_trust_unreadable">Нема читања</string>
+    <string name="max_trust_unsupported">Није подржано</string>
+    <string name="max_source_label">Извор</string>
+    <string name="max_updated_label">Ажурирано</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">нема расположиве вредности</string>
+    <string name="max_expand_section">Прикажи детаље</string>
+    <string name="max_collapse_section">Сакриј детаље</string>
+</resources>

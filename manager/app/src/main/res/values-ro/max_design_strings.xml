@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Trăi</string>
+    <string name="max_trust_stale">Ultima mostra</string>
+    <string name="max_trust_snapshot">Instantaneu</string>
+    <string name="max_trust_unreadable">Fără lectură</string>
+    <string name="max_trust_unsupported">Nu este acceptat</string>
+    <string name="max_source_label">Sursă</string>
+    <string name="max_updated_label">Actualizat</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">nicio valoare disponibila</string>
+    <string name="max_expand_section">Afișați detalii</string>
+    <string name="max_collapse_section">Ascunde detaliile</string>
+</resources>

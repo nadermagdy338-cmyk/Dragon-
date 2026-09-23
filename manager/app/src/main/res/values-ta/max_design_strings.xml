@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">வாழ்க</string>
+    <string name="max_trust_stale">கடைசி மாதிரி</string>
+    <string name="max_trust_snapshot">ஸ்னாப்ஷாட்</string>
+    <string name="max_trust_unreadable">வாசிப்பு இல்லை</string>
+    <string name="max_trust_unsupported">ஆதரிக்கப்படவில்லை</string>
+    <string name="max_source_label">ஆதாரம்</string>
+    <string name="max_updated_label">புதுப்பிக்கப்பட்டது</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">மதிப்பு இல்லை</string>
+    <string name="max_expand_section">விவரங்களைக் காட்டு</string>
+    <string name="max_collapse_section">விவரங்களை மறை</string>
+</resources>

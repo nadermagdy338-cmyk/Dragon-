@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">ດໍາລົງຊີວິດ</string>
+    <string name="max_trust_stale">ຕົວຢ່າງສຸດທ້າຍ</string>
+    <string name="max_trust_snapshot">ພາບຖ່າຍ</string>
+    <string name="max_trust_unreadable">ບໍ່ມີການອ່ານ</string>
+    <string name="max_trust_unsupported">ບໍ່ຮອງຮັບ</string>
+    <string name="max_source_label">ທີ່ມາ</string>
+    <string name="max_updated_label">ອັບເດດ</string>
+    <string name="max_provenance_separator">"·"</string>
+    <string name="max_value_unavailable_a11y">ບໍ່ມີຄ່າ</string>
+    <string name="max_expand_section">ສະແດງລາຍລະອຽດ</string>
+    <string name="max_collapse_section">ເຊື່ອງລາຍລະອຽດ</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">ਤੀਜੀ-ਧਿਰ ਪਲੱਗਇਨ</string>
+    <string name="max_plugins_subtitle">ਪ੍ਰਕਾਸ਼ਿਤ ਇਕਰਾਰਨਾਮਾ: ਇੱਕ ਪਲੱਗਇਨ ਕੀ ਘੋਸ਼ਿਤ ਕਰ ਸਕਦਾ ਹੈ, ਅਤੇ ਇੱਥੇ ਕੀ ਸਵੀਕਾਰ ਜਾਂ ਇਨਕਾਰ ਕੀਤਾ ਗਿਆ ਸੀ।</string>
+    <string name="max_plugins_section_contract">ਇਕਰਾਰਨਾਮਾ</string>
+    <string name="max_plugins_contract_api">API ਪੱਧਰ %1$d</string>
+    <string name="max_plugins_contract_dir">ਮੈਨੀਫੈਸਟ ਫੋਲਡਰ</string>
+    <string name="max_plugins_contract_rules">ਇੱਕ ਘੋਸ਼ਿਤ ਸਮਰੱਥਾ ਜਾਂ ਤਾਂ ਇੱਕ ਪੜ੍ਹਿਆ ਜਾਂ ਇੱਕ ਪ੍ਰਸਤਾਵ ਹੈ। ਇੱਥੇ ਜਾਣਬੁੱਝ ਕੇ ਕੋਈ ਸਮਰੱਥਾ ਨਹੀਂ ਹੈ ਜੋ ਹਾਰਡਵੇਅਰ ਲਿਖਦੀ ਹੈ: ਇਸ ਐਪ ਵਿੱਚ ਹਰ ਲਿਖਤ ਆਰਬਿਟਰ ਦੁਆਰਾ ਜਾਂਦੀ ਹੈ, ਅਤੇ ਇੱਕ ਪਲੱਗਇਨ ਜੋ ਸਿੱਧਾ ਲਿਖ ਸਕਦਾ ਹੈ, ਦੋ ਮਾਲਕਾਂ ਨੂੰ ਇੱਕੋ ਨੋਬ ਲਿਖਣ ਤੋਂ ਰੋਕਣ ਲਈ ਬਣਾਏ ਗਾਰਡ ਨੂੰ ਹਟਾ ਦੇਵੇਗਾ।</string>
+    <string name="max_plugins_contract_keys">ਇੱਕ ਮੈਨੀਫੈਸਟ ਤੋਂ ਪੜ੍ਹੀਆਂ ਗਈਆਂ ਕੁੰਜੀਆਂ</string>
+    <string name="max_plugins_contract_kinds">ਪ੍ਰਵਾਨਿਤ ਕਿਸਮਾਂ</string>
+    <string name="max_plugins_contract_capabilities">ਪ੍ਰਵਾਨਿਤ ਸਮਰੱਥਾਵਾਂ</string>
+    <string name="max_plugins_template">ਮੈਨੀਫੈਸਟ ਟੈਮਪਲੇਟ</string>
+    <string name="max_plugins_template_note">ਇਹ ਪਾਠ ਉਹ ਹੈ ਜੋ ਪਾਰਸਰ ਪੜ੍ਹਦਾ ਹੈ। ਇਹ ਕੋਡ ਤੋਂ ਨਹੀਂ ਨਿਕਲ ਸਕਦਾ, ਕਿਉਂਕਿ ਇਹ ਇਸ ਤੋਂ ਉਤਪੰਨ ਹੁੰਦਾ ਹੈ।</string>
+    <string name="max_plugins_copy_template">ਟੈਂਪਲੇਟ ਦੀ ਨਕਲ ਕਰੋ</string>
+    <string name="max_plugins_template_copied">ਟੈਮਪਲੇਟ ਕਾਪੀ ਕੀਤਾ ਗਿਆ</string>
+    <string name="max_plugins_section_installed">ਇਸ ਡਿਵਾਈਸ \'ਤੇ ਮਿਲਿਆ</string>
+    <string name="max_plugins_loading_title">ਪਲੱਗਇਨ ਫੋਲਡਰ ਪੜ੍ਹ ਰਿਹਾ ਹੈ</string>
+    <string name="max_plugins_loading_detail">ਮੈਨੀਫੈਸਟ ਫੋਲਡਰ ਨੂੰ ਰੂਟ ਨਾਲ ਸੂਚੀਬੱਧ ਕਰਨਾ, ਫਿਰ ਇਕਰਾਰਨਾਮੇ ਦੇ ਵਿਰੁੱਧ ਹਰੇਕ ਮੈਨੀਫੈਸਟ ਦਾ ਮੁਲਾਂਕਣ ਕਰਨਾ।</string>
+    <string name="max_plugins_accepted_count">%1$d ਸਵੀਕਾਰ ਕੀਤਾ ਗਿਆ</string>
+    <string name="max_plugins_rejected_count">%1$d ਨੇ ਇਨਕਾਰ ਕਰ ਦਿੱਤਾ</string>
+    <string name="max_plugins_unreadable_count">%1$d ਫੋਲਡਰ ਬਿਨਾਂ ਪੜ੍ਹਨਯੋਗ ਮੈਨੀਫੈਸਟ</string>
+    <string name="max_plugins_rejected_section">ਸਹੀ ਕਾਰਨ ਦੇ ਨਾਲ, ਇਨਕਾਰ ਕਰ ਦਿੱਤਾ</string>
+    <string name="max_plugins_detail_label">ਐਲਾਨ ਕੀਤਾ</string>
+    <string name="max_plugins_refresh_cd">ਪਲੱਗਇਨ ਫੋਲਡਰ ਨੂੰ ਦੁਬਾਰਾ ਪੜ੍ਹੋ</string>
+    <string name="max_plugins_capability_source">ਪਲੱਗਇਨ ਦੁਆਰਾ ਰਿਪੋਰਟ ਕੀਤੀ ਗਈ, ਸਾਡੇ ਦੁਆਰਾ ਮਾਪੀ ਨਹੀਂ ਗਈ</string>
+    <string name="max_plugins_cond_empty_title">ਕੋਈ ਪਲੱਗਇਨ ਸਥਾਪਤ ਨਹੀਂ ਹਨ</string>
+    <string name="max_plugins_cond_empty_detail">ਮੈਨੀਫੈਸਟ ਫੋਲਡਰ ਵਿੱਚ ਕੋਈ ਪਲੱਗਇਨ ਫੋਲਡਰ ਨਹੀਂ ਹਨ। ਕੁਝ ਵੀ ਗਲਤ ਨਹੀਂ ਹੈ: ਇਹ ਵਿਸ਼ੇਸ਼ਤਾ ਦੀ ਡਿਫੌਲਟ ਸਥਿਤੀ ਹੈ।</string>
+    <string name="max_plugins_cond_missing_title">ਮੈਨੀਫੈਸਟ ਫੋਲਡਰ ਅਜੇ ਮੌਜੂਦ ਨਹੀਂ ਹੈ</string>
+    <string name="max_plugins_cond_missing_detail">%1$s ਇਸ ਡਿਵਾਈਸ \'ਤੇ ਨਹੀਂ ਬਣਾਇਆ ਗਿਆ ਹੈ, ਇਸ ਲਈ ਪੜ੍ਹਨ ਲਈ ਕੁਝ ਵੀ ਨਹੀਂ ਹੈ। ਇਸ ਨੂੰ ਬਣਾਉਣਾ ਇੱਕ ਪਲੱਗਇਨ ਲੇਖਕ ਨੂੰ ਕਰਨ ਦੀ ਲੋੜ ਹੈ.</string>
+    <string name="max_plugins_cond_unreadable_title">ਮੈਨੀਫੈਸਟ ਫੋਲਡਰ ਨੂੰ ਪੜ੍ਹਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ ਹੈ</string>
+    <string name="max_plugins_cond_unreadable_detail">ਫੋਲਡਰ %1$s \'ਤੇ ਮੌਜੂਦ ਹੈ ਪਰ ਸ਼ੈੱਲ ਇਸਨੂੰ ਪੜ੍ਹ ਨਹੀਂ ਸਕਿਆ। ਇਸਨੂੰ ਸੂਚੀਬੱਧ ਕਰਨ ਲਈ ਰੂਟ ਦੀ ਲੋੜ ਹੈ।</string>
+    <string name="max_plugins_reason_BadId">ਆਈ.ਡੀ. ਫੋਲਡਰ ਨਾਮ ਦੇ ਤੌਰ \'ਤੇ ਵਰਤੋਂ ਯੋਗ ਨਹੀਂ ਹੈ। ਲੋਅਰਕੇਸ ਲਾਤੀਨੀ ਅੱਖਰਾਂ, ਅੰਕਾਂ, ਬਿੰਦੀਆਂ, ਡੈਸ਼ਾਂ ਜਾਂ ਅੰਡਰਸਕੋਰ ਦੀ ਵਰਤੋਂ ਕਰੋ, ਅਤੇ ਕਦੇ ਵੀ ਇੱਕ ਕਤਾਰ ਵਿੱਚ ਦੋ ਬਿੰਦੀਆਂ ਨਾ ਕਰੋ।</string>
+    <string name="max_plugins_reason_MissingName">ਮੈਨੀਫੈਸਟ ਕੋਈ ਨਾਮ ਨਹੀਂ ਦੱਸਦਾ।</string>
+    <string name="max_plugins_reason_BadVersion">ਸੰਸਕਰਣ ਅੰਕਾਂ ਨਾਲ ਸ਼ੁਰੂ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ, ਉਦਾਹਰਨ ਲਈ 1.0.0।</string>
+    <string name="max_plugins_reason_ApiTooOld">ਘੋਸ਼ਿਤ API ਪੱਧਰ ਗੁੰਮ ਹੈ ਜਾਂ 1 ਤੋਂ ਹੇਠਾਂ ਹੈ।</string>
+    <string name="max_plugins_reason_ApiTooNew">ਘੋਸ਼ਿਤ API ਪੱਧਰ ਇਸ ਬਿਲਡ ਨੂੰ ਸਮਝਣ ਨਾਲੋਂ ਨਵਾਂ ਹੈ, ਇਸਲਈ ਇਹ ਬਿਲਕੁਲ ਨਹੀਂ ਚਲਾਇਆ ਜਾਂਦਾ ਹੈ।</string>
+    <string name="max_plugins_reason_MissingKind">ਮੈਨੀਫੈਸਟ ਕਿਸੇ ਕਿਸਮ ਦਾ ਐਲਾਨ ਨਹੀਂ ਕਰਦਾ।</string>
+    <string name="max_plugins_reason_UnknownKind">ਕਿਸਮ ਪ੍ਰਕਾਸ਼ਿਤ ਕਿਸਮਾਂ ਵਿੱਚੋਂ ਇੱਕ ਨਹੀਂ ਹੈ।</string>
+    <string name="max_plugins_reason_UnknownCapability">ਸਮਰੱਥਾ ਇਸ ਇਕਰਾਰਨਾਮੇ ਦਾ ਹਿੱਸਾ ਨਹੀਂ ਹੈ। ਅਣਜਾਣ ਸਮਰੱਥਾ ਨੂੰ ਨਜ਼ਰਅੰਦਾਜ਼ ਕਰਨ ਦੀ ਬਜਾਏ ਇਨਕਾਰ ਕਰ ਦਿੱਤਾ ਜਾਂਦਾ ਹੈ, ਇਸਲਈ ਕੁਝ ਵੀ ਘੱਟ ਅਧਿਕਾਰਾਂ ਨਾਲ ਨਹੀਂ ਚੱਲਦਾ ਜਿੰਨਾ ਇਹ ਮੰਗਿਆ ਗਿਆ ਹੈ।</string>
+    <string name="max_plugins_reason_NoCapabilities">ਇੱਕ ਪਲੱਗਇਨ ਨੂੰ ਘੱਟੋ-ਘੱਟ ਇੱਕ ਸਮਰੱਥਾ ਦਾ ਐਲਾਨ ਕਰਨਾ ਚਾਹੀਦਾ ਹੈ।</string>
+    <string name="max_plugins_reason_DuplicateId">ਇਸ ਆਈ.ਡੀ. ਵਾਲਾ ਇੱਕ ਹੋਰ ਪਲੱਗਇਨ ਪਹਿਲਾਂ ਹੀ ਸਵੀਕਾਰ ਕੀਤਾ ਗਿਆ ਸੀ, ਇਸਲਈ ਇਸ ਦੀ ਵਰਤੋਂ ਨਹੀਂ ਕੀਤੀ ਜਾਂਦੀ ਹੈ।</string>
+    <string name="max_plugins_help_title">ਬਿਲਕੁਲ ਇਕਰਾਰਨਾਮਾ ਕਿਉਂ</string>
+    <string name="max_plugins_help_body">ਪ੍ਰਕਾਸ਼ਿਤ ਇਕਰਾਰਨਾਮੇ ਤੋਂ ਬਿਨਾਂ, ਇਸ ਐਪ ਨੂੰ ਵਧਾਉਣ ਵਾਲੇ ਕਿਸੇ ਵੀ ਵਿਅਕਤੀ ਨੂੰ ਸਾਡੀਆਂ ਅੰਦਰੂਨੀ ਫਾਈਲਾਂ ਦੀ ਸ਼ਕਲ ਦਾ ਅੰਦਾਜ਼ਾ ਲਗਾਉਣਾ ਪੈਂਦਾ ਹੈ, ਅਤੇ ਅਸੀਂ ਟੁੱਟੇ ਹੋਏ ਇੱਕ ਤੋਂ ਵੈਧ ਐਕਸਟੈਂਸ਼ਨ ਨਹੀਂ ਦੱਸ ਸਕਦੇ। ਇਸਦੇ ਨਾਲ, ਸੀਮਾ ਦੱਸੀ ਗਈ ਹੈ: ਇੱਕ ਪਲੱਗਇਨ ਇਰਾਦਾ ਘੋਸ਼ਿਤ ਕਰਦਾ ਹੈ ਅਤੇ ਪੜ੍ਹਦਾ ਹੈ; ਇਹ ਕਦੇ ਵੀ ਹਾਰਡਵੇਅਰ ਨਹੀਂ ਲਿਖਦਾ, ਅਤੇ ਉਪਰੋਕਤ ਹਰ ਇਨਕਾਰ ਸਹੀ ਖੇਤਰ ਦਾ ਨਾਮ ਦਿੰਦਾ ਹੈ ਜੋ ਅਸਫਲ ਹੋਇਆ।</string>
+</resources>

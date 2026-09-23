@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Udseende og interface</string>
+    <string name="max_cfg_backup_app_prefs">App-præferencer og sprog</string>
+    <string name="max_cfg_declared_absent_title">Vil ikke medtages, og hvorfor</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">denne enhed har ingen verificeret rod, så værdierne kan ikke læses pålideligt</string>
+    <string name="max_cfg_absent_file_missing">præferencefilen eksisterer ikke endnu</string>
+    <string name="max_cfg_absent_empty">præferencefilen eksisterer, men er tom, så der er ikke noget at skrive</string>
+    <string name="max_cfg_declared_excluded_title">Aldrig inkluderet i denne fil</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI sikkerhedsindstillinger er konfigureret inde i appen, aldrig med i en fil</string>
+    <string name="max_cfg_excluded_other_apps">data fra andre apps hører til app backup, ikke config backup</string>
+    <string name="max_cfg_excluded_secret">signeringsnøgler og hemmeligheder bliver aldrig skrevet til en fil, du måske deler</string>
+    <string name="max_cfg_section_tweaks">Tweak konfiguration</string>
+    <string name="max_cfg_section_applist">Liste pr. app</string>
+    <string name="max_cfg_section_appearance">Udseende og interface</string>
+    <string name="max_cfg_section_app_prefs">App-præferencer og sprog</string>
+    <string name="max_cfg_restore_merge_note">Gendannelse af præferencer smelter sammen: nøgler, der findes i filen, skrives, og nøgler, den ikke nævner, forbliver som de er. Intet er ryddet.</string>
+</resources>

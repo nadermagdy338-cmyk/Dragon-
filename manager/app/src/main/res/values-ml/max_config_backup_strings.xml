@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">രൂപവും ഇൻ്റർഫേസും</string>
+    <string name="max_cfg_backup_app_prefs">ആപ്പ് മുൻഗണനകളും ഭാഷയും</string>
+    <string name="max_cfg_declared_absent_title">ഉൾപ്പെടുത്തില്ല, എന്തുകൊണ്ട്</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ഈ ഉപകരണത്തിന് പരിശോധിച്ച റൂട്ട് ഇല്ല, അതിനാൽ മൂല്യങ്ങൾ വിശ്വസനീയമായി വായിക്കാൻ കഴിയില്ല</string>
+    <string name="max_cfg_absent_file_missing">മുൻഗണനാ ഫയൽ ഇതുവരെ നിലവിലില്ല</string>
+    <string name="max_cfg_absent_empty">മുൻഗണനാ ഫയൽ നിലവിലുണ്ട്, പക്ഷേ ശൂന്യമാണ്, അതിനാൽ എഴുതാൻ ഒന്നുമില്ല</string>
+    <string name="max_cfg_declared_excluded_title">ഈ ഫയലിൽ ഒരിക്കലും ഉൾപ്പെടുത്തിയിട്ടില്ല</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI സുരക്ഷാ ക്രമീകരണങ്ങൾ അപ്ലിക്കേഷനിൽ കോൺഫിഗർ ചെയ്‌തിരിക്കുന്നു, ഒരിക്കലും ഒരു ഫയലിൽ കൊണ്ടുപോകില്ല</string>
+    <string name="max_cfg_excluded_other_apps">മറ്റ് ആപ്പുകളുടെ ഡാറ്റ ആപ്പ് ബാക്കപ്പിൻ്റെതാണ്, കോൺഫിഗർ ബാക്കപ്പല്ല</string>
+    <string name="max_cfg_excluded_secret">നിങ്ങൾ പങ്കിടാനിടയുള്ള ഒരു ഫയലിൽ ഒപ്പിടുന്നതിനുള്ള കീകളും രഹസ്യങ്ങളും ഒരിക്കലും എഴുതിയിട്ടില്ല</string>
+    <string name="max_cfg_section_tweaks">കോൺഫിഗറേഷൻ മാറ്റുക</string>
+    <string name="max_cfg_section_applist">ഓരോ ആപ്ലിക്കേഷൻ്റെയും ലിസ്റ്റ്</string>
+    <string name="max_cfg_section_appearance">രൂപവും ഇൻ്റർഫേസും</string>
+    <string name="max_cfg_section_app_prefs">ആപ്പ് മുൻഗണനകളും ഭാഷയും</string>
+    <string name="max_cfg_restore_merge_note">മുൻഗണനകൾ പുനഃസ്ഥാപിക്കൽ ലയിപ്പിക്കുന്നു: ഫയലിൽ നിലവിലുള്ള കീകൾ എഴുതിയിരിക്കുന്നു, കൂടാതെ കീകൾ അതേപടി നിലനിൽക്കുമെന്ന് പരാമർശിക്കുന്നില്ല. ഒന്നും മായ്ച്ചിട്ടില്ല.</string>
+</resources>

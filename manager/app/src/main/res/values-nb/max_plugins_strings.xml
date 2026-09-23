@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Tredjeparts plugins</string>
+    <string name="max_plugins_subtitle">Den publiserte kontrakten: hva en plugin kan deklarere, og hva som ble akseptert eller avslått her.</string>
+    <string name="max_plugins_section_contract">Kontrakten</string>
+    <string name="max_plugins_contract_api">API-nivå %1$d</string>
+    <string name="max_plugins_contract_dir">Manifestmappe</string>
+    <string name="max_plugins_contract_rules">En erklært evne er enten en lesning eller et forslag. Det er bevisst ingen funksjon som skriver maskinvare: hver skriving i denne appen går gjennom arbiteren, og en plugin som kan skrive direkte vil fjerne beskyttelsen som er bygget for å stoppe to eiere som skriver den samme knappen.</string>
+    <string name="max_plugins_contract_keys">Nøkler lest fra et manifest</string>
+    <string name="max_plugins_contract_kinds">Aksepterte typer</string>
+    <string name="max_plugins_contract_capabilities">Aksepterte evner</string>
+    <string name="max_plugins_template">Manifestmal</string>
+    <string name="max_plugins_template_note">Denne teksten er det parseren leser. Den kan ikke drive fra koden, fordi den er generert fra den.</string>
+    <string name="max_plugins_copy_template">Kopier malen</string>
+    <string name="max_plugins_template_copied">Malen er kopiert</string>
+    <string name="max_plugins_section_installed">Funnet på denne enheten</string>
+    <string name="max_plugins_loading_title">Leser plugin-mappen</string>
+    <string name="max_plugins_loading_detail">Viser manifestmappen med root, og evaluerer deretter hvert manifest i forhold til kontrakten.</string>
+    <string name="max_plugins_accepted_count">%1$d akseptert</string>
+    <string name="max_plugins_rejected_count">%1$d nektet</string>
+    <string name="max_plugins_unreadable_count">%1$d mappe uten et lesbart manifest</string>
+    <string name="max_plugins_rejected_section">Nektet, med den eksakte grunnen</string>
+    <string name="max_plugins_detail_label">Erklært</string>
+    <string name="max_plugins_refresh_cd">Les plugin-mappen på nytt</string>
+    <string name="max_plugins_capability_source">Rapportert av plugin, ikke målt av oss</string>
+    <string name="max_plugins_cond_empty_title">Ingen plugins installert</string>
+    <string name="max_plugins_cond_empty_detail">Manifestmappen inneholder ingen plugin-mapper. Ingenting er galt: dette er standardtilstanden til funksjonen.</string>
+    <string name="max_plugins_cond_missing_title">Manifestmappen eksisterer ikke ennå</string>
+    <string name="max_plugins_cond_missing_detail">%1$s er ikke opprettet på denne enheten, så det er ingenting å lese. Å lage det er alt en plugin-forfatter trenger å gjøre.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifestmappen kan ikke leses</string>
+    <string name="max_plugins_cond_unreadable_detail">Mappen eksisterer på %1$s, men skallet kunne ikke lese den. Root er nødvendig for å liste den.</string>
+    <string name="max_plugins_reason_BadId">ID-en kan ikke brukes som mappenavn. Bruk små latinske bokstaver, sifre, prikker, bindestreker eller understreker, og aldri to prikker på rad.</string>
+    <string name="max_plugins_reason_MissingName">Manifestet oppgir ikke noe navn.</string>
+    <string name="max_plugins_reason_BadVersion">Versjonen må starte med sifre, for eksempel 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Det deklarerte API-nivået mangler eller er under 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Det deklarerte API-nivået er nyere enn dette bygget forstår, så det kjøres ikke i det hele tatt.</string>
+    <string name="max_plugins_reason_MissingKind">Manifestet erklærer ingen type.</string>
+    <string name="max_plugins_reason_UnknownKind">Den typen er ikke en av de publiserte typene.</string>
+    <string name="max_plugins_reason_UnknownCapability">Evnen er ikke en del av denne kontrakten. En ukjent funksjon avvises i stedet for å ignoreres, så ingenting kjører med færre rettigheter enn det ba om.</string>
+    <string name="max_plugins_reason_NoCapabilities">En plugin må deklarere minst én funksjon.</string>
+    <string name="max_plugins_reason_DuplicateId">En annen plugin med denne IDen var allerede akseptert, så denne brukes ikke.</string>
+    <string name="max_plugins_help_title">Hvorfor en kontrakt i det hele tatt</string>
+    <string name="max_plugins_help_body">Uten en publisert kontrakt må alle som utvider denne appen gjette formen på de interne filene våre, og vi kan ikke skille en gyldig utvidelse fra en ødelagt. Med den er grensen oppgitt: en plugin erklærer intensjon og leser; den skriver aldri maskinvare, og hvert avslag ovenfor navngir det eksakte feltet som mislyktes.</string>
+</resources>

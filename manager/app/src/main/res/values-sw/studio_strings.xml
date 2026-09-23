@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">STUDIO YA UTENDAJI</string>
+    <string name="studio_cpu_frequency">CPU marudio</string>
+    <string name="studio_load_history">Shughuli CPU za hivi majuzi</string>
+    <string name="studio_waiting_samples">Inakusanya usomaji wa moja kwa moja...</string>
+    <string name="studio_automatic_profile">Hali otomatiki hudhibiti wasifu unaotumika.</string>
+    <string name="studio_temperature">Halijoto</string>
+    <string name="studio_display">Onyesho</string>
+    <string name="studio_power">Chaguzi za nguvu</string>
+    <string name="studio_settings">Mipangilio</string>
+</resources>

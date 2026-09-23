@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Trečiųjų šalių įskiepiai</string>
+    <string name="max_plugins_subtitle">Paskelbta sutartis: ką gali deklaruoti įskiepis ir kas čia buvo priimta ar atsisakyta.</string>
+    <string name="max_plugins_section_contract">Sutartis</string>
+    <string name="max_plugins_contract_api">API lygis %1$d</string>
+    <string name="max_plugins_contract_dir">Manifesto aplankas</string>
+    <string name="max_plugins_contract_rules">Nurodyta galimybė yra skaitymas arba pasiūlymas. Sąmoningai nėra galimybės rašyti aparatūros: kiekvienas įrašymas šioje programoje vyksta per arbitrą, o įskiepis, galintis rašyti tiesiogiai, pašalintų apsaugą, sukurtą neleisti dviem savininkams rašyti tą pačią rankenėlę.</string>
+    <string name="max_plugins_contract_keys">Raktai nuskaityti iš manifesto</string>
+    <string name="max_plugins_contract_kinds">Priimamos rūšys</string>
+    <string name="max_plugins_contract_capabilities">Priimtos galimybės</string>
+    <string name="max_plugins_template">Manifesto šablonas</string>
+    <string name="max_plugins_template_note">Šį tekstą skaito analizatorius. Jis negali nukrypti nuo kodo, nes yra sugeneruotas iš jo.</string>
+    <string name="max_plugins_copy_template">Nukopijuokite šabloną</string>
+    <string name="max_plugins_template_copied">Šablonas nukopijuotas</string>
+    <string name="max_plugins_section_installed">Rasta šiame įrenginyje</string>
+    <string name="max_plugins_loading_title">Papildinio aplanko skaitymas</string>
+    <string name="max_plugins_loading_detail">Aprašo aplanko įtraukimas į sąrašą su root, tada kiekvieno manifesto įvertinimas pagal sutartį.</string>
+    <string name="max_plugins_accepted_count">%1$d priimta</string>
+    <string name="max_plugins_rejected_count">%1$d atsisakė</string>
+    <string name="max_plugins_unreadable_count">%1$d aplankas be skaitomo manifesto</string>
+    <string name="max_plugins_rejected_section">Atsisakė, nurodant tikslią priežastį</string>
+    <string name="max_plugins_detail_label">Paskelbta</string>
+    <string name="max_plugins_refresh_cd">Dar kartą perskaitykite papildinio aplanką</string>
+    <string name="max_plugins_capability_source">Pranešė įskiepio, o ne mes matavome</string>
+    <string name="max_plugins_cond_empty_title">Įskiepių nėra įdiegta</string>
+    <string name="max_plugins_cond_empty_detail">Aprašo aplanke nėra papildinių aplankų. Nieko blogo: tai numatytoji funkcijos būsena.</string>
+    <string name="max_plugins_cond_missing_title">Manifesto aplankas dar neegzistuoja</string>
+    <string name="max_plugins_cond_missing_detail">%1$s šiame įrenginyje nebuvo sukurtas, todėl nėra ką skaityti. Jį sukurti tereikia papildinio autoriui.</string>
+    <string name="max_plugins_cond_unreadable_title">Neįmanoma nuskaityti manifesto aplanko</string>
+    <string name="max_plugins_cond_unreadable_detail">Aplankas yra %1$s, bet apvalkalas negalėjo jo perskaityti. Norint jį išvardinti, reikalinga šaknis.</string>
+    <string name="max_plugins_reason_BadId">ID negalima naudoti kaip aplanko pavadinimo. Naudokite mažąsias lotyniškas raides, skaitmenis, taškus, brūkšnelius ar apatinius brūkšnius ir niekada nenaudokite dviejų taškų iš eilės.</string>
+    <string name="max_plugins_reason_MissingName">Manifeste nėra vardo.</string>
+    <string name="max_plugins_reason_BadVersion">Versija turi prasidėti skaitmenimis, pavyzdžiui, 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Trūksta deklaruoto API lygio arba jis yra mažesnis nei 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Deklaruotas API lygis yra naujesnis, nei supranta ši versija, todėl jis visai nepaleidžiamas.</string>
+    <string name="max_plugins_reason_MissingKind">Manifeste skelbiama, kad nėra jokios rūšies.</string>
+    <string name="max_plugins_reason_UnknownKind">Rūšis nėra viena iš paskelbtų rūšių.</string>
+    <string name="max_plugins_reason_UnknownCapability">Galimybė nėra šios sutarties dalis. Nežinomos galimybės yra atmetamos, o ne ignoruojamos, todėl niekas neveikia su mažiau teisių, nei buvo prašoma.</string>
+    <string name="max_plugins_reason_NoCapabilities">Papildinys turi deklaruoti bent vieną galimybę.</string>
+    <string name="max_plugins_reason_DuplicateId">Kitas papildinys su šiuo ID jau buvo priimtas, todėl šis nenaudojamas.</string>
+    <string name="max_plugins_help_title">Kam išvis sutartis</string>
+    <string name="max_plugins_help_body">Be paskelbtos sutarties kiekvienas, praplečiantis šią programą, turi atspėti mūsų vidinių failų formą, ir negalime atskirti galiojančio plėtinio nuo sugedusio. Su juo nurodoma riba: įskiepis deklaruoja ketinimą ir nuskaito; ji niekada nerašo aparatinės įrangos ir kiekvienas aukščiau esantis atsisakymas įvardija tikslų lauką, kuris nepavyko.</string>
+</resources>

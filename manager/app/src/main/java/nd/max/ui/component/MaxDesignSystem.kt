@@ -95,11 +95,11 @@ object MaxUiMetrics {
     val screenItemGap = 12.dp
 }
 
-private val studioCardShape = RoundedCornerShape(26.dp)
-private val studioActionShape = RoundedCornerShape(16.dp)
+private val studioCardShape = RoundedCornerShape(28.dp)
+private val studioActionShape = RoundedCornerShape(18.dp)
 
 private fun studioSurfaceColor(scheme: ColorScheme, accent: Color?): Color =
-    accent?.copy(alpha = 0.055f)?.compositeOver(scheme.surfaceContainerLow)
+    accent?.copy(alpha = 0.045f)?.compositeOver(scheme.surfaceContainerLow)
         ?: scheme.surfaceContainerLow
 
 @Composable
@@ -117,7 +117,7 @@ fun MaxSurface(
         .clip(studioCardShape)
         .background(studioSurfaceColor(scheme, accent))
         .border(
-            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) 0.18f else MaxUiAlpha.surfaceBorder)),
+            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) 0.22f else MaxUiAlpha.surfaceBorder)),
             studioCardShape
         )
     if (onClick != null) {
@@ -150,7 +150,7 @@ fun MaxSurfaceBox(
         .background(containerColor ?: studioSurfaceColor(scheme, accent))
     if (borderEnabled) {
         m = m.border(
-            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) 0.18f else MaxUiAlpha.surfaceBorder)),
+            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) 0.22f else MaxUiAlpha.surfaceBorder)),
             shape
         )
     }

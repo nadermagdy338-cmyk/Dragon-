@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">រស់នៅ</string>
+    <string name="max_trust_stale">គំរូចុងក្រោយ</string>
+    <string name="max_trust_snapshot">រូបថត</string>
+    <string name="max_trust_unreadable">គ្មានការអានទេ។</string>
+    <string name="max_trust_unsupported">មិនគាំទ្រ</string>
+    <string name="max_source_label">ប្រភព</string>
+    <string name="max_updated_label">បានធ្វើបច្ចុប្បន្នភាព</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">មិនមានតម្លៃទេ។</string>
+    <string name="max_expand_section">បង្ហាញព័ត៌មានលម្អិត</string>
+    <string name="max_collapse_section">លាក់ព័ត៌មានលម្អិត</string>
+</resources>

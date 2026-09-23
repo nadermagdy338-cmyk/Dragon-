@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">ស្ទូឌីយោ ការសម្តែង</string>
+    <string name="studio_cpu_frequency">CPU ប្រេកង់</string>
+    <string name="studio_load_history">សកម្មភាព CPU ថ្មីៗ</string>
+    <string name="studio_waiting_samples">កំពុងប្រមូលការអានបន្តផ្ទាល់...</string>
+    <string name="studio_automatic_profile">របៀបស្វ័យប្រវត្តិគ្រប់គ្រងទម្រង់សកម្ម។</string>
+    <string name="studio_temperature">សីតុណ្ហភាព</string>
+    <string name="studio_display">បង្ហាញ</string>
+    <string name="studio_power">ជម្រើសថាមពល</string>
+    <string name="studio_settings">ការកំណត់</string>
+</resources>

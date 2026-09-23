@@ -47,8 +47,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import nd.max.core.atlas.AtlasControlTarget
-import nd.max.core.atlas.AtlasEffectLines
-import nd.max.core.atlas.AtlasEffectMetric
 import nd.max.core.diagnostics.DeviceFacts
 import nd.max.core.diagnostics.LogHeader
 import nd.max.core.diagnostics.LogSettingsDigest
@@ -1875,20 +1873,6 @@ object AppMonitor {
                     " pinned=${pinnedHz ?: "none"} ceiling=$ceilingJudgement" +
                     " judgement=$judgement owned=$owned sw=$currentSwitchId"
             )
-            // ── الأثر: ماذا تحرّك فعلًا، وإلى أين طُلب، وهل اتّجه الاتجاه؟ ────────────────────
-            //
-            // وهذا الحقل هو جواب السؤال الذي كان غائبًا في حزمة ٢٠٢٦-٠٩-٢٢: `applied=true
-            // verified=true live=520000000` كانت «نجاحًا» بلا حركة. و[AtlasEffectLines] تحسب
-            // الفرق بين ما قُرئ قبل التنفيذ (`clockAtPlan`) وما قُرئ بعده (`measuredHz`)، وتَشتقّ
-            // اتجاه الهدف من الطلب نفسه (`target`) لا من اسم البروفايل.
-            val effectPayload = AtlasEffectLines.requestEffect(
-                metric = AtlasEffectMetric.GPU_FREQUENCY_INSTANT,
-                before = clockAtPlan,
-                after = measuredHz,
-                requested = target,
-                source = device.path,
-                atMs = android.os.SystemClock.elapsedRealtime(),
-            )
             // والفشل المَقيس يُقال في بطاقة الحالة بنفسه (لا يُطمس بسطر «applied» المجاور):
             // «أداء» لا يعني أن المنصّة لم تعد تقصّ — ولا تثبيتٌ يُصدَّق بالفهرس وحده.
             val measuredFailure = when {
@@ -1903,7 +1887,6 @@ object AppMonitor {
                     measuredFailure,
                     desired,
                     measuredHz?.toString().orEmpty(),
-                    effect = effectPayload,
                 )
                 !owned -> noteOwnedOutcome(
                     knob = "gpu_profile",
@@ -1911,7 +1894,6 @@ object AppMonitor {
                     refusal = hardwareControlRegistry.refusalReasons()[gpuKey],
                     expected = desired,
                     live = liveAfter?.let(GpuHardwareBackend::effectiveFrequency)?.toString().orEmpty(),
-                    effect = effectPayload,
                 )
                 releaseJudgement != null -> noteHardware(
                     "gpu_profile",
@@ -1922,7 +1904,6 @@ object AppMonitor {
                     releaseJudgement.reason,
                     desired,
                     measuredHz?.toString().orEmpty(),
-                    effect = effectPayload,
                 )
                 else -> noteOwnedOutcome(
                     knob = "gpu_profile",
@@ -1930,7 +1911,6 @@ object AppMonitor {
                     refusal = hardwareControlRegistry.refusalReasons()[gpuKey],
                     expected = desired,
                     live = liveAfter?.let(GpuHardwareBackend::effectiveFrequency)?.toString().orEmpty(),
-                    effect = effectPayload,
                 )
             }
         }.onFailure { AppMonitorLogger.e("ownership: GPU frequency registration failed for '$pkgName' sw=$currentSwitchId", it) }
@@ -2265,19 +2245,15 @@ object AppMonitor {
         reason: String,
         expected: String = "",
         live: String = "",
-        effect: String = "",
     ) {
-        PerAppHardwareStatus.note(knob, outcome, reason, expected, live, effect)
+        PerAppHardwareStatus.note(knob, outcome, reason, expected, live)
         // والحزمة تُقرأ من مصدرها الواحد (جلسة قناة الحالة) لا من `lastAppliedPkg`: الأخير يُحدَّث
         // **بعد** التطبيق، فكانت أسطر المقابض تُنسَب إلى التطبيق السابق (٧٤٩ حالة في حزمة ٢٠٢٦-٠٩-٢٢،
         // وموثّقة في `REPAIR_NOTES`). والأثر تشخيصي: اسم صاحب السطر يكذب فيُصنَّف العطل على تطبيق آخر.
         val statusPkg = PerAppHardwareStatus.sessionPackage().ifBlank { lastAppliedPkg }
-        // والأثر يُلحق **حين يُقاس فقط**: حقل `effect=unmeasured` على كل سطر قديم يزيد الضجيج ولا
-        // يحمل معلومة (قناة الحالة تكتبه لأن حقلها ثابت، أما السجل فيقبل الغياب).
-        val effectField = if (effect.isBlank()) "" else " ${AtlasEffectLines.PREFIX}$effect"
         val line = "EVENT=PERAPP_KNOB knob=$knob outcome=${outcome.token} reason=$reason" +
             " expected=${expected.ifBlank { "none" }} live=${live.ifBlank { "none" }}" +
-            " pkg=$statusPkg sw=$currentSwitchId$effectField"
+            " pkg=$statusPkg sw=$currentSwitchId"
         // المستوى من النتيجة لا من العادة: فشلٌ يُكتب I(معلوماتي) يختفي من مُرشِّح «المشاكل» في
         // شاشة السجل، وهو المكان الوحيد الذي يبحث فيه مَن يُصلح عطلًا. والسطر نفسه في الحالتين،
         // فالمستوى إضافة لا تغيير صيغة.
@@ -2296,15 +2272,14 @@ object AppMonitor {
         refusal: String?,
         expected: String,
         live: String,
-        effect: String = "",
     ) {
         when {
-            owned -> noteHardware(knob, PerAppHardwareStatus.Outcome.APPLIED, "verified", expected, live, effect)
-            refusal == null -> noteHardware(knob, PerAppHardwareStatus.Outcome.NOT_VERIFIED, "not-verified", expected, live, effect)
+            owned -> noteHardware(knob, PerAppHardwareStatus.Outcome.APPLIED, "verified", expected, live)
+            refusal == null -> noteHardware(knob, PerAppHardwareStatus.Outcome.NOT_VERIFIED, "not-verified", expected, live)
             refusal.startsWith("preempted") || refusal == "manual-lock" ||
                 refusal == "handoff-awaiting-owner-process" ->
-                noteHardware(knob, PerAppHardwareStatus.Outcome.BLOCKED, refusal, expected, live, effect)
-            else -> noteHardware(knob, PerAppHardwareStatus.Outcome.NOT_VERIFIED, refusal, expected, live, effect)
+                noteHardware(knob, PerAppHardwareStatus.Outcome.BLOCKED, refusal, expected, live)
+            else -> noteHardware(knob, PerAppHardwareStatus.Outcome.NOT_VERIFIED, refusal, expected, live)
         }
         PerAppHardwareStatus.flush()
     }

@@ -26,10 +26,11 @@ import nd.max.R
  * Three-role type system, each face picked for what this app actually is: a
  * root-level hardware console, not a generic content app.
  *
- * - Display/Body (Noto Sans Arabic): one Unicode-friendly family for prose and
- *   headings. It keeps Arabic shaping correct while remaining clean for Latin
- *   UI text, so the visual hierarchy does not depend on a font fallback that
- *   can vary between Android builds.
+ * - Display (Space Grotesk): a geometric technical face with just enough
+ *   personality in its letterforms to read as "engineered," used for titles,
+ *   presets, and anything that should feel like a control-panel label.
+ * - Body (Manrope): a warmer, highly legible geometric sans for the actual
+ *   reading text — descriptions, safety notes, settings copy.
  * - Mono (JetBrains Mono): reserved for *live values* — MHz, percentages,
  *   core counts, temperatures. Real instrument panels separate the readout
  *   from the label typographically; this app does the same. See
@@ -53,8 +54,8 @@ private fun googleFontFamily(name: String) = FontFamily(
     Font(googleFont = GoogleFont(name), fontProvider = googleFontProvider, weight = FontWeight.Bold)
 )
 
-val DisplayFontFamily = googleFontFamily("Noto Sans Arabic")
-val BodyFontFamily = googleFontFamily("Noto Sans Arabic")
+val DisplayFontFamily = googleFontFamily("Space Grotesk")
+val BodyFontFamily = googleFontFamily("Manrope")
 val MonoFontFamily = FontFamily(
     Font(googleFont = GoogleFont("JetBrains Mono"), fontProvider = googleFontProvider, weight = FontWeight.Medium),
     Font(googleFont = GoogleFont("JetBrains Mono"), fontProvider = googleFontProvider, weight = FontWeight.SemiBold),

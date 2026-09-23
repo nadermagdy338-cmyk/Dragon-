@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Senzorji, ki jih poroča ta naprava</string>
+    <string name="max_sensor_desc">Kaj platforma izjavi o lastni strojni opremi, plus eno omejeno svetlobno branje. Brez kalibracije in brez zdravstvene ocene: oboje bi potrebovalo fizično referenco, ki je nimamo.</string>
+    <string name="max_sensor_service">Servis senzorjev</string>
+    <string name="max_sensor_service_unavailable">ni bilo mogoče doseči</string>
+    <string name="max_sensor_count">Senzorji so poročali</string>
+    <string name="max_sensor_kinds">Prisotne kategorije</string>
+    <string name="max_sensor_wakeup">Senzorji za bujenje (poročajo, ko naprava spi)</string>
+    <string name="max_sensor_light">Ambientalna svetloba</string>
+    <string name="max_sensor_unit_lux">luks</string>
+    <string name="max_sensor_light_absent">ta naprava poroča, da ni svetlobnega senzorja</string>
+    <string name="max_sensor_light_unreadable">noben odčitek ni prispel pred časovno omejitvijo — neznano, ne nič</string>
+    <string name="max_sensor_more">…in %1$s več</string>
+    <string name="max_sensor_no_score">Imena, razponi in zamude prihajajo iz platforme. Senzor, ki poroča, ni dokaz, da je točen.</string>
+    <string name="max_sensor_kind_motion">Gibanje</string>
+    <string name="max_sensor_kind_environment">okolje</string>
+    <string name="max_sensor_kind_position">Položaj</string>
+    <string name="max_sensor_kind_body">Telo</string>
+    <string name="max_sensor_kind_unpositioned">Nepostavljen</string>
+    <string name="max_sensor_kind_other">drugo</string>
+</resources>

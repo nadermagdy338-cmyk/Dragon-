@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Изглед и интерфејс</string>
+    <string name="max_cfg_backup_app_prefs">Поставки и јазик за апликација</string>
+    <string name="max_cfg_declared_absent_title">Нема да бидат вклучени, и зошто</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">овој уред нема потврден корен, така што вредностите не можат да се читаат веродостојно</string>
+    <string name="max_cfg_absent_file_missing">претпочитаната датотека сè уште не постои</string>
+    <string name="max_cfg_absent_empty">претпочитаната датотека постои, но е празна, така што нема што да се пишува</string>
+    <string name="max_cfg_declared_excluded_title">Никогаш не е вклучено во оваа датотека</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI безбедносните поставки се конфигурирани во апликацијата, никогаш не се носат во датотека</string>
+    <string name="max_cfg_excluded_other_apps">податоците од другите апликации припаѓаат на резервната копија на апликациите, а не на резервната копија за конфигурации</string>
+    <string name="max_cfg_excluded_secret">клучевите и тајните за потпишување никогаш не се запишуваат во датотека што може да ја споделите</string>
+    <string name="max_cfg_section_tweaks">Прилагодете ја конфигурацијата</string>
+    <string name="max_cfg_section_applist">Список по апликација</string>
+    <string name="max_cfg_section_appearance">Изглед и интерфејс</string>
+    <string name="max_cfg_section_app_prefs">Поставки и јазик за апликација</string>
+    <string name="max_cfg_restore_merge_note">Враќањето на поставките се спојува: клучевите присутни во датотеката се напишани, а клучевите што не ги споменува остануваат како што се. Ништо не е исчистено.</string>
+</resources>

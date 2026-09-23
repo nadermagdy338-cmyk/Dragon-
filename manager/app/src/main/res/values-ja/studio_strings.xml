@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">パフォーマンススタジオ</string>
+    <string name="studio_cpu_frequency">CPU 周波数</string>
+    <string name="studio_load_history">最近のCPUのアクティビティ</string>
+    <string name="studio_waiting_samples">ライブ測定値を収集中…</string>
+    <string name="studio_automatic_profile">自動モードはアクティブなプロファイルを管理します。</string>
+    <string name="studio_temperature">温度</string>
+    <string name="studio_display">画面</string>
+    <string name="studio_power">電源オプション</string>
+    <string name="studio_settings">設定</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Plug-ins de terceiros</string>
+    <string name="max_plugins_subtitle">O contrato publicado: o que um plugin pode declarar e o que foi aceito ou recusado aqui.</string>
+    <string name="max_plugins_section_contract">O contrato</string>
+    <string name="max_plugins_contract_api">Nível de API %1$d</string>
+    <string name="max_plugins_contract_dir">Pasta de manifesto</string>
+    <string name="max_plugins_contract_rules">Uma capacidade declarada é uma leitura ou uma proposta. Deliberadamente, não há capacidade de gravar hardware: cada gravação neste aplicativo passa pelo árbitro, e um plug-in que pudesse gravar diretamente removeria a proteção criada para impedir que dois proprietários escrevessem o mesmo botão.</string>
+    <string name="max_plugins_contract_keys">Chaves lidas de um manifesto</string>
+    <string name="max_plugins_contract_kinds">Tipos aceitos</string>
+    <string name="max_plugins_contract_capabilities">Capacidades aceitas</string>
+    <string name="max_plugins_template">Modelo de manifesto</string>
+    <string name="max_plugins_template_note">Este texto é o que o analisador lê. Ele não pode derivar do código, porque é gerado a partir dele.</string>
+    <string name="max_plugins_copy_template">Copie o modelo</string>
+    <string name="max_plugins_template_copied">Modelo copiado</string>
+    <string name="max_plugins_section_installed">Encontrado neste dispositivo</string>
+    <string name="max_plugins_loading_title">Lendo a pasta do plugin</string>
+    <string name="max_plugins_loading_detail">Listando a pasta de manifesto com root e avaliando cada manifesto em relação ao contrato.</string>
+    <string name="max_plugins_accepted_count">%1$d aceito</string>
+    <string name="max_plugins_rejected_count">%1$d recusou</string>
+    <string name="max_plugins_unreadable_count">Pasta %1$d sem um manifesto legível</string>
+    <string name="max_plugins_rejected_section">Recusou, com o motivo exato</string>
+    <string name="max_plugins_detail_label">Declarado</string>
+    <string name="max_plugins_refresh_cd">Releia a pasta do plugin</string>
+    <string name="max_plugins_capability_source">Relatado pelo plugin, não medido por nós</string>
+    <string name="max_plugins_cond_empty_title">Nenhum plug-in instalado</string>
+    <string name="max_plugins_cond_empty_detail">A pasta de manifesto não contém pastas de plugins. Não há nada de errado: este é o estado padrão do recurso.</string>
+    <string name="max_plugins_cond_missing_title">A pasta de manifesto ainda não existe</string>
+    <string name="max_plugins_cond_missing_detail">%1$s não foi criado neste dispositivo, portanto não há nada para ler. Criá-lo é tudo o que um autor de plugin precisa fazer.</string>
+    <string name="max_plugins_cond_unreadable_title">A pasta de manifesto não pode ser lida</string>
+    <string name="max_plugins_cond_unreadable_detail">A pasta existe em %1$s mas o shell não conseguiu lê-la. Root é necessário para listá-lo.</string>
+    <string name="max_plugins_reason_BadId">O id não pode ser usado como nome de pasta. Use letras latinas minúsculas, dígitos, pontos, travessões ou sublinhados e nunca dois pontos seguidos.</string>
+    <string name="max_plugins_reason_MissingName">O manifesto não declara nenhum nome.</string>
+    <string name="max_plugins_reason_BadVersion">A versão deve começar com dígitos, por exemplo 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">O nível de API declarado está ausente ou é inferior a 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">O nível de API declarado é mais recente do que esta compilação entende, portanto, não é executado.</string>
+    <string name="max_plugins_reason_MissingKind">O manifesto declara nenhum tipo.</string>
+    <string name="max_plugins_reason_UnknownKind">O tipo não é um dos tipos publicados.</string>
+    <string name="max_plugins_reason_UnknownCapability">A capacidade não faz parte deste contrato. Uma capacidade desconhecida é recusada em vez de ignorada, de modo que nada funciona com menos direitos do que os solicitados.</string>
+    <string name="max_plugins_reason_NoCapabilities">Um plugin deve declarar pelo menos um recurso.</string>
+    <string name="max_plugins_reason_DuplicateId">Outro plugin com este id já foi aceito, portanto este não é utilizado.</string>
+    <string name="max_plugins_help_title">Por que um contrato?</string>
+    <string name="max_plugins_help_body">Sem um contrato publicado, qualquer pessoa que estenda este aplicativo terá que adivinhar o formato de nossos arquivos internos, e não podemos distinguir uma extensão válida de uma quebrada. Com ele, o limite é declarado: um plugin declara a intenção e lê; ele nunca grava hardware e cada recusa acima nomeia o campo exato que falhou.</string>
+</resources>

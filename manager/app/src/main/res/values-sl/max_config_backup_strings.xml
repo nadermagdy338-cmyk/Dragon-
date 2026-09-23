@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Videz in vmesnik</string>
+    <string name="max_cfg_backup_app_prefs">Nastavitve aplikacije in jezik</string>
+    <string name="max_cfg_declared_absent_title">Ne bo vključeno in zakaj</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ta naprava nima preverjenega korena, zato vrednosti ni mogoče zanesljivo prebrati</string>
+    <string name="max_cfg_absent_file_missing">prednostna datoteka še ne obstaja</string>
+    <string name="max_cfg_absent_empty">datoteka z nastavitvami obstaja, vendar je prazna, zato ni ničesar za napisati</string>
+    <string name="max_cfg_declared_excluded_title">Nikoli vključeno v to datoteko</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Varnostne nastavitve so konfigurirane znotraj aplikacije in nikoli v datoteki</string>
+    <string name="max_cfg_excluded_other_apps">podatki drugih aplikacij spadajo v varnostno kopijo aplikacije, ne v varnostno kopijo konfiguracije</string>
+    <string name="max_cfg_excluded_secret">ključi za podpisovanje in skrivnosti se nikoli ne zapišejo v datoteko, ki bi jo lahko dali v skupno rabo</string>
+    <string name="max_cfg_section_tweaks">Tweak konfiguracija</string>
+    <string name="max_cfg_section_applist">Seznam posameznih aplikacij</string>
+    <string name="max_cfg_section_appearance">Videz in vmesnik</string>
+    <string name="max_cfg_section_app_prefs">Nastavitve aplikacije in jezik</string>
+    <string name="max_cfg_restore_merge_note">Obnovitev nastavitev se združi: ključi, ki so v datoteki, se zapišejo, ključi, ki jih ne omenja, pa ostanejo takšni, kot so. Nič ni počiščeno.</string>
+</resources>

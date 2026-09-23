@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Wygląd i interfejs</string>
+    <string name="max_cfg_backup_app_prefs">Preferencje aplikacji i język</string>
+    <string name="max_cfg_declared_absent_title">Nie zostaną uwzględnione i dlaczego</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">to urządzenie nie ma zweryfikowanego katalogu głównego, więc wartości nie można wiarygodnie odczytać</string>
+    <string name="max_cfg_absent_file_missing">plik preferencji jeszcze nie istnieje</string>
+    <string name="max_cfg_absent_empty">plik preferencji istnieje, ale jest pusty, więc nie ma nic do zapisania</string>
+    <string name="max_cfg_declared_excluded_title">Nigdy nie zawarte w tym pliku</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Ustawienia bezpieczeństwa są konfigurowane w aplikacji i nigdy nie są przechowywane w pliku</string>
+    <string name="max_cfg_excluded_other_apps">dane innych aplikacji należą do kopii zapasowej aplikacji, a nie do kopii zapasowej konfiguracji</string>
+    <string name="max_cfg_excluded_secret">Klucze i sekrety podpisu nigdy nie są zapisywane w pliku, który możesz udostępnić</string>
+    <string name="max_cfg_section_tweaks">Dostosuj konfigurację</string>
+    <string name="max_cfg_section_applist">Lista aplikacji</string>
+    <string name="max_cfg_section_appearance">Wygląd i interfejs</string>
+    <string name="max_cfg_section_app_prefs">Preferencje aplikacji i język</string>
+    <string name="max_cfg_restore_merge_note">Przywracanie preferencji łączy się: klucze znajdujące się w pliku są zapisywane, a klucze, o których nie wspomina, pozostają bez zmian. Nic nie jest wyczyszczone.</string>
+</resources>

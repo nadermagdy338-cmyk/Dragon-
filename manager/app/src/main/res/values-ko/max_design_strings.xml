@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">살다</string>
+    <string name="max_trust_stale">마지막 샘플</string>
+    <string name="max_trust_snapshot">스냅 사진</string>
+    <string name="max_trust_unreadable">읽지 않음</string>
+    <string name="max_trust_unsupported">지원되지 않음</string>
+    <string name="max_source_label">원천</string>
+    <string name="max_updated_label">업데이트됨</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">사용할 수 있는 값이 없습니다.</string>
+    <string name="max_expand_section">세부정보 표시</string>
+    <string name="max_collapse_section">세부정보 숨기기</string>
+</resources>

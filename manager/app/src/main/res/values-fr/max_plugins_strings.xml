@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Extensions tierces</string>
+    <string name="max_plugins_subtitle">Le contrat publié : ce qu\'une extension peut déclarer, et ce qui a été accepté ou refusé ici.</string>
+    <string name="max_plugins_section_contract">Le contrat</string>
+    <string name="max_plugins_contract_api">Niveau d\'API %1$d</string>
+    <string name="max_plugins_contract_dir">Dossier des manifestes</string>
+    <string name="max_plugins_contract_rules">Une capacité déclarée est une lecture ou une proposition. Aucune capacité n\'écrit volontairement le matériel : chaque écriture dans cette app passe par l\'arbitre, et une extension qui pourrait écrire directement supprimerait la garde conçue pour empêcher deux propriétaires d\'écrire le même réglage.</string>
+    <string name="max_plugins_contract_keys">Clés lues dans un manifeste</string>
+    <string name="max_plugins_contract_kinds">Types acceptés</string>
+    <string name="max_plugins_contract_capabilities">Capacités acceptées</string>
+    <string name="max_plugins_template">Modèle de manifeste</string>
+    <string name="max_plugins_template_note">Ce texte est ce que l\'analyseur lit. Il ne peut pas diverger du code, car il en est généré.</string>
+    <string name="max_plugins_copy_template">Copier le modèle</string>
+    <string name="max_plugins_template_copied">Modèle copié</string>
+    <string name="max_plugins_section_installed">Trouvées sur cet appareil</string>
+    <string name="max_plugins_loading_title">Lecture du dossier des extensions</string>
+    <string name="max_plugins_loading_detail">Listage du dossier des manifestes avec root, puis évaluation de chaque manifeste par rapport au contrat.</string>
+    <string name="max_plugins_accepted_count">%1$d acceptées</string>
+    <string name="max_plugins_rejected_count">%1$d refusées</string>
+    <string name="max_plugins_unreadable_count">%1$d dossier sans manifeste lisible</string>
+    <string name="max_plugins_rejected_section">Refusées, avec la raison exacte</string>
+    <string name="max_plugins_detail_label">Déclaré</string>
+    <string name="max_plugins_refresh_cd">Relire le dossier des extensions</string>
+    <string name="max_plugins_capability_source">Signalé par l\'extension, pas mesuré par nous</string>
+    <string name="max_plugins_cond_empty_title">Aucune extension installée</string>
+    <string name="max_plugins_cond_empty_detail">Le dossier des manifestes ne contient aucun dossier d\'extension. Rien d\'anormal : c\'est l\'état par défaut de la fonction.</string>
+    <string name="max_plugins_cond_missing_title">Le dossier des manifestes n\'existe pas encore</string>
+    <string name="max_plugins_cond_missing_detail">%1$s n\'a pas été créé sur cet appareil, il n\'y a donc rien à lire. Le créer est tout ce qu\'un auteur d\'extension doit faire.</string>
+    <string name="max_plugins_cond_unreadable_title">Le dossier des manifestes ne peut pas être lu</string>
+    <string name="max_plugins_cond_unreadable_detail">Le dossier existe à %1$s mais le shell n\'a pas pu le lire. Root est nécessaire pour le lister.</string>
+    <string name="max_plugins_reason_BadId">L\'identifiant n\'est pas utilisable comme nom de dossier. Utilisez des lettres latines minuscules, des chiffres, des points, des tirets ou des traits de soulignement, et jamais deux points d\'affilée.</string>
+    <string name="max_plugins_reason_MissingName">Le manifeste ne déclare aucun nom.</string>
+    <string name="max_plugins_reason_BadVersion">La version doit commencer par des chiffres, par exemple 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Le niveau d\'API déclaré est absent ou inférieur à 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Le niveau d\'API déclaré est plus récent que ce que cette build comprend, il n\'est donc pas exécuté du tout.</string>
+    <string name="max_plugins_reason_MissingKind">Le manifeste ne déclare aucun type.</string>
+    <string name="max_plugins_reason_UnknownKind">Le type ne fait pas partie des types publiés.</string>
+    <string name="max_plugins_reason_UnknownCapability">La capacité ne fait pas partie de ce contrat. Une capacité inconnue est refusée plutôt qu\'ignorée, ainsi rien ne s\'exécute avec moins de droits qu\'elle ne l\'a demandé.</string>
+    <string name="max_plugins_reason_NoCapabilities">Une extension doit déclarer au moins une capacité.</string>
+    <string name="max_plugins_reason_DuplicateId">Une autre extension avec cet identifiant a déjà été acceptée, celle-ci n\'est donc pas utilisée.</string>
+    <string name="max_plugins_help_title">Pourquoi un contrat</string>
+    <string name="max_plugins_help_body">Sans contrat publié, quiconque étend cette app doit deviner la forme de nos fichiers internes, et nous ne pouvons distinguer une extension valide d\'une cassée. Avec lui, la limite est énoncée : une extension déclare une intention et lit ; elle n\'écrit jamais le matériel, et chaque refus ci-dessus nomme le champ exact qui a échoué.</string>
+</resources>

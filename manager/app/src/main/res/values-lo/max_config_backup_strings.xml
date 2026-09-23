@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">ຮູບລັກສະນະ &amp; ການໂຕ້ຕອບ</string>
+    <string name="max_cfg_backup_app_prefs">ການຕັ້ງຄ່າແອັບ ແລະພາສາ</string>
+    <string name="max_cfg_declared_absent_title">ຈະບໍ່ຖືກລວມເຂົ້າ, ແລະເປັນຫຍັງ</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ອຸ​ປະ​ກອນ​ນີ້​ບໍ່​ມີ​ການ​ກວດ​ສອບ​ຮາກ​, ດັ່ງ​ນັ້ນ​ບໍ່​ສາ​ມາດ​ອ່ານ​ຄ່າ​ທີ່​ເຊື່ອ​ຖື​ໄດ້​</string>
+    <string name="max_cfg_absent_file_missing">ໄຟລ໌ທີ່ຕ້ອງການຍັງບໍ່ທັນມີຢູ່</string>
+    <string name="max_cfg_absent_empty">ໄຟລ໌ທີ່ຕ້ອງການມີຢູ່ແຕ່ຫວ່າງເປົ່າ, ດັ່ງນັ້ນບໍ່ມີຫຍັງທີ່ຈະຂຽນ</string>
+    <string name="max_cfg_declared_excluded_title">ບໍ່ເຄີຍລວມຢູ່ໃນໄຟລ໌ນີ້</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI ການ​ຕັ້ງ​ຄ່າ​ຄວາມ​ປອດ​ໄພ​ແມ່ນ​ໄດ້​ຮັບ​ການ​ຕັ້ງ​ຄ່າ​ພາຍ​ໃນ app ໄດ້​, ບໍ່​ເຄີຍ​ນໍາ​ໄປ​ໃນ​ໄຟລ​໌​</string>
+    <string name="max_cfg_excluded_other_apps">ຂໍ້​ມູນ​ຂອງ​ກິດ​ອື່ນ​ເປັນ​ຂອງ​ການ​ສໍາ​ຮອງ​ຂໍ້​ມູນ app​, ບໍ່ config backup​</string>
+    <string name="max_cfg_excluded_secret">ລະຫັດການລົງນາມ ແລະຄວາມລັບບໍ່ເຄີຍຂຽນໃສ່ໄຟລ໌ທີ່ເຈົ້າອາດຈະແບ່ງປັນ</string>
+    <string name="max_cfg_section_tweaks">ປັບການຕັ້ງຄ່າ</string>
+    <string name="max_cfg_section_applist">ລາຍຊື່ຕໍ່ແອັບຯ</string>
+    <string name="max_cfg_section_appearance">ຮູບລັກສະນະ &amp; ການໂຕ້ຕອບ</string>
+    <string name="max_cfg_section_app_prefs">ການຕັ້ງຄ່າແອັບ ແລະພາສາ</string>
+    <string name="max_cfg_restore_merge_note">ການ​ຟື້ນ​ຟູ​ຄວາມ​ມັກ​ຈະ​ລວມ​ເຂົ້າ​ກັນ: ກະ​ແຈ​ທີ່​ມີ​ຢູ່​ໃນ​ໄຟ​ລ໌​ຖືກ​ຂຽນ​ໄວ້, ແລະ​ກະ​ແຈ​ທີ່​ມັນ​ບໍ່​ໄດ້​ກ່າວ​ເຖິງ​ຢູ່​ຄື​ກັນ. ບໍ່ມີຫຍັງຖືກລຶບລ້າງ.</string>
+</resources>

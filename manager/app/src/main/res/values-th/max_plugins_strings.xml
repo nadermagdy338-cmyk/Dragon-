@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">ปลั๊กอินของบุคคลที่สาม</string>
+    <string name="max_plugins_subtitle">สัญญาที่เผยแพร่: สิ่งที่ปลั๊กอินอาจประกาศ และสิ่งที่ยอมรับหรือปฏิเสธที่นี่</string>
+    <string name="max_plugins_section_contract">สัญญา</string>
+    <string name="max_plugins_contract_api">ระดับ API %1$d</string>
+    <string name="max_plugins_contract_dir">โฟลเดอร์รายการ</string>
+    <string name="max_plugins_contract_rules">ความสามารถที่ประกาศไว้คือการอ่านหรือข้อเสนอ ไม่มีความสามารถในการเขียนฮาร์ดแวร์โดยเจตนา: การเขียนทุกครั้งในแอปนี้จะต้องผ่านตัวตัดสิน และปลั๊กอินที่สามารถเขียนได้โดยตรงจะลบตัวป้องกันที่สร้างขึ้นเพื่อหยุดเจ้าของสองคนที่เขียนปุ่มเดียวกัน</string>
+    <string name="max_plugins_contract_keys">คีย์อ่านจากรายการ</string>
+    <string name="max_plugins_contract_kinds">ประเภทที่ยอมรับ</string>
+    <string name="max_plugins_contract_capabilities">ความสามารถที่ได้รับการยอมรับ</string>
+    <string name="max_plugins_template">เทมเพลตรายการ</string>
+    <string name="max_plugins_template_note">ข้อความนี้คือสิ่งที่ parser อ่าน มันไม่สามารถเบี่ยงเบนไปจากโค้ดได้เพราะมันถูกสร้างขึ้นจากโค้ดนั้น</string>
+    <string name="max_plugins_copy_template">คัดลอกเทมเพลต</string>
+    <string name="max_plugins_template_copied">คัดลอกเทมเพลตแล้ว</string>
+    <string name="max_plugins_section_installed">พบได้ในอุปกรณ์นี้</string>
+    <string name="max_plugins_loading_title">กำลังอ่านโฟลเดอร์ปลั๊กอิน</string>
+    <string name="max_plugins_loading_detail">แสดงรายการโฟลเดอร์รายการด้วยรูท จากนั้นประเมินแต่ละรายการเทียบกับสัญญา</string>
+    <string name="max_plugins_accepted_count">%1$d ยอมรับแล้ว</string>
+    <string name="max_plugins_rejected_count">%1$d ปฏิเสธ</string>
+    <string name="max_plugins_unreadable_count">%1$d โฟลเดอร์ที่ไม่มีรายการที่สามารถอ่านได้</string>
+    <string name="max_plugins_rejected_section">ปฏิเสธด้วยเหตุผลที่แน่นอน</string>
+    <string name="max_plugins_detail_label">ประกาศ</string>
+    <string name="max_plugins_refresh_cd">อ่านโฟลเดอร์ปลั๊กอินอีกครั้ง</string>
+    <string name="max_plugins_capability_source">รายงานโดยปลั๊กอิน ไม่ใช่วัดโดยเรา</string>
+    <string name="max_plugins_cond_empty_title">ไม่มีการติดตั้งปลั๊กอิน</string>
+    <string name="max_plugins_cond_empty_detail">โฟลเดอร์รายการไม่มีโฟลเดอร์ปลั๊กอิน ไม่มีอะไรผิดปกติ: นี่คือสถานะเริ่มต้นของคุณสมบัติ</string>
+    <string name="max_plugins_cond_missing_title">โฟลเดอร์ Manifest ยังไม่มีอยู่</string>
+    <string name="max_plugins_cond_missing_detail">%1$s ไม่ได้ถูกสร้างขึ้นบนอุปกรณ์นี้ ดังนั้นจึงไม่มีอะไรให้อ่าน การสร้างปลั๊กอินเป็นสิ่งที่ผู้เขียนปลั๊กอินต้องทำ</string>
+    <string name="max_plugins_cond_unreadable_title">ไม่สามารถอ่านโฟลเดอร์ Manifest ได้</string>
+    <string name="max_plugins_cond_unreadable_detail">มีโฟลเดอร์อยู่ที่ %1$s แต่เชลล์ไม่สามารถอ่านได้ จำเป็นต้องรูทเพื่อแสดงรายการ</string>
+    <string name="max_plugins_reason_BadId">รหัสไม่สามารถใช้เป็นชื่อโฟลเดอร์ได้ ใช้ตัวอักษรละตินตัวพิมพ์เล็ก ตัวเลข จุด ขีดกลาง หรือขีดล่าง และห้ามใช้จุดสองจุดติดต่อกัน</string>
+    <string name="max_plugins_reason_MissingName">รายการไม่ประกาศชื่อ</string>
+    <string name="max_plugins_reason_BadVersion">เวอร์ชันต้องขึ้นต้นด้วยตัวเลข เช่น 1.0.0</string>
+    <string name="max_plugins_reason_ApiTooOld">ระดับ API ที่ประกาศหายไปหรือต่ำกว่า 1</string>
+    <string name="max_plugins_reason_ApiTooNew">ระดับ API ที่ประกาศใหม่กว่าที่บิลด์นี้เข้าใจ ดังนั้นจึงไม่ทำงานเลย</string>
+    <string name="max_plugins_reason_MissingKind">รายการประกาศไม่มีชนิด</string>
+    <string name="max_plugins_reason_UnknownKind">ชนิดดังกล่าวไม่ใช่ประเภทที่เผยแพร่</string>
+    <string name="max_plugins_reason_UnknownCapability">ความสามารถนี้ไม่ได้เป็นส่วนหนึ่งของสัญญานี้ ความสามารถที่ไม่รู้จักถูกปฏิเสธแทนที่จะถูกเพิกเฉย ดังนั้นจึงไม่มีสิ่งใดทำงานที่มีสิทธิ์น้อยกว่าที่ขอ</string>
+    <string name="max_plugins_reason_NoCapabilities">ปลั๊กอินต้องประกาศความสามารถอย่างน้อยหนึ่งรายการ</string>
+    <string name="max_plugins_reason_DuplicateId">ปลั๊กอินอื่นที่มีรหัสนี้ได้รับการยอมรับแล้ว ดังนั้นจึงไม่ได้ใช้ปลั๊กอินนี้</string>
+    <string name="max_plugins_help_title">เหตุใดจึงทำสัญญากัน</string>
+    <string name="max_plugins_help_body">หากไม่มีสัญญาเผยแพร่ ใครก็ตามที่ขยายแอปนี้จะต้องเดารูปร่างของไฟล์ภายในของเรา และเราไม่สามารถบอกนามสกุลที่ถูกต้องจากไฟล์ที่เสียหายได้ ด้วยเหตุนี้ จึงมีการระบุขีดจำกัด: ปลั๊กอินประกาศเจตนาและอ่าน มันไม่เคยเขียนฮาร์ดแวร์ และการปฏิเสธทุกครั้งข้างต้นจะระบุชื่อฟิลด์ที่ล้มเหลว</string>
+</resources>

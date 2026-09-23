@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">جیو</string>
+    <string name="max_trust_stale">آخری نمونہ</string>
+    <string name="max_trust_snapshot">سنیپ شاٹ</string>
+    <string name="max_trust_unreadable">کوئی پڑھنا نہیں۔</string>
+    <string name="max_trust_unsupported">تعاون یافتہ نہیں۔</string>
+    <string name="max_source_label">ماخذ</string>
+    <string name="max_updated_label">تازہ کاری</string>
+    <string name="max_provenance_separator">"·"</string>
+    <string name="max_value_unavailable_a11y">کوئی قیمت دستیاب نہیں ہے</string>
+    <string name="max_expand_section">تفصیلات دکھائیں۔</string>
+    <string name="max_collapse_section">تفصیلات چھپائیں۔</string>
+</resources>

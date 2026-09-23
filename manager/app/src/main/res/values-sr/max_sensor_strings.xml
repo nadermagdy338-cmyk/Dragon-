@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Сензори које је пријавио овај уређај</string>
+    <string name="max_sensor_desc">Оно што платформа објављује о сопственом хардверу, плус једно ограничено светлосно очитавање. Без калибрације и здравственог резултата: и једнима и другима би била потребна физичка референца коју немамо.</string>
+    <string name="max_sensor_service">Сервис сензора</string>
+    <string name="max_sensor_service_unavailable">није се могло доћи</string>
+    <string name="max_sensor_count">Сензори су јавили</string>
+    <string name="max_sensor_kinds">Присутне категорије</string>
+    <string name="max_sensor_wakeup">Сензори за буђење (пријављују док уређај спава)</string>
+    <string name="max_sensor_light">Амбијентално светло</string>
+    <string name="max_sensor_unit_lux">лук</string>
+    <string name="max_sensor_light_absent">овај уређај пријављује да нема сензора светлости</string>
+    <string name="max_sensor_light_unreadable">није стигло очитавање пре истека — непознато, не нула</string>
+    <string name="max_sensor_more">…и још %1$s</string>
+    <string name="max_sensor_no_score">Имена, опсези и кашњења долазе са платформе. Сензор који јавља није доказ да је тачан.</string>
+    <string name="max_sensor_kind_motion">Мотион</string>
+    <string name="max_sensor_kind_environment">Животна средина</string>
+    <string name="max_sensor_kind_position">Положај</string>
+    <string name="max_sensor_kind_body">Тело</string>
+    <string name="max_sensor_kind_unpositioned">Унпоситионед</string>
+    <string name="max_sensor_kind_other">Остало</string>
+</resources>

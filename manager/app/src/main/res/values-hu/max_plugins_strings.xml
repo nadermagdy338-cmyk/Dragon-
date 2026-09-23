@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Harmadik féltől származó bővítmények</string>
+    <string name="max_plugins_subtitle">A közzétett szerződés: mit jelenthet egy plugin, és mit fogadtak el vagy utasítottak el itt.</string>
+    <string name="max_plugins_section_contract">A szerződés</string>
+    <string name="max_plugins_contract_api">API szint %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest mappa</string>
+    <string name="max_plugins_contract_rules">A deklarált képesség vagy olvasás, vagy javaslat. Szándékosan nincs hardver írási képessége: ebben az alkalmazásban minden írás átmegy a döntőbírón, és a közvetlenül írni tudó beépülő modul eltávolítaná azt a védelmet, amely megakadályozza, hogy két tulajdonos ugyanazt a gombot írjon.</string>
+    <string name="max_plugins_contract_keys">A jegyzékből kiolvasott kulcsok</string>
+    <string name="max_plugins_contract_kinds">Elfogadott fajták</string>
+    <string name="max_plugins_contract_capabilities">Elfogadott képességek</string>
+    <string name="max_plugins_template">Manifest sablon</string>
+    <string name="max_plugins_template_note">Ezt a szöveget olvassa el az elemző. Nem tud elsodródni a kódtól, mert abból generálódik.</string>
+    <string name="max_plugins_copy_template">Másolja ki a sablont</string>
+    <string name="max_plugins_template_copied">Sablon másolva</string>
+    <string name="max_plugins_section_installed">Ezen a készüléken található</string>
+    <string name="max_plugins_loading_title">A plugin mappájának olvasása</string>
+    <string name="max_plugins_loading_detail">A jegyzékmappa listázása a gyökérrel, majd az egyes jegyzékek kiértékelése a szerződés alapján.</string>
+    <string name="max_plugins_accepted_count">%1$d elfogadva</string>
+    <string name="max_plugins_rejected_count">%1$d elutasította</string>
+    <string name="max_plugins_unreadable_count">%1$d mappa olvasható jegyzék nélkül</string>
+    <string name="max_plugins_rejected_section">Elutasította, pontos okkal</string>
+    <string name="max_plugins_detail_label">Kijelentette</string>
+    <string name="max_plugins_refresh_cd">Olvassa el újra a plugin mappát</string>
+    <string name="max_plugins_capability_source">A plugin jelentette, nem mi mértük</string>
+    <string name="max_plugins_cond_empty_title">Nincs telepítve plugin</string>
+    <string name="max_plugins_cond_empty_detail">A jegyzékmappa nem tartalmaz beépülő modulokat. Nincs semmi baj: ez a funkció alapértelmezett állapota.</string>
+    <string name="max_plugins_cond_missing_title">A jegyzékmappa még nem létezik</string>
+    <string name="max_plugins_cond_missing_detail">%1$s nem jött létre ezen az eszközön, így nincs mit olvasni. A bővítmény szerzőjének csak elkészítenie kell.</string>
+    <string name="max_plugins_cond_unreadable_title">A jegyzékmappa nem olvasható</string>
+    <string name="max_plugins_cond_unreadable_detail">A mappa a %1$s címen létezik, de a shell nem tudta beolvasni. A felsoroláshoz root szükséges.</string>
+    <string name="max_plugins_reason_BadId">Az azonosító nem használható mappanévként. Használjon kisbetűs latin betűket, számjegyeket, pontokat, kötőjeleket vagy aláhúzásjeleket, és soha ne két pontot egymás után.</string>
+    <string name="max_plugins_reason_MissingName">A jegyzékben nincs név.</string>
+    <string name="max_plugins_reason_BadVersion">A verziónak számokkal kell kezdődnie, például 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">A deklarált API-szint hiányzik, vagy 1 alatt van.</string>
+    <string name="max_plugins_reason_ApiTooNew">A deklarált API-szint újabb, mint amit ez a build megért, ezért egyáltalán nem fut.</string>
+    <string name="max_plugins_reason_MissingKind">A manifeszt kijelenti, hogy semmiféle.</string>
+    <string name="max_plugins_reason_UnknownKind">A fajta nem tartozik a közzétett fajták közé.</string>
+    <string name="max_plugins_reason_UnknownCapability">A képesség nem része ennek a szerződésnek. Egy ismeretlen képességet inkább elutasítanak, mint figyelmen kívül hagynak, így semmi sem fut kevesebb joggal, mint amennyit kért.</string>
+    <string name="max_plugins_reason_NoCapabilities">A beépülő modulnak deklarálnia kell legalább egy képességet.</string>
+    <string name="max_plugins_reason_DuplicateId">Egy másik bővítmény ezzel az azonosítóval már elfogadott, így ez nincs használatban.</string>
+    <string name="max_plugins_help_title">Egyáltalán minek a szerződés</string>
+    <string name="max_plugins_help_body">Közzétett szerződés nélkül bárki, aki kiterjeszti ezt az alkalmazást, ki kell találja a belső fájljaink alakját, és nem tudjuk megkülönböztetni az érvényes kiterjesztést a törötttől. Ezzel a korlát ki van írva: a plugin szándékot deklarál és olvas; soha nem ír hardvert, és minden fenti visszautasítás pontosan megnevezi a hibás mezőt.</string>
+</resources>

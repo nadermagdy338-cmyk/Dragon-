@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">СТУДИО ЗА ПЕРФОРМАНСИ</string>
+    <string name="studio_cpu_frequency">CPU фреквенција</string>
+    <string name="studio_load_history">Неодамнешна CPU активност</string>
+    <string name="studio_waiting_samples">Се собираат читања во живо…</string>
+    <string name="studio_automatic_profile">Автоматскиот режим управува со активниот профил.</string>
+    <string name="studio_temperature">Температура</string>
+    <string name="studio_display">Приказ</string>
+    <string name="studio_power">Опции за напојување</string>
+    <string name="studio_settings">Поставки</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">חיישנים שדווחו על ידי מכשיר זה</string>
+    <string name="max_sensor_desc">מה הפלטפורמה מצהירה לגבי החומרה שלה, בתוספת קריאת אור מוגבלת אחת. ללא כיול וללא ציון בריאות: שניהם יצטרכו התייחסות פיזית שאין לנו.</string>
+    <string name="max_sensor_service">שירות חיישנים</string>
+    <string name="max_sensor_service_unavailable">לא ניתן היה להגיע</string>
+    <string name="max_sensor_count">חיישנים דווחו</string>
+    <string name="max_sensor_kinds">קיימות קטגוריות</string>
+    <string name="max_sensor_wakeup">חיישני התעוררות (דיווח בזמן שהמכשיר ישן)</string>
+    <string name="max_sensor_light">אור סביבה</string>
+    <string name="max_sensor_unit_lux">לוקס</string>
+    <string name="max_sensor_light_absent">המכשיר הזה לא מדווח על שום חיישן אור</string>
+    <string name="max_sensor_light_unreadable">שום קריאה לא הגיעה לפני פסק הזמן - לא ידוע, לא אפס</string>
+    <string name="max_sensor_more">ועוד %1$s</string>
+    <string name="max_sensor_no_score">שמות, טווחים ועיכובים מגיעים מהפלטפורמה. חיישן שמדווח אינו הוכחה שהוא מדויק.</string>
+    <string name="max_sensor_kind_motion">תְנוּעָה</string>
+    <string name="max_sensor_kind_environment">סְבִיבָה</string>
+    <string name="max_sensor_kind_position">מַצָב</string>
+    <string name="max_sensor_kind_body">גוּף</string>
+    <string name="max_sensor_kind_unpositioned">לא ממוצב</string>
+    <string name="max_sensor_kind_other">אַחֵר</string>
+</resources>

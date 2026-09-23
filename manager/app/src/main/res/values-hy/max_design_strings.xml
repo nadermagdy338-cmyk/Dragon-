@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Ապրեք</string>
+    <string name="max_trust_stale">Վերջին նմուշը</string>
+    <string name="max_trust_snapshot">Պատկերապատկեր</string>
+    <string name="max_trust_unreadable">Ընթերցանություն չկա</string>
+    <string name="max_trust_unsupported">Չի աջակցվում</string>
+    <string name="max_source_label">Աղբյուր</string>
+    <string name="max_updated_label">Թարմացվել է</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">արժեք չկա</string>
+    <string name="max_expand_section">Ցույց տալ մանրամասները</string>
+    <string name="max_collapse_section">Թաքցնել մանրամասները</string>
+</resources>

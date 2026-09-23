@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Senzory hlášené tímto zařízením</string>
+    <string name="max_sensor_desc">To, co platforma deklaruje o svém vlastním hardwaru, plus jedno omezené čtení světla. Žádná kalibrace a žádné zdravotní skóre: obojí by potřebovalo fyzickou referenci, kterou nemáme.</string>
+    <string name="max_sensor_service">Servis senzorů</string>
+    <string name="max_sensor_service_unavailable">nebylo možné dosáhnout</string>
+    <string name="max_sensor_count">Senzory hlásily</string>
+    <string name="max_sensor_kinds">Přítomné kategorie</string>
+    <string name="max_sensor_wakeup">Senzory probuzení (hlášení, když zařízení spí)</string>
+    <string name="max_sensor_light">Okolní světlo</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">toto zařízení nehlásí žádný světelný senzor</string>
+    <string name="max_sensor_light_unreadable">před vypršením časového limitu nedorazilo žádné čtení – neznámé, ne nulové</string>
+    <string name="max_sensor_more">…a %1$s dalších</string>
+    <string name="max_sensor_no_score">Názvy, rozsahy a zpoždění pocházejí z platformy. Senzor, který hlásí, není důkazem, že je přesný.</string>
+    <string name="max_sensor_kind_motion">Pohyb</string>
+    <string name="max_sensor_kind_environment">Prostředí</string>
+    <string name="max_sensor_kind_position">Pozice</string>
+    <string name="max_sensor_kind_body">Tělo</string>
+    <string name="max_sensor_kind_unpositioned">Bez polohy</string>
+    <string name="max_sensor_kind_other">Ostatní</string>
+</resources>

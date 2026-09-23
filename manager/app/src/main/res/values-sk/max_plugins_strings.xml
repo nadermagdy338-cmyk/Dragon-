@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Doplnky tretích strán</string>
+    <string name="max_plugins_subtitle">Zverejnená zmluva: čo môže plugin deklarovať a čo tu bolo prijaté alebo odmietnuté.</string>
+    <string name="max_plugins_section_contract">Zmluva</string>
+    <string name="max_plugins_contract_api">Úroveň API %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest priečinok</string>
+    <string name="max_plugins_contract_rules">Deklarovaná schopnosť je buď čítanie alebo návrh. Zámerne neexistuje žiadna schopnosť zapisovať hardvér: každý zápis v tejto aplikácii prechádza cez arbitra a doplnok, ktorý by mohol zapisovať priamo, by odstránil ochranu postavenú tak, aby zabránila dvom vlastníkom písať rovnaký gombík.</string>
+    <string name="max_plugins_contract_keys">Kľúče sa čítajú z manifestu</string>
+    <string name="max_plugins_contract_kinds">Akceptované druhy</string>
+    <string name="max_plugins_contract_capabilities">Akceptované schopnosti</string>
+    <string name="max_plugins_template">Šablóna manifestu</string>
+    <string name="max_plugins_template_note">Tento text číta syntaktický analyzátor. Nemôže sa odkloniť od kódu, pretože je z neho generovaný.</string>
+    <string name="max_plugins_copy_template">Skopírujte šablónu</string>
+    <string name="max_plugins_template_copied">Šablóna bola skopírovaná</string>
+    <string name="max_plugins_section_installed">Nájdené na tomto zariadení</string>
+    <string name="max_plugins_loading_title">Čítanie priečinka s doplnkami</string>
+    <string name="max_plugins_loading_detail">Vypísanie priečinka manifestu s rootom a následné vyhodnotenie každého manifestu vzhľadom na zmluvu.</string>
+    <string name="max_plugins_accepted_count">%1$d prijaté</string>
+    <string name="max_plugins_rejected_count">%1$d odmietol</string>
+    <string name="max_plugins_unreadable_count">%1$d priečinok bez čitateľného manifestu</string>
+    <string name="max_plugins_rejected_section">Odmietnuté s presným dôvodom</string>
+    <string name="max_plugins_detail_label">Vyhlásené</string>
+    <string name="max_plugins_refresh_cd">Znova si prečítajte priečinok s doplnkom</string>
+    <string name="max_plugins_capability_source">Hlásené pluginom, nami nemerané</string>
+    <string name="max_plugins_cond_empty_title">Nie sú nainštalované žiadne doplnky</string>
+    <string name="max_plugins_cond_empty_detail">Priečinok manifestu neobsahuje žiadne priečinky doplnkov. Nič nie je v poriadku: toto je predvolený stav funkcie.</string>
+    <string name="max_plugins_cond_missing_title">Priečinok Manifest zatiaľ neexistuje</string>
+    <string name="max_plugins_cond_missing_detail">%1$s nebolo vytvorené na tomto zariadení, takže nie je čo čítať. Jeho vytvorenie je všetko, čo musí autor doplnku urobiť.</string>
+    <string name="max_plugins_cond_unreadable_title">Priečinok manifestu sa nedá prečítať</string>
+    <string name="max_plugins_cond_unreadable_detail">Priečinok existuje na %1$s, ale shell ho nedokázal prečítať. Na jeho uvedenie sa vyžaduje root.</string>
+    <string name="max_plugins_reason_BadId">ID nie je možné použiť ako názov priečinka. Používajte malé latinské písmená, číslice, bodky, pomlčky alebo podčiarkovníky a nikdy nie dve bodky za sebou.</string>
+    <string name="max_plugins_reason_MissingName">Manifest neuvádza žiadne meno.</string>
+    <string name="max_plugins_reason_BadVersion">Verzia musí začínať číslicami, napríklad 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Deklarovaná úroveň API chýba alebo je nižšia ako 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Deklarovaná úroveň API je novšia ako toto zostavenie chápe, takže sa vôbec nespúšťa.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest deklaruje žiadny druh.</string>
+    <string name="max_plugins_reason_UnknownKind">Druh nepatrí medzi publikované druhy.</string>
+    <string name="max_plugins_reason_UnknownCapability">Schopnosť nie je súčasťou tejto zmluvy. Neznáma schopnosť je skôr odmietnutá ako ignorovaná, takže nič nebeží s menšími právami, než o aké žiada.</string>
+    <string name="max_plugins_reason_NoCapabilities">Doplnok musí deklarovať aspoň jednu schopnosť.</string>
+    <string name="max_plugins_reason_DuplicateId">Iný plugin s týmto ID už bol prijatý, takže tento sa nepoužíva.</string>
+    <string name="max_plugins_help_title">Načo vôbec zmluvu</string>
+    <string name="max_plugins_help_body">Bez zverejnenej zmluvy musí každý, kto rozširuje túto aplikáciu, uhádnuť tvar našich interných súborov a nedokážeme rozlíšiť platné rozšírenie od nefunkčného. S ním je stanovený limit: plugin deklaruje zámer a číta; nikdy nezapisuje hardvér a každé odmietnutie vyššie pomenúva presné pole, ktoré zlyhalo.</string>
+</resources>

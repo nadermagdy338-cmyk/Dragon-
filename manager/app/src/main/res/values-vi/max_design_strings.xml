@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Sống</string>
+    <string name="max_trust_stale">Mẫu cuối cùng</string>
+    <string name="max_trust_snapshot">Ảnh chụp nhanh</string>
+    <string name="max_trust_unreadable">Không đọc</string>
+    <string name="max_trust_unsupported">Không được hỗ trợ</string>
+    <string name="max_source_label">Nguồn</string>
+    <string name="max_updated_label">Đã cập nhật</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">không có sẵn giá trị</string>
+    <string name="max_expand_section">Hiển thị chi tiết</string>
+    <string name="max_collapse_section">Ẩn chi tiết</string>
+</resources>

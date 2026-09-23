@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Sensor dilaporkan oleh perangkat ini</string>
+    <string name="max_sensor_desc">Apa yang diumumkan platform tentang perangkat kerasnya sendiri, ditambah satu bacaan ringan yang terbatas. Tidak ada kalibrasi dan tidak ada skor kesehatan: keduanya memerlukan referensi fisik yang tidak kami miliki.</string>
+    <string name="max_sensor_service">Layanan sensor</string>
+    <string name="max_sensor_service_unavailable">tidak dapat dijangkau</string>
+    <string name="max_sensor_count">Sensor dilaporkan</string>
+    <string name="max_sensor_kinds">Kategori hadir</string>
+    <string name="max_sensor_wakeup">Sensor bangun (melaporkan saat perangkat tidur)</string>
+    <string name="max_sensor_light">Cahaya sekitar</string>
+    <string name="max_sensor_unit_lux">mewah</string>
+    <string name="max_sensor_light_absent">perangkat ini melaporkan tidak ada sensor cahaya</string>
+    <string name="max_sensor_light_unreadable">tidak ada pembacaan yang tiba sebelum batas waktu — tidak diketahui, bukan nol</string>
+    <string name="max_sensor_more">…dan %1$s lainnya</string>
+    <string name="max_sensor_no_score">Nama, rentang, dan penundaan berasal dari platform. Sensor yang melaporkan bukanlah bukti keakuratannya.</string>
+    <string name="max_sensor_kind_motion">Gerakan</string>
+    <string name="max_sensor_kind_environment">Lingkungan</string>
+    <string name="max_sensor_kind_position">Posisi</string>
+    <string name="max_sensor_kind_body">Tubuh</string>
+    <string name="max_sensor_kind_unpositioned">Tidak diposisikan</string>
+    <string name="max_sensor_kind_other">Lainnya</string>
+</resources>

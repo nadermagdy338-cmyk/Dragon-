@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">ቀጥታ</string>
+    <string name="max_trust_stale">የመጨረሻው ናሙና</string>
+    <string name="max_trust_snapshot">ቅጽበታዊ ገጽ እይታ</string>
+    <string name="max_trust_unreadable">ማንበብ የለም።</string>
+    <string name="max_trust_unsupported">አይደገፍም።</string>
+    <string name="max_source_label">ምንጭ</string>
+    <string name="max_updated_label">ተዘምኗል</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">ምንም ዋጋ የለም</string>
+    <string name="max_expand_section">ዝርዝሮችን አሳይ</string>
+    <string name="max_collapse_section">ዝርዝሮችን ደብቅ</string>
+</resources>

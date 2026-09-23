@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Naživo</string>
+    <string name="max_trust_stale">Posledná ukážka</string>
+    <string name="max_trust_snapshot">Snímka</string>
+    <string name="max_trust_unreadable">Žiadne čítanie</string>
+    <string name="max_trust_unsupported">Nie je podporované</string>
+    <string name="max_source_label">Zdroj</string>
+    <string name="max_updated_label">Aktualizované</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">nie je k dispozícii žiadna hodnota</string>
+    <string name="max_expand_section">Zobraziť podrobnosti</string>
+    <string name="max_collapse_section">Skryť podrobnosti</string>
+</resources>

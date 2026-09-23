@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU სიხშირე</string>
+    <string name="studio_load_history">ბოლო CPU აქტივობა</string>
+    <string name="studio_waiting_samples">მიმდინარეობს პირდაპირი წაკითხვის შეგროვება…</string>
+    <string name="studio_automatic_profile">ავტომატური რეჟიმი მართავს აქტიურ პროფილს.</string>
+    <string name="studio_temperature">ტემპერატურა</string>
+    <string name="studio_display">ჩვენება</string>
+    <string name="studio_power">დენის პარამეტრები</string>
+    <string name="studio_settings">პარამეტრები</string>
+</resources>

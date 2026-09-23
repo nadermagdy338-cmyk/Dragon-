@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">เซ็นเซอร์ที่รายงานโดยอุปกรณ์นี้</string>
+    <string name="max_sensor_desc">สิ่งที่แพลตฟอร์มประกาศเกี่ยวกับฮาร์ดแวร์ของตัวเอง บวกกับการอ่านค่าแสงแบบมีขอบเขตหนึ่งรายการ ไม่มีการสอบเทียบและไม่มีคะแนนสภาวะสุขภาพ: ทั้งสองอย่างจะต้องมีข้อมูลอ้างอิงทางกายภาพที่เราไม่มี</string>
+    <string name="max_sensor_service">บริการเซ็นเซอร์</string>
+    <string name="max_sensor_service_unavailable">ไม่สามารถเข้าถึงได้</string>
+    <string name="max_sensor_count">เซ็นเซอร์รายงานแล้ว</string>
+    <string name="max_sensor_kinds">หมวดหมู่ปัจจุบัน</string>
+    <string name="max_sensor_wakeup">เซ็นเซอร์ปลุก (รายงานในขณะที่อุปกรณ์อยู่ในโหมดสลีป)</string>
+    <string name="max_sensor_light">แสงโดยรอบ</string>
+    <string name="max_sensor_unit_lux">ลักซ์</string>
+    <string name="max_sensor_light_absent">อุปกรณ์นี้รายงานว่าไม่มีเซ็นเซอร์วัดแสง</string>
+    <string name="max_sensor_light_unreadable">ไม่มีการอ่านมาถึงก่อนหมดเวลา — ไม่ทราบ ไม่ใช่ศูนย์</string>
+    <string name="max_sensor_more">…และ %1$s เพิ่มเติม</string>
+    <string name="max_sensor_no_score">ชื่อ ช่วง และความล่าช้ามาจากแพลตฟอร์ม เซ็นเซอร์ที่รายงานไม่ได้พิสูจน์ว่าถูกต้อง</string>
+    <string name="max_sensor_kind_motion">การเคลื่อนไหว</string>
+    <string name="max_sensor_kind_environment">สิ่งแวดล้อม</string>
+    <string name="max_sensor_kind_position">ตำแหน่ง</string>
+    <string name="max_sensor_kind_body">ร่างกาย</string>
+    <string name="max_sensor_kind_unpositioned">ไม่มีตำแหน่ง</string>
+    <string name="max_sensor_kind_other">อื่น</string>
+</resources>

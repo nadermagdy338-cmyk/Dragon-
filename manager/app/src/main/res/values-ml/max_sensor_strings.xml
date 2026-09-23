@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">ഈ ഉപകരണം റിപ്പോർട്ട് ചെയ്ത സെൻസറുകൾ</string>
+    <string name="max_sensor_desc">സ്വന്തം ഹാർഡ്‌വെയറിനെക്കുറിച്ച് പ്ലാറ്റ്‌ഫോം പ്രഖ്യാപിക്കുന്നത്, കൂടാതെ ഒരു ബൗണ്ടഡ് ലൈറ്റ് റീഡിംഗ്. കാലിബ്രേഷനും ആരോഗ്യ സ്‌കോറും ഇല്ല: രണ്ടിനും നമുക്കില്ലാത്ത ഒരു ഫിസിക്കൽ റഫറൻസ് ആവശ്യമാണ്.</string>
+    <string name="max_sensor_service">സെൻസർ സേവനം</string>
+    <string name="max_sensor_service_unavailable">എത്താൻ കഴിഞ്ഞില്ല</string>
+    <string name="max_sensor_count">സെൻസറുകൾ റിപ്പോർട്ട് ചെയ്തു</string>
+    <string name="max_sensor_kinds">വിഭാഗങ്ങൾ നിലവിലുണ്ട്</string>
+    <string name="max_sensor_wakeup">വേക്ക്-അപ്പ് സെൻസറുകൾ (ഉപകരണം ഉറങ്ങുമ്പോൾ റിപ്പോർട്ട് ചെയ്യുക)</string>
+    <string name="max_sensor_light">ആംബിയൻ്റ് ലൈറ്റ്</string>
+    <string name="max_sensor_unit_lux">ലക്സ്</string>
+    <string name="max_sensor_light_absent">ഈ ഉപകരണം ലൈറ്റ് സെൻസർ റിപ്പോർട്ട് ചെയ്യുന്നില്ല</string>
+    <string name="max_sensor_light_unreadable">സമയപരിധിക്ക് മുമ്പ് ഒരു വായനയും എത്തിയില്ല - അജ്ഞാതം, പൂജ്യമല്ല</string>
+    <string name="max_sensor_more">…കൂടാതെ %1$s കൂടുതൽ</string>
+    <string name="max_sensor_no_score">പേരുകളും ശ്രേണികളും കാലതാമസങ്ങളും പ്ലാറ്റ്‌ഫോമിൽ നിന്നാണ് വരുന്നത്. റിപ്പോർട്ട് ചെയ്യുന്ന സെൻസർ അത് കൃത്യമാണെന്നതിന് തെളിവല്ല.</string>
+    <string name="max_sensor_kind_motion">ചലനം</string>
+    <string name="max_sensor_kind_environment">പരിസ്ഥിതി</string>
+    <string name="max_sensor_kind_position">സ്ഥാനം</string>
+    <string name="max_sensor_kind_body">ശരീരം</string>
+    <string name="max_sensor_kind_unpositioned">സ്ഥാനം മാറ്റാത്തത്</string>
+    <string name="max_sensor_kind_other">മറ്റുള്ളവ</string>
+</resources>

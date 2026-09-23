@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Tiešraidē</string>
+    <string name="max_trust_stale">Pēdējais paraugs</string>
+    <string name="max_trust_snapshot">Momentuzņēmums</string>
+    <string name="max_trust_unreadable">Nav lasīšanas</string>
+    <string name="max_trust_unsupported">Nav atbalstīts</string>
+    <string name="max_source_label">Avots</string>
+    <string name="max_updated_label">Atjaunināts</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">nav pieejama vērtība</string>
+    <string name="max_expand_section">Rādīt detaļas</string>
+    <string name="max_collapse_section">Slēpt detaļas</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Penderia yang dilaporkan oleh peranti ini</string>
+    <string name="max_sensor_desc">Perkara yang diisytiharkan oleh platform tentang perkakasannya sendiri, ditambah satu bacaan cahaya terhad. Tiada penentukuran dan tiada skor kesihatan: kedua-duanya memerlukan rujukan fizikal yang kami tiada.</string>
+    <string name="max_sensor_service">Perkhidmatan sensor</string>
+    <string name="max_sensor_service_unavailable">tidak dapat dihubungi</string>
+    <string name="max_sensor_count">Penderia dilaporkan</string>
+    <string name="max_sensor_kinds">Kategori yang ada</string>
+    <string name="max_sensor_wakeup">Penderia bangun tidur (laporkan semasa peranti tidur)</string>
+    <string name="max_sensor_light">Cahaya persekitaran</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">peranti ini melaporkan tiada penderia cahaya</string>
+    <string name="max_sensor_light_unreadable">tiada bacaan tiba sebelum tamat masa — tidak diketahui, bukan sifar</string>
+    <string name="max_sensor_more">…dan %1$s lagi</string>
+    <string name="max_sensor_no_score">Nama, julat dan kelewatan datang daripada platform. Sensor yang melaporkan bukan bukti ia tepat.</string>
+    <string name="max_sensor_kind_motion">gerakan</string>
+    <string name="max_sensor_kind_environment">Persekitaran</string>
+    <string name="max_sensor_kind_position">kedudukan</string>
+    <string name="max_sensor_kind_body">Badan</string>
+    <string name="max_sensor_kind_unpositioned">Tidak berkedudukan</string>
+    <string name="max_sensor_kind_other">Lain-lain</string>
+</resources>

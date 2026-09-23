@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Plug-ins van derden</string>
+    <string name="max_plugins_subtitle">Het gepubliceerde contract: wat een plug-in mag verklaren en wat hier is geaccepteerd of geweigerd.</string>
+    <string name="max_plugins_section_contract">Het contract</string>
+    <string name="max_plugins_contract_api">API-niveau %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest map</string>
+    <string name="max_plugins_contract_rules">Een aangegeven mogelijkheid is een lees- of een voorstel. Er is opzettelijk geen mogelijkheid om hardware te schrijven: elke schrijfactie in deze app gaat door de arbiter, en een plug-in die direct zou kunnen schrijven zou de bewaker verwijderen die is gebouwd om te voorkomen dat twee eigenaren dezelfde knop schrijven.</string>
+    <string name="max_plugins_contract_keys">Sleutels gelezen uit een manifest</string>
+    <string name="max_plugins_contract_kinds">Geaccepteerde soorten</string>
+    <string name="max_plugins_contract_capabilities">Geaccepteerde mogelijkheden</string>
+    <string name="max_plugins_template">Duidelijke sjabloon</string>
+    <string name="max_plugins_template_note">Deze tekst is wat de parser leest. Het kan niet afwijken van de code, omdat het daaruit wordt gegenereerd.</string>
+    <string name="max_plugins_copy_template">Kopieer de sjabloon</string>
+    <string name="max_plugins_template_copied">Sjabloon gekopieerd</string>
+    <string name="max_plugins_section_installed">Gevonden op dit apparaat</string>
+    <string name="max_plugins_loading_title">De plug-inmap lezen</string>
+    <string name="max_plugins_loading_detail">Het vermelden van de manifestmap met root, en vervolgens het evalueren van elk manifest aan de hand van het contract.</string>
+    <string name="max_plugins_accepted_count">%1$d geaccepteerd</string>
+    <string name="max_plugins_rejected_count">%1$d geweigerd</string>
+    <string name="max_plugins_unreadable_count">%1$d map zonder leesbaar manifest</string>
+    <string name="max_plugins_rejected_section">Geweigerd, met de exacte reden</string>
+    <string name="max_plugins_detail_label">Aangegeven</string>
+    <string name="max_plugins_refresh_cd">Lees de map met plug-ins opnieuw</string>
+    <string name="max_plugins_capability_source">Gerapporteerd door de plug-in, niet door ons gemeten</string>
+    <string name="max_plugins_cond_empty_title">Geen plug-ins geïnstalleerd</string>
+    <string name="max_plugins_cond_empty_detail">De manifestmap bevat geen plug-inmappen. Er is niets aan de hand: dit is de standaardstatus van de functie.</string>
+    <string name="max_plugins_cond_missing_title">De manifestmap bestaat nog niet</string>
+    <string name="max_plugins_cond_missing_detail">%1$s is niet aangemaakt op dit apparaat, dus er is niets te lezen. Het maken ervan is alles wat een plug-in-auteur hoeft te doen.</string>
+    <string name="max_plugins_cond_unreadable_title">De manifestmap kan niet worden gelezen</string>
+    <string name="max_plugins_cond_unreadable_detail">De map bestaat op %1$s, maar de shell kan deze niet lezen. Root is vereist om het te vermelden.</string>
+    <string name="max_plugins_reason_BadId">De id is niet bruikbaar als mapnaam. Gebruik kleine Latijnse letters, cijfers, punten, streepjes of onderstrepingstekens, en nooit twee punten achter elkaar.</string>
+    <string name="max_plugins_reason_MissingName">Het manifest vermeldt geen naam.</string>
+    <string name="max_plugins_reason_BadVersion">De versie moet beginnen met cijfers, bijvoorbeeld 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Het aangegeven API-niveau ontbreekt of is lager dan 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Het aangegeven API-niveau is nieuwer dan deze build begrijpt, en wordt dus helemaal niet uitgevoerd.</string>
+    <string name="max_plugins_reason_MissingKind">Het manifest vermeldt geen enkele vorm.</string>
+    <string name="max_plugins_reason_UnknownKind">Het soort behoort niet tot de gepubliceerde soorten.</string>
+    <string name="max_plugins_reason_UnknownCapability">De capaciteit maakt geen deel uit van dit contract. Een onbekende mogelijkheid wordt eerder geweigerd dan genegeerd, dus niets draait met minder rechten dan gevraagd.</string>
+    <string name="max_plugins_reason_NoCapabilities">Een plug-in moet ten minste één mogelijkheid declareren.</string>
+    <string name="max_plugins_reason_DuplicateId">Een andere plug-in met dit ID werd al geaccepteerd, dus deze wordt niet gebruikt.</string>
+    <string name="max_plugins_help_title">Waarom überhaupt een contract?</string>
+    <string name="max_plugins_help_body">Zonder een gepubliceerd contract moet iedereen die deze app verlengt de vorm van onze interne bestanden raden, en kunnen we geen geldige extensie van een kapotte onderscheiden. Hiermee wordt de limiet aangegeven: een plug-in verklaart intentie en leest; het schrijft nooit hardware, en elke weigering hierboven noemt het exacte veld dat faalde.</string>
+</resources>

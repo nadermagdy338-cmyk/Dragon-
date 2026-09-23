@@ -10,6 +10,7 @@ import nd.max.ui.design.MaxSection
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +42,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,6 +54,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -81,7 +85,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.component.AppIconImage
-import nd.max.ui.component.NeuralTile
 import nd.max.ui.component.MaxEmptyState
 import nd.max.ui.component.MaxErrorState
 import nd.max.ui.component.MaxLoadingState
@@ -291,7 +294,7 @@ private fun AppSearchField(
         },
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -418,18 +421,21 @@ private val ApplistViewmodel.AppSort.labelRes: Int
 @Composable
 private fun ApplistItem(app: ApplistViewmodel.AppInfo, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
-    NeuralTile(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 9.dp),
-        verticalSpacing = 5.dp,
+        shape = RoundedCornerShape(18.dp),
+        color = colors.surfaceContainerLow,
+        border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .42f)),
+        onClick = onClick
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 13.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AppIconImage(app = app, size = 44.dp)
-            Spacer(Modifier.width(11.dp))
+            AppIconImage(app = app, size = 48.dp)
+            Spacer(Modifier.width(13.dp))
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
@@ -437,7 +443,7 @@ private fun ApplistItem(app: ApplistViewmodel.AppInfo, onClick: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = app.label,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -472,7 +478,7 @@ private fun ApplistItem(app: ApplistViewmodel.AppInfo, onClick: () -> Unit) {
                     color = if (app.isEnabledInConfig) colors.primary else colors.onSurfaceVariant
                 )
             }
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(10.dp))
             Icon(
                 Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,

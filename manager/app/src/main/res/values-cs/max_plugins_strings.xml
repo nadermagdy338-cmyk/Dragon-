@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Pluginy třetích stran</string>
+    <string name="max_plugins_subtitle">Zveřejněná smlouva: co může plugin deklarovat a co zde bylo přijato nebo odmítnuto.</string>
+    <string name="max_plugins_section_contract">Smlouva</string>
+    <string name="max_plugins_contract_api">Úroveň API %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest složka</string>
+    <string name="max_plugins_contract_rules">Deklarovaná schopnost je buď čtení, nebo návrh. Záměrně neexistuje žádná schopnost zapisovat hardware: každý zápis v této aplikaci prochází arbitrem a plugin, který by mohl zapisovat přímo, by odstranil ochranu vytvořenou tak, aby zabránila dvěma vlastníkům psát stejný knoflík.</string>
+    <string name="max_plugins_contract_keys">Klíče čtou z manifestu</string>
+    <string name="max_plugins_contract_kinds">Přijímané druhy</string>
+    <string name="max_plugins_contract_capabilities">Přijímané schopnosti</string>
+    <string name="max_plugins_template">Šablona manifestu</string>
+    <string name="max_plugins_template_note">Tento text čte analyzátor. Nemůže se odklonit od kódu, protože je z něj generován.</string>
+    <string name="max_plugins_copy_template">Zkopírujte šablonu</string>
+    <string name="max_plugins_template_copied">Šablona zkopírována</string>
+    <string name="max_plugins_section_installed">Nalezeno na tomto zařízení</string>
+    <string name="max_plugins_loading_title">Čtení složky pluginu</string>
+    <string name="max_plugins_loading_detail">Vypsání složky manifestu s kořenem a následné vyhodnocení každého manifestu oproti smlouvě.</string>
+    <string name="max_plugins_accepted_count">%1$d přijato</string>
+    <string name="max_plugins_rejected_count">%1$d odmítl</string>
+    <string name="max_plugins_unreadable_count">%1$d složka bez čitelného manifestu</string>
+    <string name="max_plugins_rejected_section">Odmítnuto, s přesným důvodem</string>
+    <string name="max_plugins_detail_label">Prohlášeno</string>
+    <string name="max_plugins_refresh_cd">Znovu si přečtěte složku pluginu</string>
+    <string name="max_plugins_capability_source">Hlášeno pluginem, námi neměřeno</string>
+    <string name="max_plugins_cond_empty_title">Nejsou nainstalovány žádné pluginy</string>
+    <string name="max_plugins_cond_empty_detail">Složka manifest neobsahuje žádné složky pluginů. Nic se neděje: toto je výchozí stav funkce.</string>
+    <string name="max_plugins_cond_missing_title">Složka Manifest zatím neexistuje</string>
+    <string name="max_plugins_cond_missing_detail">%1$s nebylo na tomto zařízení vytvořeno, takže zde není co číst. Jeho vytvoření je vše, co musí autor pluginu udělat.</string>
+    <string name="max_plugins_cond_unreadable_title">Složku manifestu nelze přečíst</string>
+    <string name="max_plugins_cond_unreadable_detail">Složka existuje na %1$s, ale shell ji nemohl přečíst. K jeho výpisu je vyžadován kořen.</string>
+    <string name="max_plugins_reason_BadId">ID nelze použít jako název složky. Používejte malá písmena latinky, číslice, tečky, pomlčky nebo podtržítka, nikdy ne dvě tečky za sebou.</string>
+    <string name="max_plugins_reason_MissingName">Manifest neuvádí žádné jméno.</string>
+    <string name="max_plugins_reason_BadVersion">Verze musí začínat číslicemi, například 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Deklarovaná úroveň API chybí nebo je nižší než 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Deklarovaná úroveň API je novější, než tomu rozumí toto sestavení, takže se vůbec nespouští.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest deklaruje žádný druh.</string>
+    <string name="max_plugins_reason_UnknownKind">Druh není jedním z publikovaných druhů.</string>
+    <string name="max_plugins_reason_UnknownCapability">Schopnost není součástí této smlouvy. Neznámá schopnost je spíše odmítnuta, než ignorována, takže nic neběží s méně právy, než o která žádala.</string>
+    <string name="max_plugins_reason_NoCapabilities">Plugin musí deklarovat alespoň jednu schopnost.</string>
+    <string name="max_plugins_reason_DuplicateId">Jiný plugin s tímto ID již byl přijat, takže tento se nepoužívá.</string>
+    <string name="max_plugins_help_title">Proč vůbec smlouvu</string>
+    <string name="max_plugins_help_body">Bez zveřejněné smlouvy musí každý, kdo rozšíří tuto aplikaci, uhodnout tvar našich interních souborů a nemůžeme rozlišit platné rozšíření od nefunkčního. S ním je uveden limit: plugin deklaruje záměr a čte; nikdy nezapisuje hardware a každé výše uvedené odmítnutí pojmenuje přesné pole, které selhalo.</string>
+</resources>

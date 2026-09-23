@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">לִחיוֹת</string>
+    <string name="max_trust_stale">מדגם אחרון</string>
+    <string name="max_trust_snapshot">תמונת מצב</string>
+    <string name="max_trust_unreadable">אין קריאה</string>
+    <string name="max_trust_unsupported">לא נתמך</string>
+    <string name="max_source_label">מָקוֹר</string>
+    <string name="max_updated_label">מְעוּדכָּן</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">אין ערך זמין</string>
+    <string name="max_expand_section">הצג פרטים</string>
+    <string name="max_collapse_section">הסתר פרטים</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANS STUDIOSI</string>
+    <string name="studio_cpu_frequency">CPU chastotasi</string>
+    <string name="studio_load_history">Oxirgi CPU harakat</string>
+    <string name="studio_waiting_samples">Jonli oʻqishlar toʻplanmoqda…</string>
+    <string name="studio_automatic_profile">Avtomatik rejim faol profilni boshqaradi.</string>
+    <string name="studio_temperature">Harorat</string>
+    <string name="studio_display">Displey</string>
+    <string name="studio_power">Quvvat imkoniyatlari</string>
+    <string name="studio_settings">Sozlamalar</string>
+</resources>

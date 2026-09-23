@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">เพอร์ฟอร์แมนซ์สตูดิโอ</string>
+    <string name="studio_cpu_frequency">CPU ความถี่</string>
+    <string name="studio_load_history">กิจกรรม CPU ล่าสุด</string>
+    <string name="studio_waiting_samples">กำลังรวบรวมการอ่านสด...</string>
+    <string name="studio_automatic_profile">โหมดอัตโนมัติจัดการโปรไฟล์ที่ใช้งานอยู่</string>
+    <string name="studio_temperature">อุณหภูมิ</string>
+    <string name="studio_display">แสดง</string>
+    <string name="studio_power">ตัวเลือกพลังงาน</string>
+    <string name="studio_settings">การตั้งค่า</string>
+</resources>

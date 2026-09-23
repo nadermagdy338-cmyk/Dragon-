@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Rupa &amp; antara muka</string>
+    <string name="max_cfg_backup_app_prefs">Pilihan apl &amp; bahasa</string>
+    <string name="max_cfg_declared_absent_title">Tidak akan disertakan, dan mengapa</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">peranti ini tidak mempunyai akar yang disahkan, jadi nilai tidak boleh dibaca dengan pasti</string>
+    <string name="max_cfg_absent_file_missing">fail keutamaan belum wujud lagi</string>
+    <string name="max_cfg_absent_empty">fail keutamaan wujud tetapi kosong, jadi tiada apa-apa untuk ditulis</string>
+    <string name="max_cfg_declared_excluded_title">Tidak pernah dimasukkan ke dalam fail ini</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI tetapan keselamatan dikonfigurasikan dalam apl, tidak pernah dibawa dalam fail</string>
+    <string name="max_cfg_excluded_other_apps">data apl lain adalah milik sandaran apl, bukan sandaran konfigurasi</string>
+    <string name="max_cfg_excluded_secret">kunci tandatangan dan rahsia tidak pernah ditulis pada fail yang mungkin anda kongsi</string>
+    <string name="max_cfg_section_tweaks">Tweak konfigurasi</string>
+    <string name="max_cfg_section_applist">Senarai per-apl</string>
+    <string name="max_cfg_section_appearance">Rupa &amp; antara muka</string>
+    <string name="max_cfg_section_app_prefs">Pilihan apl &amp; bahasa</string>
+    <string name="max_cfg_restore_merge_note">Memulihkan pilihan bercantum: kunci yang terdapat dalam fail ditulis dan kunci yang tidak disebut kekal seperti sedia ada. Tiada apa-apa yang dibersihkan.</string>
+</resources>

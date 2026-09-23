@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Trešās puses spraudņi</string>
+    <string name="max_plugins_subtitle">Publicētais līgums: ko spraudnis drīkst deklarēt un kas šeit tika pieņemts vai atteikts.</string>
+    <string name="max_plugins_section_contract">Līgums</string>
+    <string name="max_plugins_contract_api">API līmenis %1$d</string>
+    <string name="max_plugins_contract_dir">Manifesta mape</string>
+    <string name="max_plugins_contract_rules">Deklarētā iespēja ir lasīšana vai ierosinājums. Nav apzināti nekādas aparatūras rakstīšanas iespējas: katrs šīs lietotnes ieraksts tiek veikts caur šķīrējtiesnesi, un spraudnis, kas varētu rakstīt tieši, noņemtu aizsargu, kas izveidots, lai neļautu diviem īpašniekiem rakstīt vienu un to pašu pogu.</string>
+    <string name="max_plugins_contract_keys">Atslēgas nolasītas no manifesta</string>
+    <string name="max_plugins_contract_kinds">Pieņemtie veidi</string>
+    <string name="max_plugins_contract_capabilities">Pieņemtās iespējas</string>
+    <string name="max_plugins_template">Manifesta veidne</string>
+    <string name="max_plugins_template_note">Šo tekstu lasa analizētājs. Tas nevar novirzīties no koda, jo tas tiek ģenerēts no tā.</string>
+    <string name="max_plugins_copy_template">Kopējiet veidni</string>
+    <string name="max_plugins_template_copied">Veidne nokopēta</string>
+    <string name="max_plugins_section_installed">Atrasts šajā ierīcē</string>
+    <string name="max_plugins_loading_title">Spraudņa mapes lasīšana</string>
+    <string name="max_plugins_loading_detail">Manifesta mapes uzskaitīšana ar sakni, pēc tam katra manifesta novērtēšana attiecībā pret līgumu.</string>
+    <string name="max_plugins_accepted_count">%1$d pieņemts</string>
+    <string name="max_plugins_rejected_count">%1$d atteicās</string>
+    <string name="max_plugins_unreadable_count">%1$d mape bez lasāma manifesta</string>
+    <string name="max_plugins_rejected_section">Atteicās ar precīzu iemeslu</string>
+    <string name="max_plugins_detail_label">Deklarēts</string>
+    <string name="max_plugins_refresh_cd">Atkārtoti izlasiet spraudņa mapi</string>
+    <string name="max_plugins_capability_source">Par to ziņo spraudnis, mēs neesam izmērījuši</string>
+    <string name="max_plugins_cond_empty_title">Nav instalēts neviens spraudnis</string>
+    <string name="max_plugins_cond_empty_detail">Manifesta mapē nav nevienas spraudņa mapes. Nekas nav kārtībā: šis ir funkcijas noklusējuma stāvoklis.</string>
+    <string name="max_plugins_cond_missing_title">Manifesta mape vēl nepastāv</string>
+    <string name="max_plugins_cond_missing_detail">%1$s šajā ierīcē nav izveidots, tāpēc nav ko lasīt. Tas ir viss, kas jādara spraudņa autoram.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifesta mapi nevar nolasīt</string>
+    <string name="max_plugins_cond_unreadable_detail">Mape pastāv %1$s, taču apvalks to nevarēja nolasīt. Lai to uzskaitītu, ir nepieciešama sakne.</string>
+    <string name="max_plugins_reason_BadId">ID nevar izmantot kā mapes nosaukumu. Izmantojiet mazos latīņu burtus, ciparus, punktus, domuzīmes vai pasvītrojumus, nevis divus punktus pēc kārtas.</string>
+    <string name="max_plugins_reason_MissingName">Manifestā nav norādīts nosaukums.</string>
+    <string name="max_plugins_reason_BadVersion">Versijai jāsākas ar cipariem, piemēram, 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Trūkst deklarētā API līmeņa vai tas ir zemāks par 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Deklarētais API līmenis ir jaunāks, nekā tas ir saprotams, tāpēc tas netiek palaists vispār.</string>
+    <string name="max_plugins_reason_MissingKind">Manifestā nav norādīts, ka nav veida.</string>
+    <string name="max_plugins_reason_UnknownKind">Veids nav viens no publicētajiem veidiem.</string>
+    <string name="max_plugins_reason_UnknownCapability">Iespēja nav šī līguma daļa. Nezināma iespēja tiek atteikta, nevis tiek ignorēta, tāpēc nekas nedarbojas ar mazākām tiesībām, nekā prasīts.</string>
+    <string name="max_plugins_reason_NoCapabilities">Spraudnim ir jādeklarē vismaz viena iespēja.</string>
+    <string name="max_plugins_reason_DuplicateId">Cits spraudnis ar šo ID jau tika pieņemts, tāpēc šis netiek izmantots.</string>
+    <string name="max_plugins_help_title">Kāpēc vispār līgums</string>
+    <string name="max_plugins_help_body">Ja nav publicēts līgums, ikvienam, kas paplašina šo lietotni, ir jāuzmin mūsu iekšējo failu forma, un mēs nevaram atšķirt derīgu paplašinājumu no bojāta. Ar to tiek noteikts ierobežojums: spraudnis paziņo nodomu un nolasa; tas nekad neraksta aparatūru, un katrs iepriekš minētais atteikums nosauc precīzu lauku, kas neizdevās.</string>
+</resources>

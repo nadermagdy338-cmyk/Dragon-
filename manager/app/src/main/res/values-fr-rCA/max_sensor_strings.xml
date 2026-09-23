@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Capteurs signalés par cet appareil</string>
+    <string name="max_sensor_desc">Ce que la plateforme déclare à propos de son propre matériel, plus une lecture lumineuse limitée. Aucun calibrage et aucun score de santé : les deux auraient besoin d’une référence physique que nous n’avons pas.</string>
+    <string name="max_sensor_service">Service de capteur</string>
+    <string name="max_sensor_service_unavailable">n\'a pu être atteint</string>
+    <string name="max_sensor_count">Capteurs signalés</string>
+    <string name="max_sensor_kinds">Catégories présentes</string>
+    <string name="max_sensor_wakeup">Capteurs de réveil (rapport pendant que l\'appareil dort)</string>
+    <string name="max_sensor_light">Lumière ambiante</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">cet appareil ne signale aucun capteur de lumière</string>
+    <string name="max_sensor_light_unreadable">aucune lecture n\'est arrivée avant le délai d\'attente - inconnu, pas zéro</string>
+    <string name="max_sensor_more">…et %1$s de plus</string>
+    <string name="max_sensor_no_score">Les noms, les plages et les délais proviennent de la plateforme. Un capteur qui rapporte ne prouve pas qu\'il est exact.</string>
+    <string name="max_sensor_kind_motion">Mouvement</string>
+    <string name="max_sensor_kind_environment">Environnement</string>
+    <string name="max_sensor_kind_position">Poste</string>
+    <string name="max_sensor_kind_body">Corps</string>
+    <string name="max_sensor_kind_unpositioned">Non positionné</string>
+    <string name="max_sensor_kind_other">Autre</string>
+</resources>

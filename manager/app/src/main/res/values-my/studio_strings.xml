@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">ဖျော်ဖြေရေးစတူဒီယို</string>
+    <string name="studio_cpu_frequency">CPU ကြိမ်နှုန်း</string>
+    <string name="studio_load_history">လတ်တလော CPU လုပ်ဆောင်ချက်</string>
+    <string name="studio_waiting_samples">တိုက်ရိုက်ဖတ်ရှုခြင်းများကို စုဆောင်းနေသည်...</string>
+    <string name="studio_automatic_profile">အလိုအလျောက်မုဒ်သည် လက်ရှိပရိုဖိုင်ကို စီမံခန့်ခွဲသည်။</string>
+    <string name="studio_temperature">အပူချိန်</string>
+    <string name="studio_display">ပြသခြင်း။</string>
+    <string name="studio_power">ပါဝါရွေးချယ်မှုများ</string>
+    <string name="studio_settings">ဆက်တင်များ</string>
+</resources>

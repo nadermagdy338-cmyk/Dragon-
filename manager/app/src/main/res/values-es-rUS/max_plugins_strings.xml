@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Complementos de terceros</string>
+    <string name="max_plugins_subtitle">El contrato publicado: qué puede declarar un complemento y qué se aceptó o rechazó aquí.</string>
+    <string name="max_plugins_section_contract">el contrato</string>
+    <string name="max_plugins_contract_api">Nivel API %1$d</string>
+    <string name="max_plugins_contract_dir">carpeta de manifiesto</string>
+    <string name="max_plugins_contract_rules">Una capacidad declarada es una lectura o una propuesta. No existe deliberadamente ninguna capacidad que escriba hardware: cada escritura en esta aplicación pasa por el árbitro, y un complemento que pudiera escribir directamente eliminaría la protección construida para impedir que dos propietarios escriban el mismo botón.</string>
+    <string name="max_plugins_contract_keys">Claves leídas de un manifiesto</string>
+    <string name="max_plugins_contract_kinds">Tipos aceptados</string>
+    <string name="max_plugins_contract_capabilities">Capacidades aceptadas</string>
+    <string name="max_plugins_template">Plantilla de manifiesto</string>
+    <string name="max_plugins_template_note">Este texto es lo que lee el analizador. No puede derivarse del código, porque se genera a partir de él.</string>
+    <string name="max_plugins_copy_template">Copia la plantilla</string>
+    <string name="max_plugins_template_copied">Plantilla copiada</string>
+    <string name="max_plugins_section_installed">Encontrado en este dispositivo</string>
+    <string name="max_plugins_loading_title">Leyendo la carpeta del complemento</string>
+    <string name="max_plugins_loading_detail">Enumerar la carpeta del manifiesto con la raíz y luego evaluar cada manifiesto con respecto al contrato.</string>
+    <string name="max_plugins_accepted_count">%1$d aceptado</string>
+    <string name="max_plugins_rejected_count">%1$d se negó</string>
+    <string name="max_plugins_unreadable_count">%1$d carpeta sin un manifiesto legible</string>
+    <string name="max_plugins_rejected_section">Rechazado, con la razón exacta.</string>
+    <string name="max_plugins_detail_label">Declarado</string>
+    <string name="max_plugins_refresh_cd">Vuelva a leer la carpeta del complemento</string>
+    <string name="max_plugins_capability_source">Informado por el complemento, no medido por nosotros</string>
+    <string name="max_plugins_cond_empty_title">No hay complementos instalados</string>
+    <string name="max_plugins_cond_empty_detail">La carpeta de manifiesto no contiene carpetas de complementos. No pasa nada: este es el estado predeterminado de la función.</string>
+    <string name="max_plugins_cond_missing_title">La carpeta de manifiesto aún no existe</string>
+    <string name="max_plugins_cond_missing_detail">%1$s no se ha creado en este dispositivo, por lo que no hay nada que leer. Crearlo es todo lo que un autor de complemento necesita hacer.</string>
+    <string name="max_plugins_cond_unreadable_title">La carpeta del manifiesto no se puede leer</string>
+    <string name="max_plugins_cond_unreadable_detail">La carpeta existe en %1$s pero el shell no pudo leerla. Se requiere root para listarlo.</string>
+    <string name="max_plugins_reason_BadId">La identificación no se puede utilizar como nombre de carpeta. Utilice letras latinas minúsculas, dígitos, puntos, guiones o guiones bajos, y nunca dos puntos seguidos.</string>
+    <string name="max_plugins_reason_MissingName">El manifiesto no declara ningún nombre.</string>
+    <string name="max_plugins_reason_BadVersion">La versión debe comenzar con dígitos, por ejemplo 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Falta el nivel de API declarado o es inferior a 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">El nivel de API declarado es más nuevo de lo que entiende esta compilación, por lo que no se ejecuta en absoluto.</string>
+    <string name="max_plugins_reason_MissingKind">El manifiesto no declara ningún tipo.</string>
+    <string name="max_plugins_reason_UnknownKind">El tipo no es uno de los tipos publicados.</string>
+    <string name="max_plugins_reason_UnknownCapability">La capacidad no forma parte de este contrato. Una capacidad desconocida se rechaza en lugar de ignorarse, por lo que nada se ejecuta con menos derechos de los que solicitó.</string>
+    <string name="max_plugins_reason_NoCapabilities">Un complemento debe declarar al menos una capacidad.</string>
+    <string name="max_plugins_reason_DuplicateId">Ya se aceptó otro complemento con esta identificación, por lo que este no se utiliza.</string>
+    <string name="max_plugins_help_title">¿Por qué un contrato?</string>
+    <string name="max_plugins_help_body">Sin un contrato publicado, cualquiera que extienda esta aplicación tiene que adivinar la forma de nuestros archivos internos, y no podemos distinguir una extensión válida de una rota. Con él se establece el límite: un complemento declara intención y lee; nunca escribe hardware, y cada rechazo anterior nombra el campo exacto que falló.</string>
+</resources>

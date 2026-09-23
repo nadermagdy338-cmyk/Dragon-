@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">ဤစက်ပစ္စည်းမှ အာရုံခံကိရိယာများကို အစီရင်ခံပါသည်။</string>
+    <string name="max_sensor_desc">ပလက်ဖောင်းသည် ၎င်း၏ကိုယ်ပိုင် ဟာ့ဒ်ဝဲအကြောင်း ကြေညာထားသည်များ၊ ကန့်သတ်ထားသော အလင်းဖတ်ခြင်းတစ်ခု။ စံကိုက်ညှိခြင်း မရှိခြင်းနှင့် ကျန်းမာရေးရမှတ် မရှိခြင်း- နှစ်ခုစလုံးသည် ကျွန်ုပ်တို့တွင် မရှိသော ရုပ်ပိုင်းဆိုင်ရာ ရည်ညွှန်းချက် လိုအပ်ပါသည်။</string>
+    <string name="max_sensor_service">အာရုံခံဝန်ဆောင်မှု</string>
+    <string name="max_sensor_service_unavailable">မရောက်ရှိနိုင်ပါ။</string>
+    <string name="max_sensor_count">အာရုံခံကိရိယာများ ဖော်ပြခဲ့သည်။</string>
+    <string name="max_sensor_kinds">အမျိုးအစားများ ရှိနေပါသည်။</string>
+    <string name="max_sensor_wakeup">နိုးကြားမှုအာရုံခံကိရိယာများ (စက်အိပ်နေစဉ် သတင်းပို့ခြင်း)</string>
+    <string name="max_sensor_light">ပတ်ဝန်းကျင်အလင်းရောင်</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">ဤစက်ပစ္စည်းသည် အလင်းအာရုံခံကိရိယာမရှိကြောင်း အစီရင်ခံပါသည်။</string>
+    <string name="max_sensor_light_unreadable">အချိန်မလွန်မီ စာမဖတ်ရ—မသိ၊ သုညမဟုတ်ပါ။</string>
+    <string name="max_sensor_more">…နှင့် %1$s နောက်ထပ်</string>
+    <string name="max_sensor_no_score">အမည်များ၊ အပိုင်းအခြားများနှင့် နှောင့်နှေးမှုများသည် ပလပ်ဖောင်းမှ လာပါသည်။ သတင်းပို့သည့် အာရုံခံကိရိယာသည် မှန်ကန်ကြောင်း သက်သေမပြပါ။</string>
+    <string name="max_sensor_kind_motion">ရွေ့လျားမှု</string>
+    <string name="max_sensor_kind_environment">ပတ်ဝန်းကျင်</string>
+    <string name="max_sensor_kind_position">ရာထူး</string>
+    <string name="max_sensor_kind_body">ခန္ဓာ</string>
+    <string name="max_sensor_kind_unpositioned">နေရာလွတ်မရှိ။</string>
+    <string name="max_sensor_kind_other">တခြား</string>
+</resources>

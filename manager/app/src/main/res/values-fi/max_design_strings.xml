@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Elää</string>
+    <string name="max_trust_stale">Viimeinen näyte</string>
+    <string name="max_trust_snapshot">Tilannekuva</string>
+    <string name="max_trust_unreadable">Ei lukemista</string>
+    <string name="max_trust_unsupported">Ei tuettu</string>
+    <string name="max_source_label">Lähde</string>
+    <string name="max_updated_label">Päivitetty</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">arvoa ei ole saatavilla</string>
+    <string name="max_expand_section">Näytä tiedot</string>
+    <string name="max_collapse_section">Piilota tiedot</string>
+</resources>

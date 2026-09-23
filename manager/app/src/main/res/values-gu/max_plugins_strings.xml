@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">તૃતીય-પક્ષ પ્લગઇન્સ</string>
+    <string name="max_plugins_subtitle">પ્રકાશિત કરાર: પ્લગઇન શું જાહેર કરી શકે છે અને અહીં શું સ્વીકારવામાં આવ્યું હતું અથવા નકારવામાં આવ્યું હતું.</string>
+    <string name="max_plugins_section_contract">કરાર</string>
+    <string name="max_plugins_contract_api">API સ્તર %1$d</string>
+    <string name="max_plugins_contract_dir">મેનિફેસ્ટ ફોલ્ડર</string>
+    <string name="max_plugins_contract_rules">ઘોષિત ક્ષમતા કાં તો વાંચન અથવા પ્રસ્તાવ છે. હાર્ડવેર લખતી ઇરાદાપૂર્વક કોઈ ક્ષમતા નથી: આ એપ્લિકેશનમાં દરેક લખાણ આર્બિટર દ્વારા જાય છે, અને એક પ્લગઇન જે સીધું લખી શકે છે તે બે માલિકોને એક જ નોબ લખતા રોકવા માટે બાંધવામાં આવેલા ગાર્ડને દૂર કરશે.</string>
+    <string name="max_plugins_contract_keys">મેનિફેસ્ટમાંથી વાંચેલી કી</string>
+    <string name="max_plugins_contract_kinds">સ્વીકૃત પ્રકારો</string>
+    <string name="max_plugins_contract_capabilities">સ્વીકૃત ક્ષમતાઓ</string>
+    <string name="max_plugins_template">મેનિફેસ્ટ ટેમ્પલેટ</string>
+    <string name="max_plugins_template_note">આ લખાણ એ છે જે વિશ્લેષક વાંચે છે. તે કોડમાંથી બહાર નીકળી શકતું નથી, કારણ કે તે તેનાથી જનરેટ થાય છે.</string>
+    <string name="max_plugins_copy_template">નમૂનાની નકલ કરો</string>
+    <string name="max_plugins_template_copied">નમૂનો કૉપિ કર્યો</string>
+    <string name="max_plugins_section_installed">આ ઉપકરણ પર મળી</string>
+    <string name="max_plugins_loading_title">પ્લગઇન ફોલ્ડર વાંચી રહ્યા છીએ</string>
+    <string name="max_plugins_loading_detail">મેનિફેસ્ટ ફોલ્ડરને રૂટ સાથે સૂચિબદ્ધ કરો, પછી કરારની વિરુદ્ધ દરેક મેનિફેસ્ટનું મૂલ્યાંકન કરો.</string>
+    <string name="max_plugins_accepted_count">%1$d સ્વીકાર્યું</string>
+    <string name="max_plugins_rejected_count">%1$d ના પાડી</string>
+    <string name="max_plugins_unreadable_count">%1$d વાંચી શકાય તેવા મેનિફેસ્ટ વગરનું ફોલ્ડર</string>
+    <string name="max_plugins_rejected_section">ચોક્કસ કારણ સાથે ના પાડી</string>
+    <string name="max_plugins_detail_label">જાહેર કર્યું</string>
+    <string name="max_plugins_refresh_cd">પ્લગઇન ફોલ્ડર ફરીથી વાંચો</string>
+    <string name="max_plugins_capability_source">પ્લગઇન દ્વારા જાણ કરવામાં આવી છે, અમારા દ્વારા માપવામાં આવી નથી</string>
+    <string name="max_plugins_cond_empty_title">કોઈ પ્લગઈન્સ ઇન્સ્ટોલ કરેલ નથી</string>
+    <string name="max_plugins_cond_empty_detail">મેનિફેસ્ટ ફોલ્ડરમાં કોઈ પ્લગઇન ફોલ્ડર્સ નથી. કંઈ ખોટું નથી: આ સુવિધાની ડિફોલ્ટ સ્થિતિ છે.</string>
+    <string name="max_plugins_cond_missing_title">મેનિફેસ્ટ ફોલ્ડર હજી અસ્તિત્વમાં નથી</string>
+    <string name="max_plugins_cond_missing_detail">%1$s આ ઉપકરણ પર બનાવવામાં આવ્યું નથી, તેથી વાંચવા માટે કંઈ નથી. તે બનાવવું એ પ્લગઇન લેખકને કરવાની જરૂર છે.</string>
+    <string name="max_plugins_cond_unreadable_title">મેનિફેસ્ટ ફોલ્ડર વાંચી શકાતું નથી</string>
+    <string name="max_plugins_cond_unreadable_detail">ફોલ્ડર %1$s પર અસ્તિત્વમાં છે પરંતુ શેલ તેને વાંચી શક્યું નથી. તેને સૂચિબદ્ધ કરવા માટે રૂટ જરૂરી છે.</string>
+    <string name="max_plugins_reason_BadId">આઈડી ફોલ્ડર નામ તરીકે ઉપયોગમાં લેવા યોગ્ય નથી. લોઅરકેસ લેટિન અક્ષરો, અંકો, બિંદુઓ, ડૅશ અથવા અન્ડરસ્કોરનો ઉપયોગ કરો અને એક પંક્તિમાં ક્યારેય બે બિંદુઓ નહીં.</string>
+    <string name="max_plugins_reason_MissingName">મેનિફેસ્ટ કોઈ નામ જાહેર કરતું નથી.</string>
+    <string name="max_plugins_reason_BadVersion">સંસ્કરણ અંકોથી શરૂ થવું જોઈએ, ઉદાહરણ તરીકે 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">ઘોષિત API સ્તર ખૂટે છે અથવા 1 ની નીચે છે.</string>
+    <string name="max_plugins_reason_ApiTooNew">ઘોષિત API સ્તર આ બિલ્ડ સમજે છે તેના કરતા નવું છે, તેથી તે બિલકુલ ચાલતું નથી.</string>
+    <string name="max_plugins_reason_MissingKind">મેનિફેસ્ટ કોઈ પ્રકારનું જાહેર કરતું નથી.</string>
+    <string name="max_plugins_reason_UnknownKind">પ્રકાર પ્રકાશિત થયેલા પ્રકારોમાંથી એક નથી.</string>
+    <string name="max_plugins_reason_UnknownCapability">ક્ષમતા આ કરારનો ભાગ નથી. અજાણી ક્ષમતાને અવગણવાને બદલે નકારવામાં આવે છે, તેથી તેના માટે પૂછવામાં આવતા ઓછા અધિકારો સાથે કંઈ ચાલતું નથી.</string>
+    <string name="max_plugins_reason_NoCapabilities">પ્લગઇનને ઓછામાં ઓછી એક ક્ષમતા જાહેર કરવી આવશ્યક છે.</string>
+    <string name="max_plugins_reason_DuplicateId">આ આઈડી સાથેનું બીજું પ્લગઈન પહેલેથી જ સ્વીકારવામાં આવ્યું હતું, તેથી આનો ઉપયોગ થતો નથી.</string>
+    <string name="max_plugins_help_title">શા માટે બિલકુલ કરાર</string>
+    <string name="max_plugins_help_body">પ્રકાશિત કરાર વિના, આ એપ્લિકેશનને વિસ્તૃત કરનાર કોઈપણ વ્યક્તિએ અમારી આંતરિક ફાઇલોના આકારનું અનુમાન લગાવવું પડશે, અને અમે તૂટેલામાંથી માન્ય એક્સ્ટેંશન કહી શકતા નથી. તેની સાથે, મર્યાદા જણાવવામાં આવી છે: પ્લગઇન ઉદ્દેશ જાહેર કરે છે અને વાંચે છે; તે ક્યારેય હાર્ડવેર લખતું નથી, અને ઉપરનો દરેક ઇનકાર નિષ્ફળ ગયેલા ચોક્કસ ક્ષેત્રને નામ આપે છે.</string>
+</resources>

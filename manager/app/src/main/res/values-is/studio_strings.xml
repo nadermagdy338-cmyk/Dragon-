@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU tíðni</string>
+    <string name="studio_load_history">Nýleg CPU virkni</string>
+    <string name="studio_waiting_samples">Safnar lifandi upplestri…</string>
+    <string name="studio_automatic_profile">Sjálfvirk stilling stjórnar virka sniðinu.</string>
+    <string name="studio_temperature">Hitastig</string>
+    <string name="studio_display">Skjár</string>
+    <string name="studio_power">Rafmagnsvalkostir</string>
+    <string name="studio_settings">Stillingar</string>
+</resources>

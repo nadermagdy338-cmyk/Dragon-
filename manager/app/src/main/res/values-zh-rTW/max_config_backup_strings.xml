@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">外觀及介面</string>
+    <string name="max_cfg_backup_app_prefs">應用程式偏好設定和語言</string>
+    <string name="max_cfg_declared_absent_title">不會被包括在內，為什麼</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">該設備沒有經過驗證的根，因此無法可靠地讀取值</string>
+    <string name="max_cfg_absent_file_missing">首選項檔案尚不存在</string>
+    <string name="max_cfg_absent_empty">首選項檔案存在但為空，因此無需寫入任何內容</string>
+    <string name="max_cfg_declared_excluded_title">從未包含在此文件中</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI 安全設定在應用程式內部配置，從未在檔案中攜帶</string>
+    <string name="max_cfg_excluded_other_apps">其他應用程式的資料屬於應用程式備份，而不是配置備份</string>
+    <string name="max_cfg_excluded_secret">簽名金鑰和秘密永遠不會寫入您可能共享的文件中</string>
+    <string name="max_cfg_section_tweaks">調整配置</string>
+    <string name="max_cfg_section_applist">每個應用程式列表</string>
+    <string name="max_cfg_section_appearance">外觀及介面</string>
+    <string name="max_cfg_section_app_prefs">應用程式偏好設定和語言</string>
+    <string name="max_cfg_restore_merge_note">恢復首選項合併：寫入檔案中存在的金鑰，且檔案中未提及的金鑰保持原樣。什麼都沒有清除。</string>
+</resources>

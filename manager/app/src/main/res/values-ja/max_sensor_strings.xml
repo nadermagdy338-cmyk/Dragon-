@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">このデバイスによって報告されたセンサー</string>
+    <string name="max_sensor_desc">プラットフォームが独自のハードウェアについて宣言する内容と、1 つの制限されたライト読み取り値。キャリブレーションも健康スコアもありません。両方とも、私たちが持っていない物理的な基準が必要になります。</string>
+    <string name="max_sensor_service">センサーサービス</string>
+    <string name="max_sensor_service_unavailable">到達できませんでした</string>
+    <string name="max_sensor_count">報告されたセンサー</string>
+    <string name="max_sensor_kinds">存在するカテゴリ</string>
+    <string name="max_sensor_wakeup">ウェイクアップ センサー (デバイスのスリープ中にレポート)</string>
+    <string name="max_sensor_light">環境光</string>
+    <string name="max_sensor_unit_lux">ルクス</string>
+    <string name="max_sensor_light_absent">このデバイスは光センサーを報告しません</string>
+    <string name="max_sensor_light_unreadable">タイムアウト前に読み取り値が到着しませんでした — 不明、ゼロではありません</string>
+    <string name="max_sensor_more">…その他 %1$s</string>
+    <string name="max_sensor_no_score">名前、範囲、遅延はプラットフォームから取得されます。センサーが報告しても、それが正確であるという証拠にはなりません。</string>
+    <string name="max_sensor_kind_motion">モーション</string>
+    <string name="max_sensor_kind_environment">環境</string>
+    <string name="max_sensor_kind_position">位置</string>
+    <string name="max_sensor_kind_body">体</string>
+    <string name="max_sensor_kind_unpositioned">配置されていない</string>
+    <string name="max_sensor_kind_other">他の</string>
+</resources>

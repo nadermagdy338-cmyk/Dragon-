@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">ამ მოწყობილობის მიერ მოხსენებული სენსორები</string>
+    <string name="max_sensor_desc">რასაც პლატფორმა აცხადებს საკუთარი აპარატურის შესახებ, პლუს ერთი შეზღუდული სინათლის კითხვა. არანაირი კალიბრაცია და ჯანმრთელობის ქულა: ორივეს დასჭირდება ფიზიკური მითითება, რომელიც ჩვენ არ გვაქვს.</string>
+    <string name="max_sensor_service">სენსორის სერვისი</string>
+    <string name="max_sensor_service_unavailable">ვერ მიაღწიეს</string>
+    <string name="max_sensor_count">იტყობინება სენსორები</string>
+    <string name="max_sensor_kinds">წარმოდგენილი კატეგორიები</string>
+    <string name="max_sensor_wakeup">გაღვიძების სენსორები (მოხსენება, სანამ მოწყობილობა იძინებს)</string>
+    <string name="max_sensor_light">ატმოსფერული შუქი</string>
+    <string name="max_sensor_unit_lux">ლუქსი</string>
+    <string name="max_sensor_light_absent">ეს მოწყობილობა არ იტყობინება სინათლის სენსორს</string>
+    <string name="max_sensor_light_unreadable">წაკითხვა არ მოვიდა ვადამდე - უცნობია, არა ნული</string>
+    <string name="max_sensor_more">…და %1$s მეტი</string>
+    <string name="max_sensor_no_score">სახელები, დიაპაზონები და შეფერხებები მოდის პლატფორმიდან. სენსორი, რომელიც იტყობინება, არ ადასტურებს მის სიზუსტეს.</string>
+    <string name="max_sensor_kind_motion">მოძრაობა</string>
+    <string name="max_sensor_kind_environment">გარემო</string>
+    <string name="max_sensor_kind_position">თანამდებობა</string>
+    <string name="max_sensor_kind_body">სხეული</string>
+    <string name="max_sensor_kind_unpositioned">არაპოზიციონირებული</string>
+    <string name="max_sensor_kind_other">სხვა</string>
+</resources>

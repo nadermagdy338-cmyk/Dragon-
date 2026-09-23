@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">መልክ እና በይነገጽ</string>
+    <string name="max_cfg_backup_app_prefs">የመተግበሪያ ምርጫዎች እና ቋንቋ</string>
+    <string name="max_cfg_declared_absent_title">አይካተትም እና ለምን</string>
+    <string name="max_cfg_declared_absent_line">• %1$s - %2$s</string>
+    <string name="max_cfg_absent_no_root">ይህ መሣሪያ የተረጋገጠ ሥር የለውም፣ ስለዚህ እሴቶቹ በአስተማማኝ ሁኔታ ሊነበቡ አይችሉም</string>
+    <string name="max_cfg_absent_file_missing">ምርጫው ፋይል እስካሁን የለም።</string>
+    <string name="max_cfg_absent_empty">የምርጫው ፋይል አለ ነገር ግን ባዶ ነው, ስለዚህ ምንም የሚጻፍ ነገር የለም</string>
+    <string name="max_cfg_declared_excluded_title">በዚህ ፋይል ውስጥ በጭራሽ አይካተትም።</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s - %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI የደህንነት መቼቶች በመተግበሪያው ውስጥ ተዋቅረዋል፣ በፋይል ውስጥ በጭራሽ አይያዙም።</string>
+    <string name="max_cfg_excluded_other_apps">የሌሎች መተግበሪያዎች ውሂብ የመተግበሪያ ምትኬ እንጂ የማዋቀር ምትኬ አይደለም።</string>
+    <string name="max_cfg_excluded_secret">የመፈረሚያ ቁልፎች እና ሚስጥሮች እርስዎ ሊያጋሩት በሚችሉት ፋይል ላይ በጭራሽ አይጻፉም።</string>
+    <string name="max_cfg_section_tweaks">ውቅር አስተካክል።</string>
+    <string name="max_cfg_section_applist">በመተግበሪያ ዝርዝር</string>
+    <string name="max_cfg_section_appearance">መልክ እና በይነገጽ</string>
+    <string name="max_cfg_section_app_prefs">የመተግበሪያ ምርጫዎች እና ቋንቋ</string>
+    <string name="max_cfg_restore_merge_note">ምርጫዎችን ወደነበረበት መመለስ ውህዶች፡ በፋይሉ ውስጥ ያሉ ቁልፎች ተጽፈዋል፣ እና ቁልፎች እንደነበሩ መቆየታቸውን አይጠቅስም። ምንም ነገር አልጸዳም።</string>
+</resources>

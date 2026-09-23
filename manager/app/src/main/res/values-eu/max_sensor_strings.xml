@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Gailu honek jakinarazitako sentsoreak</string>
+    <string name="max_sensor_desc">Plataformak bere hardwareari buruz deklaratzen duena, gehi argi mugatutako irakurketa bat. Kalibraziorik eta osasun puntuaziorik ez: biek ez dugun erreferentzia fisiko bat beharko lukete.</string>
+    <string name="max_sensor_service">Sentsore zerbitzua</string>
+    <string name="max_sensor_service_unavailable">ezin izan da iritsi</string>
+    <string name="max_sensor_count">Sentsoreek jakinarazi dute</string>
+    <string name="max_sensor_kinds">Kategoriak presente</string>
+    <string name="max_sensor_wakeup">Esnatzeko sentsoreak (eman gailua lo dagoen bitartean)</string>
+    <string name="max_sensor_light">Giro-argia</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">gailu honek ez du argi sentsorerik ematen</string>
+    <string name="max_sensor_light_unreadable">ez zen irakurketarik iritsi denbora-muga baino lehen - ezezaguna, ez zero</string>
+    <string name="max_sensor_more">…eta %1$s gehiago</string>
+    <string name="max_sensor_no_score">Izenak, barrutiak eta atzerapenak plataformatik datoz. Jakinarazten duen sentsore bat ez da zehatza denik frogatzen.</string>
+    <string name="max_sensor_kind_motion">Mugimendua</string>
+    <string name="max_sensor_kind_environment">Ingurumena</string>
+    <string name="max_sensor_kind_position">Posizioa</string>
+    <string name="max_sensor_kind_body">Gorputza</string>
+    <string name="max_sensor_kind_unpositioned">Kokatu gabe</string>
+    <string name="max_sensor_kind_other">Bestela</string>
+</resources>

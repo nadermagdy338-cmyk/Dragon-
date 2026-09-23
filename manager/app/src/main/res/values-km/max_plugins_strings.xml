@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">កម្មវិធីជំនួយភាគីទីបី</string>
+    <string name="max_plugins_subtitle">កិច្ចសន្យាដែលបានបោះពុម្ពផ្សាយ៖ អ្វីដែលកម្មវិធីជំនួយអាចប្រកាស និងអ្វីដែលត្រូវបានទទួលយក ឬបដិសេធនៅទីនេះ។</string>
+    <string name="max_plugins_section_contract">កិច្ចសន្យា</string>
+    <string name="max_plugins_contract_api">កម្រិត API %1$d</string>
+    <string name="max_plugins_contract_dir">ថតបង្ហាញ</string>
+    <string name="max_plugins_contract_rules">សមត្ថភាពដែលបានប្រកាសគឺជាការអាន ឬសំណើ។ គ្មានសមត្ថភាពសរសេរផ្នែករឹងដោយចេតនាទេ៖ រាល់ការសរសេរនៅក្នុងកម្មវិធីនេះឆ្លងកាត់អាជ្ញាកណ្តាល ហើយកម្មវិធីជំនួយដែលអាចសរសេរដោយផ្ទាល់នឹងដកការការពារដែលបង្កើតឡើងដើម្បីបញ្ឈប់ម្ចាស់ពីរនាក់ដែលសរសេរប៊ូតុងដូចគ្នា។</string>
+    <string name="max_plugins_contract_keys">គ្រាប់ចុចអានពីការបង្ហាញ</string>
+    <string name="max_plugins_contract_kinds">ប្រភេទដែលបានទទួលយក</string>
+    <string name="max_plugins_contract_capabilities">សមត្ថភាពដែលអាចទទួលយកបាន។</string>
+    <string name="max_plugins_template">គំរូបង្ហាញ</string>
+    <string name="max_plugins_template_note">អត្ថបទនេះគឺជាអ្វីដែលអ្នកញែកអាន។ វា​មិន​អាច​រសាត់​ចេញ​ពី​កូដ​បាន​ទេ ព្រោះ​វា​ត្រូវ​បាន​បង្កើត​ពី​វា។</string>
+    <string name="max_plugins_copy_template">ចម្លងគំរូ</string>
+    <string name="max_plugins_template_copied">គំរូត្រូវបានចម្លង</string>
+    <string name="max_plugins_section_installed">បានរកឃើញនៅលើឧបករណ៍នេះ។</string>
+    <string name="max_plugins_loading_title">កំពុងអានថតកម្មវិធីជំនួយ</string>
+    <string name="max_plugins_loading_detail">រាយបញ្ជីថត manifest ជាមួយ root បន្ទាប់មកវាយតម្លៃ manifest នីមួយៗប្រឆាំងនឹងកិច្ចសន្យា។</string>
+    <string name="max_plugins_accepted_count">%1$dបានទទួលយក</string>
+    <string name="max_plugins_rejected_count">%1$dបដិសេធ</string>
+    <string name="max_plugins_unreadable_count">ថតឯកសារ %1$d ដោយគ្មាន manifest ដែលអាចអានបាន។</string>
+    <string name="max_plugins_rejected_section">បដិសេធ ដោយមានហេតុផលច្បាស់លាស់</string>
+    <string name="max_plugins_detail_label">បានប្រកាស</string>
+    <string name="max_plugins_refresh_cd">អានថតកម្មវិធីជំនួយឡើងវិញ</string>
+    <string name="max_plugins_capability_source">រាយការណ៍ដោយកម្មវិធីជំនួយ មិនត្រូវបានវាស់វែងដោយយើងទេ។</string>
+    <string name="max_plugins_cond_empty_title">មិនបានដំឡើងកម្មវិធីជំនួយទេ។</string>
+    <string name="max_plugins_cond_empty_detail">ថត manifest មិនមានថតកម្មវិធីជំនួយទេ។ គ្មានអ្វីខុសទេ៖ នេះគឺជាស្ថានភាពលំនាំដើមនៃមុខងារ។</string>
+    <string name="max_plugins_cond_missing_title">ថតឯកសារ Manifest មិនទាន់មាននៅឡើយទេ</string>
+    <string name="max_plugins_cond_missing_detail">%1$s មិនត្រូវបានបង្កើតនៅលើឧបករណ៍នេះទេ ដូច្នេះគ្មានអ្វីដែលត្រូវអានទេ។ ការបង្កើតវាគឺជាកម្មវិធីជំនួយដែលអ្នកនិពន្ធត្រូវធ្វើ។</string>
+    <string name="max_plugins_cond_unreadable_title">ថតឯកសារ Manifest មិនអាចអានបានទេ។</string>
+    <string name="max_plugins_cond_unreadable_detail">ថតមាននៅ %1$s ប៉ុន្តែសែលមិនអាចអានវាបានទេ។ ត្រូវការជា Root ដើម្បីរាយបញ្ជីវា។</string>
+    <string name="max_plugins_reason_BadId">លេខសម្គាល់មិនអាចប្រើជាឈ្មោះថតបានទេ។ ប្រើអក្សរតូចឡាតាំង លេខខ្ទង់ សញ្ញាចុច ឬសញ្ញាគូសក្រោម ហើយមិនត្រូវមានចំណុចពីរជាប់គ្នាទេ។</string>
+    <string name="max_plugins_reason_MissingName">Manifest ប្រកាសថាគ្មានឈ្មោះ។</string>
+    <string name="max_plugins_reason_BadVersion">កំណែត្រូវតែចាប់ផ្តើមដោយលេខ ឧទាហរណ៍ 1.0.0 ។</string>
+    <string name="max_plugins_reason_ApiTooOld">កម្រិត API ដែលបានប្រកាសបាត់ ឬទាបជាង 1។</string>
+    <string name="max_plugins_reason_ApiTooNew">កម្រិត API ដែលបានប្រកាសគឺថ្មីជាងការស្ថាបនានេះយល់ ដូច្នេះវាមិនដំណើរការទាល់តែសោះ។</string>
+    <string name="max_plugins_reason_MissingKind">ការបង្ហាញប្រកាសថាមិនមានប្រភេទទេ។</string>
+    <string name="max_plugins_reason_UnknownKind">ប្រភេទ​នេះ​មិន​មែន​ជា​ប្រភេទ​មួយ​ក្នុង​ចំណោម​ប្រភេទ​ដែល​បាន​ផ្សព្វផ្សាយ​នោះ​ទេ។</string>
+    <string name="max_plugins_reason_UnknownCapability">សមត្ថភាពមិនមែនជាផ្នែកនៃកិច្ចសន្យានេះទេ។ សមត្ថភាពដែលមិនស្គាល់ត្រូវបានបដិសេធជាជាងមិនអើពើ ដូច្នេះគ្មានអ្វីដំណើរការដោយសិទ្ធិតិចជាងអ្វីដែលបានស្នើសុំនោះទេ។</string>
+    <string name="max_plugins_reason_NoCapabilities">កម្មវិធីជំនួយត្រូវតែប្រកាសសមត្ថភាពយ៉ាងហោចណាស់មួយ។</string>
+    <string name="max_plugins_reason_DuplicateId">កម្មវិធីជំនួយមួយផ្សេងទៀតដែលមានលេខសម្គាល់នេះត្រូវបានទទួលយករួចហើយ ដូច្នេះកម្មវិធីជំនួយនេះមិនត្រូវបានប្រើប្រាស់ទេ។</string>
+    <string name="max_plugins_help_title">ហេតុអ្វីបានជាកិច្ចសន្យា</string>
+    <string name="max_plugins_help_body">បើគ្មានកិច្ចសន្យាដែលបានបោះផ្សាយទេ អ្នកណាម្នាក់ដែលពង្រីកកម្មវិធីនេះត្រូវទាយពីរូបរាងនៃឯកសារខាងក្នុងរបស់យើង ហើយយើងមិនអាចប្រាប់ផ្នែកបន្ថែមត្រឹមត្រូវពីឯកសារដែលខូចនោះទេ។ ជាមួយវា ដែនកំណត់ត្រូវបានបញ្ជាក់៖ កម្មវិធីជំនួយប្រកាសចេតនា និងអាន។ វាមិនដែលសរសេរផ្នែករឹងទេ ហើយរាល់ការបដិសេធខាងលើដាក់ឈ្មោះវាលពិតប្រាកដដែលបរាជ័យ។</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Izskats un saskarne</string>
+    <string name="max_cfg_backup_app_prefs">Lietotņu preferences un valoda</string>
+    <string name="max_cfg_declared_absent_title">Nebūs iekļauts, un kāpēc</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">šai ierīcei nav verificētas saknes, tāpēc vērtības nevar droši nolasīt</string>
+    <string name="max_cfg_absent_file_missing">preferenču fails vēl nepastāv</string>
+    <string name="max_cfg_absent_empty">preferenču fails pastāv, bet ir tukšs, tāpēc nav ko rakstīt</string>
+    <string name="max_cfg_declared_excluded_title">Nekad nav iekļauts šajā failā</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI drošības iestatījumi ir konfigurēti lietotnē, un tie nekad netiek pārnesti failā</string>
+    <string name="max_cfg_excluded_other_apps">citu lietotņu dati pieder lietotņu dublējumam, nevis konfigurācijas dublējumam</string>
+    <string name="max_cfg_excluded_secret">parakstīšanas atslēgas un noslēpumi nekad netiek ierakstīti failā, kuru varētu kopīgot</string>
+    <string name="max_cfg_section_tweaks">Pielāgot konfigurāciju</string>
+    <string name="max_cfg_section_applist">Programmu saraksts</string>
+    <string name="max_cfg_section_appearance">Izskats un saskarne</string>
+    <string name="max_cfg_section_app_prefs">Lietotņu preferences un valoda</string>
+    <string name="max_cfg_restore_merge_note">Atjaunojot preferences, tiek sapludinātas: failā esošās atslēgas tiek ierakstītas, un atslēgas, kuras tajā nav minētas, paliek tādas, kādas ir. Nekas nav notīrīts.</string>
+</resources>

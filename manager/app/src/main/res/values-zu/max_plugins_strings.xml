@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Ama-plugin ezinkampani zangaphandle</string>
+    <string name="max_plugins_subtitle">Inkontileka eshicilelwe: lokho i-plugin engakusho, nokuthi yini eyamukelwe noma enqatshiwe lapha.</string>
+    <string name="max_plugins_section_contract">Inkontileka</string>
+    <string name="max_plugins_contract_api">Ileveli ye-API %1$d</string>
+    <string name="max_plugins_contract_dir">Ifolda ye-manifest</string>
+    <string name="max_plugins_contract_rules">Amandla amenyezelwe ukufunda noma isiphakamiso. Awekho ngamabomu amandla okubhala ihadiwe: konke okulotshwe kulolu hlelo lokusebenza kudlula ku-arbiter, futhi i-plugin engabhala ngokuqondile izosusa unogada owakhelwe ukumisa abanikazi ababili ababhala ifindo elifanayo.</string>
+    <string name="max_plugins_contract_keys">Okhiye bafundwa ku-manifest</string>
+    <string name="max_plugins_contract_kinds">Izinhlobo ezamukelwayo</string>
+    <string name="max_plugins_contract_capabilities">Amakhono amukelwayo</string>
+    <string name="max_plugins_template">Bonisa isifanekiso</string>
+    <string name="max_plugins_template_note">Lo mbhalo yilokho okufundwa ngumhlaziyi. Ayikwazi ukukhukhuleka kusuka kukhodi, ngoba ikhiqizwa kuyo.</string>
+    <string name="max_plugins_copy_template">Kopisha isifanekiso</string>
+    <string name="max_plugins_template_copied">Isifanekiso sikopishiwe</string>
+    <string name="max_plugins_section_installed">Kutholwe kule divayisi</string>
+    <string name="max_plugins_loading_title">Ifunda ifolda ye-plugin</string>
+    <string name="max_plugins_loading_detail">Ifaka kuhlu ifolda ye-manifest enempande, bese ihlola i-manifest ngayinye ngokumelene nenkontileka.</string>
+    <string name="max_plugins_accepted_count">%1$d kwamukelwe</string>
+    <string name="max_plugins_rejected_count">%1$d wenqabile</string>
+    <string name="max_plugins_unreadable_count">%1$d ifolda ngaphandle kwe-manifest efundekayo</string>
+    <string name="max_plugins_rejected_section">Wenqabile, ngesizathu esiqondile</string>
+    <string name="max_plugins_detail_label">Kumenyezelwe</string>
+    <string name="max_plugins_refresh_cd">Phinda ufunde ifolda ye-plugin</string>
+    <string name="max_plugins_capability_source">Ibikwe i-plugin, ayilinganiswa yithi</string>
+    <string name="max_plugins_cond_empty_title">Awekho ama-plugin afakiwe</string>
+    <string name="max_plugins_cond_empty_detail">Ifolda ye-manifest ayinawo amafolda e-plugin. Akukho okungalungile: lesi isimo esizenzakalelayo sesici.</string>
+    <string name="max_plugins_cond_missing_title">Ifolda ye-manifest ayitholakali okwamanje</string>
+    <string name="max_plugins_cond_missing_detail">%1$s ayikadalwa kule divayisi, ngakho-ke akukho okungafundwa. Ukuyidala yikho konke umlobi we-plugin okudingeka akwenze.</string>
+    <string name="max_plugins_cond_unreadable_title">Ifolda ye-manifest ayikwazi ukufundwa</string>
+    <string name="max_plugins_cond_unreadable_detail">Ifolda ikhona kokuthi %1$s kodwa igobolondo alikwazanga ukuyifunda. Kudingeka impande ukuze uyifake ohlwini.</string>
+    <string name="max_plugins_reason_BadId">I-id ayisebenzi njengegama lefolda. Sebenzisa izinhlamvu zesiLatini ezincane, amadijithi, amachashazi, amadeshi noma ama-underscore, futhi ungalokothi ube namachashazi amabili ngokulandelana.</string>
+    <string name="max_plugins_reason_MissingName">I-manifest ayisho ukuthi alikho igama.</string>
+    <string name="max_plugins_reason_BadVersion">Inguqulo kufanele iqale ngamadijithi, isibonelo 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Ileveli ye-API emenyezelwe ayikho noma ingaphansi kuka-1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Ileveli ye-API emenyezelwe yintsha kunalokho okuqondwa yilesi sakhiwo, ngakho ayisebenzi sanhlobo.</string>
+    <string name="max_plugins_reason_MissingKind">I-manifest ayisho lutho.</string>
+    <string name="max_plugins_reason_UnknownKind">Uhlobo akulona olulodwa lwezinhlobo ezishicilelwe.</string>
+    <string name="max_plugins_reason_UnknownCapability">Amandla awayona ingxenye yale nkontileka. Ikhono elingaziwa liyenqatshwa kunokuba lishaywe indiva, ngakho-ke akukho lutho oluhamba ngamalungelo ambalwa kunalokho obuceliwe.</string>
+    <string name="max_plugins_reason_NoCapabilities">I-plugin kufanele iveze okungenani ikhono elilodwa.</string>
+    <string name="max_plugins_reason_DuplicateId">Enye i-plugin enale ID yayisivele yamukelwe, ngakho lena ayisetshenziswa.</string>
+    <string name="max_plugins_help_title">Kungani kunenkontileka nhlobo</string>
+    <string name="max_plugins_help_body">Ngaphandle kwenkontileka eshicilelwe, noma ubani owelula lolu hlelo lokusebenza kufanele aqagele umumo wamafayela ethu angaphakathi, futhi ngeke sikwazi ukusho isandiso esivumelekile kwesiphukile. Ngayo, umkhawulo ushiwo: i-plugin iveza inhloso futhi ifundeka; ayilokothi ibhale ihadiwe, futhi konke ukwenqaba okungenhla kuqamba inkambu eqondile ehlulekile.</string>
+</resources>

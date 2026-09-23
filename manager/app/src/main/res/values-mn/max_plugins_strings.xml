@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Гуравдагч талын залгаасууд</string>
+    <string name="max_plugins_subtitle">Нийтлэгдсэн гэрээ: залгаас юуг зарлаж болох, энд юуг хүлээн зөвшөөрсөн эсвэл татгалзсан тухай.</string>
+    <string name="max_plugins_section_contract">Гэрээ</string>
+    <string name="max_plugins_contract_api">API түвшин %1$d</string>
+    <string name="max_plugins_contract_dir">Манифест хавтас</string>
+    <string name="max_plugins_contract_rules">Зарлагдсан чадвар нь уншсан эсвэл санал юм. Техник хангамжийг бичих чадвар зориудаар байхгүй: энэ аппликешн дэх бичих бүр арбитраар дамждаг бөгөөд шууд бичих боломжтой залгаас нь хоёр эзэмшигчийн ижил товчлуурыг бичихийг зогсоохын тулд бүтээсэн хамгаалалтыг арилгах болно.</string>
+    <string name="max_plugins_contract_keys">Манифестээс уншсан түлхүүрүүд</string>
+    <string name="max_plugins_contract_kinds">Хүлээн зөвшөөрөгдсөн төрлүүд</string>
+    <string name="max_plugins_contract_capabilities">Хүлээн зөвшөөрөгдсөн чадварууд</string>
+    <string name="max_plugins_template">Манифест загвар</string>
+    <string name="max_plugins_template_note">Энэ текстийг задлан шинжлэгч уншдаг. Энэ нь кодоос үүсэлтэй тул кодоос салж чадахгүй.</string>
+    <string name="max_plugins_copy_template">Загварыг хуулах</string>
+    <string name="max_plugins_template_copied">Загварыг хуулсан</string>
+    <string name="max_plugins_section_installed">Энэ төхөөрөмжөөс олдсон</string>
+    <string name="max_plugins_loading_title">Plugin хавтасыг уншиж байна</string>
+    <string name="max_plugins_loading_detail">Манифест хавтсыг root-тэй жагсааж, дараа нь манифест бүрийг гэрээний дагуу үнэлнэ.</string>
+    <string name="max_plugins_accepted_count">%1$d зөвшөөрсөн</string>
+    <string name="max_plugins_rejected_count">%1$d татгалзсан</string>
+    <string name="max_plugins_unreadable_count">Унших боломжтой манифестгүй %1$d хавтас</string>
+    <string name="max_plugins_rejected_section">Тодорхой шалтгааны улмаас татгалзсан</string>
+    <string name="max_plugins_detail_label">тунхагласан</string>
+    <string name="max_plugins_refresh_cd">Plugin хавтасыг дахин уншина уу</string>
+    <string name="max_plugins_capability_source">Манайхаар хэмжигдээгүй залгаасаар мэдээлсэн</string>
+    <string name="max_plugins_cond_empty_title">Ямар ч залгаас суулгаагүй байна</string>
+    <string name="max_plugins_cond_empty_detail">Манифест хавтсанд ямар ч залгаас хавтас байхгүй. Ямар ч буруу зүйл байхгүй: энэ бол функцийн үндсэн төлөв юм.</string>
+    <string name="max_plugins_cond_missing_title">Манифест хавтас хараахан байхгүй байна</string>
+    <string name="max_plugins_cond_missing_detail">%1$s энэ төхөөрөмж дээр үүсгэгдээгүй тул унших зүйл алга. Үүнийг үүсгэх нь залгаас зохиогчийн хийх ёстой бүх зүйл юм.</string>
+    <string name="max_plugins_cond_unreadable_title">Манифест фолдерыг унших боломжгүй</string>
+    <string name="max_plugins_cond_unreadable_detail">Фолдер %1$s-д байгаа боловч бүрхүүл үүнийг уншиж чадсангүй. Үүнийг жагсаахад root шаардлагатай.</string>
+    <string name="max_plugins_reason_BadId">ID-г фолдерын нэр болгон ашиглах боломжгүй. Жижиг латин үсэг, цифр, цэг, зураас эсвэл доогуур зураасыг ашиглах ба дараалсан хоёр цэгийг хэзээ ч бүү ашигла.</string>
+    <string name="max_plugins_reason_MissingName">Манифест нь ямар ч нэр зарлаагүй.</string>
+    <string name="max_plugins_reason_BadVersion">Хувилбар нь цифрээр эхлэх ёстой, жишээ нь 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Зарлагдсан API түвшин байхгүй эсвэл 1-ээс доош байна.</string>
+    <string name="max_plugins_reason_ApiTooNew">Зарлагдсан API түвшин нь энэхүү бүтээцэд ойлгогдохоос шинэ байгаа тул үүнийг огт ажиллуулдаггүй.</string>
+    <string name="max_plugins_reason_MissingKind">Манифест ямар ч төрлийг тунхагладаггүй.</string>
+    <string name="max_plugins_reason_UnknownKind">Энэ төрөл нь нийтлэгдсэн төрлүүдийн нэг биш юм.</string>
+    <string name="max_plugins_reason_UnknownCapability">Чадвар нь энэ гэрээний нэг хэсэг биш юм. Үл мэдэгдэх чадварыг үл тоомсорлохын оронд татгалздаг тул хүссэнээс бага эрхээр юу ч ажиллахгүй.</string>
+    <string name="max_plugins_reason_NoCapabilities">Plugin нь дор хаяж нэг чадварыг зарлах ёстой.</string>
+    <string name="max_plugins_reason_DuplicateId">Энэ ID-тай өөр залгаасыг аль хэдийн хүлээн зөвшөөрсөн тул үүнийг ашиглаагүй байна.</string>
+    <string name="max_plugins_help_title">Ер нь яагаад гэрээ гэж</string>
+    <string name="max_plugins_help_body">Нийтлэгдсэн гэрээгүй бол энэ аппликейшнийг өргөтгөж буй хэн бүхэн бидний дотоод файлуудын хэлбэрийг таах ёстой бөгөөд бид хүчинтэй өргөтгөлийг эвдэрсэн өргөтгөлөөс ялгаж чадахгүй. Үүний тусламжтайгаар хязгаарыг зааж өгсөн болно: залгаас нь зорилгыг зарлаж, уншдаг; Энэ нь хэзээ ч техник хангамжийг бичдэггүй бөгөөд дээрх татгалзал бүр нь бүтэлгүйтсэн талбарыг яг таг нэрлэдэг.</string>
+</resources>

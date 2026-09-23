@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Vivere</string>
+    <string name="max_trust_stale">Ultimo campione</string>
+    <string name="max_trust_snapshot">Istantanea</string>
+    <string name="max_trust_unreadable">Nessuna lettura</string>
+    <string name="max_trust_unsupported">Non supportato</string>
+    <string name="max_source_label">Fonte</string>
+    <string name="max_updated_label">Aggiornato</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">nessun valore disponibile</string>
+    <string name="max_expand_section">Mostra dettagli</string>
+    <string name="max_collapse_section">Nascondi dettagli</string>
+</resources>

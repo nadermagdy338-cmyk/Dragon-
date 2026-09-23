@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Üçüncü taraf eklentiler</string>
+    <string name="max_plugins_subtitle">Yayınlanan sözleşme: Bir eklentinin neyi beyan edebileceği ve burada neyin kabul edildiği veya reddedildiği.</string>
+    <string name="max_plugins_section_contract">Sözleşme</string>
+    <string name="max_plugins_contract_api">API düzeyi %1$d</string>
+    <string name="max_plugins_contract_dir">Bildirim klasörü</string>
+    <string name="max_plugins_contract_rules">Bildirilen bir yetenek ya bir okuma ya da bir tekliftir. Donanım yazan bir yetenek kasıtlı olarak yoktur: Bu uygulamadaki her yazma hakemden geçer ve doğrudan yazabilen bir eklenti, iki sahibinin aynı düğmeyi yazmasını engellemek için oluşturulmuş korumayı kaldırır.</string>
+    <string name="max_plugins_contract_keys">Bir bildirimden okunan anahtarlar</string>
+    <string name="max_plugins_contract_kinds">Kabul edilen türler</string>
+    <string name="max_plugins_contract_capabilities">Kabul edilen yetenekler</string>
+    <string name="max_plugins_template">Bildirim şablonu</string>
+    <string name="max_plugins_template_note">Bu metin ayrıştırıcının okuduğu metindir. Koddan üretildiği için koddan ayrılamaz.</string>
+    <string name="max_plugins_copy_template">Şablonu kopyala</string>
+    <string name="max_plugins_template_copied">Şablon kopyalandı</string>
+    <string name="max_plugins_section_installed">Bu cihazda bulundu</string>
+    <string name="max_plugins_loading_title">Eklenti klasörünü okuma</string>
+    <string name="max_plugins_loading_detail">Bildiri klasörünün root ile listelenmesi, ardından her bildirimin sözleşmeye göre değerlendirilmesi.</string>
+    <string name="max_plugins_accepted_count">%1$d kabul edildi</string>
+    <string name="max_plugins_rejected_count">%1$d reddedildi</string>
+    <string name="max_plugins_unreadable_count">Okunabilir bildirimi olmayan %1$d klasörü</string>
+    <string name="max_plugins_rejected_section">Kesin gerekçeyle reddedildi</string>
+    <string name="max_plugins_detail_label">Beyan edildi</string>
+    <string name="max_plugins_refresh_cd">Eklenti klasörünü tekrar okuyun</string>
+    <string name="max_plugins_capability_source">Eklenti tarafından rapor edildi, tarafımızdan ölçülmedi</string>
+    <string name="max_plugins_cond_empty_title">Hiçbir eklenti yüklü değil</string>
+    <string name="max_plugins_cond_empty_detail">Manifest klasörü hiçbir eklenti klasörü içermez. Yanlış bir şey yok: Bu, özelliğin varsayılan durumudur.</string>
+    <string name="max_plugins_cond_missing_title">Manifest klasörü henüz mevcut değil</string>
+    <string name="max_plugins_cond_missing_detail">%1$s bu cihazda oluşturulmadığından okunacak bir şey yok. Bunu oluşturmak bir eklenti yazarının yapması gereken tek şeydir.</string>
+    <string name="max_plugins_cond_unreadable_title">Bildirim klasörü okunamıyor</string>
+    <string name="max_plugins_cond_unreadable_detail">Klasör %1$s konumunda mevcut ancak kabuk onu okuyamadı. Listelemek için root gereklidir.</string>
+    <string name="max_plugins_reason_BadId">Kimlik, klasör adı olarak kullanılamaz. Küçük Latin harfleri, rakamlar, noktalar, kısa çizgiler veya alt çizgiler kullanın; asla art arda iki nokta kullanmayın.</string>
+    <string name="max_plugins_reason_MissingName">Manifesto hiçbir isim bildirmiyor.</string>
+    <string name="max_plugins_reason_BadVersion">Sürüm rakamlarla başlamalıdır, örneğin 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Bildirilen API düzeyi eksik veya 1\'in altında.</string>
+    <string name="max_plugins_reason_ApiTooNew">Bildirilen API düzeyi bu yapının anladığından daha yeni olduğundan hiç çalıştırılmaz.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest hiçbir tür bildirmiyor.</string>
+    <string name="max_plugins_reason_UnknownKind">Tür yayınlanmış türlerden değildir.</string>
+    <string name="max_plugins_reason_UnknownCapability">Yetenek bu sözleşmenin bir parçası değildir. Bilinmeyen bir yetenek göz ardı edilmek yerine reddedilir, dolayısıyla hiçbir şey istenenden daha az hakla çalışmaz.</string>
+    <string name="max_plugins_reason_NoCapabilities">Bir eklenti en az bir yeteneği beyan etmelidir.</string>
+    <string name="max_plugins_reason_DuplicateId">Bu kimliğe sahip başka bir eklenti zaten kabul edilmiş olduğundan bu kullanılmıyor.</string>
+    <string name="max_plugins_help_title">Neden bir sözleşme</string>
+    <string name="max_plugins_help_body">Yayınlanmış bir sözleşme olmadan, bu uygulamayı genişleten herkesin dahili dosyalarımızın şeklini tahmin etmesi gerekir ve geçerli bir uzantıyı bozuk bir uzantıdan ayırt edemeyiz. Bununla birlikte sınır belirtilir: bir eklenti amacı bildirir ve okur; asla donanım yazmaz ve yukarıdaki her ret, başarısız olan alanın tam adını belirtir.</string>
+</resources>

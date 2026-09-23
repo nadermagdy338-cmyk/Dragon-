@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">외관 및 인터페이스</string>
+    <string name="max_cfg_backup_app_prefs">앱 환경설정 및 언어</string>
+    <string name="max_cfg_declared_absent_title">포함되지 않을 것이며 그 이유는 무엇입니까?</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">이 장치에는 확인된 루트가 없으므로 값을 안정적으로 읽을 수 없습니다.</string>
+    <string name="max_cfg_absent_file_missing">기본 설정 파일이 아직 존재하지 않습니다.</string>
+    <string name="max_cfg_absent_empty">기본 설정 파일이 존재하지만 비어 있으므로 작성할 내용이 없습니다.</string>
+    <string name="max_cfg_declared_excluded_title">이 파일에 포함되지 않음</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI 안전 설정은 앱 내부에서 구성되며 파일로 전달되지 않습니다.</string>
+    <string name="max_cfg_excluded_other_apps">다른 앱의 데이터는 구성 백업이 아닌 앱 백업에 속합니다.</string>
+    <string name="max_cfg_excluded_secret">서명 키와 비밀은 공유할 수 있는 파일에 절대 기록되지 않습니다.</string>
+    <string name="max_cfg_section_tweaks">구성 조정</string>
+    <string name="max_cfg_section_applist">앱별 목록</string>
+    <string name="max_cfg_section_appearance">외관 및 인터페이스</string>
+    <string name="max_cfg_section_app_prefs">앱 환경설정 및 언어</string>
+    <string name="max_cfg_restore_merge_note">기본 설정 병합 복원: 파일에 있는 키가 기록되고, 언급되지 않은 키는 그대로 유지됩니다. 아무것도 지워지지 않았습니다.</string>
+</resources>

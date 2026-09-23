@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Mga sensor na iniulat ng device na ito</string>
+    <string name="max_sensor_desc">Ang idineklara ng platform tungkol sa sarili nitong hardware, kasama ang isang bounded light reading. Walang pagkakalibrate at walang marka ng kalusugan: parehong mangangailangan ng pisikal na sanggunian na wala tayo.</string>
+    <string name="max_sensor_service">Serbisyo ng sensor</string>
+    <string name="max_sensor_service_unavailable">hindi maabot</string>
+    <string name="max_sensor_count">Iniulat ng mga sensor</string>
+    <string name="max_sensor_kinds">Mga kategorya na naroroon</string>
+    <string name="max_sensor_wakeup">Mga wake-up sensor (iulat habang natutulog ang device)</string>
+    <string name="max_sensor_light">Ilaw sa paligid</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">ang device na ito ay nag-uulat ng walang light sensor</string>
+    <string name="max_sensor_light_unreadable">walang pagbabasa na dumating bago ang timeout — hindi alam, hindi zero</string>
+    <string name="max_sensor_more">…at %1$s higit pa</string>
+    <string name="max_sensor_no_score">Ang mga pangalan, hanay at pagkaantala ay nagmumula sa platform. Ang isang sensor na nag-uulat ay hindi patunay na ito ay tumpak.</string>
+    <string name="max_sensor_kind_motion">galaw</string>
+    <string name="max_sensor_kind_environment">Kapaligiran</string>
+    <string name="max_sensor_kind_position">Posisyon</string>
+    <string name="max_sensor_kind_body">Katawan</string>
+    <string name="max_sensor_kind_unpositioned">Hindi nakaposisyon</string>
+    <string name="max_sensor_kind_other">Iba pa</string>
+</resources>

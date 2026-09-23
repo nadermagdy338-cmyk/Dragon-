@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU frekvence</string>
+    <string name="studio_load_history">Nedávná aktivita CPU</string>
+    <string name="studio_waiting_samples">Sbírání živých čtení…</string>
+    <string name="studio_automatic_profile">Automatický režim spravuje aktivní profil.</string>
+    <string name="studio_temperature">Teplota</string>
+    <string name="studio_display">Zobrazit</string>
+    <string name="studio_power">Možnosti napájení</string>
+    <string name="studio_settings">Nastavení</string>
+</resources>

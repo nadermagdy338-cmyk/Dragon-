@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">پرفارمنس اسٹوڈیو</string>
+    <string name="studio_cpu_frequency">CPU تعدد</string>
+    <string name="studio_load_history">حالیہ CPU سرگرمی</string>
+    <string name="studio_waiting_samples">لائیو ریڈنگز کو جمع کیا جا رہا ہے…</string>
+    <string name="studio_automatic_profile">خودکار موڈ فعال پروفائل کا انتظام کرتا ہے۔</string>
+    <string name="studio_temperature">درجہ حرارت</string>
+    <string name="studio_display">ڈسپلے</string>
+    <string name="studio_power">پاور کے اختیارات</string>
+    <string name="studio_settings">ترتیبات</string>
+</resources>

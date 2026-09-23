@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Apie jutiklius pranešė šis įrenginys</string>
+    <string name="max_sensor_desc">Tai, ką platforma deklaruoja apie savo aparatinę įrangą, ir vieną ribotą šviesą. Jokio kalibravimo ir sveikatos balo: abiem reikėtų fizinės nuorodos, kurios neturime.</string>
+    <string name="max_sensor_service">Jutiklių aptarnavimas</string>
+    <string name="max_sensor_service_unavailable">nepavyko pasiekti</string>
+    <string name="max_sensor_count">Pranešė jutikliai</string>
+    <string name="max_sensor_kinds">Esamos kategorijos</string>
+    <string name="max_sensor_wakeup">Pažadinimo jutikliai (praneškite, kai įrenginys miega)</string>
+    <string name="max_sensor_light">Aplinkos šviesa</string>
+    <string name="max_sensor_unit_lux">liuksai</string>
+    <string name="max_sensor_light_absent">šis įrenginys nepraneša, kad šviesos jutiklis nėra</string>
+    <string name="max_sensor_light_unreadable">prieš pasibaigiant skirtajam laikui nebuvo skaitoma – nežinoma, o ne nulis</string>
+    <string name="max_sensor_more">…ir dar %1$s</string>
+    <string name="max_sensor_no_score">Vardai, diapazonai ir vėlavimai gaunami iš platformos. Jutiklis, kuris praneša, neįrodo, kad jis tikslus.</string>
+    <string name="max_sensor_kind_motion">Judėjimas</string>
+    <string name="max_sensor_kind_environment">Aplinka</string>
+    <string name="max_sensor_kind_position">Padėtis</string>
+    <string name="max_sensor_kind_body">Kūnas</string>
+    <string name="max_sensor_kind_unpositioned">Nepozicionuotas</string>
+    <string name="max_sensor_kind_other">Kita</string>
+</resources>

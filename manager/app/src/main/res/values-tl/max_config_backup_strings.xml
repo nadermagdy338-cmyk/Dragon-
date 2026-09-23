@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Hitsura at interface</string>
+    <string name="max_cfg_backup_app_prefs">Mga kagustuhan sa app at wika</string>
+    <string name="max_cfg_declared_absent_title">Hindi isasama, at bakit</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ang device na ito ay walang na-verify na ugat, kaya ang mga halaga ay hindi maaaring basahin nang mapagkakatiwalaan</string>
+    <string name="max_cfg_absent_file_missing">wala pa ang preference na file</string>
+    <string name="max_cfg_absent_empty">umiiral ang preference na file ngunit walang laman, kaya walang maisulat</string>
+    <string name="max_cfg_declared_excluded_title">Hindi kailanman kasama sa file na ito</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI mga setting ng kaligtasan ay na-configure sa loob ng app, hindi kailanman dinadala sa isang file</string>
+    <string name="max_cfg_excluded_other_apps">Ang data ng iba pang app ay nabibilang sa backup ng app, hindi sa backup ng config</string>
+    <string name="max_cfg_excluded_secret">Ang mga signing key at sikreto ay hindi kailanman nakasulat sa isang file na maaari mong ibahagi</string>
+    <string name="max_cfg_section_tweaks">I-tweak ang configuration</string>
+    <string name="max_cfg_section_applist">Listahan ng bawat app</string>
+    <string name="max_cfg_section_appearance">Hitsura at interface</string>
+    <string name="max_cfg_section_app_prefs">Mga kagustuhan sa app at wika</string>
+    <string name="max_cfg_restore_merge_note">Ang pagpapanumbalik ng mga kagustuhan ay pinagsama-sama: ang mga susi na nasa file ay nakasulat, at ang mga susi na hindi nito binanggit ay mananatiling tulad ng mga ito. Walang nalilinis.</string>
+</resources>

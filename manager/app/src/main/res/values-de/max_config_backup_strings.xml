@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Aussehen &amp; Oberfläche</string>
+    <string name="max_cfg_backup_app_prefs">App-Einstellungen &amp; Sprache</string>
+    <string name="max_cfg_declared_absent_title">Wird nicht aufgenommen, und warum</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">dieses Gerät hat keinen verifizierten Root, daher lassen sich die Werte nicht zuverlässig lesen</string>
+    <string name="max_cfg_absent_file_missing">die Einstellungsdatei existiert noch nicht</string>
+    <string name="max_cfg_absent_empty">die Einstellungsdatei existiert, ist aber leer, daher gibt es nichts zu schreiben</string>
+    <string name="max_cfg_declared_excluded_title">Niemals in dieser Datei enthalten</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Die Sicherheitseinstellungen von Max AI werden in der App konfiguriert, niemals in einer Datei mitgeführt</string>
+    <string name="max_cfg_excluded_other_apps">Daten anderer Apps gehören zur App-Sicherung, nicht zur Konfigurationssicherung</string>
+    <string name="max_cfg_excluded_secret">Signaturschlüssel und Geheimnisse werden niemals in eine Datei geschrieben, die du teilen könntest</string>
+    <string name="max_cfg_section_tweaks">Tweak-Konfiguration</string>
+    <string name="max_cfg_section_applist">Liste pro App</string>
+    <string name="max_cfg_section_appearance">Aussehen &amp; Oberfläche</string>
+    <string name="max_cfg_section_app_prefs">App-Einstellungen &amp; Sprache</string>
+    <string name="max_cfg_restore_merge_note">Das Wiederherstellen von Einstellungen führt zusammen: Schlüssel, die in der Datei vorhanden sind, werden geschrieben, und Schlüssel, die sie nicht erwähnt, bleiben, wie sie sind. Nichts wird gelöscht.</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Ngoại hình &amp; giao diện</string>
+    <string name="max_cfg_backup_app_prefs">Tùy chọn ứng dụng và ngôn ngữ</string>
+    <string name="max_cfg_declared_absent_title">Sẽ không được đưa vào và tại sao</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">thiết bị này chưa được xác minh gốc nên không thể đọc được các giá trị một cách đáng tin cậy</string>
+    <string name="max_cfg_absent_file_missing">tập tin ưu tiên chưa tồn tại</string>
+    <string name="max_cfg_absent_empty">tệp ưu tiên tồn tại nhưng trống rỗng nên không có gì để ghi</string>
+    <string name="max_cfg_declared_excluded_title">Không bao giờ được bao gồm trong tập tin này</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI cài đặt an toàn được định cấu hình bên trong ứng dụng, không bao giờ được lưu trong tệp</string>
+    <string name="max_cfg_excluded_other_apps">dữ liệu của các ứng dụng khác thuộc về sao lưu ứng dụng, không phải sao lưu cấu hình</string>
+    <string name="max_cfg_excluded_secret">khóa ký và bí mật không bao giờ được ghi vào tệp bạn có thể chia sẻ</string>
+    <string name="max_cfg_section_tweaks">Tinh chỉnh cấu hình</string>
+    <string name="max_cfg_section_applist">Danh sách mỗi ứng dụng</string>
+    <string name="max_cfg_section_appearance">Ngoại hình &amp; giao diện</string>
+    <string name="max_cfg_section_app_prefs">Tùy chọn ứng dụng và ngôn ngữ</string>
+    <string name="max_cfg_restore_merge_note">Khôi phục các tùy chọn hợp nhất: các khóa có trong tệp được ghi và các khóa không đề cập đến vẫn giữ nguyên như cũ. Không có gì được xóa.</string>
+</resources>

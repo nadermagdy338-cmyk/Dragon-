@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">የሶስተኛ ወገን ተሰኪዎች</string>
+    <string name="max_plugins_subtitle">የታተመው ውል፡- ተሰኪ ምን ያውጃል፣ እና እዚህ የተቀበለው ወይም ያልተቀበለው።</string>
+    <string name="max_plugins_section_contract">ውሉ</string>
+    <string name="max_plugins_contract_api">የኤፒአይ ደረጃ %1$d</string>
+    <string name="max_plugins_contract_dir">አንጸባራቂ አቃፊ</string>
+    <string name="max_plugins_contract_rules">የተገለጸው ችሎታ ማንበብ ወይም ፕሮፖዛል ነው። ሆን ተብሎ ሃርድዌርን የሚጽፍ ምንም ችሎታ የለም፡ በዚህ መተግበሪያ ውስጥ ያለው እያንዳንዱ ጽሁፍ በግልግል በኩል ያልፋል፣ እና በቀጥታ ሊጽፍ የሚችል ፕለጊን ሁለት ባለቤቶች አንድ አይነት ቁልፍ መፃፍ ለማቆም የተሰራውን ጠባቂ ያስወግዳል።</string>
+    <string name="max_plugins_contract_keys">ቁልፎች ከማንፀባረቂያ ተነባቢ</string>
+    <string name="max_plugins_contract_kinds">ተቀባይነት ያላቸው ዓይነቶች</string>
+    <string name="max_plugins_contract_capabilities">ተቀባይነት ያላቸው ችሎታዎች</string>
+    <string name="max_plugins_template">አብነት አንጸባራቂ</string>
+    <string name="max_plugins_template_note">ይህ ጽሑፍ ተንታኙ የሚያነበው ነው። ከኮዱ ሊንሸራተት አይችልም, ምክንያቱም ከእሱ የመነጨ ነው.</string>
+    <string name="max_plugins_copy_template">አብነቱን ይቅዱ</string>
+    <string name="max_plugins_template_copied">አብነት ተቀድቷል።</string>
+    <string name="max_plugins_section_installed">በዚህ መሣሪያ ላይ ተገኝቷል</string>
+    <string name="max_plugins_loading_title">የተሰኪውን አቃፊ በማንበብ ላይ</string>
+    <string name="max_plugins_loading_detail">አንጸባራቂ ማህደርን ከስር ጋር መዘርዘር፣ ከዚያም እያንዳንዱን አንጸባራቂ ከውሉ አንጻር መገምገም።</string>
+    <string name="max_plugins_accepted_count">%1$d ተቀባይነት አግኝቷል</string>
+    <string name="max_plugins_rejected_count">%1$d ፈቃደኛ አልሆነም።</string>
+    <string name="max_plugins_unreadable_count">%1$d ማህደር ያለ ሊነበብ የሚችል አንጸባራቂ</string>
+    <string name="max_plugins_rejected_section">ከትክክለኛው ምክንያት ጋር እምቢ አለ።</string>
+    <string name="max_plugins_detail_label">ተገለጸ</string>
+    <string name="max_plugins_refresh_cd">የተሰኪውን አቃፊ እንደገና ያንብቡ</string>
+    <string name="max_plugins_capability_source">በፕለጊን የተዘገበ እንጂ በእኛ አልተለካም።</string>
+    <string name="max_plugins_cond_empty_title">ምንም ተሰኪዎች አልተጫኑም።</string>
+    <string name="max_plugins_cond_empty_detail">አንጸባራቂው አቃፊ ምንም የተሰኪ ማህደሮች አልያዘም። ምንም ስህተት የለም፡ ይህ የባህሪው ነባሪ ሁኔታ ነው።</string>
+    <string name="max_plugins_cond_missing_title">አንጸባራቂ አቃፊ እስካሁን የለም።</string>
+    <string name="max_plugins_cond_missing_detail">%1$s በዚህ መሳሪያ ላይ አልተፈጠረም፣ ስለዚህ የሚነበብ ነገር የለም። እሱን መፍጠር ፕለጊን ደራሲ ማድረግ ያለበት ብቻ ነው።</string>
+    <string name="max_plugins_cond_unreadable_title">አንጸባራቂ አቃፊ ሊነበብ አይችልም።</string>
+    <string name="max_plugins_cond_unreadable_detail">ማህደሩ በ%1$s ላይ አለ ነገር ግን ዛጎሉ ሊያነበው አልቻለም። ለመዘርዘር ሩት ያስፈልጋል።</string>
+    <string name="max_plugins_reason_BadId">መታወቂያው እንደ አቃፊ ስም መጠቀም አይቻልም። ንዑስ ሆሄያትን የላቲን ፊደላትን፣ አሃዞችን፣ ነጥቦችን፣ ሰረዞችን ወይም ሰረዞችን ተጠቀም፣ እና በተከታታይ ሁለት ነጥቦችን በጭራሽ አትጠቀም።</string>
+    <string name="max_plugins_reason_MissingName">አንጸባራቂው ምንም ስም አይገልጽም።</string>
+    <string name="max_plugins_reason_BadVersion">ስሪቱ በዲጂቶች መጀመር አለበት, ለምሳሌ 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">የታወጀው የኤፒአይ ደረጃ ጠፍቷል ወይም ከ1 በታች ነው።</string>
+    <string name="max_plugins_reason_ApiTooNew">የታወጀው የኤፒአይ ደረጃ ይህ ግንብ ከሚረዳው የበለጠ አዲስ ነው፣ ስለዚህ በጭራሽ አይሰራም።</string>
+    <string name="max_plugins_reason_MissingKind">አንጸባራቂው ምንም ዓይነት አይገልጽም.</string>
+    <string name="max_plugins_reason_UnknownKind">አይነቱ ከታተሙት ዓይነቶች አንዱ አይደለም።</string>
+    <string name="max_plugins_reason_UnknownCapability">አቅሙ የዚህ ውል አካል አይደለም። ያልታወቀ ችሎታ ችላ ከማለት ይልቅ ውድቅ ይደረጋል፣ ስለዚህ ምንም ነገር ከጠየቀው ባነሰ መብት አይሰራም።</string>
+    <string name="max_plugins_reason_NoCapabilities">አንድ ተሰኪ ቢያንስ አንድ ችሎታ ማወጅ አለበት።</string>
+    <string name="max_plugins_reason_DuplicateId">ይህ መታወቂያ ያለው ሌላ ፕለጊን አስቀድሞ ተቀባይነት አግኝቷል፣ ስለዚህ ይሄ ጥቅም ላይ አይውልም።</string>
+    <string name="max_plugins_help_title">ለምን ውል ጨርሶ</string>
+    <string name="max_plugins_help_body">ያለ ህትመት ውል፣ ይህን መተግበሪያ የሚያራዝም ማንኛውም ሰው የውስጣዊ ፋይሎቻችንን ቅርፅ መገመት አለበት፣ እና ከተሰበረው ትክክለኛ ቅጥያ መለየት አንችልም። በእሱ, ገደቡ ተገልጿል: ተሰኪ ሀሳቡን ያውጃል እና ያነባል; ሃርድዌርን ፈጽሞ አይጽፍም, እና ከላይ ያለው እምቢታ ሁሉ ያልተሳካውን ትክክለኛ መስክ ይሰይማል.</string>
+</resources>

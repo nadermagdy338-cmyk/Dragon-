@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">استودیو عملکرد</string>
+    <string name="studio_cpu_frequency">CPU فرکانس</string>
+    <string name="studio_load_history">فعالیت اخیر CPU</string>
+    <string name="studio_waiting_samples">جمع آوری مطالب زنده…</string>
+    <string name="studio_automatic_profile">حالت خودکار نمایه فعال را مدیریت می کند.</string>
+    <string name="studio_temperature">دما</string>
+    <string name="studio_display">نمایش</string>
+    <string name="studio_power">گزینه های قدرت</string>
+    <string name="studio_settings">تنظیمات</string>
+</resources>

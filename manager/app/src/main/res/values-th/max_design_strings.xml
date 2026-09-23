@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">สด</string>
+    <string name="max_trust_stale">ตัวอย่างสุดท้าย</string>
+    <string name="max_trust_snapshot">สแนปชอต</string>
+    <string name="max_trust_unreadable">ไม่มีการอ่าน</string>
+    <string name="max_trust_unsupported">ไม่รองรับ</string>
+    <string name="max_source_label">แหล่งที่มา</string>
+    <string name="max_updated_label">อัปเดตแล้ว</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">ไม่มีค่าที่ใช้ได้</string>
+    <string name="max_expand_section">แสดงรายละเอียด</string>
+    <string name="max_collapse_section">ซ่อนรายละเอียด</string>
+</resources>

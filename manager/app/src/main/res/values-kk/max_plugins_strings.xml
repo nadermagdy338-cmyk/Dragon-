@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Үшінші тарап плагиндері</string>
+    <string name="max_plugins_subtitle">Жарияланған келісім-шарт: плагин нені жариялауы мүмкін және мұнда не қабылданған немесе бас тартылған.</string>
+    <string name="max_plugins_section_contract">Келісімшарт</string>
+    <string name="max_plugins_contract_api">API деңгейі %1$d</string>
+    <string name="max_plugins_contract_dir">Манифест қалтасы</string>
+    <string name="max_plugins_contract_rules">Жарияланған мүмкіндік оқу немесе ұсыныс болып табылады. Аппараттық құралдарды жазатын мүмкіндік әдейі жоқ: бұл қолданбадағы әрбір жазу төреші арқылы өтеді және тікелей жаза алатын плагин екі иесінің бір тұтқаны жазуын тоқтату үшін жасалған қорғанысты алып тастайды.</string>
+    <string name="max_plugins_contract_keys">Манифесттен оқылатын кілттер</string>
+    <string name="max_plugins_contract_kinds">Қабылданған түрлері</string>
+    <string name="max_plugins_contract_capabilities">Қабылданған мүмкіндіктер</string>
+    <string name="max_plugins_template">Манифест үлгісі</string>
+    <string name="max_plugins_template_note">Бұл мәтінді талдаушы оқиды. Ол кодтан ауытқып кете алмайды, өйткені ол одан жасалады.</string>
+    <string name="max_plugins_copy_template">Үлгіні көшіріңіз</string>
+    <string name="max_plugins_template_copied">Үлгі көшірілді</string>
+    <string name="max_plugins_section_installed">Осы құрылғыда табылды</string>
+    <string name="max_plugins_loading_title">Плагин қалтасын оқу</string>
+    <string name="max_plugins_loading_detail">Түбірі бар манифест қалтасын тізіп, әр манифестті келісім-шартқа қарсы бағалау.</string>
+    <string name="max_plugins_accepted_count">%1$d қабылданды</string>
+    <string name="max_plugins_rejected_count">%1$d бас тартты</string>
+    <string name="max_plugins_unreadable_count">%1$d оқылатын манифесті жоқ қалта</string>
+    <string name="max_plugins_rejected_section">Нақты себебімен бас тартты</string>
+    <string name="max_plugins_detail_label">Жарияланды</string>
+    <string name="max_plugins_refresh_cd">Плагин қалтасын қайта оқыңыз</string>
+    <string name="max_plugins_capability_source">Плагин арқылы хабарланды, бізбен өлшенбейді</string>
+    <string name="max_plugins_cond_empty_title">Ешқандай плагин орнатылмаған</string>
+    <string name="max_plugins_cond_empty_detail">Манифест қалтасында плагин қалталары жоқ. Ештеңе дұрыс емес: бұл мүмкіндіктің әдепкі күйі.</string>
+    <string name="max_plugins_cond_missing_title">Манифест қалтасы әлі жоқ</string>
+    <string name="max_plugins_cond_missing_detail">%1$s бұл құрылғыда жасалмаған, сондықтан оқылатын ештеңе жоқ. Оны жасау - бұл плагин авторы істеуі керек.</string>
+    <string name="max_plugins_cond_unreadable_title">Манифест қалтасын оқу мүмкін емес</string>
+    <string name="max_plugins_cond_unreadable_detail">Қалта %1$s орнында бар, бірақ қабық оны оқи алмады. Оны тізімдеу үшін түбір қажет.</string>
+    <string name="max_plugins_reason_BadId">Идентификатор қалта атауы ретінде қолданылмайды. Кіші латын әріптерін, сандарды, нүктелерді, сызықшаларды немесе астын сызуды пайдаланыңыз және ешқашан екі нүктені қатарынан қолданбаңыз.</string>
+    <string name="max_plugins_reason_MissingName">Манифестте атау жоқ.</string>
+    <string name="max_plugins_reason_BadVersion">Нұсқа сандардан басталуы керек, мысалы 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Жарияланған API деңгейі жоқ немесе 1-ден төмен.</string>
+    <string name="max_plugins_reason_ApiTooNew">Жарияланған API деңгейі бұл құрастыру түсінетіннен жаңарақ, сондықтан ол мүлде іске қосылмайды.</string>
+    <string name="max_plugins_reason_MissingKind">Манифест ешқандай түрді жариялайды.</string>
+    <string name="max_plugins_reason_UnknownKind">Түрі жарияланған түрлердің бірі емес.</string>
+    <string name="max_plugins_reason_UnknownCapability">Мүмкіндік осы келісімшарттың бөлігі емес. Белгісіз мүмкіндік еленбегеннен гөрі қабылданбайды, сондықтан ештеңе сұрағанынан аз құқықтармен жұмыс істемейді.</string>
+    <string name="max_plugins_reason_NoCapabilities">Плагин кем дегенде бір мүмкіндікті жариялауы керек.</string>
+    <string name="max_plugins_reason_DuplicateId">Бұл идентификаторы бар басқа плагин бұрыннан қабылданған, сондықтан ол пайдаланылмайды.</string>
+    <string name="max_plugins_help_title">Неліктен келісімшарт</string>
+    <string name="max_plugins_help_body">Жарияланған келісім-шартсыз, осы қолданбаны кеңейтетін кез келген адам біздің ішкі файлдарымыздың пішінін білуі керек және біз жарамды кеңейтімді бұзылғанынан ажырата алмаймыз. Оның көмегімен шектеу көрсетіледі: плагин ниетті жариялайды және оқиды; ол ешқашан жабдықты жазбайды және жоғарыдағы әрбір бас тарту сәтсіз болған өрісті атайды.</string>
+</resources>

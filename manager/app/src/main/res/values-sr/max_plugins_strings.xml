@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Додатци трећих страна</string>
+    <string name="max_plugins_subtitle">Објављени уговор: шта додатак може да изјави, а шта је прихваћено или одбијено овде.</string>
+    <string name="max_plugins_section_contract">Уговор</string>
+    <string name="max_plugins_contract_api">АПИ ниво %1$d</string>
+    <string name="max_plugins_contract_dir">Манифест фолдер</string>
+    <string name="max_plugins_contract_rules">Декларисана способност је или читање или предлог. Намерно не постоји могућност за писање хардвера: свако писање у овој апликацији пролази кроз арбитар, а додатак који може директно да пише би уклонио заштиту направљену да спречи два власника да пишу исто дугме.</string>
+    <string name="max_plugins_contract_keys">Кључеви читани из манифеста</string>
+    <string name="max_plugins_contract_kinds">Прихваћене врсте</string>
+    <string name="max_plugins_contract_capabilities">Прихваћене могућности</string>
+    <string name="max_plugins_template">Шаблон манифеста</string>
+    <string name="max_plugins_template_note">Овај текст чита парсер. Не може да одступи од кода, јер се из њега генерише.</string>
+    <string name="max_plugins_copy_template">Копирајте шаблон</string>
+    <string name="max_plugins_template_copied">Шаблон је копиран</string>
+    <string name="max_plugins_section_installed">Пронађено на овом уређају</string>
+    <string name="max_plugins_loading_title">Читање фасцикле додатака</string>
+    <string name="max_plugins_loading_detail">Навођење фасцикле манифеста са роот-ом, затим процена сваког манифеста у односу на уговор.</string>
+    <string name="max_plugins_accepted_count">%1$d прихваћено</string>
+    <string name="max_plugins_rejected_count">%1$d одбио</string>
+    <string name="max_plugins_unreadable_count">%1$d фасцикла без читљивог манифеста</string>
+    <string name="max_plugins_rejected_section">Одбијено, са тачним разлогом</string>
+    <string name="max_plugins_detail_label">Декларисано</string>
+    <string name="max_plugins_refresh_cd">Поново прочитајте фасциклу додатака</string>
+    <string name="max_plugins_capability_source">Извештава додатак, а не меримо ми</string>
+    <string name="max_plugins_cond_empty_title">Нема инсталираних додатака</string>
+    <string name="max_plugins_cond_empty_detail">Фасцикла манифест не садржи фасцикле додатака. Ништа није у реду: ово је подразумевано стање функције.</string>
+    <string name="max_plugins_cond_missing_title">Фасцикла Манифест још увек не постоји</string>
+    <string name="max_plugins_cond_missing_detail">%1$s није креиран на овом уређају, тако да нема шта да се чита. То је све што аутор додатка треба да уради.</string>
+    <string name="max_plugins_cond_unreadable_title">Фасцикла манифеста се не може прочитати</string>
+    <string name="max_plugins_cond_unreadable_detail">Фасцикла постоји на %1$s али љуска није могла да је прочита. Роот је неопходан да бисте га навели.</string>
+    <string name="max_plugins_reason_BadId">ИД се не може користити као име фасцикле. Користите мала латинична слова, цифре, тачке, цртице или доње црте, а никада две тачке у низу.</string>
+    <string name="max_plugins_reason_MissingName">У манифесту нема имена.</string>
+    <string name="max_plugins_reason_BadVersion">Верзија мора да почиње цифрама, на пример 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Декларисани ниво АПИ-ја недостаје или је испод 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Декларисани ниво АПИ-ја је новији него што ова верзија разуме, тако да се уопште не покреће.</string>
+    <string name="max_plugins_reason_MissingKind">Манифест не проглашава никакву врсту.</string>
+    <string name="max_plugins_reason_UnknownKind">Врста није једна од објављених врста.</string>
+    <string name="max_plugins_reason_UnknownCapability">Способност није део овог уговора. Непозната могућност се одбија, а не игнорише, тако да ништа не ради са мање права него што је тражено.</string>
+    <string name="max_plugins_reason_NoCapabilities">Додатак мора декларисати најмање једну могућност.</string>
+    <string name="max_plugins_reason_DuplicateId">Други додатак са овим ИД-ом је већ прихваћен, тако да се овај не користи.</string>
+    <string name="max_plugins_help_title">Зашто уопште уговор</string>
+    <string name="max_plugins_help_body">Без објављеног уговора, свако ко продужава ову апликацију мора да погоди облик наших интерних датотека и не можемо да разликујемо важеће проширење од неисправног. Са њим је наведено ограничење: додатак изјављује намеру и чита; никада не уписује хардвер, а свако одбијање изнад именује тачно поље које није успело.</string>
+</resources>

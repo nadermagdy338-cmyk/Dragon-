@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">तृतीय-पक्ष प्लगइन</string>
+    <string name="max_plugins_subtitle">प्रकाशित करार: प्लगइन काय घोषित करू शकते आणि येथे काय स्वीकारले किंवा नाकारले गेले.</string>
+    <string name="max_plugins_section_contract">करार</string>
+    <string name="max_plugins_contract_api">API स्तर %1$d</string>
+    <string name="max_plugins_contract_dir">मॅनिफेस्ट फोल्डर</string>
+    <string name="max_plugins_contract_rules">घोषित क्षमता एकतर वाचन किंवा प्रस्ताव आहे. हार्डवेअर लिहिणारी जाणीवपूर्वक कोणतीही क्षमता नाही: या ॲपमधील प्रत्येक लेखन आर्बिटरमधून जाते आणि थेट लिहू शकणारे प्लगइन दोन मालकांना समान नॉब लिहिणे थांबवण्यासाठी बांधलेले गार्ड काढून टाकते.</string>
+    <string name="max_plugins_contract_keys">मॅनिफेस्टमधून कळा वाचल्या</string>
+    <string name="max_plugins_contract_kinds">स्वीकारलेले प्रकार</string>
+    <string name="max_plugins_contract_capabilities">स्वीकृत क्षमता</string>
+    <string name="max_plugins_template">मॅनिफेस्ट टेम्पलेट</string>
+    <string name="max_plugins_template_note">हा मजकूर पार्सर वाचतो. ते कोडमधून वाहून जाऊ शकत नाही, कारण ते त्यातून निर्माण झाले आहे.</string>
+    <string name="max_plugins_copy_template">टेम्पलेट कॉपी करा</string>
+    <string name="max_plugins_template_copied">टेम्पलेट कॉपी केले</string>
+    <string name="max_plugins_section_installed">या डिव्हाइसवर आढळले</string>
+    <string name="max_plugins_loading_title">प्लगइन फोल्डर वाचत आहे</string>
+    <string name="max_plugins_loading_detail">मॅनिफेस्ट फोल्डरची रूट सह सूचीबद्ध करणे, नंतर कराराच्या विरूद्ध प्रत्येक मॅनिफेस्टचे मूल्यमापन करणे.</string>
+    <string name="max_plugins_accepted_count">%1$d स्वीकारले</string>
+    <string name="max_plugins_rejected_count">%1$d नकार दिला</string>
+    <string name="max_plugins_unreadable_count">वाचनीय मॅनिफेस्टशिवाय %1$d फोल्डर</string>
+    <string name="max_plugins_rejected_section">नेमके कारण सांगून नकार दिला</string>
+    <string name="max_plugins_detail_label">घोषित केले</string>
+    <string name="max_plugins_refresh_cd">प्लगइन फोल्डर पुन्हा वाचा</string>
+    <string name="max_plugins_capability_source">प्लगइनद्वारे नोंदवले गेले, आमच्याद्वारे मोजलेले नाही</string>
+    <string name="max_plugins_cond_empty_title">कोणतेही प्लगइन स्थापित केलेले नाहीत</string>
+    <string name="max_plugins_cond_empty_detail">मॅनिफेस्ट फोल्डरमध्ये कोणतेही प्लगइन फोल्डर नाहीत. काहीही चुकीचे नाही: ही वैशिष्ट्याची डीफॉल्ट स्थिती आहे.</string>
+    <string name="max_plugins_cond_missing_title">मॅनिफेस्ट फोल्डर अद्याप अस्तित्वात नाही</string>
+    <string name="max_plugins_cond_missing_detail">%1$s या डिव्हाइसवर तयार केले गेले नाही, त्यामुळे वाचण्यासाठी काहीही नाही. ते तयार करणे हे सर्व प्लगइन लेखकाला करावे लागेल.</string>
+    <string name="max_plugins_cond_unreadable_title">मॅनिफेस्ट फोल्डर वाचले जाऊ शकत नाही</string>
+    <string name="max_plugins_cond_unreadable_detail">फोल्डर %1$s वर अस्तित्वात आहे परंतु शेल ते वाचू शकले नाही. त्याची यादी करण्यासाठी रूट आवश्यक आहे.</string>
+    <string name="max_plugins_reason_BadId">आयडी फोल्डरचे नाव म्हणून वापरण्यायोग्य नाही. लोअरकेस लॅटिन अक्षरे, अंक, ठिपके, डॅश किंवा अंडरस्कोअर वापरा आणि सलग दोन ठिपके कधीही वापरू नका.</string>
+    <string name="max_plugins_reason_MissingName">मॅनिफेस्ट कोणतेही नाव घोषित करत नाही.</string>
+    <string name="max_plugins_reason_BadVersion">आवृत्ती अंकांसह सुरू होणे आवश्यक आहे, उदाहरणार्थ 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">घोषित API स्तर गहाळ आहे किंवा 1 खाली आहे.</string>
+    <string name="max_plugins_reason_ApiTooNew">घोषित API स्तर या बिल्डला समजते त्यापेक्षा नवीन आहे, त्यामुळे ते चालत नाही.</string>
+    <string name="max_plugins_reason_MissingKind">मॅनिफेस्ट कोणत्याही प्रकारची घोषणा करत नाही.</string>
+    <string name="max_plugins_reason_UnknownKind">प्रकार प्रकाशित प्रकारांपैकी एक नाही.</string>
+    <string name="max_plugins_reason_UnknownCapability">क्षमता या कराराचा भाग नाही. अज्ञात क्षमता दुर्लक्षित करण्याऐवजी नाकारली जाते, म्हणून मागितल्यापेक्षा कमी अधिकारांसह काहीही चालत नाही.</string>
+    <string name="max_plugins_reason_NoCapabilities">प्लगइनने किमान एक क्षमता घोषित करणे आवश्यक आहे.</string>
+    <string name="max_plugins_reason_DuplicateId">या आयडीसह दुसरे प्लगइन आधीच स्वीकारले आहे, त्यामुळे हे वापरलेले नाही.</string>
+    <string name="max_plugins_help_title">अजिबात का करार</string>
+    <string name="max_plugins_help_body">प्रकाशित कराराशिवाय, कोणीही हा ॲप विस्तारित करणाऱ्याला आमच्या अंतर्गत फाइल्सच्या आकाराचा अंदाज लावावा लागेल आणि आम्ही तुटलेल्या फाइलमधून वैध विस्तार सांगू शकत नाही. त्यासह, मर्यादा सांगितली आहे: एक प्लगइन हेतू घोषित करतो आणि वाचतो; ते कधीही हार्डवेअर लिहित नाही, आणि वरील प्रत्येक नकार अयशस्वी झालेल्या अचूक फील्डची नावे देतो.</string>
+</resources>

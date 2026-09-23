@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">サードパーティのプラグイン</string>
+    <string name="max_plugins_subtitle">公開されたコントラクト: プラグインが宣言できるもの、およびここで受け入れられたものまたは拒否されたもの。</string>
+    <string name="max_plugins_section_contract">契約書</string>
+    <string name="max_plugins_contract_api">APIレベル %1$d</string>
+    <string name="max_plugins_contract_dir">マニフェストフォルダ</string>
+    <string name="max_plugins_contract_rules">宣言された機能は、読み取りまたは提案のいずれかです。ハードウェアに書き込む機能は意図的にありません。このアプリのすべての書き込みはアービターを経由し、直接書き込み可能なプラグインは、2 人の所有者が同じノブを書き込むのを防ぐために構築されたガードを削除します。</string>
+    <string name="max_plugins_contract_keys">マニフェストから読み取られるキー</string>
+    <string name="max_plugins_contract_kinds">受け入れ可能な種類</string>
+    <string name="max_plugins_contract_capabilities">受け入れられる機能</string>
+    <string name="max_plugins_template">マニフェストテンプレート</string>
+    <string name="max_plugins_template_note">このテキストはパーサーが読み取るものです。コードから生成されるため、コードからドリフトすることはできません。</string>
+    <string name="max_plugins_copy_template">テンプレートをコピーする</string>
+    <string name="max_plugins_template_copied">テンプレートをコピーしました</string>
+    <string name="max_plugins_section_installed">このデバイスで見つかりました</string>
+    <string name="max_plugins_loading_title">プラグインフォルダーの読み取り</string>
+    <string name="max_plugins_loading_detail">ルートを使用してマニフェスト フォルダーをリストし、コントラクトに対して各マニフェストを評価します。</string>
+    <string name="max_plugins_accepted_count">%1$d 承認されました</string>
+    <string name="max_plugins_rejected_count">%1$dは拒否されました</string>
+    <string name="max_plugins_unreadable_count">読み取り可能なマニフェストのない %1$d フォルダー</string>
+    <string name="max_plugins_rejected_section">正確な理由を示して拒否されました</string>
+    <string name="max_plugins_detail_label">宣言された</string>
+    <string name="max_plugins_refresh_cd">プラグインフォルダーを再読み込みします</string>
+    <string name="max_plugins_capability_source">プラグインによって報告され、当社が測定したものではありません</string>
+    <string name="max_plugins_cond_empty_title">プラグインがインストールされていません</string>
+    <string name="max_plugins_cond_empty_detail">マニフェスト フォルダーにはプラグイン フォルダーは含まれません。何も問題はありません。これがこの機能のデフォルトの状態です。</string>
+    <string name="max_plugins_cond_missing_title">マニフェストフォルダはまだ存在しません</string>
+    <string name="max_plugins_cond_missing_detail">このデバイスでは%1$sが作成されていないため、読み取るものはありません。プラグイン作成者が行う必要があるのは、それを作成することだけです。</string>
+    <string name="max_plugins_cond_unreadable_title">マニフェストフォルダを読み取れません</string>
+    <string name="max_plugins_cond_unreadable_detail">フォルダーは %1$s に存在しますが、シェルはそれを読み取ることができませんでした。リストするには root が必要です。</string>
+    <string name="max_plugins_reason_BadId">この ID はフォルダー名として使用できません。小文字のラテン文字、数字、ドット、ダッシュ、またはアンダースコアを使用し、ドットを 2 つ続けて使用しないでください。</string>
+    <string name="max_plugins_reason_MissingName">マニフェストでは名前が宣言されていません。</string>
+    <string name="max_plugins_reason_BadVersion">バージョンは数字で始まる必要があります (例: 1.0.0)。</string>
+    <string name="max_plugins_reason_ApiTooOld">宣言された API レベルが見つからないか、1 未満です。</string>
+    <string name="max_plugins_reason_ApiTooNew">宣言された API レベルはこのビルドが理解できるものよりも新しいため、まったく実行されません。</string>
+    <string name="max_plugins_reason_MissingKind">マニフェストでは種類が宣言されていません。</string>
+    <string name="max_plugins_reason_UnknownKind">この種類は公表されている種類ではありません。</string>
+    <string name="max_plugins_reason_UnknownCapability">この機能はこの契約の一部ではありません。未知の機能は無視されるのではなく拒否されるため、要求された権限よりも少ない権限では何も実行されません。</string>
+    <string name="max_plugins_reason_NoCapabilities">プラグインは少なくとも 1 つの機能を宣言する必要があります。</string>
+    <string name="max_plugins_reason_DuplicateId">この ID を持つ別のプラグインはすでに受け入れられているため、このプラグインは使用されません。</string>
+    <string name="max_plugins_help_title">そもそもなぜ契約するのか</string>
+    <string name="max_plugins_help_body">公開された契約がなければ、このアプリを拡張する人は内部ファイルの形式を推測する必要があり、有効な拡張子と壊れた拡張子を区別することはできません。これには制限が記載されています。プラグインはインテントを宣言して読み取ります。ハードウェアを書き込むことは決してなく、上記のすべての拒否は、失敗した正確なフィールドを指定します。</string>
+</resources>

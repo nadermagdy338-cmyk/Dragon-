@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Itxura eta interfazea</string>
+    <string name="max_cfg_backup_app_prefs">Aplikazioaren hobespenak eta hizkuntza</string>
+    <string name="max_cfg_declared_absent_title">Ez da sartuko, eta zergatik</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">gailu honek ez du egiaztatu errorik, beraz, balioak ezin dira fidagarritasunez irakurri</string>
+    <string name="max_cfg_absent_file_missing">hobespen fitxategia ez dago oraindik</string>
+    <string name="max_cfg_absent_empty">hobespen-fitxategia existitzen da baina hutsik dago, beraz, ez dago ezer idazteko</string>
+    <string name="max_cfg_declared_excluded_title">Inoiz ez da fitxategi honetan sartu</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Segurtasun-ezarpenak aplikazioaren barruan konfiguratzen dira, inoiz ez fitxategi batean eramaten</string>
+    <string name="max_cfg_excluded_other_apps">Beste aplikazio batzuen datuak aplikazioen babeskopiari dagozkio, ez konfigurazioen babeskopiari</string>
+    <string name="max_cfg_excluded_secret">sinatzeko gakoak eta sekretuak ez dira inoiz parteka dezakezun fitxategi batean idazten</string>
+    <string name="max_cfg_section_tweaks">Tweak konfigurazioa</string>
+    <string name="max_cfg_section_applist">Aplikazio bakoitzeko zerrenda</string>
+    <string name="max_cfg_section_appearance">Itxura eta interfazea</string>
+    <string name="max_cfg_section_app_prefs">Aplikazioaren hobespenak eta hizkuntza</string>
+    <string name="max_cfg_restore_merge_note">Hobespenak bateratzeak leheneratzea: fitxategian dauden gakoak idazten dira, eta aipatzen ez dituen gakoak dauden bezala geratzen dira. Ez da ezer garbitu.</string>
+</resources>

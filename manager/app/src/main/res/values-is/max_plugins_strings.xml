@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Viðbætur frá þriðja aðila</string>
+    <string name="max_plugins_subtitle">Útgefinn samningur: hvað viðbót getur lýst yfir og hvað var samþykkt eða hafnað hér.</string>
+    <string name="max_plugins_section_contract">Samningurinn</string>
+    <string name="max_plugins_contract_api">API stig %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest mappa</string>
+    <string name="max_plugins_contract_rules">Yfirlýst hæfileiki er annað hvort lesning eða tillaga. Það er vísvitandi engin möguleiki sem skrifar vélbúnað: sérhver skrif í þessu forriti fer í gegnum úrskurðarmanninn og tappi sem gæti skrifað beint myndi fjarlægja hlífina sem er byggð til að stöðva tvo eigendur að skrifa sama takkann.</string>
+    <string name="max_plugins_contract_keys">Lyklar lesnir úr upplýsingaskrá</string>
+    <string name="max_plugins_contract_kinds">Samþykktar tegundir</string>
+    <string name="max_plugins_contract_capabilities">Samþykkt hæfileiki</string>
+    <string name="max_plugins_template">Sýndarsniðmát</string>
+    <string name="max_plugins_template_note">Þessi texti er það sem þátttakandinn les. Það getur ekki rekið frá kóðanum, vegna þess að það er búið til úr honum.</string>
+    <string name="max_plugins_copy_template">Afritaðu sniðmátið</string>
+    <string name="max_plugins_template_copied">Sniðmát afritað</string>
+    <string name="max_plugins_section_installed">Fannst á þessu tæki</string>
+    <string name="max_plugins_loading_title">Að lesa viðbóta möppuna</string>
+    <string name="max_plugins_loading_detail">Skráir upplýsingaskráarmöppuna með rót, metið síðan hverja upplýsingaskrá miðað við samninginn.</string>
+    <string name="max_plugins_accepted_count">%1$d samþykkt</string>
+    <string name="max_plugins_rejected_count">%1$d neitaði</string>
+    <string name="max_plugins_unreadable_count">%1$d mappa án læsilegrar upplýsingaskrár</string>
+    <string name="max_plugins_rejected_section">Neitaði, með nákvæmri ástæðu</string>
+    <string name="max_plugins_detail_label">Lýst yfir</string>
+    <string name="max_plugins_refresh_cd">Lestu viðbótarmöppuna aftur</string>
+    <string name="max_plugins_capability_source">Tilkynnt af viðbótinni, ekki mæld af okkur</string>
+    <string name="max_plugins_cond_empty_title">Engar viðbætur uppsettar</string>
+    <string name="max_plugins_cond_empty_detail">Upplýsingamöppan inniheldur engar viðbótarmöppur. Ekkert er að: þetta er sjálfgefið ástand eiginleikans.</string>
+    <string name="max_plugins_cond_missing_title">Manifest mappa er ekki til ennþá</string>
+    <string name="max_plugins_cond_missing_detail">%1$s hefur ekki verið búið til á þessu tæki, svo það er ekkert að lesa. Að búa það til er allt sem höfundur viðbóta þarf að gera.</string>
+    <string name="max_plugins_cond_unreadable_title">Ekki er hægt að lesa manifestmöppuna</string>
+    <string name="max_plugins_cond_unreadable_detail">Mappan er til á %1$s en skelin gat ekki lesið hana. Root þarf til að skrá það.</string>
+    <string name="max_plugins_reason_BadId">Auðkennið er ekki nothæft sem möppuheiti. Notaðu latneska lágstafi, tölustafi, punkta, strik eða undirstrik og aldrei tvo punkta í röð.</string>
+    <string name="max_plugins_reason_MissingName">Upplýsingaskráin tilgreinir ekkert nafn.</string>
+    <string name="max_plugins_reason_BadVersion">Útgáfan verður að byrja á tölustöfum, til dæmis 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Uppgefið API-stig vantar eða undir 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Uppgefið API-stig er nýrra en þessi smíð skilur, svo það er alls ekki keyrt.</string>
+    <string name="max_plugins_reason_MissingKind">Upplýsingaskráin lýsir yfir engri tegund.</string>
+    <string name="max_plugins_reason_UnknownKind">Tegundin er ekki ein af birtum gerðum.</string>
+    <string name="max_plugins_reason_UnknownCapability">Getan er ekki hluti af þessum samningi. Óþekktum getu er neitað frekar en hunsað, svo ekkert gengur með færri réttindi en það bað um.</string>
+    <string name="max_plugins_reason_NoCapabilities">Viðbót verður að lýsa yfir að minnsta kosti einum getu.</string>
+    <string name="max_plugins_reason_DuplicateId">Önnur viðbót með þessu auðkenni var þegar samþykkt, svo þessi er ekki notuð.</string>
+    <string name="max_plugins_help_title">Hvers vegna samningur yfirleitt</string>
+    <string name="max_plugins_help_body">Án útgefins samnings verður hver sem er sem framlengir þetta forrit að giska á lögun innri skráa okkar og við getum ekki greint gilda framlengingu frá biluðum. Með því eru mörkin tilgreind: tappi lýsir yfir ásetningi og les; það skrifar aldrei vélbúnað og hver synjun hér að ofan nefnir nákvæmlega reitinn sem mistókst.</string>
+</resources>

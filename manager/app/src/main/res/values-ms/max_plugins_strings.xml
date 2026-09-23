@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Pemalam pihak ketiga</string>
+    <string name="max_plugins_subtitle">Kontrak yang diterbitkan: perkara yang mungkin diisytiharkan oleh pemalam, dan perkara yang diterima atau ditolak di sini.</string>
+    <string name="max_plugins_section_contract">Kontrak itu</string>
+    <string name="max_plugins_contract_api">Tahap API %1$d</string>
+    <string name="max_plugins_contract_dir">Folder manifes</string>
+    <string name="max_plugins_contract_rules">Keupayaan yang diisytiharkan ialah sama ada bacaan atau cadangan. Sengaja tiada keupayaan yang menulis perkakasan: setiap penulisan dalam apl ini melalui penimbangtara, dan pemalam yang boleh menulis terus akan mengalih keluar pengawal yang dibina untuk menghentikan dua pemilik menulis tombol yang sama.</string>
+    <string name="max_plugins_contract_keys">Kunci dibaca daripada manifes</string>
+    <string name="max_plugins_contract_kinds">Jenis yang diterima</string>
+    <string name="max_plugins_contract_capabilities">Keupayaan yang diterima</string>
+    <string name="max_plugins_template">Templat manifes</string>
+    <string name="max_plugins_template_note">Teks ini ialah apa yang dibaca oleh penghurai. Ia tidak boleh hanyut daripada kod, kerana ia dihasilkan daripadanya.</string>
+    <string name="max_plugins_copy_template">Salin templat</string>
+    <string name="max_plugins_template_copied">Templat disalin</string>
+    <string name="max_plugins_section_installed">Ditemui pada peranti ini</string>
+    <string name="max_plugins_loading_title">Membaca folder pemalam</string>
+    <string name="max_plugins_loading_detail">Menyenaraikan folder manifes dengan akar, kemudian menilai setiap manifes terhadap kontrak.</string>
+    <string name="max_plugins_accepted_count">%1$d diterima</string>
+    <string name="max_plugins_rejected_count">%1$d menolak</string>
+    <string name="max_plugins_unreadable_count">%1$d folder tanpa manifes yang boleh dibaca</string>
+    <string name="max_plugins_rejected_section">Menolak, dengan alasan yang tepat</string>
+    <string name="max_plugins_detail_label">Diisytiharkan</string>
+    <string name="max_plugins_refresh_cd">Baca semula folder pemalam</string>
+    <string name="max_plugins_capability_source">Dilaporkan oleh pemalam, bukan diukur oleh kami</string>
+    <string name="max_plugins_cond_empty_title">Tiada pemalam dipasang</string>
+    <string name="max_plugins_cond_empty_detail">Folder manifes tidak memegang folder pemalam. Tiada yang salah: ini ialah keadaan lalai bagi ciri tersebut.</string>
+    <string name="max_plugins_cond_missing_title">Folder manifes belum wujud lagi</string>
+    <string name="max_plugins_cond_missing_detail">%1$s belum dibuat pada peranti ini, jadi tiada apa-apa untuk dibaca. Menciptanya adalah semua yang perlu dilakukan oleh pengarang pemalam.</string>
+    <string name="max_plugins_cond_unreadable_title">Folder manifes tidak boleh dibaca</string>
+    <string name="max_plugins_cond_unreadable_detail">Folder wujud pada %1$s tetapi shell tidak dapat membacanya. Root diperlukan untuk menyenaraikannya.</string>
+    <string name="max_plugins_reason_BadId">Id tidak boleh digunakan sebagai nama folder. Gunakan huruf Latin huruf kecil, digit, titik, sempang atau garis bawah dan jangan sekali-kali menggunakan dua titik berturut-turut.</string>
+    <string name="max_plugins_reason_MissingName">Manifes tidak mengisytiharkan nama.</string>
+    <string name="max_plugins_reason_BadVersion">Versi mesti bermula dengan digit, contohnya 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Tahap API yang diisytiharkan tiada atau di bawah 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Tahap API yang diisytiharkan adalah lebih baharu daripada yang difahami oleh binaan ini, jadi ia tidak dijalankan sama sekali.</string>
+    <string name="max_plugins_reason_MissingKind">Manifes menyatakan tiada jenis.</string>
+    <string name="max_plugins_reason_UnknownKind">Jenis ini bukan salah satu jenis yang diterbitkan.</string>
+    <string name="max_plugins_reason_UnknownCapability">Keupayaan bukan sebahagian daripada kontrak ini. Keupayaan yang tidak diketahui ditolak dan bukannya diabaikan, jadi tiada apa yang berjalan dengan hak yang lebih sedikit daripada yang diminta.</string>
+    <string name="max_plugins_reason_NoCapabilities">Pemalam mesti mengisytiharkan sekurang-kurangnya satu keupayaan.</string>
+    <string name="max_plugins_reason_DuplicateId">Satu lagi pemalam dengan id ini telah diterima, jadi yang ini tidak digunakan.</string>
+    <string name="max_plugins_help_title">Mengapa kontrak sama sekali</string>
+    <string name="max_plugins_help_body">Tanpa kontrak yang diterbitkan, sesiapa yang melanjutkan apl ini perlu meneka bentuk fail dalaman kami dan kami tidak dapat memberitahu sambungan yang sah daripada yang rosak. Dengan itu, had dinyatakan: pemalam mengisytiharkan niat dan membaca; ia tidak pernah menulis perkakasan, dan setiap penolakan di atas menamakan medan tepat yang gagal.</string>
+</resources>

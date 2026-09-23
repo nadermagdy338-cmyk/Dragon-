@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Megjelenés és felület</string>
+    <string name="max_cfg_backup_app_prefs">Alkalmazásbeállítások és nyelv</string>
+    <string name="max_cfg_declared_absent_title">Nem lesz benne, és miért</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ennek az eszköznek nincs ellenőrzött gyökere, így az értékek nem olvashatók megbízhatóan</string>
+    <string name="max_cfg_absent_file_missing">a preferenciafájl még nem létezik</string>
+    <string name="max_cfg_absent_empty">a preferenciafájl létezik, de üres, ezért nincs mit írni</string>
+    <string name="max_cfg_declared_excluded_title">Soha nem szerepel ebben a fájlban</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI A biztonsági beállítások az alkalmazáson belül vannak konfigurálva, soha nem kerülnek fájlba</string>
+    <string name="max_cfg_excluded_other_apps">más alkalmazások adatai az alkalmazás biztonsági másolatához tartoznak, nem a konfigurációs biztonsági mentéshez</string>
+    <string name="max_cfg_excluded_secret">Az aláírási kulcsok és titkok soha nem íródnak olyan fájlba, amelyet esetleg megoszthat</string>
+    <string name="max_cfg_section_tweaks">Konfiguráció módosítása</string>
+    <string name="max_cfg_section_applist">Alkalmazásonkénti lista</string>
+    <string name="max_cfg_section_appearance">Megjelenés és felület</string>
+    <string name="max_cfg_section_app_prefs">Alkalmazásbeállítások és nyelv</string>
+    <string name="max_cfg_restore_merge_note">A beállítások visszaállítása összeolvad: a fájlban lévő kulcsok kiírásra kerülnek, és a nem említett kulcsok változatlanok maradnak. Semmi sem törlődik.</string>
+</resources>

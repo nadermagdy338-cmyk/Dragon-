@@ -810,15 +810,6 @@ private fun buildPerAppDiagnosticsReport(
             "knob=${outcome.knob} outcome=${outcome.outcome} reason=${outcome.reason}" +
                 " expected=${outcome.expected} live=${outcome.live}"
         )
-        // وسطر الأثر **تحت** نتيجة المقبض لا مدموجًا بها: «الكتابة نجحت» و«التردّد تحرّك فعلًا
-        // وإلى أين» جوابان مختلفان، ودمجهما هو ما جعل سطرًا مثل
-        // `applied=true verified=true live=520000000` يُقرأ نجاحًا وهو بلا حركة.
-        // والغياب يُعلَن `effect=unmeasured` صريحًا — لا يُطمس في «لم يتغيّر».
-        appendLine(
-            "knob=${outcome.knob} " + nd.max.core.atlas.AtlasEffectLines.line(
-                outcome.effect.ifBlank { nd.max.core.atlas.AtlasEffectLines.UNMEASURED }
-            )
-        )
     }
 }
 

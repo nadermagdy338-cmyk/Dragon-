@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">চেহেৰা আৰু আন্তঃপৃষ্ঠ</string>
+    <string name="max_cfg_backup_app_prefs">এপৰ পছন্দ আৰু ভাষা</string>
+    <string name="max_cfg_declared_absent_title">অন্তৰ্ভুক্ত কৰা নহ’ব, আৰু কিয়</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">এই ডিভাইচৰ কোনো পৰীক্ষা কৰা ৰূট নাই, গতিকে মানসমূহ নিৰ্ভৰযোগ্যভাৱে পঢ়িব নোৱাৰি</string>
+    <string name="max_cfg_absent_file_missing">পছন্দ নথিপত্ৰ এতিয়াও নাই</string>
+    <string name="max_cfg_absent_empty">পছন্দ নথিপত্ৰ আছে কিন্তু খালী, গতিকে লিখিবলৈ একো নাই</string>
+    <string name="max_cfg_declared_excluded_title">এই ফাইলত কেতিয়াও অন্তৰ্ভুক্ত কৰা হোৱা নাই</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI সুৰক্ষা ছেটিংছ এপটোৰ ভিতৰত কনফিগাৰ কৰা হয়, কেতিয়াও ফাইলত কঢ়িয়াই নিয়া নহয়</string>
+    <string name="max_cfg_excluded_other_apps">অন্য এপসমূহৰ তথ্য এপ বেকআপৰ অন্তৰ্গত, কনফিগ বেকআপৰ নহয়</string>
+    <string name="max_cfg_excluded_secret">স্বাক্ষৰ কি\' আৰু গোপনীয়তাসমূহ কেতিয়াও আপুনি অংশীদাৰী কৰিব পৰা এটা ফাইলত লিখা নহয়</string>
+    <string name="max_cfg_section_tweaks">বিন্যাস টুইক কৰক</string>
+    <string name="max_cfg_section_applist">প্ৰতি-এপ তালিকা</string>
+    <string name="max_cfg_section_appearance">চেহেৰা আৰু আন্তঃপৃষ্ঠ</string>
+    <string name="max_cfg_section_app_prefs">এপৰ পছন্দ আৰু ভাষা</string>
+    <string name="max_cfg_restore_merge_note">পছন্দসমূহ পুনৰুদ্ধাৰ কৰা একত্ৰীকৰণ: নথিপত্ৰত উপস্থিত কি\'সমূহ লিখা হয়, আৰু ই উল্লেখ নকৰা কি\'সমূহ যিদৰে আছে তেনেদৰে থাকে। একোৱেই ক্লিয়াৰ হোৱা নাই।</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">ライブ</string>
+    <string name="max_trust_stale">最後のサンプル</string>
+    <string name="max_trust_snapshot">スナップショット</string>
+    <string name="max_trust_unreadable">読み取り不可</string>
+    <string name="max_trust_unsupported">サポートされていません</string>
+    <string name="max_source_label">ソース</string>
+    <string name="max_updated_label">更新されました</string>
+    <string name="max_provenance_separator">「・」</string>
+    <string name="max_value_unavailable_a11y">利用可能な値がありません</string>
+    <string name="max_expand_section">詳細を表示</string>
+    <string name="max_collapse_section">詳細を隠す</string>
+</resources>

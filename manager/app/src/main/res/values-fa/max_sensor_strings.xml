@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">حسگرهای گزارش شده توسط این دستگاه</string>
+    <string name="max_sensor_desc">آنچه که پلتفرم در مورد سخت افزار خود اعلام می کند، به علاوه یک خوانش نور محدود. بدون کالیبراسیون و بدون نمره سلامت: هر دو به یک مرجع فیزیکی نیاز دارند که ما نداریم.</string>
+    <string name="max_sensor_service">سرویس سنسور</string>
+    <string name="max_sensor_service_unavailable">قابل دسترسی نبود</string>
+    <string name="max_sensor_count">حسگرها گزارش کردند</string>
+    <string name="max_sensor_kinds">دسته بندی های موجود</string>
+    <string name="max_sensor_wakeup">سنسورهای بیداری (گزارش در زمانی که دستگاه خواب است)</string>
+    <string name="max_sensor_light">نور محیط</string>
+    <string name="max_sensor_unit_lux">لوکس</string>
+    <string name="max_sensor_light_absent">این دستگاه هیچ حسگر نوری را گزارش نمی کند</string>
+    <string name="max_sensor_light_unreadable">هیچ خواندنی قبل از پایان زمان دریافت نشد - ناشناخته، نه صفر</string>
+    <string name="max_sensor_more">…و %1$s بیشتر</string>
+    <string name="max_sensor_no_score">نام ها، محدوده ها و تأخیرها از پلتفرم می آیند. سنسوری که گزارش می دهد دلیلی بر صحت آن نیست.</string>
+    <string name="max_sensor_kind_motion">حرکت</string>
+    <string name="max_sensor_kind_environment">محیط زیست</string>
+    <string name="max_sensor_kind_position">موقعیت</string>
+    <string name="max_sensor_kind_body">بدن</string>
+    <string name="max_sensor_kind_unpositioned">بدون موقعیت</string>
+    <string name="max_sensor_kind_other">دیگر</string>
+</resources>

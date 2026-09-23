@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Pluginuri de la terți</string>
+    <string name="max_plugins_subtitle">Contractul publicat: ce poate declara un plugin și ce a fost acceptat sau refuzat aici.</string>
+    <string name="max_plugins_section_contract">Contractul</string>
+    <string name="max_plugins_contract_api">Nivel API %1$d</string>
+    <string name="max_plugins_contract_dir">Dosarul manifest</string>
+    <string name="max_plugins_contract_rules">O capacitate declarată este fie o citire, fie o propunere. Nu există în mod deliberat nicio capacitate care să scrie hardware: fiecare scriere din această aplicație trece prin arbitru, iar un plugin care ar putea scrie direct ar elimina protecția construită pentru a opri doi proprietari care scriu același buton.</string>
+    <string name="max_plugins_contract_keys">Cheile citite dintr-un manifest</string>
+    <string name="max_plugins_contract_kinds">Tipuri acceptate</string>
+    <string name="max_plugins_contract_capabilities">Capabilitati acceptate</string>
+    <string name="max_plugins_template">Șablon manifest</string>
+    <string name="max_plugins_template_note">Acest text este ceea ce citește analizatorul. Nu poate deriva din cod, deoarece este generat din acesta.</string>
+    <string name="max_plugins_copy_template">Copiați șablonul</string>
+    <string name="max_plugins_template_copied">Șablonul a fost copiat</string>
+    <string name="max_plugins_section_installed">Găsit pe acest dispozitiv</string>
+    <string name="max_plugins_loading_title">Citirea folderului de plugin</string>
+    <string name="max_plugins_loading_detail">Listarea folderului manifest cu rădăcină, apoi evaluarea fiecărui manifest în raport cu contractul.</string>
+    <string name="max_plugins_accepted_count">%1$d acceptat</string>
+    <string name="max_plugins_rejected_count">%1$d a refuzat</string>
+    <string name="max_plugins_unreadable_count">%1$d folder fără un manifest care poate fi citit</string>
+    <string name="max_plugins_rejected_section">Refuzat, cu motivul exact</string>
+    <string name="max_plugins_detail_label">Declarat</string>
+    <string name="max_plugins_refresh_cd">Recitiți folderul cu pluginuri</string>
+    <string name="max_plugins_capability_source">Raportat de plugin, nu măsurat de noi</string>
+    <string name="max_plugins_cond_empty_title">Nu există pluginuri instalate</string>
+    <string name="max_plugins_cond_empty_detail">Dosarul manifest nu conține foldere cu pluginuri. Nimic nu este în neregulă: aceasta este starea implicită a caracteristicii.</string>
+    <string name="max_plugins_cond_missing_title">Dosarul manifest nu există încă</string>
+    <string name="max_plugins_cond_missing_detail">%1$s nu a fost creat pe acest dispozitiv, așa că nu există nimic de citit. Crearea acestuia este tot ce trebuie să facă un autor de plugin.</string>
+    <string name="max_plugins_cond_unreadable_title">Dosarul manifest nu poate fi citit</string>
+    <string name="max_plugins_cond_unreadable_detail">Dosarul există la %1$s, dar shell-ul nu l-a putut citi. Root este necesar pentru a-l lista.</string>
+    <string name="max_plugins_reason_BadId">Id-ul nu poate fi utilizat ca nume de folder. Folosiți litere latine mici, cifre, puncte, liniuțe sau litere de subliniere și niciodată două puncte la rând.</string>
+    <string name="max_plugins_reason_MissingName">Manifestul nu declară nici un nume.</string>
+    <string name="max_plugins_reason_BadVersion">Versiunea trebuie să înceapă cu cifre, de exemplu 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Nivelul API declarat lipsește sau este sub 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Nivelul API declarat este mai nou decât înțelege această versiune, așa că nu este rulat deloc.</string>
+    <string name="max_plugins_reason_MissingKind">Manifestul declară nici un fel.</string>
+    <string name="max_plugins_reason_UnknownKind">Genul nu este unul dintre tipurile publicate.</string>
+    <string name="max_plugins_reason_UnknownCapability">Capacitatea nu face parte din acest contract. O capacitate necunoscută este refuzată mai degrabă decât ignorată, așa că nimic nu rulează cu mai puține drepturi decât a cerut.</string>
+    <string name="max_plugins_reason_NoCapabilities">Un plugin trebuie să declare cel puțin o capacitate.</string>
+    <string name="max_plugins_reason_DuplicateId">Un alt plugin cu acest id a fost deja acceptat, așa că acesta nu este folosit.</string>
+    <string name="max_plugins_help_title">De ce un contract deloc</string>
+    <string name="max_plugins_help_body">Fără un contract publicat, oricine care extinde această aplicație trebuie să ghicească forma fișierelor noastre interne și nu putem distinge o extensie validă de una ruptă. Odată cu acesta, se precizează limita: un plugin declară intenția și citește; nu scrie niciodată hardware și fiecare refuz de mai sus numește câmpul exact care a eșuat.</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Үчүнчү тараптын плагиндери</string>
+    <string name="max_plugins_subtitle">Жарыяланган келишим: плагин эмнени жарыялай алат жана бул жерде эмне кабыл алынган же баш тартылган.</string>
+    <string name="max_plugins_section_contract">Контракт</string>
+    <string name="max_plugins_contract_api">API деңгээли %1$d</string>
+    <string name="max_plugins_contract_dir">Манифест папкасы</string>
+    <string name="max_plugins_contract_rules">Жарыяланган мүмкүнчүлүк окуу же сунуш болуп саналат. Аппараттык камсыздоону жаза турган эч кандай мүмкүнчүлүк жок: бул колдонмодогу ар бир жазуу арбитрден өтөт жана түз жаза алган плагин эки ээсинин бир эле баскычты жазуусун токтотуу үчүн курулган күзөттү алып салат.</string>
+    <string name="max_plugins_contract_keys">Манифесттен окулган ачкычтар</string>
+    <string name="max_plugins_contract_kinds">Кабыл алынган түрлөрү</string>
+    <string name="max_plugins_contract_capabilities">Кабыл алынган мүмкүнчүлүктөр</string>
+    <string name="max_plugins_template">Манифест шаблону</string>
+    <string name="max_plugins_template_note">Бул текстти талдоочу окуйт. Ал коддон кете албайт, анткени ал андан түзүлөт.</string>
+    <string name="max_plugins_copy_template">Шаблонду көчүрүңүз</string>
+    <string name="max_plugins_template_copied">Үлгү көчүрүлдү</string>
+    <string name="max_plugins_section_installed">Бул түзмөктө табылган</string>
+    <string name="max_plugins_loading_title">Плагин папкасын окуу</string>
+    <string name="max_plugins_loading_detail">Манифест папкасын тамыры менен тизмелөө, андан кийин ар бир манифестти келишимге каршы баалоо.</string>
+    <string name="max_plugins_accepted_count">%1$d кабыл алынды</string>
+    <string name="max_plugins_rejected_count">%1$d баш тартты</string>
+    <string name="max_plugins_unreadable_count">Окууга мүмкүн болгон манифести жок %1$d папка</string>
+    <string name="max_plugins_rejected_section">Так себеби менен баш тартты</string>
+    <string name="max_plugins_detail_label">Жарыяланган</string>
+    <string name="max_plugins_refresh_cd">Плагин папкасын кайра окуңуз</string>
+    <string name="max_plugins_capability_source">Биз тарабынан өлчөнгөн эмес, плагин тарабынан билдирилди</string>
+    <string name="max_plugins_cond_empty_title">Орнотулган плагиндер жок</string>
+    <string name="max_plugins_cond_empty_detail">Манифест папкасында плагин папкалары жок. Эч нерсе туура эмес: бул функциянын демейки абалы.</string>
+    <string name="max_plugins_cond_missing_title">Манифест папкасы азырынча жок</string>
+    <string name="max_plugins_cond_missing_detail">%1$s бул түзмөктө түзүлгөн эмес, андыктан окуй турган эч нерсе жок. Аны түзүү - бул плагиндин автору кылышы керек.</string>
+    <string name="max_plugins_cond_unreadable_title">Манифест папкасын окуу мүмкүн эмес</string>
+    <string name="max_plugins_cond_unreadable_detail">Папка %1$s дарегинде бар, бирок кабык аны окуй алган жок. Аны тизмелөө үчүн Root талап кылынат.</string>
+    <string name="max_plugins_reason_BadId">Идентификатор папканын аталышы катары колдонулбайт. Кичинекей латын тамгаларын, цифраларды, чекиттерди, сызыктарды же астынкы сызыктарды колдонуңуз жана эч качан катары менен эки чекит болбоңуз.</string>
+    <string name="max_plugins_reason_MissingName">Манифестте аты аталбайт.</string>
+    <string name="max_plugins_reason_BadVersion">Версия цифралар менен башталышы керек, мисалы 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Жарыяланган API деңгээли жок же 1ден төмөн.</string>
+    <string name="max_plugins_reason_ApiTooNew">Жарыяланган API деңгээли бул түзүлүш түшүнгөндөн жаңыраак, андыктан ал такыр иштетилбейт.</string>
+    <string name="max_plugins_reason_MissingKind">Манифест эч кандай түрүн жарыялабайт.</string>
+    <string name="max_plugins_reason_UnknownKind">Түр жарыяланган түрлөрдүн бири эмес.</string>
+    <string name="max_plugins_reason_UnknownCapability">Мүмкүнчүлүк бул келишимдин бир бөлүгү эмес. Белгисиз мүмкүнчүлүк четке кагылгандын ордуна четке кагылат, андыктан эч нерсе суралгандан азыраак укуктар менен иштебейт.</string>
+    <string name="max_plugins_reason_NoCapabilities">Плагин жок дегенде бир мүмкүнчүлүктү жарыялашы керек.</string>
+    <string name="max_plugins_reason_DuplicateId">Бул id менен башка плагин мурунтан эле кабыл алынган, андыктан бул колдонулбайт.</string>
+    <string name="max_plugins_help_title">Дегеле эмне үчүн келишим</string>
+    <string name="max_plugins_help_body">Жарыяланган келишимсиз, бул колдонмону кеңейткен ар бир адам биздин ички файлдарыбыздын формасын болжолдоого тийиш жана биз жарактуу кеңейтүүнү бузулгандан ажырата албайбыз. Аны менен, чек айтылган: плагин ниетин жарыялайт жана окуйт; ал эч качан жабдыктарды жазбайт жана жогорудагы ар бир баш тартууда так аткарылбай калган талааны атайт.</string>
+</resources>

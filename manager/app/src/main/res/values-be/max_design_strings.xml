@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">жыць</string>
+    <string name="max_trust_stale">Апошні ўзор</string>
+    <string name="max_trust_snapshot">Здымак</string>
+    <string name="max_trust_unreadable">Няма чытання</string>
+    <string name="max_trust_unsupported">Не падтрымліваецца</string>
+    <string name="max_source_label">Крыніца</string>
+    <string name="max_updated_label">Абноўлены</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">няма даступнага значэння</string>
+    <string name="max_expand_section">Паказаць дэталі</string>
+    <string name="max_collapse_section">Схаваць дэталі</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Знешні выгляд і інтэрфейс</string>
+    <string name="max_cfg_backup_app_prefs">Параметры праграмы і мова</string>
+    <string name="max_cfg_declared_absent_title">Не ўвойдуць, і чаму</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">гэта прылада не мае праверанага кораня, таму значэнні нельга прачытаць надзейна</string>
+    <string name="max_cfg_absent_file_missing">файл пераваг яшчэ не існуе</string>
+    <string name="max_cfg_absent_empty">файл пераваг існуе, але пусты, таму няма чаго пісаць</string>
+    <string name="max_cfg_declared_excluded_title">Ніколі не ўваходзіць у гэты файл</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Параметры бяспекі наладжваюцца ўнутры праграмы і ніколі не захоўваюцца ў файле</string>
+    <string name="max_cfg_excluded_other_apps">даныя іншых праграм належаць да рэзервовай копіі праграмы, а не да рэзервовай копіі канфігурацыі</string>
+    <string name="max_cfg_excluded_secret">ключы подпісу і сакрэты ніколі не запісваюцца ў файл, якім вы можаце падзяліцца</string>
+    <string name="max_cfg_section_tweaks">Твік канфігурацыі</string>
+    <string name="max_cfg_section_applist">Спіс для кожнага прыкладання</string>
+    <string name="max_cfg_section_appearance">Знешні выгляд і інтэрфейс</string>
+    <string name="max_cfg_section_app_prefs">Параметры праграмы і мова</string>
+    <string name="max_cfg_restore_merge_note">Аднаўленне параметраў аб\'ядноўвае: ключы, якія прысутнічаюць у файле, запісваюцца, а ключы, якія ў ім не згадваюцца, застаюцца без змены. Нічога не ачышчана.</string>
+</resources>

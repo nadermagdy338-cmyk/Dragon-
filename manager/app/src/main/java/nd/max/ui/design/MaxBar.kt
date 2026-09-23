@@ -26,9 +26,7 @@
  */
 package nd.max.ui.design
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -41,7 +39,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
@@ -66,15 +63,6 @@ fun MaxUsageBar(
             .height(height)
             .clip(RoundedCornerShape(MaxRadius.pill))
             .background(track)
-            // حوض غائر وحدّه رفيع — نفس مفردات `NeuralTrack` في المكتبة، فلا يكون في
-            // التطبيق شريطان بمظهرين لنفس المعنى.
-            .border(
-                BorderStroke(
-                    MaxSize.hairlineBorder,
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border)
-                ),
-                RoundedCornerShape(MaxRadius.pill)
-            )
             .semantics { progressBarRangeInfo = ProgressBarRangeInfo(safeFraction, 0f..1f) }
     ) {
         val available = maxWidth
@@ -82,7 +70,7 @@ fun MaxUsageBar(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(available * safeFraction)
-                .background(Brush.horizontalGradient(listOf(fill.copy(alpha = .62f), fill)))
+                .background(fill)
         )
         marker?.takeIf { it.isFinite() }?.let {
             val position = (available * it.coerceIn(0f, 1f)) - (MaxSize.activeRing / 2)

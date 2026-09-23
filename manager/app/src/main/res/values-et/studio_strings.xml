@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">ESINEMISSTUUDIO</string>
+    <string name="studio_cpu_frequency">CPU sagedus</string>
+    <string name="studio_load_history">Hiljutine CPU tegevus</string>
+    <string name="studio_waiting_samples">Otselugemiste kogumine…</string>
+    <string name="studio_automatic_profile">Automaatrežiim haldab aktiivset profiili.</string>
+    <string name="studio_temperature">Temperatuur</string>
+    <string name="studio_display">Ekraan</string>
+    <string name="studio_power">Toitevalikud</string>
+    <string name="studio_settings">Seaded</string>
+</resources>

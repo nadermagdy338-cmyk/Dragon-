@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Hirugarrenen pluginak</string>
+    <string name="max_plugins_subtitle">Argitaratutako kontratua: plugin batek deklaratu dezakeena eta hemen onartu edo ukatu dena.</string>
+    <string name="max_plugins_section_contract">Kontratua</string>
+    <string name="max_plugins_contract_api">API maila %1$d</string>
+    <string name="max_plugins_contract_dir">Manifestu karpeta</string>
+    <string name="max_plugins_contract_rules">Adierazitako gaitasun bat irakurketa edo proposamen bat da. Nahita ez dago hardwarea idazten duen gaitasunik: aplikazio honetako idazketa bakoitza arbitroaren bidez pasatzen da, eta zuzenean idatzi dezakeen plugin batek bi jabeek botoi bera idazten geldiarazteko eraikitako guardia kenduko luke.</string>
+    <string name="max_plugins_contract_keys">Manifestu batetik irakurritako gakoak</string>
+    <string name="max_plugins_contract_kinds">Onartutako motak</string>
+    <string name="max_plugins_contract_capabilities">Onartutako gaitasunak</string>
+    <string name="max_plugins_template">Manifestu txantiloia</string>
+    <string name="max_plugins_template_note">Testu hau da analizatzaileak irakurtzen duena. Ezin da kodetik noraezean, bertatik sortzen delako.</string>
+    <string name="max_plugins_copy_template">Kopiatu txantiloia</string>
+    <string name="max_plugins_template_copied">Kopiatu da txantiloia</string>
+    <string name="max_plugins_section_installed">Gailu honetan aurkitu da</string>
+    <string name="max_plugins_loading_title">Plugin karpeta irakurtzen</string>
+    <string name="max_plugins_loading_detail">Manifestuaren karpeta erroarekin zerrendatzea, gero manifestu bakoitza kontratuaren arabera ebaluatzea.</string>
+    <string name="max_plugins_accepted_count">%1$d onartu</string>
+    <string name="max_plugins_rejected_count">%1$d ezezkoa eman zuen</string>
+    <string name="max_plugins_unreadable_count">%1$d karpeta, manifestu irakurgarririk gabe</string>
+    <string name="max_plugins_rejected_section">Ezezkoa, arrazoi zehatzarekin</string>
+    <string name="max_plugins_detail_label">Aldarrikatua</string>
+    <string name="max_plugins_refresh_cd">Berriro irakurri pluginen karpeta</string>
+    <string name="max_plugins_capability_source">Pluginak jakinarazi du, ez dugu neurtu</string>
+    <string name="max_plugins_cond_empty_title">Ez dago pluginik instalatu</string>
+    <string name="max_plugins_cond_empty_detail">Manifestuaren karpetak ez du plugin karpetarik gordetzen. Ez dago ezer gaizki: hau da funtzioaren egoera lehenetsia.</string>
+    <string name="max_plugins_cond_missing_title">Manifest karpeta ez dago oraindik</string>
+    <string name="max_plugins_cond_missing_detail">%1$s ez da sortu gailu honetan, beraz, ez dago ezer irakurtzeko. Plugin-egile batek egin behar duen guztia sortzea da.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifest karpeta ezin da irakurri</string>
+    <string name="max_plugins_cond_unreadable_detail">Karpeta %1$s helbidean dago baina shell-ak ezin izan du irakurri. Root behar da zerrendatzeko.</string>
+    <string name="max_plugins_reason_BadId">Id-a ezin da karpeta-izen gisa erabilgarri. Erabili latinezko letra minuskulak, zifrak, puntuak, marratxoak edo azpimarra, eta inoiz ez bi puntu jarraian.</string>
+    <string name="max_plugins_reason_MissingName">Manifestuak ez du izenik adierazten.</string>
+    <string name="max_plugins_reason_BadVersion">Bertsioak zifrekin hasi behar du, adibidez 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Adierazitako API maila falta da edo 1etik beherakoa da.</string>
+    <string name="max_plugins_reason_ApiTooNew">Adierazitako API maila eraikuntza honek ulertzen duena baino berriagoa da, beraz, ez da batere exekutatzen.</string>
+    <string name="max_plugins_reason_MissingKind">Manifestuak ez du motarik adierazten.</string>
+    <string name="max_plugins_reason_UnknownKind">Mota ez da argitaratutako mota bat.</string>
+    <string name="max_plugins_reason_UnknownCapability">Gaitasuna ez da kontratu honen parte. Gaitasun ezezagun bat baztertu beharrean ukatzen da, beraz, ezer ez da exekutatzen eskatutakoa baino eskubide gutxiagorekin.</string>
+    <string name="max_plugins_reason_NoCapabilities">Plugin batek gaitasun bat gutxienez deklaratu behar du.</string>
+    <string name="max_plugins_reason_DuplicateId">Id hau duen beste plugin bat jada onartu zen, beraz, hau ez da erabiltzen.</string>
+    <string name="max_plugins_help_title">Zergatik kontratua batere</string>
+    <string name="max_plugins_help_body">Argitaratutako kontraturik gabe, aplikazio hau hedatzen duen edonork gure barne fitxategien forma asmatu behar du, eta ezin dugu bereizi baliozko luzapen bat hautsitako batetik. Harekin, muga adierazten da: plugin batek asmoa adierazten du eta irakurtzen du; ez du inoiz hardware idazten, eta goiko uko bakoitzak huts egin duen eremu zehatza izendatzen du.</string>
+</resources>

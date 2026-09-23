@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU frekvencia</string>
+    <string name="studio_load_history">Legutóbbi CPU tevékenység</string>
+    <string name="studio_waiting_samples">Élő olvasmányok gyűjtése…</string>
+    <string name="studio_automatic_profile">Az automatikus üzemmód kezeli az aktív profilt.</string>
+    <string name="studio_temperature">Hőmérséklet</string>
+    <string name="studio_display">Kijelző</string>
+    <string name="studio_power">Energiagazdálkodási lehetőségek</string>
+    <string name="studio_settings">Beállítások elemre</string>
+</resources>

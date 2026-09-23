@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Görünüm ve arayüz</string>
+    <string name="max_cfg_backup_app_prefs">Uygulama tercihleri ​​ve dil</string>
+    <string name="max_cfg_declared_absent_title">Dahil edilmeyecektir ve nedeni</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">bu cihazın doğrulanmış kökü yok, dolayısıyla değerler güvenilir bir şekilde okunamıyor</string>
+    <string name="max_cfg_absent_file_missing">tercih dosyası henüz mevcut değil</string>
+    <string name="max_cfg_absent_empty">tercih dosyası var ama boş, dolayısıyla yazılacak bir şey yok</string>
+    <string name="max_cfg_declared_excluded_title">Bu dosyaya hiçbir zaman dahil edilmedi</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI güvenlik ayarları uygulamanın içinde yapılandırılır, hiçbir zaman bir dosyada taşınmaz</string>
+    <string name="max_cfg_excluded_other_apps">diğer uygulamaların verileri yapılandırma yedeklemesine değil uygulama yedeklemesine aittir</string>
+    <string name="max_cfg_excluded_secret">imzalama anahtarları ve sırları asla paylaşabileceğiniz bir dosyaya yazılmaz</string>
+    <string name="max_cfg_section_tweaks">Yapılandırmayı değiştirin</string>
+    <string name="max_cfg_section_applist">Uygulama başına liste</string>
+    <string name="max_cfg_section_appearance">Görünüm ve arayüz</string>
+    <string name="max_cfg_section_app_prefs">Uygulama tercihleri ​​ve dil</string>
+    <string name="max_cfg_restore_merge_note">Tercihleri ​​geri yüklemek birleşir: dosyada bulunan anahtarlar yazılır ve belirtilmeyen anahtarlar oldukları gibi kalır. Hiçbir şey temizlenmedi.</string>
+</resources>

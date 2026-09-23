@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">यस यन्त्रद्वारा रिपोर्ट गरिएको सेन्सरहरू</string>
+    <string name="max_sensor_desc">प्लेटफर्मले यसको आफ्नै हार्डवेयरको बारेमा के घोषणा गर्छ, साथै एक बाउन्ड गरिएको लाइट पढाइ। कुनै क्यालिब्रेसन र कुनै स्वास्थ्य स्कोर छैन: दुबैलाई भौतिक सन्दर्भ चाहिन्छ जुन हामीसँग छैन।</string>
+    <string name="max_sensor_service">सेन्सर सेवा</string>
+    <string name="max_sensor_service_unavailable">पुग्न सकेन</string>
+    <string name="max_sensor_count">सेन्सरहरूले जानकारी दिए</string>
+    <string name="max_sensor_kinds">उपस्थित वर्गहरू</string>
+    <string name="max_sensor_wakeup">वेक-अप सेन्सरहरू (उपकरण सुतिरहेको बेला रिपोर्ट गर्नुहोस्)</string>
+    <string name="max_sensor_light">परिवेश प्रकाश</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">यो उपकरणले कुनै प्रकाश सेन्सर रिपोर्ट गर्दैन</string>
+    <string name="max_sensor_light_unreadable">टाइमआउट अघि कुनै पठन आइपुगेन — अज्ञात, शून्य होइन</string>
+    <string name="max_sensor_more">…र %1$s थप</string>
+    <string name="max_sensor_no_score">नामहरू, दायराहरू र ढिलाइहरू प्लेटफर्मबाट आउँछन्। रिपोर्ट गर्ने सेन्सरले यो सही छ भन्ने प्रमाण होइन।</string>
+    <string name="max_sensor_kind_motion">गति</string>
+    <string name="max_sensor_kind_environment">वातावरण</string>
+    <string name="max_sensor_kind_position">स्थिति</string>
+    <string name="max_sensor_kind_body">शरीर</string>
+    <string name="max_sensor_kind_unpositioned">अस्थित</string>
+    <string name="max_sensor_kind_other">अन्य</string>
+</resources>

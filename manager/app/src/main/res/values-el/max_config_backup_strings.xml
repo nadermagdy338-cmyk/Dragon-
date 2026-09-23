@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Εμφάνιση &amp; διεπαφή</string>
+    <string name="max_cfg_backup_app_prefs">Προτιμήσεις και γλώσσα εφαρμογής</string>
+    <string name="max_cfg_declared_absent_title">Δεν θα συμπεριληφθεί και γιατί</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">αυτή η συσκευή δεν έχει επαληθευμένη ρίζα, επομένως οι τιμές δεν μπορούν να διαβαστούν αξιόπιστα</string>
+    <string name="max_cfg_absent_file_missing">το αρχείο προτίμησης δεν υπάρχει ακόμα</string>
+    <string name="max_cfg_absent_empty">το αρχείο προτίμησης υπάρχει αλλά είναι κενό, επομένως δεν υπάρχει τίποτα να γράψετε</string>
+    <string name="max_cfg_declared_excluded_title">Δεν περιλαμβάνεται ποτέ σε αυτό το αρχείο</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Οι ρυθμίσεις ασφαλείας διαμορφώνονται μέσα στην εφαρμογή και δεν μεταφέρονται ποτέ σε αρχείο</string>
+    <string name="max_cfg_excluded_other_apps">Τα δεδομένα άλλων εφαρμογών ανήκουν στο αντίγραφο ασφαλείας εφαρμογών, όχι στο αντίγραφο ασφαλείας ρυθμίσεων</string>
+    <string name="max_cfg_excluded_secret">Τα κλειδιά και τα μυστικά υπογραφής δεν γράφονται ποτέ σε ένα αρχείο που μπορεί να μοιραστείτε</string>
+    <string name="max_cfg_section_tweaks">Τροποποίηση διαμόρφωσης</string>
+    <string name="max_cfg_section_applist">Λίστα ανά εφαρμογή</string>
+    <string name="max_cfg_section_appearance">Εμφάνιση &amp; διεπαφή</string>
+    <string name="max_cfg_section_app_prefs">Προτιμήσεις και γλώσσα εφαρμογής</string>
+    <string name="max_cfg_restore_merge_note">Η επαναφορά των προτιμήσεων συγχωνεύεται: τα κλειδιά που υπάρχουν στο αρχείο γράφονται και τα κλειδιά που δεν αναφέρει παραμένουν ως έχουν. Τίποτα δεν καθαρίζεται.</string>
+</resources>

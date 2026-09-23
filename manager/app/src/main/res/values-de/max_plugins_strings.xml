@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Drittanbieter-Plugins</string>
+    <string name="max_plugins_subtitle">Der veröffentlichte Vertrag: was ein Plugin erklären darf und was hier akzeptiert oder abgelehnt wurde.</string>
+    <string name="max_plugins_section_contract">Der Vertrag</string>
+    <string name="max_plugins_contract_api">API-Level %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest-Ordner</string>
+    <string name="max_plugins_contract_rules">Eine deklarierte Fähigkeit ist ein Lesen oder ein Vorschlag. Es gibt absichtlich keine Fähigkeit, die Hardware schreibt: Jedes Schreiben in dieser App geht durch den Schiedsrichter, und ein Plugin, das direkt schreiben könnte, würde die Sicherung entfernen, die verhindern soll, dass zwei Besitzer denselben Regler schreiben.</string>
+    <string name="max_plugins_contract_keys">Aus einem Manifest gelesene Schlüssel</string>
+    <string name="max_plugins_contract_kinds">Akzeptierte Arten</string>
+    <string name="max_plugins_contract_capabilities">Akzeptierte Fähigkeiten</string>
+    <string name="max_plugins_template">Manifest-Vorlage</string>
+    <string name="max_plugins_template_note">Dieser Text ist es, was der Parser liest. Er kann nicht vom Code abweichen, weil er aus ihm erzeugt wird.</string>
+    <string name="max_plugins_copy_template">Vorlage kopieren</string>
+    <string name="max_plugins_template_copied">Vorlage kopiert</string>
+    <string name="max_plugins_section_installed">Auf diesem Gerät gefunden</string>
+    <string name="max_plugins_loading_title">Plugin-Ordner wird gelesen</string>
+    <string name="max_plugins_loading_detail">Den Manifest-Ordner mit Root auflisten und dann jedes Manifest gegen den Vertrag prüfen.</string>
+    <string name="max_plugins_accepted_count">%1$d akzeptiert</string>
+    <string name="max_plugins_rejected_count">%1$d abgelehnt</string>
+    <string name="max_plugins_unreadable_count">%1$d Ordner ohne lesbare Manifest</string>
+    <string name="max_plugins_rejected_section">Abgelehnt, mit dem genauen Grund</string>
+    <string name="max_plugins_detail_label">Deklariert</string>
+    <string name="max_plugins_refresh_cd">Plugin-Ordner neu lesen</string>
+    <string name="max_plugins_capability_source">Vom Plugin gemeldet, nicht von uns gemessen</string>
+    <string name="max_plugins_cond_empty_title">Keine Plugins installiert</string>
+    <string name="max_plugins_cond_empty_detail">Der Manifest-Ordner enthält keine Plugin-Ordner. Nichts ist falsch: Das ist der Standardzustand der Funktion.</string>
+    <string name="max_plugins_cond_missing_title">Der Manifest-Ordner existiert noch nicht</string>
+    <string name="max_plugins_cond_missing_detail">%1$s wurde auf diesem Gerät nicht erstellt, daher gibt es nichts zu lesen. Ihn zu erstellen ist alles, was ein Plugin-Autor tun muss.</string>
+    <string name="max_plugins_cond_unreadable_title">Der Manifest-Ordner kann nicht gelesen werden</string>
+    <string name="max_plugins_cond_unreadable_detail">Der Ordner existiert unter %1$s, aber die Shell konnte ihn nicht lesen. Root ist erforderlich, um ihn aufzulisten.</string>
+    <string name="max_plugins_reason_BadId">Die ID ist als Ordnername nicht brauchbar. Verwende kleine lateinische Buchstaben, Ziffern, Punkte, Bindestriche oder Unterstriche, und niemals zwei Punkte hintereinander.</string>
+    <string name="max_plugins_reason_MissingName">Das Manifest erklärt keinen Namen.</string>
+    <string name="max_plugins_reason_BadVersion">Die Version muss mit Ziffern beginnen, zum Beispiel 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Das deklarierte API-Level fehlt oder liegt unter 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Das deklarierte API-Level ist neuer, als dieser Build versteht, daher wird es gar nicht ausgeführt.</string>
+    <string name="max_plugins_reason_MissingKind">Das Manifest erklärt keine Art.</string>
+    <string name="max_plugins_reason_UnknownKind">Die Art ist keine der veröffentlichten Arten.</string>
+    <string name="max_plugins_reason_UnknownCapability">Die Fähigkeit ist nicht Teil dieses Vertrags. Eine unbekannte Fähigkeit wird abgelehnt statt ignoriert, damit nichts mit weniger Rechten läuft, als es angefordert hat.</string>
+    <string name="max_plugins_reason_NoCapabilities">Ein Plugin muss mindestens eine Fähigkeit deklarieren.</string>
+    <string name="max_plugins_reason_DuplicateId">Ein anderes Plugin mit dieser ID wurde bereits akzeptiert, dieses wird daher nicht verwendet.</string>
+    <string name="max_plugins_help_title">Warum überhaupt ein Vertrag</string>
+    <string name="max_plugins_help_body">Ohne veröffentlichten Vertrag muss jeder, der diese App erweitert, die Form unserer internen Dateien raten, und wir können eine gültige Erweiterung nicht von einer kaputten unterscheiden. Mit ihm ist die Grenze genannt: Ein Plugin erklärt eine Absicht und liest; es schreibt niemals Hardware, und jede Ablehnung oben nennt das genaue Feld, das fehlgeschlagen ist.</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Ukubukeka nesixhumi esibonakalayo</string>
+    <string name="max_cfg_backup_app_prefs">Izintandokazi zohlelo lokusebenza nolimi</string>
+    <string name="max_cfg_declared_absent_title">Ngeke ifakwe, futhi kungani</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">le divayisi ayinayo impande eqinisekisiwe, ngakho-ke amanani awakwazi ukufundwa ngokuthembekile</string>
+    <string name="max_cfg_absent_file_missing">ifayela elithandwayo alikho okwamanje</string>
+    <string name="max_cfg_absent_empty">ifayela elithandwayo likhona kodwa alinalutho, ngakho-ke akukho okuzobhalwa</string>
+    <string name="max_cfg_declared_excluded_title">Akuzange kufakwe kuleli fayela</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI izilungiselelo zokuphepha zilungiswa ngaphakathi kohlelo lokusebenza, azilokothi ziphathwe ngefayela</string>
+    <string name="max_cfg_excluded_other_apps">idatha yezinye izinhlelo zokusebenza ingeyekhophi yasenqolobaneni yohlelo lokusebenza, hhayi ukulungisa isipele</string>
+    <string name="max_cfg_excluded_secret">okhiye bokusayina nezimfihlo akulokothi kubhalwe efayeleni ongase wabelane ngakho</string>
+    <string name="max_cfg_section_tweaks">Lungisa ukumisa</string>
+    <string name="max_cfg_section_applist">Uhlu lohlelo lokusebenza ngalunye</string>
+    <string name="max_cfg_section_appearance">Ukubukeka nesixhumi esibonakalayo</string>
+    <string name="max_cfg_section_app_prefs">Izintandokazi zohlelo lokusebenza nolimi</string>
+    <string name="max_cfg_restore_merge_note">Ukubuyisela okuthandwayo kuhlanganisa: okhiye abakhona efayelini babhaliwe, futhi okhiye abasho ukuthi bahlale benjengoba benjalo. Akukho okusuliwe.</string>
+</resources>

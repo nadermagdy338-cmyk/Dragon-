@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Ζω</string>
+    <string name="max_trust_stale">Τελευταίο δείγμα</string>
+    <string name="max_trust_snapshot">Στιγμιότυπο</string>
+    <string name="max_trust_unreadable">Χωρίς διάβασμα</string>
+    <string name="max_trust_unsupported">Δεν υποστηρίζεται</string>
+    <string name="max_source_label">Πηγή</string>
+    <string name="max_updated_label">Ενημερώθηκε</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">δεν υπάρχει διαθέσιμη τιμή</string>
+    <string name="max_expand_section">Εμφάνιση λεπτομερειών</string>
+    <string name="max_collapse_section">Απόκρυψη λεπτομερειών</string>
+</resources>

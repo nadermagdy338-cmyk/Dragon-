@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Wtyczki innych firm</string>
+    <string name="max_plugins_subtitle">Opublikowana umowa: co wtyczka może deklarować i co zostało tutaj zaakceptowane, a co odrzucone.</string>
+    <string name="max_plugins_section_contract">Umowa</string>
+    <string name="max_plugins_contract_api">Poziom API %1$d</string>
+    <string name="max_plugins_contract_dir">Folder manifestu</string>
+    <string name="max_plugins_contract_rules">Zadeklarowana zdolność jest albo odczytem, ​​albo propozycją. Celowo nie ma możliwości zapisywania sprzętu: każdy zapis w tej aplikacji przechodzi przez arbitra, a wtyczka, która mogłaby zapisywać bezpośrednio, usunie barierę zbudowaną w celu uniemożliwienia dwóm właścicielom pisania tego samego pokrętła.</string>
+    <string name="max_plugins_contract_keys">Klucze odczytane z manifestu</string>
+    <string name="max_plugins_contract_kinds">Akceptowane rodzaje</string>
+    <string name="max_plugins_contract_capabilities">Akceptowane możliwości</string>
+    <string name="max_plugins_template">Szablon manifestu</string>
+    <string name="max_plugins_template_note">Ten tekst jest odczytywany przez parser. Nie może odpłynąć od kodu, ponieważ jest z niego generowany.</string>
+    <string name="max_plugins_copy_template">Skopiuj szablon</string>
+    <string name="max_plugins_template_copied">Szablon skopiowany</string>
+    <string name="max_plugins_section_installed">Znaleziono na tym urządzeniu</string>
+    <string name="max_plugins_loading_title">Czytanie folderu wtyczki</string>
+    <string name="max_plugins_loading_detail">Wyświetlanie folderu manifestu z katalogiem głównym, a następnie ocenianie każdego manifestu pod kątem umowy.</string>
+    <string name="max_plugins_accepted_count">%1$d zaakceptowane</string>
+    <string name="max_plugins_rejected_count">%1$d odmówił</string>
+    <string name="max_plugins_unreadable_count">%1$d folder bez czytelnego manifestu</string>
+    <string name="max_plugins_rejected_section">Odmówiono, podając dokładny powód</string>
+    <string name="max_plugins_detail_label">Zdeklarowany</string>
+    <string name="max_plugins_refresh_cd">Przeczytaj ponownie folder wtyczki</string>
+    <string name="max_plugins_capability_source">Zgłaszane przez wtyczkę, nie mierzone przez nas</string>
+    <string name="max_plugins_cond_empty_title">Brak zainstalowanych wtyczek</string>
+    <string name="max_plugins_cond_empty_detail">Folder manifestu nie zawiera folderów wtyczek. Nic się nie stało: jest to domyślny stan tej funkcji.</string>
+    <string name="max_plugins_cond_missing_title">Folder manifestu jeszcze nie istnieje</string>
+    <string name="max_plugins_cond_missing_detail">%1$s nie zostało utworzone na tym urządzeniu, więc nie ma co czytać. Utworzenie go to wszystko, co musi zrobić autor wtyczki.</string>
+    <string name="max_plugins_cond_unreadable_title">Nie można odczytać folderu manifestu</string>
+    <string name="max_plugins_cond_unreadable_detail">Folder istnieje pod adresem %1$s, ale powłoka nie może go odczytać. Aby go wyświetlić, wymagany jest root.</string>
+    <string name="max_plugins_reason_BadId">Identyfikatora nie można używać jako nazwy folderu. Używaj małych liter alfabetu łacińskiego, cyfr, kropek, myślników lub podkreśleń i nigdy nie używaj dwóch kropek pod rząd.</string>
+    <string name="max_plugins_reason_MissingName">Manifest nie podaje żadnego imienia.</string>
+    <string name="max_plugins_reason_BadVersion">Wersja musi zaczynać się od cyfr, na przykład 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Brak zadeklarowanego poziomu API lub jest on niższy niż 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Zadeklarowany poziom API jest nowszy, niż rozumie to kompilacja, więc w ogóle nie jest uruchamiany.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest nie deklaruje żadnego rodzaju.</string>
+    <string name="max_plugins_reason_UnknownKind">Ten rodzaj nie należy do publikowanych.</string>
+    <string name="max_plugins_reason_UnknownCapability">Zdolność ta nie jest częścią tej umowy. Nieznana funkcja jest raczej odrzucana niż ignorowana, zatem nic nie działa z mniejszą liczbą praw, niż jest to wymagane.</string>
+    <string name="max_plugins_reason_NoCapabilities">Wtyczka musi deklarować co najmniej jedną możliwość.</string>
+    <string name="max_plugins_reason_DuplicateId">Inna wtyczka o tym identyfikatorze została już zaakceptowana, więc ta nie jest używana.</string>
+    <string name="max_plugins_help_title">Po co w ogóle umowa</string>
+    <string name="max_plugins_help_body">Bez opublikowanej umowy każdy, kto rozszerza tę aplikację, musi odgadnąć kształt naszych wewnętrznych plików i nie możemy odróżnić prawidłowego rozszerzenia od uszkodzonego. Dzięki niemu określony jest limit: wtyczka deklaruje zamiar i czyta; nigdy nie zapisuje sprzętu, a każda odmowa powyżej podaje dokładne pole, które zakończyło się niepowodzeniem.</string>
+</resources>

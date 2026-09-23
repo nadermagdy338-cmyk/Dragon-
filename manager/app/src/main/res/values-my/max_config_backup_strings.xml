@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">အသွင်အပြင်နှင့် မျက်နှာပြင်</string>
+    <string name="max_cfg_backup_app_prefs">အက်ပ်စိတ်ကြိုက်များနှင့် ဘာသာစကား</string>
+    <string name="max_cfg_declared_absent_title">အဘယ်ကြောင့်ဆိုသော် မပါဝင်ပါ။</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ဤစက်ပစ္စည်းတွင် အတည်ပြုထားသော root မရှိသောကြောင့် တန်ဖိုးများကို စိတ်ချယုံကြည်စွာ ဖတ်နိုင်မည်မဟုတ်ပေ။</string>
+    <string name="max_cfg_absent_file_missing">preference file မရှိသေးပါ။</string>
+    <string name="max_cfg_absent_empty">preference ဖိုင်ရှိသော်လည်း ဗလာဖြစ်နေသောကြောင့် ရေးစရာမရှိပါ။</string>
+    <string name="max_cfg_declared_excluded_title">ဤဖိုင်တွင် ဘယ်တော့မှ မပါဝင်ပါ။</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI ဘေးကင်းရေးဆက်တင်များကို အက်ပ်အတွင်းတွင် ပုံဖော်ထားပြီး၊ ဖိုင်တစ်ခုတွင် ဘယ်သောအခါမှ မသယ်ဆောင်ပါ။</string>
+    <string name="max_cfg_excluded_other_apps">အခြားအက်ပ်များ၏ ဒေတာများသည် အက်ပ်အရန်သိမ်းဆည်းခြင်းမဟုတ်ဘဲ config အရန်ကူးခြင်းမဟုတ်ပါ။</string>
+    <string name="max_cfg_excluded_secret">လက်မှတ်ထိုးသော သော့များနှင့် လျှို့ဝှက်ချက်များကို သင်မျှဝေနိုင်သော ဖိုင်တစ်ခုသို့ ဘယ်သောအခါမှ မရေးပါ။</string>
+    <string name="max_cfg_section_tweaks">ပြင်ဆင်မှုကို ညှိပါ။</string>
+    <string name="max_cfg_section_applist">အက်ပ်တစ်ခုချင်းစာရင်း</string>
+    <string name="max_cfg_section_appearance">အသွင်အပြင်နှင့် မျက်နှာပြင်</string>
+    <string name="max_cfg_section_app_prefs">အက်ပ်စိတ်ကြိုက်များနှင့် ဘာသာစကား</string>
+    <string name="max_cfg_restore_merge_note">ပြန်လည်ရယူခြင်း ဦးစားပေးများ ပေါင်းစည်းခြင်း- ဖိုင်တွင်ပါရှိသော သော့များကို ရေးသားထားပြီး၊ ၎င်းတွင် ဖော်ပြထားခြင်းမရှိသော သော့များသည် ၎င်းတို့ကဲ့သို့ ရှိနေပါသည်။ ဘာမှမရှင်းဘူး။</string>
+</resources>

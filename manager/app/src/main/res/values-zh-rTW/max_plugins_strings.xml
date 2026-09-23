@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">第三方插件</string>
+    <string name="max_plugins_subtitle">已發布的合約：外掛程式可以聲明什麼，以及此處接受或拒絕什麼。</string>
+    <string name="max_plugins_section_contract">合約</string>
+    <string name="max_plugins_contract_api">API 等級%1$d</string>
+    <string name="max_plugins_contract_dir">清單資料夾</string>
+    <string name="max_plugins_contract_rules">聲明的功能可以是讀取，也可以是提議。故意不提供寫入硬體的功能：此應用程式中的每次寫入都會經過仲裁器，並且可以直接寫入的插件將刪除為阻止兩個所有者寫入相同旋鈕而構建的防護。</string>
+    <string name="max_plugins_contract_keys">從清單中讀取的金鑰</string>
+    <string name="max_plugins_contract_kinds">接受種類</string>
+    <string name="max_plugins_contract_capabilities">可接受的能力</string>
+    <string name="max_plugins_template">清單模板</string>
+    <string name="max_plugins_template_note">該文字是解析器讀取的內容。它不能偏離代碼，因為它是從代碼生成的。</string>
+    <string name="max_plugins_copy_template">複製模板</string>
+    <string name="max_plugins_template_copied">已複製模板</string>
+    <string name="max_plugins_section_installed">在此設備上找到</string>
+    <string name="max_plugins_loading_title">讀取插件資料夾</string>
+    <string name="max_plugins_loading_detail">列出具有 root 的清單資料夾，然後根據合約評估每個清單。</string>
+    <string name="max_plugins_accepted_count">%1$d已接受</string>
+    <string name="max_plugins_rejected_count">%1$d 拒絕</string>
+    <string name="max_plugins_unreadable_count">%1$d 資料夾沒有可讀的清單</string>
+    <string name="max_plugins_rejected_section">拒絕，並說明具體原因</string>
+    <string name="max_plugins_detail_label">宣告</string>
+    <string name="max_plugins_refresh_cd">重新讀取插件資料夾</string>
+    <string name="max_plugins_capability_source">由插件報告，並非由我們測量</string>
+    <string name="max_plugins_cond_empty_title">沒有安裝插件</string>
+    <string name="max_plugins_cond_empty_detail">清單資料夾不包含插件資料夾。沒有任何問題：這是該功能的預設狀態。</string>
+    <string name="max_plugins_cond_missing_title">清單資料夾尚不存在</string>
+    <string name="max_plugins_cond_missing_detail">尚未在此裝置上建立%1$s，因此沒有任何內容可讀取。創建它是插件作者需要做的全部工作。</string>
+    <string name="max_plugins_cond_unreadable_title">無法讀取清單資料夾</string>
+    <string name="max_plugins_cond_unreadable_detail">該資料夾存在於 %1$s 但 shell 無法讀取它。需要 root 才能列出它。</string>
+    <string name="max_plugins_reason_BadId">該 ID 不能用作資料夾名稱。使用小寫拉丁字母、數字、點、破折號或底線，切勿連續使用兩點。</string>
+    <string name="max_plugins_reason_MissingName">清單上沒有聲明任何名稱。</string>
+    <string name="max_plugins_reason_BadVersion">版本必須以數字開頭，例如 1.0.0。</string>
+    <string name="max_plugins_reason_ApiTooOld">聲明的 API 等級缺失或低於 1。</string>
+    <string name="max_plugins_reason_ApiTooNew">聲明的 API 等級比此建置理解的新，因此它根本不運行。</string>
+    <string name="max_plugins_reason_MissingKind">清單聲明沒有種類。</string>
+    <string name="max_plugins_reason_UnknownKind">該類型不是已發布的類型之一。</string>
+    <string name="max_plugins_reason_UnknownCapability">該功能不屬於本合約的一部分。未知的功能會被拒絕而不是被忽略，因此沒有任何操作會以比其要求的權限更少的權限運行。</string>
+    <string name="max_plugins_reason_NoCapabilities">插件必須聲明至少一項功能。</string>
+    <string name="max_plugins_reason_DuplicateId">具有此 id 的另一個插件已被接受，因此未使用此插件。</string>
+    <string name="max_plugins_help_title">為什麼要簽約</string>
+    <string name="max_plugins_help_body">如果沒有發布的合同，任何擴展此應用程式的人都必須猜測我們內部文件的形狀，並且我們無法區分有效的擴展和損壞的擴展。有了它，就規定了限制：插件聲明意圖並讀取；它從不寫入硬件，上面的每一個拒絕都指出了失敗的確切字段。</string>
+</resources>

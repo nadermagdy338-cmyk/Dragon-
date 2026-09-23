@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU հաճախականություն</string>
+    <string name="studio_load_history">Վերջին CPU գործունեությունը</string>
+    <string name="studio_waiting_samples">Կենդանի ընթերցումներ հավաքում…</string>
+    <string name="studio_automatic_profile">Ավտոմատ ռեժիմը կառավարում է ակտիվ պրոֆիլը:</string>
+    <string name="studio_temperature">Ջերմաստիճանը</string>
+    <string name="studio_display">Ցուցադրել</string>
+    <string name="studio_power">Էլեկտրաէներգիայի ընտրանքներ</string>
+    <string name="studio_settings">Կարգավորումներ</string>
+</resources>

@@ -1,6 +1,7 @@
 package nd.max.ui.component
 
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -28,6 +29,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -64,6 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.ui.theme.MonoValueStyleSmall
 import nd.max.ui.util.ClockMeter
+import nd.max.ui.util.LoadSample
+import nd.max.ui.util.Spectrum
 
 /**
  * Neural dashboard kit — the single visual language for MAX's data surfaces.
@@ -72,7 +77,7 @@ import nd.max.ui.util.ClockMeter
  *
  *  - Three depth levels only: panel (outlined, optional accent glow), tile
  *    (filled, no border) and accent tile (accent wash + accent hairline).
- *    Radii are fixed at 26 / 20 / 12 and padding at 16 / 14 / 12.
+ *    Radii are fixed at 24 / 18 / 12 and padding at 16 / 14 / 12.
  *  - One measurement per tile, number first, caption above it, trend below.
  *  - Plots are smoothed (Catmull-Rom) and auto-scaled to the visible window:
  *    a metric that hovers at 75% must still show its shape, not a flat line.
@@ -83,8 +88,8 @@ import nd.max.ui.util.ClockMeter
  *    reordered or clipped by an RTL locale.
  */
 
-val NeuralPanelShape = RoundedCornerShape(22.dp)
-val NeuralTileShape = RoundedCornerShape(16.dp)
+val NeuralPanelShape = RoundedCornerShape(24.dp)
+val NeuralTileShape = RoundedCornerShape(18.dp)
 private val ChipShape = RoundedCornerShape(12.dp)
 
 @Immutable
@@ -103,29 +108,13 @@ data class NeuralPalette(
     val danger: Color,
 )
 
-/**
- * نسبة لون المفتاح الممزوجة في أسطح المكتبة.
- *
- * والرقم **مقيس لا مُختار**: حُلّلت ثماني لقطات تصميم مرجعية بكسلًا بكسل، فظهر أن أسطحها مصبوغة
- * بلون مفتاحها — `#200050` (بنفسجي) فوق خلفية `#100020`، و`#203050` (كحلي) في لقطة أخرى،
- * و`#003040` (تركواز) في ثالثة — بينما تولّد تدرّجات Material محايدات شبه رمادية عن قصد
- * (انظر تعليق `Theme.kt`: «generated neutrals keep surfaces calm»).
- *
- * وسبعة بالمئة تفي بالغرض لأن الدمج **يُضيف صبغة ولا يُطيح بالإضاءة**: أسود + ٧٪ من لون ساطع
- * ما زال أسود (تباين النصّ الأبيض فوقه > ١٤:١)، وأبيض + ٧٪ من لون غامق ما زال فاتحًا. فالمكسب
- * بصريّ والثمن صفر في القراءة — وهو الشرط الذي لا أتنازل عنه في أي تغيير يمسّ كل الشاشات.
- */
-private const val SurfaceHueFraction = .07f
-
 @Composable
 fun neuralPalette(): NeuralPalette {
     val c = MaterialTheme.colorScheme
-    // أسطح المكتبة تحمل **هويّة اللون** لا الرمادي: هو الفرق الواحد الأظهر بين تطبيقنا ونماذج
-    // التصميم المرجعية، وهو تغيير ينتقل إلى كل شاشة تستعمل المكتبة بلا لمس أي شاشة منها.
     return NeuralPalette(
-        panel = lerp(c.surfaceContainerLow, c.primary, SurfaceHueFraction),
-        panelTop = lerp(c.surfaceContainerHigh, c.primary, SurfaceHueFraction),
-        tile = lerp(c.surfaceContainerHighest, c.primary, SurfaceHueFraction * .7f).copy(alpha = .40f),
+        panel = c.surfaceContainerLow,
+        panelTop = c.surfaceContainerHigh,
+        tile = c.surfaceContainerHighest.copy(alpha = .40f),
         text = c.onSurface,
         muted = c.onSurfaceVariant,
         border = c.outlineVariant.copy(alpha = .45f),
@@ -138,14 +127,9 @@ fun neuralPalette(): NeuralPalette {
     )
 }
 
-/**
- * Press feedback shared by every tappable surface: 2.5% scale plus theme ripple.
- *
- * `internal` because the kit's satellite file (`NeuralControls.kt`) must reuse this
- * exact interaction — a second press implementation would drift on the first edit.
- */
+/** Press feedback shared by every tappable surface: 2.5% scale plus theme ripple. */
 @Composable
-internal fun Modifier.neuralClickable(onClick: (() -> Unit)?): Modifier {
+private fun Modifier.neuralClickable(onClick: (() -> Unit)?): Modifier {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -175,30 +159,31 @@ fun NeuralPanel(
     modifier: Modifier = Modifier,
     accent: Color? = null,
     onClick: (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(12.dp),
-    verticalSpacing: Dp = 8.dp,
+    contentPadding: PaddingValues = PaddingValues(16.dp),
+    verticalSpacing: Dp = 12.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val p = neuralPalette()
-    // العمق كله في `neuralSurface`: ظلّ مُلوَّن بلون اللوحة أو بلون مخطّطها، وهالتان ركنيتان
-    // (قوية حيث تقع العين أولًا، خافتة في الركن المقابل)، ولمعة حافة عليا مشتقّة من إضاءة
-    // السطح. ولوح مخطَّط يُرفع درجةً فوق أخوته لأن وجوده نفسه معلومة (تركيز أو تحذير).
-    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val surface = modifier
+    val base = modifier
         .fillMaxWidth()
         .neuralClickable(onClick)
-        .neuralSurface(
-            shape = NeuralPanelShape,
-            top = p.panelTop.copy(alpha = .94f),
-            bottom = p.panel,
-            border = accent?.copy(alpha = .28f) ?: p.border.copy(alpha = .78f),
-            glow = accent ?: p.accent,
-            elevation = if (accent == null) 1.dp else 2.dp,
-            glowStrength = if (accent == null) .12f else .20f,
-            rtl = rtl,
+        .clip(NeuralPanelShape)
+        .background(Brush.verticalGradient(listOf(p.panelTop.copy(alpha = .92f), p.panel)))
+    val glow = if (accent == null) {
+        base
+    } else {
+        base.background(
+            Brush.radialGradient(
+                colors = listOf(accent.copy(alpha = .16f), Color.Transparent),
+                center = Offset(0f, 0f),
+                radius = 620f,
+            )
         )
+    }
     Column(
-        surface.padding(contentPadding),
+        glow
+            .border(BorderStroke(1.dp, accent?.copy(alpha = .28f) ?: p.border), NeuralPanelShape)
+            .padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(verticalSpacing),
         content = content,
     )
@@ -210,25 +195,16 @@ fun NeuralTile(
     modifier: Modifier = Modifier,
     accent: Color? = null,
     onClick: (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(11.dp),
-    verticalSpacing: Dp = 6.dp,
+    contentPadding: PaddingValues = PaddingValues(14.dp),
+    verticalSpacing: Dp = 8.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val p = neuralPalette()
-    // البلاطة أصغر من اللوحة فتحتاج تدرّجًا أقصر: الصبغة تبدأ أعلى (17٪) وتنزل (7٪) فيُقرأ
-    // السطح مقببًا لا مسطّحًا — والمبلاطة غير الملوّنة تبقى هادئة وتأخذ لمعة الحافة وحدها.
-    val box = modifier
+    var box = modifier
         .neuralClickable(onClick)
-        .neuralSurface(
-            shape = NeuralTileShape,
-            top = accent?.copy(alpha = .12f) ?: p.tile,
-            bottom = accent?.copy(alpha = .055f) ?: p.tile,
-            border = accent?.copy(alpha = .20f) ?: p.border.copy(alpha = .42f),
-            glow = accent,
-            elevation = if (accent == null) 0.dp else 1.dp,
-            sheen = if (accent == null) -1f else .025f,
-            rtl = LocalLayoutDirection.current == LayoutDirection.Rtl,
-        )
+        .clip(NeuralTileShape)
+        .background(accent?.copy(alpha = .10f) ?: p.tile)
+    if (accent != null) box = box.border(BorderStroke(1.dp, accent.copy(alpha = .22f)), NeuralTileShape)
     Column(
         box.padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(verticalSpacing),
@@ -244,8 +220,8 @@ fun NeuralCaption(text: String, modifier: Modifier = Modifier, color: Color? = n
         text,
         modifier,
         color = color ?: p.muted,
-        fontSize = 9.5.sp,
-        lineHeight = 12.sp,
+        fontSize = 10.sp,
+        lineHeight = 13.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.9.sp,
     )
@@ -287,31 +263,28 @@ fun NeuralSectionHeader(
 ) {
     val p = neuralPalette()
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        // الشرطة كاملة اللون عند رأسها وخافتة عند ذيلها: تُقرأ كمسطرة تُشير إلى العنوان لا
-        // كخطّ لاصق. وهي أرخص علامة هويّة في الشاشة، وتتكرّر في كل مقطع فيصير الشكل واحدًا.
-        val tone = accent ?: p.accent
         Box(
             Modifier
                 .width(3.dp)
-                .height(if (caption == null) 16.dp else 30.dp)
+                .height(if (caption == null) 18.dp else 32.dp)
                 .clip(CircleShape)
-                .background(Brush.verticalGradient(listOf(tone, tone.copy(alpha = .38f))))
+                .background(accent ?: p.accent)
         )
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
                 title,
                 color = p.text,
-                fontSize = 14.sp,
-                lineHeight = 18.sp,
+                fontSize = 15.sp,
+                lineHeight = 19.sp,
                 fontWeight = FontWeight.Bold,
             )
             if (caption != null) {
                 Text(
                     caption,
                     color = p.muted,
-                    fontSize = 10.sp,
-                    lineHeight = 13.sp,
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp,
                 )
             }
         }
@@ -333,66 +306,33 @@ fun NeuralPill(
     icon: ImageVector? = null,
     onClick: (() -> Unit)? = null,
 ) {
-    // الشارة الممتلئة مصبوغة بتدرّج (لا لون مسطّح): هي «حالة» تُقرأ من بعيد، والتدرّج يجعلها
-    // قطعة واحدة مع هوية الشاشة بلا أن تصرخ.
-    var chip = modifier
-        .neuralClickable(onClick)
-        .clip(CircleShape)
-    if (filled) {
-        chip = chip.background(
-            Brush.horizontalGradient(listOf(accent.copy(alpha = .26f), accent.copy(alpha = .10f)))
-        )
-    }
     Row(
-        chip
-            .border(BorderStroke(1.dp, accent.copy(alpha = if (filled) .46f else .28f)), CircleShape)
-            .padding(horizontal = 9.dp, vertical = 4.dp),
+        modifier
+            .neuralClickable(onClick)
+            .clip(CircleShape)
+            .background(if (filled) accent.copy(alpha = .16f) else Color.Transparent)
+            .border(BorderStroke(1.dp, accent.copy(alpha = if (filled) .42f else .28f)), CircleShape)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         if (dot) Box(Modifier.size(6.dp).clip(CircleShape).background(accent))
         if (icon != null) Icon(icon, null, Modifier.size(13.dp), tint = accent)
-        Text(text, color = accent, fontSize = 10.sp, lineHeight = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        Text(text, color = accent, fontSize = 11.sp, lineHeight = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
     }
 }
 
 /** Square icon chip used by tiles and feed rows. */
 @Composable
 fun NeuralIconChip(icon: ImageVector, accent: Color, modifier: Modifier = Modifier, size: Dp = 32.dp) {
-    // الأيقونة تُقرأ أسرع حين تجلس في رقعة مصبوغة متدرّجة لا في مربّع لون مسطّح، والحدّ
-    // الرفيع يحفظ شكلها على السطح الأبيض في الوضع الفاتح.
     Box(
         modifier
             .size(size)
             .clip(ChipShape)
-            .background(Brush.verticalGradient(listOf(accent.copy(alpha = .28f), accent.copy(alpha = .12f))))
-            .border(BorderStroke(1.dp, accent.copy(alpha = .22f)), ChipShape),
+            .background(accent.copy(alpha = .16f)),
         contentAlignment = Alignment.Center,
     ) {
         Icon(icon, null, Modifier.size(size * 0.52f), tint = accent)
-    }
-}
-
-/** Compact icon button shared by headers and dense dashboard controls. */
-@Composable
-fun NeuralIconButton(
-    icon: ImageVector,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-    accent: Color? = null,
-    onClick: () -> Unit,
-) {
-    val p = neuralPalette()
-    val tone = accent ?: p.muted
-    Box(
-        modifier
-            .clip(ChipShape)
-            .background(Brush.verticalGradient(listOf(tone.copy(alpha = .12f), tone.copy(alpha = .05f))))
-            .border(BorderStroke(1.dp, tone.copy(alpha = .18f)), ChipShape)
-            .neuralClickable(onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(icon, contentDescription, Modifier.size(18.dp), tint = tone)
     }
 }
 
@@ -404,21 +344,18 @@ fun NeuralIconButton(
  * instead of a straight line glued to the top edge.
  */
 private fun plotPoints(
-    values: List<Float?>,
+    values: List<Float>,
     width: Float,
     height: Float,
     ceiling: Float,
     adaptive: Boolean,
-): List<Offset?> {
+): List<Offset> {
     if (values.isEmpty()) return emptyList()
-    // المقياس يُحسب من القيم **المقيسة فقط**، والقيمة المجهولة تُصبح فجوة (null) لا صفرًا:
-    // صفرٌ يُرسم كقاعٍ في المنحنى، والفجوة تقول الحقيقة — «لم تُقرأ».
-    val measured = values.filterNotNull()
     val lo: Float
     val hi: Float
     if (adaptive) {
-        val low = measured.minOrNull() ?: 0f
-        val high = measured.maxOrNull() ?: ceiling
+        val low = values.minOrNull() ?: 0f
+        val high = values.maxOrNull() ?: ceiling
         val pad = ((high - low) * .25f).coerceAtLeast(ceiling * .04f)
         lo = (low - pad).coerceAtLeast(0f)
         hi = (high + pad).coerceAtMost(ceiling).coerceAtLeast(lo + ceiling * .08f)
@@ -429,10 +366,8 @@ private fun plotPoints(
     val span = (hi - lo).coerceAtLeast(0.001f)
     val step = if (values.size > 1) width / (values.size - 1) else width
     return values.mapIndexed { index, raw ->
-        raw?.let {
-            val t = ((it - lo) / span).coerceIn(0f, 1f)
-            Offset(step * index, height - t * height)
-        }
+        val t = ((raw - lo) / span).coerceIn(0f, 1f)
+        Offset(step * index, height - t * height)
     }
 }
 
@@ -459,60 +394,58 @@ private fun smoothPath(points: List<Offset>): Path {
 }
 
 private fun DrawScope.drawSeries(
-    points: List<Offset?>,
+    points: List<Offset>,
     color: Color,
     strokeWidth: Float,
     fill: Boolean,
     marker: Boolean,
 ) {
-    // كل قطعة متصلة تُرسم وحدها، والقيمة المجهولة تُبقي **فجوة** في الرسم: خطٌّ يملأ الفجوة
-    // بين عيّنتين لم تُقرأا معًا يخترع قياسًا لا وجود له.
-    var open = ArrayList<Offset>()
-    val segments = ArrayList<List<Offset>>()
-    for (point in points) {
-        if (point == null) {
-            if (open.size > 1) segments.add(open)
-            open = ArrayList()
-        } else {
-            open.add(point)
-        }
+    if (points.size < 2) return
+    val line = smoothPath(points)
+    if (fill) {
+        val area = Path()
+        area.addPath(line)
+        area.lineTo(points.last().x, size.height)
+        area.lineTo(points.first().x, size.height)
+        area.close()
+        drawPath(
+            area,
+            Brush.verticalGradient(
+                listOf(color.copy(alpha = .34f), color.copy(alpha = .10f), Color.Transparent)
+            ),
+        )
     }
-    if (open.size > 1) segments.add(open)
-
-    for (segment in segments) {
-        val line = smoothPath(segment)
-        if (fill) {
-            val area = Path()
-            area.addPath(line)
-            area.lineTo(segment.last().x, size.height)
-            area.lineTo(segment.first().x, size.height)
-            area.close()
-            drawPath(
-                area,
-                Brush.verticalGradient(
-                    listOf(color.copy(alpha = .34f), color.copy(alpha = .10f), Color.Transparent)
-                ),
-            )
-        }
-        drawPath(line, color.copy(alpha = .22f), style = Stroke(width = strokeWidth * 2.6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-        drawPath(line, color, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
+    drawPath(line, color.copy(alpha = .22f), style = Stroke(width = strokeWidth * 2.6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    drawPath(line, color, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
     if (marker) {
-        val last = points.lastOrNull { it != null }
-        if (last != null) {
-            drawCircle(color.copy(alpha = .25f), radius = strokeWidth * 3.2f, center = last)
-            drawCircle(color, radius = strokeWidth * 1.3f, center = last)
-        }
+        val last = points.last()
+        drawCircle(color.copy(alpha = .25f), radius = strokeWidth * 3.2f, center = last)
+        drawCircle(color, radius = strokeWidth * 1.3f, center = last)
+    }
+}
+
+/** Compact smoothed trend for KPI tiles. */
+@Composable
+fun NeuralSparkline(
+    values: List<Float>,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    maxValue: Float = 100f,
+    adaptive: Boolean = true,
+) {
+    Canvas(modifier) {
+        val points = plotPoints(values, size.width, size.height, if (maxValue <= 0f) 1f else maxValue, adaptive)
+        drawSeries(points, accent, 2.dp.toPx(), fill = true, marker = false)
     }
 }
 
 /** Full-width smoothed plot with grid, used where two series must be compared. */
 @Composable
 fun NeuralAreaPlot(
-    values: List<Float?>,
+    values: List<Float>,
     accent: Color,
     modifier: Modifier = Modifier,
-    secondary: List<Float?> = emptyList(),
+    secondary: List<Float> = emptyList(),
     secondaryAccent: Color? = null,
     maxValue: Float = 100f,
     adaptive: Boolean = true,
@@ -529,6 +462,178 @@ fun NeuralAreaPlot(
             drawSeries(plotPoints(secondary, size.width, size.height, ceiling, adaptive), secondaryAccent, 2.dp.toPx(), fill = false, marker = true)
         }
         drawSeries(plotPoints(values, size.width, size.height, ceiling, adaptive), accent, 2.6.dp.toPx(), fill = true, marker = true)
+    }
+}
+
+/**
+ * شريط طيف الحمل — **مسارَان لا عمودان متلاصقان**.
+ *
+ * التصميم السابق كان يضع عمودَي CPU وGPU **جنبًا إلى جنب داخل الفتحة نفسها**، فيصير عرض
+ * العمود نصف الفتحة: أشرطة رقيقة تشبه باركود، وارتفاع ٩٦dp لا يسعها. والتصميم هنا يعطي كل
+ * حمل **مسارًا أفقيًّا كامل العرض**: GPU في الأعلى (٣٤٪ من الارتفاع) وCPU في الأسفل، فيُقرأ
+ * من يعمل بترتيب الصفحة نفسها (المسار الأعلى = الرسوم) بدل أن يُفكَّ شفرة عمودين.
+ *
+ * وثلاث قواعد بقيت كما هي لأنها كانت الصواب:
+ *  - الهندسة من [Spectrum.frame]، فالإطار **كامل العدد دائمًا** من الثانية الأولى؛
+ *  - القيمة تُحرَّك **لكل فتحة نحو قيمتها**، فلا يُعاد كشف الرسم كله عند إعادة التركيب؛
+ *  - **الفتحة الفارغة وفتحة الصفر ليستا رسمًا واحدًا**: الأولى «مقعد» رماديّ على خط الأساس
+ *    (لم تُقس)، والثانية نُبَيضة بلون المسار (قِيست فكانت هادئة).
+ *
+ * ويُضاف: أحدث عيّنة تأخذ **غطاءً** بلون الحرارة فوق عمودها، فموضع «الآن» في الرسم معروف
+ * بلا سهم ولا تسمية. ولا أعمدة خلفية بطول الإطار: خطّ أساس ومساقط رمادية تكفي، والامتلاء
+ * هو المعلومة — لا الفراغ خلفها.
+ */
+@Composable
+fun NeuralLoadRibbon(
+    samples: List<LoadSample>,
+    accent: Color,
+    secondaryAccent: Color,
+    hot: Color,
+    modifier: Modifier = Modifier,
+    slots: Int = Spectrum.SLOTS,
+) {
+    val p = neuralPalette()
+    val frame = remember(samples, slots) { Spectrum.frame(samples, slots) }
+    val cpuHeights = ArrayList<Float>(frame.bars.size)
+    val gpuHeights = ArrayList<Float>(frame.bars.size)
+    for (bar in frame.bars) {
+        val cpuValue = bar?.cpu
+        val gpuValue = bar?.gpu
+        cpuHeights += animateFloatAsState(
+            targetValue = if (cpuValue == null) 0f else cpuValue / 100f,
+            animationSpec = tween(620, easing = FastOutSlowInEasing),
+            label = "neural-ribbon-cpu",
+        ).value
+        gpuHeights += animateFloatAsState(
+            targetValue = if (gpuValue == null) 0f else gpuValue / 100f,
+            animationSpec = tween(620, easing = FastOutSlowInEasing),
+            label = "neural-ribbon-gpu",
+        ).value
+    }
+    Canvas(modifier) {
+        val count = frame.bars.size
+        if (count == 0) return@Canvas
+        val slot = size.width / count
+        // الفاصل ثابت صغير: الأشرطة شبه متلاصقة فيُقرأ الطيف كتوزيع، لا كخطوط منفصلة.
+        val barGap = 1.8.dp.toPx().coerceAtMost(slot * .34f)
+        val barWidth = (slot - barGap).coerceAtLeast(1f)
+        val radius = CornerRadius(barWidth / 2.4f, barWidth / 2.4f)
+        val seat = 2.5.dp.toPx()
+        val capHeight = 2.5.dp.toPx()
+        val laneGap = if (frame.paired) 7.dp.toPx() else 0f
+        val gpuLaneHeight = if (frame.paired) ((size.height - laneGap) * .34f) else 0f
+        val cpuLaneHeight = size.height - gpuLaneHeight - laneGap
+        val cpuBase = size.height
+        val gpuBase = gpuLaneHeight
+
+        frame.bars.forEachIndexed { index, bar ->
+            val left = slot * index + (slot - barWidth) / 2f
+            val newest = index == frame.bars.lastIndex
+
+            // ---- مسار CPU ----
+            if (bar == null) {
+                drawSeat(left, barWidth, cpuBase, seat, radius, p.grid.copy(alpha = .55f))
+            } else {
+                val heat = bar.cpu / 100f
+                val height = (cpuLaneHeight * cpuHeights[index]).coerceAtLeast(seat)
+                drawColumn(
+                    left = left,
+                    top = cpuBase - height,
+                    width = barWidth,
+                    height = height,
+                    corner = radius,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(lerp(accent, hot, heat), accent.copy(alpha = .45f)),
+                        startY = cpuBase - height,
+                        endY = cpuBase,
+                    ),
+                )
+                if (newest) {
+                    drawColumn(
+                        left = left,
+                        top = cpuBase - height - capHeight,
+                        width = barWidth,
+                        height = capHeight,
+                        corner = radius,
+                        color = lerp(accent, hot, maxOf(heat, .55f)),
+                    )
+                }
+            }
+
+            // ---- مسار GPU (زوج فقط) ----
+            if (frame.paired) {
+                val gpu = bar?.gpu
+                if (gpu == null) {
+                    drawSeat(left, barWidth, gpuBase, seat, radius, p.grid.copy(alpha = .4f))
+                } else {
+                    val heat = gpu / 100f
+                    val height = (gpuLaneHeight * gpuHeights[index]).coerceAtLeast(seat)
+                    drawColumn(
+                        left = left,
+                        top = gpuBase - height,
+                        width = barWidth,
+                        height = height,
+                        corner = radius,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(lerp(secondaryAccent, hot, heat), secondaryAccent.copy(alpha = .45f)),
+                            startY = gpuBase - height,
+                            endY = gpuBase,
+                        ),
+                    )
+                    if (newest) {
+                        drawColumn(
+                            left = left,
+                            top = gpuBase - height - capHeight,
+                            width = barWidth,
+                            height = capHeight,
+                            corner = radius,
+                            color = lerp(secondaryAccent, hot, maxOf(heat, .55f)),
+                        )
+                    }
+                }
+            }
+        }
+
+        // خطّ الأساس: أرضية يُقرأ منها الارتفاع بدل فراغ مفتوح.
+        drawLine(p.border.copy(alpha = .55f), Offset(0f, cpuBase - .5f), Offset(size.width, cpuBase - .5f), 1f)
+        if (frame.paired) {
+            drawLine(p.border.copy(alpha = .35f), Offset(0f, gpuBase - .5f), Offset(size.width, gpuBase - .5f), 1f)
+        }
+    }
+}
+
+/** «مقعد» فتحة بلا عيّنة: ارتفاعه عرض الفتحة، فيُرى موضع الزمن حتى قبل وصول القياس. */
+private fun DrawScope.drawSeat(
+    left: Float,
+    width: Float,
+    base: Float,
+    height: Float,
+    corner: CornerRadius,
+    color: Color,
+) {
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(left, base - height),
+        size = Size(width, height),
+        cornerRadius = corner,
+    )
+}
+
+/** عمود واحد داخل فتحة: تعبئة بلون ثابت (المسار الفارغ) أو بتدرّج (الشريط المملوء). */
+private fun DrawScope.drawColumn(
+    left: Float,
+    top: Float,
+    width: Float,
+    height: Float,
+    corner: CornerRadius,
+    color: Color? = null,
+    brush: Brush? = null,
+) {
+    val at = Offset(left, top)
+    val extent = Size(width, height)
+    when {
+        brush != null -> drawRoundRect(brush = brush, topLeft = at, size = extent, cornerRadius = corner)
+        color != null -> drawRoundRect(color = color, topLeft = at, size = extent, cornerRadius = corner)
     }
 }
 
@@ -615,6 +720,80 @@ fun NeuralFrequencyMeter(
     }
 }
 
+/** KPI tile: caption, large readout, support line, smoothed trend. */
+@Composable
+fun NeuralKpiTile(
+    caption: String,
+    value: String,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    support: String? = null,
+    /** شريط تحت الرقم (مقياس التردد) — يُمرَّر من الشاشة فلا تُكرَّر معلومة الرقم نفسه. */
+    meter: (@Composable () -> Unit)? = null,
+    history: List<Float> = emptyList(),
+    maxValue: Float = 100f,
+    onClick: (() -> Unit)? = null,
+) {
+    val p = neuralPalette()
+    NeuralTile(modifier, accent = accent, onClick = onClick, verticalSpacing = 6.dp) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            NeuralCaption(caption, Modifier.weight(1f), color = accent)
+            Box(Modifier.size(6.dp).clip(CircleShape).background(accent.copy(alpha = .85f)))
+        }
+        NeuralValue(
+            value,
+            style = MonoValueStyleSmall.copy(fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold),
+            color = p.text,
+        )
+        if (support != null) NeuralValue(support, style = MonoValueStyleSmall.copy(fontSize = 11.sp), color = p.muted)
+        if (meter != null) meter()
+        if (history.size > 1) {
+            NeuralSparkline(history, accent, Modifier.fillMaxWidth().height(28.dp), maxValue = maxValue)
+        }
+    }
+}
+
+/**
+ * Budget bar. Label and value sit on separate lines: sharing one row was what
+ * clipped "7.9 GB / 10.6 GB" down to ".8 GB" once an RTL label took the width.
+ */
+@Composable
+fun NeuralBudgetBar(
+    label: String,
+    value: String,
+    fraction: Float,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    support: String? = null,
+    onClick: (() -> Unit)? = null,
+) {
+    val p = neuralPalette()
+    Column(
+        modifier
+            .fillMaxWidth()
+            .neuralClickable(onClick),
+        verticalArrangement = Arrangement.spacedBy(7.dp),
+    ) {
+        NeuralCaption(label, color = accent)
+        NeuralValue(
+            value,
+            style = MonoValueStyleSmall.copy(fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
+            color = p.text,
+        )
+        NeuralTrack(fraction, accent)
+        if (support != null) {
+            Text(
+                support,
+                color = p.muted,
+                fontSize = 10.5.sp,
+                lineHeight = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
 /** Thin rounded progress track. */
 @Composable
 fun NeuralTrack(fraction: Float, accent: Color, modifier: Modifier = Modifier, height: Dp = 6.dp) {
@@ -624,15 +803,12 @@ fun NeuralTrack(fraction: Float, accent: Color, modifier: Modifier = Modifier, h
         animationSpec = tween(520, easing = FastOutSlowInEasing),
         label = "neural-track",
     )
-    // حوض غائر لا شريط لاصق: حدّ رفيع حول المسار يجعل التعبئة تبدو **داخله** — وهي نفس
-    // مفردات العمق التي تحملها الألواح، بلغة ٦dp.
     Box(
         modifier
             .fillMaxWidth()
             .height(height)
             .clip(CircleShape)
             .background(p.grid)
-            .border(BorderStroke(1.dp, p.border.copy(alpha = .45f)), CircleShape)
     ) {
         Box(
             Modifier
@@ -667,8 +843,8 @@ fun NeuralFeedRow(
             Text(
                 title,
                 color = p.text,
-                fontSize = 12.sp,
-                lineHeight = 15.sp,
+                fontSize = 12.5.sp,
+                lineHeight = 16.sp,
                 fontWeight = FontWeight.SemiBold,
             )
             if (meta != null) {
@@ -683,32 +859,18 @@ fun NeuralFeedRow(
     }
 }
 
-/**
- * Caption plus value, the smallest readout unit.
- *
- * The optional [onClick] exists because these tiles are the app's metric
- * shortcuts (battery → charging center and friends): making the *readout* the
- * tap target beats adding a chevron that would only steal width from the value.
- */
+/** Caption plus value, the smallest readout unit. */
 @Composable
 fun NeuralFactTile(
     caption: String,
     value: String,
     accent: Color,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
 ) {
     val p = neuralPalette()
-    NeuralTile(
-        modifier,
-        onClick = onClick,
-        verticalSpacing = 4.dp,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
-    ) {
+    NeuralTile(modifier, verticalSpacing = 4.dp, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)) {
         NeuralCaption(caption, color = accent)
-        // الرقم أكبر من اسمه بدرجتين: هو المعلومة، والاسم تسمية لها. 14sp هو ما يسع
-        // «1080×2400» في ثلث العرض بلا قصّ (قاسها `NeuralValue` بـLTR مثبّت).
-        NeuralValue(value, style = MonoValueStyleSmall.copy(fontSize = 14.sp, fontWeight = FontWeight.SemiBold), color = p.text)
+        NeuralValue(value, style = MonoValueStyleSmall.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold), color = p.text)
     }
 }
 
@@ -743,4 +905,34 @@ fun NeuralActionTile(
     }
 }
 
-
+/** Collapsible panel so secondary detail can exist without crowding the screen. */
+@Composable
+fun NeuralExpandable(
+    title: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+    caption: String? = null,
+    accent: Color? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val p = neuralPalette()
+    NeuralPanel(modifier, onClick = onToggle) {
+        NeuralSectionHeader(
+            title = title,
+            caption = caption,
+            accent = accent,
+            trailing = {
+                Icon(
+                    if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                    null,
+                    Modifier.size(20.dp),
+                    tint = p.muted,
+                )
+            },
+        )
+        AnimatedVisibility(expanded) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
+        }
+    }
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">ເຊັນເຊີລາຍງານໂດຍອຸປະກອນນີ້</string>
+    <string name="max_sensor_desc">ສິ່ງທີ່ເວທີປະກາດກ່ຽວກັບຮາດແວຂອງຕົນເອງ, ບວກກັບການອ່ານແສງສະຫວ່າງທີ່ມີຂອບເຂດຫນຶ່ງ. ບໍ່​ມີ​ການ​ສອບ​ທຽບ​ແລະ​ບໍ່​ມີ​ຄະ​ແນນ​ສຸ​ຂະ​ພາບ​: ທັງ​ສອງ​ຈະ​ຕ້ອງ​ການ​ການ​ອ້າງ​ອີງ​ທາງ​ດ້ານ​ຮ່າງ​ກາຍ​ທີ່​ພວກ​ເຮົາ​ບໍ່​ມີ​.</string>
+    <string name="max_sensor_service">ບໍລິການເຊັນເຊີ</string>
+    <string name="max_sensor_service_unavailable">ບໍ່ສາມາດຕິດຕໍ່ໄດ້</string>
+    <string name="max_sensor_count">ລາຍງານເຊັນເຊີ</string>
+    <string name="max_sensor_kinds">ໝວດໝູ່</string>
+    <string name="max_sensor_wakeup">ເຊັນເຊີປຸກ (ລາຍງານໃນຂະນະທີ່ອຸປະກອນນອນ)</string>
+    <string name="max_sensor_light">ແສງສະພາບແວດລ້ອມ</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">ອຸປະກອນນີ້ລາຍງານວ່າບໍ່ມີເຊັນເຊີແສງ</string>
+    <string name="max_sensor_light_unreadable">ບໍ່ມີການອ່ານມາຮອດກ່ອນໝົດເວລາ — ບໍ່ຮູ້, ບໍ່ແມ່ນສູນ</string>
+    <string name="max_sensor_more">…ແລະ %1$s ອື່ນໆອີກ</string>
+    <string name="max_sensor_no_score">ຊື່, ໄລຍະ ແລະຄວາມລ່າຊ້າມາຈາກເວທີ. ເຊັນເຊີທີ່ລາຍງານບໍ່ແມ່ນຫຼັກຖານສະແດງວ່າມັນຖືກຕ້ອງ.</string>
+    <string name="max_sensor_kind_motion">ການເຄື່ອນໄຫວ</string>
+    <string name="max_sensor_kind_environment">ສະພາບແວດລ້ອມ</string>
+    <string name="max_sensor_kind_position">ຕໍາແໜ່ງ</string>
+    <string name="max_sensor_kind_body">ຮ່າງກາຍ</string>
+    <string name="max_sensor_kind_unpositioned">ບໍ່ມີຕຳແໜ່ງ</string>
+    <string name="max_sensor_kind_other">ອື່ນໆ</string>
+</resources>

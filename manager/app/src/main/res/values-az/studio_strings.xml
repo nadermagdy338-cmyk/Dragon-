@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANS studio</string>
+    <string name="studio_cpu_frequency">CPU tezliyi</string>
+    <string name="studio_load_history">Son CPU fəaliyyət</string>
+    <string name="studio_waiting_samples">Canlı oxunuşlar toplanır...</string>
+    <string name="studio_automatic_profile">Avtomatik rejim aktiv profili idarə edir.</string>
+    <string name="studio_temperature">Temperatur</string>
+    <string name="studio_display">Ekran</string>
+    <string name="studio_power">Güc seçimləri</string>
+    <string name="studio_settings">Parametrlər</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">OPTREDE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU frekwensie</string>
+    <string name="studio_load_history">Onlangse CPU aktiwiteit</string>
+    <string name="studio_waiting_samples">Versamel tans regstreekse lesings …</string>
+    <string name="studio_automatic_profile">Outomatiese modus bestuur die aktiewe profiel.</string>
+    <string name="studio_temperature">Temperatuur</string>
+    <string name="studio_display">Vertoon</string>
+    <string name="studio_power">Krag opsies</string>
+    <string name="studio_settings">Instellings</string>
+</resources>

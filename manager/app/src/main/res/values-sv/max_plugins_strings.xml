@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Insticksprogram från tredje part</string>
+    <string name="max_plugins_subtitle">Det publicerade kontraktet: vad ett plugin kan deklarera och vad som godkändes eller vägrades här.</string>
+    <string name="max_plugins_section_contract">Kontraktet</string>
+    <string name="max_plugins_contract_api">API-nivå %1$d</string>
+    <string name="max_plugins_contract_dir">Manifestmapp</string>
+    <string name="max_plugins_contract_rules">En deklarerad förmåga är antingen en läsning eller ett förslag. Det finns medvetet ingen kapacitet som skriver hårdvara: varje skrivning i den här appen går genom arbitern, och ett plugin som kan skriva direkt skulle ta bort skyddet som byggts för att stoppa två ägare som skriver samma ratt.</string>
+    <string name="max_plugins_contract_keys">Nycklar läses från ett manifest</string>
+    <string name="max_plugins_contract_kinds">Godkända sorter</string>
+    <string name="max_plugins_contract_capabilities">Godkända förmågor</string>
+    <string name="max_plugins_template">Manifest mall</string>
+    <string name="max_plugins_template_note">Denna text är vad tolkaren läser. Den kan inte glida från koden, eftersom den genereras från den.</string>
+    <string name="max_plugins_copy_template">Kopiera mallen</string>
+    <string name="max_plugins_template_copied">Mallen kopierad</string>
+    <string name="max_plugins_section_installed">Hittade på den här enheten</string>
+    <string name="max_plugins_loading_title">Läser plugin-mappen</string>
+    <string name="max_plugins_loading_detail">Lista manifestmappen med root och utvärdera sedan varje manifest mot kontraktet.</string>
+    <string name="max_plugins_accepted_count">%1$d accepterat</string>
+    <string name="max_plugins_rejected_count">%1$d vägrade</string>
+    <string name="max_plugins_unreadable_count">%1$d mapp utan ett läsbart manifest</string>
+    <string name="max_plugins_rejected_section">Vägrade, med den exakta anledningen</string>
+    <string name="max_plugins_detail_label">Deklarerat</string>
+    <string name="max_plugins_refresh_cd">Läs plugin-mappen igen</string>
+    <string name="max_plugins_capability_source">Rapporteras av plugin, inte mätt av oss</string>
+    <string name="max_plugins_cond_empty_title">Inga plugins installerade</string>
+    <string name="max_plugins_cond_empty_detail">Manifestmappen innehåller inga plugin-mappar. Inget är fel: detta är standardtillståndet för funktionen.</string>
+    <string name="max_plugins_cond_missing_title">Manifestmappen finns inte ännu</string>
+    <string name="max_plugins_cond_missing_detail">%1$s har inte skapats på den här enheten, så det finns inget att läsa. Att skapa det är allt en pluginförfattare behöver göra.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifestmappen kan inte läsas</string>
+    <string name="max_plugins_cond_unreadable_detail">Mappen finns på %1$s men skalet kunde inte läsa den. Root krävs för att lista den.</string>
+    <string name="max_plugins_reason_BadId">ID:t kan inte användas som mappnamn. Använd små latinska bokstäver, siffror, punkter, bindestreck eller understreck, och aldrig två punkter i rad.</string>
+    <string name="max_plugins_reason_MissingName">Manifestet deklarerar inget namn.</string>
+    <string name="max_plugins_reason_BadVersion">Versionen måste börja med siffror, till exempel 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Den deklarerade API-nivån saknas eller är under 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Den deklarerade API-nivån är nyare än den här versionen förstår, så den körs inte alls.</string>
+    <string name="max_plugins_reason_MissingKind">Manifestet deklarerar ingen sort.</string>
+    <string name="max_plugins_reason_UnknownKind">Den typen är inte en av de publicerade slagen.</string>
+    <string name="max_plugins_reason_UnknownCapability">Förmågan är inte en del av detta kontrakt. En okänd förmåga vägras snarare än ignoreras, så ingenting körs med färre rättigheter än det begärde.</string>
+    <string name="max_plugins_reason_NoCapabilities">Ett plugin måste deklarera minst en funktion.</string>
+    <string name="max_plugins_reason_DuplicateId">Ett annat plugin med detta ID har redan godkänts, så det här används inte.</string>
+    <string name="max_plugins_help_title">Varför ett kontrakt överhuvudtaget</string>
+    <string name="max_plugins_help_body">Utan ett publicerat kontrakt måste alla som utökar den här appen gissa formen på våra interna filer, och vi kan inte skilja en giltig förlängning från en trasig. Med den anges gränsen: ett plugin deklarerar avsikt och läser; den skriver aldrig hårdvara, och varje avslag ovan namnger det exakta fältet som misslyckades.</string>
+</resources>

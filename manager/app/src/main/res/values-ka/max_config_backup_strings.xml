@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">გარეგნობა და ინტერფეისი</string>
+    <string name="max_cfg_backup_app_prefs">აპის პარამეტრები და ენა</string>
+    <string name="max_cfg_declared_absent_title">არ შედის და რატომ</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ამ მოწყობილობას არ აქვს დადასტურებული root, ამიტომ მნიშვნელობების საიმედოდ წაკითხვა შეუძლებელია</string>
+    <string name="max_cfg_absent_file_missing">სასურველი ფაილი ჯერ არ არსებობს</string>
+    <string name="max_cfg_absent_empty">სასურველი ფაილი არსებობს, მაგრამ ცარიელია, ამიტომ დასაწერი არაფერია</string>
+    <string name="max_cfg_declared_excluded_title">არასოდეს შედის ამ ფაილში</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI უსაფრთხოების პარამეტრები კონფიგურირებულია აპის შიგნით და არასოდეს არ არის გადატანილი ფაილში</string>
+    <string name="max_cfg_excluded_other_apps">სხვა აპების მონაცემები ეკუთვნის აპის სარეზერვო ასლს და არა კონფიგურაციის სარეზერვო ასლს</string>
+    <string name="max_cfg_excluded_secret">ხელმოწერის გასაღებები და საიდუმლოებები არასოდეს იწერება ფაილში, რომელსაც შეიძლება გააზიაროთ</string>
+    <string name="max_cfg_section_tweaks">შეასწორეთ კონფიგურაცია</string>
+    <string name="max_cfg_section_applist">თითო აპლიკაციის სია</string>
+    <string name="max_cfg_section_appearance">გარეგნობა და ინტერფეისი</string>
+    <string name="max_cfg_section_app_prefs">აპის პარამეტრები და ენა</string>
+    <string name="max_cfg_restore_merge_note">პრეფერენციების აღდგენა გაერთიანებულია: ფაილში არსებული გასაღებები იწერება და გასაღებები, რომლებშიც არ არის ნახსენები, რჩება ისე, როგორც არის. არაფერია გასუფთავებული.</string>
+</resources>

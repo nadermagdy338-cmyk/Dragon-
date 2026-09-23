@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">СТУДЫЯ СПЕКТАКЛАЎ</string>
+    <string name="studio_cpu_frequency">CPU частата</string>
+    <string name="studio_load_history">Апошнія дзеянні CPU</string>
+    <string name="studio_waiting_samples">Збор жывых чытанняў…</string>
+    <string name="studio_automatic_profile">Аўтаматычны рэжым кіруе актыўным профілем.</string>
+    <string name="studio_temperature">тэмпература</string>
+    <string name="studio_display">Дысплей</string>
+    <string name="studio_power">Варыянты харчавання</string>
+    <string name="studio_settings">Налады</string>
+</resources>

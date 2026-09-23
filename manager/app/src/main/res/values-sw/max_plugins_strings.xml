@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Programu-jalizi za wahusika wengine</string>
+    <string name="max_plugins_subtitle">Mkataba uliochapishwa: programu-jalizi inaweza kutangaza nini, na nini kilikubaliwa au kukataliwa hapa.</string>
+    <string name="max_plugins_section_contract">Mkataba</string>
+    <string name="max_plugins_contract_api">Kiwango cha API %1$d</string>
+    <string name="max_plugins_contract_dir">Faili ya dhihirisho</string>
+    <string name="max_plugins_contract_rules">Uwezo uliotangazwa ni wa kusoma au pendekezo. Kwa makusudi hakuna uwezo wa kuandika maunzi: kila maandishi katika programu hii hupitia kisuluhishi, na programu-jalizi ambayo inaweza kuandika moja kwa moja ingeondoa mlinzi uliojengwa ili kuzuia wamiliki wawili kuandika kisu kimoja.</string>
+    <string name="max_plugins_contract_keys">Vifunguo vilivyosomwa kutoka kwa faili ya maelezo</string>
+    <string name="max_plugins_contract_kinds">Aina zinazokubalika</string>
+    <string name="max_plugins_contract_capabilities">Uwezo uliokubalika</string>
+    <string name="max_plugins_template">Kiolezo cha dhihirisho</string>
+    <string name="max_plugins_template_note">Andiko hili ndilo analosoma mchanganuzi. Haiwezi kuteleza kutoka kwa nambari, kwa sababu inatolewa kutoka kwayo.</string>
+    <string name="max_plugins_copy_template">Nakili kiolezo</string>
+    <string name="max_plugins_template_copied">Kiolezo kimenakiliwa</string>
+    <string name="max_plugins_section_installed">Imepatikana kwenye kifaa hiki</string>
+    <string name="max_plugins_loading_title">Kusoma folda ya programu-jalizi</string>
+    <string name="max_plugins_loading_detail">Kuorodhesha folda ya maelezo yenye mzizi, kisha kutathmini kila faili ya maelezo dhidi ya mkataba.</string>
+    <string name="max_plugins_accepted_count">%1$d imekubaliwa</string>
+    <string name="max_plugins_rejected_count">%1$d imekataa</string>
+    <string name="max_plugins_unreadable_count">%1$d folda isiyo na faili ya maelezo inayoweza kusomeka</string>
+    <string name="max_plugins_rejected_section">Imekataliwa, kwa sababu kamili</string>
+    <string name="max_plugins_detail_label">Imetangazwa</string>
+    <string name="max_plugins_refresh_cd">Soma tena folda ya programu-jalizi</string>
+    <string name="max_plugins_capability_source">Imeripotiwa na programu-jalizi, haijapimwa na sisi</string>
+    <string name="max_plugins_cond_empty_title">Hakuna programu-jalizi zilizosakinishwa</string>
+    <string name="max_plugins_cond_empty_detail">Folda ya maelezo haina folda za programu-jalizi. Hakuna kitu kibaya: hii ndiyo hali chaguo-msingi ya kipengele.</string>
+    <string name="max_plugins_cond_missing_title">Folda ya maelezo haipo bado</string>
+    <string name="max_plugins_cond_missing_detail">%1$s haijaundwa kwenye kifaa hiki, kwa hivyo hakuna cha kusoma. Kuiunda ni mwandishi wa programu-jalizi anahitaji kufanya.</string>
+    <string name="max_plugins_cond_unreadable_title">Folda ya maelezo haiwezi kusomeka</string>
+    <string name="max_plugins_cond_unreadable_detail">Folda ipo %1$s lakini shell haikuweza kuisoma. Mizizi inahitajika kuorodhesha.</string>
+    <string name="max_plugins_reason_BadId">Kitambulisho hakitumiki kama jina la folda. Tumia herufi ndogo za Kilatini, tarakimu, nukta, deshi au mistari chini, na usiwahi vitone viwili mfululizo.</string>
+    <string name="max_plugins_reason_MissingName">Faili ya maelezo haitaji jina.</string>
+    <string name="max_plugins_reason_BadVersion">Toleo lazima lianze na tarakimu, kwa mfano 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Kiwango cha API kilichotangazwa hakipo au chini ya 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Kiwango cha API kilichotangazwa ni kipya zaidi kuliko muundo huu unavyoelewa, kwa hivyo haiendeshwi hata kidogo.</string>
+    <string name="max_plugins_reason_MissingKind">Dhahiri inatangaza hakuna aina.</string>
+    <string name="max_plugins_reason_UnknownKind">Aina hiyo sio moja ya aina zilizochapishwa.</string>
+    <string name="max_plugins_reason_UnknownCapability">Uwezo sio sehemu ya mkataba huu. Uwezo usiojulikana unakataliwa badala ya kupuuzwa, kwa hivyo hakuna kinachoendeshwa na haki chache kuliko ilivyoomba.</string>
+    <string name="max_plugins_reason_NoCapabilities">Programu-jalizi lazima itangaze angalau uwezo mmoja.</string>
+    <string name="max_plugins_reason_DuplicateId">Programu-jalizi nyingine iliyo na kitambulisho hiki tayari ilikubaliwa, kwa hivyo hii haitumiki.</string>
+    <string name="max_plugins_help_title">Kwa nini mkataba kabisa</string>
+    <string name="max_plugins_help_body">Bila mkataba uliochapishwa, mtu yeyote anayepanua programu hii anapaswa kukisia umbo la faili zetu za ndani, na hatuwezi kutofautisha kiendelezi halali kutoka kwa kilichovunjika. Pamoja nayo, kikomo kinasemwa: programu-jalizi inatangaza nia na inasoma; haiandiki maunzi, na kila kukataa hapo juu hutaja uwanja halisi ambao umeshindwa.</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Izinzwa ezibikwe yile divayisi</string>
+    <string name="max_sensor_desc">Okumenyezelwa yiplathifomu ngehadiwe yayo, kanye nokukhanya okukodwa okulinganiselwe. Akukho ukulinganisa futhi awekho amaphuzu ezempilo: kokubili kungadinga ireferensi ebonakalayo esingenayo.</string>
+    <string name="max_sensor_service">Isevisi yenzwa</string>
+    <string name="max_sensor_service_unavailable">ayikwazanga ukufinyelelwa</string>
+    <string name="max_sensor_count">Izinzwa zibikiwe</string>
+    <string name="max_sensor_kinds">Izigaba ezikhona</string>
+    <string name="max_sensor_wakeup">Izinzwa zokuvuka (bika ngenkathi idivayisi ilele)</string>
+    <string name="max_sensor_light">Ukukhanya kwe-ambient</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">le divayisi ibika ukuthi ayikho inzwa yokukhanya</string>
+    <string name="max_sensor_light_unreadable">akukho ukufundwa okufika ngaphambi kwesikhathi sokuvala - akwaziwa, hhayi uziro</string>
+    <string name="max_sensor_more">…kanye %1$s ngaphezulu</string>
+    <string name="max_sensor_no_score">Amagama, ububanzi nokubambezeleka kuvela endaweni yesikhulumi. Inzwa ebikayo akubona ubufakazi bokuthi inembile.</string>
+    <string name="max_sensor_kind_motion">Ukunyakaza</string>
+    <string name="max_sensor_kind_environment">Imvelo</string>
+    <string name="max_sensor_kind_position">Isikhundla</string>
+    <string name="max_sensor_kind_body">Umzimba</string>
+    <string name="max_sensor_kind_unpositioned">Akubekwe endaweni</string>
+    <string name="max_sensor_kind_other">Okunye</string>
+</resources>

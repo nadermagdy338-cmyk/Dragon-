@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Արտաքին տեսք և ինտերֆեյս</string>
+    <string name="max_cfg_backup_app_prefs">Հավելվածի նախապատվություններ և լեզուն</string>
+    <string name="max_cfg_declared_absent_title">Չի ներառվի և ինչու</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">այս սարքը չունի հաստատված արմատ, ուստի արժեքները չեն կարող արժանահավատորեն կարդալ</string>
+    <string name="max_cfg_absent_file_missing">նախապատվության ֆայլը դեռ գոյություն չունի</string>
+    <string name="max_cfg_absent_empty">նախապատվության ֆայլը գոյություն ունի, բայց դատարկ է, ուստի գրելու ոչինչ չկա</string>
+    <string name="max_cfg_declared_excluded_title">Երբեք ներառված չէ այս ֆայլում</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI անվտանգության կարգավորումները կազմաձևված են հավելվածի ներսում և երբեք չեն տեղափոխվում ֆայլում</string>
+    <string name="max_cfg_excluded_other_apps">այլ հավելվածների տվյալները պատկանում են հավելվածի պահուստավորմանը, այլ ոչ թե կազմաձևման պահուստավորմանը</string>
+    <string name="max_cfg_excluded_secret">ստորագրման բանալիներն ու գաղտնիքները երբեք չեն գրվում այն ​​ֆայլում, որը դուք կարող եք կիսել</string>
+    <string name="max_cfg_section_tweaks">Կսմթել կոնֆիգուրացիան</string>
+    <string name="max_cfg_section_applist">Յուրաքանչյուր հավելվածի ցուցակ</string>
+    <string name="max_cfg_section_appearance">Արտաքին տեսք և ինտերֆեյս</string>
+    <string name="max_cfg_section_app_prefs">Հավելվածի նախապատվություններ և լեզուն</string>
+    <string name="max_cfg_restore_merge_note">Նախապատվությունների վերականգնումը միաձուլվում է. ֆայլում առկա ստեղները գրված են, իսկ ստեղները, որոնցում նշված չէ, մնում են այնպես, ինչպես կան: Ոչինչ չի մաքրվում։</string>
+</resources>

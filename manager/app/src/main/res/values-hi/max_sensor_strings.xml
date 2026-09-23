@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">इस डिवाइस द्वारा रिपोर्ट किए गए सेंसर</string>
+    <string name="max_sensor_desc">प्लेटफ़ॉर्म अपने स्वयं के हार्डवेयर के बारे में क्या घोषणा करता है, साथ ही एक सीमित प्रकाश रीडिंग भी। कोई अंशांकन नहीं और कोई स्वास्थ्य स्कोर नहीं: दोनों को भौतिक संदर्भ की आवश्यकता होगी जो हमारे पास नहीं है।</string>
+    <string name="max_sensor_service">सेंसर सेवा</string>
+    <string name="max_sensor_service_unavailable">पहुंचा नहीं जा सका</string>
+    <string name="max_sensor_count">सेंसरों ने सूचना दी</string>
+    <string name="max_sensor_kinds">श्रेणियाँ मौजूद हैं</string>
+    <string name="max_sensor_wakeup">वेक-अप सेंसर (डिवाइस के निष्क्रिय होने पर रिपोर्ट करें)</string>
+    <string name="max_sensor_light">परिवेशीय प्रकाश</string>
+    <string name="max_sensor_unit_lux">लूक्रस</string>
+    <string name="max_sensor_light_absent">यह डिवाइस कोई प्रकाश सेंसर नहीं होने की रिपोर्ट करता है</string>
+    <string name="max_sensor_light_unreadable">समय समाप्ति से पहले कोई रीडिंग नहीं आई - अज्ञात, शून्य नहीं</string>
+    <string name="max_sensor_more">…और %1$s और भी</string>
+    <string name="max_sensor_no_score">नाम, श्रेणियाँ और विलंब प्लेटफ़ॉर्म से आते हैं। एक सेंसर जो रिपोर्ट करता है वह इसका प्रमाण नहीं है कि वह सटीक है।</string>
+    <string name="max_sensor_kind_motion">गति</string>
+    <string name="max_sensor_kind_environment">पर्यावरण</string>
+    <string name="max_sensor_kind_position">पद</string>
+    <string name="max_sensor_kind_body">शरीर</string>
+    <string name="max_sensor_kind_unpositioned">अवस्थित</string>
+    <string name="max_sensor_kind_other">अन्य</string>
+</resources>

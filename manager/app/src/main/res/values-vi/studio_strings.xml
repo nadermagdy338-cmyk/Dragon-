@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">Studio biểu diễn</string>
+    <string name="studio_cpu_frequency">CPU tần số</string>
+    <string name="studio_load_history">Hoạt động CPU gần đây</string>
+    <string name="studio_waiting_samples">Đang thu thập các bài đọc trực tiếp…</string>
+    <string name="studio_automatic_profile">Chế độ tự động quản lý hồ sơ hoạt động.</string>
+    <string name="studio_temperature">Nhiệt độ</string>
+    <string name="studio_display">Trưng bày</string>
+    <string name="studio_power">Tùy chọn nguồn</string>
+    <string name="studio_settings">Cài đặt</string>
+</resources>

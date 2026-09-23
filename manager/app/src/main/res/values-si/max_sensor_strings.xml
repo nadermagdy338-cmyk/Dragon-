@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">මෙම උපාංගය මගින් වාර්තා කරන ලද සංවේදක</string>
+    <string name="max_sensor_desc">වේදිකාව තමන්ගේම දෘඩාංග ගැන ප්‍රකාශ කරන දේ සහ එක් සීමා සහිත සැහැල්ලු කියවීමක්. ක්‍රමාංකනය සහ සෞඛ්‍ය ලකුණු නොමැත: දෙකටම අප සතුව නැති භෞතික සඳහනක් අවශ්‍ය වේ.</string>
+    <string name="max_sensor_service">සංවේදක සේවාව</string>
+    <string name="max_sensor_service_unavailable">ළඟා විය නොහැකි විය</string>
+    <string name="max_sensor_count">සංවේදක වාර්තා කළේය</string>
+    <string name="max_sensor_kinds">පවතින කාණ්ඩ</string>
+    <string name="max_sensor_wakeup">අවදි කිරීමේ සංවේදක (උපාංගය නිදා සිටියදී වාර්තා කරන්න)</string>
+    <string name="max_sensor_light">අවට ආලෝකය</string>
+    <string name="max_sensor_unit_lux">සුඛෝපභෝගී</string>
+    <string name="max_sensor_light_absent">මෙම උපාංගය ආලෝක සංවේදකයක් වාර්තා නොකරයි</string>
+    <string name="max_sensor_light_unreadable">කාලය අවසන් වීමට පෙර කියවීමක් පැමිණියේ නැත - නොදන්නා, ශුන්‍ය නොවේ</string>
+    <string name="max_sensor_more">…සහ %1$s තවත්</string>
+    <string name="max_sensor_no_score">නම්, පරාසයන් සහ ප්‍රමාදයන් පැමිණෙන්නේ වේදිකාවෙනි. වාර්තා කරන සංවේදකයක් එය නිවැරදි බව ඔප්පු නොවේ.</string>
+    <string name="max_sensor_kind_motion">චලනය</string>
+    <string name="max_sensor_kind_environment">පරිසරය</string>
+    <string name="max_sensor_kind_position">තනතුර</string>
+    <string name="max_sensor_kind_body">ශරීරය</string>
+    <string name="max_sensor_kind_unpositioned">ස්ථානගත නොකළ</string>
+    <string name="max_sensor_kind_other">වෙනත්</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">තෙවන පාර්ශවීය ප්ලගින</string>
+    <string name="max_plugins_subtitle">ප්‍රකාශිත කොන්ත්‍රාත්තුව: ප්ලගිනයක් ප්‍රකාශ කළ හැකි දේ සහ මෙහි පිළිගත් හෝ ප්‍රතික්ෂේප කළ දේ.</string>
+    <string name="max_plugins_section_contract">කොන්ත්රාත්තුව</string>
+    <string name="max_plugins_contract_api">API මට්ටම %1$d</string>
+    <string name="max_plugins_contract_dir">මැනිෆෙස්ට් ෆෝල්ඩරය</string>
+    <string name="max_plugins_contract_rules">ප්රකාශිත හැකියාවක් යනු කියවීමක් හෝ යෝජනාවකි. හිතාමතාම දෘඪාංග ලිවීමේ හැකියාවක් නොමැත: මෙම යෙදුමේ සෑම ලිවීමක්ම බේරුම්කරු හරහා ගමන් කරයි, සහ සෘජුවම ලිවිය හැකි ප්ලගිනයක් මඟින් එකම බොත්තමක් ලිවීම නතර කිරීම සඳහා ඉදිකරන ලද ආරක්ෂකය ඉවත් කරයි.</string>
+    <string name="max_plugins_contract_keys">මැනිෆෙස්ටයකින් කියවන යතුරු</string>
+    <string name="max_plugins_contract_kinds">පිළිගත් වර්ග</string>
+    <string name="max_plugins_contract_capabilities">පිළිගත් හැකියාවන්</string>
+    <string name="max_plugins_template">මැනිෆෙස්ට් අච්චුව</string>
+    <string name="max_plugins_template_note">විග්‍රහ කරන්නා කියවන්නේ මෙම පාඨයයි. එයට කේතයෙන් ප්ලාවිත විය නොහැක, මන්ද එය එයින් ජනනය වේ.</string>
+    <string name="max_plugins_copy_template">අච්චුව පිටපත් කරන්න</string>
+    <string name="max_plugins_template_copied">අච්චුව පිටපත් කරන ලදී</string>
+    <string name="max_plugins_section_installed">මෙම උපාංගයේ හමු විය</string>
+    <string name="max_plugins_loading_title">ප්ලගින ෆෝල්ඩරය කියවීම</string>
+    <string name="max_plugins_loading_detail">මැනිෆෙස්ට් ෆෝල්ඩරය root සමඟ ලැයිස්තුගත කිරීම, පසුව ගිවිසුමට එරෙහිව එක් එක් මැනිෆෙස්ටය ඇගයීම.</string>
+    <string name="max_plugins_accepted_count">%1$d පිළිගනු ලැබේ</string>
+    <string name="max_plugins_rejected_count">%1$d ප්‍රතික්ෂේප කළා</string>
+    <string name="max_plugins_unreadable_count">කියවිය හැකි මැනිෆෙස්ටයක් නොමැතිව %1$d ෆෝල්ඩරය</string>
+    <string name="max_plugins_rejected_section">ප්‍රතික්ෂේප කළා, නියම හේතුවත් එක්ක</string>
+    <string name="max_plugins_detail_label">ප්‍රකාශ කළා</string>
+    <string name="max_plugins_refresh_cd">ප්ලගින ෆෝල්ඩරය නැවත කියවන්න</string>
+    <string name="max_plugins_capability_source">ප්ලගිනය මගින් වාර්තා කර ඇත, අප විසින් මනිනු නොලැබේ</string>
+    <string name="max_plugins_cond_empty_title">ප්ලගීන ස්ථාපනය කර නැත</string>
+    <string name="max_plugins_cond_empty_detail">මැනිෆෙස්ට් ෆෝල්ඩරයේ ප්ලගින ෆෝල්ඩර නොමැත. කිසිවක් වැරදි නැත: මෙය විශේෂාංගයේ පෙරනිමි තත්ත්වයයි.</string>
+    <string name="max_plugins_cond_missing_title">මැනිෆෙස්ට් ෆෝල්ඩරය තවමත් නොපවතී</string>
+    <string name="max_plugins_cond_missing_detail">මෙම උපාංගයේ %1$s නිර්මාණය කර නැත, එබැවින් කියවීමට කිසිවක් නොමැත. එය නිර්මාණය කිරීම ප්ලගින කර්තෘ විසින් කළ යුතු සියල්ල වේ.</string>
+    <string name="max_plugins_cond_unreadable_title">මැනිෆෙස්ට් ෆෝල්ඩරය කියවිය නොහැක</string>
+    <string name="max_plugins_cond_unreadable_detail">ෆෝල්ඩරය %1$s හි පවතින නමුත් කවචයට එය කියවිය නොහැක. එය ලැයිස්තුගත කිරීමට Root අවශ්ය වේ.</string>
+    <string name="max_plugins_reason_BadId">හැඳුනුම්පත ෆෝල්ඩර නාමයක් ලෙස භාවිතා කළ නොහැක. කුඩා ලතින් අකුරු, ඉලක්කම්, තිත්, ඉරි හෝ යටි ඉරි භාවිතා කරන්න, සහ කිසි විටෙක පේළියක තිත් දෙකක් භාවිතා නොකරන්න.</string>
+    <string name="max_plugins_reason_MissingName">මැනිෆෙස්ටය නමක් ප්‍රකාශ නොකරයි.</string>
+    <string name="max_plugins_reason_BadVersion">අනුවාදය ඉලක්කම් වලින් ආරම්භ විය යුතුය, උදාහරණයක් ලෙස 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">ප්‍රකාශිත API මට්ටම අස්ථානගත වී හෝ 1 ට අඩුයි.</string>
+    <string name="max_plugins_reason_ApiTooNew">ප්‍රකාශිත API මට්ටම මෙම ගොඩනැගීමට වඩා අලුත් ය, එබැවින් එය කිසිසේත් ක්‍රියාත්මක නොවේ.</string>
+    <string name="max_plugins_reason_MissingKind">මැනිෆෙස්ටය කිසිම ආකාරයක ප්‍රකාශ නොකරයි.</string>
+    <string name="max_plugins_reason_UnknownKind">වර්ගය ප්‍රකාශිත වර්ගවලින් එකක් නොවේ.</string>
+    <string name="max_plugins_reason_UnknownCapability">හැකියාව මෙම කොන්ත්රාත්තුවේ කොටසක් නොවේ. නොදන්නා හැකියාවක් නොසලකා හරිනවා වෙනුවට ප්‍රතික්ෂේප කරනු ලැබේ, එබැවින් කිසිවක් ඉල්ලා සිටි ප්‍රමාණයට වඩා අඩු අයිතිවාසිකම් සමඟ ක්‍රියාත්මක වේ.</string>
+    <string name="max_plugins_reason_NoCapabilities">ප්ලගිනයක් අවම වශයෙන් එක් හැකියාවක් ප්‍රකාශ කළ යුතුය.</string>
+    <string name="max_plugins_reason_DuplicateId">මෙම හැඳුනුම්පත සහිත තවත් ප්ලගිනයක් දැනටමත් පිළිගෙන ඇත, එබැවින් මෙය භාවිතා නොවේ.</string>
+    <string name="max_plugins_help_title">ඇයි කොහෙත්ම ගිවිසුමක්</string>
+    <string name="max_plugins_help_body">ප්‍රකාශිත කොන්ත්‍රාත්තුවක් නොමැතිව, මෙම යෙදුම දිගු කරන ඕනෑම අයෙකුට අපගේ අභ්‍යන්තර ගොනු වල හැඩය අනුමාන කළ යුතු අතර, කැඩුණු එකකින් වලංගු දිගුවක් අපට පැවසිය නොහැක. එය සමඟ, සීමාව සඳහන් වේ: ප්ලගිනයක් අභිප්‍රාය ප්‍රකාශ කර කියවයි; එය කිසි විටෙක දෘඪාංග ලියන්නේ නැත, ඉහත සෑම ප්‍රතික්ෂේප කිරීමක්ම අසාර්ථක වූ නිශ්චිත ක්ෂේත්‍රය නම් කරයි.</string>
+</resources>

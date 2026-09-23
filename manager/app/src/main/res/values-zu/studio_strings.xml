@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU imvamisa</string>
+    <string name="studio_load_history">Umsebenzi wakamuva CPU</string>
+    <string name="studio_waiting_samples">Iqoqa ukufundwa okubukhoma…</string>
+    <string name="studio_automatic_profile">Imodi ezenzakalelayo ilawula iphrofayili esebenzayo.</string>
+    <string name="studio_temperature">Izinga lokushisa</string>
+    <string name="studio_display">Bonisa</string>
+    <string name="studio_power">Izinketho zamandla</string>
+    <string name="studio_settings">Izilungiselelo</string>
+</resources>

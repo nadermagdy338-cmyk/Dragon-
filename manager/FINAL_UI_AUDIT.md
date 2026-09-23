@@ -1,17 +1,57 @@
-# MaxManager — Final UI Audit
+# MaxManager UI final-pass audit — 2026-09-04
 
-## Final design decisions
-- Home is a single vertical dashboard: device state → focus/safety → profile/Max AI → CPU/GPU → cores → memory/ZRAM → storage/battery → thermal/history → device details → activity/actions.
-- CPU and GPU remain side-by-side cards with live trend plots; no stacked CPU/GPU block.
-- Gauge cards use the shared widget language for RAM, ZRAM, storage and battery.
-- Shared `Max*` and `Neural*` surfaces use the same tinted depth language, spacing, shapes, typography roles and state tones.
-- Missing/unsupported measurements render as `—`; no fake metrics were added.
-- Technical values stay LTR inside RTL layouts.
-- Shared typography now uses Noto Sans Arabic for prose/headings to avoid device-dependent Arabic fallback while preserving JetBrains Mono for live values.
-- Shared panel geometry was tightened to 24dp panels / 18dp tiles with restrained elevation and glow so the UI reads as a premium dashboard rather than a neon gaming skin.
+> **مُتجاوَز (superseded).** هذه وثيقة من تمريرة UI قديمة: بعض ما تذكره من شاشات لم يعد موجودًا
+> (`AdrenoGpuScreen`، `MaliGpuFreqScreen`، `ThermalDevicesScreen` — انظر `docs/ai/KNOWN_ISSUES.md` I-42).
+> المرجع الحي للحالة والقرارات: `docs/ai/` و`.planning/codebase/`. لا تعتمد على هذه الوثيقة في قرار.
+
+## Scope
+This pass continues from `MaxManager-home-command-center-rtl.zip` and does not rebuild Home again. It focuses on the remaining Dashboard Detail screens plus cross-screen UI consistency and RTL-safe motion.
+
+## Rebuilt Dashboard Detail screens
+- `manager/app/src/main/java/nd/max/ui/mainscreens/DashboardDetailScreens.kt`
+  - Thermal: live thermal map, peak status, grouped zones, live zone paths and bars.
+  - Storage: internal capacity hierarchy, filesystem/mount views, refresh indicator and filesystem caveat.
+  - Network: live counters, one-second download timeline, totals and peaks.
+  - Battery: charge gauge, live power state, battery identity and exposed sysfs/Android properties.
+
+## Backend preservation
+The detail screens continue to use the existing real sources: `ThermalUtil.readThermalZones()`, `StatFs`/`df`, `TrafficStats`, `ACTION_BATTERY_CHANGED`, `BatteryManager`, and the existing battery sysfs nodes. No synthetic telemetry or fake values were introduced.
+
+## UI consistency pass
+- Removed screen-local `MaterialExpressiveTheme` wrappers so the screens consume the app-level theme consistently.
+- Added Arabic/localized strings for the new detail UI and the previously introduced Studio section subtitles.
+- Replaced directional horizontal page/list motion in onboarding/FastFetch with direction-neutral fade/scale motion.
+- Preserved intentional native/interactive motion such as expand/collapse, pulse and gesture-driven resizing.
 
 ## Validation
-- `python3 tools/kt_balance.py --assert` — PASS
-- `python3 tools/i18n_coverage.py --assert` — PASS (85 locales, 0 blockers)
-- `python3 tools/code_health.py --assert` — PASS
-- Gradle APK build was attempted with `bash manager/gradlew :app:assembleDebug --offline` but the environment has no Android SDK/Gradle distribution available and cannot resolve `services.gradle.org` (UnknownHostException). Therefore APK compilation is not claimed as verified here.
+- `values/strings.xml` and `values-ar/strings.xml`: XML parse OK.
+- Kotlin structural check: all checked UI files are balanced after fixing the pre-existing extra closure in `BypassCheckScreen.kt`; `AppMonitor.kt` remains the known existing structural outlier and was not altered in this pass.
+- Full Gradle compile could not run because the wrapper requires Gradle 9.5.1 and the environment cannot resolve `services.gradle.org` (network unavailable).
+
+## Files changed since the immediately previous working tree
+- `app/src/main/java/nd/max/ui/component/StudioSectionHeader.kt`
+- `app/src/main/java/nd/max/ui/mainscreens/ApplistScreen.kt`
+- `app/src/main/java/nd/max/ui/mainscreens/DashboardDetailScreens.kt`
+- `app/src/main/java/nd/max/ui/mainscreens/GetStartedScreen.kt`
+- `app/src/main/java/nd/max/ui/mainscreens/HomeScreen.kt`
+- `app/src/main/java/nd/max/ui/mainscreens/SettingsScreen.kt`
+- `app/src/main/java/nd/max/ui/mainscreens/TweakScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/AboutScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/AdrenoGpuScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/BypassCheckScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/ChargingScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/ColorSchemeScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/CpuCoreControlScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/CustomThemeScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/DebloatFreezeScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/Dex2oatScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/FasSettingsScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/FpsGoSettingsScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/FpsOverlayScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/GovSettingsScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/MaliGpuFreqScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/PreferencedTweakScreen.kt`
+- `app/src/main/java/nd/max/ui/subscreens/ThermalDevicesScreen.kt`
+- `app/src/main/java/nd/max/ui/terminal/FastFetchView.kt`
+- `app/src/main/res/values-ar/strings.xml`
+- `app/src/main/res/values/strings.xml`

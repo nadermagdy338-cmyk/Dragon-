@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Bu qurilma tomonidan bildirilgan sensorlar</string>
+    <string name="max_sensor_desc">Platforma o\'z uskunasi haqida nima deyishi, shuningdek, bitta cheklangan yorug\'lik o\'qishi. Kalibrlash yo\'q va sog\'liq ko\'rsatkichi yo\'q: ikkalasi ham bizda mavjud bo\'lmagan jismoniy ma\'lumotnomaga muhtoj bo\'ladi.</string>
+    <string name="max_sensor_service">Sensor xizmati</string>
+    <string name="max_sensor_service_unavailable">erishib bo\'lmadi</string>
+    <string name="max_sensor_count">Sensorlar xabar berishdi</string>
+    <string name="max_sensor_kinds">Kategoriyalar mavjud</string>
+    <string name="max_sensor_wakeup">Uyg\'otish sensorlari (qurilma uxlayotgan paytda xabar berish)</string>
+    <string name="max_sensor_light">Atrof-muhit yorug\'ligi</string>
+    <string name="max_sensor_unit_lux">lyuks</string>
+    <string name="max_sensor_light_absent">bu qurilma yorug\'lik sensori yo\'qligini bildiradi</string>
+    <string name="max_sensor_light_unreadable">Vaqt tugashidan oldin hech qanday o\'qish kelmadi - noma\'lum, nol emas</string>
+    <string name="max_sensor_more">…va yana %1$s</string>
+    <string name="max_sensor_no_score">Ismlar, diapazonlar va kechikishlar platformadan keladi. Hisobot beruvchi sensor uning to\'g\'riligini tasdiqlamaydi.</string>
+    <string name="max_sensor_kind_motion">Harakat</string>
+    <string name="max_sensor_kind_environment">Atrof-muhit</string>
+    <string name="max_sensor_kind_position">Lavozim</string>
+    <string name="max_sensor_kind_body">Tana</string>
+    <string name="max_sensor_kind_unpositioned">Joylanmagan</string>
+    <string name="max_sensor_kind_other">Boshqa</string>
+</resources>

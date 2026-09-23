@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">तृतीय-पक्ष प्लगइन्स</string>
+    <string name="max_plugins_subtitle">प्रकाशित अनुबंध: एक प्लगइन क्या घोषित कर सकता है, और यहां क्या स्वीकार या अस्वीकार किया गया था।</string>
+    <string name="max_plugins_section_contract">अनुबंध</string>
+    <string name="max_plugins_contract_api">एपीआई स्तर %1$d</string>
+    <string name="max_plugins_contract_dir">प्रकट फ़ोल्डर</string>
+    <string name="max_plugins_contract_rules">एक घोषित क्षमता या तो एक पढ़ी गई या एक प्रस्ताव है। जानबूझकर हार्डवेयर लिखने की कोई क्षमता नहीं है: इस ऐप में प्रत्येक लेखन आर्बिटर के माध्यम से होता है, और एक प्लगइन जो सीधे लिख सकता है वह दो मालिकों को एक ही नॉब लिखने से रोकने के लिए बनाए गए गार्ड को हटा देगा।</string>
+    <string name="max_plugins_contract_keys">कुंजियाँ मैनिफ़ेस्ट से पढ़ी जाती हैं</string>
+    <string name="max_plugins_contract_kinds">स्वीकृत प्रकार</string>
+    <string name="max_plugins_contract_capabilities">स्वीकृत क्षमताएं</string>
+    <string name="max_plugins_template">प्रकट टेम्पलेट</string>
+    <string name="max_plugins_template_note">यह पाठ वही है जो पार्सर पढ़ता है। यह कोड से भटक नहीं सकता, क्योंकि यह उसी से उत्पन्न होता है।</string>
+    <string name="max_plugins_copy_template">टेम्प्लेट कॉपी करें</string>
+    <string name="max_plugins_template_copied">टेम्प्लेट कॉपी किया गया</string>
+    <string name="max_plugins_section_installed">इस डिवाइस पर पाया गया</string>
+    <string name="max_plugins_loading_title">प्लगइन फ़ोल्डर को पढ़ना</string>
+    <string name="max_plugins_loading_detail">मेनिफेस्ट फ़ोल्डर को रूट के साथ सूचीबद्ध करना, फिर अनुबंध के विरुद्ध प्रत्येक मेनिफेस्ट का मूल्यांकन करना।</string>
+    <string name="max_plugins_accepted_count">%1$d स्वीकार किया गया</string>
+    <string name="max_plugins_rejected_count">%1$d ने मना कर दिया</string>
+    <string name="max_plugins_unreadable_count">%1$d पठनीय मेनिफेस्ट के बिना फ़ोल्डर</string>
+    <string name="max_plugins_rejected_section">मना कर दिया, सटीक कारण सहित</string>
+    <string name="max_plugins_detail_label">घोषित</string>
+    <string name="max_plugins_refresh_cd">प्लगइन फ़ोल्डर को दोबारा पढ़ें</string>
+    <string name="max_plugins_capability_source">प्लगइन द्वारा रिपोर्ट किया गया, हमारे द्वारा मापा नहीं गया</string>
+    <string name="max_plugins_cond_empty_title">कोई प्लगइन्स स्थापित नहीं है</string>
+    <string name="max_plugins_cond_empty_detail">मेनिफेस्ट फ़ोल्डर में कोई प्लगइन फ़ोल्डर नहीं है। कुछ भी गलत नहीं है: यह सुविधा की डिफ़ॉल्ट स्थिति है।</string>
+    <string name="max_plugins_cond_missing_title">मेनिफेस्ट फ़ोल्डर अभी तक मौजूद नहीं है</string>
+    <string name="max_plugins_cond_missing_detail">%1$s इस डिवाइस पर नहीं बनाया गया है, इसलिए पढ़ने के लिए कुछ भी नहीं है। इसे बनाने के लिए एक प्लगइन लेखक को बस इतना ही करना होता है।</string>
+    <string name="max_plugins_cond_unreadable_title">मेनिफेस्ट फ़ोल्डर पढ़ा नहीं जा सकता</string>
+    <string name="max_plugins_cond_unreadable_detail">फ़ोल्डर %1$s पर मौजूद है लेकिन शेल इसे पढ़ नहीं सका। इसे सूचीबद्ध करने के लिए रूट की आवश्यकता है।</string>
+    <string name="max_plugins_reason_BadId">आईडी फ़ोल्डर नाम के रूप में प्रयोग करने योग्य नहीं है. छोटे लैटिन अक्षरों, अंकों, बिंदुओं, डैश या अंडरस्कोर का उपयोग करें, और कभी भी एक पंक्ति में दो बिंदुओं का उपयोग न करें।</string>
+    <string name="max_plugins_reason_MissingName">मेनिफेस्ट में किसी नाम की घोषणा नहीं की गई है.</string>
+    <string name="max_plugins_reason_BadVersion">संस्करण अंकों से प्रारंभ होना चाहिए, उदाहरण के लिए 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">घोषित एपीआई स्तर गायब है या 1 से नीचे है।</string>
+    <string name="max_plugins_reason_ApiTooNew">घोषित एपीआई स्तर इस बिल्ड की समझ से नया है, इसलिए इसे बिल्कुल भी नहीं चलाया जाता है।</string>
+    <string name="max_plugins_reason_MissingKind">मेनिफेस्ट किसी प्रकार की घोषणा नहीं करता है।</string>
+    <string name="max_plugins_reason_UnknownKind">यह प्रकार प्रकाशित प्रकारों में से एक नहीं है।</string>
+    <string name="max_plugins_reason_UnknownCapability">क्षमता इस अनुबंध का हिस्सा नहीं है. किसी अज्ञात क्षमता को नज़रअंदाज़ करने के बजाय अस्वीकार कर दिया जाता है, इसलिए कोई भी चीज़ उसके द्वारा मांगे गए अधिकारों से कम अधिकारों के साथ नहीं चलती है।</string>
+    <string name="max_plugins_reason_NoCapabilities">एक प्लगइन को कम से कम एक क्षमता घोषित करनी होगी।</string>
+    <string name="max_plugins_reason_DuplicateId">इस आईडी के साथ एक अन्य प्लगइन पहले ही स्वीकार कर लिया गया था, इसलिए इसका उपयोग नहीं किया गया है।</string>
+    <string name="max_plugins_help_title">आखिर अनुबंध क्यों?</string>
+    <string name="max_plugins_help_body">प्रकाशित अनुबंध के बिना, इस ऐप का विस्तार करने वाले किसी भी व्यक्ति को हमारी आंतरिक फ़ाइलों के आकार का अनुमान लगाना होगा, और हम टूटे हुए अनुबंध से वैध एक्सटेंशन नहीं बता सकते हैं। इसके साथ, सीमा बताई गई है: एक प्लगइन इरादे की घोषणा करता है और पढ़ता है; यह कभी भी हार्डवेयर नहीं लिखता है, और ऊपर दिया गया प्रत्येक इनकार उस सटीक फ़ील्ड का नाम देता है जो विफल हुआ।</string>
+</resources>

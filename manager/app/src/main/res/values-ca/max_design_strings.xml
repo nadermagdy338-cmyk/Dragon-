@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Viu</string>
+    <string name="max_trust_stale">Última mostra</string>
+    <string name="max_trust_snapshot">Instantània</string>
+    <string name="max_trust_unreadable">Sense lectura</string>
+    <string name="max_trust_unsupported">No s\'admet</string>
+    <string name="max_source_label">Font</string>
+    <string name="max_updated_label">Actualitzat</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">cap valor disponible</string>
+    <string name="max_expand_section">Mostra els detalls</string>
+    <string name="max_collapse_section">Amaga els detalls</string>
+</resources>

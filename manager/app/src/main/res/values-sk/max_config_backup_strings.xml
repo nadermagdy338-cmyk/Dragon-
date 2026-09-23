@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Vzhľad a rozhranie</string>
+    <string name="max_cfg_backup_app_prefs">Predvoľby a jazyk aplikácie</string>
+    <string name="max_cfg_declared_absent_title">Nebude zahrnuté a prečo</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">toto zariadenie nemá overený root, takže hodnoty sa nedajú spoľahlivo prečítať</string>
+    <string name="max_cfg_absent_file_missing">súbor preferencií ešte neexistuje</string>
+    <string name="max_cfg_absent_empty">súbor preferencií existuje, ale je prázdny, takže nie je čo zapisovať</string>
+    <string name="max_cfg_declared_excluded_title">Nikdy zahrnuté v tomto súbore</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI bezpečnostné nastavenia sú nakonfigurované v aplikácii, nikdy sa neprenášajú v súbore</string>
+    <string name="max_cfg_excluded_other_apps">údaje iných aplikácií patria do zálohy aplikácie, nie zálohy konfigurácie</string>
+    <string name="max_cfg_excluded_secret">podpisové kľúče a tajomstvá sa nikdy nezapisujú do súboru, ktorý by ste mohli zdieľať</string>
+    <string name="max_cfg_section_tweaks">Tweak konfigurácia</string>
+    <string name="max_cfg_section_applist">Zoznam podľa aplikácií</string>
+    <string name="max_cfg_section_appearance">Vzhľad a rozhranie</string>
+    <string name="max_cfg_section_app_prefs">Predvoľby a jazyk aplikácie</string>
+    <string name="max_cfg_restore_merge_note">Obnovenie preferencií sa zlúči: kľúče prítomné v súbore sú zapísané a kľúče, o ktorých sa nezmieňuje, zostanú tak, ako sú. Nič nie je vyčistené.</string>
+</resources>

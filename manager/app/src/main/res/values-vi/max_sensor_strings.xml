@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Cảm biến được báo cáo bởi thiết bị này</string>
+    <string name="max_sensor_desc">Những gì nền tảng tuyên bố về phần cứng của chính nó, cộng với một chỉ số ánh sáng giới hạn. Không có hiệu chuẩn và không có điểm sức khỏe: cả hai đều cần tài liệu tham khảo vật lý mà chúng tôi không có.</string>
+    <string name="max_sensor_service">Dịch vụ cảm biến</string>
+    <string name="max_sensor_service_unavailable">không thể đạt được</string>
+    <string name="max_sensor_count">Đã báo cáo cảm biến</string>
+    <string name="max_sensor_kinds">Danh mục hiện tại</string>
+    <string name="max_sensor_wakeup">Cảm biến đánh thức (báo cáo khi thiết bị ở chế độ ngủ)</string>
+    <string name="max_sensor_light">Ánh sáng xung quanh</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">thiết bị này báo không có cảm biến ánh sáng</string>
+    <string name="max_sensor_light_unreadable">không có bài đọc nào đến trước thời gian chờ - không xác định, không phải số 0</string>
+    <string name="max_sensor_more">…và %1$s hơn nữa</string>
+    <string name="max_sensor_no_score">Tên, phạm vi và độ trễ đến từ nền tảng. Một cảm biến báo cáo không phải là bằng chứng cho thấy nó chính xác.</string>
+    <string name="max_sensor_kind_motion">Cử động</string>
+    <string name="max_sensor_kind_environment">Môi trường</string>
+    <string name="max_sensor_kind_position">Chức vụ</string>
+    <string name="max_sensor_kind_body">Thân hình</string>
+    <string name="max_sensor_kind_unpositioned">Không định vị</string>
+    <string name="max_sensor_kind_other">Khác</string>
+</resources>

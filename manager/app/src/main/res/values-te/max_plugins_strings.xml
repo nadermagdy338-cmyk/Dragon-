@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">మూడవ పక్షం ప్లగిన్‌లు</string>
+    <string name="max_plugins_subtitle">ప్రచురించబడిన ఒప్పందం: ఒక ప్లగ్ఇన్ ఏమి ప్రకటించవచ్చు మరియు ఇక్కడ ఆమోదించబడినవి లేదా తిరస్కరించబడినవి.</string>
+    <string name="max_plugins_section_contract">ఒప్పందం</string>
+    <string name="max_plugins_contract_api">API స్థాయి %1$d</string>
+    <string name="max_plugins_contract_dir">మానిఫెస్ట్ ఫోల్డర్</string>
+    <string name="max_plugins_contract_rules">డిక్లేర్డ్ సామర్ధ్యం అనేది చదవడం లేదా ప్రతిపాదన. ఉద్దేశపూర్వకంగా హార్డ్‌వేర్‌ను వ్రాసే సామర్థ్యం లేదు: ఈ యాప్‌లోని ప్రతి వ్రాత మధ్యవర్తి ద్వారా వెళుతుంది మరియు నేరుగా వ్రాయగలిగే ప్లగ్ఇన్ ఇద్దరు యజమానులు ఒకే నాబ్‌ను వ్రాయడాన్ని ఆపడానికి నిర్మించిన గార్డును తీసివేస్తుంది.</string>
+    <string name="max_plugins_contract_keys">మానిఫెస్ట్ నుండి చదవబడిన కీలు</string>
+    <string name="max_plugins_contract_kinds">ఆమోదించబడిన రకాలు</string>
+    <string name="max_plugins_contract_capabilities">ఆమోదించబడిన సామర్థ్యాలు</string>
+    <string name="max_plugins_template">మానిఫెస్ట్ టెంప్లేట్</string>
+    <string name="max_plugins_template_note">పార్సర్ చదివేది ఈ వచనం. ఇది కోడ్ నుండి డ్రిఫ్ట్ కాదు, ఎందుకంటే ఇది దాని నుండి ఉత్పత్తి చేయబడింది.</string>
+    <string name="max_plugins_copy_template">టెంప్లేట్‌ను కాపీ చేయండి</string>
+    <string name="max_plugins_template_copied">టెంప్లేట్ కాపీ చేయబడింది</string>
+    <string name="max_plugins_section_installed">ఈ పరికరంలో కనుగొనబడింది</string>
+    <string name="max_plugins_loading_title">ప్లగ్ఇన్ ఫోల్డర్ చదవడం</string>
+    <string name="max_plugins_loading_detail">మానిఫెస్ట్ ఫోల్డర్‌ను రూట్‌తో జాబితా చేయడం, ఆపై ప్రతి మానిఫెస్ట్‌ను కాంట్రాక్ట్‌కు వ్యతిరేకంగా మూల్యాంకనం చేయడం.</string>
+    <string name="max_plugins_accepted_count">%1$d ఆమోదించబడింది</string>
+    <string name="max_plugins_rejected_count">%1$d నిరాకరించారు</string>
+    <string name="max_plugins_unreadable_count">చదవగలిగే మానిఫెస్ట్ లేని %1$d ఫోల్డర్</string>
+    <string name="max_plugins_rejected_section">ఖచ్చితమైన కారణంతో నిరాకరించారు</string>
+    <string name="max_plugins_detail_label">ప్రకటించారు</string>
+    <string name="max_plugins_refresh_cd">ప్లగిన్ ఫోల్డర్‌ని మళ్లీ చదవండి</string>
+    <string name="max_plugins_capability_source">ప్లగ్ఇన్ ద్వారా నివేదించబడింది, మా ద్వారా లెక్కించబడలేదు</string>
+    <string name="max_plugins_cond_empty_title">ప్లగిన్‌లు ఏవీ ఇన్‌స్టాల్ చేయబడలేదు</string>
+    <string name="max_plugins_cond_empty_detail">మానిఫెస్ట్ ఫోల్డర్‌లో ప్లగిన్ ఫోల్డర్‌లు లేవు. తప్పు ఏమీ లేదు: ఇది ఫీచర్ యొక్క డిఫాల్ట్ స్థితి.</string>
+    <string name="max_plugins_cond_missing_title">మానిఫెస్ట్ ఫోల్డర్ ఇంకా ఉనికిలో లేదు</string>
+    <string name="max_plugins_cond_missing_detail">ఈ పరికరంలో %1$s సృష్టించబడలేదు, కాబట్టి చదవడానికి ఏమీ లేదు. దీన్ని సృష్టించడం అనేది ప్లగ్ఇన్ రచయిత చేయాల్సిందల్లా.</string>
+    <string name="max_plugins_cond_unreadable_title">మానిఫెస్ట్ ఫోల్డర్ చదవబడదు</string>
+    <string name="max_plugins_cond_unreadable_detail">ఫోల్డర్ %1$s వద్ద ఉంది కానీ షెల్ దానిని చదవలేకపోయింది. దానిని జాబితా చేయడానికి రూట్ అవసరం.</string>
+    <string name="max_plugins_reason_BadId">ఐడి ఫోల్డర్ పేరుగా ఉపయోగించబడదు. చిన్న లాటిన్ అక్షరాలు, అంకెలు, చుక్కలు, డాష్‌లు లేదా అండర్‌స్కోర్‌లను ఉపయోగించండి మరియు వరుసగా రెండు చుక్కలను ఎప్పుడూ ఉపయోగించవద్దు.</string>
+    <string name="max_plugins_reason_MissingName">మానిఫెస్ట్ పేరును ప్రకటించలేదు.</string>
+    <string name="max_plugins_reason_BadVersion">సంస్కరణ తప్పనిసరిగా అంకెలతో ప్రారంభం కావాలి, ఉదాహరణకు 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">ప్రకటించబడిన API స్థాయి లేదు లేదా 1 కంటే తక్కువ.</string>
+    <string name="max_plugins_reason_ApiTooNew">డిక్లేర్డ్ API స్థాయి ఈ బిల్డ్ అర్థం చేసుకోవడం కంటే కొత్తది, కాబట్టి ఇది అస్సలు అమలు చేయబడదు.</string>
+    <string name="max_plugins_reason_MissingKind">మానిఫెస్ట్ ఏ విధమైన ప్రకటన చేయలేదు.</string>
+    <string name="max_plugins_reason_UnknownKind">ఈ రకం ప్రచురించబడిన రకాల్లో ఒకటి కాదు.</string>
+    <string name="max_plugins_reason_UnknownCapability">సామర్థ్యం ఈ ఒప్పందంలో భాగం కాదు. తెలియని సామర్ధ్యం విస్మరించబడకుండా తిరస్కరించబడుతుంది, కాబట్టి ఏదీ కోరిన దానికంటే తక్కువ హక్కులతో నడుస్తుంది.</string>
+    <string name="max_plugins_reason_NoCapabilities">ఒక ప్లగ్ఇన్ తప్పనిసరిగా కనీసం ఒక సామర్థ్యాన్ని ప్రకటించాలి.</string>
+    <string name="max_plugins_reason_DuplicateId">ఈ ఐడితో మరొక ప్లగ్ఇన్ ఇప్పటికే ఆమోదించబడింది, కాబట్టి ఇది ఉపయోగించబడలేదు.</string>
+    <string name="max_plugins_help_title">అసలు ఎందుకు ఒప్పందం</string>
+    <string name="max_plugins_help_body">ప్రచురించబడిన ఒప్పందం లేకుండా, ఈ యాప్‌ను పొడిగించే ఎవరైనా మా అంతర్గత ఫైల్‌ల ఆకారాన్ని అంచనా వేయాలి మరియు విచ్ఛిన్నమైన దాని నుండి చెల్లుబాటు అయ్యే పొడిగింపును మేము చెప్పలేము. దానితో, పరిమితి పేర్కొనబడింది: ఒక ప్లగ్ఇన్ ఉద్దేశ్యాన్ని ప్రకటిస్తుంది మరియు చదువుతుంది; ఇది హార్డ్‌వేర్‌ను ఎప్పుడూ వ్రాయదు మరియు పైన పేర్కొన్న ప్రతి తిరస్కరణ విఫలమైన ఖచ్చితమైన ఫీల్డ్‌ను సూచిస్తుంది.</string>
+</resources>

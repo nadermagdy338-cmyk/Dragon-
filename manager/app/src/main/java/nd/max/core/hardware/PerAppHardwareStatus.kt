@@ -62,14 +62,6 @@ object PerAppHardwareStatus {
         val reason: String,
         val expected: String,
         val live: String,
-        /**
-         * أثر التنفيذ المقيس (`effect=…` من [nd.max.core.atlas.AtlasEffectLines]) أو فراغ.
-         *
-         * وهو حقل **منفصل عن النتيجة** لا مضاف إليها: «الكتابة نجحت» و«التردد تحرّك فعلًا وإلى أين»
-         * جوابان مختلفان، وكانا يُقرآن كجواب واحد حتى ظهر `applied=true verified=true live=520000000`
-         * في حزمة ٢٠٢٦-٠٩-٢٢ — أي نجاحٌ مُعلن بلا حركة. والفراغ معناه «لم يُقس»، لا «تحرك».
-         */
-        val effect: String = "",
     ) {
         val isFailure: Boolean get() = outcome != Outcome.APPLIED.token && outcome != Outcome.SKIPPED.token
     }
@@ -83,7 +75,6 @@ object PerAppHardwareStatus {
     private const val REASON_PREFIX = "reason="
     private const val EXPECTED_PREFIX = "expected="
     private const val LIVE_PREFIX = "live="
-    private const val EFFECT_PREFIX = "effect="
 
     // ── حالة الكاتب (مراقب الخلفية) ────────────────────────────────────────────
     private val session = linkedMapOf<String, Record>()
@@ -120,7 +111,6 @@ object PerAppHardwareStatus {
         reason: String,
         expected: String = "",
         live: String = "",
-        effect: String = "",
     ) {
         if (knob.isBlank() || sessionPkg.isBlank()) return
         session[knob] = Record(
@@ -129,7 +119,6 @@ object PerAppHardwareStatus {
             reason = singleLine(reason),
             expected = singleLine(expected),
             live = singleLine(live),
-            effect = singleLine(effect),
         )
         dirty = true
     }
@@ -160,11 +149,7 @@ object PerAppHardwareStatus {
                 "$KNOB_PREFIX${singleLine(record.knob)} ${OUTCOME_PREFIX}${singleLine(record.outcome)} " +
                     "$REASON_PREFIX${singleLine(record.reason).ifBlank { "unspecified" }} " +
                     "$EXPECTED_PREFIX${singleLine(record.expected).ifBlank { "none" }} " +
-                    "$LIVE_PREFIX${singleLine(record.live).ifBlank { "unreadable" }} " +
-                    // و`unmeasured` هنا **معناها مقصود**: قارئ لا يجد سطر أثر في إصدار سابق لا يجوز
-                    // أن يستنتج أن التردد لم يتحرك — بل أن أحدًا لم يقسه. وهذا نفس تفريق النموذج
-                    // بين «غياب» و«غير مقروء».
-                    "$EFFECT_PREFIX${singleLine(record.effect).ifBlank { "unmeasured" }}"
+                    "$LIVE_PREFIX${singleLine(record.live).ifBlank { "unreadable" }}"
             )
         }
     }
@@ -208,9 +193,6 @@ object PerAppHardwareStatus {
                     reason = fields["reason"].orEmpty(),
                     expected = fields["expected"].orEmpty(),
                     live = fields["live"].orEmpty(),
-                    // ملف كتبه إصدار سابق لا يحمل الحقل: يُقرأ فارغًا ويُعلَن `unmeasured` عند
-                    // العرض، ولا يُقرأ `effect=unchanged` كاذبة من غيابه.
-                    effect = fields["effect"].orEmpty().takeIf { it != "unmeasured" }.orEmpty(),
                 )
             }
         }

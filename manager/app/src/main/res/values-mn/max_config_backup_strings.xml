@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Гадаад төрх ба интерфейс</string>
+    <string name="max_cfg_backup_app_prefs">Аппын тохиргоо ба хэл</string>
+    <string name="max_cfg_declared_absent_title">Оруулахгүй, яагаад</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">Энэ төхөөрөмжид баталгаажсан үндэс байхгүй тул утгуудыг найдвартай унших боломжгүй</string>
+    <string name="max_cfg_absent_file_missing">давуу файл хараахан байхгүй байна</string>
+    <string name="max_cfg_absent_empty">давуу файл байгаа боловч хоосон байгаа тул бичих зүйл алга</string>
+    <string name="max_cfg_declared_excluded_title">Энэ файлд хэзээ ч ороогүй</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Аюулгүй байдлын тохиргоог програмын дотор тохируулсан бөгөөд файлд хэзээ ч авч явдаггүй</string>
+    <string name="max_cfg_excluded_other_apps">бусад програмын өгөгдөл нь програмын нөөцлөлтөд хамаарах ба тохиргооны нөөцлөлт биш</string>
+    <string name="max_cfg_excluded_secret">гарын үсэг зурах түлхүүр болон нууцыг таны хуваалцаж болох файлд хэзээ ч бичдэггүй</string>
+    <string name="max_cfg_section_tweaks">Тохиргоог өөрчлөх</string>
+    <string name="max_cfg_section_applist">Аппликешн бүрийн жагсаалт</string>
+    <string name="max_cfg_section_appearance">Гадаад төрх ба интерфейс</string>
+    <string name="max_cfg_section_app_prefs">Аппын тохиргоо ба хэл</string>
+    <string name="max_cfg_restore_merge_note">Тохируулгыг сэргээх нь нэгддэг: файлд байгаа товчлуурууд бичигдсэн байх ба энд дурдаагүй түлхүүрүүд байгаагаар нь үлдэнэ. Юу ч арилаагүй.</string>
+</resources>

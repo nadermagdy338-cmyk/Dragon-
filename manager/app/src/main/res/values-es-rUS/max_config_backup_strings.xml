@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Apariencia e interfaz</string>
+    <string name="max_cfg_backup_app_prefs">Preferencias e idioma de la aplicación</string>
+    <string name="max_cfg_declared_absent_title">No se incluirá y por qué</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">este dispositivo no tiene raíz verificada, por lo que los valores no se pueden leer de manera confiable</string>
+    <string name="max_cfg_absent_file_missing">el archivo de preferencias aún no existe</string>
+    <string name="max_cfg_absent_empty">el archivo de preferencias existe pero está vacío, por lo que no hay nada que escribir</string>
+    <string name="max_cfg_declared_excluded_title">Nunca incluido en este archivo.</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI las configuraciones de seguridad se configuran dentro de la aplicación, nunca se guardan en un archivo</string>
+    <string name="max_cfg_excluded_other_apps">los datos de otras aplicaciones pertenecen a la copia de seguridad de la aplicación, no a la copia de seguridad de la configuración</string>
+    <string name="max_cfg_excluded_secret">Las claves y secretos de firma nunca se escriben en un archivo que usted pueda compartir.</string>
+    <string name="max_cfg_section_tweaks">Ajustar la configuración</string>
+    <string name="max_cfg_section_applist">Lista por aplicación</string>
+    <string name="max_cfg_section_appearance">Apariencia e interfaz</string>
+    <string name="max_cfg_section_app_prefs">Preferencias e idioma de la aplicación</string>
+    <string name="max_cfg_restore_merge_note">La restauración de preferencias se fusiona: las claves presentes en el archivo se escriben y las claves que no menciona permanecen como están. No se aclara nada.</string>
+</resources>

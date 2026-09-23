@@ -123,17 +123,7 @@ data class DashboardState(
     val powerWatt: Float = 0f,
     /** ZRAM/swap usage in MB, or null when the device has no swap configured. */
     val swapUsedMb: Int? = null,
-    val swapTotalMb: Int? = null,
-    /**
-     * أقصى قراءة لكل فئة مجسّات (`CPU` · `GPU` · `Charger` …) — متاحة لاختيار المستخدم
-     * لمجسّات الشبكة الحرارية. والصفر «لا قراءة» لا «درجة صفر».
-     */
-    val thermalByCategory: Map<String, Int> = emptyMap(),
-    /**
-     * أتمّت أول دورة قياس قراءاتها: قبلها تعرض الواجهة الهياكل لا الأصفار —
-     * صفرٌ في الثانية الأولى ليس برودةً مقيسة.
-     */
-    val ready: Boolean = false
+    val swapTotalMb: Int? = null
 )
 
 data class PerformanceIntelligenceSample(
@@ -177,14 +167,6 @@ private val LEADING_INTEGER = Regex("\\d+")
  * أربع مئة بايت، لكن الكتابة كل ثانيتين عملٌ لا يلزم.
  */
 private const val HISTORY_SAVE_INTERVAL_MS = 30_000L
-
-/** ثمرة القراءة الحرارية للدورة: الأرقام الثلاثة المعروفة + خريطة الفئات الكاملة. */
-private class ThermalRead(
-    val cpu: Int,
-    val gpu: Int,
-    val skin: Int,
-    val byCategory: Map<String, Int>,
-)
 
 class HomeDashboardViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -291,7 +273,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     cpuPercent = cpuLoad,
                     ramPercent = ramPercent.toInt(),
                     gpuPercent = gpu.first,
-                    temperatureC = batteryTemp.takeIf { it.isFinite() && it > 0f } ?: thermal.cpu.toFloat(),
+                    temperatureC = batteryTemp.takeIf { it.isFinite() && it > 0f } ?: thermal[0].toFloat(),
                     powerWatt = powerWatt,
                     displayPixels = dispInfoPixelCount(),
                     networkKbps = network[0] + network[1]
@@ -339,9 +321,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     },
                     powerWatt = powerWatt,
                     swapUsedMb = swap?.first, swapTotalMb = swap?.second,
-                    cpuTempC = thermal.cpu, gpuTempC = thermal.gpu, skinTempC = thermal.skin,
-                    thermalByCategory = thermal.byCategory,
-                    ready = true,
+                    cpuTempC = thermal[0], gpuTempC = thermal[1], skinTempC = thermal[2],
                     storageUsedGb = storage[0], storageTotalGb = storage[1],
                     downloadSpeedKbps = network[0], uploadSpeedKbps = network[1],
                     uptimeMinutes = SystemClock.elapsedRealtime() / 60_000L,
@@ -602,18 +582,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         } catch (e: Exception) { floatArrayOf(0f, 0f, 0f, 0f) }
     }
 
-    /**
-     * القراءة الحرارية للدورة الواحدة — رقمان صالحان للعرض وخريطة الفئات معًا.
-     *
-     * - [cpu]/[gpu]/[skin] هي الأرقام المألوفة بتسلسل التراجعات نفسه (عقدة ← thermalservice ←
-     *   أقرب بديل)؛
-     * - [byCategory] أقصى قراءة **لكل فئة مجسّات** (`ThermalUtil.classifyZone`)، وهي ما تختار
-     *   منه واجهة الرئيسية مجسّاتها المثبَّتة. والصفر «لا قراءة» فلا يُخترع رقم.
-     *
-     * والعقد تُقرأ **مرّة واحدة** في الدورة: قراءة منفصلة كانت تعني طوق sysfs كاملًا كل ثانيتين
-     * لجمع ما قِيس للتوّ.
-     */
-    private fun readThermal(): ThermalRead {
+    private fun readThermal(): IntArray {
         return try {
             val zones = ThermalUtil.readThermalZones()
             var cpu = zones.filter { it.category == "CPU" && it.temperatureC > 0 }
@@ -622,11 +591,6 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 .maxOfOrNull { it.temperatureC } ?: 0
             var skin = zones.filter { it.category == "Skin" && it.temperatureC > 0 }
                 .maxOfOrNull { it.temperatureC } ?: 0
-
-            val byCategory = zones.asSequence()
-                .filter { it.temperatureC > 0 }
-                .groupBy({ it.category }, { it.temperatureC })
-                .mapValues { (_, temps) -> temps.max() }
 
             // Fallback for MTK/vendor kernels where thermal sysfs nodes are
             // hidden or their names do not contain a recognizable category.
@@ -642,9 +606,9 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     .filter { it.temperatureC > 0 && it.category !in setOf("Battery", "Skin", "Charger", "GPU") }
                     .maxOfOrNull { it.temperatureC } ?: 0
             }
-            ThermalRead(cpu, gpu, skin, byCategory)
+            intArrayOf(cpu, gpu, skin)
         } catch (_: Exception) {
-            ThermalRead(0, 0, 0, emptyMap())
+            intArrayOf(0, 0, 0)
         }
     }
 

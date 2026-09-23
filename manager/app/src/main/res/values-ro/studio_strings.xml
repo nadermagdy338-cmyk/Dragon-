@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">frecvența CPU</string>
+    <string name="studio_load_history">Activitate recentă CPU</string>
+    <string name="studio_waiting_samples">Colectarea de lecturi live...</string>
+    <string name="studio_automatic_profile">Modul automat gestionează profilul activ.</string>
+    <string name="studio_temperature">Temperatură</string>
+    <string name="studio_display">Afişa</string>
+    <string name="studio_power">Opțiuni de alimentare</string>
+    <string name="studio_settings">Setări</string>
+</resources>

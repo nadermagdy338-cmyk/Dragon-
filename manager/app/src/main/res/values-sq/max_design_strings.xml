@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Jetoni</string>
+    <string name="max_trust_stale">Mostra e fundit</string>
+    <string name="max_trust_snapshot">Foto e çastit</string>
+    <string name="max_trust_unreadable">Nuk ka lexim</string>
+    <string name="max_trust_unsupported">Nuk mbështetet</string>
+    <string name="max_source_label">Burimi</string>
+    <string name="max_updated_label">Përditësuar</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">asnjë vlerë në dispozicion</string>
+    <string name="max_expand_section">Trego detajet</string>
+    <string name="max_collapse_section">Fshih detajet</string>
+</resources>

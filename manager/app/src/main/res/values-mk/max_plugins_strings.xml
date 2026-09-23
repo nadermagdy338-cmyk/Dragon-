@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Приклучоци од трета страна</string>
+    <string name="max_plugins_subtitle">Објавениот договор: што може да објави приклучокот и што е прифатено или одбиено овде.</string>
+    <string name="max_plugins_section_contract">Договорот</string>
+    <string name="max_plugins_contract_api">Ниво на API %1$d</string>
+    <string name="max_plugins_contract_dir">Манифест папка</string>
+    <string name="max_plugins_contract_rules">Декларираната способност е или читање или предлог. Намерно не постои можност за пишување хардвер: секое пишување во оваа апликација поминува низ арбитер, а додатокот што може директно да пишува би го отстранил чуварот изграден за да спречи двајца сопственици да го пишуваат истото копче.</string>
+    <string name="max_plugins_contract_keys">Читани копчиња од манифест</string>
+    <string name="max_plugins_contract_kinds">Прифатени видови</string>
+    <string name="max_plugins_contract_capabilities">Прифатени способности</string>
+    <string name="max_plugins_template">Шаблон за манифест</string>
+    <string name="max_plugins_template_note">Овој текст е она што го чита парсерот. Не може да се оддалечи од кодот, бидејќи се генерира од него.</string>
+    <string name="max_plugins_copy_template">Копирајте го шаблонот</string>
+    <string name="max_plugins_template_copied">Шаблонот е копиран</string>
+    <string name="max_plugins_section_installed">Најден на овој уред</string>
+    <string name="max_plugins_loading_title">Читање на папката со приклучокот</string>
+    <string name="max_plugins_loading_detail">Наведување на папката манифест со root, а потоа оценување на секој манифест во однос на договорот.</string>
+    <string name="max_plugins_accepted_count">%1$d прифатено</string>
+    <string name="max_plugins_rejected_count">%1$d одби</string>
+    <string name="max_plugins_unreadable_count">%1$d папка без читлив манифест</string>
+    <string name="max_plugins_rejected_section">Одби, со точната причина</string>
+    <string name="max_plugins_detail_label">Декларирана</string>
+    <string name="max_plugins_refresh_cd">Повторно прочитајте ја папката со приклучокот</string>
+    <string name="max_plugins_capability_source">Пријавен од приклучокот, не мери од нас</string>
+    <string name="max_plugins_cond_empty_title">Нема инсталирани додатоци</string>
+    <string name="max_plugins_cond_empty_detail">Во папката манифест нема папки со приклучоци. Ништо не е во ред: ова е стандардната состојба на функцијата.</string>
+    <string name="max_plugins_cond_missing_title">Папката Манифест сè уште не постои</string>
+    <string name="max_plugins_cond_missing_detail">%1$s не е создаден на овој уред, така што нема што да се чита. Неговото создавање е сè што треба да направи авторот на приклучокот.</string>
+    <string name="max_plugins_cond_unreadable_title">Папката манифест не може да се прочита</string>
+    <string name="max_plugins_cond_unreadable_detail">Папката постои на %1$s, но школката не можеше да ја прочита. Root е потребен за да се наведе.</string>
+    <string name="max_plugins_reason_BadId">ИД не може да се користи како име на папка. Користете мали латински букви, цифри, точки, цртички или долни црти и никогаш две точки по ред.</string>
+    <string name="max_plugins_reason_MissingName">Манифестот не објавува име.</string>
+    <string name="max_plugins_reason_BadVersion">Верзијата мора да започнува со цифри, на пример 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Декларираното ниво на API недостасува или е под 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Декларираното ниво на API е поново отколку што разбира оваа верзија, така што воопшто не се извршува.</string>
+    <string name="max_plugins_reason_MissingKind">Манифестот не прогласува никаков вид.</string>
+    <string name="max_plugins_reason_UnknownKind">Видот не е еден од објавените видови.</string>
+    <string name="max_plugins_reason_UnknownCapability">Способноста не е дел од овој договор. Непозната способност се одбива наместо да се игнорира, така што ништо не работи со помалку права од она што се бара.</string>
+    <string name="max_plugins_reason_NoCapabilities">Приклучокот мора да декларира барем една способност.</string>
+    <string name="max_plugins_reason_DuplicateId">Друг приклучок со овој ид е веќе прифатен, така што овој не се користи.</string>
+    <string name="max_plugins_help_title">Зошто воопшто договор</string>
+    <string name="max_plugins_help_body">Без објавен договор, секој што ја продолжува оваа апликација треба да ја погоди формата на нашите внатрешни датотеки и не можеме да разликуваме валидна екстензија од расипана. Со него се наведува лимитот: приклучокот декларира намера и чита; никогаш не пишува хардвер, и секое одбивање погоре го именува точното поле што не успеа.</string>
+</resources>

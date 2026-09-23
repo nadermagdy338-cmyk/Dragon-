@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Uiterlijk en interface</string>
+    <string name="max_cfg_backup_app_prefs">App-voorkeuren en taal</string>
+    <string name="max_cfg_declared_absent_title">Zal niet worden opgenomen, en waarom</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">dit apparaat heeft geen geverifieerde root, dus de waarden kunnen niet betrouwbaar worden gelezen</string>
+    <string name="max_cfg_absent_file_missing">het voorkeurenbestand bestaat nog niet</string>
+    <string name="max_cfg_absent_empty">het voorkeurenbestand bestaat maar is leeg, dus er valt niets te schrijven</string>
+    <string name="max_cfg_declared_excluded_title">Nooit opgenomen in dit bestand</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI veiligheidsinstellingen worden geconfigureerd in de app en worden nooit in een bestand opgeslagen</string>
+    <string name="max_cfg_excluded_other_apps">gegevens van andere apps behoren tot app-back-up, niet tot configuratie-back-up</string>
+    <string name="max_cfg_excluded_secret">ondertekeningssleutels en -geheimen worden nooit naar een bestand geschreven dat u mogelijk deelt</string>
+    <string name="max_cfg_section_tweaks">Tweak-configuratie</string>
+    <string name="max_cfg_section_applist">Lijst per app</string>
+    <string name="max_cfg_section_appearance">Uiterlijk en interface</string>
+    <string name="max_cfg_section_app_prefs">App-voorkeuren en taal</string>
+    <string name="max_cfg_restore_merge_note">Het herstellen van voorkeuren wordt samengevoegd: de sleutels die in het bestand aanwezig zijn, worden geschreven en de sleutels die er niet in staan, blijven zoals ze zijn. Er wordt niets opgeruimd.</string>
+</resources>

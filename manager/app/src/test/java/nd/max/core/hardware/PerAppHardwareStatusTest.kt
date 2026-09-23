@@ -68,38 +68,4 @@ class PerAppHardwareStatusTest {
         assertEquals("a_b", record?.expected)
         assertEquals("c_d", record?.live)
     }
-
-    @Test
-    fun `an effect payload survives the round trip in one field`() {
-        // الحمولة بفواصل لا بمسافات (وإلا انقسمت إلى حقلين)، وهذا يُقاس لا يُوصى به.
-        val payload = "improved,before=520000000,after=702000000,requested=702000000,goal=higher-is-better"
-        val text = PerAppHardwareStatus.encode(
-            "com.example.game",
-            0L,
-            listOf(PerAppHardwareStatus.Record("gpu_profile", "applied", "verified", "702000000", "702000000", payload)),
-        )
-
-        val record = PerAppHardwareStatus.parse(text)?.records?.single()
-
-        assertEquals(payload, record?.effect)
-        assertTrue(text.contains("effect=$payload"))
-    }
-
-    @Test
-    fun `a record with no effect reads empty so the report can say unmeasured instead of unchanged`() {
-        val legacy = PerAppHardwareStatus.encode(
-            "com.example.game",
-            0L,
-            listOf(PerAppHardwareStatus.Record("gpu_profile", "applied", "verified", "702000000", "520000000")),
-        )
-        val snapshot = PerAppHardwareStatus.parse(legacy)
-
-        assertEquals("", snapshot?.records?.single()?.effect)
-        // والقيمة المحايدة `unmeasured` المكتوبة على القرص تُقرأ فراغًا كذلك: لا حقل أثر يعود
-        // «لم يتغيّر» من نص محايد.
-        val neutral = PerAppHardwareStatus.parse(
-            "pkg=com.example.game\nat=0\nknob=gpu_profile outcome=applied reason=verified expected=- live=- effect=unmeasured",
-        )
-        assertEquals("", neutral?.records?.single()?.effect)
-    }
 }

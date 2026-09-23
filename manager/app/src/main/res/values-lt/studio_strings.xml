@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIJA</string>
+    <string name="studio_cpu_frequency">CPU dažnis</string>
+    <string name="studio_load_history">Naujausia CPU veikla</string>
+    <string name="studio_waiting_samples">Renkamas tiesioginis skaitymas…</string>
+    <string name="studio_automatic_profile">Automatinis režimas valdo aktyvų profilį.</string>
+    <string name="studio_temperature">Temperatūra</string>
+    <string name="studio_display">Ekranas</string>
+    <string name="studio_power">Maitinimo parinktys</string>
+    <string name="studio_settings">Nustatymai</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Ishi</string>
+    <string name="max_trust_stale">Sampuli ya mwisho</string>
+    <string name="max_trust_snapshot">Picha</string>
+    <string name="max_trust_unreadable">Hakuna kusoma</string>
+    <string name="max_trust_unsupported">Haitumiki</string>
+    <string name="max_source_label">Chanzo</string>
+    <string name="max_updated_label">Imesasishwa</string>
+    <string name="max_provenance_separator">" ·"</string>
+    <string name="max_value_unavailable_a11y">hakuna thamani inayopatikana</string>
+    <string name="max_expand_section">Onyesha maelezo</string>
+    <string name="max_collapse_section">Ficha maelezo</string>
+</resources>

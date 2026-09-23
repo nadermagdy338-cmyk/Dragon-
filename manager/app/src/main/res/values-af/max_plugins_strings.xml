@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Derdeparty-inproppe</string>
+    <string name="max_plugins_subtitle">Die gepubliseerde kontrak: wat \'n inprop mag verklaar, en wat hier aanvaar of geweier is.</string>
+    <string name="max_plugins_section_contract">Die kontrak</string>
+    <string name="max_plugins_contract_api">API-vlak %1$d</string>
+    <string name="max_plugins_contract_dir">Manifesteer gids</string>
+    <string name="max_plugins_contract_rules">\'n Verklaarde vermoë is óf \'n lees óf \'n voorstel. Daar is doelbewus geen vermoë om hardeware te skryf nie: elke skrywe in hierdie toepassing gaan deur die arbiter, en \'n inprop wat direk kan skryf, sal die wag verwyder wat gebou is om te keer dat twee eienaars dieselfde knop skryf.</string>
+    <string name="max_plugins_contract_keys">Sleutels gelees uit \'n manifes</string>
+    <string name="max_plugins_contract_kinds">Aanvaarde soorte</string>
+    <string name="max_plugins_contract_capabilities">Aanvaarde vermoëns</string>
+    <string name="max_plugins_template">Manifesteerde sjabloon</string>
+    <string name="max_plugins_template_note">Hierdie teks is wat die ontleder lees. Dit kan nie van die kode wegdryf nie, want dit word daaruit gegenereer.</string>
+    <string name="max_plugins_copy_template">Kopieer die sjabloon</string>
+    <string name="max_plugins_template_copied">Sjabloon is gekopieer</string>
+    <string name="max_plugins_section_installed">Op hierdie toestel gevind</string>
+    <string name="max_plugins_loading_title">Lees die plugin-lêergids</string>
+    <string name="max_plugins_loading_detail">Lys die manifeslêergids met root, en evalueer dan elke manifes teen die kontrak.</string>
+    <string name="max_plugins_accepted_count">%1$d aanvaar</string>
+    <string name="max_plugins_rejected_count">%1$d geweier</string>
+    <string name="max_plugins_unreadable_count">%1$d gids sonder \'n leesbare manifes</string>
+    <string name="max_plugins_rejected_section">Geweier, met die presiese rede</string>
+    <string name="max_plugins_detail_label">Verklaar</string>
+    <string name="max_plugins_refresh_cd">Lees weer die inproplêergids</string>
+    <string name="max_plugins_capability_source">Gerapporteer deur die inprop, nie deur ons gemeet nie</string>
+    <string name="max_plugins_cond_empty_title">Geen inproppe geïnstalleer nie</string>
+    <string name="max_plugins_cond_empty_detail">Die manifesvouer bevat geen inpropvouers nie. Niks is verkeerd nie: dit is die verstektoestand van die kenmerk.</string>
+    <string name="max_plugins_cond_missing_title">Manifesvouer bestaan ​​nog nie</string>
+    <string name="max_plugins_cond_missing_detail">%1$s is nie op hierdie toestel geskep nie, so daar is niks om te lees nie. Om dit te skep is al wat \'n inprop-outeur moet doen.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifesvouer kan nie gelees word nie</string>
+    <string name="max_plugins_cond_unreadable_detail">Die vouer bestaan ​​by %1$s maar die dop kon dit nie lees nie. Root is nodig om dit te lys.</string>
+    <string name="max_plugins_reason_BadId">Die id is nie bruikbaar as \'n gidsnaam nie. Gebruik klein Latynse letters, syfers, kolletjies, strepies of onderstrepe, en nooit twee kolletjies in \'n ry nie.</string>
+    <string name="max_plugins_reason_MissingName">Die manifes verklaar geen naam nie.</string>
+    <string name="max_plugins_reason_BadVersion">Die weergawe moet met syfers begin, byvoorbeeld 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Die verklaarde API-vlak ontbreek of is onder 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Die verklaarde API-vlak is nuwer as wat hierdie gebou verstaan, so dit word glad nie uitgevoer nie.</string>
+    <string name="max_plugins_reason_MissingKind">Die manifes verklaar geen soort nie.</string>
+    <string name="max_plugins_reason_UnknownKind">Die soort is nie een van die gepubliseerde soorte nie.</string>
+    <string name="max_plugins_reason_UnknownCapability">Die vermoë is nie deel van hierdie kontrak nie. \'n Onbekende vermoë word eerder geweier as geïgnoreer, so niks loop met minder regte as waarvoor dit gevra is nie.</string>
+    <string name="max_plugins_reason_NoCapabilities">\'n Inprop moet ten minste een vermoë verklaar.</string>
+    <string name="max_plugins_reason_DuplicateId">Nog \'n inprop met hierdie ID is reeds aanvaar, so hierdie een word nie gebruik nie.</string>
+    <string name="max_plugins_help_title">Hoekom enigsins \'n kontrak</string>
+    <string name="max_plugins_help_body">Sonder \'n gepubliseerde kontrak moet enigiemand wat hierdie toepassing uitbrei die vorm van ons interne lêers raai, en ons kan nie \'n geldige uitbreiding van \'n stukkende een onderskei nie. Daarmee word die limiet gestel: \'n plugin verklaar voorneme en lees; dit skryf nooit hardeware nie, en elke weiering hierbo noem die presiese veld wat misluk het.</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Üçüncü tərəf plaginləri</string>
+    <string name="max_plugins_subtitle">Nəşr edilmiş müqavilə: plagin nəyi bəyan edə bilər və burada nə qəbul edilib, nə də rədd edilib.</string>
+    <string name="max_plugins_section_contract">Müqavilə</string>
+    <string name="max_plugins_contract_api">API səviyyəsi %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest qovluğu</string>
+    <string name="max_plugins_contract_rules">Elan edilmiş qabiliyyət ya oxunuş, ya da təklifdir. Qəsdən avadanlıq yazan heç bir qabiliyyət yoxdur: bu proqramdakı hər yazı arbitrdən keçir və birbaşa yaza bilən plagin iki sahibin eyni düyməni yazmasını dayandırmaq üçün qurulmuş qoruyucunu çıxaracaq.</string>
+    <string name="max_plugins_contract_keys">Manifestdən oxunan açarlar</string>
+    <string name="max_plugins_contract_kinds">Qəbul edilən növlər</string>
+    <string name="max_plugins_contract_capabilities">Qəbul edilmiş imkanlar</string>
+    <string name="max_plugins_template">Manifest şablonu</string>
+    <string name="max_plugins_template_note">Bu mətn təhlilçinin oxuduğu mətndir. O, koddan uzaqlaşa bilməz, çünki ondan yaradılır.</string>
+    <string name="max_plugins_copy_template">Şablonu kopyalayın</string>
+    <string name="max_plugins_template_copied">Şablon kopyalandı</string>
+    <string name="max_plugins_section_installed">Bu cihazda tapıldı</string>
+    <string name="max_plugins_loading_title">Plugin qovluğu oxunur</string>
+    <string name="max_plugins_loading_detail">Kök ilə manifest qovluğunu siyahıya salın, sonra hər bir manifesti müqaviləyə uyğun olaraq qiymətləndirin.</string>
+    <string name="max_plugins_accepted_count">%1$d qəbul edildi</string>
+    <string name="max_plugins_rejected_count">%1$d imtina etdi</string>
+    <string name="max_plugins_unreadable_count">oxuna bilən manifest olmayan %1$d qovluğu</string>
+    <string name="max_plugins_rejected_section">Dəqiq səbəbi ilə imtina etdi</string>
+    <string name="max_plugins_detail_label">elan etdi</string>
+    <string name="max_plugins_refresh_cd">Plugin qovluğunu yenidən oxuyun</string>
+    <string name="max_plugins_capability_source">Plugin tərəfindən bildirildi, bizim tərəfimizdən ölçülmədi</string>
+    <string name="max_plugins_cond_empty_title">Heç bir plagin quraşdırılmayıb</string>
+    <string name="max_plugins_cond_empty_detail">Manifest qovluğunda heç bir plagin qovluğu yoxdur. Səhv bir şey yoxdur: bu xüsusiyyətin standart vəziyyətidir.</string>
+    <string name="max_plugins_cond_missing_title">Manifest qovluğu hələ mövcud deyil</string>
+    <string name="max_plugins_cond_missing_detail">%1$s bu cihazda yaradılmayıb, ona görə də oxumaq üçün heç nə yoxdur. Onu yaratmaq plagin müəllifinin etməli olduğu hər şeydir.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifest qovluğunu oxumaq olmur</string>
+    <string name="max_plugins_cond_unreadable_detail">Qovluq %1$s-də mövcuddur, lakin qabıq onu oxuya bilmədi. Onu siyahıya salmaq üçün kök tələb olunur.</string>
+    <string name="max_plugins_reason_BadId">İd qovluq adı kimi istifadə edilə bilməz. Kiçik Latın hərflərindən, rəqəmlərdən, nöqtələrdən, tirelərdən və ya alt xəttlərdən istifadə edin və heç vaxt ardıcıl olaraq iki nöqtə qoymayın.</string>
+    <string name="max_plugins_reason_MissingName">Manifestdə ad açıqlanmır.</string>
+    <string name="max_plugins_reason_BadVersion">Versiya rəqəmlərlə başlamalıdır, məsələn 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Elan edilmiş API səviyyəsi yoxdur və ya 1-dən aşağıdır.</string>
+    <string name="max_plugins_reason_ApiTooNew">Elan edilmiş API səviyyəsi bu quruluşun başa düşdüyündən daha yenidir, ona görə də ümumiyyətlə işlədilmir.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest heç bir növ bəyan etmir.</string>
+    <string name="max_plugins_reason_UnknownKind">Növ nəşr olunan növlərdən biri deyil.</string>
+    <string name="max_plugins_reason_UnknownCapability">Bacarıq bu müqavilənin bir hissəsi deyil. Naməlum bir qabiliyyət rədd edilmək əvəzinə rədd edilir, buna görə də heç bir şey tələb olunduğundan daha az hüquqla işləmir.</string>
+    <string name="max_plugins_reason_NoCapabilities">Plugin ən azı bir qabiliyyət elan etməlidir.</string>
+    <string name="max_plugins_reason_DuplicateId">Bu id ilə başqa plagin artıq qəbul edilib, ona görə də bu istifadə edilmir.</string>
+    <string name="max_plugins_help_title">Niyə ümumiyyətlə müqavilə</string>
+    <string name="max_plugins_help_body">Yayımlanmış müqavilə olmadan, bu proqramı genişləndirən hər kəs daxili fayllarımızın formasını təxmin etməlidir və biz pozulmuş olandan etibarlı genişləndirməni ayıra bilmərik. Bununla, limit ifadə edilir: bir plagin niyyəti elan edir və oxuyur; o, heç vaxt hardware yazmır və yuxarıdakı hər bir imtina uğursuz olan sahəni dəqiq adlandırır.</string>
+</resources>

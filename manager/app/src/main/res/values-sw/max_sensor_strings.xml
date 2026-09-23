@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Vitambuzi vilivyoripotiwa na kifaa hiki</string>
+    <string name="max_sensor_desc">Kile ambacho jukwaa hutangaza kuhusu maunzi yake yenyewe, pamoja na usomaji mmoja mwepesi. Hakuna urekebishaji na hakuna alama za afya: zote mbili zingehitaji rejeleo la kimwili ambalo hatuna.</string>
+    <string name="max_sensor_service">Huduma ya sensor</string>
+    <string name="max_sensor_service_unavailable">haikuweza kufikiwa</string>
+    <string name="max_sensor_count">Vitambuzi vimeripotiwa</string>
+    <string name="max_sensor_kinds">Kategoria zilizopo</string>
+    <string name="max_sensor_wakeup">Vihisi vya kuamka (ripoti kifaa kinapolala)</string>
+    <string name="max_sensor_light">Mwanga wa mazingira</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">kifaa hiki kinaripoti hakuna kihisi mwanga</string>
+    <string name="max_sensor_light_unreadable">hakuna usomaji uliofika kabla ya muda kuisha - haijulikani, sio sifuri</string>
+    <string name="max_sensor_more">…na %1$s zaidi</string>
+    <string name="max_sensor_no_score">Majina, safu na ucheleweshaji hutoka kwenye jukwaa. Kihisi ambacho kinaripoti si uthibitisho kuwa ni sahihi.</string>
+    <string name="max_sensor_kind_motion">Mwendo</string>
+    <string name="max_sensor_kind_environment">Mazingira</string>
+    <string name="max_sensor_kind_position">Nafasi</string>
+    <string name="max_sensor_kind_body">Mwili</string>
+    <string name="max_sensor_kind_unpositioned">Haijawekwa</string>
+    <string name="max_sensor_kind_other">Nyingine</string>
+</resources>

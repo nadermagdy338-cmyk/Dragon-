@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">סטודיו ביצועים</string>
+    <string name="studio_cpu_frequency">CPU תדירות</string>
+    <string name="studio_load_history">פעילות CPU אחרונה</string>
+    <string name="studio_waiting_samples">אוסף קריאות בשידור חי...</string>
+    <string name="studio_automatic_profile">מצב אוטומטי מנהל את הפרופיל הפעיל.</string>
+    <string name="studio_temperature">טֶמפֶּרָטוּרָה</string>
+    <string name="studio_display">לְהַצִיג</string>
+    <string name="studio_power">אפשרויות כוח</string>
+    <string name="studio_settings">הגדרות</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Tashqi ko\'rinish va interfeys</string>
+    <string name="max_cfg_backup_app_prefs">Ilova sozlamalari va tili</string>
+    <string name="max_cfg_declared_absent_title">Kirilmaydi va nima uchun</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">bu qurilmada tasdiqlangan ildiz yo\'q, shuning uchun qiymatlarni ishonchli o\'qib bo\'lmaydi</string>
+    <string name="max_cfg_absent_file_missing">afzal fayl hali mavjud emas</string>
+    <string name="max_cfg_absent_empty">afzal fayl mavjud, lekin bo\'sh, shuning uchun yozish uchun hech narsa yo\'q</string>
+    <string name="max_cfg_declared_excluded_title">Hech qachon bu faylga kiritilmagan</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Xavfsizlik sozlamalari ilova ichida sozlangan, hech qachon faylda saqlanmagan</string>
+    <string name="max_cfg_excluded_other_apps">boshqa ilovalarning ma\'lumotlari dastur zahirasiga tegishli, konfiguratsiya zahirasiga emas</string>
+    <string name="max_cfg_excluded_secret">imzolash kalitlari va sirlari hech qachon siz baham ko\'rishingiz mumkin bo\'lgan faylga yozilmaydi</string>
+    <string name="max_cfg_section_tweaks">Konfiguratsiyani sozlash</string>
+    <string name="max_cfg_section_applist">Har bir ilova ro\'yxati</string>
+    <string name="max_cfg_section_appearance">Tashqi ko\'rinish va interfeys</string>
+    <string name="max_cfg_section_app_prefs">Ilova sozlamalari va tili</string>
+    <string name="max_cfg_restore_merge_note">Afzalliklarni tiklash birlashadi: faylda mavjud bo\'lgan kalitlar yoziladi va unda eslatilmagan kalitlar o\'z holicha qoladi. Hech narsa tozalanmagan.</string>
+</resources>

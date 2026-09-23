@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">তৃতীয় পক্ষৰ প্লাগইনসমূহ</string>
+    <string name="max_plugins_subtitle">প্ৰকাশিত চুক্তি: এটা প্লাগ-ইনে কি ঘোষণা কৰিব পাৰে, আৰু ইয়াত কি গ্ৰহণ কৰা হৈছিল বা নাকচ কৰা হৈছিল।</string>
+    <string name="max_plugins_section_contract">চুক্তিখন</string>
+    <string name="max_plugins_contract_api">এপিআই স্তৰ %1$d</string>
+    <string name="max_plugins_contract_dir">মেনিফেষ্ট ফোল্ডাৰ</string>
+    <string name="max_plugins_contract_rules">ঘোষিত সামৰ্থ্য হয় পঢ়া নহয় প্ৰস্তাৱ। ইচ্ছাকৃতভাৱে হাৰ্ডৱেৰ লিখা কোনো ক্ষমতা নাই: এই এপটোৰ প্ৰতিটো লিখা আৰ্বিটাৰৰ মাজেৰে যায়, আৰু পোনপটীয়াকৈ লিখিব পৰা এটা প্লাগিনে দুজন মালিকে একেটা নব লিখা বন্ধ কৰিবলৈ নিৰ্মিত গাৰ্ডটো আঁতৰাই পেলাব।</string>
+    <string name="max_plugins_contract_keys">এটা মেনিফেষ্টৰ পৰা পঢ়া চাবি</string>
+    <string name="max_plugins_contract_kinds">গ্ৰহণযোগ্য ধৰণৰ</string>
+    <string name="max_plugins_contract_capabilities">গ্ৰহণযোগ্য ক্ষমতাসমূহ</string>
+    <string name="max_plugins_template">মেনিফেষ্ট টেমপ্লেট</string>
+    <string name="max_plugins_template_note">এই লিখনীটোৱেই হৈছে পাৰ্চাৰে পঢ়ে। ই ক’ডৰ পৰা ড্ৰিফ্ট কৰিব নোৱাৰে, কাৰণ ই ইয়াৰ পৰাই সৃষ্টি হয়।</string>
+    <string name="max_plugins_copy_template">সাঁচটো কপি কৰক</string>
+    <string name="max_plugins_template_copied">টেমপ্লেট কপি কৰা হৈছে</string>
+    <string name="max_plugins_section_installed">এই ডিভাইচত পোৱা গৈছে</string>
+    <string name="max_plugins_loading_title">প্লাগইন ফোল্ডাৰ পঢ়ি থকা</string>
+    <string name="max_plugins_loading_detail">ৰূটৰ সৈতে মেনিফেষ্ট ফোল্ডাৰ তালিকাভুক্ত কৰা, তাৰ পিছত প্ৰতিটো মেনিফেষ্ট চুক্তিৰ বিপৰীতে মূল্যায়ন কৰা।</string>
+    <string name="max_plugins_accepted_count">%1$d গ্ৰহণ কৰা হৈছে</string>
+    <string name="max_plugins_rejected_count">%1$d নাকচ কৰিলে</string>
+    <string name="max_plugins_unreadable_count">%1$d ফোল্ডাৰত পঢ়িব পৰা মেনিফেষ্ট নাই</string>
+    <string name="max_plugins_rejected_section">নাকচ কৰিলে, সঠিক কাৰণটোৰ সৈতে</string>
+    <string name="max_plugins_detail_label">ঘোষণা কৰা হৈছে</string>
+    <string name="max_plugins_refresh_cd">প্লাগইন ফোল্ডাৰ পুনৰ পঢ়ক</string>
+    <string name="max_plugins_capability_source">প্লাগইনৰ দ্বাৰা প্ৰতিবেদন কৰা হৈছে, আমাৰ দ্বাৰা জুখিব পৰা নাই</string>
+    <string name="max_plugins_cond_empty_title">কোনো প্লাগইন ইনষ্টল কৰা হোৱা নাই</string>
+    <string name="max_plugins_cond_empty_detail">মেনিফেষ্ট ফোল্ডাৰত কোনো প্লাগইন ফোল্ডাৰ নাথাকে। একো ভুল নাই: এইটো বৈশিষ্ট্যৰ অবিকল্পিত অৱস্থা।</string>
+    <string name="max_plugins_cond_missing_title">Manifest ফোল্ডাৰ এতিয়াও নাই</string>
+    <string name="max_plugins_cond_missing_detail">এই ডিভাইচত %1$s সৃষ্টি কৰা হোৱা নাই, গতিকে পঢ়িবলৈ একো নাই। ইয়াক সৃষ্টি কৰাটোৱেই হৈছে এজন প্লাগইন লেখকে কৰিবলগীয়া সকলো।</string>
+    <string name="max_plugins_cond_unreadable_title">মেনিফেষ্ট ফোল্ডাৰ পঢ়িব নোৱাৰি</string>
+    <string name="max_plugins_cond_unreadable_detail">ফোল্ডাৰটো %1$s ত আছে কিন্তু শ্বেলে ইয়াক পঢ়িব পৰা নাছিল। ইয়াক তালিকাভুক্ত কৰিবলৈ ৰুটৰ প্ৰয়োজন।</string>
+    <string name="max_plugins_reason_BadId">id টো ফোল্ডাৰৰ নাম হিচাপে ব্যৱহাৰযোগ্য নহয়। ক্ষুদ্ৰ লেটিন আখৰ, সংখ্যা, বিন্দু, ডেচ বা আণ্ডাৰস্কোৰ ব্যৱহাৰ কৰক, আৰু কেতিয়াও একেৰাহে দুটা বিন্দু ব্যৱহাৰ নকৰিব।</string>
+    <string name="max_plugins_reason_MissingName">মেনিফেষ্টে কোনো নাম ঘোষণা নকৰে।</string>
+    <string name="max_plugins_reason_BadVersion">সংস্কৰণটো সংখ্যাৰ সৈতে আৰম্ভ হব লাগিব, উদাহৰণস্বৰূপ 1.0.0 ।</string>
+    <string name="max_plugins_reason_ApiTooOld">ঘোষিত API স্তৰ অনুপস্থিত বা 1 ৰ তলত।</string>
+    <string name="max_plugins_reason_ApiTooNew">ঘোষিত API স্তৰ এই বিল্ডে বুজি পোৱাতকৈ নতুন, গতিকে ইয়াক একেবাৰেই চলোৱা নহয়।</string>
+    <string name="max_plugins_reason_MissingKind">মেনিফেষ্টে কোনো ধৰণৰ ঘোষণা নকৰে।</string>
+    <string name="max_plugins_reason_UnknownKind">প্ৰকাৰটো প্ৰকাশিত প্ৰকাৰৰ ভিতৰত এটা নহয়।</string>
+    <string name="max_plugins_reason_UnknownCapability">সামৰ্থ্য এই চুক্তিৰ অংশ নহয়। এটা অজ্ঞাত সামৰ্থ্যক আওকাণ কৰাতকৈ নাকচ কৰা হয়, গতিকে একোৱেই বিচৰাতকৈ কম অধিকাৰেৰে চলিব নোৱাৰে।</string>
+    <string name="max_plugins_reason_NoCapabilities">এটা প্লাগ-ইনে অন্ততঃ এটা ক্ষমতা ঘোষণা কৰিব লাগিব।</string>
+    <string name="max_plugins_reason_DuplicateId">এই id ৰ সৈতে আন এটা প্লাগইন ইতিমধ্যে গ্ৰহণ কৰা হৈছিল, গতিকে এইটো ব্যৱহাৰ কৰা হোৱা নাই।</string>
+    <string name="max_plugins_help_title">কিয় এটা চুক্তি আচলতে</string>
+    <string name="max_plugins_help_body">প্ৰকাশিত চুক্তি অবিহনে এই এপটো সম্প্ৰসাৰণ কৰা যিকোনো ব্যক্তিয়ে আমাৰ আভ্যন্তৰীণ ফাইলৰ আকৃতি অনুমান কৰিব লাগিব, আৰু আমি ভঙা ফাইলৰ পৰা বৈধ সম্প্ৰসাৰণ ক’ব নোৱাৰো। ইয়াৰ সৈতে, সীমা কোৱা হৈছে: এটা প্লাগ-ইনে উদ্দেশ্য ঘোষণা কৰে আৰু পঢ়ে; ই কেতিয়াও হাৰ্ডৱেৰ লিখে, আৰু ওপৰৰ প্ৰতিটো প্ৰত্যাখ্যানে বিফল হোৱা সঠিক ক্ষেত্ৰখনৰ নাম দিয়ে।</string>
+</resources>

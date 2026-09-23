@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">اس ڈیوائس کے ذریعہ رپورٹ کردہ سینسر</string>
+    <string name="max_sensor_desc">پلیٹ فارم اپنے ہارڈ ویئر کے بارے میں کیا اعلان کرتا ہے، نیز ایک پابند لائٹ ریڈنگ۔ کوئی انشانکن اور صحت کا کوئی سکور نہیں: دونوں کو جسمانی حوالہ کی ضرورت ہوگی جو ہمارے پاس نہیں ہے۔</string>
+    <string name="max_sensor_service">سینسر سروس</string>
+    <string name="max_sensor_service_unavailable">تک نہیں پہنچ سکا</string>
+    <string name="max_sensor_count">سینسر نے اطلاع دی۔</string>
+    <string name="max_sensor_kinds">زمرہ جات موجود ہیں۔</string>
+    <string name="max_sensor_wakeup">جاگنے والے سینسر (آلہ کے سوتے وقت رپورٹ کریں)</string>
+    <string name="max_sensor_light">محیطی روشنی</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">یہ آلہ کسی روشنی سینسر کی اطلاع نہیں دیتا ہے۔</string>
+    <string name="max_sensor_light_unreadable">ٹائم آؤٹ سے پہلے کوئی ریڈنگ نہیں پہنچی — نامعلوم، صفر نہیں۔</string>
+    <string name="max_sensor_more">…اور %1$s مزید</string>
+    <string name="max_sensor_no_score">نام، حدود اور تاخیر پلیٹ فارم سے آتے ہیں۔ ایک سینسر جو رپورٹ کرتا ہے اس کا ثبوت نہیں ہے کہ یہ درست ہے۔</string>
+    <string name="max_sensor_kind_motion">حرکت</string>
+    <string name="max_sensor_kind_environment">ماحولیات</string>
+    <string name="max_sensor_kind_position">پوزیشن</string>
+    <string name="max_sensor_kind_body">جسم</string>
+    <string name="max_sensor_kind_unpositioned">بے پوزیشن</string>
+    <string name="max_sensor_kind_other">دیگر</string>
+</resources>

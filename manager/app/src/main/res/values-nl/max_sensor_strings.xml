@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Sensoren gerapporteerd door dit apparaat</string>
+    <string name="max_sensor_desc">Wat het platform verklaart over zijn eigen hardware, plus één begrensde lichtmeting. Geen kalibratie en geen gezondheidsscore: beide hebben een fysieke referentie nodig die we niet hebben.</string>
+    <string name="max_sensor_service">Sensorservice</string>
+    <string name="max_sensor_service_unavailable">kon niet worden bereikt</string>
+    <string name="max_sensor_count">Sensoren gerapporteerd</string>
+    <string name="max_sensor_kinds">Categorieën aanwezig</string>
+    <string name="max_sensor_wakeup">Weksensoren (rapporteren terwijl het apparaat slaapt)</string>
+    <string name="max_sensor_light">Omgevingslicht</string>
+    <string name="max_sensor_unit_lux">luxe</string>
+    <string name="max_sensor_light_absent">dit apparaat meldt geen lichtsensor</string>
+    <string name="max_sensor_light_unreadable">er is geen meting binnengekomen vóór de time-out: onbekend, niet nul</string>
+    <string name="max_sensor_more">…en %1$s meer</string>
+    <string name="max_sensor_no_score">Namen, bereiken en vertragingen komen van het platform. Een sensor die rapporteert, is geen bewijs dat deze nauwkeurig is.</string>
+    <string name="max_sensor_kind_motion">Beweging</string>
+    <string name="max_sensor_kind_environment">Omgeving</string>
+    <string name="max_sensor_kind_position">Positie</string>
+    <string name="max_sensor_kind_body">Lichaam</string>
+    <string name="max_sensor_kind_unpositioned">Niet gepositioneerd</string>
+    <string name="max_sensor_kind_other">Ander</string>
+</resources>

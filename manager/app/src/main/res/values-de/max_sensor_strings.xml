@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Von diesem Gerät gemeldete Sensoren</string>
+    <string name="max_sensor_desc">Was die Plattform über ihre eigene Hardware erklärt, plus eine begrenzte Lichtmessung. Keine Kalibrierung und kein Gesundheitswert: beides bräuchte eine physische Referenz, die wir nicht haben.</string>
+    <string name="max_sensor_service">Sensordienst</string>
+    <string name="max_sensor_service_unavailable">war nicht erreichbar</string>
+    <string name="max_sensor_count">Gemeldete Sensoren</string>
+    <string name="max_sensor_kinds">Vorhandene Kategorien</string>
+    <string name="max_sensor_wakeup">Aufwecksensoren (melden sich, während das Gerät schläft)</string>
+    <string name="max_sensor_light">Umgebungshelligkeit</string>
+    <string name="max_sensor_unit_lux">Lux</string>
+    <string name="max_sensor_light_absent">dieses Gerät meldet keinen Lichtsensor</string>
+    <string name="max_sensor_light_unreadable">keine Messung vor dem Timeout eingegangen — unbekannt, nicht null</string>
+    <string name="max_sensor_more">…und %1$s weitere</string>
+    <string name="max_sensor_no_score">Namen, Bereiche und Verzögerungen kommen von der Plattform. Dass ein Sensor sich meldet, ist kein Beweis, dass er genau ist.</string>
+    <string name="max_sensor_kind_motion">Bewegung</string>
+    <string name="max_sensor_kind_environment">Umgebung</string>
+    <string name="max_sensor_kind_position">Position</string>
+    <string name="max_sensor_kind_body">Körper</string>
+    <string name="max_sensor_kind_unpositioned">Unpositioniert</string>
+    <string name="max_sensor_kind_other">Sonstige</string>
+</resources>

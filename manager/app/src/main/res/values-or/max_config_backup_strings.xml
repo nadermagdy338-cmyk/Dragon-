@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">ଦୃଶ୍ୟ ଏବଂ ଇଣ୍ଟରଫେସ୍ |</string>
+    <string name="max_cfg_backup_app_prefs">ଆପ୍ ପସନ୍ଦ ଏବଂ ଭାଷା |</string>
+    <string name="max_cfg_declared_absent_title">ଅନ୍ତର୍ଭୂକ୍ତ ହେବ ନାହିଁ, ଏବଂ କାହିଁକି?</string>
+    <string name="max_cfg_declared_absent_line">• %1$s - %2$s |</string>
+    <string name="max_cfg_absent_no_root">ଏହି ଡିଭାଇସର କ ified ଣସି ଯାଞ୍ଚ ମୂଳ ନାହିଁ, ତେଣୁ ମୂଲ୍ୟଗୁଡ଼ିକ ନିର୍ଭରଯୋଗ୍ୟ ଭାବରେ ପ read ିହେବ ନାହିଁ |</string>
+    <string name="max_cfg_absent_file_missing">ପସନ୍ଦ ଫାଇଲ ଏପର୍ଯ୍ୟନ୍ତ ବିଦ୍ୟମାନ ନାହିଁ |</string>
+    <string name="max_cfg_absent_empty">ପ୍ରିଫରେନ୍ସ ଫାଇଲ୍ ବିଦ୍ୟମାନ ଅଛି କିନ୍ତୁ ଖାଲି ଅଛି, ତେଣୁ ଲେଖିବାକୁ କିଛି ନାହିଁ |</string>
+    <string name="max_cfg_declared_excluded_title">ଏହି ଫାଇଲରେ କେବେବି ଅନ୍ତର୍ଭୂକ୍ତ କରାଯାଇ ନାହିଁ |</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s - %2$s |</string>
+    <string name="max_cfg_excluded_safety">Max AI ସୁରକ୍ଷା ସେଟିଂସମୂହ ଆପ୍ ଭିତରେ ବିନ୍ୟାସିତ ହୋଇଛି, କ never ଣସି ଫାଇଲରେ କେବେବି ନିଆଯିବ ନାହିଁ |</string>
+    <string name="max_cfg_excluded_other_apps">ଅନ୍ୟ ଆପ୍ସର ତଥ୍ୟ ଆପ୍ ବ୍ୟାକଅପ୍ ଅଟେ, କନଫିଗ୍ ବ୍ୟାକଅପ୍ ନୁହେଁ |</string>
+    <string name="max_cfg_excluded_secret">ଚାବି ଏବଂ ରହସ୍ୟ ସାଇନ୍ କରିବା କ never ଣସି ଫାଇଲରେ ଲେଖାଯାଇ ନାହିଁ ଯାହାକୁ ଆପଣ ଅଂଶୀଦାର କରିପାରିବେ |</string>
+    <string name="max_cfg_section_tweaks">ଟ୍ୱିକ୍ ବିନ୍ୟାସକରଣ |</string>
+    <string name="max_cfg_section_applist">ପ୍ରତି ଆପ୍ ତାଲିକା |</string>
+    <string name="max_cfg_section_appearance">ଦୃଶ୍ୟ ଏବଂ ଇଣ୍ଟରଫେସ୍ |</string>
+    <string name="max_cfg_section_app_prefs">ଆପ୍ ପସନ୍ଦ ଏବଂ ଭାଷା |</string>
+    <string name="max_cfg_restore_merge_note">ଅଗ୍ରାଧିକାରଗୁଡିକ ପୁନ oring ସ୍ଥାପନ ମିଶ୍ରଣ: ଫାଇଲରେ ଉପସ୍ଥିତ ଚାବିଗୁଡ଼ିକ ଲେଖା ହୋଇଛି, ଏବଂ ଚାବିଗୁଡ଼ିକ ସେପରି ରହିବା ବିଷୟରେ ଉଲ୍ଲେଖ କରେ ନାହିଁ · କିଛି ସଫା ହୋଇନାହିଁ</string>
+</resources>

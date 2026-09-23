@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">ಗೋಚರತೆ ಮತ್ತು ಇಂಟರ್ಫೇಸ್</string>
+    <string name="max_cfg_backup_app_prefs">ಅಪ್ಲಿಕೇಶನ್ ಆದ್ಯತೆಗಳು ಮತ್ತು ಭಾಷೆ</string>
+    <string name="max_cfg_declared_absent_title">ಸೇರಿಸಲಾಗುವುದಿಲ್ಲ, ಮತ್ತು ಏಕೆ</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ಈ ಸಾಧನವು ಪರಿಶೀಲಿಸಿದ ಮೂಲವನ್ನು ಹೊಂದಿಲ್ಲ, ಆದ್ದರಿಂದ ಮೌಲ್ಯಗಳನ್ನು ವಿಶ್ವಾಸಾರ್ಹವಾಗಿ ಓದಲಾಗುವುದಿಲ್ಲ</string>
+    <string name="max_cfg_absent_file_missing">ಆದ್ಯತೆಯ ಫೈಲ್ ಇನ್ನೂ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ</string>
+    <string name="max_cfg_absent_empty">ಆದ್ಯತೆಯ ಫೈಲ್ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ ಆದರೆ ಖಾಲಿಯಾಗಿದೆ, ಆದ್ದರಿಂದ ಬರೆಯಲು ಏನೂ ಇಲ್ಲ</string>
+    <string name="max_cfg_declared_excluded_title">ಈ ಫೈಲ್‌ನಲ್ಲಿ ಎಂದಿಗೂ ಸೇರಿಸಲಾಗಿಲ್ಲ</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI ಸುರಕ್ಷತಾ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿ ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿದೆ, ಎಂದಿಗೂ ಫೈಲ್‌ನಲ್ಲಿ ಸಾಗಿಸುವುದಿಲ್ಲ</string>
+    <string name="max_cfg_excluded_other_apps">ಇತರ ಅಪ್ಲಿಕೇಶನ್‌ಗಳ ಡೇಟಾವು ಅಪ್ಲಿಕೇಶನ್ ಬ್ಯಾಕಪ್‌ಗೆ ಸೇರಿದೆ, ಕಾನ್ಫಿಗರ್ ಬ್ಯಾಕಪ್ ಅಲ್ಲ</string>
+    <string name="max_cfg_excluded_secret">ನೀವು ಹಂಚಿಕೊಳ್ಳಬಹುದಾದ ಫೈಲ್‌ಗೆ ಸಹಿ ಮಾಡುವ ಕೀಗಳು ಮತ್ತು ರಹಸ್ಯಗಳನ್ನು ಎಂದಿಗೂ ಬರೆಯಲಾಗುವುದಿಲ್ಲ</string>
+    <string name="max_cfg_section_tweaks">ಟ್ವೀಕ್ ಕಾನ್ಫಿಗರೇಶನ್</string>
+    <string name="max_cfg_section_applist">ಪ್ರತಿ ಅಪ್ಲಿಕೇಶನ್ ಪಟ್ಟಿ</string>
+    <string name="max_cfg_section_appearance">ಗೋಚರತೆ ಮತ್ತು ಇಂಟರ್ಫೇಸ್</string>
+    <string name="max_cfg_section_app_prefs">ಅಪ್ಲಿಕೇಶನ್ ಆದ್ಯತೆಗಳು ಮತ್ತು ಭಾಷೆ</string>
+    <string name="max_cfg_restore_merge_note">ಪ್ರಾಶಸ್ತ್ಯಗಳನ್ನು ಮರುಸ್ಥಾಪಿಸುವುದು ವಿಲೀನಗೊಳ್ಳುತ್ತದೆ: ಫೈಲ್‌ನಲ್ಲಿ ಇರುವ ಕೀಲಿಗಳನ್ನು ಬರೆಯಲಾಗಿದೆ ಮತ್ತು ಕೀಗಳು ಹಾಗೆಯೇ ಇರುವುದನ್ನು ಉಲ್ಲೇಖಿಸುವುದಿಲ್ಲ. ಯಾವುದನ್ನೂ ತೆರವುಗೊಳಿಸಲಾಗಿಲ್ಲ.</string>
+</resources>

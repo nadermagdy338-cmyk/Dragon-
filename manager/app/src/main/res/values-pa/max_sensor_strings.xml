@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">ਇਸ ਡਿਵਾਈਸ ਦੁਆਰਾ ਸੂਚਿਤ ਕੀਤੇ ਗਏ ਸੈਂਸਰ</string>
+    <string name="max_sensor_desc">ਪਲੇਟਫਾਰਮ ਆਪਣੇ ਖੁਦ ਦੇ ਹਾਰਡਵੇਅਰ ਬਾਰੇ ਕੀ ਐਲਾਨ ਕਰਦਾ ਹੈ, ਨਾਲ ਹੀ ਇੱਕ ਸੀਮਾਬੱਧ ਲਾਈਟ ਰੀਡਿੰਗ। ਕੋਈ ਕੈਲੀਬ੍ਰੇਸ਼ਨ ਅਤੇ ਕੋਈ ਸਿਹਤ ਸਕੋਰ ਨਹੀਂ: ਦੋਵਾਂ ਨੂੰ ਇੱਕ ਭੌਤਿਕ ਸੰਦਰਭ ਦੀ ਲੋੜ ਹੋਵੇਗੀ ਜੋ ਸਾਡੇ ਕੋਲ ਨਹੀਂ ਹੈ।</string>
+    <string name="max_sensor_service">ਸੈਂਸਰ ਸੇਵਾ</string>
+    <string name="max_sensor_service_unavailable">ਪਹੁੰਚਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ</string>
+    <string name="max_sensor_count">ਸੈਂਸਰਾਂ ਨੇ ਰਿਪੋਰਟ ਦਿੱਤੀ</string>
+    <string name="max_sensor_kinds">ਸ਼੍ਰੇਣੀਆਂ ਮੌਜੂਦ ਹਨ</string>
+    <string name="max_sensor_wakeup">ਵੇਕ-ਅੱਪ ਸੈਂਸਰ (ਡਿਵਾਈਸ ਦੇ ਸੌਣ ਵੇਲੇ ਰਿਪੋਰਟ ਕਰੋ)</string>
+    <string name="max_sensor_light">ਅੰਬੀਨਟ ਰੋਸ਼ਨੀ</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">ਇਹ ਡਿਵਾਈਸ ਲਾਈਟ ਸੈਂਸਰ ਦੀ ਰਿਪੋਰਟ ਨਹੀਂ ਕਰਦੀ ਹੈ</string>
+    <string name="max_sensor_light_unreadable">ਟਾਈਮਆਉਟ ਤੋਂ ਪਹਿਲਾਂ ਕੋਈ ਰੀਡਿੰਗ ਨਹੀਂ ਆਈ — ਅਣਜਾਣ, ਜ਼ੀਰੋ ਨਹੀਂ</string>
+    <string name="max_sensor_more">…ਅਤੇ %1$s ਹੋਰ</string>
+    <string name="max_sensor_no_score">ਨਾਮ, ਰੇਂਜ ਅਤੇ ਦੇਰੀ ਪਲੇਟਫਾਰਮ ਤੋਂ ਆਉਂਦੀਆਂ ਹਨ। ਇੱਕ ਸੈਂਸਰ ਜੋ ਰਿਪੋਰਟ ਕਰਦਾ ਹੈ ਇਸਦਾ ਸਬੂਤ ਨਹੀਂ ਹੈ ਕਿ ਇਹ ਸਹੀ ਹੈ।</string>
+    <string name="max_sensor_kind_motion">ਮੋਸ਼ਨ</string>
+    <string name="max_sensor_kind_environment">ਵਾਤਾਵਰਣ</string>
+    <string name="max_sensor_kind_position">ਸਥਿਤੀ</string>
+    <string name="max_sensor_kind_body">ਸਰੀਰ</string>
+    <string name="max_sensor_kind_unpositioned">ਅਸਥਾਈ</string>
+    <string name="max_sensor_kind_other">ਹੋਰ</string>
+</resources>

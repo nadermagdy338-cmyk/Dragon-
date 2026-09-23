@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Датчики, о которых сообщило это устройство</string>
+    <string name="max_sensor_desc">Что платформа заявляет о собственном оборудовании, плюс одно ограниченное легкое чтение. Никакой калибровки и никакой оценки состояния здоровья: для того и другого потребуется физический эталон, которого у нас нет.</string>
+    <string name="max_sensor_service">Сервис датчиков</string>
+    <string name="max_sensor_service_unavailable">не удалось связаться</string>
+    <string name="max_sensor_count">Датчики сообщили</string>
+    <string name="max_sensor_kinds">Категории присутствуют</string>
+    <string name="max_sensor_wakeup">Датчики пробуждения (сообщают, пока устройство спит)</string>
+    <string name="max_sensor_light">Окружающий свет</string>
+    <string name="max_sensor_unit_lux">люкс</string>
+    <string name="max_sensor_light_absent">это устройство сообщает об отсутствии датчика освещенности</string>
+    <string name="max_sensor_light_unreadable">до истечения таймаута не поступило ни одного чтения — неизвестно, не ноль</string>
+    <string name="max_sensor_more">…и %1$s ещё</string>
+    <string name="max_sensor_no_score">Имена, диапазоны и задержки поступают с платформы. Датчик, который сообщает, не является доказательством его точности.</string>
+    <string name="max_sensor_kind_motion">Движение</string>
+    <string name="max_sensor_kind_environment">Среда</string>
+    <string name="max_sensor_kind_position">Позиция</string>
+    <string name="max_sensor_kind_body">Тело</string>
+    <string name="max_sensor_kind_unpositioned">Непозиционированный</string>
+    <string name="max_sensor_kind_other">Другой</string>
+</resources>

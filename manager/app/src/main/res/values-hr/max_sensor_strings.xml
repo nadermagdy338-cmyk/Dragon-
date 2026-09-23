@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Senzori koje je prijavio ovaj uređaj</string>
+    <string name="max_sensor_desc">Ono što platforma deklarira o vlastitom hardveru, plus jedno ograničeno lagano čitanje. Nema kalibracije i zdravstvenog rezultata: za oboje bi bila potrebna fizička referenca koju nemamo.</string>
+    <string name="max_sensor_service">Servis senzora</string>
+    <string name="max_sensor_service_unavailable">nije se moglo doći</string>
+    <string name="max_sensor_count">Senzori prijavljeni</string>
+    <string name="max_sensor_kinds">Prisutne kategorije</string>
+    <string name="max_sensor_wakeup">Senzori za buđenje (javljaju dok uređaj spava)</string>
+    <string name="max_sensor_light">Ambijentalno svjetlo</string>
+    <string name="max_sensor_unit_lux">luks</string>
+    <string name="max_sensor_light_absent">ovaj uređaj ne javlja senzor svjetla</string>
+    <string name="max_sensor_light_unreadable">nijedno očitanje nije stiglo prije isteka vremena — nepoznato, nije nula</string>
+    <string name="max_sensor_more">…i još %1$s</string>
+    <string name="max_sensor_no_score">Imena, rasponi i kašnjenja dolaze s platforme. Senzor koji izvještava nije dokaz da je točan.</string>
+    <string name="max_sensor_kind_motion">Prijedlog</string>
+    <string name="max_sensor_kind_environment">okoliš</string>
+    <string name="max_sensor_kind_position">Položaj</string>
+    <string name="max_sensor_kind_body">Tijelo</string>
+    <string name="max_sensor_kind_unpositioned">Nepozicioniran</string>
+    <string name="max_sensor_kind_other">ostalo</string>
+</resources>

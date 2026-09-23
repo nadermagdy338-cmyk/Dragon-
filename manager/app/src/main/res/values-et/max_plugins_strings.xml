@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Kolmanda osapoole pistikprogrammid</string>
+    <string name="max_plugins_section_contract">Leping</string>
+    <string name="max_plugins_contract_api">API tase %1$d</string>
+    <string name="max_plugins_contract_dir">Manifesti kaust</string>
+    <string name="max_plugins_contract_rules">A declared capability is either a read or a proposal. Tahtlikult puudub riistvara kirjutamise võimalus: iga selle rakenduse kirjutamine läbib vahekohtuniku ja otse kirjutada oskav pistikprogramm eemaldaks kaitse, mis on ehitatud takistama kahte omanikku sama nuppu kirjutamast.</string>
+    <string name="max_plugins_contract_keys">Võtmed loetakse manifestist</string>
+    <string name="max_plugins_contract_kinds">Aktsepteeritud liigid</string>
+    <string name="max_plugins_contract_capabilities">Aktsepteeritud võimalused</string>
+    <string name="max_plugins_template">Manifesti mall</string>
+    <string name="max_plugins_template_note">Seda teksti loeb parser. It cannot drift from the code, because it is generated from it.</string>
+    <string name="max_plugins_copy_template">Kopeerige mall</string>
+    <string name="max_plugins_template_copied">Mall on kopeeritud</string>
+    <string name="max_plugins_section_installed">Leitud sellelt seadmelt</string>
+    <string name="max_plugins_loading_title">Plugina kausta lugemine</string>
+    <string name="max_plugins_accepted_count">%1$d vastu võetud</string>
+    <string name="max_plugins_rejected_count">%1$d keeldus</string>
+    <string name="max_plugins_unreadable_count">%1$d kaust ilma loetava manifestita</string>
+    <string name="max_plugins_rejected_section">Keeldus, täpse põhjusega</string>
+    <string name="max_plugins_detail_label">Deklareeritud</string>
+    <string name="max_plugins_refresh_cd">Lugege pistikprogrammi kaust uuesti</string>
+    <string name="max_plugins_capability_source">Pistikprogrammi teatas, meie ei mõõtnud</string>
+    <string name="max_plugins_cond_empty_title">Pluginaid pole installitud</string>
+    <string name="max_plugins_cond_empty_detail">Manifesti kaustas pole pistikprogrammide kaustu. Midagi pole valesti: see on funktsiooni vaikeolek.</string>
+    <string name="max_plugins_cond_missing_title">Manifesti kausta pole veel olemas</string>
+    <string name="max_plugins_cond_missing_detail">%1$s pole selles seadmes loodud, seega pole midagi lugeda. Selle loomine on kõik, mida plugina autor peab tegema.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifesti kausta ei saa lugeda</string>
+    <string name="max_plugins_cond_unreadable_detail">Kaust on olemas aadressil %1$s, kuid kest ei saanud seda lugeda. Selle loetlemiseks on vajalik juur.</string>
+    <string name="max_plugins_reason_BadId">ID ei ole kasutatav kausta nimena. Kasutage väiketähti ladina tähti, numbreid, punkte, sidekriipse või alakriipse ja mitte kunagi kahte punkti järjest.</string>
+    <string name="max_plugins_reason_MissingName">Manifest ei deklareeri nime.</string>
+    <string name="max_plugins_reason_BadVersion">Versioon peab algama numbritega, näiteks 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Deklareeritud API tase puudub või on alla 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Deklareeritud API tase on uuem, kui see järg mõistab, seega ei käitata seda üldse.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest deklareerib, et ei ole mingit laadi.</string>
+    <string name="max_plugins_reason_UnknownKind">Tüüp ei kuulu avaldatud tüüpide hulka.</string>
+    <string name="max_plugins_reason_UnknownCapability">Võime ei ole selle lepingu osa. Tundmatust võimalusest pigem keeldutakse kui ignoreeritakse, nii et miski ei tööta vähemate õigustega, kui küsitud.</string>
+    <string name="max_plugins_reason_NoCapabilities">Pistikprogramm peab deklareerima vähemalt ühe võimaluse.</string>
+    <string name="max_plugins_reason_DuplicateId">Teine selle ID-ga pistikprogramm võeti juba vastu, seega seda ei kasutata.</string>
+    <string name="max_plugins_help_title">Milleks üldse leping</string>
+    <string name="max_plugins_help_body">Ilma avaldatud lepinguta peab igaüks, kes seda rakendust laiendab, ära arvama meie sisemiste failide kuju ja me ei saa eristada kehtivat laiendit katkisest. Sellega on piirang märgitud: plugin deklareerib kavatsust ja loeb; see ei kirjuta kunagi riistvara ja iga ülaltoodud keeldumine nimetab täpselt välja, mis ebaõnnestus.</string>
+    <string name="max_plugins_subtitle">Avaldatud leping: mida pistikprogramm võib deklareerida ja mida siin aktsepteeriti või millest keelduti.</string>
+    <string name="max_plugins_loading_detail">Manifesti kausta loetlemine juurtega ja seejärel iga manifesti hindamine lepingu suhtes.</string>
+</resources>

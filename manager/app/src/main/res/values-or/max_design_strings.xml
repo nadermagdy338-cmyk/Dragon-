@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">ଲାଇଭ୍ |</string>
+    <string name="max_trust_stale">ଶେଷ ନମୁନା |</string>
+    <string name="max_trust_snapshot">ସ୍ନାପସଟ୍ |</string>
+    <string name="max_trust_unreadable">ପ reading ିବା ନାହିଁ |</string>
+    <string name="max_trust_unsupported">ସମର୍ଥିତ ନୁହେଁ |</string>
+    <string name="max_source_label">ଉତ୍ସ</string>
+    <string name="max_updated_label">ଅଦ୍ୟତନ କରାଯାଇଛି</string>
+    <string name="max_provenance_separator">"·"</string>
+    <string name="max_value_unavailable_a11y">କ value ଣସି ମୂଲ୍ୟ ଉପଲବ୍ଧ ନାହିଁ |</string>
+    <string name="max_expand_section">ବିବରଣୀ ଦେଖାନ୍ତୁ |</string>
+    <string name="max_collapse_section">ବିବରଣୀ ଲୁଚାନ୍ତୁ |</string>
+</resources>

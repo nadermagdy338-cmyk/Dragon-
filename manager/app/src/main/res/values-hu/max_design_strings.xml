@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Élő</string>
+    <string name="max_trust_stale">Utolsó minta</string>
+    <string name="max_trust_snapshot">Pillanatkép</string>
+    <string name="max_trust_unreadable">Nincs olvasás</string>
+    <string name="max_trust_unsupported">Nem támogatott</string>
+    <string name="max_source_label">Forrás</string>
+    <string name="max_updated_label">Frissítve</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">nincs elérhető érték</string>
+    <string name="max_expand_section">Részletek megjelenítése</string>
+    <string name="max_collapse_section">Részletek elrejtése</string>
+</resources>

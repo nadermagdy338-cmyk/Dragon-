@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">ಈ ಸಾಧನದಿಂದ ವರದಿ ಮಾಡಲಾದ ಸೆನ್ಸರ್‌ಗಳು</string>
+    <string name="max_sensor_desc">ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ತನ್ನದೇ ಆದ ಹಾರ್ಡ್‌ವೇರ್ ಬಗ್ಗೆ ಏನು ಘೋಷಿಸುತ್ತದೆ, ಜೊತೆಗೆ ಒಂದು ಬೌಂಡೆಡ್ ಲೈಟ್ ರೀಡಿಂಗ್. ಮಾಪನಾಂಕ ನಿರ್ಣಯವಿಲ್ಲ ಮತ್ತು ಆರೋಗ್ಯ ಸ್ಕೋರ್ ಇಲ್ಲ: ಎರಡಕ್ಕೂ ನಾವು ಹೊಂದಿರದ ಭೌತಿಕ ಉಲ್ಲೇಖದ ಅಗತ್ಯವಿದೆ.</string>
+    <string name="max_sensor_service">ಸಂವೇದಕ ಸೇವೆ</string>
+    <string name="max_sensor_service_unavailable">ತಲುಪಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ</string>
+    <string name="max_sensor_count">ಸಂವೇದಕ ವರದಿ ಮಾಡಿದೆ</string>
+    <string name="max_sensor_kinds">ಪ್ರಸ್ತುತ ವರ್ಗಗಳು</string>
+    <string name="max_sensor_wakeup">ಎಚ್ಚರಗೊಳ್ಳುವ ಸಂವೇದಕಗಳು (ಸಾಧನವು ನಿದ್ರಿಸುವಾಗ ವರದಿ ಮಾಡಿ)</string>
+    <string name="max_sensor_light">ಸುತ್ತುವರಿದ ಬೆಳಕು</string>
+    <string name="max_sensor_unit_lux">ಲಕ್ಸ್</string>
+    <string name="max_sensor_light_absent">ಈ ಸಾಧನವು ಯಾವುದೇ ಬೆಳಕಿನ ಸಂವೇದಕವನ್ನು ವರದಿ ಮಾಡುವುದಿಲ್ಲ</string>
+    <string name="max_sensor_light_unreadable">ಸಮಯ ಮೀರುವ ಮೊದಲು ಯಾವುದೇ ಓದುವಿಕೆ ಬಂದಿಲ್ಲ - ತಿಳಿದಿಲ್ಲ, ಶೂನ್ಯವಲ್ಲ</string>
+    <string name="max_sensor_more">…ಮತ್ತು %1$s ಇನ್ನಷ್ಟು</string>
+    <string name="max_sensor_no_score">ಹೆಸರುಗಳು, ಶ್ರೇಣಿಗಳು ಮತ್ತು ವಿಳಂಬಗಳು ವೇದಿಕೆಯಿಂದ ಬರುತ್ತವೆ. ವರದಿ ಮಾಡುವ ಸಂವೇದಕವು ನಿಖರವಾಗಿದೆ ಎಂದು ಪುರಾವೆಯಾಗಿಲ್ಲ.</string>
+    <string name="max_sensor_kind_motion">ಚಲನೆ</string>
+    <string name="max_sensor_kind_environment">ಪರಿಸರ</string>
+    <string name="max_sensor_kind_position">ಸ್ಥಾನ</string>
+    <string name="max_sensor_kind_body">ದೇಹ</string>
+    <string name="max_sensor_kind_unpositioned">ಸ್ಥಾನರಹಿತ</string>
+    <string name="max_sensor_kind_other">ಇತರೆ</string>
+</resources>

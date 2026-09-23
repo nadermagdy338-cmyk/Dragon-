@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Apparence et interface</string>
+    <string name="max_cfg_backup_app_prefs">Préférences et langue de l\'application</string>
+    <string name="max_cfg_declared_absent_title">Ne sera pas inclus, et pourquoi</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">cet appareil n\'a pas de racine vérifiée, les valeurs ne peuvent donc pas être lues de manière fiable</string>
+    <string name="max_cfg_absent_file_missing">le fichier de préférences n\'existe pas encore</string>
+    <string name="max_cfg_absent_empty">le fichier de préférences existe mais est vide, il n\'y a donc rien à écrire</string>
+    <string name="max_cfg_declared_excluded_title">Jamais inclus dans ce fichier</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI les paramètres de sécurité sont configurés dans l\'application, jamais transportés dans un fichier</string>
+    <string name="max_cfg_excluded_other_apps">les données d\'autres applications appartiennent à la sauvegarde de l\'application, pas à la sauvegarde de la configuration</string>
+    <string name="max_cfg_excluded_secret">les clés de signature et les secrets ne sont jamais écrits dans un fichier que vous pourriez partager</string>
+    <string name="max_cfg_section_tweaks">Modifier la configuration</string>
+    <string name="max_cfg_section_applist">Liste par application</string>
+    <string name="max_cfg_section_appearance">Apparence et interface</string>
+    <string name="max_cfg_section_app_prefs">Préférences et langue de l\'application</string>
+    <string name="max_cfg_restore_merge_note">La restauration des préférences fusionne : les clés présentes dans le fichier sont écrites, et les clés qu\'il ne mentionne pas restent telles quelles. Rien n\'est effacé.</string>
+</resources>

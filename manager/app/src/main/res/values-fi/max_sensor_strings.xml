@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Tämän laitteen ilmoittamat anturit</string>
+    <string name="max_sensor_desc">Mitä alusta ilmoittaa omasta laitteistostaan, plus yksi rajoitettu valolukema. Ei kalibrointia eikä terveyspisteitä: molemmat tarvitsisivat fyysisen referenssin, jota meillä ei ole.</string>
+    <string name="max_sensor_service">Anturihuolto</string>
+    <string name="max_sensor_service_unavailable">ei tavoitettu</string>
+    <string name="max_sensor_count">Anturit raportoivat</string>
+    <string name="max_sensor_kinds">Kategoriat läsnä</string>
+    <string name="max_sensor_wakeup">Herätysanturit (raportoi laitteen ollessa lepotilassa)</string>
+    <string name="max_sensor_light">Ympäristön valo</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">tämä laite ei raportoi valoanturia</string>
+    <string name="max_sensor_light_unreadable">mitään lukemaa ei saapunut ennen aikakatkaisua – tuntematon, ei nolla</string>
+    <string name="max_sensor_more">…ja %1$s muuta</string>
+    <string name="max_sensor_no_score">Nimet, alueet ja viiveet tulevat alustalta. Raportoiva anturi ei ole todiste sen oikeellisuudesta.</string>
+    <string name="max_sensor_kind_motion">Liike</string>
+    <string name="max_sensor_kind_environment">Ympäristö</string>
+    <string name="max_sensor_kind_position">asema</string>
+    <string name="max_sensor_kind_body">Runko</string>
+    <string name="max_sensor_kind_unpositioned">Asemoimaton</string>
+    <string name="max_sensor_kind_other">Muut</string>
+</resources>

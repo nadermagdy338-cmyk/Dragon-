@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Jonli</string>
+    <string name="max_trust_stale">Oxirgi namuna</string>
+    <string name="max_trust_snapshot">Surat</string>
+    <string name="max_trust_unreadable">O\'qish yo\'q</string>
+    <string name="max_trust_unsupported">Qo\'llab-quvvatlanmaydi</string>
+    <string name="max_source_label">Manba</string>
+    <string name="max_updated_label">Yangilangan</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">qiymat mavjud emas</string>
+    <string name="max_expand_section">Tafsilotlarni ko\'rsatish</string>
+    <string name="max_collapse_section">Tafsilotlarni yashirish</string>
+</resources>

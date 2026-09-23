@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">స్వరూపం &amp; ఇంటర్‌ఫేస్</string>
+    <string name="max_cfg_backup_app_prefs">యాప్ ప్రాధాన్యతలు &amp; భాష</string>
+    <string name="max_cfg_declared_absent_title">చేర్చబడదు మరియు ఎందుకు</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ఈ పరికరానికి ధృవీకరించబడిన రూట్ లేదు, కాబట్టి విలువలు విశ్వసనీయంగా చదవబడవు</string>
+    <string name="max_cfg_absent_file_missing">ప్రాధాన్యత ఫైల్ ఇంకా ఉనికిలో లేదు</string>
+    <string name="max_cfg_absent_empty">ప్రాధాన్యత ఫైల్ ఉంది కానీ ఖాళీగా ఉంది, కాబట్టి వ్రాయడానికి ఏమీ లేదు</string>
+    <string name="max_cfg_declared_excluded_title">ఈ ఫైల్‌లో ఎప్పుడూ చేర్చబడలేదు</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI భద్రతా సెట్టింగ్‌లు యాప్‌లో కాన్ఫిగర్ చేయబడ్డాయి, ఫైల్‌లో ఎప్పుడూ తీసుకెళ్లబడవు</string>
+    <string name="max_cfg_excluded_other_apps">ఇతర యాప్‌ల డేటా యాప్ బ్యాకప్‌కు చెందినది, కాన్ఫిగర్ బ్యాకప్ కాదు</string>
+    <string name="max_cfg_excluded_secret">మీరు పంచుకునే ఫైల్‌కి సంతకం చేసే కీలు మరియు రహస్యాలు ఎప్పుడూ వ్రాయబడవు</string>
+    <string name="max_cfg_section_tweaks">సర్దుబాటు కాన్ఫిగరేషన్</string>
+    <string name="max_cfg_section_applist">ఒక్కో యాప్ జాబితా</string>
+    <string name="max_cfg_section_appearance">స్వరూపం &amp; ఇంటర్‌ఫేస్</string>
+    <string name="max_cfg_section_app_prefs">యాప్ ప్రాధాన్యతలు &amp; భాష</string>
+    <string name="max_cfg_restore_merge_note">పునరుద్ధరణ ప్రాధాన్యతలు విలీనం అవుతాయి: ఫైల్‌లో ఉన్న కీలు వ్రాయబడ్డాయి మరియు కీలు అలాగే ఉండమని పేర్కొనలేదు. ఏదీ క్లియర్ కాలేదు.</string>
+</resources>

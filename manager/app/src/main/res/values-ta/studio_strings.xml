@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">செயல்திறன் ஸ்டுடியோ</string>
+    <string name="studio_cpu_frequency">CPU அதிர்வெண்</string>
+    <string name="studio_load_history">சமீபத்திய CPU செயல்பாடு</string>
+    <string name="studio_waiting_samples">நேரடி வாசிப்புகளைச் சேகரிக்கிறது…</string>
+    <string name="studio_automatic_profile">தானியங்கி பயன்முறை செயலில் உள்ள சுயவிவரத்தை நிர்வகிக்கிறது.</string>
+    <string name="studio_temperature">வெப்பநிலை</string>
+    <string name="studio_display">காட்சி</string>
+    <string name="studio_power">பவர் விருப்பங்கள்</string>
+    <string name="studio_settings">அமைப்புகள்</string>
+</resources>

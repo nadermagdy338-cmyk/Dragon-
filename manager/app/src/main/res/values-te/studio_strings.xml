@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">పెర్ఫార్మెన్స్ స్టూడియో</string>
+    <string name="studio_cpu_frequency">CPU ఫ్రీక్వెన్సీ</string>
+    <string name="studio_load_history">ఇటీవలి CPU కార్యాచరణ</string>
+    <string name="studio_waiting_samples">ప్రత్యక్ష రీడింగులను సేకరిస్తోంది...</string>
+    <string name="studio_automatic_profile">ఆటోమేటిక్ మోడ్ సక్రియ ప్రొఫైల్‌ను నిర్వహిస్తుంది.</string>
+    <string name="studio_temperature">ఉష్ణోగ్రత</string>
+    <string name="studio_display">ప్రదర్శించు</string>
+    <string name="studio_power">పవర్ ఎంపికలు</string>
+    <string name="studio_settings">సెట్టింగ్‌లు</string>
+</resources>

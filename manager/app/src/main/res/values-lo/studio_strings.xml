@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">ການສະແດງສະຕູດິໂອ</string>
+    <string name="studio_cpu_frequency">CPU ຄວາມຖີ່</string>
+    <string name="studio_load_history">ກິດຈະກຳ CPU ທີ່ຜ່ານມາ</string>
+    <string name="studio_waiting_samples">ກຳລັງເກັບກຳການອ່ານສົດ...</string>
+    <string name="studio_automatic_profile">ໂໝດອັດຕະໂນມັດຈັດການໂປຣໄຟລ໌ທີ່ເປີດໃຊ້ຢູ່.</string>
+    <string name="studio_temperature">ອຸນຫະພູມ</string>
+    <string name="studio_display">ຈໍສະແດງຜົນ</string>
+    <string name="studio_power">ທາງເລືອກພະລັງງານ</string>
+    <string name="studio_settings">ການຕັ້ງຄ່າ</string>
+</resources>

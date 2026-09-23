@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Plugin của bên thứ ba</string>
+    <string name="max_plugins_subtitle">Hợp đồng đã xuất bản: plugin có thể khai báo những gì và những gì được chấp nhận hoặc từ chối ở đây.</string>
+    <string name="max_plugins_section_contract">hợp đồng</string>
+    <string name="max_plugins_contract_api">Cấp độ API %1$d</string>
+    <string name="max_plugins_contract_dir">Thư mục kê khai</string>
+    <string name="max_plugins_contract_rules">Khả năng được khai báo là khả năng đọc hoặc đề xuất. Cố tình không có khả năng ghi phần cứng: mọi thao tác ghi trong ứng dụng này đều thông qua trọng tài và một plugin có thể ghi trực tiếp sẽ loại bỏ lớp bảo vệ được xây dựng để ngăn hai chủ sở hữu viết cùng một núm.</string>
+    <string name="max_plugins_contract_keys">Các khóa được đọc từ một bảng kê khai</string>
+    <string name="max_plugins_contract_kinds">Các loại được chấp nhận</string>
+    <string name="max_plugins_contract_capabilities">Khả năng được chấp nhận</string>
+    <string name="max_plugins_template">Mẫu kê khai</string>
+    <string name="max_plugins_template_note">Văn bản này là những gì trình phân tích cú pháp đọc. Nó không thể trôi khỏi mã vì nó được tạo ra từ mã.</string>
+    <string name="max_plugins_copy_template">Sao chép mẫu</string>
+    <string name="max_plugins_template_copied">Đã sao chép mẫu</string>
+    <string name="max_plugins_section_installed">Tìm thấy trên thiết bị này</string>
+    <string name="max_plugins_loading_title">Đọc thư mục plugin</string>
+    <string name="max_plugins_loading_detail">Liệt kê thư mục tệp kê khai có gốc, sau đó đánh giá từng tệp kê khai theo hợp đồng.</string>
+    <string name="max_plugins_accepted_count">%1$d đã chấp nhận</string>
+    <string name="max_plugins_rejected_count">%1$d từ chối</string>
+    <string name="max_plugins_unreadable_count">Thư mục %1$d không có bảng kê khai có thể đọc được</string>
+    <string name="max_plugins_rejected_section">Từ chối, với lý do chính xác</string>
+    <string name="max_plugins_detail_label">Đã khai báo</string>
+    <string name="max_plugins_refresh_cd">Đọc lại thư mục plugin</string>
+    <string name="max_plugins_capability_source">Báo cáo của plugin, không được chúng tôi đo lường</string>
+    <string name="max_plugins_cond_empty_title">Không có plugin nào được cài đặt</string>
+    <string name="max_plugins_cond_empty_detail">Thư mục tệp kê khai không chứa thư mục plugin. Không có gì sai cả: đây là trạng thái mặc định của tính năng này.</string>
+    <string name="max_plugins_cond_missing_title">Thư mục Manifest chưa tồn tại</string>
+    <string name="max_plugins_cond_missing_detail">%1$s chưa được tạo trên thiết bị này nên không có gì để đọc. Tạo nó là tất cả những gì tác giả plugin cần làm.</string>
+    <string name="max_plugins_cond_unreadable_title">Không thể đọc được thư mục Manifest</string>
+    <string name="max_plugins_cond_unreadable_detail">Thư mục tồn tại ở %1$s nhưng shell không thể đọc được. Cần có root để liệt kê nó.</string>
+    <string name="max_plugins_reason_BadId">Id không thể sử dụng làm tên thư mục. Sử dụng chữ cái Latinh viết thường, chữ số, dấu chấm, dấu gạch ngang hoặc dấu gạch dưới và không bao giờ sử dụng hai dấu chấm liên tiếp.</string>
+    <string name="max_plugins_reason_MissingName">Bản kê khai tuyên bố không có tên.</string>
+    <string name="max_plugins_reason_BadVersion">Phiên bản phải bắt đầu bằng chữ số, ví dụ 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Cấp API được khai báo bị thiếu hoặc dưới 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Cấp độ API được khai báo mới hơn mức hiểu biết của bản dựng này, vì vậy nó hoàn toàn không được chạy.</string>
+    <string name="max_plugins_reason_MissingKind">Bản kê khai tuyên bố không có loại.</string>
+    <string name="max_plugins_reason_UnknownKind">Loại này không phải là loại đã được công bố.</string>
+    <string name="max_plugins_reason_UnknownCapability">Khả năng này không phải là một phần của hợp đồng này. Một khả năng không xác định sẽ bị từ chối thay vì bị bỏ qua, do đó, không có gì hoạt động với ít quyền hơn mức được yêu cầu.</string>
+    <string name="max_plugins_reason_NoCapabilities">Một plugin phải khai báo ít nhất một khả năng.</string>
+    <string name="max_plugins_reason_DuplicateId">Một plugin khác có id này đã được chấp nhận nên plugin này không được sử dụng.</string>
+    <string name="max_plugins_help_title">Tại sao lại là một hợp đồng</string>
+    <string name="max_plugins_help_body">Nếu không có hợp đồng được xuất bản, bất kỳ ai mở rộng ứng dụng này đều phải đoán hình dạng của các tệp nội bộ của chúng tôi và chúng tôi không thể phân biệt tiện ích mở rộng hợp lệ với tiện ích mở rộng bị hỏng. Với nó, giới hạn được nêu rõ: một plugin khai báo ý định và đọc; nó không bao giờ ghi phần cứng và mọi từ chối ở trên đều nêu tên trường chính xác không thành công.</string>
+</resources>

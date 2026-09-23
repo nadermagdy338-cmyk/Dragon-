@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Bo</string>
+    <string name="max_trust_stale">Sista provet</string>
+    <string name="max_trust_snapshot">Ögonblicksbild</string>
+    <string name="max_trust_unreadable">Ingen läsning</string>
+    <string name="max_trust_unsupported">Stöds inte</string>
+    <string name="max_source_label">Källa</string>
+    <string name="max_updated_label">Uppdaterad</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">inget värde tillgängligt</string>
+    <string name="max_expand_section">Visa detaljer</string>
+    <string name="max_collapse_section">Dölj detaljer</string>
+</resources>

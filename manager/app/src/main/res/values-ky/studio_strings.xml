@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">СПОРТ СТУДИЯСЫ</string>
+    <string name="studio_cpu_frequency">CPU жыштыгы</string>
+    <string name="studio_load_history">Акыркы CPU аракети</string>
+    <string name="studio_waiting_samples">Жандуу окуулар топтолууда…</string>
+    <string name="studio_automatic_profile">Автоматтык режим активдүү профилди башкарат.</string>
+    <string name="studio_temperature">Температура</string>
+    <string name="studio_display">Дисплей</string>
+    <string name="studio_power">Кубат параметрлери</string>
+    <string name="studio_settings">Орнотуулар</string>
+</resources>

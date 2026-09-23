@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Сензори, отчетени от това устройство</string>
+    <string name="max_sensor_desc">Това, което платформата декларира за собствения си хардуер, плюс едно ограничено леко четене. Без калибриране и здравен резултат: и двете ще се нуждаят от физическа справка, която нямаме.</string>
+    <string name="max_sensor_service">Сервиз на сензори</string>
+    <string name="max_sensor_service_unavailable">не можа да бъде достигнат</string>
+    <string name="max_sensor_count">Докладвани са сензори</string>
+    <string name="max_sensor_kinds">Налични категории</string>
+    <string name="max_sensor_wakeup">Сензори за събуждане (отчитат, докато устройството спи)</string>
+    <string name="max_sensor_light">Околна светлина</string>
+    <string name="max_sensor_unit_lux">лукс</string>
+    <string name="max_sensor_light_absent">това устройство не отчита светлинен сензор</string>
+    <string name="max_sensor_light_unreadable">не е пристигнало четене преди времето за изчакване - неизвестно, не нула</string>
+    <string name="max_sensor_more">…и още %1$s</string>
+    <string name="max_sensor_no_score">Имената, диапазоните и забавянията идват от платформата. Сензор, който отчита, не е доказателство, че е точен.</string>
+    <string name="max_sensor_kind_motion">Движение</string>
+    <string name="max_sensor_kind_environment">Околна среда</string>
+    <string name="max_sensor_kind_position">Позиция</string>
+    <string name="max_sensor_kind_body">Тяло</string>
+    <string name="max_sensor_kind_unpositioned">Непозициониран</string>
+    <string name="max_sensor_kind_other">други</string>
+</resources>

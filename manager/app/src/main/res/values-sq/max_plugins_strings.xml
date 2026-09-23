@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Shtojcat e palëve të treta</string>
+    <string name="max_plugins_subtitle">Kontrata e publikuar: çfarë mund të deklarojë një shtojcë dhe çfarë është pranuar ose refuzuar këtu.</string>
+    <string name="max_plugins_section_contract">Kontrata</string>
+    <string name="max_plugins_contract_api">Niveli API %1$d</string>
+    <string name="max_plugins_contract_dir">Dosja e manifestimit</string>
+    <string name="max_plugins_contract_rules">Një aftësi e deklaruar është ose lexim ose propozim. Nuk ka qëllimisht asnjë aftësi për të shkruar harduer: çdo shkrim në këtë aplikacion kalon përmes arbitrit dhe një shtesë që mund të shkruante drejtpërdrejt do të hiqte mbrojtësen e ndërtuar për të ndaluar dy pronarë të shkruanin të njëjtën çelës.</string>
+    <string name="max_plugins_contract_keys">Çelësat e lexuar nga një manifest</string>
+    <string name="max_plugins_contract_kinds">Llojet e pranuara</string>
+    <string name="max_plugins_contract_capabilities">Aftësitë e pranuara</string>
+    <string name="max_plugins_template">Shablloni i manifestit</string>
+    <string name="max_plugins_template_note">Ky tekst është ajo që analizuesi lexon. Ai nuk mund të largohet nga kodi, sepse gjenerohet prej tij.</string>
+    <string name="max_plugins_copy_template">Kopjoni shabllonin</string>
+    <string name="max_plugins_template_copied">Modeli u kopjua</string>
+    <string name="max_plugins_section_installed">Gjetur në këtë pajisje</string>
+    <string name="max_plugins_loading_title">Leximi i dosjes së shtojcave</string>
+    <string name="max_plugins_loading_detail">Renditja e dosjes së manifestit me rrënjë, më pas vlerësimi i secilit manifest kundrejt kontratës.</string>
+    <string name="max_plugins_accepted_count">%1$d pranuar</string>
+    <string name="max_plugins_rejected_count">%1$d refuzoi</string>
+    <string name="max_plugins_unreadable_count">%1$d dosje pa një manifest të lexueshëm</string>
+    <string name="max_plugins_rejected_section">Refuzuar, me arsyen e saktë</string>
+    <string name="max_plugins_detail_label">Deklaruar</string>
+    <string name="max_plugins_refresh_cd">Rilexoni dosjen e shtojcave</string>
+    <string name="max_plugins_capability_source">Raportuar nga shtojca, nuk matet nga ne</string>
+    <string name="max_plugins_cond_empty_title">Asnjë shtojcë e instaluar</string>
+    <string name="max_plugins_cond_empty_detail">Dosja e manifestit nuk mban dosje shtesë. Asgjë nuk është e gabuar: kjo është gjendja e paracaktuar e veçorisë.</string>
+    <string name="max_plugins_cond_missing_title">Dosja Manifest nuk ekziston ende</string>
+    <string name="max_plugins_cond_missing_detail">%1$s nuk është krijuar në këtë pajisje, kështu që nuk ka asgjë për të lexuar. Krijimi i tij është gjithçka që duhet të bëjë një autor i shtojcave.</string>
+    <string name="max_plugins_cond_unreadable_title">Dosja e manifestit nuk mund të lexohet</string>
+    <string name="max_plugins_cond_unreadable_detail">Dosja ekziston në %1$s por guaska nuk mund ta lexonte. Root kërkohet për ta renditur atë.</string>
+    <string name="max_plugins_reason_BadId">ID-ja nuk përdoret si emër dosjeje. Përdorni shkronja të vogla latine, shifra, pika, viza ose nënvizime dhe asnjëherë dy pika me radhë.</string>
+    <string name="max_plugins_reason_MissingName">Manifesti nuk deklaron asnjë emër.</string>
+    <string name="max_plugins_reason_BadVersion">Versioni duhet të fillojë me shifra, për shembull 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Niveli i deklaruar i API mungon ose është nën 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Niveli i deklaruar i API-së është më i ri nga sa kupton ky ndërtim, kështu që nuk ekzekutohet fare.</string>
+    <string name="max_plugins_reason_MissingKind">Manifesti nuk deklaron asnjë lloj.</string>
+    <string name="max_plugins_reason_UnknownKind">Lloji nuk është një nga llojet e publikuara.</string>
+    <string name="max_plugins_reason_UnknownCapability">Aftësia nuk është pjesë e kësaj kontrate. Një aftësi e panjohur refuzohet në vend që të injorohet, kështu që asgjë nuk funksionon me më pak të drejta sesa kërkohet.</string>
+    <string name="max_plugins_reason_NoCapabilities">Një shtesë duhet të deklarojë të paktën një aftësi.</string>
+    <string name="max_plugins_reason_DuplicateId">Një shtesë tjetër me këtë ID është pranuar tashmë, kështu që kjo nuk përdoret.</string>
+    <string name="max_plugins_help_title">Pse një kontratë fare</string>
+    <string name="max_plugins_help_body">Pa një kontratë të publikuar, kushdo që e zgjat këtë aplikacion duhet të hamendësojë formën e skedarëve tanë të brendshëm dhe ne nuk mund të dallojmë një zgjatje të vlefshme nga një e prishur. Me të, shprehet kufiri: një shtojcë deklaron qëllimin dhe lexon; ai kurrë nuk shkruan harduer, dhe çdo refuzim i mësipërm emërton fushën e saktë që dështoi.</string>
+</resources>

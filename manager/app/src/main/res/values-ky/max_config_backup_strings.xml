@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Көрүнүш жана интерфейс</string>
+    <string name="max_cfg_backup_app_prefs">Колдонмонун тандоолору жана тили</string>
+    <string name="max_cfg_declared_absent_title">Киргизилбейт жана эмне үчүн</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">бул түзмөктүн текшерилген тамыры жок, андыктан маанилерди ишенимдүү окуу мүмкүн эмес</string>
+    <string name="max_cfg_absent_file_missing">артыкчылык файлы азырынча жок</string>
+    <string name="max_cfg_absent_empty">артыкчылык файлы бар, бирок бош, ошондуктан жаза турган эч нерсе жок</string>
+    <string name="max_cfg_declared_excluded_title">Бул файлга эч качан киргизилген эмес</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI коопсуздук жөндөөлөрү колдонмонун ичинде конфигурацияланган, эч качан файлда сакталбайт</string>
+    <string name="max_cfg_excluded_other_apps">башка колдонмолордун маалыматтары конфигурацияланган камдык көчүрмөгө эмес, колдонмонун камдык көчүрмөсүнө таандык</string>
+    <string name="max_cfg_excluded_secret">кол коюу ачкычтары жана сырлар сиз бөлүшө турган файлга эч качан жазылбайт</string>
+    <string name="max_cfg_section_tweaks">Конфигурацияны өзгөртүү</string>
+    <string name="max_cfg_section_applist">Ар бир колдонмонун тизмеси</string>
+    <string name="max_cfg_section_appearance">Көрүнүш жана интерфейс</string>
+    <string name="max_cfg_section_app_prefs">Колдонмонун тандоолору жана тили</string>
+    <string name="max_cfg_restore_merge_note">Калыбына келтирилген артыкчылыктар биригет: файлдагы ачкычтар жазылат жана анда айтылбаган баскычтар ошол бойдон калат. Эч нерсе тазаланган жок.</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Phila</string>
+    <string name="max_trust_stale">Isampula yokugcina</string>
+    <string name="max_trust_snapshot">Isifinyezo</string>
+    <string name="max_trust_unreadable">Akukho ukufunda</string>
+    <string name="max_trust_unsupported">Ayisekelwe</string>
+    <string name="max_source_label">Umthombo</string>
+    <string name="max_updated_label">Kubuyekeziwe</string>
+    <string name="max_provenance_separator">" ·"</string>
+    <string name="max_value_unavailable_a11y">alikho inani elitholakalayo</string>
+    <string name="max_expand_section">Bonisa imininingwane</string>
+    <string name="max_collapse_section">Fihla imininingwane</string>
+</resources>

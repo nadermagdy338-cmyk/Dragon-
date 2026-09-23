@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Görünüş və interfeys</string>
+    <string name="max_cfg_backup_app_prefs">Tətbiq tərcihləri və dili</string>
+    <string name="max_cfg_declared_absent_title">Daxil edilməyəcək və niyə</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">bu cihazın təsdiqlənmiş kökü yoxdur, ona görə də dəyərləri etibarlı oxumaq mümkün deyil</string>
+    <string name="max_cfg_absent_file_missing">üstünlük faylı hələ mövcud deyil</string>
+    <string name="max_cfg_absent_empty">üstünlük faylı mövcuddur, lakin boşdur, ona görə də yazmaq üçün heç nə yoxdur</string>
+    <string name="max_cfg_declared_excluded_title">Bu fayla heç vaxt daxil edilməyib</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI təhlükəsizlik parametrləri proqram daxilində konfiqurasiya edilir, heç vaxt faylda daşınmır</string>
+    <string name="max_cfg_excluded_other_apps">digər proqramların məlumatları proqram ehtiyat nüsxəsinə aiddir, konfiqurasiya ehtiyat nüsxəsinə deyil</string>
+    <string name="max_cfg_excluded_secret">imzalama açarları və sirləri heç vaxt paylaşa biləcəyiniz fayla yazılmır</string>
+    <string name="max_cfg_section_tweaks">Konfiqurasiyanı tənzimləyin</string>
+    <string name="max_cfg_section_applist">Proqram başına siyahı</string>
+    <string name="max_cfg_section_appearance">Görünüş və interfeys</string>
+    <string name="max_cfg_section_app_prefs">Tətbiq tərcihləri və dili</string>
+    <string name="max_cfg_restore_merge_note">Tercihlərin bərpası birləşir: faylda mövcud olan düymələr yazılır və qeyd etmədiyi düymələr olduğu kimi qalır. Heç nə təmizlənmir.</string>
+</resources>

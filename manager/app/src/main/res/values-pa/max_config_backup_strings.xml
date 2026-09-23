@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">ਦਿੱਖ ਅਤੇ ਇੰਟਰਫੇਸ</string>
+    <string name="max_cfg_backup_app_prefs">ਐਪ ਤਰਜੀਹਾਂ ਅਤੇ ਭਾਸ਼ਾ</string>
+    <string name="max_cfg_declared_absent_title">ਸ਼ਾਮਲ ਨਹੀਂ ਕੀਤਾ ਜਾਵੇਗਾ, ਅਤੇ ਕਿਉਂ</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ਇਸ ਡਿਵਾਈਸ ਦਾ ਕੋਈ ਪ੍ਰਮਾਣਿਤ ਰੂਟ ਨਹੀਂ ਹੈ, ਇਸਲਈ ਮੁੱਲ ਭਰੋਸੇਯੋਗ ਢੰਗ ਨਾਲ ਨਹੀਂ ਪੜ੍ਹੇ ਜਾ ਸਕਦੇ ਹਨ</string>
+    <string name="max_cfg_absent_file_missing">ਤਰਜੀਹ ਫਾਈਲ ਅਜੇ ਮੌਜੂਦ ਨਹੀਂ ਹੈ</string>
+    <string name="max_cfg_absent_empty">ਤਰਜੀਹ ਫਾਈਲ ਮੌਜੂਦ ਹੈ ਪਰ ਖਾਲੀ ਹੈ, ਇਸ ਲਈ ਲਿਖਣ ਲਈ ਕੁਝ ਨਹੀਂ ਹੈ</string>
+    <string name="max_cfg_declared_excluded_title">ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕਦੇ ਵੀ ਸ਼ਾਮਲ ਨਹੀਂ ਕੀਤਾ ਗਿਆ</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI ਸੁਰੱਖਿਆ ਸੈਟਿੰਗਾਂ ਐਪ ਦੇ ਅੰਦਰ ਕੌਂਫਿਗਰ ਕੀਤੀਆਂ ਜਾਂਦੀਆਂ ਹਨ, ਕਦੇ ਵੀ ਫਾਈਲ ਵਿੱਚ ਨਹੀਂ ਰੱਖੀਆਂ ਜਾਂਦੀਆਂ</string>
+    <string name="max_cfg_excluded_other_apps">ਹੋਰ ਐਪਸ ਦਾ ਡੇਟਾ ਐਪ ਬੈਕਅੱਪ ਨਾਲ ਸਬੰਧਤ ਹੈ, ਨਾ ਕਿ ਸੰਰਚਨਾ ਬੈਕਅੱਪ ਨਾਲ</string>
+    <string name="max_cfg_excluded_secret">ਦਸਤਖਤ ਕਰਨ ਵਾਲੀਆਂ ਕੁੰਜੀਆਂ ਅਤੇ ਰਾਜ਼ ਕਦੇ ਵੀ ਉਸ ਫਾਈਲ \'ਤੇ ਨਹੀਂ ਲਿਖੇ ਜਾਂਦੇ ਹਨ ਜੋ ਤੁਸੀਂ ਸਾਂਝੀ ਕਰ ਸਕਦੇ ਹੋ</string>
+    <string name="max_cfg_section_tweaks">ਟਵੀਕ ਕੌਂਫਿਗਰੇਸ਼ਨ</string>
+    <string name="max_cfg_section_applist">ਪ੍ਰਤੀ-ਐਪ ਸੂਚੀ</string>
+    <string name="max_cfg_section_appearance">ਦਿੱਖ ਅਤੇ ਇੰਟਰਫੇਸ</string>
+    <string name="max_cfg_section_app_prefs">ਐਪ ਤਰਜੀਹਾਂ ਅਤੇ ਭਾਸ਼ਾ</string>
+    <string name="max_cfg_restore_merge_note">ਰੀਸਟੋਰਿੰਗ ਪ੍ਰੈਫਰੈਂਸ ਮਰਜ: ਫਾਈਲ ਵਿੱਚ ਮੌਜੂਦ ਕੁੰਜੀਆਂ ਲਿਖੀਆਂ ਜਾਂਦੀਆਂ ਹਨ, ਅਤੇ ਕੁੰਜੀਆਂ ਇਸ ਵਿੱਚ ਰਹਿਣ ਦਾ ਜ਼ਿਕਰ ਨਹੀਂ ਕਰਦੀਆਂ ਜਿਵੇਂ ਉਹ ਹਨ। ਕੁਝ ਵੀ ਸਾਫ਼ ਨਹੀਂ ਹੁੰਦਾ।</string>
+</resources>

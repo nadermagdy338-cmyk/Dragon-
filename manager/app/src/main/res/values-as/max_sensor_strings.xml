@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">এই ডিভাইচৰ দ্বাৰা ৰিপৰ্ট কৰা চেন্সৰসমূহ</string>
+    <string name="max_sensor_desc">প্লেটফৰ্মে নিজৰ হাৰ্ডৱেৰৰ বিষয়ে কি ঘোষণা কৰে, লগতে এটা বাউণ্ডেড লাইট ৰিডিং। কোনো মানাংকন আৰু কোনো স্বাস্থ্য স্ক\'ৰ নাই: দুয়োটাৰে আমাৰ হাতত নথকা শাৰীৰিক ৰেফাৰেন্সৰ প্ৰয়োজন হ\'ব।</string>
+    <string name="max_sensor_service">চেন্সৰ সেৱা</string>
+    <string name="max_sensor_service_unavailable">যোগাযোগ কৰিব পৰা নগ’ল</string>
+    <string name="max_sensor_count">চেন্সৰে ৰিপৰ্ট কৰিছে</string>
+    <string name="max_sensor_kinds">উপস্থিত শ্ৰেণীসমূহ</string>
+    <string name="max_sensor_wakeup">ৱেক-আপ চেন্সৰসমূহ (ডিভাইচটো শুই থকাৰ সময়ত প্ৰতিবেদন কৰক)</string>
+    <string name="max_sensor_light">পৰিৱেশৰ পোহৰ</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">এই ডিভাইচে কোনো পোহৰৰ চেন্সৰৰ ৰিপৰ্ট নিদিয়ে</string>
+    <string name="max_sensor_light_unreadable">সময়সীমাৰ আগতে কোনো পঢ়া অহা নাছিল — অজ্ঞাত, শূন্য নহয়</string>
+    <string name="max_sensor_more">...আৰু %1$s অধিক</string>
+    <string name="max_sensor_no_score">নাম, ৰেঞ্জ আৰু বিলম্ব প্লেটফৰ্মৰ পৰাই আহে। ৰিপৰ্ট কৰা চেন্সৰ এটা সঠিক হোৱাৰ প্ৰমাণ নহয়।</string>
+    <string name="max_sensor_kind_motion">গতি</string>
+    <string name="max_sensor_kind_environment">পৰিৱেশ</string>
+    <string name="max_sensor_kind_position">অৱস্থান</string>
+    <string name="max_sensor_kind_body">শৰীৰ</string>
+    <string name="max_sensor_kind_unpositioned">অস্থিতিহীন</string>
+    <string name="max_sensor_kind_other">অন্যান্য</string>
+</resources>

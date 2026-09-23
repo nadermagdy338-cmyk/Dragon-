@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Αισθητήρες που αναφέρονται από αυτήν τη συσκευή</string>
+    <string name="max_sensor_desc">Τι δηλώνει η πλατφόρμα για το δικό της υλικό, συν ένα περιορισμένο φως ανάγνωσης. Χωρίς βαθμονόμηση και χωρίς βαθμολογία υγείας: και τα δύο θα χρειάζονταν μια φυσική αναφορά που δεν έχουμε.</string>
+    <string name="max_sensor_service">Υπηρεσία αισθητήρα</string>
+    <string name="max_sensor_service_unavailable">δεν ήταν δυνατή η πρόσβαση</string>
+    <string name="max_sensor_count">Οι αισθητήρες αναφέρθηκαν</string>
+    <string name="max_sensor_kinds">Παρούσες κατηγορίες</string>
+    <string name="max_sensor_wakeup">Αισθητήρες αφύπνισης (αναφορά ενώ η συσκευή κοιμάται)</string>
+    <string name="max_sensor_light">Φως περιβάλλοντος</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">αυτή η συσκευή δεν αναφέρει αισθητήρα φωτός</string>
+    <string name="max_sensor_light_unreadable">καμία ανάγνωση δεν έφτασε πριν από το χρονικό όριο — άγνωστο, όχι μηδέν</string>
+    <string name="max_sensor_more">…και %1$s περισσότερα</string>
+    <string name="max_sensor_no_score">Τα ονόματα, τα εύρη και οι καθυστερήσεις προέρχονται από την πλατφόρμα. Ένας αισθητήρας που αναφέρει δεν είναι απόδειξη ότι είναι ακριβής.</string>
+    <string name="max_sensor_kind_motion">Κίνηση</string>
+    <string name="max_sensor_kind_environment">Περιβάλλο</string>
+    <string name="max_sensor_kind_position">Θέση</string>
+    <string name="max_sensor_kind_body">Σώμα</string>
+    <string name="max_sensor_kind_unpositioned">Χωρίς τοποθέτηση</string>
+    <string name="max_sensor_kind_other">Αλλος</string>
+</resources>

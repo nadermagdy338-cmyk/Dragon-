@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Aspect și interfață</string>
+    <string name="max_cfg_backup_app_prefs">Preferințele aplicației și limba</string>
+    <string name="max_cfg_declared_absent_title">Nu vor fi incluse și de ce</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">acest dispozitiv nu are rădăcină verificată, astfel încât valorile nu pot fi citite în mod fiabil</string>
+    <string name="max_cfg_absent_file_missing">fișierul de preferințe nu există încă</string>
+    <string name="max_cfg_absent_empty">fișierul de preferințe există, dar este gol, așa că nu este nimic de scris</string>
+    <string name="max_cfg_declared_excluded_title">Nu a fost inclus niciodată în acest fișier</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI setările de siguranță sunt configurate în interiorul aplicației, niciodată transportate într-un fișier</string>
+    <string name="max_cfg_excluded_other_apps">datele altor aplicații aparțin backup-ului aplicației, nu backup-ului configurației</string>
+    <string name="max_cfg_excluded_secret">cheile de semnare și secretele nu sunt niciodată scrise într-un fișier pe care l-ați putea partaja</string>
+    <string name="max_cfg_section_tweaks">Modificați configurația</string>
+    <string name="max_cfg_section_applist">Lista per aplicație</string>
+    <string name="max_cfg_section_appearance">Aspect și interfață</string>
+    <string name="max_cfg_section_app_prefs">Preferințele aplicației și limba</string>
+    <string name="max_cfg_restore_merge_note">Restabilirea îmbinării preferințelor: cheile prezente în fișier sunt scrise, iar cheile pe care nu le menționează rămân așa cum sunt. Nimic nu este șters.</string>
+</resources>

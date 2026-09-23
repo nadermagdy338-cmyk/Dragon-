@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">ಪರ್ಫಾರ್ಮೆನ್ಸ್ ಸ್ಟುಡಿಯೋ</string>
+    <string name="studio_cpu_frequency">CPU ಆವರ್ತನ</string>
+    <string name="studio_load_history">ಇತ್ತೀಚಿನ CPU ಚಟುವಟಿಕೆ</string>
+    <string name="studio_waiting_samples">ಲೈವ್ ರೀಡಿಂಗ್‌ಗಳನ್ನು ಸಂಗ್ರಹಿಸಲಾಗುತ್ತಿದೆ...</string>
+    <string name="studio_automatic_profile">ಸ್ವಯಂಚಾಲಿತ ಮೋಡ್ ಸಕ್ರಿಯ ಪ್ರೊಫೈಲ್ ಅನ್ನು ನಿರ್ವಹಿಸುತ್ತದೆ.</string>
+    <string name="studio_temperature">ತಾಪಮಾನ</string>
+    <string name="studio_display">ಪ್ರದರ್ಶನ</string>
+    <string name="studio_power">ಪವರ್ ಆಯ್ಕೆಗಳು</string>
+    <string name="studio_settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+</resources>

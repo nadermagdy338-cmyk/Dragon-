@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Sensori, par kuriem ziņo šī ierīce</string>
+    <string name="max_sensor_desc">Tas, ko platforma paziņo par savu aparatūru, kā arī viens ierobežots gaismas rādījums. Bez kalibrēšanas un bez veselības rādītāja: abiem būtu nepieciešama fiziska atsauce, kuras mums nav.</string>
+    <string name="max_sensor_service">Sensoru serviss</string>
+    <string name="max_sensor_service_unavailable">nevarēja sasniegt</string>
+    <string name="max_sensor_count">Sensori ziņoja</string>
+    <string name="max_sensor_kinds">Kategorijas klāt</string>
+    <string name="max_sensor_wakeup">Modināšanas sensori (ziņo, kamēr ierīce guļ)</string>
+    <string name="max_sensor_light">Apkārtējā gaisma</string>
+    <string name="max_sensor_unit_lux">lukss</string>
+    <string name="max_sensor_light_absent">šī ierīce neziņo par gaismas sensoru</string>
+    <string name="max_sensor_light_unreadable">pirms taimauta nav rādījums — nezināms, nevis nulle</string>
+    <string name="max_sensor_more">…un %1$s vairāk</string>
+    <string name="max_sensor_no_score">Nosaukumi, diapazoni un aizkaves nāk no platformas. Sensors, kas ziņo, nepierāda, ka tas ir precīzs.</string>
+    <string name="max_sensor_kind_motion">Kustība</string>
+    <string name="max_sensor_kind_environment">Vide</string>
+    <string name="max_sensor_kind_position">Pozīcija</string>
+    <string name="max_sensor_kind_body">Ķermenis</string>
+    <string name="max_sensor_kind_unpositioned">Nepozicionēts</string>
+    <string name="max_sensor_kind_other">Cits</string>
+</resources>

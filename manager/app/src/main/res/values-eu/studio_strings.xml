@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU maiztasuna</string>
+    <string name="studio_load_history">Azken CPU jarduera</string>
+    <string name="studio_waiting_samples">Zuzeneko irakurketak biltzen…</string>
+    <string name="studio_automatic_profile">Modu automatikoak profil aktiboa kudeatzen du.</string>
+    <string name="studio_temperature">Tenperatura</string>
+    <string name="studio_display">Bistaratzea</string>
+    <string name="studio_power">Potentzia aukerak</string>
+    <string name="studio_settings">Ezarpenak</string>
+</resources>

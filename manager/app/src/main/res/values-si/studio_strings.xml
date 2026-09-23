@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">කාර්ය සාධන ස්ටුඩියෝව</string>
+    <string name="studio_cpu_frequency">CPU සංඛ්යාතය</string>
+    <string name="studio_load_history">මෑත CPU ක්‍රියාකාරකම්</string>
+    <string name="studio_waiting_samples">සජීවී කියවීම් එකතු කරමින්...</string>
+    <string name="studio_automatic_profile">ස්වයංක්‍රීය මාදිලිය ක්‍රියාකාරී පැතිකඩ කළමනාකරණය කරයි.</string>
+    <string name="studio_temperature">උෂ්ණත්වය</string>
+    <string name="studio_display">ප්රදර්ශනය කරන්න</string>
+    <string name="studio_power">බල විකල්ප</string>
+    <string name="studio_settings">සැකසීම්</string>
+</resources>

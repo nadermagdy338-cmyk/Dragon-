@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">居住</string>
+    <string name="max_trust_stale">最後一個樣品</string>
+    <string name="max_trust_snapshot">快照</string>
+    <string name="max_trust_unreadable">沒有閱讀</string>
+    <string name="max_trust_unsupported">不支援</string>
+    <string name="max_source_label">來源</string>
+    <string name="max_updated_label">已更新</string>
+    <string name="max_provenance_separator">“·”</string>
+    <string name="max_value_unavailable_a11y">無可用值</string>
+    <string name="max_expand_section">顯示詳情</string>
+    <string name="max_collapse_section">隱藏詳細訊息</string>
+</resources>

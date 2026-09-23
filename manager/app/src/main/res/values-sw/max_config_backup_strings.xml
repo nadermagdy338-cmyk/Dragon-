@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Muonekano na kiolesura</string>
+    <string name="max_cfg_backup_app_prefs">Mapendeleo ya programu na lugha</string>
+    <string name="max_cfg_declared_absent_title">Haitajumuishwa, na kwa nini</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">kifaa hiki hakina mzizi uliothibitishwa, kwa hivyo maadili hayawezi kusomwa kwa uhakika</string>
+    <string name="max_cfg_absent_file_missing">faili ya upendeleo haipo bado</string>
+    <string name="max_cfg_absent_empty">faili ya upendeleo ipo lakini haina kitu, kwa hivyo hakuna cha kuandika</string>
+    <string name="max_cfg_declared_excluded_title">Haijajumuishwa katika faili hii</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Mipangilio ya usalama imesanidiwa ndani ya programu, haibebiwi kwenye faili</string>
+    <string name="max_cfg_excluded_other_apps">data ya programu zingine ni ya chelezo ya programu, sio chelezo cha kusanidi</string>
+    <string name="max_cfg_excluded_secret">funguo na siri za kusaini haziandikwi kwa faili unayoweza kushiriki</string>
+    <string name="max_cfg_section_tweaks">Badilisha usanidi</string>
+    <string name="max_cfg_section_applist">Orodha ya kila programu</string>
+    <string name="max_cfg_section_appearance">Muonekano na kiolesura</string>
+    <string name="max_cfg_section_app_prefs">Mapendeleo ya programu na lugha</string>
+    <string name="max_cfg_restore_merge_note">Kurejesha mapendeleo kuunganishwa: funguo zilizopo kwenye faili zimeandikwa, na funguo hazitaji kukaa jinsi zilivyo. Hakuna kinachosafishwa.</string>
+</resources>

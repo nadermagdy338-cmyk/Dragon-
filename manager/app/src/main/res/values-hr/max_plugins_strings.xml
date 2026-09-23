@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Dodaci trećih strana</string>
+    <string name="max_plugins_subtitle">Objavljeni ugovor: što dodatak može izjaviti i što je ovdje prihvaćeno ili odbijeno.</string>
+    <string name="max_plugins_section_contract">Ugovor</string>
+    <string name="max_plugins_contract_api">API razina %1$d</string>
+    <string name="max_plugins_contract_dir">Mapa manifesta</string>
+    <string name="max_plugins_contract_rules">Deklarirana sposobnost je ili čitanje ili prijedlog. Namjerno ne postoji mogućnost pisanja hardvera: svako pisanje u ovoj aplikaciji prolazi kroz arbitra, a dodatak koji bi mogao izravno pisati uklonio bi zaštitu napravljenu da spriječi dva vlasnika da pišu na isti gumb.</string>
+    <string name="max_plugins_contract_keys">Ključevi pročitani iz manifesta</string>
+    <string name="max_plugins_contract_kinds">Prihvaćene vrste</string>
+    <string name="max_plugins_contract_capabilities">Prihvaćene sposobnosti</string>
+    <string name="max_plugins_template">Predložak manifesta</string>
+    <string name="max_plugins_template_note">Ovaj tekst čita parser. Ne može se odvojiti od koda, jer je generiran iz njega.</string>
+    <string name="max_plugins_copy_template">Kopirajte predložak</string>
+    <string name="max_plugins_template_copied">Predložak je kopiran</string>
+    <string name="max_plugins_section_installed">Pronađeno na ovom uređaju</string>
+    <string name="max_plugins_loading_title">Čitanje mape dodataka</string>
+    <string name="max_plugins_loading_detail">Ispisivanje mape manifesta s korijenom, zatim procjena svakog manifesta u odnosu na ugovor.</string>
+    <string name="max_plugins_accepted_count">%1$d prihvaćeno</string>
+    <string name="max_plugins_rejected_count">%1$d odbio</string>
+    <string name="max_plugins_unreadable_count">%1$d mapa bez čitljivog manifesta</string>
+    <string name="max_plugins_rejected_section">Odbijen, s točnim razlogom</string>
+    <string name="max_plugins_detail_label">Proglašeno</string>
+    <string name="max_plugins_refresh_cd">Ponovno pročitajte mapu dodatka</string>
+    <string name="max_plugins_capability_source">Izvijestio dodatak, mi nismo mjerili</string>
+    <string name="max_plugins_cond_empty_title">Nema instaliranih dodataka</string>
+    <string name="max_plugins_cond_empty_detail">Mapa manifesta ne sadrži mape dodataka. Sve je u redu: ovo je zadano stanje značajke.</string>
+    <string name="max_plugins_cond_missing_title">Mapa manifesta još ne postoji</string>
+    <string name="max_plugins_cond_missing_detail">%1$s nije kreiran na ovom uređaju, tako da se nema što čitati. Njegovo stvaranje sve je što autor dodatka treba učiniti.</string>
+    <string name="max_plugins_cond_unreadable_title">Nije moguće pročitati mapu manifesta</string>
+    <string name="max_plugins_cond_unreadable_detail">Mapa postoji na %1$s, ali je školjka nije mogla pročitati. Za popis je potreban root.</string>
+    <string name="max_plugins_reason_BadId">ID se ne može koristiti kao naziv mape. Koristite mala latinična slova, znamenke, točke, crtice ili podvlake, a nikako dvije točke u nizu.</string>
+    <string name="max_plugins_reason_MissingName">U manifestu nema imena.</string>
+    <string name="max_plugins_reason_BadVersion">Verzija mora počinjati znamenkama, na primjer 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Deklarirana razina API-ja nedostaje ili je ispod 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Deklarirana razina API-ja je novija nego što ova verzija razumije, tako da se uopće ne pokreće.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest ne izjavljuje nikakvu vrstu.</string>
+    <string name="max_plugins_reason_UnknownKind">Vrsta nije jedna od objavljenih vrsta.</string>
+    <string name="max_plugins_reason_UnknownCapability">Sposobnost nije dio ovog ugovora. Nepoznata sposobnost se odbija radije nego ignorira, tako da ništa ne radi s manje prava nego što je traženo.</string>
+    <string name="max_plugins_reason_NoCapabilities">Dodatak mora deklarirati barem jednu mogućnost.</string>
+    <string name="max_plugins_reason_DuplicateId">Drugi dodatak s ovim ID-om već je prihvaćen, pa se ovaj ne koristi.</string>
+    <string name="max_plugins_help_title">Čemu uopće ugovor</string>
+    <string name="max_plugins_help_body">Bez objavljenog ugovora, svatko tko produljuje ovu aplikaciju mora pogoditi oblik naših internih datoteka, a mi ne možemo razlikovati valjano proširenje od neispravnog. S njim je navedeno ograničenje: dodatak izjavljuje namjeru i čita; nikad ne zapisuje hardver, a svako gore navedeno odbijanje imenuje točno polje koje nije uspjelo.</string>
+</resources>

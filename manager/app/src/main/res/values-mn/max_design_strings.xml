@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Амьд</string>
+    <string name="max_trust_stale">Сүүлийн дээж</string>
+    <string name="max_trust_snapshot">Хормын хувилбар</string>
+    <string name="max_trust_unreadable">Уншихгүй</string>
+    <string name="max_trust_unsupported">Дэмжигдээгүй</string>
+    <string name="max_source_label">Эх сурвалж</string>
+    <string name="max_updated_label">Шинэчлэгдсэн</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">үнэ цэнэ байхгүй</string>
+    <string name="max_expand_section">Дэлгэрэнгүйг харуулах</string>
+    <string name="max_collapse_section">Дэлгэрэнгүй мэдээллийг нуух</string>
+</resources>

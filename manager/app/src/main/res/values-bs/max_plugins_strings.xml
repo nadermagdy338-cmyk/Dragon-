@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Dodatci trećih strana</string>
+    <string name="max_plugins_subtitle">Objavljeni ugovor: šta dodatak može navesti, a šta je prihvaćeno ili odbijeno ovdje.</string>
+    <string name="max_plugins_section_contract">Ugovor</string>
+    <string name="max_plugins_contract_api">API nivo %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest folder</string>
+    <string name="max_plugins_contract_rules">Deklarisana sposobnost je ili čitanje ili prijedlog. Namjerno ne postoji mogućnost za upisivanje hardvera: svako pisanje u ovoj aplikaciji prolazi kroz arbitar, a dodatak koji može pisati direktno bi uklonio zaštitu napravljenu da spriječi dva vlasnika da pišu isto dugme.</string>
+    <string name="max_plugins_contract_keys">Ključevi čitani iz manifesta</string>
+    <string name="max_plugins_contract_kinds">Prihvaćene vrste</string>
+    <string name="max_plugins_contract_capabilities">Prihvaćene mogućnosti</string>
+    <string name="max_plugins_template">Predložak manifesta</string>
+    <string name="max_plugins_template_note">Ovaj tekst čita parser. Ne može se udaljiti od koda, jer se iz njega generiše.</string>
+    <string name="max_plugins_copy_template">Kopirajte šablon</string>
+    <string name="max_plugins_template_copied">Šablon je kopiran</string>
+    <string name="max_plugins_section_installed">Pronađeno na ovom uređaju</string>
+    <string name="max_plugins_loading_title">Čitanje foldera dodataka</string>
+    <string name="max_plugins_loading_detail">Navođenje mape manifesta s root-om, zatim procjena svakog manifesta u odnosu na ugovor.</string>
+    <string name="max_plugins_accepted_count">%1$d prihvaćeno</string>
+    <string name="max_plugins_rejected_count">%1$d odbio</string>
+    <string name="max_plugins_unreadable_count">%1$d folder bez čitljivog manifesta</string>
+    <string name="max_plugins_rejected_section">Odbijeno, sa tačnim razlogom</string>
+    <string name="max_plugins_detail_label">Deklarisano</string>
+    <string name="max_plugins_refresh_cd">Ponovo pročitajte folder dodataka</string>
+    <string name="max_plugins_capability_source">Izvještava dodatak, ne mjerimo mi</string>
+    <string name="max_plugins_cond_empty_title">Nema instaliranih dodataka</string>
+    <string name="max_plugins_cond_empty_detail">Fascikla manifesta ne sadrži fascikle dodataka. Ništa nije u redu: ovo je zadano stanje funkcije.</string>
+    <string name="max_plugins_cond_missing_title">Manifest folder još ne postoji</string>
+    <string name="max_plugins_cond_missing_detail">%1$s nije kreiran na ovom uređaju, tako da nema šta za čitanje. Kreiranje je sve što autor dodatka treba da uradi.</string>
+    <string name="max_plugins_cond_unreadable_title">Fascikla manifesta se ne može pročitati</string>
+    <string name="max_plugins_cond_unreadable_detail">Fascikla postoji na %1$s ali ljuska nije mogla da je pročita. Root je neophodan da biste ga naveli.</string>
+    <string name="max_plugins_reason_BadId">ID se ne može koristiti kao ime foldera. Koristite mala latinična slova, cifre, tačke, crtice ili donje crte, a nikada dvije tačke u nizu.</string>
+    <string name="max_plugins_reason_MissingName">U manifestu nema imena.</string>
+    <string name="max_plugins_reason_BadVersion">Verzija mora početi sa ciframa, na primjer 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Deklarisani nivo API-ja nedostaje ili je ispod 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Deklarisani nivo API-ja je noviji nego što ova verzija razume, tako da se uopšte ne pokreće.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest ne proglašava nikakvu vrstu.</string>
+    <string name="max_plugins_reason_UnknownKind">Vrsta nije jedna od objavljenih vrsta.</string>
+    <string name="max_plugins_reason_UnknownCapability">Sposobnost nije dio ovog ugovora. Nepoznata mogućnost je odbijena, a ne zanemarena, tako da ništa ne radi s manje prava nego što je traženo.</string>
+    <string name="max_plugins_reason_NoCapabilities">Dodatak mora deklarirati barem jednu mogućnost.</string>
+    <string name="max_plugins_reason_DuplicateId">Drugi dodatak sa ovim ID-om je već prihvaćen, tako da se ovaj ne koristi.</string>
+    <string name="max_plugins_help_title">Zašto uopšte ugovor</string>
+    <string name="max_plugins_help_body">Bez objavljenog ugovora, svako ko proširuje ovu aplikaciju mora pogoditi oblik naših internih datoteka i ne možemo razlikovati valjanu ekstenziju od neispravne. Uz to je navedeno ograničenje: dodatak izjavljuje namjeru i čita; nikada ne upisuje hardver, a svako gore navedeno odbijanje imenuje tačno polje koje nije uspelo.</string>
+</resources>

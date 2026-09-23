@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Complements de tercers</string>
+    <string name="max_plugins_subtitle">El contracte publicat: què pot declarar un connector i què es va acceptar o rebutjar aquí.</string>
+    <string name="max_plugins_section_contract">El contracte</string>
+    <string name="max_plugins_contract_api">Nivell API %1$d</string>
+    <string name="max_plugins_contract_dir">Carpeta de manifest</string>
+    <string name="max_plugins_contract_rules">Una capacitat declarada és una lectura o una proposta. No hi ha cap capacitat deliberada que escrigui el maquinari: cada escriptura d\'aquesta aplicació passa per l\'àrbitre, i un connector que podria escriure directament eliminaria el protector construït per evitar que dos propietaris escrivissin el mateix botó.</string>
+    <string name="max_plugins_contract_keys">Claus llegides d\'un manifest</string>
+    <string name="max_plugins_contract_kinds">Tipus acceptats</string>
+    <string name="max_plugins_contract_capabilities">Capacitats acceptades</string>
+    <string name="max_plugins_template">Plantilla de manifest</string>
+    <string name="max_plugins_template_note">Aquest text és el que llegeix l\'analitzador. No pot derivar del codi, perquè es genera a partir d\'ell.</string>
+    <string name="max_plugins_copy_template">Copia la plantilla</string>
+    <string name="max_plugins_template_copied">Plantilla copiada</string>
+    <string name="max_plugins_section_installed">S\'ha trobat en aquest dispositiu</string>
+    <string name="max_plugins_loading_title">Llegint la carpeta del connector</string>
+    <string name="max_plugins_loading_detail">Llistar la carpeta de manifest amb root i, a continuació, avaluar cada manifest amb el contracte.</string>
+    <string name="max_plugins_accepted_count">%1$d acceptat</string>
+    <string name="max_plugins_rejected_count">%1$d es va negar</string>
+    <string name="max_plugins_unreadable_count">%1$d carpeta sense un manifest llegible</string>
+    <string name="max_plugins_rejected_section">Negat, amb el motiu exacte</string>
+    <string name="max_plugins_detail_label">Declarat</string>
+    <string name="max_plugins_refresh_cd">Torneu a llegir la carpeta del connector</string>
+    <string name="max_plugins_capability_source">Informat pel connector, no mesurat per nosaltres</string>
+    <string name="max_plugins_cond_empty_title">No hi ha connectors instal·lats</string>
+    <string name="max_plugins_cond_empty_detail">La carpeta de manifest no conté carpetes de connectors. No hi ha res dolent: aquest és l\'estat predeterminat de la funció.</string>
+    <string name="max_plugins_cond_missing_title">La carpeta de manifest encara no existeix</string>
+    <string name="max_plugins_cond_missing_detail">%1$s no s\'ha creat en aquest dispositiu, així que no hi ha res a llegir. Crear-lo és tot el que ha de fer l\'autor del complement.</string>
+    <string name="max_plugins_cond_unreadable_title">La carpeta de manifest no es pot llegir</string>
+    <string name="max_plugins_cond_unreadable_detail">La carpeta existeix a %1$s però el shell no la va poder llegir. Cal root per llistar-lo.</string>
+    <string name="max_plugins_reason_BadId">L\'identificador no es pot utilitzar com a nom de carpeta. Utilitzeu lletres llatines minúscules, dígits, punts, guions o guions baixos, i mai dos punts seguits.</string>
+    <string name="max_plugins_reason_MissingName">El manifest no declara cap nom.</string>
+    <string name="max_plugins_reason_BadVersion">La versió ha de començar amb dígits, per exemple 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Falta el nivell d\'API declarat o és inferior a 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">El nivell d\'API declarat és més nou del que entén aquesta compilació, de manera que no s\'executa en absolut.</string>
+    <string name="max_plugins_reason_MissingKind">El manifest declara cap mena.</string>
+    <string name="max_plugins_reason_UnknownKind">El tipus no és un dels tipus publicats.</string>
+    <string name="max_plugins_reason_UnknownCapability">La capacitat no forma part d\'aquest contracte. Es rebutja una capacitat desconeguda en lloc d\'ignorar-se, de manera que res funciona amb menys drets dels que demanava.</string>
+    <string name="max_plugins_reason_NoCapabilities">Un connector ha de declarar almenys una capacitat.</string>
+    <string name="max_plugins_reason_DuplicateId">Ja s\'ha acceptat un altre connector amb aquest identificador, de manera que aquest no s\'utilitza.</string>
+    <string name="max_plugins_help_title">Per què un contracte en absolut</string>
+    <string name="max_plugins_help_body">Sense un contracte publicat, qualsevol que ampliï aquesta aplicació ha d\'endevinar la forma dels nostres fitxers interns i no podem distingir una extensió vàlida d\'una trencada. Amb ell, s\'indica el límit: un connector declara la intenció i llegeix; mai escriu maquinari, i cada negativa anterior indica el camp exacte que ha fallat.</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">מראה וממשק</string>
+    <string name="max_cfg_backup_app_prefs">העדפות אפליקציה ושפה</string>
+    <string name="max_cfg_declared_absent_title">לא ייכלל, ולמה</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">למכשיר זה אין שורש מאומת, כך שלא ניתן לקרוא את הערכים בצורה מהימנה</string>
+    <string name="max_cfg_absent_file_missing">קובץ ההעדפות עדיין לא קיים</string>
+    <string name="max_cfg_absent_empty">קובץ ההעדפות קיים אבל ריק, אז אין מה לכתוב</string>
+    <string name="max_cfg_declared_excluded_title">מעולם לא נכלל בקובץ זה</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI הגדרות בטיחות מוגדרות בתוך האפליקציה, לעולם לא נשאו בקובץ</string>
+    <string name="max_cfg_excluded_other_apps">הנתונים של אפליקציות אחרות שייכים לגיבוי אפליקציות, לא לגיבוי תצורה</string>
+    <string name="max_cfg_excluded_secret">מפתחות חתימה וסודות לעולם אינם נכתבים לקובץ שאתה עשוי לשתף</string>
+    <string name="max_cfg_section_tweaks">כוונון תצורה</string>
+    <string name="max_cfg_section_applist">רשימה לכל אפליקציה</string>
+    <string name="max_cfg_section_appearance">מראה וממשק</string>
+    <string name="max_cfg_section_app_prefs">העדפות אפליקציה ושפה</string>
+    <string name="max_cfg_restore_merge_note">שחזור ההעדפות מתמזג: מפתחות הקיימים בקובץ נכתבים, והמפתחות שהוא לא מזכיר נשארים כפי שהם. שום דבר לא מנוקה.</string>
+</resources>

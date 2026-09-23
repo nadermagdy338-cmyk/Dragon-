@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Sensores que informa este dispositivo</string>
+    <string name="max_sensor_desc">Lo que la plataforma declara sobre su propio hardware, más una lectura de luz acotada. Sin calibración y sin puntuación de salud: ambas necesitarían una referencia física que no tenemos.</string>
+    <string name="max_sensor_service">Servicio de sensores</string>
+    <string name="max_sensor_service_unavailable">no se pudo acceder a él</string>
+    <string name="max_sensor_count">Sensores informados</string>
+    <string name="max_sensor_kinds">Categorías presentes</string>
+    <string name="max_sensor_wakeup">Sensores de despertar (informan mientras el dispositivo duerme)</string>
+    <string name="max_sensor_light">Luz ambiental</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">este dispositivo no informa ningún sensor de luz</string>
+    <string name="max_sensor_light_unreadable">no llegó ninguna lectura antes del tiempo de espera: desconocido, no cero</string>
+    <string name="max_sensor_more">…y %1$s más</string>
+    <string name="max_sensor_no_score">Nombres, rangos y retrasos provienen de la plataforma. Que un sensor informe no prueba que sea preciso.</string>
+    <string name="max_sensor_kind_motion">Movimiento</string>
+    <string name="max_sensor_kind_environment">Entorno</string>
+    <string name="max_sensor_kind_position">Posición</string>
+    <string name="max_sensor_kind_body">Cuerpo</string>
+    <string name="max_sensor_kind_unpositioned">Sin posición</string>
+    <string name="max_sensor_kind_other">Otro</string>
+</resources>

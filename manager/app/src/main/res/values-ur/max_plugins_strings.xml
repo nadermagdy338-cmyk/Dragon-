@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">تھرڈ پارٹی پلگ انز</string>
+    <string name="max_plugins_subtitle">شائع شدہ معاہدہ: ایک پلگ ان کیا اعلان کر سکتا ہے، اور یہاں کیا قبول یا انکار کیا گیا تھا۔</string>
+    <string name="max_plugins_section_contract">معاہدہ</string>
+    <string name="max_plugins_contract_api">API کی سطح %1$d</string>
+    <string name="max_plugins_contract_dir">مینی فیسٹ فولڈر</string>
+    <string name="max_plugins_contract_rules">ایک اعلان شدہ صلاحیت یا تو پڑھنا یا تجویز ہے۔ جان بوجھ کر کوئی ایسی صلاحیت نہیں ہے جو ہارڈ ویئر لکھتی ہے: اس ایپ میں ہر تحریر ثالث کے ذریعے جاتی ہے، اور ایک پلگ ان جو براہ راست لکھ سکتا ہے وہ دو مالکان کو ایک ہی نوب لکھنے سے روکنے کے لیے بنائے گئے گارڈ کو ہٹا دے گا۔</string>
+    <string name="max_plugins_contract_keys">کلیدیں مینی فیسٹ سے پڑھی جاتی ہیں۔</string>
+    <string name="max_plugins_contract_kinds">قبول شدہ اقسام</string>
+    <string name="max_plugins_contract_capabilities">قابل قبول صلاحیتیں۔</string>
+    <string name="max_plugins_template">مینی فیسٹ ٹیمپلیٹ</string>
+    <string name="max_plugins_template_note">یہ متن وہی ہے جو تجزیہ کار پڑھتا ہے۔ یہ کوڈ سے نہیں نکل سکتا، کیونکہ یہ اس سے پیدا ہوتا ہے۔</string>
+    <string name="max_plugins_copy_template">ٹیمپلیٹ کاپی کریں۔</string>
+    <string name="max_plugins_template_copied">ٹیمپلیٹ کاپی ہو گیا۔</string>
+    <string name="max_plugins_section_installed">اس ڈیوائس پر ملا</string>
+    <string name="max_plugins_loading_title">پلگ ان فولڈر پڑھنا</string>
+    <string name="max_plugins_loading_detail">مینی فیسٹ فولڈر کو روٹ کے ساتھ درج کرنا، پھر معاہدے کے خلاف ہر مینی فیسٹ کا جائزہ لینا۔</string>
+    <string name="max_plugins_accepted_count">%1$d قبول کر لیا گیا۔</string>
+    <string name="max_plugins_rejected_count">%1$d نے انکار کر دیا۔</string>
+    <string name="max_plugins_unreadable_count">%1$d فولڈر بغیر پڑھنے کے قابل مینی فیسٹ کے</string>
+    <string name="max_plugins_rejected_section">صحیح وجہ کے ساتھ انکار کر دیا۔</string>
+    <string name="max_plugins_detail_label">اعلان کیا</string>
+    <string name="max_plugins_refresh_cd">پلگ ان فولڈر کو دوبارہ پڑھیں</string>
+    <string name="max_plugins_capability_source">پلگ ان کے ذریعہ رپورٹ کیا گیا، ہمارے ذریعہ ماپا نہیں گیا۔</string>
+    <string name="max_plugins_cond_empty_title">کوئی پلگ ان انسٹال نہیں ہے۔</string>
+    <string name="max_plugins_cond_empty_detail">مینی فیسٹ فولڈر میں کوئی پلگ ان فولڈر نہیں ہے۔ کچھ بھی غلط نہیں ہے: یہ فیچر کی ڈیفالٹ حالت ہے۔</string>
+    <string name="max_plugins_cond_missing_title">مینی فیسٹ فولڈر ابھی موجود نہیں ہے۔</string>
+    <string name="max_plugins_cond_missing_detail">%1$s اس ڈیوائس پر نہیں بنایا گیا ہے، اس لیے پڑھنے کے لیے کچھ نہیں ہے۔ اسے تخلیق کرنا ایک پلگ ان مصنف کو کرنا ہے۔</string>
+    <string name="max_plugins_cond_unreadable_title">مینی فیسٹ فولڈر پڑھا نہیں جا سکتا</string>
+    <string name="max_plugins_cond_unreadable_detail">فولڈر %1$s پر موجود ہے لیکن شیل اسے پڑھ نہیں سکتا۔ اس کی فہرست کے لیے جڑ کی ضرورت ہے۔</string>
+    <string name="max_plugins_reason_BadId">ID فولڈر کے نام کے طور پر قابل استعمال نہیں ہے۔ چھوٹے لاطینی حروف، ہندسوں، نقطوں، ڈیشز یا انڈر سکور کا استعمال کریں، اور کبھی بھی لگاتار دو نقطے نہ لگائیں۔</string>
+    <string name="max_plugins_reason_MissingName">مینی فیسٹ کسی نام کا اعلان نہیں کرتا۔</string>
+    <string name="max_plugins_reason_BadVersion">ورژن کا آغاز ہندسوں سے ہونا چاہیے، مثال کے طور پر 1.0.0۔</string>
+    <string name="max_plugins_reason_ApiTooOld">اعلان کردہ API کی سطح غائب ہے یا 1 سے نیچے ہے۔</string>
+    <string name="max_plugins_reason_ApiTooNew">اعلان کردہ API کی سطح اس تعمیر کی سمجھ سے نئی ہے، لہذا یہ بالکل نہیں چلائی جاتی ہے۔</string>
+    <string name="max_plugins_reason_MissingKind">منشور کسی قسم کا اعلان نہیں کرتا۔</string>
+    <string name="max_plugins_reason_UnknownKind">قسم شائع شدہ اقسام میں سے ایک نہیں ہے۔</string>
+    <string name="max_plugins_reason_UnknownCapability">قابلیت اس معاہدے کا حصہ نہیں ہے۔ ایک نامعلوم صلاحیت کو نظر انداز کرنے کے بجائے انکار کر دیا جاتا ہے، لہذا اس سے کم حقوق کے ساتھ کچھ بھی نہیں چلتا ہے۔</string>
+    <string name="max_plugins_reason_NoCapabilities">ایک پلگ ان کو کم از کم ایک صلاحیت کا اعلان کرنا چاہیے۔</string>
+    <string name="max_plugins_reason_DuplicateId">اس آئی ڈی کے ساتھ ایک اور پلگ ان پہلے ہی قبول کر لیا گیا تھا، اس لیے یہ استعمال نہیں کیا گیا ہے۔</string>
+    <string name="max_plugins_help_title">ایک معاہدہ بالکل کیوں؟</string>
+    <string name="max_plugins_help_body">شائع شدہ معاہدے کے بغیر، اس ایپ کو توسیع دینے والے کو ہماری اندرونی فائلوں کی شکل کا اندازہ لگانا ہوگا، اور ہم ٹوٹے ہوئے سے درست توسیع نہیں بتا سکتے۔ اس کے ساتھ، حد بیان کی گئی ہے: ایک پلگ ان ارادے کا اعلان کرتا ہے اور پڑھتا ہے۔ یہ کبھی ہارڈ ویئر نہیں لکھتا، اور اوپر ہر انکار عین فیلڈ کا نام دیتا ہے جو ناکام ہو گیا۔</string>
+</resources>

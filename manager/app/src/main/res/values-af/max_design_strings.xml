@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Leef</string>
+    <string name="max_trust_stale">Laaste monster</string>
+    <string name="max_trust_snapshot">Snapshot</string>
+    <string name="max_trust_unreadable">Geen lees nie</string>
+    <string name="max_trust_unsupported">Nie ondersteun nie</string>
+    <string name="max_source_label">Bron</string>
+    <string name="max_updated_label">Opgedateer</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">geen waarde beskikbaar nie</string>
+    <string name="max_expand_section">Wys besonderhede</string>
+    <string name="max_collapse_section">Versteek besonderhede</string>
+</resources>

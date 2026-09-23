@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Vtičniki tretjih oseb</string>
+    <string name="max_plugins_subtitle">Objavljena pogodba: kaj lahko navede vtičnik in kaj je bilo tukaj sprejeto ali zavrnjeno.</string>
+    <string name="max_plugins_section_contract">Pogodba</string>
+    <string name="max_plugins_contract_api">Stopnja API %1$d</string>
+    <string name="max_plugins_contract_dir">Mapa manifesta</string>
+    <string name="max_plugins_contract_rules">Deklarirana zmogljivost je branje ali predlog. Namenoma ni zmožnosti pisanja strojne opreme: vsako pisanje v tej aplikaciji gre skozi razsodnika in vtičnik, ki bi lahko pisal neposredno, bi odstranil varovalo, zgrajeno tako, da prepreči pisanje dveh lastnikov istemu gumbu.</string>
+    <string name="max_plugins_contract_keys">Ključi, prebrani iz manifesta</string>
+    <string name="max_plugins_contract_kinds">Sprejete vrste</string>
+    <string name="max_plugins_contract_capabilities">Sprejete zmogljivosti</string>
+    <string name="max_plugins_template">Predloga manifesta</string>
+    <string name="max_plugins_template_note">To besedilo prebere razčlenjevalnik. Ne more se oddaljiti od kode, ker je generirana iz nje.</string>
+    <string name="max_plugins_copy_template">Kopirajte predlogo</string>
+    <string name="max_plugins_template_copied">Predloga je kopirana</string>
+    <string name="max_plugins_section_installed">Najdeno v tej napravi</string>
+    <string name="max_plugins_loading_title">Branje mape vtičnikov</string>
+    <string name="max_plugins_loading_detail">Prikazovanje mape manifesta s korenom, nato ovrednotenje vsakega manifesta glede na pogodbo.</string>
+    <string name="max_plugins_accepted_count">%1$d sprejeto</string>
+    <string name="max_plugins_rejected_count">%1$d zavrnjen</string>
+    <string name="max_plugins_unreadable_count">%1$d mapa brez berljivega manifesta</string>
+    <string name="max_plugins_rejected_section">Zavrnjeno, z natančnim razlogom</string>
+    <string name="max_plugins_detail_label">Razglašeno</string>
+    <string name="max_plugins_refresh_cd">Ponovno preberite mapo vtičnika</string>
+    <string name="max_plugins_capability_source">Poroča vtičnik, ne merimo mi</string>
+    <string name="max_plugins_cond_empty_title">Ni nameščenih vtičnikov</string>
+    <string name="max_plugins_cond_empty_detail">Mapa manifesta ne vsebuje nobenih map vtičnikov. Nič ni narobe: to je privzeto stanje funkcije.</string>
+    <string name="max_plugins_cond_missing_title">Manifestna mapa še ne obstaja</string>
+    <string name="max_plugins_cond_missing_detail">%1$s ni bil ustvarjen v tej napravi, zato ni ničesar za branje. Ustvarjanje je vse, kar mora narediti avtor vtičnika.</string>
+    <string name="max_plugins_cond_unreadable_title">Mape manifesta ni mogoče prebrati</string>
+    <string name="max_plugins_cond_unreadable_detail">Mapa obstaja na %1$s, vendar je lupina ni mogla prebrati. Za seznam je potreben root.</string>
+    <string name="max_plugins_reason_BadId">ID-ja ni mogoče uporabiti kot ime mape. Uporabljajte male latinske črke, številke, pike, pomišljaje ali podčrtaje in nikoli dveh pik zaporedoma.</string>
+    <string name="max_plugins_reason_MissingName">V manifestu ni imena.</string>
+    <string name="max_plugins_reason_BadVersion">Različica se mora začeti s številkami, na primer 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Navedena raven API-ja manjka ali je pod 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Navedena raven API-ja je novejša, kot jo razume ta zgradba, zato se sploh ne izvaja.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest ne navaja nobene vrste.</string>
+    <string name="max_plugins_reason_UnknownKind">Vrsta ni ena od objavljenih vrst.</string>
+    <string name="max_plugins_reason_UnknownCapability">Zmogljivost ni del te pogodbe. Neznana zmožnost je zavrnjena, namesto da bi bila prezrta, tako da nič ne deluje z manj pravicami, kot jih zahteva.</string>
+    <string name="max_plugins_reason_NoCapabilities">Vtičnik mora prijaviti vsaj eno zmogljivost.</string>
+    <string name="max_plugins_reason_DuplicateId">Drug vtičnik s tem ID-jem je bil že sprejet, zato se ta ne uporablja.</string>
+    <string name="max_plugins_help_title">Zakaj sploh pogodba</string>
+    <string name="max_plugins_help_body">Brez objavljene pogodbe mora vsak, ki razširi to aplikacijo, uganiti obliko naših notranjih datotek in ne moremo ločiti veljavne razširitve od pokvarjene. Z njim je navedena meja: vtičnik izjavi namero in bere; nikoli ne zapiše strojne opreme in vsaka zgornja zavrnitev imenuje točno polje, ki ni uspelo.</string>
+</resources>

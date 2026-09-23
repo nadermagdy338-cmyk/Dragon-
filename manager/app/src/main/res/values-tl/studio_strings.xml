@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU dalas</string>
+    <string name="studio_load_history">Kamakailang CPU aktibidad</string>
+    <string name="studio_waiting_samples">Nangongolekta ng mga live na pagbabasa…</string>
+    <string name="studio_automatic_profile">Pinamamahalaan ng awtomatikong mode ang aktibong profile.</string>
+    <string name="studio_temperature">Temperatura</string>
+    <string name="studio_display">Pagpapakita</string>
+    <string name="studio_power">Mga pagpipilian sa kapangyarihan</string>
+    <string name="studio_settings">Mga setting</string>
+</resources>

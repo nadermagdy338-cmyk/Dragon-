@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">表演工作室</string>
+    <string name="studio_cpu_frequency">CPU 频率</string>
+    <string name="studio_load_history">最近CPU活动</string>
+    <string name="studio_waiting_samples">收集实时读数...</string>
+    <string name="studio_automatic_profile">自动模式管理活动配置文件。</string>
+    <string name="studio_temperature">温度</string>
+    <string name="studio_display">展示</string>
+    <string name="studio_power">电源选项</string>
+    <string name="studio_settings">设置</string>
+</resources>

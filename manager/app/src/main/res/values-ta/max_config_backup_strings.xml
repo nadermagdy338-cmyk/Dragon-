@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">தோற்றம் மற்றும் இடைமுகம்</string>
+    <string name="max_cfg_backup_app_prefs">பயன்பாட்டு விருப்பத்தேர்வுகள் &amp; மொழி</string>
+    <string name="max_cfg_declared_absent_title">சேர்க்கப்படாது, ஏன்</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">இந்த சாதனத்தில் சரிபார்க்கப்பட்ட ரூட் இல்லை, எனவே மதிப்புகளை நம்பகத்தன்மையுடன் படிக்க முடியாது</string>
+    <string name="max_cfg_absent_file_missing">முன்னுரிமை கோப்பு இன்னும் இல்லை</string>
+    <string name="max_cfg_absent_empty">முன்னுரிமை கோப்பு உள்ளது ஆனால் காலியாக உள்ளது, எனவே எழுத எதுவும் இல்லை</string>
+    <string name="max_cfg_declared_excluded_title">இந்தக் கோப்பில் ஒருபோதும் சேர்க்கப்படவில்லை</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI பாதுகாப்பு அமைப்புகள் பயன்பாட்டிற்குள் கட்டமைக்கப்பட்டுள்ளன, கோப்பில் எடுத்துச் செல்லப்படாது</string>
+    <string name="max_cfg_excluded_other_apps">பிற பயன்பாடுகளின் தரவு பயன்பாட்டு காப்புப்பிரதிக்கு சொந்தமானது, காப்புப்பிரதியை கட்டமைப்பது அல்ல</string>
+    <string name="max_cfg_excluded_secret">கையொப்பமிடும் விசைகள் மற்றும் ரகசியங்கள் நீங்கள் பகிரக்கூடிய கோப்பில் எழுதப்படுவதில்லை</string>
+    <string name="max_cfg_section_tweaks">உள்ளமைவை மாற்றவும்</string>
+    <string name="max_cfg_section_applist">பயன்பாட்டிற்கான பட்டியல்</string>
+    <string name="max_cfg_section_appearance">தோற்றம் மற்றும் இடைமுகம்</string>
+    <string name="max_cfg_section_app_prefs">பயன்பாட்டு விருப்பத்தேர்வுகள் &amp; மொழி</string>
+    <string name="max_cfg_restore_merge_note">விருப்பத்தேர்வுகளை மீட்டமைத்தல் ஒன்றிணைகிறது: கோப்பில் இருக்கும் விசைகள் எழுதப்பட்டுள்ளன, மேலும் விசைகள் அப்படியே இருப்பதைக் குறிப்பிடவில்லை. எதுவும் அழிக்கப்படவில்லை.</string>
+</resources>

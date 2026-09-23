@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">پلاگین های شخص ثالث</string>
+    <string name="max_plugins_subtitle">قرارداد منتشر شده: آنچه که یک افزونه ممکن است اعلام کند، و آنچه در اینجا پذیرفته یا رد شده است.</string>
+    <string name="max_plugins_section_contract">قرارداد</string>
+    <string name="max_plugins_contract_api">سطح API %1$d</string>
+    <string name="max_plugins_contract_dir">پوشه مانیفست</string>
+    <string name="max_plugins_contract_rules">قابلیت اعلام شده یا خواندن یا پیشنهاد است. عمداً هیچ قابلیتی برای نوشتن سخت‌افزار وجود ندارد: هر نوشتن در این برنامه از طریق داور انجام می‌شود، و افزونه‌ای که می‌تواند مستقیماً بنویسد، محافظ ساخته شده برای متوقف کردن نوشتن یک دستگیره توسط دو مالک را حذف می‌کند.</string>
+    <string name="max_plugins_contract_keys">کلیدها از مانیفست خوانده می شوند</string>
+    <string name="max_plugins_contract_kinds">انواع پذیرفته شده</string>
+    <string name="max_plugins_contract_capabilities">قابلیت های پذیرفته شده</string>
+    <string name="max_plugins_template">قالب مانیفست</string>
+    <string name="max_plugins_template_note">این متن همان چیزی است که تجزیه کننده می خواند. نمی تواند از کد خارج شود، زیرا از آن تولید می شود.</string>
+    <string name="max_plugins_copy_template">قالب را کپی کنید</string>
+    <string name="max_plugins_template_copied">الگو کپی شد</string>
+    <string name="max_plugins_section_installed">در این دستگاه یافت شد</string>
+    <string name="max_plugins_loading_title">خواندن پوشه افزونه</string>
+    <string name="max_plugins_loading_detail">فهرست کردن پوشه مانیفست با ریشه، سپس ارزیابی هر مانیفست در برابر قرارداد.</string>
+    <string name="max_plugins_accepted_count">%1$d پذیرفته شد</string>
+    <string name="max_plugins_rejected_count">%1$d امتناع کرد</string>
+    <string name="max_plugins_unreadable_count">پوشه %1$d بدون مانیفست قابل خواندن</string>
+    <string name="max_plugins_rejected_section">رد شد، با دلیل دقیق</string>
+    <string name="max_plugins_detail_label">اعلام کرد</string>
+    <string name="max_plugins_refresh_cd">پوشه پلاگین را دوباره بخوانید</string>
+    <string name="max_plugins_capability_source">توسط افزونه گزارش شده، توسط ما اندازه گیری نشده است</string>
+    <string name="max_plugins_cond_empty_title">هیچ پلاگینی نصب نشده است</string>
+    <string name="max_plugins_cond_empty_detail">پوشه مانیفست هیچ پوشه افزونه ای را نگه نمی دارد. هیچ چیز اشتباه نیست: این حالت پیش فرض ویژگی است.</string>
+    <string name="max_plugins_cond_missing_title">پوشه مانیفست هنوز وجود ندارد</string>
+    <string name="max_plugins_cond_missing_detail">%1$s در این دستگاه ایجاد نشده است، بنابراین چیزی برای خواندن وجود ندارد. ایجاد آن تنها کاری است که نویسنده افزونه باید انجام دهد.</string>
+    <string name="max_plugins_cond_unreadable_title">پوشه مانیفست قابل خواندن نیست</string>
+    <string name="max_plugins_cond_unreadable_detail">پوشه در %1$s وجود دارد اما پوسته قادر به خواندن آن نیست. برای فهرست کردن آن نیاز به روت است.</string>
+    <string name="max_plugins_reason_BadId">شناسه به عنوان نام پوشه قابل استفاده نیست. از حروف کوچک لاتین، اعداد، نقطه، خط تیره یا زیرخط استفاده کنید و هرگز از دو نقطه پشت سر هم استفاده نکنید.</string>
+    <string name="max_plugins_reason_MissingName">مانیفست هیچ نامی را اعلام نمی کند.</string>
+    <string name="max_plugins_reason_BadVersion">نسخه باید با اعداد شروع شود، به عنوان مثال 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">سطح API اعلام شده وجود ندارد یا کمتر از 1 است.</string>
+    <string name="max_plugins_reason_ApiTooNew">سطح API اعلام شده جدیدتر از آن چیزی است که این بیلد درک می کند، بنابراین اصلا اجرا نمی شود.</string>
+    <string name="max_plugins_reason_MissingKind">مانیفست هیچ گونه ای را اعلام نمی کند.</string>
+    <string name="max_plugins_reason_UnknownKind">نوع از انواع منتشر شده نیست.</string>
+    <string name="max_plugins_reason_UnknownCapability">قابلیت بخشی از این قرارداد نیست. یک قابلیت ناشناخته به جای نادیده گرفته می شود، رد می شود، بنابراین هیچ چیز با حقوق کمتری نسبت به آنچه خواسته شده اجرا نمی شود.</string>
+    <string name="max_plugins_reason_NoCapabilities">یک افزونه باید حداقل یک قابلیت را اعلام کند.</string>
+    <string name="max_plugins_reason_DuplicateId">افزونه دیگری با این شناسه قبلاً پذیرفته شده است، بنابراین از این افزونه استفاده نمی شود.</string>
+    <string name="max_plugins_help_title">اصلا چرا قرارداد</string>
+    <string name="max_plugins_help_body">بدون قرارداد منتشر شده، هر کسی که این برنامه را گسترش می دهد باید شکل فایل های داخلی ما را حدس بزند و ما نمی توانیم پسوند معتبر را از یک پسوند خراب تشخیص دهیم. با آن، محدودیت بیان می شود: یک افزونه قصد را اعلام می کند و می خواند. هرگز سخت افزار نمی نویسد و هر ردی در بالا نام فیلد دقیقی را می دهد که شکست خورده است.</string>
+</resources>

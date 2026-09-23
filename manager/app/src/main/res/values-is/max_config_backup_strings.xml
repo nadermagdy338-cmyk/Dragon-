@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Útlit og viðmót</string>
+    <string name="max_cfg_backup_app_prefs">Forritsstillingar og tungumál</string>
+    <string name="max_cfg_declared_absent_title">Verður ekki með og hvers vegna</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">þetta tæki hefur enga staðfesta rót, þannig að ekki er hægt að lesa gildin á áreiðanlegan hátt</string>
+    <string name="max_cfg_absent_file_missing">óskaskráin er ekki til ennþá</string>
+    <string name="max_cfg_absent_empty">forstillingarskráin er til en er tóm, svo það er ekkert að skrifa</string>
+    <string name="max_cfg_declared_excluded_title">Aldrei með í þessari skrá</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI öryggisstillingar eru stilltar inni í appinu, aldrei fluttar í skrá</string>
+    <string name="max_cfg_excluded_other_apps">gögn annarra forrita tilheyra öryggisafriti forrita, ekki stillingarafrits</string>
+    <string name="max_cfg_excluded_secret">undirskriftarlyklar og leyndarmál eru aldrei skrifuð í skrá sem þú gætir deilt</string>
+    <string name="max_cfg_section_tweaks">Klipptu stillingar</string>
+    <string name="max_cfg_section_applist">Listi fyrir hvert forrit</string>
+    <string name="max_cfg_section_appearance">Útlit og viðmót</string>
+    <string name="max_cfg_section_app_prefs">Forritsstillingar og tungumál</string>
+    <string name="max_cfg_restore_merge_note">Að endurheimta kjörstillingar sameinast: lyklar sem eru til staðar í skránni eru skrifaðir og lyklar sem hún nefnir ekki haldast eins og þeir eru. Ekkert er hreinsað.</string>
+</resources>

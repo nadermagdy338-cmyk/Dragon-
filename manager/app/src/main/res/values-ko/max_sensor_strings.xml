@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">이 기기에서 보고한 센서</string>
+    <string name="max_sensor_desc">플랫폼이 자체 하드웨어에 대해 선언하는 내용과 하나의 제한된 조명 판독값입니다. 교정 및 상태 점수가 없습니다. 둘 다 우리가 가지고 있지 않은 물리적 참조가 필요합니다.</string>
+    <string name="max_sensor_service">센서 서비스</string>
+    <string name="max_sensor_service_unavailable">도달할 수 없었다</string>
+    <string name="max_sensor_count">보고된 센서</string>
+    <string name="max_sensor_kinds">카테고리 존재</string>
+    <string name="max_sensor_wakeup">깨우기 센서(장치가 절전 모드인 동안 보고)</string>
+    <string name="max_sensor_light">주변광</string>
+    <string name="max_sensor_unit_lux">럭스</string>
+    <string name="max_sensor_light_absent">이 장치에서는 광 센서가 없다고 보고합니다</string>
+    <string name="max_sensor_light_unreadable">시간 초과 전에 판독값이 도착하지 않았습니다. 알 수 없음, 0이 아님</string>
+    <string name="max_sensor_more">...그리고 %1$s 더</string>
+    <string name="max_sensor_no_score">이름, 범위 및 지연은 플랫폼에서 가져옵니다. 보고하는 센서는 그것이 정확하다는 증거가 아닙니다.</string>
+    <string name="max_sensor_kind_motion">운동</string>
+    <string name="max_sensor_kind_environment">환경</string>
+    <string name="max_sensor_kind_position">위치</string>
+    <string name="max_sensor_kind_body">몸</string>
+    <string name="max_sensor_kind_unpositioned">위치가 정해지지 않음</string>
+    <string name="max_sensor_kind_other">다른</string>
+</resources>

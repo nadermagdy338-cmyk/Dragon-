@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">এই ডিভাইস দ্বারা রিপোর্ট করা সেন্সর</string>
+    <string name="max_sensor_desc">প্ল্যাটফর্ম তার নিজস্ব হার্ডওয়্যার সম্পর্কে কী ঘোষণা করে, প্লাস ওয়ান বাউন্ডেড লাইট রিডিং। কোন ক্রমাঙ্কন এবং কোন স্বাস্থ্য স্কোর নেই: উভয়েরই একটি শারীরিক রেফারেন্স প্রয়োজন হবে যা আমাদের কাছে নেই।</string>
+    <string name="max_sensor_service">সেন্সর পরিষেবা</string>
+    <string name="max_sensor_service_unavailable">পৌঁছানো যায়নি</string>
+    <string name="max_sensor_count">সেন্সর রিপোর্ট করেছে</string>
+    <string name="max_sensor_kinds">উপস্থিত বিভাগ</string>
+    <string name="max_sensor_wakeup">জেগে ওঠা সেন্সর (ডিভাইসটি ঘুমানোর সময় রিপোর্ট করুন)</string>
+    <string name="max_sensor_light">পরিবেষ্টিত আলো</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">এই ডিভাইস কোন আলো সেন্সর রিপোর্ট</string>
+    <string name="max_sensor_light_unreadable">টাইমআউটের আগে কোন রিডিং আসেনি — অজানা, শূন্য নয়</string>
+    <string name="max_sensor_more">…এবং আরো %1$s</string>
+    <string name="max_sensor_no_score">নাম, ব্যাপ্তি এবং বিলম্ব প্ল্যাটফর্ম থেকে আসে। একটি সেন্সর যে রিপোর্ট করে তা প্রমাণ নয় যে এটি সঠিক।</string>
+    <string name="max_sensor_kind_motion">গতি</string>
+    <string name="max_sensor_kind_environment">পরিবেশ</string>
+    <string name="max_sensor_kind_position">অবস্থান</string>
+    <string name="max_sensor_kind_body">শরীর</string>
+    <string name="max_sensor_kind_unpositioned">অবস্থানহীন</string>
+    <string name="max_sensor_kind_other">অন্যান্য</string>
+</resources>

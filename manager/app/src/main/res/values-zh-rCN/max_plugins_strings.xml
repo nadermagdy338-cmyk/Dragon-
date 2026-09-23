@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">第三方插件</string>
+    <string name="max_plugins_subtitle">已发布的合同：插件可以声明什么，以及此处接受或拒绝什么。</string>
+    <string name="max_plugins_section_contract">合同</string>
+    <string name="max_plugins_contract_api">API 级别%1$d</string>
+    <string name="max_plugins_contract_dir">清单文件夹</string>
+    <string name="max_plugins_contract_rules">声明的功能可以是读取，也可以是提议。故意不提供写入硬件的功能：此应用程序中的每次写入都会经过仲裁器，并且可以直接写入的插件将删除为阻止两个所有者写入相同旋钮而构建的防护。</string>
+    <string name="max_plugins_contract_keys">从清单中读取的密钥</string>
+    <string name="max_plugins_contract_kinds">接受种类</string>
+    <string name="max_plugins_contract_capabilities">可接受的能力</string>
+    <string name="max_plugins_template">清单模板</string>
+    <string name="max_plugins_template_note">该文本是解析器读取的内容。它不能偏离代码，因为它是从代码生成的。</string>
+    <string name="max_plugins_copy_template">复制模板</string>
+    <string name="max_plugins_template_copied">已复制模板</string>
+    <string name="max_plugins_section_installed">在此设备上找到</string>
+    <string name="max_plugins_loading_title">读取插件文件夹</string>
+    <string name="max_plugins_loading_detail">列出具有 root 的清单文件夹，然后根据合同评估每个清单。</string>
+    <string name="max_plugins_accepted_count">%1$d已接受</string>
+    <string name="max_plugins_rejected_count">%1$d 拒绝</string>
+    <string name="max_plugins_unreadable_count">%1$d 文件夹没有可读的清单</string>
+    <string name="max_plugins_rejected_section">拒绝，并说明具体原因</string>
+    <string name="max_plugins_detail_label">宣布</string>
+    <string name="max_plugins_refresh_cd">重新读取插件文件夹</string>
+    <string name="max_plugins_capability_source">由插件报告，并非由我们测量</string>
+    <string name="max_plugins_cond_empty_title">没有安装插件</string>
+    <string name="max_plugins_cond_empty_detail">清单文件夹不包含插件文件夹。没有任何问题：这是该功能的默认状态。</string>
+    <string name="max_plugins_cond_missing_title">清单文件夹尚不存在</string>
+    <string name="max_plugins_cond_missing_detail">尚未在此设备上创建%1$s，因此没有任何内容可读取。创建它是插件作者需要做的全部工作。</string>
+    <string name="max_plugins_cond_unreadable_title">无法读取清单文件夹</string>
+    <string name="max_plugins_cond_unreadable_detail">该文件夹存在于 %1$s 但 shell 无法读取它。需要 root 才能列出它。</string>
+    <string name="max_plugins_reason_BadId">该 ID 不能用作文件夹名称。使用小写拉丁字母、数字、点、破折号或下划线，切勿连续使用两个点。</string>
+    <string name="max_plugins_reason_MissingName">清单上没有声明任何名称。</string>
+    <string name="max_plugins_reason_BadVersion">版本必须以数字开头，例如 1.0.0。</string>
+    <string name="max_plugins_reason_ApiTooOld">声明的 API 级别缺失或低于 1。</string>
+    <string name="max_plugins_reason_ApiTooNew">声明的 API 级别比此构建理解的新，因此它根本不运行。</string>
+    <string name="max_plugins_reason_MissingKind">清单声明没有种类。</string>
+    <string name="max_plugins_reason_UnknownKind">该类型不是已发布的类型之一。</string>
+    <string name="max_plugins_reason_UnknownCapability">该功能不属于本合同的一部分。未知的功能会被拒绝而不是被忽略，因此没有任何操作会以比其要求的权限更少的权限运行。</string>
+    <string name="max_plugins_reason_NoCapabilities">插件必须声明至少一项功能。</string>
+    <string name="max_plugins_reason_DuplicateId">具有此 id 的另一个插件已被接受，因此未使用此插件。</string>
+    <string name="max_plugins_help_title">为什么要签订合同</string>
+    <string name="max_plugins_help_body">如果没有发布的合同，任何扩展此应用程序的人都必须猜测我们内部文件的形状，并且我们无法区分有效的扩展和损坏的扩展。有了它，就规定了限制：插件声明意图并读取；它从不写入硬件，上面的每一个拒绝都指出了失败的确切字段。</string>
+</resources>

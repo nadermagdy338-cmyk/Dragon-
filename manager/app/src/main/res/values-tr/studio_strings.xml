@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANS STÜDYOSU</string>
+    <string name="studio_cpu_frequency">CPU frekans</string>
+    <string name="studio_load_history">Son CPU etkinliği</string>
+    <string name="studio_waiting_samples">Canlı okumalar toplanıyor…</string>
+    <string name="studio_automatic_profile">Otomatik mod etkin profili yönetir.</string>
+    <string name="studio_temperature">Sıcaklık</string>
+    <string name="studio_display">Görüntülemek</string>
+    <string name="studio_power">Güç seçenekleri</string>
+    <string name="studio_settings">Ayarlar</string>
+</resources>

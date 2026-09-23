@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">زندگی کنید</string>
+    <string name="max_trust_stale">آخرین نمونه</string>
+    <string name="max_trust_snapshot">عکس فوری</string>
+    <string name="max_trust_unreadable">بدون خواندن</string>
+    <string name="max_trust_unsupported">پشتیبانی نمی شود</string>
+    <string name="max_source_label">منبع</string>
+    <string name="max_updated_label">به روز شد</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">هیچ ارزشی در دسترس نیست</string>
+    <string name="max_expand_section">نمایش جزئیات</string>
+    <string name="max_collapse_section">پنهان کردن جزئیات</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Levende</string>
+    <string name="max_trust_stale">Sidste prøve</string>
+    <string name="max_trust_snapshot">Snapshot</string>
+    <string name="max_trust_unreadable">Ingen læsning</string>
+    <string name="max_trust_unsupported">Ikke understøttet</string>
+    <string name="max_source_label">Kilde</string>
+    <string name="max_updated_label">Opdateret</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">ingen værdi tilgængelig</string>
+    <string name="max_expand_section">Vis detaljer</string>
+    <string name="max_collapse_section">Skjul detaljer</string>
+</resources>

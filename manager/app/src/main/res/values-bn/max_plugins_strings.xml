@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">তৃতীয় পক্ষের প্লাগইন</string>
+    <string name="max_plugins_subtitle">প্রকাশিত চুক্তি: একটি প্লাগইন কী ঘোষণা করতে পারে এবং এখানে কী গৃহীত বা প্রত্যাখ্যান করা হয়েছে।</string>
+    <string name="max_plugins_section_contract">চুক্তি</string>
+    <string name="max_plugins_contract_api">API স্তর %1$d</string>
+    <string name="max_plugins_contract_dir">ম্যানিফেস্ট ফোল্ডার</string>
+    <string name="max_plugins_contract_rules">একটি ঘোষিত ক্ষমতা হয় একটি পঠন বা একটি প্রস্তাব। ইচ্ছাকৃতভাবে এমন কোন ক্ষমতা নেই যা হার্ডওয়্যার লিখতে পারে: এই অ্যাপের প্রতিটি লেখা আর্বিটারের মধ্য দিয়ে যায় এবং একটি প্লাগইন যা সরাসরি লিখতে পারে তা দুই মালিককে একই গাঁট লেখা বন্ধ করার জন্য নির্মিত গার্ডকে সরিয়ে দেবে।</string>
+    <string name="max_plugins_contract_keys">কি একটি ম্যানিফেস্ট থেকে পড়া</string>
+    <string name="max_plugins_contract_kinds">গৃহীত ধরনের</string>
+    <string name="max_plugins_contract_capabilities">গৃহীত ক্ষমতা</string>
+    <string name="max_plugins_template">ম্যানিফেস্ট টেমপ্লেট</string>
+    <string name="max_plugins_template_note">এই টেক্সট পার্সার কি পড়ে. এটি কোড থেকে প্রবাহিত হতে পারে না, কারণ এটি এটি থেকে উত্পন্ন হয়।</string>
+    <string name="max_plugins_copy_template">টেমপ্লেট কপি করুন</string>
+    <string name="max_plugins_template_copied">টেমপ্লেট কপি করা হয়েছে</string>
+    <string name="max_plugins_section_installed">এই ডিভাইসে পাওয়া গেছে</string>
+    <string name="max_plugins_loading_title">প্লাগইন ফোল্ডার পড়া</string>
+    <string name="max_plugins_loading_detail">রুট সহ ম্যানিফেস্ট ফোল্ডারের তালিকা করা, তারপর চুক্তির বিপরীতে প্রতিটি ম্যানিফেস্ট মূল্যায়ন করা।</string>
+    <string name="max_plugins_accepted_count">%1$d গৃহীত</string>
+    <string name="max_plugins_rejected_count">%1$d প্রত্যাখ্যান করেছে</string>
+    <string name="max_plugins_unreadable_count">%1$d একটি পঠনযোগ্য ম্যানিফেস্ট ছাড়া ফোল্ডার৷</string>
+    <string name="max_plugins_rejected_section">প্রত্যাখ্যান, সঠিক কারণ সহ</string>
+    <string name="max_plugins_detail_label">ঘোষিত</string>
+    <string name="max_plugins_refresh_cd">প্লাগইন ফোল্ডারটি পুনরায় পড়ুন</string>
+    <string name="max_plugins_capability_source">প্লাগইন দ্বারা রিপোর্ট করা হয়েছে, আমাদের দ্বারা পরিমাপ করা হয়নি</string>
+    <string name="max_plugins_cond_empty_title">কোন প্লাগইন ইনস্টল করা নেই</string>
+    <string name="max_plugins_cond_empty_detail">ম্যানিফেস্ট ফোল্ডারে কোনো প্লাগইন ফোল্ডার নেই। কিছুই ভুল নেই: এটি বৈশিষ্ট্যটির ডিফল্ট অবস্থা।</string>
+    <string name="max_plugins_cond_missing_title">ম্যানিফেস্ট ফোল্ডারটি এখনও বিদ্যমান নেই৷</string>
+    <string name="max_plugins_cond_missing_detail">%1$s এই ডিভাইসে তৈরি করা হয়নি, তাই পড়ার কিছু নেই। এটি তৈরি করা একটি প্লাগইন লেখককে করতে হবে।</string>
+    <string name="max_plugins_cond_unreadable_title">ম্যানিফেস্ট ফোল্ডার পড়া যাবে না</string>
+    <string name="max_plugins_cond_unreadable_detail">ফোল্ডারটি %1$s এ বিদ্যমান কিন্তু শেল এটি পড়তে পারেনি। এটি তালিকাভুক্ত করার জন্য রুট প্রয়োজন।</string>
+    <string name="max_plugins_reason_BadId">আইডিটি ফোল্ডারের নাম হিসাবে ব্যবহারযোগ্য নয়। ছোট হাতের ল্যাটিন অক্ষর, অঙ্ক, বিন্দু, ড্যাশ বা আন্ডারস্কোর ব্যবহার করুন এবং পরপর দুটি বিন্দু কখনই নয়।</string>
+    <string name="max_plugins_reason_MissingName">ম্যানিফেস্ট কোন নাম ঘোষণা করে না.</string>
+    <string name="max_plugins_reason_BadVersion">সংস্করণটি অবশ্যই সংখ্যা দিয়ে শুরু হবে, উদাহরণস্বরূপ 1.0.0৷</string>
+    <string name="max_plugins_reason_ApiTooOld">ঘোষিত API স্তর অনুপস্থিত বা 1 এর নিচে।</string>
+    <string name="max_plugins_reason_ApiTooNew">ঘোষিত API স্তরটি এই বিল্ড বোঝার চেয়ে নতুন, তাই এটি মোটেও চালানো হয় না।</string>
+    <string name="max_plugins_reason_MissingKind">ম্যানিফেস্ট কোনো ধরনের ঘোষণা করে না।</string>
+    <string name="max_plugins_reason_UnknownKind">প্রকার প্রকাশিত ধরনের এক নয়.</string>
+    <string name="max_plugins_reason_UnknownCapability">ক্ষমতা এই চুক্তির অংশ নয়। একটি অজানা ক্ষমতা উপেক্ষা করার পরিবর্তে প্রত্যাখ্যান করা হয়, তাই এটি চেয়ে কম অধিকারের সাথে কিছুই চলে না।</string>
+    <string name="max_plugins_reason_NoCapabilities">একটি প্লাগইন অন্তত একটি ক্ষমতা ঘোষণা করা আবশ্যক.</string>
+    <string name="max_plugins_reason_DuplicateId">এই আইডি সহ অন্য একটি প্লাগইন ইতিমধ্যেই গৃহীত হয়েছে, তাই এটি ব্যবহার করা হয়নি৷</string>
+    <string name="max_plugins_help_title">কেন সব একটি চুক্তি</string>
+    <string name="max_plugins_help_body">একটি প্রকাশিত চুক্তি ব্যতীত, যে কেউ এই অ্যাপটি প্রসারিত করবে তাকে আমাদের অভ্যন্তরীণ ফাইলগুলির আকার অনুমান করতে হবে এবং আমরা ভাঙা থেকে একটি বৈধ এক্সটেনশন বলতে পারি না। এটির সাথে, সীমাটি বলা হয়েছে: একটি প্লাগইন উদ্দেশ্য ঘোষণা করে এবং পাঠ করে; এটি কখনই হার্ডওয়্যার লেখে না, এবং উপরের প্রতিটি প্রত্যাখ্যান ব্যর্থ হওয়া সঠিক ক্ষেত্রের নাম দেয়।</string>
+</resources>

@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,10 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +50,6 @@ import nd.max.core.maxai.OwnershipCommitState
 import nd.max.ui.component.NeuralPalette
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralSectionHeader
-import nd.max.ui.component.NeuralSegmented
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.util.ActivityCardPreferences
 import nd.max.ui.util.StoryboardSources
@@ -127,10 +122,7 @@ internal fun UnifiedActivityCard(
 
     val palette = neuralPalette()
     val scheme = MaterialTheme.colorScheme
-    // المشهد المختار يبقى على نوعه بعد كل تحديث قراءة (كل ١٠ ثوانٍ)؛ وإن اختفى النوع
-    // المختار (انتهت جلسة مثلًا) يُعاد الأول — لا اختيار لمشهد لم يعد موجودًا.
-    var chosen by remember { mutableStateOf<SceneKind?>(null) }
-    val scene = model.scenes.firstOrNull { it.kind == chosen } ?: model.scenes.first()
+    val scene = model.scenes.first()
     val duration = state.options.motion.enterMs
     NeuralPanel(modifier = modifier.fillMaxWidth(), accent = palette.accent) {
         NeuralSectionHeader(
@@ -138,17 +130,6 @@ internal fun UnifiedActivityCard(
             caption = stringResource(R.string.storyboard_title),
             accent = palette.accent,
         )
-        // أكثر من قصة ⇒ مُنتقى مشاهد، وكل قصة تُقرأ كاملة في عرضها. والجمع القديم
-        // (المشهد الأول كامل + أطراف البقية) كان يعطي سطرًا لكل قصة ويضيّع أثر كل حدث؛
-        // والمشهد الوحيد يبقى بلا مُنتقى فلا يُعرض مقبض بلا حاجة.
-        if (model.scenes.size > 1) {
-            NeuralSegmented(
-                labels = model.scenes.map { stringResource(sceneLabelRes(it.kind)) },
-                selectedIndex = model.scenes.indexOf(scene),
-                onSelect = { index -> chosen = model.scenes[index].kind },
-                accent = palette.accent,
-            )
-        }
         // «الحركة موقوفة» تُلغي `AnimatedContent` نفسه لا مدّته فقط: صفر مدّة مع عنصر رسوم
         // متحرّكة يبقى عنصرًا يشارك في إطار الرسم، والإيقاف الحقيقي هو عدم استخدامه.
         if (duration <= 0) {
@@ -156,15 +137,39 @@ internal fun UnifiedActivityCard(
         } else {
             AnimatedContent(
                 targetState = scene,
-                transitionSpec = {
-                    (
-                        fadeIn(tween(duration)) +
-                            slideInVertically(tween(duration)) { it / 10 }
-                        ) togetherWith fadeOut(tween(duration / 2))
-                },
+                transitionSpec = { fadeIn(tween(duration)) togetherWith fadeOut(tween(duration / 2)) },
                 label = "unified-activity-scene",
             ) { current ->
                 SceneBody(model, current, scheme, palette)
+            }
+        }
+        // ما تبقّى: مُرشَّح سلفًا (لا تكرار مع المشهد الأول)، ومحدود برصيد البطاقة، وبشكله.
+        val rest = model.scenes.drop(1)
+        when (model.style) {
+            UnifiedActivityModel.CardStyle.CHIPS -> {
+                for (pair in rest.flatMap { it.lines }.chunked(2)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        for (line in pair) {
+                            SceneChip(line, model.showReason, scheme, Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+            // «خط زمني»: كل حدث برأسه ووقته (حيث وُجد وقت) بدل دمج الأسطر في قائمة تفقد متى وقع
+            // كل حدث. وهذا هو الفرق المقصود بينه وبين «قائمة مختصرة»: ليست كثافة أسطر بل أحداث.
+            UnifiedActivityModel.CardStyle.TIMELINE -> {
+                for (event in rest) {
+                    Spacer(Modifier.height(10.dp))
+                    SceneHeading(event, palette)
+                    for (line in event.lines) {
+                        SceneLine(line, scheme, showReason = model.showReason)
+                    }
+                }
+            }
+            else -> {
+                for (line in rest.flatMap { it.lines }) {
+                    SceneLine(line, scheme, showReason = model.showReason)
+                }
             }
         }
     }

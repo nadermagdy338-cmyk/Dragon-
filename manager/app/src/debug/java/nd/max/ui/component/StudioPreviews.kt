@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
-import nd.max.ui.mainscreens.MaxHomeContent
+import nd.max.ui.mainscreens.HomeDashboardContent
 import nd.max.ui.util.LoadSample
 import nd.max.ui.viewmodel.DashboardState
 import nd.max.ui.viewmodel.HomeUiState
@@ -141,7 +141,7 @@ private fun HomeCommandPreview(missing: Boolean = false) {
     }
     val colors = rememberDynamicColorScheme(seedColor = MaxManagerBrandSeed, isDark = true, primary = MaxManagerBrandSeed, secondary = androidx.compose.ui.graphics.Color(0xFF00B7C7), tertiary = androidx.compose.ui.graphics.Color(0xFF9B7BFF))
     MaterialTheme(colorScheme = colors, typography = Typography, shapes = Shapes) {
-        MaxHomeContent(
+        HomeDashboardContent(
             ui = HomeUiState(rootStatus = true, moduleInstalled = true, autoMode = "0"),
             dashboard = if (missing) DashboardState(chipsetName = "Unknown SoC") else DashboardState(ramUsedMb = 4300, ramTotalMb = 8192, cpuLoadPercent = 48, cpuFreqMhz = 2400, chipsetName = "Snapdragon 8 Gen 3", batteryPercent = 74, batteryTempC = 37.4f, batteryStatus = "Discharging", storageUsedGb = 128f, storageTotalGb = 256f, downloadSpeedKbps = 850, uploadSpeedKbps = 120, displayWidth = 1440, displayHeight = 3200, displayRefreshHz = 120, loadSamples = previewSamples),
             maxAi = MaxAiState(aiEnabled = true, strategyLabel = "Balanced"),

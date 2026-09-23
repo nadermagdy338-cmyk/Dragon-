@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">მესამე მხარის დანამატები</string>
+    <string name="max_plugins_subtitle">გამოქვეყნებული კონტრაქტი: რა შეიძლება განაცხადოს დანამატმა და რა იქნა მიღებული ან უარი აქ.</string>
+    <string name="max_plugins_section_contract">კონტრაქტი</string>
+    <string name="max_plugins_contract_api">API დონე %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest საქაღალდე</string>
+    <string name="max_plugins_contract_rules">დეკლარირებული შესაძლებლობა არის წაკითხვა ან წინადადება. შეგნებულად არ არსებობს აპარატურის ჩაწერის შესაძლებლობა: ამ აპში ყოველი ჩანაწერი გადის არბიტრის მეშვეობით, და დანამატი, რომელსაც შეეძლო პირდაპირ დაწერა, ამოიღებს დამცავ მცველს, რომელიც შეჩერებულია ორი მფლობელის ერთიდაიგივე სახელურის დაწერაზე.</string>
+    <string name="max_plugins_contract_keys">გასაღებები წაკითხული მანიფესტიდან</string>
+    <string name="max_plugins_contract_kinds">მიღებული სახეობები</string>
+    <string name="max_plugins_contract_capabilities">მიღებული შესაძლებლობები</string>
+    <string name="max_plugins_template">მანიფესტის შაბლონი</string>
+    <string name="max_plugins_template_note">ამ ტექსტს კითხულობს პარსერი. მას არ შეუძლია გადაიტანოს კოდიდან, რადგან ის იქმნება მისგან.</string>
+    <string name="max_plugins_copy_template">დააკოპირეთ შაბლონი</string>
+    <string name="max_plugins_template_copied">შაბლონი კოპირებულია</string>
+    <string name="max_plugins_section_installed">ნაპოვნია ამ მოწყობილობაზე</string>
+    <string name="max_plugins_loading_title">მოდულის საქაღალდის წაკითხვა</string>
+    <string name="max_plugins_loading_detail">manifest-ის საქაღალდის ჩამოთვლა root-ით, შემდეგ თითოეული მანიფესტის შეფასება კონტრაქტის მიხედვით.</string>
+    <string name="max_plugins_accepted_count">%1$d მიღებულია</string>
+    <string name="max_plugins_rejected_count">%1$d უარი თქვა</string>
+    <string name="max_plugins_unreadable_count">%1$d საქაღალდე წაკითხული მანიფესტის გარეშე</string>
+    <string name="max_plugins_rejected_section">უარი თქვა, ზუსტი მიზეზით</string>
+    <string name="max_plugins_detail_label">გამოაცხადა</string>
+    <string name="max_plugins_refresh_cd">ხელახლა წაიკითხეთ დანამატის საქაღალდე</string>
+    <string name="max_plugins_capability_source">მოხსენებულია დანამატის მიერ, ჩვენ მიერ არ არის გაზომილი</string>
+    <string name="max_plugins_cond_empty_title">არ არის დაინსტალირებული დანამატები</string>
+    <string name="max_plugins_cond_empty_detail">manifest-ის საქაღალდეში არ არის დანამატის საქაღალდეები. არაფერია ცუდი: ეს არის ფუნქციის ნაგულისხმევი მდგომარეობა.</string>
+    <string name="max_plugins_cond_missing_title">Manifest საქაღალდე ჯერ არ არსებობს</string>
+    <string name="max_plugins_cond_missing_detail">%1$s არ არის შექმნილი ამ მოწყობილობაზე, ამიტომ წასაკითხი არაფერია. მისი შექმნა არის ყველაფერი, რაც მოდულის ავტორმა უნდა გააკეთოს.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifest საქაღალდის წაკითხვა შეუძლებელია</string>
+    <string name="max_plugins_cond_unreadable_detail">საქაღალდე არსებობს %1$s-ზე, მაგრამ ჭურვი ვერ წაიკითხა. Root არის საჭირო მის ჩამოთვლაში.</string>
+    <string name="max_plugins_reason_BadId">ID არ არის გამოყენებული საქაღალდის სახელით. გამოიყენეთ პატარა ლათინური ასოები, ციფრები, წერტილები, ტირეები ან ხაზგასმული ხაზები და არასოდეს გამოიყენოთ ზედიზედ ორი წერტილი.</string>
+    <string name="max_plugins_reason_MissingName">მანიფესტი არ აცხადებს სახელს.</string>
+    <string name="max_plugins_reason_BadVersion">ვერსია უნდა დაიწყოს ციფრებით, მაგალითად 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">გამოცხადებული API დონე აკლია ან 1-ზე ნაკლებია.</string>
+    <string name="max_plugins_reason_ApiTooNew">გამოცხადებული API დონე უფრო ახალია, ვიდრე ამ build-ს ესმის, ამიტომ ის საერთოდ არ არის გაშვებული.</string>
+    <string name="max_plugins_reason_MissingKind">მანიფესტი აცხადებს არანაირ სახეობას.</string>
+    <string name="max_plugins_reason_UnknownKind">ტიპი არ არის გამოქვეყნებული სახეობებიდან.</string>
+    <string name="max_plugins_reason_UnknownCapability">შესაძლებლობა არ არის ამ ხელშეკრულების ნაწილი. უცნობ შესაძლებლობებზე უარის თქმა ხდება, ვიდრე იგნორირება, ამიტომ არაფერი მუშაობს იმაზე ნაკლები უფლებებით, ვიდრე ითხოვდა.</string>
+    <string name="max_plugins_reason_NoCapabilities">დანამატმა უნდა გამოაცხადოს მინიმუმ ერთი შესაძლებლობა.</string>
+    <string name="max_plugins_reason_DuplicateId">სხვა მოდული ამ ID-ით უკვე მიღებულია, ამიტომ ეს არ გამოიყენება.</string>
+    <string name="max_plugins_help_title">რატომ საერთოდ კონტრაქტი</string>
+    <string name="max_plugins_help_body">გამოქვეყნებული კონტრაქტის გარეშე, ნებისმიერმა, ვინც ავრცელებს ამ აპს, უნდა გამოიცნოს ჩვენი შიდა ფაილების ფორმა და ჩვენ არ შეგვიძლია გავარჩიოთ სწორი გაფართოება გატეხილიდან. მასთან ერთად მითითებულია ლიმიტი: დანამატი აცხადებს განზრახვას და კითხულობს; ის არასოდეს წერს აპარატურას და ზემოთ მოყვანილი ყოველი უარი ასახელებს ზუსტ ველს, რომელიც ვერ მოხერხდა.</string>
+</resources>

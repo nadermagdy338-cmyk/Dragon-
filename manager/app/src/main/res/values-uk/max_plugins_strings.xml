@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Сторонні плагіни</string>
+    <string name="max_plugins_subtitle">Опублікований контракт: що плагін може декларувати, і що було прийнято або відхилено тут.</string>
+    <string name="max_plugins_section_contract">Договір</string>
+    <string name="max_plugins_contract_api">Рівень API %1$d</string>
+    <string name="max_plugins_contract_dir">Папка маніфесту</string>
+    <string name="max_plugins_contract_rules">Оголошена можливість – це або читання, або пропозиція. Навмисно немає можливості записувати апаратне забезпечення: кожен запис у цьому додатку проходить через арбітра, а плагін, який міг би записувати безпосередньо, усунув би захист, створений для того, щоб запобігти запису двох власників однієї ручки.</string>
+    <string name="max_plugins_contract_keys">Ключі, зчитані з маніфесту</string>
+    <string name="max_plugins_contract_kinds">Прийняті види</string>
+    <string name="max_plugins_contract_capabilities">Прийняті можливості</string>
+    <string name="max_plugins_template">Шаблон маніфесту</string>
+    <string name="max_plugins_template_note">Цей текст читає аналізатор. Він не може відхилятися від коду, оскільки генерується з нього.</string>
+    <string name="max_plugins_copy_template">Скопіюйте шаблон</string>
+    <string name="max_plugins_template_copied">Шаблон скопійовано</string>
+    <string name="max_plugins_section_installed">Знайдено на цьому пристрої</string>
+    <string name="max_plugins_loading_title">Читання папки плагіна</string>
+    <string name="max_plugins_loading_detail">Перелік папки маніфесту з коренем, а потім оцінка кожного маніфесту відповідно до контракту.</string>
+    <string name="max_plugins_accepted_count">%1$d прийнято</string>
+    <string name="max_plugins_rejected_count">%1$d відмовився</string>
+    <string name="max_plugins_unreadable_count">%1$d папка без читабельного маніфесту</string>
+    <string name="max_plugins_rejected_section">Відмовлено, з точною причиною</string>
+    <string name="max_plugins_detail_label">Заявлено</string>
+    <string name="max_plugins_refresh_cd">Перечитайте папку плагіна</string>
+    <string name="max_plugins_capability_source">Повідомлено плагіном, не виміряно нами</string>
+    <string name="max_plugins_cond_empty_title">Плагіни не встановлено</string>
+    <string name="max_plugins_cond_empty_detail">Папка маніфесту не містить папок плагінів. Нічого страшного: це стандартний стан функції.</string>
+    <string name="max_plugins_cond_missing_title">Папки маніфесту ще не існує</string>
+    <string name="max_plugins_cond_missing_detail">%1$s не було створено на цьому пристрої, тому нема чого читати. Його створення — це все, що потрібно зробити автору плагіна.</string>
+    <string name="max_plugins_cond_unreadable_title">Папку маніфесту неможливо прочитати</string>
+    <string name="max_plugins_cond_unreadable_detail">Папка існує за адресою %1$s, але оболонка не може її прочитати. Для його перерахування потрібен root.</string>
+    <string name="max_plugins_reason_BadId">Ідентифікатор не можна використовувати як назву папки. Використовуйте малі латинські літери, цифри, крапки, тире або підкреслення, і ніколи не дві крапки поспіль.</string>
+    <string name="max_plugins_reason_MissingName">У маніфесті не зазначено імені.</string>
+    <string name="max_plugins_reason_BadVersion">Версія має починатися з цифр, наприклад 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Заявлений рівень API відсутній або нижче 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Оголошений рівень API є новішим, ніж розуміє ця збірка, тому він не запускається взагалі.</string>
+    <string name="max_plugins_reason_MissingKind">У маніфесті вказано, що роду немає.</string>
+    <string name="max_plugins_reason_UnknownKind">Вид не є одним із опублікованих видів.</string>
+    <string name="max_plugins_reason_UnknownCapability">Можливість не є частиною цього контракту. Невідома можливість відхиляється, а не ігнорується, тому ніщо не працює з меншими правами, ніж запитувано.</string>
+    <string name="max_plugins_reason_NoCapabilities">Плагін повинен декларувати принаймні одну можливість.</string>
+    <string name="max_plugins_reason_DuplicateId">Інший плагін із цим ідентифікатором уже прийнято, тому цей не використовується.</string>
+    <string name="max_plugins_help_title">Навіщо взагалі контракт</string>
+    <string name="max_plugins_help_body">Без опублікованого контракту кожен, хто розширює цю програму, повинен вгадати форму наших внутрішніх файлів, і ми не можемо відрізнити дійсне розширення від несправного. У ньому встановлено обмеження: плагін декларує намір і читає; він ніколи не записує апаратне забезпечення, і кожна відмова вище називає точне поле, яке не вдалося.</string>
+</resources>

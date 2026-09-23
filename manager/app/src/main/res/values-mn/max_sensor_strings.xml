@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Энэ төхөөрөмжөөс мэдээлсэн мэдрэгч</string>
+    <string name="max_sensor_desc">Платформ нь өөрийн техник хангамжийн талаар юу гэж зарлаж байна, дээр нь нэг хязгаарлагдмал гэрлийн уншилт. Шалгалт, эрүүл мэндийн оноо байхгүй: хоёуланд нь бидэнд байхгүй физик лавлагаа шаардлагатай.</string>
+    <string name="max_sensor_service">Мэдрэгчийн үйлчилгээ</string>
+    <string name="max_sensor_service_unavailable">хүрч чадсангүй</string>
+    <string name="max_sensor_count">Мэдрэгч мэдээлсэн</string>
+    <string name="max_sensor_kinds">Ангилалууд байна</string>
+    <string name="max_sensor_wakeup">Сэрэх мэдрэгч (төхөөрөмжийг унтаж байх үед мэдээлэх)</string>
+    <string name="max_sensor_light">Орчны гэрэл</string>
+    <string name="max_sensor_unit_lux">люкс</string>
+    <string name="max_sensor_light_absent">Энэ төхөөрөмж нь гэрлийн мэдрэгч байхгүй гэж мэдээлдэг</string>
+    <string name="max_sensor_light_unreadable">Хугацаа дуусахаас өмнө уншилт ирээгүй - үл мэдэгдэх, тэг биш</string>
+    <string name="max_sensor_more">…болон %1$s бусад</string>
+    <string name="max_sensor_no_score">Нэр, хүрээ, саатал нь платформоос ирдэг. Мэдээлж буй мэдрэгч нь үнэн зөв болохыг нотолж чадахгүй.</string>
+    <string name="max_sensor_kind_motion">Хөдөлгөөн</string>
+    <string name="max_sensor_kind_environment">Байгаль орчин</string>
+    <string name="max_sensor_kind_position">Албан тушаал</string>
+    <string name="max_sensor_kind_body">Бие</string>
+    <string name="max_sensor_kind_unpositioned">Байршилгүй</string>
+    <string name="max_sensor_kind_other">Бусад</string>
+</resources>

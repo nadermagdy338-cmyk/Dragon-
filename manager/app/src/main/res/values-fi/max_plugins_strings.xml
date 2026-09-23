@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Kolmannen osapuolen laajennukset</string>
+    <string name="max_plugins_subtitle">Julkaistu sopimus: mitä laajennus voi ilmoittaa ja mitä täällä hyväksyttiin tai hylättiin.</string>
+    <string name="max_plugins_section_contract">Sopimus</string>
+    <string name="max_plugins_contract_api">API-taso %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest-kansio</string>
+    <string name="max_plugins_contract_rules">Ilmoitettu kyky on joko luku tai ehdotus. Ei ole tarkoituksella mitään laitteistoa kirjoittavaa toimintoa: jokainen kirjoitus tässä sovelluksessa menee välimiehen läpi, ja suoraan kirjoittava laajennus poistaisi suojan, joka on rakennettu estämään kahta omistajaa kirjoittamasta samaa nuppia.</string>
+    <string name="max_plugins_contract_keys">Avaimet luetaan luettelosta</string>
+    <string name="max_plugins_contract_kinds">Hyväksytyt lajikkeet</string>
+    <string name="max_plugins_contract_capabilities">Hyväksytyt ominaisuudet</string>
+    <string name="max_plugins_template">Manifest-malli</string>
+    <string name="max_plugins_template_note">Tämä teksti on se, mitä jäsentäjä lukee. Se ei voi ajautua koodista, koska se on luotu siitä.</string>
+    <string name="max_plugins_copy_template">Kopioi malli</string>
+    <string name="max_plugins_template_copied">Malli kopioitu</string>
+    <string name="max_plugins_section_installed">Löytyy tältä laitteelta</string>
+    <string name="max_plugins_loading_title">Lisäosien kansion lukeminen</string>
+    <string name="max_plugins_loading_detail">Luettelokansion luettelointi pääkäyttäjän kanssa ja sen jälkeen jokaisen luettelon arvioiminen sopimukseen nähden.</string>
+    <string name="max_plugins_accepted_count">%1$d hyväksytty</string>
+    <string name="max_plugins_rejected_count">%1$d kieltäytyi</string>
+    <string name="max_plugins_unreadable_count">%1$d kansio ilman luettavaa luetteloa</string>
+    <string name="max_plugins_rejected_section">Kieltäytyi tarkalla syyllä</string>
+    <string name="max_plugins_detail_label">Ilmoitettu</string>
+    <string name="max_plugins_refresh_cd">Lue laajennuskansio uudelleen</string>
+    <string name="max_plugins_capability_source">Plugin raportoi, emme mittaaneet</string>
+    <string name="max_plugins_cond_empty_title">Laajennuksia ei ole asennettu</string>
+    <string name="max_plugins_cond_empty_detail">Luettelokansiossa ei ole laajennuskansioita. Mikään ei ole vialla: tämä on ominaisuuden oletustila.</string>
+    <string name="max_plugins_cond_missing_title">Luettelokansiota ei ole vielä olemassa</string>
+    <string name="max_plugins_cond_missing_detail">%1$s ei ole luotu tälle laitteelle, joten ei ole mitään luettavaa. Sen luominen on kaikki, mitä laajennuksen tekijän tarvitsee tehdä.</string>
+    <string name="max_plugins_cond_unreadable_title">Luettelokansiota ei voi lukea</string>
+    <string name="max_plugins_cond_unreadable_detail">Kansio on olemassa osoitteessa %1$s, mutta komentotulkki ei voinut lukea sitä. Root vaaditaan sen luettelointiin.</string>
+    <string name="max_plugins_reason_BadId">Tunnusta ei voi käyttää kansion nimenä. Käytä pieniä latinalaisia ​​kirjaimia, numeroita, pisteitä, väliviivoja tai alaviivoja äläkä koskaan kahta pistettä peräkkäin.</string>
+    <string name="max_plugins_reason_MissingName">Luettelossa ei mainita nimeä.</string>
+    <string name="max_plugins_reason_BadVersion">Version tulee alkaa numeroilla, esimerkiksi 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Ilmoitettu API-taso puuttuu tai on alle 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Ilmoitettu API-taso on uudempi kuin tämä koontiversio ymmärtää, joten sitä ei ajeta ollenkaan.</string>
+    <string name="max_plugins_reason_MissingKind">Manifesti ilmoittaa, ettei mikään.</string>
+    <string name="max_plugins_reason_UnknownKind">Laji ei kuulu julkaistuihin tyyppeihin.</string>
+    <string name="max_plugins_reason_UnknownCapability">Kyky ei ole osa tätä sopimusta. Tuntematon ominaisuus hylätään mieluummin kuin jätetään huomiotta, joten mikään ei toimi vähemmillä oikeuksilla kuin pyydettiin.</string>
+    <string name="max_plugins_reason_NoCapabilities">Laajennuksen on ilmoitettava vähintään yksi ominaisuus.</string>
+    <string name="max_plugins_reason_DuplicateId">Toinen tällä tunnuksella varustettu laajennus oli jo hyväksytty, joten tätä ei käytetä.</string>
+    <string name="max_plugins_help_title">Miksi sopimus ylipäätään</string>
+    <string name="max_plugins_help_body">Ilman julkaistua sopimusta jokaisen tätä sovellusta laajentavan on arvattava sisäisten tiedostojemme muoto, emmekä voi erottaa kelvollista laajennusta rikkinäisestä. Sen avulla raja on ilmoitettu: laajennus ilmoittaa tarkoituksen ja lukee; se ei koskaan kirjoita laitteistoa, ja jokainen yllä oleva kieltäytyminen nimeää tarkan kentän, joka epäonnistui.</string>
+</resources>

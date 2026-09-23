@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Live</string>
+    <string name="max_trust_stale">Акыркы үлгү</string>
+    <string name="max_trust_snapshot">Снапшот</string>
+    <string name="max_trust_unreadable">Окуу жок</string>
+    <string name="max_trust_unsupported">Колдоого алынбайт</string>
+    <string name="max_source_label">Булак</string>
+    <string name="max_updated_label">Жаңыртылган</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">эч кандай маани жок</string>
+    <string name="max_expand_section">Деталдарды көрсөтүү</string>
+    <string name="max_collapse_section">Деталдарды жашыруу</string>
+</resources>

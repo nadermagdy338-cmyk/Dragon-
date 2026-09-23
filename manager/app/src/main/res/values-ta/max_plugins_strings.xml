@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">மூன்றாம் தரப்பு செருகுநிரல்கள்</string>
+    <string name="max_plugins_subtitle">வெளியிடப்பட்ட ஒப்பந்தம்: ஒரு செருகுநிரல் என்ன அறிவிக்கலாம் மற்றும் இங்கே ஏற்றுக்கொள்ளப்பட்ட அல்லது மறுக்கப்பட்டவை.</string>
+    <string name="max_plugins_section_contract">ஒப்பந்தம்</string>
+    <string name="max_plugins_contract_api">API நிலை %1$d</string>
+    <string name="max_plugins_contract_dir">மேனிஃபெஸ்ட் கோப்புறை</string>
+    <string name="max_plugins_contract_rules">அறிவிக்கப்பட்ட திறன் என்பது வாசிப்பு அல்லது முன்மொழிவு. வன்பொருளை எழுதும் திறன் வேண்டுமென்றே இல்லை: இந்தப் பயன்பாட்டில் உள்ள ஒவ்வொரு எழுத்தும் நடுவர் வழியாகச் செல்கிறது, மேலும் நேரடியாக எழுதக்கூடிய ஒரு செருகுநிரல் இரண்டு உரிமையாளர்கள் ஒரே குமிழியை எழுதுவதைத் தடுக்க கட்டப்பட்ட காவலரை அகற்றும்.</string>
+    <string name="max_plugins_contract_keys">மேனிஃபெஸ்ட்டிலிருந்து படிக்கப்பட்ட விசைகள்</string>
+    <string name="max_plugins_contract_kinds">ஏற்றுக்கொள்ளப்பட்ட வகைகள்</string>
+    <string name="max_plugins_contract_capabilities">ஏற்றுக்கொள்ளப்பட்ட திறன்கள்</string>
+    <string name="max_plugins_template">மேனிஃபெஸ்ட் டெம்ப்ளேட்</string>
+    <string name="max_plugins_template_note">இந்த உரையை பாகுபடுத்தி வாசிக்கிறார். இது குறியீட்டிலிருந்து விலகிச் செல்ல முடியாது, ஏனெனில் அது அதிலிருந்து உருவாக்கப்படுகிறது.</string>
+    <string name="max_plugins_copy_template">டெம்ப்ளேட்டை நகலெடுக்கவும்</string>
+    <string name="max_plugins_template_copied">டெம்ப்ளேட் நகலெடுக்கப்பட்டது</string>
+    <string name="max_plugins_section_installed">இந்த சாதனத்தில் கண்டறியப்பட்டது</string>
+    <string name="max_plugins_loading_title">செருகுநிரல் கோப்புறையைப் படித்தல்</string>
+    <string name="max_plugins_loading_detail">மேனிஃபெஸ்ட் கோப்புறையை ரூட்டுடன் பட்டியலிடுகிறது, பின்னர் ஒப்பந்தத்திற்கு எதிராக ஒவ்வொரு மேனிஃபெஸ்டையும் மதிப்பிடுகிறது.</string>
+    <string name="max_plugins_accepted_count">%1$d ஏற்றுக்கொள்ளப்பட்டது</string>
+    <string name="max_plugins_rejected_count">%1$d மறுத்தது</string>
+    <string name="max_plugins_unreadable_count">படிக்கக்கூடிய மேனிஃபெஸ்ட் இல்லாத %1$d கோப்புறை</string>
+    <string name="max_plugins_rejected_section">சரியான காரணத்துடன் மறுத்தார்</string>
+    <string name="max_plugins_detail_label">அறிவித்தார்</string>
+    <string name="max_plugins_refresh_cd">செருகுநிரல் கோப்புறையை மீண்டும் படிக்கவும்</string>
+    <string name="max_plugins_capability_source">சொருகி மூலம் புகாரளிக்கப்பட்டது, எங்களால் அளவிடப்படவில்லை</string>
+    <string name="max_plugins_cond_empty_title">செருகுநிரல்கள் எதுவும் நிறுவப்படவில்லை</string>
+    <string name="max_plugins_cond_empty_detail">மேனிஃபெஸ்ட் கோப்புறையில் செருகுநிரல் கோப்புறைகள் இல்லை. எதுவும் தவறாக இல்லை: இது அம்சத்தின் இயல்புநிலை நிலை.</string>
+    <string name="max_plugins_cond_missing_title">மேனிஃபெஸ்ட் கோப்புறை இன்னும் இல்லை</string>
+    <string name="max_plugins_cond_missing_detail">இந்தச் சாதனத்தில் %1$s உருவாக்கப்படவில்லை, எனவே படிக்க எதுவும் இல்லை. அதை உருவாக்குவது ஒரு செருகுநிரல் ஆசிரியர் செய்ய வேண்டியது.</string>
+    <string name="max_plugins_cond_unreadable_title">மேனிஃபெஸ்ட் கோப்புறையைப் படிக்க முடியாது</string>
+    <string name="max_plugins_cond_unreadable_detail">கோப்புறை %1$s இல் உள்ளது ஆனால் ஷெல் அதை படிக்க முடியவில்லை. அதை பட்டியலிட ரூட் தேவை.</string>
+    <string name="max_plugins_reason_BadId">ஐடியை கோப்புறை பெயராகப் பயன்படுத்த முடியாது. சிற்றெழுத்து லத்தீன் எழுத்துக்கள், இலக்கங்கள், புள்ளிகள், கோடுகள் அல்லது அடிக்கோடுகள் ஆகியவற்றைப் பயன்படுத்தவும், ஒரு வரிசையில் இரண்டு புள்ளிகளைப் பயன்படுத்த வேண்டாம்.</string>
+    <string name="max_plugins_reason_MissingName">மேனிஃபெஸ்ட் எந்த பெயரையும் அறிவிக்கவில்லை.</string>
+    <string name="max_plugins_reason_BadVersion">பதிப்பு இலக்கங்களுடன் தொடங்க வேண்டும், எடுத்துக்காட்டாக 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">அறிவிக்கப்பட்ட API நிலை காணவில்லை அல்லது 1க்குக் கீழே உள்ளது.</string>
+    <string name="max_plugins_reason_ApiTooNew">அறிவிக்கப்பட்ட API நிலை இந்த உருவாக்கம் புரிந்துகொள்வதை விட புதியது, எனவே இது இயங்கவில்லை.</string>
+    <string name="max_plugins_reason_MissingKind">வெளிப்படையானது எந்த வகையையும் அறிவிக்கவில்லை.</string>
+    <string name="max_plugins_reason_UnknownKind">இந்த வகை வெளியிடப்பட்ட வகைகளில் ஒன்றல்ல.</string>
+    <string name="max_plugins_reason_UnknownCapability">திறன் இந்த ஒப்பந்தத்தின் ஒரு பகுதியாக இல்லை. அறியப்படாத திறன் புறக்கணிக்கப்படுவதற்குப் பதிலாக நிராகரிக்கப்படுகிறது, எனவே அது கேட்டதை விட குறைவான உரிமைகளுடன் எதுவும் இயங்காது.</string>
+    <string name="max_plugins_reason_NoCapabilities">ஒரு செருகுநிரல் குறைந்தபட்சம் ஒரு திறனை அறிவிக்க வேண்டும்.</string>
+    <string name="max_plugins_reason_DuplicateId">இந்த ஐடியுடன் மற்றொரு செருகுநிரல் ஏற்கனவே ஏற்றுக்கொள்ளப்பட்டது, எனவே இது பயன்படுத்தப்படவில்லை.</string>
+    <string name="max_plugins_help_title">ஏன் ஒரு ஒப்பந்தம்</string>
+    <string name="max_plugins_help_body">வெளியிடப்பட்ட ஒப்பந்தம் இல்லாமல், இந்தப் பயன்பாட்டை நீட்டிக்கும் எவரும் எங்களின் உள் கோப்புகளின் வடிவத்தை யூகிக்க வேண்டும், மேலும் உடைந்த ஒன்றிலிருந்து சரியான நீட்டிப்பை எங்களால் கூற முடியாது. அதனுடன், வரம்பு கூறப்பட்டுள்ளது: ஒரு செருகுநிரல் நோக்கத்தை அறிவிக்கிறது மற்றும் படிக்கிறது; அது ஒருபோதும் வன்பொருளை எழுதுவதில்லை, மேலும் மேலே உள்ள ஒவ்வொரு மறுப்பும் தோல்வியடைந்த சரியான புலத்தை பெயரிடுகிறது.</string>
+</resources>

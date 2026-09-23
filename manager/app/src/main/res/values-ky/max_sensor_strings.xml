@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Бул түзмөк кабарлаган сенсорлор</string>
+    <string name="max_sensor_desc">Платформа өзүнүн аппараттык жабдыктары жөнүндө эмнени жарыялайт, ошондой эле бир чектелген жарык окуу. Калибрлөө жана ден соолук упайы жок: экөөнө тең физикалык маалымдама бизде жок.</string>
+    <string name="max_sensor_service">Сенсор кызматы</string>
+    <string name="max_sensor_service_unavailable">жете алган жок</string>
+    <string name="max_sensor_count">Сенсорлор билдирди</string>
+    <string name="max_sensor_kinds">Категориялар бар</string>
+    <string name="max_sensor_wakeup">Ойготуу сенсорлору (түзмөк уктап жатканда кабарлоо)</string>
+    <string name="max_sensor_light">Айланадагы жарык</string>
+    <string name="max_sensor_unit_lux">люкс</string>
+    <string name="max_sensor_light_absent">бул аппарат жарык сенсору жок деп кабарлайт</string>
+    <string name="max_sensor_light_unreadable">тайм-ауттун алдында эч кандай окуу келген жок - белгисиз, нөл эмес</string>
+    <string name="max_sensor_more">…жана %1$s дагы</string>
+    <string name="max_sensor_no_score">Аттар, диапазондор жана кечигүүлөр платформадан келет. Билдирүүчү сенсор анын так экенин далилдей албайт.</string>
+    <string name="max_sensor_kind_motion">Кыймыл</string>
+    <string name="max_sensor_kind_environment">Курчап турган чөйрө</string>
+    <string name="max_sensor_kind_position">Позиция</string>
+    <string name="max_sensor_kind_body">Дене</string>
+    <string name="max_sensor_kind_unpositioned">Unpositioned</string>
+    <string name="max_sensor_kind_other">Башка</string>
+</resources>

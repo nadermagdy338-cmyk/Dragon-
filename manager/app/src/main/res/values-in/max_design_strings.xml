@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Hidup</string>
+    <string name="max_trust_stale">Sampel terakhir</string>
+    <string name="max_trust_snapshot">Foto</string>
+    <string name="max_trust_unreadable">Tidak ada bacaan</string>
+    <string name="max_trust_unsupported">Tidak didukung</string>
+    <string name="max_source_label">Sumber</string>
+    <string name="max_updated_label">Diperbarui</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">tidak ada nilai yang tersedia</string>
+    <string name="max_expand_section">Tampilkan detailnya</string>
+    <string name="max_collapse_section">Sembunyikan detailnya</string>
+</resources>

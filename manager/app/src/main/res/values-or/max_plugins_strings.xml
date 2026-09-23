@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">ତୃତୀୟ-ପକ୍ଷ ପ୍ଲଗଇନ୍ |</string>
+    <string name="max_plugins_subtitle">ପ୍ରକାଶିତ ଚୁକ୍ତି: ଏକ ପ୍ଲଗଇନ୍ କ’ଣ ଘୋଷଣା କରିପାରିବ, ଏବଂ ଏଠାରେ କ’ଣ ଗ୍ରହଣ କରାଯାଇଥିଲା କିମ୍ବା ମନା କରାଯାଇଥିଲା |</string>
+    <string name="max_plugins_section_contract">ଚୁକ୍ତିନାମା</string>
+    <string name="max_plugins_contract_api">API ସ୍ତର %1$d |</string>
+    <string name="max_plugins_contract_dir">ପ୍ରକାଶିତ ଫୋଲ୍ଡର |</string>
+    <string name="max_plugins_contract_keys">ଚାବିଗୁଡ଼ିକ ଏକ ମନିଫେଷ୍ଟରୁ ପ read ିଥାଏ |</string>
+    <string name="max_plugins_contract_kinds">ଗ୍ରହଣ କରାଯାଇଥିବା ପ୍ରକାରଗୁଡିକ |</string>
+    <string name="max_plugins_contract_capabilities">ଗ୍ରହଣ କରାଯାଇଥିବା କ୍ଷମତା |</string>
+    <string name="max_plugins_template">ପ୍ରକାଶିତ ଟେମ୍ପଲେଟ୍ |</string>
+    <string name="max_plugins_copy_template">ଟେମ୍ପଲେଟ୍ କପି କରନ୍ତୁ |</string>
+    <string name="max_plugins_template_copied">ଟେମ୍ପଲେଟ୍ କପି ହୋଇଛି |</string>
+    <string name="max_plugins_section_installed">ଏହି ଉପକରଣରେ ମିଳିଲା |</string>
+    <string name="max_plugins_loading_title">ପ୍ଲଗଇନ ଫୋଲ୍ଡର ପ Reading ଼ିବା</string>
+    <string name="max_plugins_loading_detail">ମୂଳ ସହିତ ମନିଫେଷ୍ଟ୍ ଫୋଲ୍ଡର୍ ତାଲିକାଭୁକ୍ତ କରିବା, ତା’ପରେ ଚୁକ୍ତିନାମା ବିରୁଦ୍ଧରେ ପ୍ରତ୍ୟେକ ମନିଫେଷ୍ଟର ମୂଲ୍ୟାଙ୍କନ କରିବା |</string>
+    <string name="max_plugins_accepted_count">%1$d ଗ୍ରହଣ କରାଯାଇଛି |</string>
+    <string name="max_plugins_rejected_count">%1$d ମନା କଲା |</string>
+    <string name="max_plugins_unreadable_count">%1$d ଫୋଲ୍ଡର ଏକ ପଠନୀୟ ମନିଫେଷ୍ଟ ବିନା |</string>
+    <string name="max_plugins_rejected_section">ପ୍ରକୃତ କାରଣ ସହିତ ପ୍ରତ୍ୟାଖ୍ୟାନ |</string>
+    <string name="max_plugins_detail_label">ଘୋଷିତ |</string>
+    <string name="max_plugins_refresh_cd">ପ୍ଲଗଇନ୍ ଫୋଲ୍ଡର୍ ପୁନ-ପ read ନ୍ତୁ |</string>
+    <string name="max_plugins_capability_source">ପ୍ଲଗଇନ୍ ଦ୍ୱାରା ରିପୋର୍ଟ କରାଯାଇଛି, ଆମ ଦ୍ୱାରା ମାପ କରାଯାଇ ନାହିଁ |</string>
+    <string name="max_plugins_cond_empty_title">କ plug ଣସି ପ୍ଲଗଇନ୍ ସଂସ୍ଥାପିତ ହୋଇନାହିଁ |</string>
+    <string name="max_plugins_cond_missing_title">ମନିଫେଷ୍ଟ୍ ଫୋଲ୍ଡର୍ ଏପର୍ଯ୍ୟନ୍ତ ବିଦ୍ୟମାନ ନାହିଁ |</string>
+    <string name="max_plugins_cond_unreadable_title">ମନିଫେଷ୍ଟ୍ ଫୋଲ୍ଡର୍ ପ read ିହେବ ନାହିଁ |</string>
+    <string name="max_plugins_reason_MissingName">ମନିଫେଷ୍ଟ୍ କ no ଣସି ନାମ ଘୋଷଣା କରେ ନାହିଁ |</string>
+    <string name="max_plugins_reason_BadVersion">ସଂସ୍କରଣ ନିଶ୍ଚିତ ଭାବରେ ସଂଖ୍ୟା ସହିତ ଆରମ୍ଭ ହେବ, ଉଦାହରଣ ସ୍ୱରୂପ 1.0.0।</string>
+    <string name="max_plugins_reason_ApiTooOld">ଘୋଷିତ API ସ୍ତର 1 କିମ୍ବା ତଳେ ଅଛି |</string>
+    <string name="max_plugins_reason_ApiTooNew">ଘୋଷିତ API ସ୍ତର ଏହି ବିଲ୍ଡ ବୁ understand ିବା ଅପେକ୍ଷା ନୂତନ ଅଟେ, ତେଣୁ ଏହା ଆଦ run ଚାଲୁ ନାହିଁ |</string>
+    <string name="max_plugins_reason_MissingKind">ମନିଫେଷ୍ଟ୍ କ kind ଣସି ପ୍ରକାରର ଘୋଷଣା କରେ ନାହିଁ |</string>
+    <string name="max_plugins_reason_UnknownKind">ପ୍ରକାର ପ୍ରକାଶିତ ପ୍ରକାର ମଧ୍ୟରୁ ଗୋଟିଏ ନୁହେଁ |</string>
+    <string name="max_plugins_reason_NoCapabilities">ଏକ ପ୍ଲଗଇନ୍ ଅତିକମରେ ଗୋଟିଏ ସାମର୍ଥ୍ୟ ଘୋଷଣା କରିବା ଜରୁରୀ |</string>
+    <string name="max_plugins_reason_DuplicateId">ଏହି id ସହିତ ଅନ୍ୟ ଏକ ପ୍ଲଗଇନ୍ ପୂର୍ବରୁ ଗ୍ରହଣ କରାଯାଇଥିଲା, ତେଣୁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ ନାହିଁ |</string>
+    <string name="max_plugins_help_title">ଏକ ଚୁକ୍ତି କାହିଁକି?</string>
+    <string name="max_plugins_contract_rules">ଘୋଷିତ ସାମର୍ଥ୍ୟ ହେଉଛି ଏକ ପଠନ କିମ୍ବା ପ୍ରସ୍ତାବ · ସୁଚିନ୍ତିତ ଭାବରେ କ ability ଣସି ସାମର୍ଥ୍ୟ ନାହିଁ ଯାହା ହାର୍ଡୱେର୍ ଲେଖେ: ଏହି ଆପରେ ଥିବା ପ୍ରତ୍ୟେକ ଲେଖା ଆର୍ବିଟର ମାଧ୍ୟମରେ ଯାଇଥାଏ, ଏବଂ ଏକ ପ୍ଲଗଇନ୍ ଯାହା ସିଧାସଳଖ ଲେଖିପାରେ ଦୁଇ ମାଲିକ ସମାନ ଗଣ୍ଠି ଲେଖିବା ବନ୍ଦ କରିବା ପାଇଁ ନିର୍ମିତ ଗାର୍ଡକୁ ଅପସାରଣ କରିବ</string>
+    <string name="max_plugins_template_note">ପାର୍ସର୍ ପ read ୁଥିବା ଏହି ପାଠ୍ୟ · ଏହା ସଂକେତରୁ ଖସିପାରିବ ନାହିଁ, କାରଣ ଏହା ଏଥିରୁ ଉତ୍ପନ୍ନ</string>
+    <string name="max_plugins_cond_empty_detail">ମନିଫେଷ୍ଟ୍ ଫୋଲ୍ଡର୍ କ no ଣସି ପ୍ଲଗଇନ୍ ଫୋଲ୍ଡର୍ ଧାରଣ କରେ ନାହିଁ · କିଛି ଭୁଲ୍ ନୁହେଁ: ଏହା ହେଉଛି ବ feature ଶିଷ୍ଟ୍ୟର ଡିଫଲ୍ଟ ସ୍ଥିତି</string>
+    <string name="max_plugins_cond_missing_detail">ଏହି ଉପକରଣରେ %1$s ସୃଷ୍ଟି ହୋଇନାହିଁ, ତେଣୁ ପ read ିବାକୁ କିଛି ନାହିଁ · ଏହାକୁ ସୃଷ୍ଟି କରିବା ଏକ ପ୍ଲଗଇନ୍ ଲେଖକ କରିବା ଆବଶ୍ୟକ</string>
+    <string name="max_plugins_cond_unreadable_detail">ଫୋଲ୍ଡର %1$s ରେ ବିଦ୍ୟମାନ ଅଛି କିନ୍ତୁ ଶେଲ୍ ଏହାକୁ ପ read ି ପାରିଲା ନାହିଁ · ଏହାକୁ ତାଲିକାଭୁକ୍ତ କରିବା ପାଇଁ ମୂଳ ଆବଶ୍ୟକ</string>
+    <string name="max_plugins_reason_BadId">Id ଏକ ଫୋଲ୍ଡର ନାମ ଭାବରେ ବ୍ୟବହାର ଯୋଗ୍ୟ ନୁହେଁ · ଲୋୟର କେସ୍ ଲାଟିନ୍ ଅକ୍ଷର, ସଂଖ୍ୟା, ବିନ୍ଦୁ, ଡ୍ୟାସ୍ କିମ୍ବା ଅଣ୍ଡରସ୍କୋର୍ ବ୍ୟବହାର କରନ୍ତୁ, ଏବଂ ଧାଡିରେ କେବେବି ଦୁଇଟି ବିନ୍ଦୁ</string>
+    <string name="max_plugins_reason_UnknownCapability">ସାମର୍ଥ୍ୟ ଏହି ଚୁକ୍ତିନାମାର ଅଂଶ ନୁହେଁ · ଏକ ଅଜ୍ଞାତ ସାମର୍ଥ୍ୟକୁ ଅଣଦେଖା କରାଯିବା ପରିବର୍ତ୍ତେ ପ୍ରତ୍ୟାଖ୍ୟାନ କରାଯାଏ, ତେଣୁ ଏହା ମାଗିବା ଅପେକ୍ଷା କମ୍ ଅଧିକାର ସହିତ କିଛି ଚାଲିବ ନାହିଁ</string>
+    <string name="max_plugins_help_body">ପ୍ରକାଶିତ ଚୁକ୍ତିନାମା ବିନା, ଏହି ଆପ୍ ବିସ୍ତାର କରୁଥିବା ବ୍ୟକ୍ତିଙ୍କୁ ଆମର ଆଭ୍ୟନ୍ତରୀଣ ଫାଇଲଗୁଡିକର ଆକୃତି ଅନୁମାନ କରିବାକୁ ପଡିବ, ଏବଂ ଆମେ ଏକ ଭଙ୍ଗା ଫାଇଲରୁ ଏକ ବ valid ଧ ବିସ୍ତାର କହିପାରିବା ନାହିଁ · ଏହା ସହିତ, ସୀମା ଦର୍ଶାଯାଇଛି: ଏକ ପ୍ଲଗଇନ୍ ଉଦ୍ଦେଶ୍ୟ ଘୋଷଣା କରେ ଏବଂ ପ read େ; ଏହା କଦାପି ହାର୍ଡୱେର୍ ଲେଖେ ନାହିଁ, ଏବଂ ଉପରୋକ୍ତ ପ୍ରତ୍ୟେକ ପ୍ରତ୍ୟାଖ୍ୟାନ ସଠିକ୍ କ୍ଷେତ୍ରର ନାମ ଦେଇଥାଏ ଯାହା ବିଫଳ ହୋଇଥିଲା</string>
+</resources>

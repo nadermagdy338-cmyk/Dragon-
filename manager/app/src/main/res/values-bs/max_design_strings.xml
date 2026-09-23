@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Uživo</string>
+    <string name="max_trust_stale">Poslednji uzorak</string>
+    <string name="max_trust_snapshot">Snimak</string>
+    <string name="max_trust_unreadable">Nema čitanja</string>
+    <string name="max_trust_unsupported">Nije podržano</string>
+    <string name="max_source_label">Izvor</string>
+    <string name="max_updated_label">Ažurirano</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">nema dostupne vrijednosti</string>
+    <string name="max_expand_section">Prikaži detalje</string>
+    <string name="max_collapse_section">Sakrij detalje</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">ప్రత్యక్షం</string>
+    <string name="max_trust_stale">చివరి నమూనా</string>
+    <string name="max_trust_snapshot">స్నాప్‌షాట్</string>
+    <string name="max_trust_unreadable">చదవడం లేదు</string>
+    <string name="max_trust_unsupported">మద్దతు లేదు</string>
+    <string name="max_source_label">మూలం</string>
+    <string name="max_updated_label">నవీకరించబడింది</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">విలువ అందుబాటులో లేదు</string>
+    <string name="max_expand_section">వివరాలను చూపించు</string>
+    <string name="max_collapse_section">వివరాలను దాచండి</string>
+</resources>

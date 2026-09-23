@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">ឧបករណ៍ចាប់សញ្ញាបានរាយការណ៍ដោយឧបករណ៍នេះ។</string>
+    <string name="max_sensor_desc">អ្វី​ដែល​វេទិកា​ប្រកាស​អំពី​ផ្នែករឹង​ផ្ទាល់​ខ្លួន​របស់​វា បូក​រួម​ទាំង​ការ​អាន​ពន្លឺ​ដែល​មាន​ព្រំដែន។ គ្មានការក្រិតតាមខ្នាត និងគ្មានពិន្ទុសុខភាព៖ ទាំងពីរនឹងត្រូវការឯកសារយោងដែលយើងមិនមាន។</string>
+    <string name="max_sensor_service">សេវាឧបករណ៍ចាប់សញ្ញា</string>
+    <string name="max_sensor_service_unavailable">មិនអាចទាក់ទងបានទេ។</string>
+    <string name="max_sensor_count">ឧបករណ៍ចាប់សញ្ញាបានរាយការណ៍</string>
+    <string name="max_sensor_kinds">ប្រភេទមានវត្តមាន</string>
+    <string name="max_sensor_wakeup">ឧបករណ៍ចាប់សញ្ញាភ្ញាក់ (រាយការណ៍ខណៈពេលដែលឧបករណ៍កំពុងដេក)</string>
+    <string name="max_sensor_light">ពន្លឺព័ទ្ធជុំវិញ</string>
+    <string name="max_sensor_unit_lux">លុច</string>
+    <string name="max_sensor_light_absent">ឧបករណ៍នេះរាយការណ៍ថាមិនមានឧបករណ៍ចាប់សញ្ញាពន្លឺទេ។</string>
+    <string name="max_sensor_light_unreadable">គ្មានការអានមកដល់មុនពេលអស់ពេល — មិនស្គាល់ មិនមែនសូន្យទេ។</string>
+    <string name="max_sensor_more">… និង %1$s ច្រើនទៀត</string>
+    <string name="max_sensor_no_score">ឈ្មោះ ជួរ និងភាពយឺតយ៉ាវបានមកពីវេទិកា។ ឧបករណ៍ចាប់សញ្ញាដែលរាយការណ៍មិនមានភស្តុតាងថាវាត្រឹមត្រូវ។</string>
+    <string name="max_sensor_kind_motion">ចលនា</string>
+    <string name="max_sensor_kind_environment">បរិស្ថាន</string>
+    <string name="max_sensor_kind_position">មុខតំណែង</string>
+    <string name="max_sensor_kind_body">រាងកាយ</string>
+    <string name="max_sensor_kind_unpositioned">គ្មានទីតាំង</string>
+    <string name="max_sensor_kind_other">ផ្សេងៗ</string>
+</resources>

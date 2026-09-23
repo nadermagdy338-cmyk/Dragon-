@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Այս սարքի կողմից հաղորդված սենսորներ</string>
+    <string name="max_sensor_desc">Այն, ինչ պլատֆորմը հայտարարում է իր սեփական սարքաշարի մասին, գումարած մեկ սահմանափակ լույսի ընթերցում: Չկան ստուգաչափում և առողջության գնահատական. երկուսն էլ կարիք կունենան ֆիզիկական տեղեկանքի, որը մենք չունենք:</string>
+    <string name="max_sensor_service">Սենսորների սպասարկում</string>
+    <string name="max_sensor_service_unavailable">հնարավոր չէր հասնել</string>
+    <string name="max_sensor_count">Սենսորները հայտնել են</string>
+    <string name="max_sensor_kinds">Ներկա կատեգորիաներ</string>
+    <string name="max_sensor_wakeup">Արթնացման սենսորներ (զեկուցել, երբ սարքը քնում է)</string>
+    <string name="max_sensor_light">Շրջակա միջավայրի լույս</string>
+    <string name="max_sensor_unit_lux">լյուքս</string>
+    <string name="max_sensor_light_absent">այս սարքը հաղորդում է, որ լույսի սենսոր չկա</string>
+    <string name="max_sensor_light_unreadable">ոչ մի ընթերցում չի հասել ժամանակի ավարտից առաջ՝ անհայտ, ոչ զրո</string>
+    <string name="max_sensor_more">…և %1$s ավելին</string>
+    <string name="max_sensor_no_score">Անունները, միջակայքերը և ուշացումները գալիս են հարթակից: Սենսորը, որը հաղորդում է, ապացույց չէ, որ այն ճշգրիտ է:</string>
+    <string name="max_sensor_kind_motion">Շարժում</string>
+    <string name="max_sensor_kind_environment">Շրջակա միջավայր</string>
+    <string name="max_sensor_kind_position">Պաշտոն</string>
+    <string name="max_sensor_kind_body">Մարմին</string>
+    <string name="max_sensor_kind_unpositioned">Չդիրքավորված</string>
+    <string name="max_sensor_kind_other">Այլ</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Зовнішній вигляд та інтерфейс</string>
+    <string name="max_cfg_backup_app_prefs">Параметри програми та мова</string>
+    <string name="max_cfg_declared_absent_title">Не буде включено, і чому</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">цей пристрій не має перевіреного кореня, тому значення неможливо надійно прочитати</string>
+    <string name="max_cfg_absent_file_missing">файл налаштувань ще не існує</string>
+    <string name="max_cfg_absent_empty">файл налаштувань існує, але порожній, тому нема чого писати</string>
+    <string name="max_cfg_declared_excluded_title">Ніколи не включався в цей файл</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Параметри безпеки налаштовуються всередині програми, ніколи не зберігаються у файлі</string>
+    <string name="max_cfg_excluded_other_apps">дані інших програм належать до резервної копії програми, а не до резервної копії конфігурації</string>
+    <string name="max_cfg_excluded_secret">ключі підпису та секрети ніколи не записуються у файл, яким ви можете поділитися</string>
+    <string name="max_cfg_section_tweaks">Налаштування конфігурації</string>
+    <string name="max_cfg_section_applist">Список для кожного додатка</string>
+    <string name="max_cfg_section_appearance">Зовнішній вигляд та інтерфейс</string>
+    <string name="max_cfg_section_app_prefs">Параметри програми та мова</string>
+    <string name="max_cfg_restore_merge_note">Відновлення налаштувань об’єднується: ключі, наявні у файлі, записуються, а ключі, які в ньому не згадуються, залишаються без змін. Нічого не очищається.</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Sensors gerapporteer deur hierdie toestel</string>
+    <string name="max_sensor_desc">Wat die platform oor sy eie hardeware verklaar, plus een begrensde liglesing. Geen kalibrasie en geen gesondheidtelling: albei sal \'n fisiese verwysing benodig wat ons nie het nie.</string>
+    <string name="max_sensor_service">Sensor diens</string>
+    <string name="max_sensor_service_unavailable">kon nie bereik word nie</string>
+    <string name="max_sensor_count">Sensors aangemeld</string>
+    <string name="max_sensor_kinds">Kategorieë teenwoordig</string>
+    <string name="max_sensor_wakeup">Ontwaaksensors (rapporteer terwyl die toestel slaap)</string>
+    <string name="max_sensor_light">Omringende lig</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">hierdie toestel rapporteer geen ligsensor nie</string>
+    <string name="max_sensor_light_unreadable">geen lesing het voor die uitteltyd aangekom nie - onbekend, nie nul nie</string>
+    <string name="max_sensor_more">…en %1$s meer</string>
+    <string name="max_sensor_no_score">Name, reekse en vertragings kom van die platform af. \'n Sensor wat rapporteer, is nie \'n bewys dat dit akkuraat is nie.</string>
+    <string name="max_sensor_kind_motion">Beweging</string>
+    <string name="max_sensor_kind_environment">Omgewing</string>
+    <string name="max_sensor_kind_position">Posisie</string>
+    <string name="max_sensor_kind_body">Liggaam</string>
+    <string name="max_sensor_kind_unpositioned">Ongeposisioneer</string>
+    <string name="max_sensor_kind_other">Ander</string>
+</resources>

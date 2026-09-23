@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">চেহারা এবং ইন্টারফেস</string>
+    <string name="max_cfg_backup_app_prefs">অ্যাপের পছন্দ এবং ভাষা</string>
+    <string name="max_cfg_declared_absent_title">অন্তর্ভুক্ত করা হবে না, এবং কেন</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">এই ডিভাইসের কোনো যাচাইকৃত রুট নেই, তাই মানগুলি নির্ভরযোগ্যভাবে পড়া যাবে না</string>
+    <string name="max_cfg_absent_file_missing">পছন্দ ফাইলটি এখনও বিদ্যমান নেই</string>
+    <string name="max_cfg_absent_empty">পছন্দ ফাইলটি বিদ্যমান কিন্তু খালি, তাই লেখার কিছু নেই</string>
+    <string name="max_cfg_declared_excluded_title">এই ফাইলে অন্তর্ভুক্ত করা হয়নি</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI নিরাপত্তা সেটিংস অ্যাপের ভিতরে কনফিগার করা হয়, কখনও ফাইলে বহন করা হয় না</string>
+    <string name="max_cfg_excluded_other_apps">অন্যান্য অ্যাপের ডেটা অ্যাপ ব্যাকআপের অন্তর্গত, কনফিগার ব্যাকআপ নয়</string>
+    <string name="max_cfg_excluded_secret">সাইনিং কী এবং গোপনীয়তাগুলি আপনি শেয়ার করতে পারেন এমন ফাইলে কখনই লেখা হয় না</string>
+    <string name="max_cfg_section_tweaks">টুইক কনফিগারেশন</string>
+    <string name="max_cfg_section_applist">প্রতি-অ্যাপ তালিকা</string>
+    <string name="max_cfg_section_appearance">চেহারা এবং ইন্টারফেস</string>
+    <string name="max_cfg_section_app_prefs">অ্যাপের পছন্দ এবং ভাষা</string>
+    <string name="max_cfg_restore_merge_note">রিস্টোরিং প্রেফারেন্স মার্জ: ফাইলে উপস্থিত কীগুলি লেখা হয় এবং কীগুলি যেমন আছে তেমন থাকার কথা উল্লেখ করে না। কিছুই পরিষ্কার করা হয় না.</string>
+</resources>

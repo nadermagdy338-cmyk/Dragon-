@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU συχνότητα</string>
+    <string name="studio_load_history">Πρόσφατη CPU δραστηριότητα</string>
+    <string name="studio_waiting_samples">Συλλογή ζωντανών αναγνώσεων…</string>
+    <string name="studio_automatic_profile">Η αυτόματη λειτουργία διαχειρίζεται το ενεργό προφίλ.</string>
+    <string name="studio_temperature">Θερμοκρασία</string>
+    <string name="studio_display">Επίδειξη</string>
+    <string name="studio_power">Επιλογές ισχύος</string>
+    <string name="studio_settings">Ρυθμίσεις</string>
+</resources>

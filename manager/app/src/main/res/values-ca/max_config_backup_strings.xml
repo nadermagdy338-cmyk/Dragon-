@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Aparença i interfície</string>
+    <string name="max_cfg_backup_app_prefs">Preferències i idioma de l\'aplicació</string>
+    <string name="max_cfg_declared_absent_title">No s\'inclourà, i per què</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">aquest dispositiu no té cap arrel verificat, de manera que els valors no es poden llegir de manera fiable</string>
+    <string name="max_cfg_absent_file_missing">el fitxer de preferències encara no existeix</string>
+    <string name="max_cfg_absent_empty">el fitxer de preferències existeix però està buit, de manera que no hi ha res a escriure</string>
+    <string name="max_cfg_declared_excluded_title">Mai inclòs en aquest fitxer</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI Els paràmetres de seguretat es configuren dins de l\'aplicació, mai es porten en un fitxer</string>
+    <string name="max_cfg_excluded_other_apps">Les dades d\'altres aplicacions pertanyen a la còpia de seguretat de l\'aplicació, no a la còpia de seguretat de la configuració</string>
+    <string name="max_cfg_excluded_secret">les claus i els secrets de signatura mai s\'escriuen en un fitxer que podeu compartir</string>
+    <string name="max_cfg_section_tweaks">Ajusteu la configuració</string>
+    <string name="max_cfg_section_applist">Llista per aplicació</string>
+    <string name="max_cfg_section_appearance">Aparença i interfície</string>
+    <string name="max_cfg_section_app_prefs">Preferències i idioma de l\'aplicació</string>
+    <string name="max_cfg_restore_merge_note">Restauració de les combinacions de preferències: les claus presents al fitxer s\'escriuen i les claus que no esmenta es mantenen tal com estan. No s\'esborra res.</string>
+</resources>

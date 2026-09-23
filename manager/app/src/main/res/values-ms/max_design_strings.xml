@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Langsung</string>
+    <string name="max_trust_stale">Sampel terakhir</string>
+    <string name="max_trust_snapshot">Syot kilat</string>
+    <string name="max_trust_unreadable">Tiada bacaan</string>
+    <string name="max_trust_unsupported">Tidak disokong</string>
+    <string name="max_source_label">Sumber</string>
+    <string name="max_updated_label">dikemas kini</string>
+    <string name="max_provenance_separator">"· "</string>
+    <string name="max_value_unavailable_a11y">tiada nilai tersedia</string>
+    <string name="max_expand_section">Tunjukkan butiran</string>
+    <string name="max_collapse_section">Sembunyikan butiran</string>
+</resources>

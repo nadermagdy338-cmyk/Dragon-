@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">દેખાવ અને ઇન્ટરફેસ</string>
+    <string name="max_cfg_backup_app_prefs">એપ્લિકેશન પસંદગીઓ અને ભાષા</string>
+    <string name="max_cfg_declared_absent_title">શામેલ કરવામાં આવશે નહીં, અને શા માટે</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">આ ઉપકરણમાં કોઈ ચકાસાયેલ રૂટ નથી, તેથી મૂલ્યો વિશ્વસનીય રીતે વાંચી શકાતા નથી</string>
+    <string name="max_cfg_absent_file_missing">પસંદગીની ફાઈલ હજી અસ્તિત્વમાં નથી</string>
+    <string name="max_cfg_absent_empty">પસંદગીની ફાઇલ અસ્તિત્વમાં છે પરંતુ ખાલી છે, તેથી લખવા માટે કંઈ નથી</string>
+    <string name="max_cfg_declared_excluded_title">આ ફાઇલમાં ક્યારેય સમાવેલ નથી</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI સુરક્ષા સેટિંગ્સ એપ્લિકેશનની અંદર ગોઠવેલ છે, ફાઇલમાં ક્યારેય લઈ જવામાં આવતી નથી</string>
+    <string name="max_cfg_excluded_other_apps">અન્ય એપ્સનો ડેટા એપ બેકઅપનો છે, રૂપરેખા બેકઅપનો નથી</string>
+    <string name="max_cfg_excluded_secret">સાઇનિંગ કી અને રહસ્યો તમે શેર કરી શકો તે ફાઇલ પર ક્યારેય લખવામાં આવતાં નથી</string>
+    <string name="max_cfg_section_tweaks">રૂપરેખાંકન ઝટકો</string>
+    <string name="max_cfg_section_applist">પ્રતિ-એપ્લિકેશન સૂચિ</string>
+    <string name="max_cfg_section_appearance">દેખાવ અને ઇન્ટરફેસ</string>
+    <string name="max_cfg_section_app_prefs">એપ્લિકેશન પસંદગીઓ અને ભાષા</string>
+    <string name="max_cfg_restore_merge_note">પુનઃસ્થાપિત પસંદગીઓ મર્જ: ફાઇલમાં હાજર કીઓ લખવામાં આવે છે, અને તે ચાવીઓ જેમ છે તેમ રહેવાનો ઉલ્લેખ કરતી નથી. કંઈ સાફ નથી.</string>
+</resources>

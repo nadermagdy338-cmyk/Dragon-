@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Външен вид и интерфейс</string>
+    <string name="max_cfg_backup_app_prefs">Предпочитания и език на приложението</string>
+    <string name="max_cfg_declared_absent_title">Няма да бъдат включени и защо</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">това устройство няма потвърден корен, така че стойностите не могат да бъдат прочетени надеждно</string>
+    <string name="max_cfg_absent_file_missing">файлът с предпочитания все още не съществува</string>
+    <string name="max_cfg_absent_empty">файлът с предпочитания съществува, но е празен, така че няма какво да се пише</string>
+    <string name="max_cfg_declared_excluded_title">Никога не е включван в този файл</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI настройките за безопасност се конфигурират вътре в приложението, никога не се носят във файл</string>
+    <string name="max_cfg_excluded_other_apps">данните на други приложения принадлежат на архивиране на приложения, а не на архивиране на конфигурация</string>
+    <string name="max_cfg_excluded_secret">ключовете за подписване и тайните никога не се записват във файл, който може да споделите</string>
+    <string name="max_cfg_section_tweaks">Настройка на конфигурация</string>
+    <string name="max_cfg_section_applist">Списък за всяко приложение</string>
+    <string name="max_cfg_section_appearance">Външен вид и интерфейс</string>
+    <string name="max_cfg_section_app_prefs">Предпочитания и език на приложението</string>
+    <string name="max_cfg_restore_merge_note">Възстановяването на предпочитанията се слива: ключовете, присъстващи във файла, се записват, а ключовете, които не се споменават, остават такива, каквито са. Нищо не е изчистено.</string>
+</resources>

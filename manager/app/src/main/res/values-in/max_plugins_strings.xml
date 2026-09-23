@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Plugin pihak ketiga</string>
+    <string name="max_plugins_subtitle">Kontrak yang diterbitkan: apa yang dinyatakan oleh plugin, dan apa yang diterima atau ditolak di sini.</string>
+    <string name="max_plugins_section_contract">Kontrak</string>
+    <string name="max_plugins_contract_api">tingkat API %1$d</string>
+    <string name="max_plugins_contract_dir">Folder manifes</string>
+    <string name="max_plugins_contract_rules">Kemampuan yang dinyatakan dapat berupa pembacaan atau proposal. Sengaja tidak ada kemampuan menulis perangkat keras: setiap penulisan di aplikasi ini melewati arbiter, dan plugin yang dapat menulis secara langsung akan menghilangkan pelindung yang dibuat untuk menghentikan dua pemilik menulis kenop yang sama.</string>
+    <string name="max_plugins_contract_keys">Kunci dibaca dari manifes</string>
+    <string name="max_plugins_contract_kinds">Jenis yang diterima</string>
+    <string name="max_plugins_contract_capabilities">Kemampuan yang diterima</string>
+    <string name="max_plugins_template">Templat manifes</string>
+    <string name="max_plugins_template_note">Teks inilah yang dibaca parser. Itu tidak dapat menyimpang dari kode, karena dihasilkan darinya.</string>
+    <string name="max_plugins_copy_template">Salin templatnya</string>
+    <string name="max_plugins_template_copied">Templat disalin</string>
+    <string name="max_plugins_section_installed">Ditemukan di perangkat ini</string>
+    <string name="max_plugins_loading_title">Membaca folder plugin</string>
+    <string name="max_plugins_loading_detail">Cantumkan folder manifes dengan root, lalu evaluasi setiap manifes berdasarkan kontrak.</string>
+    <string name="max_plugins_accepted_count">%1$d diterima</string>
+    <string name="max_plugins_rejected_count">%1$d menolak</string>
+    <string name="max_plugins_unreadable_count">Folder %1$d tanpa manifes yang dapat dibaca</string>
+    <string name="max_plugins_rejected_section">Menolak, dengan alasan yang jelas</string>
+    <string name="max_plugins_detail_label">Dinyatakan</string>
+    <string name="max_plugins_refresh_cd">Baca kembali folder plugin</string>
+    <string name="max_plugins_capability_source">Dilaporkan oleh plugin, tidak diukur oleh kami</string>
+    <string name="max_plugins_cond_empty_title">Tidak ada plugin yang terpasang</string>
+    <string name="max_plugins_cond_empty_detail">Folder manifes tidak menampung folder plugin. Tidak ada yang salah: ini adalah keadaan default fitur tersebut.</string>
+    <string name="max_plugins_cond_missing_title">Folder manifes belum ada</string>
+    <string name="max_plugins_cond_missing_detail">%1$s belum dibuat pada perangkat ini, jadi tidak ada yang perlu dibaca. Membuatnya adalah hal yang perlu dilakukan oleh pembuat plugin.</string>
+    <string name="max_plugins_cond_unreadable_title">Folder manifes tidak dapat dibaca</string>
+    <string name="max_plugins_cond_unreadable_detail">Foldernya ada di %1$s tetapi shell tidak dapat membacanya. Root diperlukan untuk mencantumkannya.</string>
+    <string name="max_plugins_reason_BadId">Id tidak dapat digunakan sebagai nama folder. Gunakan huruf Latin kecil, angka, titik, tanda hubung, atau garis bawah, dan jangan pernah menggunakan dua titik berturut-turut.</string>
+    <string name="max_plugins_reason_MissingName">Manifes tidak menyebutkan nama.</string>
+    <string name="max_plugins_reason_BadVersion">Versi harus dimulai dengan angka, misalnya 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Level API yang dinyatakan tidak ada atau di bawah 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Level API yang dideklarasikan lebih baru dari yang dipahami oleh build ini, sehingga tidak dijalankan sama sekali.</string>
+    <string name="max_plugins_reason_MissingKind">Manifes menyatakan tidak ada jenisnya.</string>
+    <string name="max_plugins_reason_UnknownKind">Jenis tersebut bukan salah satu jenis yang diterbitkan.</string>
+    <string name="max_plugins_reason_UnknownCapability">Kemampuan tersebut bukan bagian dari kontrak ini. Kemampuan yang tidak diketahui ditolak daripada diabaikan, jadi tidak ada yang berjalan dengan hak yang lebih sedikit daripada yang diminta.</string>
+    <string name="max_plugins_reason_NoCapabilities">Sebuah plugin harus mendeklarasikan setidaknya satu kemampuan.</string>
+    <string name="max_plugins_reason_DuplicateId">Plugin lain dengan id ini telah diterima, jadi plugin ini tidak digunakan.</string>
+    <string name="max_plugins_help_title">Mengapa kontrak sama sekali</string>
+    <string name="max_plugins_help_body">Tanpa kontrak yang dipublikasikan, siapa pun yang memperluas aplikasi ini harus menebak bentuk file internal kami, dan kami tidak dapat membedakan ekstensi yang valid dari ekstensi yang rusak. Dengan itu, batasnya dinyatakan: sebuah plugin menyatakan maksud dan membaca; ia tidak pernah menulis perangkat keras, dan setiap penolakan di atas menyebutkan bidang persisnya yang gagal.</string>
+</resources>

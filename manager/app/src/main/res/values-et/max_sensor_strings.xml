@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Selle seadme poolt teatatud andurid</string>
+    <string name="max_sensor_service">Andurite teenindus</string>
+    <string name="max_sensor_service_unavailable">kätte ei saanud</string>
+    <string name="max_sensor_count">Andurid teatasid</string>
+    <string name="max_sensor_kinds">Kategooriad olemas</string>
+    <string name="max_sensor_wakeup">Äratusandurid (teavitage, kui seade magab)</string>
+    <string name="max_sensor_light">Ümbritsev valgus</string>
+    <string name="max_sensor_unit_lux">luks</string>
+    <string name="max_sensor_light_absent">see seade ei teata valgusandurit</string>
+    <string name="max_sensor_more">…ja %1$s veel</string>
+    <string name="max_sensor_no_score">Nimed, vahemikud ja viivitused pärinevad platvormilt. A sensor that reports is not proof it is accurate.</string>
+    <string name="max_sensor_kind_motion">Liikumine</string>
+    <string name="max_sensor_kind_environment">Keskkond</string>
+    <string name="max_sensor_kind_position">positsioon</string>
+    <string name="max_sensor_kind_body">Keha</string>
+    <string name="max_sensor_kind_unpositioned">Positsioneerimata</string>
+    <string name="max_sensor_kind_other">muud</string>
+    <string name="max_sensor_desc">Mida platvorm oma riistvara kohta deklareerib, pluss üks piiratud valguse näit. Kalibreerimist ja terviseskoori pole: mõlemad vajaksid füüsilist võrdlusandmeid, mida meil pole.</string>
+    <string name="max_sensor_light_unreadable">enne ajalõppu ei jõudnud näitu – teadmata, mitte null</string>
+</resources>

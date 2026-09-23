@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Complementos de terceiros</string>
+    <string name="max_plugins_subtitle">O contrato publicado: o que pode declarar un complemento e o que aquí se aceptou ou se rexeitou.</string>
+    <string name="max_plugins_section_contract">O contrato</string>
+    <string name="max_plugins_contract_api">Nivel API %1$d</string>
+    <string name="max_plugins_contract_dir">Cartafol de manifestos</string>
+    <string name="max_plugins_contract_rules">Unha capacidade declarada é unha lectura ou unha proposta. Non hai deliberadamente ningunha capacidade que escriba hardware: cada escritura nesta aplicación pasa polo árbitro, e un complemento que puidese escribir directamente eliminaría o protector construído para evitar que dous propietarios escriban o mesmo botón.</string>
+    <string name="max_plugins_contract_keys">Claves lidas dun manifesto</string>
+    <string name="max_plugins_contract_kinds">Tipos aceptados</string>
+    <string name="max_plugins_contract_capabilities">Capacidades aceptadas</string>
+    <string name="max_plugins_template">Modelo de manifesto</string>
+    <string name="max_plugins_template_note">Este texto é o que le o analizador. Non pode derivar do código, porque se xera a partir del.</string>
+    <string name="max_plugins_copy_template">Copia o modelo</string>
+    <string name="max_plugins_template_copied">Copiouse o modelo</string>
+    <string name="max_plugins_section_installed">Atopouse neste dispositivo</string>
+    <string name="max_plugins_loading_title">Lendo o cartafol do complemento</string>
+    <string name="max_plugins_loading_detail">Listando o cartafol de manifestos con root e, a continuación, avaliando cada manifesto contra o contrato.</string>
+    <string name="max_plugins_accepted_count">%1$d aceptado</string>
+    <string name="max_plugins_rejected_count">%1$d negouse</string>
+    <string name="max_plugins_unreadable_count">%1$d cartafol sen un manifesto lexible</string>
+    <string name="max_plugins_rejected_section">Rexeitou, co motivo exacto</string>
+    <string name="max_plugins_detail_label">Declarado</string>
+    <string name="max_plugins_refresh_cd">Volve ler o cartafol do complemento</string>
+    <string name="max_plugins_capability_source">Informado polo complemento, non medido por nós</string>
+    <string name="max_plugins_cond_empty_title">Non hai complementos instalados</string>
+    <string name="max_plugins_cond_empty_detail">O cartafol do manifesto non contén cartafoles de complementos. Non hai nada malo: este é o estado predeterminado da función.</string>
+    <string name="max_plugins_cond_missing_title">O cartafol de manifesto aínda non existe</string>
+    <string name="max_plugins_cond_missing_detail">Non se creou %1$s neste dispositivo, polo que non hai nada que ler. Crealo é todo o que debe facer un autor de complementos.</string>
+    <string name="max_plugins_cond_unreadable_title">Non se pode ler o cartafol do manifesto</string>
+    <string name="max_plugins_cond_unreadable_detail">O cartafol existe en %1$s pero o shell non puido lelo. O root é necesario para listalo.</string>
+    <string name="max_plugins_reason_BadId">O ID non se pode usar como nome de cartafol. Use letras latinas minúsculas, díxitos, puntos, trazos ou guións baixos, e nunca dous puntos seguidos.</string>
+    <string name="max_plugins_reason_MissingName">O manifesto non declara ningún nome.</string>
+    <string name="max_plugins_reason_BadVersion">A versión debe comezar con díxitos, por exemplo 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Falta o nivel de API declarado ou é inferior a 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">O nivel de API declarado é máis recente do que entende esta compilación, polo que non se executa en absoluto.</string>
+    <string name="max_plugins_reason_MissingKind">O manifesto declara ningún tipo.</string>
+    <string name="max_plugins_reason_UnknownKind">O tipo non é un dos tipos publicados.</string>
+    <string name="max_plugins_reason_UnknownCapability">A capacidade non forma parte deste contrato. Unha capacidade descoñecida é rexeitada en lugar de ignorada, polo que nada funciona con menos dereitos dos que pedía.</string>
+    <string name="max_plugins_reason_NoCapabilities">Un complemento debe declarar polo menos unha capacidade.</string>
+    <string name="max_plugins_reason_DuplicateId">Xa se aceptou outro complemento con este ID, polo que este non se utiliza.</string>
+    <string name="max_plugins_help_title">Por que un contrato en absoluto</string>
+    <string name="max_plugins_help_body">Sen un contrato publicado, calquera que estenda esta aplicación ten que adiviñar a forma dos nosos ficheiros internos e non podemos distinguir unha extensión válida dunha que está rota. Con el, indícase o límite: un complemento declara intención e le; nunca escribe hardware, e cada rexeitamento anterior indica o campo exacto que fallou.</string>
+</resources>

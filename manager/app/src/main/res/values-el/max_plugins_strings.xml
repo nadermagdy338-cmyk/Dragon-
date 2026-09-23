@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Πρόσθετα τρίτων</string>
+    <string name="max_plugins_subtitle">Η δημοσιευμένη σύμβαση: τι μπορεί να δηλώσει μια προσθήκη και τι έγινε αποδεκτό ή απορρίφθηκε εδώ.</string>
+    <string name="max_plugins_section_contract">Το συμβόλαιο</string>
+    <string name="max_plugins_contract_api">Επίπεδο API %1$d</string>
+    <string name="max_plugins_contract_dir">Φάκελος Manifest</string>
+    <string name="max_plugins_contract_rules">Μια δηλωμένη ικανότητα είναι είτε ανάγνωση είτε πρόταση. Δεν υπάρχει σκόπιμα καμία δυνατότητα εγγραφής υλικού: κάθε εγγραφή σε αυτήν την εφαρμογή περνάει από τον διαιτητή και ένα πρόσθετο που θα μπορούσε να γράψει απευθείας θα αφαιρούσε το προστατευτικό που είχε κατασκευαστεί για να σταματήσει δύο ιδιοκτήτες να γράφουν το ίδιο κουμπί.</string>
+    <string name="max_plugins_contract_keys">Τα κλειδιά διαβάζονται από ένα μανιφέστο</string>
+    <string name="max_plugins_contract_kinds">Αποδεκτά είδη</string>
+    <string name="max_plugins_contract_capabilities">Αποδεκτές δυνατότητες</string>
+    <string name="max_plugins_template">Πρότυπο μανιφέστου</string>
+    <string name="max_plugins_template_note">Αυτό το κείμενο διαβάζει ο αναλυτής. Δεν μπορεί να απομακρυνθεί από τον κώδικα, γιατί δημιουργείται από αυτόν.</string>
+    <string name="max_plugins_copy_template">Αντιγράψτε το πρότυπο</string>
+    <string name="max_plugins_template_copied">Το πρότυπο αντιγράφηκε</string>
+    <string name="max_plugins_section_installed">Βρέθηκε σε αυτήν τη συσκευή</string>
+    <string name="max_plugins_loading_title">Ανάγνωση του φακέλου της προσθήκης</string>
+    <string name="max_plugins_loading_detail">Καταχώρηση του φακέλου δήλωσης με root και, στη συνέχεια, αξιολόγηση κάθε δήλωσης σε σχέση με τη σύμβαση.</string>
+    <string name="max_plugins_accepted_count">%1$d αποδεκτό</string>
+    <string name="max_plugins_rejected_count">%1$d αρνήθηκε</string>
+    <string name="max_plugins_unreadable_count">%1$d φάκελος χωρίς αναγνώσιμο μανιφέστο</string>
+    <string name="max_plugins_rejected_section">Αρνήθηκε, με τον ακριβή λόγο</string>
+    <string name="max_plugins_detail_label">Δηλώθηκε</string>
+    <string name="max_plugins_refresh_cd">Ξαναδιάβασε το φάκελο της προσθήκης</string>
+    <string name="max_plugins_capability_source">Αναφέρθηκε από την προσθήκη, δεν μετρήθηκε από εμάς</string>
+    <string name="max_plugins_cond_empty_title">Δεν έχουν εγκατασταθεί πρόσθετα</string>
+    <string name="max_plugins_cond_empty_detail">Ο φάκελος του μανιφέστου δεν περιέχει φακέλους προσθηκών. Τίποτα δεν είναι λάθος: αυτή είναι η προεπιλεγμένη κατάσταση της δυνατότητας.</string>
+    <string name="max_plugins_cond_missing_title">Ο φάκελος Manifest δεν υπάρχει ακόμα</string>
+    <string name="max_plugins_cond_missing_detail">Το %1$s δεν έχει δημιουργηθεί σε αυτήν τη συσκευή, επομένως δεν υπάρχει τίποτα για ανάγνωση. Η δημιουργία του είναι το μόνο που χρειάζεται να κάνει ένας συγγραφέας προσθήκης.</string>
+    <string name="max_plugins_cond_unreadable_title">Δεν είναι δυνατή η ανάγνωση του φακέλου Manifest</string>
+    <string name="max_plugins_cond_unreadable_detail">Ο φάκελος υπάρχει στο %1$s αλλά το κέλυφος δεν μπορούσε να τον διαβάσει. Απαιτείται Root για τη λίστα.</string>
+    <string name="max_plugins_reason_BadId">Το αναγνωριστικό δεν μπορεί να χρησιμοποιηθεί ως όνομα φακέλου. Χρησιμοποιήστε πεζά λατινικά γράμματα, ψηφία, τελείες, παύλες ή κάτω παύλες και ποτέ δύο τελείες στη σειρά.</string>
+    <string name="max_plugins_reason_MissingName">Το μανιφέστο δεν δηλώνει όνομα.</string>
+    <string name="max_plugins_reason_BadVersion">Η έκδοση πρέπει να ξεκινά με ψηφία, για παράδειγμα 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Το δηλωμένο επίπεδο API λείπει ή είναι μικρότερο από 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Το δηλωμένο επίπεδο API είναι νεότερο από αυτό που κατανοεί αυτή η έκδοση, επομένως δεν εκτελείται καθόλου.</string>
+    <string name="max_plugins_reason_MissingKind">Το μανιφέστο δηλώνει κανένα είδος.</string>
+    <string name="max_plugins_reason_UnknownKind">Το είδος δεν είναι ένα από τα δημοσιευμένα είδη.</string>
+    <string name="max_plugins_reason_UnknownCapability">Η δυνατότητα δεν αποτελεί μέρος αυτής της σύμβασης. Μια άγνωστη δυνατότητα απορρίπτεται αντί να αγνοείται, επομένως τίποτα δεν λειτουργεί με λιγότερα δικαιώματα από αυτά που ζητήθηκαν.</string>
+    <string name="max_plugins_reason_NoCapabilities">Ένα πρόσθετο πρέπει να δηλώνει τουλάχιστον μία δυνατότητα.</string>
+    <string name="max_plugins_reason_DuplicateId">Ένα άλλο πρόσθετο με αυτό το αναγνωριστικό ήταν ήδη αποδεκτό, επομένως αυτό δεν χρησιμοποιείται.</string>
+    <string name="max_plugins_help_title">Γιατί συμβόλαιο καθόλου</string>
+    <string name="max_plugins_help_body">Χωρίς δημοσιευμένο συμβόλαιο, όποιος επεκτείνει αυτήν την εφαρμογή πρέπει να μαντέψει το σχήμα των εσωτερικών μας αρχείων και δεν μπορούμε να ξεχωρίσουμε μια έγκυρη επέκταση από μια κατεστραμμένη. Με αυτό, δηλώνεται το όριο: ένα πρόσθετο δηλώνει πρόθεση και διαβάζει. Δεν γράφει ποτέ υλικό και κάθε άρνηση παραπάνω ονομάζει το ακριβές πεδίο που απέτυχε.</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">የአፈጻጸም ስቱዲዮ</string>
+    <string name="studio_cpu_frequency">CPU ድግግሞሽ</string>
+    <string name="studio_load_history">የቅርብ ጊዜ CPU እንቅስቃሴ</string>
+    <string name="studio_waiting_samples">የቀጥታ ንባቦችን በመሰብሰብ ላይ…</string>
+    <string name="studio_automatic_profile">አውቶማቲክ ሁነታ ንቁውን መገለጫ ያስተዳድራል።</string>
+    <string name="studio_temperature">የሙቀት መጠን</string>
+    <string name="studio_display">ማሳያ</string>
+    <string name="studio_power">የኃይል አማራጮች</string>
+    <string name="studio_settings">ቅንብሮች</string>
+</resources>

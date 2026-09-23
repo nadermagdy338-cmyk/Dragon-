@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">उपस्थिति र इन्टरफेस</string>
+    <string name="max_cfg_backup_app_prefs">एप प्राथमिकता र भाषा</string>
+    <string name="max_cfg_declared_absent_title">समावेश गरिने छैन, र किन</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">यो यन्त्रमा कुनै प्रमाणित रूट छैन, त्यसैले मानहरू विश्वसनीय रूपमा पढ्न सकिँदैन</string>
+    <string name="max_cfg_absent_file_missing">प्राथमिकता फाइल अझै अवस्थित छैन</string>
+    <string name="max_cfg_absent_empty">प्राथमिकता फाइल अवस्थित छ तर खाली छ, त्यसैले त्यहाँ लेख्न केहि छैन</string>
+    <string name="max_cfg_declared_excluded_title">यो फाइलमा कहिल्यै समावेश गरिएको छैन</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI सुरक्षा सेटिङहरू एप भित्र कन्फिगर गरिएको छ, फाइलमा कहिल्यै बोकिएको छैन</string>
+    <string name="max_cfg_excluded_other_apps">अन्य एपहरूको डाटा एप ब्याकअपसँग सम्बन्धित छ, कन्फिगरेसन ब्याकअपमा होइन</string>
+    <string name="max_cfg_excluded_secret">साइनिङ कुञ्जी र गोप्यहरू तपाईंले साझेदारी गर्न सक्ने फाइलमा कहिल्यै लेखिँदैन</string>
+    <string name="max_cfg_section_tweaks">ट्वीक कन्फिगरेसन</string>
+    <string name="max_cfg_section_applist">प्रति-एप सूची</string>
+    <string name="max_cfg_section_appearance">उपस्थिति र इन्टरफेस</string>
+    <string name="max_cfg_section_app_prefs">एप प्राथमिकता र भाषा</string>
+    <string name="max_cfg_restore_merge_note">पुनर्स्थापना प्राथमिकताहरू मर्जहरू: फाइलमा उपस्थित कुञ्जीहरू लेखिएका छन्, र यसले कुञ्जीहरू जस्तै रहन उल्लेख गर्दैन। केही क्लियर छैन।</string>
+</resources>

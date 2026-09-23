@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Tredjeparts plugins</string>
+    <string name="max_plugins_subtitle">Den offentliggjorte kontrakt: hvad et plugin kan erklære, og hvad der blev accepteret eller afvist her.</string>
+    <string name="max_plugins_section_contract">Kontrakten</string>
+    <string name="max_plugins_contract_api">API-niveau %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest mappe</string>
+    <string name="max_plugins_contract_rules">En erklæret kapacitet er enten en læsning eller et forslag. Der er bevidst ingen kapacitet, der skriver hardware: hver skrivning i denne app går gennem arbiteren, og et plugin, der kunne skrive direkte, ville fjerne vagten, der er bygget til at stoppe to ejere, der skriver den samme knap.</string>
+    <string name="max_plugins_contract_keys">Nøgler læst fra et manifest</string>
+    <string name="max_plugins_contract_kinds">Accepterede slags</string>
+    <string name="max_plugins_contract_capabilities">Accepterede evner</string>
+    <string name="max_plugins_template">Manifest skabelon</string>
+    <string name="max_plugins_template_note">Denne tekst er, hvad parseren læser. Den kan ikke drive fra koden, fordi den er genereret ud fra den.</string>
+    <string name="max_plugins_copy_template">Kopier skabelonen</string>
+    <string name="max_plugins_template_copied">Skabelonen er kopieret</string>
+    <string name="max_plugins_section_installed">Fundet på denne enhed</string>
+    <string name="max_plugins_loading_title">Læser plugin-mappen</string>
+    <string name="max_plugins_loading_detail">Angivelse af manifestmappen med root, og derefter evaluere hvert manifest i forhold til kontrakten.</string>
+    <string name="max_plugins_accepted_count">%1$d accepteret</string>
+    <string name="max_plugins_rejected_count">%1$d afviste</string>
+    <string name="max_plugins_unreadable_count">%1$d mappe uden et læsbart manifest</string>
+    <string name="max_plugins_rejected_section">Afviste med den nøjagtige årsag</string>
+    <string name="max_plugins_detail_label">Erklæret</string>
+    <string name="max_plugins_refresh_cd">Læs plugin-mappen igen</string>
+    <string name="max_plugins_capability_source">Rapporteret af plugin, ikke målt af os</string>
+    <string name="max_plugins_cond_empty_title">Ingen plugins installeret</string>
+    <string name="max_plugins_cond_empty_detail">Manifestmappen indeholder ingen plugin-mapper. Der er intet galt: dette er standardtilstanden for funktionen.</string>
+    <string name="max_plugins_cond_missing_title">Manifestmappen eksisterer ikke endnu</string>
+    <string name="max_plugins_cond_missing_detail">%1$s er ikke blevet oprettet på denne enhed, så der er ikke noget at læse. At oprette det er alt, hvad en plugin-forfatter skal gøre.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifestmappen kan ikke læses</string>
+    <string name="max_plugins_cond_unreadable_detail">Mappen findes på %1$s, men shellen kunne ikke læse den. Root er påkrævet for at liste det.</string>
+    <string name="max_plugins_reason_BadId">Id\'et kan ikke bruges som et mappenavn. Brug små latinske bogstaver, cifre, prikker, bindestreger eller understregninger, og aldrig to prikker i træk.</string>
+    <string name="max_plugins_reason_MissingName">Manifestet angiver intet navn.</string>
+    <string name="max_plugins_reason_BadVersion">Versionen skal starte med cifre, for eksempel 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Det erklærede API-niveau mangler eller er under 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Det erklærede API-niveau er nyere end denne build forstår, så det køres slet ikke.</string>
+    <string name="max_plugins_reason_MissingKind">Manifestet erklærer ingen art.</string>
+    <string name="max_plugins_reason_UnknownKind">Den slags er ikke en af ​​de offentliggjorte slags.</string>
+    <string name="max_plugins_reason_UnknownCapability">Evnen er ikke en del af denne kontrakt. En ukendt kapacitet afvises snarere end ignoreres, så intet kører med færre rettigheder, end det bad om.</string>
+    <string name="max_plugins_reason_NoCapabilities">Et plugin skal erklære mindst én egenskab.</string>
+    <string name="max_plugins_reason_DuplicateId">Et andet plugin med dette id blev allerede accepteret, så dette bruges ikke.</string>
+    <string name="max_plugins_help_title">Hvorfor overhovedet en kontrakt</string>
+    <string name="max_plugins_help_body">Uden en offentliggjort kontrakt skal enhver, der udvider denne app, gætte formen på vores interne filer, og vi kan ikke skelne mellem en gyldig udvidelse fra en ødelagt. Med den er grænsen angivet: et plugin erklærer hensigt og læser; den skriver aldrig hardware, og hvert afslag ovenfor navngiver det nøjagtige felt, der fejlede.</string>
+</resources>

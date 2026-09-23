@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">STUDIO KINERJA</string>
+    <string name="studio_cpu_frequency">CPU frekuensi</string>
+    <string name="studio_load_history">Aktivitas CPU terkini</string>
+    <string name="studio_waiting_samples">Mengumpulkan bacaan langsung…</string>
+    <string name="studio_automatic_profile">Mode otomatis mengelola profil aktif.</string>
+    <string name="studio_temperature">Suhu</string>
+    <string name="studio_display">Menampilkan</string>
+    <string name="studio_power">Opsi daya</string>
+    <string name="studio_settings">Pengaturan</string>
+</resources>

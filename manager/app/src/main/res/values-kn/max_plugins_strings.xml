@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">ಮೂರನೇ ವ್ಯಕ್ತಿಯ ಪ್ಲಗಿನ್‌ಗಳು</string>
+    <string name="max_plugins_subtitle">ಪ್ರಕಟಿತ ಒಪ್ಪಂದ: ಪ್ಲಗಿನ್ ಏನನ್ನು ಘೋಷಿಸಬಹುದು ಮತ್ತು ಇಲ್ಲಿ ಏನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ ಅಥವಾ ನಿರಾಕರಿಸಲಾಗಿದೆ.</string>
+    <string name="max_plugins_section_contract">ಒಪ್ಪಂದ</string>
+    <string name="max_plugins_contract_api">API ಮಟ್ಟ %1$d</string>
+    <string name="max_plugins_contract_dir">ಮ್ಯಾನಿಫೆಸ್ಟ್ ಫೋಲ್ಡರ್</string>
+    <string name="max_plugins_contract_rules">ಘೋಷಿತ ಸಾಮರ್ಥ್ಯವು ಓದುವಿಕೆ ಅಥವಾ ಪ್ರಸ್ತಾಪವಾಗಿದೆ. ಉದ್ದೇಶಪೂರ್ವಕವಾಗಿ ಹಾರ್ಡ್‌ವೇರ್ ಬರೆಯುವ ಯಾವುದೇ ಸಾಮರ್ಥ್ಯವಿಲ್ಲ: ಈ ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿನ ಪ್ರತಿಯೊಂದು ಬರಹವು ಮಧ್ಯಸ್ಥಗಾರರ ಮೂಲಕ ಹೋಗುತ್ತದೆ ಮತ್ತು ನೇರವಾಗಿ ಬರೆಯಬಹುದಾದ ಪ್ಲಗಿನ್ ಒಂದೇ ಗುಬ್ಬಿ ಬರೆಯುವುದನ್ನು ನಿಲ್ಲಿಸಲು ನಿರ್ಮಿಸಲಾದ ಗಾರ್ಡ್ ಅನ್ನು ತೆಗೆದುಹಾಕುತ್ತದೆ.</string>
+    <string name="max_plugins_contract_keys">ಮ್ಯಾನಿಫೆಸ್ಟ್‌ನಿಂದ ಕೀಗಳನ್ನು ಓದಲಾಗಿದೆ</string>
+    <string name="max_plugins_contract_kinds">ಸ್ವೀಕರಿಸಿದ ಪ್ರಕಾರಗಳು</string>
+    <string name="max_plugins_contract_capabilities">ಸ್ವೀಕರಿಸಿದ ಸಾಮರ್ಥ್ಯಗಳು</string>
+    <string name="max_plugins_template">ಮ್ಯಾನಿಫೆಸ್ಟ್ ಟೆಂಪ್ಲೇಟ್</string>
+    <string name="max_plugins_template_note">ಈ ಪಠ್ಯವನ್ನು ಪಾರ್ಸರ್ ಓದುತ್ತದೆ. ಇದು ಕೋಡ್‌ನಿಂದ ಹೊರಬರಲು ಸಾಧ್ಯವಿಲ್ಲ, ಏಕೆಂದರೆ ಅದು ಅದರಿಂದ ಉತ್ಪತ್ತಿಯಾಗುತ್ತದೆ.</string>
+    <string name="max_plugins_copy_template">ಟೆಂಪ್ಲೇಟ್ ಅನ್ನು ನಕಲಿಸಿ</string>
+    <string name="max_plugins_template_copied">ಟೆಂಪ್ಲೇಟ್ ನಕಲಿಸಲಾಗಿದೆ</string>
+    <string name="max_plugins_section_installed">ಈ ಸಾಧನದಲ್ಲಿ ಕಂಡುಬಂದಿದೆ</string>
+    <string name="max_plugins_loading_title">ಪ್ಲಗಿನ್ ಫೋಲ್ಡರ್ ಅನ್ನು ಓದಲಾಗುತ್ತಿದೆ</string>
+    <string name="max_plugins_loading_detail">ಮ್ಯಾನಿಫೆಸ್ಟ್ ಫೋಲ್ಡರ್ ಅನ್ನು ರೂಟ್‌ನೊಂದಿಗೆ ಪಟ್ಟಿ ಮಾಡುವುದು, ನಂತರ ಒಪ್ಪಂದದ ವಿರುದ್ಧ ಪ್ರತಿ ಮ್ಯಾನಿಫೆಸ್ಟ್ ಅನ್ನು ಮೌಲ್ಯಮಾಪನ ಮಾಡುವುದು.</string>
+    <string name="max_plugins_accepted_count">%1$d ಸ್ವೀಕರಿಸಲಾಗಿದೆ</string>
+    <string name="max_plugins_rejected_count">%1$d ನಿರಾಕರಿಸಿದರು</string>
+    <string name="max_plugins_unreadable_count">ಓದಬಹುದಾದ ಮ್ಯಾನಿಫೆಸ್ಟ್ ಇಲ್ಲದ %1$d ಫೋಲ್ಡರ್</string>
+    <string name="max_plugins_rejected_section">ನಿಖರವಾದ ಕಾರಣದೊಂದಿಗೆ ನಿರಾಕರಿಸಲಾಗಿದೆ</string>
+    <string name="max_plugins_detail_label">ಘೋಷಿಸಿದೆ</string>
+    <string name="max_plugins_refresh_cd">ಪ್ಲಗಿನ್ ಫೋಲ್ಡರ್ ಅನ್ನು ಮತ್ತೆ ಓದಿ</string>
+    <string name="max_plugins_capability_source">ಪ್ಲಗಿನ್ ಮೂಲಕ ವರದಿ ಮಾಡಲಾಗಿದೆ, ನಮ್ಮಿಂದ ಅಳತೆ ಮಾಡಲಾಗಿಲ್ಲ</string>
+    <string name="max_plugins_cond_empty_title">ಯಾವುದೇ ಪ್ಲಗಿನ್‌ಗಳನ್ನು ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ</string>
+    <string name="max_plugins_cond_empty_detail">ಮ್ಯಾನಿಫೆಸ್ಟ್ ಫೋಲ್ಡರ್ ಯಾವುದೇ ಪ್ಲಗಿನ್ ಫೋಲ್ಡರ್‌ಗಳನ್ನು ಹೊಂದಿಲ್ಲ. ಏನೂ ತಪ್ಪಿಲ್ಲ: ಇದು ವೈಶಿಷ್ಟ್ಯದ ಡೀಫಾಲ್ಟ್ ಸ್ಥಿತಿಯಾಗಿದೆ.</string>
+    <string name="max_plugins_cond_missing_title">ಮ್ಯಾನಿಫೆಸ್ಟ್ ಫೋಲ್ಡರ್ ಇನ್ನೂ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ</string>
+    <string name="max_plugins_cond_missing_detail">ಈ ಸಾಧನದಲ್ಲಿ %1$s ಅನ್ನು ರಚಿಸಲಾಗಿಲ್ಲ, ಆದ್ದರಿಂದ ಓದಲು ಏನೂ ಇಲ್ಲ. ಇದನ್ನು ರಚಿಸುವುದು ಪ್ಲಗಿನ್ ಲೇಖಕರು ಮಾಡಬೇಕಾಗಿರುವುದು.</string>
+    <string name="max_plugins_cond_unreadable_title">ಮ್ಯಾನಿಫೆಸ್ಟ್ ಫೋಲ್ಡರ್ ಅನ್ನು ಓದಲಾಗುವುದಿಲ್ಲ</string>
+    <string name="max_plugins_cond_unreadable_detail">ಫೋಲ್ಡರ್ %1$s ನಲ್ಲಿ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ ಆದರೆ ಶೆಲ್ ಅದನ್ನು ಓದಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ಅದನ್ನು ಪಟ್ಟಿ ಮಾಡಲು ರೂಟ್ ಅಗತ್ಯವಿದೆ.</string>
+    <string name="max_plugins_reason_BadId">ಐಡಿಯನ್ನು ಫೋಲ್ಡರ್ ಹೆಸರಾಗಿ ಬಳಸಲಾಗುವುದಿಲ್ಲ. ಲೋವರ್ಕೇಸ್ ಲ್ಯಾಟಿನ್ ಅಕ್ಷರಗಳು, ಅಂಕೆಗಳು, ಚುಕ್ಕೆಗಳು, ಡ್ಯಾಶ್‌ಗಳು ಅಥವಾ ಅಂಡರ್‌ಸ್ಕೋರ್‌ಗಳನ್ನು ಬಳಸಿ ಮತ್ತು ಸತತವಾಗಿ ಎರಡು ಚುಕ್ಕೆಗಳನ್ನು ಎಂದಿಗೂ ಬಳಸಬೇಡಿ.</string>
+    <string name="max_plugins_reason_MissingName">ಮ್ಯಾನಿಫೆಸ್ಟ್ ಯಾವುದೇ ಹೆಸರನ್ನು ಘೋಷಿಸುವುದಿಲ್ಲ.</string>
+    <string name="max_plugins_reason_BadVersion">ಆವೃತ್ತಿಯು ಅಂಕೆಗಳೊಂದಿಗೆ ಪ್ರಾರಂಭವಾಗಬೇಕು, ಉದಾಹರಣೆಗೆ 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">ಘೋಷಿತ API ಮಟ್ಟವು ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ 1 ಕ್ಕಿಂತ ಕಡಿಮೆಯಾಗಿದೆ.</string>
+    <string name="max_plugins_reason_ApiTooNew">ಡಿಕ್ಲೇರ್ಡ್ API ಮಟ್ಟವು ಈ ಬಿಲ್ಡ್ ಅರ್ಥಮಾಡಿಕೊಳ್ಳುವುದಕ್ಕಿಂತ ಹೊಸದಾಗಿದೆ, ಆದ್ದರಿಂದ ಇದು ರನ್ ಆಗುವುದಿಲ್ಲ.</string>
+    <string name="max_plugins_reason_MissingKind">ಮ್ಯಾನಿಫೆಸ್ಟ್ ಯಾವುದೇ ರೀತಿಯ ಘೋಷಿಸುವುದಿಲ್ಲ.</string>
+    <string name="max_plugins_reason_UnknownKind">ಈ ಪ್ರಕಾರವು ಪ್ರಕಟವಾದ ಪ್ರಕಾರಗಳಲ್ಲಿ ಒಂದಲ್ಲ.</string>
+    <string name="max_plugins_reason_UnknownCapability">ಸಾಮರ್ಥ್ಯವು ಈ ಒಪ್ಪಂದದ ಭಾಗವಲ್ಲ. ಅಜ್ಞಾತ ಸಾಮರ್ಥ್ಯವನ್ನು ನಿರ್ಲಕ್ಷಿಸುವ ಬದಲು ನಿರಾಕರಿಸಲಾಗುತ್ತದೆ, ಆದ್ದರಿಂದ ಕೇಳಿದ್ದಕ್ಕಿಂತ ಕಡಿಮೆ ಹಕ್ಕುಗಳೊಂದಿಗೆ ಯಾವುದೂ ಕಾರ್ಯನಿರ್ವಹಿಸುವುದಿಲ್ಲ.</string>
+    <string name="max_plugins_reason_NoCapabilities">ಒಂದು ಪ್ಲಗಿನ್ ಕನಿಷ್ಠ ಒಂದು ಸಾಮರ್ಥ್ಯವನ್ನು ಘೋಷಿಸಬೇಕು.</string>
+    <string name="max_plugins_reason_DuplicateId">ಈ ಐಡಿಯೊಂದಿಗೆ ಮತ್ತೊಂದು ಪ್ಲಗಿನ್ ಅನ್ನು ಈಗಾಗಲೇ ಸ್ವೀಕರಿಸಲಾಗಿದೆ, ಆದ್ದರಿಂದ ಇದನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ.</string>
+    <string name="max_plugins_help_title">ಎಲ್ಲಾದರೂ ಒಪ್ಪಂದ ಏಕೆ</string>
+    <string name="max_plugins_help_body">ಪ್ರಕಟಿತ ಒಪ್ಪಂದವಿಲ್ಲದೆ, ಈ ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ವಿಸ್ತರಿಸುವ ಯಾರಾದರೂ ನಮ್ಮ ಆಂತರಿಕ ಫೈಲ್‌ಗಳ ಆಕಾರವನ್ನು ಊಹಿಸಬೇಕಾಗುತ್ತದೆ ಮತ್ತು ಮುರಿದ ಒಂದರಿಂದ ಮಾನ್ಯವಾದ ವಿಸ್ತರಣೆಯನ್ನು ನಾವು ಹೇಳಲಾಗುವುದಿಲ್ಲ. ಅದರೊಂದಿಗೆ, ಮಿತಿಯನ್ನು ಹೇಳಲಾಗಿದೆ: ಪ್ಲಗಿನ್ ಉದ್ದೇಶವನ್ನು ಘೋಷಿಸುತ್ತದೆ ಮತ್ತು ಓದುತ್ತದೆ; ಅದು ಎಂದಿಗೂ ಯಂತ್ರಾಂಶವನ್ನು ಬರೆಯುವುದಿಲ್ಲ, ಮತ್ತು ಮೇಲಿನ ಪ್ರತಿಯೊಂದು ನಿರಾಕರಣೆಯು ವಿಫಲವಾದ ನಿಖರವಾದ ಕ್ಷೇತ್ರವನ್ನು ಹೆಸರಿಸುತ್ತದೆ.</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE STUDIO</string>
+    <string name="studio_cpu_frequency">CPU taajuus</string>
+    <string name="studio_load_history">Viimeaikainen toiminta CPU</string>
+    <string name="studio_waiting_samples">Kerätään live-lukemia…</string>
+    <string name="studio_automatic_profile">Automaattinen tila hallitsee aktiivista profiilia.</string>
+    <string name="studio_temperature">Lämpötila</string>
+    <string name="studio_display">Näyttö</string>
+    <string name="studio_power">Virtavaihtoehdot</string>
+    <string name="studio_settings">Asetukset</string>
+</resources>

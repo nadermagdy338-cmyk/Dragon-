@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Uchinchi tomon plaginlari</string>
+    <string name="max_plugins_subtitle">Chop etilgan shartnoma: plagin nimani e\'lon qilishi mumkin va bu erda nima qabul qilingan yoki rad etilgan.</string>
+    <string name="max_plugins_section_contract">Shartnoma</string>
+    <string name="max_plugins_contract_api">API darajasi %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest papkasi</string>
+    <string name="max_plugins_contract_rules">E\'lon qilingan qobiliyat o\'qish yoki taklifdir. Uskunani yozish qobiliyati ataylab yo\'q: bu ilovadagi har bir yozuv hakamdan o\'tadi va to\'g\'ridan-to\'g\'ri yozish mumkin bo\'lgan plagin ikkita eganing bir xil tugmani yozishini to\'xtatish uchun o\'rnatilgan himoyani olib tashlaydi.</string>
+    <string name="max_plugins_contract_keys">Manifestdan o\'qilgan kalitlar</string>
+    <string name="max_plugins_contract_kinds">Qabul qilingan turlar</string>
+    <string name="max_plugins_contract_capabilities">Qabul qilingan qobiliyatlar</string>
+    <string name="max_plugins_template">Manifest shablon</string>
+    <string name="max_plugins_template_note">Bu matnni tahlil qiluvchi o\'qiydi. U koddan uzoqlasha olmaydi, chunki u undan yaratilgan.</string>
+    <string name="max_plugins_copy_template">Shablondan nusxa oling</string>
+    <string name="max_plugins_template_copied">Shablon nusxalandi</string>
+    <string name="max_plugins_section_installed">Ushbu qurilmada topilgan</string>
+    <string name="max_plugins_loading_title">Plagin papkasini o\'qish</string>
+    <string name="max_plugins_loading_detail">Manifest jildini ildiz bilan ro\'yxatga olish, keyin har bir manifestni shartnomaga nisbatan baholash.</string>
+    <string name="max_plugins_accepted_count">%1$d qabul qilindi</string>
+    <string name="max_plugins_rejected_count">%1$d rad etdi</string>
+    <string name="max_plugins_unreadable_count">%1$d jild o\'qilishi mumkin bo\'lgan manifestsiz</string>
+    <string name="max_plugins_rejected_section">Aniq sabab bilan rad etildi</string>
+    <string name="max_plugins_detail_label">E\'lon qilingan</string>
+    <string name="max_plugins_refresh_cd">Plagin papkasini qayta o\'qing</string>
+    <string name="max_plugins_capability_source">Plagin tomonidan xabar qilingan, biz o\'lchamagan</string>
+    <string name="max_plugins_cond_empty_title">Hech qanday plagin oʻrnatilmagan</string>
+    <string name="max_plugins_cond_empty_detail">Manifest jildida plagin papkalari mavjud emas. Hech narsa noto\'g\'ri: bu xususiyatning standart holati.</string>
+    <string name="max_plugins_cond_missing_title">Manifest jildi hali mavjud emas</string>
+    <string name="max_plugins_cond_missing_detail">%1$s ushbu qurilmada yaratilmagan, shuning uchun o\'qish uchun hech narsa yo\'q. Uni yaratish plagin muallifi qilishi kerak bo\'lgan barcha narsa.</string>
+    <string name="max_plugins_cond_unreadable_title">Manifest jildini o‘qib bo‘lmaydi</string>
+    <string name="max_plugins_cond_unreadable_detail">Jild %1$s da mavjud, lekin qobiq uni o\'qiy olmadi. Uni ro\'yxatga olish uchun ildiz kerak.</string>
+    <string name="max_plugins_reason_BadId">Id jild nomi sifatida ishlatilmaydi. Kichik lotin harflari, raqamlar, nuqtalar, tire yoki pastki chiziqdan foydalaning va hech qachon ketma-ket ikkita nuqta qo\'ymang.</string>
+    <string name="max_plugins_reason_MissingName">Manifest hech qanday nomni e\'lon qilmaydi.</string>
+    <string name="max_plugins_reason_BadVersion">Versiya raqamlar bilan boshlanishi kerak, masalan 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Eʼlon qilingan API darajasi yoʻq yoki 1 dan past.</string>
+    <string name="max_plugins_reason_ApiTooNew">E\'lon qilingan API darajasi ushbu tuzilma tushunadiganidan yangiroq, shuning uchun u umuman ishlamaydi.</string>
+    <string name="max_plugins_reason_MissingKind">Manifest hech qanday turni e\'lon qilmaydi.</string>
+    <string name="max_plugins_reason_UnknownKind">Tur nashr etilgan turlardan biri emas.</string>
+    <string name="max_plugins_reason_UnknownCapability">Imkoniyat ushbu shartnomaning bir qismi emas. Noma\'lum qobiliyat e\'tiborga olinmagandan ko\'ra rad etiladi, shuning uchun hech narsa talab qilinganidan kamroq huquqlar bilan ishlamaydi.</string>
+    <string name="max_plugins_reason_NoCapabilities">Plagin kamida bitta qobiliyatni e\'lon qilishi kerak.</string>
+    <string name="max_plugins_reason_DuplicateId">Bu identifikatorli boshqa plagin allaqachon qabul qilingan, shuning uchun u ishlatilmaydi.</string>
+    <string name="max_plugins_help_title">Nima uchun umuman shartnoma</string>
+    <string name="max_plugins_help_body">Chop etilgan shartnomasiz, ushbu ilovani kengaytiruvchi har bir kishi bizning ichki fayllarimiz shaklini taxmin qilishi kerak va biz buzilgan kengaytmadan haqiqiy kengaytmani ajrata olmaymiz. U bilan chegara ko\'rsatilgan: plagin niyatni e\'lon qiladi va o\'qiydi; u hech qachon apparatni yozmaydi va yuqoridagi har bir rad etish muvaffaqiyatsiz bo\'lgan maydonni aniqlaydi.</string>
+</resources>

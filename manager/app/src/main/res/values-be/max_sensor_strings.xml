@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Датчыкі, якія паведамляюцца гэтай прыладай</string>
+    <string name="max_sensor_desc">Тое, што платформа дэкларуе аб сваім апаратным забеспячэнні, плюс адно абмежаванае лёгкае чытанне. Ніякай каліброўкі і ацэнкі здароўя: для таго і іншага спатрэбіцца фізічная даведка, якой у нас няма.</string>
+    <string name="max_sensor_service">Сэрвіс датчыкаў</string>
+    <string name="max_sensor_service_unavailable">не можа быць дасягнута</string>
+    <string name="max_sensor_count">Датчыкі паведамілі</string>
+    <string name="max_sensor_kinds">Прысутныя катэгорыі</string>
+    <string name="max_sensor_wakeup">Датчыкі абуджэння (паведамляюць, пакуль прылада спіць)</string>
+    <string name="max_sensor_light">Навакольнае асвятленне</string>
+    <string name="max_sensor_unit_lux">люкс</string>
+    <string name="max_sensor_light_absent">гэта прылада паведамляе аб адсутнасці датчыка святла</string>
+    <string name="max_sensor_light_unreadable">да тайм-аўту не паступіла чытанне — невядома, не нуль</string>
+    <string name="max_sensor_more">…і яшчэ %1$s</string>
+    <string name="max_sensor_no_score">Імёны, дыяпазоны і затрымкі паходзяць з платформы. Датчык, які паведамляе, не з\'яўляецца доказам яго дакладнасці.</string>
+    <string name="max_sensor_kind_motion">Рух</string>
+    <string name="max_sensor_kind_environment">Асяроддзе</string>
+    <string name="max_sensor_kind_position">Пазіцыя</string>
+    <string name="max_sensor_kind_body">Цела</string>
+    <string name="max_sensor_kind_unpositioned">Неразмешчаная</string>
+    <string name="max_sensor_kind_other">Іншае</string>
+</resources>

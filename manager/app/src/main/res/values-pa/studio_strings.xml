@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">ਪਰਫਾਰਮੈਂਸ ਸਟੂਡੀਓ</string>
+    <string name="studio_cpu_frequency">CPU ਬਾਰੰਬਾਰਤਾ</string>
+    <string name="studio_load_history">ਹਾਲੀਆ CPU ਗਤੀਵਿਧੀ</string>
+    <string name="studio_waiting_samples">ਲਾਈਵ ਰੀਡਿੰਗਾਂ ਨੂੰ ਇਕੱਠਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...</string>
+    <string name="studio_automatic_profile">ਆਟੋਮੈਟਿਕ ਮੋਡ ਸਰਗਰਮ ਪ੍ਰੋਫਾਈਲ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰਦਾ ਹੈ।</string>
+    <string name="studio_temperature">ਤਾਪਮਾਨ</string>
+    <string name="studio_display">ਡਿਸਪਲੇ</string>
+    <string name="studio_power">ਪਾਵਰ ਵਿਕਲਪ</string>
+    <string name="studio_settings">ਸੈਟਿੰਗਾਂ</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">ປລັກອິນພາກສ່ວນທີສາມ</string>
+    <string name="max_plugins_subtitle">ສັນຍາທີ່ເຜີຍແຜ່: ສິ່ງທີ່ plugin ອາດຈະປະກາດ, ແລະສິ່ງທີ່ໄດ້ຮັບການຍອມຮັບຫຼືປະຕິເສດຢູ່ທີ່ນີ້.</string>
+    <string name="max_plugins_section_contract">ສັນຍາ</string>
+    <string name="max_plugins_contract_api">ລະດັບ API %1$d</string>
+    <string name="max_plugins_contract_dir">ໂຟນເດີ Manifest</string>
+    <string name="max_plugins_contract_rules">ຄວາມສາມາດໃນການປະກາດແມ່ນເປັນການອ່ານຫຼືການສະເຫນີ. ບໍ່ມີເຈດຕະນາຄວາມສາມາດທີ່ຈະຂຽນຮາດແວ: ທຸກໆການຂຽນໃນ app ນີ້ຜ່ານ arbiter, ແລະ plugin ທີ່ສາມາດຂຽນໂດຍກົງຈະເອົາກອງທີ່ສ້າງຂຶ້ນເພື່ອຢຸດເຈົ້າຂອງສອງຄົນຂຽນລູກບິດດຽວກັນ.</string>
+    <string name="max_plugins_contract_keys">ປຸ່ມອ່ານຈາກ manifest</string>
+    <string name="max_plugins_contract_kinds">ປະເພດທີ່ຍອມຮັບ</string>
+    <string name="max_plugins_contract_capabilities">ຄວາມສາມາດທີ່ຍອມຮັບ</string>
+    <string name="max_plugins_template">ແມ່ແບບ manifest</string>
+    <string name="max_plugins_template_note">ຂໍ້ຄວາມນີ້ແມ່ນສິ່ງທີ່ນັກວິເຄາະອ່ານ. ມັນບໍ່ສາມາດລອຍຈາກລະຫັດ, ເພາະວ່າມັນຖືກສ້າງມາຈາກມັນ.</string>
+    <string name="max_plugins_copy_template">ສຳເນົາແມ່ແບບ</string>
+    <string name="max_plugins_template_copied">ສຳເນົາແມ່ແບບແລ້ວ</string>
+    <string name="max_plugins_section_installed">ພົບໃນອຸປະກອນນີ້</string>
+    <string name="max_plugins_loading_title">ກຳລັງອ່ານໂຟນເດີ plugin</string>
+    <string name="max_plugins_loading_detail">ລາຍຊື່ໂຟນເດີ manifest ດ້ວຍຮາກ, ຈາກນັ້ນປະເມີນແຕ່ລະ manifest ຕໍ່ກັບສັນຍາ.</string>
+    <string name="max_plugins_accepted_count">%1$d ຍອມຮັບ</string>
+    <string name="max_plugins_rejected_count">%1$d ປະຕິເສດ</string>
+    <string name="max_plugins_unreadable_count">ໂຟນເດີ %1$d ໂດຍບໍ່ມີ manifest ທີ່ສາມາດອ່ານໄດ້</string>
+    <string name="max_plugins_rejected_section">ປະຕິເສດ, ດ້ວຍເຫດຜົນທີ່ແນ່ນອນ</string>
+    <string name="max_plugins_detail_label">ປະກາດ</string>
+    <string name="max_plugins_refresh_cd">ອ່ານໂຟນເດີ plugin ຄືນໃໝ່</string>
+    <string name="max_plugins_capability_source">ລາຍງານໂດຍ plugin, ບໍ່ໄດ້ວັດແທກໂດຍພວກເຮົາ</string>
+    <string name="max_plugins_cond_empty_title">ບໍ່ມີປລັກອິນຕິດຕັ້ງ</string>
+    <string name="max_plugins_cond_empty_detail">ໂຟນເດີ manifest ບໍ່ມີໂຟນເດີ plugin. ບໍ່ມີຫຍັງຜິດພາດ: ນີ້ແມ່ນສະຖານະເລີ່ມຕົ້ນຂອງຄຸນສົມບັດ.</string>
+    <string name="max_plugins_cond_missing_title">ໂຟນເດີ Manifest ຍັງບໍ່ມີເທື່ອ</string>
+    <string name="max_plugins_cond_missing_detail">%1$s ບໍ່​ໄດ້​ຖືກ​ສ້າງ​ຂຶ້ນ​ຢູ່​ໃນ​ອຸ​ປະ​ກອນ​ນີ້​, ດັ່ງ​ນັ້ນ​ບໍ່​ມີ​ຫຍັງ​ທີ່​ຈະ​ອ່ານ​. ການສ້າງມັນແມ່ນທັງຫມົດທີ່ຜູ້ຂຽນ plugin ຕ້ອງເຮັດ.</string>
+    <string name="max_plugins_cond_unreadable_title">ບໍ່ສາມາດອ່ານໂຟນເດີ Manifest ໄດ້</string>
+    <string name="max_plugins_cond_unreadable_detail">ໂຟນເດີມີຢູ່ທີ່ %1$s ແຕ່ແກະບໍ່ສາມາດອ່ານມັນໄດ້. ປົ່ງຮາກອອກຕາມແມ່ນຈໍາເປັນເພື່ອລາຍຊື່ມັນ.</string>
+    <string name="max_plugins_reason_BadId">ID ບໍ່ສາມາດໃຊ້ໄດ້ເປັນຊື່ໂຟນເດີ. ໃຊ້ຕົວອັກສອນລາຕິນຕົວພິມນ້ອຍ, ຕົວເລກ, ຈຸດ, ຂີດ ຫຼື ຂີດກ້ອງ, ແລະບໍ່ເຄີຍມີສອງຈຸດຕິດຕໍ່ກັນ.</string>
+    <string name="max_plugins_reason_MissingName">Manifest ປະກາດວ່າບໍ່ມີຊື່.</string>
+    <string name="max_plugins_reason_BadVersion">ເວີຊັນຕ້ອງເລີ່ມຕົ້ນດ້ວຍຕົວເລກ, ຕົວຢ່າງ 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">ລະດັບ API ທີ່ຖືກປະກາດນັ້ນຂາດຫາຍໄປ ຫຼືຕ່ຳກວ່າ 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">ລະດັບ API ທີ່ຖືກປະກາດແມ່ນໃຫມ່ກວ່າການກໍ່ສ້າງນີ້ເຂົ້າໃຈ, ດັ່ງນັ້ນມັນບໍ່ໄດ້ດໍາເນີນການທັງຫມົດ.</string>
+    <string name="max_plugins_reason_MissingKind">manifest ປະກາດວ່າບໍ່ມີປະເພດ.</string>
+    <string name="max_plugins_reason_UnknownKind">ປະເພດບໍ່ແມ່ນຫນຶ່ງໃນປະເພດທີ່ເຜີຍແຜ່.</string>
+    <string name="max_plugins_reason_UnknownCapability">ຄວາມສາມາດບໍ່ແມ່ນສ່ວນຫນຶ່ງຂອງສັນຍານີ້. ຄວາມສາມາດທີ່ບໍ່ຮູ້ຈັກຖືກປະຕິເສດແທນທີ່ຈະຖືກລະເລີຍ, ດັ່ງນັ້ນບໍ່ມີຫຍັງທີ່ຈະດໍາເນີນການກັບສິດທິຫນ້ອຍກ່ວາມັນຮ້ອງຂໍໃຫ້.</string>
+    <string name="max_plugins_reason_NoCapabilities">ປັ໊ກອິນຕ້ອງປະກາດຢ່າງໜ້ອຍໜຶ່ງຄວາມສາມາດ.</string>
+    <string name="max_plugins_reason_DuplicateId">ປລັກອິນອື່ນທີ່ມີ id ນີ້ໄດ້ຮັບການຍອມຮັບແລ້ວ, ດັ່ງນັ້ນອັນນີ້ບໍ່ໄດ້ໃຊ້.</string>
+    <string name="max_plugins_help_title">ເປັນຫຍັງສັນຍາທັງຫມົດ</string>
+    <string name="max_plugins_help_body">ຖ້າບໍ່ມີສັນຍາທີ່ເຜີຍແຜ່, ຜູ້ໃດທີ່ຂະຫຍາຍແອັບນີ້ຕ້ອງເດົາຮູບຮ່າງຂອງໄຟລ໌ພາຍໃນຂອງພວກເຮົາ, ແລະພວກເຮົາບໍ່ສາມາດບອກສ່ວນຂະຫຍາຍທີ່ຖືກຕ້ອງຈາກອັນທີ່ແຕກຫັກໄດ້. ກັບມັນ, ຂອບເຂດຈໍາກັດແມ່ນລະບຸໄວ້: plugin ປະກາດຄວາມຕັ້ງໃຈແລະອ່ານ; ມັນບໍ່ເຄີຍຂຽນຮາດແວ, ແລະທຸກໆການປະຕິເສດຂ້າງເທິງຊື່ພາກສະຫນາມທີ່ແນ່ນອນທີ່ລົ້ມເຫລວ.</string>
+</resources>

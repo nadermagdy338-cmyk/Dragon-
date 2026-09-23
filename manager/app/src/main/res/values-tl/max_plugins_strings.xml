@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Mga plugin ng third-party</string>
+    <string name="max_plugins_subtitle">Ang nai-publish na kontrata: kung ano ang maaaring ipahayag ng isang plugin, at kung ano ang tinanggap o tinanggihan dito.</string>
+    <string name="max_plugins_section_contract">Ang kontrata</string>
+    <string name="max_plugins_contract_api">API level %1$d</string>
+    <string name="max_plugins_contract_dir">Manifest na folder</string>
+    <string name="max_plugins_contract_rules">Ang ipinahayag na kakayahan ay alinman sa isang nabasa o isang panukala. Sadyang walang kakayahang sumulat ng hardware: bawat pagsusulat sa app na ito ay dumadaan sa arbiter, at ang isang plugin na maaaring direktang sumulat ay mag-aalis ng bantay na itinayo upang ihinto ang pagsusulat ng dalawang may-ari sa parehong knob.</string>
+    <string name="max_plugins_contract_keys">Nabasa ang mga susi mula sa isang manifest</string>
+    <string name="max_plugins_contract_kinds">Mga tinatanggap na uri</string>
+    <string name="max_plugins_contract_capabilities">Mga tinatanggap na kakayahan</string>
+    <string name="max_plugins_template">Manifest na template</string>
+    <string name="max_plugins_template_note">Ang tekstong ito ang binabasa ng parser. Hindi ito maaanod mula sa code, dahil ito ay nabuo mula dito.</string>
+    <string name="max_plugins_copy_template">Kopyahin ang template</string>
+    <string name="max_plugins_template_copied">Nakopya ang template</string>
+    <string name="max_plugins_section_installed">Natagpuan sa device na ito</string>
+    <string name="max_plugins_loading_title">Binabasa ang folder ng plugin</string>
+    <string name="max_plugins_loading_detail">Paglilista ng manifest folder na may ugat, pagkatapos ay sinusuri ang bawat manifest laban sa kontrata.</string>
+    <string name="max_plugins_accepted_count">%1$d tinanggap</string>
+    <string name="max_plugins_rejected_count">%1$d tumanggi</string>
+    <string name="max_plugins_unreadable_count">%1$d folder na walang nababasang manifest</string>
+    <string name="max_plugins_rejected_section">Tinanggihan, na may eksaktong dahilan</string>
+    <string name="max_plugins_detail_label">Ipinahayag</string>
+    <string name="max_plugins_refresh_cd">Muling basahin ang folder ng plugin</string>
+    <string name="max_plugins_capability_source">Iniulat ng plugin, hindi namin nasusukat</string>
+    <string name="max_plugins_cond_empty_title">Walang naka-install na plugin</string>
+    <string name="max_plugins_cond_empty_detail">Ang manifest folder ay walang mga folder ng plugin. Walang mali: ito ang default na estado ng tampok.</string>
+    <string name="max_plugins_cond_missing_title">Ang manifest folder ay wala pa</string>
+    <string name="max_plugins_cond_missing_detail">%1$s ay hindi pa nagagawa sa device na ito, kaya walang mababasa. Ang paggawa nito ay ang kailangan lang gawin ng may-akda ng plugin.</string>
+    <string name="max_plugins_cond_unreadable_title">Hindi mababasa ang manifest folder</string>
+    <string name="max_plugins_cond_unreadable_detail">Ang folder ay umiiral sa %1$s ngunit hindi ito mabasa ng shell. Root ay kinakailangan upang ilista ito.</string>
+    <string name="max_plugins_reason_BadId">Ang id ay hindi magagamit bilang pangalan ng folder. Gumamit ng maliliit na letrang Latin, digit, tuldok, gitling o salungguhit, at hindi kailanman dalawang tuldok sa isang hilera.</string>
+    <string name="max_plugins_reason_MissingName">Ang manifest ay nagpahayag ng walang pangalan.</string>
+    <string name="max_plugins_reason_BadVersion">Ang bersyon ay dapat magsimula sa mga digit, halimbawa 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Ang ipinahayag na antas ng API ay nawawala o mas mababa sa 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Ang ipinahayag na antas ng API ay mas bago kaysa sa naiintindihan ng build na ito, kaya hindi ito pinapatakbo.</string>
+    <string name="max_plugins_reason_MissingKind">Ang manifest ay nagpahayag ng walang uri.</string>
+    <string name="max_plugins_reason_UnknownKind">Ang uri ay hindi isa sa mga nai-publish na uri.</string>
+    <string name="max_plugins_reason_UnknownCapability">Ang kakayahan ay hindi bahagi ng kontratang ito. Ang isang hindi kilalang kakayahan ay tinatanggihan sa halip na balewalain, kaya walang tumatakbo na may mas kaunting mga karapatan kaysa sa hiniling nito.</string>
+    <string name="max_plugins_reason_NoCapabilities">Ang isang plugin ay dapat magpahayag ng hindi bababa sa isang kakayahan.</string>
+    <string name="max_plugins_reason_DuplicateId">Ang isa pang plugin na may ganitong id ay tinanggap na, kaya ang isang ito ay hindi ginagamit.</string>
+    <string name="max_plugins_help_title">Bakit may kontrata</string>
+    <string name="max_plugins_help_body">Kung walang naka-publish na kontrata, sinumang magpapalawig sa app na ito ay kailangang hulaan ang hugis ng aming mga panloob na file, at hindi namin masasabi ang isang wastong extension mula sa isang sirang extension. Kasama nito, ang limitasyon ay nakasaad: ang isang plugin ay nagpapahayag ng layunin at nagbabasa; hindi ito kailanman nagsusulat ng hardware, at ang bawat pagtanggi sa itaas ay pinangalanan ang eksaktong field na nabigo.</string>
+</resources>

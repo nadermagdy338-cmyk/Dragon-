@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">ظاهر و رابط کاربری</string>
+    <string name="max_cfg_backup_app_prefs">تنظیمات و زبان برنامه</string>
+    <string name="max_cfg_declared_absent_title">شامل نخواهد شد، و چرا</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">این دستگاه ریشه تأیید شده ندارد، بنابراین مقادیر را نمی توان به طور قابل اعتماد خواند</string>
+    <string name="max_cfg_absent_file_missing">فایل ترجیحی هنوز وجود ندارد</string>
+    <string name="max_cfg_absent_empty">فایل ترجیحی وجود دارد اما خالی است، بنابراین چیزی برای نوشتن وجود ندارد</string>
+    <string name="max_cfg_declared_excluded_title">هرگز در این فایل گنجانده نشده است</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI تنظیمات ایمنی در داخل برنامه پیکربندی شده است، هرگز در یک فایل حمل نمی شود</string>
+    <string name="max_cfg_excluded_other_apps">داده‌های سایر برنامه‌ها متعلق به پشتیبان‌گیری برنامه است، نه پشتیبان پیکربندی</string>
+    <string name="max_cfg_excluded_secret">کلیدهای امضا و اسرار هرگز در فایلی که ممکن است به اشتراک بگذارید نوشته نمی شود</string>
+    <string name="max_cfg_section_tweaks">تنظیمات را بهینه کنید</string>
+    <string name="max_cfg_section_applist">لیست هر برنامه</string>
+    <string name="max_cfg_section_appearance">ظاهر و رابط کاربری</string>
+    <string name="max_cfg_section_app_prefs">تنظیمات و زبان برنامه</string>
+    <string name="max_cfg_restore_merge_note">بازیابی تنظیمات برگزیده ادغام می‌شود: کلیدهای موجود در فایل نوشته می‌شوند و کلیدهایی که ذکر نمی‌کند همان‌طور که هستند می‌مانند. هیچ چیز پاک نمی شود.</string>
+</resources>

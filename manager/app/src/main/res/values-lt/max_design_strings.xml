@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Tiesiogiai</string>
+    <string name="max_trust_stale">Paskutinis pavyzdys</string>
+    <string name="max_trust_snapshot">Momentinė nuotrauka</string>
+    <string name="max_trust_unreadable">Jokio skaitymo</string>
+    <string name="max_trust_unsupported">Nepalaikoma</string>
+    <string name="max_source_label">Šaltinis</string>
+    <string name="max_updated_label">Atnaujinta</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">jokios vertės nėra</string>
+    <string name="max_expand_section">Rodyti detales</string>
+    <string name="max_collapse_section">Slėpti detales</string>
+</resources>

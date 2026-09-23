@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Sensorer rapporteret af denne enhed</string>
+    <string name="max_sensor_desc">Hvad platformen erklærer om sin egen hardware, plus én afgrænset lysaflæsning. Ingen kalibrering og ingen sundhedsscore: begge ville have brug for en fysisk reference, vi ikke har.</string>
+    <string name="max_sensor_service">Sensor service</string>
+    <string name="max_sensor_service_unavailable">ikke kunne nås</string>
+    <string name="max_sensor_count">Sensorer rapporteret</string>
+    <string name="max_sensor_kinds">Tilstedeværende kategorier</string>
+    <string name="max_sensor_wakeup">Wake-up sensorer (rapporter mens enheden sover)</string>
+    <string name="max_sensor_light">Omgivende lys</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">denne enhed rapporterer ingen lyssensor</string>
+    <string name="max_sensor_light_unreadable">ingen læsning ankom før timeout - ukendt, ikke nul</string>
+    <string name="max_sensor_more">…og %1$s mere</string>
+    <string name="max_sensor_no_score">Navne, intervaller og forsinkelser kommer fra platformen. En sensor, der rapporterer, er ikke et bevis på, at den er nøjagtig.</string>
+    <string name="max_sensor_kind_motion">Bevægelse</string>
+    <string name="max_sensor_kind_environment">Miljø</string>
+    <string name="max_sensor_kind_position">Position</string>
+    <string name="max_sensor_kind_body">Legeme</string>
+    <string name="max_sensor_kind_unpositioned">Upositioneret</string>
+    <string name="max_sensor_kind_other">Andre</string>
+</resources>

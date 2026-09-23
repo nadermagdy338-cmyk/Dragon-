@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">පෙනුම සහ අතුරු මුහුණත</string>
+    <string name="max_cfg_backup_app_prefs">යෙදුම් මනාප සහ භාෂාව</string>
+    <string name="max_cfg_declared_absent_title">ඇතුළත් නොවනු ඇත, සහ ඇයි</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">මෙම උපාංගයට සත්‍යාපනය කළ මූලයක් නොමැත, එබැවින් අගයන් විශ්වාසදායක ලෙස කියවිය නොහැක</string>
+    <string name="max_cfg_absent_file_missing">මනාප ගොනුව තවමත් නොපවතී</string>
+    <string name="max_cfg_absent_empty">මනාප ගොනුව පවතින නමුත් හිස් බැවින් ලිවීමට කිසිවක් නොමැත</string>
+    <string name="max_cfg_declared_excluded_title">මෙම ගොනුවට කිසිවිටක ඇතුළත් කර නැත</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI ආරක්‍ෂිත සැකසුම් යෙදුම තුළ වින්‍යාස කර ඇත, කිසි විටෙක ගොනුවක රැගෙන නොයනු ඇත</string>
+    <string name="max_cfg_excluded_other_apps">වෙනත් යෙදුම්වල දත්ත අයත් වන්නේ යෙදුම් උපස්ථයට මිස වින්‍යාස උපස්ථයට නොවේ</string>
+    <string name="max_cfg_excluded_secret">අත්සන් කිරීමේ යතුරු සහ රහස් ඔබ බෙදාගත හැකි ගොනුවකට කිසිවිටෙක ලියා නැත</string>
+    <string name="max_cfg_section_tweaks">වින්‍යාසය වෙනස් කරන්න</string>
+    <string name="max_cfg_section_applist">එක් යෙදුමක ලැයිස්තුව</string>
+    <string name="max_cfg_section_appearance">පෙනුම සහ අතුරු මුහුණත</string>
+    <string name="max_cfg_section_app_prefs">යෙදුම් මනාප සහ භාෂාව</string>
+    <string name="max_cfg_restore_merge_note">ප්‍රතිස්ථාපන අභිරුචි ඒකාබද්ධ වේ: ගොනුවේ පවතින යතුරු ලියා ඇති අතර, එහි සඳහන් නොවන යතුරු පවතින ලෙසම පවතී. කිසිවක් පිරිසිදු නොවේ.</string>
+</resources>

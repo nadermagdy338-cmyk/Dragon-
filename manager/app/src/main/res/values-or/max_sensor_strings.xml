@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">ଏହି ଡିଭାଇସ୍ ଦ୍ୱାରା ସେନ୍ସର ରିପୋର୍ଟ କରାଯାଇଛି |</string>
+    <string name="max_sensor_service">ସେନ୍ସର ସେବା |</string>
+    <string name="max_sensor_service_unavailable">ପହଞ୍ଚି ପାରିଲା ନାହିଁ |</string>
+    <string name="max_sensor_count">ସେନ୍ସର ରିପୋର୍ଟ କରିଛି |</string>
+    <string name="max_sensor_kinds">ବର୍ଗଗୁଡିକ ଉପସ୍ଥିତ |</string>
+    <string name="max_sensor_wakeup">ଜାଗ୍ରତ ସେନସର (ଉପକରଣ ଶୋଇଥିବା ସମୟରେ ରିପୋର୍ଟ କରନ୍ତୁ)</string>
+    <string name="max_sensor_light">ପରିବେଶ ଆଲୋକ</string>
+    <string name="max_sensor_unit_lux">ବିଳାସପୂର୍ଣ୍ଣ |</string>
+    <string name="max_sensor_light_absent">ଏହି ଡିଭାଇସ୍ କ light ଣସି ଲାଇଟ୍ ସେନ୍ସର ରିପୋର୍ଟ କରେ ନାହିଁ |</string>
+    <string name="max_sensor_light_unreadable">ସମୟ ସମାପ୍ତ ହେବା ପୂର୍ବରୁ କ reading ଣସି ପଠନ ଆସିଲା ନାହିଁ - ଅଜ୍ଞାତ, ଶୂନ୍ୟ ନୁହେଁ |</string>
+    <string name="max_sensor_more">… ଏବଂ %1$s ଅଧିକ |</string>
+    <string name="max_sensor_kind_motion">ଗତି</string>
+    <string name="max_sensor_kind_environment">ପରିବେଶ</string>
+    <string name="max_sensor_kind_position">ଅବସ୍ଥାନ</string>
+    <string name="max_sensor_kind_body">ଶରୀର</string>
+    <string name="max_sensor_kind_unpositioned">ଅବ୍ୟବହୃତ |</string>
+    <string name="max_sensor_kind_other">ଅନ୍ୟମାନେ |</string>
+    <string name="max_sensor_desc">ପ୍ଲାଟଫର୍ମ ନିଜସ୍ୱ ହାର୍ଡୱେର୍ ବିଷୟରେ ଯାହା ଘୋଷଣା କରେ, ଏବଂ ଗୋଟିଏ ସୀମିତ ଆଲୋକ ପଠନ · କ cal ଣସି କାଲିବ୍ରେସନ୍ ନାହିଁ ଏବଂ କ score ଣସି ସ୍ score ାସ୍ଥ୍ୟ ସ୍କୋର ନାହିଁ: ଉଭୟ ଆମର ଏକ ଶାରୀରିକ ସନ୍ଦର୍ଭ ଆବଶ୍ୟକ କରିବେ</string>
+    <string name="max_sensor_no_score">ପ୍ଲାଟଫର୍ମରୁ ନାମ, ରେଞ୍ଜ ଏବଂ ବିଳମ୍ବ ଆସେ · ରିପୋର୍ଟ କରୁଥିବା ଏକ ସେନ୍ସର ଏହା ସଠିକ୍ ନୁହେଁ ବୋଲି ପ୍ରମାଣ କରେ</string>
+</resources>

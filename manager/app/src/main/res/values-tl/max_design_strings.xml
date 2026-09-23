@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Mabuhay</string>
+    <string name="max_trust_stale">Huling sample</string>
+    <string name="max_trust_snapshot">Snapshot</string>
+    <string name="max_trust_unreadable">Walang pagbabasa</string>
+    <string name="max_trust_unsupported">Hindi suportado</string>
+    <string name="max_source_label">Pinagmulan</string>
+    <string name="max_updated_label">Na-update</string>
+    <string name="max_provenance_separator">"· "</string>
+    <string name="max_value_unavailable_a11y">walang magagamit na halaga</string>
+    <string name="max_expand_section">Ipakita ang mga detalye</string>
+    <string name="max_collapse_section">Itago ang mga detalye</string>
+</resources>

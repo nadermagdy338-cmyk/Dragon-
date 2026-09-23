@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">ఈ పరికరం ద్వారా సెన్సార్‌లు నివేదించబడ్డాయి</string>
+    <string name="max_sensor_desc">ప్లాట్‌ఫారమ్ దాని స్వంత హార్డ్‌వేర్ గురించి ఏమి ప్రకటిస్తుంది, దానితో పాటు ఒక బౌండెడ్ లైట్ రీడింగ్. క్రమాంకనం లేదు మరియు ఆరోగ్య స్కోర్ లేదు: రెండింటికీ మనకు లేని భౌతిక సూచన అవసరం.</string>
+    <string name="max_sensor_service">సెన్సార్ సర్వీస్</string>
+    <string name="max_sensor_service_unavailable">చేరుకోలేకపోయారు</string>
+    <string name="max_sensor_count">సెన్సార్లు నివేదించాయి</string>
+    <string name="max_sensor_kinds">ప్రస్తుతం ఉన్న వర్గాలు</string>
+    <string name="max_sensor_wakeup">వేక్-అప్ సెన్సార్‌లు (పరికరం నిద్రిస్తున్నప్పుడు రిపోర్ట్ చేయండి)</string>
+    <string name="max_sensor_light">పరిసర కాంతి</string>
+    <string name="max_sensor_unit_lux">లక్స్</string>
+    <string name="max_sensor_light_absent">ఈ పరికరం కాంతి సెన్సార్ లేదని నివేదించింది</string>
+    <string name="max_sensor_light_unreadable">గడువు ముగిసేలోపు చదవడం లేదు - తెలియదు, సున్నా కాదు</string>
+    <string name="max_sensor_more">…మరియు %1$s మరిన్ని</string>
+    <string name="max_sensor_no_score">పేర్లు, పరిధులు మరియు జాప్యాలు ప్లాట్‌ఫారమ్ నుండి వస్తాయి. రిపోర్ట్ చేసే సెన్సార్ అది ఖచ్చితమైనదని రుజువు కాదు.</string>
+    <string name="max_sensor_kind_motion">చలనం</string>
+    <string name="max_sensor_kind_environment">పర్యావరణం</string>
+    <string name="max_sensor_kind_position">స్థానం</string>
+    <string name="max_sensor_kind_body">శరీరం</string>
+    <string name="max_sensor_kind_unpositioned">స్థానం లేని</string>
+    <string name="max_sensor_kind_other">ఇతర</string>
+</resources>

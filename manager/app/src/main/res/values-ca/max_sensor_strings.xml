@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Sensors informats per aquest dispositiu</string>
+    <string name="max_sensor_desc">El que declara la plataforma sobre el seu propi maquinari, més una lectura de llum limitada. Sense calibratge i sense puntuació de salut: tots dos necessitarien una referència física que no tenim.</string>
+    <string name="max_sensor_service">Servei de sensors</string>
+    <string name="max_sensor_service_unavailable">no s\'ha pogut arribar</string>
+    <string name="max_sensor_count">Sensors informats</string>
+    <string name="max_sensor_kinds">Categories presents</string>
+    <string name="max_sensor_wakeup">Sensors de despertador (informen mentre el dispositiu dorm)</string>
+    <string name="max_sensor_light">Llum ambiental</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">aquest dispositiu no informa cap sensor de llum</string>
+    <string name="max_sensor_light_unreadable">cap lectura no va arribar abans del temps d\'espera: desconegut, no zero</string>
+    <string name="max_sensor_more">…i %1$s més</string>
+    <string name="max_sensor_no_score">Els noms, els intervals i els retards provenen de la plataforma. Un sensor que informa no és una prova que sigui precís.</string>
+    <string name="max_sensor_kind_motion">Moviment</string>
+    <string name="max_sensor_kind_environment">Medi ambient</string>
+    <string name="max_sensor_kind_position">Posició</string>
+    <string name="max_sensor_kind_body">Cos</string>
+    <string name="max_sensor_kind_unpositioned">Sense posicionar</string>
+    <string name="max_sensor_kind_other">Altres</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">Убудовы іншых вытворцаў</string>
+    <string name="max_plugins_subtitle">Апублікаваны кантракт: што можа дэклараваць плагін і што тут было прынята або адхілена.</string>
+    <string name="max_plugins_section_contract">Кантракт</string>
+    <string name="max_plugins_contract_api">Узровень API %1$d</string>
+    <string name="max_plugins_contract_dir">Тэчка маніфеста</string>
+    <string name="max_plugins_contract_rules">Заяўленая магчымасць - гэта альбо чытанне, альбо прапанова. Наўмысна няма магчымасці запісваць апаратнае забеспячэнне: кожная запіс у гэтым дадатку праходзіць праз арбітра, і плагін, які можа запісваць непасрэдна, здыме абарону, створаную для таго, каб два ўладальнікі не запісвалі адну і тую ж ручку.</string>
+    <string name="max_plugins_contract_keys">Счытванне ключоў з маніфеста</string>
+    <string name="max_plugins_contract_kinds">Прынятыя віды</string>
+    <string name="max_plugins_contract_capabilities">Прынятыя магчымасці</string>
+    <string name="max_plugins_template">Шаблон маніфеста</string>
+    <string name="max_plugins_template_note">Гэты тэкст чытае аналізатар. Ён не можа адысці ад кода, таму што генеруецца з яго.</string>
+    <string name="max_plugins_copy_template">Скапіруйце шаблон</string>
+    <string name="max_plugins_template_copied">Шаблон скапіраваны</string>
+    <string name="max_plugins_section_installed">Знойдзена на гэтай прыладзе</string>
+    <string name="max_plugins_loading_title">Чытанне папкі плагіна</string>
+    <string name="max_plugins_loading_detail">Пералік папкі маніфеста з коранем, а затым ацэнка кожнага маніфеста ў адпаведнасці з кантрактам.</string>
+    <string name="max_plugins_accepted_count">%1$d прынята</string>
+    <string name="max_plugins_rejected_count">%1$d адмовіўся</string>
+    <string name="max_plugins_unreadable_count">Папка %1$d без чытальнага маніфесту</string>
+    <string name="max_plugins_rejected_section">Адмоўлена, з дакладнай прычынай</string>
+    <string name="max_plugins_detail_label">Заяўлены</string>
+    <string name="max_plugins_refresh_cd">Перачытайце тэчку плагіна</string>
+    <string name="max_plugins_capability_source">Паведамляецца ўбудовай, мы не вымяраем</string>
+    <string name="max_plugins_cond_empty_title">Убудовы не ўстаноўлены</string>
+    <string name="max_plugins_cond_empty_detail">Папка маніфеста не змяшчае тэчак плагінаў. Нічога страшнага: гэта стандартны стан функцыі.</string>
+    <string name="max_plugins_cond_missing_title">Тэчка маніфеста яшчэ не існуе</string>
+    <string name="max_plugins_cond_missing_detail">%1$s не быў створаны на гэтай прыладзе, таму няма чаго чытаць. Яго стварэнне - усё, што трэба зрабіць аўтару плагіна.</string>
+    <string name="max_plugins_cond_unreadable_title">Немагчыма прачытаць папку маніфеста</string>
+    <string name="max_plugins_cond_unreadable_detail">Тэчка існуе па адрасе %1$s, але абалонка не можа яе прачытаць. Каб пералічыць яго, неабходны root.</string>
+    <string name="max_plugins_reason_BadId">Ідэнтыфікатар не можа выкарыстоўвацца ў якасці назвы папкі. Выкарыстоўвайце малыя лацінскія літары, лічбы, кропкі, працяжнікі або падкрэсліванне, і ніколі не дзве кропкі запар.</string>
+    <string name="max_plugins_reason_MissingName">У маніфесце не пазначана імя.</string>
+    <string name="max_plugins_reason_BadVersion">Версія павінна пачынацца з лічбаў, напрыклад 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">Заяўлены ўзровень API адсутнічае або ніжэйшы за 1.</string>
+    <string name="max_plugins_reason_ApiTooNew">Заяўлены ўзровень API навейшы, чым разумее гэтая зборка, таму ён увогуле не запускаецца.</string>
+    <string name="max_plugins_reason_MissingKind">У маніфесце пазначана, што няма роду.</string>
+    <string name="max_plugins_reason_UnknownKind">Выгляд не з\'яўляецца адным з апублікаваных відаў.</string>
+    <string name="max_plugins_reason_UnknownCapability">Магчымасць не з\'яўляецца часткай гэтага кантракта. Невядомыя магчымасці адмаўляюцца, а не ігнаруюцца, так што нішто не працуе з меншымі правамі, чым было запытана.</string>
+    <string name="max_plugins_reason_NoCapabilities">Плагін павінен дэклараваць хаця б адну магчымасць.</string>
+    <string name="max_plugins_reason_DuplicateId">Іншы плагін з такім ідэнтыфікатарам ужо быў прыняты, таму гэты не выкарыстоўваецца.</string>
+    <string name="max_plugins_help_title">Навошта ўвогуле кантракт</string>
+    <string name="max_plugins_help_body">Без апублікаванага кантракту кожны, хто пашырае гэта дадатак, павінен адгадаць форму нашых унутраных файлаў, і мы не можам адрозніць сапраўднае пашырэнне ад непрацуючага. З ім вызначаецца абмежаванне: плагін дэкларуе намер і чытае; ён ніколі не запісвае абсталяванне, і кожная адмова вышэй называе дакладнае поле, якое не атрымалася.</string>
+</resources>

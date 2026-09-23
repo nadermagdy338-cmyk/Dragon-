@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/studio_strings.xml -->
+<resources>
+    <string name="studio_performance">PERFORMANCE studio</string>
+    <string name="studio_cpu_frequency">CPU давтамж</string>
+    <string name="studio_load_history">Саяхны CPU үйл ажиллагаа</string>
+    <string name="studio_waiting_samples">Шууд уншлага цуглуулж байна...</string>
+    <string name="studio_automatic_profile">Автомат горим нь идэвхтэй профайлыг удирддаг.</string>
+    <string name="studio_temperature">Температур</string>
+    <string name="studio_display">Дэлгэц</string>
+    <string name="studio_power">Эрчим хүчний сонголтууд</string>
+    <string name="studio_settings">Тохиргоо</string>
+</resources>

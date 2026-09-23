@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">Zuzenean</string>
+    <string name="max_trust_stale">Azken lagina</string>
+    <string name="max_trust_snapshot">Argazkia</string>
+    <string name="max_trust_unreadable">Irakurketarik ez</string>
+    <string name="max_trust_unsupported">Ez da onartzen</string>
+    <string name="max_source_label">Iturria</string>
+    <string name="max_updated_label">Eguneratua</string>
+    <string name="max_provenance_separator">" · "</string>
+    <string name="max_value_unavailable_a11y">ez dago baliorik</string>
+    <string name="max_expand_section">Erakutsi xehetasunak</string>
+    <string name="max_collapse_section">Ezkutatu xehetasunak</string>
+</resources>

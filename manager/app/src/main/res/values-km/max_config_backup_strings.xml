@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">រូបរាង &amp; ចំណុចប្រទាក់</string>
+    <string name="max_cfg_backup_app_prefs">ចំណូលចិត្តកម្មវិធី និងភាសា</string>
+    <string name="max_cfg_declared_absent_title">នឹងមិនរួមបញ្ចូល ហើយហេតុអ្វី</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">ឧបករណ៍នេះមិនមានឫសគល់ដែលបានផ្ទៀងផ្ទាត់ទេ ដូច្នេះតម្លៃមិនអាចអានដោយភាពជឿជាក់បានទេ។</string>
+    <string name="max_cfg_absent_file_missing">ឯកសារចំណូលចិត្តមិនទាន់មាននៅឡើយទេ</string>
+    <string name="max_cfg_absent_empty">ឯកសារចំណូលចិត្តមាន ប៉ុន្តែទទេ ដូច្នេះមិនមានអ្វីត្រូវសរសេរទេ។</string>
+    <string name="max_cfg_declared_excluded_title">មិនដែលរួមបញ្ចូលក្នុងឯកសារនេះទេ។</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">ការកំណត់សុវត្ថិភាព Max AI ត្រូវបានកំណត់នៅក្នុងកម្មវិធី ដែលមិនដែលមាននៅក្នុងឯកសារ</string>
+    <string name="max_cfg_excluded_other_apps">ទិន្នន័យ​នៃ​កម្មវិធី​ផ្សេង​ទៀត​ជា​កម្មសិទ្ធិ​របស់​កម្មវិធី​បម្រុង​ទុក​មិន​កំណត់​រចនាសម្ព័ន្ធ​ការ​បម្រុង​ទុក​</string>
+    <string name="max_cfg_excluded_secret">សោហត្ថលេខា និងអាថ៌កំបាំងមិនត្រូវបានសរសេរទៅឯកសារដែលអ្នកអាចចែករំលែកនោះទេ។</string>
+    <string name="max_cfg_section_tweaks">ការកំណត់រចនាសម្ព័ន្ធ</string>
+    <string name="max_cfg_section_applist">បញ្ជីកម្មវិធីនីមួយៗ</string>
+    <string name="max_cfg_section_appearance">រូបរាង &amp; ចំណុចប្រទាក់</string>
+    <string name="max_cfg_section_app_prefs">ចំណូលចិត្តកម្មវិធី និងភាសា</string>
+    <string name="max_cfg_restore_merge_note">ការស្ដារចំណូលចិត្តបញ្ចូលគ្នា៖ គ្រាប់ចុចដែលមាននៅក្នុងឯកសារត្រូវបានសរសេរ ហើយសោដែលវាមិននិយាយអំពីការស្នាក់នៅដូចដែលពួកវាមាន។ គ្មានអ្វីត្រូវបានជម្រះទេ។</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_plugins_strings.xml -->
+<resources>
+    <string name="max_plugins_title">תוספים של צד שלישי</string>
+    <string name="max_plugins_subtitle">החוזה שפורסם: מה עשוי תוסף להצהיר, ומה התקבל או סורבו כאן.</string>
+    <string name="max_plugins_section_contract">החוזה</string>
+    <string name="max_plugins_contract_api">רמת API %1$d</string>
+    <string name="max_plugins_contract_dir">תיקיית מניפסט</string>
+    <string name="max_plugins_contract_rules">יכולת מוצהרת היא קריאה או הצעה. בכוונה אין יכולת שכותבת חומרה: כל כתיבה באפליקציה הזו עוברת דרך הבורר, ותוסף שיוכל לכתוב ישירות יסיר את השומר שנבנה כדי לעצור שני בעלים כותבים את אותו כפתור.</string>
+    <string name="max_plugins_contract_keys">מקשים נקראים מתוך מניפסט</string>
+    <string name="max_plugins_contract_kinds">סוגים מקובלים</string>
+    <string name="max_plugins_contract_capabilities">יכולות מקובלות</string>
+    <string name="max_plugins_template">תבנית מניפסט</string>
+    <string name="max_plugins_template_note">הטקסט הזה הוא מה שהמנתח קורא. זה לא יכול להיסחף מהקוד, כי הוא נוצר ממנו.</string>
+    <string name="max_plugins_copy_template">העתק את התבנית</string>
+    <string name="max_plugins_template_copied">התבנית הועתקה</string>
+    <string name="max_plugins_section_installed">נמצא במכשיר זה</string>
+    <string name="max_plugins_loading_title">קורא את תיקיית התוספים</string>
+    <string name="max_plugins_loading_detail">רישום תיקיית המניפסט עם השורש, ולאחר מכן הערכת כל מניפסט מול החוזה.</string>
+    <string name="max_plugins_accepted_count">%1$d התקבל</string>
+    <string name="max_plugins_rejected_count">%1$d סירב</string>
+    <string name="max_plugins_unreadable_count">%1$d תיקייה ללא מניפסט קריא</string>
+    <string name="max_plugins_rejected_section">סירב, עם הסיבה המדויקת</string>
+    <string name="max_plugins_detail_label">מוּצהָר</string>
+    <string name="max_plugins_refresh_cd">קרא שוב את תיקיית הפלאגין</string>
+    <string name="max_plugins_capability_source">דווח על ידי התוסף, לא נמדד על ידינו</string>
+    <string name="max_plugins_cond_empty_title">לא מותקנים תוספים</string>
+    <string name="max_plugins_cond_empty_detail">תיקיית המניפסט אינה מכילה תיקיות תוספים. שום דבר לא בסדר: זהו מצב ברירת המחדל של התכונה.</string>
+    <string name="max_plugins_cond_missing_title">תיקיית Manifest לא קיימת עדיין</string>
+    <string name="max_plugins_cond_missing_detail">%1$s לא נוצר במכשיר הזה, אז אין מה לקרוא. ליצור אותו הוא כל מה שמחבר תוסף צריך לעשות.</string>
+    <string name="max_plugins_cond_unreadable_title">לא ניתן לקרוא את תיקיית המניפסט</string>
+    <string name="max_plugins_cond_unreadable_detail">התיקיה קיימת ב-%1$s אך המעטפת לא הצליחה לקרוא אותה. נדרש שורש כדי לרשום אותו.</string>
+    <string name="max_plugins_reason_BadId">המזהה אינו שמיש כשם תיקיה. השתמש באותיות לטיניות קטנות, ספרות, נקודות, מקפים או קווים תחתונים, ולעולם לא שתי נקודות ברציפות.</string>
+    <string name="max_plugins_reason_MissingName">המניפסט אינו מצהיר על שם.</string>
+    <string name="max_plugins_reason_BadVersion">הגרסה חייבת להתחיל בספרות, למשל 1.0.0.</string>
+    <string name="max_plugins_reason_ApiTooOld">רמת ה-API המוצהרת חסרה או מתחת ל-1.</string>
+    <string name="max_plugins_reason_ApiTooNew">רמת ה-API המוצהרת חדשה יותר ממה שה-build הזה מבין, ולכן היא אינה מופעלת כלל.</string>
+    <string name="max_plugins_reason_MissingKind">המניפסט מצהיר על שום סוג.</string>
+    <string name="max_plugins_reason_UnknownKind">הסוג אינו מהסוגים המתפרסמים.</string>
+    <string name="max_plugins_reason_UnknownCapability">היכולת אינה חלק מחוזה זה. יכולת לא ידועה נדחתה ולא מתעלמת ממנה, כך ששום דבר לא פועל עם פחות זכויות ממה שהוא ביקש.</string>
+    <string name="max_plugins_reason_NoCapabilities">תוסף חייב להצהיר על יכולת אחת לפחות.</string>
+    <string name="max_plugins_reason_DuplicateId">תוסף אחר עם המזהה הזה כבר התקבל, אז זה לא בשימוש.</string>
+    <string name="max_plugins_help_title">למה חוזה בכלל</string>
+    <string name="max_plugins_help_body">ללא חוזה שפורסם, כל מי שמרחיב את האפליקציה הזו צריך לנחש את צורת הקבצים הפנימיים שלנו, ואיננו יכולים להבחין בין סיומת תקפה לזו שבורה. איתה נקבעת הגבול: תוסף מצהיר על כוונה וקורא; הוא אף פעם לא כותב חומרה, וכל סירוב למעלה מציין את השדה המדויק שנכשל.</string>
+</resources>

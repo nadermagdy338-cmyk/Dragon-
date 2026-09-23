@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">รูปลักษณ์และอินเทอร์เฟซ</string>
+    <string name="max_cfg_backup_app_prefs">การตั้งค่าแอปและภาษา</string>
+    <string name="max_cfg_declared_absent_title">จะไม่รวมอยู่ด้วยและเพราะเหตุใด</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">อุปกรณ์นี้ไม่มีรูทที่ได้รับการยืนยัน ดังนั้นจึงไม่สามารถอ่านค่าได้อย่างน่าเชื่อถือ</string>
+    <string name="max_cfg_absent_file_missing">ไฟล์การตั้งค่ายังไม่มีอยู่</string>
+    <string name="max_cfg_absent_empty">มีไฟล์การกำหนดค่าตามความชอบอยู่แต่ว่างเปล่า ดังนั้นจึงไม่มีอะไรจะเขียน</string>
+    <string name="max_cfg_declared_excluded_title">ไม่เคยรวมอยู่ในไฟล์นี้</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI การตั้งค่าความปลอดภัยได้รับการกำหนดค่าภายในแอป ไม่เคยเก็บไว้ในไฟล์</string>
+    <string name="max_cfg_excluded_other_apps">ข้อมูลของแอปอื่นเป็นของการสำรองข้อมูลแอป ไม่ใช่การสำรองข้อมูลการกำหนดค่า</string>
+    <string name="max_cfg_excluded_secret">คีย์และความลับในการเซ็นชื่อจะไม่ถูกเขียนลงในไฟล์ที่คุณอาจแชร์</string>
+    <string name="max_cfg_section_tweaks">ปรับแต่งการกำหนดค่า</string>
+    <string name="max_cfg_section_applist">รายการต่อแอป</string>
+    <string name="max_cfg_section_appearance">รูปลักษณ์และอินเทอร์เฟซ</string>
+    <string name="max_cfg_section_app_prefs">การตั้งค่าแอปและภาษา</string>
+    <string name="max_cfg_restore_merge_note">การคืนค่าการตั้งค่าจะผสาน: คีย์ที่อยู่ในไฟล์จะถูกเขียน และคีย์ในไฟล์ไม่ได้กล่าวถึงว่าจะคงอยู่เหมือนเดิม ไม่มีอะไรชัดเจน</string>
+</resources>

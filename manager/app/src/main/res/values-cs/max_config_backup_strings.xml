@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Vzhled a rozhraní</string>
+    <string name="max_cfg_backup_app_prefs">Předvolby a jazyk aplikace</string>
+    <string name="max_cfg_declared_absent_title">Nebude zahrnuto a proč</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">toto zařízení nemá ověřený root, takže hodnoty nelze spolehlivě číst</string>
+    <string name="max_cfg_absent_file_missing">soubor předvoleb zatím neexistuje</string>
+    <string name="max_cfg_absent_empty">soubor předvoleb existuje, ale je prázdný, takže není co zapisovat</string>
+    <string name="max_cfg_declared_excluded_title">Nikdy není součástí tohoto souboru</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI bezpečnostní nastavení jsou konfigurována uvnitř aplikace, nikdy nejsou přenášena v souboru</string>
+    <string name="max_cfg_excluded_other_apps">data jiných aplikací patří do zálohy aplikací, nikoli do zálohy konfigurace</string>
+    <string name="max_cfg_excluded_secret">podpisové klíče a tajné informace se nikdy nezapisují do souboru, který byste mohli sdílet</string>
+    <string name="max_cfg_section_tweaks">Tweak konfigurace</string>
+    <string name="max_cfg_section_applist">Seznam podle aplikací</string>
+    <string name="max_cfg_section_appearance">Vzhled a rozhraní</string>
+    <string name="max_cfg_section_app_prefs">Předvolby a jazyk aplikace</string>
+    <string name="max_cfg_restore_merge_note">Obnovení předvoleb se sloučí: klíče přítomné v souboru jsou zapsány a klíče, o kterých se nezmiňuje, zůstanou tak, jak jsou. Nic není vyčištěno.</string>
+</resources>

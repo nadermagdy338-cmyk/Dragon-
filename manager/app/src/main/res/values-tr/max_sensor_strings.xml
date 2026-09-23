@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Bu cihazın bildirdiği sensörler</string>
+    <string name="max_sensor_desc">Platformun kendi donanımı hakkında beyan ettiği bilgiler ve sınırlı bir ışık okuması. Kalibrasyon yok ve sağlık puanı yok: her ikisinin de elimizde olmayan bir fiziksel referansa ihtiyacı var.</string>
+    <string name="max_sensor_service">Sensör servisi</string>
+    <string name="max_sensor_service_unavailable">ulaşılamadı</string>
+    <string name="max_sensor_count">Sensörler rapor edildi</string>
+    <string name="max_sensor_kinds">Mevcut kategoriler</string>
+    <string name="max_sensor_wakeup">Uyandırma sensörleri (cihaz uyurken raporlama)</string>
+    <string name="max_sensor_light">Ortam ışığı</string>
+    <string name="max_sensor_unit_lux">lüks</string>
+    <string name="max_sensor_light_absent">bu cihaz ışık sensörü olmadığını bildiriyor</string>
+    <string name="max_sensor_light_unreadable">zaman aşımından önce hiçbir okuma gelmedi — bilinmiyor, sıfır değil</string>
+    <string name="max_sensor_more">…ve %1$s daha fazlası</string>
+    <string name="max_sensor_no_score">İsimler, aralıklar ve gecikmeler platformdan gelir. Rapor veren bir sensör, bunun doğru olduğunun kanıtı değildir.</string>
+    <string name="max_sensor_kind_motion">Hareket</string>
+    <string name="max_sensor_kind_environment">Çevre</string>
+    <string name="max_sensor_kind_position">Konum</string>
+    <string name="max_sensor_kind_body">Vücut</string>
+    <string name="max_sensor_kind_unpositioned">Konumlandırılmamış</string>
+    <string name="max_sensor_kind_other">Diğer</string>
+</resources>

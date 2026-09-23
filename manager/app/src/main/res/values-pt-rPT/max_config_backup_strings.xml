@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">Aparência e interface</string>
+    <string name="max_cfg_backup_app_prefs">Preferências e idioma da aplicação</string>
+    <string name="max_cfg_declared_absent_title">Não será incluído e por que</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">este dispositivo não tem raiz verificada, pelo que os valores não podem ser lidos de forma fiável</string>
+    <string name="max_cfg_absent_file_missing">o ficheiro de preferências ainda não existe</string>
+    <string name="max_cfg_absent_empty">o ficheiro de preferências existe, mas está vazio, pelo que não há nada para escrever</string>
+    <string name="max_cfg_declared_excluded_title">Nunca incluído neste ficheiro</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI as definições de segurança são definidas dentro da aplicação, nunca carregadas num ficheiro</string>
+    <string name="max_cfg_excluded_other_apps">os dados de outras aplicações pertencem ao backup da aplicação, não ao backup de configuração</string>
+    <string name="max_cfg_excluded_secret">chaves e segredos de assinatura nunca são gravados num ficheiro que possa partilhar</string>
+    <string name="max_cfg_section_tweaks">Configuração de ajuste</string>
+    <string name="max_cfg_section_applist">Lista por aplicação</string>
+    <string name="max_cfg_section_appearance">Aparência e interface</string>
+    <string name="max_cfg_section_app_prefs">Preferências e idioma da aplicação</string>
+    <string name="max_cfg_restore_merge_note">A restauração das preferências é fundida: as chaves presentes no ficheiro são gravadas e as chaves não mencionadas permanecem tal como estão. Nada está limpo.</string>
+</resources>

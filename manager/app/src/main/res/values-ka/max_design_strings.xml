@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_design_strings.xml -->
+<resources>
+    <string name="max_trust_live">ცოცხალი</string>
+    <string name="max_trust_stale">ბოლო ნიმუში</string>
+    <string name="max_trust_snapshot">Snapshot</string>
+    <string name="max_trust_unreadable">არავითარი კითხვა</string>
+    <string name="max_trust_unsupported">არ არის მხარდაჭერილი</string>
+    <string name="max_source_label">წყარო</string>
+    <string name="max_updated_label">განახლებულია</string>
+    <string name="max_provenance_separator">" ·"</string>
+    <string name="max_value_unavailable_a11y">არ არის ხელმისაწვდომი ღირებულება</string>
+    <string name="max_expand_section">დეტალების ჩვენება</string>
+    <string name="max_collapse_section">დეტალების დამალვა</string>
+</resources>

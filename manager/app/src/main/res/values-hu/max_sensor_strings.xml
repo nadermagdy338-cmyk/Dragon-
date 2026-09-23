@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sensor_strings.xml -->
+<resources>
+    <string name="max_sensor_title">Az eszköz által jelentett érzékelők</string>
+    <string name="max_sensor_desc">Amit a platform deklarál a saját hardveréről, plusz egy korlátozott fényolvasás. Nincs kalibrálás és nincs egészségügyi pontszám: mindkettőhöz fizikai referencia kellene, amivel nem rendelkezünk.</string>
+    <string name="max_sensor_service">Érzékelő szerviz</string>
+    <string name="max_sensor_service_unavailable">nem lehetett elérni</string>
+    <string name="max_sensor_count">Az érzékelők jelentették</string>
+    <string name="max_sensor_kinds">Kategóriák jelen vannak</string>
+    <string name="max_sensor_wakeup">Ébresztő érzékelők (jelentést tesz, amikor a készülék alvó állapotban van)</string>
+    <string name="max_sensor_light">Környezeti fény</string>
+    <string name="max_sensor_unit_lux">lux</string>
+    <string name="max_sensor_light_absent">ez a készülék nem jelez fényérzékelőt</string>
+    <string name="max_sensor_light_unreadable">nem érkezett leolvasás az időtúllépés előtt – ismeretlen, nem nulla</string>
+    <string name="max_sensor_more">…és %1$s további</string>
+    <string name="max_sensor_no_score">A nevek, tartományok és késések a platformról származnak. Az érzékelő, amely jelentést készít, nem bizonyítja, hogy pontos.</string>
+    <string name="max_sensor_kind_motion">Mozgás</string>
+    <string name="max_sensor_kind_environment">Környezet</string>
+    <string name="max_sensor_kind_position">Pozíció</string>
+    <string name="max_sensor_kind_body">Test</string>
+    <string name="max_sensor_kind_unpositioned">Elhelyezetlen</string>
+    <string name="max_sensor_kind_other">Más</string>
+</resources>

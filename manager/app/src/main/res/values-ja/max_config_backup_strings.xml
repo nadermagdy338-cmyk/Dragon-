@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_config_backup_strings.xml -->
+<resources>
+    <string name="max_cfg_backup_appearance">外観とインターフェース</string>
+    <string name="max_cfg_backup_app_prefs">アプリの設定と言語</string>
+    <string name="max_cfg_declared_absent_title">含まれないとその理由</string>
+    <string name="max_cfg_declared_absent_line">• %1$s — %2$s</string>
+    <string name="max_cfg_absent_no_root">このデバイスには検証されたルートがないため、値を確実に読み取ることができません</string>
+    <string name="max_cfg_absent_file_missing">設定ファイルはまだ存在しません</string>
+    <string name="max_cfg_absent_empty">設定ファイルは存在しますが空であるため、書き込むものがありません</string>
+    <string name="max_cfg_declared_excluded_title">このファイルには決して含まれていません</string>
+    <string name="max_cfg_declared_excluded_line">• %1$s — %2$s</string>
+    <string name="max_cfg_excluded_safety">Max AI 安全設定はアプリ内で構成され、ファイルに保存されることはありません</string>
+    <string name="max_cfg_excluded_other_apps">他のアプリのデータは構成バックアップではなくアプリのバックアップに属します</string>
+    <string name="max_cfg_excluded_secret">署名キーとシークレットは、共有するファイルには決して書き込まれません</string>
+    <string name="max_cfg_section_tweaks">設定を微調整する</string>
+    <string name="max_cfg_section_applist">アプリごとのリスト</string>
+    <string name="max_cfg_section_appearance">外観とインターフェース</string>
+    <string name="max_cfg_section_app_prefs">アプリの設定と言語</string>
+    <string name="max_cfg_restore_merge_note">環境設定のマージを復元すると、ファイル内に存在するキーが書き込まれ、言及されていないキーはそのまま残ります。何もクリアされていません。</string>
+</resources>
