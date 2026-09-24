@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -205,7 +206,7 @@ private fun HeaderButton(icon: ImageVector, description: String, onClick: () -> 
             .clip(shape)
             .background(p.tile)
             .border(BorderStroke(1.dp, p.border), shape)
-            .clickable(onClick = onClick),
+            .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(icon, description, Modifier.size(18.dp), tint = p.muted)
@@ -309,7 +310,7 @@ private fun FrequencyMetricCard(
             .clip(RoundedCornerShape(22.dp))
             .background(p.tile.copy(alpha = .92f))
             .border(BorderStroke(1.dp, accent.copy(alpha = .26f)), RoundedCornerShape(22.dp))
-            .clickable(onClick = onClick)
+            .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -328,6 +329,19 @@ private fun FrequencyMetricCard(
                     color = p.muted,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium
+                )
+                // سهمُ الباب بعد الاسم لا قبله (نفس عُرف `NeuralPill(navigates)` وصفوف
+                // مصفوفة الذاكرة): البطاقتان تقودان فعلًا إلى شاشتيهما (`GpuStudio` من
+                // `onGpu` · `CpuCoreControl` من `onCpu`) — وكانتا تُقرآن بيانًا لا بابًا.
+                // وهذا آخر موضعٍ من صنف عطب المالك («لا يدل على أنه سيدخلك إلى شاشة أخرى»)
+                // في هذه الشاشة. وحجم السهم 13.dp لا 14.dp كسهم الوسوم: عنوان هذه البطاقة
+                // `11.sp` بوزن `Medium` (اسمٌ رماديّ صغير)، فسهمٌ أكبر منه كان سيصير أبرزَ من الاسم.
+                Spacer(Modifier.width(4.dp))
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    null,
+                    Modifier.size(13.dp),
+                    tint = accent,
                 )
             }
             Text(

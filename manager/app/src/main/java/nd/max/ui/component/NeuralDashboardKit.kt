@@ -146,6 +146,11 @@ private fun Modifier.neuralClickable(onClick: (() -> Unit)?, role: Role? = null)
     // في `ui/design/MaxStructure.kt` كان يفعل ذلك أصلًا (`MaxRow`: `clickable(role = Role.Button)`)،
     // وهذه العُدّة لم تكن — فقارئ الشاشة كان يقول «Max AI» واقفًا، لا «زرّ». والفرق يُقاس
     // بلا جهاز: هو وسيط يُمرّر إلى `Modifier.clickable` لا تغيير في الرسم.
+    //
+    // **ولهذا استُكملت الثلاثة الباقية هنا:** `NeuralPanel` (`:182`) و`NeuralBudgetBar`
+    // (`:810`) و`NeuralFeedRow` (`:873`) كانت أسطحًا تُضغط وتُوصف بلا دور — وبعضها يقود إلى
+    // شاشة أخرى (`NeuralPanel(onClick)` في بطاقة التحذير مثلًا). والدور وصفٌ للقارئ الشاشيّ
+    // لا رسمٌ، فلا يتبدّل شكل ولا قياس.
     if (onClick == null) return this
     return this
         .graphicsLayer { scaleX = scale; scaleY = scale }
@@ -174,7 +179,7 @@ fun NeuralPanel(
     val p = neuralPalette()
     val base = modifier
         .fillMaxWidth()
-        .neuralClickable(onClick)
+        .neuralClickable(onClick, role = Role.Button)
         .clip(NeuralPanelShape)
         .background(Brush.verticalGradient(listOf(p.panelTop.copy(alpha = .92f), p.panel)))
     val glow = if (accent == null) {
@@ -802,7 +807,7 @@ fun NeuralBudgetBar(
     Column(
         modifier
             .fillMaxWidth()
-            .neuralClickable(onClick),
+            .neuralClickable(onClick, role = Role.Button),
         verticalArrangement = Arrangement.spacedBy(7.dp),
     ) {
         NeuralCaption(label, color = accent)
@@ -865,7 +870,7 @@ fun NeuralFeedRow(
     Row(
         modifier
             .fillMaxWidth()
-            .neuralClickable(onClick),
+            .neuralClickable(onClick, role = Role.Button),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         NeuralIconChip(icon, accent, size = 30.dp)

@@ -116,7 +116,12 @@ data class DashboardState(
     val cores: List<CpuCoreState> = emptyList(),
     /** GPU busy percentage, or null when this kernel exposes no usable node. */
     val gpuLoadPercent: Int? = null,
-    /** GPU clock in MHz, or null when unreadable. */
+    /**
+     * تردّد الرسوم الجاري بالـMHz، أو null حين لا يُقرأ.
+     *
+     * ومصدره **عقدة العتاد** عبر `GpuHardwareBackend` — عينها التي تعرضها شاشة GPU؛
+     * ومسار البائع (`MtkUtils.getCurrentGpuFreq`) احتياطٌ وحده. والسبب مقيَّد في `readGpu`.
+     */
     val gpuFreqMhz: Int? = null,
     /**
      * سقف تردّد الرسوم بالـMHz، أو null حين لا تُعلنه هذه النواة.
@@ -518,9 +523,10 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
     }
 
     /**
-     * GPU busy percentage and clock, reusing the vendor-node logic that already
-     * backs the GPU screens. Returns nulls (never zeros) when the kernel
-     * exposes nothing usable, so the UI can hide the widget instead of
+     * GPU busy percentage and clock, read from the same hardware node that backs
+     * the GPU screens (the vendor string is a fallback only, so the two screens
+     * cannot disagree about one number). Returns nulls (never zeros) when the
+     * kernel exposes nothing usable, so the UI can hide the widget instead of
      * claiming the GPU is idle.
      */
     private fun readGpu(): Pair<Int?, Int?> {
@@ -529,13 +535,19 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
             // or "N/A"; take the leading integer rather than trusting a suffix.
             val load = LEADING_INTEGER.find(MtkUtils.getGpuLoad())
                 ?.value?.toIntOrNull()?.coerceIn(0, 100)
-            val vendorFreq = LEADING_INTEGER.find(MtkUtils.getCurrentGpuFreq())
-                ?.value?.toIntOrNull()?.takeIf { it > 0 }
-            // ومسار البائع ليس المسار الوحيد: على أجهزة تردّ فيها `getCurrentGpuFreq` بـ"N/A"
-            // تبقى عقدة العتاد نفسها مقروءة — وهي عينها التي ترسم بها شاشة الرسوم رسمها.
-            // وغياب هذا الاحتياط كان يعني رسمًا فارغًا في بطاقة GPU بينما الشاشة المالكة للرقم
-            // تراه، وهو العطب المُبلَّغ عنه.
-            val freq = vendorFreq ?: gpuCurrentFromHardware()
+            // **والترتيب مُقلوب بطلب المالك، ودليله رقمه:** البطاقة كانت تعرض `260 MHz`
+            // في صدرها والتردّد الفعليّ `754 MHz` — لأن مسار البائع (نصّ GED الجاهز)
+            // كان **مُقدَّمًا** على عقدة العتاد. والعقدة هي ما تعرضه شاشة GPU (`device.currentFreq`
+            // في `GpuStudioScreen.kt:245`) فهي **مصدر واحد** للرقمين لا مصدران يفترقان على أوّل
+            // جهاز يخالف مفترضات أحدهما (وهو ما جرى: ٢٦٠ في الرئيسية و٧٥٤ في شاشة الرسوم
+            // في اللحظة نفسها).
+            //
+            // ومسار البائع يبقى **احتياطًا** لا يُحذف: على أجهزة لا تُحلّ فيها عقدةٌ موثوقة
+            // (وحدة بالميغاهرتز غير محسومة ⇒ `frequencyMHz` تُرجع null) هو القارئ الوحيد
+            // المتاح، وغيابه كان يعني رسمًا فارغًا في بطاقة GPU — وهو العطب الأقدم المسجّل هنا.
+            val freq = gpuCurrentFromHardware()
+                ?: LEADING_INTEGER.find(MtkUtils.getCurrentGpuFreq())
+                    ?.value?.toIntOrNull()?.takeIf { it > 0 }
             load to freq
         } catch (_: Exception) {
             null to null
@@ -575,8 +587,16 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 if (device == null || !device.unitTrusted) {
                     null to null
                 } else {
-                    val min = GpuHardwareBackend.frequencyMHz(device, device.provenMinFreq ?: device.minFreq)
-                    val max = GpuHardwareBackend.frequencyMHz(device, device.provenMaxFreq ?: device.maxFreq)
+                    // **والحدّان من الحيّ لا من كُتالوج الدرجات:** الكتالوج يسرد ما "يستطيعه"
+                    // المعالج، و`min_freq`/`max_freq` يقولان ما **يُسمح** به الآن — فمن قرأ
+                    // السقف من الكتالوج عرض `1.3 GHz` على جهاز مُقيَّد عند `754 MHz`
+                    // (وهو نفس العطب الذي كُتبت من أجله `configurableMaxFrequency` لمسار
+                    // Per-App). وبالأرضية كذلك: `min_freq` الحيّة هي حدّ المقياس الفعلي.
+                    val min = GpuHardwareBackend.frequencyMHz(device, device.minFreq ?: device.provenMinFreq)
+                    val max = GpuHardwareBackend.frequencyMHz(
+                        device,
+                        GpuHardwareBackend.configurableMaxFrequency(device),
+                    )
                     min?.toInt()?.takeIf { it > 0 } to max?.toInt()?.takeIf { it > 0 }
                 }
             } catch (_: Exception) {
