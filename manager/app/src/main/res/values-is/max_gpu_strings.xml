@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Ekkert var beðið um.</string>
     <string name="max_gpu_reason_unknown">Ekki var hægt að framkvæma beiðnina á öruggan hátt.</string>
     <string name="max_gpu_reason_technical">Ástæðukóði</string>
+    <string name="max_gpu_intent_default_title">Sjálfgefið (upphafsástand)</string>
+    <string name="max_gpu_intent_default_desc">Skilar sviðinu og landstjóranum í þau gildi sem þetta tæki hafði þegar skjárinn opnaðist. Ekkert er skrifað á meðan þau passa saman - þetta er leiðin til baka fyrir alla sem breyttu einhverju.</string>
 </resources>

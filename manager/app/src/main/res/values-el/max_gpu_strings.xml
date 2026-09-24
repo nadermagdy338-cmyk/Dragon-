@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Δεν ζητήθηκε τίποτα.</string>
     <string name="max_gpu_reason_unknown">Το αίτημα δεν μπορούσε να πραγματοποιηθεί με ασφάλεια.</string>
     <string name="max_gpu_reason_technical">Κωδικός αιτίας</string>
+    <string name="max_gpu_intent_default_title">Προεπιλογή (κατάσταση έναρξης)</string>
+    <string name="max_gpu_intent_default_desc">Επιστρέφει το εύρος και το ρυθμιστή στις τιμές που είχε αυτή η συσκευή όταν άνοιξε η οθόνη. Τίποτα δεν γράφεται ενώ ταιριάζουν ήδη — αυτός είναι ο τρόπος επιστροφής για όποιον άλλαξε κάτι.</string>
 </resources>

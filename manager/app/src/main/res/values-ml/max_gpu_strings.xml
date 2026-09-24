@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">ഒന്നും ആവശ്യപ്പെട്ടില്ല.</string>
     <string name="max_gpu_reason_unknown">അഭ്യർത്ഥന സുരക്ഷിതമായി നടപ്പിലാക്കാൻ കഴിഞ്ഞില്ല.</string>
     <string name="max_gpu_reason_technical">കാരണ കോഡ്</string>
+    <string name="max_gpu_intent_default_title">ഡിഫോൾട്ട് (ആരംഭ നില)</string>
+    <string name="max_gpu_intent_default_desc">സ്‌ക്രീൻ തുറക്കുമ്പോൾ ഈ ഉപകരണത്തിനുണ്ടായിരുന്ന മൂല്യങ്ങളിലേക്ക് ശ്രേണിയും ഗവർണറും നൽകുന്നു. അവ ഇതിനകം പൊരുത്തപ്പെടുന്ന സമയത്ത് ഒന്നും എഴുതിയിട്ടില്ല - എന്തെങ്കിലും മാറ്റം വരുത്തിയ ആർക്കും തിരിച്ചുപോകാനുള്ള വഴിയാണിത്.</string>
 </resources>

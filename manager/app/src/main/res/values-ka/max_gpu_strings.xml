@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">არაფერი მოითხოვა.</string>
     <string name="max_gpu_reason_unknown">მოთხოვნა უსაფრთხოდ ვერ განხორციელდა.</string>
     <string name="max_gpu_reason_technical">მიზეზის კოდი</string>
+    <string name="max_gpu_intent_default_title">ნაგულისხმევი (დაწყების მდგომარეობა)</string>
+    <string name="max_gpu_intent_default_desc">აბრუნებს დიაპაზონს და გუბერნატორს იმ მნიშვნელობებზე, რაც ამ მოწყობილობას ჰქონდა ეკრანის გახსნისას. არაფერი წერია, სანამ ისინი უკვე ემთხვევა - ეს არის უკან დასაბრუნებელი გზა ყველასთვის, ვინც რაღაც შეცვალა.</string>
 </resources>

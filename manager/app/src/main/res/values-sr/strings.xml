@@ -1862,4 +1862,9 @@
     <string name="home_focus_storage_desc">Слободног простора је мало, што успорава писање и кеширање.</string>
     <string name="home_focus_memory">Притисак меморије</string>
     <string name="home_focus_memory_desc">RAM је скоро пун. Скратите позадинске апликације или омогућите ZRAM.</string>
+    <string name="theme_mode_system">Систем</string>
+    <string name="theme_mode_light">Светлост</string>
+    <string name="theme_mode_dark">Дарк</string>
+    <string name="theme_mode_amoled">АМОЛЕД</string>
+    <string name="theme_accent_auto">Ауто</string>
 </resources>

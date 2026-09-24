@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">केही मागेको छैन ।</string>
     <string name="max_gpu_reason_unknown">अनुरोध सुरक्षित रूपमा गर्न सकिएन।</string>
     <string name="max_gpu_reason_technical">कारण कोड</string>
+    <string name="max_gpu_intent_default_title">पूर्वनिर्धारित (सुरु अवस्था)</string>
+    <string name="max_gpu_intent_default_desc">स्क्रिन खोल्दा यो यन्त्रमा भएका मानहरूमा दायरा र गभर्नर फर्काउँछ। पहिले नै मेल खाँदा केहि पनि लेखिएको छैन - यो केहि परिवर्तन गर्ने जो कोहीको लागि फिर्ताको बाटो हो।</string>
 </resources>

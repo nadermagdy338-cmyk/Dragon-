@@ -445,4 +445,6 @@
     <string name="max_atlas_share">앱을 선택하세요</string>
     <string name="max_atlas_share_cancel">취소</string>
     <string name="max_doze_section_policy_desc">이 스위치는 MaxManager의 정책을 변경합니다. Android는 위 상태의 소유권을 유지합니다.</string>
+    <string name="max_language_device_section">귀하의 장치 언어</string>
+    <string name="max_language_all_section">모든 언어</string>
 </resources>

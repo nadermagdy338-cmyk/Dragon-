@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Hiçbir şey talep edilmedi.</string>
     <string name="max_gpu_reason_unknown">İstek güvenli bir şekilde gerçekleştirilemedi.</string>
     <string name="max_gpu_reason_technical">Sebep kodu</string>
+    <string name="max_gpu_intent_default_title">Varsayılan (başlangıç ​​durumu)</string>
+    <string name="max_gpu_intent_default_desc">Menzili ve regülatörü, bu cihazın ekran açıldığında sahip olduğu değerlere döndürür. Zaten eşleşirken hiçbir şey yazılmaz; bu, bir şeyi değiştiren herkes için geri dönüş yoludur.</string>
 </resources>

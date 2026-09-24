@@ -445,4 +445,6 @@
     <string name="max_atlas_share_cancel">annuler</string>
     <string name="max_percent_format">%1$d%%</string>
     <string name="max_dex_bulk_warning">La compilation en masse sollicite le processeur et chauffe l\'appareil. Gardez-le en charge.</string>
+    <string name="max_language_device_section">Langues de votre appareil</string>
+    <string name="max_language_all_section">Toutes les langues</string>
 </resources>

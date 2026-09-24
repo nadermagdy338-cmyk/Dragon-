@@ -1862,4 +1862,9 @@
     <string name="home_story_memory_desc">RAM\'in %1$d%%\'i kullanılıyor, %2$s kullanılabilir. Şu anda ham CPU\'dan çok ZRAM ve uygulama davranışı önemli.</string>
     <string name="home_story_storage_desc">Depolama %1$d%% dolu, %2$s GB boş var. Az boş alan yük altında G/Ç takılmasına yol açabilir.</string>
     <string name="detail_storage_bucket_note">%1$d dosya · ölçülenin %2$d%%\'i</string>
+    <string name="theme_mode_system">Sistem</string>
+    <string name="theme_mode_light">Işık</string>
+    <string name="theme_mode_dark">Karanlık</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Otomatik</string>
 </resources>

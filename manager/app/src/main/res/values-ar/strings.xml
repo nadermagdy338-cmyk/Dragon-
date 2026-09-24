@@ -433,6 +433,11 @@
     <string name="support_us_desc">ساعد في التطوير، واجعل Max Manager يستمر في التحسن</string>
     <string name="theme">السمة</string>
     <string name="theme_desc">تخصيص السمة ولون التركيز</string>
+    <string name="theme_mode_system">النظام</string>
+    <string name="theme_mode_light">فاتح</string>
+    <string name="theme_mode_dark">داكن</string>
+    <string name="theme_mode_amoled">أموليد</string>
+    <string name="theme_accent_auto">تلقائي</string>
     <string name="thermalcore_service">خدمة التحكم الحراري ThermalCore</string>
     <string name="thermalcore_service_desc">ضبط إستراتيجية التحكم الحراري للنظام ذكيًا، لتجنب ارتفاع حرارة الجهاز أثناء الاستخدام اليومي مع ضمان استقرار النظام</string>
     <string name="toast_app_launch_fail">لا يمكن فتح التطبيق</string>

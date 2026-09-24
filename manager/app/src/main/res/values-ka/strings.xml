@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">მეხსიერების წნევა</string>
     <string name="home_focus_memory_desc">RAM თითქმის სავსეა. ფონური აპების მორთვა ან ჩართეთ ZRAM.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 ეფექტურობა %4$.2f\u00d7 \u00b7 დაზოგილი RAM %5$d MB \u00b7 გამოყენებული swap %6$d/%7$d MB</string>
+    <string name="theme_mode_system">სისტემა</string>
+    <string name="theme_mode_light">სინათლე</string>
+    <string name="theme_mode_dark">ბნელი</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ავტო</string>
 </resources>

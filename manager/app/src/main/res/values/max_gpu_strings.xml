@@ -34,13 +34,15 @@
     <string name="max_gpu_value_absent">Unavailable</string>
 
     <string name="max_gpu_intents_title">Smart intents</string>
-    <string name="max_gpu_intents_desc">Each one is translated into this device\'s real OPP list, then verified after the write.</string>
+    <string name="max_gpu_intents_desc">Each one is translated into this device\'s real OPP list, then verified after the write. Every description names what it costs, not only what it gives.</string>
+    <string name="max_gpu_intent_default_title">Default (start state)</string>
+    <string name="max_gpu_intent_default_desc">Returns the range and the governor to the values this device had when the screen opened. Nothing is written while they already match — this is the way back for anyone who changed something.</string>
     <string name="max_gpu_intent_efficiency_title">Efficiency</string>
-    <string name="max_gpu_intent_efficiency_desc">Lower ceiling with the governor still scaling dynamically.</string>
+    <string name="max_gpu_intent_efficiency_desc">A lower ceiling: less heat and less power, and a lower peak — the governor still scales dynamically inside the smaller range.</string>
     <string name="max_gpu_intent_adaptive_title">Adaptive balanced</string>
-    <string name="max_gpu_intent_adaptive_desc">The full safe range, with the dynamic governor in charge.</string>
+    <string name="max_gpu_intent_adaptive_desc">The full safe range, with the dynamic governor alone deciding the climb — no lock and no forced floor.</string>
     <string name="max_gpu_intent_sustained_title">Sustained performance</string>
-    <string name="max_gpu_intent_sustained_desc">A higher floor that holds under load; thermal protection stays active.</string>
+    <string name="max_gpu_intent_sustained_desc">A higher floor that holds under load; thermal protection stays active — the price is more heat and a faster drain.</string>
     <string name="max_gpu_intents_locked">No writable OPP list was proven on this device, so intents stay disabled.</string>
 
     <string name="max_gpu_review_title">Staged change</string>

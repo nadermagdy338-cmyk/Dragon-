@@ -1862,4 +1862,9 @@
     <string name="processmgr_force_stop_confirm_desc">Isto detén todos os procesos en execución de %1$s, o mesmo que Forzar parada na configuración do sistema.</string>
     <string name="sched_uclamp_desc">Limita a cantidade de capacidade dun CPU que o planificador pode solicitar para unha tarefa (0\u20131024), independentemente do gobernador activo.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Eficiencia %4$.2f\u00d7 \u00b7 RAM aforrada %5$d MB \u00b7 Swap usado %6$d/%7$d MB</string>
+    <string name="theme_mode_system">Sistema</string>
+    <string name="theme_mode_light">Luz</string>
+    <string name="theme_mode_dark">Escuro</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Automático</string>
 </resources>

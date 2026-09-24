@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">ບໍ່ມີຫຍັງຖືກຮ້ອງຂໍ.</string>
     <string name="max_gpu_reason_unknown">ການຮ້ອງຂໍບໍ່ສາມາດດໍາເນີນການໄດ້ຢ່າງປອດໄພ.</string>
     <string name="max_gpu_reason_technical">ລະຫັດເຫດຜົນ</string>
+    <string name="max_gpu_intent_default_title">ຄ່າເລີ່ມຕົ້ນ (ສະຖານະເລີ່ມຕົ້ນ)</string>
+    <string name="max_gpu_intent_default_desc">ສົ່ງຄ່າຂອບເຂດ ແລະຜູ້ປົກຄອງໄປຫາຄ່າທີ່ອຸປະກອນນີ້ມີເມື່ອໜ້າຈໍເປີດ. ບໍ່ມີຫຍັງຖືກຂຽນໃນຂະນະທີ່ພວກເຂົາກົງກັນແລ້ວ - ນີ້ແມ່ນທາງກັບຄືນສໍາລັບຜູ້ທີ່ປ່ຽນແປງບາງສິ່ງບາງຢ່າງ.</string>
 </resources>

@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Správa obsahuje názvy rozhraní, jednotky, vek a hrubý popis zariadenia. Nenesie žiadny identifikátor, žiadny účet, žiadnu cestu k vášmu súboru, žiadny zoznam balíkov ani riadok protokolu. Ďalej si vyberiete cieľ.</string>
     <string name="max_atlas_share">Vyberte aplikáciu</string>
     <string name="max_atlas_share_cancel">Zrušiť</string>
+    <string name="max_language_device_section">Jazyky vášho zariadenia</string>
+    <string name="max_language_all_section">Všetky jazyky</string>
 </resources>

@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Izvješće sadrži nazive sučelja, jedinice, godine i grubi opis uređaja. Ne nosi identifikator, nema račun, nema vašu stazu datoteke, nema popis paketa i nema redak dnevnika. Vi birate sljedeće odredište.</string>
     <string name="max_atlas_share">Odaberite aplikaciju</string>
     <string name="max_atlas_share_cancel">Otkazati</string>
+    <string name="max_language_device_section">Jezici vašeg uređaja</string>
+    <string name="max_language_all_section">Svi jezici</string>
 </resources>

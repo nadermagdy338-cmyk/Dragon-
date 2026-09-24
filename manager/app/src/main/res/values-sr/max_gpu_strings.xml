@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Ништа није тражено.</string>
     <string name="max_gpu_reason_unknown">Захтев није могао бити безбедно спроведен.</string>
     <string name="max_gpu_reason_technical">Шифра разлога</string>
+    <string name="max_gpu_intent_default_title">Подразумевано (почетно стање)</string>
+    <string name="max_gpu_intent_default_desc">Враћа опсег и регулатор на вредности које је овај уређај имао када се екран отворио. Ништа није написано док се већ поклапају — ово је пут назад за свакога ко је нешто променио.</string>
 </resources>

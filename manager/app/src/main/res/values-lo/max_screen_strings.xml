@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">ບົດລາຍງານມີຊື່ສ່ວນຕິດຕໍ່, ຫນ່ວຍງານ, ອາຍຸແລະຄໍາອະທິບາຍອຸປະກອນຫຍາບ. ມັນບໍ່ມີຕົວລະບຸ, ບໍ່ມີບັນຊີ, ບໍ່ມີເສັ້ນທາງໄຟລ໌ຂອງເຈົ້າ, ບໍ່ມີລາຍການແພັກເກັດ ແລະບໍ່ມີເສັ້ນບັນທຶກ. ເຈົ້າເລືອກປາຍທາງຕໍ່ໄປ.</string>
     <string name="max_atlas_share">ເລືອກແອັບ</string>
     <string name="max_atlas_share_cancel">ຍົກເລີກ</string>
+    <string name="max_language_device_section">ພາສາອຸປະກອນຂອງທ່ານ</string>
+    <string name="max_language_all_section">ພາສາທັງໝົດ</string>
 </resources>

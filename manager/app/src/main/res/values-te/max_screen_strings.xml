@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">నివేదిక ఇంటర్‌ఫేస్ పేర్లు, యూనిట్‌లు, వయస్సు మరియు ముతక పరికర వివరణను కలిగి ఉంటుంది. దీనికి ఐడెంటిఫైయర్ లేదు, ఖాతా లేదు, మీ ఫైల్ పాత్ లేదు, ప్యాకేజీ జాబితా లేదు మరియు లాగ్ లైన్ లేదు. మీరు తదుపరి గమ్యాన్ని ఎంచుకోండి.</string>
     <string name="max_atlas_share">యాప్‌ని ఎంచుకోండి</string>
     <string name="max_atlas_share_cancel">రద్దు చేయి</string>
+    <string name="max_language_device_section">మీ పరికర భాషలు</string>
+    <string name="max_language_all_section">అన్ని భాషలు</string>
 </resources>

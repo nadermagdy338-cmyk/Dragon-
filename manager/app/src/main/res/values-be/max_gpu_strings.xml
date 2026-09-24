@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Нічога не прасілі.</string>
     <string name="max_gpu_reason_unknown">Запыт не можа быць выкананы бяспечна.</string>
     <string name="max_gpu_reason_technical">Код прычыны</string>
+    <string name="max_gpu_intent_default_title">Па змаўчанні (пачатковы стан)</string>
+    <string name="max_gpu_intent_default_desc">Вяртае дыяпазон і рэгулятар да значэнняў, якія былі ў гэтай прылады на момант адкрыцця экрана. Нічога не напісана, пакуль яны ўжо супадаюць — гэта шлях назад для тых, хто нешта змяніў.</string>
 </resources>

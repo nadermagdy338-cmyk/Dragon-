@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Laporan itu membawa nama antara muka, unit, umur dan perihalan peranti kasar. Ia tidak membawa pengecam, tiada akaun, tiada laluan fail anda, tiada senarai pakej dan tiada baris log. Anda pilih destinasi seterusnya.</string>
     <string name="max_atlas_share">Pilih apl</string>
     <string name="max_atlas_share_cancel">Batal</string>
+    <string name="max_language_device_section">Bahasa peranti anda</string>
+    <string name="max_language_all_section">Semua bahasa</string>
 </resources>

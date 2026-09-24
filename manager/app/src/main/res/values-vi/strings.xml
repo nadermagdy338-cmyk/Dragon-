@@ -1862,4 +1862,9 @@
     <string name="adreno_freq_screen_warning">Việc ghim hoặc giới hạn tần số của GPU theo cách thủ công sẽ ghi đè lên khả năng quản lý tải và nhiệt của chính trình điều khiển. Đẩy nó đi quá xa và bạn có thể thấy đồ họa bị trục trặc, bị giật hoặc khởi động lại — hãy thay đổi từng cài đặt một.</string>
     <string name="sched_cstate_aware_desc">Xem xét chi phí đánh thức ở trạng thái không hoạt động là CPU khi người lên lịch chọn lõi nào để chạy tác vụ.</string>
     <string name="sched_uclamp_desc">Giới hạn mức độ công suất của CPU mà người lập lịch có thể yêu cầu cho một nhiệm vụ (0\u20131024), độc lập với bộ điều chỉnh đang hoạt động.</string>
+    <string name="theme_mode_system">Hệ thống</string>
+    <string name="theme_mode_light">Ánh sáng</string>
+    <string name="theme_mode_dark">Tối tăm</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Tự động</string>
 </resources>

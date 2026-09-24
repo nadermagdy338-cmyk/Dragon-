@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Die verslag bevat koppelvlakname, eenhede, ouderdomme en \'n growwe toestelbeskrywing. Dit dra geen identifiseerder, geen rekening, geen lêerpad van jou, geen pakketlys en geen loglyn nie. Jy kies die bestemming volgende.</string>
     <string name="max_atlas_share">Kies \'n toepassing</string>
     <string name="max_atlas_share_cancel">Kanselleer</string>
+    <string name="max_language_device_section">Jou toesteltale</string>
+    <string name="max_language_all_section">Alle tale</string>
 </resources>

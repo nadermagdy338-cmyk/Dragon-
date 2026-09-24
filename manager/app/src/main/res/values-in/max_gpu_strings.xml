@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Tidak ada yang diminta.</string>
     <string name="max_gpu_reason_unknown">Permintaan tersebut tidak dapat dilaksanakan dengan aman.</string>
     <string name="max_gpu_reason_technical">Kode alasan</string>
+    <string name="max_gpu_intent_default_title">Default (status awal)</string>
+    <string name="max_gpu_intent_default_desc">Mengembalikan rentang dan pengatur ke nilai yang dimiliki perangkat ini saat layar dibuka. Tidak ada yang tertulis saat keduanya sudah cocok — ini adalah jalan kembali bagi siapa pun yang mengubah sesuatu.</string>
 </resources>

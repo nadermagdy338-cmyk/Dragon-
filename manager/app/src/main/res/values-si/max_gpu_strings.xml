@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">කිසිවක් ඉල්ලා සිටියේ නැත.</string>
     <string name="max_gpu_reason_unknown">ඉල්ලීම ආරක්ෂිතව ඉටු කළ නොහැකි විය.</string>
     <string name="max_gpu_reason_technical">හේතු කේතය</string>
+    <string name="max_gpu_intent_default_title">පෙරනිමි (ආරම්භක තත්වය)</string>
+    <string name="max_gpu_intent_default_desc">තිරය ​​විවෘත කරන විට මෙම උපාංගයේ තිබූ අගයන් වෙත පරාසය සහ පාලකය ලබා දෙයි. ඒවා දැනටමත් ගැළපෙන විට කිසිවක් ලියා නැත - යමක් වෙනස් කළ ඕනෑම කෙනෙකුට ආපසු යන මාර්ගය මෙයයි.</string>
 </resources>

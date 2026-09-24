@@ -445,4 +445,6 @@
     <string name="max_atlas_domain_gpu">GPU</string>
     <string name="max_zram_metric_swappiness">Swappiness</string>
     <string name="max_zram_unit_mb">MB</string>
+    <string name="max_language_device_section">আপোনাৰ ডিভাইচৰ ভাষাসমূহ</string>
+    <string name="max_language_all_section">সকলো ভাষা</string>
 </resources>

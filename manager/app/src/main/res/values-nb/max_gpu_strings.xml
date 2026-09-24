@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Ingenting ble bedt om.</string>
     <string name="max_gpu_reason_unknown">Forespørselen kunne ikke gjennomføres på en sikker måte.</string>
     <string name="max_gpu_reason_technical">Årsakskode</string>
+    <string name="max_gpu_intent_default_title">Standard (starttilstand)</string>
+    <string name="max_gpu_intent_default_desc">Returnerer området og regulatoren til verdiene denne enheten hadde da skjermen åpnet. Ingenting er skrevet mens de allerede samsvarer - dette er veien tilbake for alle som har endret noe.</string>
 </resources>

@@ -1862,4 +1862,9 @@
     <string name="processmgr_force_stop_confirm_desc">Esto detiene todos los procesos en ejecución de %1$s, al igual que Forzar detención en la Configuración del sistema.</string>
     <string name="sched_cstate_aware_desc">Considera el costo de reactivación del estado inactivo de CPU cuando el programador elige en qué núcleo ejecutar una tarea.</string>
     <string name="sched_uclamp_desc">Limita la cantidad de capacidad de CPU que el programador puede solicitar para una tarea (0\u20131024), independientemente del gobernador activo.</string>
+    <string name="theme_mode_system">Sistema</string>
+    <string name="theme_mode_light">Luz</string>
+    <string name="theme_mode_dark">Oscuro</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

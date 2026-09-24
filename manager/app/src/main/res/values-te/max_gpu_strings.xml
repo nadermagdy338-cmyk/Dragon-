@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">ఏమీ కోరలేదు.</string>
     <string name="max_gpu_reason_unknown">అభ్యర్థన సురక్షితంగా నిర్వహించబడదు.</string>
     <string name="max_gpu_reason_technical">కారణం కోడ్</string>
+    <string name="max_gpu_intent_default_title">డిఫాల్ట్ (ప్రారంభ స్థితి)</string>
+    <string name="max_gpu_intent_default_desc">స్క్రీన్ తెరిచినప్పుడు ఈ పరికరం కలిగి ఉన్న విలువలకు పరిధిని మరియు గవర్నర్‌ను అందిస్తుంది. అవి ఇప్పటికే సరిపోలినప్పుడు ఏమీ వ్రాయబడలేదు - ఏదైనా మార్చిన ఎవరికైనా ఇది తిరిగి వచ్చే మార్గం.</string>
 </resources>

@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM està gairebé ple. Retalla les aplicacions de fons o activa ZRAM.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Eficiència %4$.2f\u00d7 \u00b7 RAM estalviada %5$d MB \u00b7 Swap utilitzat %6$d/%7$d MB</string>
     <string name="sched_uclamp_desc">Limita la quantitat de la capacitat d\'un CPU que el planificador pot sol·licitar per a una tasca (0\u20131024), independentment del governador actiu.</string>
+    <string name="theme_mode_system">Sistema</string>
+    <string name="theme_mode_light">Llum</string>
+    <string name="theme_mode_dark">Fosc</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Automàtic</string>
 </resources>

@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">របាយការណ៍​នេះ​មាន​ឈ្មោះ​ចំណុចប្រទាក់ ឯកតា អាយុ និង​ការ​ពណ៌នា​អំពី​ឧបករណ៍​ដែល​មិន​សូវ​ល្អ។ វាមិនមានអត្តសញ្ញាណប័ណ្ណ គ្មានគណនី គ្មានផ្លូវឯកសាររបស់អ្នក គ្មានបញ្ជីកញ្ចប់ និងគ្មានបន្ទាត់កំណត់ហេតុ។ អ្នកជ្រើសរើសគោលដៅបន្ទាប់។</string>
     <string name="max_atlas_share">ជ្រើសរើសកម្មវិធីមួយ។</string>
     <string name="max_atlas_share_cancel">បោះបង់</string>
+    <string name="max_language_device_section">ភាសាឧបករណ៍របស់អ្នក។</string>
+    <string name="max_language_all_section">គ្រប់ភាសា</string>
 </resources>

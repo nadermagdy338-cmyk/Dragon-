@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">ਰਿਪੋਰਟ ਵਿੱਚ ਇੰਟਰਫੇਸ ਦੇ ਨਾਮ, ਇਕਾਈਆਂ, ਉਮਰਾਂ ਅਤੇ ਇੱਕ ਮੋਟੇ ਡਿਵਾਈਸ ਦਾ ਵੇਰਵਾ ਹੈ। ਇਸ ਵਿੱਚ ਕੋਈ ਪਛਾਣਕਰਤਾ, ਕੋਈ ਖਾਤਾ, ਤੁਹਾਡਾ ਕੋਈ ਫਾਈਲ ਮਾਰਗ, ਕੋਈ ਪੈਕੇਜ ਸੂਚੀ ਅਤੇ ਕੋਈ ਲੌਗ ਲਾਈਨ ਨਹੀਂ ਹੈ। ਤੁਸੀਂ ਅਗਲੀ ਮੰਜ਼ਿਲ ਦੀ ਚੋਣ ਕਰੋ।</string>
     <string name="max_atlas_share">ਇੱਕ ਐਪ ਚੁਣੋ</string>
     <string name="max_atlas_share_cancel">ਰੱਦ ਕਰੋ</string>
+    <string name="max_language_device_section">ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਦੀਆਂ ਭਾਸ਼ਾਵਾਂ</string>
+    <string name="max_language_all_section">ਸਾਰੀਆਂ ਭਾਸ਼ਾਵਾਂ</string>
 </resources>

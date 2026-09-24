@@ -1862,4 +1862,9 @@
     <string name="processmgr_force_stop_confirm_desc">Kjo ndalon të gjitha proceset e ekzekutimit të %1$s, njësoj si ndalimi i detyruar në cilësimet e sistemit.</string>
     <string name="adreno_throttle_bypass_warning">⚠️ Paralajmërim: kjo çaktivizon mbrojtjen e integruar të GPU nga mbinxehja. Monitoroni nga afër temperaturën e pajisjes tuaj dhe fikeni menjëherë nëse ndihet jashtëzakonisht e nxehtë.</string>
     <string name="sched_uclamp_desc">Kufizon se sa nga kapaciteti i një CPU mund të kërkojë planifikuesi për një detyrë (0\u20131024), pavarësisht nga guvernatori aktiv.</string>
+    <string name="theme_mode_system">Sistemi</string>
+    <string name="theme_mode_light">Drita</string>
+    <string name="theme_mode_dark">E errët</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

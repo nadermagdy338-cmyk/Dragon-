@@ -1862,4 +1862,9 @@
     <string name="processmgr_force_stop_confirm_desc">Ovo zaustavlja sve pokrenute procese %1$s, isto kao i prisilno zaustavljanje u postavkama sustava.</string>
     <string name="adreno_freq_screen_warning">Ručno pričvršćivanje ili ograničavanje frekvencije GPU nadjačava vozačevo vlastito opterećenje i upravljanje toplinom. Gurnite ga predaleko i mogli biste vidjeti grafičke greške, usporavanje ili ponovno pokretanje — mijenjajte jednu po jednu postavku.</string>
     <string name="sched_uclamp_desc">Ograničava koliko kapaciteta CPU planer može zatražiti za zadatak (0\u20131024), neovisno o aktivnom regulatoru.</string>
+    <string name="theme_mode_system">sustav</string>
+    <string name="theme_mode_light">Svjetlo</string>
+    <string name="theme_mode_dark">tamno</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">ಮೆಮೊರಿ ಒತ್ತಡ</string>
     <string name="home_focus_memory_desc">RAM ಬಹುತೇಕ ತುಂಬಿದೆ. ಹಿನ್ನೆಲೆ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಟ್ರಿಮ್ ಮಾಡಿ ಅಥವಾ ZRAM ಸಕ್ರಿಯಗೊಳಿಸಿ.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 ದಕ್ಷತೆ %4$.2f\u00d7 \u00b7 ಉಳಿಸಿದ RAM %5$d MB \u00b7 ಬಳಸಿದ ಸ್ವಾಪ್ %6$d/%7$d MB</string>
+    <string name="theme_mode_system">ವ್ಯವಸ್ಥೆ</string>
+    <string name="theme_mode_light">ಬೆಳಕು</string>
+    <string name="theme_mode_dark">ಕತ್ತಲು</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ಆಟೋ</string>
 </resources>

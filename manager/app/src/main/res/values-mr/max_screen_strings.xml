@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">अहवालात इंटरफेसची नावे, युनिट्स, वय आणि खरखरीत उपकरणाचे वर्णन आहे. यात कोणताही अभिज्ञापक नाही, खाते नाही, तुमचा फाइल मार्ग नाही, पॅकेज सूची नाही आणि लॉग लाइन नाही. तुम्ही पुढील गंतव्यस्थान निवडा.</string>
     <string name="max_atlas_share">एक ॲप निवडा</string>
     <string name="max_atlas_share_cancel">रद्द करा</string>
+    <string name="max_language_device_section">तुमच्या डिव्हाइसच्या भाषा</string>
+    <string name="max_language_all_section">सर्व भाषा</string>
 </resources>

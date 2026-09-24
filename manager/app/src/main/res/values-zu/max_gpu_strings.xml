@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Akukho lutho oluceliwe.</string>
     <string name="max_gpu_reason_unknown">Isicelo asikwazanga ukwenziwa ngokuphepha.</string>
     <string name="max_gpu_reason_technical">Ikhodi yesizathu</string>
+    <string name="max_gpu_intent_default_title">Okuzenzakalelayo (isimo sokuqala)</string>
+    <string name="max_gpu_intent_default_desc">Ibuyisela ububanzi kanye nombusi kumanani le divayisi eyayinawo ngenkathi kuvulwa isikrini. Akukho okubhaliwe ngenkathi sezivele zifana - lena indlela yokubuya kunoma ubani oguqule okuthile.</string>
 </resources>

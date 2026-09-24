@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM je skoraj poln. Odrežite aplikacije v ozadju ali omogočite ZRAM.</string>
     <string name="processmgr_force_stop_confirm_desc">To ustavi vse tekoče procese %1$s, enako kot prisilna ustavitev v sistemskih nastavitvah.</string>
     <string name="sched_uclamp_desc">Omejuje, koliko zmogljivosti CPU lahko razporejevalnik zahteva za opravilo (0\u20131024), neodvisno od aktivnega regulatorja.</string>
+    <string name="theme_mode_system">Sistem</string>
+    <string name="theme_mode_light">Svetloba</string>
+    <string name="theme_mode_dark">Temno</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Avto</string>
 </resources>

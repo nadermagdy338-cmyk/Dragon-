@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">કંઈ માંગવામાં આવ્યું ન હતું.</string>
     <string name="max_gpu_reason_unknown">વિનંતી સુરક્ષિત રીતે કરી શકાઈ નથી.</string>
     <string name="max_gpu_reason_technical">કારણ કોડ</string>
+    <string name="max_gpu_intent_default_title">ડિફૉલ્ટ (પ્રારંભ સ્થિતિ)</string>
+    <string name="max_gpu_intent_default_desc">જ્યારે સ્ક્રીન ખુલી ત્યારે આ ઉપકરણ પાસે જે મૂલ્ય હતું તે શ્રેણી અને ગવર્નરને પરત કરે છે. જ્યારે તેઓ પહેલેથી જ મેળ ખાતા હોય ત્યારે કંઈપણ લખવામાં આવતું નથી — આ કોઈ પણ વ્યક્તિ માટે પાછા ફરવાનો માર્ગ છે જેણે કંઈક બદલ્યું છે.</string>
 </resources>

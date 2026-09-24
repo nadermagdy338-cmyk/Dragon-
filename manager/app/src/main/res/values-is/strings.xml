@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">Minnisþrýstingur</string>
     <string name="home_focus_memory_desc">RAM er næstum fullt. Klipptu bakgrunnsforrit eða virkjaðu ZRAM.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Skilvirkni %4$.2f\u00d7 \u00b7 Sparað RAM %5$d MB \u00b7 Notaður swap %6$d/%7$d MB</string>
+    <string name="theme_mode_system">Kerfi</string>
+    <string name="theme_mode_light">Ljós</string>
+    <string name="theme_mode_dark">Myrkur</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Sjálfvirk</string>
 </resources>

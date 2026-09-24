@@ -1862,4 +1862,9 @@
     <string name="control_workspace_subtitle">Мапирајте сваку површину за подешавање према делу уређаја на који утиче</string>
     <string name="control_map_desc">Почните од симптома који осећате, а затим отворите домен који поседује ограничавајући подсистем.</string>
     <string name="max_hub_gpu_question_desc">GPU алати објашњавају тактове, појачање драјвера, политику напајања и контроле добављача које утичу на одрживе графичке перформансе.</string>
+    <string name="theme_mode_system">Систем</string>
+    <string name="theme_mode_light">Светлост</string>
+    <string name="theme_mode_dark">Дарк</string>
+    <string name="theme_mode_amoled">АМОЛЕД</string>
+    <string name="theme_accent_auto">Ауто</string>
 </resources>

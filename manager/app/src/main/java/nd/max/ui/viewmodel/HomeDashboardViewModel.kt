@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import nd.max.core.hardware.GpuHardwareBackend
 import nd.max.ui.util.CpuTopologyUtil
 import nd.max.ui.util.FpsMonitorUtil
 import nd.max.ui.util.LoadHistory
@@ -49,6 +50,13 @@ data class CpuCoreState(
     val cpu: Int,
     val freqMhz: Int = 0,
     val maxFreqMhz: Int = 0,
+    /**
+     * أرضية عنقود هذه النواة (`cpuinfo_min_freq`) — تُقرأ مرة واحدة مع السقف.
+     *
+     * و`0` تعني «النواة لا تُعلن أرضية»، فتُعرض البطاقة بلا حدّ أدنى بدل اختراع رقم:
+     * أرضيةٌ مُخترعة تجعل كل قراءة تبدو قريبة من القاع أو من القمة بلا سبب حقيقي.
+     */
+    val minFreqMhz: Int = 0,
     val online: Boolean = true,
     val clusterTag: String = "",
     val coreName: String? = null
@@ -113,10 +121,20 @@ data class DashboardState(
     /**
      * سقف تردّد الرسوم بالـMHz، أو null حين لا تُعلنه هذه النواة.
      *
-     * ويُقرأ من عقدة `devfreq` (`max_freq` ثم `available_frequencies`) أو من جدول OPP،
-     * ويُحفظ بعد أول قراءة: هو خاصية مدى الإقلاع، لا قياس يتغيّر كل دورتين.
+     * ويُقرأ أولًا من `GpuHardwareBackend` — نفس مصدر شاشة الرسوم — ثم من عقدة `devfreq`
+     * (`max_freq` ثم `available_frequencies`) أو جدول OPP كاحتياط، ويُحفظ بعد أول قراءة:
+     * هو خاصية مدى الإقلاع، لا قياس يتغيّر كل دورتين.
      */
     val gpuCeilingMhz: Int? = null,
+
+    /**
+     * أرضية تردّد الرسوم بالـMHz، أو null حين لا تُعلنها هذه النواة — تُقرأ من الجهاز نفسه
+     * الذي حلّ السقف، فلا مصدران لفكرة واحدة.
+     */
+    val gpuMinMhz: Int? = null,
+
+    /** أدنى أرضية معلنة بين الأنوية المتصلة بالميغاهرتز، أو null حين لا تُعلن أي نواة أرضية. */
+    val cpuMinMhz: Int? = null,
     /** RAM history for the live chart, same cadence as [loadSamples]. */
     val ramLoadHistory: List<Float> = emptyList(),
     /** Battery drain/charge power in watts; 0 when current_now is unreadable. */
@@ -198,6 +216,11 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
     private var gpuCeilingCacheMhz: Int? = null
     private var gpuCeilingResolved: Boolean = false
 
+    /** مدى تردّد الرسوم الحقيقي ومسار عقدته: يُحلّان مرة واحدة لكل إقلاع. */
+    private var gpuRangeResolved: Boolean = false
+    private var gpuRangeCache: Pair<Int?, Int?> = null to null
+    private var gpuPathCache: String? = null
+
     /**
      * تاريخ الحمل على القرص: كل جلسة تكمل من حيث انتهت التي قبلها، فلا يبدأ الطيف من
      * الصفر في كل فتح للتطبيق. والكتابة **مجزّأة** (انظر [HISTORY_SAVE_INTERVAL_MS]) فلا
@@ -260,7 +283,12 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 val onlineCores = cores.filter { it.online }
                 val cpuTopCoreMhz = onlineCores.maxOfOrNull { it.freqMhz } ?: 0
                 val cpuCeilingMhz = cores.maxOfOrNull { it.maxFreqMhz } ?: 0
-                val gpuCeilingMhz = gpuCeiling()
+                val cpuMinMhz = onlineCores.mapNotNull { it.minFreqMhz.takeIf { mhz -> mhz > 0 } }
+                    .minOrNull()
+                // المدى الحقيقي للرسوم أولًا، ثم عقدة devfreq كاحتياط: السقف الذي تقرأه
+                // البطاقة هو نفسه الذي تعرفه شاشة GPU، فلا رقمان لفكرة واحدة.
+                val gpuRange = gpuRange()
+                val gpuCeilingMhz = gpuRange.second ?: gpuCeiling()
 
                 val previous = _dashboardState.value
                 val ramPercent = if (ram.totalMb > 0) {
@@ -302,6 +330,8 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     cpuLoadPercent = cpuLoad, cpuFreqMhz = cpuFreq,
                     cpuTopCoreMhz = cpuTopCoreMhz, cpuCeilingMhz = cpuCeilingMhz,
                     gpuCeilingMhz = gpuCeilingMhz,
+                    gpuMinMhz = gpuRange.first,
+                    cpuMinMhz = cpuMinMhz,
                     loadSamples = samples,
                     // تاريخ الذاكرة يغذّي الرسوم المفصّلة وحدها؛ الشاشة الرئيسية تعرض قيمًا
                     // حالية معنونة بالتسمية، بلا خطوط متحرّكة غامضة.
@@ -472,10 +502,14 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         if (clusters.isEmpty()) return emptyList()
         return clusters.flatMap { cluster ->
             val ceiling = CpuTopologyUtil.clusterMaxFreqMhz(cluster.policyPath)
+            // الأرضية تُقرأ مع السقف ومعها: المدى كله خاصية مدى إقلاع، ولذلك يُحلّان
+            // في الدورة نفسها التي تُحلّ فيها الهوية — لا نداء إضافي في كل دورة قياس.
+            val floor = CpuTopologyUtil.clusterMinFreqMhz(cluster.policyPath)
             cluster.cores.map { cpu ->
                 CpuCoreState(
                     cpu = cpu,
                     maxFreqMhz = ceiling,
+                    minFreqMhz = floor,
                     clusterTag = cluster.shortTag,
                     coreName = CpuTopologyUtil.decodeCoreName(cpu)
                 )
@@ -495,12 +529,67 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
             // or "N/A"; take the leading integer rather than trusting a suffix.
             val load = LEADING_INTEGER.find(MtkUtils.getGpuLoad())
                 ?.value?.toIntOrNull()?.coerceIn(0, 100)
-            val freq = LEADING_INTEGER.find(MtkUtils.getCurrentGpuFreq())
+            val vendorFreq = LEADING_INTEGER.find(MtkUtils.getCurrentGpuFreq())
                 ?.value?.toIntOrNull()?.takeIf { it > 0 }
+            // ومسار البائع ليس المسار الوحيد: على أجهزة تردّ فيها `getCurrentGpuFreq` بـ"N/A"
+            // تبقى عقدة العتاد نفسها مقروءة — وهي عينها التي ترسم بها شاشة الرسوم رسمها.
+            // وغياب هذا الاحتياط كان يعني رسمًا فارغًا في بطاقة GPU بينما الشاشة المالكة للرقم
+            // تراه، وهو العطب المُبلَّغ عنه.
+            val freq = vendorFreq ?: gpuCurrentFromHardware()
             load to freq
         } catch (_: Exception) {
             null to null
         }
+    }
+
+    /**
+     * تردّد الرسوم الحالي من عقدة العتاد، عبر `GpuHardwareBackend` نفسه الذي تستعمله شاشة GPU.
+     *
+     * والمسار مُستقصى سلبيًّا: مسار العقدة يُحلّ مرة واحدة، فإن لم تُوجد عقدة لا يُعاد السؤال
+     * كل دورتين (كل قراءة فاشلة قد تكلّف نداء قشرة عبر `RootFileAccess`).
+     */
+    private fun gpuCurrentFromHardware(): Int? {
+        val path = gpuNodePath() ?: return null
+        return try {
+            val device = GpuHardwareBackend.refresh(path) ?: return null
+            GpuHardwareBackend.frequencyMHz(device, device.currentFreq)?.toInt()?.takeIf { it > 0 }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    /**
+     * مسار عقدة الرسوم ومداها الحقيقي (أدنى/أعلى بالميغاهرتز)، يُحلّان مرة واحدة لكل إقلاع.
+     *
+     * والمصدر هو `GpuHardwareBackend` — لا قارئ ثانٍ. وكانت الرئيسية تقرأ السقف بصدفة
+     * `devfreq` مباشرة بينما شاشة الرسوم تعرف المدى كاملًا من العتاد، فافترق المصدران على أول
+     * جهاز يخالف مفترضات أحدهما. والواحد `AMBIGUOUS` يُرفض ولا يُخمَّن (`frequencyMHz` تُرجع
+     * null حين لا تثق الوحدة)، فتبقى البطاقة بلا مدى بدل مدى مصنوع.
+     */
+    private fun gpuRange(): Pair<Int?, Int?> {
+        if (!gpuRangeResolved) {
+            gpuRangeResolved = true
+            gpuRangeCache = try {
+                val device = GpuHardwareBackend.selection().device
+                gpuPathCache = device?.path
+                if (device == null || !device.unitTrusted) {
+                    null to null
+                } else {
+                    val min = GpuHardwareBackend.frequencyMHz(device, device.provenMinFreq ?: device.minFreq)
+                    val max = GpuHardwareBackend.frequencyMHz(device, device.provenMaxFreq ?: device.maxFreq)
+                    min?.toInt()?.takeIf { it > 0 } to max?.toInt()?.takeIf { it > 0 }
+                }
+            } catch (_: Exception) {
+                null to null
+            }
+        }
+        return gpuRangeCache
+    }
+
+    /** مسار عقدة الرسوم المُحلّ، أو null إن لم يُوجد (ولا يُسأل مرة أخرى). */
+    private fun gpuNodePath(): String? {
+        gpuRange()
+        return gpuPathCache
     }
 
     /** سقف GPU مرة واحدة لكل إقلاع؛ ما بعده يُقرأ من الذاكرة. */

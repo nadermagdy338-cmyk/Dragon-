@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">O relatório contém os nomes das interfaces, unidades, idades e uma descrição aproximada do dispositivo. Não carrega nenhum identificador, nenhuma conta, nenhum caminho de ficheiro seu, nenhuma lista de pacotes e nenhuma linha de registo. Você escolhe o destino a seguir.</string>
     <string name="max_atlas_share">Escolha uma aplicação</string>
     <string name="max_atlas_share_cancel">Cancelar</string>
+    <string name="max_language_device_section">Idiomas do seu dispositivo</string>
+    <string name="max_language_all_section">Todos os idiomas</string>
 </resources>

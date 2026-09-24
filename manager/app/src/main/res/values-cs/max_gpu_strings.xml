@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Nic nebylo požadováno.</string>
     <string name="max_gpu_reason_unknown">Požadavek nemohl být proveden bezpečně.</string>
     <string name="max_gpu_reason_technical">Kód důvodu</string>
+    <string name="max_gpu_intent_default_title">Výchozí (stav spuštění)</string>
+    <string name="max_gpu_intent_default_desc">Vrátí rozsah a regulátor na hodnoty, které mělo toto zařízení při otevření obrazovky. Nic není napsáno, dokud se již shodují – toto je cesta zpět pro každého, kdo něco změnil.</string>
 </resources>

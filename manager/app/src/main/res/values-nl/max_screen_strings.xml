@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Het rapport bevat interfacenamen, eenheden, leeftijden en een grove apparaatbeschrijving. Het bevat geen identificatie, geen account, geen bestandspad van u, geen pakketlijst en geen logregel. Vervolgens kiest u de bestemming.</string>
     <string name="max_atlas_share">Kies een app</string>
     <string name="max_atlas_share_cancel">Annuleren</string>
+    <string name="max_language_device_section">Uw apparaattalen</string>
+    <string name="max_language_all_section">Alle talen</string>
 </resources>

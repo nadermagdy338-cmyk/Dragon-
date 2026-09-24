@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nd.max.R
+import nd.max.ui.component.ExpressiveList
 import nd.max.ui.component.ExpressiveListItem
 import nd.max.ui.component.ExpressiveSwitchItem
 import nd.max.ui.component.LeadingIcon
@@ -45,6 +46,14 @@ import nd.max.ui.util.ActivityCardPreferences
  * هذه تفضيلات **عرض** لا تحكّم عتاد: لا مقبض ولا كتابة ولا جذر. فمكانها مع بقية تفضيلات التطبيق،
  * ولو وُضعت في `Control` لقرأها من يبحث عن سلطة على المعالج على أنها سلطة على المعالج.
  *
+ * ولماذا داخل `ExpressiveList`
+ * ---------------------------
+ * لأن الشاشة كلها تُبنى من مجموعات: الصفّ المفرد بحاجة إلى `expressiveCardSurface` الذي ترسمه
+ * `ExpressiveList`، وهذا ما يفصل «صفّ إعداد» عن «نصّ على الخلفية». وكان هذا الصفّ يُلقى في
+ * القائمة **مجردًا** بينما كل جار له داخل مجموعة، فظهر مختلف المجموعة والعنوان عن بقية الشاشة
+ * (بلا سطح بطاقة وبلا زوايا) — وهو خلل تناسق حقيقي، لا ذوق. والدليل في الكود لا في اللقطة:
+ * `ExpressiveListItem` وحده لا يرسم سطحًا؛ الرسم في `ExpressiveList`.
+ *
  * ولماذا تُكتب الخيارات فورًا
  * --------------------------
  * البطاقة تقرأ التفضيلات في دورتها (١٠ ثوانٍ)، فمن غيّر شيئًا يراه يتحرّك في الرئيسية بلا خطوة
@@ -59,12 +68,21 @@ internal fun ActivityCardSettingsItem() {
     var options by remember { mutableStateOf(ActivityCardPreferences.read(context)) }
     var open by remember { mutableStateOf(false) }
 
-    ExpressiveListItem(
-        onClick = { open = true },
-        headlineContent = { Text(stringResource(R.string.settings_activity_card_title)) },
-        supportingContent = { Text(activityCardSummary(options)) },
-        leadingContent = { LeadingIcon(icon = Icons.Rounded.Timeline) },
-        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+    ExpressiveList(
+        content = listOf({
+            ExpressiveListItem(
+                onClick = { open = true },
+                headlineContent = { Text(stringResource(R.string.settings_activity_card_title)) },
+                supportingContent = { Text(activityCardSummary(options)) },
+                leadingContent = { LeadingIcon(icon = Icons.Rounded.Timeline) },
+                trailingContent = {
+                    Icon(
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null
+                    )
+                },
+            )
+        }),
     )
 
     if (open) {

@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Ingenting begärdes.</string>
     <string name="max_gpu_reason_unknown">Begäran kunde inte utföras på ett säkert sätt.</string>
     <string name="max_gpu_reason_technical">Orsakskod</string>
+    <string name="max_gpu_intent_default_title">Standard (startläge)</string>
+    <string name="max_gpu_intent_default_desc">Återställer intervallet och regulatorn till de värden som denna enhet hade när skärmen öppnades. Ingenting skrivs medan de redan matchar – det här är vägen tillbaka för alla som ändrat något.</string>
 </resources>

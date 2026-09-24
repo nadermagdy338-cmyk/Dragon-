@@ -118,8 +118,18 @@ object AppLanguage {
     }
 
     /**
-     * كل الخيارات جاهزة للعرض: الاسم الأصلي أولًا، والاسم بلغة الواجهة كسطر ثانوي عندما يختلفان.
+     * كل الخيارات جاهزة للعرض: الاسم بلغة الواجهة أولًا، والاسم الأصلي كسطر ثانوي عندما يختلفان.
      * الترتيب بترتيب أبجدي صحيح للغة الواجهة (Collator) لا بترتيب ASCII.
+     *
+     * **وتغيير الترتيب والاسم الأول مقصود (طلب المالك: «حسّن طريقة عرض اللغات»).** كان
+     * الترتيب بالاسم الأصلي، وهو «أصحّ» نظريًّا لمن لا يقرأ لغة الواجهة — لكنه يُنتج قائمة
+     * **متعدّدة الأبجديات** فيُرى في اللقطة: أردو، العربية، فارسية (لأن مُرتّب العربية يضع
+     * المحارف العربية أولًا) ثم Afrikaans, Azerbaycan, Bosanski. فالقارئ لا يجد أبجدية
+     * واحدة يمسحها بعينه، ولو كان يبحث عن لغته بلغته لوجدها بالبحث (وهو المطابقة التي
+     * تشمل الاسم الأصلي والاسم المعرّب والوسم معًا).
+     *
+     * والنتيجة: المسح بعين واحدة في لغة القارئ، والاسم الأصلي **باقٍ في الصفّ** كما كان
+     * (سطرًا ثانيًا لا عنوانًا) فلم يُفقد شيء — تغيّر **موضع** الاسم لا وجوده.
      */
     fun entries(uiLocale: Locale = Locale.getDefault()): List<Entry> {
         val collator = Collator.getInstance(uiLocale)
@@ -131,7 +141,36 @@ object AppLanguage {
                     localizedName = displayName(tag, uiLocale),
                 )
             }
-            .sortedWith(compareBy(collator) { it.nativeName })
+            .sortedWith(compareBy(collator) { it.localizedName })
+    }
+
+    /**
+     * لغات الجهاز المضبوطة فعليًّا (`LocaleList.getDefault()`)، مرَّت على قائمة المدعوم
+     * بترتيب النظام ونزع التكرار.
+     *
+     * وهذا **قياس لحالة الجهاز لا تخمين**: ما ضبطه المستخدم في «لغة النظام» هو بالتأكيد
+     * مرشّحه الأول داخل التطبيق، فرفعه إلى أعلى الورقة يعني أنه لا يمرّ على ٨٥ صفًّا ليصل إليه.
+     *
+     * والمطابقة على **اللغة** أولًا ثم البلد: جهاز ضبط `ar-EG` يقابل `ar` (لأن `ar-EG` غير
+     * مدعوم بالاسم) وجهاز ضبط `pt-BR` يقابل `pt-BR` لا `pt` — ولو بدأنا بالبلد لكان كل
+     * اختيار جهاز إقليميّ يسقط إلى لغته العامة بلا سبب.
+     */
+    fun deviceTags(): List<String> {
+        val supported = CODES.map { tag -> tag to localeOf(tag) }
+        val configured = LocaleListCompat.getDefault()
+        val out = LinkedHashSet<String>()
+        for (index in 0 until configured.size()) {
+            val device = configured[index] ?: continue
+            val exact = supported.firstOrNull { (_, locale) ->
+                locale.language.equals(device.language, ignoreCase = true) &&
+                    locale.country.equals(device.country, ignoreCase = true)
+            }
+            val byLanguage = supported.firstOrNull { (_, locale) ->
+                locale.language.equals(device.language, ignoreCase = true)
+            }
+            (exact ?: byLanguage)?.let { out += it.first }
+        }
+        return out.toList()
     }
 
     private fun localeOf(tag: String): Locale = Locale.forLanguageTag(normalize(tag))

@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Nem kértek semmit.</string>
     <string name="max_gpu_reason_unknown">A kérést nem lehetett biztonságosan végrehajtani.</string>
     <string name="max_gpu_reason_technical">Ok kódja</string>
+    <string name="max_gpu_intent_default_title">Alapértelmezett (kezdési állapot)</string>
+    <string name="max_gpu_intent_default_desc">Visszaállítja a tartományt és a szabályzót azokra az értékekre, amelyekkel az eszköz a képernyő megnyitásakor volt. Semmit sem írnak, amíg már egyeznek – ez a visszaút azoknak, akik megváltoztattak valamit.</string>
 </resources>

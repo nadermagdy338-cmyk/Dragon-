@@ -1862,4 +1862,9 @@
     <string name="root_grant_denied">Aucune demande root n\'est apparue. Ouvrez votre gestionnaire root, choisissez la liste des applications et ajoutez MaxManager (il apparaît maintenant comme une application normale), puis réessayez.</string>
     <string name="zram_screen_warning">Modifier la taille du ZRAM ou l\'algorithme de compression affecte la gestion de la mémoire dans tout le système. Une combinaison non prise en charge peut causer de l\'instabilité ou un changement d\'application lent — appliquez un changement à la fois et patientez quelques minutes.</string>
     <string name="processmgr_force_stop_confirm_desc">Cela arrête tous les processus en cours de %1$s, de la même manière que Forcer l\'arrêt dans les paramètres système.</string>
+    <string name="theme_mode_system">Système</string>
+    <string name="theme_mode_light">Lumière</string>
+    <string name="theme_mode_dark">Sombre</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

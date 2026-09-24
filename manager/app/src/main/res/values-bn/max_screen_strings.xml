@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">প্রতিবেদনটিতে ইন্টারফেসের নাম, ইউনিট, বয়স এবং একটি মোটা ডিভাইসের বিবরণ রয়েছে। এটি কোন শনাক্তকারী, কোন অ্যাকাউন্ট, আপনার কোন ফাইল পাথ, কোন প্যাকেজ তালিকা এবং কোন লগ লাইন বহন করে না। আপনি পরবর্তী গন্তব্য চয়ন করুন.</string>
     <string name="max_atlas_share">একটি অ্যাপ বেছে নিন</string>
     <string name="max_atlas_share_cancel">বাতিল করুন</string>
+    <string name="max_language_device_section">আপনার ডিভাইসের ভাষা</string>
+    <string name="max_language_all_section">সব ভাষা</string>
 </resources>

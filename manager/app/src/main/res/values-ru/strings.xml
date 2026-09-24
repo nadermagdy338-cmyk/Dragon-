@@ -1862,4 +1862,9 @@
     <string name="adreno_throttle_bypass_warning">⚠️ Внимание: при этом отключается встроенная защита GPU от перегрева. Внимательно следите за температурой вашего устройства и немедленно выключите его, если оно станет необычно горячим.</string>
     <string name="sched_cstate_aware_desc">Учитывает стоимость пробуждения CPU в состоянии простоя, когда планировщик выбирает, на каком ядре запустить задачу.</string>
     <string name="sched_uclamp_desc">Ограничивает объем мощности CPU, который планировщик может запросить для задачи (0\u20131024), независимо от активного регулятора.</string>
+    <string name="theme_mode_system">Система</string>
+    <string name="theme_mode_light">Свет</string>
+    <string name="theme_mode_dark">Темный</string>
+    <string name="theme_mode_amoled">АМОЛЕД</string>
+    <string name="theme_accent_auto">Авто</string>
 </resources>

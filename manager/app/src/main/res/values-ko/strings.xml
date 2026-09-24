@@ -1862,4 +1862,9 @@
     <string name="adreno_freq_screen_warning">GPU의 주파수를 수동으로 고정하거나 제한하면 드라이버 자체 부하 및 열 관리가 무시됩니다. 너무 많이 밀면 그래픽 결함, 제한 또는 재부팅이 나타날 수 있습니다. 한 번에 하나씩 설정을 변경하십시오.</string>
     <string name="sched_cstate_aware_desc">스케줄러가 작업을 실행할 코어를 선택할 때 CPU의 유휴 상태 깨우기 비용을 고려합니다.</string>
     <string name="sched_uclamp_desc">활성 거버너와 관계없이 스케줄러가 작업(0\u20131024)에 대해 요청할 수 있는 CPU 용량의 범위를 지정합니다.</string>
+    <string name="theme_mode_system">체계</string>
+    <string name="theme_mode_light">빛</string>
+    <string name="theme_mode_dark">어두운</string>
+    <string name="theme_mode_amoled">아몰레드</string>
+    <string name="theme_accent_auto">자동</string>
 </resources>

@@ -1862,4 +1862,9 @@
     <string name="adreno_freq_screen_warning">การปักหมุดหรือปิดความถี่ของ GPU ด้วยตนเองจะแทนที่การจัดการโหลดและระบายความร้อนของไดรเวอร์เอง ดันไปไกลเกินไปแล้วคุณอาจเห็นข้อผิดพลาดของกราฟิก การควบคุมปริมาณ หรือการรีบูต เปลี่ยนการตั้งค่าทีละรายการ</string>
     <string name="sched_cstate_aware_desc">พิจารณาต้นทุนการปลุกในสถานะว่างของ CPU เมื่อตัวกำหนดเวลาเลือกคอร์ที่จะรันงาน</string>
     <string name="sched_uclamp_desc">กำหนดขอบเขตความจุของ CPU ที่ผู้จัดกำหนดการสามารถร้องขอสำหรับงานได้ (0\u20131024) โดยไม่ขึ้นกับ Governor ที่ทำงานอยู่</string>
+    <string name="theme_mode_system">ระบบ</string>
+    <string name="theme_mode_light">แสงสว่าง</string>
+    <string name="theme_mode_dark">มืด</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">อัตโนมัติ</string>
 </resources>

@@ -1862,4 +1862,9 @@
     <string name="adreno_freq_screen_warning">GPU жиілігін қолмен бекіту немесе шектеу жүргізушінің өз жүктемесін және жылуды басқаруын жоққа шығарады. Оны тым алыс итеріңіз, сонда сіз графикалық ақауларды, тежеуді немесе қайта жүктеуді көре аласыз — бір уақытта бір параметрді өзгертіңіз.</string>
     <string name="sched_cstate_aware_desc">Жоспарлаушы тапсырманы орындау үшін қай ядроны таңдаған кезде, CPU бос күйінің ояту құнын қарастырады.</string>
     <string name="sched_uclamp_desc">Белсенді басқарушыға тәуелсіз, жоспарлаушы тапсырманы (0\u20131024) сұрай алатын CPU сыйымдылығының қанша мөлшерін шектейді.</string>
+    <string name="theme_mode_system">Жүйе</string>
+    <string name="theme_mode_light">Жарық</string>
+    <string name="theme_mode_dark">Қараңғы</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Авто</string>
 </resources>

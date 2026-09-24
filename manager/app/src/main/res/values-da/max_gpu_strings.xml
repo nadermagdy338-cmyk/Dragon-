@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Der blev ikke anmodet om noget.</string>
     <string name="max_gpu_reason_unknown">Anmodningen kunne ikke udføres sikkert.</string>
     <string name="max_gpu_reason_technical">Årsagskode</string>
+    <string name="max_gpu_intent_default_title">Standard (starttilstand)</string>
+    <string name="max_gpu_intent_default_desc">Returnerer området og regulatoren til de værdier, denne enhed havde, da skærmen åbnede. Intet er skrevet, mens de allerede matcher - dette er vejen tilbage for enhver, der har ændret noget.</string>
 </resources>

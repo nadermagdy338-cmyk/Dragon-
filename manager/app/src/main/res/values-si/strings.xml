@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">මතක පීඩනය</string>
     <string name="home_focus_memory_desc">RAM බොහෝ දුරට පිරී ඇත. පසුබිම් යෙදුම් කප්පාදු කරන්න හෝ ZRAM සබල කරන්න.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 කාර්යක්ෂමතාව %4$.2f\u00d7 \u00b7 ඉතිරි කළ RAM %5$d MB \u00b7 භාවිත කළ ස්වැප් %6$d/%7$d MB</string>
+    <string name="theme_mode_system">පද්ධතිය</string>
+    <string name="theme_mode_light">ආලෝකය</string>
+    <string name="theme_mode_dark">අඳුරු</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ඔටෝ</string>
 </resources>

@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM ሊሞላ ነው። የጀርባ መተግበሪያዎችን ይከርክሙ ወይም ያንቁ ZRAM።</string>
     <string name="detail_storage_bucket_note">%1$d ፋይሎች · ከተለካው ውስጥ %2$d%%</string>
     <string name="home_session_confidence">የአፈጻጸም ብልህነት · %1$d%% እምነት</string>
+    <string name="theme_mode_system">ስርዓት</string>
+    <string name="theme_mode_light">ብርሃን</string>
+    <string name="theme_mode_dark">ጨለማ</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">መኪና</string>
 </resources>

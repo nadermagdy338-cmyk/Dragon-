@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Poročilo vsebuje imena vmesnikov, enote, starosti in grob opis naprave. Ne nosi nobenega identifikatorja, nobenega računa, nobene poti do vaše datoteke, nobenega seznama paketov in nobene vrstice dnevnika. Naprej izberete cilj.</string>
     <string name="max_atlas_share">Izberite aplikacijo</string>
     <string name="max_atlas_share_cancel">Prekliči</string>
+    <string name="max_language_device_section">Jeziki vaše naprave</string>
+    <string name="max_language_all_section">Vsi jeziki</string>
 </resources>

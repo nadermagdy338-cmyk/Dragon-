@@ -1862,4 +1862,9 @@
     <string name="home_focus_storage_desc">Free space is low, which slows writes and caching.</string>
     <string name="home_focus_memory">Memory pressure</string>
     <string name="home_focus_memory_desc">RAM is nearly full. Trim background apps or enable ZRAM.</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

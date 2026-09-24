@@ -1862,4 +1862,9 @@
     <string name="mali_freq_screen_warning">ການປັກໝຸດດ້ວຍມື ຫຼື ຈຳກັດຄວາມຖີ່ຂອງ GPU ແທນການໂຫຼດ ແລະ ການຈັດການຄວາມຮ້ອນຂອງຜູ້ຂັບຂີ່ເອງ. ຍູ້ມັນໄປໄກເກີນໄປ ແລະເຈົ້າອາດຈະເຫັນການຂັດຂ້ອງຂອງກຣາບຟິກ, ການປິດກັ້ນ, ຫຼືການປິດເປີດໃໝ່ — ປ່ຽນການຕັ້ງຄ່າເທື່ອລະອັນ.</string>
     <string name="adreno_freq_screen_warning">ການປັກໝຸດດ້ວຍມື ຫຼື ຈຳກັດຄວາມຖີ່ຂອງ GPU ແທນການໂຫຼດ ແລະ ການຈັດການຄວາມຮ້ອນຂອງຜູ້ຂັບຂີ່ເອງ. ຍູ້ມັນໄປໄກເກີນໄປ ແລະເຈົ້າອາດຈະເຫັນການຂັດຂ້ອງຂອງກຣາບຟິກ, ການປິດກັ້ນ, ຫຼືການປິດເປີດໃໝ່ — ປ່ຽນການຕັ້ງຄ່າເທື່ອລະອັນ.</string>
     <string name="sched_uclamp_desc">ຈຳກັດຄວາມສາມາດຂອງ CPU ທີ່ຜູ້ກຳນົດເວລາສາມາດຮ້ອງຂໍໃຫ້ມີໜ້າວຽກ (0\u20131024), ຂຶ້ນກັບເຈົ້າແຂວງທີ່ເຄື່ອນໄຫວຢູ່.</string>
+    <string name="theme_mode_system">ລະບົບ</string>
+    <string name="theme_mode_light">ແສງສະຫວ່າງ</string>
+    <string name="theme_mode_dark">ມືດ</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ອັດຕະໂນມັດ</string>
 </resources>

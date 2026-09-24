@@ -445,4 +445,6 @@
     <string name="max_atlas_share">Escolle unha aplicación</string>
     <string name="max_atlas_share_cancel">Cancelar</string>
     <string name="max_doze_section_policy_desc">Estes interruptores cambian a política de MaxManager. Android mantén a propiedade do estado anterior.</string>
+    <string name="max_language_device_section">Idiomas do teu dispositivo</string>
+    <string name="max_language_all_section">Todos os idiomas</string>
 </resources>

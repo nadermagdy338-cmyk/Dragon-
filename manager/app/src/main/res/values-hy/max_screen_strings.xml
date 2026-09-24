@@ -445,4 +445,6 @@
     <string name="max_atlas_share">Ընտրեք հավելված</string>
     <string name="max_atlas_share_cancel">Չեղարկել</string>
     <string name="max_doze_section_policy_desc">Այս անջատիչները փոխում են MaxManager-ի քաղաքականությունը: Android-ը պահպանում է վերը նշված պետության սեփականությունը:</string>
+    <string name="max_language_device_section">Ձեր սարքի լեզուները</string>
+    <string name="max_language_all_section">Բոլոր լեզուները</string>
 </resources>

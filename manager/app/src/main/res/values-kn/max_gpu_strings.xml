@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">ಏನನ್ನೂ ಕೇಳಲಿಲ್ಲ.</string>
     <string name="max_gpu_reason_unknown">ವಿನಂತಿಯನ್ನು ಸುರಕ್ಷಿತವಾಗಿ ಕೈಗೊಳ್ಳಲಾಗಲಿಲ್ಲ.</string>
     <string name="max_gpu_reason_technical">ಕಾರಣ ಕೋಡ್</string>
+    <string name="max_gpu_intent_default_title">ಡೀಫಾಲ್ಟ್ (ಪ್ರಾರಂಭ ಸ್ಥಿತಿ)</string>
+    <string name="max_gpu_intent_default_desc">ಪರದೆಯನ್ನು ತೆರೆದಾಗ ಈ ಸಾಧನವು ಹೊಂದಿದ್ದ ಮೌಲ್ಯಗಳಿಗೆ ಶ್ರೇಣಿ ಮತ್ತು ಗವರ್ನರ್ ಅನ್ನು ಹಿಂತಿರುಗಿಸುತ್ತದೆ. ಅವರು ಈಗಾಗಲೇ ಹೊಂದಿಕೆಯಾಗುತ್ತಿರುವಾಗ ಏನನ್ನೂ ಬರೆಯಲಾಗಿಲ್ಲ - ಏನನ್ನಾದರೂ ಬದಲಾಯಿಸಿದ ಯಾರಿಗಾದರೂ ಇದು ಹಿಂತಿರುಗುವ ಮಾರ್ಗವಾಗಿದೆ.</string>
 </resources>

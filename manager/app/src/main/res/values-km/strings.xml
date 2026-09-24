@@ -1862,4 +1862,9 @@
     <string name="mali_freq_screen_warning">ការខ្ទាស់ដោយដៃ ឬបិទប្រេកង់របស់ GPU ត្រួតលើបន្ទុកផ្ទាល់ខ្លួនរបស់អ្នកបើកបរ និងការគ្រប់គ្រងកម្ដៅ។ រុញ​វា​ឱ្យ​ឆ្ងាយ​ពេក ហើយ​អ្នក​អាច​នឹង​ឃើញ​បញ្ហា​ក្រាហ្វិក បិទ​បើក ឬ​ចាប់ផ្ដើម​ឡើងវិញ — ផ្លាស់ប្ដូរ​ការ​កំណត់​មួយ​ក្នុងពេលតែមួយ។</string>
     <string name="processmgr_force_stop_confirm_desc">វាបញ្ឈប់ដំណើរការដំណើរការទាំងអស់របស់ %1$s ដូចគ្នាទៅនឹងការបញ្ឈប់ដោយបង្ខំនៅក្នុងការកំណត់ប្រព័ន្ធ។</string>
     <string name="adreno_freq_screen_warning">ការខ្ទាស់ដោយដៃ ឬបិទប្រេកង់របស់ GPU ត្រួតលើបន្ទុកផ្ទាល់ខ្លួនរបស់អ្នកបើកបរ និងការគ្រប់គ្រងកម្ដៅ។ រុញ​វា​ឱ្យ​ឆ្ងាយ​ពេក ហើយ​អ្នក​អាច​នឹង​ឃើញ​បញ្ហា​ក្រាហ្វិក បិទ​បើក ឬ​ចាប់ផ្ដើម​ឡើងវិញ — ផ្លាស់ប្ដូរ​ការ​កំណត់​មួយ​ក្នុងពេលតែមួយ។</string>
+    <string name="theme_mode_system">ប្រព័ន្ធ</string>
+    <string name="theme_mode_light">ពន្លឺ</string>
+    <string name="theme_mode_dark">ងងឹត</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ស្វ័យប្រវត្តិ</string>
 </resources>

@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Rapporten inneholder grensesnittnavn, enheter, alder og en grov enhetsbeskrivelse. Den har ingen identifikator, ingen konto, ingen filbane for deg, ingen pakkeliste og ingen logglinje. Du velger neste reisemål.</string>
     <string name="max_atlas_share">Velg en app</string>
     <string name="max_atlas_share_cancel">Kansellere</string>
+    <string name="max_language_device_section">Enhetens språk</string>
+    <string name="max_language_all_section">Alle språk</string>
 </resources>

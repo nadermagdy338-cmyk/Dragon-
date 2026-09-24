@@ -445,4 +445,6 @@
     <string name="max_atlas_share">Апп сонгоно уу</string>
     <string name="max_atlas_share_cancel">Цуцлах</string>
     <string name="max_doze_section_policy_desc">Эдгээр унтраалга нь MaxManager-ийн бодлогыг өөрчилдөг. Android нь дээрх муж улсын өмчлөлийг хадгалдаг.</string>
+    <string name="max_language_device_section">Таны төхөөрөмжийн хэлүүд</string>
+    <string name="max_language_all_section">Бүх хэл</string>
 </resources>

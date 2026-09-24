@@ -1862,4 +1862,9 @@
     <string name="adreno_throttle_bypass_desc">GPU को आफ्नै थर्मल थ्रोटलिंग मार्ग असक्षम पार्छ, OS को तातोको लागि GPU ढिलो गर्ने क्षमता हटाउँछ।</string>
     <string name="adreno_throttle_bypass_warning">⚠️ चेतावनी: यसले GPU को बिल्ट-इन अति ताप सुरक्षालाई असक्षम पार्छ। आफ्नो यन्त्रको तापक्रम नजिकबाट निगरानी गर्नुहोस् र यसलाई असामान्य रूपमा तातो महसुस भएमा तुरुन्तै बन्द गर्नुहोस्।</string>
     <string name="sched_uclamp_desc">एक CPU को क्षमताको कति कार्यतालिकाले कार्य (0\u20131024) को लागि अनुरोध गर्न सक्छ, सक्रिय गभर्नरबाट स्वतन्त्र हुन्छ।</string>
+    <string name="theme_mode_system">प्रणाली</string>
+    <string name="theme_mode_light">उज्यालो</string>
+    <string name="theme_mode_dark">अँध्यारो</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">अटो</string>
 </resources>

@@ -92,4 +92,6 @@
     <string name="max_gpu_advanced_desc">Burada yalnız sürücünün bəyan etdiyi və bizim yoxlaya biləcəyimiz şey göstərilir.</string>
     <string name="max_gpu_no_writable_range">Yazıla bilən OPP siyahısı sübut edilməmişdir, ona görə də diapazon və kilid nəzarətləri gizlidir.</string>
     <string name="max_gpu_no_governors">Sürücü bu cihazda heç bir idarəçi siyahısı elan etmir.</string>
+    <string name="max_gpu_intent_default_title">Defolt (başlanğıc vəziyyəti)</string>
+    <string name="max_gpu_intent_default_desc">Ekran açıldığında bu cihazın malik olduğu dəyərlərə diapazonu və idarəedicini qaytarır. Onlar artıq uyğun gələrkən heç nə yazılmır - bu, nəyisə dəyişən hər kəs üçün geriyə yoldur.</string>
 </resources>

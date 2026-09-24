@@ -1862,4 +1862,9 @@
     <string name="adreno_freq_screen_warning">GPU-ren maiztasuna eskuz ainguratzeak edo mugatzeak gidariaren karga eta kudeaketa termikoa gainditzen ditu. Sartu urrunegi, eta baliteke grafikoen akatsak, moteltzea edo berrabiaraztea agertzea; aldatu ezarpen bat aldi berean.</string>
     <string name="sched_cstate_aware_desc">CPU baten inaktibo-egoera esnatzeko kostua hartzen du kontuan, programatzaileak zeregin bat exekutatzeko zein nukleo hautatzen duenean.</string>
     <string name="sched_uclamp_desc">Antolatzaileak zeregin baterako (0\u20131024) CPU baten ahalmenetik zenbateraino eska dezakeen mugak ezartzen ditu, gobernadore aktiboaren arabera.</string>
+    <string name="theme_mode_system">Sistema</string>
+    <string name="theme_mode_light">Argia</string>
+    <string name="theme_mode_dark">Iluna</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Autoa</string>
 </resources>

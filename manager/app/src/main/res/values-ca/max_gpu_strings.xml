@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">No es va demanar res.</string>
     <string name="max_gpu_reason_unknown">La sol·licitud no s\'ha pogut dur a terme amb seguretat.</string>
     <string name="max_gpu_reason_technical">Codi de raó</string>
+    <string name="max_gpu_intent_default_title">Per defecte (estat d\'inici)</string>
+    <string name="max_gpu_intent_default_desc">Retorna l\'interval i el governador als valors que tenia aquest dispositiu quan es va obrir la pantalla. No s\'escriu res mentre ja coincideixen; aquest és el camí de tornada per a qualsevol que hagi canviat alguna cosa.</string>
 </resources>

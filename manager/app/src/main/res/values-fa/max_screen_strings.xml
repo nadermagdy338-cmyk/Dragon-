@@ -445,4 +445,6 @@
     <string name="max_atlas_share">یک برنامه را انتخاب کنید</string>
     <string name="max_atlas_share_cancel">لغو کنید</string>
     <string name="max_doze_section_policy_desc">این سوئیچ ها خط مشی MaxManager را تغییر می دهند. Android مالکیت ایالت فوق را حفظ می کند.</string>
+    <string name="max_language_device_section">زبان های دستگاه شما</string>
+    <string name="max_language_all_section">همه زبان ها</string>
 </resources>

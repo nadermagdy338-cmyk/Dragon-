@@ -1862,4 +1862,9 @@
     <string name="home_focus_storage_desc">Det er lite ledig plass, noe som reduserer skriving og hurtigbufring.</string>
     <string name="home_focus_memory">Minnepress</string>
     <string name="home_focus_memory_desc">RAM er nesten full. Trim bakgrunnsapper eller aktiver ZRAM.</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Lys</string>
+    <string name="theme_mode_dark">Mørk</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

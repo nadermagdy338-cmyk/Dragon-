@@ -1862,4 +1862,9 @@
     <string name="processmgr_force_stop_confirm_desc">Αυτό διακόπτει όλες τις διεργασίες που εκτελούνται του %1$s, όπως και η Αναγκαστική διακοπή στις Ρυθμίσεις συστήματος.</string>
     <string name="adreno_freq_screen_warning">Το χειροκίνητο καρφίτσωμα ή ο περιορισμός της συχνότητας του GPU υπερισχύει της διαχείρισης φορτίου και θερμότητας του ίδιου του οδηγού. Σπρώξτε το πολύ μακριά και μπορεί να δείτε δυσλειτουργίες στα γραφικά, στραγγαλισμό ή επανεκκίνηση — αλλάξτε μία ρύθμιση τη φορά.</string>
     <string name="sched_uclamp_desc">Οριοθετεί πόση χωρητικότητα ενός CPU μπορεί να ζητήσει ο προγραμματιστής για μια εργασία (0\u20131024), ανεξάρτητα από τον ενεργό κυβερνήτη.</string>
+    <string name="theme_mode_system">Σύστημα</string>
+    <string name="theme_mode_light">Φως</string>
+    <string name="theme_mode_dark">Σκοτάδι</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Αυτο</string>
 </resources>

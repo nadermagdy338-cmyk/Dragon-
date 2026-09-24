@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Không có gì được yêu cầu.</string>
     <string name="max_gpu_reason_unknown">Yêu cầu không thể được thực hiện một cách an toàn.</string>
     <string name="max_gpu_reason_technical">Mã lý do</string>
+    <string name="max_gpu_intent_default_title">Mặc định (trạng thái bắt đầu)</string>
+    <string name="max_gpu_intent_default_desc">Trả về phạm vi và bộ điều tốc về giá trị mà thiết bị này có khi màn hình mở. Không có gì được viết trong khi chúng đã khớp - đây là cách quay lại cho bất kỳ ai đã thay đổi điều gì đó.</string>
 </resources>

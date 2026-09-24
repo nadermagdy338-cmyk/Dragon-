@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">कुछ भी अनुरोध नहीं किया गया.</string>
     <string name="max_gpu_reason_unknown">अनुरोध सुरक्षित रूप से निष्पादित नहीं किया जा सका.</string>
     <string name="max_gpu_reason_technical">कारण कोड</string>
+    <string name="max_gpu_intent_default_title">डिफ़ॉल्ट (प्रारंभ अवस्था)</string>
+    <string name="max_gpu_intent_default_desc">रेंज और गवर्नर को स्क्रीन खुलने पर इस डिवाइस के मानों पर लौटाता है। जब तक वे पहले से ही मेल खाते हों तब तक कुछ भी नहीं लिखा जाता है - यह उन लोगों के लिए वापसी का रास्ता है जिन्होंने कुछ बदला है।</string>
 </resources>

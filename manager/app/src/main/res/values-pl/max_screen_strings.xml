@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Raport zawiera nazwy interfejsów, jednostki, wiek i przybliżony opis urządzenia. Nie zawiera żadnego identyfikatora, żadnego konta, żadnej ścieżki do pliku, żadnej listy pakietów ani linii dziennika. Następnie wybierasz miejsce docelowe.</string>
     <string name="max_atlas_share">Wybierz aplikację</string>
     <string name="max_atlas_share_cancel">Anulować</string>
+    <string name="max_language_device_section">Języki Twojego urządzenia</string>
+    <string name="max_language_all_section">Wszystkie języki</string>
 </resources>

@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Ничего не просили.</string>
     <string name="max_gpu_reason_unknown">Запрос не удалось выполнить безопасно.</string>
     <string name="max_gpu_reason_technical">Код причины</string>
+    <string name="max_gpu_intent_default_title">По умолчанию (начальное состояние)</string>
+    <string name="max_gpu_intent_default_desc">Возвращает диапазон и регулятор к значениям, которые были у этого устройства на момент открытия экрана. Ничего не пишется, пока они уже совпадают — это путь назад для тех, кто что-то менял.</string>
 </resources>

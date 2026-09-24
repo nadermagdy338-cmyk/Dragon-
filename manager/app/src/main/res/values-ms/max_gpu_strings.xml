@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Tiada apa yang diminta.</string>
     <string name="max_gpu_reason_unknown">Permintaan tidak dapat dilaksanakan dengan selamat.</string>
     <string name="max_gpu_reason_technical">Kod sebab</string>
+    <string name="max_gpu_intent_default_title">Lalai (keadaan mula)</string>
+    <string name="max_gpu_intent_default_desc">Mengembalikan julat dan gabenor kepada nilai peranti ini apabila skrin dibuka. Tiada apa-apa yang ditulis semasa ia sudah sepadan — ini adalah jalan kembali untuk sesiapa sahaja yang mengubah sesuatu.</string>
 </resources>

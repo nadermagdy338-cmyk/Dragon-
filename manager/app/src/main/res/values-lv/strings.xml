@@ -1862,4 +1862,9 @@
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Efektivitāte %4$.2f\u00d7 \u00b7 Ietaupītā RAM %5$d MB \u00b7 Izmantotais swap %6$d/%7$d MB</string>
     <string name="mali_throttle_bypass_desc">Pārspiež GPU termiskās dzesēšanas ierīci uz nedroseles stāvokli un bloķē to tikai lasāmai, novēršot OS spēju atkārtoti noregulēt GPU, lai iegūtu siltumu.</string>
     <string name="sched_uclamp_desc">Ierobežo, cik lielu daļu CPU jaudas plānotājs var pieprasīt uzdevumam (0\u20131024), neatkarīgi no aktīvā pārvaldnieka.</string>
+    <string name="theme_mode_system">Sistēma</string>
+    <string name="theme_mode_light">Gaisma</string>
+    <string name="theme_mode_dark">Tumšs</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

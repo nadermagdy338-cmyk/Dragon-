@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Извештајот содржи имиња на интерфејси, единици, возраст и груб опис на уредот. Не носи никаков идентификатор, нема сметка, нема ваша патека на датотеки, нема список на пакети и нема линија за дневници. Следно ја избирате дестинацијата.</string>
     <string name="max_atlas_share">Изберете апликација</string>
     <string name="max_atlas_share_cancel">Откажи</string>
+    <string name="max_language_device_section">Јазиците на вашиот уред</string>
+    <string name="max_language_all_section">Сите јазици</string>
 </resources>

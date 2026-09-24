@@ -1862,4 +1862,9 @@
     <string name="home_focus_storage_desc">Der er lav ledig plads, hvilket forsinker skrivning og cachelagring.</string>
     <string name="home_focus_memory">Hukommelsestryk</string>
     <string name="home_focus_memory_desc">RAM er næsten fuld. Trim baggrundsapps eller aktiver ZRAM.</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Lys</string>
+    <string name="theme_mode_dark">Mørk</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

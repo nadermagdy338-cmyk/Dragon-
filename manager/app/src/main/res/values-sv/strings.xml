@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">Minnestryck</string>
     <string name="home_focus_memory_desc">RAM är nästan fullt. Trimma bakgrundsappar eller aktivera ZRAM.</string>
     <string name="sched_uclamp_desc">Begränsar hur mycket av en CPUs kapacitet som schemaläggaren kan begära för en uppgift (0\u20131024), oberoende av den aktiva regulatorn.</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Ljus</string>
+    <string name="theme_mode_dark">Mörk</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Bil</string>
 </resources>

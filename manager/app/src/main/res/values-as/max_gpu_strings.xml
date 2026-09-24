@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_unknown">এই অনুৰোধ নিৰাপদে সম্পন্ন কৰিব পৰা নগ’ল।</string>
     <string name="max_gpu_reason_technical">কাৰণ ক\'ড</string>
     <string name="max_gpu_age_seconds">%1$d s</string>
+    <string name="max_gpu_intent_default_title">অবিকল্পিত (আৰম্ভণি অৱস্থা)</string>
+    <string name="max_gpu_intent_default_desc">পৰ্দা খোলাৰ সময়ত এই ডিভাইচৰ মানসমূহলৈ পৰিসীমা আৰু গভৰ্ণৰ ঘূৰাই দিয়ে। ইতিমধ্যে মিল থকাৰ সময়ত একো লিখা নহয় — যিয়েই কিবা এটা সলনি কৰিলে তেওঁলোকৰ বাবে এইটোৱেই উভতি অহাৰ পথ।</string>
 </resources>

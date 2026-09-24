@@ -1086,6 +1086,11 @@
     <string name="support_us_desc">Support development and let Max Manager keep improving</string>
     <string name="theme">Theme</string>
     <string name="theme_desc">Customize theme and accent color</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
     <string name="thermalcore_service">ThermalCore Service</string>
     <string name="thermalcore_service_desc">Intelligently regulate the system thermal control strategy to prevent overheating during daily use while maintaining system stability.</string>
     <string name="toast_app_launch_fail">Unable to launch app</string>
@@ -1600,6 +1605,8 @@
     <string name="home_action_advanced_desc">Full device tuning</string>
     <string name="home_memory_storage">Memory matrix</string>
     <string name="home_memory_storage_desc">RAM, ZRAM and internal storage pressure</string>
+    <!-- ZRAM is a unit name, not a word: it is not translated in any locale (see ADR-40). -->
+    <string name="home_memory_swap_label" translatable="false">ZRAM</string>
     <string name="home_details">DETAILS</string>
     <string name="home_device_resources">Device fabric</string>
     <string name="home_device_resources_desc">Display, network and live power draw</string>

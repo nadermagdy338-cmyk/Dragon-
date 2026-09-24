@@ -264,6 +264,8 @@
     <string name="max_language_auto">تلقائي (النظام)</string>
     <string name="max_language_search_hint">ابحث عن لغة</string>
     <string name="max_language_empty">لا لغة مطابقة</string>
+    <string name="max_language_device_section">لغات جهازك</string>
+    <string name="max_language_all_section">كل اللغات</string>
     <string name="max_language_partial_note">بعض اللغات ما زالت مترجمة جزئيًا، والنص الناقص يظهر بالإنجليزية.</string>
 
     <!-- الوصول والامتيازات (AR-20) -->

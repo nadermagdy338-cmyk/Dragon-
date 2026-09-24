@@ -1862,4 +1862,9 @@
     <string name="adreno_throttle_bypass_warning">⚠️ Isexwayiso: lokhu kukhubaza ukuvikela okwakhelwe ngaphakathi kokushisa ngokweqile kwe-GPU. Gada izinga lokushisa ledivayisi yakho eduze futhi uvale lokhu ngokushesha uma kushisa ngokungavamile.</string>
     <string name="sched_cstate_aware_desc">Icatshangelwa izindleko zokuvuka zesimo sokungenzi lutho sika-CPU lapho umhleli ekhetha ukuthi yimuphi umnyombo azoqhuba kuwo umsebenzi.</string>
     <string name="sched_uclamp_desc">Ikhawulela ukuthi ungakanani umthamo we-CPU umhleli angawucela kumsebenzi (0\u20131024), ngaphandle kombusi osebenzayo.</string>
+    <string name="theme_mode_system">Uhlelo</string>
+    <string name="theme_mode_light">Ukukhanya</string>
+    <string name="theme_mode_dark">Kumnyama</string>
+    <string name="theme_mode_amoled">I-AMOLED</string>
+    <string name="theme_accent_auto">Okuzenzakalelayo</string>
 </resources>

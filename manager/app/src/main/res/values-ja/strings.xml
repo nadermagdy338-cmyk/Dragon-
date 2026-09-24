@@ -1862,4 +1862,9 @@
     <string name="adreno_throttle_bypass_warning">⚠️ 警告: これにより、GPU の内蔵過熱保護が無効になります。デバイスの温度を注意深く監視し、異常に熱いと感じた場合はすぐに電源を切ります。</string>
     <string name="sched_cstate_aware_desc">スケジューラがタスクを実行するコアを選択するときに、CPU のアイドル状態のウェイクアップ コストを考慮します。</string>
     <string name="sched_uclamp_desc">アクティブなガバナーとは無関係に、スケジューラーがタスク (0\u20131024) に対して要求できる CPU の容量を制限します。</string>
+    <string name="theme_mode_system">システム</string>
+    <string name="theme_mode_light">ライト</string>
+    <string name="theme_mode_dark">暗い</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">自動</string>
 </resources>

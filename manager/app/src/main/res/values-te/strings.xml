@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">జ్ఞాపకశక్తి ఒత్తిడి</string>
     <string name="home_focus_memory_desc">RAM దాదాపు నిండింది. నేపథ్య యాప్‌లను ట్రిమ్ చేయండి లేదా ZRAMని ప్రారంభించండి.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 సామర్థ్యం %4$.2f\u00d7 \u00b7 ఆదా చేసిన RAM %5$d MB \u00b7 వాడిన స్వాప్ %6$d/%7$d MB</string>
+    <string name="theme_mode_system">వ్యవస్థ</string>
+    <string name="theme_mode_light">కాంతి</string>
+    <string name="theme_mode_dark">చీకటి</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ఆటో</string>
 </resources>

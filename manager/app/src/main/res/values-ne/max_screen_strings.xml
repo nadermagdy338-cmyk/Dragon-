@@ -445,4 +445,6 @@
     <string name="max_atlas_share">एउटा एप छान्नुहोस्</string>
     <string name="max_atlas_share_cancel">रद्द गर्नुहोस्</string>
     <string name="max_doze_section_policy_desc">यी स्विचहरूले MaxManager को नीति परिवर्तन गर्दछ। एन्ड्रोइडले राज्यको स्वामित्वलाई माथि राख्छ।</string>
+    <string name="max_language_device_section">तपाईंको उपकरण भाषाहरू</string>
+    <string name="max_language_all_section">सबै भाषाहरू</string>
 </resources>

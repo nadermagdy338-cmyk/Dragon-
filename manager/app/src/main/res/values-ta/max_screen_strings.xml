@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">அறிக்கை இடைமுகப் பெயர்கள், அலகுகள், வயது மற்றும் கரடுமுரடான சாதன விளக்கத்தைக் கொண்டுள்ளது. இது அடையாளங்காட்டி, கணக்கு, உங்களுடைய கோப்பு பாதை, தொகுப்பு பட்டியல் மற்றும் பதிவு வரி ஆகியவற்றைக் கொண்டிருக்கவில்லை. நீங்கள் அடுத்த இலக்கைத் தேர்வு செய்கிறீர்கள்.</string>
     <string name="max_atlas_share">பயன்பாட்டைத் தேர்வு செய்யவும்</string>
     <string name="max_atlas_share_cancel">ரத்து செய்</string>
+    <string name="max_language_device_section">உங்கள் சாதன மொழிகள்</string>
+    <string name="max_language_all_section">அனைத்து மொழிகளும்</string>
 </resources>

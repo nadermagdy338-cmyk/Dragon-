@@ -1862,4 +1862,9 @@
     <string name="processmgr_force_stop_confirm_desc">Гэта спыняе ўсе запушчаныя працэсы %1$s, гэтак жа, як прымусова спыніць у наладах сістэмы.</string>
     <string name="adreno_freq_screen_warning">Замацаванне або абмежаванне частаты GPU уручную адмяняе ўласную нагрузку і кіраванне тэмпературай драйвера. Заштурхніце яго занадта далёка, і вы можаце ўбачыць графічныя збоі, запаволенне або перазагрузку - змяняйце па адной наладзе.</string>
     <string name="sched_uclamp_desc">Абмяжоўвае, якую ёмістасць CPU можа запытаць планавальнік для задачы (0\u20131024), незалежна ад актыўнага кіраўніка.</string>
+    <string name="theme_mode_system">сістэма</string>
+    <string name="theme_mode_light">Святло</string>
+    <string name="theme_mode_dark">Цёмны</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Аўто</string>
 </resources>

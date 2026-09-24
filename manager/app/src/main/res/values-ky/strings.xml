@@ -1862,4 +1862,9 @@
     <string name="adreno_throttle_bypass_desc">GPU\'дин өздүк термикалык дроссель жолун өчүрүп, ОСтун GPU жылытуу үчүн жайлоо мүмкүнчүлүгүн алып салат.</string>
     <string name="adreno_freq_screen_warning">GPU жыштыгын кол менен кадоо же чектөө айдоочунун өзүнүн жүгүн жана жылуулукту башкаруусун жокко чыгарат. Аны өтө алыска түртүп койсоңуз, графикалык мүчүлүштүктөрдү, тескөөнү же кайра жүктөөнү көрө аласыз — бир убакта бир жөндөөнү өзгөртүңүз.</string>
     <string name="sched_uclamp_desc">Пландоочу жигердүү башкаруучуга көз каранды эмес (0\u20131024) CPU сыйымдуулугунун канча бөлүгүн талап кыла аларын чектейт.</string>
+    <string name="theme_mode_system">Система</string>
+    <string name="theme_mode_light">Жарык</string>
+    <string name="theme_mode_dark">Караңгы</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Авто</string>
 </resources>

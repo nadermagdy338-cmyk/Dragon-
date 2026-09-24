@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Ang ulat ay naglalaman ng mga pangalan ng interface, unit, edad at isang magaspang na paglalarawan ng device. Wala itong dalang identifier, walang account, walang path ng file mo, walang listahan ng package at walang log line. Piliin mo ang susunod na destinasyon.</string>
     <string name="max_atlas_share">Pumili ng app</string>
     <string name="max_atlas_share_cancel">Kanselahin</string>
+    <string name="max_language_device_section">Mga wika ng iyong device</string>
+    <string name="max_language_all_section">Lahat ng mga wika</string>
 </resources>

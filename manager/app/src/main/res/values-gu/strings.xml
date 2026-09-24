@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM લગભગ ભરાઈ ગયું છે. પૃષ્ઠભૂમિ એપ્લિકેશનોને ટ્રિમ કરો અથવા ZRAM સક્ષમ કરો.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Eficiencia %4$.2f\u00d7 \u00b7 RAM aforrada %5$d MB \u00b7 Swap usado %6$d/%7$d MB</string>
     <string name="sched_uclamp_desc">CPU ની ક્ષમતામાંથી શેડ્યૂલર કોઈ કાર્ય (0\u20131024) માટે વિનંતી કરી શકે છે, તે સક્રિય ગવર્નરથી સ્વતંત્ર છે.</string>
+    <string name="theme_mode_system">સિસ્ટમ</string>
+    <string name="theme_mode_light">પ્રકાશ</string>
+    <string name="theme_mode_dark">શ્યામ</string>
+    <string name="theme_mode_amoled">એમોલેડ</string>
+    <string name="theme_accent_auto">ઓટો</string>
 </resources>

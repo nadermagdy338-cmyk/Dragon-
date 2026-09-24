@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">ไม่มีการร้องขออะไร</string>
     <string name="max_gpu_reason_unknown">ไม่สามารถดำเนินการตามคำขอได้อย่างปลอดภัย</string>
     <string name="max_gpu_reason_technical">รหัสเหตุผล</string>
+    <string name="max_gpu_intent_default_title">ค่าเริ่มต้น (สถานะเริ่มต้น)</string>
+    <string name="max_gpu_intent_default_desc">ส่งกลับช่วงและผู้ว่าราชการเป็นค่าที่อุปกรณ์นี้มีเมื่อเปิดหน้าจอ ไม่มีการเขียนใดๆ ในขณะที่ตรงกันอยู่แล้ว นี่คือทางกลับสำหรับทุกคนที่เปลี่ยนแปลงบางสิ่งบางอย่าง</string>
 </resources>

@@ -445,4 +445,6 @@
     <string name="max_atlas_share">Proqram seçin</string>
     <string name="max_atlas_share_cancel">Ləğv et</string>
     <string name="max_doze_section_policy_desc">Bu açarlar MaxManager siyasətini dəyişir. Android yuxarıdakı dövlətin mülkiyyətini saxlayır.</string>
+    <string name="max_language_device_section">Cihazınızın dilləri</string>
+    <string name="max_language_all_section">Bütün dillər</string>
 </resources>

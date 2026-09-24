@@ -1862,4 +1862,9 @@
     <string name="adreno_throttle_bypass_warning">⚠️ Զգուշացում. սա անջատում է GPU-ի ներկառուցված գերտաքացումից պաշտպանությունը: Ուշադիր հետևեք ձեր սարքի ջերմաստիճանին և անմիջապես անջատեք այն, եթե այն անսովոր տաք է:</string>
     <string name="sched_cstate_aware_desc">Հաշվի է առնվում CPU-ի պարապ վիճակի արթնացման արժեքը, երբ ժամանակացույցն ընտրում է, թե որ միջուկն է առաջադրանքը կատարելու:</string>
     <string name="sched_uclamp_desc">Սահմանում է, թե որքան կարող է CPU-ի հզորությունը ժամանակացույցը պահանջել առաջադրանքի համար (0\u20131024)՝ անկախ գործող կառավարիչից:</string>
+    <string name="theme_mode_system">Համակարգ</string>
+    <string name="theme_mode_light">Լույս</string>
+    <string name="theme_mode_dark">Մութ</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Ավտոմատ</string>
 </resources>

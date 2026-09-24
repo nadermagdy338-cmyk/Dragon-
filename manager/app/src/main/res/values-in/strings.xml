@@ -1862,4 +1862,9 @@
     <string name="charging_live_summary">%1$d%% \u00b7 %2$s \u00b7 %3$.2f V \u00b7 %4$d mA \u00b7 %5$.1f\u00b0C</string>
     <string name="resolution_active_summary">Aktif: %1$d\u00d7%2$d (%3$s) \u00b7 %4$d DPI \u00b7 %5$d Hz</string>
     <string name="sched_cstate_aware_desc">Mempertimbangkan biaya bangun dalam keadaan diam CPU ketika penjadwal memilih inti mana yang akan menjalankan tugas.</string>
+    <string name="theme_mode_system">Sistem</string>
+    <string name="theme_mode_light">Lampu</string>
+    <string name="theme_mode_dark">Gelap</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Mobil</string>
 </resources>

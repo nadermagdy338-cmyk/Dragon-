@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM जवळजवळ भरले आहे. पार्श्वभूमी ॲप्स ट्रिम करा किंवा ZRAM सक्षम करा.</string>
     <string name="adreno_throttle_bypass_desc">GPU चा स्वतःचा थर्मल थ्रॉटलिंग मार्ग अक्षम करते, उष्णतेसाठी GPU कमी करण्याची OS ची क्षमता काढून टाकते.</string>
     <string name="sched_cstate_aware_desc">जेव्हा शेड्युलर एखादे कार्य चालवायचे आहे तेव्हा CPU च्या निष्क्रिय स्थितीच्या वेक-अप खर्चाचा विचार करतो.</string>
+    <string name="theme_mode_system">प्रणाली</string>
+    <string name="theme_mode_light">प्रकाश</string>
+    <string name="theme_mode_dark">गडद</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ऑटो</string>
 </resources>

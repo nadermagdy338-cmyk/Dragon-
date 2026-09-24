@@ -111,6 +111,20 @@ private val keyColorOptions = listOf(
     Color(0xFFFF9CA8).toArgb(),
 )
 
+/**
+ * هل تُرسم ضوابط اللافتة في شاشة السمة؟ — لا (أمر المالك).
+ *
+ * والسبب **مقيس لا مُقدَّر**: `BannerCard` في `ui/component/HomeComponents.kt` لا منادي
+ * له في الشجرة كلها (`grep -rn BannerCard manager/app/src/main` ⇒ تعريفه وحده)، والشاشة
+ * الرئيسية الجديدة تبني ترويستها الخاصّ (`HomeHeader`) ولا تقرأ صورة اللافتة. فصارت
+ * الضوابط تَعِد بأثر لا يقع: مفتاح وشاشة منتقي ملف ودرجات شفافية تُكتب في التفضيلات
+ * ولا يراها أحد.
+ *
+ * والكود باقٍ كما هو بلا حذف (ADR-18): هذا المفتاح يعيد القسم بكلمة واحدة، ومُشغّل
+ * اللافتة نفسه (`BannerImageUtil`) لم يُمسّ حتى لا يُصبح رجوعه إعادة كتابة.
+ */
+private val ThemeBannerSectionVisible = false
+
 // ─── Root screen ──────────────────────────────────────────────────────────────
 @Composable
 fun ColorPaletteScreen(navController: NavController) {
@@ -443,7 +457,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
                     isSelected = currentKeyColor == 0,
                     isDark = isDark,
                     colorSpec = currentColorSpec,
-                    label = "Auto",
+                    label = stringResource(R.string.theme_accent_auto),
                     onClick = {
                         onKeyColorChange(0)
                         EventLog.userAction(screen = "CustomTheme", field = "key_color", old = currentKeyColor.toString(), new = "0")
@@ -479,11 +493,14 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
     }
 
     item {
+        // الأسماء من الموارد لا حرفيّة: كانت `"System"/"Light"/"Dark"/"AMOLED"` تُطبع
+        // في واجهة عربية (عيب لغوي وبصري معًا)، وكانت الوسوم فارغة (`label = {}`) فلا
+        // يقرأ المستخدم إلا أربع أيقونات بلا كلمة — وهو ما يجعل الصفّ يبدو بلا خيارات.
         val options = listOf(
-            ColorMode.SYSTEM to (Icons.Filled.Brightness4 to "System"),
-            ColorMode.LIGHT to (Icons.Filled.Brightness7 to "Light"),
-            ColorMode.DARK to (Icons.Filled.Brightness3 to "Dark"),
-            ColorMode.DARKAMOLED to (Icons.Filled.Brightness1 to "AMOLED"),
+            ColorMode.SYSTEM to (Icons.Filled.Brightness4 to stringResource(R.string.theme_mode_system)),
+            ColorMode.LIGHT to (Icons.Filled.Brightness7 to stringResource(R.string.theme_mode_light)),
+            ColorMode.DARK to (Icons.Filled.Brightness3 to stringResource(R.string.theme_mode_dark)),
+            ColorMode.DARKAMOLED to (Icons.Filled.Brightness1 to stringResource(R.string.theme_mode_amoled)),
         )
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
@@ -506,8 +523,16 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
                     colors = SegmentedButtonDefaults.colors(
                         inactiveContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
                     ),
-                    icon = { Icon(imageVector = icon, contentDescription = label) },
-                    label = {}
+                    // النصّ يشرح والأيقونة تدلّ: وسمٌ بلا كلمة كان يترك الاختيار تخمينًا.
+                    icon = { Icon(imageVector = icon, contentDescription = null) },
+                    label = {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 )
             }
         }
@@ -546,6 +571,19 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
                     colors = SegmentedButtonDefaults.colors(
                         inactiveContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
                     ),
+                    // أيقونة لكل مواصفة (طلب المالك): الصفّ كان نصًّا فقط، فيبدو كتفصيل تقنيّ
+                    // لا كخيار مظهر بجانب صفّ المظهر الذي يحمل أيقونات. والتمييز بالترتيب لا
+                    // بالاسم: أسماء `SpecVersion` معرّفات إصدار لا مفاهيم تُترجم.
+                    icon = {
+                        Icon(
+                            imageVector = when (index) {
+                                0 -> Icons.Outlined.Science
+                                1 -> Icons.Outlined.Colorize
+                                else -> Icons.Outlined.Tune
+                            },
+                            contentDescription = null
+                        )
+                    },
                     label = {
                         Text(
                             spec.name.replace("_", " "),
@@ -558,6 +596,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
         }
     }
 
+    if (ThemeBannerSectionVisible) {
     // ── Section: Banner ───────────────────────────────────────────────────
     item { Spacer(Modifier.height(24.dp)) }
 
@@ -761,6 +800,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
                 )
             }
         }
+    }
+
     }
 
     // ── Section: Interface ────────────────────────────────────────────────

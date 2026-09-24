@@ -128,6 +128,24 @@ object CpuTopologyUtil {
         return khz / 1000
     }
 
+    /**
+     * A cluster's hardware frequency floor in MHz (cpuinfo_min_freq, kHz on
+     * disk) — the counterpart of [clusterMaxFreqMhz], read from the same
+     * policy node and for the same reason: it is the fixed spec-sheet number
+     * for that cluster, not the live scaling_min_freq that any thermal or
+     * power policy may raise. Reads once alongside the ceiling.
+     *
+     * Returns 0 when the node is missing or unreadable, same "caller decides
+     * how to render missing data" convention as the ceiling — a floor invented
+     * from an observed sample would make every reading look pinned to the
+     * bottom of a range the device never announced.
+     */
+    fun clusterMinFreqMhz(policyPath: String): Int {
+        val khz = Shell.cmd("cat $policyPath/cpuinfo_min_freq 2>/dev/null").exec()
+            .out.joinToString("").trim().toIntOrNull() ?: return 0
+        return khz / 1000
+    }
+
     /** cpu0 has no writable 'online' node on most kernels — it's always considered online. */
     fun isCoreOnline(cpu: Int): Boolean {
         if (cpu == 0) {

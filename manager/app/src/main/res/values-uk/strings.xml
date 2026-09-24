@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM майже повний. Виріжте фонові програми або ввімкніть ZRAM.</string>
     <string name="processmgr_force_stop_confirm_desc">Це зупиняє всі запущені процеси %1$s, так само, як і примусову зупинку в налаштуваннях системи.</string>
     <string name="sched_uclamp_desc">Обмежує, скільки ємності CPU планувальник може запитувати для завдання (0\u20131024), незалежно від активного регулятора.</string>
+    <string name="theme_mode_system">система</string>
+    <string name="theme_mode_light">світло</string>
+    <string name="theme_mode_dark">Темний</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Авто</string>
 </resources>

@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Ништо не беше побарано.</string>
     <string name="max_gpu_reason_unknown">Барањето не можеше безбедно да се изврши.</string>
     <string name="max_gpu_reason_technical">Код на причината</string>
+    <string name="max_gpu_intent_default_title">Стандардно (почетна состојба)</string>
+    <string name="max_gpu_intent_default_desc">Го враќа опсегот и гувернерот на вредностите што ги имаше овој уред кога се отвори екранот. Ништо не е напишано додека веќе се совпаѓаат - ова е патот назад за секој што променил нешто.</string>
 </resources>

@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Nekas netika prasīts.</string>
     <string name="max_gpu_reason_unknown">Pieprasījumu nevarēja droši izpildīt.</string>
     <string name="max_gpu_reason_technical">Iemesla kods</string>
+    <string name="max_gpu_intent_default_title">Noklusējums (sākuma stāvoklis)</string>
+    <string name="max_gpu_intent_default_desc">Atgriež diapazonu un regulatoru uz vērtībām, kas šai ierīcei bija, atverot ekrānu. Kamēr tie jau atbilst, nekas netiek rakstīts — tas ir ceļš atpakaļ ikvienam, kurš kaut ko mainījis.</string>
 </resources>

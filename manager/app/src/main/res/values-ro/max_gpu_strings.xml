@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Nu s-a cerut nimic.</string>
     <string name="max_gpu_reason_unknown">Solicitarea nu a putut fi îndeplinită în siguranță.</string>
     <string name="max_gpu_reason_technical">Cod motiv</string>
+    <string name="max_gpu_intent_default_title">Implicit (starea de pornire)</string>
+    <string name="max_gpu_intent_default_desc">Returnează intervalul și regulatorul la valorile pe care le avea acest dispozitiv la deschiderea ecranului. Nimic nu este scris în timp ce se potrivesc deja - aceasta este calea de întoarcere pentru oricine a schimbat ceva.</string>
 </resources>

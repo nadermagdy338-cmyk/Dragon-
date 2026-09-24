@@ -1862,4 +1862,9 @@
     <string name="mali_throttle_bypass_desc">Zmusza urządzenie chłodzące GPU do stanu niezakłóconego i blokuje je w trybie tylko do odczytu, usuwając zdolność systemu operacyjnego do ponownego ograniczania GPU w celu uzyskania ciepła.</string>
     <string name="processmgr_force_stop_confirm_desc">Spowoduje to zatrzymanie wszystkich uruchomionych procesów %1$s, tak samo jak wymuszenie zatrzymania w Ustawieniach systemu.</string>
     <string name="sched_uclamp_desc">Ogranicza, jaką część mocy CPU może zażądać planista dla zadania (0\u20131024), niezależnie od aktywnego zarządcy.</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Światło</string>
+    <string name="theme_mode_dark">Ciemny</string>
+    <string name="theme_mode_amoled">AMOLEDOWE</string>
+    <string name="theme_accent_auto">Automatyczny</string>
 </resources>

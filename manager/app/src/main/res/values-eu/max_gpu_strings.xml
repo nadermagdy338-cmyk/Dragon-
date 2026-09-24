@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Ez zen ezer eskatu.</string>
     <string name="max_gpu_reason_unknown">Eskaera ezin izan da segurtasunez egin.</string>
     <string name="max_gpu_reason_technical">Arrazoi kodea</string>
+    <string name="max_gpu_intent_default_title">Lehenetsia (hasierako egoera)</string>
+    <string name="max_gpu_intent_default_desc">Barrutia eta gobernatzailea gailu honek pantaila irekitzean zituen balioetara itzultzen ditu. Dagoeneko bat datozen bitartean ez da ezer idazten; hau da zerbait aldatu duen edonorentzat itzulera.</string>
 </resources>

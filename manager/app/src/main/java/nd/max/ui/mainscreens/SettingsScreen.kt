@@ -277,9 +277,25 @@ fun SettingsScreen(
                         content = listOf(
                             { AppInfoHeaderContent() },
                             //
-                            // الألوان ومخطّطها انتقلا إلى `Control → Tools`: هما أداة تُطلب من
-                            // شاشة التحكّم، وليسا تفضيلًا يُقلَّب في قائمة الإعدادات بجانب اللغة
-                            // والمظهر. ومكان واحد لكل أداة هو ما يجعل «أين أجدها؟» سؤالًا بلا لبس.
+                            // **السمة عادت إلى هنا (طلب المالك)** — وهي الصفّ الأول فوق بطاقة
+                            // اللغة: تفضيلان يخصّان الواجهة نفسها، فمظهرها ولغتها في مكان واحد.
+                            // وكانت نُقلت إلى `Control → Tools` بحجّة أنها أداة لا تفضيل، والحجّة
+                            // كانت عن التصنيف لا عن الوصول: من يريد تغيير السمة يفتح الإعدادات
+                            // أولًا. **ومخطّط الألوان بقي في الأدوات**: ذاك سؤال «أي ألوان تُشتقّ
+                            // من البذرة» لا «ما السمة» — أداة ضبط لا تفضيل واجهة.
+                            {
+                                ExpressiveListItem(
+                                    onClick = {
+                                        MaxNavActions(navController).navigateTo(MaxDestination.ColorPalette)
+                                    },
+                                    headlineContent = { Text(stringResource(R.string.theme)) },
+                                    supportingContent = { Text(stringResource(R.string.theme_desc)) },
+                                    leadingContent = { LeadingIcon(icon = Icons.Rounded.Palette) },
+                                    trailingContent = {
+                                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                                    }
+                                )
+                            },
                             {
                                 ExpressiveListItem(
                                     onClick = { showLanguageSheet = true },

@@ -445,4 +445,6 @@
     <string name="max_atlas_share">เลือกแอป</string>
     <string name="max_atlas_share_cancel">ยกเลิก</string>
     <string name="max_doze_section_policy_desc">สวิตช์เหล่านี้เปลี่ยนนโยบายของ MaxManager Android ยังคงความเป็นเจ้าของสถานะข้างต้น</string>
+    <string name="max_language_device_section">ภาษาอุปกรณ์ของคุณ</string>
+    <string name="max_language_all_section">ทุกภาษา</string>
 </resources>

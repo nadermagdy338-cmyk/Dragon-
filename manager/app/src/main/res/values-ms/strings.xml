@@ -1862,4 +1862,9 @@
     <string name="home_focus_storage_desc">Ruang kosong adalah rendah, yang melambatkan penulisan dan caching.</string>
     <string name="home_focus_memory">Tekanan ingatan</string>
     <string name="home_focus_memory_desc">RAM hampir penuh. Potong apl latar belakang atau dayakan ZRAM.</string>
+    <string name="theme_mode_system">Sistem</string>
+    <string name="theme_mode_light">Cahaya</string>
+    <string name="theme_mode_dark">Gelap</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

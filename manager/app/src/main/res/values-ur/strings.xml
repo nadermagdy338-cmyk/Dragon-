@@ -1862,4 +1862,9 @@
     <string name="mali_throttle_bypass_desc">GPU کے تھرمل کولنگ ڈیوائس کو اس کی غیر تھروٹل حالت پر مجبور کرتا ہے اور اسے صرف پڑھنے کے لیے لاک کر دیتا ہے، OS کی گرمی کے لیے GPU کو دوبارہ تھروٹل کرنے کی صلاحیت کو ختم کرتا ہے۔</string>
     <string name="processmgr_force_stop_confirm_desc">یہ %1$s کے چلنے والے تمام عمل کو روکتا ہے، جیسا کہ سسٹم سیٹنگز میں فورس سٹاپ۔</string>
     <string name="adreno_throttle_bypass_desc">GPU کے اپنے تھرمل تھروٹلنگ پاتھ کو غیر فعال کرتا ہے، OS کی حرارت کے لیے GPU کو سست کرنے کی صلاحیت کو ہٹاتا ہے۔</string>
+    <string name="theme_mode_system">سسٹم</string>
+    <string name="theme_mode_light">روشنی</string>
+    <string name="theme_mode_dark">اندھیرا</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">آٹو</string>
 </resources>

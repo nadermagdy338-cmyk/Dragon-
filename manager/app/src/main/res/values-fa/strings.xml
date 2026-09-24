@@ -1862,4 +1862,9 @@
     <string name="processmgr_force_stop_confirm_desc">این کار تمام فرآیندهای در حال اجرا %1$s را متوقف می کند، مانند توقف اجباری در تنظیمات سیستم.</string>
     <string name="adreno_freq_screen_warning">پین کردن یا دربندی دستی فرکانس GPU مدیریت بار و حرارت خود راننده را نادیده می گیرد. بیش از حد آن را فشار دهید و ممکن است اشکالات گرافیکی، throttling، یا راه اندازی مجدد را مشاهده کنید - هر بار تنظیمات را تغییر دهید.</string>
     <string name="sched_uclamp_desc">میزان ظرفیت CPU را که زمان‌بند می‌تواند برای یک کار درخواست کند (0\u20131024)، مستقل از فرماندار فعال، تعیین می‌کند.</string>
+    <string name="theme_mode_system">سیستم</string>
+    <string name="theme_mode_light">نور</string>
+    <string name="theme_mode_dark">تاریک</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">خودکار</string>
 </resources>

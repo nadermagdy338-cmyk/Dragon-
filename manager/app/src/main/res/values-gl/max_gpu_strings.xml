@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Non se pediu nada.</string>
     <string name="max_gpu_reason_unknown">A solicitude non se puido realizar con seguridade.</string>
     <string name="max_gpu_reason_technical">Código de razón</string>
+    <string name="max_gpu_intent_default_title">Predeterminado (estado de inicio)</string>
+    <string name="max_gpu_intent_default_desc">Devolve o rango e o regulador aos valores que tiña este dispositivo cando se abriu a pantalla. Non se escribe nada mentres xa coinciden; este é o camiño de volta para quen cambiou algo.</string>
 </resources>

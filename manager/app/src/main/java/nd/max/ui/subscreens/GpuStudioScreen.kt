@@ -100,11 +100,23 @@ import nd.max.ui.viewmodel.GpuStudioViewModel
 import kotlin.math.roundToInt
 
 /** The three smart intents, in the order they are offered. Labels live in strings. */
+/**
+ * نيّة قابلة للاختيار. و`mode = null` معناها **افتراضي**: لا طلب جديد، بل عودة إلى ما كان
+ * الجهاز عليه عند فتح الشاشة.
+ *
+ * ولذلك تُعرض أولًا وتُختار من البداية (إذ لا شيء مُرحَّل بعد) — فمن غيّر شيئًا يجد طريقه
+ * إلى ما كان عليه في أول الورقة، لا مخفيًّا في زرّ ثانوي ولا محتاجًا إلى حفظ قيمة قديمة.
+ * وهي **مُمثَّلة بـ`null` لا بعضو رابع في `IntentMode`** عن قصد: الطبقة الخلفية تعرف ثلاث
+ * نيّات تُترجم إلى OPP حقيقي، و«الافتراضي» ليس رابعة — هو **غياب** الطلب. وإضافة عضو رابع
+ * هناك كانت ستُوهم كل مسار في `core/hardware` بأن ثمة نيّة تُترجم إلى جدول، وهي لا تُترجم
+ * إلى شيء — وتُدخل تعديلًا في طبقة العتاد لا يحتاجه هذا الخيار أصلًا.
+ */
 private enum class GpuIntent(
-    val mode: GpuHardwareBackend.IntentMode,
+    val mode: GpuHardwareBackend.IntentMode?,
     @StringRes val labelRes: Int,
     @StringRes val descRes: Int,
 ) {
+    DEFAULT(null, R.string.max_gpu_intent_default_title, R.string.max_gpu_intent_default_desc),
     EFFICIENCY(GpuHardwareBackend.IntentMode.EFFICIENCY, R.string.max_gpu_intent_efficiency_title, R.string.max_gpu_intent_efficiency_desc),
     ADAPTIVE(GpuHardwareBackend.IntentMode.ADAPTIVE, R.string.max_gpu_intent_adaptive_title, R.string.max_gpu_intent_adaptive_desc),
     SUSTAINED(GpuHardwareBackend.IntentMode.SUSTAINED, R.string.max_gpu_intent_sustained_title, R.string.max_gpu_intent_sustained_desc),
@@ -122,7 +134,11 @@ fun GpuStudioScreen(
 
     // يُحمل إلى الشاشة لأن موضع لوحة المراجعة يتبعه: اللوحة تجلس تحت الضوابط
     // التي يستعملها المستخدم الآن، فيراها بلا تمرير.
-    var labExpanded by rememberSaveable { mutableStateOf(false) }
+    //
+    // و**مفتوح افتراضيًّا** (طلب المالك): المختبر هو المكان الوحيد الذي يُضبط فيه القفل
+    // الدقيق والنطاق والحاكم يدويًّا، وكان مطويًّا — فيبدأ من فتح الشاشة كأنه غير موجود،
+    // وقد قُرئ كذلك فعلًا. والطيّ يبقى لمن أراد شاشة أهدأ، بمفتاحه في عنوان المقطع.
+    var labExpanded by rememberSaveable { mutableStateOf(true) }
 
     val title = stringResource(R.string.max_gpu_title)
     val condition = when {
@@ -344,15 +360,29 @@ private fun GpuIntents(state: GpuStudioUiState, vm: GpuStudioViewModel) {
         MaxGroup {
             GpuIntent.entries.forEachIndexed { index, intent ->
                 if (index > 0) MaxGroupDivider()
+                // «افتراضي» = لا شيء مُعدّ، فيُختار ما دام لا شيء مُرحَّلًا ولا معلَّقًا — وهو
+                // بذلك مختار من البداية بلا حالة إضافية تُدار. ويبقى **مُتاحًا ولو لم يكن
+                // الجهاز قابلًا للكتابة**: هو طريق العودة لا تغييرًا جديدًا، وحبسه مع بقية
+                // النوايا كان يجعل من عاد إلى البداية لا يجد ما يقوله للأجهزة للقراءة فقط.
+                val isDefault = intent.mode == null
+                val selected = if (isDefault) {
+                    state.stagedIntent == null && state.pending == null
+                } else {
+                    state.stagedIntent == intent.mode
+                }
+                val enabled = isDefault || available
                 MaxChoiceRow(
                     title = stringResource(intent.labelRes),
                     subtitle = stringResource(intent.descRes),
                     // الاختيار يُقرأ من الحالة لا من نيّة محليّة: الصفّ يعرض ما ستُطبَّق
                     // عليه فعلًا، لا ما تمنّاه المستخدم آخر مرّة.
-                    selected = state.stagedIntent == intent.mode,
-                    enabled = available,
-                    lockedReason = lockedReason.takeIf { !available },
-                    onSelect = { vm.stageMode(intent.mode) },
+                    selected = selected,
+                    enabled = enabled,
+                    lockedReason = lockedReason.takeIf { !enabled },
+                    onSelect = {
+                        val mode = intent.mode
+                        if (mode == null) vm.restoreSession() else vm.stageMode(mode)
+                    },
                 )
             }
         }

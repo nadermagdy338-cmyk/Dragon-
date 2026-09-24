@@ -1862,4 +1862,9 @@
     <string name="home_activity_missing_cores">cœurs</string>
     <string name="home_freq_ceiling">max %1$s</string>
     <string name="home_freq_ceiling_unknown">aucun plafond signalé</string>
+    <string name="theme_mode_system">Système</string>
+    <string name="theme_mode_light">Lumière</string>
+    <string name="theme_mode_dark">Sombre</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

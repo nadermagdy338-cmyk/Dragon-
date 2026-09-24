@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">Pamäťový tlak</string>
     <string name="home_focus_memory_desc">RAM je takmer plná. Orezajte aplikácie na pozadí alebo povoľte ZRAM.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Účinnosť %4$.2f\u00d7 \u00b7 Ušetrená RAM %5$d MB \u00b7 Použitý swap %6$d/%7$d MB</string>
+    <string name="theme_mode_system">systém</string>
+    <string name="theme_mode_light">Svetlo</string>
+    <string name="theme_mode_dark">Tmavý</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Нищо не е поискано.</string>
     <string name="max_gpu_reason_unknown">Заявката не можа да бъде изпълнена безопасно.</string>
     <string name="max_gpu_reason_technical">Код на причината</string>
+    <string name="max_gpu_intent_default_title">По подразбиране (начално състояние)</string>
+    <string name="max_gpu_intent_default_desc">Връща обхвата и регулатора към стойностите, които това устройство имаше, когато екранът се отвори. Нищо не е написано, докато вече съвпадат - това е обратният път за всеки, който е променил нещо.</string>
 </resources>

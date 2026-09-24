@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">ವರದಿಯು ಇಂಟರ್ಫೇಸ್ ಹೆಸರುಗಳು, ಘಟಕಗಳು, ವಯಸ್ಸು ಮತ್ತು ಒರಟಾದ ಸಾಧನ ವಿವರಣೆಯನ್ನು ಹೊಂದಿದೆ. ಇದು ಯಾವುದೇ ಐಡೆಂಟಿಫೈಯರ್ ಅನ್ನು ಹೊಂದಿರುವುದಿಲ್ಲ, ಖಾತೆ ಇಲ್ಲ, ನಿಮ್ಮ ಫೈಲ್ ಪಾಥ್ ಇಲ್ಲ, ಪ್ಯಾಕೇಜ್ ಪಟ್ಟಿ ಮತ್ತು ಲಾಗ್ ಲೈನ್ ಇಲ್ಲ. ನೀವು ಮುಂದಿನ ಗಮ್ಯಸ್ಥಾನವನ್ನು ಆರಿಸಿಕೊಳ್ಳಿ.</string>
     <string name="max_atlas_share">ಅಪ್ಲಿಕೇಶನ್ ಆಯ್ಕೆಮಾಡಿ</string>
     <string name="max_atlas_share_cancel">ರದ್ದುಮಾಡಿ</string>
+    <string name="max_language_device_section">ನಿಮ್ಮ ಸಾಧನದ ಭಾಷೆಗಳು</string>
+    <string name="max_language_all_section">ಎಲ್ಲಾ ಭಾಷೆಗಳು</string>
 </resources>

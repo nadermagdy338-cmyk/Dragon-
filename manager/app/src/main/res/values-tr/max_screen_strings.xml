@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Raporda arayüz adları, birimler, yaşlar ve kaba bir cihaz açıklaması bulunur. Hiçbir tanımlayıcı, hiçbir hesap, size ait bir dosya yolu, bir paket listesi ve bir günlük satırı taşımaz. Sonraki hedefi siz seçersiniz.</string>
     <string name="max_atlas_share">Bir uygulama seçin</string>
     <string name="max_atlas_share_cancel">İptal etmek</string>
+    <string name="max_language_device_section">Cihazınızın dilleri</string>
+    <string name="max_language_all_section">Tüm diller</string>
 </resources>

@@ -1862,4 +1862,9 @@
     <string name="adreno_throttle_bypass_desc">GPU ਦੇ ਆਪਣੇ ਥਰਮਲ ਥਰੋਟਲਿੰਗ ਮਾਰਗ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਉਂਦਾ ਹੈ, ਗਰਮੀ ਲਈ GPU ਨੂੰ ਹੌਲੀ ਕਰਨ ਦੀ OS ਦੀ ਸਮਰੱਥਾ ਨੂੰ ਹਟਾ ਦਿੰਦਾ ਹੈ।</string>
     <string name="sched_cstate_aware_desc">ਇੱਕ CPU ਦੀ ਨਿਸ਼ਕਿਰਿਆ-ਸਟੇਟ ਵੇਕ-ਅੱਪ ਲਾਗਤ \'ਤੇ ਵਿਚਾਰ ਕਰਦਾ ਹੈ ਜਦੋਂ ਸ਼ਡਿਊਲਰ ਇਹ ਚੁਣਦਾ ਹੈ ਕਿ ਕਿਸੇ ਕੰਮ ਨੂੰ ਚਲਾਉਣਾ ਹੈ।</string>
     <string name="sched_uclamp_desc">ਸੀਮਾਬੱਧ ਕਰਦਾ ਹੈ ਕਿ CPU ਦੀ ਕਿੰਨੀ ਸਮਰੱਥਾ ਦਾ ਸ਼ਡਿਊਲਰ ਕਿਸੇ ਕੰਮ ਲਈ ਬੇਨਤੀ ਕਰ ਸਕਦਾ ਹੈ (0\u20131024), ਕਿਰਿਆਸ਼ੀਲ ਗਵਰਨਰ ਤੋਂ ਸੁਤੰਤਰ।</string>
+    <string name="theme_mode_system">ਸਿਸਟਮ</string>
+    <string name="theme_mode_light">ਚਾਨਣ</string>
+    <string name="theme_mode_dark">ਹਨੇਰਾ</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ਆਟੋ</string>
 </resources>

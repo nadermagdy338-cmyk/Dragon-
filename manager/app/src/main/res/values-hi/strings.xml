@@ -1862,4 +1862,9 @@
     <string name="sched_cstate_aware_desc">जब शेड्यूलर किसी कार्य को चलाने के लिए कौन सा कोर चुनता है तो CPU की निष्क्रिय-अवस्था वेक-अप लागत पर विचार करता है।</string>
     <string name="sched_uclamp_desc">सक्रिय गवर्नर से स्वतंत्र, शेड्यूलर किसी कार्य (0\u20131024) के लिए CPU की कितनी क्षमता का अनुरोध कर सकता है, इसकी सीमा निर्धारित करता है।</string>
     <string name="charging_live_summary">%1$d%% \u00b7 %2$s \u00b7 %3$.2f V \u00b7 %4$d mA \u00b7 %5$.1f\u00b0C</string>
+    <string name="theme_mode_system">प्रणाली</string>
+    <string name="theme_mode_light">रोशनी</string>
+    <string name="theme_mode_dark">अँधेरा</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ऑटो</string>
 </resources>

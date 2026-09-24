@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">Pressione della memoria</string>
     <string name="home_focus_memory_desc">RAM è quasi pieno. Taglia le app in background o abilita ZRAM.</string>
     <string name="sched_uclamp_desc">Limita la quantità di capacità di CPU che lo scheduler può richiedere per un\'attività (0\u20131024), indipendentemente dal governatore attivo.</string>
+    <string name="theme_mode_system">Sistema</string>
+    <string name="theme_mode_light">Leggero</string>
+    <string name="theme_mode_dark">Buio</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

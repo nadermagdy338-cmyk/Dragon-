@@ -86,10 +86,15 @@ sealed class MaxDestination(
     val needsLaunchArgument: Boolean get() = launchRouteNeedsArgument(route)
 
     // Primary destinations (bottom bar / navigation rail)
+    //
+    // الترتيب هنا هو ترتيب الشريط حرفيًّا (طلب المالك): الرئيسية ← التطبيقات ← التحكم ←
+    // الإعدادات. و`MaxAi` خرج من الشريط إلى **بطاقة في أول بطاقة بالشاشة الرئيسية**:
+    // سطح يُفتح عند كل فتح للتطبيق لا يحتاج مقعدًا دائمًا في الشريط، والمقعد صار للإعدادات
+    // التي كانت تُفتح من سهم في الشريط العلوي بلا موضع ثابت في التنقل.
     data object Now : MaxDestination("now", R.string.max_nav_now, Icons.Rounded.Home, isPrimary = true)
-    data object Control : MaxDestination("control", R.string.max_nav_control, Icons.Rounded.Tune, isPrimary = true)
     data object Apps : MaxDestination("apps", R.string.max_nav_apps, Icons.Rounded.Apps, isPrimary = true)
-    data object MaxAi : MaxDestination("max_ai", R.string.max_nav_max_ai, Icons.Rounded.AutoAwesome, isPrimary = true)
+    data object Control : MaxDestination("control", R.string.max_nav_control, Icons.Rounded.Tune, isPrimary = true)
+    data object MaxAi : MaxDestination("max_ai", R.string.max_nav_max_ai, Icons.Rounded.AutoAwesome)
 
     /**
      * The live command centre: the running loop drawn as it happens (vitals,
@@ -99,8 +104,8 @@ sealed class MaxDestination(
      */
     data object MaxLive : MaxDestination("max_live", R.string.max_live_title, Icons.Rounded.Timeline, MaxAi)
 
-    // Settings root (opened from the Now top bar)
-    data object Settings : MaxDestination("settings", R.string.max_nav_settings, Icons.Rounded.Settings)
+    // Settings root: مقعد دائم في الشريط السفلي (طلب المالك)، وكان يُفتح من الشريط العلوي فقط.
+    data object Settings : MaxDestination("settings", R.string.max_nav_settings, Icons.Rounded.Settings, isPrimary = true)
 
     // Onboarding
     data object GetStarted : MaxDestination("get_started", R.string.max_title_get_started, Icons.Rounded.Home)
@@ -174,15 +179,20 @@ sealed class MaxDestination(
     data object Diagnostics : MaxDestination("diagnostics", R.string.section_diagnostics, Icons.Rounded.BugReport, Settings)
 
     /**
-     * الألوان ومخطّطها ووحدة السجل: أدوات لا تفضيلات، فمكانها `Control → Tools`.
+     * **السمة عادت إلى الإعدادات بأمر المالك.** كانت نُقلت إلى `Control → Tools` بحجّة أن
+     * الألوان أداة لا تفضيل؛ والقياس الذي نقضها: من يريد تغيير السمة يذهب إلى الإعدادات
+     * فعلًا، فيجد لغتها وبصمتها هناك ولا يجد **مظهرها** — أي أن الحجّة كانت عن التصنيف لا
+     * عن الوصول. وصارت الصفّ الأول فوق بطاقة اللغة، فالمظهر واللغة يجلسان معًا كما هما في
+     * ذهن المستخدم: تفضيلان يخصّان الواجهة نفسها.
      *
-     * ونقل الأب هنا ليس تجميليًّا: `ControlLayoutModelTest` يشترط أن **كل** وجهة أبوها
-     * `Control` لها صفّ في الصفحة، ولو بقيت هذه الثلاثة تحت `Settings` لكانت في الأدوات
-     * بلا أب يوافقها — أي مصدران للحقيقة يتناقضان عند أول إضافة.
+     * ووحدة السجل بقيت في الأدوات: هي أداة تشخيص تُطلب من مكان واحد، لا تفضيلًا يُقلَّب.
+     *
+     * ونقل الأب إلى `Settings` يُبقي `ControlLayoutModelTest` صادقًا: كل وجهة أبوها `Control`
+     * لها صفّ في الصفحة، وما خرج من الأب خرج من القائمة معه.
      */
     // والمخاطرة تبقى `Normal`: التصنيف يخصّ ما قد يُربك الجهاز، وهذه الثلاثة تقرأ وتُظهر
     // ولا تكتب عتادًا. رفعها إلى `Advanced` كان سيصنّفها في بوّابة المخاطرة بلا سبب.
-    data object ColorPalette : MaxDestination("color_palette", R.string.theme, Icons.Rounded.Palette, Control)
+    data object ColorPalette : MaxDestination("color_palette", R.string.theme, Icons.Rounded.Palette, Settings)
     data object ColorScheme : MaxDestination("colorscheme", R.string.color_scheme, Icons.Rounded.ColorLens, Control)
     data object Logs : MaxDestination("logsviewer", R.string.logsviewer_title, Icons.AutoMirrored.Rounded.ListAlt, Control)
     data object ConfigBackup : MaxDestination("config_backup", R.string.max_nav_config_backup, Icons.Rounded.Backup, Settings)
@@ -241,7 +251,7 @@ sealed class MaxDestination(
          * list, by which point that recursive window has closed. See
          * ControlLayoutModelTest for the regression this once caused.
          */
-        val PrimaryDestinations: List<MaxDestination> by lazy { listOf(Now, Control, Apps, MaxAi) }
+        val PrimaryDestinations: List<MaxDestination> by lazy { listOf(Now, Apps, Control, Settings) }
 
         /** Every destination registered in [MaxNavGraph]. */
         val All: List<MaxDestination> by lazy {

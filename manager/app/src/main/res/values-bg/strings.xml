@@ -1862,4 +1862,9 @@
     <string name="processmgr_force_stop_confirm_desc">Това спира всички работещи процеси на %1$s, същото като принудително спиране в системните настройки.</string>
     <string name="adreno_freq_screen_warning">Ръчното фиксиране или ограничаване на честотата на GPU отменя собственото управление на натоварването и топлината на драйвера. Натиснете го твърде много и може да видите графични проблеми, дроселиране или рестартиране - променяйте една настройка наведнъж.</string>
     <string name="sched_uclamp_desc">Ограничава каква част от капацитета на CPU може да поиска планировчикът за задача (0\u20131024), независимо от активния управител.</string>
+    <string name="theme_mode_system">система</string>
+    <string name="theme_mode_light">светлина</string>
+    <string name="theme_mode_dark">Тъмно</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Авто</string>
 </resources>

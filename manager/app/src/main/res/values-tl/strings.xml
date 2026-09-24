@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">Presyon ng memorya</string>
     <string name="home_focus_memory_desc">RAM ay halos puno na. I-trim ang mga background na app o paganahin ang ZRAM.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Kahusayan %4$.2f\u00d7 \u00b7 Nakatipid na RAM %5$d MB \u00b7 Ginamit na swap %6$d/%7$d MB</string>
+    <string name="theme_mode_system">Sistema</string>
+    <string name="theme_mode_light">Liwanag</string>
+    <string name="theme_mode_dark">Madilim</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

@@ -445,4 +445,6 @@
     <string name="max_atlas_share_cancel">Atcelt</string>
     <string name="max_zram_applied_reset">Atjaunots noklusējuma 8192 MB izmērs.</string>
     <string name="max_doze_section_policy_desc">Šie slēdži maina MaxManager politiku. Android saglabā īpašumtiesības uz iepriekš minēto valsti.</string>
+    <string name="max_language_device_section">Jūsu ierīces valodas</string>
+    <string name="max_language_all_section">Visas valodas</string>
 </resources>

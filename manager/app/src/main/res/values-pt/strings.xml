@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory">Pressão de memória</string>
     <string name="home_focus_memory_desc">RAM está quase cheio. Corte aplicativos em segundo plano ou ative ZRAM.</string>
     <string name="sched_uclamp_desc">Limita quanto da capacidade de CPU o agendador pode solicitar para uma tarefa (0\u20131024), independente do governador ativo.</string>
+    <string name="theme_mode_system">Sistema</string>
+    <string name="theme_mode_light">Luz</string>
+    <string name="theme_mode_dark">Escuro</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

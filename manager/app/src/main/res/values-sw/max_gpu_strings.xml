@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Hakuna kilichoombwa.</string>
     <string name="max_gpu_reason_unknown">Ombi halikuweza kutekelezwa kwa usalama.</string>
     <string name="max_gpu_reason_technical">Msimbo wa sababu</string>
+    <string name="max_gpu_intent_default_title">Chaguo-msingi (hali ya kuanza)</string>
+    <string name="max_gpu_intent_default_desc">Hurejesha masafa na gavana kwa thamani ambazo kifaa hiki kilikuwa nazo wakati skrini inafunguliwa. Hakuna kinachoandikwa wakati tayari zinalingana - hii ndiyo njia ya kurudi kwa mtu yeyote aliyebadilisha kitu.</string>
 </resources>

@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Nič ni bilo zahtevano.</string>
     <string name="max_gpu_reason_unknown">Zahteve ni bilo mogoče varno izvesti.</string>
     <string name="max_gpu_reason_technical">Koda vzroka</string>
+    <string name="max_gpu_intent_default_title">Privzeto (začetno stanje)</string>
+    <string name="max_gpu_intent_default_desc">Vrne obseg in regulator na vrednosti, ki jih je imela ta naprava, ko se je zaslon odprl. Nič ni zapisano, medtem ko se že ujemajo — to je pot nazaj za vsakogar, ki je kaj spremenil.</string>
 </resources>

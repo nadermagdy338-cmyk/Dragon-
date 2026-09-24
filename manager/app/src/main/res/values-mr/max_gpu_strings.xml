@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">काहीही मागितले नाही.</string>
     <string name="max_gpu_reason_unknown">विनंती सुरक्षितपणे करता आली नाही.</string>
     <string name="max_gpu_reason_technical">कारण कोड</string>
+    <string name="max_gpu_intent_default_title">डीफॉल्ट (प्रारंभ स्थिती)</string>
+    <string name="max_gpu_intent_default_desc">स्क्रीन उघडल्यावर या डिव्हाइसमध्ये असलेल्या मूल्यांवर श्रेणी आणि गव्हर्नर परत करते. ते आधीपासूनच जुळत असताना काहीही लिहिलेले नाही — ज्याने काहीतरी बदलले त्यांच्यासाठी हा परतीचा मार्ग आहे.</string>
 </resources>

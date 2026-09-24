@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">沒有提出任何要求。</string>
     <string name="max_gpu_reason_unknown">該請求無法安全執行。</string>
     <string name="max_gpu_reason_technical">原因代碼</string>
+    <string name="max_gpu_intent_default_title">預設（啟動狀態）</string>
+    <string name="max_gpu_intent_default_desc">將範圍和調節器返回到螢幕開啟時該裝置所具有的值。當它們已經匹配時，就不會再寫入任何內容——這是任何更改某些內容的人的返回方式。</string>
 </resources>

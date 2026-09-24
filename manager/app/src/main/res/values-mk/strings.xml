@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM е речиси полна. Скратете ги апликациите во заднина или овозможете ZRAM.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Ефикасност %4$.2f\u00d7 \u00b7 Зачувана RAM %5$d MB \u00b7 Користен swap %6$d/%7$d MB</string>
     <string name="sched_uclamp_desc">Ограничува колку од капацитетот на CPU може да побара распоредувачот за задача (0\u20131024), независно од активниот гувернер.</string>
+    <string name="theme_mode_system">Систем</string>
+    <string name="theme_mode_light">Светлина</string>
+    <string name="theme_mode_dark">Темно</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Автоматски</string>
 </resources>

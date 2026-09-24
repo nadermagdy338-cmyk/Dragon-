@@ -26,13 +26,15 @@
     <string name="max_gpu_value_absent">غير متاح</string>
 
     <string name="max_gpu_intents_title">نوايا ذكية</string>
-    <string name="max_gpu_intents_desc">كل نية تُترجم إلى قائمة OPP الحقيقية لهذا الجهاز، ثم تُتحقَّق بعد الكتابة.</string>
+    <string name="max_gpu_intents_desc">كل نية تُترجم إلى قائمة OPP الحقيقية لهذا الجهاز، ثم تُتحقَّق بعد الكتابة. وكل وصف يقول ثمنه لا عطاءه وحده.</string>
+    <string name="max_gpu_intent_default_title">افتراضي (حالة البداية)</string>
+    <string name="max_gpu_intent_default_desc">يُرجع النطاق والحاكم إلى ما كانا عليه عند فتح هذه الشاشة، ولا يكتب شيئًا ما داما مطابقين — وهذا هو طريق العودة لمن غيّر شيئًا.</string>
     <string name="max_gpu_intent_efficiency_title">كفاءة</string>
-    <string name="max_gpu_intent_efficiency_desc">سقف أخفض مع بقاء الحاكم يحجّم ديناميكيًّا.</string>
+    <string name="max_gpu_intent_efficiency_desc">سقف أخفض: حرارة أقلّ وطاقة أقلّ وذروة أدنى — والحاكم يبقى يحجّم ديناميكيًّا داخل النطاق المصغَّر.</string>
     <string name="max_gpu_intent_adaptive_title">متوازن تكيفي</string>
-    <string name="max_gpu_intent_adaptive_desc">النطاق الآمن الكامل، والحاكم الديناميكي هو المتحكّم.</string>
+    <string name="max_gpu_intent_adaptive_desc">النطاق الآمن الكامل، والحاكم الديناميكي وحده يقرّر الصعود — لا قفل ولا أرضية مفروضة.</string>
     <string name="max_gpu_intent_sustained_title">أداء مستدام</string>
-    <string name="max_gpu_intent_sustained_desc">أرضية أعلى تصمد تحت الحِمل، والحماية الحرارية تبقى فعّالة.</string>
+    <string name="max_gpu_intent_sustained_desc">أرضية أعلى تصمد تحت الحِمل، والحماية الحرارية تبقى فعّالة — والثمن حرارة أعلى وتفريغ أسرع.</string>
     <string name="max_gpu_intents_locked">لم تُثبت قائمة OPP قابلة للكتابة على هذا الجهاز، فتبقى النوايا معطّلة.</string>
 
     <string name="max_gpu_review_title">تغيير قيد المراجعة</string>

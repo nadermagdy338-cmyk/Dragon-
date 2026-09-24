@@ -1862,4 +1862,9 @@
     <string name="zram_preset_power">12 GB \u2014 ଭାରୀ ମଲ୍ଟିଟାସ୍କିଂ</string>
     <string name="zram_preset_size_desc">%1$d MB \u00b7 %2$.1f GB କ୍ଷମତା</string>
     <string name="zram_preset_stock">8 GB \u2014 ଫ୍ୟାକ୍ଟରି ଡିଫଲ୍ଟ</string>
+    <string name="theme_mode_system">ସିଷ୍ଟମ୍</string>
+    <string name="theme_mode_light">ଆଲୋକ</string>
+    <string name="theme_mode_dark">ଅନ୍ଧାର</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">ଅଟୋ</string>
 </resources>

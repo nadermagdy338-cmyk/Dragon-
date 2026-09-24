@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">ምንም አልተጠየቀም።</string>
     <string name="max_gpu_reason_unknown">ጥያቄው በደህና ሊከናወን አልቻለም።</string>
     <string name="max_gpu_reason_technical">የምክንያት ኮድ</string>
+    <string name="max_gpu_intent_default_title">ነባሪ (የመጀመሪያ ሁኔታ)</string>
+    <string name="max_gpu_intent_default_desc">ክልሉ እና ገዥው ማያ ገጹ ሲከፈት ይህ መሳሪያ ወደ ነበራቸው እሴቶች ይመልሳል። እነሱ በሚዛመዱበት ጊዜ ምንም ነገር አልተፃፈም - የሆነ ነገር ለለወጠ ማንኛውም ሰው ይህ መመለሻ መንገድ ነው።</string>
 </resources>

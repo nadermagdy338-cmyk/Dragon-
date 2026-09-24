@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM כמעט מלא. חתוך אפליקציות רקע או הפעל את ZRAM.</string>
     <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 יעילות %4$.2f\u00d7 \u00b7 RAM שנחסך %5$d MB \u00b7 Swap בשימוש %6$d/%7$d MB</string>
     <string name="sched_uclamp_desc">מגביל את כמות הקיבולת של CPU המתזמן יכול לבקש עבור משימה (0\u20131024), ללא תלות במושל הפעיל.</string>
+    <string name="theme_mode_system">מַעֲרֶכֶת</string>
+    <string name="theme_mode_light">אוֹר</string>
+    <string name="theme_mode_dark">כֵּהֶה</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">אוטומטי</string>
 </resources>

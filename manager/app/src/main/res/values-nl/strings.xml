@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM is bijna vol. Trim achtergrondapps of schakel ZRAM in.</string>
     <string name="cpu_affinity_dialog_desc">Selecteer de kernen waarop deze groep threads mag plannen. Alleen deze sessie \u2014 wordt gereset bij herstart.</string>
     <string name="cpu_core_manual_control_desc">Schakel in om afzonderlijke processorkernen handmatig aan/uit te zetten. Alleen deze sessie \u2014 wordt gereset bij herstart.</string>
+    <string name="theme_mode_system">Systeem</string>
+    <string name="theme_mode_light">Licht</string>
+    <string name="theme_mode_dark">Donker</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

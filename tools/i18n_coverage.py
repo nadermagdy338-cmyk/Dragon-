@@ -71,11 +71,23 @@ def string_files() -> list[str]:
 
 
 def load(locale_dir: str, file_name: str) -> dict[str, str]:
+    """مفاتيح ملف واحد — و**يُستثنى** ما وُسم `translatable="false"`: لا يُترجم، فليس «ناقصًا».
+
+    القياس الذي أنشأ هذا الشرط (2026-09-24): `home_memory_swap_label` («ZRAM» — اسم وحدة لا كلمة)
+    أُضيف بـ`translatable="false"` في `values/` وحده بقرار معلن في `ADR-40`، فكانت هذه الأداة
+    تعرضه «مفقودًا في ٨٥ لغة» إلى الأبد — أي رقمًا لا يُطارد، وسببًا دائمًا لتعبئة آلية تُضيف
+    ترجمةً لمفتاح طُلب ألّا يُترجم (وهو ما يراه lint `Translatable`: مترجم في لغة وغير قابل للترجمة
+    في الأساس). فالمفتاح لم يبقَ في عدّاد، والخارج من العدّاد مكتوب هنا لا مخفيّ.
+    """
     path = os.path.join(locale_dir, file_name)
     if not os.path.exists(path):
         return {}
     root = ET.parse(path).getroot()
-    return {e.get("name"): "".join(e.itertext()) for e in root if e.get("name")}
+    return {
+        e.get("name"): "".join(e.itertext())
+        for e in root
+        if e.get("name") and e.get("translatable") != "false"
+    }
 
 
 def load_locale(locale: str) -> LocaleStrings:

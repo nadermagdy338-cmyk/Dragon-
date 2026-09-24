@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Walang hiniling.</string>
     <string name="max_gpu_reason_unknown">Ang kahilingan ay hindi maisagawa nang ligtas.</string>
     <string name="max_gpu_reason_technical">Code ng dahilan</string>
+    <string name="max_gpu_intent_default_title">Default (start state)</string>
+    <string name="max_gpu_intent_default_desc">Ibinabalik ang range at ang governor sa mga value na mayroon ang device na ito noong binuksan ang screen. Walang nakasulat habang magkatugma na ang mga ito — ito ang daan pabalik para sa sinumang nagbago ng isang bagay.</string>
 </resources>

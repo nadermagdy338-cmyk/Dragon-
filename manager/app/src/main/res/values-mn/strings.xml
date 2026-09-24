@@ -1862,4 +1862,9 @@
     <string name="adreno_freq_screen_warning">GPU-ийн давтамжийг гараар бэхлэх эсвэл хязгаарлах нь жолоочийн өөрийн ачаалал болон дулааны зохицуулалтыг хүчингүй болгодог. Үүнийг хэт холдуулбал та графикийн доголдол, гацах, дахин ачаалах зэргийг харж болно - нэг тохиргоог нэг удаа өөрчлөх.</string>
     <string name="sched_cstate_aware_desc">Төлөвлөгч аль цөм дээр ажлыг гүйцэтгэхийг сонгох үед CPU-ийн сул зогсолтыг сэрээх зардлыг тооцдог.</string>
     <string name="sched_uclamp_desc">Идэвхтэй захирагчаас хамааралгүй, CPU-ийн багтаамжийн хэмжээг төлөвлөгч (0\u20131024) хүсэх боломжтойг хязгаарладаг.</string>
+    <string name="theme_mode_system">Систем</string>
+    <string name="theme_mode_light">Гэрэл</string>
+    <string name="theme_mode_dark">Харанхуй</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Автомат</string>
 </resources>

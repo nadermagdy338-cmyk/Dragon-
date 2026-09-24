@@ -1862,4 +1862,9 @@
     <string name="adreno_freq_screen_warning">Kubandika mwenyewe au kuweka kikomo masafa ya GPU kunabatilisha upakiaji wa kiendeshi na udhibiti wa halijoto. Isukume mbali sana na unaweza kuona hitilafu za michoro, kuporomoka, au kuwasha upya - badilisha mpangilio mmoja kwa wakati mmoja.</string>
     <string name="sched_cstate_aware_desc">Huzingatia gharama ya kuamka ya hali ya uvivu ya CPU wakati kiratibu anapochagua msingi wa kutekeleza jukumu.</string>
     <string name="sched_uclamp_desc">Huweka kiasi cha uwezo wa CPU ambaye mratibu anaweza kuomba kwa ajili ya kazi (0\u20131024), bila ya gavana anayefanya kazi.</string>
+    <string name="theme_mode_system">Mfumo</string>
+    <string name="theme_mode_light">Mwanga</string>
+    <string name="theme_mode_dark">Giza</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Otomatiki</string>
 </resources>

@@ -398,6 +398,9 @@ fun AppSettingsScreen(
                                     }
                                 }
                             )
+                            // «خيارات متقدّمة» تحمل فراغًا علويًّا صريحًا: كانت تُلتصق ببطاقة
+                            // الترددات فوقها فتُقرأ صفًّا إضافيًّا فيها (عيب بصري بلا سبب بنيوي —
+                            // كل بطاقة أخرى في الشاشة تفصلها مسافة). ←
                             PerAppCpuControlSection(
                                 encodedControls = cfg.cpu_policy_controls,
                                 policies = viewModel.cpuPolicies,
@@ -405,21 +408,18 @@ fun AppSettingsScreen(
                                 onSave = { encoded -> packageName?.let { viewModel.updateSetting(it, "cpu_policy_controls", encoded) } },
                                 onRefreshStatus = { viewModel.refreshCpuRuntimeStatus(packageName) }
                             )
-                            // نتيجة كل مقبض عتاد مع سبب فشله — يجيب عن «لماذا لم يعمل؟» في الشاشة
-                            // نفسها بدل تتبّع السجل. وهي **قراءة فقط**: لا تكتب عتادًا ولا تُعدّل ملفًا،
-                            // فالواجهة تعلن ولا تنفّذ (ADR-11).
-                            PerAppHardwareDiagnosticsCard(
-                                packageName = packageName,
-                                config = cfg,
-                                status = viewModel.hardwareRuntimeStatus,
-                                onRefresh = { viewModel.refreshCpuRuntimeStatus(packageName) }
-                            )
-                            Text(
-                                text = stringResource(R.string.perapp_thermal_guard_note),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
+                            // ── محجوب بأمر المالك ───────────────────────────────────────
+                            // أُزيل من هنا **نداءان** لا يزيدان المستخدم معلومة: بطاقة
+                            // «لماذا لم يعمل؟» (`PerAppHardwareDiagnosticsCard`) التي تُطبع
+                            // بطاقة كاملة تقول «لا نتيجة بعد»، والوصف الطويل تحتها
+                            // (`perapp_thermal_guard_note`) وهو اثنا عشر سطرًا تُقرأ مرّة
+                            // وتُدفع في كل فتحة — سطورٌ تحجب الإعدادات التي جاء لأجلها.
+                            //
+                            // وما لم يُحذف: الدالّة نفسها باقية في هذا الملف بلا تعديل
+                            // (‏`PerAppHardwareDiagnosticsCard` أسفل الملف)، ومفتاح النصّ
+                            // باقٍ في `values/` و`values-ar/` — فإعادة أيٍّ منهما سطرُ
+                            // نداء واحد. وهذا شرط ADR-18: لا يُمحى عمل مُنجز لسبب بصريّ،
+                            // وإنّما يُوقف عرضه ويُسجَّل سبب الإيقاف.
                             Spacer(Modifier.height(8.dp))
                             nd.max.ui.component.StudioOutlinedButton(
                                 onClick = { showProfileEditor = true },
@@ -832,7 +832,10 @@ private fun PerAppCpuControlSection(
     }
     val controllable = policies.filter { it.cpuFrequencyChoices().isNotEmpty() }
 
-    Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         Surface(
             modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded },
             shape = RoundedCornerShape(18.dp),

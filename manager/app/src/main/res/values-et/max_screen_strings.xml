@@ -445,4 +445,6 @@
     <string name="max_atlas_refusal_answered">Kõik läbi vaadatud said vastuse, seega pole millestki teatada.</string>
     <string name="max_atlas_refusal_write_failed">Aruannet ei saanud selle rakenduse vahemällu kirjutada.</string>
     <string name="max_doze_section_policy_desc">Need lülitid muudavad MaxManager poliitikat. Android säilitab ülaloleva osariigi omandiõiguse.</string>
+    <string name="max_language_device_section">Teie seadme keeled</string>
+    <string name="max_language_all_section">Kõik keeled</string>
 </resources>

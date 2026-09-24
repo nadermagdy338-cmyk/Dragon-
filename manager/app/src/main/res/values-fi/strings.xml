@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM on melkein täynnä. Leikkaa taustasovelluksia tai ota käyttöön ZRAM.</string>
     <string name="processmgr_force_stop_confirm_desc">Tämä pysäyttää kaikki %1$s:n käynnissä olevat prosessit, samoin kuin Pakota pysäytys järjestelmäasetuksissa.</string>
     <string name="sched_uclamp_desc">Rajoittaa, kuinka paljon CPU:n kapasiteetista ajoittaja voi pyytää tehtävää varten (0\u20131024), aktiivisesta ohjaimesta riippumatta.</string>
+    <string name="theme_mode_system">Järjestelmä</string>
+    <string name="theme_mode_light">Kevyt</string>
+    <string name="theme_mode_dark">Tumma</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Auto</string>
 </resources>

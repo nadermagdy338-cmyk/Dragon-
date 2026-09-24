@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">El informe lleva nombres de interfaces, unidades, antigüedades y una descripción aproximada del dispositivo. No lleva ningún identificador, ninguna cuenta, ninguna ruta de archivo tuya, ninguna lista de paquetes ni ninguna línea de registro. Tú eliges el destino a continuación.</string>
     <string name="max_atlas_share">Elegir una app</string>
     <string name="max_atlas_share_cancel">Cancelar</string>
+    <string name="max_language_device_section">Idiomas de tu dispositivo</string>
+    <string name="max_language_all_section">Todos los idiomas</string>
 </resources>

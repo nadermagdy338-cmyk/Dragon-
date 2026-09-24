@@ -40,9 +40,14 @@ import nd.max.ui.design.MaxSpace
  *
  * قرارات مقصودة:
  * - البحث موجود لأن القائمة ٨٦ خيارًا؛ بلا بحث تصبح ورقة تمرير طويلة.
- * - كل لغة تُعرض **باسمها الأصلي** («العربية»، «português») وباسمها بلغة الواجهة كسطر ثانوي إن اختلفا،
- *   فالمستخدم الذي لا يقرأ لغة الإعدادات الحالية لا يزال يجد لغته.
+ * - كل لغة تُعرض **باسمها بلغة الواجهة** («الأوردية»، «Portuguese») وباسمها الأصلي كسطر ثانوي إن
+ *   اختلفا، فالسطر الأول يُقرأ ويُمسح بعين القارئ، والاسم الأصلي يبقى للذي لا يقرأ لغة الواجهة
+ *   (وبالبحث يصل إليه بأيّهما). كان العكس (الأصلي عنوانًا)، فرُتّبت القائمة بـ`Collator` الأصلي
+ *   وخرجت **متعدّدة الأبجديات** — الإصلاح في `AppLanguage.entries`.
+ * - **لغات الجهاز تُرفع إلى الأعلى** (`AppLanguage.deviceTags`): هي مرشّح المستخدم الأول،
+ *   فلا يُمرَّر على ٨٥ صفًّا ليصل إلى لغته. واختياره الحالي يُثبّت فوقها مباشرة.
  * - «تلقائي» يبقى خارج التصفية كي لا يختفي عند البحث.
+ * - وحين يُكتب في البحث تسقط المقاطع وتُعرض النتائج قائمة واحدة — فالتقسيم يصير ضجيجًا لا هيكلًا.
  * - سطر أخير صريح عن التغطية: بعض اللغات مترجمة جزئيًا والنص الناقص يظهر بالإنجليزية — لا ندّعي غير ذلك.
  */
 @Composable
@@ -99,6 +104,20 @@ fun AppLanguageSheet(
 
             Spacer(Modifier.height(8.dp))
 
+            // التقسيم يُبنى من حقيقتين مقروءتين: اختيار المستخدم الحالي، ولغات جهازه المضبوطة.
+            // ولا يُكرَّر صفّ: ما ثُبّت في الأعلى يُستثنى من قائمة «كل اللغات» أسفله.
+            val searching = query.isNotBlank()
+            val deviceTags = remember { AppLanguage.deviceTags() }
+            val selectedEntry = filtered.firstOrNull { it.tag == selected }
+            val deviceEntries = if (searching) {
+                emptyList()
+            } else {
+                filtered.filter { it.tag in deviceTags && it.tag != selected }
+            }
+            val rest = filtered.filterNot { entry ->
+                entry.tag == selected || deviceEntries.any { it.tag == entry.tag }
+            }
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -115,14 +134,33 @@ fun AppLanguageSheet(
                     )
                 }
 
-                items(items = filtered, key = { it.tag }) { entry ->
-                    MaxChoiceRow(
-                        title = entry.nativeName,
-                        subtitle = entry.localizedName.takeIf { it != entry.nativeName },
-                        selected = entry.tag == selected,
-                        onSelect = { onSelect(entry.tag) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                if (!searching) {
+                    // اللغة الحالية قبل كل شيء: من فتح الورقة ليتأكد ممّا اختاره يجده بلا تمرير،
+                    // ومن أراد تغييره لا يعنيه موضعه الأبجدي.
+                    selectedEntry?.let { entry ->
+                        item(key = "selected_${entry.tag}") {
+                            LanguageChoiceRow(entry = entry, isSelected = true, onSelect = onSelect)
+                        }
+                    }
+
+                    if (deviceEntries.isNotEmpty()) {
+                        item(key = "device_label") {
+                            SheetSectionLabel(stringResource(R.string.max_language_device_section))
+                        }
+                        items(items = deviceEntries, key = { "device_${it.tag}" }) { entry ->
+                            LanguageChoiceRow(entry = entry, isSelected = false, onSelect = onSelect)
+                        }
+                    }
+
+                    if (rest.isNotEmpty()) {
+                        item(key = "all_label") {
+                            SheetSectionLabel(stringResource(R.string.max_language_all_section))
+                        }
+                    }
+                }
+
+                items(items = rest, key = { it.tag }) { entry ->
+                    LanguageChoiceRow(entry = entry, isSelected = entry.tag == selected, onSelect = onSelect)
                 }
 
                 if (filtered.isEmpty()) {
@@ -156,4 +194,36 @@ fun AppLanguageSheet(
             )
         }
     }
+}
+
+/** صفّ لغة واحد: اسم يُقرأ بلغة الواجهة، واسمها الأصلي تحته إن اختلفا. */
+@Composable
+private fun LanguageChoiceRow(
+    entry: AppLanguage.Entry,
+    isSelected: Boolean,
+    onSelect: (String) -> Unit,
+) {
+    MaxChoiceRow(
+        title = entry.localizedName,
+        subtitle = entry.nativeName.takeIf { it != entry.localizedName },
+        selected = isSelected,
+        onSelect = { onSelect(entry.tag) },
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+/** عنوان مقطع داخل الورقة. */
+@Composable
+private fun SheetSectionLabel(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(
+            start = MaxSpace.gutter,
+            end = MaxSpace.gutter,
+            top = MaxSpace.md,
+            bottom = MaxSpace.xs,
+        ),
+    )
 }

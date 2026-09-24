@@ -92,4 +92,6 @@
     <string name="max_gpu_reason_empty_request">Nichts wurde angefordert.</string>
     <string name="max_gpu_reason_unknown">Die Anfrage konnte nicht sicher ausgeführt werden.</string>
     <string name="max_gpu_reason_technical">Ursachencode</string>
+    <string name="max_gpu_intent_default_title">Standard (Startzustand)</string>
+    <string name="max_gpu_intent_default_desc">Setzt den Bereich und den Regler auf die Werte zurück, die dieses Gerät beim Öffnen des Bildschirms hatte. Solange sie bereits übereinstimmen, wird nichts geschrieben – das ist der Rückweg für jeden, der etwas geändert hat.</string>
 </resources>

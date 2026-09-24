@@ -1862,4 +1862,9 @@
     <string name="adreno_freq_screen_warning">GPU tezliyinin əl ilə bərkidilməsi və ya bağlanması sürücünün öz yükünü və istilik idarəetməsini üstələyir. Onu çox uzağa itələyin və qrafik nasazlıqları, tənzimləmə və ya yenidən başladılmanı görə bilərsiniz – hər dəfə bir parametr dəyişdirin.</string>
     <string name="sched_cstate_aware_desc">Planlayıcı tapşırığı yerinə yetirmək üçün hansı nüvəni seçdiyi zaman CPU-in boş vəziyyətdə oyanma dəyərini nəzərə alır.</string>
     <string name="sched_uclamp_desc">Planlayıcının aktiv qubernatordan asılı olmayaraq tapşırıq (0\u20131024) üçün tələb edə biləcəyi CPU tutumunun nə qədərini məhdudlaşdırır.</string>
+    <string name="theme_mode_system">Sistem</string>
+    <string name="theme_mode_light">İşıq</string>
+    <string name="theme_mode_dark">Qaranlıq</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Avtomatik</string>
 </resources>

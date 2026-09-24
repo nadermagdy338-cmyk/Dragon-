@@ -445,4 +445,6 @@
     <string name="max_atlas_share">Қолданбаны таңдаңыз</string>
     <string name="max_atlas_share_cancel">Болдырмау</string>
     <string name="max_doze_section_policy_desc">Бұл қосқыштар MaxManager саясатын өзгертеді. Android жоғарыдағы мемлекетке меншік құқығын сақтайды.</string>
+    <string name="max_language_device_section">Құрылғыңыздың тілдері</string>
+    <string name="max_language_all_section">Барлық тілдер</string>
 </resources>

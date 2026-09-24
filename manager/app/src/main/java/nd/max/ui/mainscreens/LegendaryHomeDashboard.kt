@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.PhoneAndroid
@@ -55,6 +56,7 @@ import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralSectionHeader
+import nd.max.ui.component.NeuralTile
 import nd.max.ui.component.NeuralTrack
 import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
@@ -80,6 +82,7 @@ import kotlin.math.roundToInt
  *               cores keep living in the screens that own them.
  *  1. pulse   — device identity, heat, uptime, battery and power draw at a glance
  *  2. focus   — appears only when something is actually wrong
+ *  3. matrix  — memory and storage capacity: RAM, ZRAM and internal storage side by side
  *  4. verdict — the limiter, in one sentence, with recent events
  *  5. deck    — four destinations people actually reach for
  *
@@ -89,6 +92,11 @@ import kotlin.math.roundToInt
  * their own screens. Nothing was lost — the same numbers are one tap away — and nothing
  * is drawn twice on this screen: heat, uptime, battery and power appear exactly once,
  * in the pulse block.
+ *
+ * والأستثناء الوحيد على المرحلة ٤ هو بطاقة المصفوفة (`MemoryMatrixCard`) بناءً على طلب
+ * المالك الصريح: تعود **كقدرة** (المستخدَم من الإجمالي والمتاح) لا **كحُكم ضغط** — فالحُكم
+ * يبقى حيث كان: `FocusCard` هي وحدها ما يقول «يكاد يمتلئ»، والمحرك يقيس الضغط بـPSI
+ * (`ADR-34`). والحدّ بينهما مقصود: الامتلاء حقيقة سعة، وأثره على الأداء قياس آخر.
  *
  * No metric is drawn twice. The rule is enforced by subtraction, not by hope: heat is a
  * number in the pulse block and nowhere else, uptime/battery/power appear once, the engine
@@ -120,7 +128,10 @@ internal fun LegendaryHomeDashboard(
         PulsePanel(
             deviceName = deviceName,
             dashboard = dashboard,
-            onOverview = { onNavigate(MaxDestination.Diagnostics.route) }
+            onOverview = { onNavigate(MaxDestination.Diagnostics.route) },
+            // مدخل Max AI من أول بطاقة (طلب المالك): كان مقعدًا في الشريط السفلي، وصار
+            // بوّابة في البطاقة التي تُقرأ أولًا — والمقعد الذي أخلاه صار للإعدادات.
+            onMaxAi = { onNavigate(MaxDestination.MaxAi.route) }
         )
         HardwarePulseCards(
             dashboard = dashboard,
@@ -130,6 +141,9 @@ internal fun LegendaryHomeDashboard(
         // بطاقة نشاط واحدة: تحكي الأثر المؤكد فقط، وتترك القياسات لشاشاتها المالكة.
         UnifiedActivityCard(maxAi = maxAi)
         FocusCard(dashboard, onNavigate)
+        // مصفوفة الذاكرة تحت بطاقة التحذير مباشرة: من رأى «التخزين يكاد يمتلئ» يجد
+        // تحته الأرقام التي تشرح العبارة، بلا أن يعيد هذا السطر إطلاق الحُكم نفسه.
+        MemoryMatrixCard(dashboard = dashboard, onNavigate = onNavigate)
         VerdictPanel(
             dashboard = dashboard,
             maxAi = maxAi,
@@ -227,6 +241,7 @@ private fun HardwarePulseCards(
             percent = dashboard.gpuLoadPercent,
             frequencyMhz = dashboard.gpuFreqMhz,
             ceilingMhz = dashboard.gpuCeilingMhz,
+            floorMhz = dashboard.gpuMinMhz,
             samples = dashboard.loadSamples,
             isGpu = true,
             accent = neuralPalette().accentAlt,
@@ -238,6 +253,7 @@ private fun HardwarePulseCards(
             percent = dashboard.cpuLoadPercent,
             frequencyMhz = dashboard.cpuTopCoreMhz.takeIf { it > 0 },
             ceilingMhz = dashboard.cpuCeilingMhz.takeIf { it > 0 },
+            floorMhz = dashboard.cpuMinMhz?.takeIf { it > 0 },
             samples = dashboard.loadSamples,
             isGpu = false,
             accent = neuralPalette().accent,
@@ -253,6 +269,7 @@ private fun FrequencyMetricCard(
     percent: Int?,
     frequencyMhz: Int?,
     ceilingMhz: Int?,
+    floorMhz: Int?,
     samples: List<LoadSample>,
     isGpu: Boolean,
     accent: Color,
@@ -265,16 +282,26 @@ private fun FrequencyMetricCard(
         val value = if (isGpu) sample.gpuMhz else sample.cpuMhz
         value?.takeIf { it > 0 }?.toFloat()
     }
-    val graphCeiling = max(
+    /*
+     * مقياس الرسم = المدى الحقيقي المتحلّى، وما رصدناه كاحتياط.
+     *
+     * ولا يجوز أن يكون **الصفر** سقفًا: الرسوم كانت تُبنى من المدى المعلن وحده، فجهاز لا تُعلن
+     * نواته سقفًا (أو تُعلنه بوحدة غير موثوقة) كان يحصل على `graphCeiling = 0`، أي رسم فارغ
+     * — بينما تردّداته المقيسة موجودة في العيّنات. والاحتياط هنا `max(ceiling, current,
+     * observed)` لا سقفًا مصنوعًا: كل حدّ فيه رقم مقيس أو معلن، فلا يُخترع مدى.
+     */
+    val rangeCeiling = max(
         ceilingMhz?.takeIf { it > 0 }?.toFloat() ?: 0f,
         max(current?.toFloat() ?: 0f, history.maxOrNull() ?: 0f)
     )
-    val graph = if (graphCeiling > 0f) {
+    val graph = if (rangeCeiling > 0f) {
         samples.mapNotNull { sample ->
             val value = if (isGpu) sample.gpuMhz else sample.cpuMhz
-            value?.takeIf { it > 0 }?.toFloat()?.div(graphCeiling)
+            value?.takeIf { it > 0 }?.toFloat()?.div(rangeCeiling)
         }.takeLast(36)
     } else emptyList()
+    val floor = floorMhz?.takeIf { it > 0 }
+    val floorFraction = floor?.toFloat()?.div(rangeCeiling)?.takeIf { it.isFinite() }?.coerceIn(0f, 1f)
 
     Column(
         modifier
@@ -321,8 +348,32 @@ private fun FrequencyMetricCard(
         FrequencySparkline(
             samples = graph,
             accent = accent,
+            floorFraction = floorFraction,
             modifier = Modifier.fillMaxWidth().height(48.dp)
         )
+
+        // حدّا المدى تحت الرسم، كلُّ حدٍّ تحت المستوى الذي يمثّله فعلًا: الأرضية خطُّ إسناد
+        // مرسوم داخل الرسم، والسقف أعلاه. ولمّا يُعلن أيّهما لا يُكتب شيء — فسطر «— —»
+        // ليس مدى، وقد يُقرأ كصفر.
+        if (floor != null || ceilingMhz?.takeIf { it > 0 } != null) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    formatHardwareFrequency(floor),
+                    color = p.muted.copy(alpha = .75f),
+                    fontSize = 10.sp,
+                    lineHeight = 13.sp
+                )
+                Text(
+                    formatHardwareFrequency(ceilingMhz?.takeIf { it > 0 }),
+                    color = p.muted.copy(alpha = .75f),
+                    fontSize = 10.sp,
+                    lineHeight = 13.sp
+                )
+            }
+        }
     }
 }
 
@@ -339,9 +390,12 @@ private fun formatHardwareFrequency(mhz: Int?): String {
 private fun FrequencySparkline(
     samples: List<Float>,
     accent: Color,
+    floorFraction: Float? = null,
     modifier: Modifier = Modifier
 ) {
-    val grid = neuralPalette().muted.copy(alpha = .07f)
+    val p = neuralPalette()
+    val grid = p.muted.copy(alpha = .07f)
+    val floorLine = p.muted.copy(alpha = .22f)
     Canvas(modifier) {
         if (samples.size < 2) return@Canvas
         val w = size.width
@@ -357,6 +411,13 @@ private fun FrequencySparkline(
         drawLine(grid, Offset(0f, top), Offset(w, top), 1f)
         drawLine(grid, Offset(0f, h / 2f), Offset(w, h / 2f), 1f)
         drawLine(grid, Offset(0f, bottom), Offset(w, bottom), 1f)
+
+        // خطّ الأرضية المعلنة: يُرسم على مستواه الحقيقي داخل المدى، فيصبح المدى مقروءًا من
+        // الرسم نفسه لا مِن نصّ مجاور. ويُشتقّ من الرقم الذي أعلنته النواة، لا من أدنى عيّنة.
+        floorFraction?.let { fraction ->
+            val y = top + usable * (1f - fraction)
+            drawLine(floorLine, Offset(0f, y), Offset(w, y), 1.dp.toPx())
+        }
 
         val path = androidx.compose.ui.graphics.Path().apply {
             moveTo(points.first().x, points.first().y)
@@ -403,7 +464,8 @@ private fun FrequencySparkline(
 private fun PulsePanel(
     deviceName: String,
     dashboard: DashboardState,
-    onOverview: () -> Unit
+    onOverview: () -> Unit,
+    onMaxAi: () -> Unit
 ) {
     val p = neuralPalette()
     val heat = dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt()
@@ -451,11 +513,35 @@ private fun PulsePanel(
                     NeuralCaption("\u00b0C", color = p.muted)
                 }
             }
-            NeuralPill(
-                text = stringResource(if (calm) R.string.home_system_stable else R.string.home_system_attention),
-                accent = if (calm) p.ok else heatAccent,
-                dot = true
-            )
+            // مفتاح Max AI **مكان** كلمة الحالة (طلب المالك: «بدل النظام مستقر»)،
+            // لا بجانبها. والوسم هنا **زرّ**: `filled` + النجمة + `onClick` تقول
+            // «اضغطني» بلا سطر يشرح ذلك.
+            //
+            // ولماذا حُذفت كلمة الحالة في الحالة السليمة ولم تُحذف معها في غيرها:
+            // العبارة مشتقّة من الحرارة نفسها (`calm` = أقل من ٤٣°)، والحرارة تُطبع
+            // رقمًا كبيرًا في هذا الصفّ بعينه — فـ«النظام مستقر» في كل فتحة تطبيق
+            // تكرارٌ لمعلومةٍ معروضة، وهو الذي طُلب إزالته. أمّا «يحتاج انتباه» فتفسيرٌ
+            // يُضاف إلى الرقم، وإخفاؤه إخفاءٌ لإنذار حقيقي ⇒ مخالف لـADR-07.
+            // (و`home_system_stable` يبقى في الموارد بلا مستهلك — لا يُحذف: ADR-18،
+            // وهو مفيد لأي سطح يعرض الحالة وحدها بلا رقم بجانبها.)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (!calm) {
+                    NeuralCaption(
+                        stringResource(R.string.home_system_attention),
+                        color = heatAccent
+                    )
+                }
+                NeuralPill(
+                    text = stringResource(R.string.max_nav_max_ai),
+                    accent = p.accent,
+                    icon = Icons.Rounded.AutoAwesome,
+                    filled = true,
+                    onClick = onMaxAi
+                )
+            }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NeuralFactTile(
@@ -547,6 +633,143 @@ private fun FocusCard(dashboard: DashboardState, onNavigate: (String) -> Unit) {
                 )
             }
         }
+    }
+}
+
+/**
+ * مصفوفة الذاكرة — سعة RAM وZRAM والتخزين الداخلي في بطاقة واحدة.
+ *
+ * **ما هي وما ليست:** تعرض **حقائق سعة** (المستخدَم من الإجمالي، والمتاح)، ولا تُصدر حُكم ضغط.
+ * وهذا ليس تحفّظًا شكليًّا: `ADR-34` يقرّر أن ضغط الذاكرة يُقاس بPSI لا بنسبة الامتلاء،
+ * وأجهزة بنسبة امتلاء متقاربة تختلف في أثرها على الأداء اختلافًا كبيرًا. فالحُكم في هذه الشاشة
+ * يبقى في `FocusCard` وحدها، وهذه البطاقة تجيب السؤال الآخر: «كم بقي؟».
+ *
+ * **ولذلك لا عتبات ولا ألوان إنذار هنا:** لون كلّ صفّ هوية (الأزرق/التركوا/الثانوي) لا حكم،
+ * والمقارنة تكفلها الأشرطة والرقم المكتوب. ولون تحذير مستحدث هنا يعني عتبة امتلاء هي بالضبط
+ * ما نهى عنه ADR-34 — والقارئ ينسى أن العتبة أُضيفت في الواجهة.
+ *
+ * **والمصادر أوعية موجودة، لا أوعية جديدة:** الأرقام من نفس لقطة اللوحة، والإجراءات إلى
+ * الشاشتين المالكين للرقم (`ZramManager` · `StorageDetail`) — ولهذا صار كل صفّ قابلًا للنقر
+ * بذاته: نقر بطاقة كاملة كان سيوصل صفّ التخزين إلى شاشة الذاكرة، وهي كذبة صغيرة.
+ *
+ * **وما لم يُقرأ لا يُصاغ:** غياب التبديل أو إجمالي الذاكرة يُكتب نصًّا («غير متاح»)
+ * وبلا شريط، لا أحد عشرًا صفرًا ولا شريطًا فارغًا يُقرأ كـ«فارغ».
+ */
+@Composable
+private fun MemoryMatrixCard(
+    dashboard: DashboardState,
+    onNavigate: (String) -> Unit
+) {
+    val p = neuralPalette()
+    val ramTotal = dashboard.ramTotalMb
+    val ramUsed = dashboard.ramUsedMb
+    val swapTotal = dashboard.swapTotalMb
+    val swapUsed = dashboard.swapUsedMb
+    val storageTotal = dashboard.storageTotalGb
+    val storageFree = (storageTotal - dashboard.storageUsedGb).coerceAtLeast(0f)
+
+    NeuralPanel(accent = p.accent) {
+        NeuralSectionHeader(
+            title = stringResource(R.string.home_memory_storage),
+            caption = stringResource(R.string.home_memory_storage_desc),
+            accent = p.accent,
+        )
+
+        MemoryFactRow(
+            label = stringResource(R.string.ram_label),
+            detail = if (ramTotal > 0) "${gigabytes(ramUsed)} / ${gigabytes(ramTotal)}" else null,
+            status = if (ramTotal > 0) {
+                stringResource(R.string.home_available_memory, gigabytes(ramTotal - ramUsed))
+            } else {
+                stringResource(R.string.max_home_unavailable)
+            },
+            fraction = if (ramTotal > 0) fractionOf(ramUsed, ramTotal) else null,
+            accent = p.accent,
+            onClick = { onNavigate(MaxDestination.ZramManager.route) },
+        )
+
+        MemoryFactRow(
+            label = stringResource(R.string.home_memory_swap_label),
+            detail = if (swapTotal != null && swapTotal > 0 && swapUsed != null) {
+                "${gigabytes(swapUsed)} / ${gigabytes(swapTotal)}"
+            } else {
+                null
+            },
+            status = if (swapTotal != null && swapTotal > 0 && swapUsed != null) {
+                stringResource(R.string.home_available_swap, gigabytes(swapTotal - swapUsed))
+            } else {
+                stringResource(R.string.home_zram_unavailable)
+            },
+            fraction = if (swapTotal != null && swapTotal > 0 && swapUsed != null) {
+                fractionOf(swapUsed, swapTotal)
+            } else {
+                null
+            },
+            accent = p.accentAlt,
+            onClick = { onNavigate(MaxDestination.ZramManager.route) },
+        )
+
+        MemoryFactRow(
+            label = stringResource(R.string.home_internal_storage),
+            detail = if (storageTotal > 0f) {
+                "${dashboard.storageUsedGb.oneDecimal()} / ${storageTotal.oneDecimal()} GB"
+            } else {
+                null
+            },
+            status = if (storageTotal > 0f) {
+                stringResource(R.string.home_available_storage, storageFree.oneDecimal())
+            } else {
+                stringResource(R.string.max_home_unavailable)
+            },
+            fraction = if (storageTotal > 0f) {
+                (dashboard.storageUsedGb / storageTotal).coerceIn(0f, 1f)
+            } else {
+                null
+            },
+            accent = p.ok,
+            onClick = { onNavigate(MaxDestination.StorageDetail.route) },
+        )
+    }
+}
+
+/**
+ * صفّ سعة واحد: اسم الوعاء · المستخدَم/الإجمالي · المتاح · شريط.
+ *
+ * والمتاح هو السطر الأبرز لأنه سؤال المستخدم فعلًا («كم بقي؟»)، والمستخدَم/الإجمالي يبقى
+ * بجانب الاسم لأن بدون إجمالي لا يُقرأ المتاح على أنه كثير أو قليل.
+ */
+@Composable
+private fun MemoryFactRow(
+    label: String,
+    detail: String?,
+    status: String,
+    fraction: Float?,
+    accent: Color,
+    onClick: () -> Unit
+) {
+    val p = neuralPalette()
+    NeuralTile(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick,
+        verticalSpacing = 6.dp,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(7.dp).clip(RoundedCornerShape(50)).background(accent))
+                Spacer(Modifier.width(7.dp))
+                NeuralCaption(label)
+            }
+            if (detail != null) {
+                NeuralValue(
+                    detail,
+                    style = MonoValueStyleSmall.copy(fontSize = 12.sp),
+                    color = p.text
+                )
+            }
+        }
+        Text(status, color = accent, fontSize = 11.sp, lineHeight = 15.sp)
+        fraction?.let { NeuralTrack(it, accent.copy(alpha = .85f), height = 5.dp) }
     }
 }
 

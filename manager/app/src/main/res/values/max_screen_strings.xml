@@ -261,6 +261,8 @@
     <string name="max_language_auto">Automatic (system)</string>
     <string name="max_language_search_hint">Search languages</string>
     <string name="max_language_empty">No language matches</string>
+    <string name="max_language_device_section">Your device languages</string>
+    <string name="max_language_all_section">All languages</string>
     <string name="max_language_partial_note">Some languages are still partially translated. Text that is missing falls back to English.</string>
 
     <!-- Access &amp; privileges (AR-20) -->

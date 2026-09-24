@@ -1862,4 +1862,9 @@
     <string name="home_focus_memory_desc">RAM প্রায় পূর্ণ। ব্যাকগ্রাউন্ড অ্যাপ ট্রিম করুন বা ZRAM সক্ষম করুন।</string>
     <string name="mali_throttle_bypass_desc">GPU-এর থার্মাল কুলিং ডিভাইসটিকে তার আনথ্রোটল অবস্থায় বাধ্য করে এবং এটিকে শুধুমাত্র পড়ার জন্য লক করে, তাপের জন্য GPU পুনরায় থ্রোটল করার OS এর ক্ষমতাকে সরিয়ে দেয়।</string>
     <string name="sched_cstate_aware_desc">একটি CPU এর নিষ্ক্রিয়-অবস্থা জাগানোর খরচ বিবেচনা করে যখন শিডিউলকারী কোন কাজটি চালানোর জন্য কোর বেছে নেয়।</string>
+    <string name="theme_mode_system">সিস্টেম</string>
+    <string name="theme_mode_light">আলো</string>
+    <string name="theme_mode_dark">অন্ধকার</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">অটো</string>
 </resources>

@@ -445,4 +445,6 @@
     <string name="max_atlas_share_confirm_message">Докладът съдържа имена на интерфейси, единици, възрасти и грубо описание на устройството. Той не носи идентификатор, няма акаунт, няма път към вашия файл, няма списък с пакети и няма ред на журнал. Вие избирате следващата дестинация.</string>
     <string name="max_atlas_share">Изберете приложение</string>
     <string name="max_atlas_share_cancel">Отказ</string>
+    <string name="max_language_device_section">Езиците на вашето устройство</string>
+    <string name="max_language_all_section">Всички езици</string>
 </resources>

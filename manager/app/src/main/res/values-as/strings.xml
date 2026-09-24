@@ -1862,4 +1862,9 @@
     <string name="zram_preset_power">12 GB \u2014 গধুৰ মাল্টিটাস্কিং</string>
     <string name="zram_swappiness">Swappiness</string>
     <string name="processmgr_force_stop_confirm_desc">ই %1$s ৰ সকলো চলি থকা প্ৰক্ৰিয়া বন্ধ কৰে, চিস্টেম সংহতিসমূহত বল বন্ধ কৰাৰ দৰে।</string>
+    <string name="theme_mode_system">পদ্ধতি</string>
+    <string name="theme_mode_light">পাতল</string>
+    <string name="theme_mode_dark">অন্ধকাৰ</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">অটো</string>
 </resources>

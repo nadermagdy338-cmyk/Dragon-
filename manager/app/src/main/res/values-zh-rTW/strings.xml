@@ -1862,4 +1862,9 @@
     <string name="adreno_throttle_bypass_warning">⚠️警告：這會停用GPU的內建過熱保護。密切監控設備的溫度，如果感覺異常熱，請立即關閉。</string>
     <string name="sched_cstate_aware_desc">當排程器選擇在哪個核心上執行任務時，請考慮CPU的空閒狀態喚醒成本。</string>
     <string name="sched_uclamp_desc">限制調度程序可以為任務請求多少 CPU 容量 (0\u20131024)，與活動調控器無關。</string>
+    <string name="theme_mode_system">系統</string>
+    <string name="theme_mode_light">光</string>
+    <string name="theme_mode_dark">黑暗的</string>
+    <string name="theme_mode_amoled">主動式有機發光二極體</string>
+    <string name="theme_accent_auto">汽車</string>
 </resources>

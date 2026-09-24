@@ -1862,4 +1862,9 @@
     <string name="mali_freq_screen_warning">Om die GPU se frekwensie met die hand vas te pen of te bedek, ignoreer die bestuurder se eie vrag en termiese bestuur. Druk dit te ver en jy sal dalk grafiese foute, versnelling of \'n herlaai sien - verander een instelling op \'n slag.</string>
     <string name="adreno_freq_screen_warning">Om die GPU se frekwensie met die hand vas te pen of te bedek, ignoreer die bestuurder se eie vrag en termiese bestuur. Druk dit te ver en jy sal dalk grafiese foute, versnelling of \'n herlaai sien - verander een instelling op \'n slag.</string>
     <string name="sched_uclamp_desc">Beperk hoeveel van \'n CPU se kapasiteit die skeduleerder kan aanvra vir \'n taak (0\u20131024), onafhanklik van die aktiewe goewerneur.</string>
+    <string name="theme_mode_system">Stelsel</string>
+    <string name="theme_mode_light">Lig</string>
+    <string name="theme_mode_dark">Donker</string>
+    <string name="theme_mode_amoled">AMOLED</string>
+    <string name="theme_accent_auto">Outo</string>
 </resources>
