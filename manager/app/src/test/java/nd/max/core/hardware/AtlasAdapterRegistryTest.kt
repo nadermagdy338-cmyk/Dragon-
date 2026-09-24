@@ -31,9 +31,12 @@ class AtlasAdapterRegistryTest {
         val first = AtlasAdapterRegistry(listOf(sysfs, platform)).choose(AtlasControlTarget.CPU_FREQUENCY, context, null)
         val second = AtlasAdapterRegistry(listOf(platform, sysfs)).choose(AtlasControlTarget.CPU_FREQUENCY, context, null)
 
-        assertEquals("b-platform", (first as AtlasAdapterChoice.Chosen).adapter.id)
+        val chosenFirst = first as AtlasAdapterChoice.Chosen
+        assertEquals("b-platform", chosenFirst.adapter.id)
         // الترتيب يُنتج القرار نفسه مهما كان ترتيب التسجيل — لا اختياران على جهاز واحد.
-        assertEquals((first as AtlasAdapterChoice.Chosen).adapter.id, (second as AtlasAdapterChoice.Chosen).adapter.id)
+        // (`chosenFirst` مقدّرٌ صريح واحد يُستعمل مرتين: الصبّ الثاني كان يقرعه المُصرِّف
+        // «No cast needed» لأن الذكاء النوعي من الصبّ الأول يُبقيه مصبوبًا.)
+        assertEquals(chosenFirst.adapter.id, (second as AtlasAdapterChoice.Chosen).adapter.id)
     }
 
     @Test

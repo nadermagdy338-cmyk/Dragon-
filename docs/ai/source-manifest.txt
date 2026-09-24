@@ -1580,7 +1580,7 @@ ed30f36e260ff8daaadbb9b4ece628c40677cc745e6eac835b824bf6d256c620  manager/app/sr
 60c7d3b7342fcc1beac385b0bb8be1c34db838cebe78530aaa38ba098a4f4c68  manager/app/src/test/java/nd/max/core/diagnostics/LogDiagnosticReportTest.kt
 22954c46476c4be64c7628ad311c20c3225db5cdcd137e4ff5ad579909d7dc18  manager/app/src/test/java/nd/max/core/diagnostics/LogEventLineTest.kt
 9dde4133301b20612112683158edaa8e67a24b9a46726c5aa089bccc2ee80fda  manager/app/src/test/java/nd/max/core/diagnostics/LogHeaderTest.kt
-e2c19f6ca7f911c2203595b2d8afde7dc3ff819c2028cb3018e5978fe44a3f34  manager/app/src/test/java/nd/max/core/hardware/AtlasAdapterRegistryTest.kt
+615f675032536c6d2a3009d526adefc1c27b910aa25a171616c06b8e3bdb18b2  manager/app/src/test/java/nd/max/core/hardware/AtlasAdapterRegistryTest.kt
 db4fcc7b7c3afdd93d1a0460d1e1243775fe57adcaae61b604026d1b60f55854  manager/app/src/test/java/nd/max/core/hardware/AtlasAdaptiveExecutorTest.kt
 c799ff63912a39d810f888a618ae1a5d1eb08924f46647550471dfc50cc6a9e0  manager/app/src/test/java/nd/max/core/hardware/AtlasAdaptiveReadTransportTest.kt
 525865c74205c6c060eaa16d9fcb93c7801f59d0aaa880f47a0a258284f7f1c5  manager/app/src/test/java/nd/max/core/hardware/AtlasDiscoveredControlTest.kt
