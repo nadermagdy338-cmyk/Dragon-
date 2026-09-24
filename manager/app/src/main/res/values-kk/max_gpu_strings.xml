@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Себеп коды</string>
     <string name="max_gpu_intent_default_title">Әдепкі (бастау күйі)</string>
     <string name="max_gpu_intent_default_desc">Экран ашылған кезде осы құрылғыда болған мәндерге ауқым мен басқарушыны қайтарады. Олар қазірдің өзінде сәйкес болған кезде ештеңе жазылмайды - бұл бір нәрсені өзгерткен кез келген адам үшін кері жол.</string>
+    <string name="max_gpu_history_empty">Әлі оқу жоқ — экран жиілікті таңдаған кезде диаграмма толтырылады.</string>
 </resources>

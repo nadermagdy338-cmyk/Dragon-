@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">تاریک</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">خودکار</string>
+    <string name="str_privilege_intro">Root دسترسی کامل می دهد، Shizuku دسترسی سطح ADB را بدون روت می دهد. هر کدام کافی است - هر دو به طور خودکار در اینجا شناسایی می شوند.</string>
+    <string name="max_app_master_on">حداکثر فعال</string>
+    <string name="max_app_master_on_desc">بهینه سازی برای هر برنامه در حال اعمال است</string>
+    <string name="max_app_advanced_options">گزینه های پیشرفته</string>
+    <string name="max_app_save">ذخیره کنید</string>
 </resources>

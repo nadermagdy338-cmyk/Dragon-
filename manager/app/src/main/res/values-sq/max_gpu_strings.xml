@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Kodi i arsyes</string>
     <string name="max_gpu_intent_default_title">E paracaktuar (gjendja e fillimit)</string>
     <string name="max_gpu_intent_default_desc">Rikthen diapazonin dhe guvernatorin në vlerat që kishte kjo pajisje kur u hap ekrani. Asgjë nuk është shkruar ndërsa ato tashmë përputhen - kjo është rruga e kthimit për këdo që ka ndryshuar diçka.</string>
+    <string name="max_gpu_history_empty">Asnjë lexim ende - grafiku mbushet ndërsa ekrani provon frekuencën.</string>
 </resources>

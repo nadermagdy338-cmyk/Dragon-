@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">ਹਨੇਰਾ</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ਆਟੋ</string>
+    <string name="str_privilege_intro">ਰੂਟ ਪੂਰੀ ਪਹੁੰਚ ਦਿੰਦਾ ਹੈ, Shizuku ਬਿਨਾਂ ਰੂਟ ਦੇ ADB-ਪੱਧਰ ਦੀ ਪਹੁੰਚ ਦਿੰਦਾ ਹੈ। ਕੋਈ ਇੱਕ ਕਾਫ਼ੀ ਹੈ — ਦੋਵੇਂ ਇੱਥੇ ਆਪਣੇ ਆਪ ਹੀ ਖੋਜੇ ਜਾਂਦੇ ਹਨ।</string>
+    <string name="max_app_master_on">ਅਧਿਕਤਮ ਕਿਰਿਆਸ਼ੀਲ</string>
+    <string name="max_app_master_on_desc">ਪ੍ਰਤੀ-ਐਪ ਅਨੁਕੂਲਨ ਲਾਗੂ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ</string>
+    <string name="max_app_advanced_options">ਉੱਨਤ ਵਿਕਲਪ</string>
+    <string name="max_app_save">ਸੇਵ ਕਰੋ</string>
 </resources>

@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Κωδικός αιτίας</string>
     <string name="max_gpu_intent_default_title">Προεπιλογή (κατάσταση έναρξης)</string>
     <string name="max_gpu_intent_default_desc">Επιστρέφει το εύρος και το ρυθμιστή στις τιμές που είχε αυτή η συσκευή όταν άνοιξε η οθόνη. Τίποτα δεν γράφεται ενώ ταιριάζουν ήδη — αυτός είναι ο τρόπος επιστροφής για όποιον άλλαξε κάτι.</string>
+    <string name="max_gpu_history_empty">Δεν υπάρχει ακόμη ανάγνωση — το γράφημα γεμίζει καθώς η οθόνη λαμβάνει δείγματα της συχνότητας.</string>
 </resources>

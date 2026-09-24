@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Отказ</string>
     <string name="max_language_device_section">Езиците на вашето устройство</string>
     <string name="max_language_all_section">Всички езици</string>
+    <string name="max_privilege_layers_title">Вашите слоеве за достъп</string>
+    <string name="max_privilege_auto_scan">Сканира се автоматично, когато този екран се отвори — нищо не се изисква без вашето докосване.</string>
+    <string name="max_privilege_scanning">Сканиране...</string>
+    <string name="max_privilege_rescan">Сканирайте отново</string>
 </resources>

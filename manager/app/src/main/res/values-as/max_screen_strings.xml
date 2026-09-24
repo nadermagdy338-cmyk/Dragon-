@@ -447,4 +447,8 @@
     <string name="max_zram_unit_mb">MB</string>
     <string name="max_language_device_section">আপোনাৰ ডিভাইচৰ ভাষাসমূহ</string>
     <string name="max_language_all_section">সকলো ভাষা</string>
+    <string name="max_privilege_layers_title">আপোনাৰ অভিগম স্তৰসমূহ</string>
+    <string name="max_privilege_auto_scan">এই পৰ্দা খোলে স্বয়ংক্ৰিয়ভাৱে স্কেন কৰা হয় — আপোনাৰ টেপ অবিহনে একো অনুৰোধ কৰা নহয়।</string>
+    <string name="max_privilege_scanning">স্ক্যানিং...</string>
+    <string name="max_privilege_rescan">আকৌ স্কেন কৰক</string>
 </resources>

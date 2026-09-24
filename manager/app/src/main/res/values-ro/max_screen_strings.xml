@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">Aceste comutatoare schimbă politica lui MaxManager. Android păstrează dreptul de proprietate asupra statului de mai sus.</string>
     <string name="max_language_device_section">Limbile dispozitivului dvs</string>
     <string name="max_language_all_section">Toate limbile</string>
+    <string name="max_privilege_layers_title">Straturile dvs. de acces</string>
+    <string name="max_privilege_auto_scan">Scanat automat când se deschide acest ecran - nimic nu este solicitat fără atingerea dvs.</string>
+    <string name="max_privilege_scanning">Se scanează…</string>
+    <string name="max_privilege_rescan">Scanați din nou</string>
 </resources>

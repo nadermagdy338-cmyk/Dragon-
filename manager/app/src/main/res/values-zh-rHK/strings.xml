@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">黑暗的</string>
     <string name="theme_mode_amoled">主動式有機發光二極體</string>
     <string name="theme_accent_auto">汽車</string>
+    <string name="str_privilege_intro">Root 提供完全存取權限，Shizuku 提供 ADB 等級的存取權限，無需 root。任何一個就足夠了——兩者都會在這裡自動檢測到。</string>
+    <string name="max_app_master_on">最大活躍度</string>
+    <string name="max_app_master_on_desc">正在應用每個應用程式的最佳化</string>
+    <string name="max_app_advanced_options">進階選項</string>
+    <string name="max_app_save">節省</string>
 </resources>

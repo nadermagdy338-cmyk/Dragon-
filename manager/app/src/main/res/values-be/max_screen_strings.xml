@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">Гэтыя пераключальнікі змяняюць палітыку MaxManager. Android захоўвае права ўласнасці дзяржавы вышэй.</string>
     <string name="max_language_device_section">Мовы вашай прылады</string>
     <string name="max_language_all_section">Усе мовы</string>
+    <string name="max_privilege_layers_title">Вашы ўзроўні доступу</string>
+    <string name="max_privilege_auto_scan">Аўтаматычнае сканіраванне пры адкрыцці гэтага экрана — нічога не запытваецца без вашага дотыку.</string>
+    <string name="max_privilege_scanning">Сканаванне...</string>
+    <string name="max_privilege_rescan">Сканіруйце яшчэ раз</string>
 </resources>

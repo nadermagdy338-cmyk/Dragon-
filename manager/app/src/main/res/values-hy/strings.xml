@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Մութ</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Ավտոմատ</string>
+    <string name="str_privilege_intro">Root-ը տալիս է ամբողջական մուտք, Shizuku-ն տալիս է ADB մակարդակի հասանելիություն առանց արմատի: Մեկը բավարար է. երկուսն էլ այստեղ ինքնաբերաբար հայտնաբերվում են:</string>
+    <string name="max_app_master_on">Max Active</string>
+    <string name="max_app_master_on_desc">Կիրառվում են յուրաքանչյուր հավելվածի օպտիմալացում</string>
+    <string name="max_app_advanced_options">Ընդլայնված ընտրանքներ</string>
+    <string name="max_app_save">Պահպանել</string>
 </resources>

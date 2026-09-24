@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Караңгы</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Авто</string>
+    <string name="str_privilege_intro">Root толук мүмкүнчүлүк берет, Шизуку ADB-деңгээлинде тамырсыз мүмкүнчүлүк берет. Экөө тең бул жерде автоматтык түрдө аныкталат.</string>
+    <string name="max_app_master_on">Макс активдүү</string>
+    <string name="max_app_master_on_desc">Ар бир колдонмо үчүн оптималдаштыруулар колдонулууда</string>
+    <string name="max_app_advanced_options">Өркүндөтүлгөн параметрлер</string>
+    <string name="max_app_save">Сактоо</string>
 </resources>

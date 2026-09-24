@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">이 스위치는 MaxManager의 정책을 변경합니다. Android는 위 상태의 소유권을 유지합니다.</string>
     <string name="max_language_device_section">귀하의 장치 언어</string>
     <string name="max_language_all_section">모든 언어</string>
+    <string name="max_privilege_layers_title">귀하의 액세스 레이어</string>
+    <string name="max_privilege_auto_scan">이 화면이 열리면 자동으로 스캔됩니다. 탭하지 않으면 아무 것도 요청되지 않습니다.</string>
+    <string name="max_privilege_scanning">스캐닝…</string>
+    <string name="max_privilege_rescan">다시 스캔</string>
 </resources>

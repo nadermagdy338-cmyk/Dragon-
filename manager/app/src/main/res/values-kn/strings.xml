@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">ಕತ್ತಲು</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ಆಟೋ</string>
+    <string name="str_privilege_intro">ರೂಟ್ ಪೂರ್ಣ ಪ್ರವೇಶವನ್ನು ನೀಡುತ್ತದೆ, ಶಿಜುಕು ರೂಟ್ ಇಲ್ಲದೆ ADB-ಮಟ್ಟದ ಪ್ರವೇಶವನ್ನು ನೀಡುತ್ತದೆ. ಒಂದೋ ಸಾಕು - ಎರಡನ್ನೂ ಇಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಪತ್ತೆ ಮಾಡಲಾಗುತ್ತದೆ.</string>
+    <string name="max_app_master_on">ಗರಿಷ್ಠ ಸಕ್ರಿಯ</string>
+    <string name="max_app_master_on_desc">ಪ್ರತಿ ಅಪ್ಲಿಕೇಶನ್ ಆಪ್ಟಿಮೈಸೇಶನ್‌ಗಳನ್ನು ಅನ್ವಯಿಸಲಾಗುತ್ತಿದೆ</string>
+    <string name="max_app_advanced_options">ಸುಧಾರಿತ ಆಯ್ಕೆಗಳು</string>
+    <string name="max_app_save">ಉಳಿಸಿ</string>
 </resources>

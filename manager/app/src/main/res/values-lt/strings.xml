@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Tamsus</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Auto</string>
+    <string name="str_privilege_intro">Root suteikia pilną prieigą, Shizuku suteikia ADB lygio prieigą be root. Pakanka bet kurio – abu čia aptinkami automatiškai.</string>
+    <string name="max_app_master_on">Max aktyvus</string>
+    <string name="max_app_master_on_desc">Taikomas kiekvienai programai skirtas optimizavimas</string>
+    <string name="max_app_advanced_options">Išplėstinės parinktys</string>
+    <string name="max_app_save">Išsaugoti</string>
 </resources>

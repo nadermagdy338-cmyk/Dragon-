@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">E errët</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Auto</string>
+    <string name="str_privilege_intro">Root jep akses të plotë, Shizuku jep akses të nivelit ADB pa rrënjë. Mjafton njëra - të dyja zbulohen këtu automatikisht.</string>
+    <string name="max_app_master_on">Max Active</string>
+    <string name="max_app_master_on_desc">Po aplikohen optimizimet për çdo aplikacion</string>
+    <string name="max_app_advanced_options">Opsione të avancuara</string>
+    <string name="max_app_save">Ruaj</string>
 </resources>

@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">বাতিল করুন</string>
     <string name="max_language_device_section">আপনার ডিভাইসের ভাষা</string>
     <string name="max_language_all_section">সব ভাষা</string>
+    <string name="max_privilege_layers_title">আপনার অ্যাক্সেস স্তর</string>
+    <string name="max_privilege_auto_scan">এই স্ক্রিনটি খোলে স্বয়ংক্রিয়ভাবে স্ক্যান করা হয় — আপনার ট্যাপ ছাড়া কিছুই অনুরোধ করা হয় না।</string>
+    <string name="max_privilege_scanning">স্ক্যান করা হচ্ছে...</string>
+    <string name="max_privilege_rescan">আবার স্ক্যান করুন</string>
 </resources>

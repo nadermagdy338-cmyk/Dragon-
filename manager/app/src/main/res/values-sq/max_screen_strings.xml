@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Anulo</string>
     <string name="max_language_device_section">Gjuhët e pajisjes suaj</string>
     <string name="max_language_all_section">Të gjitha gjuhët</string>
+    <string name="max_privilege_layers_title">Shtresat tuaja të aksesit</string>
+    <string name="max_privilege_auto_scan">Skanohet automatikisht kur hapet ky ekran - asgjë nuk kërkohet pa trokiturën tuaj.</string>
+    <string name="max_privilege_scanning">Po skanon…</string>
+    <string name="max_privilege_rescan">Skanoni përsëri</string>
 </resources>

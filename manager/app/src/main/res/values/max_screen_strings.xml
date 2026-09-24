@@ -269,6 +269,10 @@
     <string name="max_privilege_title">Access &amp; privileges</string>
     <string name="max_privilege_desc">Which tools you can use depends on the privilege level you grant MaxManager. Access is never assumed.</string>
     <string name="max_privilege_current">Current level</string>
+    <string name="max_privilege_layers_title">Your access layers</string>
+    <string name="max_privilege_auto_scan">Scanned automatically when this screen opens — nothing is requested without your tap.</string>
+    <string name="max_privilege_scanning">Scanning…</string>
+    <string name="max_privilege_rescan">Scan again</string>
     <string name="max_privilege_level_none">No privilege</string>
     <string name="max_privilege_level_shizuku">Shizuku (ADB level)</string>
     <string name="max_privilege_level_root">Root</string>

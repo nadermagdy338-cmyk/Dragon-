@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Arrazoi kodea</string>
     <string name="max_gpu_intent_default_title">Lehenetsia (hasierako egoera)</string>
     <string name="max_gpu_intent_default_desc">Barrutia eta gobernatzailea gailu honek pantaila irekitzean zituen balioetara itzultzen ditu. Dagoeneko bat datozen bitartean ez da ezer idazten; hau da zerbait aldatu duen edonorentzat itzulera.</string>
+    <string name="max_gpu_history_empty">Oraindik ez dago irakurketarik — taula betetzen da pantailak maiztasuna lagintzen duen heinean.</string>
 </resources>

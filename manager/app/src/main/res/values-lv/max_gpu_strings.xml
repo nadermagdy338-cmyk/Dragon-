@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Iemesla kods</string>
     <string name="max_gpu_intent_default_title">Noklusējums (sākuma stāvoklis)</string>
     <string name="max_gpu_intent_default_desc">Atgriež diapazonu un regulatoru uz vērtībām, kas šai ierīcei bija, atverot ekrānu. Kamēr tie jau atbilst, nekas netiek rakstīts — tas ir ceļš atpakaļ ikvienam, kurš kaut ko mainījis.</string>
+    <string name="max_gpu_history_empty">Vēl nav lasīšanas — diagramma tiek aizpildīta, kad ekrānā tiek atlasīti frekvences paraugi.</string>
 </resources>

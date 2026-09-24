@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Kansellere</string>
     <string name="max_language_device_section">Enhetens språk</string>
     <string name="max_language_all_section">Alle språk</string>
+    <string name="max_privilege_layers_title">Tilgangslagene dine</string>
+    <string name="max_privilege_auto_scan">Skannes automatisk når denne skjermen åpnes - ingenting er forespurt uten trykk.</string>
+    <string name="max_privilege_scanning">Skanner …</string>
+    <string name="max_privilege_rescan">Skann igjen</string>
 </resources>

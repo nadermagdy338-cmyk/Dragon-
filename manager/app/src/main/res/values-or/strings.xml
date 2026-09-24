@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">ଅନ୍ଧାର</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ଅଟୋ</string>
+    <string name="str_privilege_intro">ରୁଟ୍ ପୂର୍ଣ୍ଣ ଆକ୍ସେସ୍ ଦିଏ, ସିଜୁକୁ ମୂଳ ବିନା ADB ସ୍ତରୀୟ ଆକ୍ସେସ୍ ଦିଏ · ଗୋଟିଏ ଯଥେଷ୍ଟ - ଉଭୟ ସ୍ୱୟଂଚାଳିତ ଭାବରେ ଏଠାରେ ଚିହ୍ନଟ ହୁଏ</string>
+    <string name="max_app_master_on">ସର୍ବାଧିକ ସକ୍ରିୟ</string>
+    <string name="max_app_master_on_desc">ପ୍ରତି ଆପ୍ ଅପ୍ଟିମାଇଜେସନ୍ ପ୍ରୟୋଗ କରାଯାଉଛି</string>
+    <string name="max_app_advanced_options">ଉନ୍ନତ ବିକଳ୍ପଗୁଡ଼ିକ</string>
+    <string name="max_app_save">ସଞ୍ଚୟ କରନ୍ତୁ</string>
 </resources>

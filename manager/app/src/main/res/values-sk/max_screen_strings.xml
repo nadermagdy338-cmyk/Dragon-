@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Zrušiť</string>
     <string name="max_language_device_section">Jazyky vášho zariadenia</string>
     <string name="max_language_all_section">Všetky jazyky</string>
+    <string name="max_privilege_layers_title">Vaše prístupové vrstvy</string>
+    <string name="max_privilege_auto_scan">Skenované automaticky, keď sa otvorí táto obrazovka – bez vášho klepnutia sa nič nevyžaduje.</string>
+    <string name="max_privilege_scanning">Skenuje sa…</string>
+    <string name="max_privilege_rescan">Skenujte znova</string>
 </resources>

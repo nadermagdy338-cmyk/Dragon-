@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">ბნელი</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ავტო</string>
+    <string name="str_privilege_intro">Root იძლევა სრულ წვდომას, Shizuku იძლევა ADB დონის წვდომას root გარეშე. ერთიც საკმარისია — ორივე აქ ავტომატურად გამოვლინდება.</string>
+    <string name="max_app_master_on">მაქს აქტიური</string>
+    <string name="max_app_master_on_desc">გამოიყენება თითო აპის ოპტიმიზაცია</string>
+    <string name="max_app_advanced_options">გაფართოებული პარამეტრები</string>
+    <string name="max_app_save">შენახვა</string>
 </resources>

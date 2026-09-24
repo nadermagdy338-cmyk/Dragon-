@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">어두운</string>
     <string name="theme_mode_amoled">아몰레드</string>
     <string name="theme_accent_auto">자동</string>
+    <string name="str_privilege_intro">루트는 전체 액세스 권한을 제공하고 Shizuku는 루트 없이 ADB 수준 액세스 권한을 제공합니다. 둘 중 하나이면 충분합니다. 둘 다 여기에서 자동으로 감지됩니다.</string>
+    <string name="max_app_master_on">최대 활성</string>
+    <string name="max_app_master_on_desc">앱별 최적화가 적용되고 있습니다</string>
+    <string name="max_app_advanced_options">고급 옵션</string>
+    <string name="max_app_save">구하다</string>
 </resources>

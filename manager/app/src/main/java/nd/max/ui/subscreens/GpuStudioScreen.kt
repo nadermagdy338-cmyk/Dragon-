@@ -90,6 +90,7 @@ import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSliderRow
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxSwitchRow
+import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
 import nd.max.ui.design.MaxTone
 import nd.max.ui.design.MaxListScreen
 import nd.max.ui.theme.MonoValueStyleSmall
@@ -211,8 +212,13 @@ fun GpuStudioScreen(
 @Composable
 private fun GpuHero(state: GpuStudioUiState, device: GpuHardwareBackend.Device) {
     val writable = device.rangeWritable || device.exactLockWritable || device.governorWritable
-    val ageSeconds = ((System.currentTimeMillis() - (state.selection?.observedAtMs ?: 0L)) / 1000L)
-        .coerceAtLeast(0L)
+    // عُمر القراءة يُحسب فقط إن كانت هناك قراءة.
+    //
+    // وهذا إصلاحُ عطبٍ كان كامنًا: الصيغة السابقة (`observedAtMs ?: 0L`) تطرح من صفر، فلو
+    // غابت القراءة لعُرض «عمر» بمليارات الثواني **كرقم حيّ** — وهذا ما يمنعه ADR-07 صراحةً.
+    val ageSeconds: Long? = state.selection?.observedAtMs?.let {
+        ((System.currentTimeMillis() - it) / 1000L).coerceAtLeast(0L)
+    }
 
     MaxGroup {
         MaxRow(
@@ -294,8 +300,8 @@ private fun GpuHero(state: GpuStudioUiState, device: GpuHardwareBackend.Device) 
             MaxMetricLine(
                 MaxMetric(
                     label = stringResource(R.string.max_gpu_read_age_label),
-                    value = stringResource(R.string.max_gpu_age_seconds, ageSeconds),
-                    trust = MaxDataTrust.Snapshot,
+                    value = ageSeconds?.let { stringResource(R.string.max_gpu_age_seconds, it) },
+                    trust = if (ageSeconds != null) MaxDataTrust.Snapshot else MaxDataTrust.Unreadable,
                 )
             )
         }
@@ -314,7 +320,18 @@ private fun GpuHero(state: GpuStudioUiState, device: GpuHardwareBackend.Device) 
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            GpuSparkline(state.historyMHz, MaterialTheme.colorScheme.primary)
+            // سجلٌ فارغ كان يُرسم مستطيلًا فارغًا يُقرأ كعطب عرض؛ والغياب هنا يُقال بالكلمة
+            // (نفس مبدأ ADR-07: لا شيء يُعرض في هيئة قيمة أو رسمٍ بلا نصّ).
+            if (state.historyMHz.size < 2) {
+                Text(
+                    text = stringResource(R.string.max_gpu_history_empty),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = MaxSpace.sm),
+                )
+            } else {
+                GpuSparkline(state.historyMHz, MaterialTheme.colorScheme.primary)
+            }
         }
     }
 }
@@ -496,14 +513,18 @@ private fun GpuReview(state: GpuStudioUiState, vm: GpuStudioViewModel) {
     }
 }
 
+/**
+ * النطاق الحيّ نصًّا — و"غائب" مكتوبة بالمُعلن لا بمجاز حرفيّ في ملف شاشة.
+ * `MAX_VALUE_UNAVAILABLE` هو باب التصميم الرسمي لهذا الحرف (`ui/design/MaxTokens.kt`).
+ */
 private fun liveRange(device: GpuHardwareBackend.Device): String =
-    "${GpuHardwareBackend.frequencyMHz(device, device.minFreq) ?: "—"} – " +
-        "${GpuHardwareBackend.frequencyMHz(device, device.maxFreq) ?: "—"} MHz"
+    "${GpuHardwareBackend.frequencyMHz(device, device.minFreq) ?: MAX_VALUE_UNAVAILABLE} – " +
+        "${GpuHardwareBackend.frequencyMHz(device, device.maxFreq) ?: MAX_VALUE_UNAVAILABLE} MHz"
 
 private fun requestedRange(device: GpuHardwareBackend.Device, pending: GpuHardwareBackend.Request): String {
-    val min = GpuHardwareBackend.frequencyMHz(device, pending.minFreq) ?: "—"
-    val max = GpuHardwareBackend.frequencyMHz(device, pending.maxFreq) ?: "—"
-    val governor = pending.governor ?: device.governor ?: "—"
+    val min = GpuHardwareBackend.frequencyMHz(device, pending.minFreq) ?: MAX_VALUE_UNAVAILABLE
+    val max = GpuHardwareBackend.frequencyMHz(device, pending.maxFreq) ?: MAX_VALUE_UNAVAILABLE
+    val governor = pending.governor ?: device.governor ?: MAX_VALUE_UNAVAILABLE
     return "$min – $max MHz • $governor"
 }
 
@@ -676,11 +697,11 @@ private fun GpuDiagnostics(state: GpuStudioUiState, device: GpuHardwareBackend.D
                 TechnicalLine(stringResource(R.string.max_gpu_diagnostics_provider), device.path)
                 TechnicalLine(
                     stringResource(R.string.max_gpu_diagnostics_evidence),
-                    device.evidence.joinToString().ifBlank { "—" },
+                    device.evidence.joinToString().ifBlank { MAX_VALUE_UNAVAILABLE },
                 )
                 TechnicalLine(
                     stringResource(R.string.max_gpu_diagnostics_selection),
-                    state.selection?.reason ?: "—",
+                    state.selection?.reason ?: MAX_VALUE_UNAVAILABLE,
                 )
             }
         }

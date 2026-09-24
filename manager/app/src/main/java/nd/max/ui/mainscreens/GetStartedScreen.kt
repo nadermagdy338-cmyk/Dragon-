@@ -230,7 +230,6 @@ private fun StatusGlyph(
 fun GetStartedScreen(navController: NavController) {
     var currentPage by remember { mutableIntStateOf(0) }
     var rootAccessGranted by remember { mutableStateOf<Boolean?>(null) }
-    var isCheckingRoot by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -244,24 +243,25 @@ fun GetStartedScreen(navController: NavController) {
 
     var isFinalizing by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val totalPages = 5
+    val totalPages = 4
 
-    // طبقة الامتياز الثانية (AR-20): تُقرأ هنا لتحديد إمكانية التقدّم.
+    // صفحة الامتياز الموحّدة (الجذر + Shizuku): تُقرأ هنا لتحديد إمكانية التقدّم.
     val privilegeSnapshot by PrivilegeManager.snapshot.collectAsState()
 
     val canGoNext = when (currentPage) {
-        // صفحة فحص الامتياز: مستخدم Shizuku بلا جذر له الحق في إكمال التثبيت،
-        // فلا تُحبَسه بوابتنا الجذرية وحدها.
+        // مستخدم الشيزوكو بلا جذر له الحق في إكمال التثبيت، فلا تُحبَسه بوابتنا
+        // الجذرية وحدها — والقراءة سلبية فلا تُفتح نافذة صلاحية لمجرّد التقدّم.
         1 -> rootAccessGranted == true || privilegeSnapshot.level != PrivilegeLevel.NONE
         else -> true
     }
 
+    // الكشف تلقائي: عند الوصول إلى صفحة الامتياز يُطلب الجذر مرّة (طلب واحد صريح لا
+    // يتكرّر)، ثم تُحدَّث اللوحة من المدير نفسه — فلا يحتاج المستخدم إلى زرّ ليعرف وضعه.
     LaunchedEffect(currentPage) {
         if (currentPage == 1 && rootAccessGranted == null) {
-            isCheckingRoot = true
             delay(500)
             rootAccessGranted = RootUtils.requestRootAccess()
-            isCheckingRoot = false
+            PrivilegeManager.refresh()
         }
     }
 
@@ -270,11 +270,10 @@ fun GetStartedScreen(navController: NavController) {
     DisposableEffect(lifecycleOwner, currentPage) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME && currentPage == 1 && rootAccessGranted != true) {
-                isCheckingRoot = true
                 coroutineScope.launch {
                     delay(300)
                     rootAccessGranted = RootUtils.requestRootAccess()
-                    isCheckingRoot = false
+                    PrivilegeManager.refresh()
                 }
             }
         }
@@ -483,106 +482,9 @@ fun GetStartedScreen(navController: NavController) {
                             }
                         }
                         1 -> {
-                            ScreenAccentGlyph(
-                                icon = Icons.Rounded.Shield,
-                                accent = MaterialTheme.colorScheme.tertiary,
-                                size = 44.dp,
-                                modifier = Modifier.graphicsLayer {
-                                    alpha = enterTransition.value
-                                    translationY = 30f * (1f - enterTransition.value)
-                                }
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = stringResource(R.string.str_let_s_grant_maxmanager_a_root_acc),
-                                style = MaterialTheme.typography.headlineLarge,
-                                fontWeight = FontWeight.ExtraBold,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.graphicsLayer {
-                                    alpha = enterTransition.value
-                                    translationY = 40f * (1f - enterTransition.value)
-                                }
-                            )
-                            Spacer(modifier = Modifier.height(40.dp))
-
-                            nd.max.ui.component.StudioButton(
-                                onClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                    isCheckingRoot = true
-                                    coroutineScope.launch {
-                                        delay(500)
-                                        rootAccessGranted = RootUtils.requestRootAccess()
-                                        isCheckingRoot = false
-                                    }
-                                },
-                                shape = RoundedCornerShape(20.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiary,
-                                    contentColor = MaterialTheme.colorScheme.onTertiary
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(64.dp)
-                                    .graphicsLayer {
-                                        val btnProgress = (enterTransition.value - 0.2f).coerceAtLeast(0f) / 0.8f
-                                        alpha = btnProgress
-                                        translationY = 40f * (1f - btnProgress)
-                                    }
-                            ) {
-                                if (isCheckingRoot) {
-                                    CircularProgressIndicator(
-                                        color = MaterialTheme.colorScheme.onTertiary,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                } else {
-                                    Text(
-                                        stringResource(R.string.str_check_environment),
-                                        fontWeight = FontWeight.Bold,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(24.dp))
-
-                            AnimatedVisibility(
-                                visible = rootAccessGranted != null,
-                                enter = fadeIn() + expandVertically()
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Surface(
-                                        color = if (rootAccessGranted == true)
-                                            MaterialTheme.colorScheme.tertiaryContainer
-                                        else
-                                            MaterialTheme.colorScheme.errorContainer,
-                                        shape = RoundedCornerShape(20.dp)
-                                    ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(20.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            if (rootAccessGranted != null) {
-                                                StatusGlyph(
-                                                    success = rootAccessGranted == true,
-                                                    modifier = Modifier.size(28.dp)
-                                                )
-                                            }
-                                            Spacer(modifier = Modifier.width(16.dp))
-                                            Text(
-                                                text = if (rootAccessGranted == true) stringResource(R.string.str_root_access_granted) else stringResource(R.string.str_root_access_denied),
-                                                color = if (rootAccessGranted == true) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onErrorContainer,
-                                                style = MaterialTheme.typography.bodyLarge,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        2 -> {
+                            // الصفحتان كانتا منفصلتين (طلب جذر · لوحة امتياز)، ووُحّدتا في
+                            // صفحة واحدة: الجذر وShizuku في السطح نفسه، والفحص تلقائي عند
+                            // الفتح مع أزرار طلب صريحة لمن أراد أن يطلب بنفسه.
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -590,10 +492,40 @@ fun GetStartedScreen(navController: NavController) {
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
+                                ScreenAccentGlyph(
+                                    icon = Icons.Rounded.Shield,
+                                    accent = MaterialTheme.colorScheme.tertiary,
+                                    size = 44.dp,
+                                    modifier = Modifier.graphicsLayer {
+                                        alpha = enterTransition.value
+                                        translationY = 30f * (1f - enterTransition.value)
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.str_let_s_grant_maxmanager_a_root_acc),
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.graphicsLayer {
+                                        alpha = enterTransition.value
+                                        translationY = 40f * (1f - enterTransition.value)
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.str_privilege_intro),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Spacer(modifier = Modifier.height(20.dp))
+
                                 PrivilegePanel()
                             }
                         }
-                        3 -> {
+                        2 -> {
                             ScreenAccentGlyph(
                                 icon = Icons.Rounded.Tune,
                                 accent = MaterialTheme.colorScheme.secondary,
@@ -649,7 +581,7 @@ fun GetStartedScreen(navController: NavController) {
                                 }
                             }
                         }
-                        4 -> {
+                        3 -> {
                             StatusGlyph(
                                 success = true,
                                 modifier = Modifier

@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Ikhodi yesizathu</string>
     <string name="max_gpu_intent_default_title">Okuzenzakalelayo (isimo sokuqala)</string>
     <string name="max_gpu_intent_default_desc">Ibuyisela ububanzi kanye nombusi kumanani le divayisi eyayinawo ngenkathi kuvulwa isikrini. Akukho okubhaliwe ngenkathi sezivele zifana - lena indlela yokubuya kunoma ubani oguqule okuthile.</string>
+    <string name="max_gpu_history_empty">Akufundiwe okwamanje - ishadi liyagcwala njengoba isikrini sisampula imvamisa.</string>
 </resources>

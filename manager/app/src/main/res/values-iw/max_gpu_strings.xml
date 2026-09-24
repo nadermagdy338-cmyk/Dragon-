@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">קוד סיבה</string>
     <string name="max_gpu_intent_default_title">ברירת מחדל (מצב התחלה)</string>
     <string name="max_gpu_intent_default_desc">מחזיר את הטווח ואת המושל לערכים שהיו למכשיר הזה כשהמסך נפתח. שום דבר לא נכתב בזמן שהם כבר תואמים - זו הדרך חזרה לכל מי ששינה משהו.</string>
+    <string name="max_gpu_history_empty">עדיין אין קריאה - התרשים מתמלא כשהמסך דוגם את התדר.</string>
 </resources>

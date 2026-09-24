@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Cancelar</string>
     <string name="max_language_device_section">Idiomas do seu dispositivo</string>
     <string name="max_language_all_section">Todos os idiomas</string>
+    <string name="max_privilege_layers_title">As suas camadas de acesso</string>
+    <string name="max_privilege_auto_scan">Verificado automaticamente quando este ecrã é aberto – nada é solicitado sem o seu toque.</string>
+    <string name="max_privilege_scanning">Digitalizando…</string>
+    <string name="max_privilege_rescan">Digitalize novamente</string>
 </resources>

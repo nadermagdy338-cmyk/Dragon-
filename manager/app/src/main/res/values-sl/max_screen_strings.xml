@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Prekliči</string>
     <string name="max_language_device_section">Jeziki vaše naprave</string>
     <string name="max_language_all_section">Vsi jeziki</string>
+    <string name="max_privilege_layers_title">Vaši sloji dostopa</string>
+    <string name="max_privilege_auto_scan">Samodejno optično prebrano, ko se odpre ta zaslon — nič se ne zahteva brez vašega dotika.</string>
+    <string name="max_privilege_scanning">skeniranje ...</string>
+    <string name="max_privilege_rescan">Skeniraj znova</string>
 </resources>

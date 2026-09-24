@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">गडद</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ऑटो</string>
+    <string name="str_privilege_intro">रूट पूर्ण प्रवेश देते, शिझुकू रूटशिवाय ADB-स्तरीय प्रवेश देते. एकतर एक पुरेसा आहे — दोन्ही येथे आपोआप आढळतात.</string>
+    <string name="max_app_master_on">कमाल सक्रिय</string>
+    <string name="max_app_master_on_desc">प्रति-ॲप ऑप्टिमायझेशन लागू केले जात आहेत</string>
+    <string name="max_app_advanced_options">प्रगत पर्याय</string>
+    <string name="max_app_save">जतन करा</string>
 </resources>

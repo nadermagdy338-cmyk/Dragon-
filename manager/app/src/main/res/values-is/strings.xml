@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Myrkur</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Sjálfvirk</string>
+    <string name="str_privilege_intro">Rót gefur fullan aðgang, Shizuku gefur ADB-stigi aðgang án rótar. Annaðhvort er nóg - bæði greinast hér sjálfkrafa.</string>
+    <string name="max_app_master_on">Max Virkur</string>
+    <string name="max_app_master_on_desc">Verið er að beita hagræðingu fyrir hvert forrit</string>
+    <string name="max_app_advanced_options">Ítarlegir valkostir</string>
+    <string name="max_app_save">Vista</string>
 </resources>

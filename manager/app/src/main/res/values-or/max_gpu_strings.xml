@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_provider_ambiguous">ଏକାଧିକ GPU ପ୍ରଦାନକାରୀ ମେଳ ହେଲା; କୌଣସି ଲେଖା କରାଯାଏ ନାହିଁ।</string>
     <string name="max_gpu_intent_default_title">ଡିଫଲ୍ଟ (ଆରମ୍ଭ ସ୍ଥିତି)</string>
     <string name="max_gpu_intent_default_desc">ସ୍କ୍ରିନ୍ ଖୋଲିବା ସମୟରେ ଏହି ଡିଭାଇସ୍ ଥିବା ମୂଲ୍ୟକୁ ପରିସର ଏବଂ ରାଜ୍ୟପାଳଙ୍କୁ ଫେରସ୍ତ କରେ · ସେମାନେ ପୂର୍ବରୁ ମେଳ ଖାଉଥିବାବେଳେ କିଛି ଲେଖାଯାଇ ନାହିଁ - ଯିଏ କିଛି ବଦଳାଇଛି ସେମାନଙ୍କ ପାଇଁ ଏହା ହେଉଛି ବାଟ</string>
+    <string name="max_gpu_history_empty">ଏପର୍ଯ୍ୟନ୍ତ କ reading ଣସି ପ reading ଼ା ନାହିଁ - ସ୍କ୍ରିନ୍ ଫ୍ରିକ୍ୱେନ୍ସିର ନମୁନା ଭାବରେ ଚାର୍ଟ ପୁରଣ କରେ</string>
 </resources>

@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">כֵּהֶה</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">אוטומטי</string>
+    <string name="str_privilege_intro">שורש נותן גישה מלאה, Shizuku נותן גישה ברמת ADB ללא שורש. כל אחד מהם מספיק - שניהם מזוהים כאן באופן אוטומטי.</string>
+    <string name="max_app_master_on">מקסימום פעיל</string>
+    <string name="max_app_master_on_desc">מתבצעות אופטימיזציות לכל אפליקציה</string>
+    <string name="max_app_advanced_options">אפשרויות מתקדמות</string>
+    <string name="max_app_save">לְהַצִיל</string>
 </resources>

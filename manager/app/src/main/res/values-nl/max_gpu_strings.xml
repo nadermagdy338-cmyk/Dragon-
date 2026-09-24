@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Redencode</string>
     <string name="max_gpu_intent_default_title">Standaard (startstatus)</string>
     <string name="max_gpu_intent_default_desc">Retourneert het bereik en de gouverneur naar de waarden die dit apparaat had toen het scherm werd geopend. Er wordt niets geschreven terwijl ze al overeenkomen – dit is de weg terug voor iedereen die iets heeft veranderd.</string>
+    <string name="max_gpu_history_empty">Nog geen meting: de grafiek wordt gevuld terwijl het scherm de frequentie bemonstert.</string>
 </resources>

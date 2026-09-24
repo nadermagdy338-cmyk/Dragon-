@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">理由コード</string>
     <string name="max_gpu_intent_default_title">デフォルト（開始状態）</string>
     <string name="max_gpu_intent_default_desc">レンジとガバナーを、このデバイスが画面を開いたときに持っていた値に戻します。すでに一致している間は何も書き込まれません。これは、何かを変更した人にとっては戻る方法です。</string>
+    <string name="max_gpu_history_empty">まだ読み取りはありません。画面が周波数をサンプリングすると、チャートが埋められます。</string>
 </resources>

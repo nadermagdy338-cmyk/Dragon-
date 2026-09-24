@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Donker</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Outo</string>
+    <string name="str_privilege_intro">Wortel gee volle toegang, Shizuku gee ADB-vlak toegang sonder wortel. Enige een is genoeg - albei word outomaties hier opgespoor.</string>
+    <string name="max_app_master_on">Maksimum aktief</string>
+    <string name="max_app_master_on_desc">Per-toepassing-optimalisasies word toegepas</string>
+    <string name="max_app_advanced_options">Gevorderde opsies</string>
+    <string name="max_app_save">Stoor</string>
 </resources>

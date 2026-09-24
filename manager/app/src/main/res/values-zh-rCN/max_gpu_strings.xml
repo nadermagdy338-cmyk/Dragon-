@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">原因代码</string>
     <string name="max_gpu_intent_default_title">默认（启动状态）</string>
     <string name="max_gpu_intent_default_desc">将范围和调节器返回到屏幕打开时该设备所具有的值。当它们已经匹配时，就不会再写入任何内容——这是任何更改某些内容的人的返回方式。</string>
+    <string name="max_gpu_history_empty">尚未读数 - 当屏幕对频率进行采样时，图表将被填充。</string>
 </resources>

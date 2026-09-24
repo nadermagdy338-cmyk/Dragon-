@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_provider_disappeared">Teenusepakkuja GPU, mille vastu muudatus tehti, on kadunud.</string>
     <string name="max_gpu_intent_default_title">Vaikimisi (algusolek)</string>
     <string name="max_gpu_intent_default_desc">Tagastab vahemiku ja regulaatori väärtused, mis sellel seadmel olid ekraani avanemisel. Kui need juba ühtivad, ei kirjutata midagi – see on tagasitee kõigile, kes midagi muutsid.</string>
+    <string name="max_gpu_history_empty">Veel pole lugemist – diagramm täitub, kui ekraan proovib sagedust.</string>
 </resources>

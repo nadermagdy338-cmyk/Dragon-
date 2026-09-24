@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Stornieren</string>
     <string name="max_language_device_section">Ihre Gerätesprachen</string>
     <string name="max_language_all_section">Alle Sprachen</string>
+    <string name="max_privilege_layers_title">Ihre Zugriffsebenen</string>
+    <string name="max_privilege_auto_scan">Wird automatisch gescannt, wenn dieser Bildschirm geöffnet wird – ohne Ihr Tippen wird nichts angefordert.</string>
+    <string name="max_privilege_scanning">Scannen…</string>
+    <string name="max_privilege_rescan">Noch einmal scannen</string>
 </resources>

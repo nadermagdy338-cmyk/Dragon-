@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">ਰੱਦ ਕਰੋ</string>
     <string name="max_language_device_section">ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਦੀਆਂ ਭਾਸ਼ਾਵਾਂ</string>
     <string name="max_language_all_section">ਸਾਰੀਆਂ ਭਾਸ਼ਾਵਾਂ</string>
+    <string name="max_privilege_layers_title">ਤੁਹਾਡੀਆਂ ਪਹੁੰਚ ਪਰਤਾਂ</string>
+    <string name="max_privilege_auto_scan">ਜਦੋਂ ਇਹ ਸਕ੍ਰੀਨ ਖੁੱਲ੍ਹਦੀ ਹੈ ਤਾਂ ਸਵੈਚਲਿਤ ਤੌਰ \'ਤੇ ਸਕੈਨ ਕੀਤਾ ਜਾਂਦਾ ਹੈ — ਤੁਹਾਡੇ ਟੈਪ ਤੋਂ ਬਿਨਾਂ ਕੁਝ ਨਹੀਂ ਮੰਗਿਆ ਜਾਂਦਾ ਹੈ।</string>
+    <string name="max_privilege_scanning">ਸਕੈਨ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...</string>
+    <string name="max_privilege_rescan">ਦੁਬਾਰਾ ਸਕੈਨ ਕਰੋ</string>
 </resources>

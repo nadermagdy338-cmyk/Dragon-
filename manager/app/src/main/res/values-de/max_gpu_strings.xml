@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Ursachencode</string>
     <string name="max_gpu_intent_default_title">Standard (Startzustand)</string>
     <string name="max_gpu_intent_default_desc">Setzt den Bereich und den Regler auf die Werte zurück, die dieses Gerät beim Öffnen des Bildschirms hatte. Solange sie bereits übereinstimmen, wird nichts geschrieben – das ist der Rückweg für jeden, der etwas geändert hat.</string>
+    <string name="max_gpu_history_empty">Noch kein Messwert – das Diagramm füllt sich, während der Bildschirm die Frequenz abtastet.</string>
 </resources>

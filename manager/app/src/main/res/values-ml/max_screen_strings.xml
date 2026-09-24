@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">ഈ സ്വിച്ചുകൾ MaxManager നയം മാറ്റുന്നു. മുകളിൽ സംസ്ഥാനത്തിൻ്റെ ഉടമസ്ഥാവകാശം Android നിലനിർത്തുന്നു.</string>
     <string name="max_language_device_section">നിങ്ങളുടെ ഉപകരണ ഭാഷകൾ</string>
     <string name="max_language_all_section">എല്ലാ ഭാഷകളും</string>
+    <string name="max_privilege_layers_title">നിങ്ങളുടെ ആക്സസ് ലെയറുകൾ</string>
+    <string name="max_privilege_auto_scan">ഈ സ്‌ക്രീൻ തുറക്കുമ്പോൾ സ്വയമേവ സ്‌കാൻ ചെയ്യപ്പെടും - നിങ്ങളുടെ ടാപ്പില്ലാതെ ഒന്നും ആവശ്യപ്പെടില്ല.</string>
+    <string name="max_privilege_scanning">സ്കാൻ ചെയ്യുന്നു...</string>
+    <string name="max_privilege_rescan">വീണ്ടും സ്കാൻ ചെയ്യുക</string>
 </resources>

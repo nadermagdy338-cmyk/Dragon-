@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">اندھیرا</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">آٹو</string>
+    <string name="str_privilege_intro">روٹ مکمل رسائی دیتا ہے، شیزوکو بغیر روٹ کے ADB سطح تک رسائی دیتا ہے۔ دونوں میں سے ایک کافی ہے — دونوں کا یہاں خود بخود پتہ چل جاتا ہے۔</string>
+    <string name="max_app_master_on">زیادہ سے زیادہ فعال</string>
+    <string name="max_app_master_on_desc">فی ایپ آپٹیمائزیشن لاگو کی جا رہی ہے۔</string>
+    <string name="max_app_advanced_options">اعلی درجے کے اختیارات</string>
+    <string name="max_app_save">محفوظ کریں۔</string>
 </resources>

@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">શ્યામ</string>
     <string name="theme_mode_amoled">એમોલેડ</string>
     <string name="theme_accent_auto">ઓટો</string>
+    <string name="str_privilege_intro">રૂટ સંપૂર્ણ ઍક્સેસ આપે છે, શિઝુકુ રૂટ વિના ADB-સ્તરની ઍક્સેસ આપે છે. બેમાંથી એક પર્યાપ્ત છે — બંને અહીં આપમેળે મળી આવે છે.</string>
+    <string name="max_app_master_on">મહત્તમ સક્રિય</string>
+    <string name="max_app_master_on_desc">પ્રતિ-એપ્લિકેશન ઓપ્ટિમાઇઝેશન લાગુ કરવામાં આવી રહ્યું છે</string>
+    <string name="max_app_advanced_options">અદ્યતન વિકલ્પો</string>
+    <string name="max_app_save">સાચવો</string>
 </resources>

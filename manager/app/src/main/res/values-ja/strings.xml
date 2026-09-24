@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">暗い</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">自動</string>
+    <string name="str_privilege_intro">root は完全なアクセス権を与えますが、Shizuku は root なしで ADB レベルのアクセス権を与えます。どちらか一方だけで十分です。ここでは両方が自動的に検出されます。</string>
+    <string name="max_app_master_on">最大アクティブ</string>
+    <string name="max_app_master_on_desc">アプリごとの最適化が適用されています</string>
+    <string name="max_app_advanced_options">詳細オプション</string>
+    <string name="max_app_save">保存</string>
 </resources>

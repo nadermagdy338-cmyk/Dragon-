@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">มืด</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">อัตโนมัติ</string>
+    <string name="str_privilege_intro">รูทให้การเข้าถึงแบบเต็ม Shizuku ให้การเข้าถึงระดับ ADB โดยไม่ต้องรูท อย่างใดอย่างหนึ่งก็เพียงพอแล้ว - ทั้งคู่จะถูกตรวจพบที่นี่โดยอัตโนมัติ</string>
+    <string name="max_app_master_on">แม็กซ์แอคทีฟ</string>
+    <string name="max_app_master_on_desc">กำลังใช้การเพิ่มประสิทธิภาพต่อแอป</string>
+    <string name="max_app_advanced_options">ตัวเลือกขั้นสูง</string>
+    <string name="max_app_save">บันทึก</string>
 </resources>

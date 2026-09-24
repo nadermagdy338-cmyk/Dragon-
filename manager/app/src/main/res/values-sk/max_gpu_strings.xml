@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Kód príčiny</string>
     <string name="max_gpu_intent_default_title">Predvolené (stav spustenia)</string>
     <string name="max_gpu_intent_default_desc">Vráti rozsah a regulátor na hodnoty, ktoré malo toto zariadenie pri otvorení obrazovky. Nič sa nepíše, kým sa už zhodujú – toto je cesta späť pre každého, kto niečo zmenil.</string>
+    <string name="max_gpu_history_empty">Zatiaľ žiadne čítanie – graf sa vyplní, keď obrazovka vzorkuje frekvenciu.</string>
 </resources>

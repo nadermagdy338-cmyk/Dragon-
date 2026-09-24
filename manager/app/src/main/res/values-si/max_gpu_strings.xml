@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">හේතු කේතය</string>
     <string name="max_gpu_intent_default_title">පෙරනිමි (ආරම්භක තත්වය)</string>
     <string name="max_gpu_intent_default_desc">තිරය ​​විවෘත කරන විට මෙම උපාංගයේ තිබූ අගයන් වෙත පරාසය සහ පාලකය ලබා දෙයි. ඒවා දැනටමත් ගැළපෙන විට කිසිවක් ලියා නැත - යමක් වෙනස් කළ ඕනෑම කෙනෙකුට ආපසු යන මාර්ගය මෙයයි.</string>
+    <string name="max_gpu_history_empty">තවම කියවීමක් නැත - තිරය සංඛ්‍යාතය සාම්පල කරන විට ප්‍රස්ථාරය පුරවයි.</string>
 </resources>

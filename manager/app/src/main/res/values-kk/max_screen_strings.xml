@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">Бұл қосқыштар MaxManager саясатын өзгертеді. Android жоғарыдағы мемлекетке меншік құқығын сақтайды.</string>
     <string name="max_language_device_section">Құрылғыңыздың тілдері</string>
     <string name="max_language_all_section">Барлық тілдер</string>
+    <string name="max_privilege_layers_title">Қол жеткізу қабаттары</string>
+    <string name="max_privilege_auto_scan">Бұл экран ашылғанда автоматты түрде сканерленеді — түртусіз ештеңе сұралмайды.</string>
+    <string name="max_privilege_scanning">Сканерлеуде…</string>
+    <string name="max_privilege_rescan">Қайта сканерлеңіз</string>
 </resources>

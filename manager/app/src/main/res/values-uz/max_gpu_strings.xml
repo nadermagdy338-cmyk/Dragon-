@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Sabab kodi</string>
     <string name="max_gpu_intent_default_title">Birlamchi (boshlash holati)</string>
     <string name="max_gpu_intent_default_desc">Diapazon va gubernatorni ekran ochilganda ushbu qurilma ega bo‘lgan qiymatlarga qaytaradi. Ular allaqachon mos bo\'lganida hech narsa yozilmaydi - bu nimanidir o\'zgartirgan har bir kishi uchun qaytish yo\'lidir.</string>
+    <string name="max_gpu_history_empty">Hali oʻqish yoʻq — diagramma toʻldiriladi, chunki ekran chastotani tanlaydi.</string>
 </resources>

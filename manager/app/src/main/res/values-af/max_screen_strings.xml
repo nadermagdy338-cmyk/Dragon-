@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Kanselleer</string>
     <string name="max_language_device_section">Jou toesteltale</string>
     <string name="max_language_all_section">Alle tale</string>
+    <string name="max_privilege_layers_title">Jou toegangslae</string>
+    <string name="max_privilege_auto_scan">Word outomaties geskandeer wanneer hierdie skerm oopmaak – niks word versoek sonder jou tik nie.</string>
+    <string name="max_privilege_scanning">Skandeer tans …</string>
+    <string name="max_privilege_rescan">Skandeer weer</string>
 </resources>

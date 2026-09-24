@@ -22,6 +22,7 @@
     <string name="max_gpu_temp_label">حرارة المعالج الرسومي</string>
     <string name="max_gpu_read_age_label">عمر القراءة</string>
     <string name="max_gpu_history_title">التردد مؤخّرًا</string>
+    <string name="max_gpu_history_empty">لا قراءة بعد — يُرسم المخطّط مع كل عيّنة تردد.</string>
     <string name="max_gpu_age_seconds">%1$d ثانية</string>
     <string name="max_gpu_value_absent">غير متاح</string>
 

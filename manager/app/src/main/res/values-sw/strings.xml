@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Giza</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Otomatiki</string>
+    <string name="str_privilege_intro">Root inatoa ufikiaji kamili, Shizuku inatoa ufikiaji wa kiwango cha ADB bila mzizi. Moja inatosha - zote mbili hugunduliwa hapa kiotomatiki.</string>
+    <string name="max_app_master_on">Max Active</string>
+    <string name="max_app_master_on_desc">Uboreshaji kwa kila programu unatekelezwa</string>
+    <string name="max_app_advanced_options">Chaguzi za hali ya juu</string>
+    <string name="max_app_save">Hifadhi</string>
 </resources>

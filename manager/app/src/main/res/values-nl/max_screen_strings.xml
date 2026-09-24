@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Annuleren</string>
     <string name="max_language_device_section">Uw apparaattalen</string>
     <string name="max_language_all_section">Alle talen</string>
+    <string name="max_privilege_layers_title">Uw toegangslagen</string>
+    <string name="max_privilege_auto_scan">Wordt automatisch gescand wanneer dit scherm wordt geopend. Er wordt niets gevraagd zonder dat u erop tikt.</string>
+    <string name="max_privilege_scanning">Scannen…</string>
+    <string name="max_privilege_rescan">Opnieuw scannen</string>
 </resources>

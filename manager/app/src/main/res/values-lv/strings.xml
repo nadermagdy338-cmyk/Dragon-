@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Tumšs</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Auto</string>
+    <string name="str_privilege_intro">Root nodrošina pilnu piekļuvi, Shizuku nodrošina ADB līmeņa piekļuvi bez root. Pietiek ar vienu — abi šeit tiek noteikti automātiski.</string>
+    <string name="max_app_master_on">Max Active</string>
+    <string name="max_app_master_on_desc">Tiek piemērota optimizācija katrai lietotnei</string>
+    <string name="max_app_advanced_options">Papildu opcijas</string>
+    <string name="max_app_save">Saglabāt</string>
 </resources>

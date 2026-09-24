@@ -846,10 +846,13 @@ private fun PerAppCpuControlSection(
                 Icon(Icons.Rounded.Memory, null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("خيارات متقدمة", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    // كان نصًّا عربيًّا صلبًا في ملف الشاشة: يُقرأ عربيًّا حتى لمن لغته
+                    // الإنجليزية. العنوان يُترجم كأي عنوان آخر.
+                    Text(stringResource(R.string.max_app_advanced_options), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                IconButton(onClick = onRefreshStatus) { Icon(Icons.Rounded.Refresh, "Refresh status", tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                // ووصف القارئ الشاشي كان نصًّا صلبًا أيضًا: غير مترجم وغير قابل للتهيئة.
+                IconButton(onClick = onRefreshStatus) { Icon(Icons.Rounded.Refresh, stringResource(R.string.cd_refresh), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
                 Icon(if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -1014,9 +1017,10 @@ private fun ProfilePresetEditor(
             nd.max.ui.component.StudioTextButton(onClick = {
                 values.forEach { (name, value) -> ProfilePresetStore.setPercent(context, name, value) }
                 onDismiss()
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.max_app_save)) }
         },
-        dismissButton = { nd.max.ui.component.StudioTextButton(onClick = onDismiss) { Text("Cancel") } }
+        // `cancel` مفتاح قائم في ٨٥ لغة — لا يُكتب نصًّا صلبًا بجانب نظيره المترجم.
+        dismissButton = { nd.max.ui.component.StudioTextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } }
     )
 }
 
@@ -1273,7 +1277,12 @@ private fun MasterSwitchCard(isEnabled: Boolean, onToggle: (Boolean) -> Unit) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = if (isEnabled) "AZenith Active" else stringResource(R.string.master_switch),
+                        // كان "AZenith Active" نصًّا صلبًا في ملف الشاشة: لا يُترجم أبدًا (اسم
+                        // داخلي من `AZenith.h` يظهر للمستخدم)، ويُحتسب عَينًا في دَين
+                        // `hardcoded_ui_literals`. والأصل أنّه **حالة** المفتاح لا اسمه القديم.
+                        text = stringResource(
+                            if (isEnabled) R.string.max_app_master_on else R.string.master_switch
+                        ),
                         style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = textColor
                     )
                     if (isEnabled) {
@@ -1282,7 +1291,10 @@ private fun MasterSwitchCard(isEnabled: Boolean, onToggle: (Boolean) -> Unit) {
                     }
                 }
                 Text(
-                    text = if (isEnabled) "Per-app optimizations are being applied" else stringResource(R.string.master_switch_desc),
+                    // والنصّ الصلب الثاني في البطاقة نفسها: الوصف تحت العنوان لم يكن مترجمًا أيضًا.
+                    text = stringResource(
+                        if (isEnabled) R.string.max_app_master_on_desc else R.string.master_switch_desc
+                    ),
                     style = MaterialTheme.typography.bodySmall, color = textColor.copy(alpha = 0.75f)
                 )
             }

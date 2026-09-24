@@ -17,6 +17,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
+import nd.max.core.privilege.PrivilegeManager
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 import nd.max.ui.navigation.MaxRisk
@@ -133,6 +134,14 @@ fun SettingsScreen(
         stringResource(R.string.max_language_auto) + " · " + AppLanguage.displayName(AppLanguage.AUTO)
     } else {
         AppLanguage.nativeName(currentLanguage)
+    }
+
+    // طبقة الامتياز (AR-20): قراءة سلبية واحدة عند فتح الإعدادات، فيُظهر صفّ الوصول
+    // الطبقة الحالية ويفتح السطح الموحّد (الجذر + Shizuku) لتغييرها. ولا يُطلب امتياز
+    // هنا — الطلب فعل صريح داخل السطح نفسه.
+    val privilegeSnapshot by PrivilegeManager.snapshot.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) { PrivilegeManager.refresh() }
     }
 
     var showChangelogSheet by remember { mutableStateOf(false) }
@@ -300,7 +309,10 @@ fun SettingsScreen(
                                 ExpressiveListItem(
                                     onClick = { showLanguageSheet = true },
                                     headlineContent = { Text(stringResource(R.string.max_language_title)) },
-                                    supportingContent = { Text(stringResource(R.string.max_language_desc)) },
+                                    // الوصف أُزيل بأمر المالك (٢٠٢٦-٠٩-٢٤): «لغة عرض التطبيق،
+                                    // وتُطَبَّق فورًا» سطرٌ يقول ما يُفهم من العنوان، ويُدفع في
+                                    // كل فتحة — والمفتاح `max_language_desc` يبقى في الموارد
+                                    // لأن إعادته سطرُ نداء واحد، لا حذف عمل (ADR-18).
                                     leadingContent = { LeadingIcon(icon = Icons.Filled.Language) },
                                     trailingContent = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -370,14 +382,29 @@ fun SettingsScreen(
                                 )
                             },
                             {
-                                // طبقة الامتياز الثانية (AR-20): تُعرَض في الإعدادات
-                                // بجانب بقية الأسطح، وبنفس اللوحة المستخدمة في شاشة البداية.
+                                // السطح الموحّد للامتياز (AR-20): الجذر وShizuku في شاشة
+                                // واحدة، وهي نفسها المستخدمة في شاشة البداية. وهذا الصفّ
+                                // الوحيد للامتياز في الإعدادات (كان صفّان: طلب الجذر
+                                // ولوحة الوصول) — وطلب الجذر صار زرًّا داخل السطح، والطبقة
+                                // الحالية معروضة هنا حتى تُغيَّر من الإعدادات بضغطة.
                                 ExpressiveListItem(
                                     onClick = { MaxNavActions(navController).navigateTo(MaxDestination.Privilege) },
                                     headlineContent = { Text(stringResource(R.string.max_privilege_title)) },
                                     supportingContent = { Text(stringResource(R.string.max_privilege_desc)) },
                                     leadingContent = { LeadingIcon(icon = Icons.Rounded.Shield) },
-                                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                                    trailingContent = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = stringResource(privilegeSnapshot.level.labelRes),
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Spacer(Modifier.width(8.dp))
+                                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                                        }
+                                    }
                                 )
                             },
                             {
@@ -485,37 +512,10 @@ fun SettingsScreen(
                                 // ظاهرة دائمًا. السبب عَمَليّ لا ذوقيّ: تطبيق الوحدة هو الطريق
                                 // الوحيد إلى مدير الروت بعد التفليش، ومدير إخفائه من الواجهة كان
                                 // يقطع الطريق على من أراد منحه الإذن — ثم يقول «تطبيقي لا يظهر».
-                                // طلب إذن الروت يدويًّا — زرّ واحد يفتح باب مدير الروت.
-                                //
-                                // ولماذا لزم: التطبيق يُثبّته المُثبِّت **تطبيق نظام** (`/product/priv-app`)،
-                                // ومديرو الروت (KernelSU Next · APatch · Magisk) يبنون قائمة القبول من
-                                // **الطلبات** التي تصلهم من التطبيق؛ فمن لم يُسأل لا يظهر في القائمة
-                                // فيقول صاحبه «تطبيقي غير موجود لأمنحه الإذن». والضغط هنا يُنفّذ أمرًا
-                                // بصلاحية جذر عبر `libsu`، فيصل الطلب إلى المدير ويُسجَّل التطبيق في
-                                // قائمته — ولذلك الشرح أدناه يقول ما سيحدث بالضبط لا «جرّب».وعلى كل حال،
-                                // الكتابات الروتينية تأخذ أذوناتها من `service.sh` عند الإقلاع،
-                                // فهذا الزرّ للأذن الشخصي لا لتشغيل التطبيق.
-                                {
-                                    ExpressiveListItem(
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                val output = withContext(Dispatchers.IO) {
-                                                    PrivilegedShell.run("id")
-                                                }
-                                                val granted = output?.any { it.contains("uid=0") } == true
-                                                snackbarHostState.showSnackbar(
-                                                    resources.getString(
-                                                        if (granted) R.string.root_grant_ok else R.string.root_grant_denied,
-                                                    ),
-                                                )
-                                            }
-                                        },
-                                        headlineContent = { Text(stringResource(R.string.root_grant_title)) },
-                                        supportingContent = { Text(stringResource(R.string.root_grant_desc)) },
-                                        leadingContent = { LeadingIcon(icon = Icons.Filled.VerifiedUser) },
-                                        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
-                                    )
-                                },
+                                // طلبُ إذن الروت انتقل إلى السطح الموحّد (الجذر +
+                                // Shizuku) الذي يفتحه صفّ «الوصول والامتيازات» أعلاه:
+                                // كان هنا صفًّا مستقلًّا يقول الشيء نفسه في مكانين، وشرحه
+                                // (`root_grant_desc`) صار تحت زرّ الجذر هناك بنصّه.
                                 {
                                     ExpressiveListItem(
                                         onClick = {

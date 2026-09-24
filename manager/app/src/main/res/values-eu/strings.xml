@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Iluna</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Autoa</string>
+    <string name="str_privilege_intro">Erroak sarbide osoa ematen du, Shizukuk ADB mailako sarbidea ematen du root gabe. Bata ala bestea nahikoa da: biak automatikoki detektatzen dira hemen.</string>
+    <string name="max_app_master_on">Aktibo maximoa</string>
+    <string name="max_app_master_on_desc">Aplikazio bakoitzeko optimizazioak aplikatzen ari dira</string>
+    <string name="max_app_advanced_options">Aukera aurreratuak</string>
+    <string name="max_app_save">Gorde</string>
 </resources>

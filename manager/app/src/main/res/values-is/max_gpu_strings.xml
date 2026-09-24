@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Ástæðukóði</string>
     <string name="max_gpu_intent_default_title">Sjálfgefið (upphafsástand)</string>
     <string name="max_gpu_intent_default_desc">Skilar sviðinu og landstjóranum í þau gildi sem þetta tæki hafði þegar skjárinn opnaðist. Ekkert er skrifað á meðan þau passa saman - þetta er leiðin til baka fyrir alla sem breyttu einhverju.</string>
+    <string name="max_gpu_history_empty">Enginn lestur ennþá - töfluna fyllist þegar skjárinn sýnir tíðnina.</string>
 </resources>

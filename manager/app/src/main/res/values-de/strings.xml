@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Dunkel</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Auto</string>
+    <string name="str_privilege_intro">Root gewährt vollen Zugriff, Shizuku ermöglicht Zugriff auf ADB-Ebene ohne Root. Beides reicht aus – beide werden hier automatisch erkannt.</string>
+    <string name="max_app_master_on">Maximal aktiv</string>
+    <string name="max_app_master_on_desc">Es werden Optimierungen pro App angewendet</string>
+    <string name="max_app_advanced_options">Erweiterte Optionen</string>
+    <string name="max_app_save">Speichern</string>
 </resources>

@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">کد دلیل</string>
     <string name="max_gpu_intent_default_title">پیش فرض (وضعیت شروع)</string>
     <string name="max_gpu_intent_default_desc">محدوده و گاورنر را به مقادیری برمی‌گرداند که این دستگاه هنگام باز شدن صفحه نمایش داشت. هیچ چیز نوشته نشده است در حالی که آنها قبلا مطابقت دارند - این راه بازگشت برای هر کسی است که چیزی را تغییر داده است.</string>
+    <string name="max_gpu_history_empty">هنوز مطالعه نشده است - نمودار پر می شود زیرا صفحه نمایش فرکانس را نمونه برداری می کند.</string>
 </resources>

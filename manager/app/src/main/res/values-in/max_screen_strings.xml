@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">Sakelar ini mengubah kebijakan MaxManager. Android mempertahankan kepemilikan negara di atas.</string>
     <string name="max_language_device_section">Bahasa perangkat Anda</string>
     <string name="max_language_all_section">Semua bahasa</string>
+    <string name="max_privilege_layers_title">Lapisan akses Anda</string>
+    <string name="max_privilege_auto_scan">Dipindai secara otomatis saat layar ini terbuka — tidak ada yang diminta tanpa ketukan Anda.</string>
+    <string name="max_privilege_scanning">Memindai…</string>
+    <string name="max_privilege_rescan">Pindai lagi</string>
 </resources>

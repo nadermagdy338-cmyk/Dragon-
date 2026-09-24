@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Kod sebab</string>
     <string name="max_gpu_intent_default_title">Lalai (keadaan mula)</string>
     <string name="max_gpu_intent_default_desc">Mengembalikan julat dan gabenor kepada nilai peranti ini apabila skrin dibuka. Tiada apa-apa yang ditulis semasa ia sudah sepadan — ini adalah jalan kembali untuk sesiapa sahaja yang mengubah sesuatu.</string>
+    <string name="max_gpu_history_empty">Belum membaca lagi — carta terisi semasa skrin membuat sampel kekerapan.</string>
 </resources>

@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Mã lý do</string>
     <string name="max_gpu_intent_default_title">Mặc định (trạng thái bắt đầu)</string>
     <string name="max_gpu_intent_default_desc">Trả về phạm vi và bộ điều tốc về giá trị mà thiết bị này có khi màn hình mở. Không có gì được viết trong khi chúng đã khớp - đây là cách quay lại cho bất kỳ ai đã thay đổi điều gì đó.</string>
+    <string name="max_gpu_history_empty">Chưa đọc - biểu đồ sẽ lấp đầy khi màn hình lấy mẫu tần số.</string>
 </resources>

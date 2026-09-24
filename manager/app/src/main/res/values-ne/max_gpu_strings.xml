@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">कारण कोड</string>
     <string name="max_gpu_intent_default_title">पूर्वनिर्धारित (सुरु अवस्था)</string>
     <string name="max_gpu_intent_default_desc">स्क्रिन खोल्दा यो यन्त्रमा भएका मानहरूमा दायरा र गभर्नर फर्काउँछ। पहिले नै मेल खाँदा केहि पनि लेखिएको छैन - यो केहि परिवर्तन गर्ने जो कोहीको लागि फिर्ताको बाटो हो।</string>
+    <string name="max_gpu_history_empty">अझै पढेको छैन — स्क्रिनले फ्रिक्वेन्सीको नमूना बनाउँदा चार्ट भरिन्छ।</string>
 </resources>

@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">ሰርዝ</string>
     <string name="max_language_device_section">የእርስዎ መሣሪያ ቋንቋዎች</string>
     <string name="max_language_all_section">ሁሉም ቋንቋዎች</string>
+    <string name="max_privilege_layers_title">የመዳረሻዎ ንብርብሮች</string>
+    <string name="max_privilege_auto_scan">ይህ ማያ ገጽ ሲከፈት በራስ-ሰር ይቃኛል - ሳይነኩ ምንም ነገር አይጠየቅም።</string>
+    <string name="max_privilege_scanning">በመቃኘት ላይ…</string>
+    <string name="max_privilege_rescan">እንደገና ይቃኙ</string>
 </resources>

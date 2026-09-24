@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">අවලංගු කරන්න</string>
     <string name="max_language_device_section">ඔබගේ උපාංග භාෂා</string>
     <string name="max_language_all_section">සියලුම භාෂා</string>
+    <string name="max_privilege_layers_title">ඔබගේ ප්‍රවේශ ස්ථර</string>
+    <string name="max_privilege_auto_scan">මෙම තිරය විවෘත වන විට ස්වයංක්‍රීයව පරිලෝකනය වේ - ඔබගේ තට්ටු කිරීමකින් තොරව කිසිවක් ඉල්ලන්නේ නැත.</string>
+    <string name="max_privilege_scanning">ස්කෑන් කරමින්...</string>
+    <string name="max_privilege_rescan">නැවත ස්කෑන් කරන්න</string>
 </resources>

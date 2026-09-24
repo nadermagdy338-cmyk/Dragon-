@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">কারণ কোড</string>
     <string name="max_gpu_intent_default_title">ডিফল্ট (শুরু অবস্থা)</string>
     <string name="max_gpu_intent_default_desc">স্ক্রীন খোলার সময় এই ডিভাইসের মানগুলির পরিসর এবং গভর্নরকে ফিরিয়ে দেয়৷ তারা ইতিমধ্যে মেলে যখন কিছুই লেখা হয় না — এই যে কেউ কিছু পরিবর্তন করার জন্য ফিরে উপায়.</string>
+    <string name="max_gpu_history_empty">এখনও পড়া হয়নি — স্ক্রীনের ফ্রিকোয়েন্সি নমুনা হিসাবে চার্টটি পূর্ণ হয়।</string>
 </resources>

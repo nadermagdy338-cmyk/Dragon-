@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Hætta við</string>
     <string name="max_language_device_section">Tungumál tækisins þíns</string>
     <string name="max_language_all_section">Öll tungumál</string>
+    <string name="max_privilege_layers_title">Aðgangslögin þín</string>
+    <string name="max_privilege_auto_scan">Skannaður sjálfkrafa þegar þessi skjár opnast — ekkert er beðið um án þess að þú hafir smellt.</string>
+    <string name="max_privilege_scanning">Skannar…</string>
+    <string name="max_privilege_rescan">Skannaðu aftur</string>
 </resources>

@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">ጨለማ</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">መኪና</string>
+    <string name="str_privilege_intro">ስርወ ሙሉ መዳረሻ ይሰጣል ሺዙኩ ስር ያለ ADB-ደረጃ መዳረሻ ይሰጣል። ከሁለቱም አንዱ በቂ ነው - ሁለቱም በራስ-ሰር እዚህ ተገኝተዋል።</string>
+    <string name="max_app_master_on">ከፍተኛ ገቢር</string>
+    <string name="max_app_master_on_desc">በየመተግበሪያ ማሻሻያዎች በመተግበር ላይ ናቸው።</string>
+    <string name="max_app_advanced_options">የላቁ አማራጮች</string>
+    <string name="max_app_save">አስቀምጥ</string>
 </resources>

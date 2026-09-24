@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">இருள்</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ஆட்டோ</string>
+    <string name="str_privilege_intro">ரூட் முழு அணுகலை வழங்குகிறது, ஷிசுகு ரூட் இல்லாமல் ADB-நிலை அணுகலை வழங்குகிறது. ஒன்று போதும் - இரண்டும் இங்கே தானாகவே கண்டறியப்படும்.</string>
+    <string name="max_app_master_on">மேக்ஸ் ஆக்டிவ்</string>
+    <string name="max_app_master_on_desc">பயன்பாட்டிற்கான மேம்படுத்தல்கள் பயன்படுத்தப்படுகின்றன</string>
+    <string name="max_app_advanced_options">மேம்பட்ட விருப்பங்கள்</string>
+    <string name="max_app_save">சேமிக்கவும்</string>
 </resources>

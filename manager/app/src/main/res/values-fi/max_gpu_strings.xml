@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Syy koodi</string>
     <string name="max_gpu_intent_default_title">Oletus (aloitustila)</string>
     <string name="max_gpu_intent_default_desc">Palauttaa alueen ja säätimen arvoihin, jotka tällä laitteella oli näytön avautuessa. Mitään ei kirjoiteta, kun ne jo täsmäävät – tämä on tie takaisin kaikille, jotka ovat muuttaneet jotain.</string>
+    <string name="max_gpu_history_empty">Ei vielä lukemista – kaavio täyttyy, kun näyttö ottaa näytteitä taajuudesta.</string>
 </resources>

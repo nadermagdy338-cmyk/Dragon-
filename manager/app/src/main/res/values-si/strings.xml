@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">අඳුරු</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ඔටෝ</string>
+    <string name="str_privilege_intro">Root සම්පූර්ණ ප්‍රවේශය ලබා දෙයි, Shizuku root නොමැතිව ADB-level access ලබා දෙයි. එක්කෝ ප්‍රමාණවත් - දෙකම මෙහි ස්වයංක්‍රීයව අනාවරණය වේ.</string>
+    <string name="max_app_master_on">මැක්ස් ඇක්ටිව්</string>
+    <string name="max_app_master_on_desc">යෙදුමකට ප්‍රශස්තකරණයන් යොදනු ලැබේ</string>
+    <string name="max_app_advanced_options">උසස් විකල්ප</string>
+    <string name="max_app_save">සුරකින්න</string>
 </resources>

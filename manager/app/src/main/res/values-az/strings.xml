@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Qaranlıq</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Avtomatik</string>
+    <string name="str_privilege_intro">Kök tam giriş verir, Şizuku kök olmadan ADB səviyyəli giriş verir. Hər ikisi kifayətdir - hər ikisi burada avtomatik aşkarlanır.</string>
+    <string name="max_app_master_on">Maksimum Aktiv</string>
+    <string name="max_app_master_on_desc">Proqram başına optimallaşdırmalar tətbiq edilir</string>
+    <string name="max_app_advanced_options">Qabaqcıl seçimlər</string>
+    <string name="max_app_save">Saxla</string>
 </resources>

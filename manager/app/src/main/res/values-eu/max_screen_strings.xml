@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">Etengailu hauek MaxManagerren politika aldatzen dute. Android-ek goiko estatuaren jabetza mantentzen du.</string>
     <string name="max_language_device_section">Zure gailuko hizkuntzak</string>
     <string name="max_language_all_section">Hizkuntza guztiak</string>
+    <string name="max_privilege_layers_title">Zure sarbide-geruzak</string>
+    <string name="max_privilege_auto_scan">Pantaila hau irekitzen denean automatikoki eskaneatzen da; ez da ezer eskatuko zure ukitu gabe.</string>
+    <string name="max_privilege_scanning">Eskaneatzen…</string>
+    <string name="max_privilege_rescan">Eskaneatu berriro</string>
 </resources>

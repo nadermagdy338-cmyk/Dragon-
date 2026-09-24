@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Khansela</string>
     <string name="max_language_device_section">Izilimi zedivayisi yakho</string>
     <string name="max_language_all_section">Zonke izilimi</string>
+    <string name="max_privilege_layers_title">Izendlalelo zakho zokufinyelela</string>
+    <string name="max_privilege_auto_scan">Iskenwa ngokuzenzakalela uma lesi sikrini sivuleka — akukho lutho olucelwayo ngaphandle kokuthepha kwakho.</string>
+    <string name="max_privilege_scanning">Iyaskena...</string>
+    <string name="max_privilege_rescan">Skena futhi</string>
 </resources>

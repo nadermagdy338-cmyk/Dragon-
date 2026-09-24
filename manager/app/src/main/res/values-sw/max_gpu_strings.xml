@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Msimbo wa sababu</string>
     <string name="max_gpu_intent_default_title">Chaguo-msingi (hali ya kuanza)</string>
     <string name="max_gpu_intent_default_desc">Hurejesha masafa na gavana kwa thamani ambazo kifaa hiki kilikuwa nazo wakati skrini inafunguliwa. Hakuna kinachoandikwa wakati tayari zinalingana - hii ndiyo njia ya kurudi kwa mtu yeyote aliyebadilisha kitu.</string>
+    <string name="max_gpu_history_empty">Bado hakuna usomaji - chati hujaza kadiri skrini inavyochukua sampuli ya marudio.</string>
 </resources>

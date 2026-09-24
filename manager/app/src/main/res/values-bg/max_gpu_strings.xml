@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Код на причината</string>
     <string name="max_gpu_intent_default_title">По подразбиране (начално състояние)</string>
     <string name="max_gpu_intent_default_desc">Връща обхвата и регулатора към стойностите, които това устройство имаше, когато екранът се отвори. Нищо не е написано, докато вече съвпадат - това е обратният път за всеки, който е променил нещо.</string>
+    <string name="max_gpu_history_empty">Все още няма четене — диаграмата се запълва, докато екранът пробва честотата.</string>
 </resources>

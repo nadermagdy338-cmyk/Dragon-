@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">చీకటి</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ఆటో</string>
+    <string name="str_privilege_intro">రూట్ పూర్తి యాక్సెస్ ఇస్తుంది, Shizuku రూట్ లేకుండా ADB-స్థాయి యాక్సెస్ ఇస్తుంది. ఒకటి సరిపోతుంది — రెండూ ఇక్కడ స్వయంచాలకంగా గుర్తించబడతాయి.</string>
+    <string name="max_app_master_on">మాక్స్ యాక్టివ్</string>
+    <string name="max_app_master_on_desc">ఒక్కో యాప్ ఆప్టిమైజేషన్‌లు వర్తింపజేయబడుతున్నాయి</string>
+    <string name="max_app_advanced_options">అధునాతన ఎంపికలు</string>
+    <string name="max_app_save">సేవ్ చేయండి</string>
 </resources>

@@ -447,4 +447,8 @@
     <string name="max_fps_permission_detail">Android କୁ “ଅନ୍ୟ ଆପ୍ ଉପରେ ଦେଖାନ୍ତୁ” ଅନୁମତି ଆବଶ୍ୟକ, MaxManager ଓଭରଲେ ଆଙ୍କିବା ପୂର୍ବରୁ।</string>
     <string name="max_language_device_section">ଆପଣଙ୍କର ଡିଭାଇସ୍ ଭାଷା</string>
     <string name="max_language_all_section">ସମସ୍ତ ଭାଷା</string>
+    <string name="max_privilege_layers_title">ଆପଣଙ୍କର ପ୍ରବେଶ ସ୍ତରଗୁଡିକ</string>
+    <string name="max_privilege_auto_scan">ଯେତେବେଳେ ଏହି ସ୍କ୍ରିନ୍ ଖୋଲିବ ସ୍ୱୟଂଚାଳିତ ଭାବରେ ସ୍କାନ୍ ହୁଏ - ତୁମର ଟ୍ୟାପ୍ ବିନା କିଛି ଅନୁରୋଧ କରାଯାଏ ନାହିଁ</string>
+    <string name="max_privilege_scanning">ସ୍କାନିଂ…</string>
+    <string name="max_privilege_rescan">ପୁନର୍ବାର ସ୍କାନ୍ କରନ୍ତୁ</string>
 </resources>

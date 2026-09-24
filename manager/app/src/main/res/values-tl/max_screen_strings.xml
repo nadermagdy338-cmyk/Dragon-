@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Kanselahin</string>
     <string name="max_language_device_section">Mga wika ng iyong device</string>
     <string name="max_language_all_section">Lahat ng mga wika</string>
+    <string name="max_privilege_layers_title">Ang iyong mga layer ng pag-access</string>
+    <string name="max_privilege_auto_scan">Awtomatikong na-scan kapag bumukas ang screen na ito — walang hinihiling nang wala ang iyong pag-tap.</string>
+    <string name="max_privilege_scanning">Ini-scan...</string>
+    <string name="max_privilege_rescan">I-scan muli</string>
 </resources>

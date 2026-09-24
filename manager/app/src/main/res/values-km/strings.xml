@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">ងងឹត</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ស្វ័យប្រវត្តិ</string>
+    <string name="str_privilege_intro">Root ផ្តល់នូវការចូលប្រើពេញលេញ Shizuku ផ្តល់នូវការចូលប្រើកម្រិត ADB ដោយគ្មាន root ។ មួយគឺគ្រប់គ្រាន់ហើយ — ទាំងពីរត្រូវបានរកឃើញនៅទីនេះដោយស្វ័យប្រវត្តិ។</string>
+    <string name="max_app_master_on">សកម្មអតិបរមា</string>
+    <string name="max_app_master_on_desc">ការបង្កើនប្រសិទ្ធភាពក្នុងមួយកម្មវិធីកំពុងត្រូវបានអនុវត្ត</string>
+    <string name="max_app_advanced_options">ជម្រើសកម្រិតខ្ពស់</string>
+    <string name="max_app_save">រក្សាទុក</string>
 </resources>

@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">यी स्विचहरूले MaxManager को नीति परिवर्तन गर्दछ। एन्ड्रोइडले राज्यको स्वामित्वलाई माथि राख्छ।</string>
     <string name="max_language_device_section">तपाईंको उपकरण भाषाहरू</string>
     <string name="max_language_all_section">सबै भाषाहरू</string>
+    <string name="max_privilege_layers_title">तपाईंको पहुँच तहहरू</string>
+    <string name="max_privilege_auto_scan">यो स्क्रिन खुल्दा स्वचालित रूपमा स्क्यान हुन्छ — तपाईंको ट्याप बिना कुनै पनि अनुरोध गरिएको छैन।</string>
+    <string name="max_privilege_scanning">स्क्यान गर्दै...</string>
+    <string name="max_privilege_rescan">फेरि स्क्यान गर्नुहोस्</string>
 </resources>

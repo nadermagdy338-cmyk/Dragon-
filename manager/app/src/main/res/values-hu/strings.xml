@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Sötét</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Auto</string>
+    <string name="str_privilege_intro">A root teljes hozzáférést, a Shizuku ADB szintű hozzáférést ad root nélkül. Bármelyik elég – itt mindkettőt automatikusan észleli.</string>
+    <string name="max_app_master_on">Max aktív</string>
+    <string name="max_app_master_on_desc">Alkalmazásonkénti optimalizálás van folyamatban</string>
+    <string name="max_app_advanced_options">Speciális beállítások</string>
+    <string name="max_app_save">Megtakarítás</string>
 </resources>

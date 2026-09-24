@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Fosc</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Automàtic</string>
+    <string name="str_privilege_intro">L\'arrel dóna accés complet, Shizuku dóna accés de nivell ADB sense arrel. Ambdós són suficients: tots dos es detecten aquí automàticament.</string>
+    <string name="max_app_master_on">Màxim actiu</string>
+    <string name="max_app_master_on_desc">S\'estan aplicant optimitzacions per aplicació</string>
+    <string name="max_app_advanced_options">Opcions avançades</string>
+    <string name="max_app_save">Desa</string>
 </resources>

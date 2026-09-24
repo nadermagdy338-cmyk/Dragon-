@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Қараңғы</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Авто</string>
+    <string name="str_privilege_intro">Root толық рұқсат береді, Шидзуку ADB-деңгейінде түбірсіз рұқсат береді. Біреуі жеткілікті — екеуі де осы жерде автоматты түрде анықталады.</string>
+    <string name="max_app_master_on">Максималды белсенді</string>
+    <string name="max_app_master_on_desc">Әр қолданба үшін оңтайландырулар қолданылуда</string>
+    <string name="max_app_advanced_options">Қосымша опциялар</string>
+    <string name="max_app_save">Сақтау</string>
 </resources>

@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">အမှောင်</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">အော်တို</string>
+    <string name="str_privilege_intro">Root သည် အပြည့်အဝဝင်ရောက်ခွင့်ကိုပေးသည်၊ Shizuku သည် root မပါဘဲ ADB အဆင့်ဝင်ရောက်ခွင့်ကိုပေးသည်။ နှစ်ခုစလုံး လုံလောက်ပါပြီ — နှစ်ခုလုံးကို ဤနေရာတွင် အလိုအလျောက် ရှာဖွေတွေ့ရှိပါသည်။</string>
+    <string name="max_app_master_on">မက်မောစွာ လှုပ်လှုပ်ရှားရှား</string>
+    <string name="max_app_master_on_desc">အက်ပ်တစ်ခုချင်းအလိုက် ပိုမိုကောင်းမွန်အောင်ပြုလုပ်ခြင်းများ လုပ်ဆောင်နေပါသည်။</string>
+    <string name="max_app_advanced_options">အဆင့်မြင့် ရွေးချယ်မှုများ</string>
+    <string name="max_app_save">သိမ်းဆည်းပါ။</string>
 </resources>

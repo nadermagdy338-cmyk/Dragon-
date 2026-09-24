@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Kumnyama</string>
     <string name="theme_mode_amoled">I-AMOLED</string>
     <string name="theme_accent_auto">Okuzenzakalelayo</string>
+    <string name="str_privilege_intro">I-Root inikeza ukufinyelela okugcwele, i-Shizuku inikeza ukufinyelela kwezinga elingu-ADB ngaphandle kwempande. Noma eyodwa yanele - kokubili kutholwa lapha ngokuzenzakalelayo.</string>
+    <string name="max_app_master_on">I-Max Active</string>
+    <string name="max_app_master_on_desc">Ukulungiselelwa ngakunye kohlelo lokusebenza kuyasetshenziswa</string>
+    <string name="max_app_advanced_options">Izinketho ezithuthukisiwe</string>
+    <string name="max_app_save">Londoloza</string>
 </resources>

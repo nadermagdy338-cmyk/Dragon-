@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">გაუქმება</string>
     <string name="max_language_device_section">თქვენი მოწყობილობის ენები</string>
     <string name="max_language_all_section">ყველა ენაზე</string>
+    <string name="max_privilege_layers_title">თქვენი წვდომის ფენები</string>
+    <string name="max_privilege_auto_scan">სკანირებულია ავტომატურად, როდესაც ეს ეკრანი იხსნება — არაფერია მოთხოვნილი თქვენი შეხების გარეშე.</string>
+    <string name="max_privilege_scanning">მიმდინარეობს სკანირება…</string>
+    <string name="max_privilege_rescan">ხელახლა სკანირება</string>
 </resources>

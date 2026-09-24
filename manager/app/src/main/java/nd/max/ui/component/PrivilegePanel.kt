@@ -5,7 +5,6 @@
  */
 package nd.max.ui.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,18 +27,21 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,11 +58,17 @@ import nd.max.core.privilege.PrivilegeManager
 import nd.max.core.privilege.PrivilegeTier
 
 /**
- * لوحة الامتياز والوصول (`AR-20`).
+ * لوحة الامتياز والوصول (`AR-20`) — **السطح الواحد** للجذر وShizuku معًا.
  *
- * تجيب ثلاثة أسئلة في مكان واحد: ما الطبقة الحالية؟ كيف أوصّلها؟ وما الذي يعمل عند كل
- * طبقة؟ وهي **مصدر الحقيقة نفسه** الذي يُستخدم في شاشة البداية وفي الإعدادات، فلا
- * تختلف العبارة بين سطحين.
+ * قبل هذا التصميم كان للجذر بابان يظهران منفصلين (صفحة في شاشة البداية وصفّ في
+ * الإعدادات) وباب ثالث لShizuku، فيقرأ المستخدم الشيء نفسه في ثلاثة أماكن. صار هنا:
+ * طبقة واحدة معروضة (الحالة الحالية) ثم الطبقتان (الجذر · Shizuku) في البطاقة نفسها،
+ * ثم فهرس ما يعمل عند كل طبقة — وتُزرع هذه اللوحة في شاشة البداية وفي الإعدادات معًا،
+ * فلا تختلف العبارة بين سطحين.
+ *
+ * **الاكتشاف تلقائي:** تُقرأ الطبقتان عند فتح الشاشة وعند العودة إليها (بلا استدعاء
+ * صلاحية — القراءة السلبية أولًا في [PrivilegeManager])، ويبقى «أعِد الفحص» وزرّا
+ * الجذر/Shizuku فعلين صريحين لمن أراد أن يطلب بنفسه. القراءة بلا سؤال، والطلب بضغطة.
  *
  * تُبنى على واجهات Material3 وحدها بلا تبعيات شاشة أخرى، لتُزرع في أي مكان.
  */
@@ -73,10 +81,21 @@ fun PrivilegePanel(
     val scope = rememberCoroutineScope()
 
     var busy by remember { mutableStateOf(false) }
+    var scanning by remember { mutableStateOf(true) }
+    // هل حاول المستخدم طلب الجذر من هنا؟ يحدّد نوع السطر التوضيحي تحت الزرّ: شرحٌ قبل
+    // المحاولة، ونتيجةٌ صريحة (منح/لم يظهر الطلب) بعدها — كما كان الصفّ القديم يقول.
+    var rootAttempted by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) { PrivilegeManager.start() }
+    // ── الاكتشاف التلقائي ────────────────────────────────────────────────────────
+    // يُسجّل المستمعين على الخيط الرئيسي (كما يشترط جسر Shizuku) ثم يقرأ الطبقتين على
+    // خيط الإدخال/الإخراج، فلا تتجمّد الواجهة ولا يسأل التطبيق صلاحيةً من تلقاء نفسه.
+    LaunchedEffect(Unit) {
+        PrivilegeManager.start()
+        withContext(Dispatchers.IO) { PrivilegeManager.refresh() }
+        scanning = false
+    }
 
-    // عند العودة إلى الواجهة: نعيد القراءة فقط (لا نطلب صلاحية تلقائيًا).
+    // عند العودة إلى الواجهة (بعد منح إذن من نافذة النظام مثلًا) نعيد القراءة تلقائيًا.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -86,13 +105,23 @@ fun PrivilegePanel(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    /** إعادة الفحص يدويًّا — اختيارية: التلقائي يكفي، وهذا لمن أراد أن يتأكّد الآن. */
+    fun rescan() {
+        if (scanning) return
+        scope.launch {
+            scanning = true
+            withContext(Dispatchers.IO) { PrivilegeManager.refresh() }
+            scanning = false
+        }
+    }
+
     LaunchedEffect(snapshot.level) { onLevelChanged(snapshot.level) }
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -118,24 +147,143 @@ fun PrivilegePanel(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(18.dp))
 
-            LevelBadge(level = snapshot.level)
+            // ── الحالة الحالية: أول ما يُقرأ في الشاشة ──
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(22.dp),
+                color = levelContainer(snapshot.level),
+                contentColor = levelContent(snapshot.level),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 18.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.max_privilege_current),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(snapshot.level.labelRes),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                    }
+                    if (scanning || busy) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            strokeWidth = 2.dp,
+                            color = levelContent(snapshot.level),
+                        )
+                    } else {
+                        Icon(
+                            imageVector = if (snapshot.level == PrivilegeLevel.NONE) {
+                                Icons.Rounded.Info
+                            } else {
+                                Icons.Rounded.CheckCircle
+                            },
+                            contentDescription = null,
+                        )
+                    }
+                }
+            }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(2.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = if (scanning) {
+                        stringResource(R.string.max_privilege_scanning)
+                    } else {
+                        stringResource(R.string.max_privilege_auto_scan)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(
+                    onClick = { rescan() },
+                    enabled = !scanning && !busy,
+                ) {
+                    Text(stringResource(R.string.max_privilege_rescan))
+                }
+            }
+
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                text = stringResource(R.string.max_privilege_layers_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            // ── الجذر ──
+            PrivilegeLayer(
+                title = stringResource(R.string.max_privilege_root_row),
+                state = if (snapshot.rootGranted) {
+                    stringResource(R.string.max_privilege_root_granted)
+                } else {
+                    stringResource(R.string.max_privilege_root_denied)
+                },
+                detail = stringResource(R.string.max_privilege_root_desc),
+                ok = snapshot.rootGranted,
+                // الشرح والنتيجة كانا في صفّ الإعدادات المستقلّ، وقد دُمجا هنا لأنهما يخصّان
+                // هذا الزرّ بعينه: لماذا لا يظهر التطبيق في مدير الروت حتى يُطلَب الإذن مرّة،
+                // وماذا حدث بعد الطلب (وهو ما كان يُبلّغ بالـsnackbar سابقًا).
+                hint = when {
+                    rootAttempted && snapshot.rootGranted -> stringResource(R.string.root_grant_ok)
+                    rootAttempted -> stringResource(R.string.root_grant_denied)
+                    else -> stringResource(R.string.root_grant_desc)
+                },
+            ) {
+                OutlinedButton(
+                    enabled = !busy && !scanning,
+                    onClick = {
+                        busy = true
+                        rootAttempted = true
+                        scope.launch {
+                            withContext(Dispatchers.IO) { PrivilegeManager.requestRoot() }
+                            withContext(Dispatchers.IO) { PrivilegeManager.refresh() }
+                            busy = false
+                        }
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    // قبل المنح الزرّ "طلب"، وبعده "فحص": نفس الفعل لكن بصدق المرحلة.
+                    Text(
+                        stringResource(
+                            if (snapshot.rootGranted) {
+                                R.string.max_privilege_check_root
+                            } else {
+                                R.string.root_grant_title
+                            }
+                        )
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
 
             // ── Shizuku ──
-            PrivilegeRow(
+            PrivilegeLayer(
                 title = stringResource(R.string.max_privilege_shizuku_row),
-                detail = when {
+                state = when {
                     snapshot.shizuku.ready -> stringResource(R.string.max_privilege_shizuku_granted)
                     snapshot.shizuku.available -> stringResource(R.string.max_privilege_shizuku_denied)
                     else -> stringResource(R.string.max_privilege_shizuku_unavailable)
                 },
+                detail = stringResource(R.string.max_privilege_shizuku_desc),
                 ok = snapshot.shizuku.ready,
             ) {
                 Button(
-                    enabled = !busy && snapshot.shizuku.available,
+                    enabled = !busy && !scanning && snapshot.shizuku.available,
                     onClick = {
                         busy = true
                         scope.launch {
@@ -152,49 +300,13 @@ fun PrivilegePanel(
                     },
                     shape = RoundedCornerShape(16.dp),
                 ) {
-                    if (busy) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    } else {
-                        Icon(Icons.Rounded.Link, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.max_privilege_shizuku_connect))
-                    }
+                    Icon(Icons.Rounded.Link, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.max_privilege_shizuku_connect))
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
-
-            // ── الجذر ──
-            PrivilegeRow(
-                title = stringResource(R.string.max_privilege_root_row),
-                detail = if (snapshot.rootGranted) {
-                    stringResource(R.string.max_privilege_root_granted)
-                } else {
-                    stringResource(R.string.max_privilege_root_denied)
-                },
-                ok = snapshot.rootGranted,
-            ) {
-                OutlinedButton(
-                    enabled = !busy,
-                    onClick = {
-                        busy = true
-                        scope.launch {
-                            withContext(Dispatchers.IO) { PrivilegeManager.requestRoot() }
-                            PrivilegeManager.refresh()
-                            busy = false
-                        }
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Text(stringResource(R.string.max_privilege_check_root))
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(22.dp))
 
             Text(
                 text = stringResource(R.string.max_privilege_features_title),
@@ -220,69 +332,80 @@ fun PrivilegePanel(
 }
 
 @Composable
-private fun LevelBadge(level: PrivilegeLevel) {
-    val container = when (level) {
-        PrivilegeLevel.ROOT -> MaterialTheme.colorScheme.primaryContainer
-        PrivilegeLevel.SHIZUKU -> MaterialTheme.colorScheme.tertiaryContainer
-        PrivilegeLevel.NONE -> MaterialTheme.colorScheme.surfaceVariant
-    }
-    val content = when (level) {
-        PrivilegeLevel.ROOT -> MaterialTheme.colorScheme.onPrimaryContainer
-        PrivilegeLevel.SHIZUKU -> MaterialTheme.colorScheme.onTertiaryContainer
-        PrivilegeLevel.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(container, RoundedCornerShape(16.dp))
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = stringResource(R.string.max_privilege_current),
-            style = MaterialTheme.typography.labelMedium,
-            color = content,
-        )
-        Spacer(Modifier.width(12.dp))
-        Text(
-            text = stringResource(level.labelRes),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = content,
-        )
-    }
+private fun levelContainer(level: PrivilegeLevel): Color = when (level) {
+    PrivilegeLevel.ROOT -> MaterialTheme.colorScheme.primaryContainer
+    PrivilegeLevel.SHIZUKU -> MaterialTheme.colorScheme.tertiaryContainer
+    PrivilegeLevel.NONE -> MaterialTheme.colorScheme.surfaceVariant
 }
 
 @Composable
-private fun PrivilegeRow(
+private fun levelContent(level: PrivilegeLevel): Color = when (level) {
+    PrivilegeLevel.ROOT -> MaterialTheme.colorScheme.onPrimaryContainer
+    PrivilegeLevel.SHIZUKU -> MaterialTheme.colorScheme.onTertiaryContainer
+    PrivilegeLevel.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
+}
+
+/**
+ * طبقة واحدة (جذر أو Shizuku): العنوان، ثم الحالة بصيغة جواب صريح، ثم شرح ما تمنحه،
+ * ثم زرّ الفعل — وحيث لزم سطر توضيحي صغير تحت الزرّ.
+ */
+@Composable
+private fun PrivilegeLayer(
     title: String,
+    state: String,
     detail: String,
     ok: Boolean,
+    hint: String? = null,
     action: @Composable () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = if (ok) Icons.Rounded.CheckCircle else Icons.Rounded.ErrorOutline,
-                contentDescription = null,
-                tint = if (ok) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(20.dp),
-            )
-            Spacer(Modifier.width(8.dp))
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (ok) Icons.Rounded.CheckCircle else Icons.Rounded.ErrorOutline,
+                    contentDescription = null,
+                    tint = if (ok) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            Spacer(Modifier.height(4.dp))
             Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
+                text = state,
+                style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
+                color = if (ok) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
             )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = detail,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(12.dp))
+            action()
+            if (hint != null) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = hint,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                )
+            }
         }
-        Spacer(Modifier.height(2.dp))
-        Text(
-            text = detail,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(8.dp))
-        action()
     }
 }
 

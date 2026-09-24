@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Tối tăm</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Tự động</string>
+    <string name="str_privilege_intro">Root cấp quyền truy cập đầy đủ, Shizuku cấp quyền truy cập cấp ADB mà không cần root. Một trong hai là đủ - cả hai đều được phát hiện tự động ở đây.</string>
+    <string name="max_app_master_on">Hoạt động tối đa</string>
+    <string name="max_app_master_on_desc">Tối ưu hóa cho mỗi ứng dụng đang được áp dụng</string>
+    <string name="max_app_advanced_options">Tùy chọn nâng cao</string>
+    <string name="max_app_save">Cứu</string>
 </resources>

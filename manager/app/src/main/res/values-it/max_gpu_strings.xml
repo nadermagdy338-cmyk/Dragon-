@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Codice motivo</string>
     <string name="max_gpu_intent_default_title">Predefinito (stato iniziale)</string>
     <string name="max_gpu_intent_default_desc">Riporta l\'intervallo e il regolatore ai valori che aveva questo dispositivo all\'apertura dello schermo. Non è scritto nulla mentre già corrispondono: questa è la via del ritorno per chiunque abbia cambiato qualcosa.</string>
+    <string name="max_gpu_history_empty">Ancora nessuna lettura: il grafico si riempie mentre lo schermo campiona la frequenza.</string>
 </resources>

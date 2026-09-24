@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Šifra razloga</string>
     <string name="max_gpu_intent_default_title">Zadano (početno stanje)</string>
     <string name="max_gpu_intent_default_desc">Vraća opseg i regulator na vrijednosti koje je ovaj uređaj imao kada se ekran otvorio. Ništa nije napisano dok se već poklapaju — ovo je put nazad za svakoga ko je nešto promijenio.</string>
+    <string name="max_gpu_history_empty">Još nema čitanja — grafikon se popunjava dok ekran uzorkuje frekvenciju.</string>
 </resources>

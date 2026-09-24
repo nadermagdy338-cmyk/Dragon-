@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Batal</string>
     <string name="max_language_device_section">Bahasa peranti anda</string>
     <string name="max_language_all_section">Semua bahasa</string>
+    <string name="max_privilege_layers_title">Lapisan akses anda</string>
+    <string name="max_privilege_auto_scan">Diimbas secara automatik apabila skrin ini dibuka — tiada apa yang diminta tanpa ketik anda.</string>
+    <string name="max_privilege_scanning">Mengimbas…</string>
+    <string name="max_privilege_rescan">Imbas semula</string>
 </resources>

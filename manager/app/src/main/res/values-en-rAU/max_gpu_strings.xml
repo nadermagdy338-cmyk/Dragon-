@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Reason code</string>
     <string name="max_gpu_intent_default_title">Default (start state)</string>
     <string name="max_gpu_intent_default_desc">Returns the range and the governor to the values this device had when the screen opened. Nothing is written while they already match — this is the way back for anyone who changed something.</string>
+    <string name="max_gpu_history_empty">No reading yet — the chart fills as the screen samples the frequency.</string>
 </resources>

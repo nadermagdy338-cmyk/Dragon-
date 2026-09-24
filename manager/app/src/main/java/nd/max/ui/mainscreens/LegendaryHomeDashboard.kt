@@ -685,7 +685,10 @@ private fun MemoryMatrixCard(
             },
             fraction = if (ramTotal > 0) fractionOf(ramUsed, ramTotal) else null,
             accent = p.accent,
-            onClick = { onNavigate(MaxDestination.ZramManager.route) },
+            // صفّ RAM كان يفتح **مدير ZRAM** — عطب مقصود (نسخ الصفّ المجاور) لا خيار: من
+            // يضغط «RAM» يسأل عن الذاكرة العشوائية، ومدير ZRAM شاشةٌ أخرى. الصحيح مركز
+            // الذاكرة (`MemoryHub`) الذي يضمّ RAM وZRAM معًا؛ وصفّ ZRAM تحت يبقى على مديره.
+            onClick = { onNavigate(MaxDestination.MemoryHub.route) },
         )
 
         MemoryFactRow(

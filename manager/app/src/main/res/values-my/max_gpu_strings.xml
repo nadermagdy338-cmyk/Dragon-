@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">အကြောင်းပြချက်ကုဒ်</string>
     <string name="max_gpu_intent_default_title">မူရင်း (အစအခြေအနေ)</string>
     <string name="max_gpu_intent_default_desc">မျက်နှာပြင်ကိုဖွင့်လိုက်သောအခါတွင် ဤစက်တွင်ရှိသည့် အပိုင်းအခြားနှင့် ဝန်ကို ပြန်ပေးသည်။ တူညီနေချိန်တွင် မည်သည့်အရာမှ ရေးမထားပါ — တစ်စုံတစ်ခုကို ပြောင်းလဲခဲ့သူတိုင်းအတွက် ဤနည်းလမ်းသည် ပြန်လည်ရောက်ရှိသွားမည်ဖြစ်သည်။</string>
+    <string name="max_gpu_history_empty">မဖတ်ရသေးပါ — ကြိမ်နှုန်းကို မျက်နှာပြင်နမူနာအဖြစ် ဇယားက ဖြည့်ပေးသည်။</string>
 </resources>

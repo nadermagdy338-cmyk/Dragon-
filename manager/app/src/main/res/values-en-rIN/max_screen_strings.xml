@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Cancel</string>
     <string name="max_language_device_section">Your device languages</string>
     <string name="max_language_all_section">All languages</string>
+    <string name="max_privilege_layers_title">Your access layers</string>
+    <string name="max_privilege_auto_scan">Scanned automatically when this screen opens — nothing is requested without your tap.</string>
+    <string name="max_privilege_scanning">Scanning…</string>
+    <string name="max_privilege_rescan">Scan again</string>
 </resources>

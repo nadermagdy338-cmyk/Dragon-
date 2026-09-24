@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">காரணம் குறியீடு</string>
     <string name="max_gpu_intent_default_title">இயல்புநிலை (தொடக்க நிலை)</string>
     <string name="max_gpu_intent_default_desc">திரையைத் திறக்கும் போது இந்தச் சாதனத்தில் இருந்த மதிப்புகளுக்கு வரம்பையும் கவர்னரையும் வழங்கும். அவை ஏற்கனவே பொருந்தும்போது எதுவும் எழுதப்படவில்லை - எதையாவது மாற்றிய எவருக்கும் இதுவே திரும்பும் வழி.</string>
+    <string name="max_gpu_history_empty">இன்னும் படிக்கவில்லை - திரை அலைவரிசையை மாதிரியாகக் காட்டும்போது விளக்கப்படம் நிரப்பப்படும்.</string>
 </resources>

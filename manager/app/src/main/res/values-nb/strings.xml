@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Mørk</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Auto</string>
+    <string name="str_privilege_intro">Root gir full tilgang, Shizuku gir tilgang på ADB-nivå uten root. Enten er nok - begge oppdages her automatisk.</string>
+    <string name="max_app_master_on">Maks aktiv</string>
+    <string name="max_app_master_on_desc">Optimaliseringer per app brukes</string>
+    <string name="max_app_advanced_options">Avanserte alternativer</string>
+    <string name="max_app_save">Spare</string>
 </resources>

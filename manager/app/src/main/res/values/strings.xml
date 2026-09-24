@@ -810,6 +810,10 @@
     <string name="learn_more_desc">Documentation, source code, changelog and Max Manager internals. Learn how features work and how to customize safely.</string>
     <string name="lets_go">Let\'s Go</string>
     <string name="master_switch">Master Switch</string>
+    <string name="max_app_master_on">Max Active</string>
+    <string name="max_app_master_on_desc">Per-app optimizations are being applied</string>
+    <string name="max_app_advanced_options">Advanced options</string>
+    <string name="max_app_save">Save</string>
     <string name="master_switch_desc">Enabling this allows the performance profile to be triggered</string>
     <string name="app_effective_state_title">EFFECTIVE STATE</string>
     <string name="app_effective_state_disabled">Per-app control is off</string>
@@ -1036,6 +1040,7 @@
     <string name="str_launch_compatibility_check">Launch Compatibility Check</string>
     <string name="str_let_s_adjust_a_few_basic_setti">Let\'s adjust a few basic settings</string>
     <string name="str_let_s_grant_maxmanager_a_root_acc">Please grant Max Manager root access</string>
+    <string name="str_privilege_intro">Root gives full access, Shizuku gives ADB-level access without root. Either one is enough — both are detected here automatically.</string>
     <string name="str_liliya">Liliya</string>
     <string name="str_load_a_previously_saved_backup">Load a previously saved backup file</string>
     <string name="str_logs_diagnostics">Logs &amp; Diagnostics</string>

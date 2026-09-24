@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">অন্ধকার</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">অটো</string>
+    <string name="str_privilege_intro">রুট সম্পূর্ণ অ্যাক্সেস দেয়, শিজুকু রুট ছাড়া ADB-স্তরের অ্যাক্সেস দেয়। একটিই যথেষ্ট — উভয়ই এখানে স্বয়ংক্রিয়ভাবে সনাক্ত করা হয়েছে।</string>
+    <string name="max_app_master_on">সর্বোচ্চ সক্রিয়</string>
+    <string name="max_app_master_on_desc">প্রতি-অ্যাপ অপ্টিমাইজেশান প্রয়োগ করা হচ্ছে</string>
+    <string name="max_app_advanced_options">উন্নত বিকল্প</string>
+    <string name="max_app_save">সংরক্ষণ করুন</string>
 </resources>

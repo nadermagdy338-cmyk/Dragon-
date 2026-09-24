@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Պատճառի կոդը</string>
     <string name="max_gpu_intent_default_title">Կանխադրված (մեկնարկային վիճակ)</string>
     <string name="max_gpu_intent_default_desc">Վերադարձնում է միջակայքը և կառավարիչը այն արժեքներին, որոնք այս սարքն ուներ էկրանի բացման ժամանակ: Ոչինչ գրված չէ, քանի դեռ դրանք արդեն համընկնում են. սա վերադարձի ճանապարհն է յուրաքանչյուրի համար, ով ինչ-որ բան փոխել է:</string>
+    <string name="max_gpu_history_empty">Դեռևս չկա ընթերցում. աղյուսակը լրացվում է, երբ էկրանը նմուշառում է հաճախականությունը:</string>
 </resources>

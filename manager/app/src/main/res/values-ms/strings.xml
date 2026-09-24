@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Gelap</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Auto</string>
+    <string name="str_privilege_intro">Root memberikan akses penuh, Shizuku memberikan akses tahap ADB tanpa akar. Sama ada satu sudah cukup — kedua-duanya dikesan di sini secara automatik.</string>
+    <string name="max_app_master_on">Maks Aktif</string>
+    <string name="max_app_master_on_desc">Pengoptimuman setiap apl sedang digunakan</string>
+    <string name="max_app_advanced_options">Pilihan lanjutan</string>
+    <string name="max_app_save">Jimat</string>
 </resources>

@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">ਕਾਰਨ ਕੋਡ</string>
     <string name="max_gpu_intent_default_title">ਡਿਫੌਲਟ (ਸ਼ੁਰੂ ਅਵਸਥਾ)</string>
     <string name="max_gpu_intent_default_desc">ਰੇਂਜ ਅਤੇ ਗਵਰਨਰ ਨੂੰ ਉਹਨਾਂ ਮੁੱਲਾਂ \'ਤੇ ਵਾਪਸ ਕਰਦਾ ਹੈ ਜੋ ਇਸ ਡਿਵਾਈਸ ਕੋਲ ਸਨ ਜਦੋਂ ਸਕ੍ਰੀਨ ਖੁੱਲ੍ਹੀ ਸੀ। ਜਦੋਂ ਉਹ ਪਹਿਲਾਂ ਹੀ ਮੇਲ ਖਾਂਦੇ ਹਨ ਤਾਂ ਕੁਝ ਵੀ ਨਹੀਂ ਲਿਖਿਆ ਜਾਂਦਾ - ਇਹ ਕਿਸੇ ਵੀ ਵਿਅਕਤੀ ਲਈ ਵਾਪਸੀ ਦਾ ਤਰੀਕਾ ਹੈ ਜਿਸਨੇ ਕੁਝ ਬਦਲਿਆ ਹੈ।</string>
+    <string name="max_gpu_history_empty">ਅਜੇ ਤੱਕ ਕੋਈ ਰੀਡਿੰਗ ਨਹੀਂ ਹੈ — ਚਾਰਟ ਭਰਦਾ ਹੈ ਕਿਉਂਕਿ ਸਕਰੀਨ ਬਾਰੰਬਾਰਤਾ ਦਾ ਨਮੂਨਾ ਲੈਂਦੀ ਹੈ।</string>
 </resources>

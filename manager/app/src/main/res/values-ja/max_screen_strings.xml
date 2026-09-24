@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">これらのスイッチは、MaxManager のポリシーを変更します。 Android は上記の状態の所有権を保持します。</string>
     <string name="max_language_device_section">デバイスの言語</string>
     <string name="max_language_all_section">すべての言語</string>
+    <string name="max_privilege_layers_title">アクセス層</string>
+    <string name="max_privilege_auto_scan">この画面が開くと自動的にスキャンされます。タップしないと何も要求されません。</string>
+    <string name="max_privilege_scanning">走査…</string>
+    <string name="max_privilege_rescan">再度スキャンしてください</string>
 </resources>

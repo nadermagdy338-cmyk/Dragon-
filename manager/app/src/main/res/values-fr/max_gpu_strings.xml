@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Code du motif</string>
     <string name="max_gpu_intent_default_title">Par défaut (état de démarrage)</string>
     <string name="max_gpu_intent_default_desc">Ramène la plage et le régulateur aux valeurs que cet appareil avait lors de l\'ouverture de l\'écran. Rien n’est écrit alors qu’ils correspondent déjà – c’est le chemin du retour pour quiconque a modifié quelque chose.</string>
+    <string name="max_gpu_history_empty">Pas de lecture pour l\'instant — le graphique se remplit à mesure que l\'écran échantillonne la fréquence.</string>
 </resources>

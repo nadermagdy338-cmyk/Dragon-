@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Kode alasan</string>
     <string name="max_gpu_intent_default_title">Default (status awal)</string>
     <string name="max_gpu_intent_default_desc">Mengembalikan rentang dan pengatur ke nilai yang dimiliki perangkat ini saat layar dibuka. Tidak ada yang tertulis saat keduanya sudah cocok — ini adalah jalan kembali bagi siapa pun yang mengubah sesuatu.</string>
+    <string name="max_gpu_history_empty">Belum ada pembacaan — bagan terisi saat layar mengambil sampel frekuensi.</string>
 </resources>

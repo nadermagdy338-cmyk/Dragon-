@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Madilim</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Auto</string>
+    <string name="str_privilege_intro">Ang Root ay nagbibigay ng ganap na access, ang Shizuku ay nagbibigay ng ADB-level na access nang walang root. Alinman sa isa ay sapat na — pareho ay awtomatikong na-detect dito.</string>
+    <string name="max_app_master_on">Max Aktibo</string>
+    <string name="max_app_master_on_desc">Inilalapat ang mga per-app optimization</string>
+    <string name="max_app_advanced_options">Mga advanced na opsyon</string>
+    <string name="max_app_save">I-save</string>
 </resources>

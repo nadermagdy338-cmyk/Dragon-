@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Дарк</string>
     <string name="theme_mode_amoled">АМОЛЕД</string>
     <string name="theme_accent_auto">Ауто</string>
+    <string name="str_privilege_intro">Роот даје пун приступ, Схизуку даје приступ на нивоу ADB без роот-а. Било једно је довољно — оба се овде аутоматски откривају.</string>
+    <string name="max_app_master_on">Мак Ацтиве</string>
+    <string name="max_app_master_on_desc">Примењују се оптимизације по апликацији</string>
+    <string name="max_app_advanced_options">Напредне опције</string>
+    <string name="max_app_save">Сачувај</string>
 </resources>

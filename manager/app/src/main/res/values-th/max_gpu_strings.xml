@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">รหัสเหตุผล</string>
     <string name="max_gpu_intent_default_title">ค่าเริ่มต้น (สถานะเริ่มต้น)</string>
     <string name="max_gpu_intent_default_desc">ส่งกลับช่วงและผู้ว่าราชการเป็นค่าที่อุปกรณ์นี้มีเมื่อเปิดหน้าจอ ไม่มีการเขียนใดๆ ในขณะที่ตรงกันอยู่แล้ว นี่คือทางกลับสำหรับทุกคนที่เปลี่ยนแปลงบางสิ่งบางอย่าง</string>
+    <string name="max_gpu_history_empty">ยังไม่มีการอ่าน — แผนภูมิจะเต็มเมื่อหน้าจอสุ่มตัวอย่างความถี่</string>
 </resources>

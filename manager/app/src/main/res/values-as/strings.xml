@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">অন্ধকাৰ</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">অটো</string>
+    <string name="str_privilege_intro">ৰুটে সম্পূৰ্ণ অভিগম দিয়ে, শ্বিজুকুৱে ৰূট অবিহনে ADB-স্তৰৰ অভিগম দিয়ে। যিকোনো এটাই যথেষ্ট — ইয়াত দুয়োটা স্বয়ংক্ৰিয়ভাৱে ধৰা পৰে।</string>
+    <string name="max_app_master_on">সৰ্বোচ্চ সক্ৰিয়</string>
+    <string name="max_app_master_on_desc">প্ৰতি-এপ অনুকূলন প্ৰয়োগ কৰা হৈছে</string>
+    <string name="max_app_advanced_options">উন্নত বিকল্পসমূহ</string>
+    <string name="max_app_save">সঞ্চয় কৰা</string>
 </resources>

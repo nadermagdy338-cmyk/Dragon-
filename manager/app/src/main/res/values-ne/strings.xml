@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">अँध्यारो</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">अटो</string>
+    <string name="str_privilege_intro">रूटले पूर्ण पहुँच दिन्छ, शिजुकुले रूट बिना ADB-स्तर पहुँच दिन्छ। कुनै एक पर्याप्त छ — दुबै यहाँ स्वचालित रूपमा पत्ता लगाइन्छ।</string>
+    <string name="max_app_master_on">अधिकतम सक्रिय</string>
+    <string name="max_app_master_on_desc">प्रति-एप अप्टिमाइजेसनहरू लागू भइरहेका छन्</string>
+    <string name="max_app_advanced_options">उन्नत विकल्पहरू</string>
+    <string name="max_app_save">बचत गर्नुहोस्</string>
 </resources>

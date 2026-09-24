@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Харанхуй</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Автомат</string>
+    <string name="str_privilege_intro">Root нь бүрэн хандалтыг өгдөг, Шизүкү нь rootгүйгээр ADB түвшний хандалтыг өгдөг. Аль нэг нь хангалттай - хоёуланг нь энд автоматаар илрүүлдэг.</string>
+    <string name="max_app_master_on">Хамгийн их идэвхтэй</string>
+    <string name="max_app_master_on_desc">Аппликешн бүрийн оновчлолыг хэрэгжүүлж байна</string>
+    <string name="max_app_advanced_options">Нарийвчилсан сонголтууд</string>
+    <string name="max_app_save">Хадгалах</string>
 </resources>

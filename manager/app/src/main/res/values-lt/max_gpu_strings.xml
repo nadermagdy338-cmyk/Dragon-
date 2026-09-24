@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Priežasties kodas</string>
     <string name="max_gpu_intent_default_title">Numatytoji (pradžios būsena)</string>
     <string name="max_gpu_intent_default_desc">Grąžina diapazoną ir reguliatorių į vertes, kurias šis įrenginys turėjo atidarius ekraną. Nieko neparašyta, kol jie jau sutampa – tai kelias atgal visiems, kas ką nors pakeitė.</string>
+    <string name="max_gpu_history_empty">Dar neskaitoma – diagrama pildosi, kai ekranas atrenka dažnį.</string>
 </resources>

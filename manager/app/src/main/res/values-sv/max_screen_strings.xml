@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">Avboka</string>
     <string name="max_language_device_section">Din enhets språk</string>
     <string name="max_language_all_section">Alla språk</string>
+    <string name="max_privilege_layers_title">Dina åtkomstlager</string>
+    <string name="max_privilege_auto_scan">Skannas automatiskt när den här skärmen öppnas - ingenting begärs utan din tryckning.</string>
+    <string name="max_privilege_scanning">Scanning…</string>
+    <string name="max_privilege_rescan">Skanna igen</string>
 </resources>

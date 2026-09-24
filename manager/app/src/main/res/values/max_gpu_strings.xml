@@ -30,6 +30,7 @@
     <string name="max_gpu_temp_label">GPU temperature</string>
     <string name="max_gpu_read_age_label">Reading age</string>
     <string name="max_gpu_history_title">Recent frequency</string>
+    <string name="max_gpu_history_empty">No reading yet — the chart fills as the screen samples the frequency.</string>
     <string name="max_gpu_age_seconds">%1$d s</string>
     <string name="max_gpu_value_absent">Unavailable</string>
 

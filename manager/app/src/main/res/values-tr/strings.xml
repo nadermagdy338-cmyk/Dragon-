@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Karanlık</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Otomatik</string>
+    <string name="str_privilege_intro">Root tam erişim sağlar, Shizuku ise root olmadan ADB düzeyinde erişim sağlar. İkisinden biri yeterlidir; her ikisi de burada otomatik olarak algılanır.</string>
+    <string name="max_app_master_on">Maksimum Aktif</string>
+    <string name="max_app_master_on_desc">Uygulama başına optimizasyonlar uygulanıyor</string>
+    <string name="max_app_advanced_options">Gelişmiş seçenekler</string>
+    <string name="max_app_save">Kaydetmek</string>
 </resources>

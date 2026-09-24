@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Tmavý</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Auto</string>
+    <string name="str_privilege_intro">Root poskytuje úplný prístup, Shizuku poskytuje prístup na úrovni ADB bez root. Stačí jeden – oba sa tu zistia automaticky.</string>
+    <string name="max_app_master_on">Maximálne aktívne</string>
+    <string name="max_app_master_on_desc">Používajú sa optimalizácie pre jednotlivé aplikácie</string>
+    <string name="max_app_advanced_options">Pokročilé možnosti</string>
+    <string name="max_app_save">Uložiť</string>
 </resources>

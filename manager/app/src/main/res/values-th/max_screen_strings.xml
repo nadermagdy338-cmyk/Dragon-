@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">สวิตช์เหล่านี้เปลี่ยนนโยบายของ MaxManager Android ยังคงความเป็นเจ้าของสถานะข้างต้น</string>
     <string name="max_language_device_section">ภาษาอุปกรณ์ของคุณ</string>
     <string name="max_language_all_section">ทุกภาษา</string>
+    <string name="max_privilege_layers_title">เลเยอร์การเข้าถึงของคุณ</string>
+    <string name="max_privilege_auto_scan">สแกนโดยอัตโนมัติเมื่อหน้าจอนี้เปิดขึ้น — ไม่มีการร้องขอใดๆ เลยหากคุณไม่ได้แตะ</string>
+    <string name="max_privilege_scanning">กำลังสแกน...</string>
+    <string name="max_privilege_rescan">สแกนอีกครั้ง</string>
 </resources>

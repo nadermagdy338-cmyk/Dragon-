@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Gelap</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Mobil</string>
+    <string name="str_privilege_intro">Root memberikan akses penuh, Shizuku memberikan akses level ADB tanpa root. Salah satu saja sudah cukup — keduanya terdeteksi di sini secara otomatis.</string>
+    <string name="max_app_master_on">Maks Aktif</string>
+    <string name="max_app_master_on_desc">Pengoptimalan per aplikasi sedang diterapkan</string>
+    <string name="max_app_advanced_options">Opsi lanjutan</string>
+    <string name="max_app_save">Menyimpan</string>
 </resources>

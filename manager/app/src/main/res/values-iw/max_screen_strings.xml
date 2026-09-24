@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">לְבַטֵל</string>
     <string name="max_language_device_section">שפות המכשיר שלך</string>
     <string name="max_language_all_section">כל השפות</string>
+    <string name="max_privilege_layers_title">שכבות הגישה שלך</string>
+    <string name="max_privilege_auto_scan">נסרק אוטומטית כשהמסך הזה נפתח - שום דבר לא מתבקש בלי ההקשה שלך.</string>
+    <string name="max_privilege_scanning">סורק...</string>
+    <string name="max_privilege_rescan">סרוק שוב</string>
 </resources>

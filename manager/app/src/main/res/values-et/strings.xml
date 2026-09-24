@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Tume</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Automaatne</string>
+    <string name="str_privilege_intro">Root annab täieliku juurdepääsu, Shizuku annab ADB-taseme juurdepääsu ilma juuruta. Piisab kummastki – mõlemad tuvastatakse siin automaatselt.</string>
+    <string name="max_app_master_on">Max aktiivne</string>
+    <string name="max_app_master_on_desc">Rakendatakse rakendusepõhiseid optimeerimisi</string>
+    <string name="max_app_advanced_options">Täpsemad valikud</string>
+    <string name="max_app_save">Salvesta</string>
 </resources>

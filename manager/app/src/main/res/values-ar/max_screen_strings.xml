@@ -272,6 +272,10 @@
     <string name="max_privilege_title">الوصول والامتيازات</string>
     <string name="max_privilege_desc">أي الأدوات تستطيع استخدامها يعتمد على طبقة الامتياز التي تمنحها لـMaxManager. ولا يُفترض امتياز من تلقاء نفسه.</string>
     <string name="max_privilege_current">الطبقة الحالية</string>
+    <string name="max_privilege_layers_title">طبقات وصولك</string>
+    <string name="max_privilege_auto_scan">يُفحص تلقائيًا عند فتح الشاشة، ولا يُطلب شيء بلا ضغطك.</string>
+    <string name="max_privilege_scanning">يفحص…</string>
+    <string name="max_privilege_rescan">أعِد الفحص</string>
     <string name="max_privilege_level_none">بلا امتياز</string>
     <string name="max_privilege_level_shizuku">Shizuku (مستوى ADB)</string>
     <string name="max_privilege_level_root">جذر</string>

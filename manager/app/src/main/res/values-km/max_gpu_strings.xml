@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">កូដហេតុផល</string>
     <string name="max_gpu_intent_default_title">លំនាំដើម (ស្ថានភាពចាប់ផ្តើម)</string>
     <string name="max_gpu_intent_default_desc">ត្រឡប់ជួរ និងអភិបាលទៅតម្លៃដែលឧបករណ៍នេះមាននៅពេលអេក្រង់បើក។ គ្មាន​អ្វី​ត្រូវ​បាន​សរសេរ ខណៈ​ដែល​វា​ត្រូវ​គ្នា​រួច​ហើយ — នេះ​ជា​ផ្លូវ​ត្រឡប់​មក​វិញ​សម្រាប់​អ្នក​ណា​ម្នាក់​ដែល​បាន​ផ្លាស់ប្ដូរ​អ្វី​មួយ។</string>
+    <string name="max_gpu_history_empty">មិន​ទាន់​មាន​ការ​អាន​នៅ​ឡើយ​ទេ — តារាង​បំពេញ​នៅ​ពេល​ដែល​អេក្រង់​គំរូ​ប្រេកង់។</string>
 </resources>

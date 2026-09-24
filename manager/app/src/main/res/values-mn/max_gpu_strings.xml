@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Шалтгаан код</string>
     <string name="max_gpu_intent_default_title">Өгөгдмөл (эхлэх төлөв)</string>
     <string name="max_gpu_intent_default_desc">Дэлгэц нээгдэх үед энэ төхөөрөмжид байсан утгууд руу муж болон захирагчийг буцаана. Тэд аль хэдийн таарч байхад юу ч бичигдээгүй - энэ нь ямар нэг зүйлийг өөрчилсөн хэн бүхэнд буцаж очих зам юм.</string>
+    <string name="max_gpu_history_empty">Унших хараахан алга байна. Дэлгэц давтамжийг түүвэрлэх үед диаграм дүүрнэ.</string>
 </resources>

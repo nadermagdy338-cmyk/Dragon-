@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">Need lülitid muudavad MaxManager poliitikat. Android säilitab ülaloleva osariigi omandiõiguse.</string>
     <string name="max_language_device_section">Teie seadme keeled</string>
     <string name="max_language_all_section">Kõik keeled</string>
+    <string name="max_privilege_layers_title">Teie juurdepääsukihid</string>
+    <string name="max_privilege_auto_scan">Skannitakse automaatselt, kui see ekraan avaneb – ilma teie puudutuseta ei küsita midagi.</string>
+    <string name="max_privilege_scanning">Skannimine…</string>
+    <string name="max_privilege_rescan">Skannige uuesti</string>
 </resources>

@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">Estes interruptores cambian a política de MaxManager. Android mantén a propiedade do estado anterior.</string>
     <string name="max_language_device_section">Idiomas do teu dispositivo</string>
     <string name="max_language_all_section">Todos os idiomas</string>
+    <string name="max_privilege_layers_title">As túas capas de acceso</string>
+    <string name="max_privilege_auto_scan">Analizouse automaticamente cando se abre esta pantalla; non se solicita nada sen tocar.</string>
+    <string name="max_privilege_scanning">Escaneando…</string>
+    <string name="max_privilege_rescan">Escanear de novo</string>
 </resources>

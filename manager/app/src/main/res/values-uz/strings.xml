@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">Qorong\'i</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">Avtomatik</string>
+    <string name="str_privilege_intro">Root to\'liq kirish imkonini beradi, Shizuku ildizsiz ADB-darajali kirish imkonini beradi. Ikkalasi ham etarli - ikkalasi ham bu erda avtomatik ravishda aniqlanadi.</string>
+    <string name="max_app_master_on">Maksimal faol</string>
+    <string name="max_app_master_on_desc">Har bir ilova uchun optimallashtirish qoʻllanilmoqda</string>
+    <string name="max_app_advanced_options">Kengaytirilgan variantlar</string>
+    <string name="max_app_save">Saqlash</string>
 </resources>

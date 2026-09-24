@@ -138,6 +138,10 @@
     <string name="learn_more_desc">الوثائق، شفرة المصدر، سجل التغييرات، وشرح مبادئ Max Manager الأساسية، تعرف على طرق تنفيذ الميزات وطرق التخصيص الآمنة</string>
     <string name="lets_go">لنبدأ</string>
     <string name="master_switch">المفتاح الرئيسي</string>
+    <string name="max_app_master_on">Max مُفعَّل</string>
+    <string name="max_app_master_on_desc">تُطبَّق تحسينات كل تطبيق على حدة الآن</string>
+    <string name="max_app_advanced_options">خيارات متقدمة</string>
+    <string name="max_app_save">حفظ</string>
     <string name="master_switch_desc">عند التفعيل، يمكن للتطبيق تشغيل ملف تعريف الأداء</string>
     <string name="max_val">أقصى (%1$d)</string>
     <string name="memory_killer">منظف الذاكرة</string>
@@ -383,6 +387,7 @@
     <string name="str_launch_compatibility_check">بدء فحص التوافق</string>
     <string name="str_let_s_adjust_a_few_basic_setti">دعنا نضبط بعض الإعدادات الأساسية</string>
     <string name="str_let_s_grant_maxmanager_a_root_acc">يرجى منح صلاحية الجذر لـ Max Manager</string>
+    <string name="str_privilege_intro">الجذر يمنح وصولًا كاملًا، وShizuku يمنح وصولًا بمستوى ADB بلا جذر. أحدهما يكفي — ويُكشفان هنا تلقائيًا.</string>
     <string name="str_liliya">Liliya</string>
     <string name="str_load_a_previously_saved_backup">تحميل ملف نسخة احتياطية محفوظة مسبقًا</string>
     <string name="str_logs_diagnostics">السجلات والتشخيص</string>

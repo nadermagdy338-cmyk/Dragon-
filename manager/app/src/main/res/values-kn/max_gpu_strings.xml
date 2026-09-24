@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">ಕಾರಣ ಕೋಡ್</string>
     <string name="max_gpu_intent_default_title">ಡೀಫಾಲ್ಟ್ (ಪ್ರಾರಂಭ ಸ್ಥಿತಿ)</string>
     <string name="max_gpu_intent_default_desc">ಪರದೆಯನ್ನು ತೆರೆದಾಗ ಈ ಸಾಧನವು ಹೊಂದಿದ್ದ ಮೌಲ್ಯಗಳಿಗೆ ಶ್ರೇಣಿ ಮತ್ತು ಗವರ್ನರ್ ಅನ್ನು ಹಿಂತಿರುಗಿಸುತ್ತದೆ. ಅವರು ಈಗಾಗಲೇ ಹೊಂದಿಕೆಯಾಗುತ್ತಿರುವಾಗ ಏನನ್ನೂ ಬರೆಯಲಾಗಿಲ್ಲ - ಏನನ್ನಾದರೂ ಬದಲಾಯಿಸಿದ ಯಾರಿಗಾದರೂ ಇದು ಹಿಂತಿರುಗುವ ಮಾರ್ಗವಾಗಿದೆ.</string>
+    <string name="max_gpu_history_empty">ಇನ್ನೂ ಯಾವುದೇ ಓದುವಿಕೆ ಇಲ್ಲ - ಪರದೆಯು ಆವರ್ತನವನ್ನು ಮಾದರಿಯಂತೆ ಚಾರ್ಟ್ ತುಂಬುತ್ತದೆ.</string>
 </resources>

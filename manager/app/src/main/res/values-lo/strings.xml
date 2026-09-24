@@ -1867,4 +1867,9 @@
     <string name="theme_mode_dark">ມືດ</string>
     <string name="theme_mode_amoled">AMOLED</string>
     <string name="theme_accent_auto">ອັດຕະໂນມັດ</string>
+    <string name="str_privilege_intro">Root ໃຫ້ການເຂົ້າເຖິງຢ່າງເຕັມທີ່, Shizuku ໃຫ້ການເຂົ້າເຖິງລະດັບ ADB ໂດຍບໍ່ມີການຮາກ. ອັນໃດອັນໜຶ່ງກໍພຽງພໍແລ້ວ — ທັງສອງຖືກກວດພົບຢູ່ນີ້ໂດຍອັດຕະໂນມັດ.</string>
+    <string name="max_app_master_on">Max Active</string>
+    <string name="max_app_master_on_desc">ການເພີ່ມປະສິດທິພາບຕໍ່ແອັບກຳລັງຖືກນຳໃຊ້</string>
+    <string name="max_app_advanced_options">ຕົວເລືອກຂັ້ນສູງ</string>
+    <string name="max_app_save">ບັນທຶກ</string>
 </resources>

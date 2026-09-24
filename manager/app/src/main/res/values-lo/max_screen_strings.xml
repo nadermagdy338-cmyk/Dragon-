@@ -447,4 +447,8 @@
     <string name="max_atlas_share_cancel">ຍົກເລີກ</string>
     <string name="max_language_device_section">ພາສາອຸປະກອນຂອງທ່ານ</string>
     <string name="max_language_all_section">ພາສາທັງໝົດ</string>
+    <string name="max_privilege_layers_title">ຊັ້ນການເຂົ້າເຖິງຂອງທ່ານ</string>
+    <string name="max_privilege_auto_scan">ສະແກນອັດຕະໂນມັດເມື່ອໜ້າຈໍນີ້ເປີດຂຶ້ນ — ບໍ່ມີຫຍັງຖືກຮ້ອງຂໍໂດຍບໍ່ມີການແຕະຂອງທ່ານ.</string>
+    <string name="max_privilege_scanning">ກຳລັງສະແກນ...</string>
+    <string name="max_privilege_rescan">ສະແກນອີກຄັ້ງ</string>
 </resources>

@@ -447,4 +447,8 @@
     <string name="max_dex_bulk_warning">La compilation en masse sollicite le processeur et chauffe l\'appareil. Gardez-le en charge.</string>
     <string name="max_language_device_section">Langues de votre appareil</string>
     <string name="max_language_all_section">Toutes les langues</string>
+    <string name="max_privilege_layers_title">Vos couches d\'accès</string>
+    <string name="max_privilege_auto_scan">Balayé automatiquement lorsque cet écran s\'ouvre - rien n\'est demandé sans votre appui.</string>
+    <string name="max_privilege_scanning">Balayage…</string>
+    <string name="max_privilege_rescan">Scannez à nouveau</string>
 </resources>

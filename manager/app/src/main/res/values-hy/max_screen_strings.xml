@@ -447,4 +447,8 @@
     <string name="max_doze_section_policy_desc">Այս անջատիչները փոխում են MaxManager-ի քաղաքականությունը: Android-ը պահպանում է վերը նշված պետության սեփականությունը:</string>
     <string name="max_language_device_section">Ձեր սարքի լեզուները</string>
     <string name="max_language_all_section">Բոլոր լեզուները</string>
+    <string name="max_privilege_layers_title">Ձեր մուտքի շերտերը</string>
+    <string name="max_privilege_auto_scan">Ավտոմատ սկանավորվում է, երբ այս էկրանը բացվում է. առանց ձեր հպման ոչինչ չի պահանջվում:</string>
+    <string name="max_privilege_scanning">Սկանավորում…</string>
+    <string name="max_privilege_rescan">Կրկին սկանավորեք</string>
 </resources>

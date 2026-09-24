@@ -94,4 +94,5 @@
     <string name="max_gpu_reason_technical">Себеп коду</string>
     <string name="max_gpu_intent_default_title">Демейки (баштоо абалы)</string>
     <string name="max_gpu_intent_default_desc">Экран ачылганда бул түзмөктө болгон маанилерге диапазонду жана башкаруучуну кайтарат. Алар буга чейин дал келгени менен эч нерсе жазылган эмес - бул бир нерсени өзгөрткөн адам үчүн кайра жол.</string>
+    <string name="max_gpu_history_empty">Азырынча окуу жок — экран жыштыктын үлгүлөрүн алып жатканда диаграмма толтурат.</string>
 </resources>

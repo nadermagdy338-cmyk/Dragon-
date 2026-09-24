@@ -73,8 +73,24 @@ fun animateColorSchemeAsState(
     )
 }
 
-/** Aurora's teal seed; all surface and foreground tones are generated per mode. */
-val MaxManagerBrandSeed = Color(0xFF007F78)
+/**
+ * بذرة لون MaxManager الافتراضي — **رمادي مزرق** باختيار المالك (2026-09-24).
+ *
+ * كانت تركوازية (`0xFF007F78`)، وقال المالك صراحةً: «اللون الافتراضي رمادي مزرق» — وهو
+ * اللون نفسه الذي اختاره في لقطته من شاشة السمة، والشريحة موجودة أصلًا في `keyColorOptions`
+ * (`0xFF607D8F`). فصارت الافتراضي من الطرفين: هذه البذرة، و[MaxManagerDefaultKeyColor].
+ */
+val MaxManagerBrandSeed = Color(0xFF607D8F)
+
+/**
+ * الشريحة المعلَّمة افتراضيًّا عند أول تشغيل: الرمادي المزرق نفسه.
+ *
+ * ولماذا قيمةٌ لا صفر: الصفر يعني «تلقائي» فيَعلَّم وسم «تلقائي» ويُشتق التوليف من البذرة
+ * وحدها — وهذه القيمة تجعل الشريحة الرمادية المزرقة هي المعلَّمة في شاشة السمة من أول
+ * تشغيل، أي أنّ ما يراه المستخدم في لقطته هو ما يبدأ به التطبيق بلا خطوة يدوية.
+ * (ومن اختار «تلقائي» بنفسه يحفظ صفرًا فيبقى على التوليف الديناميكي — لم يُسلَب خياره.)
+ */
+val MaxManagerDefaultKeyColor: Int = 0xFF607D8F.toInt()
 
 enum class ColorMode(val value: Int) {
     SYSTEM(3), LIGHT(4), DARK(5), DARKAMOLED(6);
@@ -99,7 +115,7 @@ object ThemeController {
         val colorMode = ColorMode.fromValue(
             prefs.getInt("color_mode", ColorMode.SYSTEM.value)
         )
-        val keyColor = prefs.getInt("key_color", 0) 
+        val keyColor = prefs.getInt("key_color", MaxManagerDefaultKeyColor)
         
         val colorSpecStr = prefs.getString("color_spec", "DEFAULT")
         val colorSpec = try {
@@ -139,7 +155,8 @@ fun MaxManagerTheme(
 
     val colorScheme = if (isDynamic) {
         // Key colors feed tonal generation, not fixed foreground/background roles.
-        // Copper balances teal; generated neutrals keep surfaces calm in every mode.
+        // Copper still balances the blue-grey brand when the auto swatch is chosen;
+        // generated neutrals keep surfaces calm in every mode.
         rememberDynamicColorScheme(
             seedColor = MaxManagerBrandSeed,
             isDark = darkTheme,
