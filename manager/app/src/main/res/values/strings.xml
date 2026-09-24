@@ -1593,6 +1593,7 @@
     <string name="home_system_vitals_desc">Live processor, graphics, memory and thermal load</string>
     <string name="home_sensor_unavailable">Sensor unavailable</string>
     <string name="home_temperature_short">TEMP</string>
+    <string name="home_gpu_max_freq">Max freq</string>
     <string name="home_cpu_cores">CPU core matrix</string>
     <string name="home_waiting_core_data">Reading kernel topology and per-core clocks</string>
     <string name="home_cpu_cores_online">%1$d of %2$d cores online · live frequency</string>

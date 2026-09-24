@@ -65,6 +65,33 @@ interface AtlasCeilingAccess {
     fun writeLimits(policyPath: String, range: String): Boolean
 }
 
+/**
+ * الوصول الإنتاجي إلى مقابض سقف CPU: قراءة من السياسات المكتشفة، وكتابة عبر
+ * `CpuHardwareBackend.setPolicyLimits` — نفس ما يستعمله كل كاتب آخر لهذا المفتاح.
+ *
+ * و`privileged` هنا تعني حرفيًّا «معاملة قابلة للمحاولة» (السياسات موجودة، والكتابة تمرّ
+ * بالكاتب المُتحقَّق): **لا قراءة تُثبت صلاحية الكتابة**، والحكم النهائي عند `writeLimits`
+ * نفسه — وقبولها الكاذب لا يُنتج ادّعاء نجاح، لأن `false` تُسقط المعاملة فيُعلن الفشل.
+ *
+ * وموضعه هنا لا في مُستدعٍ: هذا هو مُنفِّذ العقد الوحيد في البناء، ومشاركته بين مقابض MAX AI
+ * وخريطة القدرة تمنع نشوء حدَّي كتابة ينجرف أحدهما عن الآخر (قاعدة «الكاتب ليس ثانيًا»).
+ */
+object SystemCeilingAccess : AtlasCeilingAccess {
+    override val privileged: Boolean get() = CpuHardwareBackend.policies().isNotEmpty()
+
+    override fun readLimits(policyPath: String): String? =
+        CpuHardwareBackend.policies()
+            .firstOrNull { it.path == policyPath }
+            ?.let { "${it.minKHz ?: ""}:${it.maxKHz ?: ""}" }
+
+    override fun writeLimits(policyPath: String, range: String): Boolean {
+        val parts = range.split(":", limit = 2)
+        val min = parts.getOrNull(0)?.trim()?.takeIf(String::isNotEmpty)?.toLongOrNull()
+        val max = parts.getOrNull(1)?.trim()?.takeIf(String::isNotEmpty)?.toLongOrNull()
+        return CpuHardwareBackend.setPolicyLimits(policyPath, min, max).successful
+    }
+}
+
 /** نتيجة محاولة كتابة مبنيّة على الاكتشاف: ما بُني، وما لم يُبنَ وسببُه. */
 data class AtlasDiscoveredResult(
     val plan: AtlasDiscoveredPlan,

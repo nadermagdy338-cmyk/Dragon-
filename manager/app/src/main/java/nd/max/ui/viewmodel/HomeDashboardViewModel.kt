@@ -138,6 +138,14 @@ data class DashboardState(
      */
     val gpuMinMhz: Int? = null,
 
+    /**
+     * أقصى تردد مدعوم للرسوم بالـMHz = أعلى درجة يُعلنها كتالوج الدرجات (`provenMaxFreq`)،
+     * أو null حين لا يُعلنه — **وهو ما يستطيعه الرسّام لا ما يُسمح به الآن**. وثلاثة أرقام
+     * لا يخلط بينها القارئ: هذا (مثل `1300`) ≠ `gpuCeilingMhz` السقف الحيّ (مثل `754`) ≠
+     * `gpuFreqMhz` الجاري (مثل `260`) — وبطاقة الرئيسية تفرّق الثلاثة بالمواضع.
+     */
+    val gpuMaxSupportedMhz: Int? = null,
+
     /** أدنى أرضية معلنة بين الأنوية المتصلة بالميغاهرتز، أو null حين لا تُعلن أي نواة أرضية. */
     val cpuMinMhz: Int? = null,
     /** RAM history for the live chart, same cadence as [loadSamples]. */
@@ -223,7 +231,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
 
     /** مدى تردّد الرسوم الحقيقي ومسار عقدته: يُحلّان مرة واحدة لكل إقلاع. */
     private var gpuRangeResolved: Boolean = false
-    private var gpuRangeCache: Pair<Int?, Int?> = null to null
+    private var gpuRangeCache: Triple<Int?, Int?, Int?> = Triple(null, null, null)
     private var gpuPathCache: String? = null
 
     /**
@@ -336,6 +344,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     cpuTopCoreMhz = cpuTopCoreMhz, cpuCeilingMhz = cpuCeilingMhz,
                     gpuCeilingMhz = gpuCeilingMhz,
                     gpuMinMhz = gpuRange.first,
+                    gpuMaxSupportedMhz = gpuRange.third,
                     cpuMinMhz = cpuMinMhz,
                     loadSamples = samples,
                     // تاريخ الذاكرة يغذّي الرسوم المفصّلة وحدها؛ الشاشة الرئيسية تعرض قيمًا
@@ -578,14 +587,14 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
      * جهاز يخالف مفترضات أحدهما. والواحد `AMBIGUOUS` يُرفض ولا يُخمَّن (`frequencyMHz` تُرجع
      * null حين لا تثق الوحدة)، فتبقى البطاقة بلا مدى بدل مدى مصنوع.
      */
-    private fun gpuRange(): Pair<Int?, Int?> {
+    private fun gpuRange(): Triple<Int?, Int?, Int?> {
         if (!gpuRangeResolved) {
             gpuRangeResolved = true
             gpuRangeCache = try {
                 val device = GpuHardwareBackend.selection().device
                 gpuPathCache = device?.path
                 if (device == null || !device.unitTrusted) {
-                    null to null
+                    Triple(null, null, null)
                 } else {
                     // **والحدّان من الحيّ لا من كُتالوج الدرجات:** الكتالوج يسرد ما "يستطيعه"
                     // المعالج، و`min_freq`/`max_freq` يقولان ما **يُسمح** به الآن — فمن قرأ
@@ -597,10 +606,20 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                         device,
                         GpuHardwareBackend.configurableMaxFrequency(device),
                     )
-                    min?.toInt()?.takeIf { it > 0 } to max?.toInt()?.takeIf { it > 0 }
+                    // **وأمّا الرقم الثالث فالكتالوج مصدره لا الحيّ:** «أقصى مدعوم» = أعلى
+                    // درجة تُعلنها الدرجات (`provenMaxFreq`) — ما يستطيعه الرسّام لا ما يُسمح
+                    // به الآن. وهذا بالضبط الرقم الذي حذّر التعليق أعلاه من عرضه سقفًا (1300
+                    // مقابل 754) — يُعرض اليوم في بطاقة الرئيسية في موضعه المُسمّى فلا يعود
+                    // الخلط بينهما ممكنًا.
+                    val supportedMax = GpuHardwareBackend.frequencyMHz(device, device.provenMaxFreq)
+                    Triple(
+                        min?.toInt()?.takeIf { it > 0 },
+                        max?.toInt()?.takeIf { it > 0 },
+                        supportedMax?.toInt()?.takeIf { it > 0 },
+                    )
                 }
             } catch (_: Exception) {
-                null to null
+                Triple(null, null, null)
             }
         }
         return gpuRangeCache

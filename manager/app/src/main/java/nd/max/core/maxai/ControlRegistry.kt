@@ -1,10 +1,15 @@
 package nd.max.core.maxai
 
+import nd.max.core.atlas.AtlasControlTarget
+import nd.max.core.hardware.AtlasAdapterChoice
+import nd.max.core.hardware.AtlasAdapterContext
+import nd.max.core.hardware.AtlasAdapterRegistry
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.GpuHardwareBackend
 import nd.max.core.hardware.HardwareCapabilitySnapshot
 import nd.max.core.hardware.HardwareControlKey
 import nd.max.core.hardware.HardwareFeature
+import nd.max.core.hardware.SystemGpuCeilingAccess
 
 /**
  * مفردات Max AI — ليست أسماء أفعال، بل المقابض الحقيقية المكتشفة على
@@ -140,14 +145,26 @@ object ControlRegistry {
     private fun gpuCeilingControl(): Control? {
         val selection = GpuHardwareBackend.selection()
         val device = selection.device ?: return null
-        // والسؤال الصحيح للسقف: «هل تقبل عقدتا المدى كتابة؟» — لا «هل يوجد مسار تثبيت OPP؟».
-        //
-        // و`rangeWritable` يشترط `mtkFixedIndexPath == null`، فكان هذا المقبض على MediaTek — وهو
-        // الجهاز المقيس — يسلك فرع `minFreq == maxFreq`، أي **تثبيت درجة واحدة** بدل كتابة سقف.
-        // والقياس في سجّل الجهاز (2026-09-22، شاشة MAX AI): كل قرار `gpu_frequency:13000000.mali`
-        // مكتوبٌ بأثره `fix_target_opp_index` وحده (٣٠ ← ٣١ ← ٣٢ ← ٣٣) مع
-        // `custom_upbound_gpu_freq=0` — والمقبض اسمه «سقف GPU»، فكان يُجمَّد التردد لا يُسقَّف.
-        if (!device.devfreqCeilingWritable && !device.exactLockWritable) return null
+        // «كيف على هذا الجهاز؟» — قرار **أطلس** لا قرار هذا الملف، وهذا هو الحدّ الفاصل بين
+        // النظامين: MAX AI يقرّر «ماذا وكم» (قيمة من مخطِّطه على سلّم الجهاز المُعلن)، وأطلس
+        // يقرّر الطريقة والمسار والحكم. فالملاءِم يختار بين كتابة مدى («هل تقبل عقدتا المدى
+        // كتابة سقف؟» — لا «هل يوجد مسار تثبيت OPP؟») وتثبيت درجة حيث لا يقبل — والخلطُ بينهما
+        // هو العطب المقيس على rodin (٢٠٢٦-٠٩-٢٢): كل قرار `gpu_frequency:13000000.mali` مكتوبٌ
+        // بأثره `fix_target_opp_index` وحده (٣٠ ← ٣٣) مع `custom_upbound_gpu_freq=0` — مقبضٌ
+        // اسمه «سقف GPU» كان يُجمَّد التردد لا يُسقَّف. والجهاز بلا ملاءِم = لا مقبض (فجوة
+        // مُعلنة) لا كتابةٌ بخطةٍ واحدة لكل الأجهزة.
+        val context = AtlasAdapterContext(
+            privileged = SystemGpuCeilingAccess.privileged,
+            gpuDevice = device,
+            gpuAccess = SystemGpuCeilingAccess,
+        )
+        val binding = (AtlasAdapterRegistry.defaults().choose(AtlasControlTarget.GPU_FREQUENCY, context)
+            as? AtlasAdapterChoice.Chosen)
+            ?.adapter
+            ?.probe(context)
+            ?.bindings
+            ?.firstOrNull()
+            ?: return null
         val ladder = device.frequencies.map(Long::toString)
         if (ladder.size < 2) return null
         return Control(
@@ -164,19 +181,14 @@ object ControlRegistry {
             // ([GpuHardwareBackend.currentFrequencyHz])، وهذا المقبض يعلن قيمته التي يملكها.
             read = { GpuHardwareBackend.refresh(device.path)?.maxFreq?.toString() },
             apply = { value ->
-                val target = value.toLongOrNull() ?: return@Control null
-                val live = GpuHardwareBackend.refresh(device.path) ?: return@Control null
-                val request = if (live.devfreqCeilingWritable) {
-                    // وأرضية المدى هي أعلى درجة معلنة لا تتجاوز الطلب (نفس ما يفعله مسار per-app).
-                    GpuHardwareBackend.Request(
-                        minFreq = live.frequencies.firstOrNull { it <= target } ?: target,
-                        maxFreq = target,
-                    )
-                } else {
-                    GpuHardwareBackend.Request(minFreq = target, maxFreq = target)
-                }
-                val result = GpuHardwareBackend.apply(live, request)
-                if (!result.verified) null else result.actual?.maxFreq?.toString()
+                // الكتابة والحكم كلاهما من العقد الذي بناه الملاءِم: الكتابة بالكاتب المُتحقَّق
+                // القائم (وحدات العقدة كما في السلّم)، والحكم بقراءةٍ مرتجعة لا بإرسال الأمر —
+                // فلا نجاح إلا وقد أثبتته قراءةُ الجهاز («لا تتجاوز» للسقف، و«الدرجة على الساعة»
+                // للتثبيت). ورفعٌ فوق قدرة المنصّة يبقى نجاحَ ما نملكه مع رقمٍ يُعلن ما لا نملكه
+                // (حُكم التحرير الثاني في `GpuCeilingPolicy.releaseVerdict`)، لا فشلًا مُكرَّرًا.
+                if (!binding.request.apply(value)) return@Control null
+                if (binding.request.verify?.invoke(value, binding.request.read()) != true) return@Control null
+                GpuHardwareBackend.refresh(device.path)?.maxFreq?.toString()
             },
         )
     }

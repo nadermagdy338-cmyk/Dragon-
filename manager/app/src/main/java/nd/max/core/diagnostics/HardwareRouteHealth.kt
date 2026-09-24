@@ -1,5 +1,8 @@
 package nd.max.core.diagnostics
 
+import nd.max.core.atlas.AtlasCapability
+import nd.max.core.atlas.AtlasCapabilityInputs
+import nd.max.core.atlas.AtlasCapabilityRules
 import nd.max.core.atlas.AtlasControlGoal
 import nd.max.core.atlas.AtlasControlIntent
 import nd.max.core.atlas.AtlasControlTarget
@@ -10,6 +13,8 @@ import nd.max.core.atlas.AtlasRouteEvidence
 import nd.max.core.atlas.AtlasRoutePlanner
 import nd.max.core.atlas.AtlasRouteReason
 import nd.max.core.atlas.AtlasRouteStatus
+import nd.max.core.atlas.AtlasSafetyPolicy
+import nd.max.core.hardware.AccessLevel
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.GpuHardwareBackend
 import nd.max.core.hardware.HardwareCapabilitySnapshot
@@ -46,7 +51,12 @@ import nd.max.core.hardware.HardwareFeature
  */
 object HardwareRouteHealth {
 
-    /** One control's activation verdict, in the planner's own vocabulary. */
+    /**
+     * One control's activation verdict, in the planner's own vocabulary — plus its place on the
+     * **capability map** (`Map` stage of the Atlas cycle), derived by the same single truth table the
+     * execution path uses ([AtlasCapabilityRules]): the diagnostics matrix and a write attempt may
+     * never grow two answers to "what can this device do".
+     */
     data class Verdict(
         val target: AtlasControlTarget,
         val feature: HardwareFeature,
@@ -55,6 +65,7 @@ object HardwareRouteHealth {
         val transport: AtlasControlTransport? = null,
         val providerId: String? = null,
         val evidence: AtlasRouteEvidence? = null,
+        val capability: AtlasCapability,
     ) {
         /**
          * A stable machine code for this verdict — never a sentence.
@@ -98,24 +109,28 @@ object HardwareRouteHealth {
         return monitoredFeatures.map { feature ->
             when (feature) {
                 HardwareFeature.CPU_FREQUENCY -> decide(
+                    snapshot = snapshot,
                     feature = feature,
                     target = AtlasControlTarget.CPU_FREQUENCY,
                     candidate = cpuFrequencyRoute(snapshot, policies),
                 )
 
                 HardwareFeature.CPU_GOVERNOR -> decide(
+                    snapshot = snapshot,
                     feature = feature,
                     target = AtlasControlTarget.CPU_GOVERNOR,
                     candidate = cpuGovernorRoute(snapshot, policies),
                 )
 
                 HardwareFeature.GPU_FREQUENCY -> decide(
+                    snapshot = snapshot,
                     feature = feature,
                     target = AtlasControlTarget.GPU_FREQUENCY,
                     candidate = gpuFrequencyRoute(snapshot, gpu),
                 )
 
                 HardwareFeature.GPU_GOVERNOR -> decide(
+                    snapshot = snapshot,
                     feature = feature,
                     target = AtlasControlTarget.GPU_GOVERNOR,
                     candidate = gpuGovernorRoute(snapshot, gpu),
@@ -125,12 +140,13 @@ object HardwareRouteHealth {
                 // `REVIEW_REQUIRED` is the truthful answer: it says "not reviewed", which is a fact
                 // about our knowledge, rather than "unsupported", which would be a claim about the
                 // device that nobody has established.
-                else -> decide(feature, targetFor(feature), candidate = null)
+                else -> decide(snapshot, feature, targetFor(feature), candidate = null)
             }
         }
     }
 
     private fun decide(
+        snapshot: HardwareCapabilitySnapshot,
         feature: HardwareFeature,
         target: AtlasControlTarget,
         candidate: AtlasRouteCandidate?,
@@ -149,6 +165,36 @@ object HardwareRouteHealth {
             transport = chosen?.evidence?.transport,
             providerId = chosen?.evidence?.providerId,
             evidence = chosen?.evidence,
+            capability = capabilityOf(snapshot, feature, target, candidate, decision),
+        )
+    }
+
+    /**
+     * مكان هذا التحكم على خريطة القدرة — مشتقّ لا مُقاس هنا: كل مدخل مما أثبته هذا السطح فعلًا،
+     * وما لم يُثبته يبقى `false` («لم يُقاس» لا «غير موجود»). وذاكرة التعلّم خارج هذا السطح
+     * الثابت، فتبقى `verifiedThisGeneration = false` هنا — لا يُدَّعى نجاح من عرض تشخيصي.
+     */
+    private fun capabilityOf(
+        snapshot: HardwareCapabilitySnapshot,
+        feature: HardwareFeature,
+        target: AtlasControlTarget,
+        candidate: AtlasRouteCandidate?,
+        decision: AtlasRouteDecision,
+    ): AtlasCapability {
+        val visible = snapshot.capability(feature)?.access?.let { it != AccessLevel.NONE } ?: false
+        return AtlasCapabilityRules.derive(
+            AtlasCapabilityInputs(
+                target = target,
+                safety = AtlasSafetyPolicy.verdictForKey(candidate?.id ?: feature.name),
+                measured = true,
+                readable = candidate?.evidence?.readable ?: visible,
+                // هذا السطح لا يُثبت غيابًا أبدًا: الإثبات يحتاج جردًا غير فارغ، وهو عمل مسار المسح.
+                absenceProved = false,
+                routeKnown = candidate != null,
+                routeStatus = decision.status,
+                routeReason = decision.reason,
+                verifiedThisGeneration = false,
+            ),
         )
     }
 

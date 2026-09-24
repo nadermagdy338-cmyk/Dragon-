@@ -26,7 +26,8 @@ import nd.max.core.hardware.HardwareFeature
  * (`blocked:privilege_unavailable`, `review_required:route_not_reviewed`) is `AtlasRouteReason`
  * vocabulary and stays as-is on purpose: it is the string a support report needs to be compared
  * against, and a translated reason would be a different reason in every language. This is the
- * inspection surface, not a settings screen.
+ * inspection surface, not a settings screen. The capability-map code (`map:read-only:read-only`)
+ * rides beside it on the same rule: machine vocabulary, one meaning in every language.
  */
 @Composable
 fun RouteVerdictLabel(
@@ -35,14 +36,20 @@ fun RouteVerdictLabel(
     modifier: Modifier = Modifier,
 ) {
     val verdict = routes.firstOrNull { it.feature == feature } ?: return
+    // رمز الخريطة يرافق رمز الحكم: مكان هذا التحكم على خريطة قدرة الجهاز، بنفس قاعدة الرموز
+    // الآلية غير المترجمة (`map:needs_adapter:adapter-gap` مثلًا).
+    val code = verdict.code + " · " + verdict.capability.code
     val text = when (verdict.status) {
         AtlasRouteStatus.ELIGIBLE ->
-            stringResource(R.string.diagnostics_route_eligible, verdict.providerId ?: verdict.code)
+            stringResource(
+                R.string.diagnostics_route_eligible,
+                verdict.providerId?.let { "$it · ${verdict.capability.code}" } ?: code,
+            )
 
         AtlasRouteStatus.REVIEW_REQUIRED ->
-            stringResource(R.string.diagnostics_route_not_reviewed, verdict.code)
+            stringResource(R.string.diagnostics_route_not_reviewed, code)
 
-        else -> stringResource(R.string.diagnostics_route_blocked, verdict.code)
+        else -> stringResource(R.string.diagnostics_route_blocked, code)
     }
     Text(
         text = text,

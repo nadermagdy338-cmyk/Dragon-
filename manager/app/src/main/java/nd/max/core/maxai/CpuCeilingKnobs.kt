@@ -1,10 +1,16 @@
 package nd.max.core.maxai
 
 import nd.max.core.atlas.AtlasBackendProvider
+import nd.max.core.atlas.AtlasControlGoal
+import nd.max.core.atlas.AtlasControlIntent
+import nd.max.core.atlas.AtlasControlTarget
 import nd.max.core.atlas.AtlasCpuPolicyFact
-import nd.max.core.hardware.AtlasAdaptiveExecutor
+import nd.max.core.atlas.MaxAtlas
+import nd.max.core.hardware.AtlasAdapterContext
 import nd.max.core.hardware.AtlasCeilingAccess
+import nd.max.core.hardware.AtlasControlRequest
 import nd.max.core.hardware.AtlasDiscoveredControl
+import nd.max.core.hardware.SystemCeilingAccess
 import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.HardwareControlArbiter
@@ -29,10 +35,11 @@ class CpuCeilingKnobs @Inject constructor(
      */
     private val atlasDiscovery: AtlasBackendProvider,
     /**
-     * مُنفِّذ أطلس المُتكيِّف. وجوده هنا هو ما يجعل هذا المقبض **مسار أطلس إنتاجيًا** لا مخطِّطًا
-     * لا مُستدعي له: الطلب يُخطَّط من دليلٍ مقيس ثم يُنفَّذ بمعاملة المُحكِّم الكاملة.
+     * **نظام Max Atlas المركزي** — وهنا يتحقّق فصل العمودين عمليًّا لا على الورق: MAX AI يقرّر
+     * «ماذا» (الكسر من مدى العتاد — قرار سياسة)، وأطلس يقرّر «كيف على هذا الجهاز» (اختيار الملاءِم
+     * والمسار، والتنفيذ بمعاملة المُحكِّم الكاملة، والتحقق من الجهاز نفسه، والتعلّم لكل جهاز).
      */
-    private val atlasAdaptive: AtlasAdaptiveExecutor,
+    private val maxAtlas: MaxAtlas,
 ) {
     data class KnobOutcome(val applied: Int, val blocked: Int, val failed: Int, val detail: String)
 
@@ -174,25 +181,38 @@ class CpuCeilingKnobs @Inject constructor(
             AtlasDiscoveredControl.isReviewedControlRoute(HardwareControlKey.cpuLimits(fact.name))
         },
     ): KnobOutcome {
-        val control = AtlasDiscoveredControl(access = access, token = token, owner = owner)
-        val result = control.applyCpuCeiling(
-            executor = atlasAdaptive,
-            facts = facts,
-            ceilingKHz = { fact -> fractionCeiling(fact, fraction) },
-            reviewed = reviewed,
+        val report = maxAtlas.execute(
+            context = AtlasAdapterContext(
+                privileged = access.privileged,
+                cpuFacts = facts,
+                ceilingAccess = access,
+            ),
+            request = AtlasControlRequest.CpuCeilings(
+                intent = AtlasControlIntent(
+                    target = AtlasControlTarget.CPU_FREQUENCY,
+                    goal = AtlasControlGoal.SUSTAINED_PERFORMANCE,
+                ),
+                owner = owner,
+                token = token,
+                ceilingKHzByKnob = facts.associate { it.name to fractionCeiling(it, fraction) },
+                reviewed = { name -> facts.firstOrNull { it.name == name }?.let(reviewed) ?: false },
+            ),
         )
-        val planned = result.plan.bindings.size
+        val planned = report.plan?.bindings?.size ?: 0
         val detail = buildString {
             append("atlas=")
-            append(result.selectedRouteId ?: "no-route:" + (result.adaptive?.detail ?: "not-planned"))
+            append(report.selectedRouteId ?: "no-route:" + (report.adaptiveDetail ?: "not-planned"))
             append(";planned=").append(planned)
-            append(";skipped=").append(result.plan.skipped.size)
-            result.adaptive?.skipped?.takeIf { it.isNotEmpty() }?.let { skipped ->
+            append(";skipped=").append(report.plan?.skipped?.size ?: 0)
+            report.adaptive?.skipped?.takeIf { it.isNotEmpty() }?.let { skipped ->
                 append(";routes-skipped=").append(skipped.joinToString(",") { it.first + ":" + it.second })
             }
+            // شارة الخريطة: مكان هذا المقبض على خريطة قدرة الجهاز بعد المحاولة
+            // (`map=supported:route-eligible+verified` مثلًا) — رمز ثابت لا جملة مترجمة.
+            append(";map=").append(report.capability.code)
             append(";")
         }
-        return if (result.verified) {
+        return if (report.verified) {
             KnobOutcome(applied = planned, blocked = 0, failed = 0, detail = detail)
         } else {
             KnobOutcome(applied = 0, blocked = 0, failed = 0, detail = detail)
@@ -221,29 +241,8 @@ class CpuCeilingKnobs @Inject constructor(
         return min + ((max - min) * fraction).toLong()
     }
 
-    /**
-     * الوصول الإنتاجي إلى مقابض سقف CPU: قراءة من السياسات المكتشفة، وكتابة عبر
-     * `CpuHardwareBackend.setPolicyLimits` — نفس ما يستعمله كل كاتب آخر لهذا المفتاح.
-     *
-     * و`privileged` هنا تعني حرفيًّا «معاملة قابلة للمحاولة» (السياسات موجودة، والكتابة تمرّ
-     * بالكاتب المُتحقَّق): **لا قراءة تُثبت صلاحية الكتابة**، والحكم النهائي عند `writeLimits`
-     * نفسه — وقبولها الكاذب لا يُنتج ادّعاء نجاح، لأن `false` تُسقط المعاملة فيُعلن الفشل.
-     */
-    private object SystemCeilingAccess : AtlasCeilingAccess {
-        override val privileged: Boolean get() = CpuHardwareBackend.policies().isNotEmpty()
-
-        override fun readLimits(policyPath: String): String? =
-            CpuHardwareBackend.policies()
-                .firstOrNull { it.path == policyPath }
-                ?.let { "${it.minKHz ?: ""}:${it.maxKHz ?: ""}" }
-
-        override fun writeLimits(policyPath: String, range: String): Boolean {
-            val parts = range.split(":", limit = 2)
-            val min = parts.getOrNull(0)?.trim()?.takeIf(String::isNotEmpty)?.toLongOrNull()
-            val max = parts.getOrNull(1)?.trim()?.takeIf(String::isNotEmpty)?.toLongOrNull()
-            return CpuHardwareBackend.setPolicyLimits(policyPath, min, max).successful
-        }
-    }
+    // ومُنفِّذ الثقب الإنتاجي صار مشتركًا في `core/hardware` ([SystemCeilingAccess]) — يشاركه
+    // مُستدعٍ غير هذا الملف (خريطة القدرة في تقرير الدعم)، فلا يُنقل نسخة عنه فينجرف نسخة.
 
     private fun setLimits(policy: CpuHardwareBackend.Policy, value: String): Boolean {
         val parts = value.split(":", limit = 2)

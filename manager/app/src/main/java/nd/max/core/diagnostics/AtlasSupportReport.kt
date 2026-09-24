@@ -39,6 +39,8 @@ data class AtlasSupportReport(
     val summary: ReportedSummary,
     val features: List<ReportedFeature>,
     val diagnostics: ReportedDiagnostics? = null,
+    /** خريطة القدرة لكل هدف تحكم — رموزٌ مجرّدة لا جمل (انظر [ReportedCapability]). */
+    val capabilities: List<ReportedCapability>? = null,
     val schema: Int = SCHEMA,
 ) {
 
@@ -87,11 +89,37 @@ data class AtlasSupportReport(
         data class ComponentSummary(val component: String, val level: String, val count: Int)
     }
 
+    /**
+     * One control target's place on the device's capability map — **codes only**.
+     *
+     * The subtraction rule holds here as everywhere in this type: `code` is the published machine
+     * code (`map:<state>:<reason>[:<route_reason>]`), `adapter` a registered adapter id or `null`,
+     * and no field can carry a path, a message, or a number read from the device. This row answers
+     * one question — "what does this build claim about this device, and how sure is it" — and the
+     * seven states are the reviewed vocabulary for the answer (`SUPPORTED` · `WRITABLE` · `READ_ONLY`
+     * · `NEEDS_ADAPTER` · `UNAVAILABLE` · `NEVER_TOUCH` · `UNKNOWN`).
+     */
+    data class ReportedCapability(
+        val target: String,
+        val code: String,
+        val adapter: String?,
+        val verified: Boolean,
+    )
+
     // ---- construction ------------------------------------------------------------------------------
 
     companion object {
 
-        const val SCHEMA: Int = 1
+        /**
+         * `2` = capability-map rows joined the report. And **older reports stay readable**:
+         * `decode` accepts [SCHEMA_V1] explicitly, because a format that cannot be re-read a year
+         * later is this file's own stated failure mode — and refusing yesterday's artifact would
+         * trade a documented version for an accidental one.
+         */
+        const val SCHEMA: Int = 2
+
+        /** The schema before capability rows existed: still decodable, and its map is simply absent. */
+        const val SCHEMA_V1: Int = 1
 
         /** The serialized bound, checked before the artifact exists (`T6.4`). */
         const val MAX_BYTES: Int = 256 * 1024
@@ -101,6 +129,9 @@ data class AtlasSupportReport(
 
         /** Components are bounded for the same reason. */
         const val MAX_COMPONENTS: Int = 64
+
+        /** The map has one row per control target; beyond this a report is a table, not a summary. */
+        const val MAX_CAPABILITY_ROWS: Int = 32
 
         /**
          * Builds a report, or refuses with the reason.
@@ -114,6 +145,7 @@ data class AtlasSupportReport(
             catalogVersion: String,
             device: ReportedDevice,
             diagnostics: ReportedDiagnostics? = null,
+            capabilities: List<ReportedCapability>? = null,
             nowMs: Long? = null,
             /** Comes from the discovery job, not from the state: only the job knows its own limits. */
             limitsReached: Boolean = false,
@@ -126,6 +158,9 @@ data class AtlasSupportReport(
             }
             if (state.outcomes.size > MAX_FEATURES) {
                 return Result.NotReportable("more than $MAX_FEATURES features; the report is a summary")
+            }
+            if (capabilities != null && capabilities.size > MAX_CAPABILITY_ROWS) {
+                return Result.NotReportable("more than $MAX_CAPABILITY_ROWS capability rows; the map is a summary")
             }
             val report = AtlasSupportReport(
                 appVersion = appVersion,
@@ -143,6 +178,7 @@ data class AtlasSupportReport(
                 ),
                 features = state.outcomes.map { outcome -> feature(outcome, nowMs) },
                 diagnostics = diagnostics,
+                capabilities = capabilities,
             )
             return Result.Ready(report)
         }
@@ -214,7 +250,9 @@ data class AtlasSupportReport(
         fun decode(text: String): Decoded {
             if (text.toByteArray(Charsets.UTF_8).size > MAX_BYTES) return Decoded(null, DecodeFailure.OVERSIZE)
             val root = runCatching { JSONObject(text) }.getOrNull() ?: return Decoded(null, DecodeFailure.MALFORMED)
-            if (root.optInt(KEY_SCHEMA, -1) != SCHEMA) return Decoded(null, DecodeFailure.UNSUPPORTED_SCHEMA)
+            if (root.optInt(KEY_SCHEMA, -1) != SCHEMA && root.optInt(KEY_SCHEMA, -1) != SCHEMA_V1) {
+                return Decoded(null, DecodeFailure.UNSUPPORTED_SCHEMA)
+            }
             return runCatching {
                 val device = root.getJSONObject(KEY_DEVICE)
                 val summary = root.getJSONObject(KEY_SUMMARY)
@@ -253,6 +291,18 @@ data class AtlasSupportReport(
                                 reason = item.getString("reason"),
                             )
                         },
+                        capabilities = root.optJSONArray(KEY_CAPABILITIES)?.let { rows ->
+                            (0 until rows.length()).map { index ->
+                                val row = rows.getJSONObject(index)
+                                ReportedCapability(
+                                    target = row.getString("target"),
+                                    code = row.getString("code"),
+                                    adapter = row.optStringOrNull("adapter"),
+                                    verified = row.getBoolean("verified"),
+                                )
+                            }
+                        },
+                        schema = root.getInt(KEY_SCHEMA),
                     ),
                     null,
                 )
@@ -269,6 +319,7 @@ data class AtlasSupportReport(
         private const val KEY_SUMMARY = "summary"
         private const val KEY_FEATURES = "features"
         private const val KEY_DIAGNOSTICS = "diagnostics"
+        private const val KEY_CAPABILITIES = "capabilities"
 
         /**
          * The outcome vocabulary, published (`P13`).
@@ -346,6 +397,23 @@ data class AtlasSupportReport(
                 }
             },
         )
+        capabilities?.let { rows ->
+            root.put(
+                KEY_CAPABILITIES,
+                JSONArray().apply {
+                    rows.forEach { row ->
+                        put(
+                            JSONObject().apply {
+                                put("target", row.target)
+                                put("code", row.code)
+                                put("adapter", row.adapter ?: JSONObject.NULL)
+                                put("verified", row.verified)
+                            },
+                        )
+                    }
+                },
+            )
+        }
         diagnostics?.let { diagnostics ->
             root.put(
                 KEY_DIAGNOSTICS,

@@ -52,6 +52,16 @@ class AtlasArchitectureTest {
      * - `AtlasFileStoreIo`: the evidence cache. It writes, but only into the app's own private
      *   directory — never a device node, and never through a privileged transport, so the read-path
      *   token rule (which exists to keep a writer off the kernel) does not apply to it.
+     * - `AtlasSafetyPolicy` / `AtlasCapabilityMap` (`Map` stage): the never-touch rules and the
+     *   capability truth table. Pure derivation over evidence *given* to them — like the route
+     *   planner they decide, and like it they hold no reader and no writer. They may name a write
+     *   state (`WRITABLE`) exactly as the planner names an execution transport: as a verdict about a
+     *   route, never as authority to perform one.
+     * - `AtlasDeviceProfile` (`Learn` stage): the derived device profile. It assembles identity, map
+     *   and remembered routes in memory; it performs no I/O and is deliberately never a second store.
+     * - `MaxAtlas`: the cycle façade. Pure composition — reads belong to the scan path and writes to
+     *   the injected repair port (`core/hardware`), so no transport, no writer and no shell appears
+     *   here. This is the same classification as `AtlasRoutePlanner`: the decision layer.
      */
     private val declaredOffReadPath = listOf(
         "AtlasModels.kt",
@@ -61,6 +71,10 @@ class AtlasArchitectureTest {
         "AtlasControlIntent.kt",
         "AtlasRoutePlanner.kt",
         "AtlasFileStoreIo.kt",
+        "AtlasSafetyPolicy.kt",
+        "AtlasCapabilityMap.kt",
+        "AtlasDeviceProfile.kt",
+        "MaxAtlas.kt",
     )
 
     private fun packageFileNames(): Set<String> = AtlasSourceGuard

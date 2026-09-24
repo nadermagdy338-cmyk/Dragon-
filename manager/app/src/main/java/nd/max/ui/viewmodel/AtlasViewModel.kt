@@ -40,9 +40,18 @@ import nd.max.core.atlas.AtlasRepository
 import nd.max.core.atlas.AtlasScanState
 import nd.max.core.atlas.AtlasScanStatus
 import nd.max.core.atlas.AtlasStage
+import nd.max.core.atlas.MaxAtlas
 import nd.max.core.diagnostics.AtlasReportExporter
 import nd.max.core.diagnostics.AtlasSupportReport
 import nd.max.core.diagnostics.DiagnosticCenter
+import nd.max.core.hardware.AccessLevel
+import nd.max.core.hardware.AtlasAdapterContext
+import nd.max.core.hardware.CpuHardwareBackend
+import nd.max.core.hardware.GpuHardwareBackend
+import nd.max.core.hardware.HardwareCapabilityResolver
+import nd.max.core.hardware.HardwareFeature
+import nd.max.core.hardware.SystemCeilingAccess
+import nd.max.core.hardware.SystemGpuCeilingAccess
 import nd.max.core.threading.DispatcherProvider
 import nd.max.ui.design.MaxDataTrust
 
@@ -120,6 +129,7 @@ class AtlasViewModel @Inject constructor(
     private val discovery: AtlasDiscovery,
     private val identity: AtlasDeviceIdentity,
     private val dispatchers: DispatcherProvider,
+    private val maxAtlas: MaxAtlas,
 ) : ViewModel() {
 
     private val exporter = AtlasReportExporter(AtlasReportExporter.directoryFor(application.cacheDir))
@@ -201,21 +211,27 @@ class AtlasViewModel @Inject constructor(
             _ui.value = _ui.value.copy(refusal = refusal, previewText = null)
             return
         }
-        val built = AtlasSupportReport.from(
-            state = scan,
-            appVersion = appVersion(),
-            catalogVersion = discovery.catalog.version,
-            device = reportedDevice(),
-            diagnostics = diagnostics(),
-            nowMs = SystemClock.elapsedRealtime(),
-            limitsReached = job?.limitsReached() == true,
-        )
-        _ui.value = when (built) {
-            is AtlasSupportReport.Result.Ready ->
-                _ui.value.copy(previewText = built.report.encode(), refusal = null)
+        // والبناء **يقرأ العتاد** (خريطة القدرة: سياسات · جهاز GPU · وصول حرارة) فلا يقع على خيط
+        // المستدعي — نفس مسلك `share()` وبقية مدخلات هذا الـViewModel. وما يُقرأ هنا قياسٌ للتوثيق،
+        // والمسح المجمَّد في `scan` كافٍ للبناء فلا رقابة على المسح من هنا.
+        viewModelScope.launch(dispatchers.io) {
+            val built = AtlasSupportReport.from(
+                state = scan,
+                appVersion = appVersion(),
+                catalogVersion = discovery.catalog.version,
+                device = reportedDevice(),
+                diagnostics = diagnostics(),
+                capabilities = capabilityRows(),
+                nowMs = SystemClock.elapsedRealtime(),
+                limitsReached = job?.limitsReached() == true,
+            )
+            _ui.value = when (built) {
+                is AtlasSupportReport.Result.Ready ->
+                    _ui.value.copy(previewText = built.report.encode(), refusal = null)
 
-            is AtlasSupportReport.Result.NotReportable ->
-                _ui.value.copy(previewText = null, refusal = AtlasReportRefusal.Refused)
+                is AtlasSupportReport.Result.NotReportable ->
+                    _ui.value.copy(previewText = null, refusal = AtlasReportRefusal.Refused)
+            }
         }
     }
 
@@ -290,6 +306,40 @@ class AtlasViewModel @Inject constructor(
      * are properties of a model, and the kernel's build suffix is dropped rather than reported because
      * it encodes a vendor build, not a version anybody can act on.
      */
+    /**
+     * خريطة القدرة كما هي الآن — Discover ← Map في سطر واحد: مسارات كل هدف تُبنى ([probe]، ولا
+     * يُنفَّذ شيء) وتُحكم بالمخطِّط، وتُدمج مع ما أثبته الجهاز في هذا الجيل. والصفوف **رموزٌ
+     * لا جمل**: لا مسار ملف ولا رقم ولا سرّ — مطابقةً لطرح التقرير نفسه بالطرح لا بالمراقبة.
+     */
+    private fun capabilityRows(): List<AtlasSupportReport.ReportedCapability> =
+        maxAtlas.profile(mapContext()).capabilities.entries.map { capability ->
+            AtlasSupportReport.ReportedCapability(
+                target = capability.target.name.lowercase(),
+                code = capability.code,
+                adapter = capability.adapterId,
+                verified = capability.verified,
+            )
+        }
+
+    /**
+     * سياق القياس لخريطة القدرة — كل حقل فيه **مُقاس الآن** لا محفوظ: السياسات المكتشفة، وجهاز GPU
+     * كما اختاره الاكتشاف، وقابلية كتابة السقوف من مُنفِّذ العقد المشترك، ووصول الحرارة من
+     * مُحلِّل القدرات. فلا يقول تقريرٌ عن جهازٍ شيئًا لم يُقَس فيه في هذه الجلسة.
+     */
+    private fun mapContext(): AtlasAdapterContext {
+        val snapshot = HardwareCapabilityResolver.resolve(application)
+        val thermalReadable = snapshot.capability(HardwareFeature.THERMAL_ZONES)?.access
+            ?.let { it != AccessLevel.NONE } == true
+        return AtlasAdapterContext(
+            privileged = SystemCeilingAccess.privileged,
+            cpuPolicies = CpuHardwareBackend.policies(),
+            ceilingAccess = SystemCeilingAccess,
+            gpuDevice = GpuHardwareBackend.selection().device,
+            gpuAccess = SystemGpuCeilingAccess,
+            thermalStatusReadable = thermalReadable,
+        )
+    }
+
     private fun reportedDevice(): AtlasSupportReport.ReportedDevice = AtlasSupportReport.ReportedDevice(
         socModel = identity.socModel,
         socManufacturer = identity.socManufacturer,

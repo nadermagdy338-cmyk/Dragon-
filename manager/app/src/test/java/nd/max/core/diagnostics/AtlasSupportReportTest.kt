@@ -35,7 +35,7 @@ class AtlasSupportReportTest {
         val report = (result as AtlasSupportReport.Result.Ready).report
         val text = report.encode()
 
-        assertTrue(text.contains("\"schema\":1"))
+        assertTrue(text.contains("\"schema\":2"))
         assertTrue(text.contains("atlas-catalog-1"))
         assertTrue("a feature id is catalog vocabulary", text.contains("cpu.policy.scaling_cur_freq"))
         assertEquals("decoding reads back the same report", report, AtlasSupportReport.decode(text).report)
@@ -168,7 +168,7 @@ class AtlasSupportReportTest {
         val text = (AtlasSupportReport.from(state(), "1.0", "c", device()) as AtlasSupportReport.Result.Ready)
             .report.encode()
 
-        val bumped = text.replaceFirst("\"schema\":1", "\"schema\":99")
+        val bumped = text.replaceFirst("\"schema\":2", "\"schema\":99")
         val unknown = AtlasSupportReport.decode(bumped)
         val corrupt = AtlasSupportReport.decode("{ not json")
         val oversized = AtlasSupportReport.decode("x".repeat(AtlasSupportReport.MAX_BYTES + 1))
@@ -274,6 +274,73 @@ class AtlasSupportReportTest {
     }
 
     // ---- helpers -----------------------------------------------------------------------------------
+
+    @Test
+    fun `capability rows are machine codes and survive a round trip`() {
+        val rows = listOf(
+            AtlasSupportReport.ReportedCapability(
+                target = "gpu_frequency",
+                code = "map:supported:route-eligible+verified",
+                adapter = "gpu-devfreq-ceiling",
+                verified = true,
+            ),
+            AtlasSupportReport.ReportedCapability(
+                target = "thermal_profile",
+                code = "map:read_only:read-only",
+                adapter = null,
+                verified = false,
+            ),
+        )
+        val result = AtlasSupportReport.from(
+            state = state(),
+            appVersion = "1.2.3",
+            catalogVersion = "c",
+            device = device(),
+            capabilities = rows,
+        )
+
+        val report = (result as AtlasSupportReport.Result.Ready).report
+        val text = report.encode()
+        assertTrue(text.contains("map:supported:route-eligible+verified"))
+        assertEquals(rows, AtlasSupportReport.decode(text).report?.capabilities)
+        assertEquals("decoding reads back the same report", report, AtlasSupportReport.decode(text).report)
+    }
+
+    @Test
+    fun `a report written before capability rows existed is still readable`() {
+        val text = (AtlasSupportReport.from(state(), "1.0", "c", device()) as AtlasSupportReport.Result.Ready)
+            .report.encode()
+            .replaceFirst("\"schema\":2", "\"schema\":1")
+
+        val decoded = AtlasSupportReport.decode(text)
+
+        assertTrue("أقدم مرفق يُقرأ ولا يُرفض — بلا هذا لا يُعاد قراءة تقرير سنة قديمة", decoded.isReadable)
+        assertEquals(AtlasSupportReport.SCHEMA_V1, decoded.report?.schema)
+        assertNull(decoded.report?.capabilities)
+    }
+
+    @Test
+    fun `a map larger than the bound is refused like any other overflow`() {
+        val rows = (0..AtlasSupportReport.MAX_CAPABILITY_ROWS).map { index ->
+            AtlasSupportReport.ReportedCapability(
+                target = "target_$index",
+                code = "map:unknown:not-observed",
+                adapter = null,
+                verified = false,
+            )
+        }
+
+        val result = AtlasSupportReport.from(
+            state = state(),
+            appVersion = "1.2.3",
+            catalogVersion = "c",
+            device = device(),
+            capabilities = rows,
+        )
+
+        assertTrue(result is AtlasSupportReport.Result.NotReportable)
+        assertTrue((result as AtlasSupportReport.Result.NotReportable).reason.contains("summary"))
+    }
 
     private fun reportSource(): String = listOf(
         "src/main/java/nd/max/core/diagnostics/AtlasSupportReport.kt",

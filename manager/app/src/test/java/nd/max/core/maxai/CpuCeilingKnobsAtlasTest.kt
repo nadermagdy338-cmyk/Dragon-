@@ -3,7 +3,10 @@ package nd.max.core.maxai
 import nd.max.core.atlas.AtlasBackendProvider
 import nd.max.core.atlas.AtlasCpuFrequencySource
 import nd.max.core.atlas.AtlasCpuPolicyFact
+import nd.max.core.atlas.AtlasDeviceIdentity
+import nd.max.core.atlas.MaxAtlas
 import nd.max.core.hardware.AtlasAdaptiveExecutor
+import nd.max.core.hardware.AtlasAdapterRegistry
 import nd.max.core.hardware.AtlasCeilingAccess
 import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.HardwareControlArbiter
@@ -53,7 +56,14 @@ class CpuCeilingKnobsAtlasTest {
         knobs = CpuCeilingKnobs(
             arbiter = arbiter,
             atlasDiscovery = AtlasBackendProvider(elapsedMs = { 0L }),
-            atlasAdaptive = AtlasAdaptiveExecutor(HardwareRepairExecutor(arbiter, sleep = {})),
+            // المسار الإنتاجي صار كله عبر نظام Max Atlas المركزي: الملاءِم يختار «كيف»، والطلب
+            // يُنفَّذ بالمعاملة المُتحقَّقة — وهذه الحشوة هي ما يُبقيه قابلًا للقياس في JVM.
+            maxAtlas = MaxAtlas(
+                registry = AtlasAdapterRegistry.defaults(),
+                executor = AtlasAdaptiveExecutor(HardwareRepairExecutor(arbiter, sleep = {})),
+                identity = AtlasDeviceIdentity(supportedAbis = listOf("arm64-v8a"), apiLevel = 34),
+                catalogVersion = "test-catalog",
+            ),
         )
     }
 

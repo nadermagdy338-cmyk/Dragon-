@@ -256,6 +256,12 @@ JUnit 4.13.2 + hamcrest 1.3 · org.json 20250107 · kotlinx-coroutines-core-jvm 
 
 - جدول مسارات Atlas (Providers/Transports) ومدخلات كتالوج الجهاز مُجمَّلٌ هنا؛ تفصيله في
   `core/atlas/` نفسه (والـ`AtlasDoctor` يحكم على تغطية الكتالوج في الشاشة).
+- **دورة أطلس (تكملة ١٠٥ — ADR-43):** `MaxAtlas` واجهةُ Discover→Understand→Map→Adapt→Execute→Verify→Learn؛
+  وخريطة القدرة `AtlasCapabilityMap` (سبع حالات + `AtlasSafetyPolicy` عدم اللمس فوق الجميع) وملف الجهاز
+  `AtlasDeviceProfile` (يُبنى لا يُخزَّن وينتهي بالجيل) في `core/atlas/`، وطبقة المواءمة `AtlasAdapters` (بملاءِمي GPU في `AtlasGpuAdapters`: مدى `devfreq` حيث تقبله العقدتا، وتثبيت OPP حيث لا تقبل)
+  (مُلاءِمون + سجلّ حتميّ + `CpuCeilingAdapter`) في `core/hardware/`. والفصل **Atlas ≠ Max AI** جدولٌ في
+  صدر `MaxAtlas.kt`: أطلس «كيف على هذا الجهاز» وMAX AI «ماذا ومتى» — ويُستهلك من موضعين إنتاجيين
+  (`CpuCeilingKnobs` كلّه عبره، و`HardwareRouteHealth` من جدول الاشتقاق نفسه).
 - شاشات `ui/**` لم تُوصف واحدةً واحدة: الشجرة في §3، والتفصيل في ملف كل شاشة.
 - دبابيس أجهزة التبريد تُحترم عند **كل** كاتب — توجيه تبريد لا تفضيل أداء — لكن **لا شاشة تضعها
   اليوم** (`ThermalDevicesViewModel` بلا مستهلك: I-57)، فالحماية قائمة لمن يكتبها مستقبلًا لا أكثر.

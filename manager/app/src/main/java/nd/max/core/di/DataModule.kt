@@ -20,15 +20,18 @@ import nd.max.core.atlas.AtlasRepository
 import nd.max.core.atlas.AtlasResolver
 import nd.max.core.atlas.AtlasReviewedSeeds
 import nd.max.core.atlas.AtlasStoreIo
+import nd.max.core.atlas.MaxAtlas
 import nd.max.core.hardware.AndroidContextDataSource
 import nd.max.core.hardware.AtlasAdaptiveExecutor
 import nd.max.core.hardware.AtlasAdaptiveReadTransport
+import nd.max.core.hardware.AtlasAdapterRegistry
 import nd.max.core.hardware.AtlasPrivilegedReadTransport
 import nd.max.core.hardware.AtlasReadBudget
 import nd.max.core.hardware.AtlasRouteMemory
 import nd.max.core.hardware.AtlasRouteMemoryFactory
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.HardwareRepairExecutor
+import nd.max.core.hardware.PerAppRecoveryStore
 import nd.max.core.hardware.AtlasReadTransport
 import nd.max.core.hardware.HardwareDataSource
 import nd.max.core.privilege.PrivilegeManager
@@ -121,6 +124,43 @@ object DataModule {
     @Singleton
     fun provideAtlasBackendProvider(clockMs: () -> Long): AtlasBackendProvider =
         AtlasBackendProvider(elapsedMs = clockMs)
+
+    /**
+     * سجلّ الملاءِمين — نقطة التوسعة لدعم جهاز/كيرنل جديد. مُلاءِموه بلا حالة؛ الأثراح تمرّ في
+     * السياق والطلب، فلا شيء هنا يُبنى على اسم جهاز أو مسار مفترض.
+     */
+    @Provides
+    @Singleton
+    fun provideAtlasAdapterRegistry(): AtlasAdapterRegistry = AtlasAdapterRegistry.defaults()
+
+    /**
+     * **Max Atlas** — نظام الذكاء والتكيف المركزي (دورة Discover→…→Learn). مُركَّب هنا مرةً واحدة:
+     * سجلّ ملاءِمين، ومُنفِّذ مُتكيِّف يحمل ذاكرة التعلّم، وهوية الجهاز وأجياله. وكل استدعاء يُبنى
+     * ويُشغَّل على خيط المستدعي — لا مسح ولا كتابة وقت الحقن.
+     */
+    @Provides
+    @Singleton
+    fun provideMaxAtlas(
+        registry: AtlasAdapterRegistry,
+        adaptiveExecutor: AtlasAdaptiveExecutor,
+        routeMemory: AtlasRouteMemory,
+        identity: AtlasDeviceIdentity,
+        clockMs: () -> Long,
+    ): MaxAtlas {
+        // نفس مسطرة جيل الإقلاع التي تحكم الذاكرة: كيرن `boot_id` وحده هو ما يجعل قيدًا قديمًا
+        // قد انتهى، لا مدد العملية ولا `BOOT_COUNT` الذي يتغيّر عند إقلاع الإطار وحده.
+        val bootGeneration by lazy { AtlasRouteMemory.generationForBootId(PerAppRecoveryStore.bootId()) }
+        return MaxAtlas(
+            registry = registry,
+            executor = adaptiveExecutor,
+            memory = routeMemory,
+            identity = identity,
+            catalogVersion = AtlasReviewedSeeds.catalog().version,
+            clockMs = clockMs,
+            bootGeneration = { bootGeneration },
+            privilegeGeneration = { 0L },
+        )
+    }
 
     @Provides
     @Singleton

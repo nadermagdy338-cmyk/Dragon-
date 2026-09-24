@@ -246,6 +246,12 @@ private fun HardwarePulseCards(
             floorMhz = dashboard.gpuMinMhz,
             samples = dashboard.loadSamples,
             isGpu = true,
+            // الثلاثة بعد تحسم الفرق الذي طلبه المالك: صدر «Max freq» الحيّ (مثل 754)،
+            // يمين الأسفل «أقصى مدعوم» من كتالوج الدرجات (مثل 1300)، وأرضية اليسار كما
+            // كانت. والتردد الجاري (مثل 260) صار في الموجة وحدها — لا يُخلط بسقفٍ ولا مدعوم.
+            topMhz = dashboard.gpuCeilingMhz,
+            topLabel = stringResource(R.string.home_gpu_max_freq),
+            rangeMaxMhz = dashboard.gpuMaxSupportedMhz,
             accent = neuralPalette().accentAlt,
             onClick = onGpu,
             modifier = Modifier.weight(1f)
@@ -276,7 +282,17 @@ private fun FrequencyMetricCard(
     isGpu: Boolean,
     accent: Color,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /*
+     * فتحتا العرض اللتان تختلف البطاقتان في ملئهما لا في قراءتهما — والفارق رقمٌ حقيقيّ
+     * لا تسمية: صدر بطاقة GPU يعرض **السقف الحيّ** (`max_freq` المسموح به الآن، مثل 754)
+     * بتسميته «Max freq»، وأقصى اليمين **أقصى ما تُعلنه الدرجات** (مثل 1300) — وهما
+     * اثنان لا يُخلط بينهما بعد اليوم (كانت البطاقة تعرض الجاري في صدرها). وبلا تعبئة
+     * يبقى سلوك CPU كما هو: الصدر = التردد الجاري بلا تسمية، واليمين = السقف.
+     */
+    topMhz: Int? = null,
+    topLabel: String? = null,
+    rangeMaxMhz: Int? = null,
 ) {
     val p = neuralPalette()
     val current = frequencyMhz?.takeIf { it > 0 }
@@ -354,7 +370,10 @@ private fun FrequencyMetricCard(
         }
 
         Text(
-            formatHardwareFrequency(current),
+            // صدر البطاقة: للـGPU السقف الحيّ بتسميته («Max freq 754 MHz»)، ولـCPU التردد
+            // الجاري كما كان — فتحةٌ واحدة لا تتغيّر إلا في ملئها.
+            (topLabel?.let { "$it " } ?: "") +
+                formatHardwareFrequency(topMhz?.takeIf { it > 0 } ?: current),
             color = p.muted,
             fontSize = 12.sp,
             lineHeight = 16.sp
@@ -370,7 +389,8 @@ private fun FrequencyMetricCard(
         // حدّا المدى تحت الرسم، كلُّ حدٍّ تحت المستوى الذي يمثّله فعلًا: الأرضية خطُّ إسناد
         // مرسوم داخل الرسم، والسقف أعلاه. ولمّا يُعلن أيّهما لا يُكتب شيء — فسطر «— —»
         // ليس مدى، وقد يُقرأ كصفر.
-        if (floor != null || ceilingMhz?.takeIf { it > 0 } != null) {
+        val rangeMax = rangeMaxMhz?.takeIf { it > 0 } ?: ceilingMhz?.takeIf { it > 0 }
+        if (floor != null || rangeMax != null) {
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -382,7 +402,7 @@ private fun FrequencyMetricCard(
                     lineHeight = 13.sp
                 )
                 Text(
-                    formatHardwareFrequency(ceilingMhz?.takeIf { it > 0 }),
+                    formatHardwareFrequency(rangeMax),
                     color = p.muted.copy(alpha = .75f),
                     fontSize = 10.sp,
                     lineHeight = 13.sp
