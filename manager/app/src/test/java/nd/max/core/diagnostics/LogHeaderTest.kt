@@ -129,7 +129,7 @@ class LogHeaderTest {
         assertEquals(
             "بدون هذا السطر يُعرف أن الكتابة فشلت ولا يُعرف ما طُلب أصلًا",
             "300000:2000000",
-            knobs.first { it.field("knob") == "cpu_limits:policy0" }?.field("desired"),
+            knobs.first { it.field("knob") == "cpu_limits:policy0" }.field("desired"),
         )
     }
 

@@ -119,7 +119,7 @@ class MemoryStallTest {
     fun `an unsupported sample never blocks anything`() {
         assertFalse(MemoryStall.isThrashing(MemoryStall.UNSUPPORTED.fullFraction))
         assertFalse(MemoryStall.isThrashing(null))
-        assertFalse(MemoryStall.isThrashing(MemoryStall.parse("garbage")?.fullFraction))
+        assertFalse(MemoryStall.isThrashing(MemoryStall.parse("garbage").fullFraction))
     }
 
     @Test
