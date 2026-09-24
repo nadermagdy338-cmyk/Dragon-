@@ -45,6 +45,8 @@
     <string name="max_gpu_intent_sustained_title">Sustained performance</string>
     <string name="max_gpu_intent_sustained_desc">A higher floor that holds under load; thermal protection stays active — the price is more heat and a faster drain.</string>
     <string name="max_gpu_intents_locked">No writable OPP list was proven on this device, so intents stay disabled.</string>
+    <string name="max_gpu_saved_title">A saved state is re-applied at every boot</string>
+    <string name="max_gpu_saved_desc">Kept from an earlier save and applied on each boot: %1$s. Default above ends this session only, never the saved state.</string>
 
     <string name="max_gpu_review_title">Staged change</string>
     <string name="max_gpu_review_intent">Intent: %1$s</string>

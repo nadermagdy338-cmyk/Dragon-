@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Defolt (başlanğıc vəziyyəti)</string>
     <string name="max_gpu_intent_default_desc">Ekran açıldığında bu cihazın malik olduğu dəyərlərə diapazonu və idarəedicini qaytarır. Onlar artıq uyğun gələrkən heç nə yazılmır - bu, nəyisə dəyişən hər kəs üçün geriyə yoldur.</string>
     <string name="max_gpu_history_empty">Hələ oxunmur — ekran tezliyi nümunə götürdükcə diaqram doldurulur.</string>
+    <string name="max_gpu_saved_title">Saxlanmış vəziyyət hər açılışda yenidən tətbiq olunur</string>
+    <string name="max_gpu_saved_desc">Əvvəlki yaddaşdan saxlanılır və hər açılışda tətbiq olunur: %1$s. Yuxarıdakı defolt yalnız bu sessiyanı bitirir, heç vaxt yadda saxlanmır.</string>
 </resources>

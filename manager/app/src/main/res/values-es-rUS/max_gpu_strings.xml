@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Predeterminado (estado inicial)</string>
     <string name="max_gpu_intent_default_desc">Devuelve el rango y el gobernador a los valores que tenía este dispositivo cuando se abrió la pantalla. No se escribe nada mientras ya coincidan; este es el camino de regreso para cualquiera que haya cambiado algo.</string>
     <string name="max_gpu_history_empty">Aún no hay lectura: el gráfico se llena a medida que la pantalla muestra la frecuencia.</string>
+    <string name="max_gpu_saved_title">Un estado guardado se vuelve a aplicar en cada arranque.</string>
+    <string name="max_gpu_saved_desc">Guardado de un guardado anterior y aplicado en cada arranque: %1$s. El valor predeterminado anterior finaliza solo esta sesión, nunca el estado guardado.</string>
 </resources>

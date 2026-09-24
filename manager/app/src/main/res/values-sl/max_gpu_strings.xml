@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Privzeto (začetno stanje)</string>
     <string name="max_gpu_intent_default_desc">Vrne obseg in regulator na vrednosti, ki jih je imela ta naprava, ko se je zaslon odprl. Nič ni zapisano, medtem ko se že ujemajo — to je pot nazaj za vsakogar, ki je kaj spremenil.</string>
     <string name="max_gpu_history_empty">Odčitavanja še ni — grafikon se polni, ko zaslon vzorči frekvenco.</string>
+    <string name="max_gpu_saved_title">Shranjeno stanje se znova uporabi ob vsakem zagonu</string>
+    <string name="max_gpu_saved_desc">Ohranjeno iz prejšnjega shranjevanja in uporabljeno pri vsakem zagonu: %1$s. Zgornja privzeta vrednost konča samo to sejo, nikoli pa shranjenega stanja.</string>
 </resources>

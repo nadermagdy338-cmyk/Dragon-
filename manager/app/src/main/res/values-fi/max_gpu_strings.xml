@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Oletus (aloitustila)</string>
     <string name="max_gpu_intent_default_desc">Palauttaa alueen ja säätimen arvoihin, jotka tällä laitteella oli näytön avautuessa. Mitään ei kirjoiteta, kun ne jo täsmäävät – tämä on tie takaisin kaikille, jotka ovat muuttaneet jotain.</string>
     <string name="max_gpu_history_empty">Ei vielä lukemista – kaavio täyttyy, kun näyttö ottaa näytteitä taajuudesta.</string>
+    <string name="max_gpu_saved_title">Tallennettu tila otetaan uudelleen käyttöön jokaisen käynnistyksen yhteydessä</string>
+    <string name="max_gpu_saved_desc">Säilytetty aikaisemmasta tallennuksesta ja otettu käyttöön jokaisessa käynnistyksessä: %1$s. Yllä oleva oletusarvo lopettaa vain tämän istunnon, ei koskaan tallennettua tilaa.</string>
 </resources>

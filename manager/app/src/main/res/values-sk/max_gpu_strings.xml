@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Predvolené (stav spustenia)</string>
     <string name="max_gpu_intent_default_desc">Vráti rozsah a regulátor na hodnoty, ktoré malo toto zariadenie pri otvorení obrazovky. Nič sa nepíše, kým sa už zhodujú – toto je cesta späť pre každého, kto niečo zmenil.</string>
     <string name="max_gpu_history_empty">Zatiaľ žiadne čítanie – graf sa vyplní, keď obrazovka vzorkuje frekvenciu.</string>
+    <string name="max_gpu_saved_title">Uložený stav sa znova použije pri každom spustení</string>
+    <string name="max_gpu_saved_desc">Zachované z predchádzajúceho uloženia a použité pri každom spustení: %1$s. Predvolene vyššie ukončí iba túto reláciu, nikdy neuložený stav.</string>
 </resources>

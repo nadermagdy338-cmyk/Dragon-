@@ -46,6 +46,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Balance
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -375,6 +377,27 @@ private fun GpuIntents(state: GpuStudioUiState, vm: GpuStudioViewModel) {
         description = stringResource(R.string.max_gpu_intents_desc),
     ) {
         MaxGroup {
+            // ── حالة محفوظة تُعاد عند كل إقلاع ──
+            //
+            // تُقال **قبل** الصفوف لا بعدها: الصفوف تقول «ما سأفعله الآن»، وهذه تقول
+            // «ما سيحدث لك بعد الإقلاع». وسبب وجودها أن الشاشة كانت **صامتة** عنها:
+            // `saveVerifiedToTweaks` يكتب مفاتيح `persist.sys.maxmanager.gpu_studio.*`،
+            // و`GpuTweakPersistence.applySaved()` يعيد تطبيقها في كل إقلاع وبعد كل تراجع
+            // per-app (`AppMonitor.kt:309` و`:2280`). والنتيجة المقيسة: من ضغط «افتراضي»
+            // يقرأ في وصفه أنه «طريق العودة» — وهو كذلك **لهذه الجلسة وحدها** — ثم يجد
+            // اختياره القديم عائدًا عند أول إقلاع بلا كلمة تُفسّر.
+            //
+            // وهذه **قراءة** لا كتابة: `loadValidated` لا تمحو ولا تكتب ولا تنادي `su`،
+            // ولا تُغيّر سلوك الإقلاع؛ والقرار في محو المحفوظ يبقى للمالك لا لهذا السطر.
+            state.savedRequest?.let { saved ->
+                MaxRow(
+                    title = stringResource(R.string.max_gpu_saved_title),
+                    subtitle = stringResource(R.string.max_gpu_saved_desc, requestedRange(device, saved)),
+                    icon = Icons.Rounded.Restore,
+                    iconTone = MaxTone.Caution,
+                )
+                MaxGroupDivider()
+            }
             GpuIntent.entries.forEachIndexed { index, intent ->
                 if (index > 0) MaxGroupDivider()
                 // «افتراضي» = لا شيء مُعدّ، فيُختار ما دام لا شيء مُرحَّلًا ولا معلَّقًا — وهو
@@ -504,7 +527,12 @@ private fun GpuReview(state: GpuStudioUiState, vm: GpuStudioViewModel) {
                     Text(stringResource(R.string.max_gpu_restore_session))
                 }
                 if (state.verifiedSnapshot != null) {
-                    TextButton(onClick = vm::saveVerifiedToTweaks) {
+                    // و`enabled` هنا لِعلّة مُقاسة في هذا الصفّ بعينه: أخواها (`restoreSession`
+                    // في نفس الصفّ، وزرّا التطبيق/الإلغاء أعلاه) تُعطَّل أثناء `applying`، وهذا
+                    // كان يُترك وحده. والأثر: ضغطة أثناء تطبيقٍ جارٍ تكتب **لقطة الجلسة
+                    // السابقة** في المفاتيح المحفوظة، لأن `verifiedSnapshot` لا يُستبدل إلا
+                    // بعد انتهاء المعاملة (`applyPreview` يكتبه في آخر `copy`).
+                    TextButton(onClick = vm::saveVerifiedToTweaks, enabled = !state.applying) {
                         Text(stringResource(R.string.max_gpu_save_tweaks))
                     }
                 }
@@ -684,6 +712,17 @@ private fun GpuDiagnostics(state: GpuStudioUiState, device: GpuHardwareBackend.D
             ),
             icon = Icons.Outlined.Memory,
             iconTone = MaxTone.Neutral,
+            // سهم الطيّ في طرف السطر: السطر كان **قابلًا للضغط بلا إشارة تدلّ عليه**
+            // (``MaxRow`` يُمرّر `role = Role.Button` فقط)، فيقرأه المستخدم بيانًا لا بابًا
+            // — وهو نفس ما أبلغ عنه المالك في وسم Max AI، مُقاسًا هنا في سطر تشخيص.
+            trailing = {
+                Icon(
+                    if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                    null,
+                    Modifier.width(MaxSize.iconGlyphSmall),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            },
             onClick = { expanded = !expanded },
         )
         AnimatedVisibility(expanded) {
@@ -828,5 +867,13 @@ private fun familyLabel(family: GpuHardwareBackend.Family): String = stringResou
     }
 )
 
+/**
+ * الرقم المُنسَّق — و«غائب» بالمُعلن لا بالمجاز الحرفي.
+ *
+ * كان السطر يختم بـ`"—"` مكتوبة في ملف الشاشة، وهو **مناقض لما نَهَته هذه الشاشة نفسها**
+ * في `liveRange` فوقه: «"غائب" مكتوبة بالمُعلن لا بمجاز حرفيّ في ملف شاشة». والقيمة لا
+ * تتغيّر (`MAX_VALUE_UNAVAILABLE` = `"—"` في `ui/design/MaxTokens.kt:271`)، إنما يختفي
+ * مصدرٌ ثانٍ للقيمة الواحدة: من بدّل الشرطة يومًا في العُدّة كان هذا السطر يبقى خارجها.
+ */
 private fun format(device: GpuHardwareBackend.Device, raw: Long?): String =
-    GpuHardwareBackend.frequencyMHz(device, raw)?.let { "$it MHz" } ?: "—"
+    GpuHardwareBackend.frequencyMHz(device, raw)?.let { "$it MHz" } ?: MAX_VALUE_UNAVAILABLE

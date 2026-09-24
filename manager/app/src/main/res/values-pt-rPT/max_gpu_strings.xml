@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Padrão (estado inicial)</string>
     <string name="max_gpu_intent_default_desc">Retorna o intervalo e o governador aos valores que este dispositivo tinha quando o ecrã foi aberto. Nada está escrito enquanto já corresponderem - este é o caminho de volta para quem mudou alguma coisa.</string>
     <string name="max_gpu_history_empty">Ainda sem leitura — o gráfico é preenchido à medida que o ecrã mostra a frequência.</string>
+    <string name="max_gpu_saved_title">Um estado guardado é reaplicado a cada arranque</string>
+    <string name="max_gpu_saved_desc">Mantido a partir de um salvamento anterior e aplicado em cada arranque: %1$s. O padrão acima encerra apenas esta sessão, nunca o estado guardado.</string>
 </resources>

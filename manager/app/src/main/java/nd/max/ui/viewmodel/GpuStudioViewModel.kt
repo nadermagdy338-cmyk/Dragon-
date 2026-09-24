@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 import nd.max.MaxManagerProps
 import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.GpuHardwareBackend
+import nd.max.core.hardware.GpuTweakPersistence
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.HardwareControlKey
 import nd.max.core.hardware.ManualControlLocks
@@ -69,6 +70,15 @@ data class GpuStudioUiState(
     val mode: String? = null,
     /** Which smart intent is currently staged, so the row can show real selection. */
     val stagedIntent: GpuHardwareBackend.IntentMode? = null,
+    /**
+     * الحالة **المحفوظة** التي يعيد تطبيقها كل إقلاع، مقروءةً من المفاتيح لا مُقدَّرة.
+     *
+     * ووجودها في الحالة لأن الشاشة تحتاج أن تقولها: `GpuTweakPersistence.applySaved()`
+     * يعيد تطبيق المفاتيح في كل إقلاع وبعد كل تراجع per-app، فمن اختار «افتراضي» في هذه
+     * الجلسة يجد حالته القديمة عائدة عند أول إقلاع. والقرار في محو المحفوظ قرار مالك؛ وما
+     * هنا **قراءة خالصة** (`loadValidated` لا تكتب ولا تنادي `su`).
+     */
+    val savedRequest: GpuHardwareBackend.Request? = null,
 )
 
 /**
@@ -102,6 +112,9 @@ class GpuStudioViewModel @Inject constructor(
                 loading = false,
                 selection = selection,
                 device = device,
+                // تُقرأ عند فتح الشاشة، ثم تُقرأ مرّة أخرى إن تغيّر المزوّد (في الاستقصاء أدناه):
+                // المفاتيح لا تتغيّر إلا بفعل المستخدم في هذه الشاشة، فموضعا التغيّر معروفان.
+                savedRequest = device?.let(GpuTweakPersistence::loadValidated),
             )
             startPolling()
         }
@@ -132,6 +145,10 @@ class GpuStudioViewModel @Inject constructor(
                     pending = if (providerChanged) null else state.pending,
                     historyMHz = if (providerChanged) listOfNotNull(sample) else if (sample != null) (state.historyMHz + sample).takeLast(60) else state.historyMHz,
                     verifiedSnapshot = if (drifted || providerChanged) null else verified,
+                    // مع تغيّر المزوّد قد تقرأ المفاتيح حالةً لا تُصدَّق على عتادٍ آخر
+                    // (`loadValidated` تُحكّم الطلب على الجهاز الجديد وترد `null` إن لم يصلح)
+                    // فلا يبقى سطرٌ يقول «محفوظة» لعتادٍ ليس هذا.
+                    savedRequest = if (providerChanged) device?.let(GpuTweakPersistence::loadValidated) else state.savedRequest,
                     notice = when {
                         providerChanged -> GpuNotice(GpuNoticeKind.PROVIDER_CHANGED)
                         drifted -> GpuNotice(GpuNoticeKind.DRIFTED)

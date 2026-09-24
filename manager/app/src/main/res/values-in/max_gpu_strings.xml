@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Default (status awal)</string>
     <string name="max_gpu_intent_default_desc">Mengembalikan rentang dan pengatur ke nilai yang dimiliki perangkat ini saat layar dibuka. Tidak ada yang tertulis saat keduanya sudah cocok — ini adalah jalan kembali bagi siapa pun yang mengubah sesuatu.</string>
     <string name="max_gpu_history_empty">Belum ada pembacaan — bagan terisi saat layar mengambil sampel frekuensi.</string>
+    <string name="max_gpu_saved_title">Status tersimpan diterapkan kembali pada setiap boot</string>
+    <string name="max_gpu_saved_desc">Disimpan dari penyimpanan sebelumnya dan diterapkan pada setiap boot: %1$s. Default di atas mengakhiri sesi ini saja, bukan status tersimpan.</string>
 </resources>

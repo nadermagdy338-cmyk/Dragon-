@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Mặc định (trạng thái bắt đầu)</string>
     <string name="max_gpu_intent_default_desc">Trả về phạm vi và bộ điều tốc về giá trị mà thiết bị này có khi màn hình mở. Không có gì được viết trong khi chúng đã khớp - đây là cách quay lại cho bất kỳ ai đã thay đổi điều gì đó.</string>
     <string name="max_gpu_history_empty">Chưa đọc - biểu đồ sẽ lấp đầy khi màn hình lấy mẫu tần số.</string>
+    <string name="max_gpu_saved_title">Trạng thái đã lưu được áp dụng lại mỗi lần khởi động</string>
+    <string name="max_gpu_saved_desc">Được giữ lại từ lần lưu trước đó và áp dụng cho mỗi lần khởi động: %1$s. Mặc định ở trên chỉ kết thúc phiên này, không bao giờ kết thúc trạng thái đã lưu.</string>
 </resources>

@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">පෙරනිමි (ආරම්භක තත්වය)</string>
     <string name="max_gpu_intent_default_desc">තිරය ​​විවෘත කරන විට මෙම උපාංගයේ තිබූ අගයන් වෙත පරාසය සහ පාලකය ලබා දෙයි. ඒවා දැනටමත් ගැළපෙන විට කිසිවක් ලියා නැත - යමක් වෙනස් කළ ඕනෑම කෙනෙකුට ආපසු යන මාර්ගය මෙයයි.</string>
     <string name="max_gpu_history_empty">තවම කියවීමක් නැත - තිරය සංඛ්‍යාතය සාම්පල කරන විට ප්‍රස්ථාරය පුරවයි.</string>
+    <string name="max_gpu_saved_title">සුරකින ලද තත්වයක් සෑම ඇරඹුමකදීම නැවත යොදනු ලැබේ</string>
+    <string name="max_gpu_saved_desc">කලින් සුරැකීමකින් තබා සෑම බූට් එකකම යෙදී ඇත: %1$s. ඉහත පෙරනිමියෙන් අවසන් වන්නේ මෙම සැසිය පමණි, කිසිදා සුරැකි තත්ත්වය නොවේ.</string>
 </resources>

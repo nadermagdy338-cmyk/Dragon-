@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Default (start state)</string>
     <string name="max_gpu_intent_default_desc">Ibinabalik ang range at ang governor sa mga value na mayroon ang device na ito noong binuksan ang screen. Walang nakasulat habang magkatugma na ang mga ito — ito ang daan pabalik para sa sinumang nagbago ng isang bagay.</string>
     <string name="max_gpu_history_empty">Wala pang pagbabasa — mapupuno ang chart habang sinusuri ng screen ang dalas.</string>
+    <string name="max_gpu_saved_title">Ang isang naka-save na estado ay muling inilalapat sa bawat boot</string>
+    <string name="max_gpu_saved_desc">Iniingatan mula sa isang mas naunang pag-save at inilapat sa bawat boot: %1$s. Ang default sa itaas ay nagtatapos sa session na ito lamang, hindi kailanman ang naka-save na estado.</string>
 </resources>

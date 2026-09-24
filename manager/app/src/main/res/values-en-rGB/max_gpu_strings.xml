@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Default (start state)</string>
     <string name="max_gpu_intent_default_desc">Returns the range and the governor to the values this device had when the screen opened. Nothing is written while they already match — this is the way back for anyone who changed something.</string>
     <string name="max_gpu_history_empty">No reading yet — the chart fills as the screen samples the frequency.</string>
+    <string name="max_gpu_saved_title">A saved state is re-applied at every boot</string>
+    <string name="max_gpu_saved_desc">Kept from an earlier save and applied on each boot: %1$s. Default above ends this session only, never the saved state.</string>
 </resources>

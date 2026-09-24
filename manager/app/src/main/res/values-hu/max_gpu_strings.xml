@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Alapértelmezett (kezdési állapot)</string>
     <string name="max_gpu_intent_default_desc">Visszaállítja a tartományt és a szabályzót azokra az értékekre, amelyekkel az eszköz a képernyő megnyitásakor volt. Semmit sem írnak, amíg már egyeznek – ez a visszaút azoknak, akik megváltoztattak valamit.</string>
     <string name="max_gpu_history_empty">Még nincs olvasás – a diagram megtelik, ahogy a képernyő mintát vesz a frekvenciáról.</string>
+    <string name="max_gpu_saved_title">A mentett állapot minden rendszerindításkor újra érvényesül</string>
+    <string name="max_gpu_saved_desc">Egy korábbi mentésből megőrizve és minden rendszerindításkor alkalmazva: %1$s. A fenti alapértelmezés csak ezt a munkamenetet fejezi be, a mentett állapotot soha.</string>
 </resources>

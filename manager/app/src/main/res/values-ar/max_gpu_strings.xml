@@ -37,6 +37,8 @@
     <string name="max_gpu_intent_sustained_title">أداء مستدام</string>
     <string name="max_gpu_intent_sustained_desc">أرضية أعلى تصمد تحت الحِمل، والحماية الحرارية تبقى فعّالة — والثمن حرارة أعلى وتفريغ أسرع.</string>
     <string name="max_gpu_intents_locked">لم تُثبت قائمة OPP قابلة للكتابة على هذا الجهاز، فتبقى النوايا معطّلة.</string>
+    <string name="max_gpu_saved_title">حالة محفوظة تُعاد عند كل إقلاع</string>
+    <string name="max_gpu_saved_desc">محفوظة من جلسة سابقة وتُطبَّق عند كل إقلاع: %1$s. واختيار الافتراضي أعلاه يُنهي هذه الجلسة وحدها، ولا يمحو الحالة المحفوظة.</string>
 
     <string name="max_gpu_review_title">تغيير قيد المراجعة</string>
     <string name="max_gpu_review_intent">النية: %1$s</string>

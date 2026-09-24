@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Noklusējums (sākuma stāvoklis)</string>
     <string name="max_gpu_intent_default_desc">Atgriež diapazonu un regulatoru uz vērtībām, kas šai ierīcei bija, atverot ekrānu. Kamēr tie jau atbilst, nekas netiek rakstīts — tas ir ceļš atpakaļ ikvienam, kurš kaut ko mainījis.</string>
     <string name="max_gpu_history_empty">Vēl nav lasīšanas — diagramma tiek aizpildīta, kad ekrānā tiek atlasīti frekvences paraugi.</string>
+    <string name="max_gpu_saved_title">Saglabātais stāvoklis tiek atkārtoti lietots katrā palaišanas reizē</string>
+    <string name="max_gpu_saved_desc">Saglabāts no iepriekšējās saglabāšanas un lietots katrā sāknēšanas reizē: %1$s. Iepriekš minētais noklusējuma iestatījums beidz tikai šo sesiju, nevis saglabāto stāvokli.</string>
 </resources>

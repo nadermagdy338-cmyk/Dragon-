@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Numatytoji (pradžios būsena)</string>
     <string name="max_gpu_intent_default_desc">Grąžina diapazoną ir reguliatorių į vertes, kurias šis įrenginys turėjo atidarius ekraną. Nieko neparašyta, kol jie jau sutampa – tai kelias atgal visiems, kas ką nors pakeitė.</string>
     <string name="max_gpu_history_empty">Dar neskaitoma – diagrama pildosi, kai ekranas atrenka dažnį.</string>
+    <string name="max_gpu_saved_title">Išsaugota būsena iš naujo taikoma kiekvieną kartą paleidžiant</string>
+    <string name="max_gpu_saved_desc">Išsaugota iš ankstesnio išsaugojimo ir taikoma kiekvienam įkrovimui: %1$s. Aukščiau esantis numatytasis nustatymas baigia tik šią seansą, o ne išsaugotą būseną.</string>
 </resources>

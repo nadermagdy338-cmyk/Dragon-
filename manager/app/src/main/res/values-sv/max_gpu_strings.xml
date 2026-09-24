@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Standard (startläge)</string>
     <string name="max_gpu_intent_default_desc">Återställer intervallet och regulatorn till de värden som denna enhet hade när skärmen öppnades. Ingenting skrivs medan de redan matchar – det här är vägen tillbaka för alla som ändrat något.</string>
     <string name="max_gpu_history_empty">Ingen läsning ännu - diagrammet fylls när skärmen samplar frekvensen.</string>
+    <string name="max_gpu_saved_title">Ett sparat tillstånd tillämpas på nytt vid varje start</string>
+    <string name="max_gpu_saved_desc">Sparad från en tidigare lagring och använd på varje start: %1$s. Standarden ovan avslutar endast denna session, aldrig det sparade tillståndet.</string>
 </resources>

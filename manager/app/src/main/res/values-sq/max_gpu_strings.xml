@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">E paracaktuar (gjendja e fillimit)</string>
     <string name="max_gpu_intent_default_desc">Rikthen diapazonin dhe guvernatorin në vlerat që kishte kjo pajisje kur u hap ekrani. Asgjë nuk është shkruar ndërsa ato tashmë përputhen - kjo është rruga e kthimit për këdo që ka ndryshuar diçka.</string>
     <string name="max_gpu_history_empty">Asnjë lexim ende - grafiku mbushet ndërsa ekrani provon frekuencën.</string>
+    <string name="max_gpu_saved_title">Një gjendje e ruajtur ri-aplikohet në çdo nisje</string>
+    <string name="max_gpu_saved_desc">Mbajtur nga një kursim i mëparshëm dhe aplikuar në çdo boot: %1$s. Parazgjedhja e mësipërme përfundon vetëm këtë sesion, asnjëherë gjendjen e ruajtur.</string>
 </resources>

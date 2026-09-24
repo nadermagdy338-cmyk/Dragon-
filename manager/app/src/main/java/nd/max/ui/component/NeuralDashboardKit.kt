@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
@@ -57,6 +58,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -129,7 +131,7 @@ fun neuralPalette(): NeuralPalette {
 
 /** Press feedback shared by every tappable surface: 2.5% scale plus theme ripple. */
 @Composable
-private fun Modifier.neuralClickable(onClick: (() -> Unit)?): Modifier {
+private fun Modifier.neuralClickable(onClick: (() -> Unit)?, role: Role? = null): Modifier {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -139,12 +141,18 @@ private fun Modifier.neuralClickable(onClick: (() -> Unit)?): Modifier {
     )
     // Every call site runs the same composable calls above, whether or not the
     // surface is tappable, so composition structure stays stable.
+    //
+    // و`role` انتقل من «لا شيء» إلى `Role.Button` عند كل سطحٍ قابل للضغط: نظام التصميم
+    // في `ui/design/MaxStructure.kt` كان يفعل ذلك أصلًا (`MaxRow`: `clickable(role = Role.Button)`)،
+    // وهذه العُدّة لم تكن — فقارئ الشاشة كان يقول «Max AI» واقفًا، لا «زرّ». والفرق يُقاس
+    // بلا جهاز: هو وسيط يُمرّر إلى `Modifier.clickable` لا تغيير في الرسم.
     if (onClick == null) return this
     return this
         .graphicsLayer { scaleX = scale; scaleY = scale }
         .clickable(
             interactionSource = interaction,
             indication = LocalIndication.current,
+            role = role,
             onClick = onClick,
         )
 }
@@ -201,7 +209,7 @@ fun NeuralTile(
 ) {
     val p = neuralPalette()
     var box = modifier
-        .neuralClickable(onClick)
+        .neuralClickable(onClick, role = Role.Button)
         .clip(NeuralTileShape)
         .background(accent?.copy(alpha = .10f) ?: p.tile)
     if (accent != null) box = box.border(BorderStroke(1.dp, accent.copy(alpha = .22f)), NeuralTileShape)
@@ -295,7 +303,19 @@ fun NeuralSectionHeader(
     }
 }
 
-/** Status pill. */
+/**
+ * Status pill — ومعه **دلالة الباب** عند الطلب.
+ *
+ * **السبب مُقاس في سجل المالك لا مُفترَض:** «زر max ai في الشاشة الرئيسية لا يدل على أنه سوف
+ * يدخلك إلى شاشة أخرى … وممكن ألّا ينتبه له أحد». والحالة كانت كذلك فعلًا: سطحٌ بكبسولة
+ * وحدٍّ رقيق وحشوة `filled` — وهو **نفس** شكل وسم الحالة غير القابل للضغط في السطر نفسه
+ * («نشط» في الترويسة). فالشكل لا يقول «اضغطني»، والنتيجة أن بابًا وحيدًا لشاشةٍ يُقرأ زينة.
+ *
+ * و`navigates` ليست زخرفة: سهمٌ **مُتّجه مع اتجاه اللغة** (`AutoMirrored`) يُضاف في نهاية
+ * الوسم فيصير الشكل «اسم ← مكان»، وهو العُرف نفسه المستعمل في الشاشات الأخرى
+ * (`BypassChargeScreen.kt:319` · `MaxBackupPickerScreen.kt:565`). والوسم يبقى بلا سهم في
+ * المواضع التي **تفعل** ولا **تنتقل** (مثل «إعادة المحاولة») — لأن السهم هناك كذب.
+ */
 @Composable
 fun NeuralPill(
     text: String,
@@ -304,11 +324,12 @@ fun NeuralPill(
     filled: Boolean = false,
     dot: Boolean = false,
     icon: ImageVector? = null,
+    navigates: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier
-            .neuralClickable(onClick)
+            .neuralClickable(onClick, role = Role.Button)
             .clip(CircleShape)
             .background(if (filled) accent.copy(alpha = .16f) else Color.Transparent)
             .border(BorderStroke(1.dp, accent.copy(alpha = if (filled) .42f else .28f)), CircleShape)
@@ -319,6 +340,16 @@ fun NeuralPill(
         if (dot) Box(Modifier.size(6.dp).clip(CircleShape).background(accent))
         if (icon != null) Icon(icon, null, Modifier.size(13.dp), tint = accent)
         Text(text, color = accent, fontSize = 11.sp, lineHeight = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        // السهم بعد النصّ لا قبله: القارئ يقرأ «Max AI» ثم يرى إلى أين — لا العكس.
+        // وحجمه 14.dp (أكبر بـ1.dp من الأيقونة التعريفية) لأن دلالة الاتجاه تُرى أو لا تكون.
+        if (navigates) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                null,
+                Modifier.size(14.dp),
+                tint = accent,
+            )
+        }
     }
 }
 

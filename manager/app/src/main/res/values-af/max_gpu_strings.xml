@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Verstek (begintoestand)</string>
     <string name="max_gpu_intent_default_desc">Stel die reeks en die goewerneur terug na die waardes wat hierdie toestel gehad het toe die skerm oopgemaak het. Niks word geskryf terwyl dit reeds ooreenstem nie - dit is die pad terug vir enigiemand wat iets verander het.</string>
     <string name="max_gpu_history_empty">Nog geen leeswerk nie - die grafiek vul soos die skerm die frekwensie monster.</string>
+    <string name="max_gpu_saved_title">\'n Gestoorde toestand word weer toegepas by elke selflaai</string>
+    <string name="max_gpu_saved_desc">Van \'n vroeër stoor gehou en op elke selflaai toegepas: %1$s. Verstek hierbo beëindig slegs hierdie sessie, nooit die gestoorde toestand nie.</string>
 </resources>

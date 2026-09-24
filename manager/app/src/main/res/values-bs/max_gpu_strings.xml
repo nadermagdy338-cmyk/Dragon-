@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Zadano (početno stanje)</string>
     <string name="max_gpu_intent_default_desc">Vraća opseg i regulator na vrijednosti koje je ovaj uređaj imao kada se ekran otvorio. Ništa nije napisano dok se već poklapaju — ovo je put nazad za svakoga ko je nešto promijenio.</string>
     <string name="max_gpu_history_empty">Još nema čitanja — grafikon se popunjava dok ekran uzorkuje frekvenciju.</string>
+    <string name="max_gpu_saved_title">Sačuvano stanje se ponovo primjenjuje pri svakom pokretanju</string>
+    <string name="max_gpu_saved_desc">Sačuvano iz ranijeg spremanja i primijenjeno na svako pokretanje: %1$s. Zadano iznad završava samo ovu sesiju, nikada sačuvano stanje.</string>
 </resources>

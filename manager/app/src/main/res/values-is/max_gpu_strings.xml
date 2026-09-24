@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Sjálfgefið (upphafsástand)</string>
     <string name="max_gpu_intent_default_desc">Skilar sviðinu og landstjóranum í þau gildi sem þetta tæki hafði þegar skjárinn opnaðist. Ekkert er skrifað á meðan þau passa saman - þetta er leiðin til baka fyrir alla sem breyttu einhverju.</string>
     <string name="max_gpu_history_empty">Enginn lestur ennþá - töfluna fyllist þegar skjárinn sýnir tíðnina.</string>
+    <string name="max_gpu_saved_title">Vistað ástand er notað aftur við hverja ræsingu</string>
+    <string name="max_gpu_saved_desc">Haldið frá fyrri vistun og notað á hverja stígvél: %1$s. Sjálfgefið hér að ofan lýkur aðeins þessari lotu, aldrei vistað ástand.</string>
 </resources>

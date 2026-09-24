@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Výchozí (stav spuštění)</string>
     <string name="max_gpu_intent_default_desc">Vrátí rozsah a regulátor na hodnoty, které mělo toto zařízení při otevření obrazovky. Nic není napsáno, dokud se již shodují – toto je cesta zpět pro každého, kdo něco změnil.</string>
     <string name="max_gpu_history_empty">Dosud žádné čtení – graf se plní, protože obrazovka vzorkuje frekvenci.</string>
+    <string name="max_gpu_saved_title">Uložený stav se znovu použije při každém spuštění</string>
+    <string name="max_gpu_saved_desc">Zachováno z dřívějšího uložení a použito při každém spuštění: %1$s. Výchozí výše ukončí pouze tuto relaci, nikdy neuložený stav.</string>
 </resources>

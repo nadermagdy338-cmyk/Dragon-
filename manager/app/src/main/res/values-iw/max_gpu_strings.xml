@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">ברירת מחדל (מצב התחלה)</string>
     <string name="max_gpu_intent_default_desc">מחזיר את הטווח ואת המושל לערכים שהיו למכשיר הזה כשהמסך נפתח. שום דבר לא נכתב בזמן שהם כבר תואמים - זו הדרך חזרה לכל מי ששינה משהו.</string>
     <string name="max_gpu_history_empty">עדיין אין קריאה - התרשים מתמלא כשהמסך דוגם את התדר.</string>
+    <string name="max_gpu_saved_title">מצב שמור מוחל מחדש בכל אתחול</string>
+    <string name="max_gpu_saved_desc">נשמר משמירה מוקדמת ומוחל על כל אתחול: %1$s. ברירת המחדל שלמעלה מסיימת את ההפעלה הזו בלבד, לעולם לא את המצב השמור.</string>
 </resources>

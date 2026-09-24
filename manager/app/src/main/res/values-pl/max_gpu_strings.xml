@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Domyślny (stan początkowy)</string>
     <string name="max_gpu_intent_default_desc">Zwraca zasięg i regulator do wartości, jakie posiadało to urządzenie w momencie otwarcia ekranu. Nic nie jest zapisywane, dopóki już pasują — to jest droga powrotna dla każdego, kto coś zmienił.</string>
     <string name="max_gpu_history_empty">Nie ma jeszcze odczytu — wykres zapełnia się w miarę próbkowania częstotliwości przez ekran.</string>
+    <string name="max_gpu_saved_title">Zapisany stan jest ponownie stosowany przy każdym uruchomieniu</string>
+    <string name="max_gpu_saved_desc">Zachowane z wcześniejszego zapisu i stosowane przy każdym uruchomieniu: %1$s. Domyślnie powyżej kończy się tylko ta sesja, nigdy zapisany stan.</string>
 </resources>

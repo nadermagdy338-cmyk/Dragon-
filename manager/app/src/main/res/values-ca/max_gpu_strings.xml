@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Per defecte (estat d\'inici)</string>
     <string name="max_gpu_intent_default_desc">Retorna l\'interval i el governador als valors que tenia aquest dispositiu quan es va obrir la pantalla. No s\'escriu res mentre ja coincideixen; aquest és el camí de tornada per a qualsevol que hagi canviat alguna cosa.</string>
     <string name="max_gpu_history_empty">Encara no hi ha lectura: el gràfic s\'omple a mesura que la pantalla mostra la freqüència.</string>
+    <string name="max_gpu_saved_title">Un estat desat es torna a aplicar a cada arrencada</string>
+    <string name="max_gpu_saved_desc">Conservat d\'un desament anterior i aplicat a cada arrencada: %1$s. L\'opció predeterminada anterior només acaba aquesta sessió, mai l\'estat desat.</string>
 </resources>

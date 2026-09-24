@@ -95,4 +95,6 @@
     <string name="max_gpu_intent_default_title">Vaikimisi (algusolek)</string>
     <string name="max_gpu_intent_default_desc">Tagastab vahemiku ja regulaatori väärtused, mis sellel seadmel olid ekraani avanemisel. Kui need juba ühtivad, ei kirjutata midagi – see on tagasitee kõigile, kes midagi muutsid.</string>
     <string name="max_gpu_history_empty">Veel pole lugemist – diagramm täitub, kui ekraan proovib sagedust.</string>
+    <string name="max_gpu_saved_title">Salvestatud olek rakendatakse uuesti igal käivitamisel</string>
+    <string name="max_gpu_saved_desc">Säilitatud varasemast salvestusest ja rakendatud igal alglaadimisel: %1$s. Ülaltoodud vaikeväärtus lõpetab ainult selle seansi, mitte kunagi salvestatud olekut.</string>
 </resources>

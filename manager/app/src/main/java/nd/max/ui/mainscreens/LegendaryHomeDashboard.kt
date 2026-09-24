@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Bolt
@@ -534,11 +535,15 @@ private fun PulsePanel(
                         color = heatAccent
                     )
                 }
+                // و`navigates = true` مُضافة هنا **بطلب المالك** («لا يدل على أنه يدخلك إلى شاشة
+                // أخرى»)؛ ويومها كانت موضعًا واحدًا، وقيست بعدها في السطور المجاورة: كل وسم
+                // يقود إلى شاشة أخرى في هذه الرئيسية كان بلا سهم — فالمستدعى يُصلح الصنف.
                 NeuralPill(
                     text = stringResource(R.string.max_nav_max_ai),
                     accent = p.accent,
                     icon = Icons.Rounded.AutoAwesome,
                     filled = true,
+                    navigates = true,
                     onClick = onMaxAi
                 )
             }
@@ -566,6 +571,7 @@ private fun PulsePanel(
         NeuralPill(
             text = stringResource(R.string.home_device_overview),
             accent = p.muted,
+            navigates = true,
             onClick = onOverview
         )
     }
@@ -770,6 +776,17 @@ private fun MemoryFactRow(
                     color = p.text
                 )
             }
+            // السهم في نهاية السطر: هذا الصفّ **بابٌ** لا بيان (`NeuralTile(onClick)` يقود
+            // إلى وجهة مختلفة لكل صفّ: مركز الذاكرة · مدير ZRAM · تفصيل التخزين) — وكان
+            // يُقرأ رقمًا وبطاقة فحسب، وهو نفس العطب الذي أبلغ عنه المالك في وسم Max AI
+            // («لا يدل على أنه سيدخلك إلى شاشة أخرى»)، مُقاسًا هنا في ثلاثة صفوف معًا.
+            Spacer(Modifier.width(6.dp))
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                null,
+                Modifier.size(15.dp),
+                tint = accent,
+            )
         }
         Text(status, color = accent, fontSize = 11.sp, lineHeight = 15.sp)
         fraction?.let { NeuralTrack(it, accent.copy(alpha = .85f), height = 5.dp) }
@@ -846,6 +863,7 @@ private fun VerdictPanel(
                 text = stringResource(R.string.home_session_open_loop),
                 accent = p.accent,
                 icon = Icons.Rounded.Timeline,
+                navigates = true,
                 onClick = onLive
             )
             Spacer(Modifier.width(8.dp))
@@ -853,6 +871,7 @@ private fun VerdictPanel(
                 text = stringResource(R.string.home_session_open_heat),
                 accent = p.warn,
                 icon = Icons.Rounded.Thermostat,
+                navigates = true,
                 onClick = onThermal
             )
             Spacer(Modifier.weight(1f))
