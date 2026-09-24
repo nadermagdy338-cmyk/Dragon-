@@ -222,7 +222,7 @@ ca2cc4c134d4348fd5517832b03bb8f8e5404b21e81a553b29e37fc21c64772e  manager/app/sr
 e33725c41d22e00795a0580e4bd62eabb83dfeb0ed269965a0c42af833c62ab6  manager/app/src/main/java/nd/max/ui/mainscreens/HomeFormat.kt
 728cad7c4e71ef147e32a421751524b88ae250d8e9ec6fcf12df45538ffac2eb  manager/app/src/main/java/nd/max/ui/mainscreens/HomeScreen.kt
 26812bf61dbda6911336dad724de1f70f629456eeb3a9cbeb7c97b2cb81ad7e4  manager/app/src/main/java/nd/max/ui/mainscreens/LegacyTweakComponents.kt
-4b90e623817a23e63809bd9c1a89cd24f0d610983310ed1727857cfea6a5f592  manager/app/src/main/java/nd/max/ui/mainscreens/LegendaryHomeDashboard.kt
+4c766f0f426c7824a6989f5f11403b92ea8856a4b5c89dd969d65bec0fc75882  manager/app/src/main/java/nd/max/ui/mainscreens/LegendaryHomeDashboard.kt
 adce7488b8ed746c43363cd110b1e155c6b9f3501df36c289473b7fae0332497  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiPresentation.kt
 fb8f6d59a23bfe4e47c84c1f27cd6c33769c6e13f8554ec9540daa77f53bd471  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiRuntimeStatus.kt
 62b16dac02875d4a3abd6750137fbd1e1d596941f0191a73bf5f85a2481a7049  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiScreen.kt
@@ -408,7 +408,7 @@ e35d2c20416386dfe5bfadd37bbf5ea8a6a3c2dc457220a700e3a6f233fb6a0f  manager/app/sr
 87453384a20a97d3786fc8a59ce1a568f3fb0f1bff04bc9682baaf10f7343c59  manager/app/src/main/java/nd/max/ui/viewmodel/DozeModeViewModel.kt
 14a259e7dc2e4e8d371bd7ca9cb1b6ef650d138fd2eecb63daa1b38ead45c36d  manager/app/src/main/java/nd/max/ui/viewmodel/GpuStudioViewModel.kt
 954de0acbace5d0f57df5d9d0a66ae747a6741cfd98a04e70a7e0a5c7df2c71b  manager/app/src/main/java/nd/max/ui/viewmodel/HomeActivityViewModel.kt
-c3e8008fc1cfef0c18d5714c9f4338c71d3b65c61d2eaefa4dfa6ee8d2665630  manager/app/src/main/java/nd/max/ui/viewmodel/HomeDashboardViewModel.kt
+0fa2556543b5bffa3999763400372261a6f48dea93ac9ce53f722ac31fbcdc7a  manager/app/src/main/java/nd/max/ui/viewmodel/HomeDashboardViewModel.kt
 af701b19233b13e87b902a4933018eaef966289c12111afaf1b0602ed16c3e09  manager/app/src/main/java/nd/max/ui/viewmodel/HomeViewmodel.kt
 b5187eb37263393dad283544d4c239a1039751ad4d365a30e92d2b229ea9ed4d  manager/app/src/main/java/nd/max/ui/viewmodel/LogsViewerViewModel.kt
 d8598324149b0ec0cd63066874008546977e27accd53dbe5621810625a784d47  manager/app/src/main/java/nd/max/ui/viewmodel/MaxAiViewModel.kt
@@ -473,7 +473,7 @@ fdf3e67c65858eb2d0e8cf25b8a559e41bfec6051a650508d99ae2a0cb7faf6f  manager/app/sr
 2eb5caf4886606ecfbc39ed2ca6c79bbeebd4fd0c0d2c9cc9a40993963d97c15  manager/app/src/main/res/values-ar/max_plugins_strings.xml
 0d5f777213b5b65ca00fc18b9ed72a39f16adbc9515cb3be0845c399ab12107e  manager/app/src/main/res/values-ar/max_screen_strings.xml
 d90f483a69906198db64d09b239e8389eb8509e066f6ea69bff286875f50e1c4  manager/app/src/main/res/values-ar/max_sensor_strings.xml
-c8b9b83ec409d71d9d27858ab36062a3bcb1910c6d57585ae6fc0cb0b9714b06  manager/app/src/main/res/values-ar/strings.xml
+37dbeec10be1c0994ea2c117bf88467808616cef05c93b1ecf11bb6e40cbd94e  manager/app/src/main/res/values-ar/strings.xml
 cb44377d2b81f433e3e50af4102ede64afb05d637a6d3ff8a4f6ed970a5f0321  manager/app/src/main/res/values-ar/studio_strings.xml
 8f59f91c2a93646e56b3a5fb4c7c531d40fa344c3eb858e17bc669f902e48bbb  manager/app/src/main/res/values-as/max_ai_strings.xml
 e593acfdbeaded534084439d402e176d46f01316e69bbcb7cf2dc956e80a6879  manager/app/src/main/res/values-as/max_backup_strings.xml
@@ -1541,7 +1541,7 @@ faf664a55ab9bef25fb3ada7451cecbbbfbbdbff836654b35a9d86d061627c5b  manager/app/sr
 7450b8a978557a301bb7eeea7ea115706fae0d563b32ef1a6a9ef3a3282a2657  manager/app/src/main/res/values/max_plugins_strings.xml
 e28f71f9dd9d4a82664f81d0f3e6d9db6bd62035a26340a583c2ee587560ccc9  manager/app/src/main/res/values/max_screen_strings.xml
 5e1562dac62cad7e20e52f0427b81aa30b340e727bc950c0ecb5a2a087821908  manager/app/src/main/res/values/max_sensor_strings.xml
-53f825b63c9bd76f81065489b27f121fafdaf32ccf5eb1caea9b1680783e7c21  manager/app/src/main/res/values/strings.xml
+b38096866f531bfceba1141857e1533b89f9985115ffb2481da6f57cd589ee8e  manager/app/src/main/res/values/strings.xml
 1c0f3d09f5018791ca809d3dfce10a7722d90ceb1197b1efc61de0c72d022b08  manager/app/src/main/res/values/studio_strings.xml
 c7f2ac8a930155886545fcb5a1867036867471b288f582cdf560b0eab0ba0f32  manager/app/src/main/res/values/themes.xml
 e28559422064b162676827d7912ccbb6cd529507b704b562d4db01338b344d82  manager/app/src/main/res/xml/file_paths.xml
