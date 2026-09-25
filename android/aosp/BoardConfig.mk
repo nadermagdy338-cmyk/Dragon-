@@ -1,3 +1,6 @@
+# Copyright (C) 2026 Nader Magdy. All rights reserved.
+# Proprietary and confidential — not licensed for use, copying, or distribution
+# without prior written permission from the copyright holder.
 # BoardConfig.mk for MaxManager ROM integration
 # ==============================================
 # Add this to your device BoardConfig.mk or create a new one

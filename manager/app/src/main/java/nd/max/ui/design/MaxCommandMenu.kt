@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * MaxManager Design Language — command menu.
  *
  * Why this is a primitive and not a per-screen `DropdownMenu`:

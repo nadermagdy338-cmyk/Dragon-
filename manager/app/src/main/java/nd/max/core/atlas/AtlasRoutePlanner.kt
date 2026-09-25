@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 package nd.max.core.atlas
 
 private val ATLAS_ROUTE_ID = Regex("^[a-z][a-z0-9_.-]{2,63}$")

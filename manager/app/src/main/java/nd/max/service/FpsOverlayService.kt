@@ -279,7 +279,7 @@ private fun OverlayContent(state: FpsOverlayPrefs.State) {
             HorizontalDivider(color = Color.White.copy(alpha = 0.2f), thickness = 0.5.dp)
             Spacer(Modifier.height(4.dp))
             
-            // Ported and Improved Benchmark/Record button from ZKM
+            // زرّ التسجيل: يبدأ/يوقف الجلسة، والمؤشّر يتغيّر مع الحالة (لا لون ثابت).
             RecordControlButton(isRec = isRecording) {
                 isRecording = !isRecording
             }

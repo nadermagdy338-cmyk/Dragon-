@@ -193,20 +193,21 @@ jobs:
           # الاسم قبل أن يستهلك البناءُ الأصلِي دقائقَ ثم يمرّ.
           python3 tools/jni_symbols.py --assert
           python3 tools/jni_symbols.py --self-test
-          # ── تدقيق الأصل والترخيص (PHASE 0/6) ──
+          # ── تدقيق الأصل والترخيص (PHASE 0/6/8) ──
           #
-          # يُشغّل هنا **بلا `--assert`** عن قصد، وسببه مُعلَن لا مسكوت عنه: القياس الفعلي
-          # اليوم يقول `gpl_code_in_apk = YES` — ٩٦ ملفًا مشتقًّا من GPL (٣٦ من ZKM،
-          # و٤٦ من Termux، و٢ من HorizonKernelFlasher، و٢ من vtools، و٣ ثنائيات magiskboot)
-          # داخل مسار الإصدار. فتشغيل `--assert` الآن يُسقط **كل** بناء — بما فيه تعديل
-          # لا علاقة له بالترخيص — قبل أن يُقرَّر أي مكوّن يُعاد تنفيذه وأيّها يُحذف.
+          # كان يُشغّل هنا **بلا `--assert`** عن قصد، وسببه كان مُعلَنًا ومُقاسًا: `gpl_code_in_apk
+          # = YES` — ٩٦ ملفًا مشتقًّا من GPL داخل مسار الإصدار، فكان `--assert` يُسقط كل بناء.
           #
-          # فيُقاس ويُوثَّق الآن، ويُفرض لما يصل العدّ إلى صفر:
-          #     python3 tools/license_audit.py --assert
-          # وهو السطر الذي يُضاف هنا **بعد** إغلاق PHASE 1 (وقرار المالك في `docs/PROVENANCE.md`).
-          # و`--self-test` يُشغَّل الآن فعلًا: أداة تدقيق تُصنّف كل شيء «سليمًا» لا تُثبت شيئًا،
-          # وهو نفس الدرس الذي أضاف `--self-test` لكل بوابات هذا المستودع.
+          # واليوم انقلب القياس: `gpl_code_in_apk = NO` و`gpl_derived_source_remaining = NO`
+          # و`unknown_license_component = NO`، وكل مفاتيح بوابة GPL السبعة `NO` — فالشرط الذي
+          # كُتب بجانب هذا السطر تحقّق، **وصار `--assert` مُفعَّلًا هنا**. وهو الآن يمنع الانحدار:
+          # أول ملف GPL يعود إلى مسار الإصدار يُسقط التشغيل في ثوانٍ، قبل دقائق البناء.
+          #
+          # و`--self-test` (١٤/١٤) يقيس الأداة نفسها على شجرة مصغّرة معلومة النتيجة: أداة تدقيق
+          # تُصنّف كل شيء «سليمًا» لا تُثبت شيئًا — وهو نفس الدرس الذي أضاف `--self-test` لكل
+          # بوابات هذا المستودع.
           python3 tools/license_audit.py --self-test
+          python3 tools/license_audit.py --assert
           python3 tools/license_audit.py --json --provenance
           echo "✅ Contract gates passed in $((SECONDS - start))s"
 

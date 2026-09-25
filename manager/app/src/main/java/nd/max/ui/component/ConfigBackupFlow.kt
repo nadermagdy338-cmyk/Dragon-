@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * Configuration backup / restore — one implementation, two entry points.
  *
  * The flow used to live inside the flat tweaks workspace, behind a "more" icon.

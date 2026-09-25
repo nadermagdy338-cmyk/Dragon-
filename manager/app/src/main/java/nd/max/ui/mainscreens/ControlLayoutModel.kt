@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * The Control page's layout model.
  *
  * The page has two presentations of the same content — a compact grouped list and

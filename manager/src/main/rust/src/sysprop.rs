@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 //! قراءة خصائص النظام (`getprop`) **داخل العملية** — بلا صدفة وبلا انعكاس.
 //!
 //! **ما يُقاس لا ما يُدَّعى** (مضيف x86-64، نفس مسطرة الجولة): قراءة عقدة واحدة عبر

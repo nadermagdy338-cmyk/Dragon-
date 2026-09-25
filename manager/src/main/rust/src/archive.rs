@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 //! ضغط zip داخل العملية — **كتابة أرشيف واحد** من مصادر يراها التطبيق.
 //!
 //! المستهلك الإنتاجي: `FileSystemEngine.compress` ← `FileArchiveEngine.createZip` ← مدير

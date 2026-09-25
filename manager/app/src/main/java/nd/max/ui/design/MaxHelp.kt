@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * MaxManager Design Language — contextual help and inline explanations.
  *
  * Product rule enforced by this file:

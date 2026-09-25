@@ -1,7 +1,7 @@
 {
   "_note": "سقف دَين الصيانة. انخفاضه مطلوب عند كل إصلاح؛ ارتفاعه قرار يجب مبرّره.",
-  "oversized_files": 10,
+  "oversized_files": 8,
   "own_wildcard_imports": 29,
-  "hardcoded_ui_literals": 60,
+  "hardcoded_ui_literals": 32,
   "presentation_hw_writes": 21
 }

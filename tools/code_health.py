@@ -59,7 +59,7 @@ OVERSIZE_LINES = 1000
 # `REPAIR_NOTES.md` مُعلَن هنا لأنه **نثر مشروع** (تحليل إصلاح مُسلَّم في الحزمة)، لا ملف
 # شخصي ولا حطام. والقائمة نفسها هي القرار: ما عداها = يُسأل عنه لا يُسمح به صامتًا.
 ROOT_ALLOWED = {
-    ".gitattributes", ".gitignore", "AGENTS.md", "LICENSE", "NOTICE.md", "README.md",
+    ".gitattributes", ".gitignore", "AGENTS.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "README.md",
     "REPAIR_NOTES.md", "changelog.md", "crowdin.yml", "logo.jpg", "maxmanagerApplist.json",
     "module.json", "update.json", "version", "version_type",
 }

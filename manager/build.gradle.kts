@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 // [FIX] Menggunakan blok buildscript agar plugin StringFog punya akses ke library XOR
 // [CRITICAL] Blok buildscript harus jadi blok pertama
 buildscript {

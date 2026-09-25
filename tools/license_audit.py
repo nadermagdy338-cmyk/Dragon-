@@ -67,6 +67,32 @@ _ROOT = os.path.dirname(_HERE)
 # ⚠️ الخطر يُرتَّب، والأعلى يفوز في الملف الواحد: ملف يذكر مصدرين أحدهما GPL يُعامَل GPL.
 
 RISK_GPL = 3
+# التوصيف القانوني لملفات المشروع نفسها بعد قرار المالك (تكملة ٨٥): مملوكة لا Apache-2.0.
+PROPRIETARY = "Proprietary (All rights reserved)"
+
+# ── ترويسة الملكية الموحَّدة (PHASE 7) ────────────────────────────────────────
+#
+# نصّ واحد يُكتب مرة واحدة ويُطبَّق على **المصادر التي لا ترويسة لها** (`REPO_DEFAULT`)
+# وحدها. ولا يُلمس ملف له ترويسة (ملكية كانت أو أصل خارجي): إضافةُ ترويسة إلى ملف يحمل
+# ترويسة أصل لا تمحو الأصل بل تلبسه — وهذا ما يمنعه هذا الشرط صراحةً.
+#
+# ومصدر الحقيقة واحد: هذا الثابت. فلا تنسخ أنت نصًّا ثانيًا في أي ملف.
+HEADER_LINES = (
+    "Copyright (C) 2026 Nader Magdy. All rights reserved.",
+    "Proprietary and confidential — not licensed for use, copying, or distribution",
+    "without prior written permission from the copyright holder.",
+)
+HEADER_MARK = "Nader Magdy"
+
+# أسلوب التعليق بحسب ما **يفهمه** الملف فعلًا (لا بحسب ما يبدو).
+# `/* */` لملفات C-family وKotlin، و`//` لـAndroid.bp (Blueprint)، و`#` للصدفة وملفات
+# البناء/الإقلاع/SELinux — ولا يُضاف إلى امتداد غير مُدرج هنا إطلاقًا.
+HEADER_STYLES: dict[str, str] = {
+    ".kt": "block", ".kts": "block", ".java": "block", ".aidl": "block",
+    ".rs": "block", ".c": "block", ".h": "block",
+    ".bp": "slash",
+    ".sh": "hash", ".mk": "hash", ".rc": "hash", ".te": "hash", ".pro": "hash",
+}
 RISK_WEAK = 2        # LGPL/MPL وأشباهها: مشروطة لا ممنوعة
 RISK_UNKNOWN = 1
 RISK_FREE = 0
@@ -221,7 +247,8 @@ PROVENANCE_CONTEXT = re.compile(
 # وقراءتها كنسب أصل تُنشئ إيجابيات كاذبة. وتُصنَّف بعائلة الوحدة، ويُعلَن ذلك في عمود الدليل.
 PROSE_ONLY_PREFIXES = ("docs/", "tools/")
 
-OWNERS = re.compile(r"Zexshia|KowX|\bRapli\b|MaxManager contributors|MaxManager Project", re.I)
+OWNERS = re.compile(
+    r"Zexshia|KowX|\bRapli\b|MaxManager contributors|MaxManager Project|Nader Magdy", re.I)
 APACHE_HEADER = re.compile(r"Apache License,?\s*Version 2\.0", re.I)
 GPL_HEADER = re.compile(r"GNU General Public License|GPL-?3|GPLv3", re.I)
 COPYRIGHT = re.compile(r"Copyright\s*\(?[Cc]\)?\s*((?:\d{4}\s*[-–]\s*\d{4})|\d{4})\s*([A-Za-z][\w .'-]*)")
@@ -243,22 +270,23 @@ MODULE_FAMILIES: list[tuple[str, str, str, int]] = [
     (r"^manager/kernel-flasher/src/main/assets/(libhttools|liblptools)",
      "AOSP avbtool/lptools", "Apache-2.0", RISK_FREE),
     (r"^manager/kernel-flasher/", "KernelFlasher", "Apache-2.0", RISK_FREE),
-    (r"^manager/src/main/rust/", "MaxManager (native engine)", "Apache-2.0", RISK_FREE),
-    (r"^manager/", "MaxManager app (AZenith base)", "Apache-2.0", RISK_FREE),
+    (r"^manager/src/main/rust/", "MaxManager (native engine)", PROPRIETARY, RISK_FREE),
+    (r"^manager/", "MaxManager app", PROPRIETARY, RISK_FREE),
     (r"^archdaemon/", "Encore Daemon (via AZenith)", "Apache-2.0", RISK_FREE),
-    (r"^mainfiles/", "MaxManager module (AZenith base)", "Apache-2.0", RISK_FREE),
-    (r"^android/", "MaxManager platform integration", "Apache-2.0", RISK_FREE),
+    (r"^mainfiles/", "MaxManager module", PROPRIETARY, RISK_FREE),
+    (r"^android/", "MaxManager platform integration", PROPRIETARY, RISK_FREE),
     (r"^thermalcore/", "Rianixia-ThermalCore", "Apache-2.0", RISK_FREE),
-    (r"^binprofiles/", "MaxManager binprofiles", "Apache-2.0", RISK_FREE),
-    (r"^binutils/", "MaxManager binutils", "Apache-2.0", RISK_FREE),
-    (r"^preloadbin/", "MaxManager preloadbin", "Apache-2.0", RISK_FREE),
-    (r"^tools/", "MaxManager tooling", "Apache-2.0", RISK_FREE),
-    (r"^docs/", "MaxManager documentation", "Apache-2.0", RISK_FREE),
-    (r"^\.github/", "MaxManager CI", "Apache-2.0", RISK_FREE),
+    (r"^binprofiles/", "MaxManager binprofiles", PROPRIETARY, RISK_FREE),
+    (r"^binutils/", "MaxManager binutils", PROPRIETARY, RISK_FREE),
+    (r"^preloadbin/", "MaxManager preloadbin", PROPRIETARY, RISK_FREE),
+    (r"^tools/", "MaxManager tooling", PROPRIETARY, RISK_FREE),
+    (r"^docs/", "MaxManager documentation", PROPRIETARY, RISK_FREE),
+    (r"^\.github/", "MaxManager CI", PROPRIETARY, RISK_FREE),
     # ما بقي: لا أصل خارجي مُعلَن ولا عائلة وحدة معروفة ⇒ الافتراضي **مُعلَن** لا مسكوت
     # عنه، وهو رخصة المستودع. وهذا افتراض عن نطاق المستودع يُكتب في عمود الدليل،
-    # ولا يُقدَّم كقياس. والملفات ذات البيانات العبأة (devices.db, socs.json) مُستثناة أدناه.
-    (r"^.*$", "MaxManager (repository default)", "Apache-2.0", RISK_FREE),
+    # ولا يُقدَّم كقياس. وملفات بيانات المستودع (devices.db, socs.json) لا تدخل هذا
+    # الافتراض: تُقرأ من DECLARED_DATA_ASSETS بدليل مكتوب — انظر أسفل هذا الجدول.
+    (r"^.*$", "MaxManager (repository default)", PROPRIETARY, RISK_FREE),
 ]
 
 # بيانات عبأة بلا إسناد: لا ترويسة تقول من صنعها ولا عائلة وحدة تحكم. تُطلب مراجعة بشرية
@@ -267,6 +295,25 @@ DATA_ASSETS = (
     r"^manager/app/src/main/assets/devices\.db$",
     r"^manager/app/src/main/assets/socs\.json$",
     r"^maxmanagerApplist\.json$",
+)
+
+# ── بيانات المستودع **المُعلَنة** (PHASE 8) ───────────────────────────────────
+#
+# كان القياس السابق يقول: هذه الثلاثة `Unknown` بلا إسناد. واليوم صارت **مُقاسة**:
+# لا أثر لها في أي أصل خارجي دُقّق (ZKM: ٤٤٣ ملفًا · vtools · أشجار raw) ولا يحملها أي
+# منها، وأُضيفت في الالتزام الأول للمشروع (`581fe5d Initial clean release`). فالنتيجة
+# المُعلَنة: بيانات يملكها المشروع، ورخصتها رخصة المستودع — **لا «مجهول» يُبقيها عالقة
+# إلى الأبد، ولا ادّعاء إسناد لم يُقس**. والدليل مكتوب بجانب كل سطر، وحدّه معلَن:
+# «لا أصل خارجي مُدقَّق» يثبت نفي ما فُحص لا نفي كل شيء في العالم.
+DECLARED_DATA_ASSETS = (
+    (r"^manager/app/src/main/assets/devices\.db$",
+     "قاعدة أجهزة داخل المستودع — لا نظير لها في أي أصل خارجي مُدقَّق (ZKM 443 ملفًا)، "
+     "وأُضيفت في الالتزام الأول 581fe5d"),
+    (r"^manager/app/src/main/assets/socs\.json$",
+     "جدول SoC مكتوب بيد المشروع (مفاتيح Xiaomi/Tensor…) لا يوجد في أي أصل خارجي مُدقَّق، "
+     "ويقرأه HardwareUtil من الأصول"),
+    (r"^maxmanagerApplist\.json$",
+     "بروفايلات افتراضية للتطبيقات مكتوبة بيد المشروع — لا نظير لها في أي أصل خارجي مُدقَّق"),
 )
 
 # مخرجات بناء أو مواد توقيع دخلت الشجرة — لا تُشحن كـ«مصدر» ويجب أن تخر́ج من التتبّع.
@@ -514,6 +561,15 @@ def classify_file(root: str, rel: str) -> dict:
 
     # ٢) ما ليس مصدرًا: بيانات عبأة تُطلب مراجعتها، وسواها بعائلة الوحدة.
     if ext not in SOURCE_EXTS:
+        for pattern, declared_evidence in DECLARED_DATA_ASSETS:
+            if re.match(pattern, rel):
+                record.update(
+                    origin="MaxManager declared data asset", license=PROPRIETARY, spdx=PROPRIETARY,
+                    risk=RISK_FREE, status="DATA_ASSET_DECLARED",
+                    evidence=declared_evidence,
+                    arch="", holders=[],
+                )
+                return record
         if any(re.match(p, rel) for p in DATA_ASSETS):
             record.update(
                 origin="UNATTRIBUTED DATA ASSET", license="Unknown", spdx="Unknown",
@@ -667,9 +723,13 @@ def gradle_dependencies(root: str) -> list[dict]:
                 continue
             path = os.path.join(dirpath, name)
             text = open(path, encoding="utf-8", errors="replace").read()
+            # ⚠️ والملفَّف (`platform(...)` / `enforcedPlatform(...)`) يُتجاوز بقصد: كان يُقرأ
+            # **معرّفًا** باسم الدالّة نفسها، فيظهر في التقرير تبعية اسمها `platform`
+            # ورخصتها مجهولة — إيجابية كاذبة أُصلحت بالمقارنة مع الشجرة الحقيقية.
             for config, token in re.findall(
                 r"\b(implementation|api|ksp|kapt|debugImplementation|releaseImplementation|"
                 r"testImplementation|androidTestImplementation|compileOnly)\s*\(\s*"
+                r"(?:(?:enforced)?platform\s*\(\s*)?"
                 r"(?:project\s*\(\s*)?\"?([\w.:-]+)\"?",
                 text,
             ):
@@ -785,16 +845,84 @@ def abi_gaps(root: str, records: list[dict]) -> list[dict]:
 
 # ── التجميع ───────────────────────────────────────────────────────────────────
 
+def render_header(style: str, newline: str) -> str:
+    """يُبني كتلة الترويسة كاملة (بُنيتها ثابتة، فتُقاس باختبار ذاتي لا تُقدَّر)."""
+    if style == "block":
+        body = "".join(f" * {line}{newline}" for line in HEADER_LINES)
+        return "/*" + newline + body + " */" + newline
+    marker = "//" if style == "slash" else "#"
+    return "".join(f"{marker} {line}{newline}" for line in HEADER_LINES)
+
+
+def apply_header(rel: str, text: str) -> str | None:
+    """يُعيد النصّ بالترويسة، أو `None` إن لم يكن هذا ملفًّا يُدهَن (أو مُدهونًا أصلًا).
+
+    الشرطان مُعلنان: (١) الامتداد له أسلوب تعليق معروف، (٢) الملف لا يحمل أصلاً ماركة
+    `Nader Magdy` — فإعادة الكتابة على ملف مُدهون تُكرّر الترويسة.
+    """
+    style = HEADER_STYLES.get(os.path.splitext(rel)[1].lower())
+    if style is None:
+        return None
+    if HEADER_MARK in text[:4000]:
+        return None
+    newline = "\r\n" if "\r\n" in text[:2000] else "\n"
+    header = render_header(style, newline)
+    # سطر الـshebang يبقى **أوّل** سطر: دفنه تحت تعليقات يجعل الملف غير قابل للتنفيذ.
+    if style == "hash" and text.startswith("#!"):
+        line_end = text.find("\n")
+        if line_end != -1:
+            return text[:line_end + 1] + header + text[line_end + 1:]
+    return header + text
+
+
+def write_headers(root: str, dry_run: bool = True) -> int:
+    """يدهن ترويسة الملكية على ملفات `REPO_DEFAULT` فقط، ويطبع ما لم يُدهن ولماذا."""
+    records = [classify_file(root, rel) for rel in tracked_files(root)]
+    target = [r["file"] for r in records
+              if r["status"] == "REPO_DEFAULT" and os.path.splitext(r["file"])[1].lower()
+              in HEADER_STYLES]
+    changed, skipped = [], []
+    for rel in target:
+        path = os.path.join(root, rel)
+        try:
+            with open(path, encoding="utf-8", errors="strict") as fh:
+                text = fh.read()
+        except (OSError, UnicodeDecodeError) as exc:
+            skipped.append((rel, f"لا يُقرأ نصًّا صافيًا: {type(exc).__name__}"))
+            continue
+        updated = apply_header(rel, text)
+        if updated is None:
+            skipped.append((rel, "مُدهون أصلًا أو امتداده غير مُدرج"))
+            continue
+        if not dry_run:
+            with open(path, "w", encoding="utf-8", newline="") as fh:
+                fh.write(updated)
+        changed.append(rel)
+    print(f"دهن الترويسة: {len(changed)} ملفًا" + (" (تجربة — لم يُكتب شيء)" if dry_run else ""))
+    for rel in changed[:20]:
+        print(f"  + {rel}")
+    if len(changed) > 20:
+        print(f"  … و{len(changed) - 20} غيرها")
+    if skipped:
+        print(f"تُركت بلا دهن ({len(skipped)}) — وسببها مكتوب:")
+        for rel, why in skipped:
+            print(f"  · {rel} ← {why}")
+    return len(changed)
+
+
 ACTION_BY_STATUS = {
     "GPL_DERIVED": "REWRITE_OR_REMOVE",
     "GPL_REFERENCED": "VERIFY_BY_DIFF_OR_REWRITE",
     "APACHE_DERIVED": "REWRITE_FOR_IDENTITY",
-    "NO_HEADER": "ADD_COPYRIGHT_HEADER",
+    # بعد PHASE 7: مَن يحمل ترويسة ملكية لا يُطالَب بترويسة ثانية — والدهن يخصّ
+    # `REPO_DEFAULT` وحده (المصادر التي لا ترويسة لها إطلاقًا).
+    "NO_HEADER": "KEEP",
     "REPO_DEFAULT": "ADD_COPYRIGHT_HEADER",
     "PROSE_SCOPE": "KEEP",
     "RESOURCE": "KEEP",
     "RESOURCE_AT_RISK": "REVIEW_ORIGIN",
     "DATA_ASSET_UNVERIFIED": "VERIFY_OR_REPLACE",
+    "DATA_ASSET_DECLARED": "KEEP",
     "STRAY_ARTIFACT": "REMOVE_FROM_TRACKING",
     "THIRD_PARTY_BINARY": "REPLACE_OR_ATTRIBUTE",
     "BINARY": "ATTRIBUTE",
@@ -837,7 +965,13 @@ def build_report(root: str) -> dict:
             "gpl_referenced_files": len(referenced),
             "gpl_in_release_path": len(gpl_release),
             "unknown_license_files": len(count_risk(RISK_UNKNOWN)),
-            "permissive_files": len(count_risk(RISK_FREE)),
+            # **والفصل بين الاثنين مقصود:** «حرّة» تعني رخصة طرف ثالث لا تُلزمنا بشيء،
+            # و«مملوكة» تعني ملفًا لنا. خلطهما كان يُظهر ١٩٧٧ «حرّة» وهي في الحقيقة أغلبيتها
+            # مملوكة للمشروع — رقم يخالف حقيقته بعد قرار المالك (تكملة ٨٥).
+            "proprietary_files": len([r for r in records if r.get("license") == PROPRIETARY]),
+            "permissive_files": len(
+                [r for r in records if r.get("risk") == RISK_FREE and r.get("license") != PROPRIETARY]
+            ),
             "gradle_dependencies": len(deps),
             "cargo_crates": len(crates),
             "gpl_dependencies": len(gpl_deps) + len(gpl_crates),
@@ -902,7 +1036,8 @@ def write_provenance(root: str, report: dict) -> str:
     a(f"| ملفات مشتقّة من GPL | **{s['gpl_derived_files']}** |")
     a(f"| منها داخل مسار الإصدار | **{s['gpl_in_release_path']}** |")
     a(f"| ملفات مجهولة الترخيص | {s['unknown_license_files']} |")
-    a(f"| ملفات برخصة حُرّة | {s['permissive_files']} |")
+    a(f"| ملفات مملوكة (MaxManager) | {s['proprietary_files']} |")
+    a(f"| ملفات برخصة طرف ثالث حُرّة | {s['permissive_files']} |")
     a(f"| تبعيات Gradle | {s['gradle_dependencies']} |")
     a(f"| صناديق Cargo | {s['cargo_crates']} |")
     a(f"| ثغرات ABI | {s['abi_gaps']} |")
@@ -924,7 +1059,20 @@ def write_provenance(root: str, report: dict) -> str:
         a(f"| {label} | **{gate[key]}** |")
     a("")
     a("**وما دام أيٌّ منها `YES` فالتنظيف غير مكتمل** — والأداة تُفشل CI (`--assert`) عند "
-      "`gpl_code_in_apk = YES`.")
+      "`gpl_code_in_apk = YES` أو `gpl_native_binary = YES` أو `gpl_dependency = YES`.")
+    a("")
+
+    a("## الإزالة وإعادة التأليف — سجل التغيير، والحالة النهائية المقيسة")
+    a("")
+    a("قائمة ما أُزيل وما أُعيد تأليفه — بالأرقام التي قُيست وقت التنفيذ — في "
+      "`docs/ai/HANDOFF.md` (جولات التنقية)، وخلاصتها في `THIRD_PARTY_NOTICES.md` §3. "
+      "ولا يُعاد كتابة الأرقام التاريخية هنا (تُنسخ فتنحرف)؛ وما يُقاس في هذا الملف هو **الحالة "
+      "الراهنة**: مشتقّ من GPL = " f"{s['gpl_derived_files']}، وGPL في مسار الإصدار = "
+      f"{s['gpl_in_release_path']}، ومجهول الترخيص = {s['unknown_license_files']}.")
+    a("")
+    a("وحالة «استقلال النصّ» عن أصل GPL **لا تُدَّعى من هذا الجدول**: تُقاس بأداة مستقلة "
+      "مقابلةً للأصل (`tools/upstream_similarity.py --assert --upstream …`)، ونتيجتها وبقاياها "
+      "المُعلَنة تُطبع في كل تشغيل.")
     a("")
 
     a("## أ‌) ملفات مشتقّة من GPL — تُعاد كتابتها أو تُحذف")
@@ -1010,9 +1158,13 @@ def write_provenance(root: str, report: dict) -> str:
     a("* `docs/` و`tools/` تُصنَّفان بعائلة وحدتهما ولا يُستنتج أصلهما من أسماء مشاريع "
       "تُذكر فيهما وصفًا؛ فلا يظهر نثر الأدوات «مشتقًّا» من كل من يُسمّى فيه.")
     a("* ما لا أصل خارجي له ولا عائلة وحدة معروفة يُصنَّف **افتراضًا مُعلَنًا**: رخصة المستودع، "
-      "بحالة `REPO_DEFAULT`. وهذا افتراض عن نطاق المشروع لا قياس — والبيانات العبأة "
-      "(`devices.db` · `socs.json` · `maxmanagerApplist.json`) **مُستثناة** منه وتبقى "
-      "`Unknown` حتى يُكتب إسنادها.")
+      "بحالة `REPO_DEFAULT`. وهذا افتراض عن نطاق المشروع لا قياس — يُكتب كما هو ولا يُقدَّم "
+      "كإثبات.")
+    a("* وبيانات المستودع (`devices.db` · `socs.json` · `maxmanagerApplist.json`) **لا** تدخل "
+      "في ذلك الافتراض العام، ولا تبقى `Unknown`: تُقرأ من جدول `DECLARED_DATA_ASSETS` "
+      "بدليل مكتوب بجانب كل سطر (حالة `DATA_ASSET_DECLARED`) — والقياس الذي أعلنها: لا نظير "
+      "لها في أي أصل خارجي مُدقَّق (ZKM ٤٤٣ ملفًا · vtools · أشجار raw)، وأُضيفت في الالتزام "
+      "الأول `581fe5d`. وحدّه معلَن: هذا ينفي ما فُحص لا كل شيء في العالم.")
     a("* لا تصل الأداة إلى الشبكة: التراخيص من جدول مُنتقى بسند، وما ليس فيه يُكتب `Unknown`.")
     a("* جدول `DEP_LICENSES` يغطّي التبعيات المستعملة اليوم؛ وإضافة تبعية جديدة بدون سطر "
       "له تظهر `Unknown` لا `Apache-2.0`.")
@@ -1162,6 +1314,49 @@ def mode_self_test() -> int:
                        f"gate={clean['gpl_gate']['gpl_code_in_apk']} "
                        f"n={clean['summary']['gpl_in_release_path']}"))
 
+        # ١٠) بيانات المستودع المُعلَنة: تُقرأ من الجدول المُعلَن بدليل مكتوب، ولا تُحسب
+        #     «مجهولة» فتبقى عالقة، **ولا** تُخمَّن Apache-2.0 — وهي عكس `Unknown` تمامًا.
+        put("manager/app/src/main/assets/devices.db", "SQLite format 3\x00 not-really")
+        declared = classify_file(root, "manager/app/src/main/assets/devices.db")
+        checks.append(("بيانات مُعلَنة تُصنَّف DECLARED لا Unknown",
+                       declared["status"] == "DATA_ASSET_DECLARED"
+                       and declared["risk"] == RISK_FREE
+                       and declared["evidence"].strip() != "",
+                       declared["status"]))
+        #     وحدّ الجدول: ملف بيانات **غير مُعلَن** لا يصير مُعلَنًا لمجرد التشابه في الامتداد.
+        put("manager/app/src/main/assets/other.bin", "\x00\x01\x02")
+        undeclared = classify_file(root, "manager/app/src/main/assets/other.bin")
+        checks.append(("ملف بيانات غير مُعلَن لا يُمنح حالة DECLARED",
+                       undeclared["status"] != "DATA_ASSET_DECLARED",
+                       undeclared["status"]))
+
+        # ١١) دهن الترويسة (PHASE 7): الحالات الأربع التي تهمّ — ملف بلا ترويسة يُدهن،
+        #     وملف مُدهون لا يُدهن مرتين، وملف له أصل خارجي **لا يُلمس**، وسكربت بـshebang
+        #     يبقى سطرها الأول سطرًا أولًا (وإلا صار غير قابل للتنفيذ).
+        plain = apply_header("manager/app/src/main/java/D.kt", "package a\n")
+        checks.append(("ملف بلا ترويسة يُدهن",
+                       plain is not None and plain.startswith("/*")
+                       and HEADER_MARK in plain and plain.endswith("package a\n"),
+                       repr(plain[:40]) if plain else "None"))
+        again = apply_header("manager/app/src/main/java/D.kt", plain)
+        checks.append(("ملف مُدهون لا يُدهن مرّتين", again is None, ""))
+        checks.append(("امتداد غير مُدرج لا يُدهن",
+                       apply_header("manager/app/src/main/assets/x.db", "data") is None, ""))
+        shebang = apply_header("tools/x.sh", "#!/bin/sh\nset -e\n")
+        checks.append(("shebang يبقى السطر الأول",
+                       shebang is not None and shebang.startswith("#!/bin/sh\n#"),
+                       repr((shebang or "")[:24])))
+        #     وأنّ الدهن يحوّل الحالة فعلًا: `REPO_DEFAULT` ⇒ `NO_HEADER` بخطوة واحدة.
+        put("manager/app/src/main/java/E.kt", "package a\n")
+        before = classify_file(root, "manager/app/src/main/java/E.kt")["status"]
+        put("manager/app/src/main/java/E.kt", apply_header("manager/app/src/main/java/E.kt",
+                                                           "package a\n"))
+        after = classify_file(root, "manager/app/src/main/java/E.kt")
+        checks.append(("الدهن يحوّل REPO_DEFAULT ← NO_HEADER بعائلة MaxManager",
+                       before == "REPO_DEFAULT" and after["status"] == "NO_HEADER"
+                       and after["origin"].startswith("MaxManager"),
+                       f"{before} ← {after['status']} / {after['origin']}"))
+
         ok = True
         for name, passed, detail in checks:
             print(("✅ " if passed else "❌ ") + name + (f"  ← {detail}" if detail and not passed else ""))
@@ -1190,12 +1385,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--self-test", action="store_true", help="الأداة تقيس نفسها")
     parser.add_argument("--shown", type=int, default=0, help="اطبع أول N ملفًا خطرها GPL")
     parser.add_argument("--root", default=None, help="جذر الشجرة (يُكتشف افتراضيًّا)")
+    parser.add_argument("--write-headers", action="store_true",
+                        help="ادهن ترويسة الملكية على المصادر بلا ترويسة (PHASE 7)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="مع --write-headers: طبع ما سيُدهن بلا كتابة")
     args = parser.parse_args(argv)
 
     if args.self_test:
         return mode_self_test()
 
     root = repo_root(args.root)
+
+    if args.write_headers:
+        write_headers(root, dry_run=args.dry_run)
+        if args.dry_run:
+            return 0
+
     report = build_report(root)
 
     if args.json:

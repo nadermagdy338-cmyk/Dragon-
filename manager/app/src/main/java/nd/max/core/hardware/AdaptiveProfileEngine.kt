@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 package nd.max.core.hardware
 
 /** Vendor-neutral adaptive policy. It only decides a profile; a caller owns application. */

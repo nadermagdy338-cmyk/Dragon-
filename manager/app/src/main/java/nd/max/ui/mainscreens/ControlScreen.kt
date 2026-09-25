@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * The Control primary destination.
  *
  * Product shape: this is the old tuning workspace, kept in the new design

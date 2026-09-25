@@ -1,17 +1,11 @@
 /*
- * Copyright (C) 2026-2027 Zexshia
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * حالة شاشة السجل: بثّ `logcat` عبر جلسة جذر مخصّصة (لا الجلسة المشتركة — لأنّ
+ * `logcat -v threadtime` لا ينتهي وحده فيُسَدّ ما سواه)، وتحليل السطور إلى مدخلات،
+ * وترشيحها، وتصديرها.
  */
 
 package nd.max.ui.viewmodel
@@ -60,17 +54,12 @@ import nd.max.MaxManagerPaths
 import nd.max.MaxManagerProps
 
 /**
- * Live logcat viewer, adapted from ZKM's LogsView (LogsViewUtils.kt +
- * LogsViewViewModel.kt), but not a straight port: ZKM tails the log with a
- * plain `ProcessBuilder("logcat", ...)`, which only sees what the app's own
- * (non-root) process is allowed to read. This drives the same stream through
- * a *dedicated* libsu [Shell] instance instead - giving it the kernel/crash/
- * radio buffers a rooted read can see - while deliberately NOT reusing
- * MaxManager's shared root shell: `logcat -v threadtime` never terminates on
- * its own, and running it on the shared session would wedge every other
- * screen's Shell.cmd() calls behind it for as long as this screen is open.
- * A private Shell is opened on [start] and closed on [onCleared]/buffer
- * change, which also tears down the underlying logcat process with it.
+ * قارئ السجل الحيّ: يفتح جلسة صدفة **مخصّصة** له (لا الجلسة المشتركة) لأنّ
+ * `logcat -v threadtime` لا ينتهي من نفسه — ولو جرى على الجلسة المشتركة لَسَدَّ كل نداء
+ * `Shell.cmd` في التطبيق ما دامت الشاشة مفتوحة. ولذلك تُفتح في [start] وتُغلق في
+ * [onCleared]/عند تغيير المخزن، فيُغلق معها عمل `logcat` نفسه.
+ *
+ * وقراءة الجذر تعني المخازن التي لا يراها uid التطبيق: النواة والانهيارات والاتصال اللاسلكي.
  */
 class LogsViewerViewModel : ViewModel() {
 

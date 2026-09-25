@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * Backing types/helpers for the Doze Mode screen. DozeModeScreen.kt was
  * committed importing these from nd.max.ui.util but the file itself
  * never existed in the repo — this fills that gap.

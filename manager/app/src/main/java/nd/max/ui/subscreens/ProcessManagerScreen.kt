@@ -523,20 +523,25 @@ private fun ProcessSortAndLimitRow(
  * والعرض الثابت للاسم (٥٠ نقطة) مقصود: بدونه تتزحزح الأشرطة مع طول الاسم فتضيع المقارنة
  * البصرية بين صفّين — وهي الغاية من الرسم أصلًا.
  */
+/** مقاسات صفّ الرسم: عرض ثابت للاسم فلا تتزحزح الأشرطة، وفاصل ثابت بينهما. */
+private val BAR_LABEL_WIDTH = 50.dp
+private val BAR_LABEL_GAP = 8.dp
+private val BAR_HEIGHT = 5.dp
+
 @Composable
 private fun NamedBarRow(label: String, fraction: Float, accent: Color) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
-            fontSize = 9.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(50.dp),
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.labelSmall,
+            fontSize = 9.sp,
+            modifier = Modifier.width(BAR_LABEL_WIDTH),
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        GlowLinearBar(fraction = fraction, accent = accent, height = 5.dp, modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.width(BAR_LABEL_GAP))
+        GlowLinearBar(fraction = fraction, accent = accent, height = BAR_HEIGHT, modifier = Modifier.weight(1f))
     }
 }
 

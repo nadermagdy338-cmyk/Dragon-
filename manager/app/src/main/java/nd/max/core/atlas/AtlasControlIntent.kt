@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 package nd.max.core.atlas
 
 /** A user goal, not a kernel command. Atlas chooses the route that can satisfy it. */

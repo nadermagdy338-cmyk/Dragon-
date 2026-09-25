@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * Runtime inspection layer for MaxManager.
  * It reports what the kernel currently exposes and separates that from what
  * MaxManager would like to control. No vendor-specific command is required here.

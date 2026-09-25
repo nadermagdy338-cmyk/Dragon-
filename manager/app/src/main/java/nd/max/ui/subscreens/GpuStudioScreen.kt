@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * GPU Studio — GPU frequency control for the current device.
  *
  * This screen was rebuilt for two reasons that share one root cause.

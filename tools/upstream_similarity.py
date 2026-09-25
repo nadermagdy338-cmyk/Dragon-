@@ -75,6 +75,36 @@ SOURCE_EXTS = (".kt", ".aidl", ".java")
 # تُستثنى لأن نسخة الأصل المرجعي تسكنها — وقياستها بنفسها تُخرج ١.٠٠٠ لكل ملف وتُغرق الجدول.
 SKIP_PREFIXES = ("docs/", "tools/", ".github/", "build/")
 
+# ── بقايا مُعلَنة: الملفات التي يتقاطع فيها المشروع مع الأصل لسبب لا يُصلحه إعادة التأليف ──
+#
+# كل مدخل: المسار (لاحقة) ثم **سبب مكتوب**. والباب مُفتح للجميع: ما ليس هنا يُسقط البوابة،
+# وما هنا **يُطبع في كل تشغيل** ولو نجحت البوابة — فلا يُخفي الإعلانُ رقمًا، بل يُفسّره.
+# وسقف العدد مُجمَّد: لا يُضاف سبب جديد بلا قياس يقول إنه من هذا النوع (فرض API/بنية إطار)
+# لا نقل تعبير — وهذا فرق يُكتب في السبب نفسه. وكل ما كان نقلًا تعبيريًّا حقيقيًّا أُعيد تأليفه
+# ولم يُدرج هنا (انظر `docs/PROVENANCE.md` §جدول القياس لكل ملف).
+DECLARED_RESIDUE: dict[str, str] = {
+    "ui/theme/Type.kt": "صيغة باني Material 3: `TextStyle(fontFamily=…, fontSize=…)` — نفس الـAPI "
+                        "تفرض نفس الأسطر؛ وأصل الملف القياسي ٢٤ سطرًا ويحمل لونًا واحدًا بخطّ النظام، "
+                        "وهذا الملف لوحة كاملة بخطوط المشروع",
+    "ui/process/MyLifecycleOwner.kt": "تمثيل `SavedStateRegistryOwner` يدويًّا: `LifecycleRegistry(this)` "
+                                      "و`SavedStateRegistryController.create(this)` وتجاوزان — لا صياغة "
+                                      "ثانية لها في AndroidX",
+    "service/FpsOverlayService.kt": "تصريحات عقد Compose داخل نافذة عائمة بلا نشاط "
+                                     "(windowManager · overlayView · layoutParams · سجل الحالة · مخزن "
+                                     "الViewModel) — أسماؤها يفرضها الـAPI، ونفس السبب أدناه",
+    "service/ProcessOverlayService.kt": "نفس عقد الخدمة السابقة حرفيًّا (الخدمتان تشتركان فيه داخليًّا "
+                                        " أيضًا) — توحيده في وحدة مشتركة عملٌ له مشروعُه لا يُدسّ في جولة "
+                                        "تحقّق، والوحدة المُشتركة تُنشأ عند أوّل تعديل وظيفي على إحدى الخدمتين",
+}
+
+
+def residue_reason(rel: str) -> str | None:
+    for suffix, reason in DECLARED_RESIDUE.items():
+        if rel.endswith(suffix):
+            return reason
+    return None
+
+
 COMMENT_BLOCK = re.compile(r"/\*.*?\*/", re.S)
 COMMENT_LINE = re.compile(r"//[^\n]*")
 WORD = re.compile(r"[A-Za-z_][A-Za-z0-9_]*|\d+")
@@ -263,7 +293,8 @@ def audit(root: str, corpus: dict[str, Unit], threshold: float, run_max: int, sh
             best = top[0]
             if best.score >= threshold or best.run >= run_max:
                 findings.append({
-                    "file": rel, "score": round(best.score, 3),
+                    "file": rel, "residue": residue_reason(rel),
+                    "score": round(best.score, 3),
                     "run": best.run, "raw": round(best.raw, 3),
                     "literals": best.shared_literals,
                     "upstream": best.upstream, "top": [
@@ -401,21 +432,36 @@ def main() -> int:
 
     if args.json:
         import json
-        print(json.dumps({"stats": stats, "findings": findings}, ensure_ascii=False, indent=1))
-        return 1 if (args.assert_ and findings) else 0
+        payload = {
+            "stats": stats, "findings": findings,
+            "undeclared": sum(1 for f in findings if not f["residue"]),
+            "declared_residue": DECLARED_RESIDUE,
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=1))
+        return 1 if (args.assert_ and any(not f["residue"] for f in findings)) else 0
 
     print("؛ ".join(stats))
     print(f"سقف: احتواء رموز ≥ {args.threshold} أو مقطع ≥ {args.run_max} أسطر مسمّاة متطابقة")
     if not findings:
         print("لا ملف يبلغ السقف.")
         return 0
+    undeclared = [f for f in findings if not f["residue"]]
+    declared = [f for f in findings if f["residue"]]
     print(f"{len(findings)} ملفًا يستحق النظر (code = احتواء رموز البنية | raw = بالنصّ الحرفي | lit = حرفيات مشتركة):")
     for f in findings[:args.shown]:
         print(f"  code={f['score']:>6.3f}  raw={f['raw']:>6.3f}  lit={f['literals']:>3}  run={f['run']:<4} "
               f"{f['file']}  ⟵ {f['upstream']}")
     if len(findings) > args.shown:
         print(f"  … و{len(findings) - args.shown} غيرها")
-    return 1 if args.assert_ else 0
+    if declared:
+        print(f"\nبقايا مُعلَنة ({len(declared)}) — لا تُسقط البوابة، وتُطبع في كل تشغيل:")
+        for f in declared:
+            print(f"  {f['file']}: {f['residue']}")
+    else:
+        print("\nلا بقايا مُعلَنة مطابقة لملف وُجد.")
+    if undeclared:
+        print(f"\n⚠ غير مُعلَن: {len(undeclared)} ملفًا يحتاج إعادة تأليف أو إعلانًا بسبب مكتوب.")
+    return 1 if (args.assert_ and undeclared) else 0
 
 
 if __name__ == "__main__":

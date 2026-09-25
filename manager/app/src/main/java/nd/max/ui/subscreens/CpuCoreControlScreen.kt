@@ -1029,11 +1029,11 @@ fun CpuCoreControlTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () 
 }
 
 /**
- * One cpuset scheduling group ("top-app", "foreground", ...) with its current
- * core assignment as a summary, and a dialog to pick which cores that group
- * is allowed to schedule threads on. Adapted from ZKM's cpuset affinity tool;
- * ported onto MaxManager's own ExpressiveList / CustomContentDialog components
- * instead of copying ZKM's UI code directly.
+ * مجموعة cpuset واحدة («top-app» · «foreground» …) مع تخصيصها الحالي للأنوية في سطر واحد،
+ * ونافذة لاختيار الأنوية المسموح لها بالجدولة.
+ *
+ * وهذا هو التكامل الصحيح مع «إيقاف الأنوية» أعلاه: ذاك يقرّر أيّ الأنوية موجودة، وهذا يقرّر
+ * أيّها يُسمح لكل مجموعة بجدولته — فعرضهما معًا مقصود لأنّ السؤال واحد.
  */
 @Composable
 private fun CpusetGroupRow(

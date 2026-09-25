@@ -1,4 +1,7 @@
 #!/bin/env bash
+# Copyright (C) 2026 Nader Magdy. All rights reserved.
+# Proprietary and confidential — not licensed for use, copying, or distribution
+# without prior written permission from the copyright holder.
 # shellcheck disable=SC2035
 
 if [ -z "$GITHUB_WORKSPACE" ]; then
@@ -76,7 +79,7 @@ copy_binary binutils/target/armv7-linux-androideabi/$RUST_PROFILE/maxmanager-uti
 # Other Files
 cp maxmanagerApplist.json mainfiles/
 cp LICENSE mainfiles/ 2>/dev/null
-cp NOTICE.md mainfiles/ 2>/dev/null
+cp THIRD_PARTY_NOTICES.md mainfiles/ 2>/dev/null
 
 # Copy Manager APK as a systemless priv-app. The module system tree is
 # overlaid on /product by Magisk (OverlayFS/magic mount) so the APK is

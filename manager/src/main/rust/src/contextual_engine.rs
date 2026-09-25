@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 
 /// تصنيف وضع الاستخدام الحالي بناءً على بيانات السياق.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

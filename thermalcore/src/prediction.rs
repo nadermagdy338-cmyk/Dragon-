@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 use std::collections::VecDeque;
 use super::constants::PREDICTION_MIN_SAMPLES;
 use super::learning::ThermalEvent; // Use the rich ThermalEvent for history

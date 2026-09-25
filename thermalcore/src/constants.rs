@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 pub const PROP_BIGDATA_PATH: &str = "persist.sys.rianixia.thermalcore-bigdata.path";
 pub const DEFAULT_DATA_PATH: &str = "/data/vendor/rianixia_thermal_data";
 pub const LEARNING_DATA_FILENAME: &str = "learning.dat";

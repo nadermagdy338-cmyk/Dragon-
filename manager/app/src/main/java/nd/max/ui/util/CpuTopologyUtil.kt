@@ -229,7 +229,8 @@ object CpuTopologyUtil {
     )
 
     // ─────────────────────────────────────────────────────────────────────
-    // Cpuset group affinity (adapted from ZKM's CpuGpuUtils cpuset logic).
+    // تخصيص مجموعات cpuset للأنوية: أيّ مجموعة (تطبيق أمامي · خلفي · نظام …) يُسمح
+    // لها بالجدولة على أيّ الأنوية.
     // Complements per-core hotplug above: hotplug decides which cores exist
     // at all, cpuset decides which of the *online* cores each scheduling
     // group (foreground app, background app, system, ...) is allowed to run

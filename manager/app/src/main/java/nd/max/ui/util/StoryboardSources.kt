@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * مصادر لوحة «ما يحدث الآن» — الطبقة الوحيدة التي تعرف **من أين** يُقرأ كل سطر.
  *
  * لماذا وُجد هذا الملف

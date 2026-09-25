@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * MaxManager Design Language — page shell.
  *
  * Every sub-screen previously built its own Scaffold, its own paddings, its own

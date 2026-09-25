@@ -26,10 +26,10 @@ import java.util.regex.Pattern
 enum class FpsReadMode { SURFACEFLINGER, KERNEL_NODE, DUMPSYS_TIMESTATS }
 
 /**
- * Reads live FPS + system load metrics for the in-game floating overlay
- * ([nd.max.service.FpsOverlayService]). All shell reads go through libsu's
- * [Shell.cmd], same as the rest of MaxManager's manager app, instead of ZKM's
- * separate `ShellExecutor` wrapper.
+ * قراءة الإطارات الحيّة ومقاييس الحِمل للوحة التراكب ([nd.max.service.FpsOverlayService]).
+ *
+ * وكل قراءة صدفة تمرّ بـlibsu [Shell] — طريق الجذر الواحد في التطبيق — أو بـ
+ * [nd.max.core.hardware.RootFileAccess] حين تكون العقدة مقروءة من العملية أصلًا.
  */
 object FpsMonitorUtil {
 

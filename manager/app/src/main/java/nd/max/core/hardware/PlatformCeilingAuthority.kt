@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
+/*
  * Vendor ceiling authority — the layer that actually holds CPU/GPU ceilings.
  *
  * Device-proven on MediaTek (rodin / MT6899 / HyperOS 3): writing

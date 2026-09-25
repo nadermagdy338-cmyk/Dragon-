@@ -64,7 +64,7 @@ We welcome contributions to make **Max Manager** even better!
 - **Tweak Sources / 优化来源:** @Rem01Gaming, @MiAzami, @KanagawaYamadaVTeacher, @ShiraXblood, @Laynsb, @Koneko_dev
 - **Game Preload / 游戏预加载:** @HoyoSlave, @KutuMoba, @Feravolt, @iamlooper
 
-See [NOTICE.md](NOTICE.md) for the full list of third-party components and their licenses.
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full list of third-party components and their licenses.
 
 ---
 
@@ -84,9 +84,17 @@ Get the latest news, updates, and support by joining our Telegram group:
 ---
 
 ## ⚖️ License / 许可证
-This project is licensed under the **Apache License 2.0**.
-本项目采用 **Apache License 2.0** 许可证。
 
-> Licensed under the Apache License, Version 2.0 (the "License");
-> you may not use this file except in compliance with the License.
-> You may obtain a copy of the License at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+MaxManager is **proprietary software**: Copyright (C) 2026 **Nader Magdy**. All rights reserved.
+See [LICENSE](LICENSE) for the full terms — no right is granted to use, copy, modify, or
+distribute it without the Copyright Holder's prior written permission.
+
+MaxManager 是**专有软件**：版权归 **Nader Magdy** 所有，保留所有权利，详见 [LICENSE](LICENSE)。
+
+Third-party components included in this repository or built against it keep **their own licenses**
+(Apache-2.0 for `archdaemon/` and `thermalcore/`, and others), with their notices and copyright
+lines listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). That file governs those
+components alone; everything else is governed by [LICENSE](LICENSE).
+
+仓库内或构建所依赖的第三方组件仍适用**其各自的许可证**（`archdaemon/` 与 `thermalcore/` 为
+Apache-2.0，其余见清单），其声明与版权行列于 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

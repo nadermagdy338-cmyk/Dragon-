@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
+ */
 //! قراءة عُقد sysfs/proc في **دفعة واحدة داخل العملية** — بديلُ رحلةٍ لكل عقدة.
 //!
 //! **ما يُقاس لا ما يُدَّعى:** كل عقدة اليوم تُقرأ إما بـ`readNode` عبر binder (معاملة كاملة)

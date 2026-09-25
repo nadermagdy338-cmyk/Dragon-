@@ -1,3 +1,6 @@
+# Copyright (C) 2026 Nader Magdy. All rights reserved.
+# Proprietary and confidential — not licensed for use, copying, or distribution
+# without prior written permission from the copyright holder.
 # service definition for maxmanager daemon
 service maxmanager_daemon /system/bin/maxmanager_daemon
     class main
