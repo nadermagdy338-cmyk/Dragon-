@@ -212,6 +212,7 @@ def check_correctness(files: list[str], mods: dict) -> dict:
     result: dict[str, list[str]] = {
         "package_mismatch": [], "unresolved_resource": [], "duplicate_string_key": [],
         "unescaped_apostrophe": [], "stray_root_file": [],
+        "stray_root_file_unverified": [],
         "noncomposable_content_lambda": [],
     }
 
@@ -252,7 +253,23 @@ def check_correctness(files: list[str], mods: dict) -> dict:
 
     # ملف الجذر يُعدّ حطامًا فقط إن لم يكن متعقّبًا **ولم يكن متجاهلًا**: علامة أداة
     # محلية مذكورة في .gitignore ليست ضجيجًا، فلا تُبلَّغ.
+    #
+    # ⚠️ وقبل ذلك: بلا مستودع git **لا سبيل** إلى هذا التمييز، وسؤال git يفشل بـ128 فيُقرأ
+    # خطأً «غير متعقّب وغير متجاهل» ⇒ **عطبٌ وهميّ**. وهذا وقع فعلًا: `.maxmanager-sync-root`
+    # مذكور في `.gitignore:40` وأُبلغ عطبًا في بيئة بلا git (تكملة ١١٤). فالحكم الصادق حينها
+    # «غير مُتحقَّق» لا «عطب»: لا يُدّعى عطب بلا دليل، ولا يُقال «نظيف» بلا قياس. وفي CI
+    # (حيث git موجود) يبقى الفحص كاملًا كما كان.
+    git_usable = subprocess.run(
+        ["git", "rev-parse", "--is-inside-work-tree"],
+        cwd=_REPO, capture_output=True,
+    ).returncode == 0
     for name in sorted(os.listdir(_REPO)):
+        if not git_usable:
+            if not name.startswith(".git") and name != "build":
+                full_name = os.path.join(_REPO, name)
+                if os.path.isfile(full_name) and name not in ROOT_ALLOWED:
+                    result["stray_root_file_unverified"].append(name)
+            continue
         if name.startswith(".git") or name == "build":
             continue
         full = os.path.join(_REPO, name)
@@ -415,13 +432,16 @@ def show_report(correctness: dict, debt: dict, files: list[str]) -> None:
     print("═" * 72)
     clean = True
     for key, issues in correctness.items():
-        mark = "✓" if not issues else "✗"
+        # «غير مُتحقَّق» ليس عطبًا: يُعرض بعلامة مستقلة ولا يُسقط الصحّة (والأداة تفشل عند
+        # العطب وحده — وإلا صارت تُبلّغ عن بيئتها لا عن الكود).
+        informational = key.endswith("_unverified")
+        mark = "•" if informational else ("✓" if not issues else "✗")
         print(f"  {mark} {key}: {len(issues)}")
         for line in issues[:8]:
             print(f"      - {line}")
         if len(issues) > 8:
             print(f"      … و{len(issues) - 8} غيرها")
-        clean = clean and not issues
+        clean = clean and (informational or not issues)
 
     print()
     print("═" * 72)
@@ -507,7 +527,7 @@ def main() -> int:
 
     failures: list[str] = []
     for key, issues in correctness.items():
-        if issues:
+        if issues and not key.endswith("_unverified"):
             failures.append(f"{key}: {len(issues)}")
 
     if os.path.exists(BASELINE_PATH):

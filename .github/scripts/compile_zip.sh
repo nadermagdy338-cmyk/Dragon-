@@ -45,9 +45,10 @@ if [ "$version_type" == "experimental" ]; then
 fi
 echo "Using Rust build profile: $RUST_PROFILE"
 
-# arm64-v8a وحده (قرار المالك، تكملة ٨٢): الأجهزة 32-بت لم تبقَ مدعومة، والمنصّب يرفضها
-# برسالة صريحة (mainfiles/customize.sh)
+# العمودان (قرار المالك، تكملة ١١٠): 64-بت و32-بت معًا، والمنصّب يختار بحسب `ARCH`
+# (mainfiles/customize.sh) — وكل عمود يحمل الثنائيات الخمسة نفسها بأسمائها.
 mkdir -p mainfiles/libs/arm64-v8a
+mkdir -p mainfiles/libs/armeabi-v7a
 mkdir -p mainfiles/system/bin
 
 [ -d "libs" ] && cp -r libs/* mainfiles/libs/ 2>/dev/null
@@ -65,6 +66,12 @@ copy_binary() {
 copy_binary thermalcore/target/aarch64-linux-android/$RUST_PROFILE/rianixia-thermalcore mainfiles/libs/arm64-v8a/sys.maxmanager-rianixiathermalcore
 copy_binary binprofiles/target/aarch64-linux-android/$RUST_PROFILE/maxmanager-profilesettings mainfiles/libs/arm64-v8a/sys.maxmanager-profilesettings
 copy_binary binutils/target/aarch64-linux-android/$RUST_PROFILE/maxmanager-utilityconf mainfiles/libs/arm64-v8a/sys.maxmanager-utilityconf
+
+# وعمود 32-بت بالمعيار نفسه: `copy_binary` يرفض المفقود بالاسم والمسار (لا `|| true`
+# الذي كان يمرّر الموديول ناقصًا في المشروع القديم).
+copy_binary thermalcore/target/armv7-linux-androideabi/$RUST_PROFILE/rianixia-thermalcore mainfiles/libs/armeabi-v7a/sys.maxmanager-rianixiathermalcore
+copy_binary binprofiles/target/armv7-linux-androideabi/$RUST_PROFILE/maxmanager-profilesettings mainfiles/libs/armeabi-v7a/sys.maxmanager-profilesettings
+copy_binary binutils/target/armv7-linux-androideabi/$RUST_PROFILE/maxmanager-utilityconf mainfiles/libs/armeabi-v7a/sys.maxmanager-utilityconf
 
 # Other Files
 cp maxmanagerApplist.json mainfiles/

@@ -18,6 +18,8 @@ import android.view.WindowManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.RootFileAccess
+import nd.max.core.jni.ProbeBridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -284,8 +286,10 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
             while (true) {
                 val ram = FpsMonitorUtil.getRamInfo(context)
                 val cpuLoad = FpsMonitorUtil.getCpuLoad()
-                val cpuFreq = Shell.cmd("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq 2>/dev/null")
-                    .exec().out.firstOrNull()?.trim()?.toLongOrNull()?.div(1000)?.toInt() ?: 0
+                // طبقة القراءة الأسرع (قارئ أصلي ← IPC ← ملف ← صدفة): هذه الدورة كل ثانيتين،
+                // وصدفة `cat` لكل نبضة كانت رحلة كاملة.
+                val cpuFreq = RootFileAccess.read("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq")
+                    ?.toLongOrNull()?.div(1000)?.toInt() ?: 0
                 val battery = readBattery()
                 val thermal = readThermal()
                 val storage = readStorage()
@@ -465,9 +469,14 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
     private fun signed(value: Double): String = if (value >= 0) "+${value.toInt()}" else value.toInt().toString()
 
     /**
-     * Live per-core frequencies. Every core's `scaling_cur_freq` and `online`
-     * node is fetched in a single batched shell invocation — one root
-     * round-trip per tick regardless of core count, instead of 2N.
+     * Live per-core frequencies — read in **one in-process native batch** (`ProbeBridge`),
+     * with the historical single batched shell call kept as the declared fallback.
+     *
+     * والمقيس لماذا: الصدفة كانت تفرّخ `cat` **لكل عقدة** (١٦ عملية فرعية لدورة من ٨
+     * أنوية): **٣٠٧٠٢ ميكرو** على المضيف مقابل **٨٢ ميكرو** للقراءة الأصلية ⇒ **×٣٧٤**،
+     * والدورة كل ثانيتين. وهذا هو نفس العطب الذي جاءت الموجة الأولى لتمحوه: الحمل ليس
+     * «موضع القراءة» بل **إفراخ عملية لكل عقدة**. والقراءة الأصلية لا تشتري قدرةً: العقدة
+     * التي لا يقرأها uid التطبيق تعود `null` فيسألها الاحتياطي نفسه.
      *
      * A core whose frequency node is unreadable while offline reports
      * `online = false`; that is a real hotplug state, not missing data.
@@ -477,18 +486,8 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
             val topology = coreTopology ?: buildCoreTopology().also { coreTopology = it }
             if (topology.isEmpty()) return emptyList()
 
-            // One shell call emits "<cpu> <khz|-> <online|->" per core.
-            val script = topology.joinToString("; ") { core ->
-                val base = "/sys/devices/system/cpu/cpu${core.cpu}"
-                "echo \"${core.cpu} \$(cat $base/cpufreq/scaling_cur_freq 2>/dev/null || echo -) " +
-                    "\$(cat $base/online 2>/dev/null || echo -)\""
-            }
-            val readings = Shell.cmd(script).exec().out
-                .mapNotNull { line ->
-                    val parts = line.trim().split(Regex("\\s+"))
-                    val cpu = parts.getOrNull(0)?.toIntOrNull() ?: return@mapNotNull null
-                    cpu to parts
-                }.toMap()
+            // «<cpu> <khz|-> <online|->» لكل عنقود — من الأصل أو من الصدفة، بنفس الشكل.
+            val readings = readCoreNodes(topology) ?: shellCoreNodes(topology)
 
             topology.map { core ->
                 val parts = readings[core.cpu]
@@ -508,6 +507,47 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         } catch (_: Exception) {
             coreTopology.orEmpty()
         }
+    }
+
+    /**
+     * مسارا كل عنقود: التردد اللحظي ثم حالة التوصيل — نفس ترتيب الاحتياطي حرفيًّا.
+     */
+    private fun coreNodePaths(topology: List<CpuCoreState>): List<String> =
+        topology.flatMap { core ->
+            val base = "/sys/devices/system/cpu/cpu${core.cpu}"
+            listOf("$base/cpufreq/scaling_cur_freq", "$base/online")
+        }
+
+    /**
+     * القراءة الأصلية: **نداء واحد** يقرأ كل عقد الأطراف داخل العملية.
+     *
+     * `null` تعني «اسأل غيري»: المكتبة غائبة، أو الحزمة عادت بعدد مخالف (يستحيل تفسيره
+     * بمحاذاة مخمَّنة) — فيسأل المتصل الصدفةَ كما كانت.
+     */
+    private fun readCoreNodes(topology: List<CpuCoreState>): Map<Int, List<String>>? {
+        val values = ProbeBridge.readMany(coreNodePaths(topology)) ?: return null
+        if (values.size != topology.size * 2) return null
+        return topology.mapIndexed { index, core ->
+            // `-` هي دلالة `|| echo -` نفسها: عقدة غائبة أو لا تُقرأ.
+            val freq = values[index * 2]?.trim()?.takeIf { it.isNotEmpty() } ?: "-"
+            val online = values[index * 2 + 1]?.trim()?.takeIf { it.isNotEmpty() } ?: "-"
+            core.cpu to listOf(core.cpu.toString(), freq, online)
+        }.toMap()
+    }
+
+    /** الاحتياطي المصرَّح: صدفة واحدة تفرّخ `cat` لكل عقدة (سلوك ما قبل الجولة). */
+    private fun shellCoreNodes(topology: List<CpuCoreState>): Map<Int, List<String>> {
+        val script = topology.joinToString("; ") { core ->
+            val base = "/sys/devices/system/cpu/cpu${core.cpu}"
+            "echo \"${core.cpu} \$(cat $base/cpufreq/scaling_cur_freq 2>/dev/null || echo -) " +
+                "\$(cat $base/online 2>/dev/null || echo -)\""
+        }
+        return Shell.cmd(script).exec().out
+            .mapNotNull { line ->
+                val parts = line.trim().split(Regex("\\s+"))
+                val cpu = parts.getOrNull(0)?.toIntOrNull() ?: return@mapNotNull null
+                cpu to parts
+            }.toMap()
     }
 
     /** Resolves the immutable part of the core matrix: ceilings, cluster tags, ARM names. */
@@ -656,17 +696,16 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         return try {
             val node = MtkUtils.getGpuDevfreqNode()
             val declaredKhz = node?.let { path ->
-                Shell.cmd("cat $path/max_freq 2>/dev/null").exec().out
-                    .firstOrNull()?.trim()?.toLongOrNull()?.takeIf { it > 0L }
+                RootFileAccess.read("$path/max_freq")?.toLongOrNull()?.takeIf { it > 0L }
             }
             declaredKhz?.div(1_000L)?.toInt()?.takeIf { it > 0 }?.let { return it }
 
             val ladderKhz = node?.let { path ->
-                Shell.cmd("cat $path/available_frequencies 2>/dev/null").exec().out
-                    .flatMap { line -> line.trim().split(Regex("\\s+")) }
-                    .mapNotNull { it.toLongOrNull() }
-                    .filter { it > 0L }
-                    .maxOrNull()
+                RootFileAccess.read("$path/available_frequencies")
+                    ?.split(Regex("\\s+"))
+                    ?.mapNotNull { it.toLongOrNull() }
+                    ?.filter { it > 0L }
+                    ?.maxOrNull()
             }
             ladderKhz?.div(1_000L)?.toInt()?.takeIf { it > 0 }?.let { return it }
 
@@ -685,7 +724,13 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
     /** ZRAM/swap usage in MB, or null when no swap device is configured. */
     private fun readSwap(): Pair<Int, Int>? {
         return try {
-            val info = Shell.cmd("grep -E '^Swap(Total|Free):' /proc/meminfo 2>/dev/null").exec().out
+            // `/proc/meminfo` تُقرأ داخل العملية في نداء واحد، والاحتياطي هو صدفة `grep`
+            // نفسها (والتصفية أدناه تعمل على الشكلين: ملف كامل أو سطرين).
+            val info = ProbeBridge.readMany(listOf("/proc/meminfo"))
+                ?.firstOrNull()
+                ?.lines()
+                ?.takeIf { it.isNotEmpty() }
+                ?: Shell.cmd("grep -E '^Swap(Total|Free):' /proc/meminfo 2>/dev/null").exec().out
             val total = info.firstOrNull { it.startsWith("SwapTotal") }
                 ?.let { Regex("\\d+").find(it)?.value?.toLongOrNull() } ?: return null
             if (total <= 0L) return null

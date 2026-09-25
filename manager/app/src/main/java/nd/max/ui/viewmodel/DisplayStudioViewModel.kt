@@ -17,6 +17,7 @@
 package nd.max.ui.viewmodel
 
 import nd.max.MaxManagerProps
+import nd.max.core.hardware.RootFileAccess
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,10 +95,12 @@ class DisplayStudioViewModel : ViewModel() {
 
     fun loadState() {
         viewModelScope.launch(Dispatchers.IO) {
-            sunlightNode = SUNLIGHT_CANDIDATES.firstOrNull { nodeExists(it.path) }
-            silkyNode = SILKY_CANDIDATES.firstOrNull { nodeExists(it.path) }
-            videoEnhanceNode = VIDEO_ENH_CANDIDATES.firstOrNull { nodeExists(it.path) }
-            hdrNode = HDR_CANDIDATES.firstOrNull { nodeExists(it.path) }
+            // أربع قوائم مرشّحين: كانت ثمانية نداءات وجود متتابعة (`test -e` عبر صدفة لكل
+            // مرشّح)، وصارت نداءً واحدًا لكل قائمة عبر الدفعة الأصلية.
+            sunlightNode = RootFileAccess.firstExisting(SUNLIGHT_CANDIDATES) { it.path }
+            silkyNode = RootFileAccess.firstExisting(SILKY_CANDIDATES) { it.path }
+            videoEnhanceNode = RootFileAccess.firstExisting(VIDEO_ENH_CANDIDATES) { it.path }
+            hdrNode = RootFileAccess.firstExisting(HDR_CANDIDATES) { it.path }
 
             if (sunlightNode == null && silkyNode == null && videoEnhanceNode == null && hdrNode == null) {
                 vendorHalDetected = XiaomiVendorHalUtil.hasDisplayFeatureHal()
@@ -127,8 +130,6 @@ class DisplayStudioViewModel : ViewModel() {
         Shell.cmd("settings get $namespace $key").exec().out.joinToString("").trim()
             .takeIf { it.isNotEmpty() && it != "null" }
 
-    private fun nodeExists(path: String): Boolean =
-        Shell.cmd("test -e $path && echo 1 || echo 0").exec().out.joinToString("").trim() == "1"
 
     private fun apply(node: FeatureNode?, enabled: Boolean) {
         node?.let {

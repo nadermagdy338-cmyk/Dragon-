@@ -79,6 +79,7 @@ import nd.max.ui.component.PrivilegePanel
 import nd.max.ui.component.ExpressiveSwitchItem
 import nd.max.ui.component.ScreenAccentGlyph
 import nd.max.ui.component.ScreenAccentProvider
+import nd.max.ui.util.PropertyUtils
 import nd.max.ui.util.RootUtils
 
 /**
@@ -237,7 +238,8 @@ fun GetStartedScreen(navController: NavController) {
     var stateToast by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        val toastOut = Shell.cmd("getprop ${MaxManagerProps.Conf.SHOW_TOAST}").exec().out.firstOrNull()?.trim()
+        // قراءة داخل العملية: لا صدفة على مسار أول تشغيل (شاشة البداية).
+        val toastOut = PropertyUtils.get(MaxManagerProps.Conf.SHOW_TOAST)
         if (toastOut == "0") stateToast = false
     }
 

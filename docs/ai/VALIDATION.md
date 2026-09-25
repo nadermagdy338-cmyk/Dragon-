@@ -407,3 +407,118 @@ BUILD: not verified — gradle 4.4.1 vs required 9.5.1, offline
 RESIDUAL RISK: <what a compiler/device would still need to confirm>
 NEXT: <suggested follow-up>
 ```
+
+## 9. Native symbol contract gate (JNI) — ADR-48
+
+```sh
+# (١) طبقة المصدر: Kotlin/Java ↔ Rust. بلا مُصرّف وبلا جهاز، وفي ثوانٍ (٢.٦s على الشجرة كاملة).
+python3 tools/jni_symbols.py --assert
+# وقياس الأداة نفسها: ٢٧ حالة، منها ثنائية C يصرّفها cc ثم تُقرأ بـnm فعلًا.
+python3 tools/jni_symbols.py --self-test
+# (٢) طبقة الثنائيات: بثنائيات مُحدّدة (أو من jniLibs تلقائيًّا).
+python3 tools/jni_symbols.py --assert --so manager/app/src/main/jniLibs/arm64-v8a/libmaxmanager_native.so
+# (٣) وضع CI بعد بناء ثنائيي المكتبتين — وهنا **يُطبّق**:
+python3 tools/jni_symbols.py --assert --require-binaries
+```
+
+Expected on a clean tree, and what each line means:
+
+| مخرَج/إجراء | المعنى والمتوقّع |
+| --- | --- |
+| `تصريحات 19` | ١٥ في `Predictor/Context/ProbeBridge` + ٤ في `terminal-emulator/…/JNI.java` |
+| `نواقص 0` | كل `external fun` له رمز مُصدَّر: لا `UnsatisfiedLinkError` |
+| `يتامى 1` | `Java_com_termux_terminal_JNI_setPtyUTF8Mode` — كود ميت مُعلن، **لا يُسقط** البوابة (ADR-18) |
+| `exit 0` بلا ثنائيات | صحيح ومقصود: الطبقة ٢ **غير مُتحقَّقة** ويُقال ذلك — لا «يمرّ» |
+| `exit 1` مع `--require-binaries` بلا ثنائيات | صحيح: وضع CI يرفض الشهادة بلا ثنائيات |
+| مكتبة في عمود واحد من عمودين | **عطب** = صنف عطب `libtermux` ٦٤-بت؛ والقاعدة لا تنشط في بيئة بعمود واحد |
+
+**الحدود المعلنة:** `nm` يعطي **الأسماء لا التوقيعات** — فعدد المعاملات وأنواعها وحال `static` مقابل الدالة
+على المثيل **لا تُفحص هنا** (تحتاج مُصرّفًا). ويُفحص **الوجود** و**التطابق بين الأبنية**، وهما ما يسقط في
+`UnsatisfiedLinkError`. وثنائيات Android تُبنى في CI فقط، فلا ادّعاء لطبقة ثنائيات محليًّا.
+
+## 10. قياس النقل إلى Rust (قبل/بعد) — ADR-45 · ADR-49
+
+القاعدة: **لا يُنقل مسار قبل رقم**. والمسطرة تُبنى مؤقتًا خارج المستودع (كما في الموجتين ١ و٣)، وتُسجَّل
+النتيجة هنا بالأمر الذي أعادها.
+
+**(أ) ضغط/فكّ zip — الطريقة التي أعادت ADR-49** (شجرتان حقيقيتان من المستودع، بلا ملفّات مصنوعة):
+
+```sh
+# مرآة حرفية لمنطق FileArchiveEngine: java.util.zip نفسها + ZipOutputStream + دفعة 64KB
+# ومستوى ٦ (افتراضي Deflater) + نفس بناء المداخل وترتيبها.
+javac -d classes ZipBench.java
+java -cp classes ZipBench create manager/app/src/main/java work/java.zip 3
+
+# والجانب الآخر بـzip+flate2 بمُحرّكيه — والمِحرّكان يُختبران بتفعيليّة مختلفة لكل بناء:
+#   rust-miniz: zip { default-features=false, features=["deflate-flate2"] } + flate2/rust_backend
+#   rust-zrs  : zip { default-features=false, features=["deflate-flate2-zlib-rs"] }
+cargo build --release --manifest-path rust-miniz/Cargo.toml && ./rust-miniz/target/release/zipbench_miniz create manager/app/src/main/java work/miniz.zip 3
+cargo build --release --manifest-path rust-zrs/Cargo.toml   && ./rust-zrs/target/release/zipbench_zrs   create manager/app/src/main/java work/zrs.zip 3
+
+# والتبادل: يُفكّ أرشيف أحدهما بالآخر ويُقارن بالشجرة الأصلية بايتًا ببايت
+java -cp classes ZipBench extract work/zrs.zip work/from-rust 1 && diff -r manager/app/src/main/java work/from-rust/java
+./rust-zrs/target/release/zipbench_zrs extract work/java.zip work/from-java 1 && diff -r manager/app/src/main/java work/from-java/java
+```
+
+| العملية | الشجرة | JDK | miniz_oxide | zlib-rs |
+| --- | --- | --- | --- | --- |
+| ضغط | ٥.٣م · ٤٢١ ملفًا | 211ms | 217ms (×0.97) | **107ms (×1.97)** |
+| ضغط | ٣٧.١م · ١١٥١ ملفًا | 1321ms | 1387ms (×0.95) | **706ms (×1.87)** |
+| فكّ | ٤٢١ مدخلًا | 96ms | 44ms | **34ms** |
+| فكّ | ١١٥١ مدخلًا | 261ms | 183ms | **173ms** |
+
+**وثمن الحجم (يقاس بمسبار يستدعي الكود فعلًا، وإلا أسقط المُنقّي المكتبة):** `nm`ـلا؛ بل بناء
+crate التطبيق مع تبعية الأرشيف واستدعاؤها من تصدير `#[no_mangle]`:
+
+| البناء | حجم `.so` (x86-64 release) | الفرق |
+| --- | --- | --- |
+| الأساس (بلا أرشيف) | 729,904 بايت | — |
+| + zip/miniz_oxide | 1,009,136 | **+279KB** |
+| + zip/zlib-rs (المُعتمد) | 1,097,280 | **+367KB (+50%)** |
+
+**(ب) الموجات المنفّذة وقياستها:** الموجة ١ (قارئ دفعات: `cat` عبر صدفة **٤٦ ← ٢** وإجمالي `Shell.cmd(`
+**٢١٥ ← ١٦٤**) · الموجة ٣ (تحليل ٢٠٠ ألف سطر: **Kotlin/JVM 276ms ← Rust release 180ms = ×1.5**،
+و‎1.6‎ مليون كائن وسيط أُزيلت) · الموجة ٣.ج (مسح ٢٣,٢٢٤ ملفًا: **JDK 447ms ← Rust 209ms = ×2.1**،
+و١٨,٩٦٥ ملفًا: **×2.8**، بنتيجة مطابقة بالحرف) · الموجة ٤ (خصيصة: **٢٣٦٦ ← ١٢٫٦ ميكرو = ×١٨٧**،
+ودورة اللوحة: **٣٠٧٠٢ ← ٨٢ ميكرو = ×٣٧٤**). وكل أرقام هذه الأقسام على مضيف x86-64؛ وزمن ART على هاتف
+**يحتاج جهازًا**، ولا يُدَّعى.
+
+## 11. قياس الموجة ٤ وإغلاق الموجة ٢ — الأوامر التي أعادت الأرقام + وصفة تكذيب على جهاز
+
+**(أ) مسطرة الخصائص ودورة اللوحة** (تُبنى خارج المستودع بأمرين — بلا مُصرّف أندرويد، وبلا أجسام مصنوعة):
+
+```sh
+# ١) دورة اللوحة: صدفة واحدة تفرّخ `cat` لكل عقدة (نمط readCores قبل الموجة ٤)
+#    مقابل قراءة دفعة داخل العملية — نفس العقد ونفس الشكل "<cpu> <khz|-> <online|->".
+#    الناتج: shell_script_16_cats_us=30702 | native_batch_16_nodes_us=82 | ratio=374.3x
+# ٢) وخصيصة واحدة: shell_single_read_us=2366 | native_single_read_us=12.64
+# ٣) وبندل اللقطة (لإغلاق الموجة ٢):
+#    inprocess_batch_n12_us=234.2 | snapshot_file_read_us=9.0 | process_spawn_us=1345
+#    atomic_publish_fsync_us=524 | atomic_publish_nofsync_us=136
+```
+
+**(ب) تكذيب إغلاق الموجة ٢ على جهاز (٣ دقائق · يقرأ المالك النتيجة بنفسه):** يُقارن زمن دورة اللوحة
+قبل/بعد تشغيل مُنتِج خارجي. **الشرط الذي يُبطل الإغلاق:** أن يظهر أن قراءة عقدة واحدة على الجهاز
+تكلّف **> ٥ مللي** (أي أن الحمل الحقيقي في القراءة لا في الإفراخ) — وعندها يكون الصواب **تقليل تكرار
+القراءة** (بتكوينٍ أو عيّنة مشتركة عند **مستهلك متعدّد حقيقي**)، لا خدمة دائمة. وأما إن كان زمن العقدة
+ميكرويًّا (وهو المتوقّع حسب قياس المضيف) فأدنى جهاز لن يُرِي فرقًا في نقل موضع القراءة، وقد أُغلق البند.
+
+**(ج) بوابة المفاتيح اليتيمة — قيست بالتكذيب قبل أن تُوصَل بـCI:**
+
+```sh
+# أُدرج مفتاح غير مستعمل في values-de/strings.xml نصًّا، ثم:
+python3 tools/i18n_coverage.py --prune all --assert   # EXIT=1 + «١ مفتاحًا لم يعد مستعملًا»
+# وبإزالته: EXIT=0 — والملف أُعيد حرفيًّا (البوابة لا تكتب: تفرض القراءة وحدها).
+```
+
+**(د) بوابات هذه الجولة كلها** (وهي المنفّذة في CI كذلك):
+
+```sh
+python3 tools/kt_balance.py --assert                      # ١٧٩٨ ملفًا · عوائق 0
+python3 tools/code_health.py --assert                     # صحّة = 0 ودَين ≤ السقف
+python3 tools/i18n_coverage.py --assert                   # نصوص ووسائط
+python3 tools/i18n_coverage.py --prune all --assert       # مفاتيح يتيمة = 0 (بوابة قراءة فقط)
+python3 tools/jni_symbols.py --assert                     # عقود JNI (٢٥ تصريحًا · نواقص 0)
+python3 tools/repo_audit.py                               # PROBLEMS: 0
+python3 tools/source_manifest.py --write && python3 tools/source_manifest.py   # بصمة مطابقة
+```

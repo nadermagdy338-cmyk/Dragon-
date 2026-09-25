@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 
 /// تصنيف وضع الاستخدام الحالي بناءً على بيانات السياق.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -16,6 +15,12 @@ pub enum UsageMode {
 pub struct ContextInput {
     pub foreground_package: String,
     pub is_screen_on: bool,
+    /// ⚠️ **مُدخل ميت مُعلن** (`I-75`): تُمرّره Kotlin في العقد ثم يُسقَط — معامل JNI هنا
+    /// `_ambient_light`، وبانية `ContextInput` في `lib.rs` تضع `0f32` ثابتًا، ولا Rust ولا
+    /// البديل القاعدي في `ContextBridge` يقرأه في أي حكم. فالحقل يُبقى في العقد ولا يُحذف
+    /// من طرف واحد (حذفه تغييرُ توقيع JNI وواجهة Kotlin — قرار المالك)، ويُعلام صراحةً
+    /// بدل إخفائه: `#[allow(dead_code)]` هنا **إقرارٌ لا تجميل**.
+    #[allow(dead_code)]
     pub ambient_light: f32,
     pub audio_volume: i32,
     pub is_charging: bool,

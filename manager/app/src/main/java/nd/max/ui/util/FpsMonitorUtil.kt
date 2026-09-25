@@ -25,6 +25,7 @@ import android.content.IntentFilter
 import android.graphics.drawable.Drawable
 import android.os.BatteryManager
 import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.RootFileAccess
 import kotlin.math.abs
 import java.util.regex.Pattern
 
@@ -119,9 +120,8 @@ object FpsMonitorUtil {
     )
 
     private fun findKernelFpsNode() {
-        kernelFpsPath = KERNEL_FPS_CANDIDATES.firstOrNull {
-            shellOut("[ -f $it ] && echo 1 || echo 0") == "1"
-        } ?: ""
+        // `[ -f … ]` في صدفة لكل مرشَّح ⇒ فحص وجود مباشر (وبدونه صدفتان لكل قراءة FPS).
+        kernelFpsPath = KERNEL_FPS_CANDIDATES.firstOrNull { RootFileAccess.exists(it) } ?: ""
     }
 
     private fun readKernelFps(): Float {
@@ -129,8 +129,13 @@ object FpsMonitorUtil {
             findKernelFpsNode()
             if (kernelFpsPath.isNullOrEmpty()) return 0f
         }
-        return shellOut("cat $kernelFpsPath | awk '{print ${'$'}2}'").toFloatOrNull() ?: 0f
+        val line = runCatching { RootFileAccess.read(kernelFpsPath!!) }.getOrNull() ?: return 0f
+        return secondField(line)?.toFloatOrNull() ?: 0f
     }
+
+    /** الحقل الثاني من سطر — بديل `awk '{print $2}'` بلا صدفة، ومُختبَر مباشرة. */
+    internal fun secondField(line: String): String? =
+        line.trim().split("\\s+".toRegex()).getOrNull(1)
 
     private fun readDumpsysFps(): Float {
         return try {
@@ -171,9 +176,13 @@ object FpsMonitorUtil {
     fun getCurrentRenderer(pkg: String): String {
         if (pkg.isEmpty()) return "FPS"
         return try {
+            // `pidof` تحتاج صدفة (لا مقابل ملفي لها)، وأمّا خريطتَي الذاكرة فكانتا صدفتين
+            // إضافيتين — صارتا قراءة واحدة: الملف يُقرأ، والبحث `contains` في الذاكرة.
             val pid = shellOut("pidof $pkg").split(" ").firstOrNull() ?: return "FPS"
-            if (shellOut("grep -c 'libvulkan.so' /proc/$pid/maps").toIntOrNull() ?: 0 > 0) return "VULKAN"
-            if (shellOut("grep -c 'libGLES' /proc/$pid/maps").toIntOrNull() ?: 0 > 0) return "OPENGL"
+            val maps = runCatching { RootFileAccess.read("/proc/$pid/maps") }.getOrNull()
+                ?: return "FPS"
+            if (maps.contains("libvulkan.so")) return "VULKAN"
+            if (maps.contains("libGLES")) return "OPENGL"
             "FPS"
         } catch (e: Exception) { "FPS" }
     }
@@ -191,38 +200,66 @@ object FpsMonitorUtil {
      * (user+nice+system+idle فقط) كانت تحسب iowait/irq/softirq/steal
      * كأنها عمل فتبالغ في الحمل ممنهجًا على الأنظمة كثيفة IO.
      */
+    /** عيّنة من السطر الأول لـ`/proc/stat`: المجموع والخمول — الحقول كلها. */
+    internal data class CpuSample(val total: Long, val idle: Long)
+
+    /**
+     * تحليل سطر `cpu …` — نقيّ ومُختبَر (`FpsMonitorParseTest`)، و`null` للسطر المشوّه:
+     *فشلُ قراءة لا يُعرض صفرًا يُوهم بأن المعالج ساكن.
+     */
+    internal fun parseStatSample(line: String): CpuSample? {
+        val p = line.trim().split("\\s+".toRegex())
+        if (p.size < 5) return null
+        val user = p[1].toLongOrNull() ?: return null
+        val nice = p[2].toLongOrNull() ?: return null
+        val system = p[3].toLongOrNull() ?: return null
+        val idle = p[4].toLongOrNull() ?: return null
+        val iowait = p.getOrNull(5)?.toLongOrNull() ?: 0L
+        val irq = p.getOrNull(6)?.toLongOrNull() ?: 0L
+        val softirq = p.getOrNull(7)?.toLongOrNull() ?: 0L
+        val steal = p.getOrNull(8)?.toLongOrNull() ?: 0L
+        val idleAll = idle + iowait
+        return CpuSample(
+            total = user + nice + system + idleAll + irq + softirq + steal,
+            idle = idleAll,
+        )
+    }
+
+    /** نسبة الحمل بين عيّنتين — نفس الصيغة السابقة حرفيًا، نقيّة ومُختبَرة. */
+    internal fun loadPercent(previous: CpuSample, current: CpuSample): Int {
+        val dTotal = current.total - previous.total
+        val dIdle = current.idle - previous.idle
+        if (dTotal <= 0L) return 0
+        return (((dTotal - dIdle) * 100 / dTotal).toInt()).coerceIn(0, 100)
+    }
+
     @Synchronized
     fun getCpuLoad(): Int {
-        return try {
-            val line = shellOut("cat /proc/stat | head -n 1")
-            val p = line.trim().split("\\s+".toRegex())
-            if (p.size < 5) return 0
-            val user = p[1].toLongOrNull() ?: 0L
-            val nice = p[2].toLongOrNull() ?: 0L
-            val system = p[3].toLongOrNull() ?: 0L
-            val idle = p[4].toLongOrNull() ?: 0L
-            val iowait = p.getOrNull(5)?.toLongOrNull() ?: 0L
-            val irq = p.getOrNull(6)?.toLongOrNull() ?: 0L
-            val softirq = p.getOrNull(7)?.toLongOrNull() ?: 0L
-            val steal = p.getOrNull(8)?.toLongOrNull() ?: 0L
-
-            val idleAll = idle + iowait
-            val total = user + nice + system + idleAll + irq + softirq + steal
-
-            if (lastCpuTotal == 0L) {
-                lastCpuTotal = total; lastCpuIdle = idleAll; return 0
-            }
-            val dTotal = total - lastCpuTotal
-            val dIdle = idleAll - lastCpuIdle
-            lastCpuTotal = total; lastCpuIdle = idleAll
-            if (dTotal <= 0L) 0 else (((dTotal - dIdle) * 100 / dTotal).toInt()).coerceIn(0, 100)
-        } catch (e: Exception) { 0 }
+        // **قراءة مباشرة لا صدفة:** `cat /proc/stat` كانت تولّد صدفة جذر لكل نداء، والدالة
+        // تُنادى من أربع حلقات (لوحة كل ٢ث · تعلّم كل ٣ث · توصيات كل ٥ث · حاكم طاقة كل ٢ث).
+        // وطبقة `RootFileAccess` تقرأ الملف مباشرة (أو عبر IPC) وتُبقي الصدفة احتياطًا أخيرًا
+        // فيها — فالسلوك على جهاز لا يُقرأ فيه الملف محفوظ حرفيًّا.
+        val line = runCatching { RootFileAccess.read("/proc/stat") }.getOrNull()
+            ?.lineSequence()?.firstOrNull()?.takeIf { it.isNotBlank() }
+            ?: return 0
+        val sample = parseStatSample(line) ?: return 0
+        val previous = if (lastCpuTotal == 0L) null else CpuSample(lastCpuTotal, lastCpuIdle)
+        lastCpuTotal = sample.total
+        lastCpuIdle = sample.idle
+        return previous?.let { loadPercent(it, sample) } ?: 0
     }
 
     fun getPowerWatt(): Float {
         return try {
-            val v = shellOut("cat /sys/class/power_supply/battery/voltage_now").toLongOrNull() ?: 0L
-            val c = shellOut("cat /sys/class/power_supply/battery/current_now").toLongOrNull() ?: 0L
+            // كانتا صدفتين منفصلتين ⇒ قراءتان في معاملة واحدة (والصدفة تبقى داخل الطبقة).
+            val values = RootFileAccess.readMany(
+                listOf(
+                    "/sys/class/power_supply/battery/voltage_now",
+                    "/sys/class/power_supply/battery/current_now",
+                )
+            )
+            val v = values.getOrNull(0)?.toLongOrNull() ?: 0L
+            val c = values.getOrNull(1)?.toLongOrNull() ?: 0L
             if (v > 0 && c != 0L) (abs(v * c).toDouble() / 1_000_000_000_000.0).toFloat() else 0f
         } catch (e: Exception) { 0f }
     }

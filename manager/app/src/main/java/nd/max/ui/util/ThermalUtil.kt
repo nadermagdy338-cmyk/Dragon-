@@ -37,6 +37,8 @@ import kotlin.math.abs
 import nd.max.core.hardware.VerifiedControl
 import nd.max.core.hardware.HardwareCapabilityResolver
 import nd.max.core.hardware.HardwareCapabilitySnapshot
+import nd.max.core.hardware.PerAppRecoveryStore
+import nd.max.core.hardware.RootFileAccess
 
 /** One kernel thermal zone under /sys/class/thermal/thermal_zoneN. */
 data class ThermalZoneInfo(
@@ -177,31 +179,82 @@ object ThermalUtil {
         }
     }
 
-    fun readThermalZones(): List<ThermalZoneInfo> {
-        val zoneNames = listDirectoryNames(THERMAL_ROOT)
+    /**
+     * بيانات منطقة لا تتغيّر إلا مع الإقلاع: الاسم المعروض، التصنيف، والمسار.
+     *
+     * **ولماذا كاش بجيل الإقلاع:** النوع والتصنيف خاصية إقلاع (الأنوية تُعلنها مرة) لا قياس
+     * لحظي، فإعادة قراءتها كل دورتين هدر محض — وهو نفس عرف التعلّم في أطلس (`bootId` من
+     * `/proc/sys/kernel/random/boot_id`). والقياس اللحظي يبقى للحرارة والتمكين وحدهما.
+     */
+    internal data class ZoneMeta(
+        val id: Int,
+        val label: String,
+        val category: String,
+        val dirPath: String,
+    )
+
+    private var zoneMetaCache: Pair<String, List<ZoneMeta>>? = null
+
+    private fun zoneMetas(): List<ZoneMeta> {
+        val boot = PerAppRecoveryStore.bootId()
+        zoneMetaCache?.let { (cachedBoot, metas) -> if (cachedBoot == boot) return metas }
+        val metas = listDirectoryNames(THERMAL_ROOT)
             .filter { it.startsWith("thermal_zone") }
             .sortedBy { it.removePrefix("thermal_zone").toIntOrNull() ?: 0 }
-
-        return zoneNames.mapNotNull { name ->
-            try {
-                val id = name.removePrefix("thermal_zone").toIntOrNull() ?: return@mapNotNull null
-                val dir = File(THERMAL_ROOT, name)
-                val rawName = readNode(dir, "type") ?: "unknown"
-                val rawTemp = readNode(dir, "temp")?.toIntOrNull() ?: 0
-                val enabled = readNode(dir, "mode")?.trim() != "disabled"
-
-                ThermalZoneInfo(
-                    id = id,
-                    label = prettifyName(rawName),
-                    category = classifyZone(rawName),
-                    temperatureC = sanitizeTemperature(rawTemp),
-                    sysfsPath = dir.absolutePath,
-                    isEnabled = enabled
-                )
-            } catch (_: Exception) {
-                null
+            .mapNotNull { name ->
+                runCatching {
+                    val id = name.removePrefix("thermal_zone").toIntOrNull()
+                        ?: return@mapNotNull null
+                    val dir = File(THERMAL_ROOT, name)
+                    val rawName = readNode(dir, "type") ?: "unknown"
+                    ZoneMeta(
+                        id = id,
+                        label = prettifyName(rawName),
+                        category = classifyZone(rawName),
+                        dirPath = dir.absolutePath,
+                    )
+                }.getOrNull()
             }
+        zoneMetaCache = boot to metas
+        return metas
+    }
+
+    /**
+     * التجميع النقي: قيم `temp` و`mode` لكل منطقة بترتيبها ⇒ المناطق. مُختبَر مباشرةً
+     * (`ThermalZoneBatchTest`)، ودلالته **مطابقة للسابق حرفيًا**: حرارة غائبة ⇒ صفر،
+     * و`mode` غائب ⇒ مُتمكَّن، و`disabled` وحده ⇒ معطَّل.
+     */
+    internal fun assembleZones(metas: List<ZoneMeta>, values: List<String?>): List<ThermalZoneInfo> =
+        metas.mapIndexed { index, meta ->
+            val rawTemp = values.getOrNull(index * 2)?.toIntOrNull() ?: 0
+            val enabled = values.getOrNull(index * 2 + 1)?.trim() != "disabled"
+            ThermalZoneInfo(
+                id = meta.id,
+                label = meta.label,
+                category = meta.category,
+                temperatureC = sanitizeTemperature(rawTemp),
+                sysfsPath = meta.dirPath,
+                isEnabled = enabled,
+            )
         }
+
+    /**
+     * مسارات القياس لكل منطقة، بترتيب يطابق [assembleZones] بالضبط: الحرارة أولًا ثم التمكين.
+     *
+     * ودالة نقيّة صغيرة عمدًا حتى يُثبَّت التوافق بين البانية والجمّاع باختبار مباشر: خطأُ ترتيب
+     * هنا يعني «حرارة تُقرأ من `mode`» — عطب صامت لا يظهر إلا كأرقام غريبة على الشاشة.
+     */
+    internal fun zonePaths(metas: List<ZoneMeta>): List<String> =
+        metas.flatMap { meta ->
+            listOf(File(meta.dirPath, "temp").absolutePath, File(meta.dirPath, "mode").absolutePath)
+        }
+
+    fun readThermalZones(): List<ThermalZoneInfo> {
+        val metas = zoneMetas()
+        if (metas.isEmpty()) return emptyList()
+        // قراءتان لكل منطقة (حرارة + تمكين) **في معاملة IPC واحدة** بدل ٢×عدد المناطق،
+        // وخريطة الأنواع لا تُقرأ أصلًا بعد أول مرة في الإقلاع.
+        return assembleZones(metas, RootFileAccess.readMany(zonePaths(metas)))
     }
 
     fun readCoolingDevices(): List<CoolingDeviceInfo> {
@@ -265,10 +318,13 @@ object ThermalUtil {
 
     fun isThermalPolicySupported(): Boolean = Shell.cmd("[ -f $POLICY_FILE ]").exec().isSuccess
 
-    fun readThermalPolicy(): String {
-        val result = Shell.cmd("cat $POLICY_FILE 2>/dev/null || echo default").exec()
-        return if (result.isSuccess) result.out.joinToString("").trim().ifBlank { "default" } else "default"
-    }
+    /**
+     * السياسة الحرارية الحالية. والصدفة كانت `cat … || echo default`، والقيمة المطلوبة هي
+     * فحواها **أو** `default` عند الغياب/الفشل — وهي نفسها دلالة `read() ?: "default"`،
+     * بلا رحلة صدفة لكل نداء.
+     */
+    fun readThermalPolicy(): String =
+        RootFileAccess.read(POLICY_FILE) ?: "default"
 
     fun writeThermalPolicy(policy: String): Boolean {
         return Shell.cmd("echo $policy > $POLICY_FILE 2>/dev/null").exec().isSuccess
@@ -280,24 +336,14 @@ object ThermalUtil {
         return readAbsoluteNode(path)
     }
 
-    private fun readAbsoluteNode(path: String): String? {
-        RootIpcManager.ipc?.let { service ->
-            runCatching {
-                service.readNode(path).trim().takeIf { it.isNotEmpty() }
-            }.getOrNull()?.let { return it }
-        }
-        return try {
-            val file = File(path)
-            if (file.exists() && file.canRead()) {
-                file.readText().trim()
-            } else {
-                val result = Shell.cmd("cat '$path' 2>/dev/null").exec()
-                if (result.isSuccess && result.out.isNotEmpty()) result.out[0].trim() else null
-            }
-        } catch (_: Exception) {
-            null
-        }
-    }
+    /**
+     * قراءة عقدة مطلقة بترتيب `RootFileAccess` الواحد — قارئ أصلي ← IPC الجذر ← ملف مباشر
+     * ← صدفة. وهذه الدالة كانت تُعيد كتابة الترتيب نفسه بثلاث طبقات منها (IPC ثم ملف ثم
+     * `cat`)، فصار المصدر واحدًا: ترتيب يتباعد بين موضعين آخر هو عطب يظهر على أول جهاز
+     * يخالف مفترضات أحدهما.
+     */
+    private fun readAbsoluteNode(path: String): String? =
+        runCatching { RootFileAccess.read(path) }.getOrNull()
 
     private fun writeNode(path: String, value: String): Boolean {
         RootIpcManager.ipc?.let { service ->

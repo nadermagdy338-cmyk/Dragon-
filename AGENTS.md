@@ -37,7 +37,7 @@
 2. **التحقّق البديل إلزاميّ لا اختياريّ** — من يعدّل ولا يقيس شيئًا لم يُسلّم، فقط ادّعى. والبدائل المعتمدة:
 
    ```sh
-   python3 tools/kt_balance.py --assert     # توازن الأقواس والنصوص والتعليقات + صحة XML (1766 ملفًا)
+   python3 tools/kt_balance.py --assert     # توازن الأقواس والنصوص والتعليقات + صحة XML (1798 ملفًا)
    python3 tools/kt_balance.py --self-test  # يقيس الأداة نفسها: أداة تمرّ على كل شيء لا تُثبت شيئًا
    python3 tools/code_health.py --assert    # صحّة = 0 والدَّين عند السقف
    python3 tools/i18n_coverage.py --assert  # النصوص والوسائط
@@ -253,13 +253,18 @@ export ANDROID_HOME="$HOME/android-sdk" ANDROID_SDK_ROOT="$HOME/android-sdk"
 **ثلاث بوابات قبل أي تسليم** (كلها خفيفة ولا تحتاج مُصرّفًا):
 
 ```sh
-python3 tools/kt_balance.py --assert    # توازن الأقواس/النصوص/التعليقات + صحة XML
-python3 tools/code_health.py --assert   # صحّة = 0، ودَين ≤ السقف
-python3 tools/i18n_coverage.py --assert # نصوص ووسائط
+python3 tools/kt_balance.py --assert              # توازن الأقواس/النصوص/التعليقات + صحة XML
+python3 tools/code_health.py --assert             # صحّة = 0، ودَين ≤ السقف
+python3 tools/i18n_coverage.py --assert           # نصوص ووسائط
+python3 tools/i18n_coverage.py --prune all --assert  # مفاتيح يتيمة = 0 (بوابة قراءة فقط · I18N-01)
+python3 tools/jni_symbols.py --assert             # عقود JNI: Kotlin/Java ↔ Rust، وما وُجد من ثنائيات (ADR-48)
 ```
 
-وهذه الثلاث تعمل اليوم في CI أيضًا: خطوة **«Contract gates»** في `.github/workflows/build.yml`
-(ثلاث ثوانٍ، وتُشغَّل **قبل** البناء الثقيل فيفشل التشغيل في ثوانٍ لا بعد دقائق).
+وهذه الأربع تعمل اليوم في CI أيضًا: خطوة **«Contract gates»** في `.github/workflows/build.yml`
+(ثلاث ثوانٍ، وتُشغَّل **قبل** البناء الثقيل فيفشل التشغيل في ثوانٍ لا بعد دقائق) — و`jni_symbols.py`
+تُشغَّل فيها `--self-test` أيضًا، ثم **مرة ثانية بعد بناء ثنائيي المكتبتين** بـ`--require-binaries`
+حيث تُقاس الرموز في `.so` الحقيقية لكل ABI (خطوة «Verify JNI symbols in built libraries»).
+وحدّها: محليًّا بلا NDK تُعلن الطبقة الثانية «غير مُتحقَّقة» ولا تُدّعي، وتُشغَّل الطبقة الأولى وحدها.
 
 ## 6. الخطوط الحمراء المشتركة
 

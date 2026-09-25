@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import nd.max.R
 import nd.max.core.maxai.MaxAiEngine
 import nd.max.ui.util.EventLog
+import nd.max.ui.util.PropertyUtils
 import nd.max.ui.util.RootUtils
 import nd.max.ui.util.isBannerImageEnabled
 import javax.inject.Inject
@@ -107,7 +108,9 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val isRooted = RootUtils.requestRootAccess()
             val isModuleInstalled = RootUtils.isModuleInstalled()
-            val mode = Shell.cmd("getprop ${MaxManagerProps.Conf.AI_ENABLED}").exec().out.firstOrNull()?.trim()
+            // قراءة داخل العملية (bionic) بدل صدفة `getprop`: مقيس ٢٣٦٦ ميكرو ⇒ ١٢٫٦.
+            // وهذه الدالة تُنادى عند الإقلاع وعند كل تحديث لحالة المفتاح — فالتوفير متكرّر.
+            val mode = PropertyUtils.get(MaxManagerProps.Conf.AI_ENABLED)
 
             _uiState.value = _uiState.value.copy(
                 rootStatus = isRooted,
@@ -173,7 +176,7 @@ class HomeViewModel @Inject constructor(
 
     fun refreshAiMode() {
         viewModelScope.launch(Dispatchers.IO) {
-            val mode = Shell.cmd("getprop ${MaxManagerProps.Conf.AI_ENABLED}").exec().out.firstOrNull()?.trim()
+            val mode = PropertyUtils.get(MaxManagerProps.Conf.AI_ENABLED)
             _uiState.value = _uiState.value.copy(autoMode = mode)
         }
     }

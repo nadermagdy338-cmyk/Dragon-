@@ -16,6 +16,11 @@ ndarray = "0.15"
 lazy_static = "1.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+# ضغط zip (ADR-49): المُحرّك zlib-rs عمدًا لا miniz_oxide — لأنه **وحده** يتقدّم على zlib
+# الأصلية عند JDK. والقياس على شجرتين حقيقيتين (٥.٣ميجا نصّة و٣٧.١ميجا موارد):
+#   المستوى ٦: JDK 211ms · miniz_oxide 217ms (=0.97×، أي أبطأ) · zlib-rs 107ms (1.97×).
+# فبغير هذا السطر لا معنى للنقل: نقلٌ يُبطئ. وثمن الحجم مقيس ومعلن: +367KB في المكتبة الأصلية.
+zip = { version = "8", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 
 [features]
 default = []

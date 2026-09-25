@@ -4,8 +4,11 @@ agp = "9.2.0"
 kotlin = "2.3.10"
 ksp = "2.3.10"
 hiddenapibypass = "6.1"
-# Compose 1.9 stable line — the 1.12.0-alpha03 chain (dragged in by the old
-# material3/lifecycle alphas) requires compileSdk 37, unavailable in CI.
+# Compose 1.9 stable line. The old blocker — the 1.12.0-alpha03 chain demanding
+# compileSdk 37 — is gone as of تكملة ١١٠ (`platforms;android-37.0` is published and
+# pinned in CI). A bump is therefore *possible* now, but it stays pinned here on
+# purpose: moving the whole Compose/Material line is its own measured round, not a
+# side effect of the SDK bump.
 compose-bom = "2025.10.01"
 kotlinxSerialization = "1.11.0"
 library = "1.2.1"
@@ -15,9 +18,9 @@ composeMarkdown = "0.7.2"
 hilt = "2.60.1"
 
 # UI & Library
-# SDK-36 ceiling: 1.5.0-alpha23 / 2.11.0-beta02 chains demand compileSdk 37,
-# which is not published on the GitHub-hosted SDK repository. These are the
-# newest versions whose AAR metadata accepts android-36.
+# كان سقف SDK-36 يمنع 1.5.0-alpha23 / 2.11.0-beta02 (تطلب compileSdk 37 غير المنشور).
+# **والسقف زال (تكملة ١١٠):** `android-37.0` منشور و`:app` عليه الآن — فيصير الارتفاع
+# ممكنًا، لكنه يبقى جولة قياس مستقلة لا أثرًا جانبيًّا لتغيير الـSDK.
 #
 # و`1.4.0` **المستقر** حلّ محل `1.4.0-alpha15`: الخط نفسه (١.٤) لكن بلا لاحقة إصدار
 # تجريبي، وهو ما كان يُشتكى منه ضمنيًّا (شحن alpha في مسار الإنتاج).
@@ -27,8 +30,9 @@ lifecycle = "2.9.4"
 # **مقيس في تكملة ٤٠، لا منقولًا من ذاكرة:** `2.10.1` **ترفض** البناء بـ
 # `checkReleaseAarMetadata`، ومعها ثلاثة اعتماديات منقولة:
 #   navigation-compose-android:2.10.1 · lifecycle-runtime-compose-android:2.11.0 ·
-#   lifecycle-viewmodel-compose-android:2.11.0 ⇒ «requires … compileSdk 37» و`:app` على android-36.
-# فـ`2.9.4` هو **آخر إصدار يقبل SDK 36**، والتعليق القديم كان صحيحًا — وهذا دليله.
+#   lifecycle-viewmodel-compose-android:2.11.0 ⇒ «requires … compileSdk 37» وكان `:app` على android-36.
+# **والمانع زال في تكملة ١١٠** (`:app` على android-37.0) ⇒ الإصدارات الأحدث صارت
+# قابلة للتجربة، والثابت هنا مقصود حتى جولة ترقية مقيسة.
 navigation = "2.9.4"
 
 # Security & Glassmorphism

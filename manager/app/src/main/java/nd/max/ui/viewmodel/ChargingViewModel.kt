@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.RootFileAccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -154,23 +155,18 @@ class ChargingViewModel : ViewModel() {
 
     fun loadState() {
         viewModelScope.launch(Dispatchers.IO) {
-            batteryDir = BATTERY_DIRS.firstOrNull {
-                Shell.cmd("test -d $it && echo 1 || echo 0").exec().out.joinToString("").trim() == "1"
-            }
+            // دور مجلد البطارية ومرشّحو عقدة الشحن السريع: كلاهما كان حلقة `test` عبر صدفة
+            // لكل مرشّح — وصار سؤالًا واحدًا للقائمة كلها (دفعة أصلية ثم احتياط مصرَّح).
+            batteryDir = RootFileAccess.firstExisting(BATTERY_DIRS) { it }
 
             val dir = batteryDir
             if (dir != null) {
-                for (name in FAST_CHARGE_CURRENT_CANDIDATES) {
-                    val path = "$dir/$name"
-                    if (Shell.cmd("test -e $path && echo 1 || echo 0").exec().out.joinToString("").trim() == "1") {
-                        fastChargeNodePath = path
-                        break
-                    }
-                }
+                fastChargeNodePath = RootFileAccess
+                    .firstExisting(FAST_CHARGE_CURRENT_CANDIDATES) { "$dir/$it" }
                 fastChargeNodePath?.let { path ->
                     val maxPath = "${path}_max" // some drivers expose a *_max sibling; harmless if absent
-                    fastChargeMaxMa = (Shell.cmd("cat $maxPath 2>/dev/null").exec().out.joinToString("").trim()
-                        .toLongOrNull()?.div(1000))?.toInt() ?: 4000
+                    fastChargeMaxMa = (RootFileAccess.read(maxPath)?.toLongOrNull()?.div(1000))
+                        ?.toInt() ?: 4000
                     fastChargeAvailable = true
                 }
 
@@ -208,8 +204,7 @@ class ChargingViewModel : ViewModel() {
 
     /** Reads battery facts that don't change during a charge session, so they're read once instead of every poll tick. */
     private fun loadStaticBatteryInfo(dir: String) {
-        batteryTechnology = Shell.cmd("cat $dir/technology 2>/dev/null").exec()
-            .out.joinToString("").trim().ifEmpty { "-" }
+        batteryTechnology = RootFileAccess.read("$dir/technology").orEmpty().ifEmpty { "-" }
         cycleCount = readInt("$dir/cycle_count")
 
         val full = readLong("$dir/charge_full")
@@ -225,7 +220,7 @@ class ChargingViewModel : ViewModel() {
         fullCapacityMah = full?.takeIf { it > 0 }?.div(1000)?.toInt()
 
         healthVerdict = when (
-            Shell.cmd("cat $dir/health 2>/dev/null").exec().out.joinToString("").trim().lowercase()
+            RootFileAccess.read("$dir/health").orEmpty().lowercase()
         ) {
             "good" -> BatteryHealthVerdict.Good
             "overheat", "hot" -> BatteryHealthVerdict.Overheat
@@ -241,7 +236,7 @@ class ChargingViewModel : ViewModel() {
         capacityPercent = readInt("$dir/capacity") ?: capacityPercent
         voltageMv = (readLong("$dir/voltage_now")?.div(1000))?.toInt() ?: voltageMv
         temperatureC = (readInt("$dir/temp")?.div(10f)) ?: temperatureC
-        val status = Shell.cmd("cat $dir/status 2>/dev/null").exec().out.joinToString("").trim()
+        val status = RootFileAccess.read("$dir/status").orEmpty()
         batteryStatus = when (status.lowercase()) {
             "charging" -> BatteryStatus.Charging
             "discharging" -> BatteryStatus.Discharging
@@ -263,17 +258,14 @@ class ChargingViewModel : ViewModel() {
         } ?: currentMa
 
         // USB type/online live under power_supply/usb, a sibling of the battery node.
-        chargerType = Shell.cmd("cat /sys/class/power_supply/usb/type 2>/dev/null")
-            .exec().out.joinToString("").trim().ifEmpty { "-" }
-        usbConnected = Shell.cmd("cat /sys/class/power_supply/usb/online 2>/dev/null")
-            .exec().out.joinToString("").trim() == "1"
+        chargerType = RootFileAccess.read("/sys/class/power_supply/usb/type").orEmpty().ifEmpty { "-" }
+        usbConnected = RootFileAccess.read("/sys/class/power_supply/usb/online") == "1"
 
         fastChargeNodePath?.let { path ->
             fastChargeCurrentMa = (readLong(path)?.div(1000))?.toInt() ?: fastChargeCurrentMa
         }
         sicModeNodePath?.let { path ->
-            sicModeCurrentValue = Shell.cmd("cat $path 2>/dev/null").exec().out.joinToString("").trim()
-                .ifEmpty { null }
+            sicModeCurrentValue = RootFileAccess.read(path)
         }
         // العقدة المقروءة هي الحقيقة الوحيدة للمفتاح: كتابة رفضها السائق أو أزالها
         // شيء آخر تُظهر نفسها خلال دورة القراءة بدل أن يبقى المفتاح معروضًا "مفعّلًا".
@@ -281,11 +273,11 @@ class ChargingViewModel : ViewModel() {
         sicModeCurrentValue?.let { live -> sicBoostEnabled = live == SIC_MODE_BOOST_VALUE }
     }
 
-    private fun readInt(path: String): Int? =
-        Shell.cmd("cat $path 2>/dev/null").exec().out.joinToString("").trim().toIntOrNull()
+    // المساعدان يخدمان كل قراءات هذه الشاشة (حلقة استقصاء ٣ ثوانٍ): من `cat` عبر صدفة
+    // إلى الطبقة الموحّدة (أصلي ← IPC ← ملف ← صدفة) — نفس الدلالة، بلا رحلة لكل عقدة.
+    private fun readInt(path: String): Int? = RootFileAccess.read(path)?.toIntOrNull()
 
-    private fun readLong(path: String): Long? =
-        Shell.cmd("cat $path 2>/dev/null").exec().out.joinToString("").trim().toLongOrNull()
+    private fun readLong(path: String): Long? = RootFileAccess.read(path)?.toLongOrNull()
 
     private fun startPolling() {
         pollJob?.cancel()

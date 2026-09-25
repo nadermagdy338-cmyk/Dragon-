@@ -121,8 +121,20 @@ class TouchBoostViewModel : ViewModel() {
             return WriteVerification.compare(wanted, live) == WriteVerification.Outcome.MATCHED
         }
 
-        private fun discoverBoostNode(): TouchNode? =
-            (GAME_MODE_CANDIDATES + SAMPLE_RATE_CANDIDATES).firstOrNull(::isVerifiedNode)
+        /**
+         * أول عقدة تُبنى فعليًا من قائمة المرشّحين — **بنداء قراءة واحد للجميع**.
+         *
+         * وكان كل مرشّح يُكلَّف رحلتين (`exists` ثم `read`)، والقائمة تبلغ خمسة ⇒ عشرة
+         * نداءات لتشغيل مفتاح واحد. والقراءة المجمَّعة تكفي: قيمة عُقدت تُثبت وجودها، وما
+         * لا يُقرأ (لا من التطبيق ولا من الجذر) لا يصلح عقدة تحكّم أصلًا.
+         */
+        private fun discoverBoostNode(): TouchNode? {
+            val candidates = GAME_MODE_CANDIDATES + SAMPLE_RATE_CANDIDATES
+            val readable = RootFileAccess.readMany(candidates.map { it.path })
+            return candidates.indices
+                .firstOrNull { readable.getOrNull(it) != null }
+                ?.let { candidates[it] }
+        }
 
         private fun isVerifiedNode(node: TouchNode): Boolean =
             RootFileAccess.exists(node.path) && RootFileAccess.read(node.path) != null

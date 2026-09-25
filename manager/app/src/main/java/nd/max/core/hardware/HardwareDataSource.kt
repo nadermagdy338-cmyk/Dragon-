@@ -9,7 +9,6 @@ import android.os.BatteryManager
 import android.os.StatFs
 import android.util.DisplayMetrics
 import android.view.WindowManager
-import com.topjohnwu.superuser.Shell
 import nd.max.ui.util.FpsMonitorUtil
 import nd.max.ui.util.ThermalUtil
 import nd.max.ui.util.getChipsetName
@@ -67,19 +66,24 @@ open class HardwareDataSource(private val context: Context) {
         getChipsetName(context)
     }
 
+    /**
+     * تردّد نواة 0 الحيّ بالكيلوهرتز ← بالميغاهرتز. القراءة عبر طبقة `RootFileAccess`
+     * (قارئ أصلي ← IPC ← ملف ← صدفة) بدل صدفة `cat` لكل نداء — وهي دورة تُنادى كل ثانيتين
+     * من لوحة الأداء.
+     */
+    private fun cpuZeroFreqMhz(): Int =
+        RootFileAccess.read("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq")
+            ?.toLongOrNull()?.div(1000)?.toInt() ?: 0
+
     suspend fun getCpuData(): CpuData = withContext(Dispatchers.IO) {
         val load = FpsMonitorUtil.getCpuLoad()
-        val freq = Shell.cmd("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq 2>/dev/null")
-            .exec().out.firstOrNull()?.trim()?.toLongOrNull()?.div(1000)?.toInt() ?: 0
-        CpuData(load, freq, emptyList())
+        CpuData(load, cpuZeroFreqMhz(), emptyList())
     }
 
     suspend fun getCpuDataWithHistory(history: List<Float>): CpuData = withContext(Dispatchers.IO) {
         val load = FpsMonitorUtil.getCpuLoad()
-        val freq = Shell.cmd("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq 2>/dev/null")
-            .exec().out.firstOrNull()?.trim()?.toLongOrNull()?.div(1000)?.toInt() ?: 0
         val updatedHistory = (history + load.toFloat()).takeLast(36)
-        CpuData(load, freq, updatedHistory)
+        CpuData(load, cpuZeroFreqMhz(), updatedHistory)
     }
 
     suspend fun getMemoryData(): MemoryData = withContext(Dispatchers.IO) {

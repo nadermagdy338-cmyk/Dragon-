@@ -5,6 +5,7 @@
 package nd.max.core.hardware
 
 import com.topjohnwu.superuser.Shell
+import nd.max.core.jni.ProbeBridge
 import nd.max.ui.util.EventLog
 import nd.max.ui.util.RootIpcManager
 import java.io.File
@@ -18,6 +19,32 @@ object RootFileAccess {
         shellTest(path)
     }.getOrDefault(false)
 
+    /**
+     * وجود عدة مسارات في **نداء واحد** — سؤال الوجود لا القيمة.
+     *
+     * وشاشات الاكتشاف تُجرّب مرشّحين بالتتابع، فكل `exists` كان رحلة كاملة (IPC ثم `test`
+     * عبر صدفة). والدفعة الأصليّة تجيب عن القائمة كلها مرة واحدة، والقائمة الفارغة تُحسم
+     * بلا أي نداء. وغياب القارئ الأصلي أو حزمة بعدد مخالف يعود إلى [exists] لكل مسار —
+     * نفس السلوك القديم حرفيًّا.
+     */
+    fun existing(paths: List<String>): List<Boolean> {
+        if (paths.isEmpty()) return emptyList()
+        val native = ProbeBridge.existing(paths)
+        if (native != null && native.size == paths.size) return native
+        return paths.map { exists(it) }
+    }
+
+    /**
+     * أول مرشّح **موجود** من قائمة — نداء واحد للمرشّحين كلهم لا رحلة لكل واحد.
+     *
+     * والعائد `null` يعني «لا أحد منهم موجود» كما كانت `firstOrNull { exists(it) }` تُعيده.
+     */
+    fun <T> firstExisting(candidates: List<T>, pathOf: (T) -> String): T? {
+        if (candidates.isEmpty()) return null
+        val flags = existing(candidates.map(pathOf))
+        return candidates.indices.firstOrNull { flags.getOrElse(it) { false } }?.let { candidates[it] }
+    }
+
     fun writable(path: String): Boolean = runCatching {
         if (File(path).canWrite()) return@runCatching true
         Shell.cmd("test -w ${quote(path)}").exec().isSuccess
@@ -28,6 +55,63 @@ object RootFileAccess {
             ?: File(path).takeIf { it.isFile && it.canRead() }?.readText()?.trim()
             ?: shellRead(path)
     }.getOrNull()
+
+    /**
+     * قراءة عدة عقد في **نداء واحد** — نفس دلالة [read] لكل عقدة: القيمة المقصوصة غير
+     * الفارغة، أو `null` إن لم تُقرأ. والترتيب محفوظ بمحاذاة الفهرس.
+     *
+     * **لماذا، وبأي ترتيب (تكملة ١١٢):** ثلاث طبقات، الأسرع أولًا:
+     *
+     * 1. **قارئ Rust الأصلي** (`ProbeBridge`): يفتح الملفات داخل العملية في نداء JNI واحد —
+     *    بلا معاملة binder وبلا صدفة. وهذا هو مسار الحالة الشائعة: عقد sysfs الحرارية
+     *    وقيم ترددات الأنوية و`/proc/stat` يقرأها uid التطبيق عادةً.
+     * 2. **ما حجبته النواة عن uid التطبيق يعود `null` من الطبقة الأولى، فيُسأل عنه وحده**
+     *    عبر معاملة IPC واحدة إلى `MtkRootService`. فالسرعة **لا تُشتري بقدرة**: كل عقدة
+     *    كانت تُقرأ بالجذر تبقى تُقرأ بالجذر، ولا تُخفى عقدة ولا تُفترض قيمة.
+     * 3. وسقوط الحالة (بلا IPC متصل، أو خدمة لا تعرف الدفعة) يعود إلى [read] لكل عقدة —
+     *    نفس السلوك القديم حرفيًّا.
+     *
+     * فالعقدة الغائبة من كل الطبقات تبقى `null` كما كانت. والسقوط في أي طبقة **ليس عطبًا**،
+     * بل الطريق الاحتياطي المصرَّح (ونفس مبدأ `PredictorBridge` حين تغيب المكتبة).
+     */
+    fun readMany(paths: List<String>): List<String?> {
+        if (paths.isEmpty()) return emptyList()
+        return mergeNativeAndPrivileged(paths, ProbeBridge.readMany(paths), ::readManyPrivileged)
+    }
+
+    /**
+     * الدمج نفسه — دالة نقية لتُقاس بذاتها (والمحاذاة هي ما يجب أن يُحرَس):
+     *
+     * * أي قائمة أصلية بطول مخالف للمدخل تُرفض كاملةً وتُسلَّم المهمة للطريق المصرَّح —
+     *   فمحاذاة مخمَّنة تَنسب قيمة عقدة إلى عقدة أخرى، وذلك أسوأ من عدم التسريع.
+     * * وما لم يُقرأ وحده يُسأل عنه: **لا يُطلب بالجذر ما قُرئ أصلًا**، ولا يُسقط ما فشل.
+     */
+    internal fun mergeNativeAndPrivileged(
+        paths: List<String>,
+        native: List<String?>?,
+        privileged: (List<String>) -> List<String?>,
+    ): List<String?> {
+        if (paths.isEmpty()) return emptyList()
+        if (native == null || native.size != paths.size) return privileged(paths)
+        val missing = paths.filterIndexed { index, _ -> native[index] == null }
+        if (missing.isEmpty()) return native
+        val fallback = privileged(missing)
+        var cursor = 0
+        return paths.mapIndexed { index, _ -> native[index] ?: fallback.getOrNull(cursor++) }
+    }
+
+    /**
+     * الطريق المصرَّح: معاملة IPC واحدة، ثم [read] لكل عقدة لم تُقرأ (صدفة الجذر آخرًا).
+     * وهو الطريق الوحيد الذي كان قائمًا قبل تكملة ١١٢ — محفوظ كما هو حرفيًّا.
+     */
+    private fun readManyPrivileged(paths: List<String>): List<String?> {
+        if (paths.isEmpty()) return emptyList()
+        val batch = runCatching { RootIpcManager.ipc?.readNodes(paths.toMutableList()) }.getOrNull()
+        if (batch != null && batch.size == paths.size) {
+            return batch.map { value -> value?.trim()?.takeIf { it.isNotEmpty() } }
+        }
+        return paths.map { read(it) }
+    }
 
     /**
      * يكتب ويعيد **نجاح أمر الكتابة** — نفس معنى العائد قبل `PEER-8` تمامًا
@@ -89,12 +173,17 @@ object RootFileAccess {
 
     /** Read-only listing of both files and directories for discovery transports. */
     fun listNames(path: String): List<String> = runCatching {
+        // القارئ الأصلي أولًا (بلا صدفة `ls`) — وغيابه يُعيدنا إلى الصدفة كما كانت.
+        ProbeBridge.listNames(path)?.let { return it }
         val result = Shell.cmd("ls -1A ${quote(path)} 2>/dev/null").exec()
         if (!result.isSuccess) emptyList()
         else result.out.map(String::trim).filter { it.isNotEmpty() && it != "." && it != ".." }.distinct()
     }.getOrDefault(emptyList())
 
     fun listDirectories(path: String): List<String> {
+        // الترتيب: قراءة داخل العملية ← IPC الجذر ← صدفة `ls` ← `File`. وكل طبقة
+        // تسبق التي تليها بلا مساس بالقدرة: ما لا يقرأه uid التطبيق يسأله الجذر.
+        ProbeBridge.listNames(path, dirsOnly = true)?.let { return it }
         RootIpcManager.ipc?.let { service ->
             runCatching { service.listDirectories(path).filter(String::isNotBlank) }
                 .getOrNull()?.takeIf { it.isNotEmpty() }?.let { return it.distinct() }

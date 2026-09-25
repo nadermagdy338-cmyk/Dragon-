@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.RootFileAccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -136,8 +137,9 @@ class ZramViewModel : ViewModel() {
             }
             isAvailable = true
 
-            val compAlgoRaw = Shell.cmd("cat $ZRAM_DEV/comp_algorithm 2>/dev/null")
-                .exec().out.joinToString("")
+            // دورة كل ٣ ثوانٍ: كل `cat` عبر صدفة كان رحلة كاملة — والقراءة الآن عبر الطبقة
+            // الموحّدة (أصلي ← IPC ← ملف ← صدفة).
+            val compAlgoRaw = RootFileAccess.read("$ZRAM_DEV/comp_algorithm").orEmpty()
             compAlgorithm = Regex("\\[(.*?)]").find(compAlgoRaw)?.groupValues?.get(1)
                 ?.ifEmpty { null } ?: compAlgoRaw.trim().substringBefore(' ').ifEmpty { "lz4" }
             availableCompAlgorithms = compAlgoRaw.replace("[", "").replace("]", "")
@@ -154,8 +156,7 @@ class ZramViewModel : ViewModel() {
                 .exec().out.joinToString("").trim() == "1"
             kernelCompactionSupported = Shell.cmd("test -e /proc/sys/vm/compact_memory && echo 1 || echo 0")
                 .exec().out.joinToString("").trim() == "1"
-            multiStreamCount = Shell.cmd("cat $ZRAM_DEV/max_comp_streams 2>/dev/null")
-                .exec().out.joinToString("").trim().toIntOrNull()
+            multiStreamCount = RootFileAccess.read("$ZRAM_DEV/max_comp_streams")?.toIntOrNull()
 
             refreshStats()
             startPolling()
@@ -163,18 +164,16 @@ class ZramViewModel : ViewModel() {
     }
 
     private fun refreshStats() {
-        val disksizeBytes = Shell.cmd("cat $ZRAM_DEV/disksize 2>/dev/null")
-            .exec().out.joinToString("").trim().toLongOrNull() ?: 0L
+        val disksizeBytes = RootFileAccess.read("$ZRAM_DEV/disksize")?.toLongOrNull() ?: 0L
         currentDiskSizeMb = (disksizeBytes / (1024 * 1024)).toInt()
 
         // mm_stat: orig_data_size compr_data_size mem_used_total ...
-        val mmStat = Shell.cmd("cat $ZRAM_DEV/mm_stat 2>/dev/null")
-            .exec().out.joinToString("").trim().split(Regex("\\s+"))
+        val mmStat = RootFileAccess.read("$ZRAM_DEV/mm_stat").orEmpty().split(Regex("\\s+"))
         origDataMb = (mmStat.getOrNull(0)?.toLongOrNull() ?: 0L).let { it / (1024 * 1024) }.toInt()
         compDataMb = (mmStat.getOrNull(1)?.toLongOrNull() ?: 0L).let { it / (1024 * 1024) }.toInt()
 
         // /proc/swaps: Filename Type Size Used Priority (Size/Used are in KB)
-        val swapsOut = Shell.cmd("cat /proc/swaps 2>/dev/null").exec().out
+        val swapsOut = RootFileAccess.read("/proc/swaps")?.lines().orEmpty()
         val zramSwapLine = swapsOut.drop(1).firstOrNull { it.contains("zram") }
         val fields = zramSwapLine?.trim()?.split(Regex("\\s+"))
         totalSwapMb = ((fields?.getOrNull(2)?.toLongOrNull() ?: 0L) / 1024).toInt()
@@ -214,8 +213,7 @@ class ZramViewModel : ViewModel() {
     }
 
     private fun readSwappiness(): Int? =
-        Shell.cmd("cat /proc/sys/vm/swappiness 2>/dev/null")
-            .exec().out.joinToString("").trim().toIntOrNull()
+        RootFileAccess.read("/proc/sys/vm/swappiness")?.toIntOrNull()
 
     fun applyPreset(preset: ZramSizePreset) {
         applySizeMb(preset.mb, ZramOpKind.Size, preset.id)

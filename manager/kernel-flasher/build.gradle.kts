@@ -18,7 +18,7 @@ android {
     // Do not change this namespace - the app module's KernelFlasherScreen.kt /
     // MtkScreen.kt import classes from com.github.capntrips.kernelflasher.*
     namespace = "com.github.capntrips.kernelflasher"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 29
@@ -27,8 +27,10 @@ android {
 
         ndk {
             //noinspection ChromeOsAbiSupport
-            // arm64-v8a وحده — كما في `:app` (قرار المالك، تكملة ٨٢).
-            abiFilters += listOf("arm64-v8a")
+            // العمودان — كما في `:app` (قرار المالك، تكملة ١١٠). وهذا الموديول تحديدًا
+            // يحمل أصلًا ثنائيات v7a مُلتزمة (`jniLibs/armeabi-v7a`): كان الحرس القديم
+            // يستثنيها من الحزمة، واليوم تُشحن إلى جهازها بدل أن تُهمل.
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
         }
 
         vectorDrawables {

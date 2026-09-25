@@ -82,6 +82,14 @@ class MtkRootService : RootService() {
                 }
             }
 
+            /**
+             * عدة قراءات في معاملة binder واحدة. الحلقة هنا **داخل عملية الجذر**، فكل
+             * عنصر يدفع ثمن قراءة ملف محلية فقط — لا معاملة IPC لكل عقدة.
+             */
+            override fun readNodes(paths: MutableList<String>): MutableList<String> {
+                return paths.map { path -> readNode(path) }.toMutableList()
+            }
+
             override fun nodeExists(path: String): Boolean {
                 return File(path).exists()
             }

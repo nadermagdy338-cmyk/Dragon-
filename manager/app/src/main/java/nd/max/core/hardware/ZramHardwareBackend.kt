@@ -1,5 +1,7 @@
 package nd.max.core.hardware
 
+import nd.max.core.jni.ProbeBridge
+
 /** Idempotent ZRAM backend with safety checks and live verification. */
 object ZramHardwareBackend {
     private const val DEFAULT_ROOT = "/sys/block/zram0"
@@ -71,7 +73,25 @@ object ZramHardwareBackend {
             if (result.isSuccess && live == sizeBytes) null else "zram-size-readback-mismatch")
     }
 
-    private fun isActiveSwap(root: String): Boolean = runCatching {
-        com.topjohnwu.superuser.Shell.cmd("awk '\$1==\"$root\" {found=1} END {exit found?0:1}' /proc/swaps 2>/dev/null").exec().isSuccess
-    }.getOrDefault(false)
+    /**
+     * هل هذا الجهاز مشارَك كمبادلة؟
+     *
+     * `/proc/swaps` **عالمية القراءة**، فالسؤال «هل مسار هذا الجهاز في العمود الأول؟» لا
+     * يحتاج ولادة عملية (`awk`): تُقرأ داخل العملية في نداء واحد، ويُشطر السطر الأول
+     * (العنوان). والاحتياطي هو `awk` نفسه إن غابت المكتبة الأصلية أو عاد الملف فارغًا.
+     */
+    private fun isActiveSwap(root: String): Boolean {
+        ProbeBridge.readMany(listOf("/proc/swaps"))
+            ?.firstOrNull()
+            ?.takeIf { it.isNotBlank() }
+            ?.let { swaps ->
+                return swaps.lineSequence()
+                    .drop(1)
+                    .mapNotNull { line -> line.trim().split(Regex("\\s+")).firstOrNull() }
+                    .any { it == root }
+            }
+        return runCatching {
+            com.topjohnwu.superuser.Shell.cmd("awk '\$1==\"$root\" {found=1} END {exit found?0:1}' /proc/swaps 2>/dev/null").exec().isSuccess
+        }.getOrDefault(false)
+    }
 }

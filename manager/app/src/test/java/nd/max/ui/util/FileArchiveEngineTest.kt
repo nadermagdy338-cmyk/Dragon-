@@ -22,6 +22,7 @@ import java.util.Collections
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
+import nd.max.core.jni.ArchivePacket
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -189,6 +190,81 @@ class FileArchiveEngineTest {
         assertEquals(3072L, seen.last().first)
         // رتابة: الشريط لا يعود إلى الوراء.
         assertEquals(seen.map { it.first }.sorted(), seen.map { it.first })
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // السلّم الأصلي ← Kotlin (ADR-49)
+    // ────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun aNativeSuccessIsVerifiedOnlyWhenTheArchiveIsRealOnDisk() {
+        val archive = write("out.zip", "not empty")
+        assertEquals(
+            ArchiveOutcome.verified(),
+            ArchivePacket.Result.Ok(entries = 3, bytes = 1024L).toOutcome(archive),
+        )
+
+        val empty = File(root, "empty.zip").apply { createNewFile() }
+        assertEquals(
+            "أرشيف بطول صفر = نُفِّذ ولم يُتحقّق (لا نجاح بلا إثبات)",
+            ArchiveOutcome.executedOnly(),
+            ArchivePacket.Result.Ok(entries = 0, bytes = 0L).toOutcome(empty),
+        )
+    }
+
+    @Test
+    fun nativeFailureReasonsMapToTheSeparateArchiveFailures() {
+        val archive = File(root, "never.zip")
+        assertEquals(
+            ArchiveFailure.NoSources,
+            ArchivePacket.Result.Failed("no_sources", null).toOutcome(archive).failure,
+        )
+        val unreadable = ArchivePacket.Result.Failed("unreadable", "/data/x")
+            .toOutcome(archive)
+        assertEquals(ArchiveFailure.UnreadableSource, unreadable.failure)
+        assertEquals("/data/x", unreadable.subject)
+        assertEquals(
+            ArchiveFailure.WriteFailed,
+            ArchivePacket.Result.Failed("write_failed", "/out.zip: disk full").toOutcome(archive).failure,
+        )
+    }
+
+    @Test
+    fun anUnknownNativeReasonIsDeclaredWriteFailedNotSwallowed() {
+        // سبب لم نعرفه لا يصير «نجاحًا» ولا يُترجم إلى «لا مصادر»: يُعلن فشلًا بعينه.
+        val outcome = ArchivePacket.Result.Failed("something_new", null).toOutcome(File(root, "x.zip"))
+        assertEquals(ArchiveFailure.WriteFailed, outcome.failure)
+        assertFalse(outcome.ok)
+    }
+
+    @Test
+    fun theKotlinPathIsKeptWhenARealProgressCallbackIsAsked() {
+        // المسار الأصلي لا يُبلّغ تقدّمًا، فمن طلب تقدّمًا حقيقيًّا يأخذ مسار Kotlin بعينه —
+        // والاختبار هنا يثبت أن الحكم لا يتغيّر بذلك.
+        write("work/data.bin", "payload")
+        val seen = mutableListOf<Pair<Long, Long>>()
+        val withProgress = FileArchiveEngine.createZip(
+            listOf(File(root, "work").path),
+            File(root, "with.zip").path,
+        ) { done, total -> seen += done to total }
+        val withoutProgress = FileArchiveEngine.createZip(
+            listOf(File(root, "work").path),
+            File(root, "without.zip").path,
+        )
+        assertTrue(withProgress.ok)
+        assertTrue(withoutProgress.ok)
+        assertTrue("مسار التقدّم يُبلّغ فعلًا", seen.isNotEmpty())
+        assertEquals(entryNames(File(root, "with.zip")), entryNames(File(root, "without.zip")))
+    }
+
+    @Test
+    fun aMissingSourceIsStillDeclaredUnreadableThroughTheDefaultEntryPoint() {
+        val result = FileArchiveEngine.createZip(
+            listOf(File(root, "ghost").path),
+            File(root, "default.zip").path,
+        )
+        assertEquals(ArchiveFailure.UnreadableSource, result.failure)
+        assertFalse(File(root, "default.zip").exists())
     }
 
     @Test

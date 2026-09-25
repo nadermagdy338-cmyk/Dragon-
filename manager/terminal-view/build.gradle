@@ -5,11 +5,11 @@ plugins {
 android {
     // كتابة الإسناد (`=`) لا الاستدعاء بالفراغ: الأخير مهمَل و«سيُزال في Gradle 10».
     namespace = 'com.termux.view'
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
     }
 
     buildTypes {

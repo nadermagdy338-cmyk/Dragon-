@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.RootFileAccess
 import java.io.File
 import java.io.FileWriter
 import java.text.SimpleDateFormat
@@ -87,19 +88,8 @@ class LogsViewerViewModel : ViewModel() {
         private const val DEFAULT_LOG_MAX_KB = 3072
         private const val LOG_LEVEL_DEBUG = 0
 
-        private val LOG_PATTERN = Regex(
-            """^(\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+([A-Z])\s+(.*?):\s?(.*)$"""
-        )
-
-        // Matches "2026-08-27 10:15:32 I MaxManager: EVENT=... key=value" --
-        // the exact "%s %s %s: %s\n" format log_zenith()/external_log() write
-        // in SystemLogger.c (see AppMonitorLogger.kt / EventLog.kt for the
-        // Kotlin-side callers that forward into the same file).
-        private val UNIFIED_LOG_PATTERN = Regex(
-            """^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s+([DIWEF])\s+(\S+?):\s?(.*)$"""
-        )
-        private val EVENT_TYPE_PATTERN = Regex("""EVENT=(\S+)""")
-        private val SWITCH_ID_PATTERN = Regex("""sw=(\S+)""")
+        // الأنماط المرجعية انتقلت إلى `LogsLineParser` (ملف مستقل، يُختبَر في JVM مباشرة) —
+        // وهذا الملف كان يحملها حتى صار فوق حدّ الطول المسموح.
     }
 
     enum class LogLevel(val letter: String, val color: Color, val displayName: String) {
@@ -289,15 +279,17 @@ class LogsViewerViewModel : ViewModel() {
         @JvmName("setLogMinLevelState") private set
 
     private val allLogs = Collections.synchronizedList(ArrayList<LogEntry>())
-    private val pendingBatch = Collections.synchronizedList(ArrayList<LogEntry>())
-    private var idCounter = 0L
+    /** سطور خام قبل التحليل الدفعي — نفس نافذة الإفراغ (٣٠٠ مللي) تحدّ حجمها. */
+    private val pendingRawLines = Collections.synchronizedList(ArrayList<String>())
+    private val pendingRawUnifiedLines = Collections.synchronizedList(ArrayList<String>())
+
+    // عدّادات المعرّفات صارت ملك `LogsLineParser` مع التحليل الذي يُسندها.
     private var logShell: Shell? = null
     private var flushJob: Job? = null
     private var started = false
 
     private val allUnifiedLogs = Collections.synchronizedList(ArrayList<UnifiedLogEntry>())
-    private val pendingUnifiedBatch = Collections.synchronizedList(ArrayList<UnifiedLogEntry>())
-    private var unifiedIdCounter = 0L
+
     private var unifiedShell: Shell? = null
     private var unifiedFlushJob: Job? = null
 
@@ -367,10 +359,10 @@ class LogsViewerViewModel : ViewModel() {
     private fun restartStream() {
         stopStream()
         synchronized(allLogs) { allLogs.clear() }
-        synchronized(pendingBatch) { pendingBatch.clear() }
+        synchronized(pendingRawLines) { pendingRawLines.clear() }
         displayedLogs = emptyList()
         totalLineCount = 0
-        idCounter = 0
+        LogsLineParser.resetLogcatIds()
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -404,42 +396,27 @@ class LogsViewerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * استقبال سطر logcat — **يُخزَّن خامًا** ويُحلَّل في نافذة الإفراغ.
+     *
+     * وكان التحليل يقع هنا سطرًا بسطر (`LOG_PATTERN` على كل سطر)، والسطور تصل بعشرات في الثانية
+     * ⇒ آلاف المطابقات وعشرات آلاف الكائنات الوسيطة في الدقيقة على خيط لا يتوقف. وبعد النقل
+     * الدفعي إلى Rust تصير المطابقات كلها في **نداء واحد لكل نافذة (٣٠٠ مللي)** — أي مرّتان إلى
+     * ثلاث في الثانية. والوقف مؤقتًا يبقى عند لحظة الوصول كما كان (لا تُجمَّع سطور مُوقَفة).
+     */
     private fun handleLine(line: String) {
         if (isPaused) return
-        val entry = parseLine(line) ?: return
-        pendingBatch.add(entry)
-    }
-
-    private fun parseLine(line: String): LogEntry? {
-        val match = LOG_PATTERN.find(line)
-        if (match == null) {
-            if (line.isBlank() || line.startsWith("---------")) return null
-            return LogEntry(
-                id = idCounter++, date = "", time = "", pid = "?", tid = "?",
-                level = LogLevel.VERBOSE, tag = "System", message = line, raw = line
-            )
-        }
-        val (date, time, pid, tid, levelStr, tag, msg) = match.destructured
-        return LogEntry(
-            id = idCounter++,
-            date = date,
-            time = time,
-            pid = pid,
-            tid = tid,
-            level = LogLevel.fromLetter(levelStr),
-            tag = tag.trim(),
-            message = msg,
-            raw = line
-        )
+        pendingRawLines.add(line)
     }
 
     private fun flushPending() {
-        val batch = synchronized(pendingBatch) {
-            if (pendingBatch.isEmpty()) return
-            val copy = ArrayList(pendingBatch)
-            pendingBatch.clear()
+        val raw = synchronized(pendingRawLines) {
+            if (pendingRawLines.isEmpty()) return
+            val copy = ArrayList(pendingRawLines)
+            pendingRawLines.clear()
             copy
         }
+        val batch = LogsLineParser.parseLogcatBatch(raw)
         synchronized(allLogs) {
             allLogs.addAll(batch)
             if (allLogs.size > MAX_IN_MEMORY) {
@@ -495,7 +472,7 @@ class LogsViewerViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             Shell.cmd("logcat -c").exec()
             synchronized(allLogs) { allLogs.clear() }
-            synchronized(pendingBatch) { pendingBatch.clear() }
+            synchronized(pendingRawLines) { pendingRawLines.clear() }
             totalLineCount = 0
             withContext(Dispatchers.Main) { displayedLogs = emptyList() }
         }
@@ -547,10 +524,10 @@ class LogsViewerViewModel : ViewModel() {
     private fun restartUnifiedStream() {
         stopUnifiedStream()
         synchronized(allUnifiedLogs) { allUnifiedLogs.clear() }
-        synchronized(pendingUnifiedBatch) { pendingUnifiedBatch.clear() }
+        synchronized(pendingRawUnifiedLines) { pendingRawUnifiedLines.clear() }
         unifiedDisplayedLogs = emptyList()
         unifiedTotalLineCount = 0
-        unifiedIdCounter = 0
+        LogsLineParser.resetUnifiedIds()
         // ملخّص المقابض وتركيزه يخصّان ما كان محمّلًا؛ إبقاؤهما بعد تفريغ النافذة يجعل الشاشة
         // تُظهر «آخر ما عُرف» عن سطور لم تبقَ.
         targetSummaries = emptyList()
@@ -586,44 +563,20 @@ class LogsViewerViewModel : ViewModel() {
         }
     }
 
+    /** سطر السجلّ الموقَّع — يُخزَّن خامًا ويُحلَّل في نافذة الإفراغ (كما في logcat أعلاه). */
     private fun handleUnifiedLine(line: String) {
         if (isPaused) return
-        val entry = parseUnifiedLine(line) ?: return
-        pendingUnifiedBatch.add(entry)
-    }
-
-    private fun parseUnifiedLine(line: String): UnifiedLogEntry? {
-        if (line.isBlank()) return null
-        val match = UNIFIED_LOG_PATTERN.find(line) ?: return null
-        val (timestamp, levelStr, tag, message) = match.destructured
-        val level = UnifiedLogLevel.fromLetter(levelStr)
-        // الفكّ **مرّة واحدة عند القراءة** لا عند كل إعادة ترتيب أو تصفية: النافذة تحمل 2000 سطر
-        // وتُصفّى مع كل ضغطة، وتفكيكها في العرض كان سيُكرّر العمل بلا سبب.
-        val event = LogEventParser.parse(message)
-        val eventName = event?.event
-        return UnifiedLogEntry(
-            id = unifiedIdCounter++,
-            timestamp = timestamp,
-            level = level,
-            source = LogSource.fromTag(tag),
-            rawTag = tag,
-            eventType = eventName ?: EVENT_TYPE_PATTERN.find(message)?.groupValues?.get(1),
-            switchId = SWITCH_ID_PATTERN.find(message)?.groupValues?.get(1),
-            message = message,
-            raw = line,
-            event = event,
-            area = LogArea.of(eventName.orEmpty(), event?.target),
-            verdict = LogVerdict.of(eventName.orEmpty(), event, level.letter),
-        )
+        pendingRawUnifiedLines.add(line)
     }
 
     private fun flushPendingUnified() {
-        val batch = synchronized(pendingUnifiedBatch) {
-            if (pendingUnifiedBatch.isEmpty()) return
-            val copy = ArrayList(pendingUnifiedBatch)
-            pendingUnifiedBatch.clear()
+        val raw = synchronized(pendingRawUnifiedLines) {
+            if (pendingRawUnifiedLines.isEmpty()) return
+            val copy = ArrayList(pendingRawUnifiedLines)
+            pendingRawUnifiedLines.clear()
             copy
         }
+        val batch = LogsLineParser.parseUnifiedBatch(raw)
         synchronized(allUnifiedLogs) {
             allUnifiedLogs.addAll(batch)
             if (allUnifiedLogs.size > MAX_IN_MEMORY) {
@@ -770,7 +723,7 @@ class LogsViewerViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             Shell.cmd("'${MaxManagerPaths.SERVICE_BIN}' --clearlogs").exec()
             synchronized(allUnifiedLogs) { allUnifiedLogs.clear() }
-            synchronized(pendingUnifiedBatch) { pendingUnifiedBatch.clear() }
+            synchronized(pendingRawUnifiedLines) { pendingRawUnifiedLines.clear() }
             unifiedTotalLineCount = 0
             // الترويسة تُعاد بعد المسح: الملف الذي يُرسَل لاحقًا يجب أن يحمل جهازه وإعداده،
             // وأمر المسح نفسه يُسجَّل فتُفهم الفجوة الزمنية في الملف.
@@ -794,7 +747,8 @@ class LogsViewerViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val file = try {
                 val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-                val rawContent = Shell.cmd("cat '${MaxManagerPaths.MAXMANAGER_LOG}'").exec().out.joinToString("\n")
+                // السجلّ كاملًا بقراءة واحدة عبر الطبقة الموحّدة بدل صدفة `cat`.
+                val rawContent = RootFileAccess.read(MaxManagerPaths.MAXMANAGER_LOG).orEmpty()
                 val target = File(context.cacheDir, "MaxManager_Log_$timestamp.zip")
                 ZipOutputStream(target.outputStream()).use { zip ->
                     zip.putNextEntry(ZipEntry("MaxManager.log"))
@@ -859,7 +813,7 @@ class LogsViewerViewModel : ViewModel() {
      */
     private fun perAppStatusSection(): Pair<String, List<String>>? = runCatching {
         val text = MaxManagerPaths.PER_APP_HW_STATUS
-        val out = Shell.cmd("cat '$text' 2>/dev/null").exec().out
+        val out = RootFileAccess.read(text)?.lines().orEmpty()
         val section = "per-app knob status" to out.filter { it.isNotBlank() }
         section.takeIf { it.second.isNotEmpty() }
     }.getOrNull()

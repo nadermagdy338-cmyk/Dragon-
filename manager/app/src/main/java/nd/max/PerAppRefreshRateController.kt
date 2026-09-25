@@ -11,6 +11,7 @@ import android.hardware.display.DisplayManager
 import android.provider.Settings
 import android.view.Display
 import java.util.Locale
+import nd.max.core.jni.PropBridge
 
 object PerAppRefreshRateController {
     data class Snapshot(
@@ -168,9 +169,13 @@ object PerAppRefreshRateController {
             "ro.build.version.incremental",
             "ro.build.display.id"
         )
-        for (key in props) {
-            val raw = shellRead("getprop '$key'").uppercase(Locale.ROOT)
-            val match = Regex("(?:HYPER\\s*OS|HYPEROS|OS)[_\\- ]?(\\d+)").find(raw)
+        // **دفعة واحدة:** أربع خصائص في نداء أصلي واحد بدل أربع صدفات (مقيس: ٢٣٦٦ ميكرو
+        // للصدفة ⇒ أربع صدفات ≈ ٩٤٦٤ ميكرو مقابل عشرات الميكرو). وإن غابت المكتبة الأصلية
+        // فسؤالٌ لكل خصيصة كما كان — بلا تغيير في الدلالة (`null` = اسأل غيري).
+        val readings = PropBridge.getAll(props)
+            ?: props.map { PropBridge.get(it) ?: shellRead("getprop '$it'") }
+        for (raw in readings) {
+            val match = Regex("(?:HYPER\\s*OS|HYPEROS|OS)[_\\- ]?(\\d+)").find(raw.uppercase(Locale.ROOT))
             val major = match?.groupValues?.getOrNull(1)?.toIntOrNull()
             if (major != null) return major
         }

@@ -66,6 +66,7 @@ import nd.max.core.hardware.HardwareVerification
 import nd.max.core.hardware.PerAppHardwareStatus
 import nd.max.core.hardware.PerAppHardwareStatus.Outcome
 import nd.max.core.hardware.RootFileAccess
+import nd.max.core.jni.PropBridge
 import nd.max.core.hardware.ThermalCeilingRouter
 import nd.max.core.hardware.SharedHardwareOwnershipStore
 import nd.max.core.hardware.ManualControlLocks
@@ -1059,7 +1060,7 @@ object AppMonitor {
         // it is set. Otherwise the ROM-wide Touch Boost control remains the
         // source of truth (with the legacy game heuristic as a compatibility
         // fallback when that global property has not been configured yet).
-        val globalTouchBoost = shellRead("getprop persist.sys.maxmanager.custom_touch_boost") == "1"
+        val globalTouchBoost = propRead("persist.sys.maxmanager.custom_touch_boost") == "1"
         val touchBoostDecision = when (touchBoostOverride) {
             "true" -> true
             "false" -> false
@@ -1117,6 +1118,19 @@ object AppMonitor {
             result
         } catch (_: Exception) { "" }
     }
+
+    /**
+     * قراءة خصيصة — **الأصلي أولًا** (bionic داخل العملية) ثم الانعكاس، بلا ولادة عملية.
+     *
+     * والمقيس: `getprop` عبر صدفة **٢٣٦٦ ميكرو** مقابل **١٢٫٦ ميكرو** داخليًّا (**×١٨٧**)،
+     * وهذه الدالة تُنادى في مسارات متكرّرة (محفظة الواجهة، والملمس، والملف الحراري).
+     *
+     * **ولا تُضاف طبقة صدفة ثالثة:** `getprop` عبر صدفة **لا يكشف أكثر** (منطقة الخصائص
+     * تُقرأ من libc بنفس الصلاحية)، فكانت سترمي ٢٣٦٦ ميكرو في كل خصيصة **غير مضبوطة**
+     * لتُعيد الفراغ الذي أعاده الانعكاس. والفراغ هنا حكمٌ لا فشل: `""` = غير مضبوطة.
+     */
+    private fun propRead(key: String): String =
+        PropBridge.get(key) ?: PropertyUtils.get(key)
 
     /**
      * كتابة عقدة sysfs عبر رقصة chmod نفسها التي تستخدمها ثنائيات الوحدة
@@ -1203,7 +1217,7 @@ object AppMonitor {
             if (savedGpuMaxFreq.isNotBlank()) baselineJournal["gpu_max_freq"] = savedGpuMaxFreq
             PerAppRecoveryStore.markActive(pkgName, baselineJournal)
         }
-        savedThermalProfile = shellRead("getprop sys.thermal.profile")
+        savedThermalProfile = propRead("sys.thermal.profile")
         // These 4 reads used to call the Settings ContentProvider API directly with
         // no runCatching around them at all. On this device/ROM the process's faked
         // system Context isn't a real app registered with ActivityManagerService, so
@@ -1257,8 +1271,8 @@ object AppMonitor {
                     vendorRefreshAltKey = savedVendorRefreshSnapshot?.vendorAltKey.orEmpty(),
                     vendorRefreshAltValue = savedVendorRefreshSnapshot?.vendorAltValue.orEmpty(),
                     thermalProfile = savedThermalProfile,
-                    hwUiProp = shellRead("getprop persist.sys.ui.hw"),
-                    disableHwProp = shellRead("getprop debug.viewroot.disableHW"),
+                    hwUiProp = propRead("persist.sys.ui.hw"),
+                    disableHwProp = propRead("debug.viewroot.disableHW"),
                     hapticEnabled = shellRead("settings get system haptic_feedback_enabled").takeIf { it.isNotBlank() && it != "null" }.orEmpty(),
                 )
             )
@@ -2056,8 +2070,8 @@ object AppMonitor {
             when (readAppConfigField(pkgName, "force_hw_ui")) {
                 "true", "false" -> {
                     if (!forcedHwUi) {
-                        savedHwUiProp = shellRead("getprop persist.sys.ui.hw").takeIf { it.isNotBlank() }
-                        savedDisableHwProp = shellRead("getprop debug.viewroot.disableHW").takeIf { it.isNotBlank() }
+                        savedHwUiProp = propRead("persist.sys.ui.hw").takeIf { it.isNotBlank() }
+                        savedDisableHwProp = propRead("debug.viewroot.disableHW").takeIf { it.isNotBlank() }
                     }
                     if (readAppConfigField(pkgName, "force_hw_ui") == "true") {
                         shellExec("setprop persist.sys.ui.hw true; setprop debug.viewroot.disableHW false")

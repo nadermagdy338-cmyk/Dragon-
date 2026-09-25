@@ -30,9 +30,18 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.StatFs
 import com.topjohnwu.superuser.Shell
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.coroutineContext
+import nd.max.core.jni.ScanBridge
+import nd.max.core.jni.ScanPacket
 
 /** نقطة تحميل واحدة كما يُعلنها `/proc/mounts`، مع قياس `StatFs` إن توفّر. */
 data class MountInfo(
@@ -191,6 +200,11 @@ object StorageUtil {
         maxEntries: Int = 120_000,
         onProgress: (scanned: Int) -> Unit = {}
     ): StorageScanResult {
+        // الطبقة الأولى: المسح الأصلي (Rust) — أقيس ×2.1–2.8 على شجرتين حقيقيتين (ADR-50)،
+        // ومع تقدّم حيّ وإلغاء حقيقي. و`null` تعني «اسأل غيري» فتكمل الدالّة إلى التنفيذ
+        // المرجعي أدناه بنفس الدلالات — وهذا هو السلّم لا بديلٌ عنه.
+        scanNatively(roots, maxEntries, onProgress)?.let { return it }
+
         var buckets: List<StorageBucket> = emptyList()
         var largest: List<StorageLargestItem> = emptyList()
         var scanned = 0
@@ -242,5 +256,95 @@ object StorageUtil {
         )
     }
 
+    /**
+     * المسح بالمسار الأصلي — ويعود `null` ليأخذ المتصل مسار Kotlin.
+     *
+     * وثلاثة أمور تجعله مطابقًا للمسار المرجعي لا مجرد مسرِّع:
+     *
+     * 1. **التقدّم حيّ:** النداء الأصلي واحد ويحجب خيطه، فعدّاد التقدّم يُقرأ من خيط آخر
+     *    كل ~١٠٠ مللي ويُمرَّر إلى [onProgress] — فالعدّاد المتحرّك هو ما مُسح فعلًا، لا نسبة
+     *    مخترعة (ADR-07).
+     * 2. **الإلغاء حقيقي:** إلغاء نطاق النداء يُبطل الحلقة الأصلية عند حدّ المجلد، فلا تكمل
+     *    ١٢٠ ألف مدخل بعد أن رحل من طلبها — ويرمي `CancellationException` كما يفعل
+     *    `ensureActive()` في المسار المرجعي (نفس سلوك المستدعي).
+     * 3. **المتخطّى والمقتطع يمرّان كما هما:** علم `truncated` وحصيلة `skipped` تُنقل من
+     *    الحزمة بلا تفسير — فلا يصير مسحٌ مقتطع «كل الجهاز».
+     */
+    private suspend fun scanNatively(
+        roots: List<File>,
+        maxEntries: Int,
+        onProgress: (scanned: Int) -> Unit
+    ): StorageScanResult? {
+        val paths = roots.map { it.path }
+        if (paths.isEmpty() || !ScanBridge.nativeAvailable) return null
+        if (!ScanPacket.packableRoots(paths)) return null
+
+        return coroutineScope {
+            val watcher = launch {
+                var last = -1L
+                while (isActive) {
+                    delay(PROGRESS_POLL_MS)
+                    val seen = ScanBridge.scanProgress()
+                    if (seen > last) {
+                        last = seen
+                        onProgress(seen.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+                    }
+                }
+            }
+            val packed = try {
+                withContext(Dispatchers.IO) { ScanBridge.scan(paths, maxEntries) }
+            } catch (cancel: CancellationException) {
+                // الرحيل يُبلَّغ إلى الحلقة الأصلية، وإلا عملت حتى السقف بلا مستمع.
+                ScanBridge.cancelScan()
+                throw cancel
+            } finally {
+                watcher.cancel()
+            } ?: return@coroutineScope null
+
+            if (packed.cancelled) throw CancellationException("storage scan cancelled")
+            val result = packed.toScanResult() ?: return@coroutineScope null
+            onProgress(result.scannedEntries)
+            result
+        }
+    }
+
+    /** كل كم مللي يُقرأ عدّاد التقدّم الحيّ — قراءة ذرّية رخيصة، فلا تُثقل خيط الواجهة. */
+    private const val PROGRESS_POLL_MS = 100L
+
     fun formatBytes(bytes: Long?): String? = bytes?.let(StorageScanModel::formatBytes)
+}
+
+/**
+ * تحويل حزمة المسح الأصلية إلى نموذج الشاشة — **بنفس ترتيب وقواعد [StorageScanModel]**:
+ * المصارف مرتَّبة (البايتات تنازليًّا ثم الاسم)، والعناصر الكبرى بحدّ ثمانية وكسر التعادل
+ * بالمسار، والعدّادات كما هي.
+ *
+ * ورمز صنف لا نعرفه يُرجع `null` **للنتيجة كلّها** — فلا تُعرض شاشة بأرقام بعضها مقروء
+ * وبعضها مُسقَط بصمت؛ الأصوب أن يعود المتصل إلى مسح Kotlin.
+ */
+internal fun ScanPacket.Snapshot.toScanResult(): StorageScanResult? {
+    val mapped = buckets.map { row ->
+        val kind = when (row.kind) {
+            "apps" -> StorageBucketKind.Apps
+            "images" -> StorageBucketKind.Images
+            "video" -> StorageBucketKind.Video
+            "audio" -> StorageBucketKind.Audio
+            "documents" -> StorageBucketKind.Documents
+            "archives" -> StorageBucketKind.Archives
+            "other" -> StorageBucketKind.Other
+            else -> return null
+        }
+        StorageBucket(kind, row.bytes, row.files.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+    }
+    val top = largest
+        .map { row -> StorageLargestItem(path = row.path, name = row.name, bytes = row.bytes) }
+        .sortedWith(compareByDescending<StorageLargestItem> { it.bytes }.thenBy { it.path })
+        .take(StorageScanModel.LARGEST_LIMIT)
+    return StorageScanResult(
+        buckets = StorageScanModel.rank(mapped),
+        largest = top,
+        scannedEntries = scanned.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
+        skippedDirectories = skipped.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
+        truncated = truncated,
+    )
 }

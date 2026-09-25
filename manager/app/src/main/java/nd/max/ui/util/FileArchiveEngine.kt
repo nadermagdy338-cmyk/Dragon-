@@ -48,6 +48,8 @@ import java.util.zip.ZipException
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import nd.max.core.jni.ArchiveBridge
+import nd.max.core.jni.ArchivePacket
 
 /** لماذا فشل الضغط/الفكّ. الأسباب مختلفة، فلا تُدمج في «فشل». */
 enum class ArchiveFailure {
@@ -94,6 +96,19 @@ object FileArchiveEngine {
     /** حجم القطعة المقروءة/المكتوبة — وكل قطعة تحدّث التقدّم، فلا يتجمّد الشريط. */
     private const val CHUNK = 64 * 1024
 
+    /**
+     * «لا تقدّم مطلوب» — **كائن واحد** يُقارن بالمرجع لا بالمحتوى.
+     *
+     * ولماذا المقارنة بالمرجع: المسار الأصلي (Rust) يكتب الأرشيف في نداء واحد، فلا يُبلّغ
+     * تقدّمًا لكل قطعة. ومن طلب تقدّمًا حقيقيًّا أخذ مسار Kotlin بنفس دلالته السابقة —
+     * فلا صمت في الشريط، ولا تقدّم مُختلق (ADR-07).
+     *
+     * **ومقيس في الإنتاج:** المستدعي الوحيد `FileSystemEngine.compress` لا يمرّر تقدّمًا ⇒
+     * المسار الأصلي هو ما يستعمله المستخدم اليوم. (وطلبات التقدّم الحقيقية في الاختبارات
+     * وحدها حتى الآن.)
+     */
+    val NO_PROGRESS: (done: Long, total: Long) -> Unit = { _, _ -> }
+
     // ────────────────────────────────────────────────────────────────────────
     // الضغط
     // ────────────────────────────────────────────────────────────────────────
@@ -107,11 +122,18 @@ object FileArchiveEngine {
     fun createZip(
         sources: List<String>,
         archivePath: String,
-        progress: (done: Long, total: Long) -> Unit = { _, _ -> },
+        progress: (done: Long, total: Long) -> Unit = NO_PROGRESS,
     ): ArchiveOutcome {
         if (sources.isEmpty()) return ArchiveOutcome.failed(ArchiveFailure.NoSources)
 
         val archive = File(FileBrowser.normalize(archivePath))
+
+        // الطبقة الأولى: القارئ/الكاتب الأصلي — ويشترط أنه لا تقدّم دقيق مطلوب (الشرح
+        // في [NO_PROGRESS]). و`null` تعني «اسأل غيري» فتستمرّ الدالّة إلى التنفيذ المرجعي
+        // أدناه بنفس الدلالات — وهذا هو السلّم لا بديلٌ عنه.
+        if (progress === NO_PROGRESS) {
+            ArchiveBridge.createZip(sources, archive.path)?.let { return it.toOutcome(archive) }
+        }
         val entries = ArrayList<Pair<File, String>>()
         var total = 0L
 
@@ -326,4 +348,29 @@ object FileArchiveEngine {
     }
 
     private val DRIVE_LETTER = Regex("^[A-Za-z]:")
+}
+
+/**
+ * تحويل ردّ المسار الأصلي إلى حكم الأرشيف — **بنفس حكم Kotlin حرفيًّا**:
+ * الأرشيف موجود وطوله > ٠ ⇒ «نُفِّذ وتُحقّق»، وإلا «نُفِّذ ولم يُتحقّق» (لا نجاح بلا إثبات).
+ *
+ * والأسباب الرمزية تُترجم إلى [ArchiveFailure] المنفصلة كما هي، **وما لا نعرفه يُعلن**
+ * `WriteFailed` ولا يُبتلع: سبب غامض لا يصير «نجاحًا» ولا «لا مصادر».
+ *
+ * ودالّة مستقلّة لا عضوًا في [FileArchiveEngine]: دالّة الإرشاد في عضو تحتاج مستقبلًا
+ * موزَّعًا في سياق النداء، فيصير قياسها في اختبار الوحدة أطول من الحكم نفسه.
+ */
+internal fun ArchivePacket.Result.toOutcome(archive: File): ArchiveOutcome = when (this) {
+    is ArchivePacket.Result.Ok ->
+        if (archive.exists() && archive.length() > 0L) ArchiveOutcome.verified()
+        else ArchiveOutcome.executedOnly()
+
+    is ArchivePacket.Result.Failed -> ArchiveOutcome.failed(
+        when (reason) {
+            "no_sources" -> ArchiveFailure.NoSources
+            "unreadable" -> ArchiveFailure.UnreadableSource
+            else -> ArchiveFailure.WriteFailed
+        },
+        subject,
+    )
 }

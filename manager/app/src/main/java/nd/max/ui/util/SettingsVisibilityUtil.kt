@@ -16,18 +16,19 @@
 
 package nd.max.ui.util
 
-import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.RootFileAccess
 
 object DebugUtils {
     private const val FULLMODE_DEBUG_PATH = "/data/adb/.config/MaxManager/debug/FullMode"
 
+    /**
+     * وضع المطوّر مُعلَن في الملف؟ والعقدة الغائبة أو غير المقروءة تعني «لا» — تُقرأ الملف
+     * عبر الطبقة الموحّدة (قارئ أصلي ← IPC الجذر ← ملف ← صدفة) بدل صدفة لكل نداء.
+     */
     fun isFullModeEnabled(): Boolean {
         return try {
-            val result = Shell.cmd("cat $FULLMODE_DEBUG_PATH").exec()
-            if (!result.isSuccess) return false
-
-            val content = result.out.joinToString("").trim()
-            content != "0" && content.isNotEmpty()
+            val content = RootFileAccess.read(FULLMODE_DEBUG_PATH) ?: return false
+            content != "0"
         } catch (e: Exception) {
             false
         }

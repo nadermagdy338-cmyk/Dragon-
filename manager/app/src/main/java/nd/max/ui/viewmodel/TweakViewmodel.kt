@@ -38,6 +38,7 @@ import kotlinx.coroutines.withContext
 import nd.max.R
 import nd.max.RefreshRateReceiver
 import nd.max.core.hardware.RootFileAccess
+import nd.max.core.jni.ProbeBridge
 import nd.max.ui.util.BackupManager
 import nd.max.ui.util.ConfigBackupInventory
 import nd.max.ui.util.MaxPrefsBundle
@@ -168,7 +169,7 @@ class TweakViewModel : ViewModel() {
 
             if (backupApplist) {
 
-                val applistContent = Shell.cmd("cat $APPLIST_PATH").exec().out.joinToString("\n")
+                val applistContent = RootFileAccess.read(APPLIST_PATH).orEmpty()
                 if (applistContent.isNotBlank()) {
                     propsMap[APPLIST_BACKUP_KEY] = applistContent
                 }
@@ -353,10 +354,21 @@ class TweakViewModel : ViewModel() {
         }
     }
 
+    /**
+     * المعرّف الرقمي للملف الشخصي المطبَّق الآن (ملفٌ يقرأه الخادم ويكتبه).
+     *
+     * وهذه العقدة الواحدة تُقرأ **تسع مرّات** في هذا الملف (عند كل تغيير حاكم/جدولة)، وكانت
+     * كل قراءة صدفة كاملة (`cat`) — صارت قراءةً واحدة عبر الطبقة الموحّدة:
+     * قارئ أصلي ← IPC الجذر ← ملف ← صدفة.
+     */
+    private fun currentProfileId(): String? =
+        RootFileAccess.read("/data/adb/.config/MaxManager/API/current_profile")
+
     private fun loadGovernorsInternal() {
-        val result = Shell.cmd("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors").exec()
-        if (result.isSuccess) {
-            val govs = result.out.firstOrNull()?.trim()?.split("\\s+".toRegex()) ?: emptyList()
+        val govs = RootFileAccess.read("/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors")
+            ?.split("\\s+".toRegex())
+            .orEmpty()
+        if (govs.isNotEmpty()) {
             val currentDefault = PropertyUtils.get(MaxManagerProps.Governor.CPU_CUSTOM_DEFAULT).ifEmpty {
                 PropertyUtils.get(MaxManagerProps.Governor.CPU_DEFAULT)
             }
@@ -376,15 +388,14 @@ class TweakViewModel : ViewModel() {
         val candidates = listOf("mmcblk0", "mmcblk1", "sda", "sdb", "sdc")
         var validBlock = ""
         for (block in candidates) {
-            if (Shell.cmd("test -e /sys/block/$block/queue/scheduler").exec().isSuccess) {
+            if (RootFileAccess.exists("/sys/block/$block/queue/scheduler")) {
                 validBlock = block
                 break
             }
         }
         if (validBlock.isNotEmpty()) {
-            val result = Shell.cmd("cat /sys/block/$validBlock/queue/scheduler").exec()
-            if (result.isSuccess) {
-                val rawOut = result.out.firstOrNull() ?: ""
+            val rawOut = RootFileAccess.read("/sys/block/$validBlock/queue/scheduler")
+            if (rawOut != null) {
                 val schedulers = rawOut.replace("[", "").replace("]", "").trim().split("\\s+".toRegex())
 
                 val currentBal = PropertyUtils.get(MaxManagerProps.Governor.IO_CUSTOM_DEFAULT).ifEmpty {
@@ -405,6 +416,31 @@ class TweakViewModel : ViewModel() {
         }
     }
 
+    /**
+     * حكام mali المتاحون من العقد مباشرة: أسماء `/sys/class/devfreq` ← التي تنتهي بـ`.mali`
+     * ← أول عقدة `available_governors` غير فارغة.
+     *
+     * و`null` تعني «لا جواب» (مكتبة أصلية غائبة، أو لا مسار mali، أو لا تُقرأ العقدة من uid
+     * التطبيق) — فيسأل المتصل الصدفة كما كانت. والقائمة الفارغة ليست `null`: هي «قرأت فلم أجد».
+     */
+    private fun nativeMaliGovernors(): List<String>? {
+        val dirs = ProbeBridge.listNames("/sys/class/devfreq")?.filter { it.endsWith(".mali") }
+        if (dirs.isNullOrEmpty()) return null
+        val readings = ProbeBridge.readMany(dirs.map { "/sys/class/devfreq/$it/available_governors" })
+            ?: return null
+        val text = readings.firstOrNull { !it.isNullOrBlank() } ?: return null
+        return text.trim().split("\\s+".toRegex())
+            .filterNot { it.startsWith("apu", ignoreCase = true) }
+    }
+
+    /** الاحتياطي المصرَّح: صدفة `cat` مع glob — و`null` عند فشلها (دلالة `isSuccess` القديمة). */
+    private fun legacyMaliGovernors(): List<String>? {
+        val govResult = Shell.cmd("cat /sys/class/devfreq/*.mali/available_governors").exec()
+        if (!govResult.isSuccess) return null
+        return govResult.out.firstOrNull()?.trim()?.split("\\s+".toRegex())
+            ?.filterNot { it.startsWith("apu", ignoreCase = true) } ?: emptyList()
+    }
+
     private fun loadMaliGovernorsInternal() {
 
         val checkResult = Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf checkmalipath").exec()
@@ -413,12 +449,12 @@ class TweakViewModel : ViewModel() {
         if (hasMali) {
             isMaliGpuAvailable = true
 
-            val govResult = Shell.cmd("cat /sys/class/devfreq/*.mali/available_governors").exec()
-            
-            if (govResult.isSuccess) {
-                val govs = govResult.out.firstOrNull()?.trim()?.split("\\s+".toRegex())
-                    ?.filterNot { it.startsWith("apu", ignoreCase = true) } ?: emptyList()
-                
+            // القراءة الأصلية: اسم المجلد ثم عقدته داخل العملية — بدل صدفة `cat` مع glob
+            // (مقيس: ٢٣٦٦ ميكرو للصدفة الواحدة). و`null` تعني «لا مسار mali» أو «تعذّرت
+            // القراءة من uid التطبيق» — فتحتاط بالصدفة كما كانت، وبنفس التصفير أدناه.
+            val govs = nativeMaliGovernors() ?: legacyMaliGovernors()
+
+            if (govs != null) {
                 val currentBal = PropertyUtils.get(MaxManagerProps.Governor.MALIGPU_CUSTOM_DEFAULT).ifEmpty {
                     PropertyUtils.get(MaxManagerProps.Governor.MALIGPU_DEFAULT)
                 }
@@ -430,6 +466,7 @@ class TweakViewModel : ViewModel() {
                 performanceMaliGovIndex = govs.indexOf(currentPerf).coerceAtLeast(0)
                 powersaveMaliGovIndex = govs.indexOf(currentEco).coerceAtLeast(0)
             } else {
+                // نفس مسار `cat` الفاشل تمامًا: القائمة تُصفَّر، والفهارس لا تُمسّ.
                 availableMaliGovernors = emptyList()
             }
         } else {
@@ -451,7 +488,7 @@ class TweakViewModel : ViewModel() {
         val selectedGov = availableGovernors?.getOrNull(index) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.CPU_CUSTOM_DEFAULT, selectedGov)
-            val currentProfile = Shell.cmd("cat /data/adb/.config/MaxManager/API/current_profile").exec().out.firstOrNull()?.trim()
+            val currentProfile = currentProfileId()
             if (currentProfile == "2") {
                 Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsgov $selectedGov").exec()
             }
@@ -463,7 +500,7 @@ class TweakViewModel : ViewModel() {
         val selectedGov = availableGovernors?.getOrNull(index) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.CPU_CUSTOM_POWERSAVE, selectedGov)
-            val currentProfile = Shell.cmd("cat /data/adb/.config/MaxManager/API/current_profile").exec().out.firstOrNull()?.trim()
+            val currentProfile = currentProfileId()
             if (currentProfile == "3") {
                 Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsgov $selectedGov").exec()
             }
@@ -475,7 +512,7 @@ class TweakViewModel : ViewModel() {
         val selectedGov = availableGovernors?.getOrNull(index) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.CPU_CUSTOM_PERFORMANCE, selectedGov)
-            val currentProfile = Shell.cmd("cat /data/adb/.config/MaxManager/API/current_profile").exec().out.firstOrNull()?.trim()
+            val currentProfile = currentProfileId()
             if (currentProfile == "3") {
                 Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsgov $selectedGov").exec()
             }
@@ -497,7 +534,7 @@ class TweakViewModel : ViewModel() {
         val selectedIO = availableIOSchedulers?.getOrNull(index) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.IO_CUSTOM_DEFAULT, selectedIO)
-            val currentProfile = Shell.cmd("cat /data/adb/.config/MaxManager/API/current_profile").exec().out.firstOrNull()?.trim()
+            val currentProfile = currentProfileId()
             if (currentProfile == "2") {
                 Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsIO $selectedIO").exec()
             }
@@ -509,7 +546,7 @@ class TweakViewModel : ViewModel() {
         val selectedIO = availableIOSchedulers?.getOrNull(index) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.IO_CUSTOM_PERFORMANCE, selectedIO)
-            val currentProfile = Shell.cmd("cat /data/adb/.config/MaxManager/API/current_profile").exec().out.firstOrNull()?.trim()
+            val currentProfile = currentProfileId()
             if (currentProfile == "1") {
                 Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsIO $selectedIO").exec()
             }
@@ -521,7 +558,7 @@ class TweakViewModel : ViewModel() {
         val selectedIO = availableIOSchedulers?.getOrNull(index) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.IO_CUSTOM_POWERSAVE, selectedIO)
-            val currentProfile = Shell.cmd("cat /data/adb/.config/MaxManager/API/current_profile").exec().out.firstOrNull()?.trim()
+            val currentProfile = currentProfileId()
             if (currentProfile == "3") {
                 Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsIO $selectedIO").exec()
             }
@@ -534,7 +571,7 @@ class TweakViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.MALIGPU_CUSTOM_DEFAULT, selectedGov)
 
-            val currentProfile = Shell.cmd("cat /data/adb/.config/MaxManager/API/current_profile").exec().out.firstOrNull()?.trim()
+            val currentProfile = currentProfileId()
             if (currentProfile == "2") {
                 Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsMaliGov $selectedGov").exec()
             }
@@ -546,7 +583,7 @@ class TweakViewModel : ViewModel() {
         val selectedGov = availableMaliGovernors?.getOrNull(index) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.MALIGPU_CUSTOM_PERFORMANCE, selectedGov)
-            val currentProfile = Shell.cmd("cat /data/adb/.config/MaxManager/API/current_profile").exec().out.firstOrNull()?.trim()
+            val currentProfile = currentProfileId()
             if (currentProfile == "1") {
                 Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsMaliGov $selectedGov").exec()
             }
@@ -558,7 +595,7 @@ class TweakViewModel : ViewModel() {
         val selectedGov = availableMaliGovernors?.getOrNull(index) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.MALIGPU_CUSTOM_POWERSAVE, selectedGov)
-            val currentProfile = Shell.cmd("cat /data/adb/.config/MaxManager/API/current_profile").exec().out.firstOrNull()?.trim()
+            val currentProfile = currentProfileId()
             if (currentProfile == "3") {
                 Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsMaliGov $selectedGov").exec()
             }

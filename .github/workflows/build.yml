@@ -178,11 +178,21 @@ jobs:
           python3 tools/kt_balance.py --assert
           python3 tools/code_health.py --assert
           python3 tools/i18n_coverage.py --assert
+          # المفاتيح اليتيمة: كانت `--prune` تُعيد 0 دائمًا، فالفحص كان أداة ولا يُسقط شيئًا.
+          # صارت بـ`--assert` **بوابة قراءة فقط**: تُسقط التشغيل عند أول مفتاح لم يعد مستعملًا
+          # (ولا تحذفه — الحذف في CI تعديلٌ لا يراجعه أحد). مُقاسة بتكذيب: أُدرج مفتاح يتيم
+          # فسقط التشغيل بـ1، وأُزيل فعاد 0، والملف أُعيد حرفيًّا.
+          python3 tools/i18n_coverage.py --prune all --assert
           # وقياس الأدوات التي لا تُشغَّل على حزمة هنا (سجلّ جهاز، مصفوفة سياسة): `--self-test` **يقيس
           # الأداة** على شجرة مصغّرة معلومة النتيجة. سببه أن أداة لا تُشغَّل إلا عند توفّر حزمة تصدأ
           # بصمت: يبقى اسمها في `tools/` وسطرها في الوثائق، وحكمها لا يُقاس في أي تشغيل.
           python3 tools/log_gate.py --self-test
           python3 tools/sepolicy_matrix.py --self-test
+          # ← عقود JNI: طبقة المصدر وحدها (Kotlin/Java ↔ Rust). الثنائيات تُفحص بعد بنائها
+          # في خطوة «Verify JNI symbols in built libraries» أدناه — فالثواني هنا تكشف انصراف
+          # الاسم قبل أن يستهلك البناءُ الأصلِي دقائقَ ثم يمرّ.
+          python3 tools/jni_symbols.py --assert
+          python3 tools/jni_symbols.py --self-test
           echo "✅ Contract gates passed in $((SECONDS - start))s"
 
       - name: Copy changelog file
@@ -287,13 +297,13 @@ jobs:
       # **وللإرجاع:** احذف «Start…» و«Wait…» واستعد الخمسة من `git log` (موضعها القديم في HANDOFF
       # تكملة ٨٦) — لا يمسّ ذلك صحّة البناء، ترتيبه فقط.
 
-      # هدف واحد: arm64-v8a (قرار المالك، تكملة ٨٢). و`armv7-linux-androideabi` خرج من
-      # السلسلة كلها (toolchain + الأربعة crates + ndk-build في `Application.mk`) ثم من
-      # الحزمة والمنصّب — فلا يبقى هدف يُبنى ولا هدف يُقلَّب.
+      # هدفان: `aarch64-linux-android` + `armv7-linux-androideabi` (قرار المالك، تكملة ١١٠
+      # — إعادة العمود 32-بت الذي أُخرج في تكملة ٨٢). الهدفان يسريان على الأربعة crates
+      # وعلى ndk-build (`APP_ABI` في `Application.mk`) وعلى الحزمة والمنصّب معًا.
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-linux-android
+          targets: aarch64-linux-android, armv7-linux-androideabi
 
       - name: Cache Rust registry and target directories
         uses: Swatinem/rust-cache@v2
@@ -314,6 +324,17 @@ jobs:
       - name: Install cargo-ndk
         run: command -v cargo-ndk >/dev/null 2>&1 || cargo install cargo-ndk
 
+      # ── اختبارات Rust على المضيف (بلا NDK ولا ABIs) ──
+      # لماذا هذا الخط موجود: لم يكن في المستودع خط واحد يشغّل `cargo test` لـcrate التطبيق
+      # (كان يُبنى للـABIs بالـ`cargo ndk` فقط)، فتعفّن اختبار **فاشل فعلًا**:
+      # `power_predictor::tests::nan_never_enters_history` كان يمرّر NaN في محور المعالج
+      # ثم يسأل عن التاريخ الحراري (والمُمرَّر إليه 42.0 سليم) — فيسقط عند أول تشغيل حقيقي.
+      # والخطوة ثوانٍ، وتقيس وحدها العقد المشترك بين Kotlin وRust (صيغة حزمة الدفعات)
+      # الذي لا يقيسه أي خط آخر.
+      - name: Rust unit tests (app crate, host)
+        working-directory: ./manager/src/main/rust
+        run: cargo test
+
       # ── المكتبة الأصلية للتطبيق (JNI) ──
       # crate maxmanager_native هو الذي يوفر: وكيل التعلم المعزز،
       # المتنبئ، التوأم الرقمي، ومحرك السياق. بدونه يعمل التطبيق في
@@ -324,11 +345,38 @@ jobs:
         working-directory: ./manager/src/main/rust
         run: |
           if [ "$V_TYPE" == "experimental" ]; then
-            cargo ndk -t arm64-v8a -o ../../../app/src/main/jniLibs build
+            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build
           else
-            cargo ndk -t arm64-v8a -o ../../../app/src/main/jniLibs build --release
+            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build --release
           fi
-          ls -l ../../../app/src/main/jniLibs/arm64-v8a/
+          ls -l ../../../app/src/main/jniLibs/arm64-v8a/ ../../../app/src/main/jniLibs/armeabi-v7a/
+
+      # ── مكتبة الطرفية الأصلية (`libtermux.so`) للعمودين ──
+      # مصدرها في المستودع (`terminal-emulator/src/main/jni/termux.c` + `Android.mk`)،
+      # والمُلتَزم منها كان نسخة 64-بت وحده ⇒ على هاتف 32-بت كان `System.loadLibrary("termux")`
+      # يسقط. تُبنى هنا **قبل Gradle** لا في المجموعة الخلفية: ما يُبنى في الخلفية يصل
+      # بعد تغليف الـAPK فلا يُحزَّم، وهذه يجب أن تكون داخل الحزمة فعلًا.
+      - name: Build terminal emulator JNI library (both ABIs)
+        run: |
+          set -e
+          jni_dir="manager/terminal-emulator/src/main/jni"
+          out_dir="$PWD/manager/app/src/main/jniLibs"
+          if [ "$V_TYPE" == "experimental" ]; then ndk_debug=1; else ndk_debug=0; fi
+          mkdir -p "$out_dir"
+          ndk-build -C "$jni_dir" APP_ABI="arm64-v8a armeabi-v7a" APP_PLATFORM=android-29 \
+                    NDK_LIBS_OUT="$out_dir" NDK_DEBUG=$ndk_debug
+          ls -l "$out_dir/arm64-v8a/libtermux.so" "$out_dir/armeabi-v7a/libtermux.so"
+
+      # ── بوابة رموز JNI على الثنائيات **المبنية فعلًا** ──
+      # موضعها هنا مقصود: عندها فقط تكون المكتبتان موجودتين في **العمودين**، فيقاس ما لا
+      # يقيسه غيرهما: (أ) كل `external fun` له رمز مُصدَّر ⇒ لا `UnsatisfiedLinkError`،
+      # (ب) الرمز الموجود في arm64-v8a وغائب في armeabi-v7a ⇒ لا انهيار على هاتف 32-بت
+      # (وهو الصنف الذي وقع فعلًا في `libtermux.so` قبل دعم 32-بت)، (ج) رمز مُصدَّر بلا
+      # مُعلن ⇒ كود ميت. و`--require-binaries` لازمة: غياب الثنائيات هنا هو **عطب**،
+      # بخلاف تشغيل المالك محليًّا بلا NDK حيث تُعلن الطبقة الثانية «غير مُتحقّقة» صراحةً.
+      # و`--strict` **لم تُوضع** عمدًا: الرمز اليتيم كودٌ ميت لا عطبٌ يُسقط الإصدار (ADR-18).
+      - name: Verify JNI symbols in built libraries
+        run: python3 tools/jni_symbols.py --assert --require-binaries
 
       # والخمسة الباقية تُشغَّل في الخلفية وتُحصَد بعد Gradle (الشرح أعلاه).
       # ولا `wait` بين الخطوتين: كل خطوة صدفة shell مستقلة، فالشهادة هنا **ملفٌ تكتبه الخلفية**
@@ -355,11 +403,11 @@ jobs:
               echo "── preloadbin (ndk-build $ndk_debug) ──"
               (cd preloadbin && ndk-build $ndk_debug)
               echo "── thermalcore ($rust_profile) ──"
-              (cd thermalcore && cargo ndk -t arm64-v8a build $rust_profile)
+              (cd thermalcore && cargo ndk -t arm64-v8a -t armeabi-v7a build $rust_profile)
               echo "── binprofiles ($rust_profile) ──"
-              (cd binprofiles && cargo ndk -t arm64-v8a build $rust_profile)
+              (cd binprofiles && cargo ndk -t arm64-v8a -t armeabi-v7a build $rust_profile)
               echo "── binutils ($rust_profile) ──"
-              (cd binutils && cargo ndk -t arm64-v8a build $rust_profile)
+              (cd binutils && cargo ndk -t arm64-v8a -t armeabi-v7a build $rust_profile)
             ) > native-build.log 2>&1
             echo $? > native-build.exit
           ) &
@@ -380,14 +428,14 @@ jobs:
       - name: Use the runner's preinstalled Android SDK (fall back to installing it)
         id: android_sdk_preinstalled
         run: |
-          # الصورة تشحن `android-36` و`build-tools;36.0.0` و`platform-tools` مسبقًا (الوثيقة نفسها)،
-          # فنداء `sdkmanager` يصير كلفة بلا مقابل. نتحقّق ونستعمل، وإلا نادينا الإجراء كما كان.
+          # الصورة قد تشحن `android-36`؛ والمطلوب اليوم **android-37.0** (Android 17).
+          # نستعمل ما في الصورة إن كان هو المطلوب بالضبط، وإلا نُنزّله — والتحقّق بالاسم لا بالتفاؤل.
           sdk="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
-          if [ -d "$sdk/platforms/android-36" ] && [ -d "$sdk/build-tools/36.0.0" ]; then
+          if [ -d "$sdk/platforms/android-37.0" ] && [ -d "$sdk/build-tools/37.0.0" ]; then
             echo "ANDROID_SDK_ROOT=$sdk" >> "$GITHUB_ENV"
             echo "ANDROID_HOME=$sdk" >> "$GITHUB_ENV"
             echo "SDK_PREINSTALLED=1" >> "$GITHUB_ENV"
-            echo "✅ SDK من الصورة: android-36 + build-tools 36.0.0"
+            echo "✅ SDK من الصورة: android-37.0 + build-tools 37.0.0"
           else
             echo "ℹ️ SDK ناقص في الصورة ⇒ التنزيل كالمعتاد"
           fi
@@ -396,10 +444,10 @@ jobs:
         if: env.SDK_PREINSTALLED != '1'
         uses: android-actions/setup-android@v3
         with:
-          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
+          packages: "platform-tools platforms;android-37.0 build-tools;37.0.0"
 
       - name: Add Android Build Tools to PATH
-        run: echo "$ANDROID_SDK_ROOT/build-tools/36.0.0" >> "$GITHUB_PATH"
+        run: echo "$ANDROID_SDK_ROOT/build-tools/37.0.0" >> "$GITHUB_PATH"
 
       # ── حالة مشروع Gradle: تُقبل لالتزام **مطابق** فقط ──
       #
@@ -549,6 +597,7 @@ jobs:
             -Pkotlin.daemon.jvmargs=-Xmx4g \
             -Pkotlin.build.report.output=file \
             ":app:test${variant}UnitTest" \
+            ":terminal-emulator:test${variant}UnitTest" \
             ":app:assemble${variant}" \
             -x ":app:lintVitalRelease" \
             --build-cache \
@@ -664,13 +713,13 @@ jobs:
           fi
           test -f "$apk_path" || { echo "Expected APK is missing: $apk_path" >&2; exit 1; }
 
-          # حرس التركيب 64-بت (تكملة ٨٢): إن تسلّل ثنائيّ 32-بت إلى الـAPK (من موديول أو من
-          # AAR) يسقط البناء بأسمائه — فلا يُشحن حجم لا ينفع جهازًا ولا يُحمّل.
-          if unzip -l "$apk_path" | grep -q "lib/armeabi-v7a/"; then
-            echo "::error::APK carries 32-bit native libraries in a 64-bit-only build" >&2
-            unzip -l "$apk_path" | grep "lib/armeabi-v7a/" >&2
-            exit 1
-          fi
+          # حرس العمودين (تكملة ١١٠ — عكس تكملة ٨٢): الـAPK يجب أن يحمل **كلا** الـABIين.
+          # غياب أحدهما = حزمة لا تُركَّب على نصف الأجهزة — وهو العطب الذي كان الحرس
+          # القديم يُنتجه عمدًا في الاتجاه المعاكس.
+          for abi in arm64-v8a armeabi-v7a; do
+            unzip -l "$apk_path" | grep -q "lib/$abi/" \
+              || { echo "::error::APK is missing native libraries for $abi" >&2; unzip -l "$apk_path" | grep -E "lib/" >&2; exit 1; }
+          done
 
           apksigner verify --verbose --print-certs "$apk_path"
 
@@ -780,18 +829,16 @@ jobs:
             || { echo "module zip: permissions XML checksum missing"; exit 1; }
           # الأسماء الخمسة التي يستخرجها المنصّب بعينها (mainfiles/customize.sh:115-119) —
           # بلا واحد منها يُركّب الموديول ناقصًا على الجهاز. وكان يُتحقَّق من اسم واحد فقط.
-          for binary in sys.maxmanager-service sys.maxmanager-preloadbin \
-                        sys.maxmanager-profilesettings sys.maxmanager-rianixiathermalcore \
-                        sys.maxmanager-utilityconf; do
-            unzip -l "$module_zip" | grep -qF "libs/arm64-v8a/$binary" \
-              || { echo "module zip: missing libs/arm64-v8a/$binary (installer requires it)" >&2; exit 1; }
+          # الأسماء الخمسة × العمودين (تكملة ١١٠): كان يطالب بـ64-بت ويمنع 32-بت، وصار
+          # يطالب بالعمودين — وحزمة يغيب منها عمود لا تُركَّب على جهازه أصلًا.
+          for abi in arm64-v8a armeabi-v7a; do
+            for binary in sys.maxmanager-service sys.maxmanager-preloadbin \
+                          sys.maxmanager-profilesettings sys.maxmanager-rianixiathermalcore \
+                          sys.maxmanager-utilityconf; do
+              unzip -l "$module_zip" | grep -qF "libs/$abi/$binary" \
+                || { echo "module zip: missing libs/$abi/$binary (installer requires it)" >&2; exit 1; }
+            done
           done
-          # ولا ثنائيّ 32-بت في حزمة 64-بت وحدها (تكملة ٨٢).
-          if unzip -l "$module_zip" | grep -q "libs/armeabi-v7a/"; then
-            echo "::error::module zip: 32-bit binaries present in a 64-bit-only build" >&2
-            unzip -l "$module_zip" | grep "libs/armeabi-v7a/" >&2
-            exit 1
-          fi
           unzip -t MaxManager-developer-bundle.zip > /dev/null
           unzip -l MaxManager-developer-bundle.zip | grep -q "overlay/product/priv-app/MaxManager/MaxManager.apk" \
             || { echo "developer bundle: overlay APK missing"; exit 1; }

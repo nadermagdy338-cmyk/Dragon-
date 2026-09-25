@@ -18,17 +18,22 @@
 use contextual_engine::ContextualEngine;
 use digital_twin::DigitalTwin;
 use jni::objects::{JFloatArray, JObject, JString};
-use jni::sys::{jboolean, jfloat, jfloatArray, jint, jstring};
+use jni::sys::{jboolean, jfloat, jfloatArray, jint, jlong, jstring};
 use jni::JNIEnv;
 use lazy_static::lazy_static;
 use power_predictor::PowerPredictor;
 use rl_agent::{Action, DeviceState, RLAgent};
 use std::sync::Mutex;
 
+mod archive;
 mod contextual_engine;
 mod digital_twin;
+mod logparse;
 mod power_predictor;
+mod probe;
 mod rl_agent;
+mod scan;
+mod sysprop;
 
 lazy_static! {
     static ref RL: Mutex<RLAgent> = Mutex::new(RLAgent::new());
@@ -227,7 +232,7 @@ pub extern "system" fn Java_nd_max_core_jni_PredictorBridge_nativeUpdatePredicto
 /// لا أصفار مزيفة.
 #[no_mangle]
 pub extern "system" fn Java_nd_max_core_jni_PredictorBridge_nativePredictThermal(
-    mut env: JNIEnv,
+    env: JNIEnv,
     _class: JObject,
     steps: jint,
 ) -> jfloatArray {
@@ -406,6 +411,221 @@ pub extern "system" fn Java_nd_max_core_jni_ContextBridge_nativeGenerateRecommen
     arr.as_raw()
 }
 
+// ══════════════════════════════════════════════════════════════════
+// 7) قارئ الدفعات — عقد sysfs/proc بلا رحلة لكل عقدة (قراءة فقط)
+// ══════════════════════════════════════════════════════════════════
+// كل عقدة قبل هذا كانت تُقرأ إما بمعاملة binder كاملة (`readNode`) وإما
+// بصدفة `cat` — ومسح الحرارة يقرأ عقدتين لكل منطقة من عشرات المناطق.
+// الدفعة تُنزل ذلك إلى نداء واحد يقرأ الملفات داخل العملية، وتُبقي
+// القيمة الفارغة لسطر العقدة التي حجبها النواة عن uid التطبيق حتى
+// يسألها Kotlin بالطريق المصرَّح (IPC الجذر ثم الصدفة).
+//
+// ولا كتابة هنا إطلاقًا: الوحدة تقرأ وتُصفّف فقط (ADR-11 سليم).
+
+/// قراءة دفعة عقد: نصّ مسارات مشحون → نصّ قيم بنفس الترتيب وعدد الأسطر.
+/// وnull يعود فقط إن تعذّر تحويل نصّ الإدخال (لا قراءة جزئية كاذبة).
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_ProbeBridge_nativeReadManyPacked<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JObject<'local>,
+    packed_paths: JString<'local>,
+) -> jstring {
+    let Some(paths) = jstring_to_string(&mut env, &packed_paths) else {
+        return std::ptr::null_mut();
+    };
+    let out = probe::read_many_packed(&paths);
+    let j = string_to_jstring(&mut env, &out);
+    j.as_raw() as jstring
+}
+
+/// وجود عدة مداخل: نصّ من `1`/`0` بسطر لكل مسار (نفس ترتيب الإدخال).
+/// الدلالة `stat` مثل `test -e` — والرابط المقطوع غير موجود.
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_ProbeBridge_nativeExistingPacked<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JObject<'local>,
+    packed_paths: JString<'local>,
+) -> jstring {
+    let Some(paths) = jstring_to_string(&mut env, &packed_paths) else {
+        return std::ptr::null_mut();
+    };
+    let out = probe::existing_packed(&paths);
+    let j = string_to_jstring(&mut env, &out);
+    j.as_raw() as jstring
+}
+
+/// أسماء مدخلات مجلد واحد (مرتّبة، بلا تكرار) — بديل صدفة `ls`.
+/// `dirs_only` يقصرها على المجلدات. والفراغ يعني "لم أستطع" لا "لا شيء".
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_ProbeBridge_nativeListNamesPacked<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JObject<'local>,
+    path: JString<'local>,
+    dirs_only: jboolean,
+) -> jstring {
+    let Some(dir) = jstring_to_string(&mut env, &path) else {
+        return std::ptr::null_mut();
+    };
+    let out = probe::list_names_packed(&dir, dirs_only != 0);
+    let j = string_to_jstring(&mut env, &out);
+    j.as_raw() as jstring
+}
+
+// ══════════════════════════════════════════════════════════════════
+// 8) محلّل السجلّات — دفعة واحدة كل نافذة بدل regex لكل سطر
+// ══════════════════════════════════════════════════════════════════
+// سطور logcat تصل بعشرات في الثانية، والمُحلِّل في Kotlin كان يطابق regex لكل
+// سطر على خيط لا يتوقف. والتحليل هنا **دفعي**: السطور المجمَّعة في نافذة الواجهة
+// (٣٠٠ مللي) تُحلَّل في نداء واحد، فلا يعبر JNI إلا مرّتين إلى ثلاث في الثانية.
+// والمطابقة **مُحاكاة حرفية** لنمطَي Kotlin (انظر `logparse`)، وفرع الاحتياط
+// والتنقيط والشروط منقولة كما هي — ويحرس التطابق اختبارات الجانبين على نفس المُدخلات.
+
+/// تحليل دفعة سطور. `unified = true` لصيغة السجلّ الموقَّع، وإلا logcat.
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_ProbeBridge_nativeParseLogsPacked<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JObject<'local>,
+    packed_lines: JString<'local>,
+    unified: jboolean,
+) -> jstring {
+    let Some(lines) = jstring_to_string(&mut env, &packed_lines) else {
+        return std::ptr::null_mut();
+    };
+    let out = logparse::parse_batch_packed(&lines, unified != 0);
+    let j = string_to_jstring(&mut env, &out);
+    j.as_raw() as jstring
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// مسح المساحة (ScanBridge) — ADR-50
+// ────────────────────────────────────────────────────────────────────────
+//
+// ثلاثة رموز لا رمز واحد، لأن المسح **طويل**: نداء يعمل (يُنادى من `Dispatchers.IO`)،
+// ونداء يقرأ عدّاد التقدّم الحيّ (يُقرأ من خيط الواجهة كل ~١٠٠ مللي فيبقى العدّاد حيًّا
+// بلا عدّ مخترع)، ونداء يطلب الإلغاء (يُفحص عند حدود المجلدات فلا يعمل عملًا طويلًا
+// بعد أن رحل من طلبه).
+
+/// مسح جذور (سطر لكل جذر) وردّ حزمة نتيجة، أو نصّ فارغ إن تعذّر الإدخال.
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_ScanBridge_nativeScan<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JObject<'local>,
+    packed_roots: JString<'local>,
+    max_entries: jint,
+) -> jstring {
+    let Some(roots) = jstring_to_string(&mut env, &packed_roots) else {
+        return std::ptr::null_mut();
+    };
+    let out = scan::scan_packed(&roots, if max_entries < 0 { 0 } else { max_entries as usize });
+    let j = string_to_jstring(&mut env, &out);
+    j.as_raw() as jstring
+}
+
+/// ما مُسح حتى اللحظة — قراءة ذرّية بلا قفل.
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_ScanBridge_nativeScanProgress(
+    _env: JNIEnv,
+    _class: JObject,
+) -> jlong {
+    scan::progress() as jlong
+}
+
+/// طلب إلغاء المسح الجاري (يُفحص عند حدود المجلدات).
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_ScanBridge_nativeCancelScan(
+    _env: JNIEnv,
+    _class: JObject,
+) {
+    scan::request_cancel();
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// ضغط zip (ArchiveBridge) — ADR-49
+// ────────────────────────────────────────────────────────────────────────
+//
+// **والفكّ لا يُصدَّر هنا إطلاقًا، وهذا مقصود لا نسيان:** فكّ الأرشيف يحمل قاعدة
+// `zip-slip` (رفض مدخل غير آمن قبل أول بايت)، وتبقى في Kotlin وحدها حتى لا تصير
+// القاعدة الأمنية مُنفَّذة مرّتين — وربح الفكّ المقيس (٠.١–٠.٤ث) لا يشتري تنفيذًا ثانيًا.
+//
+// والعائد نصّ واحد يُحمل فيه النجاح أو سبب الفشل: `OK`/`FAIL` + حقول بفاصل `\u0001`
+// (نفس صيغة الدفعات في ProbeBridge). ونصّ فارغ يعني «اسأل غيري» — لا نجاحًا ولا فشلًا.
+
+/// ضغط عدة مسارات (سطر لكل مسار) في أرشيف zip واحد.
+///
+/// `packed_paths` مسارات مُطبَّعة كاملة (والسطر الجديد داخل مسار يرفضه الجانب Kotlin
+/// قبل النداء، فلا ينكسر عدد الأسطر). والعائد `OK…` أو `FAIL…` أو فارغ عند تعذّر الإدخال.
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_ArchiveBridge_nativeCreateZip<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JObject<'local>,
+    packed_paths: JString<'local>,
+    archive_path: JString<'local>,
+) -> jstring {
+    let Some(paths) = jstring_to_string(&mut env, &packed_paths) else {
+        return std::ptr::null_mut();
+    };
+    let Some(archive) = jstring_to_string(&mut env, &archive_path) else {
+        return std::ptr::null_mut();
+    };
+    if archive.is_empty() || paths.is_empty() {
+        return std::ptr::null_mut();
+    }
+    let sources: Vec<String> = paths
+        .split('\n')
+        .map(|row| row.to_string())
+        .collect();
+    let out = archive::pack_result(&archive::create_zip(&sources, &archive));
+    let j = string_to_jstring(&mut env, &out);
+    j.as_raw() as jstring
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// قراءة الخصائص (PropBridge) — بديل `getprop` عبر صدفة
+// ────────────────────────────────────────────────────────────────────────
+//
+// `getprop` = ولادة عملية + تفسير صدفة **لكل سؤال** (مقيس على المضيف: ٢٣٦٦ ميكرو
+// مقابل ١٢٫٦ داخل العملية = ×١٨٧)، والخصائص تُسأل في مسارات ساخنة. وbionic يوفّر
+// `__system_property_get` كسطح مستقرّ — وهو **أوثق** من انعكاس `SystemProperties`
+// (سطح مخفي يرجع الفراغ صامتًا حين يُحجب).
+//
+// **وفرق الدلالة هو كل شيء:** نصّ فارغ = «الخصيصة غير مضبوطة» (حكم)، و`null` =
+// «لا أستطيع القراءة هنا» (مضيف بلا bionic) فيعود المتصل إلى الصدفة. ولا تُخلط
+// الحالتان، ولا تُخترع قيمةٌ باسم خصيصة.
+
+/// قراءة خصيصة واحدة؛ `null` = القراءة الأصلية غير متاحة (لا «فارغة»).
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_PropBridge_nativeGetProp<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JObject<'local>,
+    name: JString<'local>,
+) -> jstring {
+    let Some(key) = jstring_to_string(&mut env, &name) else {
+        return std::ptr::null_mut();
+    };
+    match sysprop::get(&key) {
+        Some(value) => {
+            let j = string_to_jstring(&mut env, &value);
+            j.as_raw() as jstring
+        }
+        None => std::ptr::null_mut(),
+    }
+}
+
+/// قراءة دفعة خصائص: نصّ أسماء مشحون → نصّ قيم بنفس عدد الأسطر (فارغ = غير مضبوطة).
+#[no_mangle]
+pub extern "system" fn Java_nd_max_core_jni_PropBridge_nativeGetPropsPacked<'local>(
+    mut env: JNIEnv<'local>,
+    _class: JObject<'local>,
+    packed_names: JString<'local>,
+) -> jstring {
+    let Some(names) = jstring_to_string(&mut env, &packed_names) else {
+        return std::ptr::null_mut();
+    };
+    let out = sysprop::get_many_packed(&names);
+    let j = string_to_jstring(&mut env, &out);
+    j.as_raw() as jstring
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -414,5 +634,28 @@ mod tests {
     fn jni_state_roundtrip_shape() {
         // القارئ يتطلب 7 قيم — أي أقل يُرجع None (لا افتراضات).
         assert!(true); // الشكل مغطى باختبارات rl_agent/power_predictor.
+    }
+
+    /// الوحدتان الجديدتان من منظور الوحدة نفسها (لا من داخل اختباراتهما):
+    /// مدخل فارغ لا يُنتج نسخًا ولا ينهار — وهو أول ما يصله الجسر قبل أي سطر.
+    #[test]
+    fn batch_entry_points_survive_empty_input() {
+        assert_eq!(probe::read_many_packed(""), "");
+        assert_eq!(probe::existing_packed(""), "");
+        assert_eq!(probe::list_names_packed("/definitely/not/here", false), "");
+        assert_eq!(logparse::parse_batch_packed("", false), "S");
+        assert_eq!(sysprop::get_many_packed(""), "");
+    }
+
+    /// ضغط مصدر غير موجود: فشل **مقروء** لا نصّ فارغ — والفرق بين الاثنين هو كل شيء عند
+    /// المتصل (الفارغ يعني «اسأل Kotlin»، والمقروء يعني «هذا ما فشل ولماذا»).
+    #[test]
+    fn archive_entry_point_reports_failure_instead_of_silence() {
+        let packed = archive::pack_result(&archive::create_zip(
+            &["/definitely/not/here".to_string()],
+            "/tmp/maxmanager-should-not-appear.zip",
+        ));
+        assert!(packed.starts_with("FAIL\u{1}unreadable"));
+        assert_eq!(archive::pack_result(&archive::create_zip(&[], "/tmp/x.zip")), "FAIL\u{1}no_sources\u{1}");
     }
 }

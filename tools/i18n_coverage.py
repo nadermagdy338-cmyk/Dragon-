@@ -12,6 +12,7 @@
     python3 tools/i18n_coverage.py --check-codes    # تطابق قائمة AppLanguage مع مجلدات values-*
     python3 tools/i18n_coverage.py --assert         # يخرج بخطأ فقط عند عيب حقيقي (ليس عند نقص تغطية)
     python3 tools/i18n_coverage.py --prune all --dry-run   # المفاتيح اليتيمة في كل لغة (بلا كتابة)
+    python3 tools/i18n_coverage.py --prune all --assert    # بوابة: تقرأ وحدها وتُسقط عند أول يتيم
 
 مخرجات --manifest تُكتب في `build/i18n/` ولا تُودع في git (مجلد بناء).
 """
@@ -423,21 +424,35 @@ def prune_locale(locale: str, dry_run: bool) -> tuple[int, list[str]]:
 
 
 def cmd_prune(args: argparse.Namespace) -> int:
+    """المفاتيح اليتيمة: يحذفها (أو يحصيها بـ--dry-run)، وبـ`--assert` يصير **بوابة قراءة فقط**.
+
+    ولماذا كانت `--prune` لا تصلح بوابة وهي تُشغَّل في CI: كانت تُعيد 0 **دائمًا**، فسطرها
+    في خط CI كان يمرّ أخضر مهما كان العدد — أي شهادة زور بأتم معنى الكلمة. والآن:
+
+    * `--prune all` = أداة (تحذف فعلًا) · `--prune all --dry-run` = إحصاء ·
+    * `--prune all --assert` = بوابة: **لا تكتب أبدًا** (تفرض القراءة وحدها) وتُسقط التشغيل
+      عند أول مفتاح يتيم؛ فاليتيم لا يُحذف صامتًا في CI (تعديل لا يراجعه أحد)، بل يُعلن.
+    """
+    # بوابة = قراءة فقط: حتى لو نسي أحدهم `--dry-run` فلا حذف في مسار البوابة.
+    dry_run = args.dry_run or args.gate
     targets = locale_folders() if args.prune == "all" else [args.prune]
     total = 0
     for locale in targets:
         if not os.path.isdir(os.path.join(RES, f"values-{locale}")):
             print(f"  لا يوجد مجلد values-{locale}")
             continue
-        removed, notes = prune_locale(locale, args.dry_run)
+        removed, notes = prune_locale(locale, dry_run)
         total += removed
         if removed or notes:
             print(f"values-{locale}: يتيمة محذوفة={removed}")
         for note in notes:
             print("   ", note)
     print(f"لغات مفحوصة: {len(targets)}  ·  مفاتيح يتيمة: {total}")
-    if args.dry_run:
+    if dry_run:
         print("(--dry-run: لم تُكتب أي ملفات)")
+    if args.gate and total:
+        print(f"✗ بوابة المفاتيح اليتيمة: {total} مفتاحًا لم يعد مستعملًا — احذفه في جولة مقصودة")
+        return 1
     return 0
 
 
@@ -497,12 +512,14 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=25, help="عدد المفاتيح المعروضة في --locale")
     args = parser.parse_args()
 
+    # `--prune` أولًا: مع `--assert` يصير بوابة اليتيمة (قراءة فقط)، وبلا `--assert` يبقى أداة.
+    # وترتيب غيره كان يجعل `--prune all --assert` يُشغّل فحص التغطية العادي بدل عدّ اليتامى.
+    if args.prune:
+        return cmd_prune(args)
     if args.gate:
         return cmd_assert(args)
     if args.check_codes:
         return cmd_check_codes(args)
-    if args.prune:
-        return cmd_prune(args)
     if args.apply_csv:
         if not args.locale:
             parser.error("--apply-csv يستلزم --locale لتحديد مجلد الهدف")

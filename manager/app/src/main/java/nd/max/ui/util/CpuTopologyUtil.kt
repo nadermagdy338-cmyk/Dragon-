@@ -17,6 +17,7 @@
 package nd.max.ui.util
 
 import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.RootFileAccess
 
 /**
  * Single source of truth for this device's CPU cluster topology.
@@ -123,8 +124,7 @@ object CpuTopologyUtil {
      * [decodeCoreName] returning null.
      */
     fun clusterMaxFreqMhz(policyPath: String): Int {
-        val khz = Shell.cmd("cat $policyPath/cpuinfo_max_freq 2>/dev/null").exec()
-            .out.joinToString("").trim().toIntOrNull() ?: return 0
+        val khz = RootFileAccess.read("$policyPath/cpuinfo_max_freq")?.toIntOrNull() ?: return 0
         return khz / 1000
     }
 
@@ -141,8 +141,7 @@ object CpuTopologyUtil {
      * bottom of a range the device never announced.
      */
     fun clusterMinFreqMhz(policyPath: String): Int {
-        val khz = Shell.cmd("cat $policyPath/cpuinfo_min_freq 2>/dev/null").exec()
-            .out.joinToString("").trim().toIntOrNull() ?: return 0
+        val khz = RootFileAccess.read("$policyPath/cpuinfo_min_freq")?.toIntOrNull() ?: return 0
         return khz / 1000
     }
 
@@ -153,8 +152,9 @@ object CpuTopologyUtil {
                 .exec().out.joinToString("").trim() == "1"
             if (!hasNode) return true
         }
-        val v = Shell.cmd("cat /sys/devices/system/cpu/cpu$cpu/online 2>/dev/null").exec()
-            .out.joinToString("").trim()
+        // عقد غائبة/غير مقروءة = "" كما كانت مع `exec().out` الفارغ — والقاعدة نفسها:
+        // ما ليس "0" صريحًا يُعدّ متصلًا.
+        val v = RootFileAccess.read("/sys/devices/system/cpu/cpu$cpu/online").orEmpty()
         return v != "0"
     }
 
@@ -258,10 +258,8 @@ object CpuTopologyUtil {
     fun readCpusetGroups(): List<CpusetGroup> {
         return CPUSET_GROUPS.mapNotNull { (key, label) ->
             val path = "$CPUSET_BASE/$key/cpus"
-            val exists = Shell.cmd("test -f $path && echo 1 || echo 0")
-                .exec().out.joinToString("").trim() == "1"
-            if (!exists) return@mapNotNull null
-            val raw = Shell.cmd("cat $path 2>/dev/null").exec().out.joinToString("").trim()
+            if (!RootFileAccess.exists(path)) return@mapNotNull null
+            val raw = RootFileAccess.read(path).orEmpty()
             CpusetGroup(key = key, label = label, path = path, cores = parseCpuRange(raw))
         }
     }

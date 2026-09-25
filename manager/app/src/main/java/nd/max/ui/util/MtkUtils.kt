@@ -9,12 +9,10 @@
 package nd.max.ui.util
 
 import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.RootFileAccess
 import java.io.File
 
 object MtkUtils {
-
-    private fun readFileFallback(filePath: String): String =
-        Shell.cmd("cat $filePath").exec().takeIf { it.isSuccess }?.out?.joinToString("\n")?.trim().orEmpty()
 
     // === Helper Functions untuk IPC (Dengan Fallback) ===
     // Dibuat PUBLIC agar bisa dipakai oleh ViewModel nantinya
@@ -24,9 +22,15 @@ object MtkUtils {
         } catch (e: Exception) { File(path).exists() }
     }
 
+    /**
+     * قراءة عقدة/ملف بنفس ترتيب `RootFileAccess` (قارئ أصلي ← IPC الجذر ← ملف مباشر ← صدفة).
+     *
+     * وكانت هذه الدالة IPC ثم صدفةً واحدة (`cat`)، أي رحلة صدفة كاملة لكل قراءة على أجهزة
+     * بلا خدمة جذر مربوطة — وهي الحالة الشائعة في التطبيق الذي يقرأ عشرات العقد في كل دورة.
+     */
     fun readData(path: String): String {
         return try {
-            RootIpcManager.ipc?.readNode(path) ?: readFileFallback(path).trim()
+            RootFileAccess.read(path).orEmpty()
         } catch (e: Exception) { "" }
     }
 
@@ -40,28 +44,21 @@ object MtkUtils {
         } catch (e: Exception) { false }
     }
 
+    /** أسطر عقدة/ملف — من نفس الطبقة الموحّدة (`readData`)، فلا صدفة ثانية في الأسفل. */
     fun readLines(path: String): List<String> {
-        val content = readData(path)
-        if (content.isNotEmpty()) return content.lines()
-        
         return try {
-            Shell.cmd("cat $path").exec().out
+            RootFileAccess.read(path)?.lines().orEmpty()
         } catch (e: Exception) { emptyList() }
     }
 
     // Previously this only had an IPC path with no shell fallback (unlike readData/writeData
     // above), so callers like the Thermal tab's gpu temp scan silently got an empty list - and
     // therefore always showed 0/N/A - on every build that didn't have a bound root service.
+    // And the four transports now live in one place: `RootFileAccess.listDirectories`
+    // (قارئ أصلي ← IPC ← صدفة ← `File`) فلا يتباعد ترتيبها بين مستدعٍ وآخر.
     fun listDirectories(path: String): List<String> {
         return try {
-            RootIpcManager.ipc?.listDirectories(path) ?: run {
-                val file = File(path)
-                if (file.isDirectory) {
-                    file.listFiles()?.map { it.name } ?: emptyList()
-                } else {
-                    Shell.cmd("ls -1 $path").exec().takeIf { it.isSuccess }?.out ?: emptyList()
-                }
-            }
+            RootFileAccess.listDirectories(path)
         } catch (e: Exception) { emptyList() }
     }
 

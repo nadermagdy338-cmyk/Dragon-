@@ -46,6 +46,11 @@ impl PowerPredictor {
     }
 
     /// تنبؤ حمل CPU — نفس المنهج فوق تاريخ الحمل المقيس.
+    ///
+    /// ⚠️ **قدرة مبنيّة وغير مُستهلكة** (`I-77`): لا تصدير JNI لها ولا مستدعي في الإنتاج
+    /// (المُستهلك الوحيد `predict_thermal` من محرك الأمان). تبقى لأنها مقيسة باختبار،
+    /// وسطرها هنا إقرارٌ بالحالة لا ادّعاءُ استخدام.
+    #[allow(dead_code)]
     pub fn predict_cpu(&self, steps: usize) -> Vec<f32> {
         if steps == 0 {
             return Vec::new();
@@ -53,10 +58,25 @@ impl PowerPredictor {
         weighted_forecast(&self.cpu_history, steps)
     }
 
-    /// عدد قراءات التاريخ الحراري المتوفرة — يعرضها Kotlin بصدق
-    /// بدل ادعاء تنبؤ قبل اكتمال النصاب.
+    /// عدد قراءات التاريخ الحراري المتوفرة — أساس حارس النصاب في الاختبارات.
+    ///
+    /// و`#[cfg(test)]` لأنّ **لا تصدير JNI يعرضها**: الوصف السابق هنا («يعرضها Kotlin
+    /// بصدق») كان ادّعاءً غير صحيح — Kotlin لا يرى هذه الأعداد إطلاقًا (`I-77`).
+    #[cfg(test)]
     pub fn thermal_samples(&self) -> usize {
         self.thermal_history.len()
+    }
+
+    /// عدد قراءات تاريخ الحمل المتوفرة — للاختبار وحده (السبب أعلاه).
+    #[cfg(test)]
+    pub fn cpu_samples(&self) -> usize {
+        self.cpu_history.len()
+    }
+
+    /// عدد قراءات تاريخ البطارية المتوفرة — للاختبار وحده (السبب أعلاه).
+    #[cfg(test)]
+    pub fn battery_samples(&self) -> usize {
+        self.battery_history.len()
     }
 }
 
@@ -135,7 +155,13 @@ mod tests {
     #[test]
     fn nan_never_enters_history() {
         let mut p = PowerPredictor::new();
-        p.update(f32::NAN, 42.0, 80.0);
-        assert_eq!(p.thermal_samples(), 0);
+        // NaN في محور المعالج وinf في محور البطارية: لا يدخلان،
+        // والمحور السليم (42.0) يدخل فعلًا — وإلا كان "الرفض" رفضًا للكل.
+        p.update(f32::NAN, 42.0, f32::INFINITY);
+        assert_eq!(p.cpu_samples(), 0);
+        assert_eq!(p.thermal_samples(), 1);
+        assert_eq!(p.battery_samples(), 0);
+        // والتنبؤ لا يبنى على قياس مرفوض: النصاب لم يكتمل بعدُ.
+        assert!(p.predict_cpu(6).is_empty());
     }
 }

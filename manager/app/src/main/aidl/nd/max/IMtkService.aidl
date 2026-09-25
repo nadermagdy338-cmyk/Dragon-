@@ -13,4 +13,10 @@ interface IMtkService {
     boolean writeNode(String path, String value);
     boolean nodeExists(String path);
     List<String> listDirectories(String path);
+
+    // قراءة عدة عقد في **معاملة واحدة**: القيمة i تقابل المسار i، وفارغ = لم تُقرأ.
+    // السبب مقيس: كل `readNode` معاملة binder كاملة، ومسح الحرارة يقرأ عقدتين لكل منطقة
+    // (وعشرات المناطق) ⇒ مئات المعاملات كل دورتين. الدفعة تنزل بها إلى واحدة، والقراءات
+    // تبقى قراءات ملفات محلية داخل عملية الجذر (uid 0).
+    List<String> readNodes(in List<String> paths);
 }

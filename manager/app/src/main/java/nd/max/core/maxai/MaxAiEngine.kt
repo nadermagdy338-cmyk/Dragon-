@@ -1530,18 +1530,34 @@ class MaxAiEngine @Inject constructor(
 
     /**
      * تبديل Max AI. عند الإيقاف تُترك سقوف المحرك باسترجاع الأساس.
+     *
+     * **والعطب المُصلَح هنا (تكملة ١١١):** كان الزر يبدو كأنه لا يستجيب لعشرات الثواني،
+     * ولذلك سببان اجتمعا — (١) `_state.aiEnabled` لم يكن يتغيّر إلا بـ`publish` داخل دورة
+     * كاملة، وفيها ١٠ ثوانٍ حكم لكل مقبض (`RESPONSE_WINDOW_MS`)؛ (٢) وكتابة الخاصية كانت
+     * تنتهي إلى `Shell.cmd(...).submit()` **الذي لا ينتظر**، فتُقرأ قيمة قديمة في الدورة
+     * التي أُطلقت للتوّ فتُنشر `aiEnabled = false` فـ**يُرتد الزر إلى وضعه**، ثم تصحّحه دورة
+     * بعد ≤30 ثانية (`CYCLE_MS`) وتستهلك نوافذ الحكم — فيكون ما يراه المستخدم دقيقة كاملة.
+     *
+     * فالعلاج ثلاثي: تصديق فوري للنيّة · كتابة **مُتحقَّقة** لا وعدًا · وتصحيح إن فشلت.
      */
     fun setAiEnabled(enabled: Boolean) {
+        // (١) النيّة تُصدَّق فورًا: الحالة تعكس ما اختاره المستخدم الآن، لا ما ستقرؤه دورة لاحقًا.
+        _state.update { it.copy(aiEnabled = enabled) }
         scope.launch(Dispatchers.IO) {
             val old = readAiEnabled()
-            PropertyUtils.set(MaxManagerProps.Conf.AI_ENABLED, if (enabled) "1" else "0")
-            Shell.cmd(
-                "echo ${if (enabled) "1" else "0"} > /data/adb/.config/MaxManager/API/current_modes"
-            ).submit()
+            val value = if (enabled) "1" else "0"
+            // (٢) كتابة مُتحقَّقة: تُعيد الحقيقة، فلا تُبنى عليها دورة تقرأ قيمة لم تُكتب بعد.
+            val confirmed = PropertyUtils.setAndConfirm(MaxManagerProps.Conf.AI_ENABLED, value)
+            // وملف الأوضاع الذي يقرأه الخادم: `exec` لا `submit` — الحقيقة تُنتظر.
+            runCatching {
+                Shell.cmd("echo $value > /data/adb/.config/MaxManager/API/current_modes").exec()
+            }
             EventLog.userAction(
                 "MaxAiEngine", "master_switch",
                 if (old) "on" else "off", if (enabled) "on" else "off"
             )
+            // (٣) فإن فشلت الكتابة حقًّا عاد الزر إلى ما هو كائن — تصحيح لا ادّعاء.
+            if (!confirmed) _state.update { it.copy(aiEnabled = readAiEnabled()) }
             if (!enabled) {
                 // إيقاف العقل = تحرير كل مقبض يملكه مع استرجاع خط أساسه
                 // المحفوظ في المُحكِّم (قرار #6) — لا "حالة مستقرة" غامضة.

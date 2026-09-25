@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.RootFileAccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nd.max.MaxManagerProps
@@ -162,11 +163,11 @@ class NetworkSchedulerViewModel : ViewModel() {
 
     // ---- Shell helpers ----
 
-    private fun nodeExists(path: String): Boolean =
-        Shell.cmd("test -e $path && echo 1 || echo 0").exec().out.joinToString("").trim() == "1"
+    // القراءة/الوجود عبر الطبقة الموحّدة (قارئ أصلي ← IPC الجذر ← ملف ← صدفة) بدل صدفة
+    // كاملة لكل عقدة — وشاشة الشبكة تقرأ عشرات المقابض عند فتحها.
+    private fun nodeExists(path: String): Boolean = RootFileAccess.exists(path)
 
-    private fun readNode(path: String): String =
-        Shell.cmd("cat $path 2>/dev/null").exec().out.joinToString("").trim()
+    private fun readNode(path: String): String = RootFileAccess.read(path).orEmpty()
 
     private fun writeNode(path: String, value: String) {
         val safeValue = value.replace("'", "'\\''")
@@ -288,16 +289,40 @@ class NetworkSchedulerViewModel : ViewModel() {
         if (saved == "0" || saved == "1") writeNode(path, saved)
     }
 
+    /**
+     * قراءة كل مقابض بروتوكولات الشبكة العامة.
+     *
+     * **وما تغيّر (تكملة ١١٢):** كان كل مقبض يُكلَّف رحلتين (سؤال وجود ثم قراءة) في حلقة
+     * على القائمة كلها ⇒ عشرات الرحلات عند فتح الشاشة. صار: **نداء دفعة واحد** يجيب عن
+     * القائمة كلها (وقيمة عقدة تُثبت وجودها)، ثم لا يُعاد سؤال الجذر إلا عن المقابض التي
+     * لها تجاوز محفوظ فعلًا — وهي قليلة. وغياب القيمة يعني غياب العقدة أو عدم قراءتها،
+     * وهو نفس ما كانت الحلقة القديمة تصل إليه (عقدة غائبة ⟹ `readNode` فارغ ⟹ تُسقط).
+     */
     private fun loadGenericTunables() {
         val overrides = parseGenericOverrides(PropertyUtils.get(PROP_GENERIC_OVERRIDES))
-        val found = mutableListOf<TunableItem>()
-        GENERIC_SCHED_TUNABLES.forEach { (label, path) ->
-            if (!nodeExists(path)) return@forEach
-            overrides[path]?.let { writeNode(path, it) }
-            val value = readNode(path)
-            if (value.isNotEmpty()) found.add(TunableItem(label, path, value))
+        val entries = GENERIC_SCHED_TUNABLES.entries.toList()
+        val paths = entries.map { it.value }
+        val initial = RootFileAccess.readMany(paths)
+
+        // التجاوزات المحفوظة تُكتب ثم تُعاد قراءتها — كسلوك المستخدم الذي كتبها بنفسه.
+        val overridden = paths.filterIndexed { index, path ->
+            initial.getOrNull(index) != null && overrides[path] != null
         }
-        genericTunables = found
+        val settled = if (overridden.isEmpty()) {
+            initial
+        } else {
+            overridden.forEach { path -> writeNode(path, overrides.getValue(path)) }
+            val refreshed = RootFileAccess.readMany(overridden)
+            paths.mapIndexed { index, path ->
+                val slot = overridden.indexOf(path)
+                if (slot >= 0) refreshed.getOrNull(slot) ?: initial[index] else initial[index]
+            }
+        }
+
+        genericTunables = entries.mapIndexedNotNull { index, entry ->
+            settled.getOrNull(index)?.takeIf { it.isNotEmpty() }
+                ?.let { TunableItem(entry.key, entry.value, it) }
+        }
     }
 
     private fun parseGenericOverrides(serialized: String): Map<String, String> {

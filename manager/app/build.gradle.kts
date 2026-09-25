@@ -98,10 +98,11 @@ val buildTimeEpochMs: Long = providers.of(GitCommitTimeValueSource::class) {
 
 android {
     namespace = "nd.max"
-    // API 37 is not published on the GitHub-hosted SDK repository; API 36
-    // is the newest stable level available there and satisfies the AAR
-    // metadata floor of the current androidx alphas.
-    compileSdk = 36
+    // **API 37 = Android 17 — منشور ومُتحقَّق (تكملة ١١٠):** التقييد السابق («API 37 غير
+    // منشور في مستودع SDK») كان صحيحًا وقته، وقد انتهى: `platforms;android-37.0`
+    // و`build-tools;37.0.0` مستقرّان — مُثبَّتان محليًّا ومُشترَطان في CI. وطلب المالك
+    // «يعمل على كل أندرويد دون مشاكل» يبدأ بأن يُصرَّف ضد أحدث واجهة ويُعلَن عليها.
+    compileSdk = 37
 
     // كلمة مرور مخزن المفاتيح من سر CI (KS_PWD / KEYSTORE_PASSWORD).
     // بناء release غير موقّع غير صالح كـ priv-app، لذلك نفشل مبكرًا عند طلبه.
@@ -116,16 +117,17 @@ android {
     defaultConfig {
         applicationId = "nd.max"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
         vectorDrawables.useSupportLibrary = true
         buildConfigField("long", "BUILD_TIME", "${buildTimeEpochMs}L")
         ndk {
-            // arm64-v8a وحده — قرار المالك (تكملة ٨٢): الأجهزة 32-بت لم تبقَ مدعومة،
-            // والمنصّب يرفضها برسالة صريحة بدل تركيب ناقص. الفائدة في البناء: نصف حجم
-            // العمل الأصلي، وحزمة أخفّ بما كان مخصّصًا لـ`armeabi-v7a`.
-            abiFilters.addAll(listOf("arm64-v8a"))
+            // **العمودان معًا (قرار المالك، تكملة ١١٠ — عكس تكملة ٨٢):** هواتف 32-بت
+            // تعود مدعومة كاملة: `armeabi-v7a` يُبنى في التطبيق (مكتبات JNI) وفي الموديول
+            // (الثنائيات الخمسة) وفي المنصّب (يختار بحسب `ARCH`)، و`arm64-v8a` كما كان.
+            // وترتيب القائمة (64 ثم 32) هو عُرف السلف المُستعاد من المشروع القديم.
+            abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
         }
     }
 
@@ -205,12 +207,11 @@ android {
             excludes += "DebugProbesKt.bin"
             excludes += "kotlin-tooling-metadata.json"
         }
-        // حرس صريح لا يعتمد على دلالات `abiFilters` وحدها: ما تبقّى من ثنائيات 32-بت في
-        // المستودع (مثل `kernel-flasher/src/main/jniLibs/armeabi-v7a`) لا يدخل الحزمة.
-        // وأثره مُتحقَّق منه في CI: بناء الـAPK يفشل إن وُجد `lib/armeabi-v7a/` داخله.
-        jniLibs {
-            excludes += "lib/armeabi-v7a/**"
-        }
+        // **حرس 32-بت أُزيل (تكملة ١١٠):** كان يمنع دخول `lib/armeabi-v7a/**` في زمن
+        // «64-بت وحده». اليوم الـABIان يُشحنان معًا، فالحرس انقلب إلى الاتجاه الصحيح
+        // وموضعه CI: البناء يفشل إن **غاب** `lib/armeabi-v7a/` أو `lib/arm64-v8a/`.
+        // (وقيمة إيجابية بالمناسبة: `kernel-flasher` يحمل ثنائيات v7a جاهزة في المستودع،
+        // وكان الحرس السابق يمنعها من الوصول إلى جهازها.)
     }
 
     tasks.withType<PackageAndroidArtifact> {

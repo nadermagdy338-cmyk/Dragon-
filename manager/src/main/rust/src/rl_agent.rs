@@ -326,6 +326,11 @@ impl RLAgent {
         self.action_counts
     }
 
+    /// ⚠️ **مُعلن لا مُستهلك** (`I-77`): لا تصدير JNI له ولا مستدعي في الشجرة — الحالة
+    /// المنظورة إلى Kotlin تُبنى من `steps`/`action_counts`/`model_path_label` في
+    /// `nativeGetRLState`. يُبقى فلا يُحذف عملٌ لإسكات تحذير (ADR-18)، ويُقرأ سطره من أراد
+    /// توصيله.
+    #[allow(dead_code)]
     pub fn last_action_label(&self) -> &'static str {
         match self.last_action {
             Some(i) => Action::ALL.get(i).map(|a| a.label()).unwrap_or("لا شيء"),
