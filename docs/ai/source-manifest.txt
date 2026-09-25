@@ -1,5 +1,5 @@
 # بصمة المصادر — لا تُحرَّر يدويًّا: `python3 tools/source_manifest.py --write`
-00f530378a5fe766345efc8f452f762d66023d3988a7400bb91639f29f766cd4  .github/workflows/build.yml
+f6487101829630853825572845e659d0ca08d7b3bf65d25607952dd97f583720  .github/workflows/build.yml
 844f12d27e39662e6088a834d0d734d0d34114d0f597e207a40ec7a202e4a425  manager/app/build.gradle.kts
 a14ed02ba64003cd3d7964cfc01158d81ece8d7423795b5a8a98bb0cf88e3ab9  manager/app/src/debug/java/nd/max/ui/component/StudioPreviews.kt
 e4d6985d8721bbad976b64d4caec15a8a188675e09f93fa69077a98d0b85935d  manager/app/src/main/AndroidManifest.xml

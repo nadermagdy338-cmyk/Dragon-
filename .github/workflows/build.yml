@@ -532,12 +532,17 @@ jobs:
             manager/kernel-flasher/build
           key: gradle-state-${{ runner.os }}-${{ github.sha }}
           # القتل الوسَطي (بصمة exit 143) يقتل خطوات post قبل أن تُحفَظ الحالة، فبقيت الجولة
-          # التالية باردة — والحلقة ما كانت لتُقطع. `CACHE_ON_FAILURE` (خاصية actions/cache
-          # المعتمدة) تسمح بالحفظ في الـpost حتى عند فشل المهمة: حالة نصف مكتوبة **من
-          # الالتزام نفسه** مفتاحُها مطابقٌ حرفيًّا، فلا دخول لعاوب التصريف التزايدي الذي
-          # سدّده الحرس أدناه (عطب الحالة كان من شجرة أخرى، لا من إعادة التزام واحد)،
-          # وإعادة تشغيل التشغيل الفاشل تجد ما أنجزته صالحًا.
-          CACHE_ON_FAILURE: true
+          # التالية باردة — والحلقة ما كانت لتُقطع. والصواب (صحّحه سجل المالك نفسه — تشغيل
+          # 2026-09-25 09:37Z، خطوة «Restore Gradle project state»): **`save-always`** من
+          # مدخلات actions/cache المعتمدة — جرّبنا قبلها `CACHE_ON_FAILURE` فرفضته الأداة
+          # تحذيرًا صريحًا («Unexpected input(s) 'CACHE_ON_FAILURE', valid inputs are …
+          # 'save-always'») وظل الحفظ معطلًا. ومعناه: الحفظ في الـpost **حتى عند فشل المهمة** —
+          # وحالة نصف مكتوبة **من الالتزام نفسه** مفتاحُها مطابقٌ حرفيًّا، فلا دخول لعَاوب
+          # التصريف التزايدي الذي سدّده الحرس أدناه (عطب الحالة كان من شجرة أخرى، لا من
+          # إعادة تشغيل التزام واحد)، وإعادة تشغيل التشغيل الفاشل تجد ما أنجزته صالحًا.
+          # ⚠️ وحدّه المعلن: لا شيء ينقذ حين يُقتل الـrunner قبل خطوات post — السجلان المقتولان
+          # بلا سطر Post واحد. فالحفظ عند الفشل أو النجاح، ولا ينقذ من القتل الوسَطي.
+          save-always: true
 
       # ── الحرس: لا تصريف تزايديًّا على تاريخ شجرة أخرى ──
       #
@@ -644,7 +649,40 @@ jobs:
       #
       # والحاجز في هذا الأمر هو: البوابات السريعة أعلاه + مُصرّف + اختبارات عقد.
       # ومن أراد الفحص الفتّاك فـ`./gradlew :app:lintVitalRelease` يدويًّا قبل الإصدار.
-      - name: Build + test (contract gate)
+      #
+      # ── خط الزمن المقيس (سجل المالك، تشغيل 2ff6994 وb54185f): من أين دقائق الجولة الباردة ──
+      #
+      #   ما قبل Gradle  ‏2:35 (بوابات 0:23 · cargo test 0:38 · بناءا JNI 0:57 · البواقي)
+      #   تحميل التوزيعة ‏0:08   |   إعداد وإسقاط مخطط المهام  ‏2:34  ← «no cached configuration»
+      #   تصريف + موارد  ‏~6:00 |   ‏minifyReleaseWithR8 وحدها **6:29** (09:48:36 ← 09:55:05)
+      #   ثمّ merge/convert/artProfile · optimizeResources · l8 · packageRelease ← قُتل قبلها
+      #   المجموع ≈ ‏20–21 دقيقة، والقتل الخارجي (exit 143) وقع عند **16:06 · 18:30 · 18:22**.
+      #
+      # والنتيجة المُشخَّصة: الميزانية متقاربة جدًّا، والحسّاس منها **R8** (6:29) والإعداد البارد (2:34)
+      # وكلاهما لا يُقصَّر بأمان من هنا. والاختبارات ليست على المسار الحرج: تشغيلها (09:48:59)
+      # وقطع R8 (09:48:36) يتوازيان وينتهيان في وقت واحد تقريبًا. وأي ربح يُطلَب بعد ذلك يمرّ
+      # من جهة الأنوية: `vars.BUILD_RUNNER` (مُوثَّق أعلى هذا الملف) هو الرافعة المُعدّة لذلك.
+      #
+      # ── ولماذا انقسم النداء إلى نداءين: «نقطة حفظ» تُكتب بخطوة، لا في post ──
+      #
+      # كل ما سبق يقود إلى نتيجة واحدة: **لا كاش لأنه لا تشغيل يكتمل**، ولا يكتمل لأن البارد
+      # أطول من النافذة. فالعلاج أن يصير للجولة **نقطة حفظ قبل نافذة القتل**، بأصغر نداء
+      # يمكن أن ينتهي مبكرًا: **تصريف المصادر وحده** (`:app:compile${variant}Kotlin` ومعها ما
+      # يجرّه من KSP/موارد/R — وهي ثقيلة المنجز). زمنها المقيس من هذا السجل نفسه:
+      #   إعداد ومخطط ‏2:51 + موارد/ksp/تصريف ‏~4:00 ⇒ ~٦:٥٠ داخل Gradle
+      #   + ما قبل Gradle ‏2:35 ⇒ نقطة الحفظ تُكتب عند الدقيقة ~ ١٠–١٢ **قبل** كل قتل مقيس
+      #   (16:06 · 18:22 · 18:30).
+      # ثم النداء الثاني = الاختبارات + R8 + التغليف (١٠–١١ دقيقة، وفيها الاختبارات متوازية
+      # مع R8 كما كانت في النداء الواحد — لا تسلسل جديد مفروض). وهو الذي يُقتل عادةً،
+      # فيكون قد سُجّل التصريف، ويصير إعادة تشغيل الالتزام نفسه (Re-run failed jobs) قصيرة:
+      #   استعادة الحالة ← التصريف UP-TO-DATE (والتهيئة من مخزن الإعداد!) ← الاختبارات ∥ R8
+      #   ← التغليف ≈ ‏١٥ دقيقة من بداية المهمة ⇒ داخل النافذة ويُنتَج الـAPK.
+      # ولا يمسّ ذلك مخرجات المنتج: نفس المهامّ، نفس الوسائط، نفس الـAPK — على نداءين.
+      # ⚠️ وحدّان معلنان: (أ) كاش الالتزام الجديد لا يساعد التزامًا آخر (المفتاح بالـsha عمدًا
+      # والحرس أدناه يمنع حالة شجرة أخرى) — فكل التزام جديد يبدأ باردًا؛ (ب) النافذة المقيسة
+      # ‏16:06 هي الحدّ الأعلى للتفاؤل: إن نزل القاتل قبلها فالرافعة المتبقية هي الأنوية
+      # (`vars.BUILD_RUNNER`، موثّقة أعلى هذا الملف).
+      - name: Compile main sources (checkpoint 1/2)
         working-directory: ./manager
         run: |
           # git on Windows drops the +x bit on gradlew — self-heal before
@@ -684,12 +722,49 @@ jobs:
             -Pkotlin.compiler.execution.strategy=daemon \
             -Pkotlin.daemon.jvmargs=-Xmx4g \
             -Pkotlin.build.report.output=file \
+            ":app:compile${variant}Kotlin" \
+            --build-cache \
+            --parallel 2>&1 | tee /tmp/gradle-build.log
+          # يُصدَّر للخطوة التالية (كل خطوة صدفة مستقلة): التغليف يحتاج النسخة نفسها.
+          echo "variant=$variant" >> "$GITHUB_ENV"
+
+        env:
+          KS_PWD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      # ── نقطة الحفظ (الشرح أعلاه): خطوة حقيقية، فتعمل والجولة ما زالت حيّة ──
+      #
+      # مفتاحها **نفس** مفتاح خطوة الاستعادة أعلاه، فالالتزام التالي (أو إعادة تشغيله)
+      # يستعيدها بحرفيّتها — وهذا ما يجعل الحرس يقبلها («حالة من هذا الالتزام بعينه»).
+      # و`continue-on-error`: إن كانت النقطة مكتوبة من محاولة سابقة فالمفتاح موجود،
+      # و`actions/cache` يرفض الكتابة فوقه — وهذا **نجاحٌ لنا** لا فشل.
+      - name: Checkpoint — save project state (same commit)
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            manager/.gradle
+            manager/build
+            manager/app/build
+            manager/terminal-emulator/build
+            manager/terminal-view/build
+            manager/kernel-flasher/build
+          key: gradle-state-${{ runner.os }}-${{ github.sha }}
+
+      - name: Tests + assemble + package (contract gate)
+        working-directory: ./manager
+        run: |
+          set -o pipefail
+          ./gradlew \
+            -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
+            -Pkotlin.compiler.execution.strategy=daemon \
+            -Pkotlin.daemon.jvmargs=-Xmx4g \
+            -Pkotlin.build.report.output=file \
             ":app:test${variant}UnitTest" \
             ":terminal-emulator:test${variant}UnitTest" \
             ":app:assemble${variant}" \
             -x ":app:lintVitalRelease" \
             --build-cache \
-            --parallel 2>&1 | tee /tmp/gradle-build.log
+            --parallel 2>&1 | tee -a /tmp/gradle-build.log
 
         env:
           KS_PWD: ${{ secrets.KEYSTORE_PASSWORD }}
