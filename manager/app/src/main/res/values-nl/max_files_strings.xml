@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Meer acties</string>
     <string name="max_files_show_hidden">Toon verborgen bestanden</string>
     <string name="max_files_hide_hidden">Verberg verborgen bestanden</string>
-    <string name="max_files_open_terminal">Open de terminal</string>
     <string name="max_files_search_open_cd">Zoek in deze map</string>
     <string name="max_files_location_root">Wortel /</string>
     <string name="max_files_location_storage">Interne opslag</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Hulpmiddelen</string>
     <string name="max_files_drawer_tasks">Achtergrondtaken</string>
     <string name="max_files_drawer_tasks_running">%1$d loopt nu</string>
-    <string name="max_files_drawer_terminal_note">Voer een opdrachtregel uit als root</string>
     <string name="max_files_bookmark_add">Voeg deze map toe aan bladwijzers</string>
     <string name="max_files_bookmark_remove">Verwijderen uit bladwijzers</string>
     <string name="max_files_bookmarks_empty">Nog geen bladwijzers: voeg de mappen toe waarnaar u steeds terugkeert.</string>

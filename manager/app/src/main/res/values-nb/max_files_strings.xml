@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Flere handlinger</string>
     <string name="max_files_show_hidden">Vis skjulte filer</string>
     <string name="max_files_hide_hidden">Skjul skjulte filer</string>
-    <string name="max_files_open_terminal">Åpne terminalen</string>
     <string name="max_files_search_open_cd">Søk i denne mappen</string>
     <string name="max_files_location_root">Root /</string>
     <string name="max_files_location_storage">Intern lagring</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Verktøy</string>
     <string name="max_files_drawer_tasks">Bakgrunnsoppgaver</string>
     <string name="max_files_drawer_tasks_running">%1$d kjører nå</string>
-    <string name="max_files_drawer_terminal_note">Kjør en kommandolinje som root</string>
     <string name="max_files_bookmark_add">Legg til denne mappen i bokmerker</string>
     <string name="max_files_bookmark_remove">Fjern fra bokmerker</string>
     <string name="max_files_bookmarks_empty">Ingen bokmerker ennå – legg til mappene du stadig går tilbake til.</string>

@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">مزید کارروائیاں</string>
     <string name="max_files_show_hidden">چھپی ہوئی فائلیں دکھائیں۔</string>
     <string name="max_files_hide_hidden">چھپی ہوئی فائلوں کو چھپائیں۔</string>
-    <string name="max_files_open_terminal">ٹرمینل کھولیں۔</string>
     <string name="max_files_search_open_cd">اس فولڈر کو تلاش کریں۔</string>
     <string name="max_files_location_root">جڑ/</string>
     <string name="max_files_location_storage">اندرونی اسٹوریج</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">اوزار</string>
     <string name="max_files_drawer_tasks">پس منظر کے کام</string>
     <string name="max_files_drawer_tasks_running">%1$d ابھی چل رہا ہے۔</string>
-    <string name="max_files_drawer_terminal_note">روٹ کے بطور کمانڈ لائن چلائیں۔</string>
     <string name="max_files_bookmark_add">اس فولڈر کو بُک مارکس میں شامل کریں۔</string>
     <string name="max_files_bookmark_remove">بک مارکس سے ہٹا دیں۔</string>
     <string name="max_files_bookmarks_empty">ابھی تک کوئی بُک مارکس نہیں — وہ فولڈر شامل کریں جن پر آپ واپس آتے رہتے ہیں۔</string>

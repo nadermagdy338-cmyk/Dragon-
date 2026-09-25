@@ -41,18 +41,14 @@
     <string name="max_status_unknown">स्थिति_अज्ञात</string>
     <string name="max_settings_diagnostics">निदान</string>
     <string name="max_settings_logs">लगहरू</string>
-    <string name="max_tool_terminal">टर्मिनल</string>
     <string name="max_tool_setedit">सेट सम्पादन</string>
     <string name="max_tool_activity_launcher">गतिविधि लन्चर</string>
-    <string name="max_tool_kernel_flasher">कर्नेल फ्ल्यासर</string>
     <string name="max_risk_normal">मानक जोखिम</string>
     <string name="max_risk_advanced">उन्नत जोखिम</string>
     <string name="max_risk_dangerous">खतरनाक जोखिम</string>
     <string name="max_settings_appearance">उपस्थिति</string>
-    <string name="max_title_terminal">टर्मिनल</string>
     <string name="max_title_setedit">सेट सम्पादन</string>
     <string name="max_title_activity_launcher">गतिविधि लन्चर</string>
-    <string name="max_title_kernel_flasher">कर्नेल फ्ल्यासर</string>
     <string name="max_title_app_settings">एप सेटिङहरू</string>
     <string name="max_title_get_started">सेटअप</string>
 </resources>

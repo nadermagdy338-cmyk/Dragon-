@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">अधिक क्रियाएं</string>
     <string name="max_files_show_hidden">छुपी हुई फ़ाइलें दिखाएँ</string>
     <string name="max_files_hide_hidden">छुपी हुई फ़ाइलें छिपाएँ</string>
-    <string name="max_files_open_terminal">टर्मिनल खोलें</string>
     <string name="max_files_search_open_cd">यह फ़ोल्डर खोजें</string>
     <string name="max_files_location_root">जड़ /</string>
     <string name="max_files_location_storage">आंतरिक स्टोरेज</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">औजार</string>
     <string name="max_files_drawer_tasks">नेपथ्य कार्य</string>
     <string name="max_files_drawer_tasks_running">%1$d अभी चल रहा है</string>
-    <string name="max_files_drawer_terminal_note">कमांड लाइन को रूट के रूप में चलाएँ</string>
     <string name="max_files_bookmark_add">इस फ़ोल्डर को बुकमार्क में जोड़ें</string>
     <string name="max_files_bookmark_remove">बुकमार्क से हटाएँ</string>
     <string name="max_files_bookmarks_empty">अभी तक कोई बुकमार्क नहीं - वे फ़ोल्डर जोड़ें जिन पर आप लौटते रहते हैं।</string>

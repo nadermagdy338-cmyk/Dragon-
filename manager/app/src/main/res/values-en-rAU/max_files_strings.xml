@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">More actions</string>
     <string name="max_files_show_hidden">Show hidden files</string>
     <string name="max_files_hide_hidden">Hide hidden files</string>
-    <string name="max_files_open_terminal">Open the terminal</string>
     <string name="max_files_search_open_cd">Search this folder</string>
     <string name="max_files_location_root">Root /</string>
     <string name="max_files_location_storage">Internal storage</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Tools</string>
     <string name="max_files_drawer_tasks">Background tasks</string>
     <string name="max_files_drawer_tasks_running">%1$d running now</string>
-    <string name="max_files_drawer_terminal_note">Run a command line as root</string>
     <string name="max_files_bookmark_add">Add this folder to bookmarks</string>
     <string name="max_files_bookmark_remove">Remove from bookmarks</string>
     <string name="max_files_bookmarks_empty">No bookmarks yet — add the folders you keep returning to.</string>

@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">ਹੋਰ ਕਾਰਵਾਈਆਂ</string>
     <string name="max_files_show_hidden">ਲੁਕੀਆਂ ਹੋਈਆਂ ਫਾਈਲਾਂ ਦਿਖਾਓ</string>
     <string name="max_files_hide_hidden">ਲੁਕੀਆਂ ਹੋਈਆਂ ਫਾਈਲਾਂ ਨੂੰ ਲੁਕਾਓ</string>
-    <string name="max_files_open_terminal">ਟਰਮੀਨਲ ਖੋਲ੍ਹੋ</string>
     <string name="max_files_search_open_cd">ਇਸ ਫੋਲਡਰ ਨੂੰ ਖੋਜੋ</string>
     <string name="max_files_location_root">ਰੂਟ /</string>
     <string name="max_files_location_storage">ਅੰਦਰੂਨੀ ਸਟੋਰੇਜ</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ਸੰਦ</string>
     <string name="max_files_drawer_tasks">ਪਿਛੋਕੜ ਕਾਰਜ</string>
     <string name="max_files_drawer_tasks_running">%1$d ਹੁਣ ਚੱਲ ਰਿਹਾ ਹੈ</string>
-    <string name="max_files_drawer_terminal_note">ਰੂਟ ਦੇ ਤੌਰ \'ਤੇ ਕਮਾਂਡ ਲਾਈਨ ਚਲਾਓ</string>
     <string name="max_files_bookmark_add">ਇਸ ਫੋਲਡਰ ਨੂੰ ਬੁੱਕਮਾਰਕਸ ਵਿੱਚ ਜੋੜੋ</string>
     <string name="max_files_bookmark_remove">ਬੁੱਕਮਾਰਕਸ ਤੋਂ ਹਟਾਓ</string>
     <string name="max_files_bookmarks_empty">ਅਜੇ ਤੱਕ ਕੋਈ ਬੁੱਕਮਾਰਕ ਨਹੀਂ - ਉਹਨਾਂ ਫੋਲਡਰਾਂ ਨੂੰ ਸ਼ਾਮਲ ਕਰੋ ਜਿਨ੍ਹਾਂ \'ਤੇ ਤੁਸੀਂ ਵਾਪਸ ਆਉਂਦੇ ਰਹਿੰਦੇ ਹੋ।</string>

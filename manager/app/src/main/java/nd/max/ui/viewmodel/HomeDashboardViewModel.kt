@@ -709,9 +709,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
             }
             ladderKhz?.div(1_000L)?.toInt()?.takeIf { it > 0 }?.let { return it }
 
-            MtkUtils.getMtkFreqMap().keys
-                .mapNotNull { it.trim().toLongOrNull() }
-                .filter { it > 0L }
+            MtkUtils.oppFrequenciesHz()
                 .maxOrNull()
                 ?.div(1_000_000L)
                 ?.toInt()

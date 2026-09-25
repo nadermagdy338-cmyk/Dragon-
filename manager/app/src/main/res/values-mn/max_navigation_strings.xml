@@ -41,18 +41,14 @@
     <string name="max_status_unknown">статус_үл мэдэгдэх</string>
     <string name="max_settings_diagnostics">Оношлогоо</string>
     <string name="max_settings_logs">Бүртгэл</string>
-    <string name="max_tool_terminal">Терминал</string>
     <string name="max_tool_setedit">Засварыг тохируулах</string>
     <string name="max_tool_activity_launcher">Үйл ажиллагаа эхлүүлэгч</string>
-    <string name="max_tool_kernel_flasher">Цөмийн гялбаа</string>
     <string name="max_risk_normal">Стандарт эрсдэл</string>
     <string name="max_risk_advanced">Дэвшилтэт эрсдэл</string>
     <string name="max_risk_dangerous">Аюултай эрсдэл</string>
     <string name="max_settings_appearance">Гадаад төрх</string>
-    <string name="max_title_terminal">Терминал</string>
     <string name="max_title_setedit">Засварыг тохируулах</string>
     <string name="max_title_activity_launcher">Үйл ажиллагаа эхлүүлэгч</string>
-    <string name="max_title_kernel_flasher">Цөмийн гялбаа</string>
     <string name="max_title_app_settings">Апп тохиргоо</string>
     <string name="max_title_get_started">Тохиргоо</string>
 </resources>

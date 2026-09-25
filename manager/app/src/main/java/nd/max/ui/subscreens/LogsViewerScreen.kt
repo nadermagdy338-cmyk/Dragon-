@@ -49,6 +49,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
@@ -249,7 +251,11 @@ fun LogsViewerScreen(
                                 FilterChip(
                                     selected = selected,
                                     onClick = { viewModel.toggleLevel(level) },
+                                    // الحرف وحده لا يُقرأ لقارئ الشاشة، والاسم الكامل في المورد.
                                     label = { Text(level.letter) },
+                                    modifier = Modifier.semantics {
+                                        contentDescription = stringResource(level.labelRes)
+                                    },
                                     colors = FilterChipDefaults.filterChipColors(
                                         selectedContainerColor = level.color.copy(alpha = 0.22f),
                                         selectedLabelColor = level.color
@@ -345,7 +351,7 @@ fun LogsViewerScreen(
                                 FilterChip(
                                     selected = selected,
                                     onClick = { viewModel.toggleSource(source) },
-                                    label = { Text(source.displayName) }
+                                    label = { Text(stringResource(source.labelRes)) }
                                 )
                             }
                         }

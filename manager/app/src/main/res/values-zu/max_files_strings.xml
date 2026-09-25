@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Izenzo ezengeziwe</string>
     <string name="max_files_show_hidden">Bonisa amafayela afihliwe</string>
     <string name="max_files_hide_hidden">Fihla amafayela afihliwe</string>
-    <string name="max_files_open_terminal">Vula itheminali</string>
     <string name="max_files_search_open_cd">Sesha le folda</string>
     <string name="max_files_location_root">Impande /</string>
     <string name="max_files_location_storage">Isitoreji sangaphakathi</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Amathuluzi</string>
     <string name="max_files_drawer_tasks">Imisebenzi yangemuva</string>
     <string name="max_files_drawer_tasks_running">%1$d iyasebenza manje</string>
-    <string name="max_files_drawer_terminal_note">Qalisa umugqa womyalo njengempande</string>
     <string name="max_files_bookmark_add">Engeza le folda kumabhukhimakhi</string>
     <string name="max_files_bookmark_remove">Susa kumabhukhimakhi</string>
     <string name="max_files_bookmarks_empty">Awekho amabhukumaka okwamanje — engeza amafolda olokhu ubuyela kuwo.</string>

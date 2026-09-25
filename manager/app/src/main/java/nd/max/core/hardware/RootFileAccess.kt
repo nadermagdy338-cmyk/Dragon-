@@ -7,14 +7,14 @@ package nd.max.core.hardware
 import com.topjohnwu.superuser.Shell
 import nd.max.core.jni.ProbeBridge
 import nd.max.ui.util.EventLog
-import nd.max.ui.util.RootIpcManager
+import nd.max.core.ipc.RootNodeChannel
 import java.io.File
 
 object RootFileAccess {
     private fun quote(value: String): String = "'" + value.replace("'", "'\\''") + "'"
 
     fun exists(path: String): Boolean = runCatching {
-        if (RootIpcManager.ipc?.nodeExists(path) == true) return@runCatching true
+        if (RootNodeChannel.service?.exists(path) == true) return@runCatching true
         if (File(path).exists()) return@runCatching true
         shellTest(path)
     }.getOrDefault(false)
@@ -51,7 +51,7 @@ object RootFileAccess {
     }.getOrDefault(false)
 
     fun read(path: String): String? = runCatching {
-        RootIpcManager.ipc?.readNode(path)?.trim()?.takeIf { it.isNotEmpty() }
+        RootNodeChannel.service?.readText(path)?.trim()?.takeIf { it.isNotEmpty() }
             ?: File(path).takeIf { it.isFile && it.canRead() }?.readText()?.trim()
             ?: shellRead(path)
     }.getOrNull()
@@ -66,7 +66,7 @@ object RootFileAccess {
      *    بلا معاملة binder وبلا صدفة. وهذا هو مسار الحالة الشائعة: عقد sysfs الحرارية
      *    وقيم ترددات الأنوية و`/proc/stat` يقرأها uid التطبيق عادةً.
      * 2. **ما حجبته النواة عن uid التطبيق يعود `null` من الطبقة الأولى، فيُسأل عنه وحده**
-     *    عبر معاملة IPC واحدة إلى `MtkRootService`. فالسرعة **لا تُشتري بقدرة**: كل عقدة
+     *    عبر معاملة IPC واحدة إلى `RootNodeService`. فالسرعة **لا تُشتري بقدرة**: كل عقدة
      *    كانت تُقرأ بالجذر تبقى تُقرأ بالجذر، ولا تُخفى عقدة ولا تُفترض قيمة.
      * 3. وسقوط الحالة (بلا IPC متصل، أو خدمة لا تعرف الدفعة) يعود إلى [read] لكل عقدة —
      *    نفس السلوك القديم حرفيًّا.
@@ -106,7 +106,7 @@ object RootFileAccess {
      */
     private fun readManyPrivileged(paths: List<String>): List<String?> {
         if (paths.isEmpty()) return emptyList()
-        val batch = runCatching { RootIpcManager.ipc?.readNodes(paths.toMutableList()) }.getOrNull()
+        val batch = runCatching { RootNodeChannel.service?.readTexts(paths.toMutableList()) }.getOrNull()
         if (batch != null && batch.size == paths.size) {
             return batch.map { value -> value?.trim()?.takeIf { it.isNotEmpty() } }
         }
@@ -133,13 +133,13 @@ object RootFileAccess {
      */
     private fun writeOutcome(path: String, value: String): WriteVerification.Outcome {
         val wrote = runCatching {
-            // IPC first: MtkRootService.writeNode now performs the HyperOS chmod
+            // IPC first: RootNodeService.writeText performs the HyperOS chmod
             // dance internally, so a false return is a real failure and the shell
             // path below re-runs the same dance. Plain root writes to 0444 sysfs
             // nodes are denied with EACCES on HyperOS 3 — real-device log showed
             // every registry PERAPP_COMMIT ending in live-value-mismatch without it.
             // A binder exception must not block the shell fallback either.
-            val viaIpc = try { RootIpcManager.ipc?.writeNode(path, value) } catch (_: Exception) { false }
+            val viaIpc = try { RootNodeChannel.service?.writeText(path, value) } catch (_: Exception) { false }
             if (viaIpc == true) return@runCatching true
             val p = quote(path)
             Shell.cmd(
@@ -175,6 +175,12 @@ object RootFileAccess {
     fun listNames(path: String): List<String> = runCatching {
         // القارئ الأصلي أولًا (بلا صدفة `ls`) — وغيابه يُعيدنا إلى الصدفة كما كانت.
         ProbeBridge.listNames(path)?.let { return it }
+        // وقناة الجذر قبل الصدفة: المجلّد المحجوب عن uid التطبيق لا يعود فارغًا من الجذر،
+        // ثم لا يُقرأ بالصدفة إلا إذا غابت القناة فعلًا.
+        RootNodeChannel.service?.let { service ->
+            runCatching { service.listNames(path, false).filter(String::isNotBlank) }
+                .getOrNull()?.takeIf { it.isNotEmpty() }?.let { return it.distinct() }
+        }
         val result = Shell.cmd("ls -1A ${quote(path)} 2>/dev/null").exec()
         if (!result.isSuccess) emptyList()
         else result.out.map(String::trim).filter { it.isNotEmpty() && it != "." && it != ".." }.distinct()
@@ -184,8 +190,8 @@ object RootFileAccess {
         // الترتيب: قراءة داخل العملية ← IPC الجذر ← صدفة `ls` ← `File`. وكل طبقة
         // تسبق التي تليها بلا مساس بالقدرة: ما لا يقرأه uid التطبيق يسأله الجذر.
         ProbeBridge.listNames(path, dirsOnly = true)?.let { return it }
-        RootIpcManager.ipc?.let { service ->
-            runCatching { service.listDirectories(path).filter(String::isNotBlank) }
+        RootNodeChannel.service?.let { service ->
+            runCatching { service.listNames(path, true).filter(String::isNotBlank) }
                 .getOrNull()?.takeIf { it.isNotEmpty() }?.let { return it.distinct() }
         }
         runCatching {

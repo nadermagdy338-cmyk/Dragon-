@@ -129,7 +129,6 @@
     <string name="max_files_action_more_cd">إجراءات أخرى</string>
     <string name="max_files_show_hidden">إظهار الملفات المخفية</string>
     <string name="max_files_hide_hidden">إخفاء الملفات المخفية</string>
-    <string name="max_files_open_terminal">افتح الطرفية</string>
     <string name="max_files_search_open_cd">ابحث في هذا المجلد</string>
     <string name="max_files_location_root">الجذر /</string>
     <string name="max_files_location_storage">التخزين الداخلي</string>
@@ -178,7 +177,6 @@
     <string name="max_files_drawer_tools">الأدوات</string>
     <string name="max_files_drawer_tasks">المهام الخلفية</string>
     <string name="max_files_drawer_tasks_running">%1$d جارية الآن</string>
-    <string name="max_files_drawer_terminal_note">سطر أوامر بصلاحية الجذر</string>
     <string name="max_files_bookmark_add">أضف هذا المجلد إلى المفضّلة</string>
     <string name="max_files_bookmark_remove">إزالة من المفضّلة</string>
     <string name="max_files_bookmarks_empty">لا مفضّلة بعد — أضف المجلدات التي تعود إليها.</string>

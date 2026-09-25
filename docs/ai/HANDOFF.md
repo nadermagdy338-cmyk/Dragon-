@@ -62,6 +62,80 @@ MaxManager has a strong engine and a fragmented surface. `core/maxai` + `core/ha
 
 <!-- Append one entry per completed task: task id, files, gate results, deferred items, next suggestion. -->
 
+### PROVENANCE-01 — تدقيق الأصل والترخيص: ٩٦ ملفًا مشتقًّا من GPL داخل مسار الإصدار — 2026-09-25
+
+**TASK:** PHASE 0 من تكليف المالك (فحص provenance وترخيص كامل قبل أي تعديل كود). نُفِّذ الفحص
+ولم يُعدَّل أي ملف منتج. المخرجات: `docs/PROVENANCE.md` (مُولَّد) · `build/license-report.json` ·
+`tools/license_audit.py` (أداة التدقيق وبوابة CI المستقبلية).
+
+**FILES:**
+أداة جديدة — `tools/license_audit.py` (تدقيق ثلاثي: ترويسات الملفات · التبعيات · الثنائيات ELF)
+مُولَّد — `docs/PROVENANCE.md` (٢١٤٠ ملفًا في جدول FILE | ORIGIN | LICENSE | STATUS | ACTION)
+مُولَّد — `build/license-report.json` (نفس القياس لـCI)
+معدَّل — `.github/workflows/build.yml` (خطوة «Contract gates»: يُشغَّل التدقيق + `--self-test`)
+
+**GATES:** `kt_balance --assert` ✓ (١٧٩٨ ملفًا · ٠ عوائق) · `code_health --assert` ✓ (صحّة نظيفة) ·
+`i18n_coverage --assert` ✓ (٠ عوائق) · `i18n_coverage --prune all --assert` ✓ (٠ يتيمًا) ·
+`jni_symbols --assert` ✓ (٠ نواقص · يتيم واحد) · `license_audit --self-test` ✓ (١٢/١٢).
+
+ملاحظة على حدود التحقق: أوّل تشغيل لـ`--self-test` أعطى **٩/١٢** فأظهر ثلاثة عيوب حقيقية —
+اثنان في الأداة (موضع `e_machine` في ELF مُصنَّع، وقراءة `abiFilters` بصورتها الثلاث
+`.addAll(listOf(` · `+= listOf(` · `= listOf(`) وواحد في توقّع الاختبار نفسه. والأداة لم تكن
+لتُصدَّق قبل إصلاحها، وهذا ما يقيسه `--self-test` لا ما يُدَّعى.
+
+**BUILD:** لم يُبنَ — لا حاجة حقيقية (تعديل لا يمسّ أنواعًا ولا توقيعًا؛ `AGENTS.md` §0.1).
+الترجمة غير مُتحقَّقة في هذه البيئة، ولا يُدَّعى العكس.
+
+**RESULT — القياس الفعلي (لا تقدير):**
+
+| الأصل | الملفات | الترخيص | داخل الإصدار |
+| --- | --- | --- | --- |
+| Termux — `terminal-emulator` + `terminal-view` + `libtermux.so` | ٤٧ | GPL-3.0-only | نعم |
+| ZKM (Zuan Kernel Manager) | ٣٦ | GPL-3.0-only | نعم |
+| Magisk `magiskboot` (ثنائيات) | ٣ | GPL-3.0-only | نعم |
+| HorizonKernelFlasher | ٢ | GPL-3.0-only | نعم |
+| helloklf/vtools | ٢ | GPL-3.0-only | نعم |
+| **المجموع** | **٩٦** | | **٩٦** |
+
+خمسة أصول GPL لا واحد. والحكم ليس استدلالًا: **الملفات تُقر في ترويستها.** منها ١٩ ملفًا تحمل
+ترويسة `Licensed under the Apache License, Version 2.0` **وفيها** `Original: Copyright (c) 2025
+ZKM, licensed GPL-3.0` — وهذا نصّه في `SetEditViewModel.kt` و`SetEditUtil.kt` و`ProcessManagerViewModel.kt`
+وغيرها. واثنان (`TerminalManager.kt` · `KernelInfoUtils.kt`) يحملان ترويسة GPL-3.0 **كاملة**
+داخل تطبيق يُوزَّع Apache-2.0 (‏CRLF فيهما أيضًا). والتوزيع القائم اليوم مخالف لـGPL-3.0 §5،
+وهذا ما صار مُعلنًا لا مُخفيًا.
+
+**صنف لم يُقرأ من الترويسة:** ٦ ملفات تُصرَّح بأصل ZKM **في متنها** بلا ترويسة
+(`CpuCoreControlScreen` · `CpuTopologyUtil` · `LogsViewerViewModel` · `NetworkSchedulerViewModel` ·
+`LogsViewerScreen` · `app/build.gradle.kts`). وثلاثة منها تقول صراحةً «but not a straight port»
+و«instead of copying ZKM's UI code directly» — أي **دعوى استقلال لم تُختبر**. فحالتها
+`GPL_REFERENCED` لا `GPL_DERIVED`: تُحسم بمقابلة بالـdiff، ولا تُقبل بالثقة.
+
+**وموضع الجذر ليس الترويسات وحدها:** الشجرة تحمل `azenith.jks` (مادة توقيع) و`META-INF/main.kotlin_module`
+و`nd/max/core/hardware/ThermalCurve.class` (مخرجات بناء متعقَّبة) و`devices.db` (٤ ميجابايت)
+بلا أي إسناد — وهذه `DATA_ASSET_UNVERIFIED` لا `Apache-2.0` بالافتراض.
+
+**ثغرة ABI مُكتشَفة (`:app`):** `abiFilters` تُعلن `arm64-v8a` و`armeabi-v7a`، و`jniLibs` تحمل
+`arm64-v8a/libtermux.so` **وحدها**. فـ`armeabi-v7a` مُعلَن بلا مكتبة ⇒ على هاتف ٣٢-بت يسقط
+`System.loadLibrary("termux")`. وهذا عطب مُنتَج لا مسألة ترخيص، وقد يفسّر بلاغًا مستقبلًا.
+
+**إيجابيات كاذبة أُزيلت بالقياس (لا بالقدير):** كانت كلمة `termux` وحدها تُصنّف مشتقًّا، فتطابق
+ثابت `MY_PATH` (`…:/data/data/com.termux/files/usr/bin`) في `binprofiles` و`binutils` ونثر
+`tools/jni_symbols.py`. والقاعدة الآن: الاسم أصلٌ **فقط** إذا جاء في سطر يحمل سياق نسبة
+(مأخوذ · مبني على · حقوق · رخصة). و`docs/` و`tools/` تُصنَّفان بعائلة وحدتهما. وبقي العدد
+٩٦ بعد التصفية — أي أن الإيجابيات الكاذبة كانت **تصغيرًا للخطر الحقيقي**.
+
+**بوابة CI:** تتبع الآن `tools/license_audit.py --self-test` و`--json --provenance`، ولا يُفرض
+`--assert` بعد عن قصد مكتوب في الملف (تشغيله اليوم يُسقط كل بناء، بما فيه تعديل لا علاقة له
+بالترخيص). ويُضاف السطر عند وصول العدّ إلى صفر بعد قرار المالك.
+
+**RESIDUAL RISK:** (١) لا جهاز ⇒ كل ما هو سلوكي يبقى `needs device`. (٢) قانوني لا تقني:
+استثناء Termux المنصوص في `LICENSE.md` لعائلته لأجل `terminal-view`/`terminal-emulator`
+يحتاج تأكيدًا صريحًا قبل الاعتماد عليه — قُرئ النصّ لا فُسّر. (٣) قرار «إعادة تنفيذ أم حذف»
+لمكوّنات الطرفية والمُفلّش لم يُتخذ. (٤) الأعمال الكاملة (PHASE 1–15) لم تُنفَّذ بعد.
+
+**NEXT:** قرار المالك على البنود الأربعة أعلاه ⇒ ثم PHASE 1 (إعادة تنفيذ/حذف ما يقوله القرار)،
+وإثر ذلك PHASE 3 (هوية واجهة مستقلة) وPHASE 8/9/15 (حزمة الرخصة والوثائق).
+
 ### ATLAS-RECOVERY-02 — تعافٍ مرتبط بإقلاع النواة، لا بعمر العملية — 2026-09-21
 
 **TASK:** ATLAS-RECOVERY-02 (medium) — التنفيذ مكتمل؛ التحقق النهائي قيد التسجيل.

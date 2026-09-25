@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  أسماء المقابض العامة في مجدول النواة (`/proc/sys/kernel/sched_*`).
+
+  كانت هذه الأسماء مكتوبة في متن `NetworkSchedulerViewModel` بالإنجليزية وحدها،
+  فلم تُترجم إلى أي لغة من لغات التطبيق الثمانين. وموضعها هنا: اسم يقرأه المستخدم
+  في صفّ فليس «اسم عقدة» بل نصّ واجهة (تُكتب في `values/` و`values-ar/` معًا — ADR-14).
+  واسم العقدة نفسه يبقى في الكود: هو مسار لا يُترجم.
+-->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Deadline Period Max (us)</string>
+    <string name="max_sched_tunable_deadline_period_min">Deadline Period Min (us)</string>
+    <string name="max_sched_tunable_energy_aware">Energy Aware</string>
+    <string name="max_sched_tunable_latency">Latency (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Migration Cost (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimum Granularity (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Migration Batch Size</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT Multiplier</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Real-Time Period (us)</string>
+    <string name="max_sched_tunable_rt_runtime">Real-Time Runtime (us)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Real-Time UClamp Floor</string>
+    <string name="max_sched_tunable_wakeup_granularity">Wakeup Granularity (ns)</string>
+</resources>

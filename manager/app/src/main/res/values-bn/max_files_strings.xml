@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">আরো কর্ম</string>
     <string name="max_files_show_hidden">লুকানো ফাইল দেখান</string>
     <string name="max_files_hide_hidden">লুকানো ফাইল লুকান</string>
-    <string name="max_files_open_terminal">টার্মিনাল খুলুন</string>
     <string name="max_files_search_open_cd">এই ফোল্ডারটি অনুসন্ধান করুন</string>
     <string name="max_files_location_root">মূল/</string>
     <string name="max_files_location_storage">অভ্যন্তরীণ স্টোরেজ</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">টুলস</string>
     <string name="max_files_drawer_tasks">পটভূমি কাজ</string>
     <string name="max_files_drawer_tasks_running">%1$d এখন চলছে</string>
-    <string name="max_files_drawer_terminal_note">রুট হিসাবে একটি কমান্ড লাইন চালান</string>
     <string name="max_files_bookmark_add">বুকমার্কে এই ফোল্ডারটি যোগ করুন</string>
     <string name="max_files_bookmark_remove">বুকমার্ক থেকে সরান</string>
     <string name="max_files_bookmarks_empty">এখনও কোনো বুকমার্ক নেই — আপনি যে ফোল্ডারগুলিতে ফিরে আসছেন সেগুলি যোগ করুন৷</string>

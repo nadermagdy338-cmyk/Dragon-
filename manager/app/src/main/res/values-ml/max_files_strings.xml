@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">കൂടുതൽ പ്രവർത്തനങ്ങൾ</string>
     <string name="max_files_show_hidden">മറഞ്ഞിരിക്കുന്ന ഫയലുകൾ കാണിക്കുക</string>
     <string name="max_files_hide_hidden">മറഞ്ഞിരിക്കുന്ന ഫയലുകൾ മറയ്ക്കുക</string>
-    <string name="max_files_open_terminal">ടെർമിനൽ തുറക്കുക</string>
     <string name="max_files_search_open_cd">ഈ ഫോൾഡർ തിരയുക</string>
     <string name="max_files_location_root">റൂട്ട് /</string>
     <string name="max_files_location_storage">ആന്തരിക സംഭരണം</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ഉപകരണങ്ങൾ</string>
     <string name="max_files_drawer_tasks">പശ്ചാത്തല ജോലികൾ</string>
     <string name="max_files_drawer_tasks_running">%1$d ഇപ്പോൾ പ്രവർത്തിക്കുന്നു</string>
-    <string name="max_files_drawer_terminal_note">ഒരു കമാൻഡ് ലൈൻ റൂട്ടായി പ്രവർത്തിപ്പിക്കുക</string>
     <string name="max_files_bookmark_add">ബുക്ക്‌മാർക്കുകളിലേക്ക് ഈ ഫോൾഡർ ചേർക്കുക</string>
     <string name="max_files_bookmark_remove">ബുക്ക്‌മാർക്കുകളിൽ നിന്ന് നീക്കം ചെയ്യുക</string>
     <string name="max_files_bookmarks_empty">ഇതുവരെ ബുക്ക്‌മാർക്കുകളൊന്നുമില്ല - നിങ്ങൾ തിരികെ വരുന്ന ഫോൾഡറുകൾ ചേർക്കുക.</string>

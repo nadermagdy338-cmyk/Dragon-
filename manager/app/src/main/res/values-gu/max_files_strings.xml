@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">વધુ ક્રિયાઓ</string>
     <string name="max_files_show_hidden">છુપાયેલ ફાઇલો બતાવો</string>
     <string name="max_files_hide_hidden">છુપાયેલી ફાઇલોને છુપાવો</string>
-    <string name="max_files_open_terminal">ટર્મિનલ ખોલો</string>
     <string name="max_files_search_open_cd">આ ફોલ્ડર શોધો</string>
     <string name="max_files_location_root">રુટ /</string>
     <string name="max_files_location_storage">આંતરિક સંગ્રહ</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">સાધનો</string>
     <string name="max_files_drawer_tasks">પૃષ્ઠભૂમિ કાર્યો</string>
     <string name="max_files_drawer_tasks_running">%1$d હમણાં ચાલી રહ્યું છે</string>
-    <string name="max_files_drawer_terminal_note">રુટ તરીકે આદેશ વાક્ય ચલાવો</string>
     <string name="max_files_bookmark_add">આ ફોલ્ડરને બુકમાર્ક્સમાં ઉમેરો</string>
     <string name="max_files_bookmark_remove">બુકમાર્ક્સમાંથી દૂર કરો</string>
     <string name="max_files_bookmarks_empty">હજી સુધી કોઈ બુકમાર્ક્સ નથી — તમે જે ફોલ્ડર્સ પર પાછા ફરો છો તેને ઉમેરો.</string>

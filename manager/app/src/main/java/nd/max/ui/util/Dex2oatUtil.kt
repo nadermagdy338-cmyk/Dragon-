@@ -1,30 +1,11 @@
 /*
- * ART/dex2oat compilation control - forces `cmd package compile` with a
- * chosen filter (speed-profile/speed/everything/quicker/verify), or resets
- * an app back to its installer-time compilation state.
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
  *
- * App listing is deliberately NOT reimplemented here: DebloatFreezeUtil
- * already exposes getInstalledApps()/DebloatAppInfo (label, package name,
- * isSystem, icon) for the Debloat & Freeze screen, and that's exactly what
- * this screen also needs - so Dex2oatViewModel reuses it directly instead of
- * this file duplicating a second app-enumeration path.
- *
- * Adapted from ZKM's Dex2oatUtils.kt (compile-mode logic only).
- *
- * Copyright (C) 2026-2027 Zexshia
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ضبط تصريف ART عبر `cmd package compile`: مرشّح مضبوط لكل تطبيق، أو إعادة الحالة إلى ما
+ * بعد التثبيت. وكل عملية تُقاس بزمنها وتُسجَّل نتيجتها (AR-13) — "تحسين" بلا أثر مُثبَت
+ * ليس تحسينًا. */
 
 package nd.max.ui.util
 

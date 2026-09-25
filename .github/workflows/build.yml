@@ -193,6 +193,21 @@ jobs:
           # الاسم قبل أن يستهلك البناءُ الأصلِي دقائقَ ثم يمرّ.
           python3 tools/jni_symbols.py --assert
           python3 tools/jni_symbols.py --self-test
+          # ── تدقيق الأصل والترخيص (PHASE 0/6) ──
+          #
+          # يُشغّل هنا **بلا `--assert`** عن قصد، وسببه مُعلَن لا مسكوت عنه: القياس الفعلي
+          # اليوم يقول `gpl_code_in_apk = YES` — ٩٦ ملفًا مشتقًّا من GPL (٣٦ من ZKM،
+          # و٤٦ من Termux، و٢ من HorizonKernelFlasher، و٢ من vtools، و٣ ثنائيات magiskboot)
+          # داخل مسار الإصدار. فتشغيل `--assert` الآن يُسقط **كل** بناء — بما فيه تعديل
+          # لا علاقة له بالترخيص — قبل أن يُقرَّر أي مكوّن يُعاد تنفيذه وأيّها يُحذف.
+          #
+          # فيُقاس ويُوثَّق الآن، ويُفرض لما يصل العدّ إلى صفر:
+          #     python3 tools/license_audit.py --assert
+          # وهو السطر الذي يُضاف هنا **بعد** إغلاق PHASE 1 (وقرار المالك في `docs/PROVENANCE.md`).
+          # و`--self-test` يُشغَّل الآن فعلًا: أداة تدقيق تُصنّف كل شيء «سليمًا» لا تُثبت شيئًا،
+          # وهو نفس الدرس الذي أضاف `--self-test` لكل بوابات هذا المستودع.
+          python3 tools/license_audit.py --self-test
+          python3 tools/license_audit.py --json --provenance
           echo "✅ Contract gates passed in $((SECONDS - start))s"
 
       - name: Copy changelog file
@@ -354,24 +369,13 @@ jobs:
       # فالترتيب: `ndk-build` أولًا (ماسحٌ فيزيائيًّا)، ثم `cargo ndk` فلا يمسّه أحد،
       # ثم توكيد صريح على وجود الأربعة قبل البوابة. وكلاهما قبل Gradle على أي حال:
       # Gradle هو من يحزم `jniLibs`، ولا يهمّه أيّ الخطوتين سبقت.
+      #
+      # **والكاتب الثاني زال (جولة تدقيق الأصل `PROVENANCE-01`):** حُذفت مكتبة الطرفية
+      # ومصدرها لأنها GPL-3.0 في مسار إصدار Apache-2.0، فليس في `jniLibs` اليوم إلا
+      # `cargo ndk`. ويبقى التوكيد وتحته البوابة: عودهما رخيص، وعودة عطب صامت إلى هاتف
+      # مستخدم ليست كذلك.
 
-      # ── مكتبة الطرفية الأصلية (`libtermux.so`) للعمودين ──
-      # مصدرها في المستودع (`terminal-emulator/src/main/jni/termux.c` + `Android.mk`)،
-      # والمُلتَزم منها كان نسخة 64-بت وحده ⇒ على هاتف 32-بت كان `System.loadLibrary("termux")`
-      # يسقط. تُبنى هنا **قبل Gradle** لا في المجموعة الخلفية: ما يُبنى في الخلفية يصل
-      # بعد تغليف الـAPK فلا يُحزَّم، وهذه يجب أن تكون داخل الحزمة فعلًا.
-      - name: Build terminal emulator JNI library (both ABIs)
-        run: |
-          set -e
-          jni_dir="manager/terminal-emulator/src/main/jni"
-          out_dir="$PWD/manager/app/src/main/jniLibs"
-          if [ "$V_TYPE" == "experimental" ]; then ndk_debug=1; else ndk_debug=0; fi
-          mkdir -p "$out_dir"
-          ndk-build -C "$jni_dir" APP_ABI="arm64-v8a armeabi-v7a" APP_PLATFORM=android-29 \
-                    NDK_LIBS_OUT="$out_dir" NDK_DEBUG=$ndk_debug
-          ls -l "$out_dir/arm64-v8a/libtermux.so" "$out_dir/armeabi-v7a/libtermux.so"
-
-      # ── المكتبة الأصلية للتطبيق (JNI) ── (بعد `ndk-build` عمدًا — الشرح أعلاه)
+      # ── المكتبة الأصلية للتطبيق (JNI) ── (والكاتب الثاني زال — الشرح أعلاه)
       # crate maxmanager_native هو الذي يوفر: وكيل التعلم المعزز،
       # المتنبئ، التوأم الرقمي، ومحرك السياق. بدونه يعمل التطبيق في
       # وضع الاحتياط الدائم (nativeAvailable=false) فتُشحن كل ميزات
@@ -391,12 +395,12 @@ jobs:
       # الغائب بمساره. سببه مُقاس: خطوة `ndk-build` تحذف ما لا تعرفه (أعلاه)، وأي
       # خطوة أصلية تُضاف لاحقًا إلى هذا الملف قد تفعل الشيء نفسه — والعطب الصامت
       # هنا لا يُرى إلا في هاتف المستخدم.
-      - name: Assert jniLibs holds both libraries in both ABIs
+      - name: Assert jniLibs holds the native library in both ABIs
         run: |
           set -e
           missing=""
           for abi in arm64-v8a armeabi-v7a; do
-            for lib in libmaxmanager_native.so libtermux.so; do
+            for lib in libmaxmanager_native.so; do
               path="manager/app/src/main/jniLibs/$abi/$lib"
               [ -s "$path" ] || missing="$missing $path"
             done
@@ -407,14 +411,15 @@ jobs:
                  "(قاعدة clean-installed-binaries في ndk-build). رتّبها قبل هذه المكتبة."
             exit 1
           fi
-          echo "✅ الأربعة موجودة:"
+          echo "✅ المكتبة موجودة في العمودين:"
           find manager/app/src/main/jniLibs -name '*.so' | sort
 
       # ── بوابة رموز JNI على الثنائيات **المبنية فعلًا** ──
       # موضعها هنا مقصود: عندها فقط تكون المكتبتان موجودتين في **العمودين**، فيقاس ما لا
       # يقيسه غيرهما: (أ) كل `external fun` له رمز مُصدَّر ⇒ لا `UnsatisfiedLinkError`،
       # (ب) الرمز الموجود في arm64-v8a وغائب في armeabi-v7a ⇒ لا انهيار على هاتف 32-بت
-      # (وهو الصنف الذي وقع فعلًا في `libtermux.so` قبل دعم 32-بت)، (ج) رمز مُصدَّر بلا
+      # (وهو الصنف الذي وقع فعلًا في مكتبة طرفية قبل دعم 32-بت، وقد حُذفت في
+      # `PROVENANCE-01`)، (ج) رمز مُصدَّر بلا
       # مُعلن ⇒ كود ميت. و`--require-binaries` لازمة: غياب الثنائيات هنا هو **عطب**،
       # بخلاف تشغيل المالك محليًّا بلا NDK حيث تُعلن الطبقة الثانية «غير مُتحقّقة» صراحةً.
       # و`--strict` **لم تُوضع** عمدًا: الرمز اليتيم كودٌ ميت لا عطبٌ يُسقط الإصدار (ADR-18).
@@ -527,9 +532,6 @@ jobs:
             manager/.gradle
             manager/build
             manager/app/build
-            manager/terminal-emulator/build
-            manager/terminal-view/build
-            manager/kernel-flasher/build
           key: gradle-state-${{ runner.os }}-${{ github.sha }}
           # القتل الوسَطي (بصمة exit 143) يقتل خطوات post قبل أن تُحفَظ الحالة، فبقيت الجولة
           # التالية باردة — والحلقة ما كانت لتُقطع. والصواب (صحّحه سجل المالك نفسه — تشغيل
@@ -745,9 +747,6 @@ jobs:
             manager/.gradle
             manager/build
             manager/app/build
-            manager/terminal-emulator/build
-            manager/terminal-view/build
-            manager/kernel-flasher/build
           key: gradle-state-${{ runner.os }}-${{ github.sha }}
 
       - name: Tests + assemble + package (contract gate)
@@ -760,7 +759,6 @@ jobs:
             -Pkotlin.daemon.jvmargs=-Xmx4g \
             -Pkotlin.build.report.output=file \
             ":app:test${variant}UnitTest" \
-            ":terminal-emulator:test${variant}UnitTest" \
             ":app:assemble${variant}" \
             -x ":app:lintVitalRelease" \
             --build-cache \
@@ -881,15 +879,15 @@ jobs:
           # القديم يُنتجه عمدًا في الاتجاه المعاكس.
           #
           # ⚠️ وكان هذا الحرس نفسه ثقبًا: كان يقبل مجرّد وجود `lib/<abi>/` بأي مكتبة فيه،
-          # فمرّ يومًا APK يحمل `libtermux.so` وحده وبلا `libmaxmanager_native.so` —
+          # فمرّ يومًا APK يحمل مكتبة JNI واحدة وبلا `libmaxmanager_native.so` —
           # وخطوة `ndk-build` هي التي حذفتها (تحذف `lib*.so` في مجلد خروجها لكل ABI قبل
           # أن تثبّت وحداتها: قاعدة `clean-installed-binaries`) فأول ما بنته `cargo ndk`
           # مَحَتْه الخطوة التالية. فكانت الطبقة الأصلية كلها تُشحن ميتة
-          # (`nativeAvailable=false`) وهذا الحرس صامت. فالآن يقيس المكتبتين **بالاسم**.
+          # (`nativeAvailable=false`) وهذا الحرس صامت. فالآن يقيس المكتبة **بالاسم**.
           # وحدّه المُعلن: يقيس ما دخل الحزمة فعلًا بعد التوقيع، فلا يغني عن
           # «Assert jniLibs…» قبل البوابة — كلاهما يُبلّغ عن العطب في موضعه.
           for abi in arm64-v8a armeabi-v7a; do
-            for lib in libmaxmanager_native.so libtermux.so; do
+            for lib in libmaxmanager_native.so; do
               unzip -l "$apk_path" | grep -qF "lib/$abi/$lib" \
                 || { echo "::error::APK is missing lib/$abi/$lib" >&2; unzip -l "$apk_path" | grep -E "lib/" >&2; exit 1; }
             done
@@ -911,7 +909,8 @@ jobs:
             test -n "$EXPECTED_RELEASE_SIGNER_SHA256" \
               || { echo "Expected release signer fingerprint is not configured" >&2; exit 1; }
             actual_signer="$(apksigner verify --print-certs "$apk_path" \
-              | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
+              | sed -n -E 's/^(Signer #1|V[0-9]+(\.[0-9]+)? Signer): certificate SHA-256 digest: //p' \
+              | head -1 | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
             expected_signer="$(printf '%s' "$EXPECTED_RELEASE_SIGNER_SHA256" \
               | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
             test -n "$actual_signer" && test "$actual_signer" = "$expected_signer" \

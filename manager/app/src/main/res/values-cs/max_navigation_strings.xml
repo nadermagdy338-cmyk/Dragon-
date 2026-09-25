@@ -41,18 +41,14 @@
     <string name="max_status_unknown">status_unknown</string>
     <string name="max_settings_diagnostics">Diagnostika</string>
     <string name="max_settings_logs">Protokoly</string>
-    <string name="max_tool_terminal">Terminál</string>
     <string name="max_tool_setedit">SetEdit</string>
     <string name="max_tool_activity_launcher">Spouštěč aktivity</string>
-    <string name="max_tool_kernel_flasher">Kernel Flasher</string>
     <string name="max_risk_normal">Standardní riziko</string>
     <string name="max_risk_advanced">Pokročilé riziko</string>
     <string name="max_risk_dangerous">Nebezpečné riziko</string>
     <string name="max_settings_appearance">Vzhled</string>
-    <string name="max_title_terminal">Terminál</string>
     <string name="max_title_setedit">SetEdit</string>
     <string name="max_title_activity_launcher">Spouštěč aktivity</string>
-    <string name="max_title_kernel_flasher">Kernel Flasher</string>
     <string name="max_title_app_settings">Nastavení aplikace</string>
     <string name="max_title_get_started">Nastavení</string>
 </resources>

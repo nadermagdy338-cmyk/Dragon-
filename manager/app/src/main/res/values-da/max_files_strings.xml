@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Flere handlinger</string>
     <string name="max_files_show_hidden">Vis skjulte filer</string>
     <string name="max_files_hide_hidden">Skjul skjulte filer</string>
-    <string name="max_files_open_terminal">Åbn terminalen</string>
     <string name="max_files_search_open_cd">Søg i denne mappe</string>
     <string name="max_files_location_root">rod /</string>
     <string name="max_files_location_storage">Intern opbevaring</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Værktøjer</string>
     <string name="max_files_drawer_tasks">Baggrundsopgaver</string>
     <string name="max_files_drawer_tasks_running">%1$d kører nu</string>
-    <string name="max_files_drawer_terminal_note">Kør en kommandolinje som root</string>
     <string name="max_files_bookmark_add">Føj denne mappe til bogmærker</string>
     <string name="max_files_bookmark_remove">Fjern fra bogmærker</string>
     <string name="max_files_bookmarks_empty">Ingen bogmærker endnu - tilføj de mapper, du bliver ved med at vende tilbage til.</string>

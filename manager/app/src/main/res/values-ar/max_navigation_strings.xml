@@ -51,18 +51,14 @@
     <string name="max_status_unknown">status_unknown</string>
     <string name="max_settings_diagnostics">التشخيص</string>
     <string name="max_settings_logs">السجلات</string>
-    <string name="max_tool_terminal">الطرفية</string>
     <string name="max_tool_setedit">SetEdit</string>
     <string name="max_tool_activity_launcher">مشغّل الأنشطة</string>
-    <string name="max_tool_kernel_flasher">مفلاش النواة</string>
     <string name="max_risk_normal">خطورة عادية</string>
     <string name="max_risk_advanced">خطورة متقدمة</string>
     <string name="max_risk_dangerous">خطورة عالية</string>
     <string name="max_settings_appearance">المظهر</string>
-    <string name="max_title_terminal">الطرفية</string>
     <string name="max_title_setedit">SetEdit</string>
     <string name="max_title_activity_launcher">مشغّل الأنشطة</string>
-    <string name="max_title_kernel_flasher">مفلاش النواة</string>
     <string name="max_title_app_settings">إعدادات التطبيق</string>
     <string name="max_title_get_started">التهيئة</string>
 </resources>

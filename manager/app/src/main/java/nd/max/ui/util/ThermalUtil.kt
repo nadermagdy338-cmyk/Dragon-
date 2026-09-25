@@ -1,29 +1,10 @@
 /*
- * Thermal zone / cooling device sysfs reader. Talks directly to
- * /sys/class/thermal — the same kernel thermal framework every Linux/Android
- * device exposes — since there's no MaxManager daemon involvement here (no
- * Rust/C service tracks thermal zones), root shell + direct file reads is
- * the only path available, mirroring how DozeModeUtil falls back to a root
- * shell where no public API exists.
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
  *
- * Logic (zone enumeration, temperature sanitization, trip points, type
- * categorization) is adapted from ZKM's ThermalUtils.kt, renamed and
- * reshaped to sit alongside MaxManager's other ui/util singletons.
- *
- * Copyright (C) 2026-2027 Zexshia
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+قراءة الحراريات من `/sys/class/thermal`: المناطق وأجهزة التبريد ونقاط الحماية، مع تصنيف
+ * المناطق بحسب نوعها وربطها بالمعنى (CPU · GPU · البطارية · الشاشة). */
 
 package nd.max.ui.util
 
@@ -39,6 +20,7 @@ import nd.max.core.hardware.HardwareCapabilityResolver
 import nd.max.core.hardware.HardwareCapabilitySnapshot
 import nd.max.core.hardware.PerAppRecoveryStore
 import nd.max.core.hardware.RootFileAccess
+import nd.max.core.ipc.RootNodeChannel
 
 /** One kernel thermal zone under /sys/class/thermal/thermal_zoneN. */
 data class ThermalZoneInfo(
@@ -346,8 +328,8 @@ object ThermalUtil {
         runCatching { RootFileAccess.read(path) }.getOrNull()
 
     private fun writeNode(path: String, value: String): Boolean {
-        RootIpcManager.ipc?.let { service ->
-            runCatching { if (service.writeNode(path, value)) return true }
+        RootNodeChannel.service?.let { service ->
+            runCatching { if (service.writeText(path, value)) return true }
         }
         // HyperOS 3: direct root writes to 0444 sysfs nodes fail with EACCES;
         // only the chmod dance (proven by binutils/binprofiles on the real

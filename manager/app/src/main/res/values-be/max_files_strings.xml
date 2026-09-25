@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Больш дзеянняў</string>
     <string name="max_files_show_hidden">Паказаць схаваныя файлы</string>
     <string name="max_files_hide_hidden">Схаваць схаваныя файлы</string>
-    <string name="max_files_open_terminal">Адкрыйце тэрмінал</string>
     <string name="max_files_search_open_cd">Пошук у гэтай папцы</string>
     <string name="max_files_location_root">Корань /</string>
     <string name="max_files_location_storage">Унутраная памяць</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">інструменты</string>
     <string name="max_files_drawer_tasks">Фонавыя задачы</string>
     <string name="max_files_drawer_tasks_running">%1$d зараз працуе</string>
-    <string name="max_files_drawer_terminal_note">Запусціце камандны радок ад імя root</string>
     <string name="max_files_bookmark_add">Дадайце гэтую тэчку ў закладкі</string>
     <string name="max_files_bookmark_remove">Выдаліць з закладак</string>
     <string name="max_files_bookmarks_empty">Пакуль няма закладак — дадайце тэчкі, да якіх вы ўвесь час вяртаецеся.</string>

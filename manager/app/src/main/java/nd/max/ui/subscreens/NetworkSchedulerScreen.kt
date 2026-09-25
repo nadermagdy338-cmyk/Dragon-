@@ -375,8 +375,7 @@ private fun AdvancedSection(
             tunables.forEach { tunable ->
                 MaxGroupDivider()
                 RawValueRow(
-                    // Labels are kernel node names, not product copy.
-                    title = tunable.label,
+                    title = stringResource(tunable.labelRes),
                     value = tunable.value,
                     onConfirm = { value -> vm.setGenericTunable(tunable.path, value) }
                 )

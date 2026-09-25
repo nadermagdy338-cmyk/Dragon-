@@ -93,7 +93,6 @@
     <string name="max_files_action_more_cd">ଅଧିକ କ୍ରିୟା</string>
     <string name="max_files_show_hidden">ଲୁକ୍କାୟିତ ଫାଇଲଗୁଡିକ ଦେଖାନ୍ତୁ |</string>
     <string name="max_files_hide_hidden">ଲୁକ୍କାୟିତ ଫାଇଲଗୁଡିକ ଲୁଚାନ୍ତୁ |</string>
-    <string name="max_files_open_terminal">ଟର୍ମିନାଲ୍ ଖୋଲ |</string>
     <string name="max_files_search_open_cd">ଏହି ଫୋଲ୍ଡରକୁ ଖୋଜ |</string>
     <string name="max_files_location_root">ମୂଳ /</string>
     <string name="max_files_location_storage">ଆଭ୍ୟନ୍ତରୀଣ ଭଣ୍ଡାର |</string>
@@ -135,7 +134,6 @@
     <string name="max_files_drawer_tools">ସାଧନଗୁଡ଼ିକ |</string>
     <string name="max_files_drawer_tasks">ପୃଷ୍ଠଭୂମି କାର୍ଯ୍ୟଗୁଡ଼ିକ |</string>
     <string name="max_files_drawer_tasks_running">%1$d ବର୍ତ୍ତମାନ ଚାଲୁଛି |</string>
-    <string name="max_files_drawer_terminal_note">ରୁଟ୍ ଭାବରେ ଏକ କମାଣ୍ଡ୍ ଲାଇନ୍ ଚଲାନ୍ତୁ |</string>
     <string name="max_files_bookmark_add">ବୁକମାର୍କରେ ଏହି ଫୋଲ୍ଡର୍ ଯୋଡନ୍ତୁ |</string>
     <string name="max_files_bookmark_remove">ବୁକମାର୍କରୁ ଅପସାରଣ କରନ୍ତୁ |</string>
     <string name="max_files_bookmarks_empty">ଏପର୍ଯ୍ୟନ୍ତ କ book ଣସି ବୁକମାର୍କ ନାହିଁ - ଯେଉଁ ଫୋଲ୍ଡରକୁ ଆପଣ ଫେରି ଆସୁଛନ୍ତି ତାହା ଯୋଡନ୍ତୁ |</string>

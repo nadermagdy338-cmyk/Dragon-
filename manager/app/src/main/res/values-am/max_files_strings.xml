@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">ተጨማሪ ድርጊቶች</string>
     <string name="max_files_show_hidden">የተደበቁ ፋይሎችን አሳይ</string>
     <string name="max_files_hide_hidden">የተደበቁ ፋይሎችን ደብቅ</string>
-    <string name="max_files_open_terminal">ተርሚናሉን ይክፈቱ</string>
     <string name="max_files_search_open_cd">ይህን አቃፊ ይፈልጉ</string>
     <string name="max_files_location_root">ሥር/</string>
     <string name="max_files_location_storage">የውስጥ ማከማቻ</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">መሳሪያዎች</string>
     <string name="max_files_drawer_tasks">የበስተጀርባ ተግባራት</string>
     <string name="max_files_drawer_tasks_running">%1$d አሁን በመሮጥ ላይ</string>
-    <string name="max_files_drawer_terminal_note">የትእዛዝ መስመርን እንደ root ያሂዱ</string>
     <string name="max_files_bookmark_add">ይህን አቃፊ ወደ ዕልባቶች ያክሉት።</string>
     <string name="max_files_bookmark_remove">ከዕልባቶች ያስወግዱ</string>
     <string name="max_files_bookmarks_empty">እስካሁን ምንም ዕልባቶች የሉም - የሚመለሱባቸውን አቃፊዎች ያክሉ።</string>

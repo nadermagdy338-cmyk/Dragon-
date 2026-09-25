@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">更多行动</string>
     <string name="max_files_show_hidden">显示隐藏文件</string>
     <string name="max_files_hide_hidden">隐藏隐藏文件</string>
-    <string name="max_files_open_terminal">打开终端</string>
     <string name="max_files_search_open_cd">搜索该文件夹</string>
     <string name="max_files_location_root">根 /</string>
     <string name="max_files_location_storage">内部存储</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">工具</string>
     <string name="max_files_drawer_tasks">后台任务</string>
     <string name="max_files_drawer_tasks_running">%1$d 正在运行</string>
-    <string name="max_files_drawer_terminal_note">以 root 身份运行命令行</string>
     <string name="max_files_bookmark_add">将此文件夹添加到书签</string>
     <string name="max_files_bookmark_remove">从书签中删除</string>
     <string name="max_files_bookmarks_empty">还没有书签 - 添加您经常返回的文件夹。</string>

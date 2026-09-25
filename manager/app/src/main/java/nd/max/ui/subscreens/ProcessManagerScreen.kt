@@ -1,26 +1,10 @@
 /*
- * Live process monitor - top processes by CPU/RAM, force-stop / kill actions,
- * and a floating overlay toggle. Adapted from ZKM's ui/proces/ProcessManagerScreen.kt
- * (which leaned on Haze glass cards, donut/bar Canvas charts, and its own
- * SettingsViewModel for theme), but rebuilt on MaxManager's own ExpressiveList /
- * ExpressiveListItem / ConfirmDialog / CustomBottomSheet components instead,
- * and driven by ProcessManagerViewModel + ProcessMonitorUtil (libsu Shell).
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
  *
- * Original: Copyright (c) 2025 ZKM, licensed GPL-3.0.
- * Adaptation: Copyright (C) 2026-2027 Zexshia
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+شاشة العمليات: أعلى المستهلكين بالمعالج والذاكرة، ورسوم توزيع، وإجراءات إيقاف/قتل،
+ * ومفتاح التراكب العائم — فوق مكوّنات MaxManager التعبيرية (`ExpressiveList` وما شابهها). */
 
 @file:OptIn(ExperimentalMaterial3Api::class)
 
@@ -409,26 +393,14 @@ fun ResourceUsageChart(
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             topProcesses.forEach { process ->
-                val rawVal = if (sortType == ProcessSortType.CPU) {
-                    process.cpu.replace("%", "").toFloatOrNull() ?: 0f
-                } else {
-                    process.res.replace("M", "").replace("K", "").toFloatOrNull() ?: 0f
-                }
-                val progress = (rawVal / maxValue).coerceIn(0f, 1f)
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = process.appName,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 9.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.width(50.dp),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    GlowLinearBar(fraction = progress, accent = accent, height = 5.dp, modifier = Modifier.weight(1f))
-                }
+                // الرقم من الحقل العددي لا من النصّ المعروض: تحليل `1.2 MB` بالحذف يعطي
+                // صفرًا (كتابةً كانت تُرسم فارغة بلا أن تُنبّه)، و`resKb` هو الرقم نفسه.
+                val rawVal = if (sortType == ProcessSortType.CPU) process.cpuPercent else process.resKb.toFloat()
+                NamedBarRow(
+                    label = process.appName,
+                    fraction = (rawVal / maxValue).coerceIn(0f, 1f),
+                    accent = accent,
+                )
             }
         }
     }
@@ -542,6 +514,29 @@ private fun ProcessSortAndLimitRow(
             leadingIcon = { Icon(Icons.Outlined.FilterList, null, modifier = Modifier.size(16.dp)) },
             shape = RoundedCornerShape(50)
         )
+    }
+}
+
+/**
+ * صفّ رسم واحد: اسم العملية في عرض ثابت ثم شريط نسبيّ يمتدّ بما تبقّى.
+ *
+ * والعرض الثابت للاسم (٥٠ نقطة) مقصود: بدونه تتزحزح الأشرطة مع طول الاسم فتضيع المقارنة
+ * البصرية بين صفّين — وهي الغاية من الرسم أصلًا.
+ */
+@Composable
+private fun NamedBarRow(label: String, fraction: Float, accent: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            fontSize = 9.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(50.dp),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        GlowLinearBar(fraction = fraction, accent = accent, height = 5.dp, modifier = Modifier.weight(1f))
     }
 }
 

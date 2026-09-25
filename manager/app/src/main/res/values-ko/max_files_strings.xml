@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">추가 작업</string>
     <string name="max_files_show_hidden">숨겨진 파일 표시</string>
     <string name="max_files_hide_hidden">숨겨진 파일 숨기기</string>
-    <string name="max_files_open_terminal">터미널 열기</string>
     <string name="max_files_search_open_cd">이 폴더 검색</string>
     <string name="max_files_location_root">루트 /</string>
     <string name="max_files_location_storage">내부 저장소</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">도구</string>
     <string name="max_files_drawer_tasks">백그라운드 작업</string>
     <string name="max_files_drawer_tasks_running">%1$d 지금 실행 중</string>
-    <string name="max_files_drawer_terminal_note">루트로 명령줄 실행</string>
     <string name="max_files_bookmark_add">이 폴더를 북마크에 추가하세요.</string>
     <string name="max_files_bookmark_remove">북마크에서 삭제</string>
     <string name="max_files_bookmarks_empty">아직 북마크가 없습니다. 계속해서 돌아가는 폴더를 추가하세요.</string>

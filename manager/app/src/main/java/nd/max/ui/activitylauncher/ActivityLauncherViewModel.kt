@@ -1,117 +1,167 @@
 /*
- * Copyright (c) 2025 ZKM
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ *
+ * MaxManager proprietary source. See LICENSE at the repository root: this file is
+ * MaxManager-owned and carries no third-party licence obligations.
  */
+
 package nd.max.ui.activitylauncher
 
 import android.app.Application
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nd.max.ui.util.RootUtils
 
+/**
+ * State for the Activity Launcher screen.
+ *
+ * The screen has two levels — the package index and one package's activity list
+ * — and both live here rather than in two destinations. Mounting a second route
+ * for the detail view would mean the index is rebuilt (and every label resolved
+ * again) on every back press; keeping the selection in the ViewModel makes
+ * going back free.
+ *
+ * All `PackageManager` work is pushed to [Dispatchers.IO] and the visible list is
+ * derived with [combine] instead of being stored twice, so a filter can never
+ * disagree with the index it filters.
+ */
 class ActivityLauncherViewModel(application: Application) : AndroidViewModel(application) {
 
-    // StateFlow untuk menyimpan list aplikasi (Data Cache)
-    private val _allApps = MutableStateFlow<List<AppData>>(emptyList())
-    val allApps = _allApps.asStateFlow()
+    private val _apps = MutableStateFlow<List<IndexedApp>>(emptyList())
+    private val _loading = MutableStateFlow(true)
 
-    // Status Loading
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
+    private val _query = MutableStateFlow("")
+    private val _scope = MutableStateFlow(AppScope.ALL)
 
-    // Progress Loading (0.0 - 1.0) -> Sekarang akan sangat cepat jadi mungkin tidak terlalu terlihat
-    private val _loadProgress = MutableStateFlow(0f)
-    val loadProgress = _loadProgress.asStateFlow()
+    private val _rootGranted = MutableStateFlow(false)
 
-    private var isDataLoaded = false
+    private val _selected = MutableStateFlow<IndexedApp?>(null)
+    private val _activities = MutableStateFlow<List<IndexedActivity>>(emptyList())
+    private val _activitiesLoading = MutableStateFlow(false)
+
+    private val _outcome = MutableStateFlow<LaunchOutcome?>(null)
+
+    /** The full index, as read from the package manager. */
+    val loading: StateFlow<Boolean> = _loading.asStateFlow()
+
+    /** True when a root shell was actually obtained — the fallback path for non-exported activities. */
+    val rootGranted: StateFlow<Boolean> = _rootGranted.asStateFlow()
+
+    val query: StateFlow<String> = _query.asStateFlow()
+    val scope: StateFlow<AppScope> = _scope.asStateFlow()
+
+    /** Index narrowed by [query] and [scope]; recomputed, never cached separately. */
+    val visibleApps: StateFlow<List<IndexedApp>> =
+        combine(_apps, _query, _scope) { apps, query, scope ->
+            ActivityIndex.filter(apps, query, scope)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** True when the index itself is empty, as opposed to hidden by a filter. */
+    val indexEmpty: StateFlow<Boolean> =
+        _apps.combine(_loading) { apps, loading -> apps.isEmpty() && !loading }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val selected: StateFlow<IndexedApp?> = _selected.asStateFlow()
+    val activities: StateFlow<List<IndexedActivity>> = _activities.asStateFlow()
+    val activitiesLoading: StateFlow<Boolean> = _activitiesLoading.asStateFlow()
+
+    /** Last launch attempt, for the screen to explain; cleared by [consumeOutcome]. */
+    val outcome: StateFlow<LaunchOutcome?> = _outcome.asStateFlow()
 
     init {
-        loadApps()
+        refresh()
     }
 
-    fun loadApps(forceRefresh: Boolean = false) {
-        if (isDataLoaded && !forceRefresh) return
-
-        viewModelScope.launch(Dispatchers.IO) {
-            if (forceRefresh) {
-                _isLoading.value = true
-                _loadProgress.value = 0f
+    /**
+     * Re-reads the index. Root is probed here as well as at launch time: without
+     * the answer the screen cannot tell the user that the non-exported activities
+     * it is listing are reachable at all, and an unexplained "did not start" is
+     * exactly the vague failure MaxManager's condition system exists to remove.
+     */
+    fun refresh() {
+        viewModelScope.launch {
+            _loading.value = true
+            val granted = withContext(Dispatchers.IO) {
+                runCatching { RootUtils.isRootGranted() }.getOrDefault(false)
             }
-
-            val pm = getApplication<Application>().packageManager
-            // Mengambil Installed Packages (Meta Data lebih ringan dari GET_ACTIVITIES full)
-            // Tapi kita butuh count activities, jadi tetap pakai GET_ACTIVITIES tapi kita filter logikanya
-            val packages = pm.getInstalledPackages(PackageManager.GET_ACTIVITIES)
-            
-            val apps = ArrayList<AppData>(packages.size)
-            val total = packages.size.toFloat()
-            
-            // Loop cepat tanpa memuat Gambar (Icon)
-            for ((index, packInfo) in packages.withIndex()) {
-                
-                // Update progress sesekali saja biar gak spam thread
-                if (index % 20 == 0) {
-                     _loadProgress.value = (index / total) * 0.9f 
-                }
-
-                val appInfo = packInfo.applicationInfo ?: continue
-                val activities = packInfo.activities
-                
-                // Filter logika
-                if (!activities.isNullOrEmpty() || pm.getLaunchIntentForPackage(packInfo.packageName) != null) {
-                    val vName = packInfo.versionName ?: "Unknown"
-                    val vCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        packInfo.longVersionCode.toString()
-                    } else {
-                        @Suppress("DEPRECATION")
-                        packInfo.versionCode.toString()
-                    }
-                    
-                    val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-                    val count = activities?.size ?: 0 
-
-                    // Load Label (String) itu ringan, aman dilakukan di sini
-                    val label = try {
-                         pm.getApplicationLabel(appInfo).toString()
-                    } catch (e: Exception) {
-                        packInfo.packageName
-                    }
-
-                    // PENTING: Jangan load Icon (Drawable) di sini!
-                    apps.add(AppData(
-                        label = label,
-                        packageName = packInfo.packageName,
-                        versionName = vName,
-                        versionCode = vCode,
-                        isSystemApp = isSystem,
-                        activityCount = count
-                    ))
-                }
-            }
-            
-            // Sorting (Default dispatcher bagus untuk operasi CPU sorting list besar)
-            withContext(Dispatchers.Default) {
-                apps.sortBy { it.label.lowercase() }
-            }
-            
-            // Finalize
-            _loadProgress.value = 1.0f
-            if (forceRefresh) delay(100) // Delay dikit cuma kalau refresh manual
-            
-            _allApps.value = apps
-            isDataLoaded = true
-            _isLoading.value = false
+            val loaded = withContext(Dispatchers.IO) { ActivityIndex.apps(getApplication()) }
+            _rootGranted.value = granted
+            _apps.value = loaded
+            _loading.value = false
         }
+    }
+
+    fun setQuery(value: String) {
+        _query.value = value
+    }
+
+    fun setScope(value: AppScope) {
+        _scope.value = value
+    }
+
+    /** Opens the activity list of [app]. */
+    fun open(app: IndexedApp) {
+        _selected.value = app
+        _outcome.value = null
+        viewModelScope.launch {
+            _activitiesLoading.value = true
+            val loaded = withContext(Dispatchers.IO) {
+                ActivityIndex.activitiesFor(getApplication(), app.packageName)
+            }
+            _activities.value = loaded
+            _activitiesLoading.value = false
+        }
+    }
+
+    /** Leaves the activity list and returns to the index. */
+    fun closeDetail() {
+        _selected.value = null
+        _activities.value = emptyList()
+        _outcome.value = null
+    }
+
+    /**
+     * Starts [activity] of the currently selected package.
+     *
+     * The direct start is attempted first and root is only consulted when the
+     * manifest refuses it — never the other way round. Launching every activity
+     * through `am` would be simpler but would make root mandatory for the
+     * exported majority, which works today without it.
+     */
+    fun launch(activity: IndexedActivity) {
+        val app = _selected.value ?: return
+        viewModelScope.launch {
+            val context = getApplication<Application>()
+            val result = withContext(Dispatchers.IO) {
+                when (val direct = ActivityLauncher.launch(context, app.packageName, activity.name)) {
+                    LaunchOutcome.NEEDS_ROOT -> {
+                        if (_rootGranted.value &&
+                            ActivityLauncher.launchAsRoot(app.packageName, activity.name)
+                        ) {
+                            LaunchOutcome.STARTED
+                        } else {
+                            LaunchOutcome.NEEDS_ROOT
+                        }
+                    }
+
+                    else -> direct
+                }
+            }
+            _outcome.value = result
+        }
+    }
+
+    /** Marks the last outcome as seen so it is not re-shown. */
+    fun consumeOutcome() {
+        _outcome.value = null
     }
 }

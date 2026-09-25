@@ -210,8 +210,9 @@ android {
         // **حرس 32-بت أُزيل (تكملة ١١٠):** كان يمنع دخول `lib/armeabi-v7a/**` في زمن
         // «64-بت وحده». اليوم الـABIان يُشحنان معًا، فالحرس انقلب إلى الاتجاه الصحيح
         // وموضعه CI: البناء يفشل إن **غاب** `lib/armeabi-v7a/` أو `lib/arm64-v8a/`.
-        // (وقيمة إيجابية بالمناسبة: `kernel-flasher` يحمل ثنائيات v7a جاهزة في المستودع،
-        // وكان الحرس السابق يمنعها من الوصول إلى جهازها.)
+        // (وقيمة إيجابية بالمناسبة: `kernel-flasher` حمل ثنائيات v7a جاهزة في المستودع،
+        // وكان الحرس السابق يمنعها من الوصول إلى جهازها. **وقد حُذفت الوحدة** في جولة
+        // تدقيق الأصل `PROVENANCE-01` مع ميزة التفليش.)
     }
 
     tasks.withType<PackageAndroidArtifact> {
@@ -280,9 +281,6 @@ dependencies {
     ksp("com.google.dagger:hilt-compiler:2.59.2")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
-    // Terminal (ported from ZKM)
-    implementation(project(":terminal-view"))
-    implementation(project(":kernel-flasher"))
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.ui)
 

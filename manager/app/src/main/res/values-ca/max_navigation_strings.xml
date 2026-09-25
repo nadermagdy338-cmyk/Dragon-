@@ -41,18 +41,14 @@
     <string name="max_status_unknown">estat_desconegut</string>
     <string name="max_settings_diagnostics">Diagnòstics</string>
     <string name="max_settings_logs">Registres</string>
-    <string name="max_tool_terminal">Terminal</string>
     <string name="max_tool_setedit">SetEdit</string>
     <string name="max_tool_activity_launcher">Llançador d\'activitats</string>
-    <string name="max_tool_kernel_flasher">Flasher del nucli</string>
     <string name="max_risk_normal">Risc estàndard</string>
     <string name="max_risk_advanced">Risc avançat</string>
     <string name="max_risk_dangerous">Risc perillós</string>
     <string name="max_settings_appearance">Aparença</string>
-    <string name="max_title_terminal">Terminal</string>
     <string name="max_title_setedit">SetEdit</string>
     <string name="max_title_activity_launcher">Llançador d\'activitats</string>
-    <string name="max_title_kernel_flasher">Flasher del nucli</string>
     <string name="max_title_app_settings">Configuració de l\'aplicació</string>
     <string name="max_title_get_started">Configuració</string>
 </resources>

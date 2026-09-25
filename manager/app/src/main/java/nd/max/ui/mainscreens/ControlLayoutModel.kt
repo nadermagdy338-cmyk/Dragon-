@@ -60,14 +60,12 @@ val ControlToolDestinations: List<MaxDestination> = listOf(
     MaxDestination.MaxBackup,
     MaxDestination.Permissions,
     MaxDestination.FileManager,
-    MaxDestination.Terminal,
     MaxDestination.ProcessManager,
     MaxDestination.Logs,
     MaxDestination.ColorScheme,
     MaxDestination.SetEdit,
     MaxDestination.ActivityLauncher,
     // الأخطف آخرًا: لا يُفتح بلمسة عابرة.
-    MaxDestination.KernelFlasher,
 )
 
 /** Which hubs belong to which band, and in what order. Editorial, nothing more. */

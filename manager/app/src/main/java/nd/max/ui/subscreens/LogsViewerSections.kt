@@ -209,6 +209,9 @@ internal fun UnifiedLogLineRow(
     val colorScheme = MaterialTheme.colorScheme
     val highlight = entry.level == LogsViewerViewModel.UnifiedLogLevel.ERROR ||
         entry.level == LogsViewerViewModel.UnifiedLogLevel.FATAL
+    // الاسم يُحضر قبل الباني لأن `stringResource` لا تُستدعى إلا داخل دالّة `@Composable`،
+    // و`buildAnnotatedString` باني نصّ عادي.
+    val sourceLabel = stringResource(entry.source.labelRes)
     val text = buildAnnotatedString {
         withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) {
             append(entry.timestamp.substringAfter(' ')) // time only, date rarely needed inline
@@ -219,7 +222,7 @@ internal fun UnifiedLogLineRow(
             append(' ')
         }
         withStyle(SpanStyle(color = entry.level.color, fontWeight = FontWeight.SemiBold)) {
-            append(entry.source.displayName.ifEmpty { entry.rawTag })
+            append(sourceLabel)
         }
         withStyle(SpanStyle(color = colorScheme.onSurfaceVariant)) { append(": ") }
         if (entry.eventType != null) {
@@ -390,7 +393,7 @@ internal fun LogsViewerSettingsSheet(
             content = LogsViewerViewModel.LogBuffer.entries.map { buffer ->
                 {
                     ExpressiveCheckboxItem(
-                        title = buffer.displayName,
+                        title = stringResource(buffer.labelRes),
                         checked = buffer in viewModel.selectedBuffers,
                         onCheckedChange = { checked ->
                             val updated = if (checked) {

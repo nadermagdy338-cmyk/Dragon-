@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Vairāk darbību</string>
     <string name="max_files_show_hidden">Rādīt slēptos failus</string>
     <string name="max_files_hide_hidden">Slēpt slēptos failus</string>
-    <string name="max_files_open_terminal">Atveriet termināli</string>
     <string name="max_files_search_open_cd">Meklēt šajā mapē</string>
     <string name="max_files_location_root">Sakne /</string>
     <string name="max_files_location_storage">Iekšējā atmiņa</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Rīki</string>
     <string name="max_files_drawer_tasks">Fona uzdevumi</string>
     <string name="max_files_drawer_tasks_running">%1$d pašlaik darbojas</string>
-    <string name="max_files_drawer_terminal_note">Palaidiet komandrindu kā root</string>
     <string name="max_files_bookmark_add">Pievienojiet šo mapi grāmatzīmēm</string>
     <string name="max_files_bookmark_remove">Noņemt no grāmatzīmēm</string>
     <string name="max_files_bookmarks_empty">Vēl nav grāmatzīmju — pievienojiet mapes, kurās joprojām atgriežaties.</string>

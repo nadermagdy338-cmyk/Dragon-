@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Daha fazla işlem</string>
     <string name="max_files_show_hidden">Gizli dosyaları göster</string>
     <string name="max_files_hide_hidden">Gizli dosyaları gizle</string>
-    <string name="max_files_open_terminal">Terminali aç</string>
     <string name="max_files_search_open_cd">Bu klasörü ara</string>
     <string name="max_files_location_root">Kök /</string>
     <string name="max_files_location_storage">Dahili depolama</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Aletler</string>
     <string name="max_files_drawer_tasks">Arka plan görevleri</string>
     <string name="max_files_drawer_tasks_running">%1$d şu anda çalışıyor</string>
-    <string name="max_files_drawer_terminal_note">Bir komut satırını root olarak çalıştırın</string>
     <string name="max_files_bookmark_add">Bu klasörü yer imlerine ekle</string>
     <string name="max_files_bookmark_remove">Yer işaretlerinden kaldır</string>
     <string name="max_files_bookmarks_empty">Henüz yer imi yok; sürekli döndüğünüz klasörleri ekleyin.</string>

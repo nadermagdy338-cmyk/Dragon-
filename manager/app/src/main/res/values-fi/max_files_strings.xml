@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Lisää toimintoja</string>
     <string name="max_files_show_hidden">Näytä piilotetut tiedostot</string>
     <string name="max_files_hide_hidden">Piilota piilotetut tiedostot</string>
-    <string name="max_files_open_terminal">Avaa terminaali</string>
     <string name="max_files_search_open_cd">Hae tästä kansiosta</string>
     <string name="max_files_location_root">juuri /</string>
     <string name="max_files_location_storage">Sisäinen tallennustila</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Työkalut</string>
     <string name="max_files_drawer_tasks">Taustatehtävät</string>
     <string name="max_files_drawer_tasks_running">%1$d käynnissä nyt</string>
-    <string name="max_files_drawer_terminal_note">Suorita komentorivi pääkäyttäjänä</string>
     <string name="max_files_bookmark_add">Lisää tämä kansio kirjanmerkkeihin</string>
     <string name="max_files_bookmark_remove">Poista kirjanmerkeistä</string>
     <string name="max_files_bookmarks_empty">Ei vielä kirjanmerkkejä – lisää kansiot, joihin palaat jatkuvasti.</string>

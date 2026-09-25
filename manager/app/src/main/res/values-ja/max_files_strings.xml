@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">さらなるアクション</string>
     <string name="max_files_show_hidden">隠しファイルを表示する</string>
     <string name="max_files_hide_hidden">隠しファイルを隠す</string>
-    <string name="max_files_open_terminal">ターミナルを開きます</string>
     <string name="max_files_search_open_cd">このフォルダを検索</string>
     <string name="max_files_location_root">根 /</string>
     <string name="max_files_location_storage">内部ストレージ</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ツール</string>
     <string name="max_files_drawer_tasks">バックグラウンドタスク</string>
     <string name="max_files_drawer_tasks_running">%1$d 実行中</string>
-    <string name="max_files_drawer_terminal_note">rootとしてコマンドラインを実行します</string>
     <string name="max_files_bookmark_add">このフォルダをブックマークに追加します</string>
     <string name="max_files_bookmark_remove">ブックマークから削除</string>
     <string name="max_files_bookmarks_empty">まだブックマークはありません。頻繁にアクセスするフォルダーを追加してください。</string>

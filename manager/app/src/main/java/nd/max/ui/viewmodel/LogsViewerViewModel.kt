@@ -20,7 +20,9 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
+import nd.max.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
@@ -92,26 +94,35 @@ class LogsViewerViewModel : ViewModel() {
         // وهذا الملف كان يحملها حتى صار فوق حدّ الطول المسموح.
     }
 
-    enum class LogLevel(val letter: String, val color: Color, val displayName: String) {
-        VERBOSE("V", Color(0xFF9AA0A6), "Verbose"),
-        DEBUG("D", Color(0xFF4CC9F0), "Debug"),
-        INFO("I", Color(0xFF00C853), "Info"),
-        WARN("W", Color(0xFFFFB300), "Warning"),
-        ERROR("E", Color(0xFFFF1744), "Error"),
-        ASSERT("A", Color(0xFFD500F9), "Assert");
+    /**
+     * مستويات `logcat` كما تُعرض: الحرف كما يكتبه النظام، ولونٌ للتمييز البصري.
+     *
+     * والألوان **من لوحة MaxManager** لا من لوحة أحد: المستوى حقيقة عن النظام، واختيار
+     * اللون تفضيل تصميمي يملكه هذا المشروع. والأسماء موارد نصّية (`max_log_level_*`) لأنها
+     * كلام يقرأه المستخدم لا معرفًا يقرأه الكود.
+     */
+    enum class LogLevel(val letter: String, val color: Color, @StringRes val labelRes: Int) {
+        VERBOSE("V", Color(0xFF94A3B8), R.string.max_log_level_verbose),
+        DEBUG("D", Color(0xFF22D3EE), R.string.max_log_level_debug),
+        INFO("I", Color(0xFF34D399), R.string.max_log_level_info),
+        WARN("W", Color(0xFFFBBF24), R.string.max_log_level_warn),
+        ERROR("E", Color(0xFFF87171), R.string.max_log_level_error),
+        ASSERT("A", Color(0xFFC084FC), R.string.max_log_level_assert);
 
         companion object {
-            fun fromLetter(letter: String): LogLevel = entries.find { it.letter == letter.uppercase() } ?: VERBOSE
+            fun fromLetter(letter: String): LogLevel =
+                entries.firstOrNull { it.letter.equals(letter, ignoreCase = true) } ?: VERBOSE
         }
     }
 
-    enum class LogBuffer(val arg: String, val displayName: String) {
-        MAIN("main", "Main"),
-        SYSTEM("system", "System"),
-        CRASH("crash", "Crash"),
-        KERNEL("kernel", "Kernel"),
-        EVENTS("events", "Events"),
-        RADIO("radio", "Radio")
+    /** مخازن `logcat -b`: قيمة `arg` حقيقة عن النظام، والاسم مورد نصّي. */
+    enum class LogBuffer(val arg: String, @StringRes val labelRes: Int) {
+        MAIN("main", R.string.max_log_buffer_main),
+        SYSTEM("system", R.string.max_log_buffer_system),
+        CRASH("crash", R.string.max_log_buffer_crash),
+        KERNEL("kernel", R.string.max_log_buffer_kernel),
+        EVENTS("events", R.string.max_log_buffer_events),
+        RADIO("radio", R.string.max_log_buffer_radio)
     }
 
     /** Which log this screen is currently showing. */
@@ -132,15 +143,20 @@ class LogsViewerViewModel : ViewModel() {
      * above -- that enum's V/A letters don't exist in MaxManager.log, and
      * conflating the two domains risks silently mislabeling a FATAL line.
      */
-    enum class UnifiedLogLevel(val letter: String, val color: Color, val displayName: String) {
-        DEBUG("D", Color(0xFF4CC9F0), "Debug"),
-        INFO("I", Color(0xFF00C853), "Info"),
-        WARN("W", Color(0xFFFFB300), "Warning"),
-        ERROR("E", Color(0xFFFF1744), "Error"),
-        FATAL("F", Color(0xFFD500F9), "Fatal");
+    /**
+     * مستويات السجل الموحّد: نفس لوحة [LogLevel] مضافًا إليها `FATAL` (لا يقابله مستوى في
+     * `logcat`، ويأتي من محلّل السجل الموحّد).
+     */
+    enum class UnifiedLogLevel(val letter: String, val color: Color, @StringRes val labelRes: Int) {
+        DEBUG("D", Color(0xFF22D3EE), R.string.max_log_level_debug),
+        INFO("I", Color(0xFF34D399), R.string.max_log_level_info),
+        WARN("W", Color(0xFFFBBF24), R.string.max_log_level_warn),
+        ERROR("E", Color(0xFFF87171), R.string.max_log_level_error),
+        FATAL("F", Color(0xFFC084FC), R.string.max_log_level_fatal);
 
         companion object {
-            fun fromLetter(letter: String): UnifiedLogLevel = entries.find { it.letter == letter.uppercase() } ?: INFO
+            fun fromLetter(letter: String): UnifiedLogLevel =
+                entries.firstOrNull { it.letter.equals(letter, ignoreCase = true) } ?: INFO
         }
     }
 
@@ -154,11 +170,11 @@ class LogsViewerViewModel : ViewModel() {
      * dropped, so a future/unexpected source is still visible, just
      * unlabeled.
      */
-    enum class LogSource(val tag: String, val displayName: String) {
-        DAEMON("MaxManager", "Daemon"),
-        APPMONITOR("appmonitor", "AppMonitor"),
-        UI("ui", "UI"),
-        OTHER("", "Other");
+    enum class LogSource(val tag: String, @StringRes val labelRes: Int) {
+        DAEMON("MaxManager", R.string.max_log_source_daemon),
+        APPMONITOR("appmonitor", R.string.max_log_source_appmonitor),
+        UI("ui", R.string.max_log_source_ui),
+        OTHER("", R.string.max_log_source_other);
 
         companion object {
             fun fromTag(tag: String): LogSource = entries.find { it.tag == tag } ?: OTHER

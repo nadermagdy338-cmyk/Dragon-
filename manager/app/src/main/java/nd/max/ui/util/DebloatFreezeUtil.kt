@@ -1,21 +1,8 @@
 /*
- * Adapted from ZKM (Zuan Kernel Manager) DebloatFreezeUtils.
- * Original: Copyright (c) 2025 ZKM, licensed GPL-3.0.
- * Adaptation: Copyright (C) 2026-2027 Zexshia
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
  */
-
 package nd.max.ui.util
 
 import android.content.Context
@@ -26,12 +13,14 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.Settings
 import com.topjohnwu.superuser.Shell
+import java.text.Collator
 
 /**
- * A single installed app as shown on the Debloat & Freeze screen. Unlike
- * [nd.max.ui.viewmodel.ApplistViewmodel.AppInfo] (which tracks whether an
- * app is opted into MaxManager's per-app performance profile), this tracks the
- * app's actual enabled/disabled state at the PackageManager level.
+ * تطبيق مثبّت كما تعرضه شاشة «التجميد والحذف».
+ *
+ * ويُقصد بـ`isEnabled` حالة `PackageManager` الفعلية (مُجمَّد أم لا) — لا اختيار المستخدم في
+ * ملفات MaxManager. فالأول حقيقة عن الجهاز، والثاني تفضيل: خلطهما يجعل الشاشة تقول «مُجمَّد»
+ * عن تطبيق يعمل.
  */
 data class DebloatAppInfo(
     val label: String,
@@ -44,63 +33,77 @@ data class DebloatAppInfo(
 )
 
 /**
- * Freeze (disable) or uninstall-for-user any installed app via root, without
- * needing Device Owner / Device Admin privileges. Freezing is reversible
- * (`pm enable`); the uninstall path only removes the app for the current
- * user (`pm uninstall --user 0`) so a system app can still be restored with
- * a factory reset or `pm install-existing` rather than being deleted outright.
+ * تجميد/تفعيل/حذف للمستخدم الحالي **بلا صلاحيات مالك الجهاز** (Device Owner).
+ *
+ * - **التجميد** (`pm disable-user --user 0`) قابل للعكس بـ`pm enable`، ولا يمسّ ملفّات التطبيق
+ *   ولا بياناته.
+ * - **الحذف** هنا `pm uninstall --user 0`: إزالة للمستخدم الحالي فقط، فتبقى الحزمة في صورة
+ *   النظام ويمكن إرجاعها بـ`pm install-existing` أو بتصفير المصنع. وهذا مقصود: «حذف» لا يجوز
+ *   أن يكون نهائيًّا في أداة تُستخدم على جهاز فيه تطبيقات نظام لا بدّ منها للإقلاع.
+ *
+ * وكل الأوامر عبر [Shell] (libsu) — طريق الجذر الواحد في التطبيق.
  */
 object DebloatFreezeUtil {
 
+    /** ترتيب عربي/صيني سليم: مُرتِّب اللغة لا مقارنة نقاط الترميز (التطبيق بثمانٍ وثمانين لغة). */
+    private val labelCollator: Collator = Collator.getInstance().apply { strength = Collator.PRIMARY }
+
+    /**
+     * كل الحزم المثبّتة، مرتّبة باسم العرض بلغة الواجهة الحالية.
+     *
+     * وحزمة واحدة معطوبة لا تُسقط القائمة: تُسجَّل وتُتخطّى (`mapNotNull`) — فشاشة التجميد لا
+     * يجوز أن تصير فارغة لأن تطبيقًا واحدًا كتب `applicationInfo` غير متوقّع.
+     */
     fun getInstalledApps(context: Context): List<DebloatAppInfo> {
         val pm = context.packageManager
-        val packages = pm.getInstalledPackages(PackageManager.GET_META_DATA)
-
-        return packages.mapNotNull { pkg ->
-            try {
-                val appInfo = pkg.applicationInfo ?: return@mapNotNull null
-                val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-
-                DebloatAppInfo(
-                    label = pm.getApplicationLabel(appInfo).toString(),
-                    packageName = pkg.packageName,
-                    versionName = pkg.versionName ?: "?",
-                    versionCode = if (android.os.Build.VERSION.SDK_INT >= 28) pkg.longVersionCode else @Suppress("DEPRECATION") pkg.versionCode.toLong(),
-                    isSystem = isSystem,
-                    isEnabled = appInfo.enabled,
-                    icon = try { pm.getApplicationIcon(appInfo) } catch (e: Exception) { null }
-                )
-            } catch (e: Exception) {
-                EventLog.error("Debloat", "read_package_info:${pkg.packageName}", e)
-                null
-            }
-        }.sortedBy { it.label.lowercase() }
+        return pm.getInstalledPackages(PackageManager.GET_META_DATA)
+            .mapNotNull { pkg -> describe(pm, pkg) }
+            .sortedWith(compareBy(labelCollator) { it.label })
     }
 
-    /** Freezes (disables) or unfreezes (enables) an app for the current user. */
+    private fun describe(pm: PackageManager, pkg: android.content.pm.PackageInfo): DebloatAppInfo? {
+        val app: ApplicationInfo = pkg.applicationInfo ?: return null
+        return runCatching {
+            DebloatAppInfo(
+                label = pm.getApplicationLabel(app).toString(),
+                packageName = pkg.packageName,
+                versionName = pkg.versionName ?: UNKNOWN_VERSION,
+                versionCode = pkg.longVersionCode,
+                isSystem = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0,
+                isEnabled = app.enabled,
+                icon = runCatching { pm.getApplicationIcon(app) }.getOrNull(),
+            )
+        }.onFailure { EventLog.error(SCREEN, "read_package:${pkg.packageName}", it) }
+            .getOrNull()
+    }
+
+    /**
+     * يُجمّد التطبيق أو يُعيد تفعيله للمستخدم الحالي.
+     *
+     * `--user 0` مُعلن صراحةً في الطرفين: بلا تحديد المستخدم ينفّذ `pm` الأمر على مستخدم آخر
+     * في بعض الواجهات، فتظهر النتيجة «نجحت» والحالة لم تتغيّر.
+     */
     fun toggleAppState(packageName: String, enable: Boolean): Boolean {
-        val command = if (enable) {
-            "pm enable $packageName"
-        } else {
-            "pm disable-user --user 0 $packageName"
-        }
-        return Shell.cmd(command).exec().isSuccess
+        val action = if (enable) "enable" else "disable-user --user 0"
+        return shell("pm $action $packageName")
     }
 
-    /** Removes an app for the current user only. Recoverable via `pm install-existing` for system apps. */
-    fun debloatApp(packageName: String): Boolean {
-        return Shell.cmd("pm uninstall --user 0 $packageName").exec().isSuccess
-    }
+    /** إزالة للمستخدم الحالي فقط — قابلة للرجوع على تطبيقات النظام بـ`pm install-existing`. */
+    fun debloatApp(packageName: String): Boolean = shell("pm uninstall --user 0 $packageName")
 
+    /** صفحة معلومات التطبيق في إعدادات النظام، لمن يريد صلاحيات لا يملكها هذا الملف. */
     fun openAppSystemSettings(context: Context, packageName: String) {
-        try {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", packageName, null)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            EventLog.error("Debloat", "open_app_settings:$packageName", e)
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", packageName, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
+        runCatching { context.startActivity(intent) }
+            .onFailure { EventLog.error(SCREEN, "open_app_settings:$packageName", it) }
     }
+
+    private fun shell(command: String): Boolean =
+        runCatching { Shell.cmd(command).exec().isSuccess }.getOrDefault(false)
+
+    private const val SCREEN = "Debloat"
+    private const val UNKNOWN_VERSION = "?"
 }

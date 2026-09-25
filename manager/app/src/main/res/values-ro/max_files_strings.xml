@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Mai multe acțiuni</string>
     <string name="max_files_show_hidden">Afișează fișierele ascunse</string>
     <string name="max_files_hide_hidden">Ascunde fișierele ascunse</string>
-    <string name="max_files_open_terminal">Deschide terminalul</string>
     <string name="max_files_search_open_cd">Căutați acest folder</string>
     <string name="max_files_location_root">rădăcină /</string>
     <string name="max_files_location_storage">Stocare internă</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Instrumente</string>
     <string name="max_files_drawer_tasks">Sarcini de fundal</string>
     <string name="max_files_drawer_tasks_running">%1$d rulează acum</string>
-    <string name="max_files_drawer_terminal_note">Rulați o linie de comandă ca root</string>
     <string name="max_files_bookmark_add">Adăugați acest dosar la marcaje</string>
     <string name="max_files_bookmark_remove">Eliminați din marcaje</string>
     <string name="max_files_bookmarks_empty">Încă nu există marcaje — adăugați dosarele la care reveniți în continuare.</string>

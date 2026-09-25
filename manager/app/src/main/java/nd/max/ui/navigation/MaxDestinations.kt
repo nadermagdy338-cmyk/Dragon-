@@ -36,7 +36,6 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Storage
-import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material.icons.rounded.TouchApp
@@ -223,7 +222,6 @@ sealed class MaxDestination(
     data object ModuleHealth : MaxDestination("module_health", R.string.max_module_title, Icons.Rounded.Build, Settings)
 
     // Control - Advanced tools (gated, not preferences)
-    data object Terminal : MaxDestination("terminal", R.string.max_title_terminal, Icons.Rounded.Terminal, Control, MaxRisk.Dangerous)
     data object SetEdit : MaxDestination("setedit", R.string.max_title_setedit, Icons.Rounded.Edit, Control, MaxRisk.Advanced)
     data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.AutoMirrored.Rounded.Launch, Control, MaxRisk.Advanced)
 
@@ -233,7 +231,6 @@ sealed class MaxDestination(
      * تفضيلات تُقلَّب بلا انتباه.
      */
     data object FileManager : MaxDestination("filemanager", R.string.max_files_title, Icons.Rounded.Folder, Control, MaxRisk.Advanced)
-    data object KernelFlasher : MaxDestination("kernelflasher", R.string.max_title_kernel_flasher, Icons.Rounded.Build, Control, MaxRisk.Dangerous)
 
     companion object {
         /**
@@ -266,7 +263,7 @@ sealed class MaxDestination(
                 ProcessManager, DebloatFreeze, AppSettings,
                 ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, Plugins, MaxBackup, Permissions, About,
                 Privilege, ModuleHealth,
-                Terminal, SetEdit, ActivityLauncher, FileManager, KernelFlasher,
+                SetEdit, ActivityLauncher, FileManager,
             )
         }
 

@@ -1,19 +1,8 @@
 /*
- * Copyright (C) 2026-2027 Zexshia
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
  */
-
 package nd.max.ui.viewmodel
 
 import androidx.compose.runtime.getValue
@@ -26,26 +15,29 @@ import nd.max.core.hardware.RootFileAccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nd.max.MaxManagerProps
+import nd.max.R
 import nd.max.ui.util.PropertyUtils
 
 /**
- * Combined Network (TCP/IP stack, `/proc/sys/net/ipv4`) and Scheduler
- * (`/proc/sys/kernel/sched_*`) tuning surface.
+ * سطح ضبط واحد لشبكة النظام (`/proc/sys/net/ipv4`) ومجدول النواة (`/proc/sys/kernel/sched_*`).
  *
- * Adapted from ZKM's NetworkUtils/NetworkViewModel + SchdulerUtils/
- * SchedulerViewModel, but not a straight port: ZKM reads/writes through its
- * own `Utils.readFile`/`Utils.testFile`/`Utils.writeFile` helpers, which
- * don't exist in MaxManager. This targets the same nodes through direct
- * `Shell.cmd` calls (`test -e` / `cat` / `echo >`) and persists
- * user overrides through [MaxManagerProps] instead of ZKM's SharedPreferences.
+ * **مبدأ التصميم:** كل مقبض **اختياري بذاته**. النواة لا تُعلن ما لا تملكه، فالسؤال عن الوجود
+ * شرط قراءة كل مقبض، والمقبض الغائب يُخفي صفّه ولا يُسقط الشاشة — لأن "قائمة فارغة على هذه
+ * النواة" معلومة صحيحة، و"شاشة لا تفتح" عطب.
  *
- * Every toggle/value here is independently optional: a node not existing on
- * a given kernel just hides that row rather than failing the whole screen,
- * mirroring ZKM's per-node `hasXxx` flags.
+ * **والقراءة بدفعات لا برحلات:** العقد تُقرأ بـ`RootFileAccess.readMany` في نداء واحد،
+ * والكتابة تبقى أحدًا بعددها (تغيير مقبض فعل مستخدم، لا مسح دوري).
+ *
+ * **والتجاوزات المحفوظة** تُطبَّق عند الفتح لا عند الإقلاع: المستخدم الذي ضبط مقبضًا ثم أعاد
+ * تشغيل الجهاز يجد ضبطه عائدًا — يُكتب مرة عند قراءة الشاشة، ولا يُكتب كل دورة.
  */
 class NetworkSchedulerViewModel : ViewModel() {
 
-    data class TunableItem(val label: String, val path: String, val value: String)
+    /** صفّ مقبض جاهز للعرض: اسمه المترجم، ومساره، وقيمته الحيّة. */
+    data class TunableItem(val labelRes: Int, val path: String, val value: String)
+
+    /** مقبض عام في المجدول: اسمه (مورد نصّ) ومسار عقدته. */
+    private data class SchedTunable(val labelRes: Int, val path: String)
 
     companion object {
         // ---- Network (/proc/sys/net/ipv4) ----
@@ -69,21 +61,26 @@ class NetworkSchedulerViewModel : ViewModel() {
         private const val SCHED_UCLAMP_MIN = "$PROC_KERNEL/sched_util_clamp_min"
         private const val PRINTK = "$PROC_KERNEL/printk"
 
-        /** Same raw tunable set ZKM exposes under "Advanced Parameters", label -> node path. */
-        private val GENERIC_SCHED_TUNABLES = linkedMapOf(
-            "Deadline Period Max (us)" to "$PROC_KERNEL/sched_deadline_period_max_us",
-            "Deadline Period Min (us)" to "$PROC_KERNEL/sched_deadline_period_min_us",
-            "Energy Aware" to "$PROC_KERNEL/sched_energy_aware",
-            "Latency (ns)" to "$PROC_KERNEL/sched_latency_ns",
-            "Migration Cost (ns)" to "$PROC_KERNEL/sched_migration_cost_ns",
-            "Min Granularity (ns)" to "$PROC_KERNEL/sched_min_granularity_ns",
-            "Nr Migrate" to "$PROC_KERNEL/sched_nr_migrate",
-            "PELT Multiplier" to "$PROC_KERNEL/sched_pelt_multiplier",
-            "RR Timeslice (ms)" to "$PROC_KERNEL/sched_rr_timeslice_ms",
-            "RT Period (us)" to "$PROC_KERNEL/sched_rt_period_us",
-            "RT Runtime (us)" to "$PROC_KERNEL/sched_rt_runtime_us",
-            "UClamp Min RT Default" to "$PROC_KERNEL/sched_util_clamp_min_rt_default",
-            "Wakeup Granularity (ns)" to "$PROC_KERNEL/sched_wakeup_granularity_ns"
+        /**
+         * المقابض العامة التي تُعرض في «المعاملات المتقدّمة» — والأسماء في `max_sched_strings`.
+         *
+         * والقائمة **مرتّبة كما تُقرأ** لا أبجديًّا: المجموعات الأربع (مواعيد، تفصيل، دفعات،
+         * زمن حقيقي) تتبع بعضها، فيرى من يقرأ الصفوف منطقًا لا ترتيبًا عشوائيًّا.
+         */
+        private val GENERIC_SCHED_TUNABLES = listOf(
+            SchedTunable(R.string.max_sched_tunable_deadline_period_max, "$PROC_KERNEL/sched_deadline_period_max_us"),
+            SchedTunable(R.string.max_sched_tunable_deadline_period_min, "$PROC_KERNEL/sched_deadline_period_min_us"),
+            SchedTunable(R.string.max_sched_tunable_energy_aware, "$PROC_KERNEL/sched_energy_aware"),
+            SchedTunable(R.string.max_sched_tunable_latency, "$PROC_KERNEL/sched_latency_ns"),
+            SchedTunable(R.string.max_sched_tunable_min_granularity, "$PROC_KERNEL/sched_min_granularity_ns"),
+            SchedTunable(R.string.max_sched_tunable_wakeup_granularity, "$PROC_KERNEL/sched_wakeup_granularity_ns"),
+            SchedTunable(R.string.max_sched_tunable_migration_cost, "$PROC_KERNEL/sched_migration_cost_ns"),
+            SchedTunable(R.string.max_sched_tunable_nr_migrate, "$PROC_KERNEL/sched_nr_migrate"),
+            SchedTunable(R.string.max_sched_tunable_pelt_multiplier, "$PROC_KERNEL/sched_pelt_multiplier"),
+            SchedTunable(R.string.max_sched_tunable_rr_timeslice, "$PROC_KERNEL/sched_rr_timeslice_ms"),
+            SchedTunable(R.string.max_sched_tunable_rt_period, "$PROC_KERNEL/sched_rt_period_us"),
+            SchedTunable(R.string.max_sched_tunable_rt_runtime, "$PROC_KERNEL/sched_rt_runtime_us"),
+            SchedTunable(R.string.max_sched_tunable_uclamp_min_rt_default, "$PROC_KERNEL/sched_util_clamp_min_rt_default"),
         )
 
         private const val PROP_TCP_CONG = MaxManagerProps.Network.TCP_CONGESTION
@@ -300,8 +297,8 @@ class NetworkSchedulerViewModel : ViewModel() {
      */
     private fun loadGenericTunables() {
         val overrides = parseGenericOverrides(PropertyUtils.get(PROP_GENERIC_OVERRIDES))
-        val entries = GENERIC_SCHED_TUNABLES.entries.toList()
-        val paths = entries.map { it.value }
+        val entries = GENERIC_SCHED_TUNABLES
+        val paths = entries.map { it.path }
         val initial = RootFileAccess.readMany(paths)
 
         // التجاوزات المحفوظة تُكتب ثم تُعاد قراءتها — كسلوك المستخدم الذي كتبها بنفسه.
@@ -321,7 +318,7 @@ class NetworkSchedulerViewModel : ViewModel() {
 
         genericTunables = entries.mapIndexedNotNull { index, entry ->
             settled.getOrNull(index)?.takeIf { it.isNotEmpty() }
-                ?.let { TunableItem(entry.key, entry.value, it) }
+                ?.let { TunableItem(entry.labelRes, entry.path, it) }
         }
     }
 

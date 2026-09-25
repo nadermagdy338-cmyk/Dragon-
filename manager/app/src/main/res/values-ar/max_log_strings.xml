@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  أسماء مستويات `logcat` ومخازنه ومصادره — عربية، تُكتب بيد مع الإنجليزية معًا (ADR-14).
+  والحرف ومعرّف المخزن يبقيان في الكود لأنهما قيمة النظام لا اسمًا.
+-->
+<resources>
+    <string name="max_log_level_verbose">مطوَّل</string>
+    <string name="max_log_level_debug">تنقيح</string>
+    <string name="max_log_level_info">معلومة</string>
+    <string name="max_log_level_warn">تحذير</string>
+    <string name="max_log_level_error">خطأ</string>
+    <string name="max_log_level_assert">تأكيد</string>
+    <string name="max_log_level_fatal">عطب قاتل</string>
+
+    <string name="max_log_buffer_main">الرئيسي</string>
+    <string name="max_log_buffer_system">النظام</string>
+    <string name="max_log_buffer_crash">الانهيارات</string>
+    <string name="max_log_buffer_kernel">النواة</string>
+    <string name="max_log_buffer_events">الأحداث</string>
+    <string name="max_log_buffer_radio">الاتصال اللاسلكي</string>
+
+    <string name="max_log_source_daemon">الخدمة الخلفية</string>
+    <string name="max_log_source_appmonitor">مراقب التطبيقات</string>
+    <string name="max_log_source_ui">الواجهة</string>
+    <string name="max_log_source_other">مصدر آخر</string>
+</resources>

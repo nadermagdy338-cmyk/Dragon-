@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Plus de propositions</string>
     <string name="max_files_show_hidden">Afficher les fichiers cachés</string>
     <string name="max_files_hide_hidden">Masquer les fichiers cachés</string>
-    <string name="max_files_open_terminal">Ouvrez le terminal</string>
     <string name="max_files_search_open_cd">Rechercher ce dossier</string>
     <string name="max_files_location_root">Racine /</string>
     <string name="max_files_location_storage">Entreposage interne</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Outils</string>
     <string name="max_files_drawer_tasks">Tâches en arrière-plan</string>
     <string name="max_files_drawer_tasks_running">%1$d en cours d\'exécution maintenant</string>
-    <string name="max_files_drawer_terminal_note">Exécutez une ligne de commande en tant que root</string>
     <string name="max_files_bookmark_add">Ajouter ce dossier aux favoris</string>
     <string name="max_files_bookmark_remove">Supprimer des favoris</string>
     <string name="max_files_bookmarks_empty">Aucun favori pour l\'instant : ajoutez les dossiers auxquels vous revenez sans cesse.</string>

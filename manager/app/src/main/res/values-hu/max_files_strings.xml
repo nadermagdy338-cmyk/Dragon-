@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">További műveletek</string>
     <string name="max_files_show_hidden">Rejtett fájlok megjelenítése</string>
     <string name="max_files_hide_hidden">Rejtett fájlok elrejtése</string>
-    <string name="max_files_open_terminal">Nyissa meg a terminált</string>
     <string name="max_files_search_open_cd">Keresés ebben a mappában</string>
     <string name="max_files_location_root">gyökér /</string>
     <string name="max_files_location_storage">Belső tárhely</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Eszközök</string>
     <string name="max_files_drawer_tasks">Háttérfeladatok</string>
     <string name="max_files_drawer_tasks_running">%1$d most fut</string>
-    <string name="max_files_drawer_terminal_note">Futtasson egy parancssort rootként</string>
     <string name="max_files_bookmark_add">Adja hozzá ezt a mappát a könyvjelzőkhöz</string>
     <string name="max_files_bookmark_remove">Eltávolítás a könyvjelzők közül</string>
     <string name="max_files_bookmarks_empty">Még nincsenek könyvjelzők – adja hozzá azokat a mappákat, amelyekbe folyamatosan visszatér.</string>

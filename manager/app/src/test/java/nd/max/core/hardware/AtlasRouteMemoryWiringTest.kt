@@ -41,7 +41,8 @@ class AtlasRouteMemoryWiringTest {
     fun `factory never opens a privilege transport to obtain boot identity`() {
         val text = source("core/hardware/AtlasRouteMemoryFactory.kt")
         listOf(
-            "RootFileAccess", "RootIpcManager", "Shell", "ProcessBuilder",
+            "RootFileAccess", "RootNodeChannel", "IRootNodeService", "RootNodeService",
+            "Shell", "ProcessBuilder",
             "Runtime.getRuntime", "requestRoot", "requestPermission", "ensureRoot",
             "PrivilegeManager", "com.topjohnwu", "rikka.shizuku",
         ).forEach { forbidden ->

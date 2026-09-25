@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Daha çox hərəkət</string>
     <string name="max_files_show_hidden">Gizli faylları göstərin</string>
     <string name="max_files_hide_hidden">Gizli faylları gizlədin</string>
-    <string name="max_files_open_terminal">Terminalı açın</string>
     <string name="max_files_search_open_cd">Bu qovluğu axtarın</string>
     <string name="max_files_location_root">Kök /</string>
     <string name="max_files_location_storage">Daxili yaddaş</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Alətlər</string>
     <string name="max_files_drawer_tasks">Fon tapşırıqları</string>
     <string name="max_files_drawer_tasks_running">%1$d indi işləyir</string>
-    <string name="max_files_drawer_terminal_note">Komanda xəttini kök olaraq işlədin</string>
     <string name="max_files_bookmark_add">Bu qovluğu əlfəcinlərə əlavə edin</string>
     <string name="max_files_bookmark_remove">Əlfəcinlərdən silin</string>
     <string name="max_files_bookmarks_empty">Hələ əlfəcin yoxdur — qayıtmağa davam etdiyiniz qovluqları əlavə edin.</string>

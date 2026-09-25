@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Lebih banyak tindakan</string>
     <string name="max_files_show_hidden">Tunjukkan fail tersembunyi</string>
     <string name="max_files_hide_hidden">Sembunyikan fail tersembunyi</string>
-    <string name="max_files_open_terminal">Buka terminal</string>
     <string name="max_files_search_open_cd">Cari folder ini</string>
     <string name="max_files_location_root">akar /</string>
     <string name="max_files_location_storage">Storan dalaman</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Alatan</string>
     <string name="max_files_drawer_tasks">Tugas latar belakang</string>
     <string name="max_files_drawer_tasks_running">%1$d berjalan sekarang</string>
-    <string name="max_files_drawer_terminal_note">Jalankan baris arahan sebagai root</string>
     <string name="max_files_bookmark_add">Tambahkan folder ini pada penanda halaman</string>
     <string name="max_files_bookmark_remove">Alih keluar daripada penanda halaman</string>
     <string name="max_files_bookmarks_empty">Tiada penanda halaman lagi — tambahkan folder yang anda terus kembali.</string>

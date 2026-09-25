@@ -66,6 +66,7 @@ import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nd.max.core.ipc.RootNodeChannel
 import nd.max.ui.component.*
 import nd.max.ui.design.LocalFloatingBottomBarHeight
 import nd.max.ui.design.MaxSpace
@@ -87,7 +88,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        RootIpcManager.bind(this)
+        RootNodeChannel.connect(this)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
@@ -146,7 +147,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        RootIpcManager.unbind()
+        RootNodeChannel.disconnect()
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)

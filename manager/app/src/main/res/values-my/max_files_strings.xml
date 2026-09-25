@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">နောက်ထပ်လုပ်ဆောင်ချက်များ</string>
     <string name="max_files_show_hidden">ဝှက်ထားသောဖိုင်များကိုပြသပါ။</string>
     <string name="max_files_hide_hidden">ဝှက်ထားသောဖိုင်များကိုဖျောက်ပါ။</string>
-    <string name="max_files_open_terminal">terminal ကိုဖွင့်ပါ။</string>
     <string name="max_files_search_open_cd">ဤဖိုင်တွဲကို ရှာပါ။</string>
     <string name="max_files_location_root">အမြစ်/</string>
     <string name="max_files_location_storage">အတွင်းပိုင်းသိုလှောင်မှု</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ကိရိယာများ</string>
     <string name="max_files_drawer_tasks">နောက်ခံအလုပ်များ</string>
     <string name="max_files_drawer_tasks_running">%1$d ယခု လည်ပတ်နေပါသည်။</string>
-    <string name="max_files_drawer_terminal_note">root အနေဖြင့် command line ကို run ပါ။</string>
     <string name="max_files_bookmark_add">ဤဖိုင်တွဲကို စာညှပ်များထဲသို့ ထည့်ပါ။</string>
     <string name="max_files_bookmark_remove">စာညှပ်များမှ ဖယ်ရှားပါ။</string>
     <string name="max_files_bookmarks_empty">စာညှပ်များ မရှိသေးပါ — သင်ပြန်သွားသည့် ဖိုင်တွဲများကို ထည့်ပါ။</string>

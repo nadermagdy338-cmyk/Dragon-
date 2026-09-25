@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Meer aksies</string>
     <string name="max_files_show_hidden">Wys verborge lêers</string>
     <string name="max_files_hide_hidden">Versteek versteekte lêers</string>
-    <string name="max_files_open_terminal">Maak die terminale oop</string>
     <string name="max_files_search_open_cd">Soek hierdie gids</string>
     <string name="max_files_location_root">Wortel /</string>
     <string name="max_files_location_storage">Interne berging</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Gereedskap</string>
     <string name="max_files_drawer_tasks">Agtergrond take</string>
     <string name="max_files_drawer_tasks_running">%1$d loop nou</string>
-    <string name="max_files_drawer_terminal_note">Begin \'n opdragreël as root</string>
     <string name="max_files_bookmark_add">Voeg hierdie vouer by boekmerke</string>
     <string name="max_files_bookmark_remove">Verwyder uit boekmerke</string>
     <string name="max_files_bookmarks_empty">Nog geen boekmerke nie – voeg die vouers by waarna jy aanhou terugkeer.</string>

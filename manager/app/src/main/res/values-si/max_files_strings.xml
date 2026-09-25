@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">තවත් ක්‍රියා</string>
     <string name="max_files_show_hidden">සැඟවුණු ගොනු පෙන්වන්න</string>
     <string name="max_files_hide_hidden">සැඟවුණු ගොනු සඟවන්න</string>
-    <string name="max_files_open_terminal">ටර්මිනලය විවෘත කරන්න</string>
     <string name="max_files_search_open_cd">මෙම ෆෝල්ඩරය සොයන්න</string>
     <string name="max_files_location_root">මූල /</string>
     <string name="max_files_location_storage">අභ්යන්තර ගබඩාව</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">මෙවලම්</string>
     <string name="max_files_drawer_tasks">පසුබිම් කාර්යයන්</string>
     <string name="max_files_drawer_tasks_running">%1$d දැන් ධාවනය වේ</string>
-    <string name="max_files_drawer_terminal_note">විධාන රේඛාව root ලෙස ධාවනය කරන්න</string>
     <string name="max_files_bookmark_add">මෙම ෆෝල්ඩරය පිටු සලකුණු වෙත එක් කරන්න</string>
     <string name="max_files_bookmark_remove">පිටු සලකුණු වලින් ඉවත් කරන්න</string>
     <string name="max_files_bookmarks_empty">තවමත් පිටු සලකුණු නොමැත - ඔබ නැවත පැමිණෙන ෆෝල්ඩර එක් කරන්න.</string>

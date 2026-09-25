@@ -38,7 +38,6 @@ import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material.icons.rounded.SwapVert
-import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -52,7 +51,7 @@ import nd.max.ui.util.FileSort
 import nd.max.ui.util.FileSortKey
 import nd.max.ui.util.FileWindowState
 
-/** أوامر الشاشة: الترتيب · الإخفاء · المفضّلة · التحديد · النتائج · الطرفية · الشرح. */
+/** أوامر الشاشة: الترتيب · الإخفاء · المفضّلة · التحديد · النتائج · الشرح. */
 @Composable
 internal fun fileManagerScreenCommands(
     window: FileWindowState,
@@ -63,7 +62,6 @@ internal fun fileManagerScreenCommands(
     onSelectAll: () -> Unit,
     onInvertSelection: () -> Unit,
     onClearResults: () -> Unit,
-    onTerminal: () -> Unit,
     onHelp: () -> Unit,
 ): List<MaxCommand> = buildList {
     FileSortKey.entries.forEach { key ->
@@ -132,13 +130,6 @@ internal fun fileManagerScreenCommands(
             )
         )
     }
-    add(
-        MaxCommand(
-            label = stringResource(R.string.max_files_open_terminal),
-            icon = Icons.Rounded.Terminal,
-            onSelect = onTerminal,
-        )
-    )
     add(
         MaxCommand(
             label = stringResource(R.string.max_files_help_title),

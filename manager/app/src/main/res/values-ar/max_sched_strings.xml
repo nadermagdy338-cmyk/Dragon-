@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  أسماء المقابض العامة في مجدول النواة — عربية، تُكتب بيد مع الإنجليزية معًا (ADR-14).
+-->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">أقصى دورة للموعد النهائي (µs)</string>
+    <string name="max_sched_tunable_deadline_period_min">أدنى دورة للموعد النهائي (µs)</string>
+    <string name="max_sched_tunable_energy_aware">الوعي بالطاقة</string>
+    <string name="max_sched_tunable_latency">زمن الاستجابة (ns)</string>
+    <string name="max_sched_tunable_migration_cost">كلفة الترحيل بين الأنوية (ns)</string>
+    <string name="max_sched_tunable_min_granularity">أدنى تفصيل زمني (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">حجم دفعة الترحيل</string>
+    <string name="max_sched_tunable_pelt_multiplier">معامل PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">شريحة زمن التناوب (ms)</string>
+    <string name="max_sched_tunable_rt_period">دورة الزمن الحقيقي (µs)</string>
+    <string name="max_sched_tunable_rt_runtime">زمن تشغيل الزمن الحقيقي (µs)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">الحدّ الأدنى لـUClamp في الزمن الحقيقي</string>
+    <string name="max_sched_tunable_wakeup_granularity">تفصيل الاستيقاظ (ns)</string>
+</resources>

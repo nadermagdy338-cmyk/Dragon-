@@ -41,18 +41,14 @@
     <string name="max_status_unknown">状态未知</string>
     <string name="max_settings_diagnostics">诊断</string>
     <string name="max_settings_logs">日志</string>
-    <string name="max_tool_terminal">终端</string>
     <string name="max_tool_setedit">设置编辑</string>
     <string name="max_tool_activity_launcher">活动启动器</string>
-    <string name="max_tool_kernel_flasher">内核闪光器</string>
     <string name="max_risk_normal">标准风险</string>
     <string name="max_risk_advanced">高级风险</string>
     <string name="max_risk_dangerous">危险的风险</string>
     <string name="max_settings_appearance">外貌</string>
-    <string name="max_title_terminal">终端</string>
     <string name="max_title_setedit">设置编辑</string>
     <string name="max_title_activity_launcher">活动启动器</string>
-    <string name="max_title_kernel_flasher">内核闪光器</string>
     <string name="max_title_app_settings">应用程序设置</string>
     <string name="max_title_get_started">设置</string>
 </resources>

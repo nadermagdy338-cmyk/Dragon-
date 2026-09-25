@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">অধিক কাৰ্য্য</string>
     <string name="max_files_show_hidden">লুকাই থকা ফাইলসমূহ দেখুৱাওক</string>
     <string name="max_files_hide_hidden">লুকাই থকা ফাইলসমূহ লুকুৱাওক</string>
-    <string name="max_files_open_terminal">টাৰ্মিনেলটো খোলক</string>
     <string name="max_files_search_open_cd">এই ফোল্ডাৰত সন্ধান কৰক</string>
     <string name="max_files_location_root">শিপা /</string>
     <string name="max_files_location_storage">আভ্যন্তৰীণ সংৰক্ষণ</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">সঁজুলি</string>
     <string name="max_files_drawer_tasks">পটভূমিৰ কাম</string>
     <string name="max_files_drawer_tasks_running">%1$d এতিয়া চলি আছে</string>
-    <string name="max_files_drawer_terminal_note">এটা আদেশ শাৰী ৰূট হিচাপে চলাওক</string>
     <string name="max_files_bookmark_add">এই ফোল্ডাৰটো বুকমাৰ্কসমূহত যোগ কৰক</string>
     <string name="max_files_bookmark_remove">বুকমাৰ্কৰ পৰা আঁতৰাওক</string>
     <string name="max_files_bookmarks_empty">এতিয়াও কোনো বুকমাৰ্ক নাই — আপুনি ঘূৰি অহা ফোল্ডাৰসমূহ যোগ কৰক।</string>

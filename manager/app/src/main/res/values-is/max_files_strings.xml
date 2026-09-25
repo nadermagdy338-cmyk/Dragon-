@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Fleiri aðgerðir</string>
     <string name="max_files_show_hidden">Sýna faldar skrár</string>
     <string name="max_files_hide_hidden">Fela faldar skrár</string>
-    <string name="max_files_open_terminal">Opnaðu flugstöðina</string>
     <string name="max_files_search_open_cd">Leitaðu í þessari möppu</string>
     <string name="max_files_location_root">Rót /</string>
     <string name="max_files_location_storage">Innri geymsla</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Verkfæri</string>
     <string name="max_files_drawer_tasks">Bakgrunnsverkefni</string>
     <string name="max_files_drawer_tasks_running">%1$d í gangi núna</string>
-    <string name="max_files_drawer_terminal_note">Keyra skipanalínu sem rót</string>
     <string name="max_files_bookmark_add">Bættu þessari möppu við bókamerki</string>
     <string name="max_files_bookmark_remove">Fjarlægja úr bókamerkjum</string>
     <string name="max_files_bookmarks_empty">Engin bókamerki ennþá — bættu við möppunum sem þú heldur áfram að fara aftur í.</string>

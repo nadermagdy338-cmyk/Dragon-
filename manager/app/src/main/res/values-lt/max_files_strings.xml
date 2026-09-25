@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Daugiau veiksmų</string>
     <string name="max_files_show_hidden">Rodyti paslėptus failus</string>
     <string name="max_files_hide_hidden">Slėpti paslėptus failus</string>
-    <string name="max_files_open_terminal">Atidarykite terminalą</string>
     <string name="max_files_search_open_cd">Ieškoti šiame aplanke</string>
     <string name="max_files_location_root">Šaknis /</string>
     <string name="max_files_location_storage">Vidinė saugykla</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Įrankiai</string>
     <string name="max_files_drawer_tasks">Fono užduotys</string>
     <string name="max_files_drawer_tasks_running">%1$d veikia dabar</string>
-    <string name="max_files_drawer_terminal_note">Vykdykite komandinę eilutę kaip root</string>
     <string name="max_files_bookmark_add">Pridėkite šį aplanką prie žymių</string>
     <string name="max_files_bookmark_remove">Pašalinti iš žymių</string>
     <string name="max_files_bookmarks_empty">Dar nėra žymių – pridėkite aplankus, į kuriuos vis grįžtate.</string>

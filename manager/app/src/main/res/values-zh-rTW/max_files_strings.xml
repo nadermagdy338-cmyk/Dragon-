@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">更多行動</string>
     <string name="max_files_show_hidden">顯示隱藏文件</string>
     <string name="max_files_hide_hidden">隱藏隱藏文件</string>
-    <string name="max_files_open_terminal">打開終端</string>
     <string name="max_files_search_open_cd">搜尋該資料夾</string>
     <string name="max_files_location_root">根 /</string>
     <string name="max_files_location_storage">內部儲存</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">工具</string>
     <string name="max_files_drawer_tasks">後台任務</string>
     <string name="max_files_drawer_tasks_running">%1$d 正在運行</string>
-    <string name="max_files_drawer_terminal_note">以 root 身分執行命令列</string>
     <string name="max_files_bookmark_add">將此資料夾加入書籤</string>
     <string name="max_files_bookmark_remove">從書籤中刪除</string>
     <string name="max_files_bookmarks_empty">還沒有書籤 - 添加您經常返回的資料夾。</string>

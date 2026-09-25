@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Ավելի շատ գործողություններ</string>
     <string name="max_files_show_hidden">Ցույց տալ թաքնված ֆայլերը</string>
     <string name="max_files_hide_hidden">Թաքցնել թաքնված ֆայլերը</string>
-    <string name="max_files_open_terminal">Բացեք տերմինալը</string>
     <string name="max_files_search_open_cd">Որոնեք այս թղթապանակը</string>
     <string name="max_files_location_root">Արմատ /</string>
     <string name="max_files_location_storage">Ներքին պահեստավորում</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Գործիքներ</string>
     <string name="max_files_drawer_tasks">Ֆոնային առաջադրանքներ</string>
     <string name="max_files_drawer_tasks_running">%1$d այժմ աշխատում է</string>
-    <string name="max_files_drawer_terminal_note">Գործարկել հրամանի տողը որպես արմատ</string>
     <string name="max_files_bookmark_add">Ավելացրեք այս թղթապանակը էջանիշներին</string>
     <string name="max_files_bookmark_remove">Հեռացնել էջանիշներից</string>
     <string name="max_files_bookmarks_empty">Դեռևս էջանիշեր չկան. ավելացրեք այն թղթապանակները, որոնց անընդհատ վերադառնում եք:</string>

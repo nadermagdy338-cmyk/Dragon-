@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">మరిన్ని చర్యలు</string>
     <string name="max_files_show_hidden">దాచిన ఫైల్‌లను చూపించు</string>
     <string name="max_files_hide_hidden">దాచిన ఫైల్‌లను దాచండి</string>
-    <string name="max_files_open_terminal">టెర్మినల్ తెరవండి</string>
     <string name="max_files_search_open_cd">ఈ ఫోల్డర్‌ను శోధించండి</string>
     <string name="max_files_location_root">రూట్ /</string>
     <string name="max_files_location_storage">అంతర్గత నిల్వ</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ఉపకరణాలు</string>
     <string name="max_files_drawer_tasks">నేపథ్య పనులు</string>
     <string name="max_files_drawer_tasks_running">%1$d ఇప్పుడు నడుస్తోంది</string>
-    <string name="max_files_drawer_terminal_note">కమాండ్ లైన్‌ను రూట్‌గా అమలు చేయండి</string>
     <string name="max_files_bookmark_add">ఈ ఫోల్డర్‌ను బుక్‌మార్క్‌లకు జోడించండి</string>
     <string name="max_files_bookmark_remove">బుక్‌మార్క్‌ల నుండి తీసివేయండి</string>
     <string name="max_files_bookmarks_empty">ఇంకా బుక్‌మార్క్‌లు లేవు — మీరు తిరిగి వచ్చే ఫోల్డర్‌లను జోడించండి.</string>

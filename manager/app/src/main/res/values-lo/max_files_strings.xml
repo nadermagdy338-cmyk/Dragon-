@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">ການປະຕິບັດເພີ່ມເຕີມ</string>
     <string name="max_files_show_hidden">ສະແດງໄຟລ໌ທີ່ເຊື່ອງໄວ້</string>
     <string name="max_files_hide_hidden">ເຊື່ອງໄຟລ໌ທີ່ເຊື່ອງໄວ້</string>
-    <string name="max_files_open_terminal">ເປີດ terminal</string>
     <string name="max_files_search_open_cd">ຊອກຫາໂຟນເດີນີ້</string>
     <string name="max_files_location_root">ຮາກ /</string>
     <string name="max_files_location_storage">ການເກັບຮັກສາພາຍໃນ</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ເຄື່ອງມື</string>
     <string name="max_files_drawer_tasks">ວຽກງານພື້ນຖານ</string>
     <string name="max_files_drawer_tasks_running">%1$d ແລ່ນດຽວນີ້</string>
-    <string name="max_files_drawer_terminal_note">ແລ່ນເສັ້ນຄໍາສັ່ງເປັນຮາກ</string>
     <string name="max_files_bookmark_add">ເພີ່ມໂຟນເດີນີ້ໃສ່ບຸກມາກ</string>
     <string name="max_files_bookmark_remove">ເອົາອອກຈາກບຸກມາກ</string>
     <string name="max_files_bookmarks_empty">ບໍ່ມີບຸກມາກສ໌ເທື່ອ — ເພີ່ມໂຟນເດີທີ່ທ່ານສືບຕໍ່ກັບໄປ.</string>

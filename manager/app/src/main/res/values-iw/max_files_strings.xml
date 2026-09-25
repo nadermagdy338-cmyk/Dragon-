@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">עוד פעולות</string>
     <string name="max_files_show_hidden">הצג קבצים מוסתרים</string>
     <string name="max_files_hide_hidden">הסתר קבצים מוסתרים</string>
-    <string name="max_files_open_terminal">פתח את הטרמינל</string>
     <string name="max_files_search_open_cd">חפש בתיקייה זו</string>
     <string name="max_files_location_root">שורש /</string>
     <string name="max_files_location_storage">אחסון פנימי</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">כְּלֵי עֲבוֹדָה</string>
     <string name="max_files_drawer_tasks">משימות רקע</string>
     <string name="max_files_drawer_tasks_running">%1$d פועל עכשיו</string>
-    <string name="max_files_drawer_terminal_note">הפעל שורת פקודה בתור root</string>
     <string name="max_files_bookmark_add">הוסף תיקיה זו לסימניות</string>
     <string name="max_files_bookmark_remove">הסר מהסימניות</string>
     <string name="max_files_bookmarks_empty">אין עדיין סימניות - הוסף את התיקיות שאתה ממשיך לחזור אליהן.</string>

@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Más acciones</string>
     <string name="max_files_show_hidden">Mostrar archivos ocultos</string>
     <string name="max_files_hide_hidden">Ocultar archivos ocultos</string>
-    <string name="max_files_open_terminal">Abre la terminal</string>
     <string name="max_files_search_open_cd">Buscar en esta carpeta</string>
     <string name="max_files_location_root">Raíz /</string>
     <string name="max_files_location_storage">Almacenamiento interno</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Herramientas</string>
     <string name="max_files_drawer_tasks">Tareas en segundo plano</string>
     <string name="max_files_drawer_tasks_running">%1$d corriendo ahora</string>
-    <string name="max_files_drawer_terminal_note">Ejecute una línea de comando como root</string>
     <string name="max_files_bookmark_add">Añadir esta carpeta a favoritos</string>
     <string name="max_files_bookmark_remove">Quitar de favoritos</string>
     <string name="max_files_bookmarks_empty">Aún no hay marcadores: agrega las carpetas a las que sigues regresando.</string>

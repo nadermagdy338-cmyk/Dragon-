@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Máis accións</string>
     <string name="max_files_show_hidden">Mostrar ficheiros ocultos</string>
     <string name="max_files_hide_hidden">Ocultar ficheiros ocultos</string>
-    <string name="max_files_open_terminal">Abre o terminal</string>
     <string name="max_files_search_open_cd">Busca neste cartafol</string>
     <string name="max_files_location_root">Raíz /</string>
     <string name="max_files_location_storage">Almacenamento interno</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Ferramentas</string>
     <string name="max_files_drawer_tasks">Tarefas de fondo</string>
     <string name="max_files_drawer_tasks_running">%1$d correndo agora</string>
-    <string name="max_files_drawer_terminal_note">Execute unha liña de comandos como root</string>
     <string name="max_files_bookmark_add">Engade este cartafol aos marcadores</string>
     <string name="max_files_bookmark_remove">Eliminar dos marcadores</string>
     <string name="max_files_bookmarks_empty">Aínda non hai marcadores: engade os cartafoles aos que segues volvendo.</string>

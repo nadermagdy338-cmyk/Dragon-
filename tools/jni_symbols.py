@@ -49,9 +49,12 @@ _REPO = os.path.dirname(_HERE)
 MANAGER = os.path.join(_REPO, "manager")
 
 # مجلدات المصادر التي تُعلن دوال أصلية (Kotlin/Java).
+#
+# وكان هنا جذر ثانٍ: `manager/terminal-emulator/src/main/java` — وحُذف مع الوحدة كلها
+# في جولة تدقيق الأصل `PROVENANCE-01` (كود GPL-3.0 في مسار إصدار Apache-2.0). فلم يبقَ
+# في الشجرة إلا عقد واحد أصلي: Kotlin ↔ Rust.
 DEFAULT_SOURCE_ROOTS = (
     os.path.join(MANAGER, "app", "src", "main", "java"),
-    os.path.join(MANAGER, "terminal-emulator", "src", "main", "java"),
 )
 
 # مصادر Rust التي تُصدّر رموز JNI (crate التطبيق).

@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Več dejanj</string>
     <string name="max_files_show_hidden">Prikaži skrite datoteke</string>
     <string name="max_files_hide_hidden">Skrij skrite datoteke</string>
-    <string name="max_files_open_terminal">Odprite terminal</string>
     <string name="max_files_search_open_cd">Poiščite to mapo</string>
     <string name="max_files_location_root">koren /</string>
     <string name="max_files_location_storage">Notranji pomnilnik</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Orodja</string>
     <string name="max_files_drawer_tasks">Naloge v ozadju</string>
     <string name="max_files_drawer_tasks_running">%1$d trenutno teče</string>
-    <string name="max_files_drawer_terminal_note">Zaženite ukazno vrstico kot root</string>
     <string name="max_files_bookmark_add">Dodajte to mapo med zaznamke</string>
     <string name="max_files_bookmark_remove">Odstrani iz zaznamkov</string>
     <string name="max_files_bookmarks_empty">Zaznamkov še ni — dodajte mape, v katere se vedno znova vračate.</string>

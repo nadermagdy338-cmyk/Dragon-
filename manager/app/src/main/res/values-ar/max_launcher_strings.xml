@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  نصوص «مشغّل الأنشطة» — عربية، تُكتب بيد مع الإنجليزية معًا (ADR-14).
+-->
+<resources>
+    <string name="max_launcher_subtitle">الحِزم المثبَّتة والأنشطة التي تُعلنها</string>
+    <string name="max_launcher_loading">جارٍ قراءة الحِزم المثبَّتة وأنشطتها المُعلنة…</string>
+    <string name="max_launcher_empty">لا تُعلن أي حِزمة مثبَّتة نشاطًا على هذا الجهاز.</string>
+    <string name="max_launcher_search_placeholder">ابحث باسم التطبيق أو الحِزمة</string>
+    <string name="max_launcher_search_clear">مسح البحث</string>
+
+    <string name="max_launcher_scope_all">الكل</string>
+    <string name="max_launcher_scope_user">المستخدم</string>
+    <string name="max_launcher_scope_system">النظام</string>
+
+    <string name="max_launcher_activity_count">%1$d نشاطًا</string>
+
+    <string name="max_launcher_no_match_title">لا نتائج مطابقة</string>
+    <string name="max_launcher_no_match_detail">لا اسم حِزمة ولا تسمية تطبيق يحوي هذا النص في النطاق المختار.</string>
+    <string name="max_launcher_no_match_clear">مسح عوامل التصفية</string>
+
+    <string name="max_launcher_reading_activities">جارٍ قراءة الأنشطة التي تُعلنها هذه الحِزمة…</string>
+    <string name="max_launcher_no_activities">هذه الحِزمة لا تُعلن أي نشاط.</string>
+
+    <string name="max_launcher_root_off_title">صلاحية الجذر غير ممنوحة</string>
+    <string name="max_launcher_root_off_detail">الأنشطة المعلَّمة «خاص» غير مُصدَّرة، فلا يفتحها إلا الجذر. أمّا الأنشطة المُصدَّرة فتُفتح من دونه.</string>
+
+    <string name="max_launcher_tag_private">خاص</string>
+    <string name="max_launcher_tag_disabled">مُعطَّل</string>
+
+    <string name="max_launcher_outcome_started">بدأ النشاط</string>
+    <string name="max_launcher_outcome_needs_root">هذا النشاط غير مُصدَّر — ويلزمه الجذر</string>
+    <string name="max_launcher_outcome_refused">رفض أندرويد بدء هذا النشاط</string>
+    <string name="max_launcher_outcome_missing">لا نشاط بهذا الاسم مُثبَّت</string>
+</resources>

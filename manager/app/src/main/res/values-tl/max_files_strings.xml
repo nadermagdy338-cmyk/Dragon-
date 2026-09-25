@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Higit pang mga aksyon</string>
     <string name="max_files_show_hidden">Ipakita ang mga nakatagong file</string>
     <string name="max_files_hide_hidden">Itago ang mga nakatagong file</string>
-    <string name="max_files_open_terminal">Buksan ang terminal</string>
     <string name="max_files_search_open_cd">Hanapin ang folder na ito</string>
     <string name="max_files_location_root">ugat /</string>
     <string name="max_files_location_storage">Panloob na imbakan</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Mga gamit</string>
     <string name="max_files_drawer_tasks">Mga gawain sa background</string>
     <string name="max_files_drawer_tasks_running">%1$d tumatakbo ngayon</string>
-    <string name="max_files_drawer_terminal_note">Magpatakbo ng command line bilang root</string>
     <string name="max_files_bookmark_add">Idagdag ang folder na ito sa mga bookmark</string>
     <string name="max_files_bookmark_remove">Alisin sa mga bookmark</string>
     <string name="max_files_bookmarks_empty">Wala pang mga bookmark — idagdag ang mga folder na patuloy mong binabalikan.</string>

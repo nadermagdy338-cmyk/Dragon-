@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Више акција</string>
     <string name="max_files_show_hidden">Прикажи скривене датотеке</string>
     <string name="max_files_hide_hidden">Сакриј скривене датотеке</string>
-    <string name="max_files_open_terminal">Отворите терминал</string>
     <string name="max_files_search_open_cd">Претражите овај фолдер</string>
     <string name="max_files_location_root">Роот /</string>
     <string name="max_files_location_storage">Интерна меморија</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Алати</string>
     <string name="max_files_drawer_tasks">Позадински задаци</string>
     <string name="max_files_drawer_tasks_running">%1$d ради сада</string>
-    <string name="max_files_drawer_terminal_note">Покрените командну линију као роот</string>
     <string name="max_files_bookmark_add">Додајте овај фолдер у обележиваче</string>
     <string name="max_files_bookmark_remove">Уклони из обележивача</string>
     <string name="max_files_bookmarks_empty">Још нема обележивача — додајте фолдере у које се стално враћате.</string>

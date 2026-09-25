@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Thêm hành động</string>
     <string name="max_files_show_hidden">Hiển thị các tập tin ẩn</string>
     <string name="max_files_hide_hidden">Ẩn tập tin ẩn</string>
-    <string name="max_files_open_terminal">Mở thiết bị đầu cuối</string>
     <string name="max_files_search_open_cd">Tìm kiếm thư mục này</string>
     <string name="max_files_location_root">Gốc /</string>
     <string name="max_files_location_storage">Bộ nhớ trong</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Công cụ</string>
     <string name="max_files_drawer_tasks">Tác vụ nền</string>
     <string name="max_files_drawer_tasks_running">%1$d đang chạy</string>
-    <string name="max_files_drawer_terminal_note">Chạy một dòng lệnh với quyền root</string>
     <string name="max_files_bookmark_add">Thêm thư mục này vào dấu trang</string>
     <string name="max_files_bookmark_remove">Xóa khỏi dấu trang</string>
     <string name="max_files_bookmarks_empty">Chưa có dấu trang nào — hãy thêm các thư mục bạn tiếp tục quay lại.</string>

@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Още действия</string>
     <string name="max_files_show_hidden">Показване на скритите файлове</string>
     <string name="max_files_hide_hidden">Скриване на скритите файлове</string>
-    <string name="max_files_open_terminal">Отворете терминала</string>
     <string name="max_files_search_open_cd">Търсене в тази папка</string>
     <string name="max_files_location_root">корен /</string>
     <string name="max_files_location_storage">Вътрешна памет</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Инструменти</string>
     <string name="max_files_drawer_tasks">Фонови задачи</string>
     <string name="max_files_drawer_tasks_running">%1$d работи в момента</string>
-    <string name="max_files_drawer_terminal_note">Стартирайте команден ред като root</string>
     <string name="max_files_bookmark_add">Добавете тази папка към отметките</string>
     <string name="max_files_bookmark_remove">Премахване от отметките</string>
     <string name="max_files_bookmarks_empty">Все още няма отметки — добавете папките, към които продължавате да се връщате.</string>

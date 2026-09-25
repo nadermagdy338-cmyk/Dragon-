@@ -170,17 +170,10 @@
                 android:value="Displays a floating top-processes CPU/RAM monitor" />
         </service>
 
+        <!-- عملية الجذر التي تخدم عقد sysfs (core/ipc/RootNodeService) — ليست مُصدَّرة،
+             ولا يُعلن لها intent-filter: الربط من التطبيق نفسه عبر libsu RootService. -->
         <service
-            android:name=".ui.terminal.FloatingTerminalService"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Displays a floating terminal window" />
-        </service>
-
-        <service
-            android:name=".service.MtkRootService"
+            android:name=".core.ipc.RootNodeService"
             android:exported="false"
             tools:ignore="Instantiatable" />
 

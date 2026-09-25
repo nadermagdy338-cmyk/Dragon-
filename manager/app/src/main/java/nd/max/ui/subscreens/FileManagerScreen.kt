@@ -62,7 +62,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -90,7 +89,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -112,7 +110,6 @@ import nd.max.ui.design.MaxConditionKind
 import nd.max.ui.design.MaxConditionPanel
 import nd.max.ui.design.MaxContextMenu
 import nd.max.ui.design.MaxDrawer
-import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.util.AccessBit
 import nd.max.ui.util.AccessScope
 import nd.max.ui.util.ApkInspector
@@ -168,7 +165,7 @@ private val WindowsSaver = listSaver<FileWindowsState, String>(
 )
 
 @Composable
-fun FileManagerScreen(navController: NavController) {
+fun FileManagerScreen() {
     val context = LocalContext.current
     // موارد من `LocalResources.current`: كل نصوص هذا الملف تُقرأ داخل دوال محلية ولامبدات أحداث
     // (لا في التركيب)، وهذه هي الطريقة التي تُبطل بها Compose قراءتها عند تغيّر التكوين.
@@ -540,7 +537,6 @@ fun FileManagerScreen(navController: NavController) {
             }
         },
         onClearResults = { results = null },
-        onTerminal = { navController.navigate(MaxDestination.Terminal.route) },
         onHelp = { helpOpen = true },
     )
 
@@ -924,8 +920,7 @@ fun FileManagerScreen(navController: NavController) {
                 history = history,
                 hiddenShown = window.showHidden,
                 mountAccess = mountAccess,
-                runningTasks = FileTaskQueue.running(tasks).size,
-                onNavigate = { target ->
+                runningTasks = FileTaskQueue.running(tasks).size,                onNavigate = { target ->
                     drawerOpen = false
                     go(windows.active, target)
                 },
@@ -939,10 +934,6 @@ fun FileManagerScreen(navController: NavController) {
                         mountAccess = withContext(Dispatchers.IO) { RootMount.currentAccess(window.path) }
                         toast(outcomeText(outcome, 1))
                     }
-                },
-                onTerminal = {
-                    drawerOpen = false
-                    navController.navigate(MaxDestination.Terminal.route)
                 },
             )
         }

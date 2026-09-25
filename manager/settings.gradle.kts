@@ -23,6 +23,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "MaxManager"
 include(":app")
-include(":terminal-emulator")
-include(":terminal-view")
-include(":kernel-flasher")

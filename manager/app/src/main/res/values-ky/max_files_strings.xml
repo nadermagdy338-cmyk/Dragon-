@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Дагы аракеттер</string>
     <string name="max_files_show_hidden">Жашыруун файлдарды көрсөтүү</string>
     <string name="max_files_hide_hidden">Жашыруун файлдарды жашыруу</string>
-    <string name="max_files_open_terminal">Терминалды ачыңыз</string>
     <string name="max_files_search_open_cd">Бул папканы изде</string>
     <string name="max_files_location_root">Тамыр /</string>
     <string name="max_files_location_storage">Ички сактагыч</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Куралдар</string>
     <string name="max_files_drawer_tasks">Фондук тапшырмалар</string>
     <string name="max_files_drawer_tasks_running">%1$d азыр иштеп жатат</string>
-    <string name="max_files_drawer_terminal_note">Буйрук сабын тамыр катары иштетиңиз</string>
     <string name="max_files_bookmark_add">Бул папканы кыстармаларга кошуңуз</string>
     <string name="max_files_bookmark_remove">Кыстармалардан алып салуу</string>
     <string name="max_files_bookmarks_empty">Азырынча кыстармалар жок — кайра кайтып келе жаткан папкаларды кошуңуз.</string>

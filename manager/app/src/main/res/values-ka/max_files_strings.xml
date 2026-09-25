@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">მეტი მოქმედებები</string>
     <string name="max_files_show_hidden">დამალული ფაილების ჩვენება</string>
     <string name="max_files_hide_hidden">დამალული ფაილები</string>
-    <string name="max_files_open_terminal">გახსენით ტერმინალი</string>
     <string name="max_files_search_open_cd">მოძებნეთ ეს საქაღალდე</string>
     <string name="max_files_location_root">ფესვი /</string>
     <string name="max_files_location_storage">შიდა საცავი</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ხელსაწყოები</string>
     <string name="max_files_drawer_tasks">ფონის ამოცანები</string>
     <string name="max_files_drawer_tasks_running">%1$d მუშაობს ახლა</string>
-    <string name="max_files_drawer_terminal_note">გაუშვით ბრძანების ხაზი, როგორც root</string>
     <string name="max_files_bookmark_add">დაამატეთ ეს საქაღალდე სანიშნეებში</string>
     <string name="max_files_bookmark_remove">სანიშნეებიდან ამოღება</string>
     <string name="max_files_bookmarks_empty">ჯერ არ არის სანიშნეები — დაამატეთ საქაღალდეები, რომლებშიც კვლავ ბრუნდებით.</string>

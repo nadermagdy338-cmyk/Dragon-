@@ -47,7 +47,6 @@ import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material.icons.rounded.Storage
-import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -87,7 +86,6 @@ fun FileDrawerContent(
     onClearHistory: () -> Unit,
     onToggleHidden: () -> Unit,
     onRemount: (Boolean) -> Unit,
-    onTerminal: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.lg)) {
 
@@ -201,15 +199,8 @@ fun FileDrawerContent(
                     title = stringResource(R.string.max_files_drawer_tasks),
                     subtitle = stringResource(R.string.max_files_drawer_tasks_running, runningTasks),
                     icon = Icons.Rounded.Storage,
-                    onClick = onTerminal,
                 )
             }
-            DrawerRow(
-                title = stringResource(R.string.max_files_open_terminal),
-                subtitle = stringResource(R.string.max_files_drawer_terminal_note),
-                icon = Icons.Rounded.Terminal,
-                onClick = onTerminal,
-            )
         }
     }
 }
@@ -255,14 +246,14 @@ private fun DrawerRow(
     title: String,
     subtitle: String,
     icon: ImageVector,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 44.dp)
-            .clickable(onClick = onClick)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(horizontal = MaxSpace.sm, vertical = MaxSpace.xs),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaxSpace.md),

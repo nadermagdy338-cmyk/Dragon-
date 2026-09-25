@@ -1,10 +1,14 @@
 /*
- * Minimal Lifecycle/SavedState owner used to host a Compose hierarchy inside a
- * raw WindowManager overlay (e.g. FloatingActivityService), where there is no
- * Activity/Fragment to provide one automatically.
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
  *
- * This was referenced (import nd.max.ui.process.MyLifecycleOwner) but never
- * defined anywhere in the project - this file fills that gap.
+ * MaxManager proprietary source. See LICENSE at the repository root: this file is
+ * MaxManager-owned and carries no third-party licence obligations.
+ */
+
+/*
+ * Minimal Lifecycle/SavedState owner used to host a Compose hierarchy inside a
+ * raw WindowManager overlay, where there is no Activity/Fragment to provide one
+ * automatically.
  */
 package nd.max.ui.process
 

@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Weitere Aktionen</string>
     <string name="max_files_show_hidden">Versteckte Dateien zeigen</string>
     <string name="max_files_hide_hidden">Versteckte Dateien ausblenden</string>
-    <string name="max_files_open_terminal">Terminal öffnen</string>
     <string name="max_files_search_open_cd">Diesen Ordner durchsuchen</string>
     <string name="max_files_location_root">Wurzel /</string>
     <string name="max_files_location_storage">Interner Speicher</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Werkzeuge</string>
     <string name="max_files_drawer_tasks">Hintergrundaufgaben</string>
     <string name="max_files_drawer_tasks_running">%1$d laufen jetzt</string>
-    <string name="max_files_drawer_terminal_note">Eine Befehlszeile als Root ausführen</string>
     <string name="max_files_bookmark_add">Diesen Ordner zu Lesezeichen hinzufügen</string>
     <string name="max_files_bookmark_remove">Aus Lesezeichen entfernen</string>
     <string name="max_files_bookmarks_empty">Noch keine Lesezeichen — füge die Ordner hinzu, zu denen du immer zurückkehrst.</string>

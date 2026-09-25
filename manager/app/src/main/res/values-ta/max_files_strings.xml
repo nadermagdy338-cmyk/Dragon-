@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">மேலும் செயல்கள்</string>
     <string name="max_files_show_hidden">மறைக்கப்பட்ட கோப்புகளைக் காட்டு</string>
     <string name="max_files_hide_hidden">மறைக்கப்பட்ட கோப்புகளை மறைக்கவும்</string>
-    <string name="max_files_open_terminal">முனையத்தைத் திறக்கவும்</string>
     <string name="max_files_search_open_cd">இந்தக் கோப்புறையைத் தேடவும்</string>
     <string name="max_files_location_root">ரூட் /</string>
     <string name="max_files_location_storage">உள் சேமிப்பு</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">கருவிகள்</string>
     <string name="max_files_drawer_tasks">பின்னணி பணிகள்</string>
     <string name="max_files_drawer_tasks_running">%1$d இப்போது இயங்குகிறது</string>
-    <string name="max_files_drawer_terminal_note">கட்டளை வரியை ரூட்டாக இயக்கவும்</string>
     <string name="max_files_bookmark_add">இந்த கோப்புறையை புக்மார்க்குகளில் சேர்க்கவும்</string>
     <string name="max_files_bookmark_remove">புக்மார்க்குகளில் இருந்து அகற்று</string>
     <string name="max_files_bookmarks_empty">இதுவரை புக்மார்க்குகள் இல்லை — நீங்கள் திரும்பும் கோப்புறைகளைச் சேர்க்கவும்.</string>

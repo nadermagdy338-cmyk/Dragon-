@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">थप कार्यहरू</string>
     <string name="max_files_show_hidden">लुकेका फाइलहरू देखाउनुहोस्</string>
     <string name="max_files_hide_hidden">लुकेका फाइलहरू लुकाउनुहोस्</string>
-    <string name="max_files_open_terminal">टर्मिनल खोल्नुहोस्</string>
     <string name="max_files_search_open_cd">यो फोल्डर खोज्नुहोस्</string>
     <string name="max_files_location_root">जरा /</string>
     <string name="max_files_location_storage">आन्तरिक भण्डारण</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">उपकरणहरू</string>
     <string name="max_files_drawer_tasks">पृष्ठभूमि कार्यहरू</string>
     <string name="max_files_drawer_tasks_running">%1$d अहिले चलिरहेको छ</string>
-    <string name="max_files_drawer_terminal_note">रूटको रूपमा कमांड लाइन चलाउनुहोस्</string>
     <string name="max_files_bookmark_add">यो फोल्डरलाई बुकमार्कहरूमा थप्नुहोस्</string>
     <string name="max_files_bookmark_remove">बुकमार्कहरूबाट हटाउनुहोस्</string>
     <string name="max_files_bookmarks_empty">अहिलेसम्म कुनै बुकमार्कहरू छैनन् — तपाईंले फिर्ता गरिरहनु भएको फोल्डरहरू थप्नुहोस्।</string>

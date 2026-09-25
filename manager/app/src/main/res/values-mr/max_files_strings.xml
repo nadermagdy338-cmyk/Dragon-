@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">अधिक क्रिया</string>
     <string name="max_files_show_hidden">लपविलेल्या फाइल्स दाखवा</string>
     <string name="max_files_hide_hidden">लपविलेल्या फायली लपवा</string>
-    <string name="max_files_open_terminal">टर्मिनल उघडा</string>
     <string name="max_files_search_open_cd">हे फोल्डर शोधा</string>
     <string name="max_files_location_root">रूट /</string>
     <string name="max_files_location_storage">अंतर्गत स्टोरेज</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">साधने</string>
     <string name="max_files_drawer_tasks">पार्श्वभूमी कार्ये</string>
     <string name="max_files_drawer_tasks_running">%1$d आता चालू आहे</string>
-    <string name="max_files_drawer_terminal_note">रूट म्हणून कमांड लाइन चालवा</string>
     <string name="max_files_bookmark_add">हे फोल्डर बुकमार्कमध्ये जोडा</string>
     <string name="max_files_bookmark_remove">बुकमार्कमधून काढा</string>
     <string name="max_files_bookmarks_empty">अद्याप कोणतेही बुकमार्क नाहीत — तुम्ही परत येत असलेले फोल्डर जोडा.</string>

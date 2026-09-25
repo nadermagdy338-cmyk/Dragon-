@@ -8,8 +8,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import nd.max.ui.activitylauncher.ActivityLauncherScreen
-import nd.max.ui.flasher.KernelFlasherScreen
-import nd.max.ui.terminal.TerminalScreen
 import nd.max.ui.mainscreens.*
 import nd.max.ui.subscreens.*
 import nd.max.ui.subscreens.hubs.*
@@ -107,11 +105,9 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.ModuleHealth.route) { ModuleHealthScreen(navController) }
 
     // Control → Tools — advanced tools, gated by risk where they can wedge the device.
-    composable(MaxDestination.Terminal.route) { TerminalScreen() }
     composable(MaxDestination.SetEdit.route) { SetEditScreen(navController) }
     composable(MaxDestination.ActivityLauncher.route) { ActivityLauncherScreen(navController) }
-    composable(MaxDestination.FileManager.route) { FileManagerScreen(navController) }
-    composable(MaxDestination.KernelFlasher.route) { KernelFlasherScreen(navController) }
+    composable(MaxDestination.FileManager.route) { FileManagerScreen() }
 }
 
 /**

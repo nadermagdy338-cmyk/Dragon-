@@ -1,20 +1,14 @@
 /*
- * Adapted from ZKM (Zuan Kernel Manager) FpsReader.kt and MonitorReader.kt.
- * Original FpsReader base: helloklf (vtools). ZKM integration: Copyright (c) 2025 ZKM, GPL-3.0.
- * Adaptation: Copyright (C) 2026-2027 Zexshia
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ * Proprietary and confidential — not licensed for use, copying, or distribution
+ * without prior written permission from the copyright holder.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+قراءة الإطارات الحيّة وحالة الجهاز للوحة التراكب: ثلاثة مصادر للنواة (surfaceflinger ·
+ * عقدة `measured_fps` · `dumpsys timestats`) والمصدر يُختار بما يُوجد فعلًا على الجهاز.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * وفضلُ كشف أمر `service call SurfaceFlinger 1013` (واجهة غير موثّقة في AOSP) لقارئ
+ * مشروع vtools؛ وهو ذِكر فضل لا نقل كود: المقابلة النصّية معه مُقاسة في
+ * `docs/PROVENANCE.md` (احتواء البنية 0٠٠٢ · صفر نصّ حرفي مشترك). */
 
 package nd.max.ui.util
 

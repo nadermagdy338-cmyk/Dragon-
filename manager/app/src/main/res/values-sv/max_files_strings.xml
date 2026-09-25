@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Fler åtgärder</string>
     <string name="max_files_show_hidden">Visa dolda filer</string>
     <string name="max_files_hide_hidden">Dölj dolda filer</string>
-    <string name="max_files_open_terminal">Öppna terminalen</string>
     <string name="max_files_search_open_cd">Sök i den här mappen</string>
     <string name="max_files_location_root">rot /</string>
     <string name="max_files_location_storage">Intern förvaring</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Verktyg</string>
     <string name="max_files_drawer_tasks">Bakgrundsuppgifter</string>
     <string name="max_files_drawer_tasks_running">%1$d körs nu</string>
-    <string name="max_files_drawer_terminal_note">Kör en kommandorad som root</string>
     <string name="max_files_bookmark_add">Lägg till den här mappen till bokmärken</string>
     <string name="max_files_bookmark_remove">Ta bort från bokmärken</string>
     <string name="max_files_bookmarks_empty">Inga bokmärken ännu – lägg till de mappar du fortsätter att återvända till.</string>

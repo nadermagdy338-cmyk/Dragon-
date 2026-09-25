@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Més accions</string>
     <string name="max_files_show_hidden">Mostra els fitxers ocults</string>
     <string name="max_files_hide_hidden">Amaga els fitxers ocults</string>
-    <string name="max_files_open_terminal">Obriu el terminal</string>
     <string name="max_files_search_open_cd">Cerca en aquesta carpeta</string>
     <string name="max_files_location_root">Arrel /</string>
     <string name="max_files_location_storage">Emmagatzematge intern</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Eines</string>
     <string name="max_files_drawer_tasks">Tasques de fons</string>
     <string name="max_files_drawer_tasks_running">%1$d funcionant ara</string>
-    <string name="max_files_drawer_terminal_note">Executeu una línia d\'ordres com a root</string>
     <string name="max_files_bookmark_add">Afegeix aquesta carpeta a les adreces d\'interès</string>
     <string name="max_files_bookmark_remove">Eliminar de les adreces d\'interès</string>
     <string name="max_files_bookmarks_empty">Encara no hi ha cap marcador: afegiu les carpetes a les quals continueu tornant.</string>

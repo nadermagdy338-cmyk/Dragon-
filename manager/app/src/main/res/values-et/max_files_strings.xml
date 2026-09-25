@@ -100,7 +100,6 @@
     <string name="max_files_action_more_cd">Rohkem toiminguid</string>
     <string name="max_files_show_hidden">Näita peidetud faile</string>
     <string name="max_files_hide_hidden">Peida peidetud failid</string>
-    <string name="max_files_open_terminal">Avage terminal</string>
     <string name="max_files_search_open_cd">Otsi sellest kaustast</string>
     <string name="max_files_location_root">juur /</string>
     <string name="max_files_location_storage">Sisemälu</string>
@@ -142,7 +141,6 @@
     <string name="max_files_drawer_tools">Tööriistad</string>
     <string name="max_files_drawer_tasks">Taustaülesanded</string>
     <string name="max_files_drawer_tasks_running">%1$d töötab praegu</string>
-    <string name="max_files_drawer_terminal_note">Käivitage käsurida administraatorina</string>
     <string name="max_files_bookmark_add">Lisage see kaust järjehoidjate hulka</string>
     <string name="max_files_bookmark_remove">Eemalda järjehoidjatest</string>
     <string name="max_files_bookmarks_empty">Järjehoidjaid pole veel – lisage kaustad, kuhu naasete.</string>

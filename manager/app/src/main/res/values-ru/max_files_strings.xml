@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Дополнительные действия</string>
     <string name="max_files_show_hidden">Показать скрытые файлы</string>
     <string name="max_files_hide_hidden">Скрыть скрытые файлы</string>
-    <string name="max_files_open_terminal">Откройте терминал</string>
     <string name="max_files_search_open_cd">Искать в этой папке</string>
     <string name="max_files_location_root">Корень /</string>
     <string name="max_files_location_storage">Внутреннее хранилище</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Инструменты</string>
     <string name="max_files_drawer_tasks">Фоновые задачи</string>
     <string name="max_files_drawer_tasks_running">%1$d сейчас работает</string>
-    <string name="max_files_drawer_terminal_note">Запустите командную строку от имени пользователя root</string>
     <string name="max_files_bookmark_add">Добавьте эту папку в закладки</string>
     <string name="max_files_bookmark_remove">Удалить из закладок</string>
     <string name="max_files_bookmarks_empty">Закладок пока нет — добавьте папки, к которым вы постоянно возвращаетесь.</string>

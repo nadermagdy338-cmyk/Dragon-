@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Více akcí</string>
     <string name="max_files_show_hidden">Zobrazit skryté soubory</string>
     <string name="max_files_hide_hidden">Skrýt skryté soubory</string>
-    <string name="max_files_open_terminal">Otevřete terminál</string>
     <string name="max_files_search_open_cd">Prohledejte tuto složku</string>
     <string name="max_files_location_root">kořen /</string>
     <string name="max_files_location_storage">Vnitřní úložiště</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Nástroje</string>
     <string name="max_files_drawer_tasks">Úlohy na pozadí</string>
     <string name="max_files_drawer_tasks_running">%1$d běží</string>
-    <string name="max_files_drawer_terminal_note">Spusťte příkazový řádek jako root</string>
     <string name="max_files_bookmark_add">Přidat tuto složku do záložek</string>
     <string name="max_files_bookmark_remove">Odebrat ze záložek</string>
     <string name="max_files_bookmarks_empty">Zatím žádné záložky – přidejte složky, ke kterým se stále vracíte.</string>

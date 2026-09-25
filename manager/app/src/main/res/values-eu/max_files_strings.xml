@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Ekintza gehiago</string>
     <string name="max_files_show_hidden">Erakutsi ezkutuko fitxategiak</string>
     <string name="max_files_hide_hidden">Ezkutatu ezkutuko fitxategiak</string>
-    <string name="max_files_open_terminal">Ireki terminala</string>
     <string name="max_files_search_open_cd">Bilatu karpeta honetan</string>
     <string name="max_files_location_root">Erroa /</string>
     <string name="max_files_location_storage">Barne biltegiratzea</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Tresnak</string>
     <string name="max_files_drawer_tasks">Atzeko planoko zereginak</string>
     <string name="max_files_drawer_tasks_running">%1$d orain martxan</string>
-    <string name="max_files_drawer_terminal_note">Exekutatu komando-lerro bat root gisa</string>
     <string name="max_files_bookmark_add">Gehitu karpeta hau laster-marketan</string>
     <string name="max_files_bookmark_remove">Kendu laster-marketatik</string>
     <string name="max_files_bookmarks_empty">Oraindik ez dago laster-markarik — gehitu itzultzen dituzun karpetak.</string>

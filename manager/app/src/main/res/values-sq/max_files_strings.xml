@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Më shumë veprime</string>
     <string name="max_files_show_hidden">Shfaq skedarët e fshehur</string>
     <string name="max_files_hide_hidden">Fshih skedarët e fshehur</string>
-    <string name="max_files_open_terminal">Hapni terminalin</string>
     <string name="max_files_search_open_cd">Kërkoni këtë dosje</string>
     <string name="max_files_location_root">rrënjë /</string>
     <string name="max_files_location_storage">Ruajtja e brendshme</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Mjetet</string>
     <string name="max_files_drawer_tasks">Detyrat e sfondit</string>
     <string name="max_files_drawer_tasks_running">%1$d po funksionon tani</string>
-    <string name="max_files_drawer_terminal_note">Drejtoni një linjë komande si rrënjë</string>
     <string name="max_files_bookmark_add">Shto këtë dosje te faqeshënuesit</string>
     <string name="max_files_bookmark_remove">Hiq nga faqeshënuesit</string>
     <string name="max_files_bookmarks_empty">Ende nuk ka faqeshënues — shtoni dosjet ku vazhdoni të ktheheni.</string>

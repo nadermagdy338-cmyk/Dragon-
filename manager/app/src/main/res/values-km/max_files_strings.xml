@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">សកម្មភាពច្រើនទៀត</string>
     <string name="max_files_show_hidden">បង្ហាញឯកសារដែលលាក់</string>
     <string name="max_files_hide_hidden">លាក់ឯកសារដែលលាក់</string>
-    <string name="max_files_open_terminal">បើកស្ថានីយ</string>
     <string name="max_files_search_open_cd">ស្វែងរកថតនេះ។</string>
     <string name="max_files_location_root">ឫស /</string>
     <string name="max_files_location_storage">ឧបករណ៍ផ្ទុកខាងក្នុង</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ឧបករណ៍</string>
     <string name="max_files_drawer_tasks">កិច្ចការផ្ទៃខាងក្រោយ</string>
     <string name="max_files_drawer_tasks_running">%1$d កំពុងដំណើរការឥឡូវនេះ</string>
-    <string name="max_files_drawer_terminal_note">រត់បន្ទាត់ពាក្យបញ្ជាជា root</string>
     <string name="max_files_bookmark_add">បន្ថែមថតនេះទៅចំណាំ</string>
     <string name="max_files_bookmark_remove">យកចេញពីចំណាំ</string>
     <string name="max_files_bookmarks_empty">មិនទាន់មានចំណាំនៅឡើយទេ — បន្ថែមថតដែលអ្នកបន្តត្រឡប់ទៅ។</string>

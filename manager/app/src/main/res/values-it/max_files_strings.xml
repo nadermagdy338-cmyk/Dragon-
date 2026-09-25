@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Più azioni</string>
     <string name="max_files_show_hidden">Mostra file nascosti</string>
     <string name="max_files_hide_hidden">Nascondi i file nascosti</string>
-    <string name="max_files_open_terminal">Apri il terminale</string>
     <string name="max_files_search_open_cd">Cerca in questa cartella</string>
     <string name="max_files_location_root">Radice /</string>
     <string name="max_files_location_storage">Memoria interna</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Utensili</string>
     <string name="max_files_drawer_tasks">Attività in background</string>
     <string name="max_files_drawer_tasks_running">%1$d in esecuzione adesso</string>
-    <string name="max_files_drawer_terminal_note">Esegui una riga di comando come root</string>
     <string name="max_files_bookmark_add">Aggiungi questa cartella ai segnalibri</string>
     <string name="max_files_bookmark_remove">Rimuovi dai segnalibri</string>
     <string name="max_files_bookmarks_empty">Ancora nessun segnalibro: aggiungi le cartelle a cui continui a tornare.</string>

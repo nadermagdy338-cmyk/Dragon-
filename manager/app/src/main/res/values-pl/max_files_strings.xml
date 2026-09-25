@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Więcej akcji</string>
     <string name="max_files_show_hidden">Pokaż ukryte pliki</string>
     <string name="max_files_hide_hidden">Ukryj ukryte pliki</string>
-    <string name="max_files_open_terminal">Otwórz terminal</string>
     <string name="max_files_search_open_cd">Przeszukaj ten folder</string>
     <string name="max_files_location_root">Źródło /</string>
     <string name="max_files_location_storage">Pamięć wewnętrzna</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Narzędzia</string>
     <string name="max_files_drawer_tasks">Zadania w tle</string>
     <string name="max_files_drawer_tasks_running">%1$d działa teraz</string>
-    <string name="max_files_drawer_terminal_note">Uruchom wiersz poleceń jako root</string>
     <string name="max_files_bookmark_add">Dodaj ten folder do zakładek</string>
     <string name="max_files_bookmark_remove">Usuń z zakładek</string>
     <string name="max_files_bookmarks_empty">Nie ma jeszcze zakładek — dodaj foldery, do których ciągle powracasz.</string>

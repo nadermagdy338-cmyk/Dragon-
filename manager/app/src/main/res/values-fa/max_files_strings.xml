@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">اقدامات بیشتر</string>
     <string name="max_files_show_hidden">نمایش فایل های مخفی</string>
     <string name="max_files_hide_hidden">مخفی کردن فایل های مخفی</string>
-    <string name="max_files_open_terminal">ترمینال را باز کنید</string>
     <string name="max_files_search_open_cd">این پوشه را جستجو کنید</string>
     <string name="max_files_location_root">ریشه /</string>
     <string name="max_files_location_storage">حافظه داخلی</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ابزار</string>
     <string name="max_files_drawer_tasks">وظایف پس زمینه</string>
     <string name="max_files_drawer_tasks_running">%1$d اکنون در حال اجرا است</string>
-    <string name="max_files_drawer_terminal_note">یک خط فرمان را به عنوان root اجرا کنید</string>
     <string name="max_files_bookmark_add">این پوشه را به نشانک ها اضافه کنید</string>
     <string name="max_files_bookmark_remove">حذف از نشانک ها</string>
     <string name="max_files_bookmarks_empty">هنوز هیچ نشانکی وجود ندارد - پوشه هایی را که مدام به آنها باز می گردید اضافه کنید.</string>

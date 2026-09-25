@@ -41,18 +41,14 @@
     <string name="max_status_unknown">অবস্থা_অজানা</string>
     <string name="max_settings_diagnostics">ডায়াগনস্টিকস</string>
     <string name="max_settings_logs">লগ</string>
-    <string name="max_tool_terminal">টার্মিনাল</string>
     <string name="max_tool_setedit">সেট এডিট</string>
     <string name="max_tool_activity_launcher">কার্যকলাপ লঞ্চার</string>
-    <string name="max_tool_kernel_flasher">কার্নেল ফ্ল্যাশার</string>
     <string name="max_risk_normal">স্ট্যান্ডার্ড ঝুঁকি</string>
     <string name="max_risk_advanced">উন্নত ঝুঁকি</string>
     <string name="max_risk_dangerous">বিপজ্জনক ঝুঁকি</string>
     <string name="max_settings_appearance">চেহারা</string>
-    <string name="max_title_terminal">টার্মিনাল</string>
     <string name="max_title_setedit">সেট এডিট</string>
     <string name="max_title_activity_launcher">কার্যকলাপ লঞ্চার</string>
-    <string name="max_title_kernel_flasher">কার্নেল ফ্ল্যাশার</string>
     <string name="max_title_app_settings">অ্যাপ সেটিংস</string>
     <string name="max_title_get_started">সেটআপ</string>
 </resources>

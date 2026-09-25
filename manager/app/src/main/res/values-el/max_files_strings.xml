@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">Περισσότερες ενέργειες</string>
     <string name="max_files_show_hidden">Εμφάνιση κρυφών αρχείων</string>
     <string name="max_files_hide_hidden">Απόκρυψη κρυφών αρχείων</string>
-    <string name="max_files_open_terminal">Ανοίξτε το τερματικό</string>
     <string name="max_files_search_open_cd">Αναζήτηση σε αυτόν τον φάκελο</string>
     <string name="max_files_location_root">Root /</string>
     <string name="max_files_location_storage">Εσωτερική αποθήκευση</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">Εργαλεία</string>
     <string name="max_files_drawer_tasks">Εργασίες παρασκηνίου</string>
     <string name="max_files_drawer_tasks_running">%1$d τρέχει τώρα</string>
-    <string name="max_files_drawer_terminal_note">Εκτελέστε μια γραμμή εντολών ως root</string>
     <string name="max_files_bookmark_add">Προσθήκη αυτού του φακέλου στους σελιδοδείκτες</string>
     <string name="max_files_bookmark_remove">Αφαίρεση από τους σελιδοδείκτες</string>
     <string name="max_files_bookmarks_empty">Δεν υπάρχουν ακόμη σελιδοδείκτες — προσθέστε τους φακέλους στους οποίους επιστρέφετε συνεχώς.</string>

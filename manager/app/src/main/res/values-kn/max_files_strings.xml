@@ -103,7 +103,6 @@
     <string name="max_files_action_more_cd">ಇನ್ನಷ್ಟು ಕ್ರಮಗಳು</string>
     <string name="max_files_show_hidden">ಮರೆಮಾಡಿದ ಫೈಲ್‌ಗಳನ್ನು ತೋರಿಸಿ</string>
     <string name="max_files_hide_hidden">ಗುಪ್ತ ಫೈಲ್‌ಗಳನ್ನು ಮರೆಮಾಡಿ</string>
-    <string name="max_files_open_terminal">ಟರ್ಮಿನಲ್ ತೆರೆಯಿರಿ</string>
     <string name="max_files_search_open_cd">ಈ ಫೋಲ್ಡರ್ ಅನ್ನು ಹುಡುಕಿ</string>
     <string name="max_files_location_root">ರೂಟ್ /</string>
     <string name="max_files_location_storage">ಆಂತರಿಕ ಸಂಗ್ರಹಣೆ</string>
@@ -145,7 +144,6 @@
     <string name="max_files_drawer_tools">ಪರಿಕರಗಳು</string>
     <string name="max_files_drawer_tasks">ಹಿನ್ನೆಲೆ ಕಾರ್ಯಗಳು</string>
     <string name="max_files_drawer_tasks_running">%1$d ಈಗ ಚಾಲನೆಯಲ್ಲಿದೆ</string>
-    <string name="max_files_drawer_terminal_note">ಆಜ್ಞಾ ಸಾಲನ್ನು ರೂಟ್ ಆಗಿ ಚಲಾಯಿಸಿ</string>
     <string name="max_files_bookmark_add">ಈ ಫೋಲ್ಡರ್ ಅನ್ನು ಬುಕ್‌ಮಾರ್ಕ್‌ಗಳಿಗೆ ಸೇರಿಸಿ</string>
     <string name="max_files_bookmark_remove">ಬುಕ್‌ಮಾರ್ಕ್‌ಗಳಿಂದ ತೆಗೆದುಹಾಕಿ</string>
     <string name="max_files_bookmarks_empty">ಇನ್ನೂ ಬುಕ್‌ಮಾರ್ಕ್‌ಗಳಿಲ್ಲ - ನೀವು ಹಿಂತಿರುಗುತ್ತಿರುವ ಫೋಲ್ಡರ್‌ಗಳನ್ನು ಸೇರಿಸಿ.</string>
