@@ -421,15 +421,30 @@ python3 tools/jni_symbols.py --assert --so manager/app/src/main/jniLibs/arm64-v8
 python3 tools/jni_symbols.py --assert --require-binaries
 ```
 
+**وقبل هذه البوابة عقدٌ في الترتيب (ADR-53):** `ndk-build` يحذف **كل** `lib*.so` في مجلد خروجه
+(`clean-installed-binaries`)، فبناء `libtermux.so` يقع **قبل** `cargo ndk` لا بعده، وبينهما وبين البوابة
+خطوة توكيد تسمّي أي ملف غائب — وهي المقيسة هنا بدلًا من تنفيذ الترتيب (لا NDK في هذه البيئة):
+
+```sh
+for abi in arm64-v8a armeabi-v7a; do
+  for lib in libmaxmanager_native.so libtermux.so; do
+    test -s "manager/app/src/main/jniLibs/$abi/$lib" || echo "ناقص: $abi/$lib"
+  done
+done
+# وأثرها الأكبر: `Validate Manager APK` صار يقيس المكتبتين بالاسم داخل الحزمة الموقّعة نفسها
+# (was: `lib/<abi>/` وجودًا فقط — وهو ما مرّر APK بلا الطبقة الأصلية في صمت).
+```
+
 Expected on a clean tree, and what each line means:
 
 | مخرَج/إجراء | المعنى والمتوقّع |
 | --- | --- |
-| `تصريحات 19` | ١٥ في `Predictor/Context/ProbeBridge` + ٤ في `terminal-emulator/…/JNI.java` |
+| `تصريحات 25` | ٢١ في `rust/` (Probe/Prop/Logs/…) + ٤ في `terminal-emulator/…/JNI.java` — وكان ١٩ قبل موجات Rust، فالعدد يُقرأ من التشغيل لا من هذه الوثيقة |
 | `نواقص 0` | كل `external fun` له رمز مُصدَّر: لا `UnsatisfiedLinkError` |
 | `يتامى 1` | `Java_com_termux_terminal_JNI_setPtyUTF8Mode` — كود ميت مُعلن، **لا يُسقط** البوابة (ADR-18) |
 | `exit 0` بلا ثنائيات | صحيح ومقصود: الطبقة ٢ **غير مُتحقَّقة** ويُقال ذلك — لا «يمرّ» |
 | `exit 1` مع `--require-binaries` بلا ثنائيات | صحيح: وضع CI يرفض الشهادة بلا ثنائيات |
+| `مكتبة معلنة بلا أي ثنائية` مع `--require-binaries` | **عطب**: صنفه الذي وقع في CI — `cargo ndk` بنت ثم محت خطوة `ndk-build` المخرَج (ADR-53) |
 | مكتبة في عمود واحد من عمودين | **عطب** = صنف عطب `libtermux` ٦٤-بت؛ والقاعدة لا تنشط في بيئة بعمود واحد |
 
 **الحدود المعلنة:** `nm` يعطي **الأسماء لا التوقيعات** — فعدد المعاملات وأنواعها وحال `static` مقابل الدالة

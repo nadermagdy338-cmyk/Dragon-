@@ -335,21 +335,25 @@ jobs:
         working-directory: ./manager/src/main/rust
         run: cargo test
 
-      # ── المكتبة الأصلية للتطبيق (JNI) ──
-      # crate maxmanager_native هو الذي يوفر: وكيل التعلم المعزز،
-      # المتنبئ، التوأم الرقمي، ومحرك السياق. بدونه يعمل التطبيق في
-      # وضع الاحتياط الدائم (nativeAvailable=false) فتُشحن كل ميزات
-      # المكوّن الأصلي ميتة. هذا الخط كانت مفقودة من خط الإنتاج
-      # (ci.yml فقط كان يبنيها دون أن تستهلكها حزمة الإصدار).
-      - name: Build Manager Native Library (JNI)
-        working-directory: ./manager/src/main/rust
-        run: |
-          if [ "$V_TYPE" == "experimental" ]; then
-            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build
-          else
-            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build --release
-          fi
-          ls -l ../../../app/src/main/jniLibs/arm64-v8a/ ../../../app/src/main/jniLibs/armeabi-v7a/
+      # ── ⚠️ ترتيب مكتبتَي jniLibs مقصود ومُقاس — لا تعكسه ──
+      #
+      # كان هنا العطب الذي أسقط بوابة JNI في CI («مكتبة معلنة بلا أي ثنائية:
+      # maxmanager_native») وفي الوقت نفسه كان يُحزَّم الـAPK بلا هذه المكتبة:
+      #
+      #   `ndk-build` يحذف **كل** `lib*.so` في مجلد خروج المكتبات لكل ABI **قبل** أن
+      #   يثبّت وحداته: قاعدة `clean-installed-binaries` في `build/core/` من الـNDK
+      #   (`rm -f <libs>/<abi>/lib*.so`) — وُجدت لتفادي المكتبات البائتة، وهي تحذف
+      #   ما لا تعرفه. فقد كانت `libmaxmanager_native.so` تُبنى أولًا (بـ`cargo ndk`)،
+      #   ثم تمسحها خطوة `ndk-build` التالية، فلا تبقى إلا `libtermux.so` في العمودين
+      #   (وهو تحديدًا ما رآه المُشغّل: «ثنائيات مقروءة 2»).
+      #
+      # وأثرُه ليس البوابة وحدها — وهي أحسنت إذ كشفته — بل أن **الطبقة الأصلية كلها
+      # تُشحن ميتة**: بلا `libmaxmanager_native.so` يفشل `System.loadLibrary` فيسقط
+      # التطبيق إلى `nativeAvailable=false` الدائم (الوكيل · المتنبئ · التوأم · السياق).
+      #
+      # فالترتيب: `ndk-build` أولًا (ماسحٌ فيزيائيًّا)، ثم `cargo ndk` فلا يمسّه أحد،
+      # ثم توكيد صريح على وجود الأربعة قبل البوابة. وكلاهما قبل Gradle على أي حال:
+      # Gradle هو من يحزم `jniLibs`، ولا يهمّه أيّ الخطوتين سبقت.
 
       # ── مكتبة الطرفية الأصلية (`libtermux.so`) للعمودين ──
       # مصدرها في المستودع (`terminal-emulator/src/main/jni/termux.c` + `Android.mk`)،
@@ -366,6 +370,45 @@ jobs:
           ndk-build -C "$jni_dir" APP_ABI="arm64-v8a armeabi-v7a" APP_PLATFORM=android-29 \
                     NDK_LIBS_OUT="$out_dir" NDK_DEBUG=$ndk_debug
           ls -l "$out_dir/arm64-v8a/libtermux.so" "$out_dir/armeabi-v7a/libtermux.so"
+
+      # ── المكتبة الأصلية للتطبيق (JNI) ── (بعد `ndk-build` عمدًا — الشرح أعلاه)
+      # crate maxmanager_native هو الذي يوفر: وكيل التعلم المعزز،
+      # المتنبئ، التوأم الرقمي، ومحرك السياق. بدونه يعمل التطبيق في
+      # وضع الاحتياط الدائم (nativeAvailable=false) فتُشحن كل ميزات
+      # المكوّن الأصلي ميتة. هذا الخط كانت مفقودة من خط الإنتاج
+      # (ci.yml فقط كان يبنيها دون أن تستهلكها حزمة الإصدار).
+      - name: Build Manager Native Library (JNI)
+        working-directory: ./manager/src/main/rust
+        run: |
+          if [ "$V_TYPE" == "experimental" ]; then
+            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build
+          else
+            cargo ndk -t arm64-v8a -t armeabi-v7a -o ../../../app/src/main/jniLibs build --release
+          fi
+          ls -l ../../../app/src/main/jniLibs/arm64-v8a/ ../../../app/src/main/jniLibs/armeabi-v7a/
+
+      # توكيد يكشف **حذفًا صامتًا** لثنائية قبل الحزم أو قبل البوابة، ويسمّي الملف
+      # الغائب بمساره. سببه مُقاس: خطوة `ndk-build` تحذف ما لا تعرفه (أعلاه)، وأي
+      # خطوة أصلية تُضاف لاحقًا إلى هذا الملف قد تفعل الشيء نفسه — والعطب الصامت
+      # هنا لا يُرى إلا في هاتف المستخدم.
+      - name: Assert jniLibs holds both libraries in both ABIs
+        run: |
+          set -e
+          missing=""
+          for abi in arm64-v8a armeabi-v7a; do
+            for lib in libmaxmanager_native.so libtermux.so; do
+              path="manager/app/src/main/jniLibs/$abi/$lib"
+              [ -s "$path" ] || missing="$missing $path"
+            done
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::jniLibs ناقصة قبل بوابة JNI وبعدها الحزم:$missing"
+            echo "   سبب متوقّع: خطوة بُنيت بعدها حذفت lib*.so في مجلد خروجها" \
+                 "(قاعدة clean-installed-binaries في ndk-build). رتّبها قبل هذه المكتبة."
+            exit 1
+          fi
+          echo "✅ الأربعة موجودة:"
+          find manager/app/src/main/jniLibs -name '*.so' | sort
 
       # ── بوابة رموز JNI على الثنائيات **المبنية فعلًا** ──
       # موضعها هنا مقصود: عندها فقط تكون المكتبتان موجودتين في **العمودين**، فيقاس ما لا
@@ -716,9 +759,20 @@ jobs:
           # حرس العمودين (تكملة ١١٠ — عكس تكملة ٨٢): الـAPK يجب أن يحمل **كلا** الـABIين.
           # غياب أحدهما = حزمة لا تُركَّب على نصف الأجهزة — وهو العطب الذي كان الحرس
           # القديم يُنتجه عمدًا في الاتجاه المعاكس.
+          #
+          # ⚠️ وكان هذا الحرس نفسه ثقبًا: كان يقبل مجرّد وجود `lib/<abi>/` بأي مكتبة فيه،
+          # فمرّ يومًا APK يحمل `libtermux.so` وحده وبلا `libmaxmanager_native.so` —
+          # وخطوة `ndk-build` هي التي حذفتها (تحذف `lib*.so` في مجلد خروجها لكل ABI قبل
+          # أن تثبّت وحداتها: قاعدة `clean-installed-binaries`) فأول ما بنته `cargo ndk`
+          # مَحَتْه الخطوة التالية. فكانت الطبقة الأصلية كلها تُشحن ميتة
+          # (`nativeAvailable=false`) وهذا الحرس صامت. فالآن يقيس المكتبتين **بالاسم**.
+          # وحدّه المُعلن: يقيس ما دخل الحزمة فعلًا بعد التوقيع، فلا يغني عن
+          # «Assert jniLibs…» قبل البوابة — كلاهما يُبلّغ عن العطب في موضعه.
           for abi in arm64-v8a armeabi-v7a; do
-            unzip -l "$apk_path" | grep -q "lib/$abi/" \
-              || { echo "::error::APK is missing native libraries for $abi" >&2; unzip -l "$apk_path" | grep -E "lib/" >&2; exit 1; }
+            for lib in libmaxmanager_native.so libtermux.so; do
+              unzip -l "$apk_path" | grep -qF "lib/$abi/$lib" \
+                || { echo "::error::APK is missing lib/$abi/$lib" >&2; unzip -l "$apk_path" | grep -E "lib/" >&2; exit 1; }
+            done
           done
 
           apksigner verify --verbose --print-certs "$apk_path"
