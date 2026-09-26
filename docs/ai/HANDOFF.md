@@ -62,6 +62,87 @@ MaxManager has a strong engine and a fragmented surface. `core/maxai` + `core/ha
 
 <!-- Append one entry per completed task: task id, files, gate results, deferred items, next suggestion. -->
 
+### PROVENANCE-02 — إغلاق PHASE 1/7/8/9/10/11/13: صفر GPL، وترويسة ملكية على كل مصدر، وبوابة مُفعَّلة — 2026-09-26
+
+**TASK:** تكملة أمر المالك «إعادة تأليف مشروع MaxManager ليصبح مستقلًّا قدر الإمكان» — تنفيذ
+المراحل الباقية من تكليف الـ١٥ مرحلة بعد PHASE 0. المدى: `manager/app/**` · `tools/**` ·
+`docs/**` · `.github/workflows/build.yml` · ملفات الرخصة. **ولم يُشغَّل أي بناء** (§0.1:
+لا حاجة حقيقية — لا نوع ولا توقيع ولا عتاد مسّ؛ `AGENTS.md` §0.1-3).
+
+**FILES:**
+مُعاد التأليف (كانت مشتقّة/مُصرِّحة بأصل GPL) — `ui/activitylauncher/` (جديد: `ActivityIndex` ·
+`ActivityLauncherViewModel` · `ActivityLauncherScreen`) · `ui/settings/SettingsPreference` ·
+`ui/settings/SettingsViewModel` · `ui/util/MtkUtils` · `ui/util/ProcessMonitorUtil` ·
+`ui/util/DebloatFreezeUtil` · `ui/util/ThermalUtil` · `ui/util/FpsMonitorUtil` ·
+`ui/viewmodel/NetworkSchedulerViewModel` · `ui/viewmodel/LogsViewerViewModel` ·
+`ui/subscreens/{LogsViewerScreen,LogsViewerSections,ProcessManagerScreen}` ·
+`service/ProcessOverlayService` · ومراجع المتن الخمسة (`CpuCoreControlScreen` · `CpuTopologyUtil` ·
+`LogsViewerScreen` · `NetworkSchedulerViewModel` · `LogsViewerViewModel`).
+IPC — `aidl/nd/max/core/ipc/IRootNodeService.aidl` + `core/ipc/RootNodeService.kt` + `core/ipc/RootNodeChannel.kt`
+بدل `IMtkService`/`MtkRootService` (بحقوق مُعاد كتابتها), وتبعها `RootFileAccess` · `ThermalUtil` · `MainActivity`.
+
+محذوف — وحدتا `terminal-view`/`terminal-emulator` ومعهما `libtermux.so` والربط كله (47 ملفًا) ·
+وحدة `kernel-flasher` وميزة التفليش · `AssetsUtil.kt`/`KernelInfoUtils.kt` (كود ميت) · `NOTICE.md`
+(استبدله `THIRD_PARTY_NOTICES.md`) · و`manager/app/azenith.jks` — **مخزن مفاتيح كان مُتتبَّعًا**
+(مادة توقيع لا مصدر) و`*.jks`/`*.keystore` في `.gitignore`.
+
+أُضيف/أُنشئ — `tools/upstream_similarity.py` (قياس نصّي مقابل الأصل + `--self-test` + `--assert`
++ `--write-doc`)، و`docs/AUTHENTICITY.md` (تقرير أصالة مُولَّد — PHASE 11)، و`THIRD_PARTY_NOTICES.md`،
+و`LICENSE` (ملكية `Nader Magdy`)، و`values{,-ar}/max_launcher_strings.xml` و`max_sched_strings.xml`
+و`max_log_strings.xml`. ومُفعَّل — `license_audit.py --assert` و`upstream_similarity.py --self-test`
+في خطوة «Contract gates».
+
+**GATES (كلها خضراء بعد آخر تعديل):**
+`kt_balance --assert` **١٧٠٠ ملف · ٠ عائق** · `--self-test` **١٧/٠**؛
+`code_health --assert` **exit 0** (وسُقّف الدَّين بعد الانخفاض: `oversized_files 8` ·
+`own_wildcard_imports 29` · `hardcoded_ui_literals 32` · `presentation_hw_writes 21`)؛
+`i18n_coverage --assert` **٠ عوائق** و`--prune all --assert` **٠ يتيمًا**؛
+`jni_symbols --assert` **٢١ تصريحًا · ٠ نواقص · ٠ يتامى** (الطبقة ٢ «غير مُتحقَّقة» — لا ثنائيات
+ولا NDK هنا)؛ `repo_audit.py` **PROBLEMS: 0** (٤٠٧ ملف kt · ٣٣٩٧ مفتاحًا أساسيًّا)؛
+`source_manifest --check --assert` **١٧٢١ ملفًا · بصمة `cf2383956bffa6be`** (مطابقة)؛
+`license_audit --self-test` **١٩/١٩** و`--assert` **exit 0**؛
+`upstream_similarity --self-test` **٨/٨** و`--assert` **exit 0**.
+
+**RESULT — القياس لا التقدير:**
+
+| المقياس | قبل (PHASE 0) | بعد |
+| --- | --- | --- |
+| مشتقّ من GPL | ٩٦ ملفًا | **0** |
+| مُصرِّح بأصل GPL في المتن | ٦ | **0** |
+| مجهول الترخيص | ٣ | **0** |
+| ملفات مُتتبَّعة | ٢١٤٠ | ١٩٧٩ |
+| بوابة GPL (سبعة أسئلة) | ٢ منها `YES` | **كلها `NO`** |
+| مصادر بلا ترويسة (`REPO_DEFAULT`) | ٣٧٦ | **0** (فُعِلت ٣٤٩ ترويسة — والباقي موارد لا مصدر) |
+| تشابه مع الأصل فوق السقف | غير مُقاس | **٤ ملفات، كلها بقايا مُعلَنة بسبب مكتوب** |
+
+والأخير هو ما يُقاس فعلًا: `--assert` يقارن كل ملف مصدري بأصل ZKM/vtools المرجعي بثلاثة مقاييس
+(`code` احتواء رموز البنية · `raw` حرفي · `lit` حرفيات) — فالبلوغ بالسقف لا يمرّ بلا سبب مكتوب في
+`DECLARED_RESIDUE`، والبقايا الأربع **تُطبع في كل تشغيل** (Material 3 API · `SavedStateRegistryOwner`
+اليدوي · عقد خدمة Compose) لا تُخفى. وتفصيلها وأسبابها في `docs/AUTHENTICITY.md`.
+
+**التصحيح في الاتجاهين (لا إخفاء):** البوابة **لا تُرخَّف**: أُضيفت حالتان في `--self-test` تمنعان
+انحدار الأداة نفسها (`بيانات مُعلَنة تُصنَّف DECLARED لا Unknown` · `ملف بيانات غير مُعلَن لا يُمنح
+حالة DECLARED`)، وأربع حالات للترويسة (تُدهن · لا تُدهن مرّتين · امتداد غير مُدرج لا يُلمس ·
+shebang يبقى السطر الأول). وصُنّفت البيانات الثلاث بلا إسناد من `Unknown` إلى `DATA_ASSET_DECLARED`
+**بدليل مقيس** لا بافتراض: شجرة ZKM المرجعية نُزّلت (٤٤٣ ملفًا) وبحثت فيها وفي `vtools` وأشجار raw عن
+`socs`/`devices.db`/`Applist` فلم تُصَبْ — وأُضيفت في الالتزام الأول `581fe5d`. وحدّه مكتوب في
+`docs/PROVENANCE.md`: هذا ينفي ما فُحص لا كل شيء في العالم.
+
+**BUILD:** لم يُبنَ — `compilation unverified in this environment`، ولا يُدَّعى العكس. وما يفرضه
+البناء (نوع · توقيع · عتاد · RTL حيّ) ما زال **يحتاج جهازًا**.
+
+**RESIDUAL RISK:** (١) لا Android SDK هنا ⇒ الترجمة والاختبارات غير مُتحقَّقتين في هذه البيئة؛
+(٢) حكم سلامة Luna على هذا الـdiff (يمسّ `core/**`) **معلّق** — يُنفَّذ بتبديل النموذج في هذه
+المحادثة ولصق `docs/ai/REVIEW.md` §2؛ (٣) تاريخ git لم يُعَد كتابته، **والسرّ القديم
+(`azenith.jks`) باقٍ في الالتزامات السابقة** — سحبه من التتبّع يمنع الرجوع ولا يمحو التاريخ،
+ومحوُه يحتاج إعادة كتابة تاريخ لا تُجرى إلا بإذن صريح؛ (٤) حدود `upstream_similarity` معلَنة:
+يقيس التشابه النصّي لا الأصل القانوني.
+
+**NEXT:** حكم Luna على الـdiff (البروتوكول في `REVIEW.md` §2 · التسليم الجاهز في `AGENTS.md` §4) ⇒
+ثم PHASE 3 (هوية واجهة مستقلّة: شاشة الأنشطة نُقلت إلى `MaxListScreen` بالفعل، ويبقى تدقيق
+الشاشات الباقية) ⇒ PHASE 12 (قرار المالك على تاريخ git: هل يُعاد كتابته لمحو السرّ؟) ⇒ PHASE 14
+(تحقّق إصدار على جهاز + تشغيل CI).
+
 ### PROVENANCE-01 — تدقيق الأصل والترخيص: ٩٦ ملفًا مشتقًّا من GPL داخل مسار الإصدار — 2026-09-25
 
 **TASK:** PHASE 0 من تكليف المالك (فحص provenance وترخيص كامل قبل أي تعديل كود). نُفِّذ الفحص

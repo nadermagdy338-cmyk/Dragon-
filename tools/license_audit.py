@@ -92,6 +92,8 @@ HEADER_STYLES: dict[str, str] = {
     ".rs": "block", ".c": "block", ".h": "block",
     ".bp": "slash",
     ".sh": "hash", ".mk": "hash", ".rc": "hash", ".te": "hash", ".pro": "hash",
+    # ولا `.py` هنا عن قصد: `tools/` تُصنَّف `PROSE_SCOPE` قبل بلوغ هذا الجدول، فلا يُدهن
+    # ملف أدوات أصلًا — وإدراجه كان سطرًا لا يُنفَّذ (ورق مقيس: `--write-headers` يعطي 0).
 }
 RISK_WEAK = 2        # LGPL/MPL وأشباهها: مشروطة لا ممنوعة
 RISK_UNKNOWN = 1

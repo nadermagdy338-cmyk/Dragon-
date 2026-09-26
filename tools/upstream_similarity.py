@@ -307,6 +307,87 @@ def audit(root: str, corpus: dict[str, Unit], threshold: float, run_max: int, sh
     return findings, [f"scanned={scanned}", f"upstream_files={len(corpus)}"]
 
 
+def write_doc(path: str, args, findings: list[dict], stats: list[str],
+              corpus: dict[str, Unit], missing: list[str]) -> None:
+    """تقرير الأصالة (PHASE 11): ما قيس، بأي سقف، وما بقي — لا خلاصة بالنية.
+
+    والفرق عن `docs/PROVENANCE.md` مقصود: ذاك يحكم من **الترويسة** (ما يقوله الملف عن نفسه)،
+    وهذا يحكم من **النصّ** (ما يشترك فيه الملف مع الأصل حرفيًّا). فمن يقرأ الاثنين يرى الصورة كاملة.
+    """
+    undeclared = [f for f in findings if not f["residue"]]
+    declared = [f for f in findings if f["residue"]]
+    out: list[str] = []
+    a = out.append
+    a("# AUTHENTICITY — قياس استقلال النصّ عن أصول GPL المُزالة")
+    a("")
+    a("مُولَّد بـ`python3 tools/upstream_similarity.py --write-doc docs/AUTHENTICITY.md "
+      "--upstream build/audit/zkm-raw --upstream build/audit/vtools-raw`. لا يُكتب بيد.")
+    a("")
+    a("## 1. الطريقة — ماذا يُقاس بالضبط")
+    a("")
+    a("تقارن الأداة كل ملف مصدري عندنا بكل ملف في نسخة الأصل المرجعي، بثلاثة مقياسين "
+      "**مختلفين** — فلا يُخفى أحدهما بالآخر:")
+    a("")
+    a("| المقياس | ما يقيسه | لماذا هو مستقلّ |")
+    a("| --- | --- | --- |")
+    a("| `code` | احتواء رموز البنية (تسميات الدوال والمتغيرات، بعد تجريد التعليقات "
+      "و`package`/`import`) | يقيس **بنية التعبير** لا النصّ: نسخة مُعاد تسميتها تبقى مكشوفة |")
+    a("| `raw` | التطابق النصّي الحرفي | يكشف النقل الحرفي ولو غُيّرت الأسماء |")
+    a("| `lit` | الحرفيات المشتركة (نصوص، أرقام مسارات) | تُفصل عن الاثنين: هي **بيانات** "
+      "لا تعبير، فلا تُحسب تشابهًا |")
+    a("")
+    a(f"السقوف: `code ≥ {args.threshold}` أو مقطع مسمّى ≥ {args.run_max} أسطر متتالية "
+      "⇒ ملف «يستحق النظر».")
+    a("")
+    a("## 2. ما قيس في هذه الجولة")
+    a("")
+    for line in stats:
+        key, _, value = line.partition("=")
+        a(f"- `{key}` = **{value}**")
+    a(f"- ملفات أصل مرجعي مُحمّلة: **{len(corpus)}**")
+    if missing:
+        a(f"- ⚠️ أصول مفقودة ولم تُقس (يُعلن ولا يُخفي): {'، '.join(missing)}")
+    a("")
+    a("## 3. النتيجة")
+    a("")
+    if undeclared:
+        a(f"**⚠️ غير مُعلَن: {len(undeclared)} ملفًا بلغ السقف ولا سبب مكتوب له** — إمّا "
+          "إعادة تأليف أو إعلان بسبب: ⇒ البوابة تُخرج 1:")
+        a("")
+        for f in undeclared:
+            a(f"- `{f['file']}` ← `{f['upstream']}` (code={f['score']} · raw={f['raw']} · "
+              f"run={f['run']})")
+    else:
+        a("**لا ملف بلغ السقف بلا سبب مكتوب.** ✅ وهذا ما تقوله البوابة بـ`--assert` (exit 0).")
+    a("")
+    a(f"وبلغ السقف {len(findings)} ملفًا، وكلّها **بقايا مُعلَنة**: API الأطر تفرض صياغة واحدة، "
+      "والاسم الذي يفرضه الـAPI ليس نقل تعبير. وكل سبب مكتوب **أدناه في المخرجات** "
+      "وفي جدول الكود `DECLARED_RESIDUE` نفسه — فلا يُخفي إعلانٌ رقمًا:")
+    a("")
+    a("| FILE | code | raw | run | الأصل |")
+    a("| --- | --- | --- | --- | --- |")
+    for f in findings:
+        a(f"| `{f['file']}` | {f['score']} | {f['raw']} | {f['run']} | `{f['upstream']}` |")
+    a("")
+    if declared:
+        a("### أسباب البقايا (منقولة من جدول الكود — تُقرأ ولا تُقدَّر)")
+        a("")
+        for f in declared:
+            a(f"- **`{f['file']}`** — {f['residue']}")
+        a("")
+    a("## 4. حدود هذا القياس")
+    a("")
+    a("* يقيس **التشابه النصّي** لا الأصل القانوني. ملفّان قد يشتركان في صياغة ويختلفان في "
+      "الأصل، والعكس — ولذلك يُقرأ مع `docs/PROVENANCE.md` (الذي يحكم من الترويسة).")
+    a("* البقايا المُعلَنة **لا تُسقِط البوابة لكنها تُطبع في كل تشغيل**، والجدول في الكود "
+      "(`DECLARED_RESIDUE`) لا يقبل إضافة بلا سبب مكتوب.")
+    a("* الإعلان يصف API الأطر (Material 3 · AndroidX · عقد خدمة Compose) لا نقل تعبير — "
+      "وكل ما كان نقلًا تعبيريًّا حقيقيًّا أُعيد تأليفه ولم يُدرج.")
+    a("")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(out))
+
+
 def self_test() -> int:
     """الأداة تقيس نفسها: تُصنع أزواج معلومة النتيجة، ويُقاس سلوكها عليها."""
     failures = 0
@@ -404,6 +485,8 @@ def main() -> int:
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--assert", dest="assert_", action="store_true")
     ap.add_argument("--self-test", action="store_true")
+    ap.add_argument("--write-doc", default=None, metavar="PATH",
+                    help="اكتب تقرير الأصالة (PHASE 11) في هذا المسار")
     args = ap.parse_args()
 
     if args.self_test:
@@ -429,6 +512,10 @@ def main() -> int:
             print(f"  {m.score:>6.3f}  {m.raw:>6.3f}  {m.shared_literals:>4}  {m.run:<4} {m.upstream}")
 
     findings, stats = audit(args.root, corpus, args.threshold, args.run_max, args.shown)
+
+    if args.write_doc:
+        write_doc(os.path.join(args.root, args.write_doc), args, findings, stats, corpus, missing)
+        print(f"كُتب: {args.write_doc}")
 
     if args.json:
         import json

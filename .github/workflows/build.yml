@@ -193,6 +193,11 @@ jobs:
           # الاسم قبل أن يستهلك البناءُ الأصلِي دقائقَ ثم يمرّ.
           python3 tools/jni_symbols.py --assert
           python3 tools/jni_symbols.py --self-test
+          # ← أداة قياس استقلال النصّ عن أصول GPL (PHASE 11): `--self-test` يسقط ما لا
+          # يحتاج نسخة من الأصل المرجعي (٨ حالات معلومة النتيجة). و`--assert` نفسه
+          # **يحتاج** مجلّدي الأصل (ZKM · vtools) وهما ليسا في الشجرة — فمكانه جلسة
+          # المالك المحليّة، ونتيجته المنشورة في `docs/AUTHENTICITY.md`.
+          python3 tools/upstream_similarity.py --self-test
           # ── تدقيق الأصل والترخيص (PHASE 0/6/8) ──
           #
           # كان يُشغّل هنا **بلا `--assert`** عن قصد، وسببه كان مُعلَنًا ومُقاسًا: `gpl_code_in_apk
