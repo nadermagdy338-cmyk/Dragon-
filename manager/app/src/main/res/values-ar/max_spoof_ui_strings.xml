@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="spoof_ui_real_device">الجهاز الحقيقي</string>
+    <string name="spoof_ui_pill_verified">الملف مُتحقَّق</string>
+    <string name="spoof_ui_pill_unverified">غير مُتحقَّق</string>
+    <string name="spoof_ui_pill_off">متوقف</string>
+    <string name="spoof_ui_device_title">الجهاز</string>
+    <string name="spoof_ui_global_hint">هذا التطبيق يتبع جهاز النظام العام. غيّره من استوديو التزييف.</string>
+    <string name="spoof_ui_open_studio">فتح استوديو التزييف</string>
+    <string name="spoof_ui_edit_current">تعديل الحقول</string>
+    <string name="spoof_ui_new_from_device">جديد من هذا الجهاز</string>
+    <string name="spoof_ui_saved_profiles">الملفات المحفوظة</string>
+    <string name="spoof_ui_saved_profiles_n">%1$d محفوظ</string>
+    <string name="spoof_ui_advanced">متقدّم</string>
+    <string name="spoof_ui_advanced_summary">سياسة كل فئة</string>
+    <string name="spoof_ui_status">الحالة والتحقق</string>
+    <string name="spoof_ui_status_ok">لا شيء يحتاج انتباهك</string>
+    <string name="spoof_ui_status_n">%1$d ملاحظات</string>
+    <string name="spoof_ui_compare">المرصود مقابل المستهدف</string>
+    <string name="spoof_ui_tab_hint_master_off">فعّل Max لتعديل هذه المجموعة. الهوية لا تحتاجه.</string>
+    <string name="copg_tags_title_short">الخيارات</string>
+    <string name="copg_tags_desc_short">تُحفظ كنيّة. خيارات الراحة تعمل على كل إصدارات COPG، والباقي يحتاج COPG 6.8.0+. وPRO يحتاج ترخيصًا.</string>
+    <string name="copg_group_comfort">الراحة</string>
+    <string name="copg_group_privacy">الخصوصية</string>
+    <string name="copg_group_hardware">العتاد</string>
+    <string name="copg_group_ids">المعرّفات</string>
+    <string name="copg_group_network">الشبكة والمنطقة</string>
+    <string name="copg_group_none">لا شيء مفعّل</string>
+    <string name="copg_group_n">%1$d مفعّل</string>
+    <string name="copg_res_short">يبقى في ذاكرة التطبيق</string>
+    <string name="app_tab_spoof">تزييف</string>
+</resources>

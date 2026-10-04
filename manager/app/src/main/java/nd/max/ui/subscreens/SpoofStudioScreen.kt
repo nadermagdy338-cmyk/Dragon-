@@ -4,7 +4,14 @@ package nd.max.ui.subscreens
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -14,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,6 +31,7 @@ import nd.max.core.spoof.EffectiveSpoofProfileResolver
 import nd.max.core.spoof.SpoofField
 import nd.max.core.spoof.SpoofProfile
 import nd.max.core.spoof.SpoofWorkspace
+import nd.max.ui.component.MaxInfoStrip
 import nd.max.ui.design.MaxCard
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
@@ -31,6 +40,7 @@ import nd.max.ui.design.MaxScreen
 import nd.max.ui.design.MaxSearchField
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSegmented
+import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
 import nd.max.ui.viewmodel.SpoofStudioViewModel
 import java.util.UUID
@@ -64,10 +74,13 @@ fun SpoofStudioScreen(navController: NavController, viewModel: SpoofStudioViewMo
         MaxCard(title = global?.name ?: stringResource(R.string.identity_host), icon = Icons.Rounded.PhoneAndroid,
             description = stringResource(R.string.identity_hero, global?.model ?: viewModel.observed[SpoofField.MODEL].orEmpty()),
             tone = MaxTone.Accent)
-        Text(stringResource(R.string.identity_not_verified), style = MaterialTheme.typography.bodySmall)
-        if (state.failed) Text(stringResource(R.string.spoof_save_failed))
+        MaxInfoStrip(text = stringResource(R.string.identity_not_verified))
+        if (state.failed) MaxInfoStrip(text = stringResource(R.string.spoof_save_failed), accent = MaterialTheme.colorScheme.error)
         if (state.loading) Text(stringResource(R.string.spoof_reading))
-        saved?.let { Text(stringResource(if (it) R.string.spoof_draft_saved else R.string.spoof_save_failed)) }
+        saved?.let {
+            MaxInfoStrip(text = stringResource(if (it) R.string.spoof_draft_saved else R.string.spoof_save_failed),
+                accent = if (it) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
+        }
         MaxSegmented(options = listOf(stringResource(R.string.identity_overview), stringResource(R.string.spoof_tab_profiles),
             stringResource(R.string.spoof_tab_app), stringResource(R.string.spoof_tab_engine)), selectedIndex = tab, onSelect = { tab = it })
         if (workspace != null) when (tab) {
@@ -78,10 +91,14 @@ fun SpoofStudioScreen(navController: NavController, viewModel: SpoofStudioViewMo
                             subtitle = stringResource(R.string.identity_saved_target), icon = Icons.Rounded.Fingerprint,
                             onClick = { tab = 1 })
                     }
-                    TextButton(enabled = !busy, onClick = { pickingGlobalSample = true }) { Text(stringResource(R.string.sample_pick_button)) }
-                    if (global != null) TextButton(enabled = !busy, onClick = { editing = global }) { Text(stringResource(R.string.spoof_edit)) }
-                    TextButton(enabled = !busy && global != null, onClick = { viewModel.setGlobal(null) }) {
-                        Text(stringResource(R.string.identity_reset_global))
+                    FilledTonalButton(enabled = !busy, onClick = { pickingGlobalSample = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.sample_pick_button))
+                    }
+                    Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
+                        if (global != null) TextButton(enabled = !busy, onClick = { editing = global }) { Text(stringResource(R.string.spoof_edit)) }
+                        TextButton(enabled = !busy && global != null, onClick = { viewModel.setGlobal(null) }) {
+                            Text(stringResource(R.string.identity_reset_global))
+                        }
                     }
                 }
                 MaxSection(title = stringResource(R.string.identity_preview), description = stringResource(R.string.identity_observation_notice)) {
@@ -96,10 +113,18 @@ fun SpoofStudioScreen(navController: NavController, viewModel: SpoofStudioViewMo
                     }
                 }
                 MaxSection(title = stringResource(R.string.identity_assignments)) {
-                    Text(stringResource(R.string.identity_app_count, (workspace.bindings.keys + workspace.appPolicies.keys).size))
-                    (workspace.bindings.keys + workspace.appPolicies.keys).sorted().forEach { app ->
-                        MaxRow(title = app, subtitle = stringResource(modeLabel(workspace.appPolicy(app).mode)),
-                            onClick = { pkg = app; tab = 2 })
+                    Text(stringResource(R.string.identity_app_count, (workspace.bindings.keys + workspace.appPolicies.keys).size),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    MaxGroup {
+                        (workspace.bindings.keys + workspace.appPolicies.keys).sorted().forEachIndexed { index, app ->
+                            if (index > 0) MaxGroupDivider()
+                            val mode = workspace.appPolicy(app).mode
+                            val device = workspace.profiles.firstOrNull { it.id == workspace.bindings[app] }?.name
+                            MaxRow(title = app, subtitle = listOfNotNull(stringResource(modeLabel(mode)), device).joinToString(" · "),
+                                icon = Icons.Rounded.PhoneAndroid,
+                                iconTone = if (device != null) MaxTone.Accent else MaxTone.Neutral,
+                                onClick = { pkg = app; tab = 2 })
+                        }
                     }
                 }
             }
@@ -119,11 +144,14 @@ fun SpoofStudioScreen(navController: NavController, viewModel: SpoofStudioViewMo
                             MaxRow(title = profile.name, subtitle = profile.model, icon = Icons.Rounded.PhoneAndroid,
                                 iconTone = if (profile.id == workspace.globalProfileId) MaxTone.Accent else MaxTone.Neutral,
                                 onClick = { editing = profile })
-                            TextButton(enabled = !busy, onClick = { viewModel.setGlobal(profile.id) }) { Text(stringResource(R.string.identity_use_global)) }
-                            TextButton(enabled = !busy && workspace.profiles.size < 100, onClick = {
-                                editing = profile.copy(id = UUID.randomUUID().toString())
-                            }) { Text(stringResource(R.string.spoof_duplicate_profile)) }
-                            TextButton(enabled = !busy, onClick = { deleting = profile }) { Text(stringResource(R.string.spoof_delete_profile)) }
+                            Row(modifier = Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = MaxSpace.sm),
+                                horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
+                                TextButton(enabled = !busy, onClick = { viewModel.setGlobal(profile.id) }) { Text(stringResource(R.string.identity_use_global)) }
+                                TextButton(enabled = !busy && workspace.profiles.size < 100, onClick = {
+                                    editing = profile.copy(id = UUID.randomUUID().toString())
+                                }) { Text(stringResource(R.string.spoof_duplicate_profile)) }
+                                TextButton(enabled = !busy, onClick = { deleting = profile }) { Text(stringResource(R.string.spoof_delete_profile)) }
+                            }
                         }
                     }
                 }

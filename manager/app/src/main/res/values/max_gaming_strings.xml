@@ -42,7 +42,6 @@
     <string name="game_panel_open_cd">Open the Game Space panel</string>
     <string name="game_panel_collapse_cd">Collapse the panel to its handle</string>
     <string name="game_panel_close_cd">Close the panel and stop the service</string>
-    <string name="game_panel_covers_note">The open panel takes part of the game area. Collapse it to give the game the full screen back.</string>
     <string name="game_panel_no_session">No measurement session recorded.</string>
     <string name="game_panel_stat_samples">Samples</string>
     <string name="game_panel_stat_average">Avg</string>
@@ -53,10 +52,6 @@
     <string name="game_panel_tool_record">Record</string>
     <string name="game_panel_tool_recording">Recording</string>
     <string name="game_panel_tool_session">Session</string>
-    <string name="game_panel_tool_dnd">Do not disturb</string>
-    <string name="game_panel_tool_capture">Screenshot</string>
-    <string name="game_panel_tool_elsewhere">In App Settings</string>
-    <string name="game_panel_tool_soon">Not available yet</string>
     <string name="game_lobby_section">Gaming</string>
     <string name="game_lobby_title">Game lobby</string>
     <string name="game_lobby_scope">Landscape game lobby with the side panel switch</string>
@@ -124,4 +119,20 @@
     <string name="lobby_open_full">Open full per-app settings</string>
     <string name="lobby_manage_title">Manage games</string>
     <string name="lobby_manage_done">Done</string>
+    <string name="game_panel_gauge_fps">FPS</string>
+    <string name="game_panel_gauge_cpu">CPU GHz</string>
+    <string name="game_panel_chip_ram">RAM</string>
+    <string name="game_panel_chip_power">Power</string>
+    <string name="game_panel_chip_heat">Heat</string>
+    <string name="game_panel_chip_renderer">Renderer</string>
+    <string name="game_panel_tool_app">MaxManager</string>
+    <string name="game_panel_tool_rotation">Rotation</string>
+    <string name="game_panel_tool_clean">Clean RAM</string>
+    <string name="game_panel_drawer_cd">Side panel</string>
+    <string name="game_panel_dismiss_hint">Tap an empty area or swipe to close</string>
+    <string name="game_panel_tool_open">Open</string>
+    <string name="game_panel_gauge_gpu">GPU MHz</string>
+    <string name="game_panel_chip_load">CPU load</string>
+    <string name="game_panel_tool_bypass">Bypass charging</string>
+    <string name="game_panel_graph_empty">Waiting for frames…</string>
 </resources>

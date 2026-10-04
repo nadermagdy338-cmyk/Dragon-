@@ -42,7 +42,6 @@
     <string name="game_panel_open_cd">فتح لوحة مساحة الألعاب</string>
     <string name="game_panel_collapse_cd">طيّ اللوحة إلى مقبضها</string>
     <string name="game_panel_close_cd">إغلاق اللوحة وإيقاف الخدمة</string>
-    <string name="game_panel_covers_note">اللوحة المفتوحة تأخذ جزءًا من مساحة اللعبة. اطوها لتُرجع للعبة الشاشة كاملة.</string>
     <string name="game_panel_no_session">لا جلسة قياس مسجّلة.</string>
     <string name="game_panel_stat_samples">العيّنات</string>
     <string name="game_panel_stat_average">المتوسط</string>
@@ -53,10 +52,6 @@
     <string name="game_panel_tool_record">تسجيل</string>
     <string name="game_panel_tool_recording">يُسجّل</string>
     <string name="game_panel_tool_session">الجلسة</string>
-    <string name="game_panel_tool_dnd">عدم الإزعاج</string>
-    <string name="game_panel_tool_capture">لقطة</string>
-    <string name="game_panel_tool_elsewhere">في إعدادات التطبيق</string>
-    <string name="game_panel_tool_soon">غير متاح بعد</string>
     <string name="game_lobby_section">الألعاب</string>
     <string name="game_lobby_title">لوبي الألعاب</string>
     <string name="game_lobby_scope">لوبي ألعاب عرضيّ مع مفتاح اللوحة الجانبية</string>
@@ -124,4 +119,20 @@
     <string name="lobby_open_full">فتح إعدادات التطبيق الكاملة</string>
     <string name="lobby_manage_title">إدارة الألعاب</string>
     <string name="lobby_manage_done">تم</string>
+    <string name="game_panel_gauge_fps">الإطارات</string>
+    <string name="game_panel_gauge_cpu">CPU GHz</string>
+    <string name="game_panel_chip_ram">الذاكرة</string>
+    <string name="game_panel_chip_power">الطاقة</string>
+    <string name="game_panel_chip_heat">الحرارة</string>
+    <string name="game_panel_chip_renderer">الرسوم</string>
+    <string name="game_panel_tool_app">ماكس مانجر</string>
+    <string name="game_panel_tool_rotation">التدوير</string>
+    <string name="game_panel_tool_clean">تنظيف الذاكرة</string>
+    <string name="game_panel_drawer_cd">اللوحة الجانبية</string>
+    <string name="game_panel_dismiss_hint">المس مساحة فارغة أو اسحب للإغلاق</string>
+    <string name="game_panel_tool_open">فتح</string>
+    <string name="game_panel_gauge_gpu">GPU MHz</string>
+    <string name="game_panel_chip_load">حِمل المعالج</string>
+    <string name="game_panel_tool_bypass">تجاوز الشحن</string>
+    <string name="game_panel_graph_empty">بانتظار الإطارات…</string>
 </resources>

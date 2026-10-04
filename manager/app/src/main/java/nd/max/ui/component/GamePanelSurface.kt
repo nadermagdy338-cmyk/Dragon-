@@ -1,102 +1,112 @@
-/*
- * Copyright (C) 2026 Nader Magdy. All rights reserved.
- *
- * MaxManager proprietary source. See LICENSE at the repository root: this file is
- * MaxManager-owned and carries no third-party licence obligations.
- */
-
 package nd.max.ui.component
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.DoNotDisturbOn
+import androidx.compose.material.icons.rounded.FiberManualRecord
 import androidx.compose.material.icons.rounded.Gamepad
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.ScreenshotMonitor
 import androidx.compose.material.icons.rounded.Stop
-import androidx.compose.material.icons.rounded.FiberManualRecord
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.coerceAtMost
+import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.R
 import nd.max.core.gamespace.GamePanelMode
-import nd.max.core.gamespace.GamePanelTile
-import nd.max.core.gamespace.GamePanelTileState
+import nd.max.core.gamespace.BypassState
+import nd.max.core.gamespace.PanelClocks
+import nd.max.core.gamespace.PanelControlState
 import nd.max.core.gamespace.PanelSide
-import nd.max.core.gamespace.gamePanelTileState
-import nd.max.core.platform.HudArrangement
 import nd.max.core.platform.HudField
-import nd.max.core.platform.HudForm
 import nd.max.core.platform.HudReading
 import nd.max.core.platform.HudTally
+import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
 import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxSpace
-import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
+
+private val HANDLE_WIDTH = 22.dp
+private val HANDLE_HEIGHT = 112.dp
+private val PANEL_MAX_WIDTH = 640.dp
+private val PANEL_MAX_HEIGHT = 420.dp
+private val TOOLS_WIDTH = 108.dp
+private val TILE_HEIGHT = 64.dp
+internal val PanelEdge = 1.dp
+private val PanelTouch = 48.dp
+private val RING_MIN = 64.dp
+private val PanelSegment = 40.dp
+private val PanelGraph = 40.dp
+private val FIXED_CHROME = 250.dp
+private const val HEAT_WARN_C = 42f
+private val RING_MAX = 136.dp
+private const val RING_TICKS = 28
+private const val RING_SPAN = 270f
+private const val FPS_REFERENCE_HZ = 120
+
+internal val PanelInk = Color(0xFFF1F3F5)
+internal val PanelMuted = Color(0xFF98A2AA)
+private val PanelTop = Color(0xF2171A1F)
+private val PanelBottom = Color(0xF20B0D10)
+private val PanelTrack = Color(0x33FFFFFF)
+internal val PanelTile = Color(0x14FFFFFF)
+internal val PanelDanger = Color(0xFFFF4D5E)
 
 /**
- * لوحة الألعاب الجانبية — **مقبضٌ حين تُطوى، ولوحةٌ حين تُفتح، ولا شيء غير ذلك**.
- *
- * ### لماذا ليست [HudSurface]
- *
- * `HudSurface` لوحة أرقام **مصقولة** بحسب الشكل المختار (شريط · رقاقة · حلقة · لوح)، ومنطق
- * اللوحة الجانبية ليس شكلًا من أشكالها: لها **مقبض** على الحافة يبقى حين لا شيء يُعرض، وطيّ
- * وفتح، ورأس يعرّف اللعبة. فحشو هذه الحالة في `HudSurface` كان سيُنتج شكلًا خامسًا لا يختاره
- * المستخدم، وهو نفس ما تمنعه طبقة التصميم. وهذه اللوحة **تستعمل [HudSurface] داخلها** حين
- * تُفتح، فمصيِّر الأرقام واحد في الموضعين.
- *
- * ### والوعد الذي تقوله ولا تخفيه
- *
- * المطويّة **مقبضٌ بعرضِ [HANDLE_WIDTH]** على الحافة: لا تغطّي اللعبة. والمفتوحة تأخذ
- * [PANEL_WIDTH] من العرض. والفرق مكتوب في `GameLobbyScreen` صراحةً، فلا يُوعد بوعدٍ يكذّبه
- * أوّل فتح.
- *
- * ### وحدود معلنة
- *
- * المقبض أقلّ من أرضية اللمس (٤٨dp) **على هذا السطح وحده** — نفس سابقة `HudActionSize` في
- * `HudSurface`: اللوحة تسكن فوق لعبة ومساحتها من مساحتها، والمقبض يُفتح بلمسة، والطي متاح من
- * اللوحة نفسها ومن إشعار الخدمة. ولا يُنقل الرقم إلى شاشة داخل التطبيق.
- */
-private val HANDLE_WIDTH = 18.dp
-private val PANEL_WIDTH = 292.dp
-
-/** ألوان السطح: داكنة دائمًا — اللوحة معاينة لنافذة فوق لعبة، فتبييضها في ثيم فاتح كذب. */
-private val PanelInk = Color(0xFFE9EEF2)
-private val PanelMuted = Color(0xFF9AA6AE)
-private val PanelBackdrop = Color(0xE6101317)
-private val PanelDanger = Color(0xFFFF5A5A)
-
-/**
- * @param reading آخر قراءة من القاسم المشترك، و`null` قبل أوّل قراءة (شرطة لا صفر).
- * @param tally نتيجة الجلسة المسجَّلة — `null` يعني «لا جلسة»، لا «جلسة بصفر».
- * @param side الحافة التي تلتصق بها — تقلب المقبض وتقلب اتجاه السهم.
+ * لوحة اللعبة: مقبض صغير مطويّ، ولوحة قيادة مفتوحة (حلقتا إطارات/معالج + قياسات + ثلاث أدوات
+ * تعمل فعلًا). كل رقم من `HudSampler` الحقيقي، ولا أداة لا تعمل (لا لقطة، لا DND وهميّ).
+ * المحتوى LTR دائمًا لأن الموضع فيزيائي (`PanelSide`) لا يتبع اتجاه اللغة.
  */
 @Composable
 fun GamePanelSurface(
@@ -109,59 +119,79 @@ fun GamePanelSurface(
     side: PanelSide,
     recording: Boolean,
     refreshRateHz: Int?,
+    clocks: PanelClocks,
+    controls: PanelControlState,
+    frames: List<Float>,
     onOpen: () -> Unit,
     onCollapse: () -> Unit,
     onClose: () -> Unit,
     onCycleRefresh: () -> Unit,
     onToggleRecording: () -> Unit,
-    onOpenControls: () -> Unit
+    onOpenControls: () -> Unit,
+    onSelectProfile: (String) -> Unit,
+    onToggleBypass: () -> Unit
 ) {
-    when (mode) {
-        GamePanelMode.Hidden -> Unit
-        GamePanelMode.Handle -> GamePanelHandle(side = side, gameLabel = gameLabel, onOpen = onOpen)
-        GamePanelMode.Open -> GamePanelBody(
-            gameLabel = gameLabel,
-            reading = reading,
-            tally = tally,
-            fields = fields,
-            accent = accent,
-            side = side,
-            recording = recording,
-            refreshRateHz = refreshRateHz,
-            onCollapse = onCollapse,
-            onClose = onClose,
-            onCycleRefresh = onCycleRefresh,
-            onToggleRecording = onToggleRecording,
-            onOpenControls = onOpenControls
-        )
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        when (mode) {
+            GamePanelMode.Hidden -> Unit
+            GamePanelMode.Handle -> GamePanelHandle(
+                side = side,
+                gameLabel = gameLabel,
+                accent = if ((reading?.heat ?: 0f) >= HEAT_WARN_C) PanelDanger else accent,
+                onOpen = onOpen
+            )
+            GamePanelMode.Open -> GamePanelCockpit(
+                gameLabel = gameLabel,
+                reading = reading,
+                tally = tally,
+                fields = fields,
+                accent = accent,
+                side = side,
+                recording = recording,
+                refreshRateHz = refreshRateHz,
+                clocks = clocks,
+                controls = controls,
+                frames = frames,
+                onCollapse = onCollapse,
+                onClose = onClose,
+                onCycleRefresh = onCycleRefresh,
+                onToggleRecording = onToggleRecording,
+                onOpenControls = onOpenControls,
+                onSelectProfile = onSelectProfile,
+                onToggleBypass = onToggleBypass
+            )
+        }
     }
 }
 
-/**
- * المقبض: شريط رقيق ملتصق بالحافة، عليه سهم يفتح وأيقونة لعبة.
- *
- * **وهو قابل للفتح بلمسة واحدة** لأنّه `clickable` بدور `Button`، ونصّه الصوتيّ يقول ما سيحدث
- * لا ما هو مرسوم («فتح لوحة الألعاب») ومعه اسم اللعبة — وهو الفرق بين رمز يُقرأ عشوائيًّا
- * وإجراء يُفهم. **ولا نصّ مرئيّ فيه:** عمود بعرض ١٨dp لا يحمل كلمة إلّا مقصوصة.
- */
+/** زوايا مستديرة من جهة الداخل فقط؛ الحافّة الملاصقة للشاشة مستقيمة. */
+private fun panelShape(side: PanelSide, radius: Dp) = if (side == PanelSide.End) {
+    AbsoluteRoundedCornerShape(topLeft = radius, bottomLeft = radius, topRight = 0.dp, bottomRight = 0.dp)
+} else {
+    AbsoluteRoundedCornerShape(topLeft = 0.dp, bottomLeft = 0.dp, topRight = radius, bottomRight = radius)
+}
+
 @Composable
-private fun GamePanelHandle(side: PanelSide, gameLabel: String, onOpen: () -> Unit) {
+private fun GamePanelHandle(side: PanelSide, gameLabel: String, accent: Color, onOpen: () -> Unit) {
     val openLabel = stringResource(R.string.game_panel_open_cd)
+    val shape = panelShape(side, MaxRadius.control)
     Column(
         modifier = Modifier
             .width(HANDLE_WIDTH)
-            .height(120.dp)
-            .background(PanelBackdrop, RoundedCornerShape(MaxRadius.chip))
+            .height(HANDLE_HEIGHT)
+            .background(Brush.verticalGradient(listOf(PanelTop, PanelBottom)), shape)
+            .border(PanelEdge, accent.copy(alpha = 0.55f), shape)
+            .clip(shape)
             .clickable(role = Role.Button, onClick = onOpen)
             .semantics { contentDescription = "$openLabel · $gameLabel" }
-            .padding(vertical = MaxSpace.xs),
+            .padding(vertical = MaxSpace.sm),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Icon(
             imageVector = if (side == PanelSide.End) Icons.Rounded.ChevronLeft else Icons.Rounded.ChevronRight,
             contentDescription = null,
-            tint = PanelInk,
+            tint = accent,
             modifier = Modifier.size(MaxSpace.lg)
         )
         Icon(
@@ -173,101 +203,104 @@ private fun GamePanelHandle(side: PanelSide, gameLabel: String, onOpen: () -> Un
     }
 }
 
-/**
- * اللوحة المفتوحة: رأس فيه اسم اللعبة وزرّا الطيّ والإغلاق، ثم سطح الأرقام القائم، ثم الجلسة.
- *
- * **والطيّ والإغلاق مفصولان** كما في `HudActions` بالحرف: الأوّل يعيد إلى المقبض، والثاني
- * يُنزل الإشعار ويُنهي الخدمة. وزرّ واحد اسمه «إغلاق» ويُخفي هو ما يجعل المستخدم يظنّ التراكب
- * انتهى وهو يعمل.
- */
+/** اسم اللعبة المقروء بدل اسم الحزمة؛ إن لم يُقرأ يبقى اسم الحزمة. */
 @Composable
-private fun GamePanelBody(
-    gameLabel: String,
-    reading: HudReading?,
-    tally: HudTally?,
-    fields: List<HudField>,
-    accent: Color,
-    side: PanelSide,
-    recording: Boolean,
-    refreshRateHz: Int?,
-    onCollapse: () -> Unit,
-    onClose: () -> Unit,
-    onCycleRefresh: () -> Unit,
-    onToggleRecording: () -> Unit,
-    onOpenControls: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .widthIn(max = PANEL_WIDTH)
-            .background(PanelBackdrop, RoundedCornerShape(MaxRadius.group))
-            .padding(MaxSpace.md),
-        verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
-            Icon(
-                imageVector = Icons.Rounded.Gamepad,
-                contentDescription = null,
-                tint = accent,
-                modifier = Modifier.size(MaxSpace.lg)
-            )
-            Text(
-                text = gameLabel,
-                color = PanelInk,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            PanelButton(
-                icon = if (side == PanelSide.End) Icons.Rounded.ChevronRight else Icons.Rounded.ChevronLeft,
-                description = stringResource(R.string.game_panel_collapse_cd),
-                onClick = onCollapse
-            )
-            PanelButton(
-                icon = Icons.Rounded.Close,
-                description = stringResource(R.string.game_panel_close_cd),
-                tint = PanelDanger,
-                onClick = onClose
-            )
-        }
-        HorizontalDivider(color = PanelMuted.copy(alpha = 0.25f))
-        // مصيِّر الأرقام واحد: نفس ما يُعرض في التراكب العائم وفي المعاينة داخل الشاشة.
-        HudSurface(
-            form = HudForm.Badge,
-            arrangement = HudArrangement.Stack,
-            reading = reading,
-            fields = fields,
-            accent = accent,
-            textSizeSp = 14f,
-            backgroundAlpha = 0.85f,
-            framesHistory = emptyList(),
-            showGraph = false,
-            recording = recording
+internal fun rememberGameTitle(packageName: String): String {
+    val context = LocalContext.current
+    return remember(packageName) {
+        @Suppress("DEPRECATION")
+        runCatching {
+            val pm = context.packageManager
+            pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)).toString()
+        }.getOrNull()?.takeIf { it.isNotBlank() } ?: packageName
+    }
+}
+
+@Composable
+internal fun PanelHeader(title: String, accent: Color, side: PanelSide, onCollapse: () -> Unit, onClose: () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
+        Icon(
+            imageVector = Icons.Rounded.Gamepad,
+            contentDescription = null,
+            tint = accent,
+            modifier = Modifier.size(MaxSpace.xl)
         )
-        GamePanelTools(
-            refreshRateHz = refreshRateHz,
-            recording = recording,
-            onCycleRefresh = onCycleRefresh,
-            onToggleRecording = onToggleRecording,
-            onOpenControls = onOpenControls
-        )
-        GamePanelSession(tally = tally)
         Text(
-            text = stringResource(R.string.game_panel_covers_note),
-            color = PanelMuted,
-            fontSize = 9.sp
+            text = title,
+            color = PanelInk,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
+        )
+        PanelButton(
+            icon = if (side == PanelSide.End) Icons.Rounded.ChevronRight else Icons.Rounded.ChevronLeft,
+            description = stringResource(R.string.game_panel_collapse_cd),
+            onClick = onCollapse
+        )
+        PanelButton(
+            icon = Icons.Rounded.Close,
+            description = stringResource(R.string.game_panel_close_cd),
+            tint = PanelDanger,
+            onClick = onClose
         )
     }
 }
 
-/**
- * سطر الجلسة: ما قِيس فعلًا، وما سقط بالسقف.
- *
- * **والأرقام الغائبة شرطة لا صفرًا** — `HudTally` يحمل `null` لما لم يُقَس (متوسّط بلا عيّنات
- * ليس صفرًا)، وتحويلها إلى `0` كان سيقول «قِسناه فكان صفرًا».
- */
+/** قياسات ثانوية بحسب الحقول التي اختارها المستخدم في طبقة FPS؛ كل واحدة من قراءة فعلية. */
 @Composable
-private fun GamePanelSession(tally: HudTally?) {
+internal fun PanelReadings(reading: HudReading?, fields: List<HudField>) {
+    val items = buildList {
+        if (HudField.Cpu in fields) {
+            add(stringResource(R.string.game_panel_chip_load) to (reading?.cpu?.let { "$it%" } ?: MAX_VALUE_UNAVAILABLE))
+        }
+        if (HudField.Ram in fields) {
+            add(stringResource(R.string.game_panel_chip_ram) to (reading?.ramMb?.let(::ramText) ?: MAX_VALUE_UNAVAILABLE))
+        }
+        if (HudField.Power in fields) {
+            add(stringResource(R.string.game_panel_chip_power) to (reading?.watt?.let { "%.1f W".format(it) } ?: MAX_VALUE_UNAVAILABLE))
+        }
+        if (HudField.Heat in fields) {
+            add(stringResource(R.string.game_panel_chip_heat) to (reading?.heat?.let { "%.0f°C".format(it) } ?: MAX_VALUE_UNAVAILABLE))
+        }
+        if (HudField.Renderer in fields) {
+            add(stringResource(R.string.game_panel_chip_renderer) to (reading?.renderer ?: MAX_VALUE_UNAVAILABLE))
+        }
+    }
+    if (items.isEmpty()) return
+    Row(horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
+        items.forEach { (label, value) ->
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(PanelTile, RoundedCornerShape(MaxRadius.control))
+                    .padding(vertical = MaxSpace.xs, horizontal = MaxSpace.sm),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = label, color = PanelMuted, fontSize = 9.sp, maxLines = 1)
+                Text(
+                    text = value,
+                    color = PanelInk,
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+internal fun fraction(now: Int?, ceiling: Int?): Float? =
+    if (now == null || ceiling == null || ceiling <= 0) null else (now.toFloat() / ceiling).coerceIn(0f, 1f)
+
+private fun ramText(mb: Int): String = if (mb >= 1024) "%.1f GB".format(mb / 1024f) else "$mb MB"
+
+@Composable
+internal fun GamePanelSession(tally: HudTally?) {
     if (tally == null || tally.isEmpty) {
         Text(text = stringResource(R.string.game_panel_no_session), color = PanelMuted, fontSize = 10.sp)
         return
@@ -278,117 +311,8 @@ private fun GamePanelSession(tally: HudTally?) {
         PanelStat(stringResource(R.string.game_panel_stat_low), tally.framesLow?.let { "%.0f".format(it) } ?: MAX_VALUE_UNAVAILABLE)
         PanelStat(stringResource(R.string.game_panel_stat_heat), tally.heatPeak?.let { "%.0f°C".format(it) } ?: MAX_VALUE_UNAVAILABLE)
     }
-    // ما سقط بالسقف **يُقال** ولا يُسكَت عنه، وإلّا قُرئ المدى بدايةَ الجلسة.
     if (tally.droppedSamples > 0) {
-        Text(
-            text = stringResource(R.string.game_panel_dropped, tally.droppedSamples),
-            color = PanelMuted,
-            fontSize = 9.sp
-        )
-    }
-}
-
-/**
- * أدوات اللوحة: معدّل التحديث · تسجيل · عدم الإزعاج · لقطة.
- *
- * **وكل زرّ يذهب إلى مالكه:** معدّل التحديث يُرسَل إلى `RefreshRateReceiver` (مالكه القائم، وهو
- * الذي يكتب ذرّيًّا بقراءة نهائية)، والتسجيل إلى `HudRecorder`، وعدم الإزعاج **يُعلن أن مالكه
- * في `App Settings`** ويقود إليها بدل أن يكتب `zen_mode` عالميًّا من هنا، واللقطة **تُعلن أنها
- * غير متاحة بعد**. ولا سطر كتابة عتاد في هذه الواجهة (ADR-11).
- */
-@Composable
-private fun GamePanelTools(
-    refreshRateHz: Int?,
-    recording: Boolean,
-    onCycleRefresh: () -> Unit,
-    onToggleRecording: () -> Unit,
-    onOpenControls: () -> Unit
-) {
-    val refreshState = gamePanelTileState(GamePanelTile.RefreshRate)
-    val dndState = gamePanelTileState(GamePanelTile.DoNotDisturb)
-    val captureState = gamePanelTileState(GamePanelTile.Capture)
-    Row(horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
-        PanelTile(
-            icon = Icons.Rounded.Refresh,
-            // الرقم هو ما **فرضناه**، والشرطة حين لا فرض — لا «٦٠» كذبًا.
-            value = refreshRateHz?.toString() ?: MAX_VALUE_UNAVAILABLE,
-            label = stringResource(R.string.game_panel_tool_refresh),
-            state = refreshState,
-            enabled = true,
-            onClick = onCycleRefresh
-        )
-        PanelTile(
-            icon = if (recording) Icons.Rounded.Stop else Icons.Rounded.FiberManualRecord,
-            value = stringResource(if (recording) R.string.game_panel_tool_recording else R.string.game_panel_tool_record),
-            label = stringResource(R.string.game_panel_tool_session),
-            state = gamePanelTileState(GamePanelTile.RecordSession),
-            enabled = true,
-            tint = if (recording) PanelDanger else PanelInk,
-            onClick = onToggleRecording
-        )
-        PanelTile(
-            icon = Icons.Rounded.DoNotDisturbOn,
-            value = stringResource(R.string.game_panel_tool_elsewhere),
-            label = stringResource(R.string.game_panel_tool_dnd),
-            state = dndState,
-            enabled = true,
-            onClick = onOpenControls
-        )
-        PanelTile(
-            icon = Icons.Rounded.ScreenshotMonitor,
-            value = stringResource(R.string.game_panel_tool_soon),
-            label = stringResource(R.string.game_panel_tool_capture),
-            state = captureState,
-            enabled = false,
-            onClick = {}
-        )
-    }
-}
-
-/**
- * زرّ أداة واحد: أيقونة وسطر حالة.
- *
- * **والحالة تقول سببها:** `ControlledElsewhere` تعني «يعمل من `App Settings`»، و`NotAvailableYet`
- * تعني «لم يُنفَّذ بعد» — فلا زرّ صامت يُقرأ معطوبًا، ولا زرّ يدّعي عملًا لم يقع (ADR-08).
- */
-@Composable
-private fun PanelTile(
-    icon: ImageVector,
-    value: String,
-    label: String,
-    state: GamePanelTileState,
-    enabled: Boolean,
-    onClick: () -> Unit,
-    tint: Color = PanelInk
-) {
-    val spoken = when (state) {
-        GamePanelTileState.Ready -> label
-        GamePanelTileState.ControlledElsewhere -> "$label · ${stringResource(R.string.game_panel_tool_elsewhere)}"
-        GamePanelTileState.NotAvailableYet -> "$label · ${stringResource(R.string.game_panel_tool_soon)}"
-    }
-    Column(
-        modifier = Modifier
-            .width(64.dp)
-            .clickable(role = Role.Button, enabled = enabled, onClick = onClick)
-            .semantics { contentDescription = spoken }
-            .padding(vertical = MaxSpace.xs),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = if (enabled) tint else PanelMuted,
-            modifier = Modifier.size(MaxSpace.lg)
-        )
-        Text(
-            text = value,
-            color = if (enabled) PanelInk else PanelMuted,
-            fontSize = 10.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(text = label, color = PanelMuted, fontSize = 8.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text = stringResource(R.string.game_panel_dropped, tally.droppedSamples), color = PanelMuted, fontSize = 9.sp)
     }
 }
 
@@ -408,19 +332,97 @@ private fun PanelStat(label: String, value: String) {
 }
 
 @Composable
-private fun PanelButton(
-    icon: ImageVector,
-    description: String,
-    onClick: () -> Unit,
-    tint: Color = PanelInk
-) {
+internal fun PanelButton(icon: ImageVector, description: String, onClick: () -> Unit, tint: Color = PanelInk) {
     Box(
         modifier = Modifier
-            .size(32.dp)
+            .size(PanelTouch)
             .clickable(role = Role.Button, onClick = onClick)
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center
     ) {
-        Icon(imageVector = icon, contentDescription = null, tint = tint, modifier = Modifier.size(MaxSpace.lg))
+        Icon(imageVector = icon, contentDescription = null, tint = tint, modifier = Modifier.size(MaxSpace.xl))
+    }
+}
+
+/** ثلاثة أوضاع أداء بنقرة؛ في وضع الذكاء تُعرض الشارة فقط لأن الذكاء هو المالك. */
+@Composable
+internal fun ProfileStrip(selected: String?, auto: Boolean, accent: Color, onSelect: (String) -> Unit) {
+    val shape = RoundedCornerShape(MaxRadius.control)
+    val modes = listOf(
+        "1" to R.string.profile_performance,
+        "2" to R.string.profile_balanced,
+        "3" to R.string.profile_powersave
+    )
+    Row(
+        modifier = Modifier.fillMaxWidth().background(PanelTile, shape).padding(MaxSpace.hairline),
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.hairline)
+    ) {
+        if (auto) {
+            Box(Modifier.weight(1f).height(PanelSegment), contentAlignment = Alignment.Center) {
+                Text(text = stringResource(R.string.str_auto_mode), color = accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+            return@Row
+        }
+        modes.forEach { (id, label) ->
+            val on = id == selected
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(PanelSegment)
+                    .clip(shape)
+                    .background(if (on) accent.copy(alpha = 0.28f) else Color.Transparent, shape)
+                    .clickable(role = Role.RadioButton, enabled = !on) { onSelect(id) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(label),
+                    color = if (on) PanelInk else PanelMuted,
+                    fontSize = 11.sp,
+                    fontWeight = if (on) FontWeight.Bold else FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+/** منحنى الإطارات الحيّ من تاريخ `HudSampler`؛ أقل من نقطتين ⇒ انتظار، لا خط مرسوم من العدم. */
+@Composable
+internal fun FrameGraph(history: List<Float>, accent: Color) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(PanelGraph)
+            .background(PanelTile, RoundedCornerShape(MaxRadius.control))
+            .padding(MaxSpace.xs),
+        contentAlignment = Alignment.Center
+    ) {
+        if (history.size < 2) {
+            Text(text = stringResource(R.string.game_panel_graph_empty), color = PanelMuted, fontSize = 10.sp)
+            return@Box
+        }
+        Canvas(Modifier.fillMaxSize()) {
+            val top = maxOf(history.max(), 30f) * 1.1f
+            val dx = this.size.width / (history.size - 1)
+            val line = Path()
+            val fill = Path()
+            history.forEachIndexed { i, v ->
+                val x = i * dx
+                val y = this.size.height * (1f - (v / top).coerceIn(0f, 1f))
+                if (i == 0) {
+                    line.moveTo(x, y)
+                    fill.moveTo(x, this.size.height)
+                    fill.lineTo(x, y)
+                } else {
+                    line.lineTo(x, y)
+                    fill.lineTo(x, y)
+                }
+            }
+            fill.lineTo(this.size.width, this.size.height)
+            fill.close()
+            drawPath(fill, Brush.verticalGradient(listOf(accent.copy(alpha = 0.35f), Color.Transparent)))
+            drawPath(line, accent, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round))
+        }
     }
 }

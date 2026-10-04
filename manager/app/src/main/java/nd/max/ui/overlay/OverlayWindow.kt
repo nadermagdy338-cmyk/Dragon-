@@ -161,6 +161,30 @@ class OverlayWindow(
         refresh()
     }
 
+
+    /**
+     * وضع ملء الشاشة للوحة المفتوحة: نافذة MATCH_PARENT تمتدّ تحت القصّة (cutout) وشرائط النظام،
+     * وتعود إلى WRAP_CONTENT للمقبض. لا يُستدعى إلا على الخيط الرئيسي بعد `mount`.
+     */
+    fun setFullScreen(on: Boolean) {
+        val size = if (on) WindowManager.LayoutParams.MATCH_PARENT else WindowManager.LayoutParams.WRAP_CONTENT
+        params.width = size
+        params.height = size
+        if (on) {
+            params.x = 0
+            params.y = 0
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        } else {
+            params.flags = params.flags and WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN.inv()
+        }
+        refresh()
+    }
+
     /** مقاس الشاشة الحقيقي — يُقرأ للحساب لا للتخزين. */
     fun screenBounds(): Pair<Int, Int> = bounds()
 

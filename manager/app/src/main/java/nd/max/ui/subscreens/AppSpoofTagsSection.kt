@@ -25,11 +25,11 @@ import nd.max.R
 import nd.max.core.spoof.AppSpoofProfile
 import nd.max.core.spoof.CopgTag
 import nd.max.core.spoof.CopgTier
-import nd.max.ui.design.MaxGroup
+import nd.max.ui.component.MaxInfoStrip
+import nd.max.ui.design.MaxCollapsibleGroup
 import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxRow
 import nd.max.ui.design.MaxSection
-import nd.max.ui.design.MaxTone
 import nd.max.ui.viewmodel.SpoofStudioViewModel
 
 /** صفّ واحد من خيارات COPG: المفتاح، العنوان، الأيقونة، ومُنشئ الوسم (قيمة اختيارية). */
@@ -75,12 +75,25 @@ private val ENTRIES: List<TagEntry> = listOf(
     valued("ua", R.string.copg_tag_ua, Icons.Rounded.Wifi) { CopgTag.UserAgent(it) },
 )
 
+private class TagGroup(val titleRes: Int, val keys: List<String>)
+
+/** خمس مجموعات بدل قائمة مسطّحة من 24 صفًّا: الراحة ثم الخصوصية ثم العتاد ثم المعرّفات ثم الشبكة. */
+private val GROUPS: List<TagGroup> = listOf(
+    TagGroup(R.string.copg_group_comfort, listOf("dnd", "dab", "kso", "nolog", "dpi")),
+    TagGroup(R.string.copg_group_privacy, listOf("vpn", "vpns", "hidedev", "mock")),
+    TagGroup(R.string.copg_group_hardware, listOf("cpu", "blocked", "gpu", "cow")),
+    TagGroup(R.string.copg_group_ids, listOf("serial", "aid", "gaid", "appset", "imei", "drm")),
+    TagGroup(R.string.copg_group_network, listOf("tz", "lang", "sim", "simx", "ua")),
+)
+
 /**
  * خيارات COPG لتطبيق — **الغرفة المشتركة**: يرسمها `AppSpoofSection` نفسه، فيراها المستخدم بلا فرق من
- * استوديو التزييف أو من إعدادات التطبيق، وكلاهما يكتب عبر `SpoofStudioViewModel.setTag` (مصدر واحد).
+ * استوديو التزييف أو من تبويب «تزييف» في إعدادات التطبيق، وكلاهما يكتب عبر `SpoofStudioViewModel.setTag`.
  *
- * - **كل صفّ يقول الحقيقة:** `PRO` عند COPG (نكتب الوسم والمحرّك وحده يقرّر الترخيص)، و«مقيم» للوسوم
- *   التي تبقى في ذاكرة التطبيق — وهذه لا تُفعَّل قبل إقرار المخاطر المسجَّل لهذا التطبيق.
+ * - **مطوية افتراضيًّا:** كل مجموعة تقول في سطر حالتها كم خيارًا فعّلت، فلا يحتاج المستخدم فتحها ليعرف.
+ *   والمجموعة التي فيها خيار مفعّل تُفتح من البداية.
+ * - **كل صفّ يقول الحقيقة:** `PRO` عند COPG (نكتب الوسم والمحرّك وحده يقرّر الترخيص)، و«يبقى في ذاكرة
+ *   التطبيق» للوسوم المقيمة — وهذه لا تُفعَّل قبل إقرار المخاطر المسجَّل لهذا التطبيق.
  * - **لا ادّعاء أثر:** الحفظ نيّة، والكتابة إلى المحرّك تمرّ بالمعاملة المعتادة ثم قراءة بعد الكتابة.
  */
 @Composable
@@ -94,39 +107,47 @@ internal fun AppSpoofTagsSection(
 ) {
     var editing by remember(packageName) { mutableStateOf<TagEntry?>(null) }
     val proLabel = stringResource(R.string.copg_tier_pro)
-    val residentLabel = stringResource(R.string.copg_footprint_resident)
+    val residentLabel = stringResource(R.string.copg_res_short)
     val needAck = stringResource(R.string.copg_need_ack)
-    MaxSection(title = stringResource(R.string.copg_tags_title), description = stringResource(R.string.copg_tags_desc)) {
-        if (!hasDevice) Text(stringResource(R.string.copg_tag_needs_device))
-        MaxGroup {
-            ENTRIES.forEachIndexed { index, entry ->
-                if (index > 0) MaxGroupDivider()
-                val current = policy.tags.firstOrNull { it.substringBefore('=') == entry.key }
-                val on = current != null
-                val sample = entry.make(if (entry.valued) "x" else null)
-                val resident = sample?.riskyForAntiCheat == true
-                val blockedByRisk = resident && !acknowledged && !on
-                val subtitle = listOfNotNull(
-                    current?.substringAfter('=', "")?.takeIf { it.isNotEmpty() },
-                    proLabel.takeIf { sample?.tier == CopgTier.PRO },
-                    residentLabel.takeIf { resident },
-                    needAck.takeIf { blockedByRisk },
-                ).joinToString(" · ").ifEmpty { null }
-                MaxRow(
-                    title = stringResource(entry.titleRes),
-                    subtitle = subtitle,
-                    icon = entry.icon,
-                    iconTone = if (on) MaxTone.Accent else MaxTone.Neutral,
-                    enabled = !busy && !blockedByRisk,
-                    onClick = {
-                        when {
-                            on && !entry.valued -> toggle(viewModel, packageName, entry, null, false)
-                            entry.valued -> editing = entry
-                            else -> toggle(viewModel, packageName, entry, null, true)
-                        }
-                    },
-                    trailing = { Switch(checked = on, onCheckedChange = null, enabled = !busy && !blockedByRisk) },
-                )
+    val byKey = remember { ENTRIES.associateBy { it.key } }
+    MaxSection(title = stringResource(R.string.copg_tags_title_short), description = stringResource(R.string.copg_tags_desc_short)) {
+        if (!hasDevice) MaxInfoStrip(text = stringResource(R.string.copg_tag_needs_device))
+        GROUPS.forEach { group ->
+            val entries = group.keys.mapNotNull(byKey::get)
+            val enabledCount = entries.count { e -> policy.tags.any { it.substringBefore('=') == e.key } }
+            MaxCollapsibleGroup(
+                title = stringResource(group.titleRes),
+                summary = if (enabledCount == 0) stringResource(R.string.copg_group_none)
+                else stringResource(R.string.copg_group_n, enabledCount),
+                initiallyExpanded = enabledCount > 0,
+            ) {
+                entries.forEachIndexed { index, entry ->
+                    if (index > 0) MaxGroupDivider()
+                    val current = policy.tags.firstOrNull { it.substringBefore('=') == entry.key }
+                    val on = current != null
+                    val sample = entry.make(if (entry.valued) "x" else null)
+                    val resident = sample?.riskyForAntiCheat == true
+                    val blockedByRisk = resident && !acknowledged && !on
+                    val subtitle = listOfNotNull(
+                        current?.substringAfter('=', "")?.takeIf { it.isNotEmpty() },
+                        proLabel.takeIf { sample?.tier == CopgTier.PRO },
+                        residentLabel.takeIf { resident },
+                        needAck.takeIf { blockedByRisk },
+                    ).joinToString(" · ").ifEmpty { null }
+                    MaxRow(
+                        title = stringResource(entry.titleRes),
+                        subtitle = subtitle,
+                        enabled = !busy && !blockedByRisk,
+                        onClick = {
+                            when {
+                                on && !entry.valued -> toggle(viewModel, packageName, entry, null, false)
+                                entry.valued -> editing = entry
+                                else -> toggle(viewModel, packageName, entry, null, true)
+                            }
+                        },
+                        trailing = { Switch(checked = on, onCheckedChange = null, enabled = !busy && !blockedByRisk) },
+                    )
+                }
             }
         }
     }

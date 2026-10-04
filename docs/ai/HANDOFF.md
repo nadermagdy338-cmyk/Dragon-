@@ -19745,3 +19745,7 @@ VERIFY: بوابات خفيفة نظيفة؛ CopgTag.kt مُترجَم ومُش�
 ### Executor log — SPOOF-SAMPLE-DEVICE-PICKER-01 (2026-10-04)
 FILES: جديد `core/spoof/SampleDevice.kt`, `SpoofDeviceCatalog.kt`, `ui/subscreens/SampleDevicePickerDialog.kt`, `assets/spoof/device_catalog.json` + `.LICENSE.txt`, `res/values{,-ar}/max_sample_device_strings.xml`, `SpoofDeviceCatalogTest`؛ معدَّل `SpoofProfile` (manufacturer + P بتسعة حقول)، `SpoofCopgContract` (MANUFACTURER)، `SpoofStudioViewModel.applySample`، `AppSpoofSection`، `SpoofStudioScreen`، `THIRD_PARTY_NOTICES.md`.
 VERIFY: بوابات خفيفة نظيفة؛ النموذج/codec/البحث مُشغَّلة بمصرِّف 2.3.10؛ المحلّل (kotlinx) والواجهة وJUnit غير مُترجَمة.
+
+### Executor log — SPOOF-UI-REDESIGN-01 (2026-10-04)
+FILES: معدَّل `AppSettingsScreen` (تبويب SPOOF_TAB=2 خارج بوابة Max)، `AppSpoofSection` (إعادة ترتيب)، `AppSpoofTagsSection` (5 مجموعات مطوية)، `SpoofStudioScreen`؛ جديد `res/values{,-ar}/max_spoof_ui_strings.xml`.
+VERIFY: بوابات خفيفة نظيفة؛ مراجع الموارد سليمة؛ Compose غير مُترجَم ولم يُعاين على جهاز.

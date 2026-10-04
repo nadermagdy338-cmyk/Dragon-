@@ -25,6 +25,11 @@ import kotlinx.coroutines.withContext
 import nd.max.R
 import nd.max.core.gamespace.GameLibraryAccess
 import nd.max.core.gamespace.GamePanelMode
+import nd.max.core.gamespace.BypassState
+import nd.max.core.gamespace.PanelClockReader
+import nd.max.core.gamespace.PanelControlState
+import nd.max.core.gamespace.PanelControls
+import nd.max.core.gamespace.PanelClocks
 import nd.max.core.gamespace.GamePanelState
 import nd.max.core.gamespace.PanelSide
 import nd.max.core.gamespace.PanelSubject
@@ -125,6 +130,8 @@ class GamePanelService : LifecycleService() {
 
     /** آخر معدّل تحديث فرضناه من اللوحة — يُعرض كما هو، و`null` يعني «بلا فرض». */
     private var refreshRateHz: Int? = null
+    private var clocks by mutableStateOf(PanelClocks())
+    private var controls by mutableStateOf(PanelControlState())
 
     override fun onCreate() {
         super.onCreate()
@@ -210,6 +217,10 @@ class GamePanelService : LifecycleService() {
                 enabled = subject is PanelSubject.Tracked && subject.packageName in prefs.enabledPackages,
                 openByUser = open
             ).copy(side = prefs.side)
+            if (state.mode == GamePanelMode.Open) {
+                clocks = withContext(Dispatchers.IO) { runCatching { PanelClockReader.read() }.getOrDefault(PanelClocks()) }
+                controls = withContext(Dispatchers.IO) { runCatching { PanelControls.read() }.getOrDefault(controls) }
+            }
             placeWindow()
 
             // اللوحة تُفتح **تلقائيًّا** عند دخول لعبة مُفعَّلة من أيّ طريق (حتى من مشغّل خارجي)،
@@ -246,6 +257,20 @@ class GamePanelService : LifecycleService() {
     }
 
     /** تسجيل الجلسة: الحائز القائم `HudRecorder` — لا سجلّ ثانٍ ولا ملفّ جديد. */
+    private fun selectProfile(id: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            PanelControls.applyProfile(id)
+            controls = PanelControls.read()
+        }
+    }
+
+    private fun toggleBypass() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            PanelControls.setBypass(controls.bypass != BypassState.On)
+            controls = PanelControls.read()
+        }
+    }
+
     private fun toggleRecording() {
         if (HudRecorder.isLive) HudRecorder.stop() else HudRecorder.start()
     }
@@ -257,6 +282,12 @@ class GamePanelService : LifecycleService() {
      * واحد مرئيّ عند الإقلاع لا انزياح دائم.
      */
     private fun placeWindow() {
+        // الوضع المفتوح ملء الشاشة: لا موضع جانبيّ يُحسب له.
+        if (state.mode == GamePanelMode.Open) {
+            window.setFullScreen(true)
+            return
+        }
+        window.setFullScreen(false)
         val (screenWidth, screenHeight) = window.screenBounds()
         val content = window.contentSize() ?: return
         val side = state.side
@@ -303,12 +334,25 @@ class GamePanelService : LifecycleService() {
             side = state.side,
             recording = HudRecorder.isLive,
             refreshRateHz = refreshRateHz,
-            onOpen = { state = state.copy(mode = GamePanelMode.Open, openByUser = true) },
-            onCollapse = { state = state.copy(mode = GamePanelMode.Handle, openByUser = false) },
+            clocks = clocks,
+            controls = controls,
+            frames = snapshot.framesHistory,
+            onOpen = {
+                state = state.copy(mode = GamePanelMode.Open, openByUser = true)
+                window.setFullScreen(true)
+            },
+            onCollapse = {
+                state = state.copy(mode = GamePanelMode.Handle, openByUser = false)
+                window.setFullScreen(false)
+                // بعد قياس المقبض الجديد لا القديم، فيُوضع على الحافة فورًا لا بعد الاستطلاع التالي.
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ placeWindow() }, 80L)
+            },
             onClose = { stopSelf() },
             onCycleRefresh = { cycleRefreshRate() },
             onToggleRecording = { toggleRecording() },
-            onOpenControls = { openAppSettings() }
+            onOpenControls = { openAppSettings() },
+            onSelectProfile = { id -> selectProfile(id) },
+            onToggleBypass = { toggleBypass() }
         )
     }
 }

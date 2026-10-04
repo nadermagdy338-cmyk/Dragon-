@@ -155,6 +155,10 @@ fun AppSettingsScreen(
             badgeCount = cfgForTabs.displayCustomizedCount(isGameApp)
         ),
         MaxTab(
+            label = stringResource(R.string.app_tab_spoof),
+            icon = Icons.Filled.Fingerprint
+        ),
+        MaxTab(
             label = stringResource(R.string.app_tab_gaming),
             icon = Icons.Filled.Gamepad,
             badgeCount = cfgForTabs.gamingCustomizedCount()
@@ -255,35 +259,52 @@ fun AppSettingsScreen(
 
                 // ── مُزالة من المحتوى: AppOps صار زرًّا في شريط العنوان ──────────────────────────────
 
-                // Identity policy is independent of the performance master switch and uses the shared repository.
-                packageName?.takeIf(nd.max.core.spoof.SpoofWorkspace::validPackage)?.let { pkg ->
-                    item(key = "app_identity") { AppSpoofSection(pkg) }
-                }
+                // الهوية/التزييف صارت تبويبًا بجانب «العرض» (انظر `SPOOF_TAB`) بدل قسم طويل فوق الإعدادات.
 
                 // ── All Settings ─────────────────────────────────────────────
+                // شريط التبويبات **خارج** بوابة مفتاح Max: تبويب «تزييف» سياسة هوية مستقلة عن مفتاح الأداء،
+                // فيبقى متاحًا والمفتاح مغلق؛ أمّا باقي المجموعات فتبقى خلف المفتاح كما كانت.
                 item {
-                    AnimatedVisibility(
-                        visible = localMasterOn,
-                        enter = if (userToggled) expandVertically(tween(380)) + fadeIn(tween(380)) else EnterTransition.None,
-                        exit = shrinkVertically(tween(380)) + fadeOut(tween(200))
-                    ) {
-                        val cfg = config ?: AppConfig()
+                    val cfg = config ?: AppConfig()
+                    Column {
+                        AnimatedVisibility(
+                            visible = localMasterOn,
+                            enter = if (userToggled) expandVertically(tween(380)) + fadeIn(tween(380)) else EnterTransition.None,
+                            exit = shrinkVertically(tween(380)) + fadeOut(tween(200))
+                        ) {
+                            Column {
+                                PerAppSystemBridge(
+                                    customizedCount = cfg.customizedFieldCount(),
+                                    isGameApp = isGameApp,
+                                    onOpenLive = { navController.navigate(MaxDestination.MaxLive.route) },
+                                    onOpenControl = { navController.navigate(MaxDestination.Control.route) }
+                                )
+                                Spacer(Modifier.height(MaxSpace.sm))
+                            }
+                        }
+
+                        MaxTabStrip(
+                            tabs = appTabs,
+                            selectedIndex = selectedTab,
+                            onSelect = { selectedTab = it }
+                        )
+                        Spacer(Modifier.height(MaxSpace.md))
+
+                        val spoofPackage = packageName?.takeIf(nd.max.core.spoof.SpoofWorkspace::validPackage)
+                        if (selectedTab == SPOOF_TAB) {
+                            if (spoofPackage != null) {
+                                AppSpoofSection(spoofPackage, onOpenStudio = { navController.navigate(MaxDestination.SpoofStudio.route) })
+                            }
+                        } else {
+                        if (!localMasterOn) {
+                            nd.max.ui.component.MaxInfoStrip(text = stringResource(R.string.spoof_ui_tab_hint_master_off))
+                        }
+                        AnimatedVisibility(
+                            visible = localMasterOn,
+                            enter = if (userToggled) expandVertically(tween(380)) + fadeIn(tween(380)) else EnterTransition.None,
+                            exit = shrinkVertically(tween(380)) + fadeOut(tween(200))
+                        ) {
                         Column {
-
-                            PerAppSystemBridge(
-                                customizedCount = cfg.customizedFieldCount(),
-                                isGameApp = isGameApp,
-                                onOpenLive = { navController.navigate(MaxDestination.MaxLive.route) },
-                                onOpenControl = { navController.navigate(MaxDestination.Control.route) }
-                            )
-                            Spacer(Modifier.height(MaxSpace.sm))
-
-                            MaxTabStrip(
-                                tabs = appTabs,
-                                selectedIndex = selectedTab,
-                                onSelect = { selectedTab = it }
-                            )
-                            Spacer(Modifier.height(MaxSpace.xs))
 
                             when (selectedTab) {
                             0 -> {
@@ -544,7 +565,7 @@ fun AppSettingsScreen(
                             }
 
                             } // end tab 1: Display
-                            2 -> {
+                            3 -> {
                             // ══ GAMING EXPERIENCE ══════════════════════════════
                             ExpressiveList(
                                 modifier = Modifier,
@@ -599,8 +620,8 @@ fun AppSettingsScreen(
                                 }
                             )
 
-                            } // end tab 2: Gaming
-                            3 -> {
+                            } // end tab 3: Gaming
+                            4 -> {
                             // ══ CONNECTIVITY & POWER ═══════════════════════════
                             ExpressiveList(
                                 modifier = Modifier,
@@ -627,10 +648,12 @@ fun AppSettingsScreen(
                                     }
                                 }
                             )
-                            } // end tab 3: Power & Connectivity
+                            } // end tab 4: Power & Connectivity
                             } // end when(selectedTab)
 
                             Spacer(Modifier.height(16.dp))
+                        }
+                        }
                         }
                     }
                 }
@@ -1619,6 +1642,9 @@ private fun AppConfig.performanceCustomizedCount(): Int = listOf(
     perf_lite_mode, cpu_boost, game_preload, app_priority, kill_bg_apps,
     gpu_profile, cpu_governor, gpu_governor, gpu_max_freq
 ).count { it != "default" } + if (cpu_policy_controls.isNotBlank()) 1 else 0
+
+/** فهرس تبويب «تزييف» في شريط التبويبات (بعد «العرض» مباشرة). */
+private const val SPOOF_TAB = 2
 
 private fun AppConfig.displayCustomizedCount(isGameApp: Boolean): Int {
     var count = listOf(refresh_rate, renderer, force_hw_ui).count { it != "default" }

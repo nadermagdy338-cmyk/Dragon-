@@ -31,7 +31,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.Close
@@ -261,11 +260,6 @@ fun GameLobbyScreen(
                     LobbyStartButton(
                         label = stringResource(R.string.lobby_start),
                         onClick = { launchFailed = !GameLibraryAccess.launch(context, active.packageName) }
-                    )
-                    LobbyHexButton(
-                        icon = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        description = stringResource(R.string.lobby_open_profile),
-                        onClick = openProfile
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
