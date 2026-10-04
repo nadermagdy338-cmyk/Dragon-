@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Installerade paket och de aktiviteter de deklarerar</string>
+    <string name="max_launcher_loading">Läser installerade paket och deras deklarerade aktiviteter...</string>
+    <string name="max_launcher_empty">Inget installerat paket deklarerar en aktivitet på den här enheten.</string>
+    <string name="max_launcher_search_placeholder">Sök efter appnamn eller paket</string>
+    <string name="max_launcher_search_clear">Rensa sökningen</string>
+    <string name="max_launcher_scope_all">Alla</string>
+    <string name="max_launcher_scope_user">Användare</string>
+    <string name="max_launcher_scope_system">System</string>
+    <string name="max_launcher_activity_count">%1$d aktiviteter</string>
+    <string name="max_launcher_no_match_title">Inget matchar</string>
+    <string name="max_launcher_no_match_detail">Inget paketnamn eller appetikett innehåller den texten i det valda omfånget.</string>
+    <string name="max_launcher_no_match_clear">Rensa filter</string>
+    <string name="max_launcher_reading_activities">Läser aktiviteterna som detta paket deklarerar...</string>
+    <string name="max_launcher_no_activities">Detta paket deklarerar inga aktiviteter.</string>
+    <string name="max_launcher_root_off_title">Rot beviljas inte</string>
+    <string name="max_launcher_root_off_detail">Aktiviteter markerade som privata exporteras inte, så endast root kan starta dem. Exporterade aktiviteter är fortfarande öppna utan det.</string>
+    <string name="max_launcher_tag_private">Privat</string>
+    <string name="max_launcher_tag_disabled">Inaktiverad</string>
+    <string name="max_launcher_outcome_started">Aktiviteten startade</string>
+    <string name="max_launcher_outcome_needs_root">Denna aktivitet exporteras inte – root krävs</string>
+    <string name="max_launcher_outcome_refused">Android vägrade starta denna aktivitet</string>
+    <string name="max_launcher_outcome_missing">Ingen aktivitet med det namnet är installerad</string>
+</resources>

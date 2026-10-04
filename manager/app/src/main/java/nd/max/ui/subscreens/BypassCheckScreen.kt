@@ -18,6 +18,8 @@
  
 package nd.max.ui.subscreens
 
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
 import nd.max.MaxManagerProps
 import nd.max.MaxManagerPaths
 
@@ -75,9 +77,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
+import nd.max.core.daemon.DaemonStarter
 import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.component.*
-import nd.max.ui.util.PropertyUtils
+import nd.max.ui.design.MaxListScreen
+import nd.max.core.platform.PropertyUtils
+import nd.max.ui.util.RootUtils
 
 
 data class ShellOutput(
@@ -87,7 +92,6 @@ data class ShellOutput(
 
 @Composable
 fun BypassChargeCheckScreen(navController: NavController) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
     // موارد من `LocalResources.current`: نصوص هذه الشاشة تُقرأ داخل `scope.launch`/`withContext`
@@ -108,6 +112,13 @@ fun BypassChargeCheckScreen(navController: NavController) {
     var isRunning by remember { mutableStateOf(false) }
     var hasRunDiagnosis by remember { mutableStateOf(false) }
     var isConsoleClosed by remember { mutableStateOf(false) }
+
+    // ── الخادم المتوقّف: حالتُه مستقلّة عن نتيجة الفحص ─────────────────
+    // و`-cbc` يقف **بعد** بوّابة `require_daemon_running()` في `Main.c` (عقد `DaemonCliContract`
+    // يعدّ الأعلام قبلها وبعدها)، فخادم متوقّف يعني أنّ الفحص **لم يُنفَذ** لا أنّه فحص سلبيّ. وكانت الشاشة
+    // تُلقي رسالة الخادم في الكونسول ثمّ تُبقي «لا عقد» كأنّها حكم على العتاد — بلا طريق للتشغيل.
+    var isDaemonDown by remember { mutableStateOf(false) }
+    var isStartingDaemon by remember { mutableStateOf(false) }
     
 
     val logScrollState = rememberScrollState()
@@ -179,6 +190,15 @@ fun BypassChargeCheckScreen(navController: NavController) {
     }
 
 
+    /**
+     * هل الخادم حيّ؟ نفس ما تقيسه `RootUtils.getServiceStatusRes` — `pidof` وسطرُه من `Main.c`.
+     *
+     * **وموضعها قبل [runCompatibilityCheck] شرط ترجمة لا ترتيب جماليّ:** دوال Kotlin المحلّية
+     * تُعرَف من **نقطة تعريفها لا قبلها**، واستدعاؤها قبل ذلك يرفضه المُصرّف
+     * (`unresolved reference`) — وهو عطب الترجمة الذي أُصلح هنا.
+     */
+    fun daemonAlive(): Boolean = RootUtils.getServiceStatusRes().first == R.string.status_alive
+
     fun runCompatibilityCheck() {
         logs.clear()
         isRunning = true
@@ -194,17 +214,25 @@ fun BypassChargeCheckScreen(navController: NavController) {
                 }
             }
     
-            val binaryPath = "/data/adb/modules/MaxManager/system/bin/sys.maxmanager-service"
-            Shell.cmd("$binaryPath -cbc 2>&1").to(callbackList).submit { result ->
+            // المسار من `MaxManagerPaths` لا مكتوبًا هنا ثانيةً: مركزيّ منذ `SERVICE_BIN`،
+            // ونسخة ثانية منه تنحرف بأوّل تغيير للمسار.
+            Shell.cmd("${MaxManagerPaths.SERVICE_BIN} -cbc 2>&1").to(callbackList).submit { result ->
                 isRunning = false
                 hasRunDiagnosis = true
     
                 val successRegex = "Found working node:\\s*(\\S+)".toRegex()
                 val cleanLogs = logs.map { it.text.replace("\u001B\\[[;\\d]*m".toRegex(), "") }
                 val successNode = cleanLogs.firstNotNullOfOrNull { successRegex.find(it)?.groupValues?.get(1) }
-    
+
                 refreshBypassData { }
-    
+
+                // وهل الخادم حيّ؟ يُقاس بـ`pidof` (ما يقيسه `RootUtils`) لا بنصّ خطأ،
+                // فيُعرض التشغيل في مكانه بدل أن يُقرأ الحاجز كأنّه نتيجة.
+                scope.launch {
+                    val alive = withContext(Dispatchers.IO) { daemonAlive() }
+                    isDaemonDown = !alive
+                }
+
                 if (successNode != null) {
                     scope.launch {
                         val dialogResult = confirmDialogHandle.awaitConfirm(
@@ -229,29 +257,59 @@ fun BypassChargeCheckScreen(navController: NavController) {
         }
     }
 
+    /**
+     * تشغيل الخادم ثم إعادة الفحص — **بنفس الوظيفة الخلفية** لا بمسار ثانٍ يخالفها.
+     *
+     * كان هنا `--rerun`، وهو ليس "تشغيلًا" بل سلسلة قتل وإعادة: يمرّ بـ
+     * `sys.maxmanager-utilityconf restartservice` (`binutils/src/utils/mod.rs:255`) فينفّذ
+     * `pkill -9 -f sys.maxmanager-appmonitoring` — **أي يقتل الرفيق الذي يشغّل المشرف** — ثم
+     * `sh service.sh` الذي يبدأ بـ`"$BIN_SVC" --clearlogs` **فيمحو سجلّ الخادم** في كل محاولة.
+     * ومحاولة فاشلة تمحو دليل فشلها بيدها، فيبقى أمام المستخدم «لم يقم» بلا سبب.
+     *
+     * و[DaemonStarter] تفعل ما تفعله الشجرة في الإقلاع نفسه: `--run` مباشرةً
+     * (`mainfiles/service.sh`)، ثم مؤاكدة بقياس مستقلّ حتى ٢٥ ثانية، ثم **سبب الخروج الذي كتبته
+     * هذه المحاولة** من السجلّ ([DaemonExit.code]) — فلا يُدَّعى قيامٌ ولا يُترك فشلٌ بلا اسم.
+     */
+    fun startDaemonAndRetry() {
+        if (isStartingDaemon) return
+        isStartingDaemon = true
+        scope.launch(Dispatchers.IO) {
+            val outcome = DaemonStarter().startAndConfirm()
+            withContext(Dispatchers.Main) {
+                isStartingDaemon = false
+                isDaemonDown = !outcome.alive
+                if (!outcome.alive) {
+                    logs.add(
+                        ShellOutput(
+                            resources.getString(R.string.str_daemon_start_failed, MaxManagerPaths.MAXMANAGER_LOG),
+                            true
+                        )
+                    )
+                    outcome.exit?.let { exit ->
+                        logs.add(
+                            ShellOutput(
+                                resources.getString(R.string.str_daemon_start_reason, exit.code),
+                                true
+                            )
+                        )
+                    }
+                }
+                // وإعادة الفحص من الخيط الرئيسي: `runCompatibilityCheck` يلمس حالة الواجهة.
+                if (outcome.alive) runCompatibilityCheck()
+            }
+        }
+    }
+
     ConfirmDialogHost(handle = confirmDialogHandle)
 
     ScreenAccentProvider(MaterialTheme.colorScheme.tertiary) {
-        Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = { 
-                BypassChgCheckTopAppBar(
-                    scrollBehavior = scrollBehavior, 
-                    onBack = { navController.popBackStack() }
-                ) 
-            }
-        ) { innerPadding ->
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    top = innerPadding.calculateTopPadding() + 12.dp,
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                ),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                
+        MaxListScreen(
+            title = stringResource(R.string.CompatibilityCheck),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.AutoMirrored.Filled.FactCheck,
+            accent = MaterialTheme.colorScheme.tertiary
+        ) {
+
                 item {
                     BypassCheckTitle(text = stringResource(R.string.section_current_status))
                         
@@ -286,7 +344,7 @@ fun BypassChargeCheckScreen(navController: NavController) {
                         BypassCheckTitle(text = stringResource(R.string.section_diagnostics))
                         
                         Surface(
-                            shape = RoundedCornerShape(26.dp),
+                            shape = RoundedCornerShape(MaxCardSpec.radius),
                             color = colorScheme.surfaceColorAtElevation(1.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -362,7 +420,7 @@ fun BypassChargeCheckScreen(navController: NavController) {
                                     },
                                     enabled = isChargerConnected && !isRunning,
                                     modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(16.dp)
+                                    shape = RoundedCornerShape(MaxRadius.inset)
                                 ) {
                                     Icon(Icons.Rounded.PlayArrow, null)
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -384,7 +442,7 @@ fun BypassChargeCheckScreen(navController: NavController) {
                                         .fillMaxWidth()
                                         .heightIn(max = 280.dp)
                                         .nestedScroll(blockParentScroll), 
-                                    shape = RoundedCornerShape(26.dp),
+                                    shape = RoundedCornerShape(MaxCardSpec.radius),
                                     colors = CardDefaults.cardColors(containerColor = Color(0xFF0F141C))
                                 ) {
                                     Box(modifier = Modifier.fillMaxSize()) {
@@ -432,6 +490,53 @@ fun BypassChargeCheckScreen(navController: NavController) {
                     }
                 }
 
+                item {
+                    AnimatedVisibility(
+                        visible = isDaemonDown,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        Column {
+                            BypassCheckTitle(text = stringResource(R.string.section_daemon))
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            ExpressiveList(
+                                content = listOf {
+                                    ExpressiveListItem(
+                                        headlineContent = { Text(stringResource(R.string.str_daemon_not_running)) },
+                                        supportingContent = { Text(stringResource(R.string.str_daemon_not_running_desc)) },
+                                        leadingContent = {
+                                            LeadingIcon(
+                                                icon = Icons.Rounded.WarningAmber,
+                                                containerColor = colorScheme.error.copy(alpha = 0.12f),
+                                                contentColor = colorScheme.error
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            StudioButton(
+                                onClick = { startDaemonAndRetry() },
+                                enabled = !isStartingDaemon,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(MaxRadius.inset)
+                            ) {
+                                Icon(Icons.Rounded.PlayArrow, null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    stringResource(
+                                        if (isStartingDaemon) R.string.str_starting_daemon
+                                        else R.string.str_start_daemon_retry
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+
                 item { 
                     BypassCheckTitle(text = stringResource(R.string.str_available_nodes, availablePaths.size))
                 
@@ -459,7 +564,9 @@ fun BypassChargeCheckScreen(navController: NavController) {
                                         label = "textScaleAnim"
                                     )
 
-                                    ExpressiveListItemHighlight(
+                                    // `ExpressiveListItem` نفسه: كان هذا الصفّ نسخة ثانية منه بحرفه
+                                    // لمجرد خلفية اختيار، فصارت الخلفية معاملًا في الصفّ الواحد.
+                                    ExpressiveListItem(
                                         containerColor = if (isSelected) colorScheme.primary.copy(alpha = 0.08f) else Color.Transparent,
                                         onClick = {
                                             if (!isRunning) {
@@ -525,8 +632,7 @@ fun BypassChargeCheckScreen(navController: NavController) {
                 }
             }
         }
-        }
-    }
+}
 
 
 @Composable
@@ -550,15 +656,4 @@ fun BypassCheckTitle(text: String) {
             color = MaterialTheme.colorScheme.onSurface
         )
     }
-}
-
-@Composable
-fun BypassChgCheckTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {
-    MaxManagerSubScreenTopBar(
-        scrollBehavior = scrollBehavior,
-        title = stringResource(R.string.CompatibilityCheck),
-        onBack = onBack,
-        accentIcon = Icons.AutoMirrored.Filled.FactCheck,
-        accent = MaterialTheme.colorScheme.tertiary
-    )
 }

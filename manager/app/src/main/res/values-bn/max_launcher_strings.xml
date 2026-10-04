@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">ইনস্টল করা প্যাকেজ এবং তারা যে কার্যক্রম ঘোষণা করে</string>
+    <string name="max_launcher_loading">ইনস্টল করা প্যাকেজ এবং তাদের ঘোষিত কার্যকলাপ পড়া হচ্ছে...</string>
+    <string name="max_launcher_empty">কোনও ইনস্টল করা প্যাকেজ এই ডিভাইসে কোনও কার্যকলাপ ঘোষণা করে না।</string>
+    <string name="max_launcher_search_placeholder">অ্যাপের নাম বা প্যাকেজ দ্বারা অনুসন্ধান করুন</string>
+    <string name="max_launcher_search_clear">অনুসন্ধান সাফ করুন</string>
+    <string name="max_launcher_scope_all">সব</string>
+    <string name="max_launcher_scope_user">ব্যবহারকারী</string>
+    <string name="max_launcher_scope_system">সিস্টেম</string>
+    <string name="max_launcher_activity_count">%1$d কার্যক্রম</string>
+    <string name="max_launcher_no_match_title">কিছুই মেলে না</string>
+    <string name="max_launcher_no_match_detail">কোনো প্যাকেজের নাম বা অ্যাপ লেবেলে সেই পাঠ্যটি নির্বাচিত সুযোগে নেই।</string>
+    <string name="max_launcher_no_match_clear">ফিল্টার সাফ করুন</string>
+    <string name="max_launcher_reading_activities">এই প্যাকেজ ঘোষণা করা কার্যকলাপগুলি পড়া…</string>
+    <string name="max_launcher_no_activities">এই প্যাকেজ কোন কার্যক্রম ঘোষণা.</string>
+    <string name="max_launcher_root_off_title">রুট দেওয়া হয় না</string>
+    <string name="max_launcher_root_off_detail">ব্যক্তিগত চিহ্নিত কার্যকলাপগুলি রপ্তানি করা হয় না, তাই শুধুমাত্র রুট সেগুলি শুরু করতে পারে৷ এটি ছাড়া রপ্তানি কার্যক্রম এখনও খোলা।</string>
+    <string name="max_launcher_tag_private">ব্যক্তিগত</string>
+    <string name="max_launcher_tag_disabled">অক্ষম</string>
+    <string name="max_launcher_outcome_started">কার্যক্রম শুরু হয়</string>
+    <string name="max_launcher_outcome_needs_root">এই কার্যকলাপ রপ্তানি করা হয় না — রুট প্রয়োজন</string>
+    <string name="max_launcher_outcome_refused">অ্যান্ড্রয়েড এই কার্যকলাপ শুরু করতে অস্বীকার করেছে৷</string>
+    <string name="max_launcher_outcome_missing">এই নামের কোনো কার্যকলাপ ইনস্টল করা নেই</string>
+</resources>

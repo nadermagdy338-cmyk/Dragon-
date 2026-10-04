@@ -7,7 +7,7 @@
     <string name="all_set">എല്ലാം സജ്ജമാണ്, നിങ്ങൾക്ക് ഇപ്പോൾ Max Manager ഉപയോഗിക്കാം</string>
     <string name="allow_verbose_log">ഡെമൺ പ്രോസസ് വിശദമായ ലോഗ്</string>
     <string name="android_version">Android പതിപ്പ്</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">ആപ്പ് പേര്</string>
     <string name="app_priority">ആപ്പ് മുൻഗണന</string>
     <string name="app_priority_control">ആപ്പ് മുൻഗണന നിയന്ത്രണം</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS ഓവർലേ</string>
     <string name="fps_overlay_notif_title">Max Manager FPS ഓവർലേ പ്രവർത്തിക്കുന്നു</string>
     <string name="fps_overlay_notif_stop">നിർത്തുക</string>
-    <string name="fps_overlay_section_style">രൂപഭാവം</string>
-    <string name="fps_overlay_style">ഓവർലേ ശൈലി</string>
-    <string name="fps_overlay_style_android">ആൻഡ്രോയിഡ് ലിസ്റ്റ്</string>
-    <string name="fps_overlay_style_pc">പിസി മോണോസ്പേസ്</string>
-    <string name="fps_overlay_style_mini">മിനി</string>
-    <string name="fps_overlay_orientation">ലേഔട്ട് ദിശ</string>
-    <string name="fps_overlay_orientation_vertical">ലംബമായ</string>
-    <string name="fps_overlay_orientation_horizontal">തിരശ്ചീനമായി</string>
-    <string name="fps_overlay_read_mode">FPS വായന രീതി</string>
     <string name="fps_overlay_read_mode_desc">നിങ്ങളുടെ ഉപകരണത്തിൽ റീഡിംഗ് 0 ആയി തുടരുകയാണെങ്കിൽ മറ്റൊരു രീതി പരീക്ഷിക്കുക</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (ശുപാർശ ചെയ്യുന്നത്)</string>
     <string name="fps_overlay_mode_kernel">കേർണൽ നോഡ്</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">വാചക വലുപ്പം</string>
     <string name="fps_overlay_bg_alpha">പശ്ചാത്തല അതാര്യത</string>
     <string name="fps_overlay_width_scale">വീതി സ്കെയിൽ</string>
-    <string name="fps_overlay_section_metrics">മെട്രിക്കുകൾ കാണിച്ചിരിക്കുന്നു</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU ലോഡ്</string>
-    <string name="fps_overlay_metric_ram">RAM ഉപയോഗം</string>
-    <string name="fps_overlay_metric_watt">ബാറ്ററി പവർ ഡ്രോ</string>
-    <string name="fps_overlay_metric_temp">ബാറ്ററി താപനില</string>
-    <string name="fps_overlay_metric_render">റെൻഡറർ ലേബൽ</string>
-    <string name="fps_overlay_metric_render_desc">\"FPS\" എന്നതിന് പകരം VULKAN/OPENGL എന്ന ലേബലായി കാണിക്കുന്നു, ഫോർഗ്രൗണ്ട് ആപ്പിൻ്റെ ലോഡ് ചെയ്ത ലൈബ്രറികളിൽ നിന്ന് കണ്ടെത്തി</string>
     <string name="dozemode_title">ഉറക്ക നയം</string>
     <string name="dozemode_menu_desc">സ്റ്റാൻഡ്‌ബൈ വൈറ്റ്‌ലിസ്റ്റ്, നിഷ്‌ക്രിയ സ്വഭാവം, പശ്ചാത്തല പവർ ട്യൂണിംഗ്</string>
     <string name="dozemode_state_label">ഡോസ് അവസ്ഥ</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">ക്രമീകരണങ്ങൾ തുറക്കുക</string>
     <string name="processmgr_title">ടാസ്ക് മോണിറ്റർ</string>
-    <string name="processmgr_menu_desc">ഓരോ പ്രോസസ്സിനും CPU, RAM ഉപയോഗം, ഫോഴ്‌സ്-സ്റ്റോപ്പും ഫ്ലോട്ടിംഗ് ഓവർലേയും</string>
     <string name="processmgr_stat_total">%1$d പ്രക്രിയകൾ</string>
-    <string name="processmgr_stat_breakdown">%1$d ഉപയോക്താവ് \u00b7 %2$d സിസ്റ്റം</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">ടോപ്പ് %1$d</string>
@@ -807,9 +788,6 @@
     <string name="processmgr_search_hint">പ്രവർത്തിക്കുന്ന പ്രക്രിയകൾ തിരയുക</string>
     <string name="processmgr_no_processes">നിങ്ങളുടെ തിരയലുമായി പൊരുത്തപ്പെടുന്ന പ്രക്രിയകളൊന്നുമില്ല</string>
     <string name="processmgr_dialog_close">അടയ്ക്കുക</string>
-    <string name="processmgr_detail_version">പതിപ്പ്</string>
-    <string name="processmgr_detail_build">പണിയുക</string>
-    <string name="processmgr_detail_package">പാക്കേജ്</string>
     <string name="processmgr_result_killed">കൊല്ലപ്പെട്ടു %1$s</string>
     <string name="processmgr_result_kill_failed">%1$s കൊല്ലാൻ കഴിഞ്ഞില്ല</string>
     <string name="processmgr_result_stopped">നിർബന്ധിതമായി നിർത്തി %1$s</string>
@@ -1461,7 +1439,6 @@
     <string name="max_home_reboot_desc">സുരക്ഷിതമായ റീബൂട്ട് ഓപ്ഷനുകൾ തുറക്കുക</string>
     <string name="max_home_ai_console">MAX AI കൺസോൾ</string>
     <string name="max_home_ai_working">അഭ്യർത്ഥിച്ച പ്രൊഫൈൽ പ്രയോഗിക്കുന്നു...</string>
-    <string name="max_home_ai_failed">അവസാന AI പ്രവർത്തനം പരാജയപ്പെട്ടു</string>
     <string name="max_home_retry">വീണ്ടും ശ്രമിക്കുക</string>
     <string name="max_home_ai_idle">AI തീരുമാനങ്ങളൊന്നും ഇതുവരെ രേഖപ്പെടുത്തിയിട്ടില്ല</string>
     <string name="home_system_stable">സിസ്റ്റം സ്ഥിരതയുള്ള</string>
@@ -1477,8 +1454,6 @@
     <string name="home_performance_monitor_desc">കഴിഞ്ഞ 72 സെക്കൻഡിൽ റിസോഴ്സ് ലോഡ്</string>
     <string name="home_quick_actions">കമാൻഡ് ഡെക്ക്</string>
     <string name="home_quick_actions_desc">പ്രാധാന്യമുള്ള നിയന്ത്രണങ്ങളിലേക്കുള്ള നേരിട്ടുള്ള പ്രവേശനം</string>
-    <string name="home_action_boost">പ്രകടന പ്രൊഫൈൽ</string>
-    <string name="home_action_boost_desc">സിസ്റ്റം സ്വഭാവം മാറ്റുക</string>
     <string name="home_action_thermal">താപ കേന്ദ്രം</string>
     <string name="home_action_thermal_desc">ചൂടും തണുപ്പും പരിശോധിക്കുക</string>
     <string name="home_action_battery">പവർ സെൻ്റർ</string>
@@ -1498,7 +1473,6 @@
     <string name="home_active">സജീവം</string>
     <string name="home_idle">നിഷ്ക്രിയം</string>
     <string name="home_protected">സംരക്ഷിത</string>
-    <string name="home_device_overview">ഉപകരണ അവലോകനം തുറക്കുക</string>
     <string name="home_live_performance">തത്സമയ പ്രകടനം</string>
     <string name="home_live_performance_desc">നിലവിലെ ലോഡും നേരിട്ടുള്ള ഹാർഡ്‌വെയർ നിയന്ത്രണങ്ങളും</string>
     <string name="home_open_details">വിശദമായ തെർമൽ ഡാറ്റ തുറക്കുക</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">ഓരോ ആപ്പ് ഒപ്റ്റിമൈസേഷനുകളും പ്രയോഗിക്കുന്നു</string>
     <string name="max_app_advanced_options">വിപുലമായ ഓപ്ഷനുകൾ</string>
     <string name="max_app_save">സംരക്ഷിക്കുക</string>
+    <string name="home_gpu_max_freq">പരമാവധി ആവൃത്തി</string>
 </resources>

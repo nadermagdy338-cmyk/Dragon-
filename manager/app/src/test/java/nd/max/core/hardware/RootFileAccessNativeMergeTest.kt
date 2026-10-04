@@ -66,4 +66,62 @@ class RootFileAccessNativeMergeTest {
         assertEquals(emptyList<String?>(), merged)
         assertEquals(0, privilegedCalls)
     }
+
+    /*
+     * ── الدفعة العائدة من القناة: الحجم المطابق لا يعني «هذه كل الإجابات» ─────────────────
+     *
+     * هذا هو العطب المقيس: `RootNodeService.readTexts` تُعيد `""` للعقدة التي لم تُقرأ لا
+     * `null`، فالردّ **بحجم مطابق** كان يُقبل نهائيًّا. فمسح حراري على جهاز يعلن ٦٦ منطقة
+     * عاد كلّه أصفارًا (لا قراءة واحدة) وظهرت مكانه جملة «لا توجد مناطق حرارة مكشوفة». وهذه
+     * الدعاوى تُثبّت أن القيمة الفارغة تُكمل من الطبقة التالية، وأن الغياب التام لا يُخفى.
+     */
+
+    @Test
+    fun `a row that came back empty is completed from the next layer`() {
+        val paths = listOf("/sys/class/thermal/thermal_zone0/temp", "/sys/class/thermal/thermal_zone0/mode")
+        val asked = mutableListOf<String>()
+        val completed = RootFileAccess.completeBatch(paths, listOf("45000", "")) { path ->
+            asked.add(path)
+            if (path.endsWith("mode")) "enabled" else null
+        }
+        assertEquals(listOf("/sys/class/thermal/thermal_zone0/mode"), asked)
+        assertEquals(listOf("45000", "enabled"), completed)
+    }
+
+    @Test
+    fun `an all-empty batch is re-asked, not accepted as final`() {
+        val paths = listOf("/t0/temp", "/t0/mode", "/t1/temp", "/t1/mode")
+        var asked = 0
+        val completed = RootFileAccess.completeBatch(paths, listOf("", "", "", "")) {
+            asked++
+            "read-$asked"
+        }
+        assertEquals(4, asked)
+        assertEquals(listOf("read-1", "read-2", "read-3", "read-4"), completed)
+    }
+
+    @Test
+    fun `a batch that never arrived asks every path in order`() {
+        val paths = listOf("/a", "/b")
+        val asked = mutableListOf<String>()
+        val completed = RootFileAccess.completeBatch(paths, null) { path ->
+            asked.add(path)
+            "V:$path"
+        }
+        assertEquals(paths, asked)
+        assertEquals(listOf("V:/a", "V:/b"), completed)
+    }
+
+    @Test
+    fun `a mismatched batch is refused whole, never realigned by guess`() {
+        val paths = listOf("/a", "/b", "/c")
+        val completed = RootFileAccess.completeBatch(paths, listOf("1", "2")) { path -> "R:$path" }
+        assertEquals(listOf("R:/a", "R:/b", "R:/c"), completed)
+    }
+
+    @Test
+    fun `a value that stays unreadable ends as null, never as zero`() {
+        val completed = RootFileAccess.completeBatch(listOf("/only"), listOf("")) { null }
+        assertEquals(listOf<String?>(null), completed)
+    }
 }

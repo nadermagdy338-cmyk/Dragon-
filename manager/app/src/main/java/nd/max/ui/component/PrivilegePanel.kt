@@ -5,6 +5,7 @@
  */
 package nd.max.ui.component
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,6 +52,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nd.max.ui.design.MaxCardShell
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
 import nd.max.R
 import nd.max.core.privilege.PrivilegeCatalog
 import nd.max.core.privilege.PrivilegeLevel
@@ -119,7 +123,7 @@ fun PrivilegePanel(
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(MaxRadius.sheet),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ),
@@ -152,7 +156,7 @@ fun PrivilegePanel(
             // ── الحالة الحالية: أول ما يُقرأ في الشاشة ──
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(22.dp),
+                shape = RoundedCornerShape(MaxRadius.group),
                 color = levelContainer(snapshot.level),
                 contentColor = levelContent(snapshot.level),
             ) {
@@ -254,7 +258,7 @@ fun PrivilegePanel(
                             busy = false
                         }
                     },
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(MaxRadius.inset),
                 ) {
                     // قبل المنح الزرّ "طلب"، وبعده "فحص": نفس الفعل لكن بصدق المرحلة.
                     Text(
@@ -298,7 +302,7 @@ fun PrivilegePanel(
                             busy = false
                         }
                     },
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(MaxRadius.inset),
                 ) {
                     Icon(Icons.Rounded.Link, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
@@ -358,10 +362,13 @@ private fun PrivilegeLayer(
     hint: String? = null,
     action: @Composable () -> Unit,
 ) {
-    Surface(
+    // **ترحيل إلى القشرة:** القشرة ترسم حدًّا دائمًا، وهذه الطبقة كانت بلا حدّ — فيُمرّر
+    // `Color.Transparent` صراحةً بدل ترك حدّ يظهر من الترحيل. (ظهور حدّ جديد = تغيير بصريّ لا يقرّره ترحيل.)
+    MaxCardShell(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        borderColor = Color.Transparent,
+        contentPadding = 0.dp,
+        verticalArrangement = Arrangement.Top,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {

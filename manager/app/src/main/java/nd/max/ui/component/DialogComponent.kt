@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.parcelize.Parcelize
+import nd.max.ui.design.MaxRadius
 import nd.max.R
 
 
@@ -340,7 +341,7 @@ private fun LoadingDialog(visible: Boolean) {
                 modifier = Modifier
                     .size(78.dp)
                     .scale(scale)
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(MaxRadius.sheet))
                     .then(
                         if (isBlurEnabled && hazeState != null) {
                             Modifier.hazeEffect(state = hazeState) { blurEffect { blurRadius = 24.dp } }
@@ -400,7 +401,7 @@ private fun ConfirmDialog(
                     .fillMaxWidth()
                     .padding(16.dp) 
                     .scale(scale)
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(MaxRadius.sheet))
                     .then(
                         if (isBlurEnabled && hazeState != null) {
                             Modifier.hazeEffect(state = hazeState) { blurEffect { blurRadius = 24.dp } }
@@ -508,7 +509,7 @@ fun CustomContentDialog(
                     .fillMaxWidth()
                     .padding(16.dp) 
                     .scale(scale)
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(MaxRadius.sheet))
                     .then(
                         if (isBlurEnabled && hazeState != null) {
                             Modifier.hazeEffect(state = hazeState) { blurEffect { blurRadius = 24.dp } }
@@ -647,7 +648,7 @@ private fun InstallingDialog(visible: Boolean) {
                 modifier = Modifier
                     .widthIn(min = 280.dp, max = 350.dp)
                     .scale(scale)
-                    .clip(RoundedCornerShape(22.dp))
+                    .clip(RoundedCornerShape(MaxRadius.group))
                     .then(
                         if (isBlurEnabled && hazeState != null) {
                             Modifier.hazeEffect(state = hazeState) { blurEffect { blurRadius = 24.dp } }

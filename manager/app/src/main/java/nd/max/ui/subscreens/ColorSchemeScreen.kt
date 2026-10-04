@@ -18,6 +18,10 @@
 
 package nd.max.ui.subscreens
 
+import androidx.compose.foundation.layout.Arrangement
+import nd.max.ui.design.MaxCardShell
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
 import nd.max.MaxManagerProps
 
 import android.app.Activity
@@ -78,7 +82,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import nd.max.R
 import nd.max.ui.component.*
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 enum class ColorPreset(
     val label: String,
@@ -208,12 +212,15 @@ fun ColorSchemeSettings(navController: NavController) {
                 }
                 
                 item {
-                    Surface(
+                    // **ترحيل إلى القشرة:** المعاينة بلا حشو — تملأ الإطار بصورتها — فيُصفر
+                    // الحشو ويُضاف حدّ شفّاف حفظًا لما كان (لا حدّ).
+                    MaxCardShell(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp),
-                        shape = RoundedCornerShape(26.dp),
-                        color = colorScheme.surfaceContainerLow
+                        borderColor = Color.Transparent,
+                        contentPadding = 0.dp,
+                        verticalArrangement = Arrangement.Top,
                     ) {
                         AsyncImage(
                             model = R.drawable.schemeillust,
@@ -398,7 +405,7 @@ fun ColorSliderItem(
             
             Surface(
                 color = if (value == 1000f) colorScheme.surfaceVariant else colorScheme.primaryContainer,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(MaxRadius.control)
             ) {
                 Text(
                     text = value.toInt().toString(),

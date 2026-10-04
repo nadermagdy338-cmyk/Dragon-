@@ -80,6 +80,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import nd.max.R
 import nd.max.core.hardware.GpuHardwareBackend
+import nd.max.ui.component.MaxAiShortcut
+import nd.max.ui.component.MaxDeviceInfoShortcut
+import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.design.MaxChoiceRow
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
@@ -189,11 +192,22 @@ fun GpuStudioScreen(
                 body = stringResource(R.string.max_gpu_help_body),
             )
         },
+        // السقف الذي يُكتب هنا هو مقبض المحرّك نفسه (`ControlRegistry` ← `GPU_FREQUENCY`)
+        // على الأجهزة التي تُثبِت القدرات قابليته للكتابة — فالتنبيه صادق لا ترويجيّ.
+        header = {
+            MaxAiShortcut(navController = navController, manual = true)
+        },
     ) {
         val device = state.device
         if (device == null) return@MaxListScreen
 
-        item(key = "gpu_hero") { GpuHero(state, device) }
+        item(key = "gpu_hero") {
+            GpuHero(
+                state = state,
+                device = device,
+                trailing = { MaxDeviceInfoShortcut(navController, MaxDestination.GpuStudio) },
+            )
+        }
 
         item(key = "gpu_intents") { GpuIntents(state, viewModel) }
         // اللوحة تحت النوايا ما لم يكن المختبر مفتوحًا — وعندها تنتقل تحته،
@@ -217,7 +231,11 @@ fun GpuStudioScreen(
 // ── القراءة الحيّة ────────────────────────────────────────────────────────────
 
 @Composable
-private fun GpuHero(state: GpuStudioUiState, device: GpuHardwareBackend.Device) {
+private fun GpuHero(
+    state: GpuStudioUiState,
+    device: GpuHardwareBackend.Device,
+    trailing: (@Composable () -> Unit)? = null
+) {
     val writable = device.rangeWritable || device.exactLockWritable || device.governorWritable
     // عُمر القراءة يُحسب فقط إن كانت هناك قراءة.
     //
@@ -340,6 +358,13 @@ private fun GpuHero(state: GpuStudioUiState, device: GpuHardwareBackend.Device) 
                 GpuSparkline(state.historyMHz, MaterialTheme.colorScheme.primary)
             }
         }
+
+        // وباب قسم الرسوم في «معلومات الجهاز» **آخر البطاقة** بعد القراءة كلّها، مفصولًا بخطّ
+        // داخلي: إجراء على البطاقة لا صفّ بيانات. وكان على صفّ الهوية (`MaxRow` ← `trailing`)
+        // فالتهم عرضَ العنوان: خانةٌ جانبية تطلب العرض كاملًا تسلب الصفَّ حقّه في `weight`،
+        // فلم يرسم صفُّ هويّة الرسوم إلا الكبسولة (قياس لقطة المالك في الجولة ٢٠١).
+        MaxGroupDivider()
+        trailing?.invoke()
     }
 }
 

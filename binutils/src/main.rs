@@ -17,29 +17,26 @@
 mod utils;
 
 use std::env;
-use std::process::Command;
 use utils::*;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() > 1 {
-        let function = args[1].as_str();
-                match function {
-            "setsgov" => if args.len() > 2 { setsgov(&args[2]) },
-            "setsIO" => if args.len() > 2 { sets_io(&args[2]) },
-            "setsMaliGov" => if args.len() > 2 { sets_mali_gov(&args[2]) },
-            "setthermalcore" => if args.len() > 2 { setthermalcore(&args[2]) },
-            "checkmalipath" => check_mali_path(),
-            "FSTrim" => fstrim(),
-            "enableDND" => enable_dnd(),
-            "disableDND" => disable_dnd(),
-            "setrefreshrates" => if args.len() > 2 { setrefreshrates(&args[2]) },
-            "restartservice" => restartservice(),
-            "setrender" => if args.len() > 2 { setrender(&args[2]) },
-            _ => {
-                let _ = Command::new(function).args(&args[2..]).status();
-            }
-        }
+    // التفكيك خالص في `utils::plan::parse` (ويقيسه `cargo test` بجدول العقود)،
+    // وهنا التنفيذ وحده — فالأسماء الأحد عشر صارت سطحًا مُختبرًا لا سلاسل في ذراع match.
+    match plan::parse(&args) {
+        plan::Command::SetsGov(gov) => setsgov(&gov),
+        plan::Command::SetsIo(scheduler) => sets_io(&scheduler),
+        plan::Command::SetsMaliGov(gov) => sets_mali_gov(&gov),
+        plan::Command::SetThermalCore(state) => setthermalcore(&state),
+        plan::Command::CheckMaliPath => check_mali_path(),
+        plan::Command::FsTrim => fstrim(),
+        plan::Command::EnableDnd => enable_dnd(),
+        plan::Command::DisableDnd => disable_dnd(),
+        plan::Command::SetRefreshRates(rate) => setrefreshrates(&rate),
+        plan::Command::RestartService => restartservice(),
+        plan::Command::SetRender(renderer) => setrender(&renderer),
+        plan::Command::External { program, args } => plan::run_external(&program, &args),
+        plan::Command::MissingArgument | plan::Command::Empty => {}
     }
 }

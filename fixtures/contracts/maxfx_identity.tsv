@@ -1,0 +1,13 @@
+# عقد هويّة مؤثّر `MaxFx` — **يُقرأ من الطرفين**: `maxfx/tests/dsp_test.c` و`MaxFxModelTest.kt`.
+# وهذه القيم هي ما يراه `audioserver` و`queryEffects()` ووثيقة التهيئة على الجهاز؛ فتعديلها
+# بعد تثبيت الوحدة يعني مؤثّرًا قديمًا لا يُربط بمصدره — والعقد هنا هو ما يمنع ذلك بصمت.
+#
+# الأعمدة: field · value (سطرٌ واحد لكل قيمة، والقيمة حرفيّة بلا مسافات طرفية)
+field	value
+type_uuid	8f2c4a19-5d3b-4c8e-9a71-2b60d41f8c33
+impl_uuid	3b7e5c02-91af-4d6b-8c14-7e2a50b9d641
+library_file	libmaxfx.so
+library_name	MaxManager MaxFx
+effect_name	MaxFx Deep Audio Engine
+effect_config_name	MaxFx
+prop_prefix	persist.audio.maxfx.

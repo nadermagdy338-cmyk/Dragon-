@@ -28,6 +28,9 @@
     <string name="max_hub_storage_desc">نمط الترجمة وصحة التخزين</string>
     <string name="max_hub_network">الشبكة</string>
     <string name="max_hub_network_desc">جدولة حركة البيانات وحالة الاتصال</string>
+    <!-- العالم العاشر (`AU-01`): قراءة أوّلًا، كجيرانه. -->
+    <string name="max_hub_audio">الصوت</string>
+    <string name="max_hub_audio_desc">أجهزة الإخراج والدفقات والمؤثرات المُعلَنة</string>
 
     <!-- أقسام مراكز النطاقات -->
     <string name="max_hub_switches_title">تحكّم مباشر</string>

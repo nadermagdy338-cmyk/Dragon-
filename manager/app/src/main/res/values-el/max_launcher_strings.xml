@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Εγκατεστημένα πακέτα και οι δραστηριότητες που δηλώνουν</string>
+    <string name="max_launcher_loading">Ανάγνωση εγκατεστημένων πακέτων και των δηλωμένων δραστηριοτήτων τους…</string>
+    <string name="max_launcher_empty">Κανένα εγκατεστημένο πακέτο δεν δηλώνει δραστηριότητα σε αυτήν τη συσκευή.</string>
+    <string name="max_launcher_search_placeholder">Αναζήτηση κατά όνομα ή πακέτο εφαρμογής</string>
+    <string name="max_launcher_search_clear">Εκκαθαρίστε την αναζήτηση</string>
+    <string name="max_launcher_scope_all">Ολοι</string>
+    <string name="max_launcher_scope_user">Μεταχειριζόμενος</string>
+    <string name="max_launcher_scope_system">Σύστημα</string>
+    <string name="max_launcher_activity_count">%1$d δραστηριότητες</string>
+    <string name="max_launcher_no_match_title">Τίποτα δεν ταιριάζει</string>
+    <string name="max_launcher_no_match_detail">Κανένα όνομα πακέτου ή ετικέτα εφαρμογής δεν περιέχει αυτό το κείμενο στο επιλεγμένο εύρος.</string>
+    <string name="max_launcher_no_match_clear">Καθαρίστε τα φίλτρα</string>
+    <string name="max_launcher_reading_activities">Διαβάζοντας τις δραστηριότητες αυτό το πακέτο δηλώνει…</string>
+    <string name="max_launcher_no_activities">Αυτό το πακέτο δεν δηλώνει καμία δραστηριότητα.</string>
+    <string name="max_launcher_root_off_title">Το Root δεν χορηγείται</string>
+    <string name="max_launcher_root_off_detail">Οι δραστηριότητες που επισημαίνονται ως ιδιωτικές δεν εξάγονται, επομένως μόνο το root μπορεί να τις ξεκινήσει. Οι εξαγόμενες δραστηριότητες εξακολουθούν να είναι ανοιχτές χωρίς αυτό.</string>
+    <string name="max_launcher_tag_private">Ιδιωτικός</string>
+    <string name="max_launcher_tag_disabled">Ανάπηρος</string>
+    <string name="max_launcher_outcome_started">Η δραστηριότητα ξεκίνησε</string>
+    <string name="max_launcher_outcome_needs_root">Αυτή η δραστηριότητα δεν εξάγεται — απαιτείται root</string>
+    <string name="max_launcher_outcome_refused">Το Android αρνήθηκε να ξεκινήσει αυτή τη δραστηριότητα</string>
+    <string name="max_launcher_outcome_missing">Δεν έχει εγκατασταθεί καμία δραστηριότητα με αυτό το όνομα</string>
+</resources>

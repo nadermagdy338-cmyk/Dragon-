@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">დაინსტალირებული პაკეტები და მათ მიერ გამოცხადებული აქტივობები</string>
+    <string name="max_launcher_loading">დაინსტალირებული პაკეტების კითხვა და მათი დეკლარირებული აქტივობები…</string>
+    <string name="max_launcher_empty">არცერთი დაინსტალირებული პაკეტი არ აცხადებს აქტივობას ამ მოწყობილობაზე.</string>
+    <string name="max_launcher_search_placeholder">მოძებნეთ აპის სახელით ან პაკეტით</string>
+    <string name="max_launcher_search_clear">გაასუფთავეთ ძებნა</string>
+    <string name="max_launcher_scope_all">ყველა</string>
+    <string name="max_launcher_scope_user">მომხმარებელი</string>
+    <string name="max_launcher_scope_system">სისტემა</string>
+    <string name="max_launcher_activity_count">%1$d აქტივობები</string>
+    <string name="max_launcher_no_match_title">არაფერი ემთხვევა</string>
+    <string name="max_launcher_no_match_detail">არცერთი პაკეტის სახელი ან აპლიკაციის ლეიბლი არ შეიცავს ამ ტექსტს არჩეულ ზონაში.</string>
+    <string name="max_launcher_no_match_clear">ფილტრების გასუფთავება</string>
+    <string name="max_launcher_reading_activities">ამ პაკეტის აქტივობების წაკითხვა აცხადებს…</string>
+    <string name="max_launcher_no_activities">ეს პაკეტი არ აცხადებს აქტივობას.</string>
+    <string name="max_launcher_root_off_title">ფესვი არ არის მინიჭებული</string>
+    <string name="max_launcher_root_off_detail">კერძოდ მონიშნული აქტივობები არ არის ექსპორტირებული, ამიტომ მხოლოდ root-ს შეუძლია მათი გაშვება. მის გარეშე ექსპორტირებული საქმიანობა კვლავ ღიაა.</string>
+    <string name="max_launcher_tag_private">პირადი</string>
+    <string name="max_launcher_tag_disabled">გამორთულია</string>
+    <string name="max_launcher_outcome_started">აქტივობა დაიწყო</string>
+    <string name="max_launcher_outcome_needs_root">ეს აქტივობა არ არის ექსპორტირებული — საჭიროა root</string>
+    <string name="max_launcher_outcome_refused">Android-მა უარი თქვა ამ აქტივობის დაწყებაზე</string>
+    <string name="max_launcher_outcome_missing">ამ სახელით აქტივობა არ არის დაინსტალირებული</string>
+</resources>

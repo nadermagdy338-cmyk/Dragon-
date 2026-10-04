@@ -4,6 +4,7 @@
  * Licensed under the Apache License, Version 2.0.
  */
 package nd.max.ui.util
+import nd.max.core.platform.EventLog
 
 /**
  * Executes an already guarded request and records its measured result.
@@ -50,6 +51,8 @@ fun executeFileOperation(request: FileOpRequest): FileOpOutcome {
         FileOperation.Compress -> FileSystemEngine.compress(
             request.sources,
             request.destination.orEmpty(),
+            request.archiveFormat,
+            request.compressionLevel,
         )
         FileOperation.Extract -> FileSystemEngine.extract(
             request.sources.firstOrNull().orEmpty(),

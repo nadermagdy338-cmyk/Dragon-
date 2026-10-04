@@ -10,6 +10,7 @@
 package nd.max.ui.component
 
 import androidx.compose.animation.AnimatedContent
+import nd.max.ui.design.MaxRadius
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -66,7 +67,7 @@ fun MaxControlStatus(
 
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(MaxRadius.chip),
         color = container,
         border = BorderStroke(1.dp, accent.copy(alpha = 0.16f))
     ) {
@@ -114,7 +115,7 @@ fun MaxInfoStrip(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(MaxRadius.row),
         color = accent.copy(alpha = 0.07f),
         border = BorderStroke(1.dp, accent.copy(alpha = 0.12f))
     ) {
@@ -142,7 +143,7 @@ fun MaxInlineEmptyState(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(MaxRadius.tile),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.14f))
     ) {
@@ -151,7 +152,7 @@ fun MaxInlineEmptyState(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface(
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(MaxRadius.row),
                 color = accent.copy(alpha = 0.10f)
             ) {
                 Icon(Icons.Rounded.Info, null, tint = accent, modifier = Modifier.padding(10.dp).size(22.dp))

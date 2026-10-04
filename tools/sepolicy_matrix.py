@@ -17,7 +17,7 @@
 * و`android/aosp/Android.bp` يُعلن مصادر **غير موجودة**: `runtime/daemon-rust/src/**/*.rs`
   و`runtime/daemon-rust/src/lib.rs` ولا مجلد `runtime/` في الشجرة أصلًا.
 * و`android/aosp/sepolicy/file_contexts` يُعلّم `/data/misc/maxmanager` وخادمنا يكتب
-  `/data/adb/.config/MaxManager/**` (`archdaemon/jni/include/AZenith.h`) — أي أن قواعد `allow`
+  `/data/adb/.config/MaxManager/**` (`archdaemon/jni/include/MaxManager.h`) — أي أن قواعد `allow`
   في `maxmanager.te` تحرس مسارًا لا يُستخدم، والمسار المُستخدم (`adb_data_file` من المنصّة)
   بلا قاعدة.
 
@@ -859,7 +859,7 @@ def self_test() -> int:
         (deep / "mainfiles/service.sh").write_text(
             "$MODPATH/system/bin/sys.maxmanager-service --clearlogs\n", encoding="utf-8"
         )
-        (deep / "archdaemon/jni/include/AZenith.h").write_text(
+        (deep / "archdaemon/jni/include/MaxManager.h").write_text(
             '#define LOG_FILE "/data/adb/.config/MaxManager/debug/MaxManager.log"\n', encoding="utf-8"
         )
         deep_findings, deep_notes = scan(deep)

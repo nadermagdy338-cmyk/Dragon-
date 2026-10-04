@@ -43,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import nd.max.ui.design.MaxRadius
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -283,7 +284,7 @@ private fun SceneChip(
     val change = changeText(line)
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(MaxRadius.chip))
             .background(scheme.surfaceVariant.copy(alpha = 0.45f))
             .padding(horizontal = 8.dp, vertical = 6.dp),
     ) {

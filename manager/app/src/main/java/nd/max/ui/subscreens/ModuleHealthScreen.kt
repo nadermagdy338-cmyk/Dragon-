@@ -5,31 +5,22 @@
  */
 package nd.max.ui.subscreens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,7 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import nd.max.ui.design.MaxCardShell
+import nd.max.ui.design.MaxCardSpec
 import nd.max.R
+import nd.max.ui.design.MaxScreen
 import nd.max.ui.util.ModuleHealth
 import nd.max.ui.util.ModuleHealthUtil
 import nd.max.ui.util.VersionIdentity
@@ -56,7 +50,6 @@ import nd.max.ui.util.VersionIdentity
  * تجيب السؤال الذي يبقى بلا جواب في أغلب تطبيقات الجذر: «هل الوحدة سليمة؟ وإن
  * انهار الجهاز، ماذا أفعل الآن؟» — من داخل التطبيق نفسه بدل مواقع موزّعة تحتاج حاسوبًا.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModuleHealthScreen(navController: NavController) {
     var health by remember { mutableStateOf<ModuleHealth?>(null) }
@@ -65,32 +58,11 @@ fun ModuleHealthScreen(navController: NavController) {
         health = withContext(Dispatchers.IO) { ModuleHealthUtil.read() }
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        containerColor = MaterialTheme.colorScheme.surface,
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.max_module_title)) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = stringResource(R.string.cd_back),
-                        )
-                    }
-                },
-            )
-        },
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(PaddingValues(horizontal = 16.dp, vertical = 12.dp)),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            SectionCard(
+    MaxScreen(
+        title = stringResource(R.string.max_module_title),
+        onBack = { navController.navigateUp() },
+    ) {
+        SectionCard(
                 title = stringResource(R.string.max_module_health_title),
                 subtitle = stringResource(R.string.max_module_health_desc),
             ) {
@@ -215,7 +187,6 @@ fun ModuleHealthScreen(navController: NavController) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-        }
     }
 }
 
@@ -225,36 +196,32 @@ private fun SectionCard(
     subtitle: String,
     content: @Composable () -> Unit,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        ),
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Rounded.Build,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+    // القشرة من `MaxCardShell` لا `Card` محلّية بـ`RoundedCornerShape(MaxCardSpec.radius)`: الطلب (§٢) يعدّ
+    // نصف القطر والحدّ والخلفية والحشو **واحدًا لكل بطاقة في التطبيق**، و24 كانت قيمة رابعة
+    // بعد 22 (العقد) و28 (الورقة) و12 (التحكّم) — وقارئ لا يفرّق بصره بين 22 و24، فالاختلاف
+    // ضجيج لا تصميم. والعنوان صار `titleSmall` لأن سلّم §٩ يسمّي عنوان البطاقة به (و`titleMedium`
+    // محفوظ لعنوان القسم).
+    MaxCardShell(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Rounded.Build,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(MaxCardSpec.iconGlyph),
             )
-            Spacer(Modifier.height(12.dp))
-            content()
+            Spacer(Modifier.width(MaxCardSpec.gap))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall.copy(lineBreak = LineBreak.Heading),
+                fontWeight = FontWeight.Bold,
+            )
         }
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodySmall.copy(lineBreak = LineBreak.Heading),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        content()
     }
 }
 

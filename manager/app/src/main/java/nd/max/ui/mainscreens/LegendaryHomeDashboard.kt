@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.PhoneAndroid
@@ -52,10 +51,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.max
+import nd.max.ui.design.MaxRadius
 import nd.max.R
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
+import nd.max.ui.component.MaxAiEntryButton
 import nd.max.ui.component.NeuralActionTile
+import nd.max.ui.design.MaxCardData
+import nd.max.ui.design.MaxCardGrid
+import nd.max.ui.design.MaxTone
 import nd.max.ui.component.NeuralCaption
 import nd.max.ui.component.NeuralFactTile
 import nd.max.ui.component.NeuralFeedRow
@@ -122,9 +126,14 @@ internal fun LegendaryHomeDashboard(
     maxAi: MaxAiState,
     profileRequest: ProfileRequestState,
     deviceName: String,
+    // **وبطاقات المنصة تُمرَّر ولا تُكتب هنا (أمر المالك):** عددها ٤ إلى ٦ وترتيبها يتبع
+    // الاستعمال أو اختيار المستخدم — والقاعدة في `homeDeckSelection` وحدها، فلا نسخة ثانية
+    // منها في الرسم. التفصيل في `CommandDeck` و`HomeDeckModel`.
+    deckEntries: List<HomeDeckEntry>,
+    onOpenDeck: (HomeDeckEntry) -> Unit,
+    onConfigureDeck: () -> Unit,
     modifier: Modifier = Modifier,
     onNavigate: (String) -> Unit,
-    onProfile: () -> Unit,
     onReboot: () -> Unit,
     onSettings: () -> Unit,
     onAiRetry: () -> Unit
@@ -135,7 +144,16 @@ internal fun LegendaryHomeDashboard(
         PulsePanel(
             deviceName = deviceName,
             dashboard = dashboard,
-            onOverview = { onNavigate(MaxDestination.Diagnostics.route) },
+            // حالة الوعي في Max AI تُقرأ من مسارها الحقيقي (`MaxAiState.aiEnabled`) ولا تُخمَّن من
+            // وجود الشاشة: باقي الواجهة تكذب ADR-07 ("المجهول يُعلَن مجهولًا")، ووجود الشاشة
+            // لا يقول مُشغّل من متوقّف.
+            aiEnabled = maxAi.aiEnabled,
+            // الزرّ يفتح **شاشة معلومات الجهاز** (`Device Info`): هي التي تملك هذه الفكرة
+            // بأقسامها الأحد عشر، وفي كل قسم **بابٌ إلى الشاشة المشابهة له** (طلب المالك:
+            // «كل قسم مرتبط بالشاشة المشابه له») — فيرى المستخدم المتقدّم ما يطلبه من موضع واحد،
+            // ولا تُزحم بقية الشاشات بزرّ في كل بطاقة. وكانت الحبّة تفتح `Diagnostics` —
+            // تشخيصًا لا نظرة جهاز — فصار المدخل إلى مالك الموضوع، و`Diagnostics` في الإعدادات.
+            onOverview = { onNavigate(MaxDestination.DeviceInfo.route) },
             // مدخل Max AI من أول بطاقة (طلب المالك): كان مقعدًا في الشريط السفلي، وصار
             // بوّابة في البطاقة التي تُقرأ أولًا — والمقعد الذي أخلاه صار للإعدادات.
             onMaxAi = { onNavigate(MaxDestination.MaxAi.route) }
@@ -160,10 +178,9 @@ internal fun LegendaryHomeDashboard(
             onRetry = onAiRetry
         )
         CommandDeck(
-            onBoost = onProfile,
-            onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
-            onBattery = { onNavigate(MaxDestination.Charging.route) },
-            onAdvanced = { onNavigate(MaxDestination.Control.route) }
+            entries = deckEntries,
+            onOpen = onOpenDeck,
+            onConfigure = onConfigureDeck,
         )
     }
 }
@@ -204,7 +221,8 @@ private fun HomeHeader(online: Boolean, onSettings: () -> Unit, onReboot: () -> 
 @Composable
 private fun HeaderButton(icon: ImageVector, description: String, onClick: () -> Unit) {
     val p = neuralPalette()
-    val shape = RoundedCornerShape(13.dp)
+    // 13dp لم تكن على سلّم نصف القطر؛ مرامي التحكّم هو نفسه نصف قطر التحكّم في العقد.
+    val shape = RoundedCornerShape(MaxRadius.control)
     Box(
         Modifier
             .size(38.dp)
@@ -328,9 +346,9 @@ private fun FrequencyMetricCard(
 
     Column(
         modifier
-            .clip(RoundedCornerShape(22.dp))
+            .clip(RoundedCornerShape(MaxRadius.group))
             .background(p.tile.copy(alpha = .92f))
-            .border(BorderStroke(1.dp, accent.copy(alpha = .26f)), RoundedCornerShape(22.dp))
+            .border(BorderStroke(1.dp, accent.copy(alpha = .26f)), RoundedCornerShape(MaxRadius.group))
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -500,10 +518,29 @@ private fun FrequencySparkline(
     }
 }
 
+/**
+ * مقاس البطاقة الأولى — **٩٥٪ من مقاسها السابق** بأمر المالك («اجعل أوّل بطاقة في الشاشة
+ * الرئيسية أصغر بنسبة ٥٪»).
+ *
+ * ومعامل جامع لا تخفيض في رقم أو رقمين: البطاقة تُقرأ **بلوكًا واحدًا**، فتخفيض الرقم الكبير
+ * وحده يُقرأ «حرارةً أصغر في بطاقةٍ كما هي»، وتخفيض الحشو وحده يُقرأ «بطاقةً أوسع». فالضرب
+ * يجري على ما تملكه هذه البطاقة من أرقام — الحشو ١٨ ← ١٧٫١ · الفراغ الرأسي ١٦ ← ١٥٫٢ ·
+ * مربّع الأيقونة ٤٠ ← ٣٨ · اسم الجهاز ١٦sp ← ١٥٫٢sp · سطر الشريحة ١١sp ← ١٠٫٤٥sp ·
+ * الرقم الكبير ٤٤sp ← ٤١٫٨sp (وسطره ٤٨ ← ٤٥٫٦) · فُرَج الصفّ ٨ ← ٧٫٦.
+ *
+ * **وما لم يُشمل بسببه:** المكوّنات المشتركة (`MaxAiEntryButton` · `NeuralPill` · `NeuralFactTile`)
+ * — لأوّلها وثانيها **صندوق لمس ٤٨dp** وهو حدّ سياسة لا ذوق (تصغيره إلى ٤٥٫٦dp يخالف §١٣)،
+ * وللثلاثة مستعملون خارج هذه الشاشة فمقاسها ليس ملكها. **وحدّ القياس:** النسبة مقيسة، وأثرها
+ * على العين **يحتاج جهازًا** (التفصيل في `HANDOFF` ← تكملة ٢٠٧).
+ */
+private const val PULSE_SCALE = 0.95f
+
 @Composable
 private fun PulsePanel(
     deviceName: String,
     dashboard: DashboardState,
+    /** حالة Max AI الحقيقية — تُعلّم المؤشّر في زرّه بلا سطر يشرح. */
+    aiEnabled: Boolean,
     onOverview: () -> Unit,
     onMaxAi: () -> Unit
 ) {
@@ -512,16 +549,21 @@ private fun PulsePanel(
         ?: dashboard.cpuTempC.takeIf { it > 0 }
     val heatAccent = temperatureAccent(heat)
     val calm = heat == null || heat < 43
-    NeuralPanel(accent = p.accent, contentPadding = PaddingValues(18.dp), verticalSpacing = 16.dp) {
+    // وكل ما في هذه البطاقة من أرقام يمرّ من [PULSE_SCALE] — القرار في مكان واحد، والتفصيل في كتْبته.
+    NeuralPanel(
+        accent = p.accent,
+        contentPadding = PaddingValues(18.dp * PULSE_SCALE),
+        verticalSpacing = 16.dp * PULSE_SCALE
+    ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralIconChip(Icons.Rounded.PhoneAndroid, p.accent, size = 40.dp)
-            Spacer(Modifier.width(12.dp))
+            NeuralIconChip(Icons.Rounded.PhoneAndroid, p.accent, size = 40.dp * PULSE_SCALE)
+            Spacer(Modifier.width(12.dp * PULSE_SCALE))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
                     deviceName,
                     color = p.text,
-                    fontSize = 16.sp,
-                    lineHeight = 20.sp,
+                    fontSize = 16.sp * PULSE_SCALE,
+                    lineHeight = 20.sp * PULSE_SCALE,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -529,8 +571,8 @@ private fun PulsePanel(
                 Text(
                     dashboard.chipsetName,
                     color = p.muted,
-                    fontSize = 11.sp,
-                    lineHeight = 15.sp,
+                    fontSize = 11.sp * PULSE_SCALE,
+                    lineHeight = 15.sp * PULSE_SCALE,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -543,51 +585,52 @@ private fun PulsePanel(
                     NeuralValue(
                         heat?.toString() ?: "\u2014",
                         style = MonoValueStyleSmall.copy(
-                            fontSize = 44.sp,
-                            lineHeight = 48.sp,
+                            fontSize = 44.sp * PULSE_SCALE,
+                            lineHeight = 48.sp * PULSE_SCALE,
                             fontWeight = FontWeight.Bold
                         ),
                         color = p.text
                     )
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(4.dp * PULSE_SCALE))
                     NeuralCaption("\u00b0C", color = p.muted)
                 }
-            }
-            // مفتاح Max AI **مكان** كلمة الحالة (طلب المالك: «بدل النظام مستقر»)،
-            // لا بجانبها. والوسم هنا **زرّ**: `filled` + النجمة + `onClick` تقول
-            // «اضغطني» بلا سطر يشرح ذلك.
-            //
-            // ولماذا حُذفت كلمة الحالة في الحالة السليمة ولم تُحذف معها في غيرها:
-            // العبارة مشتقّة من الحرارة نفسها (`calm` = أقل من ٤٣°)، والحرارة تُطبع
-            // رقمًا كبيرًا في هذا الصفّ بعينه — فـ«النظام مستقر» في كل فتحة تطبيق
-            // تكرارٌ لمعلومةٍ معروضة، وهو الذي طُلب إزالته. أمّا «يحتاج انتباه» فتفسيرٌ
-            // يُضاف إلى الرقم، وإخفاؤه إخفاءٌ لإنذار حقيقي ⇒ مخالف لـADR-07.
-            // (و`home_system_stable` يبقى في الموارد بلا مستهلك — لا يُحذف: ADR-18،
-            // وهو مفيد لأي سطح يعرض الحالة وحدها بلا رقم بجانبها.)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+                /*
+                 * «النظام يحتاج انتباه» **انتقلت إلى هنا من صفّ الزرّ** — والسبب مقيس لا مذوق.
+                 *
+                 * النصّ الإنجليزي `SYSTEM NEEDS ATTENTION` عند `10sp` بتباعد `0.9sp` يبلغ
+                 * **≈١٧٢dp** (قيس بخطّ النظام لا بالتخمين)، ووسم Max AI بعد العلامة الجديدة
+                 * **≈١٤٧dp**. فصفٌّ واحد يحمل الاثنين يطلب **≈٣٢٧dp**، والمتاح على شاشة ٣٦٠dp هو
+                 * **≈٢٨٤dp** (بعد هامش الصفحة ٢٠dp×٢ وحشوة اللوحة ١٨dp×٢ — وهي اليوم ١٧٫١dp
+                 * بـ`PULSE_SCALE`، فالمتاح يزيد ١٫٨dp ولا ينقص) ⇒ صفٌّ **مفرط القيود**،
+                 * وأوّل ما يُدفع ثمنه هو الرقم الكبير (٤٤sp يحتاج ≈٦١dp).
+                 *
+                 * **وهذا عطب سابق للعلامة لا ناتج عنها:** الوسم قبلها كان ≈١٢١dp والمجموع
+                 * ≈٣٠١dp — أي أنه تجاوز ٢٨٤dp حتى بلا العلامة. فالتغيير هنا لم يُورث العطب بل
+                 * أظهره: الرقم الذي يشرح *لماذا* «يحتاج انتباه» كان أوّل ما يُقصّ في الحالة التي
+                 * يظهر فيها التحذير، على ٣٦٠dp و٣٩٣dp و٤١٢dp جميعًا.
+                 *
+                 * ونقل العبارة تحت الرقم الذي تصفه يحلّ التنافس ويصحّح المعنى معه: العبارة عن
+                 * الحرارة لا عن الزرّ (٨dp تفصلها عنه فتُقرأ تبعيّة له وهي ليست له). وقِيس الأثر:
+                 * بعد النقل يحصل عمود الحرارة على **١٣٧dp** على ٣٦٠dp و**٩٧dp** على ٣٢٠dp — أكبر
+                 * من ٦١dp التي يحتاجها الرقم.
+                 */
                 if (!calm) {
-                    NeuralCaption(
-                        stringResource(R.string.home_system_attention),
-                        color = heatAccent
-                    )
+                    NeuralCaption(stringResource(R.string.home_system_attention), color = heatAccent)
                 }
-                // و`navigates = true` مُضافة هنا **بطلب المالك** («لا يدل على أنه يدخلك إلى شاشة
-                // أخرى»)؛ ويومها كانت موضعًا واحدًا، وقيست بعدها في السطور المجاورة: كل وسم
-                // يقود إلى شاشة أخرى في هذه الرئيسية كان بلا سهم — فالمستدعى يُصلح الصنف.
-                NeuralPill(
-                    text = stringResource(R.string.max_nav_max_ai),
-                    accent = p.accent,
-                    icon = Icons.Rounded.AutoAwesome,
-                    filled = true,
-                    navigates = true,
-                    onClick = onMaxAi
-                )
             }
+            // مدخل Max AI **مكان** كلمة الحالة (طلب المالك: «بدل النظام مستقر»). و«يحتاج انتباه»
+            // لم تُخفَ بل انتقلت إلى عمود الحرارة أعلاه (ADR-07). والزرّ مكوّن مستقلّ بأيقونة
+            // عاديّة؛ والحالة (مُشغَّل/متوقّف) يحملها لونه بدل النقطة والتوهّج المحذوفين.
+            MaxAiEntryButton(
+                text = stringResource(R.string.max_nav_max_ai),
+                active = aiEnabled,
+                onClick = onMaxAi
+            )
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp * PULSE_SCALE)
+        ) {
             NeuralFactTile(
                 caption = stringResource(R.string.max_home_uptime),
                 value = compactUptime(dashboard.uptimeMinutes),
@@ -607,10 +650,21 @@ private fun PulsePanel(
                 modifier = Modifier.weight(1f)
             )
         }
+        // `compact` بأمر المالك («قم بتصغير … زر في الشاشة الرئيسية»): حبّة بمقاسها المرئي،
+        // وصندوق لمس ٤٨dp يبقى تحتها. وكان ظاهرها ٤٨dp لأن حدّ الإتاحة كان يُطبّق على شكلها
+        // نفسه، لا على حاوية حوله.
+        //
+        // **والاسم من السجلّ لا نصًّا مكتوبًا بيد** (أمر المالك: «زر في الشاشة الرئيسية باسم
+        // device info به كل الأقسام»): `MaxDestination.DeviceInfo.titleRes` هو **عنوان الشاشة
+        // نفسه**، فلا اسمان لوجهة واحدة — وهو العطب الذي وُلد منه السجلّ (ADR-02). والعبارة
+        // السابقة (`home_device_overview` = «افتح نظرة عامة للجهاز») كانت تصف **الحركة** لا
+        // الوجهة؛ وحُذف المفتاح من `values/` و`values-ar/` ومن الـ٨٣ لغة (`--prune all`) فلا
+        // تبقى ترجمة قديمة تقول شيئًا آخر عن المدخل نفسه.
         NeuralPill(
-            text = stringResource(R.string.home_device_overview),
+            text = stringResource(MaxDestination.DeviceInfo.titleRes),
             accent = p.muted,
             navigates = true,
+            compact = true,
             onClick = onOverview
         )
     }
@@ -933,55 +987,3 @@ private fun VerdictPanel(
     }
 }
 
-@Composable
-private fun CommandDeck(
-    onBoost: () -> Unit,
-    onThermal: () -> Unit,
-    onBattery: () -> Unit,
-    onAdvanced: () -> Unit
-) {
-    val p = neuralPalette()
-    NeuralPanel {
-        NeuralSectionHeader(
-            title = stringResource(R.string.home_quick_actions),
-            caption = stringResource(R.string.home_quick_actions_desc),
-            accent = p.accentAlt
-        )
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            NeuralActionTile(
-                icon = Icons.Rounded.Speed,
-                title = stringResource(R.string.home_action_boost),
-                support = stringResource(R.string.home_action_boost_desc),
-                accent = p.accent,
-                onClick = onBoost,
-                modifier = Modifier.weight(1f)
-            )
-            NeuralActionTile(
-                icon = Icons.Rounded.Thermostat,
-                title = stringResource(R.string.home_action_thermal),
-                support = stringResource(R.string.home_action_thermal_desc),
-                accent = p.warn,
-                onClick = onThermal,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            NeuralActionTile(
-                icon = Icons.Rounded.BatteryChargingFull,
-                title = stringResource(R.string.home_action_battery),
-                support = stringResource(R.string.home_action_battery_desc),
-                accent = p.ok,
-                onClick = onBattery,
-                modifier = Modifier.weight(1f)
-            )
-            NeuralActionTile(
-                icon = Icons.Rounded.Tune,
-                title = stringResource(R.string.home_action_advanced),
-                support = stringResource(R.string.home_action_advanced_desc),
-                accent = p.accentAlt,
-                onClick = onAdvanced,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}

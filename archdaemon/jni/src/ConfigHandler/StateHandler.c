@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "AZenith.h"
+#include "MaxManager.h"
 
 /**
  * @brief Persists critical runtime state (renderer, refresh rate, zen mode) to disk

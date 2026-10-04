@@ -7,7 +7,7 @@
     <string name="all_set">Yote yamepangwa, sasa unaweza kutumia Max Manager</string>
     <string name="allow_verbose_log">Ruhusu logi za kina za daemon</string>
     <string name="android_version">Toleo la Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Jina la programu</string>
     <string name="app_priority">Kipaumbele cha programu</string>
     <string name="app_priority_control">Udhibiti wa kipaumbele cha programu</string>
@@ -722,15 +722,6 @@
     <string name="fps_overlay_notif_channel">Uwekeleaji wa ramprogrammen</string>
     <string name="fps_overlay_notif_title">Max Manager Uwekeleaji wa FPS unaendelea</string>
     <string name="fps_overlay_notif_stop">Acha</string>
-    <string name="fps_overlay_section_style">Muonekano</string>
-    <string name="fps_overlay_style">Mtindo wa kufunika</string>
-    <string name="fps_overlay_style_android">Orodha ya Android</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Mwelekeo wa mpangilio</string>
-    <string name="fps_overlay_orientation_vertical">Wima</string>
-    <string name="fps_overlay_orientation_horizontal">Mlalo</string>
-    <string name="fps_overlay_read_mode">Mbinu ya kusoma FPS</string>
     <string name="fps_overlay_read_mode_desc">Jaribu njia tofauti ikiwa usomaji utaendelea kuwa 0 kwenye kifaa chako</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (inapendekezwa)</string>
     <string name="fps_overlay_mode_kernel">Nodi ya Kernel</string>
@@ -739,14 +730,6 @@
     <string name="fps_overlay_text_size">Ukubwa wa maandishi</string>
     <string name="fps_overlay_bg_alpha">Ufinyu wa mandharinyuma</string>
     <string name="fps_overlay_width_scale">Mizani ya upana</string>
-    <string name="fps_overlay_section_metrics">Vipimo vilivyoonyeshwa</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU mzigo</string>
-    <string name="fps_overlay_metric_ram">RAM matumizi</string>
-    <string name="fps_overlay_metric_watt">Kuchora nguvu ya betri</string>
-    <string name="fps_overlay_metric_temp">Halijoto ya betri</string>
-    <string name="fps_overlay_metric_render">Lebo ya kionyeshi</string>
-    <string name="fps_overlay_metric_render_desc">Inaonyesha VULKAN/OPENGL badala ya \"FPS\" kama lebo, iliyogunduliwa kutoka kwa maktaba zilizopakiwa za programu ya mbele.</string>
     <string name="dozemode_title">Sera ya Usingizi</string>
     <string name="dozemode_menu_desc">Orodha iliyoidhinishwa ya kusubiri, tabia ya kutofanya kitu, na urekebishaji wa nguvu chinichini</string>
     <string name="dozemode_state_label">Hali ya kusinzia</string>
@@ -782,9 +765,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Fungua mipangilio</string>
     <string name="processmgr_title">Mfuatiliaji wa Kazi</string>
-    <string name="processmgr_menu_desc">Kwa kila mchakato CPU na RAM utumiaji, kwa kusimamisha kwa nguvu na kuwekelea kuelea</string>
     <string name="processmgr_stat_total">%1$d michakato</string>
-    <string name="processmgr_stat_breakdown">%1$d mtumiaji \u00b7 %2$d mfumo</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Juu %1$d</string>
@@ -805,9 +786,6 @@
     <string name="processmgr_search_hint">Tafuta michakato inayoendesha</string>
     <string name="processmgr_no_processes">Hakuna michakato inayolingana na utafutaji wako</string>
     <string name="processmgr_dialog_close">Funga</string>
-    <string name="processmgr_detail_version">Toleo</string>
-    <string name="processmgr_detail_build">Jenga</string>
-    <string name="processmgr_detail_package">Kifurushi</string>
     <string name="processmgr_result_killed">Waliouawa %1$s</string>
     <string name="processmgr_result_kill_failed">Haikuweza kuua %1$s</string>
     <string name="processmgr_result_stopped">Kukomesha kwa nguvu %1$s</string>
@@ -1454,7 +1432,6 @@
     <string name="max_home_reboot_desc">Fungua chaguo salama za kuwasha upya</string>
     <string name="max_home_ai_console">MAX AI console</string>
     <string name="max_home_ai_working">Inatuma wasifu ulioombwa...</string>
-    <string name="max_home_ai_failed">Kitendo cha mwisho cha AI kilishindwa</string>
     <string name="max_home_retry">Jaribu tena</string>
     <string name="max_home_ai_idle">Hakuna uamuzi wa AI uliorekodiwa bado</string>
     <string name="home_system_stable">SYSTEM IMARA</string>
@@ -1470,8 +1447,6 @@
     <string name="home_performance_monitor_desc">Upakiaji wa rasilimali zaidi ya sekunde 72 zilizopita</string>
     <string name="home_quick_actions">Sitaha ya amri</string>
     <string name="home_quick_actions_desc">Ufikiaji wa moja kwa moja kwa vidhibiti ambavyo ni muhimu</string>
-    <string name="home_action_boost">Wasifu wa utendaji</string>
-    <string name="home_action_boost_desc">Badilisha tabia ya mfumo</string>
     <string name="home_action_thermal">Kituo cha joto</string>
     <string name="home_action_thermal_desc">Kagua joto na baridi</string>
     <string name="home_action_battery">Kituo cha nguvu</string>
@@ -1491,7 +1466,6 @@
     <string name="home_active">INAENDELEA</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">IMELINDA</string>
-    <string name="home_device_overview">FUNGUA MUHTASARI WA KIFAA</string>
     <string name="home_live_performance">Utendaji wa moja kwa moja</string>
     <string name="home_live_performance_desc">Upakiaji wa sasa na udhibiti wa vifaa vya moja kwa moja</string>
     <string name="home_open_details">Fungua data ya kina ya joto</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Uboreshaji kwa kila programu unatekelezwa</string>
     <string name="max_app_advanced_options">Chaguzi za hali ya juu</string>
     <string name="max_app_save">Hifadhi</string>
+    <string name="home_gpu_max_freq">Max frequency</string>
 </resources>

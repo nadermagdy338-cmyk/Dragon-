@@ -7,7 +7,7 @@
     <string name="all_set">Viskas paruošta, dabar galite naudoti Max Manager</string>
     <string name="allow_verbose_log">Išsamus demono žurnalas</string>
     <string name="android_version">Android versija</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Programos pavadinimas</string>
     <string name="app_priority">Programos prioritetas</string>
     <string name="app_priority_control">Programos prioriteto valdymas</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS perdanga</string>
     <string name="fps_overlay_notif_title">Max Manager FPS perdanga veikia</string>
     <string name="fps_overlay_notif_stop">Sustok</string>
-    <string name="fps_overlay_section_style">Išvaizda</string>
-    <string name="fps_overlay_style">Perdangos stilius</string>
-    <string name="fps_overlay_style_android">Android sąrašas</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Išdėstymo kryptis</string>
-    <string name="fps_overlay_orientation_vertical">Vertikalus</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontalus</string>
-    <string name="fps_overlay_read_mode">FPS skaitymo metodas</string>
     <string name="fps_overlay_read_mode_desc">Išbandykite kitą metodą, jei rodmenys jūsų įrenginyje išlieka 0</string>
     <string name="fps_overlay_mode_surfaceflinger">„SurfaceFlinger“ (rekomenduojama)</string>
     <string name="fps_overlay_mode_kernel">Branduolio mazgas</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Teksto dydis</string>
     <string name="fps_overlay_bg_alpha">Fono neskaidrumas</string>
     <string name="fps_overlay_width_scale">Pločio skalė</string>
-    <string name="fps_overlay_section_metrics">Rodoma metrika</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU apkrova</string>
-    <string name="fps_overlay_metric_ram">RAM naudojimas</string>
-    <string name="fps_overlay_metric_watt">Baterijos energijos suvartojimas</string>
-    <string name="fps_overlay_metric_temp">Baterijos temperatūra</string>
-    <string name="fps_overlay_metric_render">Atvaizduotojo etiketė</string>
-    <string name="fps_overlay_metric_render_desc">Rodo VULKAN / OPENGL vietoj \"FPS\" kaip etiketę, aptiktą iš priekinio plano programos įkeltų bibliotekų</string>
     <string name="dozemode_title">Miego politika</string>
     <string name="dozemode_menu_desc">Laukimo režimo baltas sąrašas, elgsena neaktyvioje būsenoje ir foninio maitinimo derinimas</string>
     <string name="dozemode_state_label">Snaudimo būsena</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Atidarykite nustatymus</string>
     <string name="processmgr_title">Užduočių monitorius</string>
-    <string name="processmgr_menu_desc">Per procesą CPU ir RAM naudojimas su priverstiniu sustabdymu ir slankiąja perdanga</string>
     <string name="processmgr_stat_total">%1$d procesai</string>
-    <string name="processmgr_stat_breakdown">%1$d vartotojo \u00b7 %2$d sistema</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Top %1$d</string>
@@ -807,9 +788,6 @@
     <string name="processmgr_search_hint">Ieškoti vykdomų procesų</string>
     <string name="processmgr_no_processes">Jokie procesai neatitinka jūsų paieškos</string>
     <string name="processmgr_dialog_close">Uždaryti</string>
-    <string name="processmgr_detail_version">Versija</string>
-    <string name="processmgr_detail_build">Sukurti</string>
-    <string name="processmgr_detail_package">Paketas</string>
     <string name="processmgr_result_killed">Žuvo %1$s</string>
     <string name="processmgr_result_kill_failed">Nepavyko nužudyti %1$s</string>
     <string name="processmgr_result_stopped">Priverstinis sustabdymas %1$s</string>
@@ -1460,7 +1438,6 @@
     <string name="max_home_reboot_desc">Atidarykite saugaus perkrovimo parinktis</string>
     <string name="max_home_ai_console">MAX AI konsolė</string>
     <string name="max_home_ai_working">Pritaikomas prašomas profilis…</string>
-    <string name="max_home_ai_failed">Paskutinis AI veiksmas nepavyko</string>
     <string name="max_home_retry">Bandykite dar kartą</string>
     <string name="max_home_ai_idle">AI sprendimas dar neužregistruotas</string>
     <string name="home_system_stable">SISTEMA STABILI</string>
@@ -1476,8 +1453,6 @@
     <string name="home_performance_monitor_desc">Išteklių įkėlimas per paskutines 72 sekundes</string>
     <string name="home_quick_actions">Komandų denis</string>
     <string name="home_quick_actions_desc">Tiesioginė prieiga prie svarbių valdiklių</string>
-    <string name="home_action_boost">Veiklos profilis</string>
-    <string name="home_action_boost_desc">Keisti sistemos elgesį</string>
     <string name="home_action_thermal">Terminis centras</string>
     <string name="home_action_thermal_desc">Patikrinkite šilumą ir vėsinimą</string>
     <string name="home_action_battery">Galios centras</string>
@@ -1497,7 +1472,6 @@
     <string name="home_active">AKTYVUS</string>
     <string name="home_idle">TUŠTINGA</string>
     <string name="home_protected">APSAUGOTA</string>
-    <string name="home_device_overview">ATIDARYTI ĮRENGINIO APŽVALGĄ</string>
     <string name="home_live_performance">Gyvas pasirodymas</string>
     <string name="home_live_performance_desc">Dabartinė apkrova ir tiesioginis aparatūros valdymas</string>
     <string name="home_open_details">Atidarykite išsamius šiluminius duomenis</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Taikomas kiekvienai programai skirtas optimizavimas</string>
     <string name="max_app_advanced_options">Išplėstinės parinktys</string>
     <string name="max_app_save">Išsaugoti</string>
+    <string name="home_gpu_max_freq">Maksimalus dažnis</string>
 </resources>

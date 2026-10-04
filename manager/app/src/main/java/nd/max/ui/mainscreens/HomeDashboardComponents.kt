@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.ui.component.*
+import nd.max.ui.design.MaxRadius
 import java.util.Locale
 
 fun formatNetSpeed(kbps: Long): String = when {
@@ -46,7 +47,7 @@ fun IconBadge(icon: ImageVector, tint: Color, size: Int = 40) {
 
 @Composable
 fun LabelText(text: String, color: Color) {
-    Surface(shape = RoundedCornerShape(6.dp), color = color.copy(alpha = .14f)) {
+    Surface(shape = RoundedCornerShape(MaxRadius.chip), color = color.copy(alpha = .14f)) {
         Text(text, color = color, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
     }
 }

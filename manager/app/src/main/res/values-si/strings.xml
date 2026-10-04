@@ -7,7 +7,7 @@
     <string name="all_set">සියල්ල සූදානම්, දැන් ඔබට Max Manager භාවිතා කළ හැක</string>
     <string name="allow_verbose_log">ඩීමන් ක්‍රියාවලිය සවිස්තර ලොග් පෙන්වන්න</string>
     <string name="android_version">Android අනුවාදය</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">යෙදුම් නම</string>
     <string name="app_priority">යෙදුම් ප්‍රමුඛතාවය</string>
     <string name="app_priority_control">යෙදුම් ප්‍රමුඛතා පාලනය</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS ආවරණයක්</string>
     <string name="fps_overlay_notif_title">Max Manager FPS උඩ තට්ටුව ක්‍රියාත්මක වේ</string>
     <string name="fps_overlay_notif_stop">නවත්වන්න</string>
-    <string name="fps_overlay_section_style">පෙනුම</string>
-    <string name="fps_overlay_style">උඩැතිරි විලාසය</string>
-    <string name="fps_overlay_style_android">Android ලැයිස්තුව</string>
-    <string name="fps_overlay_style_pc">PC මොනොස්පේස්</string>
-    <string name="fps_overlay_style_mini">මිනි</string>
-    <string name="fps_overlay_orientation">පිරිසැලසුම් දිශාව</string>
-    <string name="fps_overlay_orientation_vertical">සිරස් අතට</string>
-    <string name="fps_overlay_orientation_horizontal">තිරස්</string>
-    <string name="fps_overlay_read_mode">FPS කියවීමේ ක්රමය</string>
     <string name="fps_overlay_read_mode_desc">ඔබගේ උපාංගයේ කියවීම 0 හි පවතී නම් වෙනත් ක්‍රමයක් උත්සාහ කරන්න</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (නිර්දේශිත)</string>
     <string name="fps_overlay_mode_kernel">කර්නල් නෝඩය</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">පෙළ ප්රමාණය</string>
     <string name="fps_overlay_bg_alpha">පසුබිම් පාරාන්ධතාව</string>
     <string name="fps_overlay_width_scale">පළල පරිමාණය</string>
-    <string name="fps_overlay_section_metrics">ප්‍රමිතික පෙන්වා ඇත</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU පැටවීම</string>
-    <string name="fps_overlay_metric_ram">RAM භාවිතය</string>
-    <string name="fps_overlay_metric_watt">බැටරි බල ඇඳීම</string>
-    <string name="fps_overlay_metric_temp">බැටරි උෂ්ණත්වය</string>
-    <string name="fps_overlay_metric_render">Renderer ලේබලය</string>
-    <string name="fps_overlay_metric_render_desc">ලේබලය ලෙස \"FPS\" වෙනුවට VULKAN/OPENGL පෙන්වයි, පෙරබිම් යෙදුමේ පටවන ලද පුස්තකාලවලින් අනාවරණය කර ඇත</string>
     <string name="dozemode_title">නින්ද ප්‍රතිපත්තිය</string>
     <string name="dozemode_menu_desc">පොරොත්තු ලේඛනය, අක්‍රිය හැසිරීම, සහ පසුබිම් බල සුසර කිරීම</string>
     <string name="dozemode_state_label">ඩෝස් තත්වය</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">සැකසුම් විවෘත කරන්න</string>
     <string name="processmgr_title">කාර්ය නිරීක්ෂකය</string>
-    <string name="processmgr_menu_desc">එක් ක්‍රියාවලියකට CPU සහ RAM භාවිතය, බල-නැවතුම් සහ පාවෙන උඩ තට්ටුවක් සමඟ</string>
     <string name="processmgr_stat_total">%1$d ක්රියාවලි</string>
-    <string name="processmgr_stat_breakdown">%1$d පරිශීලක \u00b7 %2$d පද්ධතිය</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">ඉහළම %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">ධාවන ක්‍රියාවලි සොයන්න</string>
     <string name="processmgr_no_processes">ඔබගේ සෙවුමට ගැලපෙන ක්‍රියාවලියක් නොමැත</string>
     <string name="processmgr_dialog_close">වසන්න</string>
-    <string name="processmgr_detail_version">අනුවාදය</string>
-    <string name="processmgr_detail_build">ගොඩනඟන්න</string>
-    <string name="processmgr_detail_package">පැකේජය</string>
     <string name="processmgr_result_killed">ඝාතනය %1$s</string>
     <string name="processmgr_result_kill_failed">%1$s මරන්න බැරි වුනා</string>
     <string name="processmgr_result_stopped">බලෙන් නැවැත්වූ %1$s</string>
@@ -1462,7 +1440,6 @@
     <string name="max_home_reboot_desc">ආරක්ෂිත නැවත පණගැන්වීමේ විකල්ප විවෘත කරන්න</string>
     <string name="max_home_ai_console">MAX AI කොන්සෝලය</string>
     <string name="max_home_ai_working">ඉල්ලූ පැතිකඩ යොදමින්...</string>
-    <string name="max_home_ai_failed">අවසාන AI ක්‍රියාව අසාර්ථක විය</string>
     <string name="max_home_retry">නැවත උත්සාහ කරන්න</string>
     <string name="max_home_ai_idle">තවමත් AI තීරණයක් වාර්තා කර නොමැත</string>
     <string name="home_system_stable">පද්ධතිය ස්ථාවර</string>
@@ -1478,8 +1455,6 @@
     <string name="home_performance_monitor_desc">පසුගිය තත්පර 72 පුරා සම්පත් පැටවීම</string>
     <string name="home_quick_actions">විධාන තට්ටුව</string>
     <string name="home_quick_actions_desc">වැදගත් වන පාලන වෙත සෘජු ප්‍රවේශය</string>
-    <string name="home_action_boost">කාර්ය සාධන පැතිකඩ</string>
-    <string name="home_action_boost_desc">පද්ධති හැසිරීම වෙනස් කරන්න</string>
     <string name="home_action_thermal">තාප මධ්යස්ථානය</string>
     <string name="home_action_thermal_desc">තාපය සහ සිසිලනය පරීක්ෂා කරන්න</string>
     <string name="home_action_battery">බල මධ්යස්ථානය</string>
@@ -1499,7 +1474,6 @@
     <string name="home_active">ක්‍රියාකාරී</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">ආරක්ෂා කර ඇත</string>
-    <string name="home_device_overview">උපාංග දළ විශ්ලේෂණය විවෘත කරන්න</string>
     <string name="home_live_performance">සජීවී කාර්ය සාධනය</string>
     <string name="home_live_performance_desc">වත්මන් පැටවීම සහ සෘජු දෘඪාංග පාලනය</string>
     <string name="home_open_details">සවිස්තරාත්මක තාප දත්ත විවෘත කරන්න</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">යෙදුමකට ප්‍රශස්තකරණයන් යොදනු ලැබේ</string>
     <string name="max_app_advanced_options">උසස් විකල්ප</string>
     <string name="max_app_save">සුරකින්න</string>
+    <string name="home_gpu_max_freq">උපරිම වාර ගණන</string>
 </resources>

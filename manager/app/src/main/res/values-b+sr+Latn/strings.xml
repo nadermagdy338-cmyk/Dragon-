@@ -7,7 +7,7 @@
     <string name="all_set">Sve je spremno, sada možete koristiti Max Manager</string>
     <string name="allow_verbose_log">Detaljan zapis demona</string>
     <string name="android_version">Android verzija</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Naziv aplikacije</string>
     <string name="app_priority">Prioritet aplikacije</string>
     <string name="app_priority_control">Kontrola prioriteta aplikacije</string>
@@ -726,15 +726,6 @@
     <string name="fps_overlay_notif_channel">ФПС Оверлаи</string>
     <string name="fps_overlay_notif_title">Max Manager ФПС преклапање је покренуто</string>
     <string name="fps_overlay_notif_stop">Стани</string>
-    <string name="fps_overlay_section_style">Изглед</string>
-    <string name="fps_overlay_style">Стил преклапања</string>
-    <string name="fps_overlay_style_android">Андроид листа</string>
-    <string name="fps_overlay_style_pc">ПЦ моноспаце</string>
-    <string name="fps_overlay_style_mini">Мини</string>
-    <string name="fps_overlay_orientation">Смер распореда</string>
-    <string name="fps_overlay_orientation_vertical">Вертицал</string>
-    <string name="fps_overlay_orientation_horizontal">Хоризонтално</string>
-    <string name="fps_overlay_read_mode">ФПС метода читања</string>
     <string name="fps_overlay_read_mode_desc">Испробајте други метод ако очитавање остане на 0 на вашем уређају</string>
     <string name="fps_overlay_mode_surfaceflinger">СурфацеФлингер (препоручено)</string>
     <string name="fps_overlay_mode_kernel">Чвор језгра</string>
@@ -743,14 +734,6 @@
     <string name="fps_overlay_text_size">Величина текста</string>
     <string name="fps_overlay_bg_alpha">Прозирност позадине</string>
     <string name="fps_overlay_width_scale">Скала ширине</string>
-    <string name="fps_overlay_section_metrics">Приказане метрике</string>
-    <string name="fps_overlay_metric_fps">ФПС</string>
-    <string name="fps_overlay_metric_cpu">CPU оптерећење</string>
-    <string name="fps_overlay_metric_ram">RAM употреба</string>
-    <string name="fps_overlay_metric_watt">Извлачење снаге батерије</string>
-    <string name="fps_overlay_metric_temp">Температура батерије</string>
-    <string name="fps_overlay_metric_render">Ознака рендерера</string>
-    <string name="fps_overlay_metric_render_desc">Приказује ВУЛКАН/ОПЕНГЛ уместо „ФПС“ као ознаку, откривену из учитаних библиотека апликације у првом плану</string>
     <string name="dozemode_title">Слееп Полици</string>
     <string name="dozemode_menu_desc">Бела листа у стању приправности, понашање у мировању и подешавање напајања у позадини</string>
     <string name="dozemode_state_label">Дозе стате</string>
@@ -786,9 +769,7 @@
     <string name="pid">ПИД</string>
     <string name="open_settings">Отворите подешавања</string>
     <string name="processmgr_title">Монитор задатака</string>
-    <string name="processmgr_menu_desc">Употреба по процесу CPU и RAM, са принудним заустављањем и плутајућим слојем</string>
     <string name="processmgr_stat_total">%1$d процеси</string>
-    <string name="processmgr_stat_breakdown">%1$d корисник · %2$d систем</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Врх %1$d</string>
@@ -809,9 +790,6 @@
     <string name="processmgr_search_hint">Претражите покренуте процесе</string>
     <string name="processmgr_no_processes">Ниједан процес не одговара вашој претрази</string>
     <string name="processmgr_dialog_close">Затвори</string>
-    <string name="processmgr_detail_version">Версион</string>
-    <string name="processmgr_detail_build">Буилд</string>
-    <string name="processmgr_detail_package">Пакет</string>
     <string name="processmgr_result_killed">Убијен %1$s</string>
     <string name="processmgr_result_kill_failed">Не могу убити %1$s</string>
     <string name="processmgr_result_stopped">Присилно заустављен %1$s</string>
@@ -1463,7 +1441,6 @@
     <string name="max_home_reboot_desc">Отворите опције безбедног поновног покретања</string>
     <string name="max_home_ai_console">МАКС АИ конзола</string>
     <string name="max_home_ai_working">Захтевани профил се примењује…</string>
-    <string name="max_home_ai_failed">Последња АИ акција није успела</string>
     <string name="max_home_retry">Покушајте поново</string>
     <string name="max_home_ai_idle">Још увек није забележена АИ одлука</string>
     <string name="home_system_stable">СИСТЕМ СТАБЛЕ</string>
@@ -1479,8 +1456,6 @@
     <string name="home_performance_monitor_desc">Оптерећење ресурса у последње 72 секунде</string>
     <string name="home_quick_actions">Командни шпил</string>
     <string name="home_quick_actions_desc">Директан приступ контролама које су важне</string>
-    <string name="home_action_boost">Профил перформанси</string>
-    <string name="home_action_boost_desc">Промените понашање система</string>
     <string name="home_action_thermal">Термални центар</string>
     <string name="home_action_thermal_desc">Прегледајте топлоту и хлађење</string>
     <string name="home_action_battery">Центар моћи</string>
@@ -1500,7 +1475,6 @@
     <string name="home_active">АКТИВНО</string>
     <string name="home_idle">ИДЛЕ</string>
     <string name="home_protected">ЗАШТИЋЕНИ</string>
-    <string name="home_device_overview">ОТВОРИ ПРЕГЛЕД УРЕЂАЈА</string>
     <string name="home_live_performance">Наступ уживо</string>
     <string name="home_live_performance_desc">Тренутно оптерећење и директне хардверске контроле</string>
     <string name="home_open_details">Отворите детаљне термалне податке</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Примењују се оптимизације по апликацији</string>
     <string name="max_app_advanced_options">Напредне опције</string>
     <string name="max_app_save">Сачувај</string>
+    <string name="home_gpu_max_freq">Мак фрек</string>
 </resources>

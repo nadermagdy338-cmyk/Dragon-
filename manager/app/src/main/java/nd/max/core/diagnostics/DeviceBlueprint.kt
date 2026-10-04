@@ -10,7 +10,8 @@ import android.content.Context
 import android.os.Build
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.HardwareCapabilityResolver
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
+import nd.max.core.platform.getChipsetIdentity
 
 /**
  * بصمة الجهاز: لقطة قراءة فقط تُدمج في كل تصدير تشخيصي.
@@ -42,6 +43,29 @@ object DeviceBlueprint {
         appendLine("  abis          : ${Build.SUPPORTED_ABIS.joinToString(",")}")
         appendLine("  fingerprint   : ${Build.FINGERPRINT}")
         appendLine("  rootImpl      : ${rootImplementation()}")
+
+        // ── هوية الشريحة: كل مصدر بقيمته وطبقته ──────────────────────
+        // هذا القسم وُجد لأن العرض قد يجمع **مرشّحين** حين تحمل الشريحة أكثر من اسم تجاري
+        // (‏`MT6897` = Dimensity 8300 و8350)، ولم يكن في التقرير ما يقول **لماذا** ولا أيّ
+        // مصدر تكلّم. فصار يُطبع كل ما أعلنه الجهاز، وطبقته، وما انتهى إليه الحلّ — فيُسمّى
+        // السبب في التقرير نفسه لا في جولة مراسلة تالية.
+        appendLine("[chipset-identity]")
+        val chipsetIdentity = getChipsetIdentity(context)
+        chipsetIdentity.sources.forEach { source ->
+            appendLine(
+                "  ${source.label.padEnd(42)} ${source.evidence.label.padEnd(16)} " +
+                    source.value.ifEmpty { "-" }
+            )
+        }
+        appendLine("  display        : ${chipsetIdentity.display}")
+        appendLine("  partCode       : ${chipsetIdentity.partCode ?: "-"}")
+        appendLine("  declaredName   : ${chipsetIdentity.declaredName ?: "-"}")
+        appendLine("  candidates     : ${chipsetIdentity.candidates.joinToString(" | ").ifEmpty { "-" }}")
+        appendLine("  matchedKey     : ${chipsetIdentity.matchedKey ?: "-"}")
+        // وثلاثة أسطر تجيب عن «لماذا هذا الاسم؟» بلا مراسلة: حالة الدليل، وهل جاء من مفتاح
+        // تامّ أم من استنتاج بالبادئة. وطلب المالك صريح: «ميّز EXACT وAMBIGUOUS وUNKNOWN».
+        appendLine("  match          : ${chipsetIdentity.match}")
+        appendLine("  inferred       : ${chipsetIdentity.inferred}")
 
         // ── طوبولوجيا سياسات المعالج ────────────────────────────────
         // هذا القسم هو ما يسمح "بتشغيل جهاز المستخدم" من طرف المطور:

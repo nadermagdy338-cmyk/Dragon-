@@ -145,8 +145,10 @@ if [ ! -f "$MODULE_CONFIG/gamelist/maxmanagerApplist.json" ]; then
     echo "- Extracting Applist.json..."
     extract "$ZIPFILE" maxmanagerApplist.json "$MODULE_CONFIG/gamelist"
 fi
-echo "- Extracting module banner..."
-extract "$ZIPFILE" module.banner.avif "$MODPATH"
+# ولماذا حُذف استخراج الـbanner (تكملة ١٣٩): طلب المالك إزالته من `module.prop`،
+# وحُذف الملفّ نفسه. ولو بقي هذا السطر لكان أثر الإزالة **فشل تركيب**: `extract`
+# تُوقف التثبيت عند ملفّ غائب (`abort_verify "$file does not exists"`) — أي أن الحذف
+# الناقص كان يمنع التفليش لا الزخرفة.
 
 # Skip mountify
 touch "$MODPATH/skip_mountify"

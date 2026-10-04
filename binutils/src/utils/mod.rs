@@ -12,7 +12,9 @@ use std::path::Path;
 use glob::glob;
 
 pub mod logger;
+pub mod plan;
 use crate::utils::logger::{log_info, verbose, log_warn, log_error};
+use crate::utils::plan::{apply_prop, Effect, PropTool};
 
 pub const MY_PATH: &str = "/system/bin:/system/xbin:/data/adb/ap/bin:/data/adb/ksu/bin:/data/adb/magisk:/debug_ramdisk:/sbin:/sbin/su:/su/bin:/su/xbin:/data/data/com.termux/files/usr/bin";
 
@@ -35,19 +37,15 @@ pub fn getprop(key: &str) -> String {
 }
 
 pub fn resetprop(key: &str, val: &str) {
-    let status = if val.is_empty() {
-        Command::new("resetprop").arg("--delete").arg(key).status()
-    } else {
-        Command::new("resetprop").arg(key).arg(val).status()
-    };
-
-    if let Err(e) = status {
+    let (program, args) = plan::prop_invocation(PropTool::ResetProp, key, val);
+    if let Err(e) = Command::new(program).args(args).status() {
         log_error(&format!("Failed to resetprop '{}': {}", key, e));
     }
 }
 
 pub fn setprop(key: &str, val: &str) {
-    if let Err(e) = Command::new("setprop").arg(key).arg(val).status() {
+    let (program, args) = plan::prop_invocation(PropTool::SetProp, key, val);
+    if let Err(e) = Command::new(program).args(args).status() {
         log_error(&format!("Failed to setprop '{}' to '{}': {}", key, val, e));
     }
 }
@@ -110,18 +108,18 @@ pub fn execute_command(command: &str) -> Option<String> {
 }
 
 pub fn setsgov(gov: &str) {
-    match glob("/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor") {
+    match glob(plan::CPU_GOVERNOR_GLOB) {
         Ok(paths) => {
             let mut applied = false;
             for path in paths.flatten() {
                 if let Some(p_str) = path.to_str() {
-                    chmod(p_str, 0o644);
+                    chmod(p_str, plan::SYSFS_WRITE_MODE);
                     if let Err(e) = fs::write(p_str, gov) {
                         log_error(&format!("Failed to write CPU governor to {}: {}", p_str, e));
                     } else {
                         applied = true;
                     }
-                    chmod(p_str, 0o444);
+                    chmod(p_str, plan::SYSFS_RESTORE_MODE);
                 }
             }
             if applied {
@@ -136,16 +134,16 @@ pub fn setsgov(gov: &str) {
 
 pub fn sets_io(scheduler: &str) {
     let mut applied = false;
-    for block in &["sda", "sdb", "sdc", "mmcblk0", "mmcblk1"] {
-        let path = format!("/sys/block/{}/queue/scheduler", block);
+    for block in &plan::IO_BLOCK_DEVICES {
+        let path = plan::io_scheduler_path(block);
         if Path::new(&path).exists() {
-            chmod(&path, 0o644);
+            chmod(&path, plan::SYSFS_WRITE_MODE);
             if let Err(e) = fs::write(&path, scheduler) {
                 log_error(&format!("Failed to write IO scheduler to {}: {}", path, e));
             } else {
                 applied = true;
             }
-            chmod(&path, 0o444);
+            chmod(&path, plan::SYSFS_RESTORE_MODE);
         }
     }
     if applied {
@@ -156,18 +154,18 @@ pub fn sets_io(scheduler: &str) {
 }
 
 pub fn sets_mali_gov(gov: &str) {
-    match glob("/sys/class/devfreq/*.mali/governor") {
+    match glob(plan::MALI_GOVERNOR_GLOB) {
         Ok(paths) => {
             let mut applied = false;
             for path in paths.flatten() {
                 if let Some(p_str) = path.to_str() {
-                    chmod(p_str, 0o644);
+                    chmod(p_str, plan::SYSFS_WRITE_MODE);
                     if let Err(e) = fs::write(p_str, gov) {
                         log_error(&format!("Failed to write Mali Governor to {}: {}", p_str, e));
                     } else {
                         applied = true;
                     }
-                    chmod(p_str, 0o444); 
+                    chmod(p_str, plan::SYSFS_RESTORE_MODE); 
                 }
             }
             if applied {
@@ -181,14 +179,14 @@ pub fn sets_mali_gov(gov: &str) {
 }
 
 pub fn setthermalcore(state: &str) {
-    if state == "1" {
-        if systemv("sys.maxmanager-rianixiathermalcore &") != 0 {
+    if plan::thermalcore_starts(state) {
+        if systemv(plan::THERMALCORE_SPAWN) != 0 {
             log_error("Failed to spawn Thermalcore service");
             return;
         }
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(plan::THERMALCORE_SETTLE_SECS));
 
-        if let Some(pid) = execute_command("pgrep -f sys.maxmanager-rianixiathermalcore") {
+        if let Some(pid) = execute_command(plan::THERMALCORE_PROBE) {
             if !pid.is_empty() {
                 log_info(&format!("Starting Thermalcore Service with pid {}", pid));
             } else {
@@ -198,7 +196,7 @@ pub fn setthermalcore(state: &str) {
             log_error("Failed to execute pgrep for Thermalcore");
         }
     } else {
-        if systemv("pkill -9 -f sys.maxmanager-rianixiathermalcore") != 0 {
+        if systemv(plan::THERMALCORE_KILL) != 0 {
             log_error("Failed to stop Thermalcore service");
         } else {
             log_info("Stopped Thermalcore service");
@@ -210,11 +208,12 @@ pub fn fstrim() {
     if get_fstrim_state() == "1" {
         verbose("Triggering Android native fstrim...");
         
-        let mut status = systemv("vdc fstrim dotrim");
+        let attempts = plan::fstrim_attempts();
+        let mut status = systemv(attempts[0]);
         
         if status != 0 {
             verbose("fstrim failed or not found, retry...");
-            status = systemv("sm fstrim");
+            status = systemv(attempts[1]);
         }
 
         if status == 0 {
@@ -226,7 +225,7 @@ pub fn fstrim() {
 }
 
 pub fn enable_dnd() {
-    if systemv("cmd notification set_dnd priority") == 0 {
+    if systemv(plan::dnd_command(true)) == 0 {
         log_info("DND enabled");
     } else {
         log_error("Failed to enable DND");
@@ -234,7 +233,7 @@ pub fn enable_dnd() {
 }
 
 pub fn disable_dnd() {
-    if systemv("cmd notification set_dnd off") == 0 {
+    if systemv(plan::dnd_command(false)) == 0 {
         log_info("DND disabled");
     } else {
         log_error("Failed to disable DND");
@@ -244,10 +243,7 @@ pub fn disable_dnd() {
 pub fn setrefreshrates(rate: &str) {
     let target_fps = rate.parse::<i32>().unwrap_or(60);
 
-    let status = systemv(&format!(
-        "am broadcast -a nd.max.SET_FPS -n nd.max/.RefreshRateReceiver --ei fps {}", 
-        target_fps
-    ));
+    let status = systemv(&plan::refresh_rate_command(rate));
 
     if status == 0 {
         log_info(&format!("Triggered receiver app to apply {}Hz", target_fps));
@@ -257,13 +253,13 @@ pub fn setrefreshrates(rate: &str) {
 }
 
 pub fn restartservice() {
-    let _ = systemv("pkill -9 -f sys.maxmanager-rianixiathermalcore");
-    let _ = systemv("pkill -9 -f sys.maxmanager-service");
-    let _ = systemv("pkill -9 -f sys.maxmanager-appmonitoring");
+    let _ = systemv(plan::THERMALCORE_KILL);
+    let _ = systemv(plan::SERVICE_KILL);
+    let _ = systemv(plan::APPMONITORING_KILL);
     
     setprop(PROP_STATE, "stopped");
     
-    if systemv("sh /data/adb/modules/MaxManager/service.sh &") != 0 {
+    if systemv(plan::RESTART_SCRIPT) != 0 {
         log_error("Failed to restart service script");
     } else {
         log_info("Restarted MaxManager services");
@@ -271,73 +267,31 @@ pub fn restartservice() {
 }
 
 pub fn setrender(renderer: &str) {
+    // الأثر مرتّب في `plan::setrender_effects` (سطح القياس)، وهنا التنفيذ وحده —
+    // فلا نسخة ثانية من المنطق تنحرف عن الجدول المرجعي بلا أن يسقط اختبار.
+    for effect in plan::setrender_effects(renderer) {
+        if let Effect::Prop(write) = effect {
+            apply_prop(&write);
+        }
+    }
+
     if renderer == "default" || renderer.is_empty() {
-        setprop("debug.hwui.renderer", "");
-        setprop("debug.renderengine.backend", "");
-        setprop("debug.hwui.render_thread", "");
-        setprop("debug.skia.threaded_mode", "");
-        resetprop("ro.hwui.use_vulkan", ""); 
-        
         log_info("Resetting all renderers to system default");
-        return;
-    }
-
-    setprop("debug.hwui.renderer", renderer);
-
-    if renderer.contains("threaded") {
-        setprop("debug.hwui.render_thread", "true");
-        if renderer.contains("skia") {
-            setprop("debug.skia.threaded_mode", "true");
-        } else {
-            setprop("debug.skia.threaded_mode", "false");
-        }
     } else {
-        setprop("debug.hwui.render_thread", "false");
-        setprop("debug.skia.threaded_mode", "false");
+        log_info(&format!("Successfully applied renderer: {}", renderer));
     }
-
-    match renderer {
-        "skiavk" | "skiavkthreaded" | "vulkan" => {
-            setprop("debug.renderengine.backend", "vulkan");
-            resetprop("ro.hwui.use_vulkan", "true"); 
-        }
-        "skiagl" | "skiaglthreaded" | "gles" | "opengl" | "openglthreaded" => {
-            setprop("debug.renderengine.backend", "gles");
-            resetprop("ro.hwui.use_vulkan", "false");
-        }
-        "software" => {
-            setprop("debug.renderengine.backend", "");
-            resetprop("ro.hwui.use_vulkan", "false");
-        }
-        _ => {
-            if renderer.contains("vk") || renderer.contains("vulkan") {
-                setprop("debug.renderengine.backend", "vulkan");
-                resetprop("ro.hwui.use_vulkan", "true");
-            } else if renderer.contains("gl") || renderer.contains("gles") {
-                setprop("debug.renderengine.backend", "gles");
-                resetprop("ro.hwui.use_vulkan", "false");
-            } else {
-                setprop("debug.renderengine.backend", "");
-            }
-        }
-    }
-    log_info(&format!("Successfully applied renderer: {}", renderer));
 }
 
 pub fn check_mali_path() {
     let mut found = false;
-    if let Ok(paths) = glob::glob("/sys/class/devfreq/*.mali") {
+    if let Ok(paths) = glob::glob(plan::MALI_DIR_GLOB) {
         for _path in paths.flatten() {
             found = true;
             break;
         }
     }
 
-    if found {
-        println!("true");
-        std::process::exit(0);
-    } else {
-        println!("false");
-        std::process::exit(1);
-    }
+    let (text, code) = plan::mali_path_result(found);
+    println!("{}", text);
+    std::process::exit(code);
 }

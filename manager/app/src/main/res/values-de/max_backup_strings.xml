@@ -224,7 +224,6 @@
     <string name="max_backup_storage_size_unknown">Konnte nicht gelesen werden</string>
     <string name="max_backup_storage_public_ok">Es wird in den unten gezeigten geteilten Ordner geschrieben, sodass jeder Dateimanager ohne Root an das Archiv kommt.</string>
     <string name="max_backup_storage_fallback_title">Kopien sind im App-Ordner</string>
-    <string name="max_backup_storage_fallback_desc">because both folders are searched.</string>
     <string name="max_backup_storage_grant">Zugriff auf alle Dateien gewähren</string>
     <string name="max_backup_storage_grant_failed">Dieses Gerät hat keinen Bildschirm für diese Berechtigung. Kopien bleiben im App-Ordner.</string>
     <string name="max_backup_entry_title">Max Backup</string>
@@ -298,4 +297,5 @@
     <string name="max_backup_day_fri">Fr</string>
     <string name="max_backup_day_sat">Sa</string>
     <string name="max_backup_day_sun">So</string>
+    <string name="max_backup_storage_fallback_desc">Der freigegebene Ordner %1$s benötigt die Berechtigung „Zugriff auf alle Dateien“. Bis zur Gewährung werden Kopien an %2$s verschoben – und dort bereits erstellte Kopien bleiben lesbar, da beide Ordner durchsucht werden.</string>
 </resources>

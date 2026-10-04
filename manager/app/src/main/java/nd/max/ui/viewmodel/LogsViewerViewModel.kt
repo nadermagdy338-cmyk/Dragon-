@@ -48,8 +48,8 @@ import nd.max.core.diagnostics.LogTargetHistory
 import nd.max.core.diagnostics.LogTargetSummary
 import nd.max.core.diagnostics.LogVerdict
 import nd.max.core.diagnostics.ReportLine
-import nd.max.ui.util.EventLog
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.EventLog
+import nd.max.core.platform.PropertyUtils
 import nd.max.MaxManagerPaths
 import nd.max.MaxManagerProps
 
@@ -642,7 +642,7 @@ class LogsViewerViewModel : ViewModel() {
                         reason = entry.event?.field("reason").orEmpty(),
                         expected = entry.event?.field("expected").orEmpty(),
                         live = entry.event?.field("live").orEmpty(),
-                        source = entry.source.displayName,
+                        source = entry.source.tag,
                     )
                 }
                 .toList(),
@@ -789,7 +789,7 @@ class LogsViewerViewModel : ViewModel() {
                 ReportLine(
                     time = entry.time,
                     level = entry.level.letter,
-                    source = entry.source.displayName,
+                    source = entry.source.tag,
                     event = entry.eventType,
                     area = entry.area,
                     verdict = entry.verdict,

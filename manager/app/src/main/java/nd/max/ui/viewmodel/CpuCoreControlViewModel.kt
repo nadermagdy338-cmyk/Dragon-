@@ -17,6 +17,7 @@
 package nd.max.ui.viewmodel
 
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,14 +30,15 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.MaxManagerProps
+import nd.max.R
 import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.CpuHardwareBackend
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.HardwareControlKey
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.ui.util.CpuTopologyUtil
-import nd.max.ui.util.PropertyUtils
-import nd.max.ui.util.getChipsetName
+import nd.max.core.platform.PropertyUtils
+import nd.max.core.platform.getChipsetName
 import javax.inject.Inject
 
 data class CpuCoreRow(
@@ -47,10 +49,21 @@ data class CpuCoreRow(
     val coreName: String?
 )
 
+/**
+ * إعداد سريع للأنوية — **ومعه اسماه في الموارد**.
+ *
+ * وكان الحقلان `String` يحملان **اسم المورد** لا معرّفه، في حين أن الشاشة كانت تكتب النصّ
+ * الإنجليزي بيدها وتتجاهل الحقلين كليًّا (`quickConfigLabel`/`quickConfigDesc`). ونتيجة ذلك مقيسة
+ * في لقطة المالك على واجهة عربية: «Performance» و«Balanced» و«Power Saver» و«All cores»
+ * و«Top cluster» و«Efficiency» داخل شاشة عربية، بينما الترجمة العربية موجودة في `values-ar`
+ * وغير مستعملة. والأسوأ أنّ النصّ المكتوب بيد يخالف المعنى: الإعداد `balanced` يُطفئ العنقود
+ * الأعلى فعلًا، والموارد تقول «العنقود الأعلى معطّل» — والمكتوب بيد كان يقول «Top cluster»
+ * بلا «off». فالمعرّف `@StringRes` يجعل النصّ واحدًا، ومن أضاف إعدادًا جديدًا لا يجد نصًّا يكتبه.
+ */
 data class CpuQuickConfig(
     val id: String,
-    val labelRes: String,
-    val descRes: String
+    @StringRes val labelRes: Int,
+    @StringRes val descRes: Int
 )
 
 /** The last request and read-back result for one cpufreq policy. */
@@ -181,9 +194,13 @@ class CpuCoreControlViewModel @Inject constructor(
 
     companion object {
         val QUICK_CONFIGS = listOf(
-            CpuQuickConfig("all_on", "cpu_core_quick_all_on", "cpu_core_quick_all_on_desc"),
-            CpuQuickConfig("balanced", "cpu_core_quick_balanced", "cpu_core_quick_balanced_desc"),
-            CpuQuickConfig("power_saver", "cpu_core_quick_power_saver", "cpu_core_quick_power_saver_desc")
+            CpuQuickConfig("all_on", R.string.cpu_core_quick_all_on, R.string.cpu_core_quick_all_on_desc),
+            CpuQuickConfig("balanced", R.string.cpu_core_quick_balanced, R.string.cpu_core_quick_balanced_desc),
+            CpuQuickConfig(
+                "power_saver",
+                R.string.cpu_core_quick_power_saver,
+                R.string.cpu_core_quick_power_saver_desc
+            )
         )
 
         /** Bounded defense: stop re-asserting after this many attempts and tell
@@ -310,19 +327,34 @@ class CpuCoreControlViewModel @Inject constructor(
         }
     }
 
+    /**
+     * صفوف الأنوية — **بنداءين لا بنداءين لكل نواة**.
+     *
+     * وهذا هو سبب بطء الشاشة الذي قيس في الكود لا في الذوق: كل صفّ كان يسأل سؤالين
+     * (`isCoreOnline` و`decodeCoreName`)، و`decodeCoreName` كانت تفتح **صدفة جذر كاملة لكل نواة**
+     * (`Shell.cmd("cat …").exec()`) — و`isCoreOnline(0)` تفتح مثلها لمساءلة `test -e`. فعلى جهاز
+     * بثماني أنوية: **٩ رحلات صدفة في كل دورة**، والدورة كل ٣ ثوانٍ (`startPolling`)، وأول تحميل
+     * يسأل السؤال نفسه مرّة أخرى — وهو الزمن الذي يراه المستخدم «بضع ثوانٍ حتى يظهر كل شيء».
+     * الآن تُقرأ حالة الاتصال كلها دفعةً واحدة، وأسماء الشرائح دفعةً واحدة (وهي مُخزَّنة أصلًا
+     * لأنّ MIDR عتاد لا حالة) — فلا رحلة صدفة في مسار التحديث.
+     */
     private fun refreshRows() {
-        val rows = clusters.flatMap { cluster ->
+        val cpus = clusters.flatMap { it.cores }
+        val online = CpuTopologyUtil.onlineStates(cpus)
+        val names = CpuTopologyUtil.coreNames(cpus)
+        coreRows = clusters.flatMap { cluster ->
             cluster.cores.map { cpu ->
                 CpuCoreRow(
                     cpu = cpu,
                     cluster = cluster,
-                    online = CpuTopologyUtil.isCoreOnline(cpu),
+                    // غياب القيمة يعني «غير معروفة» لا «مطفأة» — والنصّ القديم كان يعدّ ما ليس
+                    // "0" صريحًا متصلًا، وهذه دلالته محفوظة.
+                    online = online[cpu] ?: true,
                     isMaster = cpu == 0,
-                    coreName = CpuTopologyUtil.decodeCoreName(cpu)
+                    coreName = names[cpu]
                 )
             }
         }
-        coreRows = rows
     }
 
     private fun refreshFrequencyControls(captureBaseline: Boolean = false) {

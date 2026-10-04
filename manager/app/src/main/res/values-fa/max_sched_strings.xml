@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">حداکثر مدت مهلت (ما)</string>
+    <string name="max_sched_tunable_deadline_period_min">مدت مهلت حداقل (ما)</string>
+    <string name="max_sched_tunable_energy_aware">آگاه به انرژی</string>
+    <string name="max_sched_tunable_latency">تأخیر (ns)</string>
+    <string name="max_sched_tunable_migration_cost">هزینه مهاجرت (ns)</string>
+    <string name="max_sched_tunable_min_granularity">حداقل دانه بندی (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">اندازه دسته مهاجرت</string>
+    <string name="max_sched_tunable_pelt_multiplier">ضرب کننده PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">تایم اسلایس دور رابین (میلی‌ثانیه)</string>
+    <string name="max_sched_tunable_rt_period">دوره بیدرنگ (ما)</string>
+    <string name="max_sched_tunable_rt_runtime">زمان واقعی (ما)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">زمان واقعی UClamp طبقه</string>
+    <string name="max_sched_tunable_wakeup_granularity">دانه بندی بیداری (ns)</string>
+</resources>

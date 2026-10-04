@@ -85,7 +85,64 @@ object DozeModeUtil {
     private const val GMS_PACKAGE = "com.google.android.gms"
     private const val PREFS_NAME = "maxmanager_doze_stats"
 
+    /** علّمتان تفصلان مخرجات الأوامر داخل **نداء واحد** (لا يظهران من الأوامر نفسها). */
+    private const val MARK_LIGHT = "#MAX_DOZE_LIGHT#"
+    private const val MARK_BUCKET = "#MAX_DOZE_BUCKET#"
+
     data class DozeStats(val idleCount: Int, val lightIdleCount: Int)
+
+    /**
+     * حالة الـDoze كاملة — **من رحلة صدفة واحدة**.
+     *
+     * **ولماذا (عطب سرعة مُبلَّغ عنه: فتح الشاشات):** كانت شاشة Doze تسأل أربع مرّات متتالية
+     * (`isSupported` ← `get deep`، ثم `getGmsDozeMode` ← `am get-standby-bucket`، ثم
+     * `getDozeState` ← `get deep` **مرة ثانية**، ثم `getLightDozeState` ← `get light`).
+     * وكلّها تمرّ بالصدفة الواحدة المُسلسَلة، و`dumpsys` من أبطأ أوامرها — فالأربع تُجمع
+     * زمنًا على أوّل إطار مفيد. وصارت الأوامر **أربعة في تنفيذ واحد** (`Shell.cmd(a,b,c,…)`
+     * تُكتب كلّها في مدخل الصدفة نفسه، بترتيبها)، والفصل بعلامتين — وكل أمر **لم يُمسّ نصّه**
+     * ولا تحليله، فلا يتغيّر معنى شيء.
+     *
+     * **والاحتياطي محفوظ كما كان:** إن عاد `get deep` فارغًا (نسخ OEM لا توصّله) يُقرأ
+     * التفريغ الكامل ويُطلب فيه `mState=` — رحلة ثانية **تُدفع عند الحاجة فقط** كما كانت.
+     */
+    data class DozeSnapshot(
+        val supported: Boolean,
+        val deep: DozeState,
+        val light: DozeState,
+        val gmsMode: GmsDozeMode,
+    )
+
+    fun readSnapshot(): DozeSnapshot {
+        val result = runCatching {
+            Shell.cmd(
+                "dumpsys deviceidle get deep",
+                "echo $MARK_LIGHT",
+                "dumpsys deviceidle get light",
+                "echo $MARK_BUCKET",
+                "am get-standby-bucket $GMS_PACKAGE",
+            ).exec()
+        }.getOrNull()
+        val lines = result?.out?.map { it.trim() }.orEmpty()
+
+        val lightAt = lines.indexOf(MARK_LIGHT)
+        val bucketAt = lines.indexOf(MARK_BUCKET)
+        val deepRaw = lines.take(lightAt.takeIf { it >= 0 } ?: lines.size)
+            .joinToString("").trim()
+        val lightRaw = if (lightAt >= 0) {
+            lines.subList(lightAt + 1, bucketAt.takeIf { it > lightAt } ?: lines.size)
+                .joinToString("").trim()
+        } else {
+            ""
+        }
+        val bucketRaw = if (bucketAt >= 0) lines.drop(bucketAt + 1).joinToString("").trim().lowercase() else ""
+
+        return DozeSnapshot(
+            supported = result?.isSuccess == true && deepRaw.isNotBlank(),
+            deep = if (deepRaw.isNotBlank()) mapState(deepRaw) else fullDumpState(),
+            light = mapState(lightRaw),
+            gmsMode = GmsDozeMode.entries.firstOrNull { it.bucket == bucketRaw } ?: GmsDozeMode.DEFAULT,
+        )
+    }
 
     /** Whether this device's DeviceIdleController responds to `dumpsys deviceidle`. */
     fun isSupported(): Boolean {
@@ -98,19 +155,20 @@ object DozeModeUtil {
         val direct = Shell.cmd("dumpsys deviceidle get deep").exec().out
             .joinToString("") { it.trim() }
             .trim()
-        val stateName = if (direct.isNotBlank()) {
-            direct
-        } else {
-            // Fallback for devices/OEM forks where `get deep` isn't wired up:
-            // parse the full dump for "mState=<NAME>".
-            val fullDump = Shell.cmd("dumpsys deviceidle").exec().out
-            fullDump.firstOrNull { it.trim().startsWith("mState=") }
-                ?.substringAfter("mState=")
-                ?.trim()
-                ?: ""
-        }
-        return mapState(stateName)
+        return mapState(if (direct.isNotBlank()) direct else fullDumpRaw())
     }
+
+    /**
+     * Fallback for devices/OEM forks where `get deep` isn't wired up: parse the full
+     * dump for "mState=<NAME>".
+     */
+    private fun fullDumpRaw(): String = Shell.cmd("dumpsys deviceidle").exec().out
+        .firstOrNull { it.trim().startsWith("mState=") }
+        ?.substringAfter("mState=")
+        ?.trim()
+        ?: ""
+
+    private fun fullDumpState(): DozeState = mapState(fullDumpRaw())
 
     /** Reads the current light-doze state via `dumpsys deviceidle get light`. */
     private fun getLightDozeState(): DozeState {
@@ -141,11 +199,16 @@ object DozeModeUtil {
      * Reads/updates the local idle-cycle counters. Call after any state
      * refresh (see file header for what this does and doesn't capture).
      */
-    fun refreshStats(context: Context, currentDeep: DozeState): DozeStats {
+    fun refreshStats(
+        context: Context,
+        currentDeep: DozeState,
+        // والافتراض يحفظ سلوك المتصل القديم حرفيًّا (قراءة `get light` وحدها)، ومن يقرأ
+        // اللقطة كلها مرّة واحدة يمرّر الحالة الخفيفة معها فلا تُقرأ ثانيةً.
+        currentLight: DozeState = getLightDozeState(),
+    ): DozeStats {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val lastDeep = prefs.getString("last_deep_state", null)
         val lastLight = prefs.getString("last_light_state", null)
-        val currentLight = getLightDozeState()
 
         var idleCount = prefs.getInt("idle_count", 0)
         var lightIdleCount = prefs.getInt("light_idle_count", 0)

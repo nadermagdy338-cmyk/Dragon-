@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Макс. тэрмін выканання (ЗША)</string>
+    <string name="max_sched_tunable_deadline_period_min">Дэдлайн Перыяд Мін (ЗША)</string>
+    <string name="max_sched_tunable_energy_aware">Energy Aware</string>
+    <string name="max_sched_tunable_latency">Затрымка (нс)</string>
+    <string name="max_sched_tunable_migration_cost">Кошт міграцыі (нс)</string>
+    <string name="max_sched_tunable_min_granularity">Мінімальная дэталізацыя (нс)</string>
+    <string name="max_sched_tunable_nr_migrate">Памер пакета міграцыі</string>
+    <string name="max_sched_tunable_pelt_multiplier">Множнік PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Круглы перыяд часу (мс)</string>
+    <string name="max_sched_tunable_rt_period">Перыяд рэальнага часу (ЗША)</string>
+    <string name="max_sched_tunable_rt_runtime">Выкананне ў рэжыме рэальнага часу (ЗША)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">У рэжыме рэальнага часу UClamp Floor</string>
+    <string name="max_sched_tunable_wakeup_granularity">Зярністасць абуджэння (нс)</string>
+</resources>

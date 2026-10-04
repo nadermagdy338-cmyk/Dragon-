@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Deadline Period Max (oss)</string>
+    <string name="max_sched_tunable_deadline_period_min">Deadline Period Min (oss)</string>
+    <string name="max_sched_tunable_energy_aware">Energimedveten</string>
+    <string name="max_sched_tunable_latency">Latens (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Migreringskostnad (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minsta granularitet (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Migreringsbatchstorlek</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT multiplikator</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Realtidsperiod (oss)</string>
+    <string name="max_sched_tunable_rt_runtime">Realtidskörning (oss)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">UClampgolv i realtid</string>
+    <string name="max_sched_tunable_wakeup_granularity">Granularitet för väckning (ns)</string>
+</resources>

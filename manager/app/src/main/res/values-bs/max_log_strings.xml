@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Verbose</string>
+    <string name="max_log_level_debug">Otklanjanje grešaka</string>
+    <string name="max_log_level_info">Info</string>
+    <string name="max_log_level_warn">Upozorenje</string>
+    <string name="max_log_level_error">Greška</string>
+    <string name="max_log_level_assert">Utvrditi</string>
+    <string name="max_log_level_fatal">Fatalno</string>
+    <string name="max_log_buffer_main">Main</string>
+    <string name="max_log_buffer_system">Sistem</string>
+    <string name="max_log_buffer_crash">Crash</string>
+    <string name="max_log_buffer_kernel">Kernel</string>
+    <string name="max_log_buffer_events">Događaji</string>
+    <string name="max_log_buffer_radio">Radio</string>
+    <string name="max_log_source_daemon">Daemon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Ostalo</string>
+</resources>

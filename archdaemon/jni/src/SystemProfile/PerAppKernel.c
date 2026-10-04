@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  */
 
-#include <AZenith.h>
+#include <MaxManager.h>
 #include <dirent.h>
 #include <errno.h>
 #include <limits.h>
@@ -20,35 +20,51 @@
 #define GPU_AVAILABLE_PATH "/sys/class/misc/mali0/device/devfreq/13000000.mali/available_governors"
 #define GPU_AVAILABLE_PATH_ALT "/sys/class/devfreq/13000000.mali/available_governors"
 
-static bool is_safe_cpu_governor(const char* governor) {
-    static const char* const allowed[] = {
-        "sugov_ext", "conservative", "powersave", "performance", "schedutil"
-    };
-
+/*
+ * Value-shape guard — deliberately **not** an allowlist.
+ *
+ * An allowlist used to sit here (five CPU governors, nine GPU ones) and it was itself the
+ * defect. `TECNO POVA 5 Pro` / MT6833GP on the Aetherium kernel advertises exactly
+ * `[sugov_ext, reflex, conservative, powersave, performance, schedhorizon, schedutil]` in
+ * `scaling_available_governors`; the app offers the user precisely that set; and this list
+ * rejected `reflex` and `schedhorizon` with `reason=unsafe_value`, so nothing was ever
+ * written and the per-app governor "did not change when selected". Two halves of the same
+ * product also disagreed: the profiles binary (`binprofiles/src/utils/mod.rs`) never
+ * allowlists — it reads the device and applies what the node reports.
+ *
+ * The authority on what a node accepts is the node. Every request is preflighted against
+ * that policy's `scaling_available_governors` (CPU) or `available_governors` (GPU) before a
+ * single byte is written, and the kernel rejects an invalid value itself. What the kernel
+ * cannot tell us is whether the *string* is one governor token rather than a path, a flag,
+ * or a newline smuggled in from a settings file — that, and only that, is this guard's job.
+ */
+static bool is_safe_governor_token(const char* governor) {
     if (!governor || !*governor)
         return false;
 
-    for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i) {
-        if (strcmp(governor, allowed[i]) == 0)
-            return true;
+    /* GameConfig stores cpu_governor/gpu_governor in char[32]; a token that cannot fit
+     * there is not a governor this daemon read from its own config. */
+    if (strlen(governor) >= 32)
+        return false;
+
+    for (const char* p = governor; *p; ++p) {
+        const char c = *p;
+        const bool accepted = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+                              (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
+        if (!accepted)
+            return false;
     }
-    return false;
+    return true;
 }
 
-static bool is_safe_gpu_governor(const char* governor) {
-    static const char* const allowed[] = {
-        "dummy", "powersave", "performance", "simple_ondemand", "userspace",
-        "apupassive-pe", "apuconstrain", "apuuser", "apupassive"
-    };
-
-    if (!governor || !*governor)
-        return false;
-
-    for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i) {
-        if (strcmp(governor, allowed[i]) == 0)
-            return true;
-    }
-    return false;
+/*
+ * `IS_DEFAULT()` recognises NULL and the literal "default" only, so an explicitly empty
+ * field (`"cpu_governor": ""` — which extract_string_value() does produce for an empty
+ * quoted value) reads to it as *configured*. Nothing is written when there is nothing but
+ * emptiness to write, so emptiness is excluded here too.
+ */
+static bool per_app_value_set(const char* value) {
+    return value && value[0] != '\0' && strcmp(value, "default") != 0;
 }
 
 static bool read_trimmed_file(const char* path, char* out, size_t out_size) {
@@ -144,7 +160,7 @@ static size_t collect_cpu_policies(int* ids, size_t capacity) {
 static bool apply_cpu_governor(const char* governor, const char* package) {
     if (!governor || strcmp(governor, "default") == 0)
         return true;
-    if (!is_safe_cpu_governor(governor)) {
+    if (!is_safe_governor_token(governor)) {
         log_zenith(LOG_WARN,
                    "EVENT=PERAPP_GOVERNOR_REJECTED knob=cpu_governor pkg=%s requested=%s reason=unsafe_value",
                    package ? package : "unknown", governor);
@@ -229,7 +245,7 @@ static const char* gpu_available_path(void) {
 static bool apply_gpu_governor(const char* governor, const char* package) {
     if (!governor || strcmp(governor, "default") == 0)
         return true;
-    if (!is_safe_gpu_governor(governor)) {
+    if (!is_safe_governor_token(governor)) {
         log_zenith(LOG_WARN,
                    "EVENT=PERAPP_GOVERNOR_REJECTED knob=gpu_governor pkg=%s requested=%s reason=unsafe_value",
                    package ? package : "unknown", governor);
@@ -271,16 +287,28 @@ static bool apply_gpu_governor(const char* governor, const char* package) {
     return true;
 }
 
+/*
+ * The daemon is the single owner of the per-app governor, and this is the function that
+ * writes it. It is a no-op unless the foregrounded app actually configures one.
+ *
+ * Wiring note (the other half of the bug this function was born into): while an app with an
+ * override is in front, `apply_performance_profile()` / `apply_eco_profile()` /
+ * `apply_balanced_profile()` / `run_profiler()` all publish
+ * `sys.maxmanager.perapp.governor_isolation=1`, which tells the profiles binary to stand
+ * down. If nobody calls *this* function, both sides stand down and the node keeps whatever
+ * the kernel last chose — silence, not failure. Callers: System.c, at the single point where
+ * per-app ownership is (re)established while a tracked app is in the foreground.
+ */
 void enforce_per_app_governors(const GameConfig* options, const char* package) {
     if (!options || !package || !*package)
         return;
 
-    if (IS_DEFAULT(options->cpu_governor) && IS_DEFAULT(options->gpu_governor))
+    if (!per_app_value_set(options->cpu_governor) && !per_app_value_set(options->gpu_governor))
         return;
 
-    if (!IS_DEFAULT(options->cpu_governor))
+    if (per_app_value_set(options->cpu_governor))
         (void)apply_cpu_governor(options->cpu_governor, package);
 
-    if (!IS_DEFAULT(options->gpu_governor))
+    if (per_app_value_set(options->gpu_governor))
         (void)apply_gpu_governor(options->gpu_governor, package);
 }

@@ -1,8 +1,12 @@
 # Copyright (C) 2026 Nader Magdy. All rights reserved.
 # Proprietary and confidential — not licensed for use, copying, or distribution
 # without prior written permission from the copyright holder.
-# service definition for maxmanager daemon
-service maxmanager_daemon /system/bin/maxmanager_daemon
+# service definition for the MaxManager daemon
+#
+# الاسم الرسمي الوحيد هو `sys.maxmanager-service` — نفس الثنائيّ الذي يبنيه
+# `archdaemon/jni/Android.mk` (LOCAL_MODULE) ويشغّله الموديول من `system/bin/`.
+# ولا يوجد اسم ثانٍ (`maxmanager_daemon`) ولا مسار ثانٍ (`/vendor/bin`).
+service sys.maxmanager-service /system/bin/sys.maxmanager-service
     class main
     user root
     group root system
@@ -11,10 +15,10 @@ service maxmanager_daemon /system/bin/maxmanager_daemon
     disabled
 
 on property:sys.boot_completed=1
-    start maxmanager_daemon
+    start sys.maxmanager-service
 
 on property:maxmanager.enable=1
-    start maxmanager_daemon
+    start sys.maxmanager-service
 
 on property:maxmanager.enable=0
-    stop maxmanager_daemon
+    stop sys.maxmanager-service

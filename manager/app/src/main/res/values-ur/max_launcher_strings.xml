@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">انسٹال کردہ پیکیجز اور وہ سرگرمیاں جن کا وہ اعلان کرتے ہیں۔</string>
+    <string name="max_launcher_loading">انسٹال شدہ پیکیجز اور ان کی اعلان کردہ سرگرمیاں پڑھنا…</string>
+    <string name="max_launcher_empty">کوئی انسٹال شدہ پیکیج اس ڈیوائس پر کسی سرگرمی کا اعلان نہیں کرتا ہے۔</string>
+    <string name="max_launcher_search_placeholder">ایپ کے نام یا پیکیج کے ذریعہ تلاش کریں۔</string>
+    <string name="max_launcher_search_clear">تلاش کو صاف کریں۔</string>
+    <string name="max_launcher_scope_all">تمام</string>
+    <string name="max_launcher_scope_user">صارف</string>
+    <string name="max_launcher_scope_system">سسٹم</string>
+    <string name="max_launcher_activity_count">%1$d سرگرمیاں</string>
+    <string name="max_launcher_no_match_title">کچھ بھی نہیں ملتا</string>
+    <string name="max_launcher_no_match_detail">کسی بھی پیکیج کا نام یا ایپ لیبل منتخب دائرہ کار میں اس متن پر مشتمل نہیں ہے۔</string>
+    <string name="max_launcher_no_match_clear">فلٹرز صاف کریں۔</string>
+    <string name="max_launcher_reading_activities">اس پیکیج کا اعلان کردہ سرگرمیوں کو پڑھنا…</string>
+    <string name="max_launcher_no_activities">یہ پیکیج کسی سرگرمی کا اعلان نہیں کرتا ہے۔</string>
+    <string name="max_launcher_root_off_title">جڑ نہیں دی جاتی</string>
+    <string name="max_launcher_root_off_detail">نجی کے طور پر نشان زد کردہ سرگرمیاں برآمد نہیں کی جاتی ہیں، لہذا صرف روٹ ہی انہیں شروع کر سکتا ہے۔ برآمدی سرگرمیاں اب بھی اس کے بغیر کھلی ہیں۔</string>
+    <string name="max_launcher_tag_private">نجی</string>
+    <string name="max_launcher_tag_disabled">معذور</string>
+    <string name="max_launcher_outcome_started">سرگرمی شروع ہوگئی</string>
+    <string name="max_launcher_outcome_needs_root">یہ سرگرمی برآمد نہیں کی گئی ہے — جڑ درکار ہے۔</string>
+    <string name="max_launcher_outcome_refused">اینڈرائیڈ نے اس سرگرمی کو شروع کرنے سے انکار کر دیا۔</string>
+    <string name="max_launcher_outcome_missing">اس نام کے ساتھ کوئی سرگرمی انسٹال نہیں ہے۔</string>
+</resources>

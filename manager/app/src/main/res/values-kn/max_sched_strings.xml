@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">ಗಡುವು ಅವಧಿ ಗರಿಷ್ಠ (ನಮಗೆ)</string>
+    <string name="max_sched_tunable_deadline_period_min">ಅಂತಿಮ ಅವಧಿಯ ಅವಧಿ (ನಮಗೆ)</string>
+    <string name="max_sched_tunable_energy_aware">ಎನರ್ಜಿ ಅವೇರ್</string>
+    <string name="max_sched_tunable_latency">ಸುಪ್ತತೆ (ಎನ್ಎಸ್)</string>
+    <string name="max_sched_tunable_migration_cost">ವಲಸೆ ವೆಚ್ಚ (ns)</string>
+    <string name="max_sched_tunable_min_granularity">ಕನಿಷ್ಠ ಗ್ರ್ಯಾನ್ಯುಲಾರಿಟಿ (ಎನ್ಎಸ್)</string>
+    <string name="max_sched_tunable_nr_migrate">ವಲಸೆ ಬ್ಯಾಚ್ ಗಾತ್ರ</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT ಗುಣಕ</string>
+    <string name="max_sched_tunable_rr_timeslice">ರೌಂಡ್-ರಾಬಿನ್ ಟೈಮ್ಸ್ಲೈಸ್ (ಮಿಸೆ)</string>
+    <string name="max_sched_tunable_rt_period">ನೈಜ-ಸಮಯದ ಅವಧಿ (ನಾವು)</string>
+    <string name="max_sched_tunable_rt_runtime">ನೈಜ-ಸಮಯದ ರನ್ಟೈಮ್ (ನಮಗೆ)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">ನೈಜ-ಸಮಯದ UClamp ಮಹಡಿ</string>
+    <string name="max_sched_tunable_wakeup_granularity">ವೇಕಪ್ ಗ್ರ್ಯಾನ್ಯುಲಾರಿಟಿ (ಎನ್ಎಸ್)</string>
+</resources>

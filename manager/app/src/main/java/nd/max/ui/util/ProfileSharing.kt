@@ -15,6 +15,7 @@
  */
 
 package nd.max.ui.util
+import nd.max.core.platform.PropertyUtils
 
 import android.content.Context
 import org.json.JSONArray

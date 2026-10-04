@@ -7,7 +7,7 @@
     <string name="all_set">Her şey hazır, artık Max Manager\'i kullanabilirsiniz</string>
     <string name="allow_verbose_log">Arka plan işlemi ayrıntılı günlük kaydı</string>
     <string name="android_version">Android sürümü</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Uygulama adı</string>
     <string name="app_priority">Uygulama önceliği</string>
     <string name="app_priority_control">Uygulama öncelik kontrolü</string>
@@ -726,15 +726,6 @@
     <string name="fps_overlay_notif_channel">FPS Yer Paylaşımı</string>
     <string name="fps_overlay_notif_title">Max Manager FPS katmanı çalışıyor</string>
     <string name="fps_overlay_notif_stop">Durmak</string>
-    <string name="fps_overlay_section_style">Dış görünüş</string>
-    <string name="fps_overlay_style">Kaplama stili</string>
-    <string name="fps_overlay_style_android">Android listesi</string>
-    <string name="fps_overlay_style_pc">PC tek alanlı</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Düzen yönü</string>
-    <string name="fps_overlay_orientation_vertical">Dikey</string>
-    <string name="fps_overlay_orientation_horizontal">Yatay</string>
-    <string name="fps_overlay_read_mode">FPS okuma yöntemi</string>
     <string name="fps_overlay_read_mode_desc">Cihazınızda okuma 0\'da kalırsa farklı bir yöntem deneyin</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (önerilir)</string>
     <string name="fps_overlay_mode_kernel">Çekirdek düğümü</string>
@@ -743,14 +734,6 @@
     <string name="fps_overlay_text_size">Metin boyutu</string>
     <string name="fps_overlay_bg_alpha">Arka plan opaklığı</string>
     <string name="fps_overlay_width_scale">Genişlik ölçeği</string>
-    <string name="fps_overlay_section_metrics">Gösterilen ölçümler</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU yük</string>
-    <string name="fps_overlay_metric_ram">RAM kullanım</string>
-    <string name="fps_overlay_metric_watt">Pil gücü çekişi</string>
-    <string name="fps_overlay_metric_temp">Pil sıcaklığı</string>
-    <string name="fps_overlay_metric_render">Oluşturucu etiketi</string>
-    <string name="fps_overlay_metric_render_desc">Ön plandaki uygulamanın yüklü kitaplıklarından algılanan etiket olarak \"FPS\" yerine VULKAN/OPENGL\'i gösteriyor</string>
     <string name="dozemode_title">Uyku Politikası</string>
     <string name="dozemode_menu_desc">Bekleme beyaz listesi, boşta kalma davranışı ve arka planda güç ayarı</string>
     <string name="dozemode_state_label">Uyuklama durumu</string>
@@ -786,9 +769,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Ayarları aç</string>
     <string name="processmgr_title">Görev Monitörü</string>
-    <string name="processmgr_menu_desc">Zorla durdurma ve kayan katmanla işlem başına CPU ve RAM kullanımı</string>
     <string name="processmgr_stat_total">%1$d süreçler</string>
-    <string name="processmgr_stat_breakdown">%1$d kullanıcı \u00b7 %2$d sistem</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">En iyi %1$d</string>
@@ -809,9 +790,6 @@
     <string name="processmgr_search_hint">Çalışan işlemleri arayın</string>
     <string name="processmgr_no_processes">Aramanızla eşleşen süreç yok</string>
     <string name="processmgr_dialog_close">Kapalı</string>
-    <string name="processmgr_detail_version">Sürüm</string>
-    <string name="processmgr_detail_build">İnşa etmek</string>
-    <string name="processmgr_detail_package">Paket</string>
     <string name="processmgr_result_killed">Öldürüldü %1$s</string>
     <string name="processmgr_result_kill_failed">%1$s öldürülemedi</string>
     <string name="processmgr_result_stopped">Zorla durduruldu %1$s</string>
@@ -1020,7 +998,7 @@
     <string name="charging_technology">Teknoloji</string>
     <string name="charging_limit_title">Şarj limiti</string>
     <string name="charging_limit_desc">Pilin aşınmasını yavaşlatmak için şarjı belirli bir yüzdede durdurun</string>
-    <string name="charging_limit_active">Şarj işlemi %%1$d%\'de duruyor</string>
+    <string name="charging_limit_active">Şarj işlemi %1$d%%\'de duruyor</string>
     <string name="charging_limit_active_progress">Şarj işlemi %1$d%% \u00b7\'de duruyor, şimdi %2$d%%\'de duruyor</string>
     <string name="charging_status_full">Tam dolu</string>
     <string name="charging_full_capacity">Artık tam kapasite</string>
@@ -1462,7 +1440,6 @@
     <string name="max_home_reboot_desc">Güvenli yeniden başlatma seçeneklerini açın</string>
     <string name="max_home_ai_console">MAX AI konsolu</string>
     <string name="max_home_ai_working">İstenen profil uygulanıyor…</string>
-    <string name="max_home_ai_failed">Son AI eylemi başarısız oldu</string>
     <string name="max_home_retry">Yeniden dene</string>
     <string name="max_home_ai_idle">Henüz AI kararı kaydedilmedi</string>
     <string name="home_system_stable">SİSTEM STABİLİ</string>
@@ -1478,8 +1455,6 @@
     <string name="home_performance_monitor_desc">Son 72 saniyedeki kaynak yükü</string>
     <string name="home_quick_actions">Komut güvertesi</string>
     <string name="home_quick_actions_desc">Önemli kontrollere doğrudan erişim</string>
-    <string name="home_action_boost">Performans profili</string>
-    <string name="home_action_boost_desc">Sistem davranışını değiştirin</string>
     <string name="home_action_thermal">Termal merkez</string>
     <string name="home_action_thermal_desc">Isı ve soğutmayı kontrol edin</string>
     <string name="home_action_battery">Güç merkezi</string>
@@ -1499,7 +1474,6 @@
     <string name="home_active">AKTİF</string>
     <string name="home_idle">BOŞTA</string>
     <string name="home_protected">KORUNMALI</string>
-    <string name="home_device_overview">CİHAZA GENEL BAKIŞI AÇ</string>
     <string name="home_live_performance">Canlı performans</string>
     <string name="home_live_performance_desc">Mevcut yük ve doğrudan donanım kontrolleri</string>
     <string name="home_open_details">Ayrıntılı termal verileri aç</string>
@@ -1567,11 +1541,11 @@
     <string name="home_story_heat_map">Isı haritası</string>
     <string name="home_story_heat_headline">Isı performansı şekillendiriyor</string>
     <string name="home_story_cpu_headline">İşlem yükü mevcut darboğazdır</string>
-    <string name="home_story_cpu_desc">CPU yükü %2$s\'da ​​%%1$d%\'dir. Max Manager yalnızca seçilmiş bir profil değil, gerçek bir baskı görüyor.</string>
+    <string name="home_story_cpu_desc">CPU yükü %2$s\'da ​​%1$d%%\'dir. Max Manager yalnızca seçilmiş bir profil değil, gerçek bir baskı görüyor.</string>
     <string name="home_story_memory_headline">Hafıza baskısı artıyor</string>
     <string name="home_story_storage_headline">Depolama alanı dar</string>
     <string name="home_story_ai_headline">MAX AI yeni bir cihaz okumasına sahip</string>
-    <string name="home_story_ai_desc">Mevcut %2$s stratejisi kapsamında amaç puanı %%1$d%\'dir. Her hareketi neden seçtiğini görmek için canlı döngüyü açın.</string>
+    <string name="home_story_ai_desc">Mevcut %2$s stratejisi kapsamında amaç puanı %1$d%%\'dir. Her hareketi neden seçtiğini görmek için canlı döngüyü açın.</string>
     <string name="home_story_network_headline">Ağ etkinliği gecikmeyi şekillendiriyor</string>
     <string name="home_story_network_desc">Mevcut trafik ↓ %1$s ve ↑ %2$s şeklindedir. Bu, oyun pingini ve ön plan yanıt verme hızını etkileyebilir.</string>
     <string name="home_story_stable_headline">Hiçbir sınırlayıcı tek başına baskın değil</string>
@@ -1680,9 +1654,9 @@
     <string name="home_session_grade_hot">Sıcak</string>
     <string name="home_session_grade_busy">Meşgul</string>
     <string name="home_session_grade_clean">Temiz</string>
-    <string name="home_session_summary_heat">CPU %%1$d%\'de iken sıcaklık %2$d°C\'dir. Bu oturum muhtemelen termal olarak sınırlı hale geliyor.</string>
+    <string name="home_session_summary_heat">CPU %1$d%%\'de iken sıcaklık %2$d°C\'dir. Bu oturum muhtemelen termal olarak sınırlı hale geliyor.</string>
     <string name="home_session_summary_ramp">Yük artıyor: CPU bu pencerenin başlangıcına kıyasla %1$d%% ve RAM %2$d%% değişti.</string>
-    <string name="home_session_summary_ai">MAX AI şu anda bu oturumu %2$s kullanarak %%1$d% olarak puanlıyor. Kararları incelemek için döngüyü açın.</string>
+    <string name="home_session_summary_ai">MAX AI şu anda bu oturumu %2$s kullanarak %1$d%% olarak puanlıyor. Kararları incelemek için döngüyü açın.</string>
     <string name="home_session_summary_baseline">Mevcut pencere yararlı bir temeldir: Güçlü bir bozulma sinyali olmadan CPU %1$d%% ve RAM %2$d%%.</string>
     <string name="home_session_corr_heat">Yük ↔ ısı</string>
     <string name="home_session_corr_stable">Güçlü bağlantı yok</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Uygulama başına optimizasyonlar uygulanıyor</string>
     <string name="max_app_advanced_options">Gelişmiş seçenekler</string>
     <string name="max_app_save">Kaydetmek</string>
+    <string name="home_gpu_max_freq">Maksimum frekans</string>
 </resources>

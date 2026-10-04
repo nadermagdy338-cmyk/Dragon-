@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">వెర్బోస్</string>
+    <string name="max_log_level_debug">డీబగ్ చేయండి</string>
+    <string name="max_log_level_info">సమాచారం</string>
+    <string name="max_log_level_warn">హెచ్చరిక</string>
+    <string name="max_log_level_error">లోపం</string>
+    <string name="max_log_level_assert">నొక్కిచెప్పండి</string>
+    <string name="max_log_level_fatal">ప్రాణాంతకం</string>
+    <string name="max_log_buffer_main">ప్రధాన</string>
+    <string name="max_log_buffer_system">వ్యవస్థ</string>
+    <string name="max_log_buffer_crash">క్రాష్</string>
+    <string name="max_log_buffer_kernel">కెర్నల్</string>
+    <string name="max_log_buffer_events">ఈవెంట్స్</string>
+    <string name="max_log_buffer_radio">రేడియో</string>
+    <string name="max_log_source_daemon">డెమోన్</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">ఇతర</string>
+</resources>

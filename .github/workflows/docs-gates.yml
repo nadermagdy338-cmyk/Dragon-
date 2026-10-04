@@ -1,0 +1,96 @@
+name: MaxManager docs
+
+# ── لماذا هذا الملفّ (I-103): دفعٌ لا يمسّ إلا الـREADME/`docs` لم يكن يُشغّل CI إطلاقًا ──
+#
+# في `build.yml` صارت `on.push.paths` **مسموحة عمدًا** (كل مسار يُعدّله يعني تغييرًا في المنتج أو
+# في الأدوات)، وفيها **لا سطر لـ`README.md` ولا `docs/**`**. ومع ذلك خطوة «Contract gates» فيه
+# تشغّل ستّ بوّابات على الـREADME: `readme_assets` · `svg_review` · `screenshot_gallery` (بـ
+# `--assert` و`--self-test` لكلٍّ). والنتيجة قيست: الالتزام `f62a490` الذي غيّر الصفحتين
+# **لم يُشغّل شيئًا** — لا في `GET /actions/runs` ولا في قائمة الفحوص.
+#
+# والعلاج ليس إضافة `docs/**` إلى `build.yml`: ذلك يُشغّل **بناءً كاملًا** (تصريف + Rust + NDK +
+# APK، ١٦ دقيقة في تشغيل مرصود) على دفع لا كود فيه، ومستندات هذا المستودع تُكتب في كل جلسة.
+#
+# فالعلاج مهمّة صغيرة مستقلّة: **نفس بوّابات `build.yml` بلا مُصرّف** (~ثوانٍ)، و**القائمة تُقرأ
+# من `build.yml` في وقت التشغيل** فلا توجد قائمة ثانية تتقادم — بوّابة تُضاف هناك تُنفَّذ هنا بلا
+# تعديل سطر. والقراءة نفسها محروسة: إن استُخرج أقلّ من ٣٠ أمرًا **تفشل المهمّة** ولا يمرّ تشغيل
+# نفّذ صفر بوابة.
+#
+# وحدّها المُعلَن: هذه **ليست** بديلًا عن `build.yml` — لا مُصرّف ولا اختبارات ولا APK. ما تُثبته
+# هو ما تُثبته بوّابات العقد: نصوص · موارد · XML · JSون · ترخيص · جرد · أصول README.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "README.md"
+      - "README.ar.md"
+      - "docs/**"
+      - ".github/workflows/docs-gates.yml"
+
+  workflow_dispatch:
+
+# المجموعة لكل مرجع، والإلغاء مُقصود: ناتج هذا الفحص مؤقّت (بوّابات على مستندات)، ودفعات
+# المستندات متلاحقة — فلا معنى لإكمال تشغيل عن حالة تجاوزها الدفع التالي. **وهذا لا يمسّ
+# `build.yml`**: مجموعته مستقلة عنه (`build-${{ github.ref }}`) فلا يُلغي أيٌّ منهما الآخر.
+concurrency:
+  group: docs-gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    name: Contract gates (no compiler)
+    runs-on: ubuntu-latest
+    # البوّابات ثوانٍ (٣٧ ثانية مقيسة محليًّا). والعشر دقائق ليست للحاجة بل لتقرير أحمر
+    # باسمه إن تعطّل شيء، بدل أن يجلس على runner إلى السقف الافتراضي (٦ ساعات).
+    timeout-minutes: 10
+
+    steps:
+      # بلا `fetch-depth: 0`: لا بوابة في القائمة تحتاج تاريخًا — تحقّق أن الأربع التي تلمس git
+      # تستعمل `git ls-files` (يعمل في استنساخ بعمق ١)، ولا واحدة تستعمل `rev-list`/`git log`.
+      # ورقم البناء المشتقّ من عدد الالتزامات ليس سؤال هذه المهمّة (ذاك في `build.yml`).
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      # ── الأوامر **لا تُنسخ هنا** — تُقرأ من `build.yml` في وقت التشغيل ──
+      #
+      # ونسخها كان الخيار الأسرع وأسوأه: قائمة ثانية تتقادم بصمت عند أوّل بوابة تُضاف (وهو نفسُ
+      # صنف العطب المُعلَن في `build.yml` عند إضافة مسار `tools/**`). والمنطق مكتوب **داخل هذا
+      # الملفّ** لا في ملفّ مساعد: `ROOTS` في `source_manifest.py` تشمل `.github/workflows`
+      # — أي أن هذا النصّ **داخل البصمة**، بينما `.github/scripts/` خارجها (مُعلَنًا في الأداة).
+      #
+      # والحرس قبل التنفيذ: العدد المقيس ٣٤، والعتبة ٣٠؛ وإن انكسرت القراءة **تفشل المهمّة** ولا
+      # يمرّ تشغيل نفّذ صفر بوابة — وهو العطب الصامت الوحيد الممكن في ملفّ كهذا.
+      - name: Run every Contract gate build.yml defines
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, subprocess, sys
+
+          wf = pathlib.Path(".github/workflows/build.yml")
+          text = wf.read_text(encoding="utf-8")
+          marker = "- name: Contract gates"
+          if marker not in text:
+              sys.exit(f"::error::لا وسم «{marker}» في {wf} — القراءة انكسرت")
+          body = text[text.index(marker):]
+          cut = body.find("Contract gates passed")
+          if cut != -1:
+              body = body[:cut]
+          commands = re.findall(r"^\s+(python3 \S+\.py .+)$", body, re.M)
+          if len(commands) < 30:
+              sys.exit(f"::error::استُخرج {len(commands)} أمرًا فقط (العتبة 30) — "
+                       "الكشف انكسر، ولا يمرّ تشغيل بلا قياس")
+          print(f"بوّابات العقد من build.yml: {len(commands)} أمرًا", flush=True)
+          failed = []
+          for command in commands:
+              print(f"::group::{command}", flush=True)
+              rc = subprocess.run(command, shell=True).returncode
+              print("::endgroup::", flush=True)
+              if rc:
+                  failed.append(command)
+                  print(f"::error::فشلت البوّابة: {command} (exit {rc})")
+          print(f"نُفّذ {len(commands)} أمرًا · فشل {len(failed)}")
+          for command in failed:
+              print("  ✗", command)
+          sys.exit(1 if failed else 0)
+          PY

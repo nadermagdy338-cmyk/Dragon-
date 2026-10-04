@@ -78,6 +78,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSectionSpec
+import nd.max.ui.design.MaxSpace
 import nd.max.R
 
 /**
@@ -141,7 +144,7 @@ fun ScreenAccentGlyph(
     size: androidx.compose.ui.unit.Dp = 32.dp,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(MaxRadius.inset)
     Box(
         modifier = modifier
             .size(size + 10.dp)
@@ -250,7 +253,7 @@ fun MaxManagerSubScreenTopBar(
                         onClick = onBack,
                         modifier = Modifier.padding(start = 4.dp).background(
                             MaterialTheme.colorScheme.surfaceContainerHigh,
-                            RoundedCornerShape(16.dp)
+                            RoundedCornerShape(MaxRadius.inset)
                         )
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
@@ -349,7 +352,14 @@ fun MaxManagerSectionTitle(text: String, accent: Color = MaterialTheme.colorSche
         MaxSectionHeader(
             title = text,
             accent = accent,
-            modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 24.dp, bottom = 12.dp)
+            // الفراغان من عقد القسم لا أرقامًا محلّية: هما ما يجعل تباعد قسم-لقسم واحدًا
+            // في كل شاشة، والتغيير يجري من مكان واحد.
+            modifier = Modifier.padding(
+                start = MaxSpace.xs,
+                end = MaxSpace.xs,
+                top = MaxSectionSpec.spaceBefore,
+                bottom = MaxSectionSpec.spaceAfter,
+            )
         )
     }
 }

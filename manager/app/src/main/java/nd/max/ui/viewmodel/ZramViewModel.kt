@@ -29,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 import nd.max.core.hardware.ZramHardwareBackend
 
 data class ZramSizePreset(

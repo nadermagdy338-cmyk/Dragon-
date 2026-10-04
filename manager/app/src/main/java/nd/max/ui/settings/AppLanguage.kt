@@ -5,8 +5,11 @@
  */
 package nd.max.ui.settings
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.Configuration
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import java.text.Collator
@@ -51,7 +54,17 @@ object AppLanguage {
     )
 
     /** خيار واحد في القائمة: الوسم، واسمه بلغته، واسمه بلغة الواجهة الحالية. */
-    data class Entry(val tag: String, val nativeName: String, val localizedName: String)
+    /**
+     * [englishName] حقلٌ ثالث لا زينة: أمر المالك صار أن يُقرأ اسم اللغة **بالإنجليزية عنوانًا**
+     * واسمها الأصلي سطرًا ثانويًّا (`Arabic / العربية`)، فيحتاج المنتقي اسمًا بالإنجليزية لكل
+     * لغة. و[localizedName] بقي لأن البحث يجب أن يطابق ما يقرأه المستخدم بلغته أيضًا.
+     */
+    data class Entry(
+        val tag: String,
+        val nativeName: String,
+        val localizedName: String,
+        val englishName: String,
+    )
 
     /**
      * يُطبّع الوسم إلى صيغة BCP-47 كاملة.
@@ -94,6 +107,54 @@ object AppLanguage {
      */
     fun applySaved(context: Context) {
         apply(savedTag(context))
+    }
+
+    /**
+     * يُعيد إنشاء النشاط بعد تبديل اللغة — فيُرى الاختيار **فورًا** لا بعد إقلاع جديد.
+     *
+     * **ولماذا لزم هذا أصلًا:** كل مسار اللغة في هذا الملفّ كان سليمًا إلا أنه غير مرئي
+     * في اللحظة. `[apply]` تُبلّغ النظام بالاختيار، و`[wrap]` تقرأه في `attachBaseContext`
+     * — وكلاهما يعمل **عند إنشاء النشاط**. فمن يختار لغة كان يراها بعد إغلاق التطبيق
+     * وفتحه، وهو ما أبلغ عنه المالك.
+     *
+     * **والشرط على `SDK_INT` ليس تحوّطًا:** من `TIRAMISU` (‏API 33) صار تبديل اللغة
+     * إطارًا في النظام (`LocaleManager.setApplicationLocales`)، والنظام يُعيد إنشاء
+     * النشاطات بنفسه. وقبلها لا شيء يُعيد الإنشاء: `MainActivity` هو `ComponentActivity`
+     * بلا `AppCompatDelegate` — وهي فقط من يملك منطق الإنشاء التلقائي في AppCompat.
+     * وإعادة الإنشاء هنا لا تغيّر النتيجة على 33+ إلا بإنشاء ثانٍ بلا فائدة، فتُترك للإطار.
+     *
+     * **وحدّها المُعلَن:** هذا لا يعني «اختُبر على جهاز» — مسار API 33+ (إعادة الإنشاء
+     * من الإطار) لم يُقَس على جهاز في هذه البيئة، والذي قِيس هو أن مسار ما قبل 33 كان
+     * **بلا إعادة إنشاء إطلاقًا**، وهذا ما يغلقه السطر هنا.
+     */
+    fun reload(activity: Activity) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) activity.recreate()
+    }
+
+    /**
+     * النشاط الحاوي للسياق — يُستدعى من الواجهة لأنّ `Activity` غير متاحة في `LocalContext`
+     * مباشرةً حين يُغلّفها سياق آخر. والتنقيب آمن الاكتمال: `while` ينتهي عند `baseContext` فارغ.
+     */
+    fun activityOf(context: Context): Activity? {
+        var current: Context? = context
+        while (current is ContextWrapper) {
+            if (current is Activity) return current
+            current = current.baseContext
+        }
+        return null
+    }
+
+    /**
+     * اسم **لغة الجهاز** بلغة الواجهة — سطر ثانويّ لخيار «لغة النظام» في المنتقي، فيرى
+     * المستخدم ما سيُطبَّق فعلًا بدل أن يخمّنه.
+     *
+     * **وهو ليس `Locale.getDefault()`:** ذاك يُصبح لغة **التطبيق** بعد `[wrap]`
+     * (`Locale.setDefault(locale)`)، فسؤالُه بعد تبديل لغة يعطي الجواب عن الاختيار لا عن
+     * الجهاز. والمصدر الصحيح هو قائمة النظام `LocaleListCompat.getDefault()`.
+     */
+    fun systemLanguageName(uiLocale: Locale = Locale.getDefault()): String {
+        val device = LocaleListCompat.getDefault()[0] ?: return ""
+        return device.getDisplayLanguage(uiLocale).replaceFirstChar { it.uppercase(uiLocale) }
     }
 
     /**
@@ -144,9 +205,12 @@ object AppLanguage {
                     tag = tag,
                     nativeName = nativeName(tag),
                     localizedName = displayName(tag, uiLocale),
+                    englishName = displayName(tag, Locale.ENGLISH),
                 )
             }
-            .sortedWith(compareBy(collator) { it.localizedName })
+            // والترتيب على الاسم **الإنجليزي** لأنه هو المعروض عنوانًا: قائمة تُرتَّب بمفتاح غير
+            // المفتاح الذي يُقرأ تبدو عشوائية في كل قراءة عربية.
+            .sortedWith(compareBy(collator) { it.englishName })
     }
 
     /**

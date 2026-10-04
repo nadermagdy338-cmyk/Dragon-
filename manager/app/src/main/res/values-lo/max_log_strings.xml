@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">ຄຳເວົ້າ</string>
+    <string name="max_log_level_debug">ດີບັກ</string>
+    <string name="max_log_level_info">ຂໍ້ມູນ</string>
+    <string name="max_log_level_warn">ຄຳເຕືອນ</string>
+    <string name="max_log_level_error">ຜິດພາດ</string>
+    <string name="max_log_level_assert">ຢືນຢັນ</string>
+    <string name="max_log_level_fatal">ຕາຍ</string>
+    <string name="max_log_buffer_main">ຫຼັກ</string>
+    <string name="max_log_buffer_system">ລະບົບ</string>
+    <string name="max_log_buffer_crash">ອຸປະຕິເຫດ</string>
+    <string name="max_log_buffer_kernel">ແກ່ນ</string>
+    <string name="max_log_buffer_events">ເຫດການ</string>
+    <string name="max_log_buffer_radio">ວິທະຍຸ</string>
+    <string name="max_log_source_daemon">Daemon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">ອື່ນໆ</string>
+</resources>

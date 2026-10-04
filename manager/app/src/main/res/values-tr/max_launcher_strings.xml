@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Kurulu paketler ve bildirdikleri aktiviteler</string>
+    <string name="max_launcher_loading">Kurulu paketler ve beyan edilen faaliyetleri okunuyor…</string>
+    <string name="max_launcher_empty">Yüklü hiçbir paket bu cihazda bir etkinlik bildirmiyor.</string>
+    <string name="max_launcher_search_placeholder">Uygulama adına veya pakete göre arayın</string>
+    <string name="max_launcher_search_clear">Aramayı temizle</string>
+    <string name="max_launcher_scope_all">Tüm</string>
+    <string name="max_launcher_scope_user">Kullanıcı</string>
+    <string name="max_launcher_scope_system">Sistem</string>
+    <string name="max_launcher_activity_count">%1$d aktiviteler</string>
+    <string name="max_launcher_no_match_title">Hiçbir şey eşleşmiyor</string>
+    <string name="max_launcher_no_match_detail">Seçilen kapsamdaki hiçbir paket adı veya uygulama etiketi bu metni içermiyor.</string>
+    <string name="max_launcher_no_match_clear">Filtreleri temizle</string>
+    <string name="max_launcher_reading_activities">Bu paketin beyan ettiği faaliyetler okunuyor…</string>
+    <string name="max_launcher_no_activities">Bu paket hiçbir aktivite bildirmiyor.</string>
+    <string name="max_launcher_root_off_title">Kök verilmedi</string>
+    <string name="max_launcher_root_off_detail">Özel olarak işaretlenen etkinlikler dışa aktarılmaz, dolayısıyla bunları yalnızca root başlatabilir. Dışa aktarılan etkinlikler bu öğe olmadan da açık.</string>
+    <string name="max_launcher_tag_private">Özel</string>
+    <string name="max_launcher_tag_disabled">Engelli</string>
+    <string name="max_launcher_outcome_started">Etkinlik başladı</string>
+    <string name="max_launcher_outcome_needs_root">Bu etkinlik dışa aktarılmıyor; root gerekli</string>
+    <string name="max_launcher_outcome_refused">Android bu etkinliği başlatmayı reddetti</string>
+    <string name="max_launcher_outcome_missing">Bu adda hiçbir etkinlik yüklü değil</string>
+</resources>

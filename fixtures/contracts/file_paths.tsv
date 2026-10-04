@@ -1,0 +1,67 @@
+# مسارات الملفات تحت مجلّد الوحدة — العقد الذي لم يكن له جدول إطلاقًا (§٤ يعلنها ❌).
+#
+# الأعمدة مفصولة بـTAB، بهذا الترتيب:
+#   path · kind · declarations
+#
+# و`path` هو **اللاحقة نسبةً إلى جذر الوحدة** `/data/adb/.config/MaxManager` (و`<base>` هو الجذر نفسه).
+# ولذلك يعمل الحرس على ثلاث لغات **بلغة واحدة**: المصدر يكتب المسار بأحد ثلاثة أشكال —
+#   C      : /data/adb/.config/MaxManager/app_status
+#   C      : MODULE_DIR "/app_status"
+#   Kotlin : "$MODULE_CONFIG/debug/MaxManager.log"
+#   Rust   : /data/adb/.config/MaxManager/debug/MaxManager.log
+# وفي الثلاثة تكون **اللاحقة نصًّا موجودًا حرفيًّا** — فالنصّ الواحد يقيس الثلاثة، ولا يحتاج محلّلًا لكل لغة.
+#
+# و`declarations` = الملفات التي يجب أن تحوي اللاحقة (مفصولة بـ`;`) — **مقيسة** من الشجرة لا مُتخيَّلة.
+# و`kind` للقراءة فقط: dir · file · state · lock · log.
+#
+# ⚠️ وحرسان لا واحد:
+#   (١) **الصدق:** كل ملف مُعلَن يحوي لاحقته — فتباعُد لغة عن لغة يُسقط اختبار الطرف نفسه.
+#   (٢) **الاكتمال:** أي لاحقة جديدة تظهر في مجلّدات المصادر الممسوحة **يجب** أن يكون لها صفّ،
+#       فلا يُضاف مسار بصمت. ونطاق المسح مكتوب في الحرس نفسه لا مُفترَض.
+#
+# ⚠️ والحدّ المُعلن (يُقال ولا يُطوى): المسح يقرأ الشكل **المطلق** وشكل `$MODULE_CONFIG`؛ والمسار
+# المركَّب في C من ماكرو غير مطلق (`MODULE_DIR "/x"`) لا يكشفه المسح، بل يحرسه بند (١) بذكره ملفًا مُعلَنًا.
+# فالإضافة الصامتة في الشكل المركَّب تكشفها المراجعة لا الحرس.
+#
+# ⚠️ وهذا الجدول بدأ بـ**٣٥ مسارًا** (والـAudit §٤ كان يعلن ٢٧ من نطاق أضيق) — والعدد **مقيس**،
+# والنطاق مذكور في الحرس. ومن صفوفه ما يدلّ على شيء يستحقّ النظر لا الإصلاح هنا:
+#   · `runtime/per_app_cpu_status` و`runtime/per_app_hw_status` و`plugins` — **ملفّ/مجلّد بلا قارئ**
+#     في الشجرة كلها (مثل `applyfreqgame` في عقد الـCLI): مسجَّلة لا محذوفة (ADR-18).
+#
+# ⚠️ ولا تُعدّل صفًّا هنا لتُمرّر اختبارًا: إن سقط فالسؤال **أيّ الطرفين تباعد عن الآخر**، لا أن يُحرَّك المرجع.
+path	kind	declarations
+.launcher_enabled	file	mainfiles/service.sh
+<base>	dir	archdaemon/jni/src/InotifyHandler/InotifyWatcher.c;binprofiles/src/utils/mod.rs;mainfiles/customize.sh;mainfiles/post-fs-data.sh;mainfiles/preferenced-tweaks.sh;mainfiles/service.sh;mainfiles/uninstall.sh;manager/app/src/main/java/nd/max/MaxManagerPaths.kt;manager/app/src/main/java/nd/max/ui/util/LogUtil.kt
+API	dir	archdaemon/jni/src/InotifyHandler/InotifyWatcher.c;mainfiles/customize.sh
+API/.lock	lock	archdaemon/jni/include/MaxManager.h;mainfiles/post-fs-data.sh
+API/current_modes	file	archdaemon/jni/include/MaxManager.h;mainfiles/customize.sh;manager/app/src/main/java/nd/max/core/maxai/MaxAiEngine.kt
+API/current_profile	file	archdaemon/jni/include/MaxManager.h;archdaemon/jni/src/BinaryCLI/CLIUtility.c;manager/app/src/main/java/nd/max/AppMonitor.kt;manager/app/src/main/java/nd/max/core/hardware/ProfileApplier.kt;manager/app/src/main/java/nd/max/ui/util/RootUtil.kt;manager/app/src/main/java/nd/max/ui/viewmodel/TweakViewmodel.kt
+API/gameinfo	file	archdaemon/jni/include/MaxManager.h
+API/per-app-recovery.json	file	manager/app/src/main/java/nd/max/core/hardware/PerAppRecoveryStore.kt
+API/perapp_thermal_prev	file	archdaemon/jni/src/SystemProfile/PerAppThermal.c
+app_status	state	archdaemon/jni/include/MaxManager.h;archdaemon/jni/src/AppLoader/StatusMonitor.c;mainfiles/service.sh;manager/app/src/main/java/nd/max/core/maxai/MaxAiEngine.kt
+background_apps	state	archdaemon/jni/src/InotifyHandler/InotifyWatcher.c;archdaemon/jni/src/PidTracker/PidTracker.c;mainfiles/service.sh
+bypasschgconfig	dir	archdaemon/jni/include/MaxManager.h;archdaemon/jni/src/InotifyHandler/InotifyWatcher.c;mainfiles/customize.sh
+bypasschgconfig/bypasschg	file	archdaemon/jni/src/InotifyHandler/InotifyWatcher.c;archdaemon/jni/src/StartupInit/ConfigLoader.c;mainfiles/customize.sh;manager/app/src/main/java/nd/max/TileService/BypassChgTileService.kt;manager/app/src/main/java/nd/max/ui/subscreens/BypassChargeScreen.kt
+bypasschgconfig/bypasschgthreshold	file	archdaemon/jni/src/InotifyHandler/InotifyWatcher.c;archdaemon/jni/src/StartupInit/ConfigLoader.c;mainfiles/customize.sh;manager/app/src/main/java/nd/max/ui/subscreens/BypassChargeScreen.kt
+bypasschgconfig/bypasspath	file	archdaemon/jni/src/InotifyHandler/InotifyWatcher.c;archdaemon/jni/src/StartupInit/ConfigLoader.c;mainfiles/customize.sh;manager/app/src/main/java/nd/max/ui/subscreens/BypassCheckScreen.kt
+daemon_state	state	archdaemon/jni/include/MaxManager.h;archdaemon/jni/src/ConfigHandler/StateHandler.c;archdaemon/jni/src/SystemProfile/SystemProfiles.c
+debug	dir	archdaemon/jni/src/MaxManagerUtility/DaemonUtility.c;binutils/src/utils/logger.rs;mainfiles/customize.sh
+debug/FullMode	file	manager/app/src/main/java/nd/max/ui/util/SettingsVisibilityUtil.kt
+debug/MaxManager.log	log	archdaemon/jni/include/MaxManager.h;archdaemon/jni/src/BinaryCLI/CLIUtility.c;binutils/src/utils/logger.rs;manager/app/src/main/java/nd/max/MaxManagerPaths.kt;manager/app/src/main/java/nd/max/ui/util/LogUtil.kt
+debug/MaxManager.log.1	log	archdaemon/jni/src/BinaryCLI/CLIUtility.c
+debug/MaxManagerVerbose.log	log	archdaemon/jni/include/MaxManager.h;archdaemon/jni/src/BinaryCLI/CLIUtility.c;binutils/src/utils/logger.rs
+debug/MaxManagerVerbose.log.1	log	archdaemon/jni/src/BinaryCLI/CLIUtility.c
+freqoffset	state	archdaemon/jni/src/InotifyHandler/InotifyWatcher.c;archdaemon/jni/src/StartupInit/ConfigLoader.c;mainfiles/customize.sh;manager/app/src/main/java/nd/max/ui/viewmodel/TweakViewmodel.kt
+gamelist	dir	archdaemon/jni/src/InotifyHandler/InotifyWatcher.c;mainfiles/customize.sh
+gamelist/maxmanagerApplist.json	file	archdaemon/jni/include/MaxManager.h;mainfiles/customize.sh;manager/app/src/main/java/nd/max/MaxManagerPaths.kt
+java.lock	lock	archdaemon/jni/src/StartupInit/DaemonContext.c;mainfiles/post-fs-data.sh;mainfiles/service.sh
+launcher_visibility	state	mainfiles/service.sh;manager/app/src/main/java/nd/max/ui/mainscreens/SettingsScreen.kt
+package-recovery.log	log	mainfiles/service.sh;manager/app/src/main/java/nd/max/ui/util/ModuleHealthUtil.kt
+plugins	dir	manager/app/src/main/java/nd/max/ui/util/PluginContract.kt
+preload	dir	mainfiles/customize.sh
+preload/MaxManagerPR.log	log	archdaemon/jni/include/MaxManager.h;archdaemon/jni/src/BinaryCLI/CLIUtility.c
+preload/MaxManagerPR.log.1	log	archdaemon/jni/src/BinaryCLI/CLIUtility.c
+runtime/per_app_cpu_status	file	manager/app/src/main/java/nd/max/MaxManagerPaths.kt
+runtime/per_app_hw_status	file	manager/app/src/main/java/nd/max/MaxManagerPaths.kt
+sysmon.log	log	mainfiles/service.sh

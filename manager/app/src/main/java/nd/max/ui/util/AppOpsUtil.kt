@@ -15,6 +15,7 @@
  */
 
 package nd.max.ui.util
+import nd.max.core.platform.EventLog
 
 import android.content.Context
 import android.content.pm.PackageInfo

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Pakej yang dipasang dan aktiviti yang mereka isytiharkan</string>
+    <string name="max_launcher_loading">Membaca pakej yang dipasang dan aktiviti yang diisytiharkan…</string>
+    <string name="max_launcher_empty">Tiada pakej yang dipasang mengisytiharkan aktiviti pada peranti ini.</string>
+    <string name="max_launcher_search_placeholder">Cari mengikut nama apl atau pakej</string>
+    <string name="max_launcher_search_clear">Kosongkan carian</string>
+    <string name="max_launcher_scope_all">Semua</string>
+    <string name="max_launcher_scope_user">pengguna</string>
+    <string name="max_launcher_scope_system">Sistem</string>
+    <string name="max_launcher_activity_count">%1$d aktiviti</string>
+    <string name="max_launcher_no_match_title">Tiada yang sepadan</string>
+    <string name="max_launcher_no_match_detail">Tiada nama pakej atau label apl mengandungi teks tersebut dalam skop yang dipilih.</string>
+    <string name="max_launcher_no_match_clear">Kosongkan penapis</string>
+    <string name="max_launcher_reading_activities">Membaca aktiviti yang diisytiharkan oleh pakej ini…</string>
+    <string name="max_launcher_no_activities">Pakej ini mengisytiharkan tiada aktiviti.</string>
+    <string name="max_launcher_root_off_title">Akar tidak diberikan</string>
+    <string name="max_launcher_root_off_detail">Aktiviti yang ditandakan sebagai peribadi tidak dieksport, jadi hanya root boleh memulakannya. Aktiviti yang dieksport masih dibuka tanpanya.</string>
+    <string name="max_launcher_tag_private">Persendirian</string>
+    <string name="max_launcher_tag_disabled">Dilumpuhkan</string>
+    <string name="max_launcher_outcome_started">Aktiviti dimulakan</string>
+    <string name="max_launcher_outcome_needs_root">Aktiviti ini tidak dieksport — root diperlukan</string>
+    <string name="max_launcher_outcome_refused">Android enggan memulakan aktiviti ini</string>
+    <string name="max_launcher_outcome_missing">Tiada aktiviti dengan nama itu dipasang</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">תקופת המועד המקסימלית (אנחנו)</string>
+    <string name="max_sched_tunable_deadline_period_min">תקופת מועד אחרון דקות (אנחנו)</string>
+    <string name="max_sched_tunable_energy_aware">מודע לאנרגיה</string>
+    <string name="max_sched_tunable_latency">אחזור (ns)</string>
+    <string name="max_sched_tunable_migration_cost">עלות הגירה (נ)</string>
+    <string name="max_sched_tunable_min_granularity">פירוט מינימלי (נ)</string>
+    <string name="max_sched_tunable_nr_migrate">גודל אצווה הגירה</string>
+    <string name="max_sched_tunable_pelt_multiplier">מכפיל PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">תקופת זמן אמת (אנחנו)</string>
+    <string name="max_sched_tunable_rt_runtime">זמן ריצה בזמן אמת (אנחנו)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">רצפת UClamp בזמן אמת</string>
+    <string name="max_sched_tunable_wakeup_granularity">גרעיניות התעוררות (נ)</string>
+</resources>

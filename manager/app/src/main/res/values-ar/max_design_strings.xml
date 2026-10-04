@@ -11,6 +11,8 @@
     <string name="max_trust_live">مباشر</string>
     <string name="max_trust_stale">آخر عيّنة</string>
     <string name="max_trust_snapshot">لقطة</string>
+    <!-- الدورة الأولى لم تكتمل: السؤال لم يُطرح بعد، وهو ليس «لا قراءة». -->
+    <string name="max_trust_loading">يُقرأ…</string>
     <string name="max_trust_unreadable">لا قراءة</string>
     <string name="max_trust_unsupported">غير مدعوم</string>
 

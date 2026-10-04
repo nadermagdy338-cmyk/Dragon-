@@ -12,6 +12,7 @@
 هنا في المصدر لا بالمراجعة بعده.
 
 المزوّدات (بالأولوية حسب الجودة للواجهات):
+    gtx     — **بلا مفتاح**: نقطة Google العمومية (`client=gtx`) — المسار المعتمد في «زامن»
     deepl   — DEEPL_API_KEY            (٥٠٠ ألف حرف/شهر مجانًا، ثم ~٢٥ $/مليون)
     google  — GOOGLE_TRANSLATE_KEY     (٥٠٠ ألف حرف/شهر مجانًا، ثم ~٢٠ $/مليون)
     openai  — MT_API_KEY + MT_BASE_URL + MT_MODEL   (أي واجهة متوافقة مع OpenAI، وتشمل DeepSeek
@@ -20,6 +21,7 @@
 
 الاستخدام:
     python3 tools/i18n_translate.py --estimate                     # الأثر والتكلفة بلا أي استدعاء
+    python3 tools/i18n_translate.py --provider gtx --locales all   # «زامن»: بلا مفتاح
     python3 tools/i18n_translate.py --provider deepl --locales all
     python3 tools/i18n_translate.py --provider openai --locales ar,de --limit-keys 200
     python3 tools/i18n_coverage.py --locale de --apply-csv build/i18n/translated_de.csv
@@ -35,6 +37,7 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -80,8 +83,17 @@ def restore(text: str, tokens: list[str]) -> str:
 
 
 def protected_ok(source: str, translation: str) -> bool:
-    """يرفض الوسيط الذي يطلب ما لا يمرّره الكود (نفس قاعدة البوابة)."""
-    return not (set(SPECIFIER.findall(translation)) - set(SPECIFIER.findall(source)))
+    """يرفض الترجمة التالفة في **الاتجاهين معًا** — لا في اتجاه واحد.
+
+    كان الفحص `translation - source` وحده (وسيط زائد)، وهو يُسقط التطبيق فعلًا؛ لكنه
+    **أعمى عن الاتجاه الآخر**: مزوّد يحذف الحارس `␟3␞` لا يُنتج وسيطًا زائدًا، فيمرّ
+    الاختبار وتصل الواجهة نصًّا ناقصًا بلا أن يسقط شيء. وقِيس هذا في الشجرة: **٦٠ قيمة
+    في الـ٨٤ لغة تُسقط وسيطًا** — إحداها عربية، وأخرى صارت `%2$s` فيها حرفيًّا `«1»`.
+
+    فالقاعدة الآن: مجموعة الوسائط في الترجمة **تساوي** مجموعة وسائط الأصل. والحذف عطب
+    وليس اختيارًا، لأنّ كل وسيط يحمل قيمة تُعرض للمستخدم.
+    """
+    return set(SPECIFIER.findall(translation)) == set(SPECIFIER.findall(source))
 
 
 class Provider:
@@ -194,8 +206,108 @@ class Stub(Provider):
         return [f"[{target}] {text}" for text in texts]
 
 
+class Gtx(Provider):
+    """نقطة Google العمومية **بلا مفتاح** (`client=gtx`) — مسار «زامن» المُوثّق.
+
+    **ولماذا عادت إلى `tools/`:** كانت `build/i18n/gtx_fill.py`، و`build/` متجاهَل في `.gitignore`
+    فحُذفت مع اللقطة (تكملة ٨٥) وضاع المسار الذي تُملأ به الـ٨٣ لغة — وبقيت الإشارة إليه في
+    `AGENTS.md` §0.2 وفي `HANDOFF`. فهي هنا حيث لا تُحذف.
+
+    وثلاثة أشياء قِيست قبل كتابتها:
+    ① **‏GET لا POST**: الـPOST على النقطة نفسها ردّ `429`، والـGET ردّ `200`.
+    ② **شكل الردّ اثنان**: `["نصّ"]` لنصّ واحد و`[["أ","ب","ج"]]` لدفعة — فالتسطيح يجب أن
+       يقبل الشكلين، وإلا انكسر العدّ في نصف الحالات.
+    ③ **الأحرف الحارسة تعبر سليمة**: `␟0␞ activities` عادت `␟0␞ Aktivitäten` — أي أن حماية
+       الوسائط التي في هذا الملفّ تعمل مع هذا المزوّد كما تعمل مع غيره.
+
+    **وحدّه مُعلَن:** نقطة عمومية بلا اتفاق خدمة ولا سقف موثَّق، فالتقسيم والتأخير هنا
+    للالتزام الأدبي ومنع الـ`429` — لا لأن أحدًا ضمن لنا ذلك.
+    """
+
+    ENDPOINT = "https://translate.googleapis.com/translate_a/t"
+    # ‏حدّ الرابط المقصود: رابط الـGET يمرّ في الرؤوس، وتجهيزه طويل يقصّه الخادم بلا رسالة مفهومة.
+    MAX_URL = 7000
+    MAX_ITEMS = 150
+
+    def __init__(self) -> None:
+        super().__init__("gtx")
+
+    @classmethod
+    def chunk(cls, texts: list[str]) -> list[list[str]]:
+        """تقسيم ثانٍ بحسب **طول الرابط المرمَّز** لا العدد وحده — نصّ طويل واحد قد يقصّه الخادم."""
+        chunks: list[list[str]] = []
+        current: list[str] = []
+        size = len(cls.ENDPOINT) + 120
+        for text in texts:
+            cost = len(urllib.parse.quote(text)) + 4
+            if current and (size + cost > cls.MAX_URL or len(current) >= cls.MAX_ITEMS):
+                chunks.append(current)
+                current, size = [], len(cls.ENDPOINT) + 120
+            current.append(text)
+            size += cost
+        if current:
+            chunks.append(current)
+        return chunks
+
+    @staticmethod
+    def flatten(payload: object) -> list[str]:
+        """يُسطّح الشكلين المقيسين، وكل ما يظهر من تداخل بينهما."""
+        flat: list[str] = []
+
+        def walk(node: object) -> None:
+            if isinstance(node, str):
+                flat.append(node)
+            elif isinstance(node, list):
+                for child in node:
+                    walk(child)
+
+        walk(payload)
+        return flat
+
+    def _request(self, chunk: list[str], target: str) -> list[str]:
+        params: list[tuple[str, str]] = [
+            ("client", "gtx"), ("sl", "en"), ("tl", target.split("-")[0]), ("format", "text")
+        ]
+        params += [("q", text) for text in chunk]
+        url = f"{self.ENDPOINT}?{urllib.parse.urlencode(params)}"
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(url, timeout=60) as response:
+                    return self.flatten(json.loads(response.read().decode("utf-8")))
+            except urllib.error.HTTPError as error:
+                if error.code in (429, 500, 502, 503) and attempt < 3:
+                    time.sleep(3 * 2**attempt)
+                    continue
+                raise RuntimeError(f"HTTP {error.code}") from error
+        raise RuntimeError("unreachable")
+
+    def translate(self, texts: list[str], target: str) -> list[str]:
+        out: list[str] = []
+        for index, chunk in enumerate(self.chunk(texts)):
+            if index:
+                time.sleep(0.7)  # فاصل بين الطلبات: النقطة عمومية، والضغط بلا فاصل يُنتج 429
+            got = self._request(chunk, target)
+            if len(got) != len(chunk):
+                # **ولا تُهدَر الدفعة كلها من أجل نصّ واحد:** الذين عادوا سليمين يُستعملون،
+                # والشاذّ يُعاد **نصًّا نصًّا** (وكلفته رابط واحد لكل نصّ، لا لكل دفعة).
+                # وهذا مقيس: الردّ المتداخل يُفسد العدّ، ورميه كاملًا يضيّع ١٤٩ ترجمة صحيحة.
+                out.extend(self._one_by_one(chunk, target))
+                continue
+            out.extend(got)
+        return out
+
+    def _one_by_one(self, chunk: list[str], target: str) -> list[str]:
+        singles: list[str] = []
+        for text in chunk:
+            time.sleep(0.4)
+            got = self._request([text], target)
+            singles.append(got[0] if len(got) == 1 else "")
+        return singles
+
+
 def build_provider(name: str, model: str) -> Provider:
     return {
+        "gtx": lambda: Gtx(),
         "deepl": lambda: DeepL(),
         "google": lambda: Google(),
         "openai": lambda: OpenAiCompatible(model),
@@ -228,6 +340,68 @@ def pending(locale: str, limit: int) -> list[dict[str, str]]:
             if limit and len(rows) >= limit:
                 return rows
     return rows
+
+
+TAG_BOUND = re.compile(rf"{SENTINEL_OPEN}\d+{SENTINEL_CLOSE}")
+
+
+def segment_rows(provider: Provider, rows: list[dict[str, str]], keep: list[str], target: str) -> dict[str, str]:
+    """مسار احتياطي: يُترجم **المقاطع الحرفية** حول الحرّاس، ويُعيد الحرّاس بيده.
+
+    **ولماذا هذا وكيف قِيس:** حماية الوسائط في هذا الملفّ تُرسل الحارس `␟3␞` إلى المزوّد
+    وتستعيده بعده — وهي كافية في الغالب لا دائمًا: قِيس أنّ ٢٤ نصًّا من ٥٩ أعادها المزوّد
+    **بلا حارس** (يحذف الجملة مع الحارس، أو يقصّ النصّ الطويل ذا السبعة وسائط)، فترفضه
+    `protected_ok` — وتُرفض معه الترجمة كلها.
+
+    **والحلّ بنيوي لا تجميليّ:** لا يُرسل الحارس أصلًا. يُشقّ النصّ على الحرّاس، وتُترجم
+    المقاطع الحرفية وحدها في دفعة واحدة، ثم **يُعاد التجميع عندنا**. فالوسيط لا يمكن أن
+    يُسقط لأنّ مزوّدًا لم يحمله، ولا أن يتغيّر ترقيمه.
+
+    **وثمنه مُعلَن:** المقاطع تُترجم بلا سياق الجملة الكاملة، فقد تقلّ سلامتها اللغوية عن
+    الترجمة الكاملة. فالسقوط إلى هذا المسار **محدود بما فشل**، وليس هو المسار الأول.
+    """
+    if not rows:
+        return {}
+    # كل مقطع: هل يُترجم أصلاً؟ وما المسافة المحيطة التي يجب أن تعود كما هي؟
+    # **وهذا مقيس لا احتياط:** أوّل تشغيل أعطى `%1$dMB%2$s·Swappiness` بلا مسافات —
+    # لأنّ المزوّد **يقصّ كل مقطع** على حدوده. فالحدود تُحفظ هنا وتُعاد بعد الترجمة،
+    # والمقطع الذي لا حرف فيه (فاصل · أو شرطة أو رقم) لا يُرسل أصلاً.
+    pieces: list[str] = []
+    layouts: list[list[tuple[bool, bool, str, str, str]]] = []
+    token_sets: list[list[str]] = []
+    for row in rows:
+        guarded, tokens = protect(row["source_en"], keep)
+        token_sets.append(tokens)
+        parts = [p for p in re.split(rf"({SENTINEL_OPEN}\d+{SENTINEL_CLOSE})", guarded) if p]
+        layout: list[tuple[bool, bool, str, str, str]] = []
+        for part in parts:
+            if TAG_BOUND.fullmatch(part):
+                layout.append((True, False, part, "", ""))
+                continue
+            lead = part[: len(part) - len(part.lstrip())]
+            trail = part[len(part.rstrip()) :]
+            core = part.strip()
+            # **والمقطع الذي لا يُترجم يُعاد كما هو لا مُفكَّكًا:** أوّل نسخة أعادت
+            # `lead + core + trail`، فمقطع من مسافتين (`MB` محميٌّ بوسيط فبقي حوله فراغ)
+            # صار أربع مسافات — والخروج `%1$d  MB` بمسافتين. وهو نفس درس
+            # `bundle_contract`: البناء من الأجزاء يضيف حيث يُعاد الحدّ مرّتين.
+            trans = bool(core) and any(ch.isalpha() for ch in core)
+            layout.append((False, True, core, lead, trail) if trans else (False, False, part, "", ""))
+            if trans:
+                pieces.append(core)
+        layouts.append(layout)
+    out_texts = provider.translate(pieces, target) if pieces else []
+    if len(out_texts) != len(pieces):
+        raise RuntimeError(f"رد مجزّأ غير مكتمل: {len(out_texts)}/{len(pieces)}")
+    stream = iter(out_texts)
+    values: dict[str, str] = {}
+    for row, layout, tokens in zip(rows, layouts, token_sets):
+        joined = "".join(
+            part if (is_tag or not trans) else f"{lead}{next(stream)}{trail}"
+            for is_tag, trans, part, lead, trail in layout
+        )
+        values[row["key"]] = restore(joined, tokens)
+    return values
 
 
 def cache_path(locale: str) -> str:
@@ -264,6 +438,7 @@ def run_locale(provider: Provider, locale: str, batch: int, limit: int, keep: li
     translated: dict[str, str] = {}
     rejected = 0
     chars = 0
+    broken: list[dict[str, str]] = []  # ما لم يتجاوز حماية الوسائط في المحاولة الأولى
     todo: list[dict[str, str]] = []
     for row in rows:
         cached = cache.get(cache_key(row["file"], row["key"], row["source_en"]))
@@ -287,9 +462,33 @@ def run_locale(provider: Provider, locale: str, batch: int, limit: int, keep: li
             print(f"  ! {locale} دفعة {start // batch}: {error}")
             rejected += len(chunk)
             continue
+        # **ودفعة أقصر من المطلوب تُرفض كاملة** — قبل ذلك كان `zip` يقصّها بصمت، فيُسجَّل
+        # نصر على مفتاح لم يُترجم ويُذهب مفتاح آخر في التقرير. (وهو خطأ الصنف نفسه الذي
+        # منعه `--apply-csv`: لا تُكتب قيمة لم تُتحقّق.)
+        if len(out) != len(chunk):
+            print(f"  ! {locale} دفعة {start // batch}: ردّ {len(out)} مقابل {len(chunk)} — رُفضت")
+            broken.extend(chunk)
+            continue
         for row, text, found in zip(chunk, out, tokens):
             value = restore(text, found)
-            if not protected_ok(row["source_en"], value):
+            if not value.strip() or not protected_ok(row["source_en"], value):
+                broken.append(row)
+                continue
+            translated[row["key"]] = value
+            cache[cache_key(row["file"], row["key"], row["source_en"])] = value
+
+    # والمسار الاحتياطي: ما أسقط مزوّده حارسًا يُترجم **مجزّأً** فلا يُمكن إسقاط الوسيط.
+    for start in range(0, len(broken), batch):
+        chunk = broken[start : start + batch]
+        try:
+            values = segment_rows(provider, chunk, keep, target_code(locale))
+        except Exception as error:
+            print(f"  ! {locale} تجزئة {start // batch}: {error}")
+            rejected += len(chunk)
+            continue
+        for row in chunk:
+            value = values.get(row["key"], "")
+            if not value.strip() or not protected_ok(row["source_en"], value):
                 rejected += 1
                 continue
             translated[row["key"]] = value
@@ -354,7 +553,7 @@ def cmd_estimate(args: argparse.Namespace) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description="مشغّل الترجمة الآلية لكل اللغات")
     parser.add_argument("--provider", default=os.environ.get("MT_PROVIDER", "stub"),
-                        choices=["deepl", "google", "openai", "stub"])
+                        choices=["gtx", "deepl", "google", "openai", "stub"])
     parser.add_argument("--model", default=os.environ.get("MT_MODEL", "gpt-4o-mini"),
                         help="اسم النموذج لمزوّد openai")
     parser.add_argument("--locales", default="all", help="all أو قائمة مثل ar,de,fr")

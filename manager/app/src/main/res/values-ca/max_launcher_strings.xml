@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Paquets instal·lats i les activitats que declaren</string>
+    <string name="max_launcher_loading">Llegint paquets instal·lats i les seves activitats declarades...</string>
+    <string name="max_launcher_empty">Cap paquet instal·lat declara una activitat en aquest dispositiu.</string>
+    <string name="max_launcher_search_placeholder">Cerca per nom de l\'aplicació o paquet</string>
+    <string name="max_launcher_search_clear">Esborra la cerca</string>
+    <string name="max_launcher_scope_all">Tots</string>
+    <string name="max_launcher_scope_user">Usuari</string>
+    <string name="max_launcher_scope_system">Sistema</string>
+    <string name="max_launcher_activity_count">%1$d activitats</string>
+    <string name="max_launcher_no_match_title">Res coincideix</string>
+    <string name="max_launcher_no_match_detail">Cap nom de paquet ni etiqueta d\'aplicació conté aquest text a l\'àmbit seleccionat.</string>
+    <string name="max_launcher_no_match_clear">Esborra els filtres</string>
+    <string name="max_launcher_reading_activities">Llegint les activitats, aquest paquet declara...</string>
+    <string name="max_launcher_no_activities">Aquest paquet no declara cap activitat.</string>
+    <string name="max_launcher_root_off_title">No es concedeix l\'arrel</string>
+    <string name="max_launcher_root_off_detail">Les activitats marcades com a privat no s\'exporten, de manera que només el root pot iniciar-les. Les activitats exportades encara estan obertes sense ell.</string>
+    <string name="max_launcher_tag_private">Privat</string>
+    <string name="max_launcher_tag_disabled">Inhabilitat</string>
+    <string name="max_launcher_outcome_started">L\'activitat va començar</string>
+    <string name="max_launcher_outcome_needs_root">Aquesta activitat no s\'exporta; és necessari root</string>
+    <string name="max_launcher_outcome_refused">Android es va negar a iniciar aquesta activitat</string>
+    <string name="max_launcher_outcome_missing">No s\'ha instal·lat cap activitat amb aquest nom</string>
+</resources>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "AZenith.h"
+#include "MaxManager.h"
 
 void free_gamelist_cache(void) {
     pthread_mutex_lock(&cache_mutex);
@@ -154,7 +154,7 @@ void reload_gamelist_cache(DaemonContext* ctx) {
             else
                 strcpy(g_game_cache[g_game_cache_count].bypass_charging, "default");
 
-            // Per-App GPU/CPU controls (see GameConfig in AZenith.h for why these matter).
+            // Per-App GPU/CPU controls (see GameConfig in MaxManager.h for why these matter).
             p = strstr(ptr, "\"thermal_profile\":");
             if (p && (!next_block || p < next_block))
                 extract_string_value(g_game_cache[g_game_cache_count].thermal_profile, p,

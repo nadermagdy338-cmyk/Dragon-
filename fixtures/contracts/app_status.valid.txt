@@ -1,0 +1,12 @@
+v 1
+focused_app com.example.game 12288 10123
+screen_awake 1
+battery_saver 0
+zen_mode 0
+battery_level 87
+is_charging 0
+app_name Example Game
+refresh_rate 120
+max_refresh_rate 120
+switch_id sw-1758888888000
+perapp_active 1

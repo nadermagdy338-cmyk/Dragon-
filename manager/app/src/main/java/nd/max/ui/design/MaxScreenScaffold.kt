@@ -19,6 +19,8 @@
 package nd.max.ui.design
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +33,8 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,15 +42,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import nd.max.ui.component.MaxManagerSubScreenTopBar
 import nd.max.ui.component.MaxSnackbarHost
 import nd.max.ui.component.maxAdaptiveContentWidth
@@ -66,6 +73,26 @@ import nd.max.ui.component.maxAdaptiveContentWidth
  * and sub-screens), in which case bodies keep their own bottom spacing.
  */
 val LocalFloatingBottomBarHeight = compositionLocalOf { 0.dp }
+
+/**
+ * الفراغ بين الشريط العلوي وأوّل عنصر في جسم الصفحة.
+ *
+ * **العطب الذي أُصلح — ووصفه المالك بدقة:** «البطاقة مُلتصقة بالبار العلوي في شاشة التحكّم
+ * بالشحن». والسبب **بنويّ لا في تلك الشاشة**: `Scaffold` يُعطي `innerPadding.top` = ارتفاع
+ * الشريط، والأجسام الثلاثة في هذا الملفّ كانت تُطبّقه **ولا تُضيف فوقه شيئًا** — فيبدأ أوّل
+ * عنصر عند حافة الشريط بالضبط، صفر فاصل. فالوصف ينطبق على **كل صفحة تمرّ من هذا الملفّ**،
+ * لا على الشاشة التي أُبلغ عنها وحدها؛ ولذلك موضع الإصلاح هنا لا هناك.
+ *
+ * **ولم أُخترع رقمًا:** الاسم موجود في الطبقة أصلًا — `MaxUiMetrics.screenTopPadding`
+ * (= `MaxSpace.lg`) — وقيس فتبيّن أنّ له **صفر مستعمل**، فهو نيّة مسمّاة لم تُطبَّق.
+ *
+ * **والتحقّق من عدم التضاعف:** قوبل الجرد كلّه فلم تُوجد شاشة تُعوّض الفراغ بنفسها
+ * (لا `padding(top = …)` على أيّ منادٍ لهذه الهياكل)، فالفراغ يُضاف **مرّة واحدة**.
+ *
+ * وحدّه المُعلن: هذا تغيير بصريّ عالميّ بمقدار **١٦dp أعلى كل صفحة** لم يُقَس على جهاز؛
+ * لكنّه فراغ لا إعادة ترتيب، وهو بعينه ما طلبه المالك.
+ */
+private val BodyTopGap = MaxSpace.lg
 
 /**
  * Bottom padding a scrolling body must reserve so the floating bar never covers
@@ -104,6 +131,7 @@ fun MaxScreen(
     snackbarHostState: SnackbarHostState? = null,
     actions: @Composable RowScope.() -> Unit = {},
     floatingAction: (@Composable () -> Unit)? = null,
+    topBar: (@Composable (TopAppBarScrollBehavior) -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -122,15 +150,23 @@ fun MaxScreen(
         // on-surface colour explicitly — the same one Material would pick for this page.
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
-            MaxManagerSubScreenTopBar(
-                scrollBehavior = scrollBehavior,
-                title = title,
-                subtitle = subtitle,
-                onBack = onBack,
-                accentIcon = accentIcon,
-                accent = accent,
-                actions = actions
-            )
+            // A screen may own its bar (a search-mode header, a bespoke layout) while the shell keeps
+            // owning the Scaffold, insets, content colour and scroll connection. Default null keeps
+            // the shared bar, so this slot changes nothing for screens that do not pass it.
+            val customTopBar = topBar
+            if (customTopBar != null) {
+                customTopBar(scrollBehavior)
+            } else {
+                MaxManagerSubScreenTopBar(
+                    scrollBehavior = scrollBehavior,
+                    title = title,
+                    subtitle = subtitle,
+                    onBack = onBack,
+                    accentIcon = accentIcon,
+                    accent = accent,
+                    actions = actions
+                )
+            }
         },
         snackbarHost = {
             if (snackbarHostState != null) MaxSnackbarHost(snackbarHostState)
@@ -141,6 +177,7 @@ fun MaxScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(scaffoldPadding)
+                .padding(top = BodyTopGap)
                 .maxAdaptiveContentWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = MaxSpace.gutter)
@@ -185,6 +222,7 @@ fun MaxSplitScreen(
     snackbarHostState: SnackbarHostState? = null,
     actions: @Composable RowScope.() -> Unit = {},
     floatingAction: (@Composable () -> Unit)? = null,
+    topBar: (@Composable (TopAppBarScrollBehavior) -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -199,15 +237,23 @@ fun MaxSplitScreen(
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
-            MaxManagerSubScreenTopBar(
-                scrollBehavior = scrollBehavior,
-                title = title,
-                subtitle = subtitle,
-                onBack = onBack,
-                accentIcon = accentIcon,
-                accent = accent,
-                actions = actions
-            )
+            // A screen may own its bar (a search-mode header, a bespoke layout) while the shell keeps
+            // owning the Scaffold, insets, content colour and scroll connection. Default null keeps
+            // the shared bar, so this slot changes nothing for screens that do not pass it.
+            val customTopBar = topBar
+            if (customTopBar != null) {
+                customTopBar(scrollBehavior)
+            } else {
+                MaxManagerSubScreenTopBar(
+                    scrollBehavior = scrollBehavior,
+                    title = title,
+                    subtitle = subtitle,
+                    onBack = onBack,
+                    accentIcon = accentIcon,
+                    accent = accent,
+                    actions = actions
+                )
+            }
         },
         snackbarHost = {
             if (snackbarHostState != null) MaxSnackbarHost(snackbarHostState)
@@ -218,6 +264,7 @@ fun MaxSplitScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(scaffoldPadding)
+                .padding(top = BodyTopGap)
                 .padding(horizontal = MaxSpace.gutter)
                 .padding(bottom = bottomPadding)
         ) {
@@ -252,7 +299,9 @@ fun MaxListScreen(
     snackbarHostState: SnackbarHostState? = null,
     actions: @Composable RowScope.() -> Unit = {},
     floatingAction: (@Composable () -> Unit)? = null,
+    topBar: (@Composable (TopAppBarScrollBehavior) -> Unit)? = null,
     header: (@Composable ColumnScope.() -> Unit)? = null,
+    scrollState: LazyListState = rememberLazyListState(),
     content: LazyListScope.() -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -271,26 +320,44 @@ fun MaxListScreen(
         // on-surface colour explicitly — the same one Material would pick for this page.
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
-            MaxManagerSubScreenTopBar(
-                scrollBehavior = scrollBehavior,
-                title = title,
-                subtitle = subtitle,
-                onBack = onBack,
-                accentIcon = accentIcon,
-                accent = accent,
-                actions = actions
-            )
+            // A screen may own its bar (a search-mode header, a bespoke layout) while the shell keeps
+            // owning the Scaffold, insets, content colour and scroll connection. Default null keeps
+            // the shared bar, so this slot changes nothing for screens that do not pass it.
+            val customTopBar = topBar
+            if (customTopBar != null) {
+                customTopBar(scrollBehavior)
+            } else {
+                MaxManagerSubScreenTopBar(
+                    scrollBehavior = scrollBehavior,
+                    title = title,
+                    subtitle = subtitle,
+                    onBack = onBack,
+                    accentIcon = accentIcon,
+                    accent = accent,
+                    actions = actions
+                )
+            }
         },
         snackbarHost = {
             if (snackbarHostState != null) MaxSnackbarHost(snackbarHostState)
         },
-        floatingActionButton = { floatingAction?.invoke() }
+        floatingActionButton = {
+            // العودة إلى أعلى القائمة — تُركَّب في خانة الزرّ العائم **فوق** الزرّ الذي تمرّره الشاشة
+            // إن مرّرت واحدًا، فلا يُزاح صفّ ولا يُغطّى نصّ. وهي لا تُبنى أبدًا قبل عبور الحدّ،
+            // فالشرط (`rememberListTopControl`) هو ما يجعلها معلومة لا زينة.
+            val scope = rememberCoroutineScope()
+            ScrollToTopSlot(
+                visible = rememberListTopControl(scrollState),
+                onTop = { scope.launch { scrollState.animateScrollToItem(0) } }
+            ) { floatingAction?.invoke() }
+        }
     ) { scaffoldPadding ->
         if (condition != null) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(scaffoldPadding)
+                    .padding(top = BodyTopGap)
                     .maxAdaptiveContentWidth()
                     .padding(horizontal = MaxSpace.gutter)
             ) {
@@ -298,6 +365,7 @@ fun MaxListScreen(
             }
         } else {
             LazyColumn(
+                state = scrollState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(scaffoldPadding)
@@ -305,6 +373,9 @@ fun MaxListScreen(
                 contentPadding = PaddingValues(
                     start = MaxSpace.gutter,
                     end = MaxSpace.gutter,
+                    // أوّل عنصر كان يبدأ عند حافة الشريط بالضبط (صفر فاصل) — وهو عطب كلّ
+                    // صفحة قائمة في التطبيق، لا شاشة واحدة.
+                    top = BodyTopGap,
                     bottom = bottomPadding
                 ),
                 verticalArrangement = Arrangement.spacedBy(MaxSpace.row)
@@ -326,5 +397,45 @@ fun MaxListScreen(
                 content()
             }
         }
+    }
+}
+
+/**
+ * Full-bleed screen shell: the same Scaffold ownership as [MaxScreen], but with **no shared top
+ * bar, no page gutter and no content-width cap**. The body is a `BoxScope` that fills the window.
+ *
+ * Why it exists: the file manager is not a list or a form — it is a windowed workspace that paints
+ * its own surface, manages its own status/navigation insets and carries no screen-level back action.
+ * Forcing it through [MaxScreen]/[MaxListScreen]/[MaxSplitScreen] would strip the full-bleed layout
+ * and add a gutter and a bar it does not have. This shell keeps the parts that *are* shared (one
+ * scaffold, one container colour, one snackbar host) without pretending the chrome is the same.
+ *
+ * `contentWindowInsets` is zeroed on purpose: the content owns its own insets, so the shell must not
+ * apply them a second time.
+ */
+@Composable
+fun MaxFullScreen(
+    modifier: Modifier = Modifier,
+    containerColor: Color = Color.Transparent,
+    snackbarHostState: SnackbarHostState? = null,
+    floatingAction: (@Composable () -> Unit)? = null,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Scaffold(
+        modifier = modifier,
+        containerColor = containerColor,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = {
+            if (snackbarHostState != null) MaxSnackbarHost(snackbarHostState)
+        },
+        floatingActionButton = { floatingAction?.invoke() }
+    ) { scaffoldPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(scaffoldPadding),
+            content = content
+        )
     }
 }

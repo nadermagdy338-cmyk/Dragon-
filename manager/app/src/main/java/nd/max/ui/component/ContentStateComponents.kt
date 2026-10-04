@@ -6,6 +6,7 @@
 package nd.max.ui.component
 
 import androidx.compose.animation.AnimatedContent
+import nd.max.ui.design.MaxRadius
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -59,7 +60,7 @@ fun MaxContentState(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             androidx.compose.material3.Surface(
-                shape = RoundedCornerShape(18.dp),
+                shape = RoundedCornerShape(MaxRadius.tile),
                 color = accent.copy(alpha = 0.12f)
             ) {
                 Icon(

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">ระยะเวลาครบกำหนดสูงสุด (us)</string>
+    <string name="max_sched_tunable_deadline_period_min">ระยะเวลากำหนดขั้นต่ำ (us)</string>
+    <string name="max_sched_tunable_energy_aware">ตระหนักถึงพลังงาน</string>
+    <string name="max_sched_tunable_latency">เวลาแฝง (ns)</string>
+    <string name="max_sched_tunable_migration_cost">ค่าใช้จ่ายในการย้าย (ns)</string>
+    <string name="max_sched_tunable_min_granularity">รายละเอียดขั้นต่ำ (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">ขนาดชุดการโยกย้าย</string>
+    <string name="max_sched_tunable_pelt_multiplier">ตัวคูณ PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (มิลลิวินาที)</string>
+    <string name="max_sched_tunable_rt_period">ระยะเวลาเรียลไทม์ (เรา)</string>
+    <string name="max_sched_tunable_rt_runtime">รันไทม์แบบเรียลไทม์ (เรา)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">พื้น UClamp แบบเรียลไทม์</string>
+    <string name="max_sched_tunable_wakeup_granularity">รายละเอียดการปลุก (ns)</string>
+</resources>

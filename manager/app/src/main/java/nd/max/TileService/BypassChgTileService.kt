@@ -22,7 +22,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.topjohnwu.superuser.Shell
 import nd.max.R
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 class BypassChgTileService : TileService() {
 

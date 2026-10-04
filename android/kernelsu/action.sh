@@ -21,7 +21,7 @@ else
     echo "App: missing; flash the module again from your root manager"
 fi
 
-MAXMANAGER_PIDS="$(pidof maxmanager_daemon 2>/dev/null)"
+MAXMANAGER_PIDS="$(pidof sys.maxmanager-service 2>/dev/null)"
 if [ -z "$MAXMANAGER_PIDS" ]; then
     echo "Daemon: waiting for activation"
     echo "Install the module and reboot when you are ready."

@@ -1,0 +1,36 @@
+# Broadcast contract — السطح الوحيد في §٤ الذي كان بلا عقد (`nd.max.ACTION_MANAGE`)
+#
+# الطرف المُصدِر: الخادم C عبر `su -c "am broadcast ..."`.
+#   `MaxManagerUtility/DaemonUtility.c::notify()`  — إشعارات الملف الحالي
+#   `MaxManagerUtility/DaemonUtility.c::toast()`   — توست (مشروط بـ`persist.sys.maxmanagerconf.showtoast`)
+#   `BinaryCLI/CLIUtility.c::clearlogs()`          — «مسح الكل» قبل مسح السجلات
+#   `BinaryCLI/CLIUtility.c::hidenotifications()`  — «مسح الكل» عند إخفاء الإشعارات
+# الطرف المستقبِل: `manager/app/src/main/java/nd/max/receiver/MaxManagerReceiver.kt`.
+#
+# العطب الذي يمنعه هذا العقد: مفتاح يُعاد تسميته في C ⇒ الحقل يصل فراغًا فلا خطأ ولا أثر —
+# نفس صنف `gpu_studio` (عطب صامت). ولا شيء كان يقارن الطرفين.
+#
+# الأعمدة (مفصولة بعلامة جدولة):
+#   key · wire_type · producer_fn · reader_call · effect
+#   · key        : اسم الـextra حرفيًّا (`--es <key>` أو `--ez <key>`)
+#   · wire_type  : `string` ⇒ تُصدَر بـ`--es` · `bool` ⇒ تُصدَر بـ`--ez`
+#   · producer_fn: الدالّة التي تُصدِرها (`-` = لا مُصدِر لها: قراءة متسامحة فقط)
+#   · reader_call: كيف يقرأها المستقبِل — `getStringExtra` · `getBooleanExtra` · كلاهما
+#   · effect     : ما يراه المستخدم
+#
+# ملاحظات مقيسة:
+#   • اسم المكوّن مكتوب بصيغتين: `notify()` تستعمل الاسم الكامل `nd.max/nd.max.receiver.MaxManagerReceiver`،
+#     والثلاثة الأخرى تستعمل `nd.max/.receiver.MaxManagerReceiver`. والاثنان **يحلّان إلى المكوّن نفسه**
+#     في Android (النقطة نسبةً إلى الحزمة) — فاختلاف تهجئة لا عطب، ومثبَّت لكل مُصدِر على حِدة لا كنصّ واحد.
+#   • المُستقبِل مُعلَن في `AndroidManifest.xml` بـ`android:exported="true"` و`android:permission="nd.max.permission.MANAGE"`؛
+#     والـ`am broadcast` يخرج من `su -c` (uid 0) فيتجاوز فحص الإذن. الحارس يقيس إعلانَي المانيفست أيضًا.
+#   • `chrono` (نصّ) يُقرأ في Kotlin ولا **تُصدِره** C إطلاقًا — بديل تاريخيّ؛ مُسجَّل بصفّ `-` لا مطويّ.
+# key	wire_type	producer_fn	reader_call	effect
+notifytitle	string	notify	getStringExtra	notification title; also the notification id (title.hashCode) and the RESHOW payload
+notifytext	string	notify	getStringExtra	notification body (setContentText, or BigTextStyle for profile notifications)
+chrono_bool	bool	notify	getBooleanExtra	chronometer flag (setUsesChronometer)
+timeout	string	notify	getStringExtra	setTimeoutAfter(ms); the string carries an integer (toLongOrNull)
+toasttext	string	toast	getStringExtra	Toast.LENGTH_LONG — shown only when the receiver gets the action
+clearall	bool	clearlogs	getBooleanExtra+getStringExtra	manager.cancelAll() before the logs are removed
+clearall	bool	hidenotifications	getBooleanExtra+getStringExtra	manager.cancelAll() when notifications are hidden
+chrono	string	-	getStringExtra	reader tolerance only: the daemon never emits `--es chrono`

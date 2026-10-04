@@ -7,7 +7,7 @@
     <string name="all_set">Alles bereit, du kannst Max Manager jetzt verwenden</string>
     <string name="allow_verbose_log">Ausführliches Logging des Daemons</string>
     <string name="android_version">Android-Version</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">App-Name</string>
     <string name="app_priority">App-Priorität</string>
     <string name="app_priority_control">App-Prioritätssteuerung</string>
@@ -726,15 +726,6 @@
     <string name="fps_overlay_notif_channel">FPS-Overlay</string>
     <string name="fps_overlay_notif_title">Max Manager FPS-Overlay läuft</string>
     <string name="fps_overlay_notif_stop">Stoppen</string>
-    <string name="fps_overlay_section_style">Aussehen</string>
-    <string name="fps_overlay_style">Overlay-Stil</string>
-    <string name="fps_overlay_style_android">Android-Liste</string>
-    <string name="fps_overlay_style_pc">PC-Monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Layoutrichtung</string>
-    <string name="fps_overlay_orientation_vertical">Vertikal</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontal</string>
-    <string name="fps_overlay_read_mode">FPS-Lesemethode</string>
     <string name="fps_overlay_read_mode_desc">Versuchen Sie eine andere Methode, wenn der Messwert auf Ihrem Gerät bei 0 bleibt</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (empfohlen)</string>
     <string name="fps_overlay_mode_kernel">Kernelknoten</string>
@@ -743,14 +734,6 @@
     <string name="fps_overlay_text_size">Textgröße</string>
     <string name="fps_overlay_bg_alpha">Hintergrundopazität</string>
     <string name="fps_overlay_width_scale">Breitenskala</string>
-    <string name="fps_overlay_section_metrics">Angezeigte Messwerte</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU Belastung</string>
-    <string name="fps_overlay_metric_ram">RAM Nutzung</string>
-    <string name="fps_overlay_metric_watt">Batteriestromverbrauch</string>
-    <string name="fps_overlay_metric_temp">Batterietemperatur</string>
-    <string name="fps_overlay_metric_render">Renderer-Label</string>
-    <string name="fps_overlay_metric_render_desc">Zeigt VULKAN/OPENGL anstelle von „FPS“ als Bezeichnung an, erkannt aus den geladenen Bibliotheken der Vordergrund-App</string>
     <string name="dozemode_title">Schlafrichtlinie</string>
     <string name="dozemode_menu_desc">Standby-Whitelist, Leerlaufverhalten und Optimierung der Hintergrundleistung</string>
     <string name="dozemode_state_label">Einschlafzustand</string>
@@ -786,9 +769,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Einstellungen öffnen</string>
     <string name="processmgr_title">Aufgabenmonitor</string>
-    <string name="processmgr_menu_desc">CPU- und RAM-Nutzung pro Prozess, mit erzwungenem Stopp und einem schwebenden Overlay</string>
     <string name="processmgr_stat_total">%1$d Prozesse</string>
-    <string name="processmgr_stat_breakdown">%1$d Benutzer 7 %2$d System</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Oben %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">Durchsuchen Sie laufende Prozesse</string>
     <string name="processmgr_no_processes">Zu Ihrer Suche passen keine Prozesse</string>
     <string name="processmgr_dialog_close">Schließen</string>
-    <string name="processmgr_detail_version">Version</string>
-    <string name="processmgr_detail_build">Bauen</string>
-    <string name="processmgr_detail_package">Paket</string>
     <string name="processmgr_result_killed">Getötet %1$s</string>
     <string name="processmgr_result_kill_failed">Konnte %1$s nicht töten</string>
     <string name="processmgr_result_stopped">Zwangsstopp %1$s</string>
@@ -1461,7 +1439,6 @@
     <string name="max_home_reboot_desc">Öffnen Sie die Optionen für einen sicheren Neustart</string>
     <string name="max_home_ai_console">MAX AI-Konsole</string>
     <string name="max_home_ai_working">Angefordertes Profil wird angewendet…</string>
-    <string name="max_home_ai_failed">Die letzte KI-Aktion ist fehlgeschlagen</string>
     <string name="max_home_retry">Wiederholen</string>
     <string name="max_home_ai_idle">Noch keine KI-Entscheidung erfasst</string>
     <string name="home_system_stable">SYSTEMSTABIL</string>
@@ -1477,8 +1454,6 @@
     <string name="home_performance_monitor_desc">Ressourcenauslastung in den letzten 72 Sekunden</string>
     <string name="home_quick_actions">Kommandodeck</string>
     <string name="home_quick_actions_desc">Direkter Zugriff auf die wichtigen Steuerelemente</string>
-    <string name="home_action_boost">Leistungsprofil</string>
-    <string name="home_action_boost_desc">Systemverhalten ändern</string>
     <string name="home_action_thermal">Thermalzentrum</string>
     <string name="home_action_thermal_desc">Überprüfen Sie Wärme und Kühlung</string>
     <string name="home_action_battery">Machtzentrum</string>
@@ -1498,7 +1473,6 @@
     <string name="home_active">AKTIV</string>
     <string name="home_idle">LEERLAUF</string>
     <string name="home_protected">GESCHÜTZT</string>
-    <string name="home_device_overview">GERÄTEÜBERSICHT ÖFFNEN</string>
     <string name="home_live_performance">Live-Auftritt</string>
     <string name="home_live_performance_desc">Aktuelle Last und direkte Hardwaresteuerung</string>
     <string name="home_open_details">Detaillierte thermische Daten öffnen</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Es werden Optimierungen pro App angewendet</string>
     <string name="max_app_advanced_options">Erweiterte Optionen</string>
     <string name="max_app_save">Speichern</string>
+    <string name="home_gpu_max_freq">Max. Freq</string>
 </resources>

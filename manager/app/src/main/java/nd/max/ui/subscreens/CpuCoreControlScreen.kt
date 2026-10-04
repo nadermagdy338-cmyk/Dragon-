@@ -20,6 +20,7 @@ package nd.max.ui.subscreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +47,7 @@ import nd.max.R
 import nd.max.ui.component.*
 import nd.max.ui.design.MaxAlpha
 import nd.max.ui.design.MaxBullets
+import nd.max.ui.design.MaxCardShell
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
 import nd.max.ui.design.MaxGroup
@@ -63,6 +65,7 @@ import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.design.MaxTone
 import nd.max.ui.mainscreens.IconBadge
+import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.util.CpuTopologyUtil
 import nd.max.ui.viewmodel.CpuActionNotice
 import nd.max.ui.viewmodel.CpuActionReason
@@ -131,6 +134,12 @@ fun CpuCoreControlScreen(
                     title = screenTitle,
                     body = stringResource(R.string.cpu_core_safety_note)
                 )
+            },
+            // اختصار Max AI **أولًا وفي مكان ثابت**: `manual = true` لأن سقوف التردّد التي
+            // تُكتب هنا هي نفس المقابض التي يكتبها المحرّك (`ControlRegistry` ← `CPU_FREQUENCY`)،
+            // فلا يُوعَد المستخدم بشيء غير مقيس.
+            header = {
+                MaxAiShortcut(navController = navController, manual = true)
             }
         ) {
             item {
@@ -138,7 +147,16 @@ fun CpuCoreControlScreen(
                     chipsetName = viewModel.chipsetName,
                     onlineCores = viewModel.onlineCores,
                     totalCores = viewModel.totalCores,
-                    coreRows = viewModel.coreRows
+                    coreRows = viewModel.coreRows,
+                    trailing = {
+                        // وبطاقة المعالج بلا حاوية تحشوها (عمودٌ على الصفحة)، فحاشية الباب
+                        // صفر ويُحاذى على حاشية الصفحة كبقيّة محتواها.
+                        MaxDeviceInfoShortcut(
+                            navController = navController,
+                            from = MaxDestination.CpuCoreControl,
+                            inset = 0.dp,
+                        )
+                    },
                 )
             }
 
@@ -171,8 +189,12 @@ fun CpuCoreControlScreen(
                             CoreQuickConfigTile(
                                 modifier = Modifier.weight(1f),
                                 icon = quickConfigIcon(config.id),
-                                label = quickConfigLabel(config.id),
-                                description = quickConfigDesc(config.id),
+                                // **النصّ من الموارد التي يحملها النموذج نفسه** — كان الإعداد يحمل
+                                // اسمي الموردين ثم تُكتب النصوص بيدها بالإنجليزية
+                                // (`quickConfigLabel`/`quickConfigDesc`) ولا تُترجم أبدًا، مع عكس معنى
+                                // `balanced` («Top cluster» والمقصود «العنقود الأعلى معطّل»).
+                                label = stringResource(config.labelRes),
+                                description = stringResource(config.descRes),
                                 accent = quickConfigAccent(config.id),
                                 // الحالة المقروءة من الحالة لا من نيّة محليّة: الصفّ يعلن
                                 // أي نمط جرّبه المستخدم آخر مرة.
@@ -347,7 +369,8 @@ private fun CpuHeroCard(
     chipsetName: String,
     onlineCores: Int,
     totalCores: Int,
-    coreRows: List<CpuCoreRow>
+    coreRows: List<CpuCoreRow>,
+    trailing: (@Composable () -> Unit)? = null
 ) {
     val scheme = MaterialTheme.colorScheme
     val availability = if (totalCores == 0) 0f else onlineCores.toFloat() / totalCores
@@ -401,6 +424,11 @@ private fun CpuHeroCard(
             )
         }
         CoreGridMap(coreRows = coreRows)
+        // وباب قسم المعالج في «معلومات الجهاز» آخر بطاقة الشريحة: من عمل على سقوف التردّد هنا
+        // يصل بضغطة إلى ما تُعلنه النواة عن الأنوية والعناقيد. وبخطّ فاصل قبله لأن ما فوقه
+        // **محتوى** (شريحة ونواة وقراءة) وما تحته **إجراء على البطاقة** — والحدّ يُقرأ بأول نظرة.
+        MaxGroupDivider(inset = false)
+        trailing?.invoke()
     }
 }
 
@@ -451,7 +479,7 @@ private fun CoreGridMap(coreRows: List<CpuCoreRow>) {
                     color = scheme.onSurface
                 )
                 Text(
-                    text = if (row.online) row.cluster.shortTag else offLabel,
+                    text = if (row.online) clusterShortName(row.cluster) else offLabel,
                     style = MaterialTheme.typography.labelSmall,
                     color = accent,
                     maxLines = 1
@@ -787,14 +815,13 @@ private fun CpuClusterSummaryCard(
     // previous card stacked icon / title / GHz / "3 / 3" / "Online" vertically,
     // which made a summary tile taller than the controls it summarises and left
     // the three tiles visibly ragged next to each other.
-    Surface(
+    // **ترحيل إلى القشرة:** الحدّ يُمرّر بنبرة `borderStrong` التي يستعملها الآن (وهي أعلى من
+    // `edgeLight` التي تُعطيها معلمة `accent`) — فالترحيل لا يغيّر شدّة الحدّ.
+    MaxCardShell(
         modifier = modifier,
-        shape = RoundedCornerShape(MaxRadius.group),
-        color = scheme.surfaceContainerLow,
-        border = androidx.compose.foundation.BorderStroke(
-            MaxSize.hairlineBorder,
-            accent.copy(alpha = MaxAlpha.borderStrong)
-        )
+        borderColor = accent.copy(alpha = MaxAlpha.borderStrong),
+        contentPadding = 0.dp,
+        verticalArrangement = Arrangement.Top,
     ) {
         Column(
             modifier = Modifier.padding(MaxSpace.md),
@@ -876,20 +903,36 @@ private fun quickConfigIcon(id: String) = when (id) {
     else -> Icons.Outlined.Tune
 }
 
+/**
+ * اسم العنقود **القصير** للوسوم والبلاطات الصغيرة.
+ *
+ * `CpuTopologyUtil.shortTag` قيمة ماشينية إنجليزية (`SILVER`/`GOLD`/`PRIME`) وكانت تُطبع حرفيًّا
+ * في بلاطة الشبكة وفي عنوان صفّ النواة — فظهر في لقطة المالك «CPU1 · SILVER» وسط واجهة عربية
+ * مع أن أسماء العناقيد كلها مترجمة (`cpu_cluster_*`). والاسم الطويل («أنوية الأداء») لا يسع في
+ * بلاطة ربع العرض؛ فالمطلوب اسم قصير مترجم، وهو [cpu_cluster_short_*] لا اسم العنقود الكامل.
+ */
 @Composable
-private fun quickConfigLabel(id: String): String = when (id) {
-    "all_on" -> "Performance"
-    "balanced" -> "Balanced"
-    "power_saver" -> "Power Saver"
-    else -> id
+private fun clusterShortName(cluster: CpuTopologyUtil.CpuCluster): String = when (cluster.shortTag) {
+    "PRIME" -> stringResource(R.string.cpu_cluster_short_prime)
+    "GOLD" -> stringResource(R.string.cpu_cluster_short_gold)
+    "SILVER" -> stringResource(R.string.cpu_cluster_short_silver)
+    else -> cluster.label
 }
 
+/**
+ * اسم مجموعة cpuset مترجمًا بمفتاحها.
+ *
+ * والمفاتيح في `CpuTopologyUtil` هي مفاتيح النواة نفسها (`top-app` …) وهي مُعرّفات لا تُترجم،
+ * وأمّا ما كان يُعرض فهو `label` الإنجليزي المكتوب هناك بيده («Top App» · «Foreground» …)
+ * فيظهر في أسفل شاشة عربية. والمفتاح هو الجسر: ما لا نعرفه يبقى على `label` كما كان.
+ */
 @Composable
-private fun quickConfigDesc(id: String): String = when (id) {
-    "all_on" -> "All cores"
-    "balanced" -> "Top cluster"
-    "power_saver" -> "Efficiency"
-    else -> ""
+private fun cpusetGroupName(group: CpuTopologyUtil.CpusetGroup): String = when (group.key) {
+    "top-app" -> stringResource(R.string.cpu_cpuset_top_app)
+    "foreground" -> stringResource(R.string.cpu_cpuset_foreground)
+    "background" -> stringResource(R.string.cpu_cpuset_background)
+    "system-background" -> stringResource(R.string.cpu_cpuset_system_background)
+    else -> group.label
 }
 
 /**
@@ -1000,7 +1043,7 @@ private fun CoreRowItem(
     val title = if (row.isMaster) {
         "CPU${row.cpu} \u00b7 " + stringResource(R.string.cpu_core_master_tag)
     } else {
-        "CPU${row.cpu} \u00b7 ${row.cluster.shortTag}"
+        "CPU${row.cpu} \u00b7 " + clusterShortName(row.cluster)
     }
     val summary = when {
         row.isMaster -> stringResource(R.string.cpu_core_master_note)
@@ -1052,7 +1095,7 @@ private fun CpusetGroupRow(
             dialogVisible = true
         },
         leadingContent = { LeadingIcon(icon = Icons.Outlined.Hub) },
-        headlineContent = { Text(group.label) },
+        headlineContent = { Text(cpusetGroupName(group)) },
         supportingContent = { Text(stringResource(R.string.cpu_affinity_cores_summary, rangeText)) }
     )
 

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">সংস্থাপন কৰা সৰঞ্জামসমূহ আৰু সিহঁতে ঘোষণা কৰা কাৰ্য্যকলাপসমূহ</string>
+    <string name="max_launcher_loading">সংস্থাপিত সৰঞ্জামসমূহ আৰু সিহতৰ ঘোষিত কাৰ্য্যকলাপসমূহ পঢ়া...</string>
+    <string name="max_launcher_empty">কোনো সংস্থাপিত সৰঞ্জাম এই ডিভাইচত এটা কাৰ্য্যকলাপ ঘোষণা নকৰে ।</string>
+    <string name="max_launcher_search_placeholder">এপৰ নাম বা পেকেজৰ দ্বাৰা সন্ধান কৰক</string>
+    <string name="max_launcher_search_clear">সন্ধানটো পৰিষ্কাৰ কৰক</string>
+    <string name="max_launcher_scope_all">আটাইবোৰ</string>
+    <string name="max_launcher_scope_user">ব্যৱহাৰকাৰী</string>
+    <string name="max_launcher_scope_system">পদ্ধতি</string>
+    <string name="max_launcher_activity_count">%1$d কাৰ্য্যকলাপ</string>
+    <string name="max_launcher_no_match_title">একোৱেই মিল নাই</string>
+    <string name="max_launcher_no_match_detail">কোনো পেকেজৰ নাম বা এপ লেবেলত সেই লিখনী নিৰ্বাচিত পৰিসৰত নাথাকে।</string>
+    <string name="max_launcher_no_match_clear">ফিল্টাৰসমূহ পৰিষ্কাৰ কৰক</string>
+    <string name="max_launcher_reading_activities">এই পেকেজে ঘোষণা কৰা কাৰ্য্যকলাপসমূহ পঢ়ি...</string>
+    <string name="max_launcher_no_activities">এই পেকেইজে কোনো কাৰ্য্যকলাপ ঘোষণা নকৰে।</string>
+    <string name="max_launcher_root_off_title">ৰুট অনুমোদন কৰা হোৱা নাই</string>
+    <string name="max_launcher_root_off_detail">ব্যক্তিগত চিহ্নিত কৰা কাৰ্য্যকলাপসমূহ ৰপ্তানি কৰা নহয়, গতিকে কেৱল ৰূটে সিহতক আৰম্ভ কৰিব পাৰে। ইয়াৰ অবিহনে ৰপ্তানি কৰা কাৰ্য্যকলাপ এতিয়াও খোল খায়।</string>
+    <string name="max_launcher_tag_private">ব্যক্তিগত</string>
+    <string name="max_launcher_tag_disabled">অক্ষম হোৱা</string>
+    <string name="max_launcher_outcome_started">কাৰ্যকলাপ আৰম্ভ হ’ল</string>
+    <string name="max_launcher_outcome_needs_root">এই কাৰ্য্যকলাপ ৰপ্তানি কৰা হোৱা নাই — root ৰ প্ৰয়োজন</string>
+    <string name="max_launcher_outcome_refused">এণ্ড্ৰইডে এই কাৰ্য্যকলাপ আৰম্ভ কৰিবলৈ অস্বীকাৰ কৰিলে</string>
+    <string name="max_launcher_outcome_missing">সেই নামৰ কোনো কাৰ্য্যকলাপ সংস্থাপন কৰা হোৱা নাই</string>
+</resources>

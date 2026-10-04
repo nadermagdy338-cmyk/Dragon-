@@ -7,7 +7,7 @@
     <string name="all_set">Minden készen áll, most már használhatja az Max Manager-et</string>
     <string name="allow_verbose_log">Részletes naplózás engedélyezése a démon számára</string>
     <string name="android_version">Android verzió</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Alkalmazásnév</string>
     <string name="app_priority">Alkalmazásprioritás</string>
     <string name="app_priority_control">Alkalmazásprioritás szabályozása</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS Overlay</string>
     <string name="fps_overlay_notif_title">Max Manager FPS overlay fut</string>
     <string name="fps_overlay_notif_stop">Stop</string>
-    <string name="fps_overlay_section_style">Megjelenés</string>
-    <string name="fps_overlay_style">Overlay stílus</string>
-    <string name="fps_overlay_style_android">Android lista</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Elrendezés iránya</string>
-    <string name="fps_overlay_orientation_vertical">Függőleges</string>
-    <string name="fps_overlay_orientation_horizontal">Vízszintes</string>
-    <string name="fps_overlay_read_mode">FPS olvasási módszer</string>
     <string name="fps_overlay_read_mode_desc">Próbáljon ki egy másik módszert, ha a leolvasás 0 marad az eszközön</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (ajánlott)</string>
     <string name="fps_overlay_mode_kernel">Kernel csomópont</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Szöveg mérete</string>
     <string name="fps_overlay_bg_alpha">Háttér átlátszatlansága</string>
     <string name="fps_overlay_width_scale">Szélesség skála</string>
-    <string name="fps_overlay_section_metrics">Mutatók láthatók</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU terhelés</string>
-    <string name="fps_overlay_metric_ram">RAM használat</string>
-    <string name="fps_overlay_metric_watt">Akkumulátor fogyasztás</string>
-    <string name="fps_overlay_metric_temp">Az akkumulátor hőmérséklete</string>
-    <string name="fps_overlay_metric_render">Renderelő címke</string>
-    <string name="fps_overlay_metric_render_desc">A VULKAN/OPENGL feliratot jeleníti meg az \"FPS\" helyett címkeként, amelyet az előtérben lévő alkalmazás betöltött könyvtáraiból észleltek</string>
     <string name="dozemode_title">Alvásszabályzat</string>
     <string name="dozemode_menu_desc">Készenléti engedélyezési lista, tétlen viselkedés és a háttérben a tápellátás hangolása</string>
     <string name="dozemode_state_label">Szunyókáló állapot</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Nyissa meg a beállításokat</string>
     <string name="processmgr_title">Feladatfigyelő</string>
-    <string name="processmgr_menu_desc">Folyamatonkénti CPU és RAM használat, kényszerleállítással és lebegő rátéttel</string>
     <string name="processmgr_stat_total">%1$d folyamatok</string>
-    <string name="processmgr_stat_breakdown">%1$d felhasználói \u00b7 %2$d rendszer</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Top %1$d</string>
@@ -807,9 +788,6 @@
     <string name="processmgr_search_hint">Futó folyamatok keresése</string>
     <string name="processmgr_no_processes">Egyetlen folyamat sem felel meg a keresésnek</string>
     <string name="processmgr_dialog_close">Közeli</string>
-    <string name="processmgr_detail_version">Változat</string>
-    <string name="processmgr_detail_build">Épít</string>
-    <string name="processmgr_detail_package">Csomag</string>
     <string name="processmgr_result_killed">Megölték %1$s</string>
     <string name="processmgr_result_kill_failed">Nem sikerült megölni %1$s</string>
     <string name="processmgr_result_stopped">Kényszer-leállítás %1$s</string>
@@ -1460,7 +1438,6 @@
     <string name="max_home_reboot_desc">Nyissa meg a biztonságos újraindítási lehetőségeket</string>
     <string name="max_home_ai_console">MAX AI konzol</string>
     <string name="max_home_ai_working">Kért profil alkalmazása…</string>
-    <string name="max_home_ai_failed">Az utolsó AI-művelet sikertelen volt</string>
     <string name="max_home_retry">Próbálja újra</string>
     <string name="max_home_ai_idle">Még nem rögzítették a mesterséges intelligencia döntését</string>
     <string name="home_system_stable">RENDSZER STABIL</string>
@@ -1476,8 +1453,6 @@
     <string name="home_performance_monitor_desc">Erőforrás terhelés az elmúlt 72 másodpercben</string>
     <string name="home_quick_actions">Parancsfedélzet</string>
     <string name="home_quick_actions_desc">Közvetlen hozzáférés a fontos kezelőszervekhez</string>
-    <string name="home_action_boost">Teljesítményprofil</string>
-    <string name="home_action_boost_desc">Változtassa meg a rendszer viselkedését</string>
     <string name="home_action_thermal">Termikus központ</string>
     <string name="home_action_thermal_desc">Ellenőrizze a fűtést és a hűtést</string>
     <string name="home_action_battery">Erőközpont</string>
@@ -1497,7 +1472,6 @@
     <string name="home_active">AKTÍV</string>
     <string name="home_idle">TÉTLEN</string>
     <string name="home_protected">VÉDETT</string>
-    <string name="home_device_overview">AZ ESZKÖZ ÁTTEKINTÉSÉNEK NYITÁSA</string>
     <string name="home_live_performance">Élő előadás</string>
     <string name="home_live_performance_desc">Aktuális terhelés és közvetlen hardvervezérlés</string>
     <string name="home_open_details">Nyissa meg a részletes hőadatokat</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Alkalmazásonkénti optimalizálás van folyamatban</string>
     <string name="max_app_advanced_options">Speciális beállítások</string>
     <string name="max_app_save">Megtakarítás</string>
+    <string name="home_gpu_max_freq">Max frekv</string>
 </resources>

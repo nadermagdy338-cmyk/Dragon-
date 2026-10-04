@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Установленные пакеты и заявленные ими действия</string>
+    <string name="max_launcher_loading">Чтение установленных пакетов и их заявленной активности…</string>
+    <string name="max_launcher_empty">Ни один из установленных пакетов не декларирует активность на этом устройстве.</string>
+    <string name="max_launcher_search_placeholder">Поиск по названию приложения или пакету</string>
+    <string name="max_launcher_search_clear">Очистить поиск</string>
+    <string name="max_launcher_scope_all">Все</string>
+    <string name="max_launcher_scope_user">Пользователь</string>
+    <string name="max_launcher_scope_system">Система</string>
+    <string name="max_launcher_activity_count">%1$d мероприятия</string>
+    <string name="max_launcher_no_match_title">Ничего не соответствует</string>
+    <string name="max_launcher_no_match_detail">Ни одно имя пакета или метка приложения не содержат этот текст в выбранной области.</string>
+    <string name="max_launcher_no_match_clear">Очистить фильтры</string>
+    <string name="max_launcher_reading_activities">Читая действия, заявленные в этом пакете…</string>
+    <string name="max_launcher_no_activities">Этот пакет не декларирует никаких действий.</string>
+    <string name="max_launcher_root_off_title">Рут не предоставлен</string>
+    <string name="max_launcher_root_off_detail">Действия, помеченные как частные, не экспортируются, поэтому запускать их может только пользователь root. Экспортированные действия по-прежнему открываются без него.</string>
+    <string name="max_launcher_tag_private">Частный</string>
+    <string name="max_launcher_tag_disabled">Неполноценный</string>
+    <string name="max_launcher_outcome_started">Активность началась</string>
+    <string name="max_launcher_outcome_needs_root">Эта активность не экспортируется — требуется root</string>
+    <string name="max_launcher_outcome_refused">Android отказался начать это действие</string>
+    <string name="max_launcher_outcome_missing">Никакая активность с таким именем не установлена</string>
+</resources>

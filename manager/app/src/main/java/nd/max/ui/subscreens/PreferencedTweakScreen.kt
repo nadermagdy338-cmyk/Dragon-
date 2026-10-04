@@ -79,10 +79,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import nd.max.R
 import nd.max.ui.component.*
+import nd.max.ui.design.MaxListScreen
 import nd.max.ui.util.DebugUtils
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 import nd.max.ui.util.RebootManager
-import nd.max.ui.util.getChipsetVendor
+import nd.max.core.platform.getChipsetVendor
 
 
 @Composable
@@ -126,24 +127,12 @@ fun PreferenceTweakScreen(navController: NavController) {
 
         
     ScreenAccentProvider(MaterialTheme.colorScheme.tertiary) {
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { PreferenceTweakTopAppBar(
-            scrollBehavior,
-            onBack = { navController.popBackStack() }
-            ) 
-        },
-        containerColor = colorScheme.surface
-    ) { innerPadding ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                top = innerPadding.calculateTopPadding() + 12.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-            )
+        MaxListScreen(
+            title = stringResource(R.string.prefs),
+            subtitle = stringResource(R.string.str_apply_add_on_configurations_ta),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Filled.Tune,
+            accent = MaterialTheme.colorScheme.tertiary
         ) {
             
             item { PrefSectionTitle(stringResource(R.string.section_prefstweaks)) }
@@ -347,7 +336,6 @@ fun PreferenceTweakScreen(navController: NavController) {
                 }
             }
         }
-    }
     }
 
     ConfirmDialogHost(handle = rebootDialog)

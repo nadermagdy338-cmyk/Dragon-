@@ -75,7 +75,7 @@ object MaxManagerProps {
          * Master switch for the detailed EVENT= log trail added across the
          * AppMonitorLogger.kt/EventLog.kt/switch_id work: per-user-action
          * (EventLog) and per-app-switch-correlated (AppMonitorLogger)
-         * entries. Off by default -- read via [nd.max.ui.util.PropertyUtils]
+         * entries. Off by default -- read via [nd.max.core.platform.PropertyUtils]
          * before either forwards a line to MaxManager.log, so a person who
          * never opts in pays no extra shell-spawn cost per settings tap.
          * Deliberately does NOT gate the native daemon's own log_zenith()

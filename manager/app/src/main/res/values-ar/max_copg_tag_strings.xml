@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="copg_tags_title">خيارات COPG</string>
+    <string name="copg_tags_desc">تُحفظ كنيّة وتُكتب مع ملف الجهاز. الخيارات الأربعة الأولى (الراحة) وحدها تعمل على كل إصدارات COPG، والباقي يحتاج COPG 6.8.0 أو أحدث. خيارات PRO تحتاج ترخيص COPG PRO وقد يتجاهلها المحرّك.</string>
+    <string name="copg_tier_pro">PRO</string>
+    <string name="copg_footprint_resident">يبقى في ذاكرة التطبيق، لا تستعمله مع ألعاب فيها مضاد غش</string>
+    <string name="copg_need_ack">أقرّ بالمخاطر أدناه أولًا</string>
+    <string name="copg_tag_refused">خيار COPG مُحدَّد غير مسموح لإصدار COPG المثبّت. لم يُكتب شيء.</string>
+    <string name="copg_tag_needs_device">الخيارات تُكتب مع ملف جهاز، وهذا التطبيق بلا ملف جهاز بعد.</string>
+    <string name="copg_tag_value_hint">القيمة</string>
+    <string name="copg_tag_bad_value">حروف وأرقام ومسافة و . _ - / + فقط (حتى 60)</string>
+    <string name="copg_tag_save">حفظ</string>
+    <string name="copg_tag_remove">إزالة</string>
+    <string name="copg_tag_dnd">عدم الإزعاج أثناء اللعب</string>
+    <string name="copg_tag_dab">إيقاف السطوع التلقائي</string>
+    <string name="copg_tag_kso">إبقاء الشاشة تعمل</string>
+    <string name="copg_tag_nolog">إيقاف السجلّ</string>
+    <string name="copg_tag_dpi">كثافة الشاشة (DPI)</string>
+    <string name="copg_tag_serial">رقم تسلسلي لكل تطبيق</string>
+    <string name="copg_tag_cpu">طراز المعالج</string>
+    <string name="copg_tag_blocked">إجبار المعالج الحقيقي</string>
+    <string name="copg_tag_vpn">إخفاء VPN</string>
+    <string name="copg_tag_vpns">إخفاء VPN (صارم)</string>
+    <string name="copg_tag_hidedev">إخفاء خيارات المطوّر وتصحيح USB</string>
+    <string name="copg_tag_tz">المنطقة الزمنية</string>
+    <string name="copg_tag_lang">اللغة والمنطقة</string>
+    <string name="copg_tag_gpu">طراز GPU</string>
+    <string name="copg_tag_cow">خصائص النظام (نسخ عند الكتابة)</string>
+    <string name="copg_tag_aid">معرّف Android</string>
+    <string name="copg_tag_gaid">معرّف الإعلانات</string>
+    <string name="copg_tag_appset">معرّف App Set</string>
+    <string name="copg_tag_drm">Widevine / DRM</string>
+    <string name="copg_tag_imei">IMEI</string>
+    <string name="copg_tag_sim">ناقل SIM (آمن)</string>
+    <string name="copg_tag_simx">ناقل SIM (عدواني)</string>
+    <string name="copg_tag_ua">وكيل مستخدم WebView</string>
+    <string name="copg_tag_mock">إخفاء الموقع الوهمي</string>
+</resources>

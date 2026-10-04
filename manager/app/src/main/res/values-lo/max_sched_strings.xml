@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">ໄລຍະເວລາສູງສຸດ (ພວກເຮົາ)</string>
+    <string name="max_sched_tunable_deadline_period_min">ໄລຍະເວລາຂັ້ນຕໍ່າສຸດ (ພວກເຮົາ)</string>
+    <string name="max_sched_tunable_energy_aware">ຄວາມຮູ້ດ້ານພະລັງງານ</string>
+    <string name="max_sched_tunable_latency">Latency (ns)</string>
+    <string name="max_sched_tunable_migration_cost">ຄ່າໃຊ້ຈ່າຍໃນການຍ້າຍຖິ່ນຖານ (ns)</string>
+    <string name="max_sched_tunable_min_granularity">ການແບ່ງຂັ້ນຕ່ຳ (n)</string>
+    <string name="max_sched_tunable_nr_migrate">ຂະ​ຫນາດ batch ການ​ເຄື່ອນ​ຍ້າຍ​</string>
+    <string name="max_sched_tunable_pelt_multiplier">ຕົວຄູນ PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">ໄລຍະເວລາທີ່ແທ້ຈິງ (ພວກເຮົາ)</string>
+    <string name="max_sched_tunable_rt_runtime">ເວລາແລ່ນແບບສົດໆ (ພວກເຮົາ)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">ພື້ນ UClamp ເວລາຈິງ</string>
+    <string name="max_sched_tunable_wakeup_granularity">ລາຍລະອຽດການຕື່ນນອນ (ns)</string>
+</resources>

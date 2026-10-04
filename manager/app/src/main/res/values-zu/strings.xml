@@ -7,7 +7,7 @@
     <string name="all_set">Konke kulungile, manje ungasebenzisa i-Max Manager</string>
     <string name="allow_verbose_log">I-daemon ikhipha umbiko ogcwele</string>
     <string name="android_version">Inguqulo ye-Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Igama lesicelo</string>
     <string name="app_priority">Ukubaluleka kwesicelo</string>
     <string name="app_priority_control">Ukulawula ukubaluleka kwesicelo</string>
@@ -723,15 +723,6 @@
     <string name="fps_overlay_notif_channel">Imbondela ye-FPS</string>
     <string name="fps_overlay_notif_title">Max Manager Imbondela ye-FPS iyasebenza</string>
     <string name="fps_overlay_notif_stop">Ima</string>
-    <string name="fps_overlay_section_style">Ukubukeka</string>
-    <string name="fps_overlay_style">Isitayela sembondela</string>
-    <string name="fps_overlay_style_android">Uhlu lwe-Android</string>
-    <string name="fps_overlay_style_pc">I-PC monospace</string>
-    <string name="fps_overlay_style_mini">Okuncane</string>
-    <string name="fps_overlay_orientation">Isiqondiso sesakhiwo</string>
-    <string name="fps_overlay_orientation_vertical">Iqondile</string>
-    <string name="fps_overlay_orientation_horizontal">Evundlile</string>
-    <string name="fps_overlay_read_mode">Indlela yokufunda ye-FPS</string>
     <string name="fps_overlay_read_mode_desc">Zama indlela ehlukile uma ukufunda kuhlala kokuthi 0 kudivayisi yakho</string>
     <string name="fps_overlay_mode_surfaceflinger">I-SurfaceFlinger (kunconyiwe)</string>
     <string name="fps_overlay_mode_kernel">I-kernel node</string>
@@ -740,14 +731,6 @@
     <string name="fps_overlay_text_size">Usayizi wombhalo</string>
     <string name="fps_overlay_bg_alpha">Ukufiphala kwengemuva</string>
     <string name="fps_overlay_width_scale">Isikali sobubanzi</string>
-    <string name="fps_overlay_section_metrics">Amamethrikhi abonisiwe</string>
-    <string name="fps_overlay_metric_fps">I-FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU layisha</string>
-    <string name="fps_overlay_metric_ram">RAM ukusetshenziswa</string>
-    <string name="fps_overlay_metric_watt">Ukukhipha amandla ebhethri</string>
-    <string name="fps_overlay_metric_temp">Izinga lokushisa lebhethri</string>
-    <string name="fps_overlay_metric_render">Ilebula yesinikezeli</string>
-    <string name="fps_overlay_metric_render_desc">Ibonisa i-VULKAN/OPENGL esikhundleni sokuthi \"FPS\" njengelebula, etholwe kumalabhulali alayishiwe ohlelo lokusebenza olungaphambili</string>
     <string name="dozemode_title">Inqubomgomo Yokulala</string>
     <string name="dozemode_menu_desc">Ukugunyazwa okulindile, ukuziphatha kokungenzi lutho, nokushuna kwamandla okungemuva</string>
     <string name="dozemode_state_label">Isimo sobuthongo</string>
@@ -783,9 +766,7 @@
     <string name="pid">I-PID</string>
     <string name="open_settings">Vula izilungiselelo</string>
     <string name="processmgr_title">I-Task Monitor</string>
-    <string name="processmgr_menu_desc">Ngokwenqubo ngayinye CPU kanye RAM ukusetshenziswa, ngokuphoqelela ukuma kanye nembondela entantayo</string>
     <string name="processmgr_stat_total">%1$d izinqubo</string>
-    <string name="processmgr_stat_breakdown">%1$d umsebenzisi \u00b7 %2$d uhlelo</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Phezulu %1$d</string>
@@ -805,9 +786,6 @@
     <string name="processmgr_search_hint">Sesha izinqubo ezisebenzayo</string>
     <string name="processmgr_no_processes">Azikho izinqubo ezifana nosesho lwakho</string>
     <string name="processmgr_dialog_close">Vala</string>
-    <string name="processmgr_detail_version">Inguqulo</string>
-    <string name="processmgr_detail_build">Yakha</string>
-    <string name="processmgr_detail_package">Iphakheji</string>
     <string name="processmgr_result_killed">Kubulawe %1$s</string>
     <string name="processmgr_result_kill_failed">Ayikwazanga ukubulala %1$s</string>
     <string name="processmgr_result_stopped">Ukumisa ngenkani %1$s</string>
@@ -1456,7 +1434,6 @@
     <string name="max_home_reboot_desc">Vula izinketho zokuqalisa kabusha eziphephile</string>
     <string name="max_home_ai_console">I-MAX AI console</string>
     <string name="max_home_ai_working">Isebenzisa iphrofayela eceliwe...</string>
-    <string name="max_home_ai_failed">Isenzo sokugcina se-AI sihlulekile</string>
     <string name="max_home_retry">Zama futhi</string>
     <string name="max_home_ai_idle">Asikho isinqumo se-AI esirekhodiwe okwamanje</string>
     <string name="home_system_stable">UHLELO LUZInzile</string>
@@ -1472,8 +1449,6 @@
     <string name="home_performance_monitor_desc">Ukulayishwa kwensiza kumasekhondi wokugcina angama-72</string>
     <string name="home_quick_actions">Idekhi yomyalo</string>
     <string name="home_quick_actions_desc">Ukufinyelela okuqondile kuzilawuli ezibalulekile</string>
-    <string name="home_action_boost">Iphrofayela yokusebenza</string>
-    <string name="home_action_boost_desc">Shintsha ukuziphatha kwesistimu</string>
     <string name="home_action_thermal">Isikhungo esishisayo</string>
     <string name="home_action_thermal_desc">Hlola ukushisa nokupholisa</string>
     <string name="home_action_battery">Isikhungo samandla</string>
@@ -1493,7 +1468,6 @@
     <string name="home_active">IYASEBENZA</string>
     <string name="home_idle">I-IDLE</string>
     <string name="home_protected">IVIKELWE</string>
-    <string name="home_device_overview">VULA UKUBUYEKEZWA KWEDIVAYISI</string>
     <string name="home_live_performance">Ukusebenza okubukhoma</string>
     <string name="home_live_performance_desc">Ukulayisha kwamanje nezilawuli zehadiwe eziqondile</string>
     <string name="home_open_details">Vula idatha enemininingwane eshisayo</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Ukulungiselelwa ngakunye kohlelo lokusebenza kuyasetshenziswa</string>
     <string name="max_app_advanced_options">Izinketho ezithuthukisiwe</string>
     <string name="max_app_save">Londoloza</string>
+    <string name="home_gpu_max_freq">I-Max freq</string>
 </resources>

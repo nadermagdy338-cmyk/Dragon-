@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Verbose</string>
+    <string name="max_log_level_debug">Susa iphutha</string>
+    <string name="max_log_level_info">Ulwazi</string>
+    <string name="max_log_level_warn">Isexwayiso</string>
+    <string name="max_log_level_error">Iphutha</string>
+    <string name="max_log_level_assert">Ukugomela</string>
+    <string name="max_log_level_fatal">Okubulalayo</string>
+    <string name="max_log_buffer_main">Okuyinhloko</string>
+    <string name="max_log_buffer_system">Uhlelo</string>
+    <string name="max_log_buffer_crash">Ukuphahlazeka</string>
+    <string name="max_log_buffer_kernel">I-Kernel</string>
+    <string name="max_log_buffer_events">Imicimbi</string>
+    <string name="max_log_buffer_radio">Umsakazo</string>
+    <string name="max_log_source_daemon">I-Daemon</string>
+    <string name="max_log_source_appmonitor">I-AppMonitor</string>
+    <string name="max_log_source_ui">I-UI</string>
+    <string name="max_log_source_other">Okunye</string>
+</resources>

@@ -15,6 +15,7 @@
  */
 
 package nd.max.ui.util
+import nd.max.core.platform.EventLog
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -168,5 +169,67 @@ class EventLogResultTest {
     fun `duration is reported verbatim not rounded`() {
         val message = EventLog.resultMessage("Dex2oat", "compile:speed", "app", true, 987_654_321L)
         assertTrue("الزمن المقيس يجب أن يمرّ كما هو", message.endsWith("duration_ms=987654321"))
+    }
+
+    @Test
+    fun `audio op carries the verdict and both sides`() {
+        val message = EventLog.audioOpMessage(
+            target = "eq_band_3",
+            outcome = "blocked",
+            token = "audio-studio:17",
+            reason = "manual-lock",
+            expected = "-200",
+            actual = "0",
+        )
+        assertEquals(
+            "EVENT=AUDIO_OP token=audio-studio:17 target=eq_band_3 outcome=blocked" +
+                " reason=manual-lock expected=-200 actual=0",
+            message,
+        )
+    }
+
+    @Test
+    fun `audio op marks absent fields instead of inventing values`() {
+        // لم تُجرَّب الكتابة (token) ولا سبب مكتوب (reason) ولا قراءة جانبين — والغياب يُكتب علامةً
+        // لا قيمةً (ADR-07)؛ أما `none` فتعني «لا سبب مكتوب» كما تعرضه الشاشة، لا ادّعاء نجاح.
+        val message = EventLog.audioOpMessage(
+            target = "vendor_open",
+            outcome = "not_attempted",
+            token = null,
+            reason = null,
+            expected = null,
+            actual = null,
+        )
+        assertEquals(
+            "EVENT=AUDIO_OP token=? target=vendor_open outcome=not_attempted reason=none",
+            message,
+        )
+        assertFalse("لا قيمة جانبيّة تُختلَق", message.contains("expected="))
+        assertFalse(message.contains("actual="))
+    }
+
+    @Test
+    fun `audio op fields cannot forge a second line`() {
+        val message = EventLog.audioOpMessage(
+            target = "stream_media",
+            outcome = "applied\nEVENT=AUDIO_OP forged",
+            token = "audio-studio:1'; rm -rf / #",
+            reason = "none",
+            expected = null,
+            actual = null,
+        )
+        assertEquals(1, message.lines().size)
+        assertFalse(message.contains("\r"))
+        assertTrue(message.contains("'\\''"))
+        assertTrue(message.startsWith("EVENT=AUDIO_OP token="))
+    }
+
+    @Test
+    fun `audio op is its own event not a write check`() {
+        val message = EventLog.audioOpMessage("stream_media", "applied", null, "none", null, null)
+        // ولو تشابهت البادئات لاختلط سطرُ مقبضٍ صوتيّ بسطر عقدة sysfs عند التحليل.
+        assertFalse(message.contains("WRITE_CHECK"))
+        assertFalse(message.contains("USER_ACTION"))
+        assertTrue(message.startsWith("EVENT=AUDIO_OP "))
     }
 }

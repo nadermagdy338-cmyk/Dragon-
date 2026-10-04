@@ -53,6 +53,8 @@ fun maxHubDescription(hub: MaxDestination): Int = when (hub) {
     MaxDestination.PowerHub -> R.string.max_hub_power_desc
     MaxDestination.StorageHub -> R.string.max_hub_storage_desc
     MaxDestination.NetworkHub -> R.string.max_hub_network_desc
+    // والعقدة العاشرة (`AU-01`): الصوت — أجهزة الإخراج والدفقات والمؤثرات المُعلَنة.
+    MaxDestination.AudioHub -> R.string.max_hub_audio_desc
     else -> R.string.max_status_unknown
 }
 
@@ -85,6 +87,8 @@ fun maxDestinationRole(destination: MaxDestination): Int = when (destination) {
     MaxDestination.StorageDetail -> R.string.max_role_storage
     MaxDestination.NetworkScheduler -> R.string.max_role_network_scheduler
     MaxDestination.NetworkDetail -> R.string.max_role_network_detail
+    // ودور السطح العاشر: يقول **ما يفعله** لا ما يُعرض فيه — مستويات الدفقات تُكتب، والتشخيص يسمّي الحدّ.
+    MaxDestination.AudioStudio -> R.string.max_role_audio_studio
     // الأدوات الأربع التي انتقلت من الإعدادات/التشخيص إلى `Control → Tools`.
     MaxDestination.ProcessManager -> R.string.max_role_process_manager
     MaxDestination.Logs -> R.string.max_role_logs
@@ -95,6 +99,18 @@ fun maxDestinationRole(destination: MaxDestination): Int = when (destination) {
     MaxDestination.MaxBackup -> R.string.max_role_max_backup
     MaxDestination.Permissions -> R.string.max_role_permissions
     MaxDestination.FileManager -> R.string.max_role_file_manager
+    MaxDestination.SpoofStudio -> R.string.spoof_role
+    MaxDestination.GameLobby -> R.string.game_lobby_scope
+    MaxDestination.EmulatorHub -> R.string.emu_hub_scope
+    MaxDestination.HmaCompanion -> R.string.hma_companion_scope
     MaxDestination.Plugins -> R.string.max_role_plugins
+    // ومعلومات الجهاز: شاشة قراءة لا تحكّم — والوصف يقول ذلك صراحةً («قراءةً فقط»).
+    MaxDestination.DeviceInfo -> R.string.max_role_device_info
+    //
+    // والتشخيص: كان يسقط على العبارة العامة (`max_role_open_screen` = «افتح واجهة التحكم
+    // المركّزة هذه»)، وهي **وصف خاطئ لشاشة قراءة**: التشخيص لا يضبط شيئًا. والقسم الذي يفتحه
+    // ثلاثة أقسام في `Device Info` (النظرة العامة والنظام والمستشعرات) يحتاج سطرًا يقول ما
+    // يجده هناك — وإلا قرأ المستخدم «واجهة تحكّم» على باب لا يضبط شيئًا.
+    MaxDestination.Diagnostics -> R.string.max_role_diagnostics
     else -> R.string.max_role_open_screen
 }

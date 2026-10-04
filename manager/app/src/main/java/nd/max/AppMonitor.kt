@@ -47,12 +47,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import nd.max.core.atlas.AtlasControlTarget
+import nd.max.core.daemon.DaemonSupervisor
 import nd.max.core.diagnostics.DeviceFacts
 import nd.max.core.diagnostics.LogHeader
 import nd.max.core.diagnostics.LogSettingsDigest
 import nd.max.ui.util.PerAppKernelUtil
 import nd.max.ui.util.ProfilePresetStore
 import nd.max.core.hardware.CpuHardwareBackend
+import nd.max.core.hardware.SharedControlStorage
 import nd.max.core.hardware.AtlasAdaptiveExecutor
 import nd.max.core.hardware.AtlasRouteMemoryFactory
 import nd.max.core.hardware.GpuCeilingPolicy
@@ -67,13 +69,15 @@ import nd.max.core.hardware.PerAppHardwareStatus
 import nd.max.core.hardware.PerAppHardwareStatus.Outcome
 import nd.max.core.hardware.RootFileAccess
 import nd.max.core.jni.PropBridge
+import nd.max.core.platform.AppStatusProtocol
+import nd.max.core.platform.ForegroundAppResolver
 import nd.max.core.hardware.ThermalCeilingRouter
 import nd.max.core.hardware.SharedHardwareOwnershipStore
 import nd.max.core.hardware.ManualControlLocks
 import nd.max.core.hardware.PerAppControlRegistry
 import nd.max.core.hardware.PerAppRecoveryStore
 import nd.max.core.hardware.ThermalGuard
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 import nd.max.ui.util.decodePerAppCpuPolicyControls
 import nd.max.ui.viewmodel.TouchBoostViewModel
 
@@ -98,6 +102,14 @@ object AppMonitor {
     // إلى مهلة السماح. ثلاث دورات = ١٫٥ ثانية: أطول من أي تأخير عابر في تحديث قائمة العمليات،
     // وأقصر من أن يبقى الجهاز مُقيَّدًا بعد تطبيق أُغلق.
     private const val FOREGROUND_UNCONFIRMED_LIMIT = 3
+    // أدنى فاصل بين نداءين لـ`dumpsys` في مسار المقدّمة (المصدر الثاني). المنادي يقرأ كل ٥٠٠ م.ث،
+    // وفتح صدفة بكل قراءة إسراف؛ ومهلة أطول من ثانيتين تجعل تبديل التطبيق يتأخّر عن اللازم.
+    private const val SHELL_PROBE_INTERVAL_MS = 2_000L
+    // الأمر **قراءة فقط** بسماحين: أوّل ناجح يكفي (`grep -m1`)، و`|| true` في آخره كي لا يُقرأ
+    // خروج "لا مطابقة" (1) فشلًا للأمر كلّه. والملفّان هما ما يسمّي فيه النظامُ التطبيقَ المقيم.
+    private const val FOREGROUND_PROBE_COMMAND =
+        "dumpsys activity activities 2>/dev/null | grep -m1 -E 'mResumedActivity|topResumedActivity|mFocusedApp'; " +
+            "dumpsys window 2>/dev/null | grep -m1 -E 'mCurrentFocus|mFocusedApp' || true"
 
     private val FOREGROUND_METHOD_CANDIDATES = listOf(
         "getFocusedRootTaskInfo",
@@ -135,6 +147,13 @@ object AppMonitor {
     
     @Volatile
     private var lastBackgroundApps = ""
+
+    // أي مصدر سُمِّي منه التطبيق المقيم، وآخر حزمة سُمّيت — يُسجَّلان عند التغيّر فقط، فيحمل
+    // البند القادم دليلًا على الطريق الذي نجح لا على النيّة.
+    private var lastForegroundSource = ""
+    private var lastForegroundPackage = ""
+    private var lastShellProbeAtMs = 0L
+    private var cachedShellPackage: String? = null
 
     private var outputPath = ""
     private var cachedGameListModified = -1L
@@ -262,7 +281,12 @@ object AppMonitor {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        // **والسطر الأول قبل أيّ نداء قد يرمي** (عطب مقيس، تكملة ٢٢٧): الملفّ الذي يشير إليه
+        // الخادم و`package-recovery.log` ظلّ **صفرًا** حين مات الرفيق قبل أن يكتب حرفًا، لأنّ سطره
+        // الوحيد كان ردّ فعل معالج الانهيار — وهو نفسه فشل (`Bad file descriptor`).
+        AppMonitorLogger.persist(AppMonitorLogger.identitySnapshot(args))
         if (args.size < 2) {
+            AppMonitorLogger.persist("EVENT=COMPANION_EXIT reason=missing_output_paths args=${args.size}")
             AppMonitorLogger.fatal("Usage: <status_output_path> <background_output_path> [lock_file_path] -- missing required output paths")
             return
         }
@@ -278,6 +302,7 @@ object AppMonitor {
         setupSystemContext()
 
         if (systemContext == null) {
+            AppMonitorLogger.persist("EVENT=COMPANION_EXIT reason=system_context_null")
             AppMonitorLogger.fatal("System context is null after setupSystemContext() -- cannot continue")
             return
         }
@@ -285,20 +310,17 @@ object AppMonitor {
         val controlContext = runCatching {
             systemContext!!.createPackageContext("nd.max", Context.CONTEXT_IGNORE_SECURITY)
         }.getOrElse {
+            AppMonitorLogger.persist("EVENT=COMPANION_EXIT reason=package_context_unavailable detail=${it.message}")
             AppMonitorLogger.fatal("Cannot resolve nd.max package context for shared control plane: ${it.message}")
             return
         }
-        SharedHardwareOwnershipStore.configure(
-            controlContext.filesDir,
-            controlContext.applicationInfo.uid,
-            android.os.Process.myPid(),
-        )
-        // Same directory as the journal, so this process honours the exact locks
-        // the UI wrote: a per-app rule must never move a knob the user pinned.
-        ManualControlLocks.configure(controlContext.filesDir)
+        // والمستودع المشترك يُهيّأ بـ**حدّ محاولات** ولا يُترك يرمي: رميُه من `main` كان يُسقط العملية
+        // بلا سطر سبب، فينتظر الخادم ١٢٠ ثانية ثم يُغلق الوحدة كلها (عطب مقيس: تكملة ٢٢٧).
+        if (!configureSharedControlPlane(controlContext)) return
         configureThermalRouter(controlContext)
 
         if (!initializeServices()) {
+            AppMonitorLogger.persist("EVENT=COMPANION_EXIT reason=services_unavailable")
             AppMonitorLogger.fatal("Failed to initialize services (ActivityTaskManager/PowerManager/etc.), exiting")
             return
         }
@@ -335,6 +357,11 @@ object AppMonitor {
         AppMonitorLogger.i("AppMonitor companion started (pid=${android.os.Process.myPid()})")
 
         val lockChannel = acquireLock()
+        // القفل حُمل: هذه هي اللحظة التي توقف عندها انتظار الخادم (كان ينتظر ١٢٠ ثانية كاملة
+        // حين لم تُحمل، ثم يُغلق الوحدة كلها) — فتُكتب في الملفّ نفسه لتُقرأ بجانب الموعد النهائي.
+        if (lockChannel != null) {
+            AppMonitorLogger.persist("EVENT=COMPANION_LOCK_ACQUIRED path=$lockFilePath")
+        }
 
         val monitorThread = Thread.currentThread()
         Runtime.getRuntime().addShutdownHook(Thread {
@@ -344,7 +371,101 @@ object AppMonitor {
             monitorThread.interrupt()
         })
 
+        startDaemonSupervisor()
+
         runMonitorLoop()
+    }
+
+    /**
+     * **الوظيفة الخلفية التي تُعيد الخادم الميّت** — خيط مستقلّ، فلا ينتظر مَن يفحصه أحد.
+     *
+     * **لماذا هنا بالذات، مقيسًا من الشجرة:** الخادم يُشغَّل **مرّة واحدة** في الإقلاع
+     * (`mainfiles/service.sh` ينتهي بـ`sleep 1 && exec "$BIN_SVC" --run`) و**لا مُعيد تشغيل له في
+     * المستودع كلّه**، وستّة مسارات تُنهيه بأمرها (`MODULE_INTEGRITY_FAILED` ·
+     * `JAVA_COMPANION_TIMEOUT` · `JAVA_COMPANION_LOCK_RELEASED` · `INTEGRITY_CHECK_FAILED` ·
+     * `MODULE_UPDATE_DETECTED` · `MODULE_REMOVED`). والرفيق هو العملية الوحيدة التي تبقى حيّة بعد
+     * الخادم، والعلاقة بينهما اليوم أحاديّة: الخادم يراقب قفل الرفيق ويموت إن مات، ولا أحد يراقب
+     * العكس — فهذا الخيط يُغلق الاتجاه الثاني بلا تعديل على الإقلاع ولا على سكربتات الوحدة.
+     *
+     * **وخيط لا دورة في حلقة المراقبة:** حلقة [runMonitorLoop] تنبض كل ٥٠٠ م.ث (وكتابة الحالة
+     * والحاكم لكل تطبيق)، وتأكيد إقلاع الخادم قد يستغرق حتى ٢٥ ثانية — فإدخاله فيها كان يُجمّد
+     * المراقبة كلّها بانتظار خادم. وخيط `isDaemon = true` لا يمنع العملية من الخروج.
+     */
+    private fun startDaemonSupervisor() {
+        Thread(
+            {
+                DaemonSupervisor(
+                    info = { AppMonitorLogger.i(it) },
+                    problem = { AppMonitorLogger.e(it) },
+                ).run()
+            },
+            "daemon-supervisor",
+        ).apply { isDaemon = true }.start()
+    }
+
+    /**
+     * محاولات تهيئة المستودع المشترك ومهلة ما بينها.
+     *
+     * و**الحدّ صغير بقصد:** الخادم ينتظر ١٢٠ ثانية، فالرفيق الذي لا يستطيع التهيئة يجب أن يقولها
+     * ويخرج في ثوانٍ لا أن يُنفق المهلة كلها على محاولات لا تنفع.
+     */
+    private const val SHARED_CONTROL_CONFIGURE_ATTEMPTS = 3
+    private const val SHARED_CONTROL_CONFIGURE_RETRY_MS = 2_000L
+
+    /**
+     * مستودع التحكّم المشترك — يُهيّأ **قبل** حمل القفل، بـ**حدّ محاولات**، وبسبب مكتوب عند الفشل.
+     *
+     * **والعطب الذي وُلد هذا الدالّة منه (مقيس، تكملة ٢٢٧):** كان النداء عاريًا في `main`، والدالّة
+     * ترمي `cannot-create-shared-control-directory`؛ فخرج استثناءٌ غير مُلتقَط من `main` → مات الرفيق
+     * عند 17:36:33 بلا سطر سبب في سجله (`sysmon.log` بقي صفرًا) → وظلّ الخادم ينتظر ١٢٠ ثانية ثم
+     * أعلن «Java companion daemon crashed or failed to start» وأغلق الوحدة كلها، وظلّ `MaxManager.log`
+     * يشرح أثر ذلك وحده (`Atlas: all eligible routes failed`) بلا سبب.
+     *
+     * **والسبب الجذريّ عولج في [`SharedControlStorage`]** (‏DE لا CE)، وهذه الدالّة **طبقة ثانية**:
+     * أيّ فشل آخر يُعيد محاولةً محدودة، ثم يُعلن نفسه بالاسم في السجلّ **ويخرج ممتنعًا** — لا يُمضي
+     * ويحمل القفل بمستودع مُعطَّل (فيمضي الخادم إلى نسخ تُرمى واحدةً واحدة).
+     */
+    private fun configureSharedControlPlane(controlContext: Context): Boolean {
+        val filesDir = runCatching { SharedControlStorage.filesDir(controlContext) }
+            .getOrElse {
+                AppMonitorLogger.persist("EVENT=COMPANION_EXIT reason=device_protected_dir_unavailable detail=${it.message}")
+                AppMonitorLogger.fatal("EVENT=SHARED_CONTROL_PLANE_FAILED reason=device_protected_dir_unavailable action=exit", it)
+                return false
+            }
+        var failure: Throwable? = null
+        for (attempt in 1..SHARED_CONTROL_CONFIGURE_ATTEMPTS) {
+            val error = runCatching {
+                SharedHardwareOwnershipStore.configure(
+                    filesDir,
+                    controlContext.applicationInfo.uid,
+                    android.os.Process.myPid(),
+                )
+                // Same directory as the journal, so this process honours the exact locks
+                // the UI wrote: a per-app rule must never move a knob the user pinned.
+                ManualControlLocks.configure(filesDir)
+            }.exceptionOrNull()
+            if (error == null) {
+                if (attempt > 1) {
+                    AppMonitorLogger.i("EVENT=SHARED_CONTROL_PLANE_READY attempt=$attempt path=$filesDir")
+                }
+                return true
+            }
+            failure = error
+            if (attempt < SHARED_CONTROL_CONFIGURE_ATTEMPTS) {
+                AppMonitorLogger.w("EVENT=SHARED_CONTROL_PLANE_RETRY attempt=$attempt path=$filesDir reason=${error.message}")
+                runCatching { Thread.sleep(SHARED_CONTROL_CONFIGURE_RETRY_MS) }
+            }
+        }
+        AppMonitorLogger.persist(
+            "EVENT=COMPANION_EXIT reason=shared_control_plane_failed attempts=$SHARED_CONTROL_CONFIGURE_ATTEMPTS " +
+                "path=$filesDir detail=${failure?.message}",
+        )
+        AppMonitorLogger.fatal(
+            "EVENT=SHARED_CONTROL_PLANE_FAILED attempts=$SHARED_CONTROL_CONFIGURE_ATTEMPTS path=$filesDir " +
+                "reason=${failure?.message} action=exit",
+            failure,
+        )
+        return false
     }
 
     /**
@@ -380,7 +501,7 @@ object AppMonitor {
             systemContext?.packageManager?.getPackageInfo("nd.max", 0)?.versionName
         }.getOrNull()
         val moduleVersion = runCatching {
-            shellRead("grep '^version=' '${MaxManagerPaths.MODULE_DIR}/module.prop' 2>/dev/null | head -n1")
+            shellRead("grep '^version=' '${MaxManagerPaths.MODULE_PROP}' 2>/dev/null | head -n1")
         }.getOrNull()?.substringAfter('=', "")?.trim()?.takeIf(String::isNotEmpty)
         return DeviceFacts(
             appVersion = appVersion,
@@ -453,6 +574,7 @@ object AppMonitor {
 
             val lock: FileLock? = channel.tryLock()
             if (lock == null) {
+                AppMonitorLogger.persist("EVENT=COMPANION_EXIT reason=lock_held_by_another path=$path")
                 AppMonitorLogger.fatal("Another AppMonitor instance already holds the lock at '$path'")
                 channel.close()
                 System.exit(1)
@@ -461,6 +583,7 @@ object AppMonitor {
                 channel
             }
         } catch (e: Exception) {
+            AppMonitorLogger.persist("EVENT=COMPANION_EXIT reason=lock_unavailable path=$path detail=${e.message}")
             AppMonitorLogger.fatal("Failed to acquire lock at '$path'", e)
             System.exit(1)
             null
@@ -516,6 +639,23 @@ object AppMonitor {
      * أو خدمة إدارة المهام لم تُحدَّث بعد). فالحسم من حالة العملية الحقيقية
      * ([isAppProcessAlive]) لا من القراءة وحدها، والمهلة هي هامش الأمان بينهما.
      */
+    /**
+     * هل يمكن لهذه الحزمة أن **تملك** تعديلات per-app تُستعاد؟ — وهو شرط تسليح مهلة التراجع.
+     *
+     * **ولماذا وُجد هذا الشرط (مقيس في حزمة سجلّات TECNO LH8n · 2026-10-01):** كان التسليح
+     * بلا ملكية، فحزمة ليست في قائمة التطبيقات أصلًا تُسلَّم إلى المهلة، ثم ينفّذ
+     * `serviceDeferredRevert` **استعادة الملفّ العالميّ كاملًا**. والمقيس في `sysmon.log`:
+     * `PERAPP_GRACE_ARMED pkg=0.85` ثمّ `PERAPP_DEFERRED_REVERT pkg=0.85` — أي كتابة
+     * ومسار كاملان لمن لا يملك شيئًا. وهذا هو **نفس الشرط** الذي يرخّص التراجع عند تبديل
+     * التطبيق (الملكية أو تعديلات حيّة)؛ فالتسليح لا يكون أرخص من التنفيذ.
+     *
+     * **وحدّه:** شرط **تضييق** لا توسيع: يمنع تسليحًا لا يخصّ إلّا حزمة لا مالك لها في القائمة،
+     * ولا يمنع تراجعًا لتطبيق مُدار (فالمُدار في القائمة عند تسليحه، و`perAppOverridesActive`
+     * تغطّي حالة بقاء تعديلات حيّة).
+     */
+    private fun hasPerAppOwnership(pkg: String): Boolean =
+        perAppOverridesActive || cachedGameListText?.contains("\"$pkg\":") == true
+
     private fun armGraceRevert(pkg: String) {
         if (gracePkg == pkg) return
         gracePkg = pkg
@@ -1024,7 +1164,10 @@ object AppMonitor {
                     missingFocusPkg = pkgName
                     missingFocusCount = 1
                 }
-                if (pkgName != endedForegroundPkg && missingFocusCount >= FOREGROUND_UNCONFIRMED_LIMIT) {
+                if (pkgName != endedForegroundPkg &&
+                    missingFocusCount >= FOREGROUND_UNCONFIRMED_LIMIT &&
+                    hasPerAppOwnership(pkgName)
+                ) {
                     armGraceRevert(pkgName)
                 }
             } else {
@@ -1079,21 +1222,25 @@ object AppMonitor {
             )
         }.onFailure { AppMonitorLogger.e("Xiaomi vendor extras (touch boost / AOD colour) failed for '$pkgName' sw=$currentSwitchId", it) }
 
-        return buildString {
-            appendLine("focused_app $focusedApp")
-            appendLine("screen_awake $screenAwake")
-            appendLine("battery_saver $batterySaver")
-            appendLine("zen_mode $zenMode")
-            appendLine("battery_level $batteryLevel")
-            appendLine("is_charging $isCharging")
-            appendLine("app_name $appName")
-            appendLine("refresh_rate $currentRefreshRate")
-            appendLine("max_refresh_rate $maxRefreshRate")
-            appendLine("switch_id $currentSwitchId")
-            // تعديلات per-app حيّة الآن (أثناء التطبيق أو مهلة السماح):
-            // يقرؤها محرك MAX AI فيتحول إلى وضع المراقبة بلا تدخل.
-            appendLine("perapp_active ${if (perAppOverridesActive) 1 else 0}")
-        }
+        // الصيغة تُبنى في [AppStatusProtocol] لا هنا: الكاتب واحد، وموضع الصيغة واحد، فيقيسها
+        // اختبار عقد واحد ويسقط لو انحرف حرف. وكانت كتلة `buildString` هنا تُعدّل بلا أثر مرئي
+        // حتى ينكسر العقد مع القارئ C في صمت.
+        //
+        // و`perapp_active` يعني: تعديلات per-app حيّة الآن (أثناء التطبيق أو مهلة السماح)،
+        // يقرؤها محرك MAX AI فيتحول إلى وضع المراقبة بلا تدخل.
+        return AppStatusProtocol.encode(
+            focusedApp = focusedApp,
+            screenAwake = screenAwake,
+            batterySaver = batterySaver,
+            zenMode = zenMode,
+            batteryLevel = batteryLevel,
+            isCharging = isCharging,
+            appName = appName,
+            currentRefreshRate = currentRefreshRate,
+            maxRefreshRate = maxRefreshRate,
+            switchId = currentSwitchId,
+            perAppOverridesActive = perAppOverridesActive,
+        )
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -2494,36 +2641,70 @@ object AppMonitor {
         }
     }
 
+    /**
+     * اسم الحزمة التي في المقدّمة، من مصدرين بالترتيب — **والاسم يُتحقَّق من صيغته قبل قبوله**.
+     *
+     * **السبب المقيس (حزمة سجلّات TECNO LH8n · Android 14 · 2026-10-01):** كان يُقبل أوّل نصّ
+     * فيه نقطة اسمًا لحزمة، فصار العدد العشريّ `0.85` هو «التطبيق في المقدّمة»
+     * (`focused_app 0.85 0 0` في `app_status`)، والخادم الأصليّ يقارنه **حرفيًّا** بمفاتيح قائمة
+     * التطبيقات (`get_gamestart` ← `strcmp`) فلا يطابق شيئًا — فانقضت إدارة per-app كلها
+     * (ومنها الحاكم) بلا رسالة خطأ واحدة، ورأى المستخدم أنّ «الميزة لا تعمل». ومصدر القيمة
+     * هو التفكير: على Android 14 قُيّدت `getTasks`، فما يعود من بعض دوالّ الجهاز ليس التطبيق.
+     *
+     * فالمصدران: (١) التفكير كما كان، بشرط أن يخرج منه **اسم حزمة صالح**؛ (٢) **النظام نفسه**
+     * (`dumpsys`) وهو يقول اسم التطبيق المقيم. وكل ما يُرفض يصير `unknown` — وهو أهون من اسم
+     * مخترع: `unknown` تُقال ويُقال معها «لا عملية»، و`0.85` تُصدَّق.
+     */
     private fun getFocusedAppInfo(): String {
-        return try {
-            val result = invokeForegroundMethod() ?: return UNKNOWN_APP
-            if (result is List<*>) {
-                getFocusedAppFromList(result)
-            } else {
-                resolveAppInfoFromObject(result)
-            }
-        } catch (e: Exception) {
-            AppMonitorLogger.e("getFocusedAppInfo() failed", e)
-            UNKNOWN_APP
+        val fromReflection = runCatching { reflectedForegroundPackage() }
+            .onFailure { AppMonitorLogger.e("reflectedForegroundPackage() failed", it) }
+            .getOrNull()
+        val pkg = fromReflection
+            ?: runCatching { shellForegroundPackage() }
+                .onFailure { AppMonitorLogger.e("shellForegroundPackage() failed", it) }
+                .getOrNull()
+            ?: return UNKNOWN_APP
+        val source = if (fromReflection != null) "reflection" else "shell"
+        if (source != lastForegroundSource || pkg != lastForegroundPackage) {
+            lastForegroundSource = source
+            lastForegroundPackage = pkg
+            // سطر واحد عند تغيّر المصدر أو الحزمة — فيحمل البند القادم دليلًا على أيّ طريق نجح.
+            AppMonitorLogger.i("EVENT=FOREGROUND_SOURCE src=$source pkg=$pkg")
         }
+        return buildAppInfo(pkg)
     }
 
-    private fun getFocusedAppFromList(list: List<*>): String {
-        if (list.isEmpty()) return NONE_APP
-        list.forEach { element ->
-            extractComponentName(element)?.let { return buildAppInfo(it.packageName) }
-        }
-        return resolveAppInfoFromObject(list[0]!!)
+    /** المصدر الأوّل: ما تُعطيه دوالّ `ActivityTaskManager` — بشرط أن يكون **اسم حزمة صالحًا**. */
+    private fun reflectedForegroundPackage(): String? {
+        val primary = foregroundMethod?.let { tryInvokeForegroundMethod(it) }
+        resolvePackageFromObject(primary)?.let { return it }
+        return bruteForceForegroundPackage()
     }
 
-    private fun resolveAppInfoFromObject(obj: Any): String {
-        extractComponentName(obj)?.let { return buildAppInfo(it.packageName) }
-        return findPackageLikeString(obj)?.let { buildAppInfo(it) } ?: UNKNOWN_APP
+    /**
+     * المصدر الثاني: **النظام نفسه** (`dumpsys`) — لأنّ تفكير Android 14 ليس مضمونًا.
+     *
+     * **وحدوده بالتصميم لا بالحدس:** لا يُنادى والشاشة مطفأة (لا مقدّمة حينها)، ولا يفتح صدفةً
+     * أكثر من **مرّة كل ثانيتين** ويُخدَم المخبأ بينهما (المنادي يقرأ كل ٥٠٠ م.ث، ولا يجوز أن
+     * يفتح صدفةً مع كل قراءة)؛ وفشل الأمر (بلا جذر) يعني `null` ⇒ «غير معروف» لا شيء آخر.
+     */
+    private fun shellForegroundPackage(): String? {
+        if (powerManager?.isInteractive != true) return null
+        val now = System.currentTimeMillis()
+        if (now - lastShellProbeAtMs < SHELL_PROBE_INTERVAL_MS) return cachedShellPackage
+        lastShellProbeAtMs = now
+        cachedShellPackage = ForegroundAppResolver.parseResumedPackage(
+            RootFileAccess.readCommand(FOREGROUND_PROBE_COMMAND)
+        )
+        return cachedShellPackage
     }
 
-    private fun invokeForegroundMethod(): Any? {
-        val method = foregroundMethod ?: return null
-        return tryInvokeForegroundMethod(method) ?: bruteForceForegroundMethod()
+    /** الكائن المُعاد ← **اسم حزمة** أو `null`. والقائمة تُفحَص عنصرًا عنصرًا. */
+    private fun resolvePackageFromObject(obj: Any?): String? = when (obj) {
+        null -> null
+        is List<*> -> obj.firstNotNullOfOrNull { element -> resolvePackageFromObject(element) }
+        else -> extractComponentName(obj)?.packageName?.takeIf(ForegroundAppResolver::isPackageName)
+            ?: findPackageLikeString(obj)
     }
 
     private fun tryInvokeForegroundMethod(method: Method): Any? {
@@ -2559,19 +2740,25 @@ object AppMonitor {
         return null
     }
 
-    private fun bruteForceForegroundMethod(): Any? {
+    /**
+     * الفحص الشامل: كل دالّة اسمها يشير إلى المقدّمة — **ولا يُقبل منها إلا ما يخرج باسم حزمة**.
+     *
+     * **وهذا هو الفرق المقيس:** كان المعيار «أوّل دالّة تُعيد شيئًا غير فارغ»، ففازت قيمة
+     * عشريّة من دالّة لا تخصّ الحزم (وتُطبَّق على الجهاز: `0.85`)، وانتهى البحث عندها — فلم تُجرَّب
+     * التي بعدها ولا المصدر الثاني. والآن يُجرَّب التالي ما لم يخرج اسم حزمة صالح.
+     */
+    private fun bruteForceForegroundPackage(): String? {
         return try {
-            val candidates =
-                bruteForceCandidates ?: getDeclaredMethods(activityTaskManager!!.javaClass)
-                    .filter {
-                        val name = it.name.lowercase()
-                        name.contains("focus") || name.contains("top") || name.contains("task")
-                    }
-                    .onEach { it.isAccessible = true }
-                    .also { bruteForceCandidates = it }
+            val candidates = bruteForceCandidates ?: getDeclaredMethods(activityTaskManager!!.javaClass)
+                .filter {
+                    val name = it.name.lowercase()
+                    name.contains("focus") || name.contains("top") || name.contains("task")
+                }
+                .onEach { it.isAccessible = true }
+                .also { bruteForceCandidates = it }
 
             candidates.firstNotNullOfOrNull { method ->
-                when {
+                val result = when {
                     method.parameterTypes.isEmpty() ->
                         tryInvokeQuietly { method.invoke(activityTaskManager) }
 
@@ -2580,6 +2767,7 @@ object AppMonitor {
 
                     else -> null
                 }
+                resolvePackageFromObject(result)
             }
         } catch (_: Exception) {
             null
@@ -2634,30 +2822,28 @@ object AppMonitor {
         return null
     }
 
+    /**
+     * وآخر ملجأ: اسم حزمة داخل نصّ كائن أو حقل نصّيّ فيه.
+     *
+     * **وقد كان هنا العطب بعينه:** كان الشرط «فيه نقطة بعد أوّل محرف» — و«0.85» تُحقّقه. والقاعدة
+     * اليوم في [ForegroundAppResolver] وفيها **صيغة أندرويد** ويُقاس عليها اختبار JVM.
+     */
     private fun findPackageLikeString(obj: Any?): String? {
         if (obj == null) return null
-        extractPackageName(obj.toString())?.let { return it }
+        ForegroundAppResolver.extractPackageName(obj.toString())?.let { return it }
 
         getInstanceFields(obj.javaClass).forEach { field ->
             if (field.type == String::class.java) {
                 try {
                     field.isAccessible = true
                     (field.get(obj) as? String)?.let { str ->
-                        extractPackageName(str)?.let { return it }
+                        ForegroundAppResolver.extractPackageName(str)?.let { return it }
                     }
                 } catch (_: Exception) {
                 }
             }
         }
         return null
-    }
-
-    private fun extractPackageName(input: String?): String? {
-        if (input == null || input.indexOf('.') <= 0) return null
-        val normalized = input.lowercase().replace(Regex("[^a-z0-9._-]"), " ")
-        return normalized.split(Regex("\\s+")).find {
-            it.contains(".") && it.matches(Regex("[a-z0-9]+(\\.[a-z0-9]+)+"))
-        }
     }
 
     private fun buildAppInfo(pkg: String): String {

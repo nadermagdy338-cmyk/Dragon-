@@ -43,13 +43,10 @@
     <string name="max_ai_timeline_show_less">Afficher seulement les %1$d dernières</string>
     <string name="max_ai_episode_no_action">Écart mesuré</string>
     <string name="max_ai_stage_observed">Ce qu\'il a mesuré</string>
-    <string name="max_ai_observed_body">Satisfaction %1$s pour une cible %2$s</string>
     <string name="max_ai_observed_technical">cpu %1$s · temp %2$s · batterie %3$s · mémoire %4$s</string>
     <string name="max_ai_stage_why">Pourquoi c\'était important</string>
-    <string name="max_ai_why_body">L\'objectif actif était %1$s</string>
     <string name="max_ai_why_technical">pondérations : performance %1$s · batterie %2$s · thermique %3$s</string>
     <string name="max_ai_stage_decided">Ce qu\'il a décidé</string>
-    <string name="max_ai_decided_body">%1$s</string>
     <string name="max_ai_decided_none">Aucun réglage retenu : tous les candidats ont été rejetés avant toute écriture.</string>
     <string name="max_ai_stage_changed">Ce qu\'il a modifié</string>
     <string name="max_ai_changed_body">Écrit et vérifié par relecture de la valeur : %1$s.</string>
@@ -149,7 +146,6 @@
     <string name="max_ai_profile_active">Appliqué</string>
     <string name="max_ai_safety_engaged_title">Sécurité thermique engagée</string>
     <string name="max_ai_safety_critical_title">Température critique</string>
-    <string name="max_ai_safety_detail">Mesuré %1$s</string>
     <string name="max_ai_safety_section">Sécurité thermique</string>
     <string name="max_ai_safety_section_desc">L\'état en direct du régulateur : ce qu\'il a mesuré</string>
     <string name="max_ai_safety_state">État du régulateur</string>
@@ -179,7 +175,6 @@
     <string name="max_live_section_forecast_desc">La prévision que le moteur calcule déjà pour la sécurité</string>
     <string name="max_live_forecast_empty">Aucune prévision sur cet appareil pour l\'instant.</string>
     <string name="max_live_forecast_error">Erreur de prévision moyenne : %1$s</string>
-    <string name="max_live_curve_desc">%1$s : de %2$s à %3$s sur %4$d minutes</string>
     <string name="max_live_section_error">Erreur de prévision dans le temps</string>
     <string name="max_live_section_error_desc">Écart absolu entre le gain prévu et le gain mesuré</string>
     <string name="max_live_error_empty">Moins de deux prévisions mesurées pour l\'instant.</string>
@@ -284,4 +279,9 @@
     <string name="max_ai_decisions_disabled">Décisions automatiques désactivées</string>
     <string name="max_ai_master_disabled_desc">L\'optimisation IA est désactivée. Les réglages manuels et la protection thermique restent indépendants.</string>
     <string name="max_ai_settings_loading">Chargement des préférences IA enregistrées.</string>
+    <string name="max_ai_observed_body">Satisfaction %1$s par rapport à l\'objectif %2$s, un écart de %3$s.</string>
+    <string name="max_ai_why_body">L\'objectif actif était %1$s, mesuré dans le contexte %2$s.</string>
+    <string name="max_ai_decided_body">%1$s, %2$s, de %3$s à %4$s.</string>
+    <string name="max_ai_safety_detail">Mesuré %1$s, %2$d interventions depuis l\'installation.</string>
+    <string name="max_live_curve_desc">%1$s : de %2$s à %3$s sur %4$d minutes, %5$d échantillons.</string>
 </resources>

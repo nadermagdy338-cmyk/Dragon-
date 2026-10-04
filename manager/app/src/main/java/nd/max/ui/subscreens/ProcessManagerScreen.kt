@@ -1,257 +1,292 @@
 /*
  * Copyright (C) 2026 Nader Magdy. All rights reserved.
- * Proprietary and confidential — not licensed for use, copying, or distribution
- * without prior written permission from the copyright holder.
  *
-شاشة العمليات: أعلى المستهلكين بالمعالج والذاكرة، ورسوم توزيع، وإجراءات إيقاف/قتل،
- * ومفتاح التراكب العائم — فوق مكوّنات MaxManager التعبيرية (`ExpressiveList` وما شابهها). */
-
-@file:OptIn(ExperimentalMaterial3Api::class)
+ * MaxManager proprietary source. See LICENSE at the repository root: this file is
+ * MaxManager-owned and carries no third-party licence obligations.
+ */
 
 package nd.max.ui.subscreens
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Memory
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.PictureInPictureAlt
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.Memory
-import androidx.compose.material.icons.rounded.Storage
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import nd.max.R
-import nd.max.ui.component.*
-import nd.max.ui.mainscreens.SectionLoadingIndicator
-import nd.max.ui.mainscreens.IconBadge
-import nd.max.ui.mainscreens.DashCardWrapper
-import nd.max.ui.mainscreens.GlowLinearBar
-import nd.max.ui.util.ProcessInfo
-import nd.max.ui.util.ProcessSortType
+import nd.max.core.platform.ProcessFeed
+import nd.max.core.platform.ProcessReading
+import nd.max.core.platform.ProcessSample
+import nd.max.core.platform.ProcessScope
+import nd.max.core.platform.ProcessSort
+import nd.max.core.platform.ProcessWatch
+import nd.max.service.ProcessOverlayService
+import nd.max.ui.component.ConfirmDialogHost
+import nd.max.ui.component.CustomBottomSheet
+import nd.max.ui.component.ExpressiveListItem
+import nd.max.ui.component.MaxEmptyState
+import nd.max.ui.component.MaxErrorState
+import nd.max.ui.component.MaxStatusPill
+import nd.max.ui.component.ScreenAccentProvider
+import nd.max.ui.component.baselineOf
+import nd.max.ui.component.rememberConfirmDialog
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxChoiceRow
+import nd.max.ui.design.MaxListScreen
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSearchField
+import nd.max.ui.design.MaxSegmented
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.MaxSwitchRow
+import nd.max.ui.util.ProcessOverlayPrefs
+import nd.max.ui.viewmodel.ProcessActionKind
 import nd.max.ui.viewmodel.ProcessManagerViewModel
+import nd.max.ui.component.ProcessSurface
 
+/**
+ * مراقب المهام — العمليات التي تعمل الآن، وما تفعله بالمعالج والذاكرة، وتراكب يعرضها فوق أيّ تطبيق.
+ *
+ * ### ما أُعيد تصميمه، ولماذا كل تغيير مقصود
+ *
+ * 1. **الرسوم التوضيحية أُزيلت** (حلقة التوزيع وأشرطة أعلى أربع): كانت تعيد الأرقام نفسها التي
+ *    فوقها، وتحتلّ نصف الشاشة قبل أن تصل إلى القائمة التي جاء المستخدم من أجلها. والمقارنة صارت
+ *    **داخل الصفّ** (شريط تحت الاسم)، فالسؤال «مَن الأثقل؟» يُقرأ من موضع العملية نفسه.
+ * 2. **شرائح التصفية صارت مقطعَي اختيار صريحين**: النطاق (الكل · تطبيقات · نظام) والترتيب
+ *    (المعالج · الذاكرة · الاسم). والاسم أُضيف لأنّ العثور على تطبيق في قائمة من خمسين أهمّ من
+ *    إعادة ترتيبها.
+ * 3. **عدّاد الصفوف صار `− ن +`** لا شريحة تدور على ثلاثة أرقام بلا أن تقول إنّها تدور.
+ * 4. **البحث** بالاسم المعروض أو اسم الحزمة.
+ * 5. **حالتان مختلفتان لما لا عمليات** ([MaxErrorState] لقراءة فاشلة و[MaxEmptyState] لتصفية بلا
+ *    نتيجة): كانت واحدة، فتقرأ «لا توجد عمليات» حين يكون الخبر أنّ القراءة لم تصل.
+ * 6. **التراكب صار له إعداد** ([OverlaySheet]): عدد الصفوف، والفاصل، والترتيب، والنطاق، وتمييز
+ *    الثقيل، وإظهار العدد، والالتصاق بالحافة — مع **معاينة حيّة** تُرسم بالمُصيِّر نفسه الذي يرسم
+ *    فوق اللعبة، فما يُختار يُرى قبل تشغيله.
+ * 7. **ونسخ اسم الحزمة** أُضيف إلى ورقة التفاصيل: أوّل ما يحتاجه من يريد ضبط تطبيق بعينه.
+ *
+ * **وحدّ مُعلَن:** الشاشة لا تقرأ بنفسها — تقرأ من [ProcessFeed] عبر القارئ المشترك، فما تراه هو
+ * ما فوق اللعبة (والنافذة تقصّ بالمعالج، فترتيب الذاكرة يقع داخل تلك النافذة).
+ */
 @Composable
 fun ProcessManagerScreen(
     navController: NavController,
     viewModel: ProcessManagerViewModel = viewModel()
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val listState = rememberLazyListState()
-    val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
-    // موارد من `LocalResources.current`: الرسائل تُبنى داخل `launch`/`LaunchedEffect` ولامبدات الإجراءات.
+    // موارد من `LocalResources.current`: الرسائل تُبنى داخل `launch` ولامبدات الإجراءات.
     val resources = LocalResources.current
-    val coroutineScope = rememberCoroutineScope()
+    val colorScheme = MaterialTheme.colorScheme
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    var selectedProcess by remember { mutableStateOf<ProcessInfo?>(null) }
-    var hasOverlayPermission by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
+    var selected by remember { mutableStateOf<ProcessReading?>(null) }
+    var overlayOptions by remember { mutableStateOf(false) }
+    var overlayPrefs by remember { mutableStateOf(ProcessOverlayPrefs.load(context)) }
+    var canDrawOverlays by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
+    var overlayRunning by remember { mutableStateOf(ProcessOverlayService.isRunning) }
 
     val forceStopDialog = rememberConfirmDialog(
-        onConfirm = { selectedProcess?.let { viewModel.forceStopApp(context, it) }; selectedProcess = null },
+        onConfirm = { selected?.let { viewModel.forceStop(it) }; selected = null },
         onDismiss = {}
     )
     val killDialog = rememberConfirmDialog(
-        onConfirm = { selectedProcess?.let { viewModel.killProcess(context, it) }; selectedProcess = null },
+        onConfirm = { selected?.let { viewModel.kill(it) }; selected = null },
         onDismiss = {}
     )
 
-    val overlayPermissionLauncher = rememberLauncherForActivityResult(
+    val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-        hasOverlayPermission = Settings.canDrawOverlays(context)
-        if (hasOverlayPermission) startProcessOverlayService(context)
+        canDrawOverlays = Settings.canDrawOverlays(context)
+        if (canDrawOverlays) startOverlay(context)
+        overlayRunning = ProcessOverlayService.isRunning
     }
 
-    fun toggleFloatingMonitor() {
-        if (hasOverlayPermission) {
-            startProcessOverlayService(context)
-        } else {
-            coroutineScope.launch {
-                val result = snackbarHostState.showSnackbar(
-                    message = resources.getString(R.string.processmgr_overlay_permission_needed),
-                    actionLabel = resources.getString(R.string.open_settings)
-                )
-                if (result == SnackbarResult.ActionPerformed) {
-                    overlayPermissionLauncher.launch(
-                        Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
+    fun requestOverlay() {
+        if (Settings.canDrawOverlays(context)) {
+            startOverlay(context)
+            overlayRunning = true
+            return
+        }
+        scope.launch {
+            val answer = snackbarHostState.showSnackbar(
+                message = resources.getString(R.string.processmgr_overlay_permission_needed),
+                actionLabel = resources.getString(R.string.open_settings)
+            )
+            if (answer == SnackbarResult.ActionPerformed) {
+                permissionLauncher.launch(
+                    Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:${context.packageName}")
                     )
-                }
+                )
             }
         }
     }
 
-    LaunchedEffect(Unit) { viewModel.startMonitoring(context) }
+    LaunchedEffect(Unit) {
+        viewModel.start(context)
+        overlayRunning = ProcessOverlayService.isRunning
+    }
+    // مغادرة الشاشة تُلغي تسجيلها عند القارئ المشترك: لا قراءة لشاشة لا تُرى.
+    DisposableEffect(Unit) { onDispose { viewModel.stop() } }
 
-    LaunchedEffect(viewModel.actionResult) {
-        viewModel.actionResult?.let { result ->
-            val (kind, name) = result.split(":", limit = 2).let { it[0] to it.getOrElse(1) { "" } }
-            val message = when (kind) {
-                "killed" -> resources.getString(R.string.processmgr_result_killed, name)
-                "kill_failed" -> resources.getString(R.string.processmgr_result_kill_failed, name)
-                "stopped" -> resources.getString(R.string.processmgr_result_stopped, name)
-                else -> resources.getString(R.string.processmgr_result_stop_failed, name)
-            }
-            snackbarHostState.showSnackbar(message)
-            viewModel.clearActionResult()
+    LaunchedEffect(viewModel.result) {
+        val outcome = viewModel.result ?: return@LaunchedEffect
+        val message = when (outcome.kind) {
+            ProcessActionKind.Killed -> R.string.processmgr_result_killed
+            ProcessActionKind.KillFailed -> R.string.processmgr_result_kill_failed
+            ProcessActionKind.Stopped -> R.string.processmgr_result_stopped
+            ProcessActionKind.StopFailed -> R.string.processmgr_result_stop_failed
         }
+        snackbarHostState.showSnackbar(resources.getString(message, outcome.name))
+        viewModel.clearResult()
     }
 
     ScreenAccentProvider(colorScheme.primary) {
-            Scaffold(
-                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                topBar = {
-                    MaxManagerSubScreenTopBar(
-                        scrollBehavior = scrollBehavior,
-                        title = stringResource(R.string.processmgr_title),
-                        onBack = { navController.popBackStack() },
-                        accentIcon = Icons.Filled.Memory,
-                        accent = colorScheme.primary,
-                        actions = {
-                            IconButton(onClick = { toggleFloatingMonitor() }) {
-                                Icon(
-                                    imageVector = Icons.Outlined.PictureInPictureAlt,
-                                    contentDescription = stringResource(R.string.processmgr_overlay_title)
-                                )
-                            }
-                        }
+        MaxListScreen(
+            title = stringResource(R.string.processmgr_title),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Filled.Memory,
+            accent = colorScheme.primary,
+            snackbarHostState = snackbarHostState,
+            actions = {
+                IconButton(onClick = { overlayOptions = true }) {
+                    Icon(
+                        imageVector = Icons.Outlined.PictureInPictureAlt,
+                        contentDescription = stringResource(R.string.processmgr_overlay_title)
                     )
-                },
-                snackbarHost = { SnackbarHost(snackbarHostState) },
-                containerColor = colorScheme.surface
-            ) { innerPadding ->
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.maxAdaptiveContentWidth(),
-                    contentPadding = PaddingValues(
-                        top = innerPadding.calculateTopPadding() + 12.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                }
+            }
+        ) {
+            item {
+                ReadingHeader(
+                    running = viewModel.tally.running,
+                    apps = viewModel.tally.apps,
+                    system = viewModel.tally.system,
+                    failed = viewModel.sample.failed,
+                    overlayRunning = overlayRunning,
+                    onToggleOverlay = { if (overlayRunning) stopOverlay(context) else requestOverlay() }
+                )
+                Spacer(Modifier.height(MaxSpace.md))
+            }
+
+            item {
+                ControlStrip(
+                    scope = viewModel.scope,
+                    sort = viewModel.sort,
+                    limit = viewModel.limit,
+                    onScope = viewModel::chooseScope,
+                    onSort = viewModel::chooseSort,
+                    onMore = viewModel::nextLimit,
+                    onLess = viewModel::previousLimit
+                )
+                Spacer(Modifier.height(MaxSpace.sm))
+                MaxSearchField(
+                    value = viewModel.query,
+                    onValueChange = viewModel::search,
+                    placeholder = stringResource(R.string.processmgr_search_hint)
+                )
+                Spacer(Modifier.height(MaxSpace.sm))
+            }
+
+            item {
+                ShownCount(shown = viewModel.visible.size, limit = viewModel.limit)
+                Spacer(Modifier.height(MaxSpace.xs))
+            }
+
+            when {
+                viewModel.sample.failed -> item {
+                    MaxErrorState(
+                        title = stringResource(R.string.processmgr_no_answer),
+                        message = stringResource(R.string.processmgr_no_answer_hint),
+                        retryLabel = stringResource(R.string.retry),
+                        // الزرّ **يقرأ فعلًا**: يلغي تسجيل الشاشة ويعيده، فتُطلب عيّنة جديدة فورًا
+                        // بدل انتظار الحلقة — وهي تجربة مختلفة عن «انتظر ثانيتين».
+                        onRetry = { viewModel.restart(context) }
                     )
-                ) {
-                    item {
-                        ProcessOverviewHeader(
-                            processCount = viewModel.processList.size,
-                            userCount = viewModel.userProcessCount,
-                            systemCount = viewModel.systemProcessCount,
-                            sortType = viewModel.sortType,
-                            onOverlay = { toggleFloatingMonitor() }
-                        )
-                        Spacer(Modifier.height(16.dp))
-                    }
+                }
 
-                    item {
-                        ResourceUsageChart(
-                            processList = viewModel.processList,
-                            sortType = viewModel.sortType
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        ProcessDistributionChart(
-                            userCount = viewModel.userProcessCount,
-                            systemCount = viewModel.systemProcessCount
-                        )
-                        Spacer(Modifier.height(12.dp))
-                    }
+                viewModel.visible.isEmpty() -> item {
+                    MaxEmptyState(
+                        title = stringResource(R.string.processmgr_empty_title),
+                        message = stringResource(R.string.processmgr_no_processes)
+                    )
+                }
 
-                    item {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(18.dp),
-                            color = colorScheme.surfaceContainerLow
-                        ) {
-                            ProcessSortAndLimitRow(
-                            currentSort = viewModel.sortType,
-                            currentLimit = viewModel.limitOption,
-                            onSortChange = { viewModel.setSort(it) },
-                            onLimitChange = { viewModel.setLimit(it) }
-                            )
-                        }
-                        Spacer(Modifier.height(10.dp))
-                    }
-
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(Modifier.weight(1f)) {
-                                Text(
-                                    text = "Running processes",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = "Tap a process for actions",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Text(
-                                text = viewModel.processList.size.toString(),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = colorScheme.primary
-                            )
-                        }
-                    }
-
-                    if (viewModel.isLoading && viewModel.processList.isEmpty()) {
-                        item { SectionLoadingIndicator() }
-                    } else if (viewModel.processList.isEmpty()) {
-                        item {
-                            Box(Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
-                                Text(stringResource(R.string.processmgr_no_processes), color = colorScheme.onSurfaceVariant)
-                            }
-                        }
-                    } else {
-                        items(viewModel.processList, key = { it.pid }) { process ->
-                            ProcessRow(process, viewModel.sortType, onClick = { selectedProcess = process })
-                        }
-                    }
+                else -> items(viewModel.visible, key = { it.pid }) { reading ->
+                    ProcessRow(
+                        reading = reading,
+                        sort = viewModel.sort,
+                        baseline = baselineOf(viewModel.visible, viewModel.sort),
+                        onClick = { selected = reading }
+                    )
                 }
             }
         }
+    }
 
     ConfirmDialogHost(handle = forceStopDialog)
     ConfirmDialogHost(handle = killDialog)
 
-    CustomBottomSheet(
-        visible = selectedProcess != null,
-        onDismiss = { selectedProcess = null }
-    ) {
-        selectedProcess?.let { process ->
-            ProcessDetailSheetContent(
-                process = process,
+    CustomBottomSheet(visible = selected != null, onDismiss = { selected = null }) {
+        selected?.let { reading ->
+            DetailSheet(
+                reading = reading,
                 onForceStop = {
                     forceStopDialog.showConfirm(
-                        title = resources.getString(R.string.processmgr_force_stop_confirm_title, process.appName),
-                        content = resources.getString(R.string.processmgr_force_stop_confirm_desc, process.appName),
+                        title = resources.getString(R.string.processmgr_force_stop_confirm_title, reading.label),
+                        content = resources.getString(R.string.processmgr_force_stop_confirm_desc, reading.label),
                         confirm = resources.getString(R.string.processmgr_action_force_stop),
                         dismiss = resources.getString(R.string.no)
                     )
@@ -259,389 +294,396 @@ fun ProcessManagerScreen(
                 onKill = {
                     killDialog.showConfirm(
                         title = resources.getString(R.string.processmgr_kill_confirm_title),
-                        content = resources.getString(R.string.processmgr_kill_confirm_desc, process.pid),
+                        content = resources.getString(R.string.processmgr_kill_confirm_desc, reading.pid.toString()),
                         confirm = resources.getString(R.string.processmgr_action_kill),
                         dismiss = resources.getString(R.string.no)
                     )
                 },
-                onAppInfo = {
-                    nd.max.ui.util.DebloatFreezeUtil.openAppSystemSettings(context, process.packageName)
+                onAppInfo = { openAppSettings(context, reading.packageName) },
+                onCopy = {
+                    copyText(context, reading.packageName)
+                    selected = null
                 },
-                onClose = { selectedProcess = null }
+                onClose = { selected = null }
             )
         }
     }
+
+    CustomBottomSheet(visible = overlayOptions, onDismiss = { overlayOptions = false }) {
+        OverlaySheet(
+            prefs = overlayPrefs,
+            running = overlayRunning,
+            onPrefs = { updated ->
+                overlayPrefs = updated
+                ProcessOverlayPrefs.save(context, updated)
+            },
+            onToggle = {
+                if (overlayRunning) stopOverlay(context) else requestOverlay()
+                overlayRunning = ProcessOverlayService.isRunning
+            }
+        )
+    }
 }
 
-private fun startProcessOverlayService(context: android.content.Context) {
-    val intent = Intent(context, nd.max.service.ProcessOverlayService::class.java)
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+private fun startOverlay(context: Context) {
+    val intent = Intent(context, ProcessOverlayService::class.java)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         context.startForegroundService(intent)
     } else {
         context.startService(intent)
     }
 }
 
+private fun stopOverlay(context: Context) {
+    context.stopService(Intent(context, ProcessOverlayService::class.java))
+}
+
+private fun openAppSettings(context: Context, packageName: String) {
+    nd.max.ui.util.DebloatFreezeUtil.openAppSystemSettings(context, packageName)
+}
+
+private fun copyText(context: Context, text: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    clipboard.setPrimaryClip(ClipData.newPlainText(text, text))
+}
+
+/**
+ * رأس الشاشة: ما قرأه الجهاز الآن، وحالة القراءة نفسها، وزرّ التراكب.
+ *
+ * وحالة القراءة **ليست زينة**: شاشة تُظهر جدولًا قد تكون كلّه من آخر عيّنة نجحت، فمن يرى
+ * «قراءة حيّة» يعرف أنّه ينظر إلى اللحظة، ومن يرى غيره يعرف أنّه ينظر إلى محفوظ.
+ */
 @Composable
-private fun ProcessOverviewHeader(
-    processCount: Int,
-    userCount: Int,
-    systemCount: Int,
-    sortType: ProcessSortType,
-    onOverlay: () -> Unit
+private fun ReadingHeader(
+    running: Int,
+    apps: Int,
+    system: Int,
+    failed: Boolean,
+    overlayRunning: Boolean,
+    onToggleOverlay: () -> Unit
 ) {
-    val cs = MaterialTheme.colorScheme
+    val colors = MaterialTheme.colorScheme
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = cs.surfaceContainerLow,
-        tonalElevation = 1.dp
+        shape = RoundedCornerShape(MaxCardSpec.radius),
+        color = colors.surfaceContainerLow,
+        tonalElevation = MaxCardSpec.borderWidth
     ) {
-        Column(Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(MaxCardSpec.padding)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        "Process Manager",
-                        style = MaterialTheme.typography.headlineSmall,
+                        text = stringResource(R.string.process_manager_overview_title),
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold
                     )
-                    Spacer(Modifier.height(3.dp))
+                    Spacer(Modifier.height(MaxSpace.hairline))
                     Text(
-                        "Live process activity and resource usage",
+                        text = stringResource(R.string.process_manager_overview_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = cs.onSurfaceVariant
+                        color = colors.onSurfaceVariant
                     )
                 }
-                FilledTonalIconButton(onClick = onOverlay) {
-                    Icon(
-                        Icons.Outlined.PictureInPictureAlt,
-                        contentDescription = stringResource(R.string.processmgr_overlay_title)
-                    )
-                }
-            }
-            Spacer(Modifier.height(16.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ProcessMetric("Running", processCount.toString(), Modifier.weight(1f))
-                ProcessMetric("Apps", userCount.toString(), Modifier.weight(1f))
-                ProcessMetric("System", systemCount.toString(), Modifier.weight(1f))
-            }
-            Spacer(Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = cs.primaryContainer
-                ) {
-                    Text(
-                        if (sortType == ProcessSortType.CPU) "CPU" else "RAM",
-                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = cs.onPrimaryContainer,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Spacer(Modifier.width(9.dp))
-                Text(
-                    "Refreshes every 3 seconds",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = cs.onSurfaceVariant
+                MaxStatusPill(
+                    text = stringResource(
+                        if (failed) R.string.processmgr_reading_failed else R.string.processmgr_reading_live
+                    ),
+                    active = !failed
                 )
             }
+            Spacer(Modifier.height(MaxSpace.lg))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
+                Metric(
+                    label = stringResource(R.string.process_manager_metric_running),
+                    value = running.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Metric(
+                    label = stringResource(R.string.process_manager_metric_apps),
+                    value = apps.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                Metric(
+                    label = stringResource(R.string.process_manager_metric_system),
+                    value = system.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Spacer(Modifier.height(MaxSpace.md))
+            MaxSwitchRow(
+                title = stringResource(R.string.processmgr_overlay_title),
+                checked = overlayRunning,
+                onCheckedChange = { onToggleOverlay() },
+                icon = Icons.Outlined.PictureInPictureAlt
+            )
         }
     }
 }
 
 @Composable
-private fun ProcessMetric(label: String, value: String, modifier: Modifier = Modifier) {
-    val cs = MaterialTheme.colorScheme
-    Surface(modifier = modifier, shape = RoundedCornerShape(14.dp), color = cs.surfaceContainer) {
-        Column(Modifier.padding(12.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = cs.onSurfaceVariant)
-            Spacer(Modifier.height(2.dp))
+private fun Metric(label: String, value: String, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+    Surface(modifier = modifier, shape = RoundedCornerShape(MaxRadius.row), color = colors.surfaceContainer) {
+        Column(Modifier.padding(MaxSpace.md)) {
+            Text(label, style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
+            Spacer(Modifier.height(MaxSpace.hairline))
             Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         }
     }
 }
 
+/**
+ * شريط التحكّم: النطاق، والترتيب، وعدد الصفوف.
+ *
+ * والعدّاد `− ن +` بدل شريحة تدور: الشريحة كانت تقول `Top 10` ولا تقول إنّ لمسها ينقل إلى 20 —
+ * فالاختيار الثلاثي كان مخفيًّا في عنصر يشبه عرضًا للقيمة.
+ */
 @Composable
-fun ResourceUsageChart(
-    processList: List<ProcessInfo>,
-    sortType: ProcessSortType
+private fun ControlStrip(
+    scope: ProcessScope,
+    sort: ProcessSort,
+    limit: Int,
+    onScope: (ProcessScope) -> Unit,
+    onSort: (ProcessSort) -> Unit,
+    onMore: () -> Unit,
+    onLess: () -> Unit
 ) {
-    val accent = MaterialTheme.colorScheme.primary
-    DashCardWrapper(modifier = Modifier.fillMaxWidth(), accent = accent) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(
-                icon = if (sortType == ProcessSortType.CPU) Icons.Rounded.Memory else Icons.Rounded.Storage,
-                tint = accent,
-                size = 22
+    val colors = MaterialTheme.colorScheme
+    val scopeOptions = listOf(
+        stringResource(R.string.processmgr_scope_all),
+        stringResource(R.string.process_manager_metric_apps),
+        stringResource(R.string.process_manager_metric_system)
+    )
+    val sortOptions = listOf(
+        stringResource(R.string.processmgr_sort_cpu),
+        stringResource(R.string.processmgr_sort_ram),
+        stringResource(R.string.processmgr_sort_name)
+    )
+
+    Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
+        MaxSegmented(
+            options = scopeOptions,
+            selectedIndex = ProcessScope.entries.indexOf(scope),
+            onSelect = { index -> ProcessScope.entries.getOrNull(index)?.let(onScope) }
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
+        ) {
+            MaxSegmented(
+                options = sortOptions,
+                selectedIndex = ProcessSort.entries.indexOf(sort),
+                onSelect = { index -> ProcessSort.entries.getOrNull(index)?.let(onSort) },
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Surface(
+                shape = RoundedCornerShape(MaxRadius.pill),
+                color = colors.surfaceContainer
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onLess) {
+                        Icon(
+                            imageVector = Icons.Filled.Remove,
+                            contentDescription = stringResource(R.string.processmgr_limit_less)
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.processmgr_limit_format, limit),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(onClick = onMore) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = stringResource(R.string.processmgr_limit_more)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** «يُعرض ٢٠ من ٣٤٢» — الفرق الذي كان يُقرأ خطأً حين كانت القائمة تُعدّ نفسها. */
+@Composable
+private fun ShownCount(shown: Int, limit: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = MaxSpace.xs),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
             Text(
-                text = if (sortType == ProcessSortType.CPU) stringResource(R.string.processmgr_sort_cpu) else stringResource(R.string.processmgr_sort_ram),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
+                text = stringResource(R.string.process_manager_running_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = stringResource(R.string.process_manager_running_hint),
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        Spacer(modifier = Modifier.height(12.dp))
-
-        val topProcesses = processList.take(4)
-        val maxValue = topProcesses.maxOfOrNull {
-            if (sortType == ProcessSortType.CPU) it.cpu.replace("%", "").toFloatOrNull() ?: 0f
-            else it.res.replace("M", "").replace("K", "").toFloatOrNull() ?: 0f
-        } ?: 1f
-
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            topProcesses.forEach { process ->
-                // الرقم من الحقل العددي لا من النصّ المعروض: تحليل `1.2 MB` بالحذف يعطي
-                // صفرًا (كتابةً كانت تُرسم فارغة بلا أن تُنبّه)، و`resKb` هو الرقم نفسه.
-                val rawVal = if (sortType == ProcessSortType.CPU) process.cpuPercent else process.resKb.toFloat()
-                NamedBarRow(
-                    label = process.appName,
-                    fraction = (rawVal / maxValue).coerceIn(0f, 1f),
-                    accent = accent,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ProcessDistributionChart(
-    userCount: Int,
-    systemCount: Int
-) {
-    val total = userCount + systemCount
-    val userRatio = if (total > 0) userCount.toFloat() / total else 0f
-    val userColor = MaterialTheme.colorScheme.primary
-
-    val animatedUserRatio by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = userRatio,
-        animationSpec = androidx.compose.animation.core.spring(dampingRatio = 0.6f),
-        label = "donut"
-    )
-
-    DashCardWrapper(modifier = Modifier.fillMaxWidth().height(160.dp), accent = userColor) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                val systemColor = MaterialTheme.colorScheme.surfaceVariant
-
-                // Soft glow behind the ring, same layered-alpha technique as IconBadge/RadialGaugeCard.
-                Box(Modifier.size(80.dp).clip(androidx.compose.foundation.shape.CircleShape).background(userColor.copy(alpha = 0.10f)))
-
-                androidx.compose.foundation.Canvas(modifier = Modifier.size(64.dp)) {
-                    val strokeWidth = 10.dp.toPx()
-                    val radius = (size.minDimension - strokeWidth) / 2
-
-                    drawCircle(
-                        color = systemColor,
-                        radius = radius,
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth)
-                    )
-
-                    drawArc(
-                        color = userColor,
-                        startAngle = -90f,
-                        sweepAngle = animatedUserRatio * 360f,
-                        useCenter = false,
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth, cap = androidx.compose.ui.graphics.StrokeCap.Round),
-                        topLeft = androidx.compose.ui.geometry.Offset((size.width - radius * 2) / 2, (size.height - radius * 2) / 2),
-                        size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2)
-                    )
-                }
-
-                Text(
-                    text = total.toString(),
-                    style = nd.max.ui.theme.MonoValueStyleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LegendDot("User", userCount, userColor)
-                LegendDot("Sys", systemCount, MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-    }
-}
-
-@Composable
-fun LegendDot(label: String, count: Int, color: androidx.compose.ui.graphics.Color) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(color))
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(text = count.toString(), fontSize = 9.sp, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-private fun ProcessSortAndLimitRow(
-    currentSort: ProcessSortType,
-    currentLimit: Int,
-    onSortChange: (ProcessSortType) -> Unit,
-    onLimitChange: (Int) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        FilterChip(
-            selected = currentSort == ProcessSortType.CPU,
-            onClick = { onSortChange(ProcessSortType.CPU) },
-            label = { Text(stringResource(R.string.processmgr_sort_cpu)) },
-            leadingIcon = { Icon(Icons.Filled.Speed, null, modifier = Modifier.size(16.dp)) },
-            shape = RoundedCornerShape(50)
-        )
-        FilterChip(
-            selected = currentSort == ProcessSortType.RAM,
-            onClick = { onSortChange(ProcessSortType.RAM) },
-            label = { Text(stringResource(R.string.processmgr_sort_ram)) },
-            leadingIcon = { Icon(Icons.Filled.Memory, null, modifier = Modifier.size(16.dp)) },
-            shape = RoundedCornerShape(50)
-        )
-        FilterChip(
-            selected = false,
-            onClick = {
-                val next = when (currentLimit) { 10 -> 20; 20 -> 50; else -> 10 }
-                onLimitChange(next)
-            },
-            label = { Text(stringResource(R.string.processmgr_limit_format, currentLimit)) },
-            leadingIcon = { Icon(Icons.Outlined.FilterList, null, modifier = Modifier.size(16.dp)) },
-            shape = RoundedCornerShape(50)
-        )
-    }
-}
-
-/**
- * صفّ رسم واحد: اسم العملية في عرض ثابت ثم شريط نسبيّ يمتدّ بما تبقّى.
- *
- * والعرض الثابت للاسم (٥٠ نقطة) مقصود: بدونه تتزحزح الأشرطة مع طول الاسم فتضيع المقارنة
- * البصرية بين صفّين — وهي الغاية من الرسم أصلًا.
- */
-/** مقاسات صفّ الرسم: عرض ثابت للاسم فلا تتزحزح الأشرطة، وفاصل ثابت بينهما. */
-private val BAR_LABEL_WIDTH = 50.dp
-private val BAR_LABEL_GAP = 8.dp
-private val BAR_HEIGHT = 5.dp
-
-@Composable
-private fun NamedBarRow(label: String, fraction: Float, accent: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = label,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.labelSmall,
-            fontSize = 9.sp,
-            modifier = Modifier.width(BAR_LABEL_WIDTH),
+            text = stringResource(R.string.processmgr_shown_count, shown, limit),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary
         )
-        Spacer(modifier = Modifier.width(BAR_LABEL_GAP))
-        GlowLinearBar(fraction = fraction, accent = accent, height = BAR_HEIGHT, modifier = Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun ProcessRow(process: ProcessInfo, sortType: ProcessSortType, onClick: () -> Unit) {
+private fun ProcessRow(
+    reading: ProcessReading,
+    sort: ProcessSort,
+    baseline: Float,
+    onClick: () -> Unit
+) {
     ExpressiveListItem(
         onClick = onClick,
-        leadingContent = { ProcessIcon(process) },
+        leadingContent = { AppIcon(reading) },
         headlineContent = {
-            Text(process.appName, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold)
+            Text(reading.label, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold)
         },
         supportingContent = {
-            Text(process.packageName, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(reading.packageName, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         trailingContent = {
             Column(horizontalAlignment = Alignment.End) {
-                val value = if (sortType == ProcessSortType.CPU) process.cpu else process.res
-                Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(stringResource(R.string.processmgr_pid_format, process.pid), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                Text(
+                    text = if (sort == ProcessSort.Memory) reading.residentText else reading.cpuText,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                // الرقم الثاني دائمًا ظاهر: مَن يُرتّب بالمعالج يرى حجم الذاكرة في السطر نفسه،
+                // فلا يحتاج تغيير الترتيب ليعرف الاثنين.
+                Text(
+                    text = if (sort == ProcessSort.Memory) reading.cpuText else reading.residentText,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+                Text(
+                    text = stringResource(R.string.processmgr_pid_format, reading.pid.toString()),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
             }
         }
     )
+    // الشريط تحت الصفّ: المقارنة في موضع العملية لا في نصف شاشة منفصل.
+    Box(Modifier.padding(horizontal = MaxSpace.gutter)) {
+        nd.max.ui.design.MaxUsageBar(
+            fraction = if (baseline > 0f) {
+                (if (sort == ProcessSort.Memory) reading.residentKb.toFloat() else reading.cpuPercent) / baseline
+            } else {
+                0f
+            }
+        )
+    }
 }
 
+/** أيقونة الحزمة — تُطلب مرّة لكل حزمة؛ وثنائيّ نظاميّ بلا حزمة يأخذ رمز الذاكرة. */
 @Composable
-private fun ProcessIcon(process: ProcessInfo) {
-    val bitmap = remember(process.pid, process.icon) {
-        val drawable = process.icon ?: return@remember null
-        val size = 96
-        val bmp = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(bmp)
+private fun AppIcon(reading: ProcessReading) {
+    val context = LocalContext.current
+    val bitmap = remember(reading.packageName) {
+        if (!reading.packageName.contains('.')) return@remember null
+        val drawable = runCatching {
+            context.packageManager.getApplicationIcon(reading.packageName)
+        }.getOrNull() ?: return@remember null
+        val size = ICON_PIXELS
+        val image = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(image)
         drawable.setBounds(0, 0, size, size)
         drawable.draw(canvas)
-        bmp.asImageBitmap()
+        image.asImageBitmap()
     }
     Surface(
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(MaxRadius.row),
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
-        modifier = Modifier.size(44.dp)
+        modifier = Modifier.size(MaxCardSpec.iconContainer)
     ) {
         Box(contentAlignment = Alignment.Center) {
             if (bitmap != null) {
-                Image(bitmap = bitmap, contentDescription = process.appName, modifier = Modifier.size(30.dp))
+                Image(bitmap = bitmap, contentDescription = reading.label, modifier = Modifier.size(MaxSpace.xxl))
             } else {
-                Icon(Icons.Outlined.FilterList, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                Icon(
+                    imageVector = Icons.Rounded.Memory,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
 }
 
+/** أيقونة الرسم تُبنى بكثافة ثابتة ثم تُصغَّر بالعرض — فالصورة واحدة على كل الشاشات. */
+private const val ICON_PIXELS = 96
+
 @Composable
-private fun ProcessDetailSheetContent(
-    process: ProcessInfo,
+private fun DetailSheet(
+    reading: ProcessReading,
     onForceStop: () -> Unit,
     onKill: () -> Unit,
     onAppInfo: () -> Unit,
+    onCopy: () -> Unit,
     onClose: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = MaxSpace.gutter, vertical = MaxSpace.sm),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ProcessIcon(process)
-        Spacer(Modifier.height(12.dp))
-        Text(process.appName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text(process.packageName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.height(20.dp))
+        AppIcon(reading)
+        Spacer(Modifier.height(MaxSpace.md))
+        Text(reading.label, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(reading.packageName, style = MaterialTheme.typography.bodyMedium, color = colors.primary)
+        Spacer(Modifier.height(MaxSpace.lg))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            DetailBadge(stringResource(R.string.cpu), process.cpu)
-            DetailBadge(stringResource(R.string.ram), process.res)
-            DetailBadge(stringResource(R.string.pid), process.pid)
+            DetailBadge(stringResource(R.string.cpu), reading.cpuText)
+            DetailBadge(stringResource(R.string.ram), reading.residentText)
+            DetailBadge(stringResource(R.string.pid), reading.pid.toString())
         }
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(MaxSpace.lg))
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            nd.max.ui.component.StudioTonalButton(onClick = onAppInfo, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) {
-                Icon(Icons.Outlined.Settings, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.processmgr_action_app_info))
+        MaxChoiceRow(
+            title = stringResource(R.string.processmgr_action_app_info),
+            subtitle = null,
+            selected = false,
+            onSelect = onAppInfo,
+            modifier = Modifier.fillMaxWidth()
+        )
+        MaxChoiceRow(
+            title = stringResource(R.string.processmgr_copy_package),
+            subtitle = reading.packageName,
+            selected = false,
+            onSelect = onCopy,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(MaxSpace.md))
+
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
+            nd.max.ui.component.StudioTonalButton(
+                onClick = onForceStop,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(MaxRadius.control)
+            ) {
+                Text(stringResource(R.string.processmgr_action_force_stop))
             }
             nd.max.ui.component.StudioButton(
                 onClick = onKill,
                 modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(MaxRadius.control)
             ) {
-                Icon(Icons.Outlined.Delete, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.processmgr_action_kill))
             }
-        }
-        Spacer(Modifier.height(8.dp))
-        nd.max.ui.component.StudioTextButton(onClick = onForceStop, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.processmgr_action_force_stop), color = MaterialTheme.colorScheme.outline)
         }
         nd.max.ui.component.StudioTextButton(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.processmgr_dialog_close))
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(MaxSpace.sm))
     }
 }
 
@@ -651,4 +693,150 @@ private fun DetailBadge(label: String, value: String) {
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
         Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
     }
+}
+
+/**
+ * ورقة إعداد التراكب — وفيها **معاينة حيّة** تُرسم بـ[ProcessSurface] نفسها التي ترسم النافذة.
+ *
+ * والمعاينة هي الفرق العملي في هذه الورقة: بقية الخيارات (عدد صفوف، فاصل) يمكن وصفها بالكلام،
+ * أمّا «كيف ستبدو النافذة» فوصفها بالكلام كان يعني الخروج إلى لعبة لتجربتها.
+ */
+@Composable
+private fun OverlaySheet(
+    prefs: ProcessOverlayPrefs.State,
+    running: Boolean,
+    onPrefs: (ProcessOverlayPrefs.State) -> Unit,
+    onToggle: () -> Unit
+) {
+    val sample = ProcessWatchSnapshot()
+    val shown = remember(sample, prefs) {
+        ProcessFeed.arrange(sample.readings, prefs.scope, "", prefs.sort, prefs.rows)
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = MaxSpace.gutter),
+        verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)
+    ) {
+        item {
+            MaxSwitchRow(
+                title = stringResource(R.string.processmgr_overlay_title),
+                checked = running,
+                onCheckedChange = { onToggle() },
+                icon = Icons.Outlined.PictureInPictureAlt
+            )
+        }
+        item {
+            OptionBlock(
+                label = stringResource(R.string.processmgr_overlay_rows),
+                options = ProcessOverlayPrefs.ROW_CHOICES.map { it.toString() },
+                selectedIndex = ProcessOverlayPrefs.ROW_CHOICES.indexOf(prefs.rows),
+                onSelect = { index ->
+                    ProcessOverlayPrefs.ROW_CHOICES.getOrNull(index)?.let { onPrefs(prefs.copy(rows = it)) }
+                }
+            )
+        }
+        item {
+            OptionBlock(
+                label = stringResource(R.string.processmgr_overlay_interval, prefs.intervalSeconds),
+                options = ProcessOverlayPrefs.INTERVAL_CHOICES.map { it.toString() },
+                selectedIndex = ProcessOverlayPrefs.INTERVAL_CHOICES.indexOf(prefs.intervalSeconds),
+                onSelect = { index ->
+                    ProcessOverlayPrefs.INTERVAL_CHOICES.getOrNull(index)
+                        ?.let { onPrefs(prefs.copy(intervalSeconds = it)) }
+                }
+            )
+        }
+        item {
+            OptionBlock(
+                label = stringResource(R.string.processmgr_overlay_sort),
+                options = listOf(
+                    stringResource(R.string.processmgr_sort_cpu),
+                    stringResource(R.string.processmgr_sort_ram)
+                ),
+                selectedIndex = if (prefs.sort == ProcessSort.Memory) 1 else 0,
+                onSelect = { index ->
+                    onPrefs(prefs.copy(sort = if (index == 1) ProcessSort.Memory else ProcessSort.Cpu))
+                }
+            )
+        }
+        item {
+            OptionBlock(
+                label = stringResource(R.string.processmgr_overlay_scope),
+                options = listOf(
+                    stringResource(R.string.processmgr_scope_all),
+                    stringResource(R.string.process_manager_metric_apps),
+                    stringResource(R.string.process_manager_metric_system)
+                ),
+                selectedIndex = ProcessScope.entries.indexOf(prefs.scope),
+                onSelect = { index ->
+                    ProcessScope.entries.getOrNull(index)?.let { onPrefs(prefs.copy(scope = it)) }
+                }
+            )
+        }
+        item {
+            MaxSwitchRow(
+                title = stringResource(R.string.processmgr_overlay_heavy),
+                checked = prefs.markHeavy,
+                onCheckedChange = { onPrefs(prefs.copy(markHeavy = it)) }
+            )
+        }
+        item {
+            MaxSwitchRow(
+                title = stringResource(R.string.processmgr_overlay_tally),
+                checked = prefs.showTally,
+                onCheckedChange = { onPrefs(prefs.copy(showTally = it)) }
+            )
+        }
+        item {
+            MaxSwitchRow(
+                title = stringResource(R.string.processmgr_overlay_snap),
+                checked = prefs.snapEdges,
+                onCheckedChange = { onPrefs(prefs.copy(snapEdges = it)) }
+            )
+        }
+        item {
+            Spacer(Modifier.height(MaxSpace.sm))
+            Text(
+                text = stringResource(R.string.processmgr_overlay_preview),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(MaxSpace.sm))
+            ProcessSurface(
+                sample = sample.copy(readings = shown),
+                sort = prefs.sort,
+                baseline = baselineOf(shown, prefs.sort),
+                textSizeSp = prefs.textSizeSp,
+                backgroundAlpha = prefs.backgroundAlpha,
+                markHeavy = prefs.markHeavy,
+                showTally = prefs.showTally
+            )
+            Spacer(Modifier.height(MaxSpace.lg))
+        }
+    }
+}
+
+/** خيار بثلاثة أو أربعة وجوه: التسمية فوق المقطع، والمختار بموضعه لا بشريحة تدور. */
+@Composable
+private fun OptionBlock(
+    label: String,
+    options: List<String>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        MaxSegmented(options = options, selectedIndex = selectedIndex, onSelect = onSelect)
+    }
+}
+
+/** آخر عيّنة من القارئ المشترك — قراءة واحدة يعرضها كل من يسأل. */
+@Composable
+private fun ProcessWatchSnapshot(): ProcessSample {
+    val snapshot by ProcessWatch.snapshot.collectAsState()
+    return snapshot
 }

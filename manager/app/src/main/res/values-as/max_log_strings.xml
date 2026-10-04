@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">বাক্যবাণ</string>
+    <string name="max_log_level_debug">ডিবাগ কৰক</string>
+    <string name="max_log_level_info">তথ্য</string>
+    <string name="max_log_level_warn">সতৰ্কবাণী</string>
+    <string name="max_log_level_error">আঁসোৱাহ</string>
+    <string name="max_log_level_assert">দাবী কৰক</string>
+    <string name="max_log_level_fatal">প্ৰাণঘাতক</string>
+    <string name="max_log_buffer_main">প্ৰধান</string>
+    <string name="max_log_buffer_system">পদ্ধতি</string>
+    <string name="max_log_buffer_crash">খুন্দা মৰা</string>
+    <string name="max_log_buffer_kernel">কাৰ্ণেল</string>
+    <string name="max_log_buffer_events">ইভেন্ট</string>
+    <string name="max_log_buffer_radio">ৰেডিঅ\'</string>
+    <string name="max_log_source_daemon">ডেমন</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">অন্যান্য</string>
+</resources>

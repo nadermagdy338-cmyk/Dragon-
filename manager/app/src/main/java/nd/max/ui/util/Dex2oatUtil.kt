@@ -8,6 +8,7 @@
  * ليس تحسينًا. */
 
 package nd.max.ui.util
+import nd.max.core.platform.EventLog
 
 import android.os.SystemClock
 import com.topjohnwu.superuser.Shell

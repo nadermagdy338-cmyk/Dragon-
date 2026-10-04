@@ -87,7 +87,7 @@ import nd.max.ui.viewmodel.*
 // share a name — the wildcard import above resolves to the former. Aliasing the
 // latter here avoids silently colliding with it.
 import nd.max.ui.settings.AppLanguage
-import nd.max.ui.settings.AppLanguageSheet
+import nd.max.ui.settings.LanguagePickerSheet
 import nd.max.ui.settings.SettingsViewModel as PreferenceSettingsViewModel
 
 
@@ -129,9 +129,14 @@ fun SettingsScreen(
     val isAdvancedMode by preferenceSettingsViewModel.isAdvancedMode.collectAsStateWithLifecycle()
     val currentLanguage by preferenceSettingsViewModel.currentLanguage.collectAsStateWithLifecycle()
 
-    // تلقائي: نبيّن اللغة التي يقررها النظام فعلًا، وإلا بقي المستخدم لا يعرف ما يرى.
+    // **القيمة هنا اسم اللغة فقط، لا «تلقائي (النظام) · …».**
+    //
+    // كانت تُبني بـ`max_language_auto + " · " + displayName`، وهي أطول قيمة ذيل في التطبيق
+    // (٤٤ محرفًا): فأخذت نصف الصفّ وضغطت عنوان «Language» حتى انكسر حرفًا في كل سطر. والمنتقي
+    // لم يعد يعرض خيار «تلقائي» أصلًا (أمر المالك)، فاحتاجت الحالة القديمة اسمًا مقروءًا لا
+    // شرحًا لآلية: `displayName(AUTO)` يُرجع اسم لغة النظام الفعلية بلغة الواجهة.
     val languageLabel = if (currentLanguage == AppLanguage.AUTO) {
-        stringResource(R.string.max_language_auto) + " · " + AppLanguage.displayName(AppLanguage.AUTO)
+        AppLanguage.displayName(AppLanguage.AUTO)
     } else {
         AppLanguage.nativeName(currentLanguage)
     }
@@ -623,13 +628,18 @@ fun SettingsScreen(
         ConfirmDialogHost(handle = rebootDialog)
 
         RootAppDialog {
-            AppLanguageSheet(
+            LanguagePickerSheet(
                 visible = showLanguageSheet,
                 selected = currentLanguage,
                 onSelect = { tag ->
                     // نغلق الورقة قبل التطبيق: تغيير اللغة يُعيد إنشاء النشاط، والعودة بورقة مفتوحة تبدو كخطأ.
                     showLanguageSheet = false
                     preferenceSettingsViewModel.setAppLanguage(tag)
+                    // **والتطبيق فوري لا بعد إعادة تشغيل:** الكتابة تُحفظ ثم يُبلَّغ النظام،
+                    // ويبقى أن يُعاد إنشاء النشاط ليُقرأ الاختيار في `attachBaseContext` →
+                    // `AppLanguage.wrap`. وقبل هذا السطر كان اختيار اللغة يُرى بعد إغلاق
+                    // التطبيق وفتحه فقط.الشرط والمبرّر في `AppLanguage.reload`.
+                    AppLanguage.activityOf(context)?.let { AppLanguage.reload(it) }
                 },
                 onDismiss = { showLanguageSheet = false }
             )

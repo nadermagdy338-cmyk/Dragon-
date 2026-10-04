@@ -1,0 +1,101 @@
+# عقد CLI الثنائية `sys.maxmanager-utilityconf` — الجدول المرجعي الذي تعيد
+# دعاوى `binutils` (`cargo test`) تشغيله على دوالّ التخطيط الخالصة نفسها (لا نسخة منها).
+#
+# الأعمدة مفصولة بـTAB، بهذا الترتيب:
+#   label · subcommand · arg · kind · value
+#
+# و`arg` = `-` تعني «لا وسيط» (لا argv[2])، و`""` تعني «وسيط فارغ بحرفيته».
+# و`kind` ∈ { setprop · resetprop · shell · path · probe }:
+#   setprop/resetprop ⇒ value بصيغة `key=value` (والقيمة الفارغة مع resetprop = حذف)
+#   shell             ⇒ النصّ الحرفي المُسلَّم إلى `/system/bin/sh -c`
+#   path              ⇒ مسار sysfs يُكتب مباشرة
+#   probe             ⇒ مسار يُستطلَع فقط ليُبنى عليه قرار (بلا كتابة) — ومسار استطلاع خاطئ
+#                       يُنتج `false` صامتة، فيختفي قسم Mali من الواجهة بلا خطأ ظاهر
+#
+# والأسطر المتتالية بعنوان واحد تُكوّن **قائمة أثر مرتّبة** — والترتيب جزء من العقد،
+# لا تفصيل عرض (فـ`setrender` يضبط `debug.hwui.renderer` قبل أن يقرّر الخلفية).
+#
+# من يستدعي كل اسم (مقيس من المصدر، للتوثيق لا للتنفيذ):
+#   setsgov · setsIO · setsMaliGov · setthermalcore · checkmalipath · setrender
+#       ← التطبيق: `manager/.../ui/viewmodel/TweakViewmodel.kt`
+#   setrender default                          ← `archdaemon/jni/src/SystemProfile/SystemProfiles.c`
+#   setrender <target>                         ← `archdaemon/jni/src/ConfigHandler/RenderingHandler.c`
+#   setrefreshrates <hz>                       ← `archdaemon/jni/src/ConfigHandler/RefreshRateHandler.c`
+#   enableDND · disableDND                     ← `archdaemon/jni/src/SystemProfile/SystemProfiles.c`
+#   restartservice                             ← `archdaemon/jni/src/BinaryCLI/CLIUtility.c`
+#   FSTrim                                     ← `binprofiles/src/profiles/mod.rs`
+#
+# ولماذا هذا الجدول موجود: كان الخادم C يرسل `setrender vulkan` ثم **يفترض** أن ذلك
+# يضبط `debug.hwui.renderer` — والافتراض مكتوب في `archdaemon/tests/parity_test.c`
+# («ما تفعله `setrender vulkan` على الجهاز»). هذا الجدول يحوّل الافتراض إلى شهادة.
+#
+# ⚠️ ولا تُعدّل صفًّا هنا لتُمرّر اختبارًا: إن سقط الاختبار فالسؤال **أيّهما تغيّر حقًّا —
+# الثنائية أم المُنتظَر؟** والصواب أن يُثبَّت ما يُسلَّم، لا أن يُحرَّك المرجع ليطابق الخلل.
+label	subcommand	arg	kind	value
+setsgov-glob	setsgov	interactive	path	/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+setsIO-paths	setsIO	cfq	path	/sys/block/sda/queue/scheduler
+setsIO-paths	setsIO	cfq	path	/sys/block/sdb/queue/scheduler
+setsIO-paths	setsIO	cfq	path	/sys/block/sdc/queue/scheduler
+setsIO-paths	setsIO	cfq	path	/sys/block/mmcblk0/queue/scheduler
+setsIO-paths	setsIO	cfq	path	/sys/block/mmcblk1/queue/scheduler
+setsMaliGov-glob	setsMaliGov	simple_ondemand	path	/sys/class/devfreq/*.mali/governor
+checkmalipath-probes-the-devfreq-dir	checkmalipath	-	probe	/sys/class/devfreq/*.mali
+setthermalcore-on	setthermalcore	1	shell	sys.maxmanager-rianixiathermalcore &
+setthermalcore-on	setthermalcore	1	shell	pgrep -f sys.maxmanager-rianixiathermalcore
+setthermalcore-off	setthermalcore	0	shell	pkill -9 -f sys.maxmanager-rianixiathermalcore
+setthermalcore-anything-else-stops	setthermalcore	2	shell	pkill -9 -f sys.maxmanager-rianixiathermalcore
+FSTrim-attempts	FSTrim	-	shell	vdc fstrim dotrim
+FSTrim-attempts	FSTrim	-	shell	sm fstrim
+enableDND	enableDND	-	shell	cmd notification set_dnd priority
+disableDND	disableDND	-	shell	cmd notification set_dnd off
+setrefreshrates-120	setrefreshrates	120	shell	am broadcast -a nd.max.SET_FPS -n nd.max/.RefreshRateReceiver --ei fps 120
+setrefreshrates-unparseable-falls-back-to-60	setrefreshrates	abc	shell	am broadcast -a nd.max.SET_FPS -n nd.max/.RefreshRateReceiver --ei fps 60
+setrefreshrates-negative-passes-through	setrefreshrates	-1	shell	am broadcast -a nd.max.SET_FPS -n nd.max/.RefreshRateReceiver --ei fps -1
+restartservice	restartservice	-	shell	pkill -9 -f sys.maxmanager-rianixiathermalcore
+restartservice	restartservice	-	shell	pkill -9 -f sys.maxmanager-service
+restartservice	restartservice	-	shell	pkill -9 -f sys.maxmanager-appmonitoring
+restartservice	restartservice	-	setprop	persist.sys.maxmanager.state=stopped
+restartservice	restartservice	-	shell	sh /data/adb/modules/MaxManager/service.sh &
+setrender-default	setrender	default	setprop	debug.hwui.renderer=
+setrender-default	setrender	default	setprop	debug.renderengine.backend=
+setrender-default	setrender	default	setprop	debug.hwui.render_thread=
+setrender-default	setrender	default	setprop	debug.skia.threaded_mode=
+setrender-default	setrender	default	resetprop	ro.hwui.use_vulkan=
+setrender-empty-arg-is-default	setrender	""	setprop	debug.hwui.renderer=
+setrender-empty-arg-is-default	setrender	""	setprop	debug.renderengine.backend=
+setrender-empty-arg-is-default	setrender	""	setprop	debug.hwui.render_thread=
+setrender-empty-arg-is-default	setrender	""	setprop	debug.skia.threaded_mode=
+setrender-empty-arg-is-default	setrender	""	resetprop	ro.hwui.use_vulkan=
+setrender-vulkan	setrender	vulkan	setprop	debug.hwui.renderer=vulkan
+setrender-vulkan	setrender	vulkan	setprop	debug.hwui.render_thread=false
+setrender-vulkan	setrender	vulkan	setprop	debug.skia.threaded_mode=false
+setrender-vulkan	setrender	vulkan	setprop	debug.renderengine.backend=vulkan
+setrender-vulkan	setrender	vulkan	resetprop	ro.hwui.use_vulkan=true
+setrender-skiavkthreaded	setrender	skiavkthreaded	setprop	debug.hwui.renderer=skiavkthreaded
+setrender-skiavkthreaded	setrender	skiavkthreaded	setprop	debug.hwui.render_thread=true
+setrender-skiavkthreaded	setrender	skiavkthreaded	setprop	debug.skia.threaded_mode=true
+setrender-skiavkthreaded	setrender	skiavkthreaded	setprop	debug.renderengine.backend=vulkan
+setrender-skiavkthreaded	setrender	skiavkthreaded	resetprop	ro.hwui.use_vulkan=true
+setrender-skiaglthreaded	setrender	skiaglthreaded	setprop	debug.hwui.renderer=skiaglthreaded
+setrender-skiaglthreaded	setrender	skiaglthreaded	setprop	debug.hwui.render_thread=true
+setrender-skiaglthreaded	setrender	skiaglthreaded	setprop	debug.skia.threaded_mode=true
+setrender-skiaglthreaded	setrender	skiaglthreaded	setprop	debug.renderengine.backend=gles
+setrender-skiaglthreaded	setrender	skiaglthreaded	resetprop	ro.hwui.use_vulkan=false
+setrender-software	setrender	software	setprop	debug.hwui.renderer=software
+setrender-software	setrender	software	setprop	debug.hwui.render_thread=false
+setrender-software	setrender	software	setprop	debug.skia.threaded_mode=false
+setrender-software	setrender	software	setprop	debug.renderengine.backend=
+setrender-unknown-vk-substring	setrender	hwui-vk-custom	setprop	debug.hwui.renderer=hwui-vk-custom
+setrender-unknown-vk-substring	setrender	hwui-vk-custom	setprop	debug.hwui.render_thread=false
+setrender-unknown-vk-substring	setrender	hwui-vk-custom	setprop	debug.skia.threaded_mode=false
+setrender-unknown-vk-substring	setrender	hwui-vk-custom	setprop	debug.renderengine.backend=vulkan
+setrender-unknown-vk-substring	setrender	hwui-vk-custom	resetprop	ro.hwui.use_vulkan=true
+setrender-unknown-gl-substring	setrender	gl-experimental	setprop	debug.hwui.renderer=gl-experimental
+setrender-unknown-gl-substring	setrender	gl-experimental	setprop	debug.hwui.render_thread=false
+setrender-unknown-gl-substring	setrender	gl-experimental	setprop	debug.skia.threaded_mode=false
+setrender-unknown-gl-substring	setrender	gl-experimental	setprop	debug.renderengine.backend=gles
+setrender-unknown-gl-substring	setrender	gl-experimental	resetprop	ro.hwui.use_vulkan=false
+setrender-unknown-neutral	setrender	weird	setprop	debug.hwui.renderer=weird
+setrender-unknown-neutral	setrender	weird	setprop	debug.hwui.render_thread=false
+setrender-unknown-neutral	setrender	weird	setprop	debug.skia.threaded_mode=false
+setrender-unknown-neutral	setrender	weird	setprop	debug.renderengine.backend=

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">最长期限（我们）</string>
+    <string name="max_sched_tunable_deadline_period_min">截止期限分钟（我们）</string>
+    <string name="max_sched_tunable_energy_aware">能源意识</string>
+    <string name="max_sched_tunable_latency">延迟（纳秒）</string>
+    <string name="max_sched_tunable_migration_cost">迁移成本（纳秒）</string>
+    <string name="max_sched_tunable_min_granularity">最小粒度（ns）</string>
+    <string name="max_sched_tunable_nr_migrate">迁移批量大小</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT 乘数</string>
+    <string name="max_sched_tunable_rr_timeslice">循环时间片（毫秒）</string>
+    <string name="max_sched_tunable_rt_period">实时周期（我们）</string>
+    <string name="max_sched_tunable_rt_runtime">实时运行时（美国）</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">实时 UClamp 楼层</string>
+    <string name="max_sched_tunable_wakeup_granularity">唤醒粒度 (ns)</string>
+</resources>

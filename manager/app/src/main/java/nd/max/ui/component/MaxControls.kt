@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSpace
 
 /** Native gestures and semantics are retained; only the thumb responds to drag. */
 @Composable
@@ -68,14 +70,16 @@ fun MaxSlider(
         thumb = {
             Surface(
                 modifier = Modifier.size(width = 28.dp, height = 36.dp).scale(scale),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(MaxRadius.chip),
                 color = scheme.surface,
                 border = BorderStroke(2.dp, active),
                 shadowElevation = if (dragged && enabled) 4.dp else 1.dp
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
                     repeat(2) {
-                        Box(Modifier.width(2.dp).height(12.dp).clip(RoundedCornerShape(1.dp)).background(active))
+                        // مقبض بعرض 2dp: نصف قطر 1dp لم يكن على أي سلّم، والقصّ الكامل (هيرلاين)
+                        // هو ما يجعله يُقرأ مقبضًا مستديرًا لا مستطيلًا. صفر تغيير في المقاس.
+                        Box(Modifier.width(MaxSpace.hairline).height(12.dp).clip(RoundedCornerShape(MaxSpace.hairline)).background(active))
                     }
                 }
             }

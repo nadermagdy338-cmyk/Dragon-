@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="copg_tags_title">COPG options</string>
+    <string name="copg_tags_desc">Saved as intent and written together with the device profile. Only the four comfort options work on every COPG version; the rest need COPG 6.8.0 or newer. PRO options need a COPG PRO license, and the engine may ignore them.</string>
+    <string name="copg_tier_pro">PRO</string>
+    <string name="copg_footprint_resident">stays in the app\'s memory, never use with anti-cheat games</string>
+    <string name="copg_need_ack">acknowledge the risk below first</string>
+    <string name="copg_tag_refused">A selected COPG option is not allowed for the installed COPG version. Nothing was written.</string>
+    <string name="copg_tag_needs_device">Options are written with a device profile, and this app has none yet.</string>
+    <string name="copg_tag_value_hint">Value</string>
+    <string name="copg_tag_bad_value">Letters, digits, space and . _ - / + only (up to 60)</string>
+    <string name="copg_tag_save">Save</string>
+    <string name="copg_tag_remove">Remove</string>
+    <string name="copg_tag_dnd">Do Not Disturb while playing</string>
+    <string name="copg_tag_dab">Disable auto-brightness</string>
+    <string name="copg_tag_kso">Keep screen on</string>
+    <string name="copg_tag_nolog">Stop logging</string>
+    <string name="copg_tag_dpi">Screen DPI</string>
+    <string name="copg_tag_serial">Per-app serial number</string>
+    <string name="copg_tag_cpu">CPU model</string>
+    <string name="copg_tag_blocked">Force the real CPU</string>
+    <string name="copg_tag_vpn">Hide VPN</string>
+    <string name="copg_tag_vpns">Hide VPN (strict)</string>
+    <string name="copg_tag_hidedev">Hide Developer Options and USB debugging</string>
+    <string name="copg_tag_tz">Timezone</string>
+    <string name="copg_tag_lang">Language and region</string>
+    <string name="copg_tag_gpu">GPU model</string>
+    <string name="copg_tag_cow">Build properties (copy-on-write)</string>
+    <string name="copg_tag_aid">Android ID</string>
+    <string name="copg_tag_gaid">Advertising ID</string>
+    <string name="copg_tag_appset">App Set ID</string>
+    <string name="copg_tag_drm">Widevine / DRM</string>
+    <string name="copg_tag_imei">IMEI</string>
+    <string name="copg_tag_sim">SIM carrier (safe)</string>
+    <string name="copg_tag_simx">SIM carrier (aggressive)</string>
+    <string name="copg_tag_ua">WebView User-Agent</string>
+    <string name="copg_tag_mock">Hide mock location</string>
+</resources>

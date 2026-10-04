@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <AZenith.h>
+#include <MaxManager.h>
 #include <sys/system_properties.h>
 #include <time.h>
 
@@ -77,7 +77,7 @@ void notify(const char* title, const char* fmt, bool chrono, int timeout_ms, ...
     escape_shell_string(safe_message, message, sizeof(safe_message));
 
     const char* action = "nd.max.ACTION_MANAGE";
-    const char* component = "nd.max/nd.max.receiver.ZenithReceiver";
+    const char* component = "nd.max/nd.max.receiver.MaxManagerReceiver";
     const char* chrono_str = chrono ? "true" : "false";
 
     if (timeout_ms > 0) {
@@ -156,7 +156,7 @@ void toast(const char* message) {
     if (__system_property_get("persist.sys.maxmanagerconf.showtoast", val) > 0 && val[0] == '1') {
         int exit = systemv("su -c \"am broadcast "
                            "-a nd.max.ACTION_MANAGE "
-                           "-n nd.max/.receiver.ZenithReceiver "
+                           "-n nd.max/.receiver.MaxManagerReceiver "
                            "--es toasttext '%s' "
                            ">/dev/null 2>&1\"",
                            message);

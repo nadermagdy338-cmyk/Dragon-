@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">ഡെഡ്‌ലൈൻ കാലയളവ് പരമാവധി (ഞങ്ങൾ)</string>
+    <string name="max_sched_tunable_deadline_period_min">അവസാന കാലയളവ് മിനിറ്റ് (ഞങ്ങൾ)</string>
+    <string name="max_sched_tunable_energy_aware">എനർജി അവെയർ</string>
+    <string name="max_sched_tunable_latency">ലേറ്റൻസി (ns)</string>
+    <string name="max_sched_tunable_migration_cost">മൈഗ്രേഷൻ ചെലവ് (ns)</string>
+    <string name="max_sched_tunable_min_granularity">കുറഞ്ഞ ഗ്രാനുലാരിറ്റി (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">മൈഗ്രേഷൻ ബാച്ച് വലുപ്പം</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT മൾട്ടിപ്ലയർ</string>
+    <string name="max_sched_tunable_rr_timeslice">റൗണ്ട്-റോബിൻ ടൈംസ്ലൈസ് (മിസെ)</string>
+    <string name="max_sched_tunable_rt_period">തത്സമയ കാലയളവ് (ഞങ്ങൾ)</string>
+    <string name="max_sched_tunable_rt_runtime">തത്സമയ റൺടൈം (ഞങ്ങൾ)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">തത്സമയ യുക്ലാമ്പ് ഫ്ലോർ</string>
+    <string name="max_sched_tunable_wakeup_granularity">വേക്കപ്പ് ഗ്രാനുലാരിറ്റി (ns)</string>
+</resources>

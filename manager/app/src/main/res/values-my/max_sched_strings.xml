@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">နောက်ဆုံးသတ်မှတ်ရက် (ကျွန်ုပ်တို့)</string>
+    <string name="max_sched_tunable_deadline_period_min">နောက်ဆုံးသတ်မှတ်ကာလ (ကျွန်ုပ်တို့)</string>
+    <string name="max_sched_tunable_energy_aware">စွမ်းအင်အသိ</string>
+    <string name="max_sched_tunable_latency">Latency (ns)</string>
+    <string name="max_sched_tunable_migration_cost">ရွှေ့ပြောင်းစရိတ် (ns)</string>
+    <string name="max_sched_tunable_min_granularity">အနိမ့်ဆုံး အသေးစိတ် (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">ရွှေ့ပြောင်းခြင်း အသုတ်အရွယ်အစား</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT ကိန်းဂဏန်း</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">အချိန်နှင့်တပြေးညီ ကာလ (ကျွန်ုပ်တို့)</string>
+    <string name="max_sched_tunable_rt_runtime">အချိန်နှင့်တပြေးညီ Runtime (ကျွန်ုပ်တို့)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">အချိန်နှင့်တပြေးညီ UClamp ကြမ်းပြင်</string>
+    <string name="max_sched_tunable_wakeup_granularity">နိုးကြားမှုအသေးစိတ် (ns)</string>
+</resources>

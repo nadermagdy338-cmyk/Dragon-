@@ -31,28 +31,8 @@ package nd.max.core.atlas
  *    supported". A device Atlas has not looked at is `UNKNOWN`, never `UNAVAILABLE`, and success is
  *    only ever claimed behind [SUPPORTED] — which requires a *verified* outcome, not a sent command.
  */
-enum class AtlasCapabilityState {
-    /** A reviewed route exists and a write was verified on this device in this generation. */
-    SUPPORTED,
-
-    /** A reviewed route is eligible; nothing has proven a write yet. */
-    WRITABLE,
-
-    /** Reads answer; no eligible write route. */
-    READ_ONLY,
-
-    /** The feature is visible here but needs an adapter or an alternative way this build lacks. */
-    NEEDS_ADAPTER,
-
-    /** Absence was proved by a listing, not assumed from a failed read. */
-    UNAVAILABLE,
-
-    /** A reviewed safety rule forbids touching this interface. */
-    NEVER_TOUCH,
-
-    /** Nothing measured, or nothing answered and absence was never proved. */
-    UNKNOWN,
-}
+// AtlasCapabilityState is declared separately so read-only registries can use the vocabulary
+// without pulling in the complete Atlas route planner for pure JVM tests.
 
 /**
  * What a producer measured, in the map's vocabulary. Producers fill what they actually established

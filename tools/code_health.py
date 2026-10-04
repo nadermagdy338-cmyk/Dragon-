@@ -60,6 +60,14 @@ OVERSIZE_LINES = 1000
 # شخصي ولا حطام. والقائمة نفسها هي القرار: ما عداها = يُسأل عنه لا يُسمح به صامتًا.
 ROOT_ALLOWED = {
     ".gitattributes", ".gitignore", "AGENTS.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "README.md",
+    # النسخة العربية من الـREADME: ملفّ جذر مشروع لا حطام. أُضيف بعد أن أسقطته البوابة فعلًا
+    # (`stray_root_file: 1`) وهو ملفّ جديد غير متعقّب بعد — فالاسم يُعلن هنا لا يُستثنى مؤقّتًا.
+    "README.ar.md",
+    # وثيقة لغة التصميم. ومكانها **الجذر** لا `docs/` بحكم الصيغة نفسها: مفهوم `DESIGN.md`
+    # (ومن ورائه مجموعة `VoltAgent/awesome-design-md`) يقوم على أنّ الوكيل يقرأه من جذر المشروع.
+    # وأسقطتها هذه البوابة فعلًا (`stray_root_file: 1`) عند إضافتها — فالاسم يُعلن هنا بقرار،
+    # لا يُستثنى بمسار آخر لأجل تمرير الفحص.
+    "DESIGN.md",
     "REPAIR_NOTES.md", "changelog.md", "crowdin.yml", "logo.jpg", "maxmanagerApplist.json",
     "module.json", "update.json", "version", "version_type",
 }
@@ -170,6 +178,25 @@ PKG = re.compile(r"^package\s+([\w.]+)", re.M)
 TEXT_LITERAL = re.compile(r'(?<![\w.])Text\(\s*(?:text\s*=\s*)?"([^"\\]*(?:\\.[^"\\]*)*)"')
 HAS_LETTER = re.compile(r"[A-Za-z\u0600-\u06FF]")
 
+# ── نصوص الواجهة في موضع *وسيط* لا في `Text("…")` ──────────────────────────
+#
+# **وسبب وجود هذا الفحص مقيس:** `TEXT_LITERAL` أعلى يُحصي `Text("…")` وحده، فأبلغ
+# عن **٣٢** نصًّا و«نظيف» وهو ليس نظيفًا: شاشة إعدادات التطبيق كانت تحمل وحدهـا
+# أكثر من **٤٥** نصًّا إنجليزيًّا يقرأها المستخدم عربيًّا — في `title =` و`summary =`
+# و`contentDescription =` و`confirmText =`. أي أنّ الرقم المُعلن كان **٣٢ من ٧٧**،
+# والبوابة تُطمئن على نصف الحقيقة. (وقد قِيس بعد الإصلاح: ٣٢ ⟶ ٥.)
+#
+# ونطاقه **ضيّق عن قصد**، لأن `label =` في Compose يُستعمل لتسمية حركة
+# (`AnimatedContent(label = "donut")`) ولأسماء ألوان في `Theme.kt`: أضافتهما
+# أعطت **١١٢** بلاغًا أغلبها كاذب، وفيها يُقرأ العطب الحقيقي ضجيجًا. فقائمة
+# الوسائط هنا هي مواضع النسخ التي تُعرض للمستخدم فعلًا، لا كل ما يشبهها.
+COPY_PARAM = re.compile(
+    r'(?<![\w.])(title|summary|subtitle|description|contentDescription|headline|supporting'
+    r'|confirmText|dismissText)\s*=\s*"([^"\\]*(?:\\.[^"\\]*)*)"'
+)
+# نصّ فيه `$` أو `%` أو `_`/`=`/`.` هو وسيط برمجيّ أو مفتاح أو وحدة، لا جملة تُترجم.
+CODEISH_LITERAL = re.compile(r"[$%_=/.]|\b(nd|android|max)\.")
+
 
 # فاصلة عليا غير مُهرَّبة داخل قيمة نصية: AAPT2 يرفض الملف كله عندها.
 #
@@ -177,7 +204,15 @@ HAS_LETTER = re.compile(r"[A-Za-z\u0600-\u06FF]")
 # `mergeReleaseResources` برسالة لا تسمّي السبب («Can not extract resource from ParsedResource»)
 # فيقضي صاحب المشروع جولة CI كاملة (٤ دقائق) على لغز لا علاقة له بما عدّله. والقاعدة في أندرويد
 # واحدة: إمّا `\'` أو إحاطة القيمة بعلامتَي تنصيص `"…"` — وهذا ما يقيسه هذا الفحص.
-APOSTROPHE = re.compile(r"(?<!\\)'")
+#
+# **⚠️ وكان الحرس نصفه أعمى، وهذا مُقاس (تكملة ١٤٢):** الصيغة القديمة `(?<!\\)'` ترى الفاصلة
+# العارية **وحدها**، فلا ترى `\\'` — وهي أيضًا لا يقبلها aapt2: `\\` شرطة خلفية حرفية ثم `'`
+# غير مُهرَّبة. وهذان الحرفان بالضبط ما أنتجه `escape_android` في `--apply-csv` (كان يُهرّب كل
+# `'` بلا فحص، فيُضاعف المُهرَّبة سابقًا): **٥٨٥ موضعًا في ٨٢ لغة** سقط بها
+# `mergeReleaseResources` بينما هذه البوابة **خضراء** («صحّة = 0») والباني لا يصل إليها في CI
+# أصلًا. فالمقياس الصحيح **زوجيّة عدد الشرطات قبل الفاصلة**: فرديّ = مُهرَّبة (تمرّ) · زوجيّ =
+# عارية (تُبلَّغ). والتعبير يقيس ذلك حرفيًّا: لا شرطة قبله (`(?<!\\)`) ثم أزواج من الشرطات.
+APOSTROPHE = re.compile(r"(?<!\\)(?:\\\\)*'")
 QUOTED_VALUE = re.compile(r'^\s*".*"\s*$', re.S)
 VALUE_PARENTS = {"string", "string-array", "plurals", "array"}
 
@@ -298,6 +333,8 @@ CONTENT_PARAM = re.compile(r"^\s*(content[A-Za-z]*)\s*:\s*(.*->.*?)\s*,?\s*$")
 DECL_FUN = re.compile(r"^\s*(?:@\w+\s+)*(?:public|private|internal|protected|external|override|actual|expect|operator|infix|inline|suspend|tailrec|open|final|abstract|sealed|const|lateinit|\s)*fun\s")
 DECL_TYPE = re.compile(r"^\s*(?:@\w+\s+)*(?:data|sealed|enum|value|annotation|abstract|open|private|internal|public|\s)*(?:class|interface|object)\s")
 LAZY_SCOPE = re.compile(r"\bLazy[A-Za-z]*Scope\b")
+# اسم الدالة من سطر إعلانها: يتخطّى الوسائط النوعية (`fun <T>`) والامتداد (`fun A.b`).
+FUN_NAME = re.compile(r"\bfun\s+(?:<[^>]*>\s*)?(?:[\w.]+\s*\.\s*)?(\w+)")
 
 
 def _enclosing_owner(lines: list[str], idx: int) -> str | None:
@@ -337,6 +374,22 @@ def _is_composable_fun(lines: list[str], idx: int) -> bool:
     return False
 
 
+def _enclosing_fun_name(lines: list[str], idx: int) -> str | None:
+    """اسم الدالة الحاوية — ليكون البلاغ **قابلًا للعمل** لا وصفًا مبهمًا.
+
+    وهذا ليس تجميلًا: البلاغ قبل ذلك كان يسمّي **الوسيط** ('content') ولا يسمّي المكوّن،
+    فقارئه لا يعرف أيّ دالة يُصلح. وقد كشفه الفحص الذاتي: تأكيده طلب اسم الدالة (`Bad`)
+    فلم يجده أبدًا. أي أن المقياس أمسك عطبًا في **محتوى البلاغ** نفسه.
+    """
+    for j in range(idx - 1, -1, -1):
+        if DECL_FUN.match(lines[j]):
+            m = FUN_NAME.search(lines[j])
+            return m.group(1) if m else None
+        if DECL_TYPE.match(lines[j]):
+            return None
+    return None
+
+
 def content_contract_offenders(files: list[str]) -> list[str]:
     offenders: list[str] = []
     for p in files:
@@ -352,8 +405,10 @@ def content_contract_offenders(files: list[str]) -> list[str]:
                 continue
             if not _is_composable_fun(lines, i):
                 continue
+            owner = _enclosing_fun_name(lines, i)
+            where = f"fun {owner}" if owner else "دالة قابلة للرسم"
             offenders.append(
-                f"{rel(p)}:{i + 1}: '{name}: {typ.strip()}' — مكوّن قابل للرسم بمحتوى بلا @Composable"
+                f"{rel(p)}:{i + 1}: في {where} — '{name}: {typ.strip()}' محتوى بلا @Composable"
                 f" ⟶ الإصلاح: '{name}: @Composable {typ.strip()},'"
             )
     return offenders
@@ -372,6 +427,7 @@ COMMENT_LINE = re.compile(r"^(//|\*|/\*)")
 def collect_debt(files: list[str]) -> dict:
     """دَين الصيانة القابل للقياس."""
     oversized, own_wildcards, literals = [], [], []
+    inline_ui_copy: list[tuple[str, str]] = []
     presentation_writes = []
     platform_wildcards = 0
     todos = 0
@@ -393,6 +449,16 @@ def collect_debt(files: list[str]) -> dict:
                 continue
             literals.append((rel(p), lit))
 
+        for i, line in enumerate(txt.splitlines(), 1):
+            stripped = line.strip()
+            if COMMENT_LINE.match(stripped) or stripped.startswith("import"):
+                continue
+            for m in COPY_PARAM.finditer(line):
+                value = m.group(2)
+                if not HAS_LETTER.search(value) or CODEISH_LITERAL.search(value):
+                    continue
+                inline_ui_copy.append((f"{rel(p)}:{i}", f"{m.group(1)} = {value[:60]}"))
+
         todos += len(re.findall(r"\b(TODO|FIXME|XXX|HACK)\b", txt))
 
         # كتابة عتاد من طبقة العرض — ADR-11.
@@ -413,11 +479,13 @@ def collect_debt(files: list[str]) -> dict:
         "oversized_files": oversized,
         "own_wildcard_imports": own_wildcards,
         "hardcoded_ui_literals": literals,
+        "inline_ui_copy": inline_ui_copy,
         "platform_wildcard_imports": platform_wildcards,
         "todo_markers": todos,
         "counts": {
             "oversized_files": len(oversized),
             "own_wildcard_imports": len(own_wildcards),
+            "inline_ui_copy": len(inline_ui_copy),
             "hardcoded_ui_literals": len(literals),
             "presentation_hw_writes": len(presentation_writes),
         },
@@ -483,8 +551,195 @@ def show_report(correctness: dict, debt: dict, files: list[str]) -> None:
         for name, lit in debt["hardcoded_ui_literals"][:15]:
             print(f"    {name}: {lit[:60]!r}")
 
+    if debt["inline_ui_copy"]:
+        print()
+        print(f"  نسخ واجهة في موضع وسيط — لا تراه بوابة `Text(\"…\")` "
+              f"(أول 15 من {len(debt['inline_ui_copy'])}):")
+        for name, lit in debt["inline_ui_copy"][:15]:
+            print(f"    {name}: {lit}")
+
     print()
     print("الحصيلة:", "صحّة نظيفة" if clean else "توجد عيوب صحّة — انظر أعلاه")
+
+
+# ─────────────────── فحص الأداة نفسها (‏`--self-test`) ───────────────────
+#
+# **ولماذا وُجد، مقيسًا:** هذه البوابة هي **الأولى في `AGENTS.md` §5 وفي خطوة
+# «Contract gates» كلها** — تُسقط التشغيل عند أوّل مفتاح نصّ ينزاح أو فاصلة عليا
+# غير مُهرَّبة. وكانت — ومثلها `i18n_coverage.py` — **بلا `--self-test`**: أي أنّ
+# أداة تحرس المستودع كله لا يقيس أحدٌ أنّها تقيس شيئًا. والفرق ليس نظريًّا: في الجولة
+# نفسها أُضيف فحص `inline_ui_copy` إلى هذه الأداة، فاحتاج **قياسًا يدويًّا** لمعرفة
+# أن نطاقه الضيّق مقصود (‏١١٢ بلاغًا قبل التضييق، ٥ بعده). ولو كان الفحص الذاتي
+# موجودًا لكان الجواب في أمر واحد.
+#
+# و**ثلاث مصائد موثَّقة في الملفّ نفسه تُقاس هنا صريحةً**، لأن كلًّا منها أنتج بلاغًا
+# كاذبًا أو تغطية ناقصة في تاريخ هذا المستودع:
+#   ① `&apos;` و`\'` — كلاهما `'` بعد `ElementTree`؛ البوابة تطالب بـ`\'` أو بفتح
+#      القيمة بعلامة تنصيص. (قِيست في تكملة ١٣٨ حين كتبتُ `&apos;`.)
+#   ② `2>/dev/null` **إخماد لا كتابة** — مطابقة `>` وحدها أعطت ٨٧ بلاغًا كاذبًا.
+#   ③ التعليق ليس كودًا — سطر في `NetworkSchedulerViewModel` كان مطابقًا نصيًّا.
+# و**كل تأكيد يقابل حالةً متعاكسة**: عطب يُمسك، ومثيله السليم **يمرّ**. أداة تُبلّغ عن
+# الاثنين لا تفرّق بين عطب وسلامة، وهي أسوأ من غياب أداة.
+
+def _write(path: str, text: str) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write(text)
+
+
+def build_fixture() -> str:
+    """شجرة مصغرة تُعيد إنتاج أشكال هذه البوابة وأضدادها المعلومة النتيجة."""
+    import tempfile
+
+    fixture = tempfile.mkdtemp(prefix="code-health-selftest-")
+    res = os.path.join(fixture, "manager/app/src/main/res")
+    java = os.path.join(fixture, "manager/app/src/main/java")
+
+    # ①الفواصل العليا: عطب واحد، ومثيلان سليمان (مُهرَّب ومُقتبَس)، ومثيل ثانٍ للعطب (زوجيّ).
+    _write(os.path.join(res, "values/strings.xml"),
+           '<resources>\n'
+           '  <string name="broken">don\'t</string>\n'
+           '  <string name="escaped">don\\\'t</string>\n'
+           '  <string name="doubled">don\\\\\'t</string>\n'
+           '  <string name="quoted">"quoted \'ok\'"</string>\n'
+           '</resources>\n')
+    # ②مفتاح مكرّر عبر ملفّين في مجلد values واحد.
+    _write(os.path.join(res, "values/extra.xml"),
+           '<resources>\n  <string name="broken">dup</string>\n</resources>\n')
+    # ③مورد معلَن ومورد غير معلَن + حزمة مخالفة للمسار.
+    _write(os.path.join(java, "nd/max/ui/Refs.kt"),
+           'package nd.max.ui\n\n'
+           'val a = R.string.declared_only\n'
+           'val b = R.string.nowhere\n')
+    # ④عقد محتوى بلا @Composable (يُفسد كل مواضع النداء) + نظيراه السليمان.
+    #
+    # **والوسيط في سطر مستقلّ عن قصد** — وهذا هو الشكل الذي يقرأه `CONTENT_PARAM`
+    # (`^\s*content…`)، والشكل الذي يُكتب به في هذا المستودع. وأول نسخة من هذا التجهيز
+    # كتبت الدالة في سطر واحد فلم يُمسك العطب، وكان الظاهر أن الأداة لا تقيس — والخطأ
+    # كان في التجهيز. وهو نفس درس `--self-test` في `bundle_contract.py`.
+    # والثالث يقيس **الاستثناء الموثَّق** (‏Lazy scope): محتواه `item { … }` بلا @Composable.
+    _write(os.path.join(java, "nd/max/ui/Content.kt"),
+           'package nd.max.ui\n\n'
+           '@Composable\nfun Bad(\n    content: () -> Unit\n) {}\n\n'
+           '@Composable\nfun Good(\n    content: @Composable () -> Unit\n) {}\n\n'
+           '@Composable\nfun Lazy(\n    content: androidx.compose.foundation.lazy.LazyListScope.() -> Unit\n) {}\n\n'
+           # ⑤الرابع: دالة **غير** قابلة للرسم بنفس الوسيط — لا تُبلَّغ، لأنّ عقد المحتوى
+           # عقدُ مكوّن قابل للرسم لا عقدُ كل دالة. وبلا هذا السطر كان نصف القاعدة بلا مقياس.
+           'fun Plain(\n    content: () -> Unit\n) {}\n')
+    # ⑤نصوص الواجهة: مباشرة (حساب) وفي موضع وسيط (حساب) وفي تعليق (لا).
+    _write(os.path.join(java, "nd/max/ui/Literals.kt"),
+           'package nd.max.ui\n\n'
+           'fun Panel() = Column {\n'
+           '    Text("Straight")\n'
+           '    Text(stringResource(R.string.tokened))\n'
+           '    Text("$dynamic")\n'
+           '    // title = "In a comment"\n'
+           '    Card(title = "In argument", summary = "Also argument")\n'
+           '    Card(title = "nd.max")\n'
+           '}\n')
+    # ⑥كتابة عتاد من طبقة العرض: كتابة حقيقية، وإخماد، وتعليق.
+    _write(os.path.join(java, "nd/max/ui/Hw.kt"),
+           'package nd.max.ui\n\n'
+           'fun write() {\n'
+           '    exec("echo 1 > /sys/devices/x")\n'
+           '    exec("cmd 2>/dev/null")\n'
+           '    // exec("echo 1 > /sys/devices/y")\n'
+           '}\n')
+    # ⑦استيراد شامل لموديل تابع مقابل استيراد منصّة.
+    _write(os.path.join(java, "nd/max/ui/Imports.kt"),
+           'package nd.max.ui\n\n'
+           'import nd.max.ui.component.*\n'
+           'import androidx.compose.runtime.*\n\n'
+           '// TODO: يُقاس كدَين مراجعة لا كعطب\n')
+    # ⑧ملف ضخم واحد ومثيله السليم أسفله بسطر.
+    _write(os.path.join(java, "nd/max/ui/Big.kt"),
+           'package nd.max.ui\n' + '\n' * (OVERSIZE_LINES + 1))
+    _write(os.path.join(java, "nd/max/ui/JustUnder.kt"),
+           'package nd.max.ui\n' + '\n' * (OVERSIZE_LINES - 2))
+    # ⑨مفتاح نصّي مُعلَن في values كي يُقارن به المرجع.
+    _write(os.path.join(res, "values/declared.xml"),
+           '<resources>\n  <string name="declared_only">ok</string>\n</resources>\n')
+    return fixture
+
+
+def self_test() -> int:
+    """يقيس الأداة على شجرة مصنوعة معلومة النتيجة: ١٥ تأكيدًا متعاكسًا."""
+    global _REPO, APP, RES, JAVA, MANAGER
+
+    print("═══ الفحص الذاتي: فاحص النظافة يُقاس على شجرة معلومة ═══")
+    fixture = build_fixture()
+    saved = (_REPO, APP, RES, JAVA, MANAGER)
+    checks: list[tuple[str, bool, str]] = []
+
+    def expect(label: str, actual, wanted) -> None:
+        checks.append((label, actual == wanted, f"متوقّع {wanted!r} · حاصل {actual!r}"))
+
+    try:
+        _REPO = fixture
+        APP = os.path.join(fixture, "manager/app/src/main")
+        RES = os.path.join(APP, "res")
+        JAVA = os.path.join(APP, "java")
+        MANAGER = os.path.join(fixture, "manager")
+
+        files = kt_files()
+        mods = module_resources()
+        correctness = check_correctness(files, mods)
+        debt = collect_debt(files)
+
+        def blob(key: str) -> str:
+            return "\n".join(correctness[key])
+
+        # ①الفواصل العليا: العطب وحده — والمُهرَّبة والمُقتبَسة تمرّان — و**الشرطة الزوجية تُمسك**
+        # (وهي الحالة التي كانت البوابة عمياء عنها وأسقطت البناء في ٥٨٥ موضعًا: تكملة ١٤٢).
+        expect("apostrophe: العطب انمسك", blob("unescaped_apostrophe").count("broken"), 1)
+        expect("apostrophe: `\\'` يمرّ", "escaped" in blob("unescaped_apostrophe"), False)
+        expect("apostrophe: الزوجيّ (شرطتان) انمسك", blob("unescaped_apostrophe").count("doubled"), 1)
+        expect("apostrophe: القيمة المُقتبَسة تمرّ", "quoted" in blob("unescaped_apostrophe"), False)
+        # ②المفتاح المكرّر عبر ملفّين.
+        expect("duplicate_string_key: انمسك", len(correctness["duplicate_string_key"]), 1)
+        # ③المورد غير المعلَن وحده.
+        expect("unresolved_resource: الغائب انمسك", blob("unresolved_resource").count("nowhere"), 1)
+        expect("unresolved_resource: المُعلَن لم يُبلّغ", "declared_only" in blob("unresolved_resource"), False)
+        # ④عقد المحتوى: بلا @Composable فقط (وسليل `ColumnScope` استثناء موثَّق).
+        content = blob("noncomposable_content_lambda")
+        # والتأكيد باسم **الدالة** لا باسم الوسيط: الأول ما يميّز البلاغ عن غيره،
+        # والثاني ('content') يشترك فيه كل بلاغ فيخفي أيّ دالة عُطبت.
+        expect("content contract: Bad انمسك", "fun Bad" in content, True)
+        expect("content contract: Good يمرّ", "fun Good" in content, False)
+        expect("content contract: استثناء Lazy scope يمرّ", "fun Lazy" in content, False)
+        expect("content contract: دالة غير قابلة للرسم تمرّ", "fun Plain" in content, False)
+        # ⑤العدّ: الحرفي المباشر والوسيط نعم، والقالب والتعليق لا.
+        literals = {lit for _, lit in debt["hardcoded_ui_literals"]}
+        inline = {lit for _, lit in debt["inline_ui_copy"]}
+        expect("literals: Text(\"…\") حُسب", "Straight" in literals, True)
+        expect("literals: القالب لم يُحسب", any("$" in lit for lit in literals), False)
+        expect("inline: الوسيط حُسب", sum("argument" in lit for lit in inline), 2)
+        expect("inline: التعليق لم يُحسب", any("comment" in lit for lit in inline), False)
+        expect("inline: نصّ شبه-كوديّ لم يُحسب", any("nd.max" in lit for lit in inline), False)
+        # ⑥كتابة العتاد: الكتابة وحدها — لا الإخماد ولا التعليق.
+        writes = len(debt["presentation_hw_writes"])
+        expect("hw writes: الكتابة حُسبت", writes, 1)
+        expect("hw writes: `2>/dev/null` لم يُحسب", any("dev/null" in w for w in debt["presentation_hw_writes"]), False)
+        expect("hw writes: التعليق لم يُحسب", any("/sys/devices/y" in w for w in debt["presentation_hw_writes"]), False)
+        # ⑦الملف الضخم على الحدّ بالضبط، والاستيراد الشامل بقسميه.
+        expect("oversized: على الحدّ انمسك", len(debt["oversized_files"]), 1)
+        expect("oversized: أسفل الحدّ مرّ", debt["oversized_files"][0][0].endswith("Big.kt"), True)
+        expect("wildcards: التابع حُسب", len(debt["own_wildcard_imports"]), 1)
+        expect("wildcards: المنصّة لم تُحتسب", debt["platform_wildcard_imports"], 1)
+        expect("todo: حُسب", debt["todo_markers"], 1)
+        # ⑧بلا git: الحكم «غير مُتحقَّق» لا «عطب» — وهو فرع موثَّق ومقيس.
+        expect("بلا git: بلاغ غير مُتحقَّق لا عطب", len(correctness["stray_root_file"]), 0)
+    finally:
+        _REPO, APP, RES, JAVA, MANAGER = saved
+        import shutil
+        shutil.rmtree(fixture, ignore_errors=True)
+
+    failures = 0
+    for label, ok, detail in checks:
+        print(f"  {'✓' if ok else '✗'} {label}" + ("" if ok else f"\n      {detail}"))
+        failures += 0 if ok else 1
+    print(f"\nالنتيجة: {len(checks) - failures}/{len(checks)}")
+    return 1 if failures else 0
 
 
 def main() -> int:
@@ -497,7 +752,11 @@ def main() -> int:
     )
     ap.add_argument("--baseline", action="store_true", help="يثبّت الدَّين الحالي كسقف")
     ap.add_argument("--json", action="store_true", help="يخرج تقريرًا JSON")
+    ap.add_argument("--self-test", action="store_true", help="يقيس الأداة نفسها")
     args = ap.parse_args()
+
+    if args.self_test:
+        return self_test()
 
     files = kt_files()
     mods = module_resources()
@@ -510,6 +769,7 @@ def main() -> int:
             "oversized_files": debt["counts"]["oversized_files"],
             "own_wildcard_imports": debt["counts"]["own_wildcard_imports"],
             "hardcoded_ui_literals": debt["counts"]["hardcoded_ui_literals"],
+            "inline_ui_copy": debt["counts"]["inline_ui_copy"],
             "presentation_hw_writes": debt["counts"]["presentation_hw_writes"],
         }
         with open(BASELINE_PATH, "w", encoding="utf-8") as fh:

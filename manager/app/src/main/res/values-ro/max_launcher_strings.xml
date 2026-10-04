@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Pachetele instalate și activitățile pe care le declară</string>
+    <string name="max_launcher_loading">Se citesc pachetele instalate și activitățile lor declarate...</string>
+    <string name="max_launcher_empty">Niciun pachet instalat nu declară o activitate pe acest dispozitiv.</string>
+    <string name="max_launcher_search_placeholder">Căutați după numele aplicației sau pachet</string>
+    <string name="max_launcher_search_clear">Ștergeți căutarea</string>
+    <string name="max_launcher_scope_all">Toate</string>
+    <string name="max_launcher_scope_user">Utilizator</string>
+    <string name="max_launcher_scope_system">Sistem</string>
+    <string name="max_launcher_activity_count">%1$d activități</string>
+    <string name="max_launcher_no_match_title">Nimic nu se potrivește</string>
+    <string name="max_launcher_no_match_detail">Niciun nume de pachet sau etichetă de aplicație nu conține acel text în domeniul selectat.</string>
+    <string name="max_launcher_no_match_clear">Ștergeți filtrele</string>
+    <string name="max_launcher_reading_activities">Citind activitățile, acest pachet declară...</string>
+    <string name="max_launcher_no_activities">Acest pachet nu declară activități.</string>
+    <string name="max_launcher_root_off_title">Rădăcina nu este acordată</string>
+    <string name="max_launcher_root_off_detail">Activitățile marcate ca private nu sunt exportate, așa că numai root le poate porni. Activitățile exportate încă sunt deschise fără el.</string>
+    <string name="max_launcher_tag_private">Privat</string>
+    <string name="max_launcher_tag_disabled">Dezactivat</string>
+    <string name="max_launcher_outcome_started">Activitatea a început</string>
+    <string name="max_launcher_outcome_needs_root">Această activitate nu este exportată — root este necesar</string>
+    <string name="max_launcher_outcome_refused">Android a refuzat să înceapă această activitate</string>
+    <string name="max_launcher_outcome_missing">Nu este instalată nicio activitate cu acest nume</string>
+</resources>

@@ -4,6 +4,10 @@
  * without prior written permission from the copyright holder.
  */
 package nd.max.ui.util
+import nd.max.core.platform.ThermalTripPoint
+import nd.max.core.platform.CoolingDeviceInfo
+import nd.max.core.platform.ThermalZoneInfo
+import nd.max.core.platform.ThermalUtil
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

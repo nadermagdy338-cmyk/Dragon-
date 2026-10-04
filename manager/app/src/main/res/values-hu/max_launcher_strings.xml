@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">A telepített csomagok és az általuk deklarált tevékenységek</string>
+    <string name="max_launcher_loading">Telepített csomagok és deklarált tevékenységeik olvasása…</string>
+    <string name="max_launcher_empty">Egy telepített csomag sem deklarál tevékenységet ezen az eszközön.</string>
+    <string name="max_launcher_search_placeholder">Keresés alkalmazásnév vagy csomag alapján</string>
+    <string name="max_launcher_search_clear">Törölje a keresést</string>
+    <string name="max_launcher_scope_all">Minden</string>
+    <string name="max_launcher_scope_user">Felhasználó</string>
+    <string name="max_launcher_scope_system">Rendszer</string>
+    <string name="max_launcher_activity_count">%1$d tevékenységek</string>
+    <string name="max_launcher_no_match_title">Semmi sem egyezik</string>
+    <string name="max_launcher_no_match_detail">A kiválasztott hatókörben egyetlen csomagnév vagy alkalmazáscímke sem tartalmazza ezt a szöveget.</string>
+    <string name="max_launcher_no_match_clear">Tiszta szűrők</string>
+    <string name="max_launcher_reading_activities">A csomag által kinyilvánított tevékenységeket olvasva…</string>
+    <string name="max_launcher_no_activities">Ez a csomag nem jelent semmilyen tevékenységet.</string>
+    <string name="max_launcher_root_off_title">Root nincs megadva</string>
+    <string name="max_launcher_root_off_detail">A privát megjelölésű tevékenységeket nem exportálja a rendszer, így csak a root indíthatja el őket. Az exportált tevékenységek enélkül is nyitva állnak.</string>
+    <string name="max_launcher_tag_private">Magán</string>
+    <string name="max_launcher_tag_disabled">Letiltva</string>
+    <string name="max_launcher_outcome_started">A tevékenység megkezdődött</string>
+    <string name="max_launcher_outcome_needs_root">Ez a tevékenység nincs exportálva – root szükséges</string>
+    <string name="max_launcher_outcome_refused">Az Android nem volt hajlandó elindítani ezt a tevékenységet</string>
+    <string name="max_launcher_outcome_missing">Nincs ilyen nevű tevékenység telepítve</string>
+</resources>

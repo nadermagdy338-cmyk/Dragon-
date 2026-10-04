@@ -18,15 +18,29 @@ package nd.max.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
-import androidx.compose.ui.unit.dp
+import nd.max.ui.design.MaxRadius
 
-/** Tight control shapes contrast with the studio's generous, directional panels.
- * Start/end corners mirror naturally with the layout direction.
+/*
+ * Material's five shape slots, expressed in the project's own radius scale.
+ *
+ * Why this is derived instead of written (measured, not asserted): this file used to declare a
+ * *second* shape language — 6 / 10 / 18 / 26 / 32 — while `MaxRadius` declared 12 / 14 / 22 / 28,
+ * and `MaxUiMetrics` a third (28 / 18 / 12). Three scales for one product is exactly how two
+ * adjacent surfaces end up with different corners, which is the audit's first finding.
+ *
+ * A Material slot now names the token it stands for:
+ *   extraSmall → [MaxRadius.control]  (a chip, a text field, a tag)
+ *   small      → [MaxRadius.row]      (a list row, an action row)
+ *   medium     → [MaxRadius.group]    (a grouped container, a card)
+ *   large      → [MaxRadius.sheet]    (a sheet, a dialog)
+ *   extraLarge → [MaxRadius.sheet]    (the same: nothing in the app should be softer)
+ *
+ * Start/end corners still mirror with the layout direction, which is what keeps RTL honest.
  */
 val Shapes = Shapes(
-    extraSmall = RoundedCornerShape(6.dp),
-    small = RoundedCornerShape(10.dp),
-    medium = RoundedCornerShape(18.dp),
-    large = RoundedCornerShape(26.dp),
-    extraLarge = RoundedCornerShape(32.dp)
+    extraSmall = RoundedCornerShape(MaxRadius.control),
+    small = RoundedCornerShape(MaxRadius.row),
+    medium = RoundedCornerShape(MaxRadius.group),
+    large = RoundedCornerShape(MaxRadius.sheet),
+    extraLarge = RoundedCornerShape(MaxRadius.sheet)
 )

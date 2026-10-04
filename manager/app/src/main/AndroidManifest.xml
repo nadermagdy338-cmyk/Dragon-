@@ -7,6 +7,21 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <!--
+      `MODIFY_AUDIO_SETTINGS` صلاحية **عادية** (لا نافذة إذن): يمنحها النظام عند التثبيت، وهي شرط
+      إنشاء مؤثّرات `android.media.audiofx.*` والتحكّم بها — وقسم `AQ-01` يقيس بها قبول المزج
+      العامّ، وأقسام `AQ-02`…`AQ-05` تكتب بها فيه. **ولا تُطلب بدلًا من `RECORD_AUDIO`:** ذاك للإذن
+      الحسّاس في المحلّل الطيفيّ وحده، ويُطلب بشرح من داخل قسمه (أمر المالك).
+    -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!--
+      `RECORD_AUDIO` صلاحية **حسّاسة**، ولها موضع واحد في التطبيق: المحلّل الطيفيّ (`AQ-08`).
+      محلّل المنصّة (`Visualizer`) لا يُعطي بيانات الترددات إلا لتطبيقٍ يملكها، ولا بديل عنها.
+      **ولا شيء آخر يعمل بها:** لا التقاط داخليّ، ولا تسجيل، ولا تخزين، ولا إرسال — والالتقاط مرفوض
+      في `AUDIO-ADVANCED-PLAN` §4. وتُطلب **بشرح صريح من داخل قسمها** لحظةَ يطلبها المستخدم (أمر
+      المالك)، فتبقى الشاشة كاملة الوظائف بدونها، والطيف وحده يقول سببه ولا يُخفى.
+    -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!--
       `WRITE_SECURE_SETTINGS` صلاحية محمية تُمنح لتطبيقات النظام وحدها — وMaxManager يُبنى ليُركّب
       **priv-app على صورة النظام** (لهذا يرفض `build.gradle.kts` إنتاج حزمة release بلا توقيع).
       وlint يبلّغ عنها `ProtectedPermissions` بحق لقاعدة عامة، فالإسكات هنا **تصريح بموديل التوزيع**
@@ -66,7 +81,7 @@
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
     <!--
-      Gates ZenithReceiver (notifications/toasts) and RefreshRateReceiver
+      Gates MaxManagerReceiver (notifications/toasts) and RefreshRateReceiver
       (nd.max.SET_FPS, which forces a real SurfaceFlinger refresh-rate
       change) so only components signed with the same certificate as this
       app can trigger them via Intent — otherwise ANY installed app, with
@@ -85,6 +100,7 @@
     <uses-permission android:name="nd.max.permission.MANAGE" />
 
     <queries>
+        <package android:name="org.frknkrc44.hma_oss" />
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
@@ -170,6 +186,20 @@
                 android:value="Displays a floating top-processes CPU/RAM monitor" />
         </service>
 
+        <!--
+          لوحة مساحة الألعاب الجانبية: مقبض على الحافة للعبة الأمامية المُفعَّلة، يُفتح بلمسة.
+          وهي خدمة تراكب رابعة بنفس العقد (إشعار أمامي + `TYPE_APPLICATION_OVERLAY`)، ولا تقرأ
+          عتادًا ولا تكتب عليه — الأرقام من `HudSampler`، والكتابة في `AppMonitor` وحده.
+        -->
+        <service
+            android:name=".service.GamePanelService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Displays a collapsible side panel for the foreground game" />
+        </service>
+
         <!-- عملية الجذر التي تخدم عقد sysfs (core/ipc/RootNodeService) — ليست مُصدَّرة،
              ولا يُعلن لها intent-filter: الربط من التطبيق نفسه عبر libsu RootService. -->
         <service
@@ -183,9 +213,16 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
+        <!--
+            windowSoftInputMode="adjustResize": التطبيق edge-to-edge (`enableEdgeToEdge`)، ومن
+            غير هذا الإعلان لا تُبلَّغ النافذة بحجم لوحة المفاتيح إلا على بعض الأجهزة، فتبقى
+            الأوراق المنبثقة خلفها. ومع الإعلان تُقرأ `WindowInsets.ime` فتعلو الورقة الكيبورد
+            (تكملة ٢٠٦ — طلب المالك: «يجب أن تظهر النافذة المنبثقة في زر البحث فوق الكيبورد»).
+        -->
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask" 
+            android:windowSoftInputMode="adjustResize"
             android:exported="true"
             android:enabled="true">
             <intent-filter>
@@ -197,7 +234,7 @@
             </intent-filter>
         </activity>
         
-        <receiver android:name=".receiver.ZenithReceiver" android:exported="true" android:permission="nd.max.permission.MANAGE">
+        <receiver android:name=".receiver.MaxManagerReceiver" android:exported="true" android:permission="nd.max.permission.MANAGE">
             <intent-filter>
                 <action android:name="nd.max.ACTION_MANAGE" />
             </intent-filter>
@@ -222,6 +259,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+
+        <!--
+            حارس الوحدة: يُوفِّق الرفيق والخادم بعد فتح المستخدم لتخزينه (وبعد تحديث الحزمة).
+
+            ولماذا هذا الـreceiver بعينه: `DaemonSupervisor` — وهو المُصلِح الوحيد في الشجرة —
+            يعيش داخل الرفيق نفسه، فإذا مات الرفيق مات مُصلِحه معه وبقيت الوحدة ميّتة حتى الإقلاع
+            التالي (عطب مقيس: ٢٠٢٦-١٠-٠١). و`RECEIVE_BOOT_COMPLETED` كانت مُعلنة في هذا المانيفست
+            بلا مستقبِل واحد يستعملها.
+
+            ولا `LOCKED_BOOT_COMPLETED`: يُسلَّم قبل فتح تخزين المستخدم، فلا يُقام التطبيق عنده.
+            و`USER_UNLOCKED` هو الوقت الصحيح بعد إصلاح تخزين المستودع المشترك (‏DE لا CE).
+        -->
+        <receiver
+            android:name=".receiver.ModuleWatchReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".RefreshRateReceiver"

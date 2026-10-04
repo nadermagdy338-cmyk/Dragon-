@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Uppsettir pakkar og starfsemin sem þeir lýsa yfir</string>
+    <string name="max_launcher_loading">Að lesa uppsetta pakka og yfirlýsta starfsemi þeirra...</string>
+    <string name="max_launcher_empty">Enginn uppsettur pakki lýsir yfir virkni á þessu tæki.</string>
+    <string name="max_launcher_search_placeholder">Leitaðu eftir nafni apps eða pakka</string>
+    <string name="max_launcher_search_clear">Hreinsaðu leitina</string>
+    <string name="max_launcher_scope_all">Allt</string>
+    <string name="max_launcher_scope_user">Notandi</string>
+    <string name="max_launcher_scope_system">Kerfi</string>
+    <string name="max_launcher_activity_count">%1$d starfsemi</string>
+    <string name="max_launcher_no_match_title">Ekkert passar</string>
+    <string name="max_launcher_no_match_detail">Ekkert pakkanafn eða forritsmerki inniheldur þann texta í völdu umfangi.</string>
+    <string name="max_launcher_no_match_clear">Hreinsaðu síur</string>
+    <string name="max_launcher_reading_activities">Að lesa starfsemina sem þessi pakki lýsir yfir…</string>
+    <string name="max_launcher_no_activities">Þessi pakki lýsir yfir engri starfsemi.</string>
+    <string name="max_launcher_root_off_title">Rót er ekki veitt</string>
+    <string name="max_launcher_root_off_detail">Aðgerðir sem merktar eru einkareknar eru ekki fluttar út, þannig að aðeins root getur ræst þær. Útflutt starfsemi er enn opin án þess.</string>
+    <string name="max_launcher_tag_private">Einkamál</string>
+    <string name="max_launcher_tag_disabled">Öryrkjar</string>
+    <string name="max_launcher_outcome_started">Virkni hófst</string>
+    <string name="max_launcher_outcome_needs_root">Þessi starfsemi er ekki flutt út - rót er krafist</string>
+    <string name="max_launcher_outcome_refused">Android neitaði að hefja þessa starfsemi</string>
+    <string name="max_launcher_outcome_missing">Engin starfsemi með því nafni er uppsett</string>
+</resources>

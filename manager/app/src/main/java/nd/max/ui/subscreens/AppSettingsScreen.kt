@@ -54,11 +54,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
 import nd.max.R
 import nd.max.ui.component.*
+import nd.max.ui.design.MaxListScreen
+import nd.max.ui.design.MaxAlpha
+import nd.max.ui.design.MaxSectionSpec
+import nd.max.ui.design.MaxSize
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.MaxTab
+import nd.max.ui.design.MaxTabStrip
 import nd.max.ui.util.AppConfig
 import nd.max.ui.util.PerAppCpuControlMode
 import nd.max.ui.util.PerAppCpuPolicyControl
@@ -101,7 +111,8 @@ fun AppSettingsScreen(
     LaunchedEffect(packageName) { viewModel.loadConfig(); viewModel.loadKernelCapabilities(packageName) }
 
     val config = viewModel.fullConfig[packageName]
-    var localMasterOn by remember(config != null) { mutableStateOf(config != null) }
+    // Verified repository state, not an optimistic switch that stays on after a failed save.
+    val localMasterOn = config != null
     var userToggled by remember { mutableStateOf(false) }
     LaunchedEffect(packageName, localMasterOn) {
         if (localMasterOn) viewModel.refreshCpuRuntimeStatus(packageName)
@@ -133,22 +144,22 @@ fun AppSettingsScreen(
 
     // CPU/GPU governors are now regular per-app controls; their lists are detected from the live kernel.
     val appTabs = listOf(
-        AppSettingsTabInfo(
+        MaxTab(
             label = stringResource(R.string.app_tab_performance),
             icon = Icons.Filled.Speed,
             badgeCount = cfgForTabs.performanceCustomizedCount()
         ),
-        AppSettingsTabInfo(
+        MaxTab(
             label = stringResource(R.string.app_tab_display),
             icon = Icons.Filled.Monitor,
             badgeCount = cfgForTabs.displayCustomizedCount(isGameApp)
         ),
-        AppSettingsTabInfo(
+        MaxTab(
             label = stringResource(R.string.app_tab_gaming),
             icon = Icons.Filled.Gamepad,
             badgeCount = cfgForTabs.gamingCustomizedCount()
         ),
-        AppSettingsTabInfo(
+        MaxTab(
             label = stringResource(R.string.app_tab_power),
             icon = Icons.Filled.BatteryChargingFull,
             badgeCount = cfgForTabs.powerCustomizedCount()
@@ -156,65 +167,71 @@ fun AppSettingsScreen(
     )
 
     ScreenAccentProvider(colorScheme.secondary) {
-        Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                AppSettingsTopAppBar(
-                    scrollBehavior = scrollBehavior,
-                    onLaunchApp = {
-                        packageName?.let { pkg ->
-                            val intent = context.packageManager.getLaunchIntentForPackage(pkg)
-                            if (intent != null) {
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context.startActivity(intent)
-                            } else {
-                                Toast.makeText(context, resources.getString(R.string.toast_app_launch_fail), Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    },
-                    onOpenAppInfo = {
-                        packageName?.let { pkg ->
-                            val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.parse("package:$pkg")
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-                            context.startActivity(intent)
-                        }
-                    },
-                    onShowGuide = { showGuide = true },
-                    // يُفتحان **مباشرة على هذا التطبيق**: لا شاشة رئيسية ولا قائمة تطبيقات،
-                    // لأن من ضغط هنا طلب تطبيقه هو.
-                    onOpenMaxBackup = {
-                        packageName?.let { pkg ->
-                            navController.navigate(
-                                MaxDestination.MaxBackup.route.replace("{pkg}", pkg)
-                            )
-                        }
-                    },
-                    onOpenAppOps = {
-                        packageName?.let { pkg ->
-                            navController.navigate(
-                                MaxDestination.Permissions.route.replace("{pkg}", pkg)
-                            )
-                        }
-                    },
-                    onBack = {
-                        appListViewModel.loadApps(context, forceRefresh = true)
-                        navController.popBackStack()
+        MaxListScreen(
+            title = stringResource(R.string.app_settings_title),
+            onBack = {
+                appListViewModel.loadApps(context, forceRefresh = true)
+                navController.popBackStack()
+            },
+            accentIcon = Icons.Filled.Apps,
+            accent = colorScheme.secondary,
+            actions = {
+                IconButton(onClick = {
+                    packageName?.let { pkg ->
+                        navController.navigate(MaxDestination.MaxBackup.route.replace("{pkg}", pkg))
                     }
-                )
+                }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Backup,
+                        contentDescription = stringResource(R.string.max_backup_title),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(onClick = {
+                    packageName?.let { pkg ->
+                        navController.navigate(MaxDestination.Permissions.route.replace("{pkg}", pkg))
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Shield,
+                        contentDescription = stringResource(R.string.max_perms_title),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(onClick = { showGuide = true }) {
+                    Icon(Icons.AutoMirrored.Rounded.HelpOutline, contentDescription = stringResource(R.string.appguide_cd))
+                }
+                IconButton(onClick = {
+                    packageName?.let { pkg ->
+                        val intent = context.packageManager.getLaunchIntentForPackage(pkg)
+                        if (intent != null) {
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(context, resources.getString(R.string.toast_app_launch_fail), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }) {
+                    Icon(Icons.AutoMirrored.Rounded.Launch, contentDescription = stringResource(R.string.str_launch_app))
+                }
+                IconButton(onClick = {
+                    packageName?.let { pkg ->
+                        val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.parse("package:$pkg")
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(intent)
+                    }
+                }) {
+                    Icon(Icons.Rounded.Info, contentDescription = stringResource(R.string.str_app_info))
+                }
             }
-        ) { innerPadding ->
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    top = innerPadding.calculateTopPadding() + 12.dp,
-                    bottom = 32.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                )
-            ) {
-
+        ) {
                 // ── App Hero Header ──────────────────────────────────────────
                 item { AppHeroHeader(appDetails = appDetails, packageName = packageName) }
+                if (viewModel.configFailed) item {
+                    Text(stringResource(R.string.gaming_config_failed), color = MaterialTheme.colorScheme.error)
+                }
 
                 // ── Master Switch (Hero Card) ────────────────────────────────
                 item {
@@ -222,7 +239,6 @@ fun AppSettingsScreen(
                         isEnabled = localMasterOn,
                         onToggle = { checked ->
                             userToggled = true
-                            localMasterOn = checked
                             packageName?.let { viewModel.toggleMasterSwitch(it, checked) }
                         }
                     )
@@ -238,6 +254,11 @@ fun AppSettingsScreen(
                 // ── مُزالة من المحتوى: Max Backup صار زرًّا في شريط العنوان ────────────────────
 
                 // ── مُزالة من المحتوى: AppOps صار زرًّا في شريط العنوان ──────────────────────────────
+
+                // Identity policy is independent of the performance master switch and uses the shared repository.
+                packageName?.takeIf(nd.max.core.spoof.SpoofWorkspace::validPackage)?.let { pkg ->
+                    item(key = "app_identity") { AppSpoofSection(pkg) }
+                }
 
                 // ── All Settings ─────────────────────────────────────────────
                 item {
@@ -255,20 +276,20 @@ fun AppSettingsScreen(
                                 onOpenLive = { navController.navigate(MaxDestination.MaxLive.route) },
                                 onOpenControl = { navController.navigate(MaxDestination.Control.route) }
                             )
-                            Spacer(Modifier.height(10.dp))
+                            Spacer(Modifier.height(MaxSpace.sm))
 
-                            AppSettingsTabRow(
+                            MaxTabStrip(
                                 tabs = appTabs,
                                 selectedIndex = selectedTab,
                                 onSelect = { selectedTab = it }
                             )
-                            Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(MaxSpace.xs))
 
                             when (selectedTab) {
                             0 -> {
                             // ══ PERFORMANCE ══════════════════════════════════
                             ExpressiveList(
-                                modifier = Modifier.padding(horizontal = 16.dp),
+                                modifier = Modifier,
                                 content = buildList {
                                     add {
                                         ExpressiveDropdownItem(
@@ -283,8 +304,8 @@ fun AppSettingsScreen(
                                     add {
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.FlashOn,
-                                            title = "CPU Boost on Launch",
-                                            summary = "Temporarily boost CPU clocks when this app opens",
+                                            title = stringResource(R.string.appfeature_cpu_boost_title),
+                                            summary = stringResource(R.string.appfeature_cpu_boost_summary),
                                             items = listOf(defaultLabel, stringResource(R.string.on_label), stringResource(R.string.off_label)),
                                             selectedIndex = getBoolIndex(cfg.cpu_boost),
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "cpu_boost", listOf("default","true","false")[i]) } }
@@ -313,8 +334,8 @@ fun AppSettingsScreen(
                                     add {
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.Block,
-                                            title = "Kill Background Apps",
-                                            summary = "Clear background processes while this app is in foreground",
+                                            title = stringResource(R.string.appfeature_kill_bg_title),
+                                            summary = stringResource(R.string.appfeature_kill_bg_summary),
                                             items = listOf(defaultLabel, stringResource(R.string.on_label), stringResource(R.string.off_label)),
                                             selectedIndex = getBoolIndex(cfg.kill_bg_apps),
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "kill_bg_apps", listOf("default","true","false")[i]) } }
@@ -324,14 +345,24 @@ fun AppSettingsScreen(
                             )
 
                             // ══ GPU / GOVERNOR CONTROL ══════════════════════════
-                            SettingsSectionTitle(Icons.Filled.Thermostat, "Thermal & GPU Governor", colorScheme.error)
+                            SettingsSectionTitle(Icons.Filled.Thermostat, stringResource(R.string.app_settings_section_thermal_gpu), colorScheme.error)
                             Text(
-                                text = "Default leaves the device untouched and lets HyperOS / Game Turbo manage the app.",
+                                text = stringResource(R.string.app_settings_thermal_gpu_note),
                                 style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                                // الهامش الجانبي ملك الهيكل (`MaxListScreen` ← `MaxSpace.gutter`)، وكان
+                                // 16dp هنا يُضاف فوقه ⇒ 36dp في جهة لا تملكها الشرائح المجاورة (20dp)،
+                                // فيبدو الوصف مُزاحًا عن عنوان القسم فوقه لا تابعًا له. أُزيل الأفقيّ فقط.
+                                modifier = Modifier.padding(vertical = MaxSpace.xs)
                             )
                             val gpuProfileValues = listOf("default", "power", "balanced", "gaming", "performance", "custom")
-                            val gpuProfileLabels = listOf("Default", "Power", "Balanced", "Gaming", "Performance", "Custom")
+                            val gpuProfileLabels = listOf(
+                                defaultLabel,
+                                stringResource(R.string.profile_label_power),
+                                stringResource(R.string.Profile_Balanced),
+                                stringResource(R.string.profile_label_gaming),
+                                stringResource(R.string.Profile_Performance),
+                                stringResource(R.string.profile_label_custom)
+                            )
                             ThermalProfilePicker(
                                 selected = cfg.gpu_profile,
                                 labels = gpuProfileLabels,
@@ -339,7 +370,7 @@ fun AppSettingsScreen(
                                 onSelectProfile = { profile -> packageName?.let { viewModel.updateSetting(it, "gpu_profile", profile) } }
                             )
                             ExpressiveList(
-                                modifier = Modifier.padding(horizontal = 16.dp),
+                                modifier = Modifier,
                                 content = buildList {
                                     add {
                                         val cpuGovernorValues = listOf("default") + viewModel.availableCpuGovernors
@@ -347,8 +378,8 @@ fun AppSettingsScreen(
                                         val selected = cpuGovernorValues.indexOfFirst { it.equals(cfg.cpu_governor, true) }.coerceAtLeast(0)
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.Memory,
-                                            title = "CPU Governor",
-                                            summary = if (viewModel.availableCpuGovernors.isEmpty()) "No common CPU governors detected" else "Only governors supported by all CPU policies are shown",
+                                            title = stringResource(R.string.app_settings_cpu_governor),
+                                            summary = if (viewModel.availableCpuGovernors.isEmpty()) stringResource(R.string.app_settings_cpu_governors_none) else stringResource(R.string.app_settings_cpu_governors_note),
                                             items = cpuGovernorLabels,
                                             selectedIndex = selected,
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "cpu_governor", cpuGovernorValues[i]) } }
@@ -360,8 +391,8 @@ fun AppSettingsScreen(
                                         val selected = gpuGovernorValues.indexOfFirst { it.equals(cfg.gpu_governor, true) }.coerceAtLeast(0)
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.DeveloperBoard,
-                                            title = "GPU Governor",
-                                            summary = if (viewModel.availableGpuGovernors.isEmpty()) "No GPU governor node detected" else "Only governors reported by the GPU driver are shown",
+                                            title = stringResource(R.string.app_settings_gpu_governor),
+                                            summary = if (viewModel.availableGpuGovernors.isEmpty()) stringResource(R.string.app_settings_gpu_governors_none) else stringResource(R.string.app_settings_gpu_governors_note),
                                             items = gpuGovernorLabels,
                                             selectedIndex = selected,
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "gpu_governor", gpuGovernorValues[i]) } }
@@ -378,18 +409,17 @@ fun AppSettingsScreen(
                                         // فالآن يُعرض كل ما تُعلنه النواة، ويُقال بالمقابل كم يسمح الجهاز
                                         // به الآن — لأن الطلب عند القدرة تحرير للسقف لا كتابة فوقه.
                                         val freqSummary = when {
-                                            topStep == null -> "Frequency control is unavailable on this kernel"
-                                            liveCeiling != null && liveCeiling < topStep ->
-                                                "Highest GPU frequency while this app is open. Every step the driver advertises is listed " +
-                                                    "(up to ${PerAppKernelUtil.formatFrequency(topStep)}); the device currently allows " +
-                                                    "${PerAppKernelUtil.formatFrequency(liveCeiling)} — picking the top step releases that cap " +
-                                                    "instead of pinning a clock. Default leaves it dynamic."
-                                            else -> "Highest GPU frequency while this app is open, from the steps the driver advertises. " +
-                                                "Default leaves it dynamic."
+                                            topStep == null -> stringResource(R.string.appfeature_gpu_freq_none)
+                                            liveCeiling != null && liveCeiling < topStep -> stringResource(
+                                                R.string.appfeature_gpu_freq_capped,
+                                                PerAppKernelUtil.formatFrequency(topStep),
+                                                PerAppKernelUtil.formatFrequency(liveCeiling)
+                                            )
+                                            else -> stringResource(R.string.appfeature_gpu_freq_dynamic)
                                         }
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.Tune,
-                                            title = "GPU Maximum Frequency",
+                                            title = stringResource(R.string.appfeature_gpu_freq_title),
                                             summary = freqSummary,
                                             items = freqLabels,
                                             selectedIndex = selected,
@@ -422,26 +452,26 @@ fun AppSettingsScreen(
                             // وإنّما يُوقف عرضه ويُسجَّل سبب الإيقاف.
                             Spacer(Modifier.height(8.dp))
                             nd.max.ui.component.StudioOutlinedButton(
-                                onClick = { showProfileEditor = true },
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                                onClick = { showProfileEditor = true },                                    modifier = Modifier.fillMaxWidth()
+
                             ) {
                                 Icon(Icons.Rounded.Tune, contentDescription = null)
                                 Spacer(Modifier.width(8.dp))
-                                Text("Customize Power / Balanced / Gaming / Performance")
+                                Text(stringResource(R.string.app_settings_customize_profiles))
                             }
                             nd.max.ui.component.StudioTextButton(
-                                onClick = { showResetConfirmation = true },
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                                onClick = { showResetConfirmation = true },                                    modifier = Modifier.fillMaxWidth()
+
                             ) {
                                 Icon(Icons.Rounded.RestartAlt, contentDescription = null)
                                 Spacer(Modifier.width(6.dp))
-                                Text("Reset all app settings to Default")
+                                Text(stringResource(R.string.app_settings_reset_all))
                             }
                             } // end tab 0: Performance
                             1 -> {
                             // ══ DISPLAY & RENDER ══════════════════════════════
                             ExpressiveList(
-                                modifier = Modifier.padding(horizontal = 16.dp),
+                                modifier = Modifier,
                                 content = buildList {
                                     // Refresh Rate – always visible (no longer locked behind full mode)
                                     add {
@@ -471,8 +501,8 @@ fun AppSettingsScreen(
                                     add {
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.Brush,
-                                            title = "Force Hardware UI Rendering",
-                                            summary = "Force GPU-accelerated rendering for all UI layers",
+                                            title = stringResource(R.string.appfeature_hw_ui_title),
+                                            summary = stringResource(R.string.appfeature_hw_ui_summary),
                                             items = listOf(defaultLabel, stringResource(R.string.on_label), stringResource(R.string.off_label)),
                                             selectedIndex = getBoolIndex(cfg.force_hw_ui),
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "force_hw_ui", listOf("default","true","false")[i]) } }
@@ -485,7 +515,10 @@ fun AppSettingsScreen(
                             if (isGameApp) {
                                 SettingsSectionTitle(Icons.Filled.AspectRatio, stringResource(R.string.section_resolution_settings), colorScheme.secondary)
                                 ExpressiveList(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    // الهيكل (`MaxListScreen`) يملك هامش الصفحة (`MaxSpace.gutter`)،
+                                    // وكان هذا السطر يضيف 16dp فوقه ⇒ 36dp لكل جهة بدل 20dp في بقية
+                                    // الشاشات، وهو سبب «المحتوى المضغوط» في المراجعة.
+                                    modifier = Modifier,
                                     content = buildList {
                                         add {
                                             val downscaleLabels = rawDownscaleSteps.map { if (it == "default") defaultLabel else it }
@@ -514,19 +547,19 @@ fun AppSettingsScreen(
                             2 -> {
                             // ══ GAMING EXPERIENCE ══════════════════════════════
                             ExpressiveList(
-                                modifier = Modifier.padding(horizontal = 16.dp),
+                                modifier = Modifier,
                                 content = buildList {
                                     add {
                                         run {
                                             val touchProfiles = listOf(
-                                                "default" to "Follow ROM",
-                                                "true" to "Responsive",
-                                                "false" to "Battery aware"
+                                                "default" to stringResource(R.string.appfeature_touch_follow_rom),
+                                                "true" to stringResource(R.string.appfeature_touch_responsive),
+                                                "false" to stringResource(R.string.appfeature_touch_battery_aware)
                                             )
                                             ExpressiveDropdownItem(
                                                 icon = Icons.Rounded.TouchApp,
-                                                title = "Touch Response Profile",
-                                                summary = "Responsive enables the available touch boost while this app is focused; Battery aware keeps it off. Follow ROM respects the global setting and compatible game detection.",
+                                                title = stringResource(R.string.appfeature_touch_title),
+                                                summary = stringResource(R.string.appfeature_touch_summary),
                                                 items = touchProfiles.map { it.second },
                                                 selectedIndex = touchProfiles.indexOfFirst { it.first == cfg.touch_boost }.coerceAtLeast(0),
                                                 onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "touch_boost", touchProfiles[i].first) } }
@@ -536,8 +569,8 @@ fun AppSettingsScreen(
                                     add {
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.Vibration,
-                                            title = "Reduce Haptic Feedback",
-                                            summary = "Disable or reduce vibration to free up CPU cycles",
+                                            title = stringResource(R.string.appfeature_haptic_title),
+                                            summary = stringResource(R.string.appfeature_haptic_summary),
                                             items = listOf(defaultLabel, stringResource(R.string.on_label), stringResource(R.string.off_label)),
                                             selectedIndex = getBoolIndex(cfg.haptic_feedback),
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "haptic_feedback", listOf("default","true","false")[i]) } }
@@ -556,8 +589,8 @@ fun AppSettingsScreen(
                                     add {
                                         ExpressiveDropdownItem(
                                             icon = Icons.Filled.NotificationsOff,
-                                            title = "Silence Notifications",
-                                            summary = "Block notification sounds and badges while this app is active",
+                                            title = stringResource(R.string.appfeature_notif_title),
+                                            summary = stringResource(R.string.appfeature_notif_summary),
                                             items = listOf(defaultLabel, stringResource(R.string.on_label), stringResource(R.string.off_label)),
                                             selectedIndex = getBoolIndex(cfg.disable_notifs),
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "disable_notifs", listOf("default","true","false")[i]) } }
@@ -570,7 +603,7 @@ fun AppSettingsScreen(
                             3 -> {
                             // ══ CONNECTIVITY & POWER ═══════════════════════════
                             ExpressiveList(
-                                modifier = Modifier.padding(horizontal = 16.dp),
+                                modifier = Modifier,
                                 content = buildList {
                                     add {
                                         ExpressiveDropdownItem(
@@ -585,8 +618,8 @@ fun AppSettingsScreen(
                                     add {
                                         ExpressiveDropdownItem(
                                             icon = Icons.Rounded.Wifi,
-                                            title = "WiFi No-Sleep",
-                                            summary = "Prevent WiFi from sleeping while this app is active",
+                                            title = stringResource(R.string.appfeature_wifi_title),
+                                            summary = stringResource(R.string.appfeature_wifi_summary),
                                             items = listOf(defaultLabel, stringResource(R.string.on_label), stringResource(R.string.off_label)),
                                             selectedIndex = getBoolIndex(cfg.wifi_no_sleep),
                                             onItemSelected = { i -> packageName?.let { viewModel.updateSetting(it, "wifi_no_sleep", listOf("default","true","false")[i]) } }
@@ -602,7 +635,6 @@ fun AppSettingsScreen(
                     }
                 }
             }
-        }
     }
 
     if (showProfileEditor) {
@@ -648,22 +680,36 @@ private fun PerAppSystemBridge(
             R.string.app_settings_system_bridge,
             customizedCount,
             if (isGameApp) stringResource(R.string.applist_filter_games) else stringResource(R.string.applist_filter_all)
-        ),
-        accent = MaterialTheme.colorScheme.tertiary,
-        modifier = Modifier.padding(horizontal = 16.dp)
-    )
+        ),            accent = MaterialTheme.colorScheme.tertiary,
+            modifier = Modifier
+        )
+    // كان `horizontal = 16.dp` هنا يُضاف فوق هامش الهيكل ⇒ 36dp لكل جهة.
+    //
+    // و`height(IntrinsicSize.Min)` + `fillMaxHeight()` **ليس تجميلًا**: الوصف يُترجم، و
+    // «Control map» ينكسر إلى سطرين في الإنجليزية بينما «Live loop» سطر واحد — وقيس في
+    // لقطة المستخدم أنّ الزرّين خرجا بارتفاعين مختلفين (٤٣dp و٥٩dp، وطرفهما السفلي غير
+    // متحاذٍ)، وهو نفسه ما يقع في العربية حيث النصّان أقصر أو أطول. فالتساوي يُفرض هنا
+    // مرّة واحدة، ولا يُترك لطول الترجمة.
     Row(
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier
+            .padding(vertical = MaxSpace.sm)
+            .height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
     ) {
-        nd.max.ui.component.StudioOutlinedButton(onClick = onOpenLive, modifier = Modifier.weight(1f)) {
+        nd.max.ui.component.StudioOutlinedButton(
+            onClick = onOpenLive,
+            modifier = Modifier.weight(1f).fillMaxHeight()
+        ) {
             Icon(Icons.Rounded.Timeline, contentDescription = null)
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(MaxSpace.xs + 2.dp))
             Text(stringResource(R.string.app_settings_open_live))
         }
-        nd.max.ui.component.StudioOutlinedButton(onClick = onOpenControl, modifier = Modifier.weight(1f)) {
+        nd.max.ui.component.StudioOutlinedButton(
+            onClick = onOpenControl,
+            modifier = Modifier.weight(1f).fillMaxHeight()
+        ) {
             Icon(Icons.Rounded.Tune, contentDescription = null)
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(MaxSpace.xs + 2.dp))
             Text(stringResource(R.string.app_settings_open_control))
         }
     }
@@ -692,10 +738,10 @@ private fun PerAppHardwareDiagnosticsCard(
     val accent = if (failures.isEmpty()) colorScheme.secondary else colorScheme.error
     var copied by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+    Column {
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(MaxRadius.tile),
             color = colorScheme.surfaceContainerLow,
             border = androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = .24f))
         ) {
@@ -826,23 +872,24 @@ private fun PerAppCpuControlSection(
     val drafts = remember(encodedControls) { mutableStateMapOf<String, PerAppCpuPolicyControl>().apply { putAll(saved) } }
     val configured = drafts.values.toList()
     val summary = when {
-        configured.isEmpty() -> "CPU: الافتراضي"
-        configured.any { it.mode == PerAppCpuControlMode.EXACT_LOCK } -> "CPU: Exact Lock · ${configured.size}"
-        else -> "CPU: Dynamic Range · ${configured.size}"
+        configured.isEmpty() -> stringResource(R.string.appsettings_cpu_summary_default)
+        configured.any { it.mode == PerAppCpuControlMode.EXACT_LOCK } -> stringResource(R.string.appsettings_cpu_summary_exact, configured.size)
+        else -> stringResource(R.string.appsettings_cpu_summary_dynamic, configured.size)
     }
     val controllable = policies.filter { it.cpuFrequencyChoices().isNotEmpty() }
 
+    // الحشو الأفقي المحلّي أُزيل: الهيكل يملك `MaxSpace.gutter`، و16dp فوقه تعني 36dp.
     Column(
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.padding(top = MaxSpace.xl),
+        verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded },
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(MaxRadius.tile),
             color = MaterialTheme.colorScheme.surfaceContainerLow,
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = .22f))
         ) {
-            Row(Modifier.padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.padding(MaxCardSpec.padding), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.Memory, null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
@@ -859,7 +906,7 @@ private fun PerAppCpuControlSection(
         AnimatedVisibility(visible = expanded) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (controllable.isEmpty()) {
-                    Text("CPU frequency control is unavailable on this kernel.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.app_settings_cpu_unavailable), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 controllable.forEach { policy ->
                     // The OPP table is a catalogue; a vendor/thermal policy may lower the live
@@ -871,16 +918,20 @@ private fun PerAppCpuControlSection(
                     if (choices.isEmpty()) return@forEach
                     val draft = drafts[policy.name] ?: PerAppCpuPolicyControl(policy.name, PerAppCpuControlMode.DEFAULT, policy.minKHz ?: choices.first(), policy.maxKHz?.let { minOf(it, choices.last()) } ?: choices.last())
                     val modes = listOf(PerAppCpuControlMode.DEFAULT, PerAppCpuControlMode.DYNAMIC_RANGE, PerAppCpuControlMode.EXACT_LOCK)
-                    val labels = listOf("Default", "Dynamic Range", "Exact Lock")
+                    val labels = listOf(
+                        stringResource(R.string.default_label),
+                        stringResource(R.string.appsettings_cpu_mode_dynamic),
+                        stringResource(R.string.appsettings_cpu_mode_exact)
+                    )
                     val minIndex = choices.cpuIndexFor(draft.minKHz)
                     val maxIndex = choices.cpuIndexFor(draft.maxKHz).coerceAtLeast(minIndex)
-                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))) {
-                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Surface(shape = RoundedCornerShape(MaxRadius.inset), color = MaterialTheme.colorScheme.surfaceContainerLow, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))) {
+                        Column(Modifier.padding(MaxCardSpec.padding), verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
                             Text(policy.name.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                            Text("${policy.governor ?: "Default"} · ${formatCpuKHz(policy.minKHz ?: choices.first())} – ${formatCpuKHz(policy.maxKHz ?: choices.last())}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("${policy.governor ?: stringResource(R.string.default_label)} · ${formatCpuKHz(policy.minKHz ?: choices.first())} – ${formatCpuKHz(policy.maxKHz ?: choices.last())}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             ExpressiveDropdownItem(
                                 icon = Icons.Rounded.Tune,
-                                title = "Mode",
+                                title = stringResource(R.string.appsettings_cpu_mode),
                                 summary = labels[modes.indexOf(draft.mode)],
                                 items = labels,
                                 selectedIndex = modes.indexOf(draft.mode),
@@ -893,29 +944,33 @@ private fun PerAppCpuControlSection(
                                 }
                             )
                             if (draft.mode == PerAppCpuControlMode.DYNAMIC_RANGE) {
-                                CpuFrequencySelector("Minimum", choices, minIndex) { index -> drafts[policy.name] = draft.copy(minKHz = choices[index], maxKHz = choices[maxIndex.coerceAtLeast(index)]) }
-                                CpuFrequencySelector("Maximum", choices, maxIndex) { index -> drafts[policy.name] = draft.copy(minKHz = choices[minIndex.coerceAtMost(index)], maxKHz = choices[index]) }
+                                CpuFrequencySelector(stringResource(R.string.appsettings_cpu_min), choices, minIndex) { index -> drafts[policy.name] = draft.copy(minKHz = choices[index], maxKHz = choices[maxIndex.coerceAtLeast(index)]) }
+                                CpuFrequencySelector(stringResource(R.string.appsettings_cpu_max), choices, maxIndex) { index -> drafts[policy.name] = draft.copy(minKHz = choices[minIndex.coerceAtMost(index)], maxKHz = choices[index]) }
                             } else if (draft.mode == PerAppCpuControlMode.EXACT_LOCK) {
-                                CpuFrequencySelector("Locked frequency", choices, maxIndex) { index -> drafts[policy.name] = draft.copy(minKHz = choices[index], maxKHz = choices[index]) }
+                                CpuFrequencySelector(stringResource(R.string.appsettings_cpu_locked), choices, maxIndex) { index -> drafts[policy.name] = draft.copy(minKHz = choices[index], maxKHz = choices[index]) }
                             }
                         }
                     }
                 }
                 if (runtimeStatus.isFailure || runtimeStatus.isApplied) {
                     val color = if (runtimeStatus.isFailure) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
-                    Surface(shape = RoundedCornerShape(14.dp), color = color.copy(alpha = .10f), border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = .24f))) {
-                        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Surface(shape = RoundedCornerShape(MaxRadius.row), color = color.copy(alpha = .10f), border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = .24f))) {
+                        Row(Modifier.padding(MaxSpace.md), verticalAlignment = Alignment.CenterVertically) {
                             Icon(if (runtimeStatus.isFailure) Icons.Outlined.ErrorOutline else Icons.Rounded.CheckCircle, null, tint = color)
                             Spacer(Modifier.width(9.dp))
-                            Text(runtimeStatus.message.ifBlank { if (runtimeStatus.isFailure) "CPU control could not be applied." else "CPU controls verified for the active app." }, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                            IconButton(onClick = onRefreshStatus) { Icon(Icons.Rounded.Refresh, "Refresh status") }
+                            val statusMessage = runtimeStatus.message.ifBlank {
+                                if (runtimeStatus.isFailure) stringResource(R.string.appsettings_cpu_not_applied)
+                                else stringResource(R.string.appsettings_cpu_verified)
+                            }
+                            Text(statusMessage, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                            IconButton(onClick = onRefreshStatus) { Icon(Icons.Rounded.Refresh, stringResource(R.string.cd_refresh)) }
                         }
                     }
                 }
                 nd.max.ui.component.StudioOutlinedButton(onClick = { onSave(encodePerAppCpuPolicyControls(drafts.values)) }, modifier = Modifier.fillMaxWidth(), enabled = controllable.isNotEmpty()) {
                     Icon(Icons.Rounded.Save, null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Save CPU controls")
+                    Text(stringResource(R.string.app_settings_save_cpu_controls))
                 }
             }
         }
@@ -961,18 +1016,24 @@ private fun ProfilePresetEditor(
 ) {
     val context = LocalContext.current
     val names = listOf("power", "balanced", "gaming", "performance", "custom")
-    val labels = listOf("Power", "Balanced", "Gaming", "Performance", "Custom")
+    val labels = listOf(
+        stringResource(R.string.profile_label_power),
+        stringResource(R.string.Profile_Balanced),
+        stringResource(R.string.profile_label_gaming),
+        stringResource(R.string.Profile_Performance),
+        stringResource(R.string.profile_label_custom)
+    )
     var values by remember {
         mutableStateOf(names.associateWith { ProfilePresetStore.percentFor(context, it) })
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Customize Thermal / GPU Presets") },
+        title = { Text(stringResource(R.string.app_settings_customize_thermal_presets)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    "Every percentage is taken from the capability the device advertises, never from the ceiling the system happens to allow right now. So Gaming (85%) and Performance (100%) never sit below an untouched device: when the device's own policy holds a lower ceiling they ask for the advertised one, and the log records what it was, what the device can do and what was requested. Below that, the percentage caps the GPU ceiling and every CPU policy you did not set by hand, rounded down to a real frequency step; and a cooling preset (Balanced, Power, Custom) only ever lowers a ceiling, never raises one.",
+                    stringResource(R.string.app_settings_thermal_presets_note),
                     style = MaterialTheme.typography.bodySmall
                 )
                 names.forEachIndexed { index, name ->
@@ -1009,7 +1070,7 @@ private fun ProfilePresetEditor(
                 ) {
                     Icon(Icons.Rounded.RestartAlt, contentDescription = null)
                     Spacer(Modifier.width(6.dp))
-                    Text("Restore preset defaults")
+                    Text(stringResource(R.string.app_settings_restore_preset_defaults))
                 }
             }
         },
@@ -1184,9 +1245,9 @@ private fun ThermalProfilePicker(
     val profiles = values.indices.map { i ->
         Triple(values[i], icons.getOrElse(i) { Icons.Filled.Memory }, labels[i]) to accents.getOrElse(i) { colorScheme.primary }
     }
-    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+    Column(modifier = Modifier.padding(vertical = MaxSpace.xs)) {
         profiles.chunked(3).forEach { rowProfiles ->
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
                 rowProfiles.forEach { (profile, accent) ->
                     val (value, icon, label) = profile
                     ThermalChip(
@@ -1212,8 +1273,8 @@ private fun ThermalChip(modifier: Modifier = Modifier, icon: ImageVector, label:
     val fg = if (isSelected) accent else colorScheme.onSurfaceVariant
     val border = if (isSelected) accent.copy(alpha = 0.5f) else Color.Transparent
     Surface(
-        modifier = modifier.height(76.dp).border(1.5.dp, border, RoundedCornerShape(16.dp)).clip(RoundedCornerShape(16.dp)).clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp), color = bg
+        modifier = modifier.height(76.dp).border(1.5.dp, border, RoundedCornerShape(MaxRadius.inset)).clip(RoundedCornerShape(MaxRadius.inset)).clickable(onClick = onClick),
+        shape = RoundedCornerShape(MaxRadius.inset), color = bg
     ) {
         Column(modifier = Modifier.fillMaxSize().padding(6.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             if (isSelected) {
@@ -1231,14 +1292,53 @@ private fun ThermalChip(modifier: Modifier = Modifier, icon: ImageVector, label:
 // Section Title
 // ────────────────────────────────────────────────────────────────────────────
 
+/**
+ * رأس قسم في هذه الشاشة.
+ *
+ * **وهو الصنف الثالث الذي وُحّد في `MaxSectionSpec`.** كان يرسم عنوانًا بـ`titleSmall`
+ * (وهو **حجم عنوان البطاقة** نفسه في `MaxCard`) وفراغًا `12dp`، بينما رأس القسم في طبقة
+ * التصميم `titleLarge` وفي اللوحة `15sp` — ثلاثة أحجام لحقيقة واحدة، فسقط الفرق بين «عنوان
+ * قسم» و«عنوان بطاقة» وهو أوّل ما طلبه المالك («The user should immediately understand what is
+ * a page title, section title, card title, and supporting description»).
+ *
+ * والمؤشّر التمييزي هنا **صندوق بأيقونة** لا شرطة ملوّنة — اختلاف في شكل المؤشّر لا في مستواه،
+ * ومقاسه الآن من العقد كذلك (`accentBox`/`accentBoxRadius`).
+ */
 @Composable
 fun SettingsSectionTitle(icon: ImageVector, title: String, color: Color) {
-    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(modifier = Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(color.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
+    // الفراغان من عقد القسم كرأس القسم في طبقة التصميم (`spaceBefore`/`spaceAfter`) لا
+    // `spaceAfter` وحدها على الجهتين: كان الفصل عن القسم السابق 12dp واللحاق بمحتواه 12dp،
+    // فالقارئ لا يرى أين يبتدئ قسم جديد. (المحاذاة الأفقية يملكها الهيكل — لا حشو هنا.)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                top = MaxSectionSpec.spaceBefore,
+                bottom = MaxSectionSpec.spaceAfter
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(MaxSectionSpec.accentBox)
+                .clip(RoundedCornerShape(MaxSectionSpec.accentBoxRadius))
+                .background(color.copy(alpha = MaxAlpha.toneContainerStrong)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(MaxSize.iconGlyphSmall)
+            )
         }
-        Spacer(Modifier.width(10.dp))
-        Text(text = title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = color)
+        Spacer(Modifier.width(MaxSectionSpec.accentGap))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium.copy(lineBreak = LineBreak.Heading),
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
     }
 }
 
@@ -1261,7 +1361,10 @@ private fun MasterSwitchCard(isEnabled: Boolean, onToggle: (Boolean) -> Unit) {
         Brush.horizontalGradient(listOf(colorScheme.surfaceContainerHigh, colorScheme.surfaceContainerHigh))
     val textColor = if (isEnabled) colorScheme.onPrimaryContainer else colorScheme.onSurfaceVariant
 
-    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).clip(RoundedCornerShape(20.dp)).background(bgBrush).padding(20.dp)) {
+    // الحشو الخارجي الأفقي كان يُضاعف هامش الصفحة (16dp فوق 20dp)، والحشو الداخلي كان
+    // 20dp بدل `MaxCardSpec.padding` (16dp) — فتُقرأ البطاقة فارغة حول محتواها أكثر من كل
+    // بطاقة مجاورة لها في الشاشة نفسها.
+    Box(modifier = Modifier.fillMaxWidth().padding(vertical = MaxSpace.xs).clip(RoundedCornerShape(MaxCardSpec.radius)).background(bgBrush).padding(MaxCardSpec.padding)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             if (isEnabled) {
                 IconBadge(icon = Icons.Filled.PlayCircleFilled, tint = colorScheme.primary, size = 36)
@@ -1278,7 +1381,7 @@ private fun MasterSwitchCard(isEnabled: Boolean, onToggle: (Boolean) -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         // كان "AZenith Active" نصًّا صلبًا في ملف الشاشة: لا يُترجم أبدًا (اسم
-                        // داخلي من `AZenith.h` يظهر للمستخدم)، ويُحتسب عَينًا في دَين
+                        // داخلي من `MaxManager.h` يظهر للمستخدم)، ويُحتسب عَينًا في دَين
                         // `hardcoded_ui_literals`. والأصل أنّه **حالة** المفتاح لا اسمه القديم.
                         text = stringResource(
                             if (isEnabled) R.string.max_app_master_on else R.string.master_switch
@@ -1337,10 +1440,12 @@ fun AppHeroHeader(appDetails: Triple<String, android.content.pm.ApplicationInfo?
 
     // The app identity is context, not a hero card: keep it compact so the
     // actual per-app controls arrive immediately below the top bar.
+    // صفّ هوية التطبيق كان يُضاف هامشه 16dp فوق هامش الهيكل ⇒ 36dp، بينما البطاقات تحته
+    // تبدأ عند 20dp — فأوّل عنصر في الشاشة لا يحاذي أيّ شيء بعدها.
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = MaxSpace.sm),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)
     ) {
         Icon(
             imageVector = Icons.Filled.AutoAwesome,
@@ -1349,14 +1454,14 @@ fun AppHeroHeader(appDetails: Triple<String, android.content.pm.ApplicationInfo?
             modifier = Modifier.size(18.dp)
         )
         Surface(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(MaxRadius.inset),
             color = colors.surfaceContainerHighest,
             modifier = Modifier.size(52.dp)
         ) {
             Box(Modifier.padding(7.dp), contentAlignment = Alignment.Center) {
                 Crossfade(targetState = appBitmap, animationSpec = tween(180), label = "AppIcon") { icon ->
                     if (icon != null) {
-                        androidx.compose.foundation.Image(bitmap = icon, contentDescription = null, modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(10.dp)))
+                        androidx.compose.foundation.Image(bitmap = icon, contentDescription = null, modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(MaxRadius.chip)))
                     } else {
                         Icon(Icons.Filled.Apps, contentDescription = null, tint = colors.onSurfaceVariant, modifier = Modifier.size(24.dp))
                     }
@@ -1380,8 +1485,8 @@ fun AppHeroHeader(appDetails: Triple<String, android.content.pm.ApplicationInfo?
             )
             Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 AppBadge("v${appDetails.third}", colors.secondaryContainer, colors.onSecondaryContainer)
-                if (isSystem) AppBadge("System", colors.tertiaryContainer, colors.onTertiaryContainer)
-                if (isGame) AppBadge("Game", colors.primaryContainer, colors.onPrimaryContainer)
+                if (isSystem) AppBadge(stringResource(R.string.app_badge_system), colors.tertiaryContainer, colors.onTertiaryContainer)
+                if (isGame) AppBadge(stringResource(R.string.app_badge_game), colors.primaryContainer, colors.onPrimaryContainer)
             }
         }
     }
@@ -1404,10 +1509,10 @@ fun FeatureGuideDialog(visible: Boolean, onDismiss: () -> Unit) {
     val colorScheme = MaterialTheme.colorScheme
     CustomContentDialog(
         visible = visible,
-        title = "Per-App Features Guide",
+        title = stringResource(R.string.appguide_title),
         onDismiss = onDismiss,
         onConfirm = onDismiss,
-        confirmText = "Got it",
+        confirmText = stringResource(R.string.appguide_got_it),
         dismissText = "" // Hide cancel button
     ) {
         LazyColumn(
@@ -1416,24 +1521,24 @@ fun FeatureGuideDialog(visible: Boolean, onDismiss: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                GuideItem(Icons.Rounded.FlashOn, "CPU Boost on Launch", "Temporarily forces the CPU to its maximum frequency for 3 seconds when the app is opened, dramatically reducing load times.", colorScheme.primary)
+                GuideItem(Icons.Rounded.FlashOn, stringResource(R.string.appfeature_cpu_boost_title), stringResource(R.string.appguide_cpu_boost_desc), colorScheme.primary)
             }
             item {
-                GuideItem(Icons.Filled.Thermostat, "Thermal Profile", "Bypasses the system's default thermal throttling limits. 'Gaming' allows higher temperatures before slowing down the game, while 'Power Save' keeps the phone cool.", colorScheme.error)
+                GuideItem(Icons.Filled.Thermostat, stringResource(R.string.appguide_thermal_title), stringResource(R.string.appguide_thermal_desc), colorScheme.error)
             }
             item {
-                GuideItem(Icons.Rounded.Memory, "GPU Governor", "Controls how aggressively the GPU ramps up. 'msm-adreno-tz' is dynamic, while 'Performance' forces maximum graphics power constantly.", colorScheme.tertiary)
+                GuideItem(Icons.Rounded.Memory, stringResource(R.string.appguide_gpu_gov_title), stringResource(R.string.appguide_gpu_gov_desc), colorScheme.tertiary)
             }
             item {
             }
             item {
-                GuideItem(Icons.Rounded.Brush, "Force Hardware UI Rendering", "Forces GPU-accelerated rendering for this app's UI layers instead of software rendering. Takes effect from the app's next cold start, not instantly on an already-running process.", colorScheme.primaryContainer)
+                GuideItem(Icons.Rounded.Brush, stringResource(R.string.appguide_hw_ui_title), stringResource(R.string.appguide_hw_ui_desc), colorScheme.primaryContainer)
             }
             item {
-                GuideItem(Icons.Rounded.Block, "Kill Background Apps", "Automatically executes an aggressive RAM sweep whenever this app is brought to the foreground, ensuring maximum memory is available.", colorScheme.secondary)
+                GuideItem(Icons.Rounded.Block, stringResource(R.string.appfeature_kill_bg_title), stringResource(R.string.appguide_kill_bg_desc), colorScheme.secondary)
             }
             item {
-                GuideItem(Icons.Rounded.Cable, "Bypass Charging", "If supported by the kernel, powers the motherboard directly from the charger without routing through the battery, reducing heat during heavy gaming.", colorScheme.primary)
+                GuideItem(Icons.Rounded.Cable, stringResource(R.string.appguide_bypass_title), stringResource(R.string.appguide_bypass_desc), colorScheme.primary)
             }
         }
     }
@@ -1442,7 +1547,7 @@ fun FeatureGuideDialog(visible: Boolean, onDismiss: () -> Unit) {
 @Composable
 private fun GuideItem(icon: ImageVector, title: String, desc: String, color: Color) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-        Box(modifier = Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(color.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.size(36.dp).clip(RoundedCornerShape(MaxRadius.chip)).background(color.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
         }
         Spacer(Modifier.width(12.dp))
@@ -1492,53 +1597,23 @@ fun AppSettingsTopAppBar(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            IconButton(onClick = onShowGuide) { Icon(Icons.AutoMirrored.Rounded.HelpOutline, contentDescription = "Feature Guide") }
+            IconButton(onClick = onShowGuide) { Icon(Icons.AutoMirrored.Rounded.HelpOutline, contentDescription = stringResource(R.string.appguide_cd)) }
             IconButton(onClick = onLaunchApp) { Icon(Icons.AutoMirrored.Rounded.Launch, contentDescription = stringResource(R.string.str_launch_app)) }
             IconButton(onClick = onOpenAppInfo) { Icon(Icons.Rounded.Info, contentDescription = stringResource(R.string.str_app_info)) }
         }
     )
 }
 
-private data class AppSettingsTabInfo(
-    val label: String,
-    val icon: ImageVector,
-    val badgeCount: Int
-)
+/*
+ * **`AppSettingsTabInfo` و`AppSettingsTabRow` أُزيلا بأمر المالك** («أعد تصميم مكوّن التبويب
+ * عالميًّا»)، ولم يُترك منهما بديل محلّي: كان تبويباتِ هذه الشاشة وحدها، والعلاج المعماري
+ * مكانه طبقة التصميم. فالشريط الآن `MaxTabStrip` (`ui/design/MaxTabStrip.kt`) ومدخله `MaxTab`.
+ *
+ * **والعطب الذي أزالهما** كان في `TabRow` نفسه لا في الإعدادات: هي تقسم العرض بالسوية على
+ * عدد التبويبات، فخمسة تبويبات على شاشة ٣٦٠dp تعطي كل واحد ≈٦٤dp بعد الأيقونة — أقل من عرض
+ * كلمة `Gaming`. ولا `maxLines`/`overflow` ينجي منها، لأن الحاوية هي التي ضاقت.
+ */
 
-@Composable
-private fun AppSettingsTabRow(
-    tabs: List<AppSettingsTabInfo>,
-    selectedIndex: Int,
-    onSelect: (Int) -> Unit
-) {
-    TabRow(
-        selectedTabIndex = selectedIndex,
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.primary
-    ) {
-        tabs.forEachIndexed { index, tab ->
-            Tab(
-                selected = selectedIndex == index,
-                onClick = { onSelect(index) },
-                icon = { Icon(tab.icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                text = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = tab.label,
-                            style = MaterialTheme.typography.labelLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        if (tab.badgeCount > 0) {
-                            Spacer(Modifier.width(4.dp))
-                            LabelText(text = "${tab.badgeCount}", color = MaterialTheme.colorScheme.primary)
-                        }
-                    }
-                }
-            )
-        }
-    }
-}
 
 private fun AppConfig.performanceCustomizedCount(): Int = listOf(
     perf_lite_mode, cpu_boost, game_preload, app_priority, kill_bg_apps,

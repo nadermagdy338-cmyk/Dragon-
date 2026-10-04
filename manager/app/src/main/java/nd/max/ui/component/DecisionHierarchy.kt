@@ -7,6 +7,7 @@ package nd.max.ui.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
@@ -21,6 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import nd.max.R
+import nd.max.ui.design.MaxAlpha
+import nd.max.ui.design.MaxCardShell
 
 /**
  * A compact decision-oriented summary: state first, consequence second, action
@@ -37,11 +40,14 @@ fun MaxDecisionCard(
     accent: Color = MaterialTheme.colorScheme.primary
 ) {
     val scheme = MaterialTheme.colorScheme
-    Surface(
+    // **ترحيل إلى القشرة:** الحدّ يُمرّر بلونه الحالي حرفيًّا — و`0.16f` هي `MaxAlpha.border`
+    // بعينها، فالرقم الحرفي كان اسمًا مفقودًا لا قيمة مخترعة. والترحيل يُوحّد الشكل
+    // والخلفية والقصّ ولا يغيّر شدة الحدّ.
+    MaxCardShell(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(MaxUiMetrics.cardRadius),
-        color = scheme.surfaceContainerLow,
-        border = BorderStroke(1.dp, accent.copy(alpha = 0.16f))
+        borderColor = accent.copy(alpha = MaxAlpha.border),
+        contentPadding = 0.dp,
+        verticalArrangement = Arrangement.Top,
     ) {
         Row(
             modifier = Modifier.padding(MaxUiMetrics.cardPadding),

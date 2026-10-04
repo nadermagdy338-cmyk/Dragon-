@@ -38,7 +38,7 @@ import nd.max.ui.util.DozeAppInfo
 import nd.max.ui.util.DozeModeUtil
 import nd.max.ui.util.DozeState
 import nd.max.ui.util.GmsDozeMode
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 /** Tab filter for the Doze whitelist app list. */
 enum class DozeAppTab { ALL, WHITELISTED }
@@ -92,16 +92,23 @@ class DozeModeViewModel : ViewModel() {
         appContext = context.applicationContext
 
         viewModelScope.launch(Dispatchers.IO) {
-            val supported = DozeModeUtil.isSupported()
-            isAvailable = supported
-            if (!supported) return@launch
+            // **رحلة صدفة واحدة لا أربع (عطب سرعة مُبلَّغ عنه في فتح الشاشات):** كان فتح هذه
+            // الشاشة يسأل الصدفة أربع مرّات متتالية — `isSupported` ← `get deep`، ثم
+            // `getGmsDozeMode` ← `am get-standby-bucket`، ثم `getDozeState` ← `get deep`
+            // مرّة ثانية، ثم `get light` — و`dumpsys` من أبطأ أوامر الصدفة الواحدة المُسلسَلة.
+            // واللقطة تجلبها كلها في تنفيذ واحد، وكل أمر بنصّه وتحليله نفسه.
+            val snapshot = DozeModeUtil.readSnapshot()
+            isAvailable = snapshot.supported
+            if (!snapshot.supported) return@launch
 
             settings = Settings(
                 isEnabled = PropertyUtils.get(MaxManagerProps.Doze.ENABLED) == "1",
                 isAggressive = PropertyUtils.get(MaxManagerProps.Doze.AGGRESSIVE) == "1"
             )
-            gmsMode = DozeModeUtil.getGmsDozeMode()
-            refreshDozeState()
+            gmsMode = snapshot.gmsMode
+            dozeState = snapshot.deep
+            val initialStats = DozeModeUtil.refreshStats(context, snapshot.deep, snapshot.light)
+            stats = Stats(initialStats.idleCount, initialStats.lightIdleCount)
 
             isAppsLoading = true
             val apps = DozeModeUtil.getInstalledApps(context)

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">स्थापित पैकेज और उनके द्वारा घोषित गतिविधियाँ</string>
+    <string name="max_launcher_loading">इंस्टॉल किए गए पैकेज और उनकी घोषित गतिविधियों को पढ़ना…</string>
+    <string name="max_launcher_empty">कोई भी स्थापित पैकेज इस डिवाइस पर किसी गतिविधि की घोषणा नहीं करता है।</string>
+    <string name="max_launcher_search_placeholder">ऐप के नाम या पैकेज के आधार पर खोजें</string>
+    <string name="max_launcher_search_clear">खोज साफ़ करें</string>
+    <string name="max_launcher_scope_all">सभी</string>
+    <string name="max_launcher_scope_user">उपयोगकर्ता</string>
+    <string name="max_launcher_scope_system">प्रणाली</string>
+    <string name="max_launcher_activity_count">%1$d गतिविधियाँ</string>
+    <string name="max_launcher_no_match_title">कुछ भी मेल नहीं खाता</string>
+    <string name="max_launcher_no_match_detail">किसी भी पैकेज नाम या ऐप लेबल में चयनित दायरे में वह टेक्स्ट शामिल नहीं है।</string>
+    <string name="max_launcher_no_match_clear">फ़िल्टर साफ़ करें</string>
+    <string name="max_launcher_reading_activities">इस पैकेज द्वारा घोषित गतिविधियों को पढ़ना...</string>
+    <string name="max_launcher_no_activities">यह पैकेज कोई गतिविधि नहीं घोषित करता है.</string>
+    <string name="max_launcher_root_off_title">रूट नहीं दिया गया है</string>
+    <string name="max_launcher_root_off_detail">निजी चिह्नित गतिविधियाँ निर्यात नहीं की जाती हैं, इसलिए केवल रूट ही उन्हें शुरू कर सकता है। निर्यात गतिविधियाँ इसके बिना भी खुली हैं।</string>
+    <string name="max_launcher_tag_private">निजी</string>
+    <string name="max_launcher_tag_disabled">अक्षम</string>
+    <string name="max_launcher_outcome_started">गतिविधि शुरू हो गई</string>
+    <string name="max_launcher_outcome_needs_root">यह गतिविधि निर्यात नहीं की जाती - रूट आवश्यक है</string>
+    <string name="max_launcher_outcome_refused">एंड्रॉइड ने इस गतिविधि को शुरू करने से इनकार कर दिया</string>
+    <string name="max_launcher_outcome_missing">उस नाम से कोई गतिविधि स्थापित नहीं है</string>
+</resources>

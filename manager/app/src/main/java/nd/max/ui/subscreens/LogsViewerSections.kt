@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.R
 import nd.max.core.diagnostics.LogTargetSummary
+import nd.max.ui.design.MaxSpace
 import nd.max.core.diagnostics.LogVerdict
 import nd.max.ui.component.CustomBottomSheet
 import nd.max.ui.component.ExpressiveCheckboxItem
@@ -71,7 +72,10 @@ internal fun LogsShareSheet(
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
         )
+        // هامش الورقة يُمرَّر للقائمة نفسها: عنوان القائمة ومقاطعها يُزاحان معًا فتبقى محاذاتهما
+        // للنصوص المجاورة في الورقة (‏16dp) بدل أن تُلتصق بحافّتها.
         ExpressiveList(
+            modifier = Modifier.padding(horizontal = MaxSpace.lg),
             title = stringResource(R.string.logsviewer_share_section),
             content = listOf(
                 {
@@ -108,7 +112,9 @@ internal fun LogViewerStatusHeader(
 ) {
     val colors = MaterialTheme.colorScheme
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        // الحشو الأفقي أُزيل: `MaxSplitScreen` يتيح `MaxSpace.gutter` (20dp)، وكان 16dp هنا
+        // يُضاف فوقه ⇒ 36dp، فلا تحاذي ترويسة الحالة شيئًا في الشاشة.
+        modifier = Modifier.fillMaxWidth().padding(vertical = MaxSpace.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -185,7 +191,8 @@ internal fun LogLineRow(
             .then(
                 if (highlight) Modifier.background(entry.level.color.copy(alpha = 0.07f)) else Modifier
             )
-            .padding(horizontal = 16.dp, vertical = 3.dp)
+            // المحاذاة الأفقية من الهيكل؛ وكان 16dp يُضاف فوق 20dp ⇒ 36dp يحصر السطر بلا داعٍ.
+            .padding(vertical = MaxSpace.xs)
     )
 }
 
@@ -258,7 +265,8 @@ internal fun UnifiedLogLineRow(
             .then(
                 if (highlight) Modifier.background(entry.level.color.copy(alpha = 0.07f)) else Modifier
             )
-            .padding(horizontal = 16.dp, vertical = 3.dp)
+            // المحاذاة الأفقية من الهيكل؛ وكان 16dp يُضاف فوق 20dp ⇒ 36dp يحصر السطر بلا داعٍ.
+            .padding(vertical = MaxSpace.xs)
     ) {
         Text(
             text = text,
@@ -320,7 +328,7 @@ internal fun TargetSummaryRow(
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .then(if (focused) Modifier.background(colorScheme.secondaryContainer.copy(alpha = 0.5f)) else Modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(vertical = MaxSpace.sm)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -389,6 +397,7 @@ internal fun LogsViewerSettingsSheet(
         )
 
         ExpressiveList(
+            modifier = Modifier.padding(horizontal = MaxSpace.lg),
             title = stringResource(R.string.logsviewer_buffers_section),
             content = LogsViewerViewModel.LogBuffer.entries.map { buffer ->
                 {
@@ -415,6 +424,7 @@ internal fun LogsViewerSettingsSheet(
         )
 
         ExpressiveList(
+            modifier = Modifier.padding(horizontal = MaxSpace.lg),
             title = stringResource(R.string.logsviewer_display_section),
             content = listOf(
                 {
@@ -437,6 +447,7 @@ internal fun LogsViewerSettingsSheet(
         // إدارة الملف من هنا لا من شاشة أخرى: من يقرأ سجلًا كبيرًا هو من يريد تحديد حدّه،
         // والرقم يطابق ما يفرضه الأصل (64KB..16MB) فلا يعرض حدًّا لا ينفّذه أحد.
         ExpressiveList(
+            modifier = Modifier.padding(horizontal = MaxSpace.lg),
             title = stringResource(R.string.logsviewer_file_section),
             content = listOf(
                 {

@@ -7,7 +7,7 @@
     <string name="all_set">سب کچھ تیار ہے، اب آپ Max Manager استعمال کر سکتے ہیں</string>
     <string name="allow_verbose_log">ڈیمن تفصیلی لاگ آؤٹ پٹ</string>
     <string name="android_version">Android ورژن</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">ایپ کا نام</string>
     <string name="app_priority">ایپ کی ترجیح</string>
     <string name="app_priority_control">ایپ کی ترجیح کا کنٹرول</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS اوورلے</string>
     <string name="fps_overlay_notif_title">Max Manager FPS اوورلے چل رہا ہے۔</string>
     <string name="fps_overlay_notif_stop">رک جاؤ</string>
-    <string name="fps_overlay_section_style">ظاہری شکل</string>
-    <string name="fps_overlay_style">اوورلے اسٹائل</string>
-    <string name="fps_overlay_style_android">اینڈرائیڈ لسٹ</string>
-    <string name="fps_overlay_style_pc">پی سی مونو اسپیس</string>
-    <string name="fps_overlay_style_mini">منی</string>
-    <string name="fps_overlay_orientation">لے آؤٹ کی سمت</string>
-    <string name="fps_overlay_orientation_vertical">عمودی</string>
-    <string name="fps_overlay_orientation_horizontal">افقی</string>
-    <string name="fps_overlay_read_mode">FPS پڑھنے کا طریقہ</string>
     <string name="fps_overlay_read_mode_desc">اگر آپ کے آلے پر ریڈنگ 0 پر رہتی ہے تو کوئی مختلف طریقہ آزمائیں۔</string>
     <string name="fps_overlay_mode_surfaceflinger">سرفیس فلنگر (تجویز کردہ)</string>
     <string name="fps_overlay_mode_kernel">کرنل نوڈ</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">متن کا سائز</string>
     <string name="fps_overlay_bg_alpha">پس منظر کی دھندلاپن</string>
     <string name="fps_overlay_width_scale">چوڑائی کا پیمانہ</string>
-    <string name="fps_overlay_section_metrics">میٹرکس دکھائے گئے۔</string>
-    <string name="fps_overlay_metric_fps">ایف پی ایس</string>
-    <string name="fps_overlay_metric_cpu">CPU لوڈ</string>
-    <string name="fps_overlay_metric_ram">RAM استعمال</string>
-    <string name="fps_overlay_metric_watt">بیٹری پاور ڈرا</string>
-    <string name="fps_overlay_metric_temp">بیٹری کا درجہ حرارت</string>
-    <string name="fps_overlay_metric_render">پیش کنندہ کا لیبل</string>
-    <string name="fps_overlay_metric_render_desc">لیبل کے بطور \"FPS\" کے بجائے VULKAN/OPENGL دکھاتا ہے، جو پیش منظر ایپ کی بھری ہوئی لائبریریوں سے پتہ چلا</string>
     <string name="dozemode_title">نیند کی پالیسی</string>
     <string name="dozemode_menu_desc">اسٹینڈ بائی وائٹ لسٹ، بیکار رویہ، اور بیک گراؤنڈ پاور ٹیوننگ</string>
     <string name="dozemode_state_label">ڈوز کی حالت</string>
@@ -785,9 +768,7 @@
     <string name="pid">پی آئی ڈی</string>
     <string name="open_settings">ترتیبات کھولیں۔</string>
     <string name="processmgr_title">ٹاسک مانیٹر</string>
-    <string name="processmgr_menu_desc">فی عمل CPU اور RAM استعمال، فورس اسٹاپ اور تیرتے ہوئے اوورلے کے ساتھ</string>
     <string name="processmgr_stat_total">%1$d عمل</string>
-    <string name="processmgr_stat_breakdown">%1$d صارف \u00b7 %2$d سسٹم</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">ٹاپ %1$d</string>
@@ -807,9 +788,6 @@
     <string name="processmgr_search_hint">چلانے کے عمل کو تلاش کریں۔</string>
     <string name="processmgr_no_processes">کوئی عمل آپ کی تلاش سے مماثل نہیں ہے۔</string>
     <string name="processmgr_dialog_close">بند</string>
-    <string name="processmgr_detail_version">ورژن</string>
-    <string name="processmgr_detail_build">تعمیر کریں۔</string>
-    <string name="processmgr_detail_package">پیکج</string>
     <string name="processmgr_result_killed">مارا گیا %1$s</string>
     <string name="processmgr_result_kill_failed">%1$s کو مار نہیں سکتا</string>
     <string name="processmgr_result_stopped">زبردستی روکا گیا %1$s</string>
@@ -1460,7 +1438,6 @@
     <string name="max_home_reboot_desc">محفوظ ریبوٹ کے اختیارات کھولیں۔</string>
     <string name="max_home_ai_console">MAX AI کنسول</string>
     <string name="max_home_ai_working">درخواست کردہ پروفائل کا اطلاق ہو رہا ہے…</string>
-    <string name="max_home_ai_failed">آخری AI کارروائی ناکام ہو گئی۔</string>
     <string name="max_home_retry">دوبارہ کوشش کریں۔</string>
     <string name="max_home_ai_idle">ابھی تک کوئی AI فیصلہ ریکارڈ نہیں ہوا۔</string>
     <string name="home_system_stable">سسٹم اسٹیبل</string>
@@ -1476,8 +1453,6 @@
     <string name="home_performance_monitor_desc">آخری 72 سیکنڈ میں وسائل کا بوجھ</string>
     <string name="home_quick_actions">کمانڈ ڈیک</string>
     <string name="home_quick_actions_desc">اہم کنٹرولز تک براہ راست رسائی</string>
-    <string name="home_action_boost">کارکردگی کا پروفائل</string>
-    <string name="home_action_boost_desc">نظام کے رویے کو تبدیل کریں۔</string>
     <string name="home_action_thermal">تھرمل سینٹر</string>
     <string name="home_action_thermal_desc">گرمی اور ٹھنڈک کا معائنہ کریں۔</string>
     <string name="home_action_battery">پاور سینٹر</string>
@@ -1497,7 +1472,6 @@
     <string name="home_active">فعال</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">محفوظ</string>
-    <string name="home_device_overview">ڈیوائس کا جائزہ کھولیں۔</string>
     <string name="home_live_performance">لائیو پرفارمنس</string>
     <string name="home_live_performance_desc">موجودہ لوڈ اور براہ راست ہارڈویئر کنٹرولز</string>
     <string name="home_open_details">تفصیلی تھرمل ڈیٹا کھولیں۔</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">فی ایپ آپٹیمائزیشن لاگو کی جا رہی ہے۔</string>
     <string name="max_app_advanced_options">اعلی درجے کے اختیارات</string>
     <string name="max_app_save">محفوظ کریں۔</string>
+    <string name="home_gpu_max_freq">زیادہ سے زیادہ تعدد</string>
 </resources>

@@ -7,7 +7,7 @@
     <string name="all_set">Sve je spremno, sada možete koristiti Max Manager</string>
     <string name="allow_verbose_log">Detaljni zapisi demona</string>
     <string name="android_version">Android verzija</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Naziv aplikacije</string>
     <string name="app_priority">Prioritet aplikacije</string>
     <string name="app_priority_control">Kontrola prioriteta aplikacije</string>
@@ -724,15 +724,6 @@
     <string name="fps_overlay_notif_channel">FPS preklapanje</string>
     <string name="fps_overlay_notif_title">Max Manager FPS preklapanje je pokrenuto</string>
     <string name="fps_overlay_notif_stop">Stop</string>
-    <string name="fps_overlay_section_style">Izgled</string>
-    <string name="fps_overlay_style">Stil preklapanja</string>
-    <string name="fps_overlay_style_android">Android popis</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Smjer rasporeda</string>
-    <string name="fps_overlay_orientation_vertical">Okomito</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontalno</string>
-    <string name="fps_overlay_read_mode">FPS metoda čitanja</string>
     <string name="fps_overlay_read_mode_desc">Pokušajte s drugom metodom ako očitanje ostane na 0 na vašem uređaju</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (preporučeno)</string>
     <string name="fps_overlay_mode_kernel">Čvor jezgre</string>
@@ -741,14 +732,6 @@
     <string name="fps_overlay_text_size">Veličina teksta</string>
     <string name="fps_overlay_bg_alpha">Neprozirnost pozadine</string>
     <string name="fps_overlay_width_scale">Mjerilo širine</string>
-    <string name="fps_overlay_section_metrics">Mjerni podaci prikazani</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU opterećenje</string>
-    <string name="fps_overlay_metric_ram">RAM korištenje</string>
-    <string name="fps_overlay_metric_watt">Potrošnja energije baterije</string>
-    <string name="fps_overlay_metric_temp">Temperatura baterije</string>
-    <string name="fps_overlay_metric_render">Oznaka renderera</string>
-    <string name="fps_overlay_metric_render_desc">Prikazuje VULKAN/OPENGL umjesto \"FPS\" kao oznaku, otkrivenu iz učitanih biblioteka aplikacije u prvom planu</string>
     <string name="dozemode_title">Politika spavanja</string>
     <string name="dozemode_menu_desc">Popis dopuštenih u stanju mirovanja, ponašanje u mirovanju i podešavanje napajanja u pozadini</string>
     <string name="dozemode_state_label">Drijemano stanje</string>
@@ -784,9 +767,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Otvori postavke</string>
     <string name="processmgr_title">Monitor zadataka</string>
-    <string name="processmgr_menu_desc">Upotreba po procesu CPU i RAM, s prisilnim zaustavljanjem i plutajućim slojem</string>
     <string name="processmgr_stat_total">%1$d procesi</string>
-    <string name="processmgr_stat_breakdown">%1$d korisnik \u00b7 %2$d sustav</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Vrh %1$d</string>
@@ -806,9 +787,6 @@
     <string name="processmgr_search_hint">Pretraživanje pokrenutih procesa</string>
     <string name="processmgr_no_processes">Nijedan proces ne odgovara vašem pretraživanju</string>
     <string name="processmgr_dialog_close">Zatvoriti</string>
-    <string name="processmgr_detail_version">Verzija</string>
-    <string name="processmgr_detail_build">Izgraditi</string>
-    <string name="processmgr_detail_package">Paket</string>
     <string name="processmgr_result_killed">Ubijen %1$s</string>
     <string name="processmgr_result_kill_failed">Nisam mogao ubiti %1$s</string>
     <string name="processmgr_result_stopped">Prisilno zaustavljeno %1$s</string>
@@ -1458,7 +1436,6 @@
     <string name="max_home_reboot_desc">Otvorite opcije sigurnog ponovnog pokretanja</string>
     <string name="max_home_ai_console">MAX AI konzola</string>
     <string name="max_home_ai_working">Primjena traženog profila…</string>
-    <string name="max_home_ai_failed">Zadnja radnja umjetne inteligencije nije uspjela</string>
     <string name="max_home_retry">Pokušaj ponovo</string>
     <string name="max_home_ai_idle">Još nije zabilježena odluka umjetne inteligencije</string>
     <string name="home_system_stable">SUSTAV STABILAN</string>
@@ -1474,8 +1451,6 @@
     <string name="home_performance_monitor_desc">Učitavanje resursa u posljednje 72 sekunde</string>
     <string name="home_quick_actions">Zapovjedna paluba</string>
     <string name="home_quick_actions_desc">Izravan pristup važnim kontrolama</string>
-    <string name="home_action_boost">Profil izvedbe</string>
-    <string name="home_action_boost_desc">Promijenite ponašanje sustava</string>
     <string name="home_action_thermal">Termalni centar</string>
     <string name="home_action_thermal_desc">Provjerite grijanje i hlađenje</string>
     <string name="home_action_battery">Centar moći</string>
@@ -1495,7 +1470,6 @@
     <string name="home_active">AKTIVAN</string>
     <string name="home_idle">PRAZAN RAD</string>
     <string name="home_protected">ZAŠTIĆEN</string>
-    <string name="home_device_overview">OTVORI PREGLED UREĐAJA</string>
     <string name="home_live_performance">Nastup uživo</string>
     <string name="home_live_performance_desc">Trenutno opterećenje i izravne kontrole hardvera</string>
     <string name="home_open_details">Otvorite detaljne toplinske podatke</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Primjenjuju se optimizacije po aplikaciji</string>
     <string name="max_app_advanced_options">Napredne opcije</string>
     <string name="max_app_save">Uštedjeti</string>
+    <string name="home_gpu_max_freq">Maks. frekv</string>
 </resources>

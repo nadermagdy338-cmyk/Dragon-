@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">ពាក្យសំដី</string>
+    <string name="max_log_level_debug">បំបាត់កំហុស</string>
+    <string name="max_log_level_info">ព័ត៌មាន</string>
+    <string name="max_log_level_warn">ការព្រមាន</string>
+    <string name="max_log_level_error">កំហុស</string>
+    <string name="max_log_level_assert">អះអាង</string>
+    <string name="max_log_level_fatal">ស្លាប់</string>
+    <string name="max_log_buffer_main">មេ</string>
+    <string name="max_log_buffer_system">ប្រព័ន្ធ</string>
+    <string name="max_log_buffer_crash">គាំង</string>
+    <string name="max_log_buffer_kernel">ខឺណែល</string>
+    <string name="max_log_buffer_events">ព្រឹត្តិការណ៍</string>
+    <string name="max_log_buffer_radio">វិទ្យុ</string>
+    <string name="max_log_source_daemon">ដេមិន</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">ផ្សេងៗ</string>
+</resources>

@@ -40,6 +40,16 @@ private fun getSystemRefreshRates(context: Context): List<Int> {
     }
 }
 
+/**
+ * أنماط الشاشة التي **تُعلنها المنصّة فعلًا**، بالأرقام وبلا قائمة افتراضية.
+ *
+ * وهذا هو الفرق المقصود عن [getSupportedRefreshRates]: تلك تُضيف `60/90/120` حين لا تُعلن
+ * المنصّة شيئًا، وهو افتراض مفيد لمنتقي إعداد، و**كذب على شاشة تعرض معلومات الجهاز** — فمن
+ * يعرض «الأنماط المدعومة» لا يجوز أن يخترع ثلاثة لم تُقرأ. فالجهاز الذي لا يُعلن نمطًا يُرجع
+ * قائمة فارغة، ويُقال «غير مقروء».
+ */
+fun getDeclaredRefreshRates(context: Context): List<Int> = getSystemRefreshRates(context)
+
 fun getSupportedRefreshRates(context: Context): List<String> {
     val systemRR = getSystemRefreshRates(context)
 

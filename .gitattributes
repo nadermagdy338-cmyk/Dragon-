@@ -18,3 +18,10 @@
 
 gradlew     text eol=lf
 *.sh        text eol=lf
+
+# ── عُقَد الـfixtures (`fixtures/contracts/`) ─────────────────────────────────
+# هذه الملفات **يُقارَن محتواها بالبايت** من طرفين (Kotlin يُنتج، وC يقرأ)، فأي تحويل
+# CRLF عند الإخراج يجعل المقارنة تفشل على جهاز أحدهم بلا خطأ حقيقي. و`text eol=lf`
+# يثبّت النهاية سطرًا واحدًا لكل نظام، فلا يُصبح فشل الاختبار تابعًا لإعداد Git.
+fixtures/contracts/*.txt  text eol=lf
+fixtures/contracts/*.tsv  text eol=lf

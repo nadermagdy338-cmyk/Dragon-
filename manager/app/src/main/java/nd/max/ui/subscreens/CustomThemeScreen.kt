@@ -76,13 +76,18 @@ import com.materialkolor.rememberDynamicColorScheme
 import com.yalantis.ucrop.UCrop
 import java.io.File
 import kotlinx.coroutines.launch
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSectionSpec
+import nd.max.ui.design.MaxSpace
 import nd.max.R
 import nd.max.ui.component.*
+import nd.max.ui.design.MaxSplitScreen
 import nd.max.ui.theme.ColorMode
 import nd.max.ui.theme.ThemeController
 import nd.max.ui.theme.animateColorSchemeAsState
 import nd.max.ui.util.clearHeaderImage
-import nd.max.ui.util.EventLog
+import nd.max.core.platform.EventLog
 import nd.max.ui.util.getBannerGradientAlpha
 import nd.max.ui.util.getHeaderImage
 import nd.max.ui.util.isBannerImageEnabled
@@ -146,7 +151,6 @@ fun ColorPaletteScreen(navController: NavController) {
     var pendingCropUriPath by rememberSaveable { mutableStateOf<String?>(null) }
     var isBlurEnabled by rememberSaveable { mutableStateOf(prefs.getBoolean("expressive_blur_ui", false)) }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val colorScheme = MaterialTheme.colorScheme
 
     // ── Crop launcher ─────────────────────────────────────────────────────────
@@ -261,26 +265,24 @@ fun ColorPaletteScreen(navController: NavController) {
     val amoledMode = currentColorMode == ColorMode.DARKAMOLED
 
     ScreenAccentProvider(MaterialTheme.colorScheme.primary) {
-        Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            topBar = {
-                PaletteTopAppBar(scrollBehavior, onBack = { navController.popBackStack() })
-            },
-            containerColor = MaterialTheme.colorScheme.surface
-        ) { innerPadding ->
+        // The split shell hosts both orientations: a two-pane Row in landscape and one lazy column
+        // in portrait, with the top bar, insets and snackbar owned by the shell.
+        MaxSplitScreen(
+            title = stringResource(R.string.theme),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Filled.Colorize,
+            accent = MaterialTheme.colorScheme.primary,
+            snackbarHostState = snackbarHostState
+        ) {
             if (isLandscape) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     Box(
                         modifier = Modifier
                             .weight(0.4f)
-                            .fillMaxHeight()
-                            .padding(top = innerPadding.calculateTopPadding()),
+                            .fillMaxHeight(),
                         contentAlignment = Alignment.Center
                     ) {
                         ThemePreviewCard(
@@ -296,12 +298,10 @@ fun ColorPaletteScreen(navController: NavController) {
                         modifier = Modifier
                             .weight(0.6f)
                             .fillMaxHeight(),
-                        contentPadding = PaddingValues(
-                            top = innerPadding.calculateTopPadding() + 12.dp,
-                            bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues()
-                                .calculateBottomPadding()
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                        // الهيكل يحجز أسفل الشاشة أصلًا (`floatingBottomBarPadding`)، فـ16dp هنا
+                        // تُضاف فوق الحجز فتبقى فراغًا لا يراه أحد. والباقي بخطوة الرموز.
+                        contentPadding = PaddingValues(top = MaxSpace.md, bottom = MaxSpace.sm),
+                        verticalArrangement = Arrangement.spacedBy(MaxSectionSpec.spaceBefore)
                     ) {
                         item {
                             StudioSectionHeader(
@@ -343,12 +343,8 @@ fun ColorPaletteScreen(navController: NavController) {
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        top = innerPadding.calculateTopPadding() + 12.dp,
-                        bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues()
-                            .calculateBottomPadding()
-                    ),
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentPadding = PaddingValues(top = MaxSpace.md, bottom = MaxSpace.sm),
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     item {
@@ -425,7 +421,13 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
         ThemeSectionHeader(
             icon = Icons.Outlined.Palette,
             title = stringResource(R.string.accent_color),
-            modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 24.dp, bottom = 10.dp)
+            // `MaxSplitScreen` يملك هامش الصفحة (`MaxSpace.gutter` 20dp)، وكان هذا السطر يضيف
+            // `start = 20.dp, end = 16.dp` فوقه ⇒ 40dp يسارًا و36dp يمينًا: لا متماثلَين ولا
+            // مطابقَين لأي عنصر آخر في الشاشة. والفراغان الرأسيان من عقد القسم نفسه.
+            modifier = Modifier.padding(
+                top = MaxSectionSpec.spaceBefore,
+                bottom = MaxSectionSpec.spaceAfter
+            )
         )
     }
 
@@ -447,8 +449,9 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
                         blendMode = BlendMode.DstIn
                     )
                 },
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(horizontal = 20.dp)
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
+            // لا حشو أفقي هنا: الهيكل يمنح الصفحة هامشها (`MaxSpace.gutter`)، وكانت
+            // `20.dp` تُضاف فوقه فتبدأ السوابح عند 40dp بينما عنوان القسم فوقها عند 20dp.
         ) {
             // "Dynamic / Wallpaper" swatch
             item {
@@ -488,7 +491,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
         ThemeSectionHeader(
             icon = Icons.Outlined.DarkMode,
             title = stringResource(R.string.appearance),
-            modifier = Modifier.padding(start = 20.dp, end = 16.dp, bottom = 10.dp)
+            modifier = Modifier.padding(bottom = MaxSectionSpec.spaceAfter)
         )
     }
 
@@ -503,9 +506,9 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
             ColorMode.DARKAMOLED to (Icons.Filled.Brightness1 to stringResource(R.string.theme_mode_amoled)),
         )
         SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+            // `MaxSplitScreen` يملك هامش الصفحة (`MaxSpace.gutter`)؛ وكان 16dp هنا يُضاف فوقه
+            // ⇒ 36dp لكل جهة بدل 20dp في بقية الشاشات.
+            modifier = Modifier.fillMaxWidth()
         ) {
             options.forEachIndexed { index, (mode, iconAndLabel) ->
                 val (icon, label) = iconAndLabel
@@ -545,16 +548,16 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
         ThemeSectionHeader(
             icon = Icons.Outlined.Colorize,
             title = stringResource(R.string.str_color_specification),
-            modifier = Modifier.padding(start = 20.dp, end = 16.dp, bottom = 10.dp)
+            modifier = Modifier.padding(bottom = MaxSectionSpec.spaceAfter)
         )
     }
 
     item {
         val specOptions = ColorSpec.SpecVersion.entries
         SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+            // `MaxSplitScreen` يملك هامش الصفحة (`MaxSpace.gutter`)؛ وكان 16dp هنا يُضاف فوقه
+            // ⇒ 36dp لكل جهة بدل 20dp في بقية الشاشات.
+            modifier = Modifier.fillMaxWidth()
         ) {
             specOptions.forEachIndexed { index, spec ->
                 SegmentedButton(
@@ -604,13 +607,13 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
         ThemeSectionHeader(
             icon = Icons.Outlined.Image,
             title = stringResource(R.string.banner),
-            modifier = Modifier.padding(start = 20.dp, end = 16.dp, bottom = 10.dp)
+            modifier = Modifier.padding(bottom = MaxSectionSpec.spaceAfter)
         )
     }
 
     item {
         ExpressiveColumn(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier,
             content = buildList {
                 add {
                     Column {
@@ -629,8 +632,12 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    .padding(
+                                        start = MaxCardSpec.padding,
+                                        end = MaxCardSpec.padding,
+                                        bottom = MaxCardSpec.padding
+                                    ),
+                                verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)
                             ) {
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(2.dp)
@@ -720,14 +727,14 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
             Column {
                 Spacer(Modifier.height(8.dp))
                 ExpressiveColumn(
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier,
                     content = buildList {
                         add {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                                    .padding(MaxCardSpec.padding),
+                                verticalArrangement = Arrangement.spacedBy(MaxSpace.lg)
                             ) {
                                 // Banner preview
                                 BannerGradientPreview(
@@ -811,13 +818,13 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
         ThemeSectionHeader(
             icon = Icons.Outlined.Tune,
             title = stringResource(R.string.str_interface),
-            modifier = Modifier.padding(start = 20.dp, end = 16.dp, bottom = 10.dp)
+            modifier = Modifier.padding(bottom = MaxSectionSpec.spaceAfter)
         )
     }
 
     item {
         ExpressiveColumn(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier,
             content = buildList {
                 add {
                     ExpressiveSwitchItem(
@@ -833,18 +840,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
     }
 
     item { Spacer(Modifier.height(16.dp)) }
-}
-
-// ─── Top App Bar ──────────────────────────────────────────────────────────────
-@Composable
-fun PaletteTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {
-    MaxManagerSubScreenTopBar(
-        scrollBehavior = scrollBehavior,
-        title = stringResource(R.string.theme),
-        onBack = onBack,
-        accentIcon = Icons.Filled.Colorize,
-        accent = MaterialTheme.colorScheme.primary
-    )
 }
 
 // ─── Section header helper ────────────────────────────────────────────────────
@@ -894,7 +889,7 @@ private fun BannerGradientPreview(gradientAlpha: Float, customBannerUri: String?
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(20 / 9f)
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(MaxRadius.inset)),
         color = colorScheme.surfaceContainerHighest
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -1019,7 +1014,7 @@ private fun ThemePreviewCard(
                     width = if (isLandscape) 130.dp else 120.dp,
                     height = if (isLandscape) 270.dp else 250.dp
                 )
-                .clip(RoundedCornerShape(32.dp))
+                .clip(RoundedCornerShape(MaxRadius.sheet))
                 .background(cs.primary.copy(alpha = glowAlpha * 0.5f))
         )
 
@@ -1029,7 +1024,7 @@ private fun ThemePreviewCard(
                 .fillMaxWidth(if (isLandscape) 0.80f else 0.52f)
                 .aspectRatio(0.48f),
             color = cs.surface,
-            shape = RoundedCornerShape(28.dp),
+            shape = RoundedCornerShape(MaxRadius.sheet),
             border = BorderStroke(1.dp, cs.outlineVariant.copy(alpha = 0.4f)),
             shadowElevation = 12.dp
         ) {
@@ -1077,7 +1072,7 @@ private fun ThemePreviewCard(
                 // Banner / hero strip
                 Surface(
                     modifier = Modifier.fillMaxWidth().height(62.dp),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(MaxRadius.row),
                     color = cs.secondaryContainer.copy(alpha = 0.65f)
                 ) {
                     Box(contentAlignment = Alignment.BottomStart) {
@@ -1112,7 +1107,7 @@ private fun ThemePreviewCard(
                         Surface(
                             modifier = Modifier.weight(1f).height(44.dp),
                             color = tileColor,
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(MaxRadius.control)
                         ) {
                             Box(modifier = Modifier.padding(8.dp)) {
                                 Box(
@@ -1130,7 +1125,7 @@ private fun ThemePreviewCard(
                 Surface(
                     modifier = Modifier.fillMaxWidth().height(80.dp),
                     color = cs.surfaceColorAtElevation(2.dp),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(MaxRadius.row)
                 ) {
                     Column(
                         modifier = Modifier.padding(8.dp),
@@ -1159,7 +1154,8 @@ private fun ThemePreviewCard(
                                     Box(
                                         modifier = Modifier
                                             .size(width = 16.dp, height = 9.dp)
-                                            .clip(RoundedCornerShape(5.dp))
+                                            // الرقم 5 لم يكن على سلّم 4dp ولا في أي عقد؛ أقرب المرام إلى نيّته.
+                                            .clip(RoundedCornerShape(MaxSpace.xs))
                                             .background(cs.primary.copy(alpha = 0.7f))
                                     )
                                 }
@@ -1173,7 +1169,7 @@ private fun ThemePreviewCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(MaxRadius.control))
                         .background(cs.surfaceColorAtElevation(3.dp))
                         .padding(horizontal = 6.dp, vertical = 5.dp),
                     horizontalArrangement = Arrangement.SpaceAround,
@@ -1242,7 +1238,7 @@ private fun ColorSwatch(
     ) {
         Surface(
             onClick = onClick,
-            shape = RoundedCornerShape(22.dp),
+            shape = RoundedCornerShape(MaxRadius.group),
             color = cs.surfaceContainer,
             modifier = Modifier
                 .size(68.dp)
@@ -1250,7 +1246,7 @@ private fun ColorSwatch(
                 .border(
                     width = 2.dp,
                     color = cs.primary.copy(alpha = borderAlpha),
-                    shape = RoundedCornerShape(22.dp)
+                    shape = RoundedCornerShape(MaxRadius.group)
                 )
         ) {
             Box(contentAlignment = Alignment.Center) {

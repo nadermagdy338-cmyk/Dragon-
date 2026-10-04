@@ -7,7 +7,7 @@
     <string name="all_set">Alles is gereed, jy kan nou Max Manager gebruik</string>
     <string name="allow_verbose_log">Laat gedetailleerde logboeke vir agtergrondproses toe</string>
     <string name="android_version">Android weergawe</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Program naam</string>
     <string name="app_priority">Program prioriteit</string>
     <string name="app_priority_control">Program prioriteit beheer</string>
@@ -515,7 +515,6 @@
     <string name="thermal_hide_trips">Versteek reise</string>
     <string name="thermal_trip_points">Reispunte</string>
     <string name="thermal_trip_config">Trip Point Config</string>
-    <string name="zram_live_summary">? %6$d/%7$d MB</string>
     <string name="zram_presets_title">Vinnige voorafinstellings</string>
     <string name="zram_tuning_title">Kompressie-enjin</string>
     <string name="zram_custom_size">Pasgemaakte ruilgrootte</string>
@@ -724,15 +723,6 @@
     <string name="fps_overlay_notif_channel">FPS oorleg</string>
     <string name="fps_overlay_notif_title">Max Manager FPS-oorleg loop</string>
     <string name="fps_overlay_notif_stop">Stop</string>
-    <string name="fps_overlay_section_style">Voorkoms</string>
-    <string name="fps_overlay_style">Oorlegstyl</string>
-    <string name="fps_overlay_style_android">Android lys</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Uitleg rigting</string>
-    <string name="fps_overlay_orientation_vertical">Vertikaal</string>
-    <string name="fps_overlay_orientation_horizontal">Horisontaal</string>
-    <string name="fps_overlay_read_mode">FPS lees metode</string>
     <string name="fps_overlay_read_mode_desc">Probeer \'n ander metode as die lesing op 0 op jou toestel bly</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (aanbeveel)</string>
     <string name="fps_overlay_mode_kernel">Kernknoop</string>
@@ -741,14 +731,6 @@
     <string name="fps_overlay_text_size">Teksgrootte</string>
     <string name="fps_overlay_bg_alpha">Agtergrond ondeursigtigheid</string>
     <string name="fps_overlay_width_scale">Breedte skaal</string>
-    <string name="fps_overlay_section_metrics">Metrieke gewys</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU laai</string>
-    <string name="fps_overlay_metric_ram">RAM gebruik</string>
-    <string name="fps_overlay_metric_watt">Batterykrag trek</string>
-    <string name="fps_overlay_metric_temp">Battery temperatuur</string>
-    <string name="fps_overlay_metric_render">Vervaardiger etiket</string>
-    <string name="fps_overlay_metric_render_desc">Wys VULKAN/OPENGL in plaas van \"FPS\" as die etiket, bespeur vanaf die voorgrond-toepassing se gelaaide biblioteke</string>
     <string name="dozemode_title">Slaapbeleid</string>
     <string name="dozemode_menu_desc">Bystand-witlys, ledige gedrag en agtergrondkraginstelling</string>
     <string name="dozemode_state_label">Dose toestand</string>
@@ -784,9 +766,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Maak instellings oop</string>
     <string name="processmgr_title">Taakmonitor</string>
-    <string name="processmgr_menu_desc">Per-proses CPU en RAM gebruik, met kragstop en \'n drywende oorleg</string>
     <string name="processmgr_stat_total">%1$d prosesse</string>
-    <string name="processmgr_stat_breakdown">%1$d gebruiker \u00b7 %2$d stelsel</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Top %1$d</string>
@@ -807,9 +787,6 @@
     <string name="processmgr_search_hint">Soek lopende prosesse</string>
     <string name="processmgr_no_processes">Geen prosesse pas by jou soektog nie</string>
     <string name="processmgr_dialog_close">Maak toe</string>
-    <string name="processmgr_detail_version">Weergawe</string>
-    <string name="processmgr_detail_build">Bou</string>
-    <string name="processmgr_detail_package">Pakket</string>
     <string name="processmgr_result_killed">Vermoor %1$s</string>
     <string name="processmgr_result_kill_failed">Kon nie %1$s doodmaak nie</string>
     <string name="processmgr_result_stopped">Geforseer gestop %1$s</string>
@@ -1459,7 +1436,6 @@
     <string name="max_home_reboot_desc">Maak veilige herlaai-opsies oop</string>
     <string name="max_home_ai_console">MAX AI-konsole</string>
     <string name="max_home_ai_working">Pas tans versoekte profiel toe …</string>
-    <string name="max_home_ai_failed">Laaste KI-aksie het misluk</string>
     <string name="max_home_retry">Probeer weer</string>
     <string name="max_home_ai_idle">Geen KI-besluit is nog aangeteken nie</string>
     <string name="home_system_stable">STELSELSTABIEL</string>
@@ -1475,8 +1451,6 @@
     <string name="home_performance_monitor_desc">Hulpbronlading oor die laaste 72 sekondes</string>
     <string name="home_quick_actions">Beveldek</string>
     <string name="home_quick_actions_desc">Direkte toegang tot die kontroles wat saak maak</string>
-    <string name="home_action_boost">Prestasieprofiel</string>
-    <string name="home_action_boost_desc">Verander stelselgedrag</string>
     <string name="home_action_thermal">Termiese sentrum</string>
     <string name="home_action_thermal_desc">Inspekteer hitte en verkoeling</string>
     <string name="home_action_battery">Kragsentrum</string>
@@ -1496,7 +1470,6 @@
     <string name="home_active">AKTIEF</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">BESKERM</string>
-    <string name="home_device_overview">OOP TOESTELOORSIG</string>
     <string name="home_live_performance">Regstreekse optrede</string>
     <string name="home_live_performance_desc">Huidige vrag en direkte hardeware kontroles</string>
     <string name="home_open_details">Maak gedetailleerde termiese data oop</string>
@@ -1790,4 +1763,6 @@
     <string name="max_app_master_on_desc">Per-toepassing-optimalisasies word toegepas</string>
     <string name="max_app_advanced_options">Gevorderde opsies</string>
     <string name="max_app_save">Stoor</string>
+    <string name="home_gpu_max_freq">Maksimum frekw</string>
+    <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Doeltreffendheid %4$.2f\u00d7 \u00b7 RAM gered %5$d MB \u00b7 Ruil gebruik %6$d/%7$d MB</string>
 </resources>

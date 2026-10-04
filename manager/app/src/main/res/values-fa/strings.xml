@@ -7,7 +7,7 @@
     <string name="all_set">همه چیز آماده است، اکنون می‌توانید از Max Manager استفاده کنید</string>
     <string name="allow_verbose_log">خروجی لاگ دقیق برای دیمون</string>
     <string name="android_version">نسخه اندروید</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">نام برنامه</string>
     <string name="app_priority">اولویت برنامه</string>
     <string name="app_priority_control">کنترل اولویت برنامه</string>
@@ -515,7 +515,6 @@
     <string name="thermal_hide_trips">پنهان کردن سفرها</string>
     <string name="thermal_trip_points">نقاط سفر</string>
     <string name="thermal_trip_config">پیکربندی نقطه سفر</string>
-    <string name="zram_live_summary">بازده %6$d/%7$d MB</string>
     <string name="zram_presets_title">تنظیمات از پیش تعیین شده سریع</string>
     <string name="zram_tuning_title">موتور فشرده سازی</string>
     <string name="zram_custom_size">اندازه تعویض سفارشی</string>
@@ -724,15 +723,6 @@
     <string name="fps_overlay_notif_channel">پوشش FPS</string>
     <string name="fps_overlay_notif_title">Max Manager همپوشانی FPS در حال اجرا است</string>
     <string name="fps_overlay_notif_stop">توقف کنید</string>
-    <string name="fps_overlay_section_style">ظاهر</string>
-    <string name="fps_overlay_style">سبک همپوشانی</string>
-    <string name="fps_overlay_style_android">لیست اندروید</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">مینی</string>
-    <string name="fps_overlay_orientation">جهت چیدمان</string>
-    <string name="fps_overlay_orientation_vertical">عمودی</string>
-    <string name="fps_overlay_orientation_horizontal">افقی</string>
-    <string name="fps_overlay_read_mode">روش خواندن FPS</string>
     <string name="fps_overlay_read_mode_desc">اگر میزان خواندن در دستگاه شما روی 0 باقی ماند، روش دیگری را امتحان کنید</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (توصیه می شود)</string>
     <string name="fps_overlay_mode_kernel">گره هسته</string>
@@ -741,14 +731,6 @@
     <string name="fps_overlay_text_size">اندازه متن</string>
     <string name="fps_overlay_bg_alpha">کدورت پس زمینه</string>
     <string name="fps_overlay_width_scale">مقیاس عرض</string>
-    <string name="fps_overlay_section_metrics">معیارها نشان داده شده است</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU بار</string>
-    <string name="fps_overlay_metric_ram">RAM استفاده</string>
-    <string name="fps_overlay_metric_watt">مصرف برق باتری</string>
-    <string name="fps_overlay_metric_temp">دمای باتری</string>
-    <string name="fps_overlay_metric_render">برچسب رندر</string>
-    <string name="fps_overlay_metric_render_desc">VULKAN/OPENGL را به‌جای \"FPS\" به‌عنوان برچسب نشان می‌دهد که از کتابخانه‌های بارگیری شده برنامه پیش‌زمینه شناسایی شده است</string>
     <string name="dozemode_title">سیاست خواب</string>
     <string name="dozemode_menu_desc">لیست سفید آماده به کار، رفتار بیکار، و تنظیم قدرت پس زمینه</string>
     <string name="dozemode_state_label">حالت دوز</string>
@@ -784,9 +766,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">تنظیمات را باز کنید</string>
     <string name="processmgr_title">مانیتور وظیفه</string>
-    <string name="processmgr_menu_desc">استفاده در هر فرآیند CPU و RAM، با توقف نیرو و پوشش شناور</string>
     <string name="processmgr_stat_total">%1$d فرآیندها</string>
-    <string name="processmgr_stat_breakdown">سیستم %1$d کاربر \u00b7 %2$d</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">بالا %1$d</string>
@@ -806,9 +786,6 @@
     <string name="processmgr_search_hint">جستجوی فرآیندهای در حال اجرا</string>
     <string name="processmgr_no_processes">هیچ فرآیندی با جستجوی شما مطابقت ندارد</string>
     <string name="processmgr_dialog_close">بستن</string>
-    <string name="processmgr_detail_version">نسخه</string>
-    <string name="processmgr_detail_build">ساخت</string>
-    <string name="processmgr_detail_package">بسته</string>
     <string name="processmgr_result_killed">کشته شده %1$s</string>
     <string name="processmgr_result_kill_failed">نمی توان کشت %1$s</string>
     <string name="processmgr_result_stopped">توقف اجباری %1$s</string>
@@ -1458,7 +1435,6 @@
     <string name="max_home_reboot_desc">گزینه های راه اندازی مجدد ایمن را باز کنید</string>
     <string name="max_home_ai_console">کنسول MAX AI</string>
     <string name="max_home_ai_working">در حال اعمال نمایه درخواستی…</string>
-    <string name="max_home_ai_failed">آخرین اقدام هوش مصنوعی ناموفق بود</string>
     <string name="max_home_retry">دوباره امتحان کنید</string>
     <string name="max_home_ai_idle">هنوز هیچ تصمیم هوش مصنوعی ثبت نشده است</string>
     <string name="home_system_stable">سیستم پایدار</string>
@@ -1474,8 +1450,6 @@
     <string name="home_performance_monitor_desc">بارگیری منابع در 72 ثانیه گذشته</string>
     <string name="home_quick_actions">عرشه فرماندهی</string>
     <string name="home_quick_actions_desc">دسترسی مستقیم به کنترل هایی که مهم هستند</string>
-    <string name="home_action_boost">مشخصات عملکرد</string>
-    <string name="home_action_boost_desc">تغییر رفتار سیستم</string>
     <string name="home_action_thermal">مرکز حرارتی</string>
     <string name="home_action_thermal_desc">گرما و سرمایش را بررسی کنید</string>
     <string name="home_action_battery">مرکز قدرت</string>
@@ -1495,7 +1469,6 @@
     <string name="home_active">فعال</string>
     <string name="home_idle">بیکار</string>
     <string name="home_protected">محافظت شده</string>
-    <string name="home_device_overview">نمای کلی دستگاه را باز کنید</string>
     <string name="home_live_performance">اجرای زنده</string>
     <string name="home_live_performance_desc">بار فعلی و کنترل های سخت افزاری مستقیم</string>
     <string name="home_open_details">داده های حرارتی دقیق را باز کنید</string>
@@ -1790,4 +1763,6 @@
     <string name="max_app_master_on_desc">بهینه سازی برای هر برنامه در حال اعمال است</string>
     <string name="max_app_advanced_options">گزینه های پیشرفته</string>
     <string name="max_app_save">ذخیره کنید</string>
+    <string name="home_gpu_max_freq">حداکثر فرکانس</string>
+    <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 کارایی %4$.2f\u00d7 \u00b7 RAM ذخیره شده است %5$d MB \u00b7 تعویض استفاده شده است %6$d/%7$d MB</string>
 </resources>

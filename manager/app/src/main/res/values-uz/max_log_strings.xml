@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Batafsil</string>
+    <string name="max_log_level_debug">Nosozliklarni tuzatish</string>
+    <string name="max_log_level_info">Ma\'lumot</string>
+    <string name="max_log_level_warn">Ogohlantirish</string>
+    <string name="max_log_level_error">Xato</string>
+    <string name="max_log_level_assert">Tasdiqlash</string>
+    <string name="max_log_level_fatal">Fatal</string>
+    <string name="max_log_buffer_main">Asosiy</string>
+    <string name="max_log_buffer_system">Tizim</string>
+    <string name="max_log_buffer_crash">Halokat</string>
+    <string name="max_log_buffer_kernel">Yadro</string>
+    <string name="max_log_buffer_events">Voqealar</string>
+    <string name="max_log_buffer_radio">Radio</string>
+    <string name="max_log_source_daemon">Daemon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Boshqa</string>
+</resources>

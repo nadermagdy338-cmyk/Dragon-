@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Các gói đã cài đặt và các hoạt động mà chúng khai báo</string>
+    <string name="max_launcher_loading">Đọc các gói đã cài đặt và các hoạt động được khai báo của chúng…</string>
+    <string name="max_launcher_empty">Không có gói cài đặt nào khai báo hoạt động trên thiết bị này.</string>
+    <string name="max_launcher_search_placeholder">Tìm kiếm theo tên ứng dụng hoặc gói</string>
+    <string name="max_launcher_search_clear">Xóa tìm kiếm</string>
+    <string name="max_launcher_scope_all">Tất cả</string>
+    <string name="max_launcher_scope_user">người dùng</string>
+    <string name="max_launcher_scope_system">Hệ thống</string>
+    <string name="max_launcher_activity_count">hoạt động %1$d</string>
+    <string name="max_launcher_no_match_title">Không có gì phù hợp</string>
+    <string name="max_launcher_no_match_detail">Không có tên gói hoặc nhãn ứng dụng nào chứa văn bản đó trong phạm vi đã chọn.</string>
+    <string name="max_launcher_no_match_clear">Xóa bộ lọc</string>
+    <string name="max_launcher_reading_activities">Đọc các hoạt động gói này tuyên bố…</string>
+    <string name="max_launcher_no_activities">Gói này tuyên bố không có hoạt động.</string>
+    <string name="max_launcher_root_off_title">Root không được cấp</string>
+    <string name="max_launcher_root_off_detail">Các hoạt động được đánh dấu riêng tư sẽ không được xuất, vì vậy chỉ có root mới có thể khởi động chúng. Hoạt động xuất khẩu vẫn mở mà không có nó.</string>
+    <string name="max_launcher_tag_private">Riêng tư</string>
+    <string name="max_launcher_tag_disabled">Tàn tật</string>
+    <string name="max_launcher_outcome_started">Hoạt động đã bắt đầu</string>
+    <string name="max_launcher_outcome_needs_root">Hoạt động này không được xuất - cần có quyền root</string>
+    <string name="max_launcher_outcome_refused">Android từ chối bắt đầu hoạt động này</string>
+    <string name="max_launcher_outcome_missing">Không có hoạt động nào có tên đó được cài đặt</string>
+</resources>

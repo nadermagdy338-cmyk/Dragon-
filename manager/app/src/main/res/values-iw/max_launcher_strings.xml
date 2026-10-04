@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">חבילות מותקנות והפעילויות שהן מצהירות</string>
+    <string name="max_launcher_loading">קריאת חבילות מותקנות והפעילויות המוצהרות שלהן...</string>
+    <string name="max_launcher_empty">אף חבילה מותקנת לא מצהירה על פעילות במכשיר זה.</string>
+    <string name="max_launcher_search_placeholder">חפש לפי שם אפליקציה או חבילה</string>
+    <string name="max_launcher_search_clear">נקה את החיפוש</string>
+    <string name="max_launcher_scope_all">כֹּל</string>
+    <string name="max_launcher_scope_user">מִשׁתַמֵשׁ</string>
+    <string name="max_launcher_scope_system">מַעֲרֶכֶת</string>
+    <string name="max_launcher_activity_count">%1$d פעילויות</string>
+    <string name="max_launcher_no_match_title">שום דבר לא תואם</string>
+    <string name="max_launcher_no_match_detail">שום שם חבילה או תווית אפליקציה לא מכילים את הטקסט הזה בהיקף שנבחר.</string>
+    <string name="max_launcher_no_match_clear">נקה מסננים</string>
+    <string name="max_launcher_reading_activities">קורא את הפעילויות שמצהירות על החבילה הזו...</string>
+    <string name="max_launcher_no_activities">חבילה זו מצהירה שאין פעילויות.</string>
+    <string name="max_launcher_root_off_title">שורש לא מוענק</string>
+    <string name="max_launcher_root_off_detail">פעילויות המסומנות כפרטיות אינן מיוצאות, כך שרק root יכול להפעיל אותן. פעילויות מיוצאות עדיין פתוחות בלעדיה.</string>
+    <string name="max_launcher_tag_private">פְּרָטִי</string>
+    <string name="max_launcher_tag_disabled">נָכֶה</string>
+    <string name="max_launcher_outcome_started">הפעילות החלה</string>
+    <string name="max_launcher_outcome_needs_root">פעילות זו אינה מיוצאת - נדרש שורש</string>
+    <string name="max_launcher_outcome_refused">אנדרואיד סירבה להתחיל בפעילות זו</string>
+    <string name="max_launcher_outcome_missing">לא מותקנת פעילות בשם זה</string>
+</resources>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "AZenith.h"
+#include "MaxManager.h"
 
 /*
  * Best-effort native cleanup for MediaTek's authoritative GPU OPP lock.
@@ -259,10 +259,21 @@ int main_daemon(void) {
         // Keep Xiaomi thermal ownership aligned with the exact runtime state.
         // Ownership is established before apply_performance_profile() below,
         // and is released as soon as the screen is effectively off.
-        if (gamestart && effective_screen_state)
+        if (gamestart && effective_screen_state) {
             update_per_app_thermal_policy(&opts, gamestart);
-        else
+            // The per-app governor rides the same ownership point, and for the same reason
+            // the thermal policy does: while an app with a CPU/GPU override is in front,
+            // every profile path publishes sys.maxmanager.perapp.governor_isolation=1, which
+            // makes the profiles binary skip its own governor write. So the daemon must be the
+            // one that writes the node -- without this call both sides stand down and the
+            // governor silently keeps whatever the kernel chose, which is exactly the
+            // "governor does not change when selected" report. `opts` was just refilled for
+            // this package by get_gamestart() above, and the function is a no-op unless the app
+            // has an explicit governor. See PerAppKernel.c.
+            enforce_per_app_governors(&opts, gamestart);
+        } else {
             update_per_app_thermal_policy(NULL, NULL);
+        }
 
         if (gamestart && ctx.cur_mode == PERFORMANCE_PROFILE) {
             char dropfg_val[PROP_VALUE_MAX] = {0};

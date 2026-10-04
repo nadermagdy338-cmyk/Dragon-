@@ -12,17 +12,25 @@ import org.junit.Test
 import java.io.File
 
 /**
- * حارس لغوي لشاشتي التخزين والحرارة.
+ * حارس لغوي لشاشات التفصيل الثلاث: التخزين والحرارة **والشبكة**.
  *
- * شكوى المستخدم كانت: «غير متناسقة مع الشكل العام للتطبيق» — وهما كانتا فعلًا تُبنيان بلغة
- * لوحة البداية (`DashCardWrapper` + `LiveHeader` + `GlowLinearBar`) لا بلغة التطبيق، وتحملان
- * عناوين إنجليزية داخل شاشة عربية (`Internal Data` · `GB total` · `used · free`). وهذا كله
- * عطب لا يراه مُصرّف ولا اختبار وحدة، فالحرس هنا نصّي عن قصد — كما في حارس شاشة التطبيقات.
+ * شكوى المستخدم كانت: «غير متناسقة مع الشكل العام للتطبيق» — وهنّ كنّ فعلًا يُبنَيْن بلغة
+ * لوحة البداية (`DashCardWrapper` + `LiveHeader` + `GlowLinearBar` + شريط وبطاقة وحبّة خاصة)
+ * لا بلغة التطبيق، ويحملن عناوين إنجليزية داخل شاشة عربية (`Internal Data` · `GB total` ·
+ * `used · free`). وهذا كله عطب لا يراه مُصرّف ولا اختبار وحدة، فالحرس هنا نصّي عن قصد — كما
+ * في حارس شاشة التطبيقات.
+ *
+ * **والشبكة انضمّت في هذه الجولة بأمر المالك** («شكل شاشة الشبكة غير متناسق مع باقي التطبيق»)،
+ * وهي آخر من كان يُبنى باللغة القديمة — وكانت `src/main/java/nd/max/ui/mainscreens/DashboardDetailScreens.kt`
+ * تحمل أربعة أنظمة بديلة (شريط وبطاقة وحبّة وقائمة) لنفس الشاشة الواحدة. وبعد النقل صارت
+ * الشاشات الثلاث في `ui/subscreens` وبنفس الملفّ محروسًا؛ وإسقاط الشبكة من هذه القائمة كان
+ * سيُبقيها بلا حرس بعد نقلها، وهو نوع الانحلال الذي وُجد هذا الاختبار لمنعه.
  */
 class DetailScreensLanguageContractTest {
 
     private lateinit var storage: String
     private lateinit var thermal: String
+    private lateinit var network: String
 
     private fun source(name: String): String {
         val file = listOf(
@@ -42,13 +50,18 @@ class DetailScreensLanguageContractTest {
     fun readScreens() {
         storage = source("StorageDetailScreen.kt")
         thermal = source("ThermalDetailScreen.kt")
+        network = source("NetworkDetailScreen.kt")
     }
+
+    /** الشاشات الثلاث بعقد واحد — فلا يُنسى اسم عند إضافة شاشة رابعة. */
+    private fun screens(): Map<String, String> =
+        mapOf("storage" to storage, "thermal" to thermal, "network" to network)
 
     @Test
     fun `both screens are built from the shared page language`() {
         // `MaxGroup` بلا قوس: النداء بلامدا متأخّرة (`MaxGroup {`) لا يكتب قوسًا،
         // وحرس يبحث عن `MaxGroup(` يمرّ على الكود السليم فاشلًا.
-        mapOf("storage" to storage, "thermal" to thermal).forEach { (name, text) ->
+        screens().forEach { (name, text) ->
             listOf("MaxListScreen(", "MaxSection(", "MaxMetric", "MaxGroup").forEach { api ->
                 assertTrue("$name must be built from $api", text.contains(api))
             }
@@ -57,8 +70,15 @@ class DetailScreensLanguageContractTest {
 
     @Test
     fun `neither screen draws the dashboard language`() {
-        val forbidden = listOf("DashCardWrapper", "GlowLinearBar", "LiveHeader", "DetailStatCard", "IconBadge")
-        mapOf("storage" to storage, "thermal" to thermal).forEach { (name, text) ->
+        val forbidden = listOf(
+            "DashCardWrapper",
+            "GlowLinearBar",
+            "LiveHeader",
+            "DetailStatCard",
+            "DetailPill",
+            "IconBadge",
+        )
+        screens().forEach { (name, text) ->
             forbidden.forEach { api ->
                 assertFalse("$name must not use the home dashboard's $api", text.contains(api))
             }
@@ -79,7 +99,7 @@ class DetailScreensLanguageContractTest {
         val hardcodedEnglish = Regex(
             "\"[^\"\n]*(?:\\b(?:used|free|total|capacity|Internal Data|Internal Storage|UNAVAILABLE)\\b)[^\"\n]*\""
         )
-        listOf("storage" to storage, "thermal" to thermal).forEach { (name, text) ->
+        screens().forEach { (name, text) ->
             hardcodedEnglish.find(text)?.let { match ->
                 // `match.value` لا `$match`: `MatchResult.toString()` يطبع عنوان كائن
                 // (`kotlin.text.MatcherMatchResult@32ee6fee`) فلا يقول الحرس ماذا رأى.

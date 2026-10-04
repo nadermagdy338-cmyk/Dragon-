@@ -7,7 +7,7 @@
     <string name="all_set">Усё гатова, цяпер вы можаце выкарыстоўваць Max Manager</string>
     <string name="allow_verbose_log">Дэман выводзіць падрабязны журнал</string>
     <string name="android_version">Версія Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Назва прыкладання</string>
     <string name="app_priority">Прыярытэт прыкладання</string>
     <string name="app_priority_control">Кантроль прыярытэту прыкладання</string>
@@ -718,18 +718,11 @@
     <string name="fps_overlay_intro">Невялікае акно з магчымасцю перацягвання паказвае статыстыку прадукцыйнасці любой праграмы. Drag it anywhere on screen once enabled.</string>
     <string name="fps_overlay_enable">Паказаць накладку</string>
     <string name="fps_overlay_notif_stop">Стоп</string>
-    <string name="fps_overlay_section_style">Знешні выгляд</string>
-    <string name="fps_overlay_style_mini">Міні</string>
-    <string name="fps_overlay_orientation_horizontal">Гарызантальны</string>
     <string name="fps_overlay_read_mode_desc">Паспрабуйце іншы метад, калі паказанні на прыладзе застаюцца роўнымі 0</string>
     <string name="fps_overlay_accent_color">Акцэнтны колер</string>
     <string name="fps_overlay_text_size">Памер тэксту</string>
     <string name="fps_overlay_bg_alpha">Непразрыстасць фону</string>
     <string name="fps_overlay_width_scale">Шкала шырыні</string>
-    <string name="fps_overlay_metric_cpu">CPU загрузка</string>
-    <string name="fps_overlay_metric_watt">Зарад батарэі</string>
-    <string name="fps_overlay_metric_render">Этыкетка візуалізатара</string>
-    <string name="fps_overlay_metric_render_desc">Паказвае VULKAN/OPENGL замест \"FPS\" у якасці меткі, выяўленай з загружаных бібліятэк праграмы на першым плане</string>
     <string name="dozemode_title">Палітыка сну</string>
     <string name="dozemode_menu_desc">Белы спіс у рэжыме чакання, паводзіны ў рэжыме чакання і фонавая настройка харчавання</string>
     <string name="dozemode_state_label">Дрэмны стан</string>
@@ -757,8 +750,6 @@
     <string name="cpu">CPU</string>
     <string name="ram">RAM</string>
     <string name="open_settings">Адкрыйце налады</string>
-    <string name="processmgr_menu_desc">Выкарыстанне CPU і RAM для кожнага працэсу з прымусовай прыпынкам і плаваючай накладкай</string>
-    <string name="processmgr_stat_breakdown">%1$d карыстальнік \u00b7 %2$d сістэма</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Топ %1$d</string>
@@ -772,8 +763,6 @@
     <string name="processmgr_search_hint">Пошук запушчаных працэсаў</string>
     <string name="processmgr_no_processes">Няма працэсаў, якія адпавядаюць вашаму пошуку</string>
     <string name="processmgr_dialog_close">Блізка</string>
-    <string name="processmgr_detail_version">Версія</string>
-    <string name="processmgr_detail_package">Пакет</string>
     <string name="processmgr_result_stopped">Прымусова спынена %1$s</string>
     <string name="processmgr_result_stop_failed">Не атрымалася прымусова спыніць %1$s</string>
     <string name="setedit_title">Рэдактар ​​уласцівасцей</string>
@@ -1385,7 +1374,6 @@
     <string name="max_home_reboot_desc">Адкрыйце параметры бяспечнай перазагрузкі</string>
     <string name="max_home_ai_console">Кансоль MAX AI</string>
     <string name="max_home_ai_working">Прымяненне запытанага профілю…</string>
-    <string name="max_home_ai_failed">Апошняе дзеянне штучнага інтэлекту не атрымалася</string>
     <string name="max_home_retry">Паўтарыць</string>
     <string name="max_home_ai_idle">Пакуль не зафіксавана рашэння AI</string>
     <string name="home_system_stable">СІСТЭМА СТАБІЛЬНАЯ</string>
@@ -1401,8 +1389,6 @@
     <string name="home_performance_monitor_desc">Загрузка рэсурсу за апошнія 72 секунды</string>
     <string name="home_quick_actions">Камандная калода</string>
     <string name="home_quick_actions_desc">Прамы доступ да важных элементаў кіравання</string>
-    <string name="home_action_boost">Профіль прадукцыйнасці</string>
-    <string name="home_action_boost_desc">Змяніць паводзіны сістэмы</string>
     <string name="home_action_thermal">Тэрмальны цэнтр</string>
     <string name="home_action_thermal_desc">Праверце ацяпленне і астуджэнне</string>
     <string name="home_action_battery">Сілавы цэнтр</string>
@@ -1422,7 +1408,6 @@
     <string name="home_active">АКТЫЎНЫ</string>
     <string name="home_idle">ХАЛАСТЫ</string>
     <string name="home_protected">АБАРОНЕНА</string>
-    <string name="home_device_overview">АДКРЫЦЬ АГЛЯД ПРЫЛАДЫ</string>
     <string name="home_live_performance">Жывое выкананне</string>
     <string name="home_live_performance_desc">Бягучая нагрузка і прамы апаратны кантроль</string>
     <string name="home_open_details">Адкрыць падрабязныя цеплавыя дадзеныя</string>
@@ -1709,19 +1694,9 @@
     <string name="fps_overlay_needs_permission">Патрабуецца дазвол \"Паказваць паверх іншых праграм\".</string>
     <string name="fps_overlay_notif_channel">FPS Overlay</string>
     <string name="fps_overlay_notif_title">Max Manager Запушчана накладанне FPS</string>
-    <string name="fps_overlay_style">Стыль накладання</string>
-    <string name="fps_overlay_style_android">Спіс для андроіда</string>
-    <string name="fps_overlay_style_pc">Монапрасторны ПК</string>
-    <string name="fps_overlay_orientation">Напрамак кампаноўкі</string>
-    <string name="fps_overlay_orientation_vertical">Вертыкальны</string>
-    <string name="fps_overlay_read_mode">Метад чытання FPS</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (рэкамендуецца)</string>
     <string name="fps_overlay_mode_kernel">Вузел ядра</string>
     <string name="fps_overlay_mode_dumpsys">Часовая статыстыка Dumpsys</string>
-    <string name="fps_overlay_section_metrics">Паказаны паказчыкі</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_ram">RAM выкарыстанне</string>
-    <string name="fps_overlay_metric_temp">Тэмпература акумулятара</string>
     <string name="dozemode_stat_light_idle_count">Лёгкія цыклы халастога ходу: %1$d</string>
     <string name="dozemode_action_unforce">Прачнуцца</string>
     <string name="dozemode_enable">Уключыць Doze</string>
@@ -1737,7 +1712,6 @@
     <string name="processmgr_force_stop_confirm_title">Прымусова спыніць %1$s?</string>
     <string name="processmgr_kill_confirm_title">Забіць гэты працэс?</string>
     <string name="processmgr_overlay_title">Плаваючы манітор</string>
-    <string name="processmgr_detail_build">Будаваць</string>
     <string name="processmgr_result_killed">Забіты %1$s</string>
     <string name="processmgr_result_kill_failed">Не атрымалася забіць %1$s</string>
     <string name="setedit_tab_all">Усе</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Прымяняецца аптымізацыя для кожнай праграмы</string>
     <string name="max_app_advanced_options">Дадатковыя параметры</string>
     <string name="max_app_save">Захаваць</string>
+    <string name="home_gpu_max_freq">Макс. частата</string>
 </resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Asennetut paketit ja niiden ilmoittamat toiminnot</string>
+    <string name="max_launcher_loading">Asennettujen pakettien ja niiden ilmoitettujen toimintojen lukeminen…</string>
+    <string name="max_launcher_empty">Mikään asennettu paketti ei ilmoitta toimintaa tällä laitteella.</string>
+    <string name="max_launcher_search_placeholder">Hae sovelluksen nimen tai paketin mukaan</string>
+    <string name="max_launcher_search_clear">Tyhjennä haku</string>
+    <string name="max_launcher_scope_all">Kaikki</string>
+    <string name="max_launcher_scope_user">Käyttäjä</string>
+    <string name="max_launcher_scope_system">Järjestelmä</string>
+    <string name="max_launcher_activity_count">%1$d toimintaa</string>
+    <string name="max_launcher_no_match_title">Mikään ei vastaa</string>
+    <string name="max_launcher_no_match_detail">Mikään paketin nimi tai sovelluksen nimi ei sisällä kyseistä tekstiä valitussa laajuudessa.</string>
+    <string name="max_launcher_no_match_clear">Selkeät suodattimet</string>
+    <string name="max_launcher_reading_activities">Lukemalla tämän paketin ilmoittamia aktiviteetteja…</string>
+    <string name="max_launcher_no_activities">Tämä paketti ilmoittaa, ettei toimintaa ole.</string>
+    <string name="max_launcher_root_off_title">Root ei myönnetä</string>
+    <string name="max_launcher_root_off_detail">Yksityisiksi merkittyjä aktiviteetteja ei viedä, joten vain pääkäyttäjä voi aloittaa ne. Vientitoiminta on edelleen auki ilman sitä.</string>
+    <string name="max_launcher_tag_private">Yksityinen</string>
+    <string name="max_launcher_tag_disabled">Pois käytöstä</string>
+    <string name="max_launcher_outcome_started">Toiminta alkoi</string>
+    <string name="max_launcher_outcome_needs_root">Tätä toimintoa ei viedä – root tarvitaan</string>
+    <string name="max_launcher_outcome_refused">Android kieltäytyi aloittamasta tätä toimintaa</string>
+    <string name="max_launcher_outcome_missing">Mitään toimintaa tällä nimellä ei ole asennettu</string>
+</resources>

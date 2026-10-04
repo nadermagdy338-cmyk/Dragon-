@@ -22,38 +22,35 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import nd.max.core.gamespace.GameProfileRepository
 import nd.max.core.hardware.CpuHardwareBackend
-import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.util.AppConfig
 import nd.max.ui.util.applyGpuCeilingChoice
 import nd.max.ui.util.PerAppCpuRuntimeStatus
 import nd.max.ui.util.PerAppHardwareRuntimeStatus
 import nd.max.ui.util.readPerAppCpuRuntimeStatus
 import nd.max.ui.util.readPerAppHardwareRuntimeStatus
-import nd.max.ui.util.EventLog
+import nd.max.core.platform.EventLog
 import nd.max.ui.util.PerAppKernelUtil
 
 
 class AppSettingsViewModel : ViewModel() {
-    private val configPath = nd.max.MaxManagerPaths.APPLIST_JSON
-    private val jsonHandler = Json {
-        prettyPrint = true
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-    }
-    private val saveMutex = Mutex()
-
     var fullConfig by mutableStateOf<Map<String, AppConfig>>(emptyMap())
         private set
+    var configFailed by mutableStateOf(false)
+        private set
+
+    init {
+        viewModelScope.launch {
+            GameProfileRepository.state.collect {
+                fullConfig = it.profiles
+                configFailed = it.failed
+            }
+        }
+    }
 
     var availableCpuGovernors by mutableStateOf<List<String>>(emptyList())
         private set
@@ -81,64 +78,18 @@ class AppSettingsViewModel : ViewModel() {
     var hardwareRuntimeStatus by mutableStateOf(PerAppHardwareRuntimeStatus())
         private set
 
-    fun loadConfig() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val content = RootFileAccess.read(configPath)
-                if (!content.isNullOrEmpty()) {
-                    val decoded = jsonHandler.decodeFromString<Map<String, AppConfig>>(content)
-                    val migrated = decoded.mapValues { (_, cfg) ->
-                        if (cfg.gpu_profile == "default" && cfg.thermal_profile != "default") {
-                            cfg.copy(gpu_profile = when (cfg.thermal_profile.lowercase()) {
-                                "powersave" -> "power"
-                                else -> cfg.thermal_profile.lowercase()
-                            }, thermal_profile = "default")
-                        } else cfg
-                    }
-                    withContext(Dispatchers.Main) { fullConfig = migrated }
-                }
-            } catch (e: Exception) {
-                EventLog.error("AppSettings", "load_config", e)
-            }
-        }
-    }
+    fun loadConfig() { viewModelScope.launch { GameProfileRepository.load() } }
 
-    private fun saveAndRefresh(newMap: Map<String, AppConfig>) {
-        // Update the in-memory model immediately so rapid consecutive toggles
-        // compose from the latest state instead of racing against the previous
-        // IO write. Disk writes are serialized below so the last user action
-        // cannot be overwritten by an older coroutine finishing later.
-        fullConfig = newMap
-        viewModelScope.launch(Dispatchers.IO) {
-            saveMutex.withLock {
-                try {
-                    val jsonString = jsonHandler.encodeToString(newMap)
-                    if (!RootFileAccess.atomicWriteText(configPath, jsonString)) {
-                        error("atomicWriteText failed for $configPath")
-                    }
-                } catch (e: Exception) {
-                    EventLog.error("AppSettings", "save_config", e)
-                }
-            }
-        }
+    private fun change(packageName: String, transform: (AppConfig?) -> AppConfig?) {
+        viewModelScope.launch { GameProfileRepository.update(packageName, transform) }
     }
 
     fun resetAppSettings(packageName: String) {
-        val newMap = fullConfig.toMutableMap()
-        newMap[packageName] = AppConfig()
         EventLog.userAction(screen = "AppSettings", field = "reset_all", old = "custom", new = "default", pkg = packageName)
-        saveAndRefresh(newMap)
+        change(packageName) { AppConfig() }
     }
 
     fun toggleMasterSwitch(packageName: String, isEnabled: Boolean) {
-        val newMap = fullConfig.toMutableMap()
-        if (isEnabled) {
-            if (!newMap.containsKey(packageName)) {
-                newMap[packageName] = AppConfig()
-            }
-        } else {
-            newMap.remove(packageName)
-        }
         EventLog.userAction(
             screen = "AppSettings",
             field = "master_switch",
@@ -146,7 +97,7 @@ class AppSettingsViewModel : ViewModel() {
             new = isEnabled.toString(),
             pkg = packageName,
         )
-        saveAndRefresh(newMap)
+        change(packageName) { if (isEnabled) it ?: AppConfig() else null }
     }
 
     fun loadKernelCapabilities(packageName: String? = null) {
@@ -181,7 +132,12 @@ class AppSettingsViewModel : ViewModel() {
     }
 
     fun updateSetting(packageName: String, key: String, value: String) {
-        val currentAppConfig = fullConfig[packageName] ?: AppConfig()
+        change(packageName) { current ->
+            updateConfig(current ?: AppConfig(), packageName, key, value)
+        }
+    }
+
+    private fun updateConfig(currentAppConfig: AppConfig, packageName: String, key: String, value: String): AppConfig {
         val oldValue = fieldValue(currentAppConfig, key)
         val updated = when (key) {
             "perf_lite_mode" -> currentAppConfig.copy(perf_lite_mode = value)
@@ -190,12 +146,7 @@ class AppSettingsViewModel : ViewModel() {
             "game_preload" -> currentAppConfig.copy(game_preload = value)
             "cpu_boost" -> currentAppConfig.copy(cpu_boost = value)
             "cpu_policy_controls" -> currentAppConfig.copy(cpu_policy_controls = value)
-            // مقبض سقف GPU: **مالك واحد** (البروفايل أو التردد الصريح، ولا يجتمعان). والقاعدة في
-            // [applyGpuCeilingChoice] الخالصة ليست تعقيدًا: العطب الذي أوجبتها مقيس من سجل جهاز
-            // حقيقي، فهو مُختبر هناك بلا محاكي Android. وكان اختيار «Performance» يُبقي
-            // `gpu_max_freq` محفوظًا من قبل فيُقدَّم عليه في `AppMonitor` — أي يُلغى صامتًا.
-            "gpu_profile", "gpu_max_freq", "thermal_profile" ->
-                applyGpuCeilingChoice(currentAppConfig, key, value)
+            "gpu_profile", "gpu_max_freq", "thermal_profile" -> applyGpuCeilingChoice(currentAppConfig, key, value)
             "cpu_governor" -> currentAppConfig.copy(cpu_governor = value)
             "gpu_governor" -> currentAppConfig.copy(gpu_governor = value)
             "refresh_rate" -> currentAppConfig.copy(refresh_rate = value)
@@ -213,9 +164,7 @@ class AppSettingsViewModel : ViewModel() {
         if (updated != currentAppConfig && oldValue != value) {
             EventLog.userAction(screen = "AppSettings", field = key, old = oldValue, new = value, pkg = packageName)
         }
-        val newMap = fullConfig.toMutableMap()
-        newMap[packageName] = updated
-        saveAndRefresh(newMap)
+        return updated
     }
 
     /**

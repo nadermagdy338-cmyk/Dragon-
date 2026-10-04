@@ -95,6 +95,7 @@ import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
 import nd.max.ui.design.MaxUsageBar
 import nd.max.ui.design.content
+import nd.max.ui.component.MaxDeviceInfoShortcut
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 import nd.max.ui.theme.MonoValueStyleSmall
@@ -223,6 +224,8 @@ fun StorageDetailScreen(navController: NavHostController) {
     ) {
         if (primary != null) {
             item(key = "storage_overview") {
+                // وزرّ قسم التخزين في «معلومات الجهاز» في آخر بطاقة النظرة العامة — أوّل
+                // بطاقة في الشاشة — كبسولة بأيقونة وكلمة لا أيقونة مجرّدة (أمر المالك).
                 MaxSection(title = stringResource(R.string.detail_storage_overview)) {
                     MaxGroup {
                         MaxMetricLine(
@@ -278,6 +281,8 @@ fun StorageDetailScreen(navController: NavHostController) {
                                 source = "/proc/mounts"
                             )
                         )
+                        MaxGroupDivider()
+                        MaxDeviceInfoShortcut(navController, MaxDestination.StorageDetail)
                     }
                 }
             }

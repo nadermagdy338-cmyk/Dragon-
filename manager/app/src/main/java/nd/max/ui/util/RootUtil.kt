@@ -15,6 +15,8 @@
  */
 
 package nd.max.ui.util
+import nd.max.core.platform.PropertyUtils
+import nd.max.core.platform.EventLog
 
 import nd.max.MaxManagerPaths
 import nd.max.MaxManagerProps
@@ -59,7 +61,7 @@ object RootUtils {
      * والقياس من حزمة سجلّات جهاز حقيقي (2026-09-20، مرّتين في جلستين مختلفتين):
      * `UI_ERROR screen=RootUtils operation=write_root_file:/data/data/nd.max/API/current_profile
      * detail=… open failed: EACCES (Permission denied)` — على مسار تكتبه الخدمة أصلًا
-     * (`PROFILE_MODE_APP` في `AZenith.h`)، فلا يبقى تخمين: مرآة الملف يجب أن تُكتب
+     * (`PROFILE_MODE_APP` في `MaxManager.h`)، فلا يبقى تخمين: مرآة الملف يجب أن تُكتب
      * بالجذر، والسجل يجب أن يقول الحقيقة عند الفشل الحقيقي وحده.
      */
     private fun writeRootFile(path: String, content: String) {

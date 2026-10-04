@@ -7,7 +7,7 @@
     <string name="all_set">準備完了、Max Manager をご利用いただけます</string>
     <string name="allow_verbose_log">デーモンが詳細なログを出力</string>
     <string name="android_version">Androidバージョン</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">アプリ名</string>
     <string name="app_priority">アプリの優先度</string>
     <string name="app_priority_control">アプリの優先度制御</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS オーバーレイ</string>
     <string name="fps_overlay_notif_title">Max Manager FPS オーバーレイが実行中です</string>
     <string name="fps_overlay_notif_stop">停止</string>
-    <string name="fps_overlay_section_style">外観</string>
-    <string name="fps_overlay_style">オーバーレイスタイル</string>
-    <string name="fps_overlay_style_android">アンドロイド一覧</string>
-    <string name="fps_overlay_style_pc">PC等幅</string>
-    <string name="fps_overlay_style_mini">ミニ</string>
-    <string name="fps_overlay_orientation">レイアウト方向</string>
-    <string name="fps_overlay_orientation_vertical">垂直</string>
-    <string name="fps_overlay_orientation_horizontal">水平</string>
-    <string name="fps_overlay_read_mode">FPS読み込み方式</string>
     <string name="fps_overlay_read_mode_desc">デバイスの測定値が 0 のままの場合は、別の方法を試してください</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (推奨)</string>
     <string name="fps_overlay_mode_kernel">カーネルノード</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">文字サイズ</string>
     <string name="fps_overlay_bg_alpha">背景の不透明度</string>
     <string name="fps_overlay_width_scale">幅スケール</string>
-    <string name="fps_overlay_section_metrics">表示されるメトリクス</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU 負荷</string>
-    <string name="fps_overlay_metric_ram">RAMの使用法</string>
-    <string name="fps_overlay_metric_watt">バッテリー消費電力</string>
-    <string name="fps_overlay_metric_temp">バッテリー温度</string>
-    <string name="fps_overlay_metric_render">レンダララベル</string>
-    <string name="fps_overlay_metric_render_desc">フォアグラウンド アプリのロードされたライブラリから検出されたラベルとして「FPS」の代わりに VULKAN/OPENGL が表示されます</string>
     <string name="dozemode_title">睡眠ポリシー</string>
     <string name="dozemode_menu_desc">スタンバイ ホワイトリスト、アイドル動作、バックグラウンド電源調整</string>
     <string name="dozemode_state_label">居眠り状態</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">設定を開く</string>
     <string name="processmgr_title">タスクモニター</string>
-    <string name="processmgr_menu_desc">プロセスごとの CPU および RAM の使用 (強制停止およびフローティング オーバーレイあり)</string>
     <string name="processmgr_stat_total">%1$d プロセス</string>
-    <string name="processmgr_stat_breakdown">%1$d ユーザー \u00b7 %2$d システム</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">トップ %1$d</string>
@@ -807,9 +788,6 @@
     <string name="processmgr_search_hint">実行中のプロセスを検索する</string>
     <string name="processmgr_no_processes">検索に一致するプロセスはありません</string>
     <string name="processmgr_dialog_close">近い</string>
-    <string name="processmgr_detail_version">バージョン</string>
-    <string name="processmgr_detail_build">建てる</string>
-    <string name="processmgr_detail_package">パッケージ</string>
     <string name="processmgr_result_killed">殺されました %1$s</string>
     <string name="processmgr_result_kill_failed">%1$sを殺せませんでした</string>
     <string name="processmgr_result_stopped">強制停止 %1$s</string>
@@ -1458,7 +1436,6 @@
     <string name="max_home_reboot_desc">安全な再起動オプションを開く</string>
     <string name="max_home_ai_console">MAX AI コンソール</string>
     <string name="max_home_ai_working">要求されたプロファイルを適用しています…</string>
-    <string name="max_home_ai_failed">最後の AI アクションが失敗しました</string>
     <string name="max_home_retry">リトライ</string>
     <string name="max_home_ai_idle">AI による決定はまだ記録されていません</string>
     <string name="home_system_stable">システムが安定しています</string>
@@ -1474,8 +1451,6 @@
     <string name="home_performance_monitor_desc">過去 72 秒間のリソース負荷</string>
     <string name="home_quick_actions">コマンドデッキ</string>
     <string name="home_quick_actions_desc">重要なコントロールへの直接アクセス</string>
-    <string name="home_action_boost">パフォーマンスプロファイル</string>
-    <string name="home_action_boost_desc">システムの動作を変更する</string>
     <string name="home_action_thermal">サーマルセンター</string>
     <string name="home_action_thermal_desc">加熱と冷却を検査する</string>
     <string name="home_action_battery">パワーセンター</string>
@@ -1495,7 +1470,6 @@
     <string name="home_active">アクティブ</string>
     <string name="home_idle">アイドル</string>
     <string name="home_protected">保護されています</string>
-    <string name="home_device_overview">オープンデバイスの概要</string>
     <string name="home_live_performance">ライブパフォーマンス</string>
     <string name="home_live_performance_desc">現在の負荷と直接ハードウェア制御</string>
     <string name="home_open_details">詳細な熱データを開く</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">アプリごとの最適化が適用されています</string>
     <string name="max_app_advanced_options">詳細オプション</string>
     <string name="max_app_save">保存</string>
+    <string name="home_gpu_max_freq">最大周波数</string>
 </resources>

@@ -7,7 +7,7 @@
     <string name="all_set">Dena prest, orain Max Manager erabil dezakezu</string>
     <string name="allow_verbose_log">Zaindari prozesuaren erregistro xehea</string>
     <string name="android_version">Android bertsioa</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Aplikazioaren izena</string>
     <string name="app_priority">Aplikazioaren lehentasuna</string>
     <string name="app_priority_control">Aplikazioen lehentasunaren kontrola</string>
@@ -722,15 +722,6 @@
     <string name="fps_overlay_notif_channel">FPS gainjartzea</string>
     <string name="fps_overlay_notif_title">Max Manager FPS gainjartzea martxan da</string>
     <string name="fps_overlay_notif_stop">Gelditu</string>
-    <string name="fps_overlay_section_style">Itxura</string>
-    <string name="fps_overlay_style">Gainjartze estiloa</string>
-    <string name="fps_overlay_style_android">Android zerrenda</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Diseinuaren norabidea</string>
-    <string name="fps_overlay_orientation_vertical">Bertikala</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontala</string>
-    <string name="fps_overlay_read_mode">FPS irakurtzeko metodoa</string>
     <string name="fps_overlay_read_mode_desc">Saiatu beste metodo bat irakurketa 0-n geratzen bada zure gailuan</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (gomendatua)</string>
     <string name="fps_overlay_mode_kernel">Kernel nodoa</string>
@@ -739,14 +730,6 @@
     <string name="fps_overlay_text_size">Testuaren tamaina</string>
     <string name="fps_overlay_bg_alpha">Atzeko planoaren opakutasuna</string>
     <string name="fps_overlay_width_scale">Zabalera eskala</string>
-    <string name="fps_overlay_section_metrics">Bistaratzen diren metrikak</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU kargatu</string>
-    <string name="fps_overlay_metric_ram">RAM erabilera</string>
-    <string name="fps_overlay_metric_watt">Bateriaren kontsumoa</string>
-    <string name="fps_overlay_metric_temp">Bateriaren tenperatura</string>
-    <string name="fps_overlay_metric_render">Errendatzailearen etiketa</string>
-    <string name="fps_overlay_metric_render_desc">\"FPS\"-ren ordez VULKAN/OPENGL erakusten du etiketa gisa, lehen planoko aplikazioak kargatutako liburutegietatik detektatuta</string>
     <string name="dozemode_title">Lo egiteko politika</string>
     <string name="dozemode_menu_desc">Egonean dagoen zerrenda zuria, inaktibo jokabidea eta atzeko planoko potentziaren doikuntza</string>
     <string name="dozemode_state_label">Doze egoera</string>
@@ -782,9 +765,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Ireki ezarpenak</string>
     <string name="processmgr_title">Zereginen monitorea</string>
-    <string name="processmgr_menu_desc">Prozesu bakoitzeko CPU eta RAM erabilera, indar-stoparekin eta gainjarri flotagarriarekin</string>
     <string name="processmgr_stat_total">%1$d prozesuak</string>
-    <string name="processmgr_stat_breakdown">%1$d erabiltzailea \u00b7 %2$d sistema</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Goiena %1$d</string>
@@ -804,9 +785,6 @@
     <string name="processmgr_search_hint">Bilatu martxan dauden prozesuak</string>
     <string name="processmgr_no_processes">Ez dago zure bilaketarekin bat datorren prozesurik</string>
     <string name="processmgr_dialog_close">Itxi</string>
-    <string name="processmgr_detail_version">Bertsioa</string>
-    <string name="processmgr_detail_build">Eraiki</string>
-    <string name="processmgr_detail_package">Paketea</string>
     <string name="processmgr_result_killed">Hil %1$s</string>
     <string name="processmgr_result_kill_failed">Ezin izan da %1$s hil</string>
     <string name="processmgr_result_stopped">Indarrez geldituta %1$s</string>
@@ -1450,7 +1428,6 @@
     <string name="max_home_reboot_desc">Ireki berrabiarazteko aukera seguruak</string>
     <string name="max_home_ai_console">MAX AI kontsola</string>
     <string name="max_home_ai_working">Eskatutako profila aplikatzen…</string>
-    <string name="max_home_ai_failed">AIren azken ekintzak huts egin du</string>
     <string name="max_home_retry">Saiatu berriro</string>
     <string name="max_home_ai_idle">Oraindik ez dago AIren erabakirik erregistratu</string>
     <string name="home_system_stable">SISTEMA EGONkorra</string>
@@ -1466,8 +1443,6 @@
     <string name="home_performance_monitor_desc">Baliabideen karga azken 72 segundoetan</string>
     <string name="home_quick_actions">Agindu-sorta</string>
     <string name="home_quick_actions_desc">Garrantzitsuak diren kontroletarako sarbide zuzena</string>
-    <string name="home_action_boost">Errendimendu-profila</string>
-    <string name="home_action_boost_desc">Sistemaren portaera aldatzea</string>
     <string name="home_action_thermal">Zentro termikoa</string>
     <string name="home_action_thermal_desc">Ikuskatu beroa eta hoztea</string>
     <string name="home_action_battery">Potentzia zentroa</string>
@@ -1487,7 +1462,6 @@
     <string name="home_active">AKTIBOA</string>
     <string name="home_idle">NAGUSIA</string>
     <string name="home_protected">BABESATUTA</string>
-    <string name="home_device_overview">IREKI GAILUAREN IKUSPEGI OROKORRA</string>
     <string name="home_live_performance">Zuzeneko emanaldia</string>
     <string name="home_live_performance_desc">Uneko karga eta hardware zuzeneko kontrolak</string>
     <string name="home_open_details">Ireki datu termiko zehatzak</string>
@@ -1554,7 +1528,7 @@
     <string name="home_story_live_loop">Zuzeneko begizta</string>
     <string name="home_story_heat_map">Beroaren mapa</string>
     <string name="home_story_heat_headline">Beroa errendimendua moldatzen ari da</string>
-    <string name="home_story_heat_desc">Bateria %1$d°C-tan dago, eta CPU karga %%2$d% da. Hurrengo ekintza onena beroa nondik datorren ulertzea da errendimendu gehiago bultzatu aurretik.</string>
+    <string name="home_story_heat_desc">Bateria %1$d°C-tan dago, eta CPU karga %2$d%% da. Hurrengo ekintza onena beroa nondik datorren ulertzea da errendimendu gehiago bultzatu aurretik.</string>
     <string name="home_story_cpu_headline">Konputazio-karga da egungo botila-lepoa</string>
     <string name="home_story_cpu_desc">CPU karga %1$d%% da %2$s-n. Max Manager benetako presioa ikusten ari da, ez soilik hautatutako profil bat.</string>
     <string name="home_story_memory_headline">Memoriaren presioa gero eta handiagoa da</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Aplikazio bakoitzeko optimizazioak aplikatzen ari dira</string>
     <string name="max_app_advanced_options">Aukera aurreratuak</string>
     <string name="max_app_save">Gorde</string>
+    <string name="home_gpu_max_freq">Gehienezko maiztasuna</string>
 </resources>

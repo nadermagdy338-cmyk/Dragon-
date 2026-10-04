@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Maximálna lehota (nás)</string>
+    <string name="max_sched_tunable_deadline_period_min">Min. lehota (nás)</string>
+    <string name="max_sched_tunable_energy_aware">Energy Aware</string>
+    <string name="max_sched_tunable_latency">Latencia (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Náklady na migráciu (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimálna zrnitosť (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Veľkosť dávky migrácie</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT Multiplikátor</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Obdobie v reálnom čase (nás)</string>
+    <string name="max_sched_tunable_rt_runtime">Real-Time Runtime (nás)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Podlaha UClamp v reálnom čase</string>
+    <string name="max_sched_tunable_wakeup_granularity">Granulárnosť prebudenia (ns)</string>
+</resources>

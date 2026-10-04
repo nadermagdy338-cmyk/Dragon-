@@ -58,7 +58,7 @@ import nd.max.ui.util.BackupManager
 import nd.max.ui.util.ConfigBackupInventory
 import nd.max.ui.util.MaxPrefsBundle
 import nd.max.ui.util.RootUtils
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 import nd.max.ui.viewmodel.TweakViewModel
 
 /**

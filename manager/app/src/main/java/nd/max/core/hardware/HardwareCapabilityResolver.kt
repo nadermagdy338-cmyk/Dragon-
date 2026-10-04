@@ -7,7 +7,7 @@ package nd.max.core.hardware
 
 import android.content.Context
 import android.os.Build
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 /**
  * Read-only capability discovery. Unsupported controls remain visible to the

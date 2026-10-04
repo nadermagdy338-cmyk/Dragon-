@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <AZenith.h>
+#include <MaxManager.h>
 
 /**
  * @brief Sets the maximum CPU nice priority (-20) and real-time I/O priority for a given process.

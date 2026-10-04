@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Quraşdırılmış paketlər və onların elan etdikləri fəaliyyətlər</string>
+    <string name="max_launcher_loading">Quraşdırılmış paketlər və onların elan edilmiş fəaliyyətləri oxunur...</string>
+    <string name="max_launcher_empty">Heç bir quraşdırılmış paket bu cihazda fəaliyyət elan etmir.</string>
+    <string name="max_launcher_search_placeholder">Proqram adı və ya paketi ilə axtarın</string>
+    <string name="max_launcher_search_clear">Axtarışı təmizləyin</string>
+    <string name="max_launcher_scope_all">Hamısı</string>
+    <string name="max_launcher_scope_user">İstifadəçi</string>
+    <string name="max_launcher_scope_system">Sistem</string>
+    <string name="max_launcher_activity_count">%1$d fəaliyyətlər</string>
+    <string name="max_launcher_no_match_title">Heç nə uyğun gəlmir</string>
+    <string name="max_launcher_no_match_detail">Heç bir paket adı və ya tətbiq etiketi seçilmiş əhatə dairəsində həmin mətni ehtiva etmir.</string>
+    <string name="max_launcher_no_match_clear">Filtrləri təmizləyin</string>
+    <string name="max_launcher_reading_activities">Bu paketin elan etdiyi fəaliyyətləri oxumaqla…</string>
+    <string name="max_launcher_no_activities">Bu paket heç bir fəaliyyət elan etmir.</string>
+    <string name="max_launcher_root_off_title">Kök verilmir</string>
+    <string name="max_launcher_root_off_detail">Şəxsi olaraq qeyd olunan fəaliyyətlər ixrac edilmir, ona görə də yalnız kök onları başlaya bilər. İxrac edilən fəaliyyətlər hələ də onsuz açıqdır.</string>
+    <string name="max_launcher_tag_private">Şəxsi</string>
+    <string name="max_launcher_tag_disabled">Əlil</string>
+    <string name="max_launcher_outcome_started">Fəaliyyət başladı</string>
+    <string name="max_launcher_outcome_needs_root">Bu fəaliyyət ixrac edilmir - kök tələb olunur</string>
+    <string name="max_launcher_outcome_refused">Android bu fəaliyyətə başlamaqdan imtina etdi</string>
+    <string name="max_launcher_outcome_missing">Bu adla heç bir fəaliyyət quraşdırılmayıb</string>
+</resources>

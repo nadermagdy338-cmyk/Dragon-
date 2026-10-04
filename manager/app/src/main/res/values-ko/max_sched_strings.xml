@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">마감일 최대 기간(us)</string>
+    <string name="max_sched_tunable_deadline_period_min">마감 기간 최소(us)</string>
+    <string name="max_sched_tunable_energy_aware">에너지 인식</string>
+    <string name="max_sched_tunable_latency">지연 시간(ns)</string>
+    <string name="max_sched_tunable_migration_cost">마이그레이션 비용(ns)</string>
+    <string name="max_sched_tunable_min_granularity">최소 세분성(ns)</string>
+    <string name="max_sched_tunable_nr_migrate">마이그레이션 배치 크기</string>
+    <string name="max_sched_tunable_pelt_multiplier">펠트 승수</string>
+    <string name="max_sched_tunable_rr_timeslice">라운드 로빈 타임슬라이스(ms)</string>
+    <string name="max_sched_tunable_rt_period">실시간 기간(us)</string>
+    <string name="max_sched_tunable_rt_runtime">실시간 런타임(우리)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">실시간 UClamp 플로어</string>
+    <string name="max_sched_tunable_wakeup_granularity">Wakeup 세분성(ns)</string>
+</resources>

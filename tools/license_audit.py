@@ -158,15 +158,6 @@ SOURCES: list[dict] = [
         "used_for": "مدقّق طرفية (VT) وواجهة الطرفية وثنائية الـJNI",
     },
     {
-        "id": "anykernel3",
-        "license": "AnyKernel Scripts License (BSD-معيارية)",
-        "spdx": "BSD-3-Clause",
-        "risk": RISK_FREE,
-        "reference": "https://github.com/osm0sis/AnyKernel3",
-        "evidence": r"anykernel",
-        "used_for": "صيغة حزمة تفليش النواة (تُنفَّذ وقت التشغيل، لا تُوزَّع)",
-    },
-    {
         "id": "Magisk (magiskboot)",
         "license": "GNU GPL v3.0",
         "spdx": "GPL-3.0-only",
@@ -218,7 +209,27 @@ SOURCES: list[dict] = [
         "risk": RISK_FREE,
         "reference": "https://github.com/hoytech/vmtouch",
         "evidence": r"VMTouch|vmtouch|Doug Hoyte",
-        "used_for": "تثبيت الصفحات في الذاكرة",
+        # دليل **مضمَّن** صارم المقصد: يظهر داخل الشيفرة لا في نثر. أُضيف بعد قياس كشف
+        # أن `preloadbin/jni/main.c` هو vmtouch نفسه (٩٩٫٧٪ مطابقة) تحت ترويسة ملكية،
+        # وأن `classify_head` لم يره لأن الترويسة لا تذكر الأصل — فبقي «ملكيًّا» في صمت.
+        # ولو كان الدليل عامًّا (كـ`vmtouch` وحدها) لأوقعنا إيجابيات كاذبة كالاسم في قيمة.
+        "embedded": r"VMTOUCH_VERSION|vmtouch_(?:file|crawl|batch_crawl)|hoytech/vmtouch",
+        "used_for": "مكوّن `preloadbin` (vmtouch 1.4.1 مُضمَّن ومُعدَّل) — كود لا منهج",
+    },
+    {
+        "id": "DolbyUI (Lunaris AOSP)",
+        "license": "Apache License 2.0",
+        "spdx": "Apache-2.0",
+        "risk": RISK_FREE,
+        "reference": "https://github.com/Digimend-X-Rodin/packages_apps_DolbyUI",
+        # ولا كلمة `Dolby` وحدها: هي اسم مؤثّر عتاديّ وصيغة معامل تظهر في وصف أجهزةٍ وملفات
+        # صوت نظاميّة، فتُوقع إيجابيّات كاذبة تُفرغ البوابة من معناها. الإسناد يطلب **مسار
+        # المستودع** نفسه أو اسم حزمته (`LunarisDolby`) — وهما لا يظهران إلّا في نسبةٍ.
+        "evidence": r"packages_apps_DolbyUI|LunarisDolby|Digimend-X-Rodin",
+        # ودليل **مضمَّن** صارم المقصد كذلك: مسار المصدر داخل الشيفرة. أُضيف لأن ملفّاتنا تحمل
+        # ترويسة ملكيّة فوق نصّ النسبة، ومسار المستودع لا يظهر إلّا في نسبةٍ فعلًا.
+        "embedded": r"Digimend-X-Rodin/packages_apps_DolbyUI|LunarisDolby",
+        "used_for": "مفردات الصوت البصريّة: شريط الموجة · أعمدة المعادل · لوح المنحنى القابل للسحب · البطاقة والتبويبات العائمة",
     },
     {
         "id": "Android Open Source Project",
@@ -252,6 +263,12 @@ PROSE_ONLY_PREFIXES = ("docs/", "tools/")
 OWNERS = re.compile(
     r"Zexshia|KowX|\bRapli\b|MaxManager contributors|MaxManager Project|Nader Magdy", re.I)
 APACHE_HEADER = re.compile(r"Apache License,?\s*Version 2\.0", re.I)
+# نصّ ترويسة الملكية التي نكتبها نحن. يُقرأ ليميّز ملفًا **ملكيّتنا** عن ملف يحمل
+# ترويسة Apache-2.0 لمؤلّف خارجي — وهذا الفرق هو الفرق بين «كودنا» و«كود مأذون بطرف ثالث».
+PROPRIETARY_HEADER = re.compile(r"Proprietary and confidential", re.I)
+# اسم صاحب الحقّ الذي نضعه على كود MaxManager الأصلي. ما خالفه في ترويسة Apache يُحفظ
+# إشعاره ولا يُدَّعى ملكيًّا عليه (أمر المالك: لا تُدَّعِ كود طرف ثالث كأنه أصليّ).
+PROJECT_HOLDER = re.compile(r"Nader Magdy", re.I)
 GPL_HEADER = re.compile(r"GNU General Public License|GPL-?3|GPLv3", re.I)
 COPYRIGHT = re.compile(r"Copyright\s*\(?[Cc]\)?\s*((?:\d{4}\s*[-–]\s*\d{4})|\d{4})\s*([A-Za-z][\w .'-]*)")
 
@@ -274,6 +291,9 @@ MODULE_FAMILIES: list[tuple[str, str, str, int]] = [
     (r"^manager/kernel-flasher/", "KernelFlasher", "Apache-2.0", RISK_FREE),
     (r"^manager/src/main/rust/", "MaxManager (native engine)", PROPRIETARY, RISK_FREE),
     (r"^manager/", "MaxManager app", PROPRIETARY, RISK_FREE),
+    # مجلّد اختبارات المضيف الذي أنشأناه نحن: عائلة صريحة تسبق عائلة الوحدة الموروثة،
+    # وإلا نُسبت ملفاتنا إلى Apache-2.0 لأن `archdaemon/` موروث.
+    (r"^archdaemon/tests/", "MaxManager (host parity tests)", PROPRIETARY, RISK_FREE),
     (r"^archdaemon/", "Encore Daemon (via AZenith)", "Apache-2.0", RISK_FREE),
     (r"^mainfiles/", "MaxManager module", PROPRIETARY, RISK_FREE),
     (r"^android/", "MaxManager platform integration", PROPRIETARY, RISK_FREE),
@@ -616,7 +636,64 @@ def classify_file(root: str, rel: str) -> dict:
             )
             return record
 
-        # ٤-ب) ترويسة ملكية، أو لا ترويسة إطلاقًا: تُصنَّف بعائلة الوحدة.
+        # ٤-أ-٢) أصل خارجي **مضمَّن** في الشيفرة تحت ترويسة ملكية: الترويسة تخفي أثر الأصل،
+        #         لأن `classify_head` لا يقرأ إلا أسطرًا تحمل سياق نسبة. فحص الدليل المضمَّن
+        #         (`embedded`) صارم المقصد فلا يُنشئ إيجابيات كاذبة كالاسم داخل قيمة، ويكشف
+        #         ملفًّا يدّعي الملكية وعليه BSD — وهي الحالة التي مرّت صامتة قبل هذا الشرط.
+        if PROPRIETARY_HEADER.search(head):
+            try:
+                embedded_body = open(path, encoding="utf-8", errors="replace").read()
+            except OSError:
+                embedded_body = head
+            embedded = [s for s in SOURCES
+                        if s.get("embedded") and re.search(s["embedded"], embedded_body, re.I)]
+            if embedded:
+                embedded.sort(key=lambda s: -s["risk"])
+                w = embedded[0]
+                record.update(
+                    origin=w["id"], license=w["license"], spdx=w["spdx"], risk=w["risk"],
+                    reference=w["reference"],
+                    status="DERIVED_UNDER_PROPRIETARY_HEADER",
+                    evidence=(f"أثر أصل مضمَّن ({w['id']}) تحت ترويسة ملكية — "
+                              "تلزمه إعادة إشعار الرخصة لا ادّعاء الملكية"),
+                    arch="", holders=holders(head),
+                    all_sources=[s["id"] for s in embedded],
+                )
+                return record
+
+        # ٤-ب) ترويسة Apache-2.0 باسم مؤلّف **خارجي** (بلا ترويسة ملكيّتنا): تبقى Apache-2.0
+        #      وتُحفظ إشعاراتها ولا تُنسب إلى ملكية المشروع. قرينة Apache-2.0 لا تُمحى بمجرد
+        #      أن الملف في مجلّد نكتبه: نصٌّ مرخَّص بهذه الرخصة لا يُعاد ترخيصه ملكيًّا. وهذا
+        #      هو ما طلبه المالك صراحةً: «لا تُدَّعِ كود طرف ثالث كأنه أصليّ، ولا تُعِد كتابة
+        #      ملكية أحد لتُظهر كل شيء تحت اسم واحد».
+        if APACHE_HEADER.search(head) and not PROPRIETARY_HEADER.search(head):
+            hold = holders(head)
+            origin = hold[0].rsplit(" (", 1)[0] if hold else "Apache-2.0 source (author unnamed)"
+            record.update(
+                origin=origin,
+                license="Apache-2.0",
+                spdx="Apache-2.0",
+                risk=RISK_FREE,
+                status="APACHE_HEADER_RETAINED" if not PROJECT_HOLDER.search(head)
+                else "APACHE_HEADER_OWN",
+                evidence=(
+                    "ترويسة Apache-2.0 باسم مؤلّف خارجي — الإشعار محفوظ ولا يُدَّعى ملكيًّا"
+                    if not PROJECT_HOLDER.search(head)
+                    else "ترويسة Apache-2.0 باسم صاحب الحقّ نفسه"
+                ),
+                arch="", holders=hold,
+            )
+            return record
+
+        # ٤-ج) ترويسة ملكية، أو لا ترويسة إطلاقًا: تُصنَّف بعائلة الوحدة.
+        #
+        # ⚠️ وقياس مُعلَن يمنع «تحسينًا» بدا صحيحًا: جرّبت جولةً أن تُرجَّح ترويسة ملكيّتنا
+        # على عائلة الوحدة، فانقلبت **١٦ ملفًا من `thermalcore/`** (مطابقة ٨٨–٩٩٪ لأصل
+        # Rianixia) إلى «ملكيّتنا» — أي أن الترجيح كان يُبيّض كودًا موروثًا لا يُبيّضه،
+        # وهي إيجابية كاذبة أخطر من التي جاءت تُصلحها. فالقاعدة: **العائلة والأصل يسبقان
+        # الترويسة**، وترويسةٌ ملكية على مجلّد موروث لا تمحو أصله (كما لا تمحوه ترويسة Apache).
+        # وحاجاتُ مجلّدٍ أنشأناه (مثل `archdaemon/tests/`) تُعالج بقاعدة عائلة صريحة في
+        # `MODULE_FAMILIES`، لا بقاعدة عامة تقلب ملفات لا تخصّها.
         record.update(
             origin=fam_origin, license=fam_lic, spdx=fam_lic, risk=fam_risk,
             status="NO_HEADER" if OWNERS.search(head) else "REPO_DEFAULT",
@@ -859,13 +936,21 @@ def render_header(style: str, newline: str) -> str:
 def apply_header(rel: str, text: str) -> str | None:
     """يُعيد النصّ بالترويسة، أو `None` إن لم يكن هذا ملفًّا يُدهَن (أو مُدهونًا أصلًا).
 
-    الشرطان مُعلنان: (١) الامتداد له أسلوب تعليق معروف، (٢) الملف لا يحمل أصلاً ماركة
-    `Nader Magdy` — فإعادة الكتابة على ملف مُدهون تُكرّر الترويسة.
+    الشروط مُعلنة: (١) الامتداد له أسلوب تعليق معروف، (٢) الملف لا يحمل أصلاً ماركة
+    `Nader Magdy` — فإعادة الكتابة على ملف مُدهون تُكرّر الترويسة، (٣) **عائلة الملف
+    ملكيّتنا لا عائلة موروثة**.
+
+    والشرط الثالث أُضيف بعد عطب مُقاس: ملفات `thermalcore/` (Rianixia) و`archdaemon/*.mk`
+    جاءت من AZenith **بلا ترويسة** (إشعارها في `NOTICE` وحده)، فدهنها هذا الدالّة بترويسة
+    **ملكيّتنا** **محا إشعار Apache-2.0** عنها — أي أن الأداة صارت هي التي تُنشئ المخالفة
+    التي وُجدت لتكشفها. ومنذ الآن: **ملف موروث بلا ترويسة لا يُدهن**؛ إنما يُعاد إليه إشعاره.
     """
     style = HEADER_STYLES.get(os.path.splitext(rel)[1].lower())
     if style is None:
         return None
     if HEADER_MARK in text[:4000]:
+        return None
+    if module_family(rel)[1] != PROPRIETARY:
         return None
     newline = "\r\n" if "\r\n" in text[:2000] else "\n"
     header = render_header(style, newline)
@@ -878,7 +963,10 @@ def apply_header(rel: str, text: str) -> str | None:
 
 
 def write_headers(root: str, dry_run: bool = True) -> int:
-    """يدهن ترويسة الملكية على ملفات `REPO_DEFAULT` فقط، ويطبع ما لم يُدهن ولماذا."""
+    """يدهن ترويسة الملكية على ملفات `REPO_DEFAULT` **المملوكة لنا** فقط، ويطبع ما لم يُدهن ولماذا.
+
+    ولا يدهن مجلّدًا موروثًا بلا ترويسة (عائلة غير ملكيّة) — لأن دهنه يمحو إشعار رخصته.
+    """
     records = [classify_file(root, rel) for rel in tracked_files(root)]
     target = [r["file"] for r in records
               if r["status"] == "REPO_DEFAULT" and os.path.splitext(r["file"])[1].lower()
@@ -894,7 +982,10 @@ def write_headers(root: str, dry_run: bool = True) -> int:
             continue
         updated = apply_header(rel, text)
         if updated is None:
-            skipped.append((rel, "مُدهون أصلًا أو امتداده غير مُدرج"))
+            if module_family(rel)[1] != PROPRIETARY:
+                skipped.append((rel, f"عائلة موروثة ({module_family(rel)[0]}) — ترويسته إشعار الأصل لا ماركتنا"))
+            else:
+                skipped.append((rel, "مُدهون أصلًا أو امتداده غير مُدرج"))
             continue
         if not dry_run:
             with open(path, "w", encoding="utf-8", newline="") as fh:
@@ -991,6 +1082,11 @@ def build_report(root: str) -> dict:
             "gpl_derived_source_remaining": "YES" if count_risk(RISK_GPL) else "NO",
             "gpl_referenced_pending_diff_review": "YES" if referenced else "NO",
             "unknown_license_component": "YES" if count_risk(RISK_UNKNOWN) else "NO",
+            # أصل حرّ مُضمَّن تحت ترويسة ملكية = إشعار رخصة مُمحى. ليس GPL فيُسقط البوابة
+            # منفصلًا، لكنه يُفشل `--assert` لأن الرخصة تفرض بقاء الإشعار لا ادّعاء الملكية.
+            "hidden_origin_under_proprietary_header": "YES" if any(
+                r["status"] == "DERIVED_UNDER_PROPRIETARY_HEADER" for r in records
+            ) else "NO",
         },
         "files": records,
         "gradle_dependencies": deps,
@@ -1057,17 +1153,20 @@ def write_provenance(root: str, report: dict) -> str:
         ("gpl_derived_source_remaining", "GPL-derived source remaining"),
         ("gpl_referenced_pending_diff_review", "GPL declared in body — pending diff review"),
         ("unknown_license_component", "Unknown-license component"),
+        ("hidden_origin_under_proprietary_header", "Hidden origin under a proprietary header"),
     ):
         a(f"| {label} | **{gate[key]}** |")
     a("")
     a("**وما دام أيٌّ منها `YES` فالتنظيف غير مكتمل** — والأداة تُفشل CI (`--assert`) عند "
-      "`gpl_code_in_apk = YES` أو `gpl_native_binary = YES` أو `gpl_dependency = YES`.")
+      "`gpl_code_in_apk = YES` أو `gpl_native_binary = YES` أو `gpl_dependency = YES` "
+      "أو `hidden_origin_under_proprietary_header = YES` (إشعار رخصة مُمحى بترويسة ملكية).")
     a("")
 
     a("## الإزالة وإعادة التأليف — سجل التغيير، والحالة النهائية المقيسة")
     a("")
     a("قائمة ما أُزيل وما أُعيد تأليفه — بالأرقام التي قُيست وقت التنفيذ — في "
-      "`docs/ai/HANDOFF.md` (جولات التنقية)، وخلاصتها في `THIRD_PARTY_NOTICES.md` §3. "
+      "`docs/ai/HANDOFF.md` (جولات التنقية)، **وهنا موضع الإثبات**: لا يُسرد تاريخ التنقية في "
+      "`THIRD_PARTY_NOTICES.md` (وظيفته ذكر ما أضفناه لا ما أزلناه بأمر المالك). "
       "ولا يُعاد كتابة الأرقام التاريخية هنا (تُنسخ فتنحرف)؛ وما يُقاس في هذا الملف هو **الحالة "
       "الراهنة**: مشتقّ من GPL = " f"{s['gpl_derived_files']}، وGPL في مسار الإصدار = "
       f"{s['gpl_in_release_path']}، ومجهول الترخيص = {s['unknown_license_files']}.")
@@ -1213,6 +1312,8 @@ def mode_assert(root: str, report: dict) -> int:
         blocking.append("ثنائية GPL داخل مسار الإصدار")
     if gate["gpl_dependency"] == "YES":
         blocking.append("تبعية GPL")
+    if gate["hidden_origin_under_proprietary_header"] == "YES":
+        blocking.append("أصل حرّ مُضمَّن تحت ترويسة ملكية (إشعار رخصة مُمحى)")
     if blocking:
         print("\n❌ بوابة الترخيص: فشل")
         for item in blocking:
@@ -1251,8 +1352,74 @@ def mode_self_test() -> int:
         a = classify_file(root, "manager/app/src/main/java/A.kt")
         checks.append(("ترويسة ZKM تُصنَّف GPL-3.0", a["spdx"] == "GPL-3.0-only", a["spdx"]))
         b = classify_file(root, "manager/app/src/main/java/B.kt")
-        checks.append(("ترويسة ملكية بلا أصل خارجي ⇒ NO_HEADER مع عائلة الوحدة",
-                       b["status"] == "NO_HEADER" and b["origin"].startswith("MaxManager"), b["status"]))
+        checks.append(("ترويسة Apache-2.0 باسم خارجي ⇒ APACHE_HEADER_RETAINED بمؤلّفها",
+                       b["status"] == "APACHE_HEADER_RETAINED" and b["spdx"] == "Apache-2.0"
+                       and b["origin"].startswith("Zexshia"),
+                       f"{b['status']}/{b['origin']}"))
+        # ٢-ب) ترويسة الملكية **التي نكتبها نحن** لا تدخل قاعدة Apache: تُصنَّف بعائلة الوحدة.
+        put("manager/app/src/main/java/B2.kt",
+            "/*\n * Copyright (C) 2026 Nader Magdy. All rights reserved.\n"
+            " * Proprietary and confidential — not licensed for use, copying, or distribution\n */\n")
+        b2 = classify_file(root, "manager/app/src/main/java/B2.kt")
+        checks.append(("ترويسة الملكية تُصنَّف ملكيّة لا Apache",
+                       b2["status"] == "NO_HEADER" and b2["license"] == PROPRIETARY
+                       and b2["origin"].startswith("MaxManager"),
+                       f"{b2['status']}/{b2['license']}"))
+        # ٢-أ-٢) قاعدة عائلة صريحة لمجلّد أنشأناه (`archdaemon/tests/`): تسبق عائلة الوحدة
+        #      الموروثة، فلا يُنسب ملفّنا إلى Apache-2.0.
+        put("archdaemon/tests/parity_test.c",
+            "/*\n * Copyright (C) 2026 Nader Magdy. All rights reserved.\n"
+            " * Proprietary and confidential\n */\n\nint harness(void){return 1;}\n")
+        harness = classify_file(root, "archdaemon/tests/parity_test.c")
+        checks.append(("مجلّد tests له عائلة صريحة ملكيّة لا Apache",
+                       harness["license"] == PROPRIETARY and harness["origin"].startswith("MaxManager"),
+                       f"{harness['license']}/{harness['origin']}"))
+        #      وحدّ مُقاس: ترويسة ملكيّتنا داخل مجلّد **موروث** (jni) لا تُبيّض الكود الموروث —
+        #      العائلة تسبق الترويسة. (جرّبت جولةً عكس ذلك فانقلبت ١٦ ملفًا من thermalcore.)
+        put("archdaemon/jni/src/Thing.c",
+            "/*\n * Copyright (C) 2026 Nader Magdy. All rights reserved.\n"
+            " * Proprietary and confidential\n */\n\nint thing(void){return 1;}\n")
+        thing = classify_file(root, "archdaemon/jni/src/Thing.c")
+        checks.append(("ترويسة ملكيّتنا في مجلّد موروث لا تُبيّض الكود الموروث",
+                       thing["license"] == "Apache-2.0",
+                       f"{thing['license']}/{thing['origin']}"))
+        # ٢-ج) ترويسة ملكية **تُخفي** أصلًا مضمَّنًا في الشيفرة: كان `preloadbin/jni/main.c`
+        #      (vmtouch) يمرّ «ملكيًّا» في صمت. والدليل المضمَّن يكشفه باسمه ورخصته.
+        #      وتمامًا كما الجدول: دليل **عامّ** لا يكفي — نُمرّر اسمًا لا يطابق `embedded`
+        #      للتثبّت أنّ الشرط لا يكشف أي شيء (لا إيجابية كاذبة).
+        put("preloadbin/jni/main.c",
+            "/*\n * Copyright (C) 2026 Nader Magdy. All rights reserved.\n"
+            " * Proprietary and confidential\n */\n"
+            '\n#define VMTOUCH_VERSION "1.4.1"\nstatic void vmtouch_crawl(const char *p){}\n')
+        hidden = classify_file(root, "preloadbin/jni/main.c")
+        checks.append(("ترويسة ملكية تُخفي أصلًا مضمَّنًا ⇒ DERIVED_UNDER_PROPRIETARY_HEADER",
+                       hidden["status"] == "DERIVED_UNDER_PROPRIETARY_HEADER"
+                       and hidden["spdx"] == "BSD-3-Clause" and hidden["risk"] == RISK_FREE,
+                       f"{hidden['status']}/{hidden['spdx']}"))
+        put("preloadbin/jni/plain.c",
+            "/*\n * Copyright (C) 2026 Nader Magdy. All rights reserved.\n"
+            " * Proprietary and confidential\n */\n\nint main(void){return 0;}\n")
+        plain_c = classify_file(root, "preloadbin/jni/plain.c")
+        checks.append(("ترويسة ملكية بلا أثر مضمَّن تبقى NO_HEADER (لا إيجابية كاذبة)",
+                       plain_c["status"] == "NO_HEADER" and plain_c["risk"] == RISK_FREE,
+                       plain_c["status"]))
+        #      وبعد حفظ الإشعار الصحيح في الترويسة، يعود الملف إلى مسار الإسناد العادي.
+        put("preloadbin/jni/fixed.c",
+            "/*\n * Copyright (c) 2009-2023 Doug Hoyte and contributors\n"
+            " * SPDX-License-Identifier: BSD-3-Clause\n"
+            " * Derived from vmtouch (https://github.com/hoytech/vmtouch), modified.\n */\n"
+            '\n#define VMTOUCH_VERSION "1.4.1"\n')
+        fixed = classify_file(root, "preloadbin/jni/fixed.c")
+        checks.append(("حفظ إشعار BSD يُعيد الملف إلى إسناد VMTouch",
+                       fixed["origin"] == "VMTouch" and fixed["spdx"] == "BSD-3-Clause"
+                       and fixed["status"] != "DERIVED_UNDER_PROPRIETARY_HEADER",
+                       f"{fixed['origin']}/{fixed['status']}"))
+        #      ووجود أصل مخفي تحت ترويسة ملكية يُفشل البوابة — لا يمرّ صامتًا.
+        hidden_report = build_report(root)
+        checks.append(("أصل مخفي تحت ترويسة ملكية يُفشل البوابة",
+                       hidden_report["gpl_gate"]["hidden_origin_under_proprietary_header"] == "YES"
+                       and mode_assert_deep(root, hidden_report) == 1,
+                       str(hidden_report["gpl_gate"]["hidden_origin_under_proprietary_header"])))
         # ٣) GPL + ترويسة Apache = تناقض يُعلَن
         c = classify_file(root, "manager/app/src/main/java/C.kt")
         checks.append(("تناقض GPL مع ترويسة Apache يُعلَن",
@@ -1306,8 +1473,11 @@ def mode_self_test() -> int:
                        after_so["summary"]["gpl_in_release_path"] == 2,
                        str(after_so["summary"]["gpl_in_release_path"])))
 
-        # ٩) شجرة بلا GPL تمرّ فعلًا — وإلا فالبوابة تفشل دائمًا فلا تقيس شيئًا
-        for victim in ("manager/app/src/main/java/A.kt", "manager/app/src/main/java/C.kt"):
+        # ٩) شجرة بلا GPL **وبلا أصل مخفي** تمرّ فعلًا — وإلا فالبوابة تفشل دائمًا فلا تقيس شيئًا.
+        #    (ملفّ الفحص ٢-ج يُزال معه، وإلا بقي أصلًا مخفيًّا فأفشل الشجرة النظيفة كذبًا.)
+        for victim in ("manager/app/src/main/java/A.kt",
+                       "manager/app/src/main/java/C.kt",
+                       "preloadbin/jni/main.c"):
             os.remove(os.path.join(root, victim))
         clean = build_report(root)
         checks.append(("شجرة بلا GPL تمرّ من البوابة",
@@ -1358,6 +1528,15 @@ def mode_self_test() -> int:
                        before == "REPO_DEFAULT" and after["status"] == "NO_HEADER"
                        and after["origin"].startswith("MaxManager"),
                        f"{before} ← {after['status']} / {after['origin']}"))
+        #     وحدّ مُقاس: مجلّد موروث بلا ترويسة **لا يُدهن** بترويسة الملكية — وإلا محا
+        #     إشعار رخصته. وهذا العطب وقع فعلًا: دهن `thermalcore/*.rs` و`archdaemon/*.mk`
+        #     (وهي بلا ترويسة في AZenith) محا إشعار Apache-2.0 عنها.
+        checks.append(("مجلّد موروث بلا ترويسة لا يُدهن بترويسة الملكية",
+                       apply_header("thermalcore/src/x.rs", "fn x() {}\n") is None
+                       and apply_header("archdaemon/jni/src/y.c", "int y;\n") is None,
+                       "دهن ملفًّا موروثًا"))
+        checks.append(("مجلّدنا بلا ترويسة يظلّ يُدهن",
+                       apply_header("manager/app/src/main/java/Z.kt", "package a\n") is not None, ""))
 
         ok = True
         for name, passed, detail in checks:
@@ -1372,7 +1551,10 @@ def mode_self_test() -> int:
 def mode_assert_deep(root: str, report: dict) -> int:
     """نسخة صامتة من الحكم — تُستعمل في الاختبار الذاتي بلا طبع."""
     gate = report["gpl_gate"]
-    bad = gate["gpl_code_in_apk"] == "YES" or gate["gpl_native_binary"] == "YES" or gate["gpl_dependency"] == "YES"
+    bad = (gate["gpl_code_in_apk"] == "YES"
+           or gate["gpl_native_binary"] == "YES"
+           or gate["gpl_dependency"] == "YES"
+           or gate["hidden_origin_under_proprietary_header"] == "YES")
     return 1 if bad else 0
 
 

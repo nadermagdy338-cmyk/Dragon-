@@ -44,9 +44,12 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSpace
 import nd.max.R
 import nd.max.core.diagnostics.LogArea
 import nd.max.ui.component.*
+import nd.max.ui.design.MaxSplitScreen
 import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.viewmodel.LogsViewerViewModel
 
@@ -111,16 +114,13 @@ fun LogsViewerScreen(
     }
 
     ScreenAccentProvider(colorScheme.secondary) {
-            Scaffold(
-                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                topBar = {
-                    MaxManagerSubScreenTopBar(
-                        scrollBehavior = scrollBehavior,
-                        title = stringResource(R.string.logsviewer_title),
-                        onBack = { navController.popBackStack() },
-                        accentIcon = Icons.Filled.Terminal,
-                        accent = colorScheme.secondary,
-                        actions = {
+        MaxSplitScreen(
+            title = stringResource(R.string.logsviewer_title),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Filled.Terminal,
+            accent = colorScheme.secondary,
+            snackbarHostState = snackbarHostState,
+            actions = {
                             IconButton(onClick = { viewModel.togglePause() }) {
                                 Icon(
                                     imageVector = if (viewModel.isPaused) Icons.Filled.PlayArrow else Icons.Filled.Pause,
@@ -161,13 +161,9 @@ fun LogsViewerScreen(
                                     Icon(Icons.Outlined.Tune, contentDescription = stringResource(R.string.logsviewer_settings_cd))
                                 }
                             }
-                        }
-                    )
-                },
-                snackbarHost = { SnackbarHost(snackbarHostState) },
-                containerColor = colorScheme.surface
-            ) { innerPadding ->
-                Column(modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())) {
+            }
+        ) {
+                Column(modifier = Modifier.fillMaxSize()) {
                     LogViewerStatusHeader(
                         mode = viewModel.viewerMode,
                         lineCount = if (viewModel.viewerMode == LogsViewerViewModel.ViewerMode.LOGCAT) viewModel.totalLineCount else viewModel.unifiedTotalLineCount,
@@ -220,28 +216,33 @@ fun LogsViewerScreen(
                                 }
                             },
                             singleLine = true,
-                            shape = RoundedCornerShape(16.dp),
+                            shape = RoundedCornerShape(MaxRadius.inset),
+                            // الحشو الأفقي ملك الهيكل (`MaxSplitScreen` ← `MaxSpace.gutter`)، وكان
+                            // 16dp هنا يُضاف فوقه ⇒ 36dp، فيبدو حقل البحث مُزاحًا عن ترويسة الحالة
+                            // والتبويبات فوقه (20dp) — وهذا سبب «الفجوات الجانبية« الملحوظ.
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .padding(vertical = MaxSpace.sm)
                         )
 
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState())
-                                .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
                         ) {
                             LogsViewerViewModel.LogLevel.entries.forEach { level ->
                                 val selected = level in viewModel.selectedLevels
+                                // Resolved here, not inside `semantics {}`: a composable call is not
+                                // allowed from that non-composable lambda.
+                                val levelDescription = stringResource(level.labelRes)
                                 FilterChip(
                                     selected = selected,
                                     onClick = { viewModel.toggleLevel(level) },
                                     // الحرف وحده لا يُقرأ لقارئ الشاشة، والاسم الكامل في المورد.
                                     label = { Text(level.letter) },
                                     modifier = Modifier.semantics {
-                                        contentDescription = stringResource(level.labelRes)
+                                        contentDescription = levelDescription
                                     },
                                     colors = FilterChipDefaults.filterChipColors(
                                         selectedContainerColor = level.color.copy(alpha = 0.22f),
@@ -262,10 +263,10 @@ fun LogsViewerScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .padding(vertical = MaxSpace.sm)
+                                    .clip(RoundedCornerShape(MaxRadius.control))
                                     .background(colorScheme.secondaryContainer)
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    .padding(horizontal = MaxSpace.md, vertical = MaxSpace.sm)
                             ) {
                                 Icon(
                                     Icons.Filled.PauseCircle,
@@ -293,9 +294,9 @@ fun LogsViewerScreen(
                             LazyColumn(
                                 state = listState,
                                 modifier = Modifier.fillMaxSize().weight(1f, fill = true),
-                                contentPadding = PaddingValues(
-                                    bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                                )
+                                // الهيكل يحجز أسفل الصفحة أصلًا (‏`floatingBottomBarPadding` + حشو
+                                // شريط النظام)، فإضافة `16.dp + inset` هنا تحجز الحجز مرّتين.
+                                contentPadding = PaddingValues(bottom = MaxSpace.sm)
                             ) {
                                 items(viewModel.displayedLogs, key = { it.id }) { entry ->
                                     LogLineRow(
@@ -320,18 +321,20 @@ fun LogsViewerScreen(
                                 }
                             },
                             singleLine = true,
-                            shape = RoundedCornerShape(16.dp),
+                            shape = RoundedCornerShape(MaxRadius.inset),
+                            // الحشو الأفقي ملك الهيكل (`MaxSplitScreen` ← `MaxSpace.gutter`)، وكان
+                            // 16dp هنا يُضاف فوقه ⇒ 36dp، فيبدو حقل البحث مُزاحًا عن ترويسة الحالة
+                            // والتبويبات فوقه (20dp) — وهذا سبب «الفجوات الجانبية« الملحوظ.
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .padding(vertical = MaxSpace.sm)
                         )
 
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState())
-                                .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
                         ) {
                             LogsViewerViewModel.LogSource.entries.forEach { source ->
                                 val selected = source in viewModel.selectedSources
@@ -348,9 +351,8 @@ fun LogsViewerScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState())
-                                .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
                         ) {
                             LogsViewerViewModel.UnifiedLogLevel.entries.forEach { level ->
                                 val selected = level in viewModel.selectedUnifiedLevels
@@ -384,8 +386,8 @@ fun LogsViewerScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .horizontalScroll(rememberScrollState())
-                                .padding(horizontal = 16.dp, vertical = 4.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                .padding(vertical = MaxSpace.xs),
+                            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
                         ) {
                             LogArea.entries.forEach { area ->
                                 FilterChip(
@@ -400,8 +402,8 @@ fun LogsViewerScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                .padding(vertical = MaxSpace.xs),
+                            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             LogsViewerViewModel.UnifiedView.entries.forEach { view ->
@@ -448,10 +450,10 @@ fun LogsViewerScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .padding(vertical = MaxSpace.sm)
+                                    .clip(RoundedCornerShape(MaxRadius.control))
                                     .background(colorScheme.secondaryContainer)
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    .padding(horizontal = MaxSpace.md, vertical = MaxSpace.sm)
                             ) {
                                 Icon(
                                     Icons.Filled.PauseCircle,
@@ -468,9 +470,8 @@ fun LogsViewerScreen(
                             }
                         }
 
-                        val bottomPadding = PaddingValues(
-                            bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                        )
+                        // الحجز الأسفل يملكه الهيكل مرّة واحدة — لا مضاعفة هنا.
+                        val bottomPadding = PaddingValues(bottom = MaxSpace.sm)
                         when {
                             viewModel.unifiedView == LogsViewerViewModel.UnifiedView.TARGETS && viewModel.targetSummaries.isEmpty() ->
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

@@ -6,6 +6,7 @@
 package nd.max.ui.component
 
 import androidx.compose.foundation.BorderStroke
+import nd.max.ui.design.MaxRadius
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
@@ -23,7 +24,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-private val actionShape = RoundedCornerShape(18.dp)
+private val actionShape = RoundedCornerShape(MaxRadius.tile)
 private val actionPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
 
 @Composable
@@ -100,7 +101,7 @@ fun StudioTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RoundedCornerShape(14.dp),
+    shape: Shape = RoundedCornerShape(MaxRadius.row),
     colors: ButtonColors = ButtonDefaults.textButtonColors(),
     elevation: ButtonElevation? = null,
     border: BorderStroke? = null,

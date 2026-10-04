@@ -30,9 +30,21 @@ const ANDROID_LOG_INFO:  i32 = 4;
 const ANDROID_LOG_WARN:  i32 = 5;
 const ANDROID_LOG_ERROR: i32 = 6;
 
+// الربط مع `liblog` مشروط بـ`android` وحده: على المضيف لا توجد `liblog`، فكان
+// `cargo test` **يفشل في الربط** (`unable to find library -llog`) — وهو السبب
+// المقيس لكون هذه الثنائية بلا اختبار واحد حتى اليوم. والشرط لا يغيّر شيئًا على
+// الجهاز (هدفا البناء `aarch64-linux-android`/`armv7-linux-androideabi` تحملان
+// `target_os = "android"`)، بل يجعل الحزمة قابلة للقياس على المضيف بلا NDK.
+#[cfg(target_os = "android")]
 #[link(name = "log")]
 unsafe extern "C" {
     fn __android_log_write(prio: i32, tag: *const c_char, text: *const c_char) -> i32;
+}
+
+/// بديل المضيف: نفس التوقيع، بلا أثر — والدعاوى لا تعتمد على محتواه أصلًا.
+#[cfg(not(target_os = "android"))]
+unsafe fn __android_log_write(_prio: i32, _tag: *const c_char, _text: *const c_char) -> i32 {
+    0
 }
 
 fn android_log(priority: i32, tag: &str, message: &str) {

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Instalirani paketi i aktivnosti koje deklariraju</string>
+    <string name="max_launcher_loading">Čitanje instaliranih paketa i njihovih deklariranih aktivnosti...</string>
+    <string name="max_launcher_empty">Nijedan instalirani paket ne objavljuje aktivnost na ovom uređaju.</string>
+    <string name="max_launcher_search_placeholder">Pretražujte prema nazivu aplikacije ili paketu</string>
+    <string name="max_launcher_search_clear">Očisti pretragu</string>
+    <string name="max_launcher_scope_all">Sve</string>
+    <string name="max_launcher_scope_user">Korisnik</string>
+    <string name="max_launcher_scope_system">sustav</string>
+    <string name="max_launcher_activity_count">%1$d aktivnosti</string>
+    <string name="max_launcher_no_match_title">Ništa ne odgovara</string>
+    <string name="max_launcher_no_match_detail">Nijedan naziv paketa ili oznaka aplikacije ne sadrži taj tekst u odabranom opsegu.</string>
+    <string name="max_launcher_no_match_clear">Očisti filtre</string>
+    <string name="max_launcher_reading_activities">Čitajući aktivnosti koje ovaj paket objavljuje...</string>
+    <string name="max_launcher_no_activities">Ovaj paket izjavljuje da nema aktivnosti.</string>
+    <string name="max_launcher_root_off_title">Root nije odobren</string>
+    <string name="max_launcher_root_off_detail">Aktivnosti označene privatnim se ne izvoze, tako da ih samo root može pokrenuti. Izvezene aktivnosti i dalje su otvorene bez njega.</string>
+    <string name="max_launcher_tag_private">Privatno</string>
+    <string name="max_launcher_tag_disabled">Onesposobljeno</string>
+    <string name="max_launcher_outcome_started">Aktivnost je započela</string>
+    <string name="max_launcher_outcome_needs_root">Ova se aktivnost ne izvozi — potreban je root</string>
+    <string name="max_launcher_outcome_refused">Android je odbio pokrenuti ovu aktivnost</string>
+    <string name="max_launcher_outcome_missing">Nijedna aktivnost s tim nazivom nije instalirana</string>
+</resources>

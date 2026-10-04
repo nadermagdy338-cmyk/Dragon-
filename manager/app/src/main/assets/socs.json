@@ -421,7 +421,7 @@
   "MT8796W/TNZA":{ "VENDOR":"MediaTek","NAME":"Dimensity 9300+","FAB":"4 nm","CPU":"","MEMORY":"","BANDWIDTH":"","CHANNELS":""},
   "MT8792Z/NA":{ "VENDOR":"MediaTek","NAME":"Dimensity 8350","FAB":"4 nm","CPU":"","MEMORY":"","BANDWIDTH":"","CHANNELS":""},
   "MT8792Z/NB":{ "VENDOR":"MediaTek","NAME":"Dimensity 8350","FAB":"4 nm","CPU":"","MEMORY":"","BANDWIDTH":"","CHANNELS":""},
-  "MT8792Z/CA":{ "VENDOR":"MediaTek","NAME":"Dimensity 83000","FAB":"4 nm","CPU":"","MEMORY":"","BANDWIDTH":"","CHANNELS":""},
+  "MT8792Z/CA":{ "VENDOR":"MediaTek","NAME":"Dimensity 8300","FAB":"4 nm","CPU":"","MEMORY":"","BANDWIDTH":"","CHANNELS":""},
   "MT6896Z_B/CZA":{ "VENDOR":"MediaTek","NAME":"Dimensity 8200-Ultimate","FAB":"4 nm","CPU":"4 x Cortex-A510\n3 x Cortex-A710\n1 x Cortex-X2","MEMORY":"LPDDR5/5X","BANDWIDTH":"","CHANNELS":""},
   "MT6896Z_A/CZA":{ "VENDOR":"MediaTek","NAME":"Dimensity 8200-Ultra","FAB":"4 nm","CPU":"4 x Cortex-A510\n3 x Cortex-A710\n1 x Cortex-X2","MEMORY":"LPDDR5/5X","BANDWIDTH":"","CHANNELS":""},
   "MT6899Z_A/ZA":{ "VENDOR":"MediaTek","NAME":"Dimensity 8400 Ultra","FAB":"4 nm","CPU":"","MEMORY":"","BANDWIDTH":"","CHANNELS":""},

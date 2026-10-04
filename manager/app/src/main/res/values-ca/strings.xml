@@ -7,7 +7,7 @@
     <string name="all_set">Tot a punt, ja podeu utilitzar Max Manager</string>
     <string name="allow_verbose_log">Registre detallat del dimoni</string>
     <string name="android_version">Versió d\'Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Nom de l\'aplicació</string>
     <string name="app_priority">Prioritat de l\'aplicació</string>
     <string name="app_priority_control">Control de prioritat de l\'aplicació</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">Superposició de FPS</string>
     <string name="fps_overlay_notif_title">Max Manager La superposició FPS s\'està executant</string>
     <string name="fps_overlay_notif_stop">Atureu-vos</string>
-    <string name="fps_overlay_section_style">Aparença</string>
-    <string name="fps_overlay_style">Estil de superposició</string>
-    <string name="fps_overlay_style_android">llista d\'Android</string>
-    <string name="fps_overlay_style_pc">PC monoespai</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Direcció de maquetació</string>
-    <string name="fps_overlay_orientation_vertical">Vertical</string>
-    <string name="fps_overlay_orientation_horizontal">Horitzontal</string>
-    <string name="fps_overlay_read_mode">Mètode de lectura FPS</string>
     <string name="fps_overlay_read_mode_desc">Proveu un mètode diferent si la lectura es manté a 0 al vostre dispositiu</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (recomanat)</string>
     <string name="fps_overlay_mode_kernel">Node del nucli</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Mida del text</string>
     <string name="fps_overlay_bg_alpha">Opacitat de fons</string>
     <string name="fps_overlay_width_scale">Escala d\'amplada</string>
-    <string name="fps_overlay_section_metrics">Es mostren les mètriques</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU càrrega</string>
-    <string name="fps_overlay_metric_ram">RAM ús</string>
-    <string name="fps_overlay_metric_watt">Consum d\'energia de la bateria</string>
-    <string name="fps_overlay_metric_temp">Temperatura de la bateria</string>
-    <string name="fps_overlay_metric_render">Etiqueta del renderitzador</string>
-    <string name="fps_overlay_metric_render_desc">Mostra VULKAN/OPENGL en comptes de \"FPS\" com a etiqueta, detectat a les biblioteques carregades de l\'aplicació en primer pla</string>
     <string name="dozemode_title">Política de son</string>
     <string name="dozemode_menu_desc">Llista blanca en espera, comportament inactiu i ajustament de l\'energia en segon pla</string>
     <string name="dozemode_state_label">Estat de somni</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Obre la configuració</string>
     <string name="processmgr_title">Monitor de tasques</string>
-    <string name="processmgr_menu_desc">Ús per procés CPU i RAM, amb parada forçada i superposició flotant</string>
     <string name="processmgr_stat_total">%1$d processos</string>
-    <string name="processmgr_stat_breakdown">%1$d usuari \u00b7 %2$d sistema</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">A dalt %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">Cerca processos en execució</string>
     <string name="processmgr_no_processes">No hi ha cap procés que coincideixi amb la vostra cerca</string>
     <string name="processmgr_dialog_close">Tancar</string>
-    <string name="processmgr_detail_version">Versió</string>
-    <string name="processmgr_detail_build">Construir</string>
-    <string name="processmgr_detail_package">paquet</string>
     <string name="processmgr_result_killed">Mort %1$s</string>
     <string name="processmgr_result_kill_failed">No s\'ha pogut matar %1$s</string>
     <string name="processmgr_result_stopped">Aturada per força %1$s</string>
@@ -1461,7 +1439,6 @@
     <string name="max_home_reboot_desc">Obriu les opcions de reinici segur</string>
     <string name="max_home_ai_console">Consola MAX AI</string>
     <string name="max_home_ai_working">S\'està aplicant el perfil sol·licitat...</string>
-    <string name="max_home_ai_failed">L\'última acció d\'IA ha fallat</string>
     <string name="max_home_retry">Torna-ho a provar</string>
     <string name="max_home_ai_idle">Encara no s\'ha registrat cap decisió de la IA</string>
     <string name="home_system_stable">SISTEMA ESTABLE</string>
@@ -1477,8 +1454,6 @@
     <string name="home_performance_monitor_desc">Càrrega de recursos durant els darrers 72 segons</string>
     <string name="home_quick_actions">Comandament</string>
     <string name="home_quick_actions_desc">Accés directe als controls importants</string>
-    <string name="home_action_boost">Perfil de rendiment</string>
-    <string name="home_action_boost_desc">Canviar el comportament del sistema</string>
     <string name="home_action_thermal">Centre termal</string>
     <string name="home_action_thermal_desc">Inspeccioneu la calor i la refrigeració</string>
     <string name="home_action_battery">Centre de potència</string>
@@ -1498,7 +1473,6 @@
     <string name="home_active">ACTIVA</string>
     <string name="home_idle">INACTIVE</string>
     <string name="home_protected">PROTEGIT</string>
-    <string name="home_device_overview">VISTA GENERAL DEL DISPOSITIU OBERT</string>
     <string name="home_live_performance">Actuació en directe</string>
     <string name="home_live_performance_desc">Càrrega actual i controls directes de maquinari</string>
     <string name="home_open_details">Obriu dades tèrmiques detallades</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">S\'estan aplicant optimitzacions per aplicació</string>
     <string name="max_app_advanced_options">Opcions avançades</string>
     <string name="max_app_save">Desa</string>
+    <string name="home_gpu_max_freq">Freqüència màxima</string>
 </resources>

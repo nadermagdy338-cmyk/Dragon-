@@ -7,7 +7,7 @@
     <string name="all_set">Všetko je pripravené, teraz môžete používať Max Manager</string>
     <string name="allow_verbose_log">Daemon vypisuje podrobné logy</string>
     <string name="android_version">Verzia Androidu</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Názov aplikácie</string>
     <string name="app_priority">Priorita aplikácie</string>
     <string name="app_priority_control">Ovládanie priority aplikácie</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">Prekrytie FPS</string>
     <string name="fps_overlay_notif_title">Max Manager Prekrytie FPS je spustené</string>
     <string name="fps_overlay_notif_stop">Stop</string>
-    <string name="fps_overlay_section_style">Vzhľad</string>
-    <string name="fps_overlay_style">Štýl prekrytia</string>
-    <string name="fps_overlay_style_android">Android zoznam</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Smer rozloženia</string>
-    <string name="fps_overlay_orientation_vertical">Vertikálne</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontálne</string>
-    <string name="fps_overlay_read_mode">Metóda čítania FPS</string>
     <string name="fps_overlay_read_mode_desc">Skúste inú metódu, ak hodnota na vašom zariadení zostane na hodnote 0</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (odporúčané)</string>
     <string name="fps_overlay_mode_kernel">Uzol jadra</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Veľkosť textu</string>
     <string name="fps_overlay_bg_alpha">Nepriehľadnosť pozadia</string>
     <string name="fps_overlay_width_scale">Mierka šírky</string>
-    <string name="fps_overlay_section_metrics">Zobrazené metriky</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU zaťaženie</string>
-    <string name="fps_overlay_metric_ram">RAM využitie</string>
-    <string name="fps_overlay_metric_watt">Odber energie z batérie</string>
-    <string name="fps_overlay_metric_temp">Teplota batérie</string>
-    <string name="fps_overlay_metric_render">Štítok renderera</string>
-    <string name="fps_overlay_metric_render_desc">Zobrazuje VULKAN/OPENGL namiesto \"FPS\" ako označenie, zistené z načítaných knižníc aplikácie v popredí</string>
     <string name="dozemode_title">Zásady spánku</string>
     <string name="dozemode_menu_desc">Biela listina v pohotovostnom režime, nečinné správanie a ladenie napájania na pozadí</string>
     <string name="dozemode_state_label">Stav spánku</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Otvorte nastavenia</string>
     <string name="processmgr_title">Monitor úloh</string>
-    <string name="processmgr_menu_desc">Využitie na jeden proces CPU a RAM s vynúteným zastavením a plávajúcim prekrytím</string>
     <string name="processmgr_stat_total">%1$d procesov</string>
-    <string name="processmgr_stat_breakdown">%1$d používateľ \u00b7 %2$d systém</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Najvyššie %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">Vyhľadajte spustené procesy</string>
     <string name="processmgr_no_processes">Vášmu vyhľadávaniu nezodpovedajú žiadne procesy</string>
     <string name="processmgr_dialog_close">Zavrieť</string>
-    <string name="processmgr_detail_version">Verzia</string>
-    <string name="processmgr_detail_build">Stavať</string>
-    <string name="processmgr_detail_package">Balíček</string>
     <string name="processmgr_result_killed">Zabil %1$s</string>
     <string name="processmgr_result_kill_failed">Nepodarilo sa zabiť %1$s</string>
     <string name="processmgr_result_stopped">Vynútené zastavenie %1$s</string>
@@ -1462,7 +1440,6 @@
     <string name="max_home_reboot_desc">Otvorte možnosti bezpečného reštartu</string>
     <string name="max_home_ai_console">Konzola MAX AI</string>
     <string name="max_home_ai_working">Používa sa požadovaný profil…</string>
-    <string name="max_home_ai_failed">Posledná akcia AI zlyhala</string>
     <string name="max_home_retry">Skúste to znova</string>
     <string name="max_home_ai_idle">Zatiaľ nebolo zaznamenané žiadne rozhodnutie AI</string>
     <string name="home_system_stable">SYSTÉM STABILNÝ</string>
@@ -1478,8 +1455,6 @@
     <string name="home_performance_monitor_desc">Zaťaženie zdrojov za posledných 72 sekúnd</string>
     <string name="home_quick_actions">Veliteľská paluba</string>
     <string name="home_quick_actions_desc">Priamy prístup k ovládacím prvkom, na ktorých záleží</string>
-    <string name="home_action_boost">Výkonnostný profil</string>
-    <string name="home_action_boost_desc">Zmeňte správanie systému</string>
     <string name="home_action_thermal">Termálne centrum</string>
     <string name="home_action_thermal_desc">Skontrolujte teplo a chladenie</string>
     <string name="home_action_battery">Silové centrum</string>
@@ -1499,7 +1474,6 @@
     <string name="home_active">AKTÍVNY</string>
     <string name="home_idle">NEČINNOSŤ</string>
     <string name="home_protected">CHRÁNENÉ</string>
-    <string name="home_device_overview">OTVORENÝ PREHĽAD ZARIADENIA</string>
     <string name="home_live_performance">Živé vystúpenie</string>
     <string name="home_live_performance_desc">Aktuálne zaťaženie a priame ovládanie hardvéru</string>
     <string name="home_open_details">Otvorte podrobné tepelné údaje</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Používajú sa optimalizácie pre jednotlivé aplikácie</string>
     <string name="max_app_advanced_options">Pokročilé možnosti</string>
     <string name="max_app_save">Uložiť</string>
+    <string name="home_gpu_max_freq">Max frekv</string>
 </resources>

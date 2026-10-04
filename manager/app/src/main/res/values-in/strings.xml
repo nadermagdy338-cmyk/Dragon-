@@ -7,7 +7,7 @@
     <string name="all_set">Semua siap, Anda sekarang dapat menggunakan Max Manager</string>
     <string name="allow_verbose_log">Daemon keluarkan log verbose</string>
     <string name="android_version">Versi Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Nama aplikasi</string>
     <string name="app_priority">Prioritas aplikasi</string>
     <string name="app_priority_control">Kontrol prioritas aplikasi</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">Hamparan FPS</string>
     <string name="fps_overlay_notif_title">Max Manager Hamparan FPS sedang berjalan</string>
     <string name="fps_overlay_notif_stop">Berhenti</string>
-    <string name="fps_overlay_section_style">Penampilan</string>
-    <string name="fps_overlay_style">Gaya hamparan</string>
-    <string name="fps_overlay_style_android">daftar Android</string>
-    <string name="fps_overlay_style_pc">Monoruang PC</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Arah tata letak</string>
-    <string name="fps_overlay_orientation_vertical">Vertikal</string>
-    <string name="fps_overlay_orientation_horizontal">Horisontal</string>
-    <string name="fps_overlay_read_mode">Metode membaca FPS</string>
     <string name="fps_overlay_read_mode_desc">Coba metode lain jika pembacaan tetap pada 0 di perangkat Anda</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (disarankan)</string>
     <string name="fps_overlay_mode_kernel">simpul inti</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Ukuran teks</string>
     <string name="fps_overlay_bg_alpha">Opasitas latar belakang</string>
     <string name="fps_overlay_width_scale">Skala lebar</string>
-    <string name="fps_overlay_section_metrics">Metrik ditampilkan</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU memuat</string>
-    <string name="fps_overlay_metric_ram">RAM penggunaan</string>
-    <string name="fps_overlay_metric_watt">Penarikan daya baterai</string>
-    <string name="fps_overlay_metric_temp">Suhu baterai</string>
-    <string name="fps_overlay_metric_render">Label penyaji</string>
-    <string name="fps_overlay_metric_render_desc">Menampilkan VULKAN/OPENGL sebagai ganti \"FPS\" sebagai label, terdeteksi dari pustaka aplikasi latar depan yang dimuat</string>
     <string name="dozemode_title">Kebijakan Tidur</string>
     <string name="dozemode_menu_desc">Daftar putih siaga, perilaku menganggur, dan penyetelan daya latar belakang</string>
     <string name="dozemode_state_label">Keadaan tertidur</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Buka pengaturan</string>
     <string name="processmgr_title">Pemantau Tugas</string>
-    <string name="processmgr_menu_desc">Penggunaan per-proses CPU dan RAM, dengan penghentian paksa dan overlay mengambang</string>
     <string name="processmgr_stat_total">%1$d proses</string>
-    <string name="processmgr_stat_breakdown">%1$d pengguna 7 %2$d sistem</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Teratas %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">Cari proses yang sedang berjalan</string>
     <string name="processmgr_no_processes">Tidak ada proses yang cocok dengan pencarian Anda</string>
     <string name="processmgr_dialog_close">Menutup</string>
-    <string name="processmgr_detail_version">Versi</string>
-    <string name="processmgr_detail_build">Membangun</string>
-    <string name="processmgr_detail_package">Kemasan</string>
     <string name="processmgr_result_killed">Terbunuh %1$s</string>
     <string name="processmgr_result_kill_failed">Tidak dapat membunuh %1$s</string>
     <string name="processmgr_result_stopped">Dihentikan paksa %1$s</string>
@@ -1460,7 +1438,6 @@
     <string name="max_home_reboot_desc">Buka opsi reboot yang aman</string>
     <string name="max_home_ai_console">Konsol MAX AI</string>
     <string name="max_home_ai_working">Menerapkan profil yang diminta…</string>
-    <string name="max_home_ai_failed">Tindakan AI terakhir gagal</string>
     <string name="max_home_retry">Mencoba kembali</string>
     <string name="max_home_ai_idle">Belum ada keputusan AI yang tercatat</string>
     <string name="home_system_stable">SISTEM STABIL</string>
@@ -1476,8 +1453,6 @@
     <string name="home_performance_monitor_desc">Sumber daya dimuat selama 72 detik terakhir</string>
     <string name="home_quick_actions">Dek komando</string>
     <string name="home_quick_actions_desc">Akses langsung ke kontrol yang penting</string>
-    <string name="home_action_boost">Profil kinerja</string>
-    <string name="home_action_boost_desc">Ubah perilaku sistem</string>
     <string name="home_action_thermal">Pusat termal</string>
     <string name="home_action_thermal_desc">Periksa panas dan pendinginan</string>
     <string name="home_action_battery">Pusat kekuatan</string>
@@ -1497,7 +1472,6 @@
     <string name="home_active">AKTIF</string>
     <string name="home_idle">MENGANGGUR</string>
     <string name="home_protected">TERLINDUNG</string>
-    <string name="home_device_overview">BUKA PERANGKAT IKHTISAR</string>
     <string name="home_live_performance">Pertunjukan langsung</string>
     <string name="home_live_performance_desc">Beban saat ini dan kontrol perangkat keras langsung</string>
     <string name="home_open_details">Buka data termal terperinci</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Pengoptimalan per aplikasi sedang diterapkan</string>
     <string name="max_app_advanced_options">Opsi lanjutan</string>
     <string name="max_app_save">Menyimpan</string>
+    <string name="home_gpu_max_freq">Frekuensi maks</string>
 </resources>

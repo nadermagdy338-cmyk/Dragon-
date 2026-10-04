@@ -47,7 +47,7 @@ import nd.max.ui.design.MaxMetric
 import nd.max.ui.design.MaxMetricReadout
 import nd.max.ui.design.MaxMetricSize
 import nd.max.ui.mainscreens.IconBadge
-import nd.max.ui.util.SensorInventory
+import nd.max.core.platform.SensorInventory
 
 /**
  * `GAP-11` — **جرد المستشعرات**: ما تُعلنه المنصّة، وما غاب، وقراءة ضوء لا تكذب.
@@ -69,7 +69,7 @@ fun SensorInventoryCard() {
     var loaded by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         report = withContext(Dispatchers.IO) {
-            nd.max.ui.util.SensorMonitorUtil.report(context)
+            nd.max.core.platform.SensorMonitorUtil.report(context)
         }
         loaded = true
     }
@@ -105,7 +105,7 @@ fun SensorInventoryCard() {
 
             else -> {
                 // الوسوم تُحلّ هنا لأن `joinToString` ليست inline فلا تصلح فيها دالة مركّبة.
-                val kindLabels = SensorInventory.Kind.entries.associateWith { kindText(it) }
+                val kindLabels = SensorInventory.Kind.entries.associateWith { sensorKindText(it) }
                 SensorDetailRow(stringResource(R.string.max_sensor_count), current.count.toString())
                 SensorDetailRow(
                     stringResource(R.string.max_sensor_kinds),
@@ -122,18 +122,21 @@ fun SensorInventoryCard() {
                 // يرفض طباعة قيمة حين تقول الثقة إن لا شيء حقيقيًّا يُطبع — فلا يصير
                 // «لم أقرأ» صفرًا بحكم المكوّن لا بحكم انتباه كاتب الشاشة.
                 SensorLightReadout(current.light)
+                val wakeUpLabel = stringResource(R.string.max_sensor_wakeup_flag)
                 current.items.take(SENSOR_PREVIEW_LIMIT).forEach { item ->
+                    val kind = kindLabels.getValue(item.kind)
                     SensorDetailRow(
-                        label = item.name.ifBlank { kindLabels.getValue(item.kind) },
-                        value = buildString {
-                            append(kindLabels.getValue(item.kind))
-                            SensorInventory.powerLabel(item.powerMilliAmp)?.let {
-                                append(" · ").append(it).append(" mA")
-                            }
-                            SensorInventory.delayLabel(item.minDelayUs)?.let {
-                                append(" · ").append(it).append(" us")
-                            }
-                        }
+                        label = item.name.ifBlank { kind },
+                        // والسطر من `SensorInventory.detailLine` **لا من `buildString` محلي**:
+                        // كانت البطاقة تبني حقولها بيدها (الصنف والاستهلاك والتأخير) وتُسقط المدى
+                        // والدقّة والبائع — أي تُعلن عن المستشعر أقلّ مما تُعلنه المنصّة عنه، بينما
+                        // السطر نفسه يُبنى في ملفّ آخر حقولًا كاملة. وقاعدة واحدة تُقاس خير من
+                        // قاعدتين تفترقان («لا بنية موازية لما هو موجود»).
+                        value = SensorInventory.detailLine(
+                            item = item,
+                            kindLabel = kind,
+                            wakeUpLabel = wakeUpLabel,
+                        ),
                     )
                 }
                 if (current.count > SENSOR_PREVIEW_LIMIT) {
@@ -208,9 +211,15 @@ private fun SensorDetailRow(label: String, value: String?) {
     }
 }
 
-/** اسم الصنف — من مورد لا من نصّ صلب. */
+/**
+ * اسم الصنف — من مورد لا من نصّ صلب.
+ *
+ * و`internal` لا `private` بقصد: شاشة «معلومات الجهاز» تعرض الجرد نفسه (نفس النموذج، ونفس
+ * الأصناف)، فتشترك في التعيين **بدلًا من أن تكرّره** — وتعيينٌ مكرّر يفترق بالنصّ يومًا فيقول
+ * أحدهما «حركة» والآخر «MOVEMENT» لنفس المستشعر.
+ */
 @Composable
-private fun kindText(kind: SensorInventory.Kind): String = stringResource(
+internal fun sensorKindText(kind: SensorInventory.Kind): String = stringResource(
     when (kind) {
         SensorInventory.Kind.MOTION -> R.string.max_sensor_kind_motion
         SensorInventory.Kind.ENVIRONMENT -> R.string.max_sensor_kind_environment

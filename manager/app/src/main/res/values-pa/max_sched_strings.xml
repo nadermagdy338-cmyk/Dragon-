@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">ਡੈੱਡਲਾਈਨ ਪੀਰੀਅਡ ਅਧਿਕਤਮ (ਸਾਡੇ)</string>
+    <string name="max_sched_tunable_deadline_period_min">ਡੈੱਡਲਾਈਨ ਪੀਰੀਅਡ ਮਿਨ (ਸਾਡੇ)</string>
+    <string name="max_sched_tunable_energy_aware">ਊਰਜਾ ਜਾਗਰੂਕ</string>
+    <string name="max_sched_tunable_latency">ਲੇਟੈਂਸੀ (NS)</string>
+    <string name="max_sched_tunable_migration_cost">ਮਾਈਗ੍ਰੇਸ਼ਨ ਲਾਗਤ (ns)</string>
+    <string name="max_sched_tunable_min_granularity">ਨਿਊਨਤਮ ਗ੍ਰੈਨੁਲੈਰਿਟੀ (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">ਮਾਈਗ੍ਰੇਸ਼ਨ ਬੈਚ ਦਾ ਆਕਾਰ</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT ਗੁਣਕ</string>
+    <string name="max_sched_tunable_rr_timeslice">ਰਾਊਂਡ-ਰੌਬਿਨ ਟਾਈਮਸਲਾਈਸ (ਮਿਲੀ.)</string>
+    <string name="max_sched_tunable_rt_period">ਰੀਅਲ-ਟਾਈਮ ਪੀਰੀਅਡ (ਸਾਡੇ)</string>
+    <string name="max_sched_tunable_rt_runtime">ਰੀਅਲ-ਟਾਈਮ ਰਨਟਾਈਮ (ਸਾਡੇ)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">ਰੀਅਲ-ਟਾਈਮ ਯੂਕਲੈਂਪ ਫਲੋਰ</string>
+    <string name="max_sched_tunable_wakeup_granularity">ਵੇਕਅੱਪ ਗ੍ਰੈਨਿਊਲਿਟੀ (ns)</string>
+</resources>

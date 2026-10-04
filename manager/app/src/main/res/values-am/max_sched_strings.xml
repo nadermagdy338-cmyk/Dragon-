@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">የመጨረሻው ጊዜ ከፍተኛው (እኛ)</string>
+    <string name="max_sched_tunable_deadline_period_min">የመጨረሻ ጊዜ (እኛ)</string>
+    <string name="max_sched_tunable_energy_aware">የኢነርጂ ግንዛቤ</string>
+    <string name="max_sched_tunable_latency">መዘግየት (ns)</string>
+    <string name="max_sched_tunable_migration_cost">የስደት ዋጋ (ns)</string>
+    <string name="max_sched_tunable_min_granularity">ዝቅተኛ ጥራት (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">የስደት ባች መጠን</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT ማባዣ</string>
+    <string name="max_sched_tunable_rr_timeslice">ክብ-ሮቢን የጊዜ ቅላጼ (ሚሴ)</string>
+    <string name="max_sched_tunable_rt_period">የእውነተኛ ጊዜ ጊዜ (እኛ)</string>
+    <string name="max_sched_tunable_rt_runtime">የእውነተኛ ጊዜ ሩጫ ጊዜ (እኛ)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">የእውነተኛ ጊዜ UClamp ወለል</string>
+    <string name="max_sched_tunable_wakeup_granularity">መቀስቀሻ ግራኑላሪቲ (ns)</string>
+</resources>

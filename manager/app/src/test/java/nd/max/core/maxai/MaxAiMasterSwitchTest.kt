@@ -78,7 +78,7 @@ class MaxAiMasterSwitchTest {
 
     @Test
     fun `the confirmed write verifies the value instead of promising it`() {
-        val util = source("ui/util/PropertyUtil.kt")
+        val util = source("core/platform/PropertyUtil.kt")
         val confirmed = util.substringAfter("fun setAndConfirm(")
         assertTrue("it must read the property back", Regex("get\\s*\\(\\s*key").containsMatchIn(confirmed))
         assertTrue("it must be able to await the shell fallback", confirmed.contains(".exec()"))

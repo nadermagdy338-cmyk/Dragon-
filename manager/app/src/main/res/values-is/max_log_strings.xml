@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Orðrétt</string>
+    <string name="max_log_level_debug">Villuleit</string>
+    <string name="max_log_level_info">Upplýsingar</string>
+    <string name="max_log_level_warn">Viðvörun</string>
+    <string name="max_log_level_error">Villa</string>
+    <string name="max_log_level_assert">Fullyrða</string>
+    <string name="max_log_level_fatal">Banvænt</string>
+    <string name="max_log_buffer_main">Aðal</string>
+    <string name="max_log_buffer_system">Kerfi</string>
+    <string name="max_log_buffer_crash">Hrun</string>
+    <string name="max_log_buffer_kernel">Kjarni</string>
+    <string name="max_log_buffer_events">Viðburðir</string>
+    <string name="max_log_buffer_radio">Útvarp</string>
+    <string name="max_log_source_daemon">Púki</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">HÍ</string>
+    <string name="max_log_source_other">Annað</string>
+</resources>

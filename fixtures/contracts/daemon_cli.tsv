@@ -1,0 +1,31 @@
+# Daemon CLI surface — سطح `sys.maxmanager-service` (§٤: «١٣ عَلَمًا · ❌»)
+#
+# المُصدِر: `archdaemon/jni/Main.c` (الموزِّع) و`archdaemon/jni/src/BinaryCLI/BinaryCLI.c` (نصّ `--help`).
+# والمستهلك: المستخدم عبر الصدفة، و`manager/**` و`mainfiles/**` التي تستدعي الخادم بالأعلام.
+#
+# و«البوّابة» هي البند الحامل: `Main.c` ينفّذ أوّلًا تسعة أعلام **بلا خادم يعمل**، ثم يمرّ بـ
+# `require_daemon_running()`، ثم ينفّذ أربعة. فلو انتقل عَلَم من فوق الخط إلى تحته (أو العكس)
+# تغيّر شرط عمله **بلا أي تغيير في نصّه** — وهو عطب صامت لا يكشفه إلا قياس الترتيب.
+#
+# الأعمدة (مفصولة بعلامة جدولة): long · short · gate · handler · in_help · effect
+#   · long/short : العلمان كما يُقبلان في `argv[1]` (المقارنة `strcmp` تامّة، لا بادئة)
+#   · gate       : `none` ⇒ يُنفَّذ بلا فحص التوفّر · `requires-daemon` ⇒ بعد `require_daemon_running()`
+#   · handler    : الدالّة التي يناديها الموزِّع
+#   · in_help    : يظهر في نصّ `print_help()`؟ (كانت أربعة أعلام غائبة — أُضيفت في هذه الجولة)
+#   · effect     : ما يفعله
+# # ‏`--help` حالة خاصة: يُعالَج في `argc == 1 || IS_CMD(argv[1], "--help", "-h")` لا في كتلة مستقلة،
+#         فغياب الوسائط يستدعي المساعدة أيضًا — ولذلك يُقاس بموضعه نسبةً إلى نقاط التوزيع لا ككتلة.
+long	short	gate	handler	in_help	effect
+--help	-h	none	print_help	yes	print usage and exit; also the argc==1 default
+--appactivity	-actv	none	openAppMainActivity	yes	bring the app's main activity to the front
+--run	-r	none	main_daemon	yes	start the daemon service
+--version	-V	none	printversion	yes	print MODULE_VERSION — the build version string (the `version` file), NOT the protocol revision
+--clearlogs	-c	none	clearlogs	yes	remove the log caches and broadcast clearall
+--hidenotifications	-hn	none	hidenotifications	yes	broadcast clearall (drop notifications)
+--shownotifications	-sn	none	shownotifications	yes	re-post the notification of the current profile
+--bypasspathlist	-bpl	none	print_bypass_path_list	yes	print the embedded bypass-charging paths
+--rerun	-rr	none	restart_service	yes	restart the daemon detached
+--profile	-p	requires-daemon	handle_profile	yes	apply profile n (0 is initialize-only); see cli_profile.tsv
+--log	-l	requires-daemon	handle_log	yes	write a log line through the daemon's logger
+--verboselog	-vl	requires-daemon	handle_verboselog	yes	write a verbose log line
+--checkbypasschg	-cbc	requires-daemon	check_bypass_compatibility	yes	check bypass-charge compatibility

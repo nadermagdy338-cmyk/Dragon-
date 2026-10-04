@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Termin realizacji Maks. (nas)</string>
+    <string name="max_sched_tunable_deadline_period_min">Termin realizacji Min. (nas)</string>
+    <string name="max_sched_tunable_energy_aware">Świadomi Energii</string>
+    <string name="max_sched_tunable_latency">Opóźnienie (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Koszt migracji (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimalna ziarnistość (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Rozmiar partii migracji</string>
+    <string name="max_sched_tunable_pelt_multiplier">Mnożnik PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Okrągły odcinek czasu (ms)</string>
+    <string name="max_sched_tunable_rt_period">Okres czasu rzeczywistego (nas)</string>
+    <string name="max_sched_tunable_rt_runtime">Środowisko wykonawcze w czasie rzeczywistym (nas)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Podłoga UClamp w czasie rzeczywistym</string>
+    <string name="max_sched_tunable_wakeup_granularity">Szczegółowość wybudzania (ns)</string>
+</resources>

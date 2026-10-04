@@ -107,8 +107,26 @@ object FileArchive {
      * اسم الأرشيف الناتج عن ضغط عنصر: **zip** كما في MT، ويُبنى في مكان واحد فيتفق
      * الصفّ والمحرّك فلا يفترق ما وُعد به المستخدم عمّا يُكتب على القرص.
      */
-    fun archiveNameFor(entryName: String): String = "$entryName.zip"
+    fun archiveNameFor(entryName: String): String = archiveNameFor(entryName, ArchiveFormat.Zip)
+
+    /** الاسم لصيغة مختارة — فيتفق ما وعد به الحوار مع ما يُكتب على القرص. */
+    fun archiveNameFor(entryName: String, format: ArchiveFormat): String =
+        "$entryName${format.extension}"
 
     /** الخيار الثاني (صيغة tar) لمن يريدها صراحةً — باسم معلن لا بخيال في الواجهة. */
-    fun tarNameFor(entryName: String): String = "$entryName.tar.gz"
+    fun tarNameFor(entryName: String): String = archiveNameFor(entryName, ArchiveFormat.TarGz)
+
+    /**
+     * إعادة تسمية عند تغيير الصيغة: **الامتداد يتبع الصيغة** لا العكس.
+     *
+     * ولماذا: بلا هذا كان من الممكن أن يُختار `tar.gz` ويبقى الاسم `x.zip`، فيُكتب داخل
+     * ملفّ اسمه zip أرشيفُ tar — أي أن الاسم يكذب. والمقايضة معلنة: اسم اختاره المستخدم
+     * بيده (بلا امتداد معروف) يُعطى امتداد الصيغة، وهو ما يجعل الملفّ يُفتح بالنقرة في
+     * هذا التطبيق بدل أن يُفكّ يدويًّا في كل مرّة.
+     */
+    fun renamedForFormat(name: String, format: ArchiveFormat): String {
+        val lower = name.lowercase()
+        val stripped = SUPPORTED.firstOrNull { lower.endsWith(it) }?.let { name.dropLast(it.length) } ?: name
+        return "$stripped${format.extension}"
+    }
 }

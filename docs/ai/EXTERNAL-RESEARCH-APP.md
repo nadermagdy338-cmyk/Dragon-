@@ -85,7 +85,7 @@
 | `mainfiles/module.prop` | `version=V1` · `versionCode=1` |
 
 و`:github/workflows/build.yml:52-68` يعيد كتابة `MODULE_VERSION` في
-`archdaemon/jni/include/AZenith.h` من `version`، ويوضّح أن `check_module_version()`
+`archdaemon/jni/include/MaxManager.h` من `version`، ويوضّح أن `check_module_version()`
 في الخادم يقارن النسخة المخبوزة بسطر `version=` الذي يكتبه `compile_zip.sh` في
 `module.prop` — أي أن `module.prop` **مشتقّ وقت التحزيم، لا مصدر**. وفي الوقت نفسه
 `RootUtil.getModuleVersionCode()` يقرأ `versionCode` **من `module.prop`**،

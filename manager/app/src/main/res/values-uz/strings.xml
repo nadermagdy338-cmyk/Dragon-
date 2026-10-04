@@ -7,7 +7,7 @@
     <string name="all_set">Hammasi tayyor, endi Max Manager dan foydalanishingiz mumkin</string>
     <string name="allow_verbose_log">Daemon jarayoni batafsil jurnalni chiqarish</string>
     <string name="android_version">Android versiyasi</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Ilova nomi</string>
     <string name="app_priority">Ilova ustuvorligi</string>
     <string name="app_priority_control">Ilova ustuvorligini boshqarish</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS qoplamasi</string>
     <string name="fps_overlay_notif_title">Max Manager FPS qoplamasi ishlamoqda</string>
     <string name="fps_overlay_notif_stop">STOP</string>
-    <string name="fps_overlay_section_style">Tashqi ko\'rinish</string>
-    <string name="fps_overlay_style">Overlay uslubi</string>
-    <string name="fps_overlay_style_android">Android ro\'yxati</string>
-    <string name="fps_overlay_style_pc">Kompyuterning monofazosi</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Joylashtirish yo\'nalishi</string>
-    <string name="fps_overlay_orientation_vertical">Vertikal</string>
-    <string name="fps_overlay_orientation_horizontal">Gorizontal</string>
-    <string name="fps_overlay_read_mode">FPS o\'qish usuli</string>
     <string name="fps_overlay_read_mode_desc">Agar qurilmangizda o\'qish 0 da qolsa, boshqa usulni sinab ko\'ring</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (tavsiya etiladi)</string>
     <string name="fps_overlay_mode_kernel">Yadro tuguni</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Matn hajmi</string>
     <string name="fps_overlay_bg_alpha">Fon shaffofligi</string>
     <string name="fps_overlay_width_scale">Kenglik shkalasi</string>
-    <string name="fps_overlay_section_metrics">Ko\'rsatkichlar ko\'rsatilgan</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU yuk</string>
-    <string name="fps_overlay_metric_ram">RAM foydalanish</string>
-    <string name="fps_overlay_metric_watt">Batareya quvvati sarfi</string>
-    <string name="fps_overlay_metric_temp">Batareya harorati</string>
-    <string name="fps_overlay_metric_render">Renderer yorlig\'i</string>
-    <string name="fps_overlay_metric_render_desc">Yorliq sifatida \"FPS\" o\'rniga VULKAN/OPENGL ni ko\'rsatadi, oldingi dasturning yuklangan kutubxonalarida aniqlangan</string>
     <string name="dozemode_title">Uyqu siyosati</string>
     <string name="dozemode_menu_desc">Kutish rejimidagi oq roʻyxat, boʻsh rejim va fon quvvatini sozlash</string>
     <string name="dozemode_state_label">Uyqu holati</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Sozlamalarni oching</string>
     <string name="processmgr_title">Vazifa monitori</string>
-    <string name="processmgr_menu_desc">Har bir jarayonda CPU va RAM foydalanish, majburiy toʻxtatish va suzuvchi qoplama bilan</string>
     <string name="processmgr_stat_total">%1$d jarayonlari</string>
-    <string name="processmgr_stat_breakdown">%1$d foydalanuvchi \u00b7 %2$d tizimi</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Yuqori %1$d</string>
@@ -807,9 +788,6 @@
     <string name="processmgr_search_hint">Ishlayotgan jarayonlarni qidirish</string>
     <string name="processmgr_no_processes">Hech qanday jarayon qidiruvingizga mos kelmaydi</string>
     <string name="processmgr_dialog_close">Yopish</string>
-    <string name="processmgr_detail_version">Versiya</string>
-    <string name="processmgr_detail_build">Qurilish</string>
-    <string name="processmgr_detail_package">Paket</string>
     <string name="processmgr_result_killed">%1$s o\'ldirilgan</string>
     <string name="processmgr_result_kill_failed">%1$s ni oʻldirib boʻlmadi</string>
     <string name="processmgr_result_stopped">Majburiy to‘xtatilgan %1$s</string>
@@ -1461,7 +1439,6 @@
     <string name="max_home_reboot_desc">Xavfsiz qayta yuklash parametrlarini oching</string>
     <string name="max_home_ai_console">MAX AI konsoli</string>
     <string name="max_home_ai_working">So‘ralgan profil qo‘llanmoqda…</string>
-    <string name="max_home_ai_failed">Oxirgi AI amali bajarilmadi</string>
     <string name="max_home_retry">Qayta urinish</string>
     <string name="max_home_ai_idle">AI qarori hali qayd etilmagan</string>
     <string name="home_system_stable">TIZIM BARQAROR</string>
@@ -1477,8 +1454,6 @@
     <string name="home_performance_monitor_desc">Oxirgi 72 soniya davomida manba yuklanishi</string>
     <string name="home_quick_actions">Buyruqlar paneli</string>
     <string name="home_quick_actions_desc">Muhim boshqaruv elementlariga to\'g\'ridan-to\'g\'ri kirish</string>
-    <string name="home_action_boost">Ishlash profili</string>
-    <string name="home_action_boost_desc">Tizim xatti-harakatlarini o\'zgartirish</string>
     <string name="home_action_thermal">Termal markaz</string>
     <string name="home_action_thermal_desc">Issiqlik va sovutishni tekshiring</string>
     <string name="home_action_battery">Quvvat markazi</string>
@@ -1498,7 +1473,6 @@
     <string name="home_active">FAOL</string>
     <string name="home_idle">BO\'LGAN</string>
     <string name="home_protected">Himoyalangan</string>
-    <string name="home_device_overview">QURILMAGA KO\'RSATISHNI OCH</string>
     <string name="home_live_performance">Jonli ijro</string>
     <string name="home_live_performance_desc">Joriy yuk va to\'g\'ridan-to\'g\'ri apparat boshqaruvlari</string>
     <string name="home_open_details">Batafsil termal ma\'lumotlarni oching</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Har bir ilova uchun optimallashtirish qoʻllanilmoqda</string>
     <string name="max_app_advanced_options">Kengaytirilgan variantlar</string>
     <string name="max_app_save">Saqlash</string>
+    <string name="home_gpu_max_freq">Maksimal chastota</string>
 </resources>

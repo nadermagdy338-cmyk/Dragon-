@@ -283,5 +283,5 @@
     <string name="max_ai_deck_live_summary">%1$d ନୋବ ନଜରରେ ଏବଂ %2$d ନିୟନ୍ତ୍ରିତ — ଚାଲୁଥିବା ଲୁପ୍ ର ଆନିମେଟେଡ୍ ଦୃଶ୍ୟ ଖୋଲନ୍ତୁ।</string>
     <string name="max_ai_insights_prediction">%2$d ମାପାଯାଇଥିବା ଲୁପ୍ ଉପରେ ହାରାହାରି ପୂର୍ବାନୁମାନ ତ୍ରୁଟି %1$s</string>
     <string name="max_ai_locked_row">ଆପଣ %1$s ରେ ଲକ୍ କରିଛନ୍ତି — Max AI ଏହାକୁ କେବେବି ଛୁଅଁବ ନାହିଁ।</string>
-    <string name="max_ai_why_body">measured in the context %2$s.</string>
+    <string name="max_ai_why_body">ସକ୍ରିୟ ଉଦ୍ଦେଶ୍ୟ ଥିଲା | %1$sପ୍ରସଙ୍ଗରେ ମାପ କରାଯାଏ | %2$s.</string>
 </resources>

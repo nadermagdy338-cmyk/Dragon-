@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">সময়সীমাৰ সময়সীমা সৰ্বোচ্চ (আমাক)</string>
+    <string name="max_sched_tunable_deadline_period_min">সময়সীমাৰ সময়সীমা নূন্যতম (আমাক)</string>
+    <string name="max_sched_tunable_energy_aware">শক্তি সচেতন</string>
+    <string name="max_sched_tunable_latency">বিলম্ব (ns)</string>
+    <string name="max_sched_tunable_migration_cost">প্ৰব্ৰজনৰ খৰচ (ns)</string>
+    <string name="max_sched_tunable_min_granularity">নূন্যতম গ্ৰেনুলেৰিটি (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">প্ৰব্ৰজন বেচৰ আকাৰ</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT বহুগুণক</string>
+    <string name="max_sched_tunable_rr_timeslice">ৰাউণ্ড-ৰবিন টাইমলাইচ (ms)</string>
+    <string name="max_sched_tunable_rt_period">বাস্তৱ সময়ৰ সময়সীমা (আমাক)</string>
+    <string name="max_sched_tunable_rt_runtime">ৰিয়েল-টাইম ৰানটাইম (আমাক)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">ৰিয়েল-টাইম UClamp ফ্ল\'ৰ</string>
+    <string name="max_sched_tunable_wakeup_granularity">ৱেকআপ গ্ৰেনুলেৰিটি (ns)</string>
+</resources>

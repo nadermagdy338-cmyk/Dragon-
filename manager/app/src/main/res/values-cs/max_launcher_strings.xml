@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Nainstalované balíčky a aktivity, které deklarují</string>
+    <string name="max_launcher_loading">Čtení nainstalovaných balíčků a jejich deklarovaných aktivit…</string>
+    <string name="max_launcher_empty">Žádný nainstalovaný balíček nedeklaruje aktivitu na tomto zařízení.</string>
+    <string name="max_launcher_search_placeholder">Vyhledávejte podle názvu aplikace nebo balíčku</string>
+    <string name="max_launcher_search_clear">Vymažte vyhledávání</string>
+    <string name="max_launcher_scope_all">Vše</string>
+    <string name="max_launcher_scope_user">Uživatel</string>
+    <string name="max_launcher_scope_system">Systém</string>
+    <string name="max_launcher_activity_count">%1$d aktivit</string>
+    <string name="max_launcher_no_match_title">Nic neodpovídá</string>
+    <string name="max_launcher_no_match_detail">Tento text ve vybraném rozsahu neobsahuje žádný název balíčku ani štítek aplikace.</string>
+    <string name="max_launcher_no_match_clear">Vymazat filtry</string>
+    <string name="max_launcher_reading_activities">Při čtení aktivit, které tento balíček deklaruje…</string>
+    <string name="max_launcher_no_activities">Tento balíček nedeklaruje žádné aktivity.</string>
+    <string name="max_launcher_root_off_title">Root není udělen</string>
+    <string name="max_launcher_root_off_detail">Aktivity označené jako soukromé se neexportují, takže je může spustit pouze root. Exportované aktivity se stále otevírají bez něj.</string>
+    <string name="max_launcher_tag_private">Soukromé</string>
+    <string name="max_launcher_tag_disabled">Zakázáno</string>
+    <string name="max_launcher_outcome_started">Aktivita zahájena</string>
+    <string name="max_launcher_outcome_needs_root">Tato aktivita se neexportuje — je vyžadován root</string>
+    <string name="max_launcher_outcome_refused">Android odmítl tuto aktivitu zahájit</string>
+    <string name="max_launcher_outcome_missing">Není nainstalována žádná aktivita s tímto názvem</string>
+</resources>

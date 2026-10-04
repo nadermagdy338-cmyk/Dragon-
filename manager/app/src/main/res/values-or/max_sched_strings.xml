@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">ସମୟସୀମା ଅବଧି ସର୍ବାଧିକ (ଆମ)</string>
+    <string name="max_sched_tunable_deadline_period_min">ସମୟସୀମା ମିନ (ଆମ)</string>
+    <string name="max_sched_tunable_energy_aware">ଶକ୍ତି ସଚେତନ |</string>
+    <string name="max_sched_tunable_latency">ବିଳମ୍ବ (ns)</string>
+    <string name="max_sched_tunable_migration_cost">ସ୍ଥାନାନ୍ତରଣ ମୂଲ୍ୟ (ns)</string>
+    <string name="max_sched_tunable_min_granularity">ସର୍ବନିମ୍ନ ଗ୍ରାନୁଲାରିଟି (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">ସ୍ଥାନାନ୍ତରଣ ବ୍ୟାଚ୍ ଆକାର |</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT ମଲ୍ଟିପ୍ଲାଏର୍ |</string>
+    <string name="max_sched_tunable_rr_timeslice">ରାଉଣ୍ଡ-ରବିନ୍ ଟାଇମ୍ସଲାଇସ୍ (ମି।)</string>
+    <string name="max_sched_tunable_rt_period">ବାସ୍ତବ ସମୟ ଅବଧି (ଆମ)</string>
+    <string name="max_sched_tunable_rt_runtime">ରିଅଲ୍ ଟାଇମ୍ ରନ୍ଟାଇମ୍ (ଆମ)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">ରିଅଲ୍ ଟାଇମ୍ UClamp ଚଟାଣ |</string>
+    <string name="max_sched_tunable_wakeup_granularity">ଜାଗ୍ରତ ଗ୍ରାନୁଲାରିଟି (ns)</string>
+</resources>

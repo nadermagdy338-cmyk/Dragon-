@@ -109,14 +109,47 @@ object ControlRegistry {
 
     // ── CPU: سقف لكل سياسة، بسلّم من ترددات العتاد المعلنة ───────────
 
+    /**
+     * سلّم سقف سياسة واحدة — **دالّة خالصة تُقاس بذاتها** (`CpuCeilingLadderTest`).
+     *
+     * **والعطب الذي وُلدت منه (مقيس من جهاز حقيقي، ٢٠٢٦-١٠-٠١):** كان السطر
+     * `"${policy.minKHz ?: …}:$frequency"` يبني كل درجة من **الحدّ الأدنى الحيّ**
+     * (`scaling_min_freq`). وعلى `rodin` (MT6899) يثبّت powerhal المنصّة `policy7` عند
+     * `min = max = 3000000` بينما المدى الحقيقي `1000000..3250000` — فيصير السلّم كلّه
+     * `3000000:…`، وأي خطوة خفض تعني **`min = max`** أي **تثبيت العنقود على تردد واحد** لا
+     * تسقيفه، وتُرفض أو تُعاد فيكتب السجلّ `step not verified :: cpu_limits:policy7:
+     * 3000000:3000000 → 3000000:2900000 (Atlas: all eligible routes failed)` **تسع مرّات
+     * في ثلاث دقائق** بلا نهاية.
+     *
+     * **والقاعدتان هنا ليستا تجميلًا:**
+     *
+     * 1. الأرضيّة **تردد مُعلَن** لا قيمة خام: تُقرَّب بالدالة القائمة نفسها التي يستعملها كل
+     *    كاتب لهذا المفتاح (`snapToAvailableAtOrBelow`) — فكتابة قيمة غير مُعلَنة تُبدَّل في
+     *    النواة فيبدو النجاح فشلًا (عطب `policy4` المقيس ٢٠٢٦-٠٩-٢٠).
+     * 2. و**لا درجة بسقفٍ يساوي الأرضيّة**: `min == max` تثبيتٌ لا تسقيف، وهو خطر يلمس
+     *    البطارية والحرارة، فلا يُولَّد أصلًا — والسلّم يقبل درجةً واحدة (رفعٌ وحده) لأن
+     *    `stepFraction` يعالج المدى الصفريّ أصلًا؛ وما لا درجة له يُسقط السياسة صراحةً.
+     *
+     * ولماذا `null` لا استثناء: سياسة بلا ترددات معلَنة **لا سلّم لها**، وسياسة مثبّتة تُسقط
+     * درجات الخفض وحدها — وكلاهما يُعلن نفسه بالغياب من المفردات (INV-5)، لا بكتابة تفشل.
+     */
+    internal fun ceilingLadder(policy: CpuHardwareBackend.Policy): List<String>? {
+        val declared = policy.availableFrequenciesKHz.filter { it > 0L }.distinct().sorted()
+        if (declared.isEmpty()) return null
+        // الأرضيّة: الحدّ الأدنى الحيّ مُقرَّبًا إلى تردد معلَن، وإلا فأصغر تردد معلَن
+        // (وهو ما كان يفعله `provenMinKHz` حين لا تُقرأ العقدة).
+        val floor = policy.minKHz?.let { CpuHardwareBackend.snapToAvailableAtOrBelow(policy, it) }
+            ?: declared.first()
+        return declared.asSequence()
+            .filter { it > floor }
+            .map { ceiling -> "$floor:$ceiling" }
+            .toList()
+            .takeIf { it.isNotEmpty() }
+    }
+
     private fun cpuCeilingControls(): List<Control> =
         CpuHardwareBackend.policies().mapNotNull { policy ->
-            val ladder = policy.availableFrequenciesKHz
-                .filter { it > 0L }
-                .distinct()
-                .sorted()
-                .map { frequency -> "${policy.minKHz ?: policy.provenMinKHz ?: frequency}:$frequency" }
-            if (ladder.size < 2) return@mapNotNull null
+            val ladder = ceilingLadder(policy) ?: return@mapNotNull null
             Control(
                 key = HardwareControlKey.cpuLimits(policy.name),
                 feature = HardwareFeature.CPU_FREQUENCY,

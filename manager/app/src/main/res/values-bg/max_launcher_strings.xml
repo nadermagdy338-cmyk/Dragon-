@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Инсталираните пакети и декларираните от тях дейности</string>
+    <string name="max_launcher_loading">Четене на инсталирани пакети и техните декларирани дейности...</string>
+    <string name="max_launcher_empty">Нито един инсталиран пакет не декларира дейност на това устройство.</string>
+    <string name="max_launcher_search_placeholder">Търсене по име на приложение или пакет</string>
+    <string name="max_launcher_search_clear">Изчистете търсенето</string>
+    <string name="max_launcher_scope_all">Всички</string>
+    <string name="max_launcher_scope_user">Потребител</string>
+    <string name="max_launcher_scope_system">система</string>
+    <string name="max_launcher_activity_count">%1$d дейности</string>
+    <string name="max_launcher_no_match_title">Нищо не съвпада</string>
+    <string name="max_launcher_no_match_detail">Нито едно име на пакет или етикет на приложение не съдържа този текст в избрания обхват.</string>
+    <string name="max_launcher_no_match_clear">Изчистване на филтрите</string>
+    <string name="max_launcher_reading_activities">Четене на дейностите, които този пакет декларира...</string>
+    <string name="max_launcher_no_activities">Този пакет не декларира никакви дейности.</string>
+    <string name="max_launcher_root_off_title">Root не се предоставя</string>
+    <string name="max_launcher_root_off_detail">Дейностите, маркирани като частни, не се експортират, така че само root може да ги стартира. Изнесените дейности все още са отворени без него.</string>
+    <string name="max_launcher_tag_private">Частно</string>
+    <string name="max_launcher_tag_disabled">Забранено</string>
+    <string name="max_launcher_outcome_started">Дейността започна</string>
+    <string name="max_launcher_outcome_needs_root">Тази дейност не се експортира — изисква се root</string>
+    <string name="max_launcher_outcome_refused">Android отказа да започне тази дейност</string>
+    <string name="max_launcher_outcome_missing">Няма инсталирана дейност с това име</string>
+</resources>

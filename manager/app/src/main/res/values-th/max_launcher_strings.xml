@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">แพ็คเกจที่ติดตั้งและกิจกรรมที่ประกาศ</string>
+    <string name="max_launcher_loading">กำลังอ่านแพ็คเกจที่ติดตั้งและกิจกรรมที่ประกาศ...</string>
+    <string name="max_launcher_empty">ไม่มีแพ็คเกจที่ติดตั้งประกาศกิจกรรมบนอุปกรณ์นี้</string>
+    <string name="max_launcher_search_placeholder">ค้นหาตามชื่อแอปหรือแพ็คเกจ</string>
+    <string name="max_launcher_search_clear">ล้างการค้นหา</string>
+    <string name="max_launcher_scope_all">ทั้งหมด</string>
+    <string name="max_launcher_scope_user">ผู้ใช้</string>
+    <string name="max_launcher_scope_system">ระบบ</string>
+    <string name="max_launcher_activity_count">%1$d กิจกรรม</string>
+    <string name="max_launcher_no_match_title">ไม่มีอะไรที่ตรงกัน</string>
+    <string name="max_launcher_no_match_detail">ไม่มีชื่อแพ็กเกจหรือป้ายกำกับแอปที่มีข้อความดังกล่าวในขอบเขตที่เลือก</string>
+    <string name="max_launcher_no_match_clear">ล้างตัวกรอง</string>
+    <string name="max_launcher_reading_activities">อ่านกิจกรรมที่แพ็คเกจนี้ประกาศ...</string>
+    <string name="max_launcher_no_activities">แพ็คเกจนี้ไม่มีกิจกรรมใดๆ</string>
+    <string name="max_launcher_root_off_title">ไม่ได้รับการรูต</string>
+    <string name="max_launcher_root_off_detail">กิจกรรมที่ทำเครื่องหมายว่าเป็นส่วนตัวจะไม่ถูกส่งออก ดังนั้นเฉพาะรูทเท่านั้นที่สามารถเริ่มต้นกิจกรรมได้ กิจกรรมที่ส่งออกยังคงเปิดอยู่โดยไม่มีกิจกรรมดังกล่าว</string>
+    <string name="max_launcher_tag_private">ส่วนตัว</string>
+    <string name="max_launcher_tag_disabled">พิการ</string>
+    <string name="max_launcher_outcome_started">กิจกรรมเริ่มต้นแล้ว</string>
+    <string name="max_launcher_outcome_needs_root">กิจกรรมนี้ไม่ได้ถูกส่งออก - จำเป็นต้องมีรูท</string>
+    <string name="max_launcher_outcome_refused">Android ปฏิเสธที่จะเริ่มกิจกรรมนี้</string>
+    <string name="max_launcher_outcome_missing">ไม่มีการติดตั้งกิจกรรมที่มีชื่อนั้น</string>
+</resources>

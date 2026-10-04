@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">ସଂସ୍ଥାପିତ ପ୍ୟାକେଜ୍ ଏବଂ ସେମାନେ ଘୋଷଣା କରୁଥିବା କାର୍ଯ୍ୟକଳାପ |</string>
+    <string name="max_launcher_loading">ସଂସ୍ଥାପିତ ପ୍ୟାକେଜ୍ ଏବଂ ସେମାନଙ୍କର ଘୋଷିତ କାର୍ଯ୍ୟକଳାପ ପ Reading ଼ିବା…</string>
+    <string name="max_launcher_empty">କ device ଣସି ସଂସ୍ଥାପିତ ପ୍ୟାକେଜ୍ ଏହି ଉପକରଣରେ ଏକ କାର୍ଯ୍ୟକଳାପ ଘୋଷଣା କରେ ନାହିଁ |</string>
+    <string name="max_launcher_search_placeholder">ଆପ୍ ନାମ କିମ୍ବା ପ୍ୟାକେଜ୍ ଦ୍ୱାରା ସନ୍ଧାନ କରନ୍ତୁ |</string>
+    <string name="max_launcher_search_clear">ସନ୍ଧାନ ସଫା କର |</string>
+    <string name="max_launcher_scope_all">ସମସ୍ତ</string>
+    <string name="max_launcher_scope_user">ଉପଯୋଗକର୍ତ୍ତା |</string>
+    <string name="max_launcher_scope_system">ସିଷ୍ଟମ୍ |</string>
+    <string name="max_launcher_activity_count">%1$d କାର୍ଯ୍ୟକଳାପ |</string>
+    <string name="max_launcher_no_match_title">କିଛି ମେଳ ଖାଉ ନାହିଁ |</string>
+    <string name="max_launcher_no_match_detail">କ No ଣସି ପ୍ୟାକେଜ୍ ନାମ କିମ୍ବା ଆପ୍ ଲେବଲ୍ ମନୋନୀତ ପରିସରରେ ସେହି ପାଠ୍ୟ ଧାରଣ କରେ ନାହିଁ |</string>
+    <string name="max_launcher_no_match_clear">ଫିଲ୍ଟର୍ ସଫା କରନ୍ତୁ |</string>
+    <string name="max_launcher_reading_activities">ଏହି ପ୍ୟାକେଜ୍ ଘୋଷଣା କରୁଥିବା କାର୍ଯ୍ୟକଳାପଗୁଡିକ ପ Reading ଼ିବା…</string>
+    <string name="max_launcher_no_activities">ଏହି ପ୍ୟାକେଜ୍ କ activities ଣସି କାର୍ଯ୍ୟକଳାପ ଘୋଷଣା କରେ ନାହିଁ |</string>
+    <string name="max_launcher_root_off_title">ମୂଳ ମଞ୍ଜୁର ନୁହେଁ |</string>
+    <string name="max_launcher_root_off_detail">ବ୍ୟକ୍ତିଗତ ଚିହ୍ନିତ କାର୍ଯ୍ୟକଳାପଗୁଡିକ ରପ୍ତାନି ହୁଏ ନାହିଁ, ତେଣୁ କେବଳ ମୂଳ ସେମାନଙ୍କୁ ଆରମ୍ଭ କରିପାରିବ | ରପ୍ତାନି ହୋଇଥିବା କାର୍ଯ୍ୟକଳାପଗୁଡ଼ିକ ଏହା ବିନା ଖୋଲା ଅଛି |</string>
+    <string name="max_launcher_tag_private">ବ୍ୟକ୍ତିଗତ</string>
+    <string name="max_launcher_tag_disabled">ଅକ୍ଷମ</string>
+    <string name="max_launcher_outcome_started">କାର୍ଯ୍ୟକଳାପ ଆରମ୍ଭ ହେଲା |</string>
+    <string name="max_launcher_outcome_needs_root">ଏହି କାର୍ଯ୍ୟକଳାପ ରପ୍ତାନି ହୋଇନାହିଁ - ମୂଳ ଆବଶ୍ୟକ |</string>
+    <string name="max_launcher_outcome_refused">ଆଣ୍ଡ୍ରଏଡ୍ ଏହି କାର୍ଯ୍ୟକଳାପ ଆରମ୍ଭ କରିବାକୁ ମନା କଲା |</string>
+    <string name="max_launcher_outcome_missing">ସେହି ନାମ ସହିତ କ activity ଣସି କାର୍ଯ୍ୟକଳାପ ସଂସ୍ଥାପିତ ହୋଇନାହିଁ |</string>
+</resources>

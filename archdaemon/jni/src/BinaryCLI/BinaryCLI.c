@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <AZenith.h>
+#include <MaxManager.h>
 
 /**
  * @brief Prints all available MaxManager Daemon CLI commands, usage instructions, and examples to
@@ -28,6 +28,16 @@ void print_help(void) {
            "\n"
            "Options:\n"
            "     -r,    --run              Start MaxManager daemon service\n"
+           "\n"
+           "     -rr,   --rerun            Restart the MaxManager daemon service (detached)\n"
+           "\n"
+           "     -c,    --clearlogs        Clear MaxManager log caches and app notifications\n"
+           "\n"
+           "     -sn,   --shownotifications\n"
+           "                               Show the notification for the current profile\n"
+           "\n"
+           "     -hn,   --hidenotifications\n"
+           "                               Clear all MaxManager notifications\n"
            "\n"
            "     -p,    --profile <1|2|3>  Apply MaxManager profiles via CLI\n"
            "                               1 : Performance\n"

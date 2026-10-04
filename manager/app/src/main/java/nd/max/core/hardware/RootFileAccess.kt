@@ -11,7 +11,7 @@ package nd.max.core.hardware
 
 import com.topjohnwu.superuser.Shell
 import nd.max.core.jni.ProbeBridge
-import nd.max.ui.util.EventLog
+import nd.max.core.platform.EventLog
 import nd.max.core.ipc.RootNodeChannel
 import java.io.File
 
@@ -55,10 +55,21 @@ object RootFileAccess {
         Shell.cmd("test -w ${quote(path)}").exec().isSuccess
     }.getOrDefault(false)
 
-    fun read(path: String): String? = runCatching {
+    fun read(path: String): String? = readViaChannel(path) ?: readDirect(path) ?: shellRead(path)
+
+    /*
+     * **ولماذا ثلاث دوالّ لا سلسلة `?:` واحدة داخل `runCatching` واحدة (عطب مقيس):** كانت الطبقات
+     * الثلاث داخل `runCatching` واحدة، فأي استثناء في **طبقة** (مثلًا `readText()` على عقدة
+     * ترفض القراءة بخطأ لا بـ`canRead=false`) يُسقط الدالة كاملةً ويُرجع `null` — أي أن طبقة
+     * الصدفة، وهي آخر ما يقرأ بالجذر، **لم تكن تُجرَّب أصلًا**. فالوضوح هنا ليس تقسيمًا شكليًّا:
+     * كل طبقة تُخفق وحدها، والعقدة تُسأل عن الطبقة التالية ما لم تُقرأ.
+     */
+    private fun readViaChannel(path: String): String? = runCatching {
         RootNodeChannel.service?.readText(path)?.trim()?.takeIf { it.isNotEmpty() }
-            ?: File(path).takeIf { it.isFile && it.canRead() }?.readText()?.trim()
-            ?: shellRead(path)
+    }.getOrNull()
+
+    private fun readDirect(path: String): String? = runCatching {
+        File(path).takeIf { it.isFile && it.canRead() }?.readText()?.trim()?.takeIf { it.isNotEmpty() }
     }.getOrNull()
 
     /**
@@ -112,10 +123,31 @@ object RootFileAccess {
     private fun readManyPrivileged(paths: List<String>): List<String?> {
         if (paths.isEmpty()) return emptyList()
         val batch = runCatching { RootNodeChannel.service?.readTexts(paths.toMutableList()) }.getOrNull()
-        if (batch != null && batch.size == paths.size) {
-            return batch.map { value -> value?.trim()?.takeIf { it.isNotEmpty() } }
+        return completeBatch(paths, batch) { read(it) }
+    }
+
+    /**
+     * إكمال دفعة ناقصة — دالّة نقية لتُقاس بذاتها (`RootFileAccessNativeMergeTest`).
+     *
+     * **والعطب الذي وُلد منها:** الردّ بحجم مطابق كان يُقبل **نهائيًّا** حتى لو كانت قيمه
+     * فارغة (`RootNodeService` تقرأ العقدة المحجوبة `""` لا `null`). فلمّا عادت الدفعة كلها
+     * فارغة، صار المسح الحراري كله أصفارًا: ٦٦ منطقة معلَنة من النواة، ولا قراءة واحدة —
+     * فتظهر «لا توجد مناطق حرارة مكشوفة» بينما النواة أعلنتها. الآن كل عقدة عادت فارغة
+     * تُسأل من جديد بالترتيب الكامل، والقيمة الغائبة تبقى `null` كما كانت.
+     *
+     * وبلا هذا: `readMany` تَقرأ ٢×عدد المناطق، فإن أخفقت الطبقة الأولى (uid التطبيق) وردّت
+     * الثانية فارغة، لا شيء يعود إلى طبقة الجذر — والنتيجة صفر مطمئن كاذب لا «غير مقروء».
+     */
+    internal fun completeBatch(
+        paths: List<String>,
+        batch: List<String?>?,
+        readOne: (String) -> String?,
+    ): List<String?> {
+        if (paths.isEmpty()) return emptyList()
+        if (batch == null || batch.size != paths.size) return paths.map(readOne)
+        return batch.mapIndexed { index, value ->
+            value?.trim()?.takeIf { it.isNotEmpty() } ?: readOne(paths[index])
         }
-        return paths.map { read(it) }
     }
 
     /**
@@ -238,13 +270,24 @@ object RootFileAccess {
 
     private fun shellTest(path: String): Boolean = Shell.cmd("test -e ${quote(path)}").exec().isSuccess
 
-    private fun shellRead(path: String): String? {
+    private fun shellRead(path: String): String? = runCatching {
         val result = Shell.cmd("cat ${quote(path)} 2>/dev/null").exec()
-        return if (result.isSuccess) result.out.joinToString("\n").trim().takeIf { it.isNotEmpty() } else null
-    }
+        if (result.isSuccess) result.out.joinToString("\n").trim().takeIf { it.isNotEmpty() } else null
+    }.getOrNull()
 
     /** Execute a root shell command. Callers must construct only allow-listed commands. */
     fun exec(command: String): Int = runCatching {
         if (Shell.cmd(command).exec().isSuccess) 0 else -1
     }.getOrDefault(-1)
+
+    /**
+     * تشغيل أمر **قراءة** وإعادة نصّه (‏`dumpsys` مثلًا) — ولا يُكتب حرف في هذا المسار.
+     *
+     * **وقاعدته:** تعود بالنصّ إن طبع شيئًا **حتى لو كان خروج الأمر غير صفر** — وهذا مقصود:
+     * `grep` يُخرج `1` عند «لا مطابقة» وقد طبع ما يهمّنا قبله؛ فالحكم على النصّ لا على رمز
+     * الخروج. وبلا نصّ تعود `null`، فيقول المنادي «غير معروف» ولا يخترع قيمة.
+     */
+    fun readCommand(command: String): String? = runCatching {
+        Shell.cmd(command).exec().out.joinToString("\n").trim().takeIf { it.isNotEmpty() }
+    }.getOrNull()
 }

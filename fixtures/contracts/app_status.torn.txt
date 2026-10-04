@@ -1,0 +1,12 @@
+v 1
+future_key_we_do_not_know 42
+focused_app com.example.game 12288 10123
+this line has no separator at all
+screen_awake 1
+battery_saver 0
+zen_mode 0
+app_name Example Game
+battery_level 87
+is_charging 1
+switch_id sw-1758888888000
+another_future_knob

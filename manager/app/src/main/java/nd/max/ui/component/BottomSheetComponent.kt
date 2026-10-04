@@ -61,7 +61,21 @@ fun CustomBottomSheet(
     val dragOffset = remember { Animatable(0f) }
     
     val density = LocalDensity.current
-    val extraBottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 20.dp
+    // **والكيبورد لا يغطّي الورقة (تكملة ٢٠٦ — نصّ المالك: «يجب أن تظهر النافذة المنبثقة في زر
+    // البحث فوق الكيبورد»).**
+    //
+    // كانت الحاشية السفلى `navigationBars + 20dp` وحدها، وهي كافية حين لا كيبورد. فإذا فُتحت
+    // ورقة فيها حقل نصّ (مُوجِّد الشاشات · مُدير العمليات · محرّر القيم · مُنتقي اللغة · سجلّات)
+    // ظهرت اللوحة **فوق** أسفل الشاشة، فحجبت الورقةَ كلّها أو حجبت نتائجها — وهو ما رآه المالك.
+    //
+    // والعلاج في سطر واحد: أرضية الورقة = **أكبر** الحاشيتين لا مجموعهما.
+    //   • بلا كيبورد: حاشية شريط التنقل (السلوك نفسه قبل هذه الجولة — لا تغيير).
+    //   • ومعه: ارتفاع اللوحة نفسه، فترتفع الورقة معها.
+    //   • و`maxOf` لا الجمع: اللوحة تشغل منطقة شريط التنقل حين تعلو، والجمع يرفع الورقة
+    //     مقدار شريط التنقل زيادةً — أي فراغٌ ميّت بين الورقة والكيبورد.
+    val imeBottom = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+    val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val extraBottomPadding = maxOf(navBarBottom, imeBottom) + 20.dp
 
     LaunchedEffect(visible) {
         if (visible) {
@@ -179,10 +193,15 @@ fun CustomBottomSheet(
                 }
                 
 
-                content()
-
-
-                Spacer(modifier = Modifier.height(extraBottomPadding))
+                // **وحاشية سفلية حقيقية لا `Spacer` في آخر العمود:** كان الفراغ يُرسم بعنصر
+                // في آخر المحتوى، فيكبر العمود بمقداره ثم يُقتطع من أعلاه (الورقة ملتصقة بالقاع)
+                // — ومع كيبورد مفتوح كان العنوان وحقل البحث يُدفعان **خارج الشاشة** بدل أن
+                // تُقلّص القائمة. والحاشية هنا تُنقص الارتفاع المتاح للمحتوى، فتُمرَّر القوائم
+                // بـ`heightIn` كما هي وتُقرأ. **والسطح نفسه لم يتغيّر:** الخلفية والقُصاص خارج
+                // هذه الحاشية، فالورقة تبقى بعرض الشاشة والزاوية المستديرة كما كانت.
+                Column(modifier = Modifier.padding(bottom = extraBottomPadding)) {
+                    content()
+                }
             }
         }
     }

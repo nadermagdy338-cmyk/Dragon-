@@ -1,83 +1,71 @@
 # Third-Party Notices — MaxManager
 
-هذا الملف هو **القائمة الملزمة** لكل ما في هذا المستودع (أو ما يُبنى معه) وليس مملوكًا لصاحبه،
-مع إشعاره وترخيصه. و`LICENSE` يحكم ما عدا ذلك وحده.
+هذا الملفّ قائمة **ما ليس مملوكًا لنا ويدخل التوزيع** — بإشعاره ورخصته. وما عدا ذلك يحكمه `LICENSE`
+وحده.
 
-والقائمة **مقيسة لا مكتوبة من الذاكرة**: مصدرها `python3 tools/license_audit.py --json`
-الذي يقرأ ترويسة كل ملف متعقَّب (١٩٧٩ ملفًا)، ويقرأ ترويسة ELF لكل ثنائية، وتتبعيات Gradle
-(٤٢) وصناديق Cargo (١٠٨). وتُعاد كتابة الجدول بعد كل تغيير في المكوّنات — ومن قرأ رقمًا هنا
-يمكنه إعادة اشتقاقه بالأمر نفسه.
+**ووظيفته واحدة: أن يقول ما أضفناه.** فلا يُثقل بذكر **منهجٍ** أُلهمنا منه ولا مشروعٍ **لم يُنقل منه
+كود**، ولا بسرد تاريخ التنقية وأدلّة الأدوات — فسجلّ الإزالة وإعادة التأليف والدلائل المقيسة في
+[`docs/PROVENANCE.md`](docs/PROVENANCE.md) وفي `docs/ai/HANDOFF.md`، وهما موضع الإثبات.
 
-## 1. مكوّنات برمجة مشمولة في الشجرة
+والقائمة **مقيسة لا مكتوبة من الذاكرة**: مصدرها `python3 tools/license_audit.py --json` الذي يقرأ
+ترويسة كلّ ملفّ متعقَّب، وترويسة ELF لكلّ ثنائية، وتتبّعات Gradle (٤٢) وصناديق Cargo (١٠٨). ومن قرأ
+رقمًا هنا يستطيع إعادة اشتقاقه بالأمر نفسه.
+
+**وعلاقة هذا الملفّ بقسم `Credits` في `README.md`:** يُذكر هناك اسم العمل وحقّ النشر والرخصة
+**إعلانًا للفضل**، ولا يُنقل إليه نصّ الإشعار. وهذا الملفّ يبقى **وحده** المرجع الملزم، ووحده موضع
+النصّ الكامل للرخصة. ولا تُعاد كتابة ملكية مؤلّف خارجي ولا تُنسب ملفاته إلى المشروع.
+
+## 1. مكوّنات مشمولة في الشجرة
 
 | المكوّن | ما استُعمل منه | الترخيص | حقوق النشر |
 | --- | --- | --- | --- |
-| **Encore Tweaks** `github.com/Rem01Gaming/encore` | أساس خدمة `archdaemon/` (٤٠ ملفًا في الوحدة؛ منها ١٤ ملف C ومعه `mainfiles/verify.sh` و`AppMonitor.kt` **تحمل ترويسته صراحةً** — وهو مصدر الـ`APACHE_DERIVED` الستة عشر في التدقيق) | Apache-2.0 | Copyright (C) 2024-2025 Rem01Gaming |
-| **Rianixia-ThermalCore** `github.com/ryanistr/Rianixia-ThermalCore` | محرّك الإدارة الحرارية `thermalcore/` (١٦ ملف Rust؛ منها ٣ تُسمّي أصله: `main.rs` · `monitor.rs` · `android_ffi.rs`) | Apache-2.0 | Copyright (C) 2025-2026 ryanistr |
-| **Android Open Source Project** `source.android.com/license` | بنية مساحة المستخدم وسياسة SELinux؛ أدوات الإقلاع/الصور (`binutils/` · `android/aosp/`) | Apache-2.0 | Copyright (C) The Android Open Source Project |
-| **KTweak** `github.com/tytydraco/KTweak` | **منهج** الضبط المبني على الدليل (لا كود مُنقول) | BSD-2-Clause | Copyright (C) tytydraco |
-| **VMTouch** `github.com/hoytech/vmtouch` | **منهج** تثبيت الصفحات في الذاكرة (لا كود مُنقول) | BSD-3-Clause | Copyright (C) 2009 Doug Hoyte |
-| **AnyKernel3** `github.com/osm0sis/AnyKernel3` | صيغة حزمة التثبيت (تُنفَّذ وقت التثبيت، لا تُوزَّع مع التطبيق) | BSD-3-Clause | Copyright (C) osm0sis |
+| **AZenith** `github.com/Liliya2727/AZenith` | صاحب ترويسة `Copyright (C) 2026-2027 Zexshia` التي تحملها **٢٤٧ ملفًا** في `manager/` و`archdaemon/` (ومجموعة `archdaemon/` يصنّفها التدقيق بـ«Encore Daemon (via AZenith)») | Apache-2.0 | Copyright (C) 2025-2026 Zexshia |
+| **Encore Tweaks** `github.com/Rem01Gaming/encore` | أساس خدمة `archdaemon/` (٤٠ ملفًا في الوحدة؛ منها ١٤ ملفّ C ومعه `mainfiles/verify.sh` و`AppMonitor.kt` **تحمل ترويسته صراحةً**) | Apache-2.0 | Copyright (C) 2024-2025 Rem01Gaming |
+| **Rianixia-ThermalCore** `github.com/ryanistr/Rianixia-ThermalCore` | محرّك الإدارة الحرارية `thermalcore/` (١٦ ملفّ Rust؛ منها ٣ تُسمّي أصله: `main.rs` · `monitor.rs` · `android_ffi.rs`) | Apache-2.0 | Copyright (C) 2025-2026 ryanistr |
+| **Android Open Source Project** `source.android.com/license` | بنية مساحة المستخدم وسياسة SELinux؛ أدوات الإقلاع/الصور (`binutils/` · `android/aosp/`)؛ **رؤوس عقد مؤثّرات الصوت** مُجزَّأة حرفيًّا في `maxfx/include/maxfx_effect_abi.h` من `hardware/libhardware/include/hardware/audio_effect.h` و`system/media/audio/include/system/audio_effect{,-base}.h` (نقلٌ من ترخيص متسامح بنسبة الفضل — ADR-55) | Apache-2.0 | Copyright (C) The Android Open Source Project |
+| **VMTouch** `github.com/hoytech/vmtouch` | **كود مُضمَّن ومُعدَّل**: `preloadbin/jni/main.c` هو vmtouch 1.4.1 (**٩٩٫٧٪ مطابقة — فارق ٣ أسطر**) يُبنى منه `sys.maxmanager-preloadbin` | BSD-3-Clause | Copyright (c) 2009-2023 Doug Hoyte and contributors |
 
-## 2. مكتبات تُبنى معها (لا نسخ مصدري في المستودع)
+## 2. الإشعارات المحفوظة في ملفّاتها — ولا تُنسخ هنا
+
+- **Apache-2.0 محفوظ كما هو في ٢٨١ ملفًّا** داخل `manager/app` يحمل في ترويسته اسم مؤلّف خارجي
+  (`Zexshia` ٢٤٧ · `MaxManager contributors` ٣٢ · `Rapli` ١ · `KowX` ١). وهي تبقى على رخصتها مع
+  إشعارها **كما هي**: لا تُعاد كتابتها ولا تُنسب إلى ملكية المشروع — لأن إشعار Apache-2.0 شرط بقاء،
+  ولا يُمحى بانتقال الملفّ إلى مجلّد آخر. والتفصيل في `docs/PROVENANCE.md` (حالة
+  `APACHE_HEADER_RETAINED`)، وأسماء هؤلاء المؤلّفين في قسم `Credits` بـ`README.md`.
+- **vmtouch يُحفظ إشعاره كاملًا في ترويسة ملفّه** (الشرط الأول من BSD-3-Clause: تبقى حقوق النشر
+  وقائمة الشروط وإخلاء المسؤولية في المصدر)، فلا يُعاد نسخه هنا ليَشِيخ: الملفّ `preloadbin/jni/main.c`
+  يحمل حقوق النشر والرخصة وتعديلات MaxManager، و`preloadbin/README.md` هو README vmtouch الأصلي
+  بسطر حقوقه.
+
+## 3. مكتبات تُبنى معها (لا نسخ مصدري في المستودع)
 
 تُقرأ من ملفات البناء والكتالوج، وتُراجَع عند كل تحديث إصدار:
 
-- **تبعيات Gradle (٤٢)** — التوزيع المقيس: `Apache-2.0` (٣٦) · `MIT` (٤، تُشحن: `AndroidANSI` ·
-  `compose-markdown` · `material-kolor`) · واثنتان **لا تُشحنان** فهما `testImplementation` وحدهما:
-  `junit:junit` (`EPL-1.0`) و`org.json:json` (`Public-Domain`). وترخيص `EPL-1.0` **مُعلَن لا مسكوت
-  عنه**: ضعيف الترابط وبمستوى الملف، والاعتماد عليه في نطاق الاختبار فقط.
-  القائمة الكاملة بأسمائها وتراخيصها في `build/license-report.json` ← `gradle_dependencies`.
-- **صناديق Cargo (١٠٨)** — التوزيع المقيس: `MIT OR Apache-2.0` (١٠٣)، `Apache-2.0` (٤)، و`Zlib` (١).
-  القائمة في `build/license-report.json` ← `cargo_crates`.
+- **تبعيات Gradle (٤٢)** — التوزيع المقيس: `Apache-2.0` (٣٦) · `MIT` (٤، تُشحن) · واثنتان **لا
+  تُشحنان** فهما `testImplementation` وحدهما: `junit:junit` (`EPL-1.0`) و`org.json:json`
+  (`Public-Domain`). وترخيص `EPL-1.0` **مُعلَن لا مسكوت عنه**: ضعيف الترابط وبمستوى الملفّ،
+  والاعتماد عليه في نطاق الاختبار فقط. القائمة بأسمائها في `build/license-report.json`.
+- **صناديق Cargo (١٠٨)** — التوزيع المقيس: `MIT OR Apache-2.0` (١٠٣) · `Apache-2.0` (٤) · `Zlib` (١).
 
-## 3. ما أُزيل — وسُجّل ليبقى مُثبتًا
+## External identity interfaces — no bundled upstream implementation
 
-هذه مكوّنات كانت في الشجرة، و**أُزيلت** في جولات التنقية (`docs/PROVENANCE.md` §الإزالة):
+This section records integration provenance, **not a claim that external engine code is distributed**.
 
-- **Termux / termux-app** (GPL-3.0) — وحدتا `terminal-view` و`terminal-emulator`، والثنائية
-  `libtermux.so`، وربطها في التطبيق والـCI. أُزيلت كاملة بأمر المالك.
-- **HorizonKernelFlasher**, **KernelFlasher**, **Magisk/magiskboot** — وُحّدت في ميزة تفليش
-  النواة التي أُزيلت بأمر المالك أيضًا.
-- **ZKM (Zuan Kernel Manager)** (GPL-3.0) — الشاشات وأدوات مدير النواة التي كانت الأساس
-  التاريخي لجزء من طبقة الواجهة. **أُعيد تأليفها** في المشروع، وشرط «لم يبقَ نصّ مشترك»
-  مُقاس لا مُدَّعى: `python3 tools/upstream_similarity.py --assert` (انظر §٥).
+- **COPG** — Original project: https://github.com/AlirezaParsi/COPG · Author: AlirezaParsi · License of inspected public tree: Apache-2.0 (`301a0a3dc2b55c294d32e369729f24dc5255ebd1/LICENSE`, read in full). Used components: documented `COPG.json` external interface only. Modifications: none to upstream files; independent MaxManager validation/resolution/merge. Integration location: `manager/app/src/main/java/nd/max/core/spoof/SpoofCopgContract.kt`. No upstream native binary/source, WebUI or assets bundled; the unavailable native source and paid features are not inferred to share this permission.
+- **COPG-VD** — Original project: https://github.com/VD171/COPG-VD · Authors: VD171 & AlirezaParsi (module.prop) · Public LICENSE: Apache-2.0 (`1978f40bb78b6cd604d18438b05a344140f056d2`, read in full). Used components: documented global JSON interface as research; no source or binary bundled. Integration design: `docs/ai/DEVICE_SPOOF_ARCHITECTURE.md`.
+- Device Faker (GPL-3.0) and DeviceSpoofLab (MIT public parent trees) are **analysis-only references**. No source, binary, template, asset or direct code adaptation is included. Their inspected sources and limits are in `docs/ai/DEVICE_FAKER_ANALYSIS.md` and `DEVICESPOOFLAB_ANALYSIS.md`; submodule permissions are not assumed.
 
-## 4. بيانات المستودع المُعلَنة (كانت «بلا إسناد» — صارت مُقاسة)
-
-ثلاثة ملفات بيانات لا ترويسة لها ولا تحمل اسنادًا خارجيًّا. وكانت في الجدول السابق بحالة
-«أصل غير مُثبت». واليوم **قُيست** بدل أن تُدَّعى:
-
-| الملف | يُقرأ من | الإسناد المُعلَن | الدليل المقيس |
-| --- | --- | --- | --- |
-| `manager/app/src/main/assets/devices.db` | `ui/util/DeviceNameUtil.kt` | MaxManager — رخصة المستودع | لا نظير له في أي أصل خارجي مُدقَّق؛ أُضيف في الالتزام الأول `581fe5d` |
-| `manager/app/src/main/assets/socs.json` | `ui/util/HardwareUtil.kt` | MaxManager — رخصة المستودع | لا نظير له في أي أصل خارجي مُدقَّق؛ أُضيف في الالتزام الأول `581fe5d` |
-| `maxmanagerApplist.json` | `MaxManagerPaths.APPLIST_JSON` | MaxManager — رخصة المستودع | لا نظير له في أي أصل خارجي مُدقَّق؛ أُضيف في الالتزام الأول `581fe5d` |
-
-**كيف قُيس:** شجرة ZKM المرجعية نُزّلت وعددها ٤٤٣ ملفًا (`git ls-tree -r origin/main`)،
-وبحثت فيها (وفي `zkm-raw` و`vtools-raw` و`vtools`) عن `socs` و`devices.db` و`Applist`:
-**لم يُصَبْ منها شيء** (الوحيد المُطابق اسمًا: `ui/soc/SoCScreen.kt`، شاشة لا بيانات).
-فالنتيجة المُعلَنة: بيانات يملكها المشروع، والرخصة رخصة المستودع.
-
-**وحدّ هذا القياس:** «لا أصل خارجي **مُدقَّق**» ينفي ما فُحص لا كل شيء في العالم. وهو مثبت
-في الأداة نفسها كجدول `DECLARED_DATA_ASSETS` بدليل مكتوب بجانب كل سطر (لا استثناء صامت)،
-وبوابة `--self-test` تتحقّق أن ملفًا **غير** مُعلَن في الجدول لا يُمنح حالة `DECLARED`.
-وإن ظهر يومًا أصل خارجي لهذه الملفات، فالسطر يُعدَّل ويُعاد القياس.
-
-## 5. بوابات الإثبات (تُشغَّل، لا تُوصف)
+## 4. كيف يُتحقّق من هذه القائمة — بأمر، لا بوصف
 
 ```sh
-python3 tools/license_audit.py --assert          # لا GPL في مسار الإصدار
-python3 tools/license_audit.py --self-test       # يقيس الأداة نفسها
-python3 tools/upstream_similarity.py --self-test # يقيس أداة المقابلة النصّية
-python3 tools/upstream_similarity.py --assert \
-    --upstream build/audit/zkm-raw --upstream build/audit/vtools-raw
+python3 tools/license_audit.py --assert       # لا GPL في مسار الإصدار، ولا أصل مُخفى بترويسة ملكية
+python3 tools/license_audit.py --self-test    # يقيس الأداة نفسها
 ```
 
-والأخيرة تحتاج نسخة من الأصلين المرجعيين محليًّا (وغيابها **يُعلن «غير مُتحقَّقة» ولا يمرّ
-صامتًا)، وطريقة جلبها مكتوبة في مخرجات الأداة نفسها عند غيابها. ونتيجتها المنشورة — بالجدول
-والبقايا المُعلَنة وأسبابها ونصّ حدودها — في [`docs/AUTHENTICITY.md`](docs/AUTHENTICITY.md).
+وتُشغَّلان في CI ضمن خطوة «Contract gates» **قبل** البناء الثقيل، فتنكشف عودة أيّ مكوّن GPL في ثوانٍ.
+ونتائج التدقيق الحيّة — بالأرقام والحالات — في [`docs/PROVENANCE.md`](docs/PROVENANCE.md)،
+و[`docs/AUTHENTICITY.md`](docs/AUTHENTICITY.md) لقياس استقلال النصّ عن الأصل المرجعي.
 
-وفي CI تُشغّل هذه البوابات فعلًا: الثلاثُ الأولى و`--prune` و`jni_symbols` (الصدر و`--self-test`)
-و`license_audit --assert --self-test` في خطوة «Contract gates» قبل أي بناء ثقيل، فتنكشف
-عودة أي مكوّن GPL أو انكسار عقد في ثوانٍ لا بعد دقائق.
+- **COPG (مفردات الوسوم)** — `CopgTag.kt` يعيد صياغة **مفردات** وسوم الحزم الموصوفة في README المستودع (Apache-2.0)؛ **لا شيفرة منقولة**. الإسناد: AlirezaParsi/COPG (README الإصدار 6.8.0 وREADME أقدم منه، قُرئا 2026-10-04).
+
+- **COPG (بيانات كتالوج الأجهزة)** — `app/src/main/assets/spoof/device_catalog.json` مستخرَج من `module/COPG.json` (كتل `PACKAGES_*_DEVICE` فقط) في AlirezaParsi/COPG، فرع `JSON` عند `e1d7da6c24cb571c5d123a6f7c85fafbb42b870b` (قُرئ 2026-10-04)، **Apache-2.0**. **عُدِّل**: أُعيد ترميز المفاتيح وحُذفت قوائم الحزم والوسوم. نصّ الترخيص مرفق: `assets/spoof/device_catalog.LICENSE.txt`. شُحنت البيانات كما هي (لا بصمة اختُلقت).

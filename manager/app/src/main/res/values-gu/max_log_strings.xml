@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">વર્બોઝ</string>
+    <string name="max_log_level_debug">ડીબગ</string>
+    <string name="max_log_level_info">માહિતી</string>
+    <string name="max_log_level_warn">ચેતવણી</string>
+    <string name="max_log_level_error">ભૂલ</string>
+    <string name="max_log_level_assert">ભારપૂર્વક</string>
+    <string name="max_log_level_fatal">જીવલેણ</string>
+    <string name="max_log_buffer_main">મુખ્ય</string>
+    <string name="max_log_buffer_system">સિસ્ટમ</string>
+    <string name="max_log_buffer_crash">ક્રેશ</string>
+    <string name="max_log_buffer_kernel">કર્નલ</string>
+    <string name="max_log_buffer_events">ઘટનાઓ</string>
+    <string name="max_log_buffer_radio">રેડિયો</string>
+    <string name="max_log_source_daemon">ડિમન</string>
+    <string name="max_log_source_appmonitor">એપ મોનિટર</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">અન્ય</string>
+</resources>

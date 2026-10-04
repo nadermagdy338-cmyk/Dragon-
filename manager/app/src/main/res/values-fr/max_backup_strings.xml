@@ -224,7 +224,6 @@
     <string name="max_backup_storage_size_unknown">N\'a pas pu être lu</string>
     <string name="max_backup_storage_public_ok">Écriture dans le dossier partagé ci-dessous, afin que n\'importe quel gestionnaire de fichiers accède à l\'archive sans root.</string>
     <string name="max_backup_storage_fallback_title">Les copies sont dans le dossier de l\'app</string>
-    <string name="max_backup_storage_fallback_desc">because both folders are searched.</string>
     <string name="max_backup_storage_grant">Accorder l\'accès à tous les fichiers</string>
     <string name="max_backup_storage_grant_failed">Cet appareil n\'a pas d\'écran pour cette autorisation. Les copies restent dans le dossier de l\'app.</string>
     <string name="max_backup_entry_title">Max Backup</string>
@@ -298,4 +297,5 @@
     <string name="max_backup_day_fri">ven</string>
     <string name="max_backup_day_sat">sam</string>
     <string name="max_backup_day_sun">dim</string>
+    <string name="max_backup_storage_fallback_desc">Le dossier partagé %1$s nécessite l\'autorisation « Accès à tous les fichiers ». Jusqu\'à ce qu\'elle soit accordée, les copies vont vers %2$s — et les copies déjà prises là-bas restent lisibles, car les deux dossiers sont recherchés.</string>
 </resources>

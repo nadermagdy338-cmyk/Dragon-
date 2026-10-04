@@ -1,0 +1,161 @@
+{
+ "schema": 1,
+ "source": "COPG",
+ "sourceUrl": "https://github.com/AlirezaParsi/COPG",
+ "sourceRef": "JSON@e1d7da6c24cb571c5d123a6f7c85fafbb42b870b",
+ "retrieved": "2026-10-04",
+ "license": "Apache-2.0",
+ "modified": "Device blocks only (PACKAGES_*_DEVICE) extracted from module/COPG.json and re-keyed; game package lists and tags dropped.",
+ "devices": [
+  {
+   "key": "BLACK_SHARK_4__CHINA_",
+   "name": "Black Shark 4 (China)",
+   "brand": "Black Shark",
+   "manufacturer": "Xiaomi",
+   "model": "2SM-X706B",
+   "device": "Black Shark 4 (China)",
+   "product": "2SM-X706B",
+   "fingerprint": "BlackShark/PRS-H0/Black Shark 4:13/TQ3A.230805.001/20230315:user/release-keys"
+  },
+  {
+   "key": "GALAXY_TAB_S9_ULTRA",
+   "name": "Galaxy Tab S9 Ultra",
+   "brand": "samsung",
+   "manufacturer": "samsung",
+   "model": "SM-X916B",
+   "device": "Galaxy Tab S9 Ultra",
+   "product": "SM-X916B",
+   "fingerprint": "samsung/gts9ultraxx/gts9ultra:16/BP2A.250605.031/X916BXXU6EZE3:user/release-keys"
+  },
+  {
+   "key": "GALAXY_Z_FOLD_5",
+   "name": "Galaxy Z Fold 5",
+   "brand": "samsung",
+   "manufacturer": "samsung",
+   "model": "SM-F9460",
+   "device": "Galaxy Z Fold 5",
+   "product": "SM-F9460",
+   "fingerprint": "samsung/q2qzh/q2q:15/UP1A.231005.007/F946BXXU1BWK4:user/release-keys"
+  },
+  {
+   "key": "INFINIX_GT_50_PRO_5G",
+   "name": "INFINIX GT 50 PRO 5G",
+   "brand": "INFINIX",
+   "manufacturer": "INFINIX",
+   "model": "Infinix X6891",
+   "device": "INFINIX GT 50 PRO 5G",
+   "product": "X6891",
+   "fingerprint": "Infinix/X6891/Infinix GT 50 Pro 5G:15/AP3A.240617.008/20250520.123456:user/release-keys"
+  },
+  {
+   "key": "LEGION_Y700__2023_",
+   "name": "Legion Y700 (2023)",
+   "brand": "Lenovo",
+   "manufacturer": "Lenovo",
+   "model": "TB-9707F",
+   "device": "Legion Y700 (2023)",
+   "product": "TB-9707F",
+   "fingerprint": "Lenovo/TB-9707F/Lenovo TB-9707F:13/TQ3A.230805.001/20230901:user/release-keys"
+  },
+  {
+   "key": "ONEPLUS_13",
+   "name": "OnePlus 13",
+   "brand": "OnePlus",
+   "manufacturer": "OnePlus",
+   "model": "PJZ110",
+   "device": "OnePlus 13",
+   "product": "PJZ110",
+   "fingerprint": "OnePlus/PJZ110/OP5D0DL1:15/AP3A.240617.008/V.1bd19a1-1-2:user/release-keys"
+  },
+  {
+   "key": "ONEPLUS_8_PRO_5G",
+   "name": "OnePlus 8 Pro 5G",
+   "brand": "OnePlus",
+   "manufacturer": "OnePlus",
+   "model": "IN2023",
+   "device": "OnePlus 8 Pro 5G",
+   "product": "IN2023",
+   "fingerprint": "OnePlus/IN2023/OnePlus8Pro:13/RKQ1.211119.001/20230501:user/release-keys"
+  },
+  {
+   "key": "REALME_15_PRO_5G",
+   "name": "Realme 15 Pro 5G",
+   "brand": "realme",
+   "manufacturer": "realme",
+   "model": "RMX5101",
+   "device": "Realme 15 Pro 5G",
+   "product": "RMX5101",
+   "fingerprint": "realme/RMX5101IN/RE60B4L1:15/AP3A.240617.008/V.R4T2.26cec0e-80bb4e-80b757:user/release-keys"
+  },
+  {
+   "key": "REDMAGIC_11_PRO",
+   "name": "REDMAGIC 11 PRO",
+   "brand": "REDMAGIC",
+   "manufacturer": "Nubia",
+   "model": "NX809J",
+   "device": "REDMAGIC 11 PRO",
+   "product": "NX809J",
+   "fingerprint": "REDMAGIC/NX809J-UN/NX809J:16/BP2A.250605.031.A3/20251017.000000:user/release-keys"
+  },
+  {
+   "key": "REDMAGIC_9_PRO",
+   "name": "REDMAGIC 9 Pro",
+   "brand": "nubia",
+   "manufacturer": "ZTE",
+   "model": "NX769J",
+   "device": "REDMAGIC 9 Pro",
+   "product": "NX769J",
+   "fingerprint": "nubia/NX769J/NX769J:14/UKQ1.230917.001/20240813.173312:user/release-keys"
+  },
+  {
+   "key": "ROG_PHONE_6D_ULTIMATE",
+   "name": "ROG Phone 6D Ultimate",
+   "brand": "ASUS",
+   "manufacturer": "ASUS",
+   "model": "AI2203",
+   "device": "ROG Phone 6D Ultimate",
+   "product": "AI2203",
+   "fingerprint": "ASUS/AI2203/ROG Phone 6D:14/UP1A.231005.007/20240315:user/release-keys"
+  },
+  {
+   "key": "SONY_XPERIA_1_III",
+   "name": "Sony Xperia 1 III",
+   "brand": "Sony",
+   "manufacturer": "Sony",
+   "model": "A101SO",
+   "device": "Sony Xperia 1 III",
+   "product": "A101SO",
+   "fingerprint": "Sony/A101SO/pdx215:13/61.2.B.0.683/0470464051:user/release-keys"
+  },
+  {
+   "key": "XIAOMI_11T_PRO",
+   "name": "Xiaomi 11T Pro",
+   "brand": "Xiaomi",
+   "manufacturer": "Xiaomi",
+   "model": "2107113SG",
+   "device": "Xiaomi 11T Pro",
+   "product": "2107113SG",
+   "fingerprint": "Xiaomi/2107113SI/Mi 11T Pro:13/RKQ1.211001.001/20230410:user/release-keys"
+  },
+  {
+   "key": "XIAOMI_13",
+   "name": "Xiaomi 13",
+   "brand": "Xiaomi",
+   "manufacturer": "Xiaomi",
+   "model": "2211133G",
+   "device": "Xiaomi 13",
+   "product": "2211133G",
+   "fingerprint": "Xiaomi/fuxi_eea/fuxi:13/TKQ1.221114.001/OS2.0.102.0.VMCEUXM:user/release-keys"
+  },
+  {
+   "key": "XIAOMI_13_PRO",
+   "name": "Xiaomi 13 Pro",
+   "brand": "Xiaomi",
+   "manufacturer": "Xiaomi",
+   "model": "2210132G",
+   "device": "Xiaomi 13 Pro",
+   "product": "2210132G",
+   "fingerprint": "Xiaomi/fuxi_eea/fuxi:13/TKQ1.221114.001/OS2.0.102.0.VMCEUXM:user/release-keys"
+  }
+ ]
+}

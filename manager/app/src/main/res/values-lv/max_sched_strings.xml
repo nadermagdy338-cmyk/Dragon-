@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Termiņa periods Max (mums)</string>
+    <string name="max_sched_tunable_deadline_period_min">Termiņa periods Min (mums)</string>
+    <string name="max_sched_tunable_energy_aware">Enerģiju apzinīgs</string>
+    <string name="max_sched_tunable_latency">Latentums (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Migrācijas izmaksas (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimālā granulitāte (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Migrācijas partijas lielums</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT reizinātājs</string>
+    <string name="max_sched_tunable_rr_timeslice">Round Robin laika šķēlums (ms)</string>
+    <string name="max_sched_tunable_rt_period">Reāllaika periods (mums)</string>
+    <string name="max_sched_tunable_rt_runtime">Reāllaika izpildlaiks (mēs)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Reāllaika UClamp grīda</string>
+    <string name="max_sched_tunable_wakeup_granularity">Wakeup precizitāte (ns)</string>
+</resources>

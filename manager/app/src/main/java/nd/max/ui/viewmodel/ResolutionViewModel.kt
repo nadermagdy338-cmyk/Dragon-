@@ -26,7 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 import kotlin.math.roundToInt
 
 data class ResolutionPreset(
@@ -43,6 +43,10 @@ class ResolutionViewModel : ViewModel() {
         private const val PROP_CUSTOM_W = MaxManagerProps.Display.RES_WIDTH
         private const val PROP_CUSTOM_H = MaxManagerProps.Display.RES_HEIGHT
         private const val PROP_CUSTOM_DPI = MaxManagerProps.Display.RES_DPI
+
+        /** علّمتان تفصلان مخرجات الأوامر الثلاثة داخل **نداء واحد** (لا تظهران من الأوامر). */
+        private const val MARK_DENSITY = "#MAX_WM_DENSITY#"
+        private const val MARK_FPS = "#MAX_WM_FPS#"
     }
 
     var isLoaded by mutableStateOf(false)
@@ -71,20 +75,42 @@ class ResolutionViewModel : ViewModel() {
     var presets by mutableStateOf<List<ResolutionPreset>>(emptyList())
         private set
 
+    /**
+     * فتح الشاشة: **ثلاث رحلات صدفة صارت واحدة** (عطب سرعة مُبلَّغ عنه).
+     *
+     * `wm size` ثم `wm density` ثم `dumpsys display | grep fps=` — وكلّها في الصدفة الواحدة
+     * المُسلسَلة، و`dumpsys display` من أبطأ أوامرها. صارت الأوامر الثلاثة **تنفيذًا واحدًا**
+     * (`Shell.cmd(a,b,c)` تُكتب كلّها في مدخل الصدفة نفسه بترتيبها)، والفصل بعلامتين —
+     * **ونصّ كل أمر وتحليله لم يُمسّا**: الأنماط الثلاثة أدناه هي هي، والنتيجة نفسها.
+     */
     fun loadState() {
         viewModelScope.launch(Dispatchers.IO) {
+            val out = runCatching {
+                Shell.cmd(
+                    "wm size",
+                    "echo $MARK_DENSITY",
+                    "wm density",
+                    "echo $MARK_FPS",
+                    "dumpsys display | grep -m1 'fps=' ",
+                ).exec().out.map { it.trim() }
+            }.getOrDefault(emptyList())
+
+            val densityAt = out.indexOf(MARK_DENSITY)
+            val fpsAt = out.indexOf(MARK_FPS)
+
             // Native physical size ("wm size" without override reports "Physical size: WxH")
-            val sizeOut = Shell.cmd("wm size").exec().out.joinToString("\n")
+            val sizeOut = out.take(densityAt.takeIf { it >= 0 } ?: out.size).joinToString("\n")
             val physical = Regex("Physical size:\\s*(\\d+)x(\\d+)").find(sizeOut)
             val override = Regex("Override size:\\s*(\\d+)x(\\d+)").find(sizeOut)
 
-            val densityOut = Shell.cmd("wm density").exec().out.joinToString("\n")
+            val densityOut = out.subList(
+                (densityAt + 1).coerceAtMost(out.size),
+                fpsAt.takeIf { it > densityAt } ?: out.size,
+            ).joinToString("\n")
             val physicalDensity = Regex("Physical density:\\s*(\\d+)").find(densityOut)
             val overrideDensity = Regex("Override density:\\s*(\\d+)").find(densityOut)
 
-            val refreshOut = Shell.cmd(
-                "dumpsys display | grep -m1 'fps=' "
-            ).exec().out.joinToString("")
+            val refreshOut = if (fpsAt >= 0) out.drop(fpsAt + 1).joinToString("") else ""
             val refresh = Regex("fps=([0-9.]+)").find(refreshOut)?.groupValues?.get(1)
                 ?.toFloatOrNull()?.roundToInt() ?: 0
 

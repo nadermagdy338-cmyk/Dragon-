@@ -4,6 +4,8 @@
  * without prior written permission from the copyright holder.
  */
 package nd.max.ui.util
+import nd.max.core.platform.FpsReadMode
+import nd.max.core.platform.FpsMonitorUtil
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

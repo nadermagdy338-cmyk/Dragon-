@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -71,6 +73,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSectionSpec
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.MaxSize
+import nd.max.ui.design.MaxAlpha
 import androidx.compose.ui.unit.sp
 import nd.max.ui.theme.MonoValueStyleSmall
 import nd.max.ui.util.ClockMeter
@@ -95,9 +103,9 @@ import nd.max.ui.util.Spectrum
  *    reordered or clipped by an RTL locale.
  */
 
-val NeuralPanelShape = RoundedCornerShape(24.dp)
-val NeuralTileShape = RoundedCornerShape(18.dp)
-private val ChipShape = RoundedCornerShape(12.dp)
+val NeuralPanelShape = RoundedCornerShape(MaxCardSpec.radius)
+val NeuralTileShape = RoundedCornerShape(MaxRadius.tile)
+private val ChipShape = RoundedCornerShape(MaxRadius.control)
 
 @Immutable
 data class NeuralPalette(
@@ -136,7 +144,9 @@ fun neuralPalette(): NeuralPalette {
 
 /** Press feedback shared by every tappable surface: 2.5% scale plus theme ripple. */
 @Composable
-private fun Modifier.neuralClickable(onClick: (() -> Unit)?, role: Role? = null): Modifier {
+// `internal` لا `private` بعد إخراج `NeuralPill` إلى ملفّ مستقل: كانت `private` تخدم مستدعيًا
+// واحدًا في الملفّ نفسه، والآن يشاركها ملفّان. الرؤية تغيّرت والسلوك لم يتغيّر.
+internal fun Modifier.neuralClickable(onClick: (() -> Unit)?, role: Role? = null): Modifier {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -270,7 +280,18 @@ fun NeuralValue(
     }
 }
 
-/** Section heading: accent rule, title, caption, optional trailing slot. */
+/**
+ * Section heading: accent rule, title, caption, optional trailing slot.
+ *
+ * **وهندسته وأحجامه من `MaxSectionSpec` لا أرقامًا محلّية.** كان هذا الرأس يخالف رأسَ القسم في
+ * طبقة التصميم في **كل** مقياس: شرطة `3dp` دائريّة بدل «`4dp` بحافة `2dp`»، وعنوان `15sp`
+ * بدل `titleMedium` (`16sp`)، وتسمية `11sp` بدل `bodySmall`، وفراغ `10dp` بدل `12dp`. وحين
+ * يكون للقسم رأسآن مختلفان في الحجم فالنتيجة أن القارئ لا يعرف أيّهما عنوان قسم وأيّهما سطر
+ * يُقرأ معه — وهو نصّ الطلب حرفيًّا.
+ *
+ * واللون وحده يبقى محلّيًّا (`neuralPalette()`): اللوحة لها لوح ألوان واحد وهذا شأن عرض لا شأن
+ * سلّم قراءة. وما عدا اللون مشترك.
+ */
 @Composable
 fun NeuralSectionHeader(
     title: String,
@@ -283,85 +304,37 @@ fun NeuralSectionHeader(
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Box(
             Modifier
-                .width(3.dp)
-                .height(if (caption == null) 18.dp else 32.dp)
-                .clip(CircleShape)
+                .width(MaxSectionSpec.accentWidth)
+                .height(MaxSectionSpec.accentHeight)
+                .clip(RoundedCornerShape(MaxSectionSpec.accentRadius))
                 .background(accent ?: p.accent)
         )
-        Spacer(Modifier.width(10.dp))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Spacer(Modifier.width(MaxSectionSpec.accentGap))
+        Column(
+            Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(MaxSectionSpec.titleGap),
+        ) {
             Text(
                 title,
+                style = MaterialTheme.typography.titleMedium.copy(lineBreak = LineBreak.Heading),
                 color = p.text,
-                fontSize = 15.sp,
-                lineHeight = 19.sp,
                 fontWeight = FontWeight.Bold,
             )
             if (caption != null) {
                 Text(
                     caption,
+                    style = MaterialTheme.typography.bodySmall.copy(lineBreak = LineBreak.Heading),
                     color = p.muted,
-                    fontSize = 11.sp,
-                    lineHeight = 15.sp,
                 )
             }
         }
         if (trailing != null) {
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(MaxSectionSpec.accentGap))
             trailing()
         }
     }
 }
 
-/**
- * Status pill — ومعه **دلالة الباب** عند الطلب.
- *
- * **السبب مُقاس في سجل المالك لا مُفترَض:** «زر max ai في الشاشة الرئيسية لا يدل على أنه سوف
- * يدخلك إلى شاشة أخرى … وممكن ألّا ينتبه له أحد». والحالة كانت كذلك فعلًا: سطحٌ بكبسولة
- * وحدٍّ رقيق وحشوة `filled` — وهو **نفس** شكل وسم الحالة غير القابل للضغط في السطر نفسه
- * («نشط» في الترويسة). فالشكل لا يقول «اضغطني»، والنتيجة أن بابًا وحيدًا لشاشةٍ يُقرأ زينة.
- *
- * و`navigates` ليست زخرفة: سهمٌ **مُتّجه مع اتجاه اللغة** (`AutoMirrored`) يُضاف في نهاية
- * الوسم فيصير الشكل «اسم ← مكان»، وهو العُرف نفسه المستعمل في الشاشات الأخرى
- * (`BypassChargeScreen.kt:319` · `MaxBackupPickerScreen.kt:565`). والوسم يبقى بلا سهم في
- * المواضع التي **تفعل** ولا **تنتقل** (مثل «إعادة المحاولة») — لأن السهم هناك كذب.
- */
-@Composable
-fun NeuralPill(
-    text: String,
-    accent: Color,
-    modifier: Modifier = Modifier,
-    filled: Boolean = false,
-    dot: Boolean = false,
-    icon: ImageVector? = null,
-    navigates: Boolean = false,
-    onClick: (() -> Unit)? = null,
-) {
-    Row(
-        modifier
-            .neuralClickable(onClick, role = Role.Button)
-            .clip(CircleShape)
-            .background(if (filled) accent.copy(alpha = .16f) else Color.Transparent)
-            .border(BorderStroke(1.dp, accent.copy(alpha = if (filled) .42f else .28f)), CircleShape)
-            .padding(horizontal = 10.dp, vertical = 5.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        if (dot) Box(Modifier.size(6.dp).clip(CircleShape).background(accent))
-        if (icon != null) Icon(icon, null, Modifier.size(13.dp), tint = accent)
-        Text(text, color = accent, fontSize = 11.sp, lineHeight = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-        // السهم بعد النصّ لا قبله: القارئ يقرأ «Max AI» ثم يرى إلى أين — لا العكس.
-        // وحجمه 14.dp (أكبر بـ1.dp من الأيقونة التعريفية) لأن دلالة الاتجاه تُرى أو لا تكون.
-        if (navigates) {
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                null,
-                Modifier.size(14.dp),
-                tint = accent,
-            )
-        }
-    }
-}
 
 /** Square icon chip used by tiles and feed rows. */
 @Composable

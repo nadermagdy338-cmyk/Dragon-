@@ -23,7 +23,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
+import nd.max.ui.mainscreens.HOME_DECK_DEFAULT
 import nd.max.ui.mainscreens.HomeDashboardContent
+import nd.max.ui.mainscreens.HomeDeckPool
 import nd.max.ui.util.LoadSample
 import nd.max.ui.viewmodel.DashboardState
 import nd.max.ui.viewmodel.HomeUiState
@@ -152,7 +154,9 @@ private fun HomeCommandPreview(missing: Boolean = false) {
             maxAi = MaxAiState(aiEnabled = true, strategyLabel = "Balanced"),
             profileRequest = ProfileRequestState(),
             deviceName = "MAX Preview Device",
-            onNavigate = {}, onProfile = {}, onReboot = {}, onSettings = {}, onAiRetry = {}
+            deckEntries = HomeDeckPool.take(HOME_DECK_DEFAULT),
+            onOpenDeck = {}, onConfigureDeck = {},
+            onNavigate = {}, onReboot = {}, onSettings = {}, onAiRetry = {}
         )
     }
 }

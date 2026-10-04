@@ -173,14 +173,17 @@ fun MaxConditionPanel(
     val tone = condition.kind.tone
     val toneContent = tone.content()
 
-    Surface(
+    // **ترحيل إلى القشرة:** الشكل والخلفية والحدّ من العقد. والحدّ يُمرّر لأنّ لوح الحالة
+    // يلوّنه بنبرته (`tone.border()`) — وهو تمييز مقصود لا انزياح، فلا يُسوّى مع البطاقة العاديّة.
+    // والحشو هنا **متباين** (أفقيّ `xl` ورأسيّ `xxl`) ولا تعبّر عنه معلمة واحدة، فيبقى داخليًّا.
+    MaxCardShell(
         modifier = modifier
             .fillMaxWidth()
             .widthIn(max = MaxSize.readingMaxWidth)
             .semantics { liveRegion = LiveRegionMode.Polite },
-        shape = RoundedCornerShape(MaxRadius.group),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        border = BorderStroke(MaxSize.hairlineBorder, tone.border())
+        borderColor = tone.border(),
+        contentPadding = 0.dp,
+        verticalArrangement = Arrangement.Top,
     ) {
         Column(
             modifier = Modifier

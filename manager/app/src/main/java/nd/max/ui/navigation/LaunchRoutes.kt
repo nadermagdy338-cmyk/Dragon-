@@ -57,3 +57,14 @@ internal fun isPackageArgument(value: String?): Boolean =
  * واحد، ويُقاس في اختبار JVM بلا جهاز، **والحارس المقابل له [isPackageArgument]**.
  */
 internal fun packageRouteOf(route: String, pkg: String): String = route.replace("{pkg}", pkg)
+
+/**
+ * مسار **قسم بعينه** في«معلومات الجهاز»: يُبنى من سجلّ الوجهات بنزع نمط المعامل ووضع
+ * مفتاح القسم مكانه — فلا يُكتب `device_info?section=…` بيد في أي شاشة (ADR-02).
+ *
+ * ولازمٌ لأن الدخول من زرّ في شاشة **ليس** إطلاقًا مجرّدًا: من ضغط «الحرارة» في شاشة
+ * الحرارة يريد **قسم الحرارة**، لا النظرة العامة. ولذلك تبقى [launchRouteOf] للدخول
+ * المجرّد (فتنزع الاستعلام كله) وتبقى هذه للدخول الموجّه، والفرق بينهما مُقاس في JVM.
+ */
+internal fun deviceInfoRouteOf(wireKey: String): String =
+    MaxDestination.DeviceInfo.route.replace("{section}", wireKey)

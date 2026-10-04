@@ -46,6 +46,7 @@ fun CapabilityMatrixCard(
     snapshot: HardwareCapabilitySnapshot?,
     routes: List<HardwareRouteHealth.Verdict>,
     onRefresh: () -> Unit,
+    trailing: (@Composable () -> Unit)? = null,
 ) {
     MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -98,5 +99,10 @@ fun CapabilityMatrixCard(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 6.dp),
         )
+        // **والباب في آخر البطاقة لا في صفّ عنوانها:** صفُّ العنوان يحمل عنوانًا ووصفًا وزرّ
+        // تحديث، فضغطةٌ ثالثة فيه تزاحم القراءة؛ وهنا يُقرأ **إجراءً على البطاقة** بعد أن
+        // تُقرأ بياناتها. وهو سطر رابط لا كبسولة (`MaxDeviceInfoShortcut`)، ويُمرَّر له صفر
+        // حاشية لأن هذه البطاقة تحشو نفسها أصلًا.
+        trailing?.invoke()
     }
 }

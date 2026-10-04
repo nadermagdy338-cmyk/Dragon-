@@ -7,7 +7,7 @@
     <string name="all_set">អ្វីៗគ្រប់យ៉ាងរួចរាល់ អ្នកអាចប្រើ Max Manager ឥឡូវនេះ</string>
     <string name="allow_verbose_log">អនុញ្ញាតឲ្យដំណើរការ Daemon ចេញកំណត់ហេតុលម្អិត</string>
     <string name="android_version">កំណែ Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">ឈ្មោះកម្មវិធី</string>
     <string name="app_priority">អាទិភាពកម្មវិធី</string>
     <string name="app_priority_control">ការគ្រប់គ្រងអាទិភាពកម្មវិធី</string>
@@ -724,15 +724,6 @@
     <string name="fps_overlay_notif_channel">ការលាបលើ FPS</string>
     <string name="fps_overlay_notif_title">Max Manager ការលាបលើ FPS កំពុងដំណើរការ</string>
     <string name="fps_overlay_notif_stop">ឈប់</string>
-    <string name="fps_overlay_section_style">រូបរាង</string>
-    <string name="fps_overlay_style">រចនាប័ទ្មត្រួតលើគ្នា។</string>
-    <string name="fps_overlay_style_android">បញ្ជីប្រព័ន្ធប្រតិបត្តិការ Android</string>
-    <string name="fps_overlay_style_pc">កុំព្យូទ័រ monospace</string>
-    <string name="fps_overlay_style_mini">មីនី</string>
-    <string name="fps_overlay_orientation">ទិសដៅប្លង់</string>
-    <string name="fps_overlay_orientation_vertical">បញ្ឈរ</string>
-    <string name="fps_overlay_orientation_horizontal">ផ្ដេក</string>
-    <string name="fps_overlay_read_mode">វិធីសាស្រ្តអាន FPS</string>
     <string name="fps_overlay_read_mode_desc">សាកល្បងវិធីផ្សេង ប្រសិនបើការអានស្ថិតនៅលេខ 0 នៅលើឧបករណ៍របស់អ្នក។</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (បានណែនាំ)</string>
     <string name="fps_overlay_mode_kernel">ថ្នាំងខឺណែល</string>
@@ -741,14 +732,6 @@
     <string name="fps_overlay_text_size">ទំហំអត្ថបទ</string>
     <string name="fps_overlay_bg_alpha">ភាពស្រអាប់នៃផ្ទៃខាងក្រោយ</string>
     <string name="fps_overlay_width_scale">មាត្រដ្ឋានទទឹង</string>
-    <string name="fps_overlay_section_metrics">បានបង្ហាញម៉ែត្រ</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU ផ្ទុក</string>
-    <string name="fps_overlay_metric_ram">RAM ការប្រើប្រាស់</string>
-    <string name="fps_overlay_metric_watt">ការអូសទាញថាមពលថ្ម</string>
-    <string name="fps_overlay_metric_temp">សីតុណ្ហភាពថ្ម</string>
-    <string name="fps_overlay_metric_render">ស្លាកអ្នកបង្ហាញ</string>
-    <string name="fps_overlay_metric_render_desc">បង្ហាញ VULKAN/OPENGL ជំនួសឱ្យ \"FPS\" ជាស្លាក ដែលបានរកឃើញពីបណ្ណាល័យផ្ទុករបស់កម្មវិធីខាងមុខ</string>
     <string name="dozemode_title">គោលការណ៍នៃការគេង</string>
     <string name="dozemode_menu_desc">បញ្ជីសរង់ចាំ ឥរិយាបថទំនេរ និងការលៃតម្រូវថាមពលផ្ទៃខាងក្រោយ</string>
     <string name="dozemode_state_label">រដ្ឋ Doze</string>
@@ -784,9 +767,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">បើកការកំណត់</string>
     <string name="processmgr_title">កម្មវិធីត្រួតពិនិត្យកិច្ចការ</string>
-    <string name="processmgr_menu_desc">ក្នុងមួយដំណើរការ CPU និង RAM ការប្រើប្រាស់ ជាមួយនឹងការបញ្ឈប់ដោយបង្ខំ និងការជាន់លើអណ្តែត</string>
     <string name="processmgr_stat_total">%1$dដំណើរការ</string>
-    <string name="processmgr_stat_breakdown">%1$d អ្នកប្រើប្រាស់ \u00b7 %2$d ប្រព័ន្ធ</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">កំពូល%1$d</string>
@@ -806,9 +787,6 @@
     <string name="processmgr_search_hint">ស្វែងរកដំណើរការដែលកំពុងដំណើរការ</string>
     <string name="processmgr_no_processes">គ្មានដំណើរការដែលត្រូវនឹងការស្វែងរករបស់អ្នកទេ។</string>
     <string name="processmgr_dialog_close">បិទ</string>
-    <string name="processmgr_detail_version">កំណែ</string>
-    <string name="processmgr_detail_build">សាងសង់</string>
-    <string name="processmgr_detail_package">កញ្ចប់</string>
     <string name="processmgr_result_killed">សម្លាប់ %1$s</string>
     <string name="processmgr_result_kill_failed">មិនអាចសម្លាប់ %1$s</string>
     <string name="processmgr_result_stopped">បង្ខំ-បញ្ឈប់ %1$s</string>
@@ -1459,7 +1437,6 @@
     <string name="max_home_reboot_desc">បើកជម្រើសចាប់ផ្ដើមឡើងវិញដោយសុវត្ថិភាព</string>
     <string name="max_home_ai_console">MAX AI កុងសូល</string>
     <string name="max_home_ai_working">កំពុងអនុវត្តកម្រងព័ត៌មានដែលបានស្នើសុំ...</string>
-    <string name="max_home_ai_failed">សកម្មភាព AI ចុងក្រោយបានបរាជ័យ</string>
     <string name="max_home_retry">ព្យាយាមម្តងទៀត</string>
     <string name="max_home_ai_idle">មិន​ទាន់​មាន​ការ​សម្រេច​ចិត្ត​របស់ AI នៅ​ឡើយ​ទេ។</string>
     <string name="home_system_stable">ប្រព័ន្ធមានស្ថេរភាព</string>
@@ -1475,8 +1452,6 @@
     <string name="home_performance_monitor_desc">ការផ្ទុកធនធានក្នុងរយៈពេល 72 វិនាទីចុងក្រោយ</string>
     <string name="home_quick_actions">ផ្ទាំងបញ្ជា</string>
     <string name="home_quick_actions_desc">ការចូលប្រើដោយផ្ទាល់ទៅកាន់វត្ថុបញ្ជាដែលមានសារៈសំខាន់</string>
-    <string name="home_action_boost">កម្រងព័ត៌មានការអនុវត្ត</string>
-    <string name="home_action_boost_desc">ផ្លាស់ប្តូរឥរិយាបថប្រព័ន្ធ</string>
     <string name="home_action_thermal">មជ្ឈមណ្ឌលកំដៅ</string>
     <string name="home_action_thermal_desc">ពិនិត្យកំដៅនិងត្រជាក់</string>
     <string name="home_action_battery">មជ្ឈមណ្ឌលថាមពល</string>
@@ -1496,7 +1471,6 @@
     <string name="home_active">សកម្ម</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">ការពារ</string>
-    <string name="home_device_overview">បើកទិដ្ឋភាពទូទៅនៃឧបករណ៍</string>
     <string name="home_live_performance">ការសម្តែងផ្ទាល់</string>
     <string name="home_live_performance_desc">ការផ្ទុកបច្ចុប្បន្ន និងការគ្រប់គ្រងផ្នែករឹងដោយផ្ទាល់</string>
     <string name="home_open_details">បើកទិន្នន័យកំដៅលម្អិត</string>
@@ -1776,7 +1750,6 @@
     <string name="home_focus_storage_desc">ទំហំទំនេរមានកម្រិតទាប ដែលធ្វើឲ្យការសរសេរយឺត និងឃ្លាំងសម្ងាត់។</string>
     <string name="home_focus_memory">សម្ពាធនៃការចងចាំ</string>
     <string name="home_focus_memory_desc">RAM ជិតពេញហើយ។ កាត់កម្មវិធីផ្ទៃខាងក្រោយ ឬបើក ZRAM។</string>
-    <string name="zram_live_summary">- %6$d/%7$d MB</string>
     <string name="mali_freq_screen_warning">ការខ្ទាស់ដោយដៃ ឬបិទប្រេកង់របស់ GPU ត្រួតលើបន្ទុកផ្ទាល់ខ្លួនរបស់អ្នកបើកបរ និងការគ្រប់គ្រងកម្ដៅ។ រុញ​វា​ឱ្យ​ឆ្ងាយ​ពេក ហើយ​អ្នក​អាច​នឹង​ឃើញ​បញ្ហា​ក្រាហ្វិក បិទ​បើក ឬ​ចាប់ផ្ដើម​ឡើងវិញ — ផ្លាស់ប្ដូរ​ការ​កំណត់​មួយ​ក្នុងពេលតែមួយ។</string>
     <string name="processmgr_force_stop_confirm_desc">វាបញ្ឈប់ដំណើរការដំណើរការទាំងអស់របស់ %1$s ដូចគ្នាទៅនឹងការបញ្ឈប់ដោយបង្ខំនៅក្នុងការកំណត់ប្រព័ន្ធ។</string>
     <string name="adreno_freq_screen_warning">ការខ្ទាស់ដោយដៃ ឬបិទប្រេកង់របស់ GPU ត្រួតលើបន្ទុកផ្ទាល់ខ្លួនរបស់អ្នកបើកបរ និងការគ្រប់គ្រងកម្ដៅ។ រុញ​វា​ឱ្យ​ឆ្ងាយ​ពេក ហើយ​អ្នក​អាច​នឹង​ឃើញ​បញ្ហា​ក្រាហ្វិក បិទ​បើក ឬ​ចាប់ផ្ដើម​ឡើងវិញ — ផ្លាស់ប្ដូរ​ការ​កំណត់​មួយ​ក្នុងពេលតែមួយ។</string>
@@ -1790,4 +1763,6 @@
     <string name="max_app_master_on_desc">ការបង្កើនប្រសិទ្ធភាពក្នុងមួយកម្មវិធីកំពុងត្រូវបានអនុវត្ត</string>
     <string name="max_app_advanced_options">ជម្រើសកម្រិតខ្ពស់</string>
     <string name="max_app_save">រក្សាទុក</string>
+    <string name="home_gpu_max_freq">ប្រេកង់អតិបរមា</string>
+    <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 ប្រសិទ្ធភាព %4$.2f\u00d7 \u00b7 RAM បានរក្សាទុក %5$d MB \u00b7 Swap បានប្រើ %6$d/%7$d MB</string>
 </resources>

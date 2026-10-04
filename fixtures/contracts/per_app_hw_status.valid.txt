@@ -1,0 +1,6 @@
+v=1
+pkg=com.example.game
+at=1758000000000
+knob=gpu_profile outcome=applied reason=verified expected=gaming live=gaming
+knob=cpu_limits:policy0 outcome=blocked reason=manual-lock expected=300000:2000000 live=300000:2000000
+knob=thermal outcome=unsupported reason=unspecified expected=none live=unreadable

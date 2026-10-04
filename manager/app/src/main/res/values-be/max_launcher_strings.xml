@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Усталяваныя пакеты і дзеянні, якія яны дэкларуюць</string>
+    <string name="max_launcher_loading">Чытанне ўсталяваных пакетаў і іх заяўленых дзеянняў...</string>
+    <string name="max_launcher_empty">Ні адзін усталяваны пакет не заяўляе пра дзейнасць на гэтай прыладзе.</string>
+    <string name="max_launcher_search_placeholder">Пошук па назве праграмы або пакета</string>
+    <string name="max_launcher_search_clear">Ачысціць пошук</string>
+    <string name="max_launcher_scope_all">Усе</string>
+    <string name="max_launcher_scope_user">Карыстальнік</string>
+    <string name="max_launcher_scope_system">сістэма</string>
+    <string name="max_launcher_activity_count">%1$d дзейнасць</string>
+    <string name="max_launcher_no_match_title">Нічога не адпавядае</string>
+    <string name="max_launcher_no_match_detail">Ніякая назва пакета або цэтлік праграмы не ўтрымліваюць гэты тэкст у выбранай вобласці.</string>
+    <string name="max_launcher_no_match_clear">Ачысціць фільтры</string>
+    <string name="max_launcher_reading_activities">Чытанне дзеянняў, аб\'яўленых у гэтым пакеце...</string>
+    <string name="max_launcher_no_activities">Гэты пакет дэкларуе адсутнасць дзейнасці.</string>
+    <string name="max_launcher_root_off_title">Root не прадастаўляецца</string>
+    <string name="max_launcher_root_off_detail">Дзеянні, пазначаныя прыватнымі, не экспартуюцца, таму іх можа запускаць толькі root. Экспартныя мерапрыемствы па-ранейшаму адкрыты без яго.</string>
+    <string name="max_launcher_tag_private">Прыватны</string>
+    <string name="max_launcher_tag_disabled">Інваліды</string>
+    <string name="max_launcher_outcome_started">Дзейнасць пачалася</string>
+    <string name="max_launcher_outcome_needs_root">Гэтая дзейнасць не экспартуецца — патрабуецца root</string>
+    <string name="max_launcher_outcome_refused">Android адмовіўся пачынаць гэтую дзейнасць</string>
+    <string name="max_launcher_outcome_missing">Дзейнасць з такой назвай не ўстаноўлена</string>
+</resources>

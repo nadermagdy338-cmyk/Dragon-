@@ -5,7 +5,15 @@
 # =====================================
 
 type maxmanager, domain;
-type maxmanager_exec, exec_type, file_type, vendor_file_type;
+// **و`vendor_file_type` كانت متناقضة مع بقيّة الملفّات الثلاثة** (تكملة ١٣٩): الملفّات
+// الثلاثة الأخرى كلّها تُثبّت مسارًا **واحدًا** في `/system/bin` — الوحدة في `Android.bp`
+// (تعليقها: «القسم `system` وحده (بلا `vendor`/`product_specific` معًا)»)، وسطر
+// `service` في `maxmanager.rc`، والوسم في `file_contexts`. فوصفُ نوع التنفيذ بأنه
+// `vendor_file_type` يجعل بناء الـsepolicy يرفض الجمع (`/system/bin` تحت `system_file`
+// ووسم قسم آخر في الوقت نفسه). أُزيل الوصف الواحد المخالف، وبقيت `exec_type, file_type`
+// وهي ما تحمله ثنائيات `/system/bin` فعلًا. **و`neverallow` في الشجرة الحقيقية لم يُشَغّل
+// هنا** (لا شجرة AOSP في هذه البيئة) — فالحكم النهائيّ يحتاج بناء sepolicy.
+type maxmanager_exec, exec_type, file_type;
 type maxmanager_tmpfs, file_type;
 type maxmanager_data_file, file_type, data_file_type;
 

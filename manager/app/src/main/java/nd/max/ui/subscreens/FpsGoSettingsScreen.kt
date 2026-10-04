@@ -76,7 +76,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import nd.max.R
 import nd.max.ui.component.*
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 
 @Composable

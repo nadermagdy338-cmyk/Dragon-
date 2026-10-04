@@ -7,7 +7,7 @@
     <string name="all_set">Hər şey hazır, indi Max Manager-i istifadə edə bilərsiniz</string>
     <string name="allow_verbose_log">Demon təfərrüatlı jurnal çıxarsın</string>
     <string name="android_version">Android versiyası</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Tətbiq adı</string>
     <string name="app_priority">Tətbiq prioriteti</string>
     <string name="app_priority_control">Tətbiq prioriteti nəzarəti</string>
@@ -722,15 +722,6 @@
     <string name="fps_overlay_notif_channel">FPS Overlay</string>
     <string name="fps_overlay_notif_title">Max Manager FPS örtüyü işləyir</string>
     <string name="fps_overlay_notif_stop">Dayan</string>
-    <string name="fps_overlay_section_style">Görünüş</string>
-    <string name="fps_overlay_style">Üst-üstə düşmə tərzi</string>
-    <string name="fps_overlay_style_android">Android siyahısı</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Layout istiqaməti</string>
-    <string name="fps_overlay_orientation_vertical">Şaquli</string>
-    <string name="fps_overlay_orientation_horizontal">Üfüqi</string>
-    <string name="fps_overlay_read_mode">FPS oxuma üsulu</string>
     <string name="fps_overlay_read_mode_desc">Cihazınızda oxunuş 0-da qalırsa, başqa üsul sınayın</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (tövsiyə olunur)</string>
     <string name="fps_overlay_mode_kernel">Kernel node</string>
@@ -739,14 +730,6 @@
     <string name="fps_overlay_text_size">Mətn ölçüsü</string>
     <string name="fps_overlay_bg_alpha">Fon qeyri-şəffaflığı</string>
     <string name="fps_overlay_width_scale">Genişlik miqyası</string>
-    <string name="fps_overlay_section_metrics">Göstərilən göstəricilər</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU yük</string>
-    <string name="fps_overlay_metric_ram">RAM istifadə</string>
-    <string name="fps_overlay_metric_watt">Batareyanın enerji çəkməsi</string>
-    <string name="fps_overlay_metric_temp">Batareyanın temperaturu</string>
-    <string name="fps_overlay_metric_render">Renderer etiketi</string>
-    <string name="fps_overlay_metric_render_desc">Ön planda olan proqramın yüklənmiş kitabxanalarından aşkarlanan etiket kimi \"FPS\" əvəzinə VULKAN/OPENGL-i göstərir</string>
     <string name="dozemode_title">Yuxu Siyasəti</string>
     <string name="dozemode_menu_desc">Gözləmə rejimində ağ siyahı, boş davranış və arxa fonda enerji tənzimlənməsi</string>
     <string name="dozemode_state_label">Yuxu vəziyyəti</string>
@@ -782,9 +765,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Parametrləri açın</string>
     <string name="processmgr_title">Tapşırıq Monitoru</string>
-    <string name="processmgr_menu_desc">Hər bir proses CPU və RAM istifadəsi, məcburi dayandırma və üzən örtüklə</string>
     <string name="processmgr_stat_total">%1$d prosesləri</string>
-    <string name="processmgr_stat_breakdown">%1$d istifadəçi \u00b7 %2$d sistemi</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Üst %1$d</string>
@@ -804,9 +785,6 @@
     <string name="processmgr_search_hint">Çalışan prosesləri axtarın</string>
     <string name="processmgr_no_processes">Axtarışınıza uyğun heç bir proses yoxdur</string>
     <string name="processmgr_dialog_close">Bağlayın</string>
-    <string name="processmgr_detail_version">Versiya</string>
-    <string name="processmgr_detail_build">qurmaq</string>
-    <string name="processmgr_detail_package">Paket</string>
     <string name="processmgr_result_killed">%1$s öldürüldü</string>
     <string name="processmgr_result_kill_failed">Öldürə bilmədim %1$s</string>
     <string name="processmgr_result_stopped">Məcburi dayandırılmış %1$s</string>
@@ -1453,7 +1431,6 @@
     <string name="max_home_reboot_desc">Təhlükəsiz yenidən yükləmə seçimlərini açın</string>
     <string name="max_home_ai_console">MAX AI konsolu</string>
     <string name="max_home_ai_working">Tələb olunan profil tətbiq edilir...</string>
-    <string name="max_home_ai_failed">Son AI əməliyyatı uğursuz oldu</string>
     <string name="max_home_retry">Yenidən cəhd edin</string>
     <string name="max_home_ai_idle">Hələ heç bir AI qərarı qeydə alınmayıb</string>
     <string name="home_system_stable">SİSTEM STABİL</string>
@@ -1469,8 +1446,6 @@
     <string name="home_performance_monitor_desc">Son 72 saniyə ərzində resurs yüklənməsi</string>
     <string name="home_quick_actions">Komanda göyərtəsi</string>
     <string name="home_quick_actions_desc">Əhəmiyyətli olan idarəetmələrə birbaşa giriş</string>
-    <string name="home_action_boost">Performans profili</string>
-    <string name="home_action_boost_desc">Sistem davranışını dəyişdirin</string>
     <string name="home_action_thermal">Termal mərkəz</string>
     <string name="home_action_thermal_desc">İstilik və soyutma vəziyyətini yoxlayın</string>
     <string name="home_action_battery">Enerji mərkəzi</string>
@@ -1490,7 +1465,6 @@
     <string name="home_active">AKTİV</string>
     <string name="home_idle">BOŞ</string>
     <string name="home_protected">QORUNAN</string>
-    <string name="home_device_overview">CİHAZA İCAMİ AÇIQ</string>
     <string name="home_live_performance">Canlı ifa</string>
     <string name="home_live_performance_desc">Cari yük və birbaşa aparat nəzarəti</string>
     <string name="home_open_details">Ətraflı istilik məlumatlarını açın</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Proqram başına optimallaşdırmalar tətbiq edilir</string>
     <string name="max_app_advanced_options">Qabaqcıl seçimlər</string>
     <string name="max_app_save">Saxla</string>
+    <string name="home_gpu_max_freq">Maks tezlik</string>
 </resources>

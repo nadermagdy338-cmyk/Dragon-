@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">ස්ථාපිත පැකේජ සහ ඒවා ප්‍රකාශ කරන ක්‍රියාකාරකම්</string>
+    <string name="max_launcher_loading">ස්ථාපිත පැකේජ සහ ඒවායේ ප්‍රකාශිත ක්‍රියාකාරකම් කියවීම...</string>
+    <string name="max_launcher_empty">ස්ථාපිත පැකේජයක් මෙම උපාංගයේ ක්‍රියාකාරකමක් ප්‍රකාශ නොකරයි.</string>
+    <string name="max_launcher_search_placeholder">යෙදුමේ නම හෝ පැකේජය අනුව සොයන්න</string>
+    <string name="max_launcher_search_clear">සෙවීම හිස් කරන්න</string>
+    <string name="max_launcher_scope_all">සියල්ල</string>
+    <string name="max_launcher_scope_user">පරිශීලක</string>
+    <string name="max_launcher_scope_system">පද්ධතිය</string>
+    <string name="max_launcher_activity_count">%1$d ක්රියාකාරකම්</string>
+    <string name="max_launcher_no_match_title">කිසිවක් ගැලපෙන්නේ නැත</string>
+    <string name="max_launcher_no_match_detail">තෝරාගත් විෂය පථයේ කිසිදු පැකේජ නාමයක හෝ යෙදුම් ලේබලයක එම පෙළ අඩංගු නොවේ.</string>
+    <string name="max_launcher_no_match_clear">පෙරහන් හිස් කරන්න</string>
+    <string name="max_launcher_reading_activities">මෙම පැකේජය ප්‍රකාශ කරන ක්‍රියාකාරකම් කියවීම…</string>
+    <string name="max_launcher_no_activities">මෙම පැකේජය කිසිදු ක්‍රියාකාරකම් ප්‍රකාශ කරයි.</string>
+    <string name="max_launcher_root_off_title">මූල ලබා නොදේ</string>
+    <string name="max_launcher_root_off_detail">පුද්ගලික ලෙස සලකුණු කර ඇති ක්‍රියාකාරකම් අපනයනය නොකෙරේ, එබැවින් ඒවා ආරම්භ කළ හැක්කේ root පමණි. අපනයනය කළ ක්‍රියාකාරකම් එය නොමැතිව තවමත් විවෘත වේ.</string>
+    <string name="max_launcher_tag_private">පුද්ගලිකයි</string>
+    <string name="max_launcher_tag_disabled">ආබාධිතයි</string>
+    <string name="max_launcher_outcome_started">ක්‍රියාකාරකම් ආරම්භ විය</string>
+    <string name="max_launcher_outcome_needs_root">මෙම ක්‍රියාකාරකම අපනයනය නොකෙරේ - root අවශ්‍ය වේ</string>
+    <string name="max_launcher_outcome_refused">Android මෙම ක්‍රියාකාරකම ආරම්භ කිරීම ප්‍රතික්ෂේප කළේය</string>
+    <string name="max_launcher_outcome_missing">එම නම සහිත කිසිදු ක්‍රියාකාරකමක් ස්ථාපනය කර නැත</string>
+</resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Встановлені пакети та дії, які вони оголошують</string>
+    <string name="max_launcher_loading">Читання встановлених пакетів і їх оголошених дій…</string>
+    <string name="max_launcher_empty">Жоден встановлений пакет не заявляє про активність на цьому пристрої.</string>
+    <string name="max_launcher_search_placeholder">Шукайте за назвою програми або пакетом</string>
+    <string name="max_launcher_search_clear">Очистити пошук</string>
+    <string name="max_launcher_scope_all">все</string>
+    <string name="max_launcher_scope_user">Користувач</string>
+    <string name="max_launcher_scope_system">система</string>
+    <string name="max_launcher_activity_count">%1$d діяльності</string>
+    <string name="max_launcher_no_match_title">Нічого не збігається</string>
+    <string name="max_launcher_no_match_detail">Жодне ім’я пакета чи мітка програми не містить цього тексту у вибраній області.</string>
+    <string name="max_launcher_no_match_clear">Очистити фільтри</string>
+    <string name="max_launcher_reading_activities">Перегляд дій, заявлених у цьому пакеті…</string>
+    <string name="max_launcher_no_activities">Цей пакет декларує відсутність діяльності.</string>
+    <string name="max_launcher_root_off_title">Root не надається</string>
+    <string name="max_launcher_root_off_detail">Діяльності, позначені як приватні, не експортуються, тому їх може запускати лише користувач root. Експортована діяльність все ще відкрита без нього.</string>
+    <string name="max_launcher_tag_private">Приватний</string>
+    <string name="max_launcher_tag_disabled">Вимкнено</string>
+    <string name="max_launcher_outcome_started">Діяльність розпочата</string>
+    <string name="max_launcher_outcome_needs_root">Ця діяльність не експортується — потрібен root</string>
+    <string name="max_launcher_outcome_refused">Android відмовився розпочати цю дію</string>
+    <string name="max_launcher_outcome_missing">Жодної активності з такою назвою не встановлено</string>
+</resources>

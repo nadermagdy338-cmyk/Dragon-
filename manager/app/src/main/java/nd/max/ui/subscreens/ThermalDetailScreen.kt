@@ -62,6 +62,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import nd.max.R
+import nd.max.ui.component.MaxAiShortcut
+import nd.max.ui.component.MaxDeviceInfoShortcut
 import nd.max.ui.component.MaxSurface
 import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
 import nd.max.ui.design.MaxCondition
@@ -81,18 +83,35 @@ import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
 import nd.max.ui.design.MaxUsageBar
 import nd.max.ui.design.content
+import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.theme.MonoValueStyleSmall
-import nd.max.ui.util.CoolingDeviceInfo
+import nd.max.core.platform.CoolingDeviceInfo
 import nd.max.ui.util.ThermalLevel
 import nd.max.ui.util.ThermalModel
-import nd.max.ui.util.ThermalUtil
-import nd.max.ui.util.ThermalZoneInfo
+import nd.max.core.platform.ThermalUtil
+import nd.max.core.platform.ThermalZoneInfo
 import nd.max.ui.util.ThrottleState
 import nd.max.ui.util.TripReading
 import kotlin.math.roundToInt
 
 private const val LTR = "\u200E"
 private const val ZONE_REFRESH_MS = 3_000L
+
+/** مصدر بديل مُعلَن: `dumpsys thermalservice` — يُقرأ فقط حين لا تُقرأ مناطق النواة. */
+private const val THERMAL_SERVICE_SOURCE = "dumpsys thermalservice"
+
+/**
+ * عيّنة واحدة من مسح الحرارة: ما تقوله النواة، وما تقوله خدمة أندرويد حين تسكت.
+ *
+ * و`class` لا `data class` عن قصد: فيها `IntArray`، ومساواة حقلية على مصفوفة تُقارن المرجع
+ * لا المحتوى — فتعريف بيانات يُوهم بمساواة لا توجد أسوأ من غيابه (`ArrayInDataClass` في lint).
+ */
+private class ThermalSample(
+    val zones: List<ThermalZoneInfo>,
+    val cooling: List<CoolingDeviceInfo>,
+    val batteryHeat: Float,
+    val serviceTemps: IntArray?,
+)
 
 /** سلّم شريط الحرارة: ١٠٠° هو سقف العرض، كما في الشاشة السابقة. */
 private const val BAR_SCALE_C = 100f
@@ -104,6 +123,7 @@ fun ThermalDetailScreen(navController: NavHostController) {
     var zones by remember { mutableStateOf<List<ThermalZoneInfo>>(emptyList()) }
     var cooling by remember { mutableStateOf<List<CoolingDeviceInfo>>(emptyList()) }
     var batteryHeat by remember { mutableStateOf(0f) }
+    var serviceTemps by remember { mutableStateOf<IntArray?>(null) }
     var trips by remember { mutableStateOf<Map<String, List<TripReading>>>(emptyMap()) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -120,29 +140,54 @@ fun ThermalDetailScreen(navController: NavHostController) {
         trips = loaded
         while (true) {
             val sample = withContext(Dispatchers.IO) {
-                Triple(
-                    ThermalUtil.readThermalZones(),
-                    ThermalUtil.readCoolingDevices(),
-                    ThermalUtil.readBatteryTemperatureC(context)
+                val live = ThermalUtil.readThermalZones()
+                /*
+                 * `dumpsys thermalservice` نداء صدفة ثقيل، ولا يُسأل إلا حين تُعلن النواة مناطق
+                 * ولا تُعطي منها قراءةً واحدة — وهو الحال بعينه الذي كان يُعرض فيه
+                 * «لا توجد مناطق حرارة مكشوفة» بينما النواة أعلنتها. فالسؤال الثقيل يُدفع ثمنه
+                 * في الحال المعطوبة فقط، ويبقى البديل نفسه الذي تستخدمه الشاشة الرئيسية من قبل.
+                 */
+                val service = if (live.none { it.isEnabled && it.temperatureC > 0 }) {
+                    ThermalUtil.readThermalServiceTemperatures()
+                } else {
+                    null
+                }
+                ThermalSample(
+                    zones = live,
+                    cooling = ThermalUtil.readCoolingDevices(),
+                    batteryHeat = ThermalUtil.readBatteryTemperatureC(context),
+                    serviceTemps = service,
                 )
             }
-            zones = sample.first
-            cooling = sample.second
-            batteryHeat = sample.third
+            zones = sample.zones
+            cooling = sample.cooling
+            batteryHeat = sample.batteryHeat
+            serviceTemps = sample.serviceTemps
             isLoading = false
             delay(ZONE_REFRESH_MS)
         }
     }
 
+    /** المناطق التي لها قراءة حيّة: هي وحدها تُغذّي الملخّص والذروة ونقاط التخفيف. */
     val enabledZones = zones.filter { it.isEnabled && it.temperatureC > 0 }
     val hottest = enabledZones.maxByOrNull { it.temperatureC }
-    val cpuAverage = enabledZones
+
+    /*
+     * ولغة `Snapshot` هي الصحيحة للبديل: قراءة عند الطلب من مصدر آخر، لا تدفّق من مناطق النواة
+     * — و«مصدر» الرقم يُقال في الواجهة نفسها (`source`) فلا يُنسب رقمٌ إلى منطقة لم تقله.
+     */
+    val zoneCpuAverage = enabledZones
         .filter { it.category == "CPU" }
         .map { it.temperatureC }
         .average()
         .takeUnless { it.isNaN() }
         ?.roundToInt()
-    val gpuPeak = enabledZones.filter { it.category == "GPU" }.maxOfOrNull { it.temperatureC }
+    val serviceCpu = serviceTemps?.getOrNull(0)?.takeIf { it > 0 }
+    val serviceGpu = serviceTemps?.getOrNull(1)?.takeIf { it > 0 }
+    val cpuAverage = zoneCpuAverage ?: serviceCpu
+    val cpuFromZones = zoneCpuAverage != null
+    val gpuPeak = enabledZones.filter { it.category == "GPU" }.maxOfOrNull { it.temperatureC } ?: serviceGpu
+    val gpuFromZones = enabledZones.any { it.category == "GPU" }
     val hottestLevel = hottest?.let { ThermalModel.levelOf(it.temperatureC) }
     val hottestTrips = hottest?.let { trips[it.sysfsPath].orEmpty() }.orEmpty()
     val throttleState = hottest?.let { ThermalModel.throttleState(it.temperatureC, hottestTrips) }
@@ -155,7 +200,15 @@ fun ThermalDetailScreen(navController: NavHostController) {
             detail = stringResource(R.string.detail_thermal_reading)
         )
 
-        enabledZones.isEmpty() -> MaxCondition(
+        /*
+         * **والشرط كان كاذبًا على جهاز مقيس:** كان `enabledZones.isEmpty()`، و`enabledZones`
+         * مناطق بقراءة حيّة — فجهاز يعلن ٦٦ منطقة (`THERMAL_ZONES READ_ONLY backend=thermal-sysfs
+         * evidence=66 nodes` في بصمة الجهاز) تُعرض له جملة «لم يعرض النواة منطقة مفعّلة قابلة
+         * للقراءة» — أي «النواة لا تعرض شيئًا» وهو **نقيض** المقيس. الفرق بين «النواة لم تُعلن
+         * منطقة» و«أعلنتها ولم نستطع قراءتها» فرق في السبب لا في التنسيق، ولا يُخلط في واجهة
+         * مبدؤها ألا تدّعي. فالشرط الآن على **ما أعلنته النواة** وحده.
+         */
+        zones.isEmpty() -> MaxCondition(
             kind = MaxConditionKind.Unsupported,
             title = stringResource(R.string.detail_no_thermal_zones),
             detail = stringResource(R.string.detail_no_thermal_zones_desc)
@@ -178,6 +231,10 @@ fun ThermalDetailScreen(navController: NavHostController) {
             )
         },
         header = {
+            // `manual` يبقى `false` هنا **عن قياس لا عن تحفّظ**: المحرّك لا يكتب منطقة حرارية
+            // ولا سقفًا حراريًّا (مقابضه: تردّدات المعالج والرسوم والـboost)، وإنما **يحترم**
+            // الميزانية الحرارية — فالسطر الثاني يقول ما يفعله المحرّك ولا يدّعي تجاوزًا لم يقع.
+            MaxAiShortcut(navController = navController, manual = false)
             if (hottest != null) {
                 ThermalHeadline(
                     zone = hottest,
@@ -189,6 +246,9 @@ fun ThermalDetailScreen(navController: NavHostController) {
         }
     ) {
         item(key = "thermal_summary") {
+            // وزرّ قسم الحرارة في «معلومات الجهاز» في آخر بطاقة الحرارة — أوّل بطاقة في
+            // الشاشة: من قرأ الحرارة هنا يصل إلى ما يُعلنه الجهاز عنها في مقعد معلومات الجهاز
+            // بضغطة، وهو كبسولة بأيقونة وكلمة لا أيقونة مجرّدة (أمر المالك).
             MaxSection(
                 title = stringResource(R.string.detail_thermal_summary),
                 description = stringResource(R.string.detail_thermal_summary_desc)
@@ -199,7 +259,12 @@ fun ThermalDetailScreen(navController: NavHostController) {
                             label = stringResource(R.string.detail_cpu_average),
                             value = cpuAverage?.toString() ?: MAX_VALUE_UNAVAILABLE,
                             unit = if (cpuAverage != null) "°C" else null,
-                            trust = if (cpuAverage != null) MaxDataTrust.Live else MaxDataTrust.Unreadable
+                            trust = when {
+                                cpuFromZones -> MaxDataTrust.Live
+                                cpuAverage != null -> MaxDataTrust.Snapshot
+                                else -> MaxDataTrust.Unreadable
+                            },
+                            source = if (cpuFromZones || cpuAverage == null) null else THERMAL_SERVICE_SOURCE
                         )
                     )
                     MaxGroupDivider()
@@ -208,7 +273,12 @@ fun ThermalDetailScreen(navController: NavHostController) {
                             label = stringResource(R.string.detail_gpu_peak),
                             value = gpuPeak?.toString() ?: MAX_VALUE_UNAVAILABLE,
                             unit = if (gpuPeak != null) "°C" else null,
-                            trust = if (gpuPeak != null) MaxDataTrust.Live else MaxDataTrust.Unreadable
+                            trust = when {
+                                gpuFromZones -> MaxDataTrust.Live
+                                gpuPeak != null -> MaxDataTrust.Snapshot
+                                else -> MaxDataTrust.Unreadable
+                            },
+                            source = if (gpuFromZones || gpuPeak == null) null else THERMAL_SERVICE_SOURCE
                         )
                     )
                     MaxGroupDivider()
@@ -237,6 +307,8 @@ fun ThermalDetailScreen(navController: NavHostController) {
                             )
                         )
                     }
+                    MaxGroupDivider()
+                    MaxDeviceInfoShortcut(navController, MaxDestination.ThermalDetail)
                 }
             }
         }
@@ -300,7 +372,11 @@ fun ThermalDetailScreen(navController: NavHostController) {
             }
         }
 
-        val grouped = enabledZones.groupBy { it.category }
+        /*
+         * وكل ما أعلنته النواة يُعرض — لا ما نجحنا في قراءته وحده. منطقة بلا قراءة حيّة تظهر
+         * بقيمتها الغائبة (`—`) لا يُختلق لها رقم ولا تُخفى: إخفاؤها هو ما صنع الجملة الكاذبة.
+         */
+        val grouped = zones.groupBy { it.category }
         grouped.toList().sortedBy { it.first }.forEach { (category, zoneList) ->
             item(key = "thermal_zone_group_$category") {
                 MaxSection(
@@ -317,7 +393,7 @@ fun ThermalDetailScreen(navController: NavHostController) {
             }
         }
 
-        if (cooling.isEmpty() && enabledZones.isNotEmpty()) {
+        if (cooling.isEmpty() && zones.isNotEmpty()) {
             item(key = "thermal_cooling_absent") {
                 MaxRow(
                     title = stringResource(R.string.detail_thermal_cooling_absent),
@@ -381,7 +457,9 @@ private fun ThermalHeadline(
 
 @Composable
 private fun ZoneBlock(zone: ThermalZoneInfo, trips: List<TripReading>) {
-    val tone = ThermalModel.levelOf(zone.temperatureC).tone()
+    // «مفكوك» و«صفر» ليسا قراءة: يُقال غيابها بدل عرض ٠°C كأنها قياس.
+    val live = zone.isEnabled && zone.temperatureC > 0
+    val tone = if (live) ThermalModel.levelOf(zone.temperatureC).tone() else MaxTone.Neutral
     val start = ThermalModel.throttleStart(trips)
     Column(
         modifier = Modifier
@@ -404,10 +482,14 @@ private fun ZoneBlock(zone: ThermalZoneInfo, trips: List<TripReading>) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Text(text = "${zone.temperatureC}°C", style = MonoValueStyleSmall, color = tone.content())
+            Text(
+                text = if (live) "${zone.temperatureC}°C" else MAX_VALUE_UNAVAILABLE,
+                style = MonoValueStyleSmall,
+                color = tone.content()
+            )
         }
         MaxUsageBar(
-            fraction = zone.temperatureC / BAR_SCALE_C,
+            fraction = if (live) zone.temperatureC / BAR_SCALE_C else 0f,
             tone = tone,
             marker = start?.let { it / BAR_SCALE_C }
         )

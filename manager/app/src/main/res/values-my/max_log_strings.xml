@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">စကားရှည်သည်။</string>
+    <string name="max_log_level_debug">အမှားရှာပါ။</string>
+    <string name="max_log_level_info">အချက်အလက်</string>
+    <string name="max_log_level_warn">သတိပေးချက်</string>
+    <string name="max_log_level_error">အမှား</string>
+    <string name="max_log_level_assert">မရမက</string>
+    <string name="max_log_level_fatal">အသက်ဆုံးတယ်။</string>
+    <string name="max_log_buffer_main">အဓိက</string>
+    <string name="max_log_buffer_system">စနစ်</string>
+    <string name="max_log_buffer_crash">ပျက်ကျ</string>
+    <string name="max_log_buffer_kernel">Kernel</string>
+    <string name="max_log_buffer_events">အဲ့ဒါနဲ့</string>
+    <string name="max_log_buffer_radio">ရေဒီယို</string>
+    <string name="max_log_source_daemon">Daemon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">တခြား</string>
+</resources>

@@ -7,7 +7,7 @@
     <string name="all_set">Tout est prêt, vous pouvez maintenant utiliser Max Manager</string>
     <string name="allow_verbose_log">Journal détaillé du démon</string>
     <string name="android_version">Version Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Nom de l\'application</string>
     <string name="app_priority">Priorité de l\'application</string>
     <string name="app_priority_control">Contrôle de priorité de l\'application</string>
@@ -723,15 +723,6 @@
     <string name="fps_overlay_notif_channel">Superposition FPS</string>
     <string name="fps_overlay_notif_title">Max Manager La superposition FPS est en cours d\'exécution</string>
     <string name="fps_overlay_notif_stop">Arrêt</string>
-    <string name="fps_overlay_section_style">Apparence</string>
-    <string name="fps_overlay_style">Style de superposition</string>
-    <string name="fps_overlay_style_android">Liste Android</string>
-    <string name="fps_overlay_style_pc">Monospace PC</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Orientation de la mise en page</string>
-    <string name="fps_overlay_orientation_vertical">Vertical</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontal</string>
-    <string name="fps_overlay_read_mode">Méthode de lecture FPS</string>
     <string name="fps_overlay_read_mode_desc">Essayez une autre méthode si la lecture reste à 0 sur votre appareil</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (recommandé)</string>
     <string name="fps_overlay_mode_kernel">Noeud de noyau</string>
@@ -740,14 +731,6 @@
     <string name="fps_overlay_text_size">Taille du texte</string>
     <string name="fps_overlay_bg_alpha">Opacité de l\'arrière-plan</string>
     <string name="fps_overlay_width_scale">Échelle de largeur</string>
-    <string name="fps_overlay_section_metrics">Mesures affichées</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU charge</string>
-    <string name="fps_overlay_metric_ram">RAM utilisation</string>
-    <string name="fps_overlay_metric_watt">Consommation d\'énergie de la batterie</string>
-    <string name="fps_overlay_metric_temp">Température de la batterie</string>
-    <string name="fps_overlay_metric_render">Étiquette du moteur de rendu</string>
-    <string name="fps_overlay_metric_render_desc">Affiche VULKAN/OPENGL au lieu de « FPS » comme étiquette, détecté dans les bibliothèques chargées de l\'application de premier plan</string>
     <string name="dozemode_title">Politique de sommeil</string>
     <string name="dozemode_menu_desc">Liste blanche de veille, comportement d\'inactivité et réglage de l\'alimentation en arrière-plan</string>
     <string name="dozemode_state_label">État de somnolence</string>
@@ -783,9 +766,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Ouvrir les paramètres</string>
     <string name="processmgr_title">Moniteur de tâches</string>
-    <string name="processmgr_menu_desc">Utilisation par processus CPU et RAM, avec arrêt forcé et superposition flottante</string>
     <string name="processmgr_stat_total">%1$d processus</string>
-    <string name="processmgr_stat_breakdown">%1$d utilisateur \u00b7 %2$d système</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Haut %1$d</string>
@@ -805,9 +786,6 @@
     <string name="processmgr_search_hint">Rechercher des processus en cours d\'exécution</string>
     <string name="processmgr_no_processes">Aucun processus ne correspond à votre recherche</string>
     <string name="processmgr_dialog_close">Fermer</string>
-    <string name="processmgr_detail_version">Version</string>
-    <string name="processmgr_detail_build">Construire</string>
-    <string name="processmgr_detail_package">Forfait</string>
     <string name="processmgr_result_killed">Tué %1$s</string>
     <string name="processmgr_result_kill_failed">Je n\'ai pas pu tuer %1$s</string>
     <string name="processmgr_result_stopped">Arrêt forcé %1$s</string>
@@ -1217,7 +1195,6 @@
     <string name="detail_upload">Télécharger</string>
     <string name="detail_download_timeline">Télécharger la chronologie</string>
     <string name="detail_collecting_samples">Collecte d\'échantillons…</string>
-    <string name="detail_last_samples">Derniers échantillons d\'une seconde</string>
     <string name="detail_collecting_live_data">Collecte de données sur le trafic en direct…</string>
     <string name="detail_traffic_totals">Total du trafic</string>
     <string name="detail_android_counters">Compteurs à l\'échelle de l\'appareil exposés par Android.</string>
@@ -1414,7 +1391,6 @@
     <string name="maxai_safety_normal">Stable</string>
     <string name="maxai_safety_engaged">Garde thermique active</string>
     <string name="maxai_safety_critical">Essentiel</string>
-    <string name="maxai_safety_interventions">interventions de sécurité</string>
     <string name="maxai_activity_title">Activité du moteur</string>
     <string name="maxai_decisions">%1$d décisions</string>
     <string name="maxai_successful">%1$d réussi</string>
@@ -1451,7 +1427,6 @@
     <string name="max_home_reboot_desc">Ouvrir les options de redémarrage sécurisé</string>
     <string name="max_home_ai_console">Console MAX IA</string>
     <string name="max_home_ai_working">Application du profil demandé…</string>
-    <string name="max_home_ai_failed">La dernière action de l\'IA a échoué</string>
     <string name="max_home_retry">Réessayer</string>
     <string name="max_home_ai_idle">Aucune décision d’IA enregistrée pour l’instant</string>
     <string name="home_system_stable">SYSTÈME STABLE</string>
@@ -1467,8 +1442,6 @@
     <string name="home_performance_monitor_desc">Charge des ressources au cours des 72 dernières secondes</string>
     <string name="home_quick_actions">Pont de commandement</string>
     <string name="home_quick_actions_desc">Accès direct aux grands contrôles</string>
-    <string name="home_action_boost">Profil de performance</string>
-    <string name="home_action_boost_desc">Modifier le comportement du système</string>
     <string name="home_action_thermal">Centre thermal</string>
     <string name="home_action_thermal_desc">Inspecter la chaleur et le refroidissement</string>
     <string name="home_action_battery">Centre de puissance</string>
@@ -1488,7 +1461,6 @@
     <string name="home_active">ACTIF</string>
     <string name="home_idle">VAIN</string>
     <string name="home_protected">PROTÉGÉ</string>
-    <string name="home_device_overview">APERÇU DES APPAREILS OUVERTS</string>
     <string name="home_live_performance">Spectacle en direct</string>
     <string name="home_live_performance_desc">Charge actuelle et contrôles matériels directs</string>
     <string name="home_open_details">Ouvrir les données thermiques détaillées</string>
@@ -1585,16 +1557,11 @@
     <string name="control_map_desc">Commencez par le symptôme que vous ressentez, puis ouvrez le domaine propriétaire du sous-système limitant.</string>
     <string name="control_map_how_title">Lire l\'appareil comme système, pas de bascule</string>
     <string name="control_map_how_desc">CPU, les paramètres de mémoire, d\'affichage, thermique, d\'alimentation, de stockage et de réseau s\'influencent mutuellement. Les cartes de domaine montrent maintenant de quoi chaque groupe est responsable et combien d\'outils plus profonds il contient.</string>
-    <string name="control_domain_cpu_state">Chemin de calcul · outils</string>
-    <string name="control_domain_gpu_state">Chemin graphique · outils</string>
-    <string name="control_domain_memory_state">Pression de la mémoire · outils</string>
-    <string name="control_domain_display_state">Cible de rendu · outils</string>
     <string name="control_domain_responsiveness_state">Rythme d\'entrée/frame · %1$d outils</string>
     <string name="control_domain_thermal_state">Limites de chaleur · %1$d outils</string>
     <string name="control_domain_power_state">Charge et ralenti · %1$d outils</string>
     <string name="control_domain_storage_state">E/S et compilateur · %1$d outils</string>
     <string name="control_domain_network_state">TCP et latence · %1$d outils</string>
-    <string name="control_domain_generic_state">Domaine · outils</string>
     <string name="max_hub_experience_title">Quoi comprendre ici</string>
     <string name="max_hub_tools_title">Outils disponibles</string>
     <string name="max_hub_tools_desc">%1$d surfaces focalisées dans ce domaine. Utilisez le texte du rôle pour choisir le bon.</string>
@@ -1790,4 +1757,12 @@
     <string name="max_app_master_on_desc">Des optimisations par application sont appliquées</string>
     <string name="max_app_advanced_options">Options avancées</string>
     <string name="max_app_save">Sauver</string>
+    <string name="home_gpu_max_freq">Fréquence maximale</string>
+    <string name="detail_last_samples">Derniers %1$d échantillons d\'une seconde</string>
+    <string name="maxai_safety_interventions">%1$d interventions de sécurité</string>
+    <string name="control_domain_cpu_state">Chemin de calcul · %1$d outils</string>
+    <string name="control_domain_gpu_state">Chemin graphique · %1$d outils</string>
+    <string name="control_domain_memory_state">Pression de la mémoire · %1$d outils</string>
+    <string name="control_domain_display_state">Cible de rendu · %1$d outils</string>
+    <string name="control_domain_generic_state">Domaine · %1$d outils</string>
 </resources>

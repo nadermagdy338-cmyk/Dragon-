@@ -62,6 +62,11 @@ class AtlasArchitectureTest {
      *   planner they decide, and like it they hold no reader and no writer. They may name a write
      *   state (`WRITABLE`) exactly as the planner names an execution transport: as a verdict about a
      *   route, never as authority to perform one.
+     * - `AtlasCapabilityState`: the shared capability vocabulary — one enum of states, imported by the
+     *   map, the policy and the surfaces that display a verdict. It is vocabulary, not a reader: it
+     *   performs no I/O and names no transport, so it belongs beside `AtlasModels` rather than on the
+     *   read path. It entered the package with the per-app-spoof batch, and this guard failed closed on
+     *   it until it was classified — the guard working, not a false alarm.
      * - `AtlasDeviceProfile` (`Learn` stage): the derived device profile. It assembles identity, map
      *   and remembered routes in memory; it performs no I/O and is deliberately never a second store.
      * - `MaxAtlas`: the cycle façade. Pure composition — reads belong to the scan path and writes to
@@ -78,6 +83,7 @@ class AtlasArchitectureTest {
         "AtlasFileStoreIo.kt",
         "AtlasSafetyPolicy.kt",
         "AtlasCapabilityMap.kt",
+        "AtlasCapabilityState.kt",
         "AtlasDeviceProfile.kt",
         "MaxAtlas.kt",
     )

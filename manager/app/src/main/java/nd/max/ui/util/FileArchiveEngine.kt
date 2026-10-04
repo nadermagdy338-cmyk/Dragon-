@@ -42,7 +42,11 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 import java.util.Collections
+import java.util.zip.Deflater
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipException
 import java.util.zip.ZipFile
@@ -67,6 +71,39 @@ enum class ArchiveFailure {
     /** فشل كتابة على القرص (مساحة أو صلاحية). */
     WriteFailed,
 }
+
+/**
+ * مستوى الضغط كما يُختار من الواجهة — ولكلٍّ رقم `Deflater` يقابله.
+ *
+ * **والأرقام مُعلَنة لا مُتخيَّلة:** `NO_COMPRESSION` = ٠ (يُخزّن بلا ضغط)، و`BEST_SPEED` = ١،
+ * و`DEFAULT_COMPRESSION` = ‎-١ (ما يراه `zlib` توازنًا)، و`BEST_COMPRESSION` = ٩. وهي نفسها
+ * تُمرَّر إلى مستوى `Deflater` في مسار `tar.gz`، فلا مستويان مختلفان للصيغتين.
+ *
+ * وهذا النوع **لا يعرف `R`** (قاعدة المستودع: النماذج لا تعرف الموارد) — التسمية في الواجهة.
+ */
+enum class CompressionLevel(val deflater: Int) {
+    /** بلا ضغط: أسرع ما يمكن، وأكبر حجمًا — مفيد لمحتوى مضغوط أصلًا (‏apk · jpg). */
+    Store(Deflater.NO_COMPRESSION),
+    Fast(Deflater.BEST_SPEED),
+    Normal(Deflater.DEFAULT_COMPRESSION),
+    Maximum(Deflater.BEST_COMPRESSION),
+}
+
+/** الصيغة التي يُنتجها الضغط — والاختيار قرار مستخدم لا ثابت في الكود. */
+enum class ArchiveFormat {
+    /** `zip` — الصيغة التي يتناقلها الناس، وبها مسار أصلي (Rust) بلا تقدّم. */
+    Zip,
+
+    /** `tar.gz` — صيغة الأنظمة، تُكتب هنا بـ[FileTarCodec] و`GZIP`. */
+    TarGz,
+}
+
+/** امتداد الأرشيف لكل صيغة — يُكتب في مكان واحد فيتفق الاسم والمحرّك. */
+val ArchiveFormat.extension: String
+    get() = when (this) {
+        ArchiveFormat.Zip -> ".zip"
+        ArchiveFormat.TarGz -> ".tar.gz"
+    }
 
 /**
  * نتيجة عملية أرشيف: **ثلاثة أحوال** لا اثنان — نُفِّذ وتُحقّق ≠ نُفِّذ ولم يُتحقّق ≠ فشل.
@@ -122,6 +159,7 @@ object FileArchiveEngine {
     fun createZip(
         sources: List<String>,
         archivePath: String,
+        level: CompressionLevel = CompressionLevel.Normal,
         progress: (done: Long, total: Long) -> Unit = NO_PROGRESS,
     ): ArchiveOutcome {
         if (sources.isEmpty()) return ArchiveOutcome.failed(ArchiveFailure.NoSources)
@@ -129,42 +167,25 @@ object FileArchiveEngine {
         val archive = File(FileBrowser.normalize(archivePath))
 
         // الطبقة الأولى: القارئ/الكاتب الأصلي — ويشترط أنه لا تقدّم دقيق مطلوب (الشرح
-        // في [NO_PROGRESS]). و`null` تعني «اسأل غيري» فتستمرّ الدالّة إلى التنفيذ المرجعي
-        // أدناه بنفس الدلالات — وهذا هو السلّم لا بديلٌ عنه.
-        if (progress === NO_PROGRESS) {
+        // في [NO_PROGRESS]) **وأن يكون المستوى الافتراضي**: مسار Rust لا يحمل مستوى ضغط،
+        // فتمريره إليه كان سيُنفّذ بخلاف ما اختاره المستخدم بلا أن يقول أحد. و`null`
+        // تعني «اسأل غيري» فتستمرّ الدالّة إلى التنفيذ المرجعي أدناه بنفس الدلالات.
+        if (progress === NO_PROGRESS && level == CompressionLevel.Normal) {
             ArchiveBridge.createZip(sources, archive.path)?.let { return it.toOutcome(archive) }
         }
-        val entries = ArrayList<Pair<File, String>>()
-        var total = 0L
-
-        try {
-            for (raw in sources) {
-                val source = File(FileBrowser.normalize(raw))
-                if (!source.exists() || !(source.canRead() || source.isDirectory)) {
-                    return ArchiveOutcome.failed(ArchiveFailure.UnreadableSource, source.path)
-                }
-                val rootName = FileBrowser.nameOf(source.path)
-                if (source.isFile) {
-                    entries += source to rootName
-                    total += source.length()
-                    continue
-                }
-                walkedEntries(source, source.parentFile, rootName, archive).forEach { (file, entry) ->
-                    entries += file to entry
-                    if (!entry.endsWith("/")) total += file.length()
-                }
-            }
-        } catch (io: IOException) {
-            // مصدر لا يُقرأ: رفض **معلن** قبل أن يُكتب أرشيف ناقص يُظنّ أنه نسخة كاملة.
-            return ArchiveOutcome.failed(ArchiveFailure.UnreadableSource, io.message)
-        }
-
-        if (entries.isEmpty()) return ArchiveOutcome.failed(ArchiveFailure.NoSources)
+        // والتمشية في مكان واحد ([prepareEntries]) تستعمله الصيغتان: نسختان منها كانتا
+        // ستفترقان في أوّل إصلاح يُمَسّ إحداهما.
+        val prepared = prepareEntries(sources, archive) ?: return ArchiveOutcome.failed(ArchiveFailure.NoSources)
+        if (prepared is Prepared.Failed) return ArchiveOutcome.failed(prepared.reason, prepared.subject)
+        val entries = (prepared as Prepared.Ready).entries
+        val total = entries.filterNot { it.second.endsWith("/") }.sumOf { it.first.length() }
 
         archive.parentFile?.let { if (!it.exists()) it.mkdirs() }
         var done = 0L
         return try {
             ZipOutputStream(BufferedOutputStream(FileOutputStream(archive))).use { zip ->
+                // المستوى المختار قبل أول مدخل: `setLevel` بعد `putNextEntry` بلا أثر.
+                zip.setLevel(level.deflater)
                 for ((file, entryName) in entries) {
                     zip.putNextEntry(ZipEntry(entryName))
                     // مجلد فارغ: يُكتب كمدخل بشرطة أخيرة، وإلا ضاع عند الفكّ.
@@ -196,6 +217,90 @@ object FileArchiveEngine {
             archive.delete()
             ArchiveOutcome.failed(ArchiveFailure.WriteFailed, io.message)
         }
+    }
+
+    /**
+     * ضغط مصادر في `tar.gz`: نفس تمشية [createZip] ونفس قواعدها، بترميز [FileTarCodec]
+     * وضغط `GZIP` على المستوى المختار.
+     *
+     * **ولماذا وُجد:** اسم الصيغة كان قرارًا ضمنيًّا من امتداد الهدف، فيمرّ `tar.gz` بالصدفة
+     * (ويحتاج جذرًا وثنائية `tar`) أو لا يمرّ أصلًا في مسار التطبيق. والآن الصيغتان خيارٌ
+     * صريح للمستخدم، ومستوى الضغط يُمرَّر إلى `GZIP` نفسه ([CompressionLevel]).
+     *
+     * ولا مسار أصليّ هنا: `ArchiveBridge` يعرف `zip` وحده، فلا يُسأل عن `tar`.
+     */
+    fun createTarGz(
+        sources: List<String>,
+        archivePath: String,
+        level: CompressionLevel = CompressionLevel.Normal,
+        progress: (done: Long, total: Long) -> Unit = NO_PROGRESS,
+    ): ArchiveOutcome {
+        if (sources.isEmpty()) return ArchiveOutcome.failed(ArchiveFailure.NoSources)
+        val archive = File(FileBrowser.normalize(archivePath))
+        val prepared = prepareEntries(sources, archive) ?: return ArchiveOutcome.failed(
+            ArchiveFailure.NoSources,
+        )
+        if (prepared is Prepared.Failed) return ArchiveOutcome.failed(prepared.reason, prepared.subject)
+        val entries = (prepared as Prepared.Ready).entries
+        val total = entries.filterNot { it.second.endsWith("/") }.sumOf { it.first.length() }
+
+        archive.parentFile?.let { if (!it.exists()) it.mkdirs() }
+        return try {
+            LeveledGzipStream(BufferedOutputStream(FileOutputStream(archive)), level.deflater).use { gzip ->
+                FileTarCodec.write(entries, gzip, progress, total)
+            }
+            if (archive.exists() && archive.length() > 0L) ArchiveOutcome.verified() else ArchiveOutcome.executedOnly()
+        } catch (io: IOException) {
+            // أرشيف نصفه مكتوب أسوأ من لا أرشيف: يُزال فلا يظنّ المستخدم أنه يملك نسخة.
+            archive.delete()
+            ArchiveOutcome.failed(ArchiveFailure.WriteFailed, io.message)
+        }
+    }
+
+    /**
+     * ضغط بصيغة مختارة من الواجهة — نقطة واحدة تفصل القرار عن التنفيذ.
+     */
+    fun create(
+        sources: List<String>,
+        archivePath: String,
+        format: ArchiveFormat,
+        level: CompressionLevel = CompressionLevel.Normal,
+        progress: (done: Long, total: Long) -> Unit = NO_PROGRESS,
+    ): ArchiveOutcome = when (format) {
+        ArchiveFormat.Zip -> createZip(sources, archivePath, level, progress)
+        ArchiveFormat.TarGz -> createTarGz(sources, archivePath, level, progress)
+    }
+
+    /** مداخل جاهزة، أو سبب رفض معلَن — تُقرأ مرّة فلا تُعيد التمشية الدالّتان. */
+    private sealed interface Prepared {
+        data class Ready(val entries: List<Pair<File, String>>) : Prepared
+        data class Failed(val reason: ArchiveFailure, val subject: String?) : Prepared
+    }
+
+    /**
+     * تمشية المصادر إلى مداخل (ملف، اسم) — نفس القواعد في الصيغتين: المداخل نسبية
+     * إلى أب كل مصدر وتبدأ باسمه، والأرشيف الناتج مستثنى، ومصدر لا يُقرأ **يُرفض قبل الكتابة**.
+     */
+    private fun prepareEntries(sources: List<String>, archive: File): Prepared? {
+        val entries = ArrayList<Pair<File, String>>()
+        try {
+            for (raw in sources) {
+                val source = File(FileBrowser.normalize(raw))
+                if (!source.exists() || !(source.canRead() || source.isDirectory)) {
+                    return Prepared.Failed(ArchiveFailure.UnreadableSource, source.path)
+                }
+                val rootName = FileBrowser.nameOf(source.path)
+                if (source.isFile) {
+                    entries += source to rootName
+                    continue
+                }
+                entries += walkedEntries(source, source.parentFile, rootName, archive)
+            }
+        } catch (io: IOException) {
+            return Prepared.Failed(ArchiveFailure.UnreadableSource, io.message)
+        }
+        if (entries.isEmpty()) return null
+        return Prepared.Ready(entries)
     }
 
     /**
@@ -331,6 +436,96 @@ object FileArchiveEngine {
     }
 
     /**
+     * فكّ **بأي صيغة مدعومة** — zip أو tar أو tar.gz — من نقطة واحدة.
+     *
+     * **ولماذا وُجدت:** كان قرار الصيغة موزَّعًا على مستدعِينَ: `extractZip` لـ`zip`، و`tar`
+     * عبر `PrivilegedShell` لما عداها (انظر [FileSystemEngine])؛ فمن نادى المحرّك مباشرةً على
+     * `.tar.gz` أخذ `CorruptArchive`. فصار القرار **من الاسم، مرة واحدة، هنا** — والصيغ الأربع
+     * المُعلنة في `FileArchive.SUPPORTED` صار لها مسار داخلي فعليّ.
+     */
+    fun extractArchive(
+        archivePath: String,
+        destination: String,
+        progress: (done: Long, total: Long) -> Unit = { _, _ -> },
+    ): ArchiveOutcome {
+        val archive = File(FileBrowser.normalize(archivePath))
+        val name = archive.name.lowercase()
+        return when {
+            name.endsWith(".tar.gz") || name.endsWith(".tgz") -> extractTar(archive, destination, gzipped = true, progress)
+            name.endsWith(".tar") -> extractTar(archive, destination, gzipped = false, progress)
+            else -> extractZip(archive.path, destination, progress)
+        }
+    }
+
+    /**
+     * فكّ `tar`/`tar.gz` بدفق واحد لا بحفظ الأرشيف في الذاكرة.
+     *
+     * **والأمان قبل الكتابة لكل مدخل:** لا يمكن فحص أرشيف متتابع كاملًا قبل أول بايت (ذلك
+     * يقرؤه مرّتين)، فالفحص هنا **قبل كتابة كل مدخل** — وإن وُجد مدخل غير آمن يُمحى ما كتبناه
+     * في هذه الدعوة وحدها ويُعلن السبب، فلا يُترك على القرص نصف فكّ يُظنّ أنه كامل.
+     *
+     * **وحدّ معلن:** مجموع البايتات مجهول في تدقيق واحد (الترويسة تحمل حجم كل مدخل، وقراءة
+     * الأرشيف مرّتين لمعرفة المجموع ثمنٌ لا مقابل له)، فهذا المسار يُبلّغ `total = 0` — وهو ما
+     * تُترجمه الواجهة إلى شريط غير محدَّد لا إلى نسبة مُخترعة (ADR-07).
+     */
+    private fun extractTar(
+        archive: File,
+        destination: String,
+        gzipped: Boolean,
+        progress: (done: Long, total: Long) -> Unit,
+    ): ArchiveOutcome {
+        if (!archive.exists() || !archive.canRead()) {
+            return ArchiveOutcome.failed(ArchiveFailure.UnreadableSource, archive.path)
+        }
+        val dir = File(FileBrowser.normalize(destination))
+        val written = ArrayList<Pair<File, Long>>()
+        var done = 0L
+
+        try {
+            val raw = BufferedInputStream(FileInputStream(archive))
+            val stream = if (gzipped) GZIPInputStream(raw) else raw
+            stream.use { input ->
+                val reader = FileTarCodec.Reader(input)
+                while (true) {
+                    val entry = reader.next() ?: break
+                    if (isUnsafeEntry(entry.name)) {
+                        removeWritten(written)
+                        return ArchiveOutcome.failed(ArchiveFailure.UnsafeEntry, entry.name)
+                    }
+                    val target = File(dir, entry.name)
+                    if (entry.isDirectory) {
+                        target.mkdirs()
+                        continue
+                    }
+                    target.parentFile?.mkdirs()
+                    val copied = BufferedOutputStream(FileOutputStream(target)).use { output ->
+                        reader.copyTo(entry, output)
+                    }
+                    written += target to entry.size
+                    done += copied
+                    progress(done, 0L)
+                }
+            }
+        } catch (tar: TarException) {
+            removeWritten(written)
+            return ArchiveOutcome.failed(ArchiveFailure.CorruptArchive, tar.message)
+        } catch (io: IOException) {
+            // دفق مبتور أو `.gz` تالف: الأرشيف نقص عن إعلانه — لا يُقال «نُفّذ» وهو ناقص.
+            removeWritten(written)
+            return ArchiveOutcome.failed(ArchiveFailure.CorruptArchive, io.message)
+        }
+
+        // الإثبات: كل ما كتبناه موجود وبالحجم المُعلَن في ترويسته.
+        val verified = written.all { (file, size) -> file.isFile && file.length() == size }
+        return if (verified && written.isNotEmpty()) ArchiveOutcome.verified() else ArchiveOutcome.executedOnly()
+    }
+
+    /** محو ما كتبناه هذه الدعوة — بالحذف لا بالخيال. */
+    private fun removeWritten(written: List<Pair<File, Long>>) {
+        written.forEach { (file, _) -> runCatching { file.delete() } }
+    }
+
+    /**
      * هل مدخل الأرشيف غير آمن؟
      *
      * الفحص على **المقاطع** لا على النصّ: اسم فيه `..` داخل مقطع (`a..b`) مشروع، أما
@@ -360,6 +555,20 @@ object FileArchiveEngine {
  * ودالّة مستقلّة لا عضوًا في [FileArchiveEngine]: دالّة الإرشاد في عضو تحتاج مستقبلًا
  * موزَّعًا في سياق النداء، فيصير قياسها في اختبار الوحدة أطول من الحكم نفسه.
  */
+/**
+ * مجرى `gzip` بمستوى ضغط مُختار.
+ *
+ * **ولماذا صنف لا نداء:** `GZIPOutputStream` لا يعرض مستوى الضغط — `setLevel` في
+ * `DeflaterOutputStream` **محميّ** (‏protected)، بخلاف `ZipOutputStream.setLevel` العلني في
+ * هذا المسار. فالطريق بلا انعكاس هو صنف صغير يضبط مستوى `Deflater` من داخل بنائه؛
+ * وبلا هذا كان اختيار المستخدم «بلا ضغط» يُنتج أرشيفًا مضغوطًا بلا أن يقول أحد (ADR-07).
+ */
+private class LeveledGzipStream(output: OutputStream, level: Int) : GZIPOutputStream(output) {
+    init {
+        def.setLevel(level)
+    }
+}
+
 internal fun ArchivePacket.Result.toOutcome(archive: File): ArchiveOutcome = when (this) {
     is ArchivePacket.Result.Ok ->
         if (archive.exists() && archive.length() > 0L) ArchiveOutcome.verified()

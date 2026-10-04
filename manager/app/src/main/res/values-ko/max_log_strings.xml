@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">말 수가 많은</string>
+    <string name="max_log_level_debug">디버그</string>
+    <string name="max_log_level_info">정보</string>
+    <string name="max_log_level_warn">경고</string>
+    <string name="max_log_level_error">오류</string>
+    <string name="max_log_level_assert">주장하다</string>
+    <string name="max_log_level_fatal">치명적인</string>
+    <string name="max_log_buffer_main">기본</string>
+    <string name="max_log_buffer_system">체계</string>
+    <string name="max_log_buffer_crash">충돌</string>
+    <string name="max_log_buffer_kernel">핵심</string>
+    <string name="max_log_buffer_events">이벤트</string>
+    <string name="max_log_buffer_radio">라디오</string>
+    <string name="max_log_source_daemon">악마</string>
+    <string name="max_log_source_appmonitor">앱모니터</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">다른</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Periudha e Afatit Max (ne)</string>
+    <string name="max_sched_tunable_deadline_period_min">Periudha e Afatit Min. (ne)</string>
+    <string name="max_sched_tunable_energy_aware">Të vetëdijshëm për energjinë</string>
+    <string name="max_sched_tunable_latency">Vonesa (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Kostoja e migrimit (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Granulariteti minimal (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Madhësia e grupit të migrimit</string>
+    <string name="max_sched_tunable_pelt_multiplier">Shumëzuesi PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Periudha në kohë reale (ne)</string>
+    <string name="max_sched_tunable_rt_runtime">Runtime në kohë reale (ne)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Kati UClamp në kohë reale</string>
+    <string name="max_sched_tunable_wakeup_granularity">Granulariteti i zgjimit (ns)</string>
+</resources>

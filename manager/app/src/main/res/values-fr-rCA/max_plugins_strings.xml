@@ -29,7 +29,6 @@
     <string name="max_plugins_cond_missing_title">Le dossier manifeste n’existe pas encore</string>
     <string name="max_plugins_cond_missing_detail">%1$s n\'a pas été créé sur cet appareil, il n\'y a donc rien à lire. Créer cela est tout ce qu\'un auteur de plugiciel doit faire.</string>
     <string name="max_plugins_cond_unreadable_title">Le dossier manifeste ne peut pas être lu</string>
-    <string name="max_plugins_cond_unreadable_detail">Le dossier existe à 0, mais le shell n\'a pas pu le lire. Root est requis pour le lister.</string>
     <string name="max_plugins_reason_BadId">L\'identifiant n\'est pas utilisable comme nom de dossier. Utilisez des lettres latines minuscules, des chiffres, des points, des traits d\'union ou des traits de soulignement, et jamais deux points d\'affilée.</string>
     <string name="max_plugins_reason_MissingName">Le manifeste ne déclare aucun nom.</string>
     <string name="max_plugins_reason_BadVersion">La version devrait commencer par des chiffres, par exemple 1.0.0.</string>
@@ -42,4 +41,5 @@
     <string name="max_plugins_reason_DuplicateId">Un autre plugiciel avec cet identifiant a déjà été accepté, celui-ci n\'est donc pas utilisé.</string>
     <string name="max_plugins_help_title">Pourquoi un contrat</string>
     <string name="max_plugins_help_body">Sans contrat publié, toute personne étendant cette application doit deviner la forme de nos fichiers internes, et nous ne pouvons pas distinguer une extension valide d\'une extension défectueuse. Avec lui, la limite est indiquée : un plugiciel déclare une intention et lit ; il n\'écrit jamais de matériel et chaque refus ci-dessus nomme le champ exact qui a échoué.</string>
+    <string name="max_plugins_cond_unreadable_detail">Le dossier existe à %1$s mais le shell n\'a pas pu le lire. Root est requis pour le lister.</string>
 </resources>

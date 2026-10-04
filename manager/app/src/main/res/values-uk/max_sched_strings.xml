@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Макс. кінцевий термін (US)</string>
+    <string name="max_sched_tunable_deadline_period_min">Кінцевий термін Мін. (US)</string>
+    <string name="max_sched_tunable_energy_aware">Обізнаність про енергію</string>
+    <string name="max_sched_tunable_latency">Затримка (нс)</string>
+    <string name="max_sched_tunable_migration_cost">Вартість міграції (нс)</string>
+    <string name="max_sched_tunable_min_granularity">Мінімальна гранулярність (нс)</string>
+    <string name="max_sched_tunable_nr_migrate">Розмір партії міграції</string>
+    <string name="max_sched_tunable_pelt_multiplier">Множник PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Циклічний часовий інтервал (мс)</string>
+    <string name="max_sched_tunable_rt_period">Період реального часу (нас)</string>
+    <string name="max_sched_tunable_rt_runtime">Real-Time Runtime (US)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">У режимі реального часу UClamp Floor</string>
+    <string name="max_sched_tunable_wakeup_granularity">Деталізація пробудження (нс)</string>
+</resources>

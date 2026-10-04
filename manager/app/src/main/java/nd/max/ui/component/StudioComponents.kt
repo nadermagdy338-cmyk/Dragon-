@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import nd.max.ui.design.MaxRadius
 import nd.max.R
 
 @Composable
@@ -54,7 +55,7 @@ fun StudioPerformanceHero(
     onApps: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
-    val heroShape = RoundedCornerShape(32.dp)
+    val heroShape = RoundedCornerShape(MaxRadius.sheet)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,7 +120,7 @@ fun StudioPerformanceHero(
                         }
                     }
                 }
-                Surface(shape = RoundedCornerShape(18.dp), color = colors.surface.copy(alpha = .7f)) {
+                Surface(shape = RoundedCornerShape(MaxRadius.tile), color = colors.surface.copy(alpha = .7f)) {
                     Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                         Text(stringResource(R.string.studio_load_history), style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
                         if (history.size >= 2) {
@@ -134,10 +135,10 @@ fun StudioPerformanceHero(
                     StudioReadout(stringResource(R.string.max_home_profile), profile)
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    nd.max.ui.component.StudioButton(onClick = onProfile, enabled = profileEnabled, shape = RoundedCornerShape(14.dp)) {
+                    nd.max.ui.component.StudioButton(onClick = onProfile, enabled = profileEnabled, shape = RoundedCornerShape(MaxRadius.row)) {
                         Text(stringResource(R.string.max_home_change_profile))
                     }
-                    nd.max.ui.component.StudioOutlinedButton(onClick = onApps, shape = RoundedCornerShape(14.dp)) {
+                    nd.max.ui.component.StudioOutlinedButton(onClick = onApps, shape = RoundedCornerShape(MaxRadius.row)) {
                         Text(stringResource(R.string.max_home_app_profiles))
                     }
                 }
@@ -154,7 +155,7 @@ fun StudioPerformanceHero(
 
 @Composable
 private fun StudioReadout(label: String, value: String) {
-    Surface(shape = RoundedCornerShape(10.dp), color = MaterialTheme.colorScheme.surface.copy(alpha = .65f)) {
+    Surface(shape = RoundedCornerShape(MaxRadius.chip), color = MaterialTheme.colorScheme.surface.copy(alpha = .65f)) {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
             Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(value, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)

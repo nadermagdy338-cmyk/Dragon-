@@ -15,6 +15,7 @@
  */
 
 package nd.max.ui.util
+import nd.max.core.platform.getChipsetName
 
 
 import android.content.Context
@@ -138,6 +139,32 @@ suspend fun dumpDiagnosticLogs(context: Context, saveToDownloads: Boolean): File
         echo "" >> "${d}INFO_FILE"
         echo "--- DIAGNOSTIC CENTER ---" >> "${d}INFO_FILE"
         cat ${diagFile} >> "${d}INFO_FILE" 2>/dev/null
+
+        #
+        # إثبات الوحدة: الأربعة التي كانت **غائبة** من الحزمة التي وصلت في 2026-10-01، فبقي
+        # «لماذا مات الرفيق» بلا جواب في أيّ ملفّ يرسله المستخدم:
+        #
+        # 1. `sysmon.log` — صفر بايت في تلك الحزمة (مات الرفيق قبل أن يكتب حرفًا)، وهو اليوم
+        #    يُكتب من الرفيق نفسه أوّل شيء ([`AppMonitorLogger.persist`]) — فيُقرأ في مكانه.
+        # 2. عمليّاتنا **بسياقها** (`ps -Z`): «من كان يعمل» و«بأيّ هويّة SELinux» — وهو ما يفرّق
+        #    بين رفضٍ سببه الهوية وبين غيابٍ سببه الموت.
+        # 3. رفض SELinux الذي يخصّنا وحدنا — لا ٢ ميغابايت من ضجيج النواة.
+        # 4. الوحدات الأخرى المثبّتة: التعايش سؤال مشروع في كل عطب عتاد (قِيس في تلك الحزمة
+        #    أربع وحدات أخرى بينها محرّك صوت يكتب في العقد نفسها).
+        #
+        echo "" >> "${d}INFO_FILE"
+        echo "--- MAXMANAGER EVIDENCE ---" >> "${d}INFO_FILE"
+        echo "[sysmon.log tail]" >> "${d}INFO_FILE"
+        tail -n 40 /data/adb/.config/MaxManager/sysmon.log >> "${d}INFO_FILE" 2>/dev/null
+        echo "[our processes with contexts]" >> "${d}INFO_FILE"
+        ps -AZ 2>/dev/null | grep -E 'maxmanager|nd[.]max' >> "${d}INFO_FILE"
+        ps -A 2>/dev/null | grep -E 'maxmanager|nd[.]max' >> "${d}INFO_FILE"
+        echo "[selinux denials for nd.max / maxmanager]" >> "${d}INFO_FILE"
+        dmesg 2>/dev/null | grep -E 'avc:.*(nd[.]max|maxmanager)' | tail -n 40 >> "${d}INFO_FILE"
+        echo "[module properties]" >> "${d}INFO_FILE"
+        getprop 2>/dev/null | grep -E 'persist[.]sys[.]maxmanager' | sort >> "${d}INFO_FILE"
+        echo "[other installed modules]" >> "${d}INFO_FILE"
+        ls -1 /data/adb/modules 2>/dev/null >> "${d}INFO_FILE"
 
         cp -r /sys/fs/pstore ${d}TMP_DIR/ 2>/dev/null
         

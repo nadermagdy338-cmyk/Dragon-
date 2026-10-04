@@ -39,6 +39,12 @@ object MaxManagerPaths {
     const val MODULE_DIR = "/data/adb/modules/MaxManager"
     const val APPLIST_JSON = "$MODULE_CONFIG/gamelist/maxmanagerApplist.json"
     const val SERVICE_BIN = "$MODULE_DIR/system/bin/sys.maxmanager-service"
+
+    /**
+     * `module.prop` المشحون — يقرؤه حارس هويّة الخادم (`is_kanged` في `ModuleIntegrity.c`)
+     * ويقرؤه المشرف من الطرف نفسه ليقول أيّهما العطب: الملفّ أم لحظة كتابته.
+     */
+    const val MODULE_PROP = "$MODULE_DIR/module.prop"
     const val MODULE_APK = "$MODULE_DIR/system/product/priv-app/MaxManager/MaxManager.apk"
     const val MAXMANAGER_LOG = "$MODULE_CONFIG/debug/MaxManager.log"
     const val PER_APP_CPU_STATUS = "$MODULE_CONFIG/runtime/per_app_cpu_status"

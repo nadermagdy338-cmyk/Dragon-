@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">ਇੰਸਟਾਲ ਕੀਤੇ ਪੈਕੇਜ ਅਤੇ ਉਹਨਾਂ ਦੁਆਰਾ ਘੋਸ਼ਿਤ ਕੀਤੀਆਂ ਗਤੀਵਿਧੀਆਂ</string>
+    <string name="max_launcher_loading">ਇੰਸਟਾਲ ਕੀਤੇ ਪੈਕੇਜ ਅਤੇ ਉਹਨਾਂ ਦੀਆਂ ਘੋਸ਼ਿਤ ਗਤੀਵਿਧੀਆਂ ਨੂੰ ਪੜ੍ਹਨਾ...</string>
+    <string name="max_launcher_empty">ਕੋਈ ਸਥਾਪਤ ਪੈਕੇਜ ਇਸ ਡਿਵਾਈਸ \'ਤੇ ਗਤੀਵਿਧੀ ਦਾ ਐਲਾਨ ਨਹੀਂ ਕਰਦਾ ਹੈ।</string>
+    <string name="max_launcher_search_placeholder">ਐਪ ਨਾਮ ਜਾਂ ਪੈਕੇਜ ਦੁਆਰਾ ਖੋਜੋ</string>
+    <string name="max_launcher_search_clear">ਖੋਜ ਨੂੰ ਸਾਫ਼ ਕਰੋ</string>
+    <string name="max_launcher_scope_all">ਸਾਰੇ</string>
+    <string name="max_launcher_scope_user">ਉਪਭੋਗਤਾ</string>
+    <string name="max_launcher_scope_system">ਸਿਸਟਮ</string>
+    <string name="max_launcher_activity_count">%1$d ਗਤੀਵਿਧੀਆਂ</string>
+    <string name="max_launcher_no_match_title">ਕੁਝ ਵੀ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ</string>
+    <string name="max_launcher_no_match_detail">ਕਿਸੇ ਵੀ ਪੈਕੇਜ ਨਾਮ ਜਾਂ ਐਪ ਲੇਬਲ ਵਿੱਚ ਚੁਣੇ ਗਏ ਸਕੋਪ ਵਿੱਚ ਉਹ ਟੈਕਸਟ ਨਹੀਂ ਹੈ।</string>
+    <string name="max_launcher_no_match_clear">ਫਿਲਟਰ ਸਾਫ਼ ਕਰੋ</string>
+    <string name="max_launcher_reading_activities">ਇਸ ਪੈਕੇਜ ਦਾ ਐਲਾਨ ਕੀਤੀਆਂ ਗਤੀਵਿਧੀਆਂ ਨੂੰ ਪੜ੍ਹਨਾ...</string>
+    <string name="max_launcher_no_activities">ਇਹ ਪੈਕੇਜ ਕੋਈ ਗਤੀਵਿਧੀਆਂ ਦਾ ਐਲਾਨ ਨਹੀਂ ਕਰਦਾ।</string>
+    <string name="max_launcher_root_off_title">ਰੂਟ ਨਹੀਂ ਦਿੱਤਾ ਗਿਆ ਹੈ</string>
+    <string name="max_launcher_root_off_detail">ਨਿੱਜੀ ਚਿੰਨ੍ਹਿਤ ਗਤੀਵਿਧੀਆਂ ਨੂੰ ਨਿਰਯਾਤ ਨਹੀਂ ਕੀਤਾ ਜਾਂਦਾ ਹੈ, ਇਸਲਈ ਸਿਰਫ਼ ਰੂਟ ਉਹਨਾਂ ਨੂੰ ਸ਼ੁਰੂ ਕਰ ਸਕਦਾ ਹੈ। ਨਿਰਯਾਤ ਗਤੀਵਿਧੀਆਂ ਅਜੇ ਵੀ ਇਸ ਤੋਂ ਬਿਨਾਂ ਖੁੱਲ੍ਹਦੀਆਂ ਹਨ.</string>
+    <string name="max_launcher_tag_private">ਨਿਜੀ</string>
+    <string name="max_launcher_tag_disabled">ਅਯੋਗ</string>
+    <string name="max_launcher_outcome_started">ਸਰਗਰਮੀ ਸ਼ੁਰੂ ਹੋ ਗਈ</string>
+    <string name="max_launcher_outcome_needs_root">ਇਹ ਗਤੀਵਿਧੀ ਨਿਰਯਾਤ ਨਹੀਂ ਕੀਤੀ ਗਈ ਹੈ — ਰੂਟ ਦੀ ਲੋੜ ਹੈ</string>
+    <string name="max_launcher_outcome_refused">Android ਨੇ ਇਸ ਗਤੀਵਿਧੀ ਨੂੰ ਸ਼ੁਰੂ ਕਰਨ ਤੋਂ ਇਨਕਾਰ ਕਰ ਦਿੱਤਾ</string>
+    <string name="max_launcher_outcome_missing">ਉਸ ਨਾਮ ਨਾਲ ਕੋਈ ਗਤੀਵਿਧੀ ਸਥਾਪਤ ਨਹੀਂ ਹੈ</string>
+</resources>

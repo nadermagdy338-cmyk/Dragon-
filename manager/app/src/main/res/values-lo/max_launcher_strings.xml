@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">ຊຸດຕິດຕັ້ງແລະກິດຈະກໍາທີ່ເຂົາເຈົ້າປະກາດ</string>
+    <string name="max_launcher_loading">ກຳລັງອ່ານແພັກເກັດທີ່ຕິດຕັ້ງ ແລະກິດຈະກຳທີ່ປະກາດໄວ້...</string>
+    <string name="max_launcher_empty">ບໍ່ມີແພັກເກດທີ່ຕິດຕັ້ງປະກາດການເຄື່ອນໄຫວໃນອຸປະກອນນີ້.</string>
+    <string name="max_launcher_search_placeholder">ຄົ້ນຫາໂດຍຊື່ app ຫຼືຊຸດ</string>
+    <string name="max_launcher_search_clear">ລຶບລ້າງການຄົ້ນຫາ</string>
+    <string name="max_launcher_scope_all">ທັງໝົດ</string>
+    <string name="max_launcher_scope_user">ຜູ້ໃຊ້</string>
+    <string name="max_launcher_scope_system">ລະບົບ</string>
+    <string name="max_launcher_activity_count">%1$d ກິດຈະກໍາ</string>
+    <string name="max_launcher_no_match_title">ບໍ່ມີຫຍັງກົງກັນ</string>
+    <string name="max_launcher_no_match_detail">ບໍ່ມີຊື່ແພັກເກັດ ຫຼືປ້າຍກຳກັບແອັບຯໃດມີຂໍ້ຄວາມນັ້ນຢູ່ໃນຂອບເຂດທີ່ເລືອກ.</string>
+    <string name="max_launcher_no_match_clear">ລ້າງຕົວກອງ</string>
+    <string name="max_launcher_reading_activities">ກຳລັງອ່ານກິດຈະກຳຊຸດນີ້ປະກາດ...</string>
+    <string name="max_launcher_no_activities">ຊຸດນີ້ປະກາດບໍ່ມີກິດຈະກໍາ.</string>
+    <string name="max_launcher_root_off_title">ຮາກແມ່ນບໍ່ໄດ້ຮັບອະນຸຍາດ</string>
+    <string name="max_launcher_root_off_detail">ກິດຈະກໍາທີ່ຖືກຫມາຍເປັນສ່ວນຕົວບໍ່ໄດ້ຖືກສົ່ງອອກ, ດັ່ງນັ້ນພຽງແຕ່ຮາກສາມາດເລີ່ມຕົ້ນພວກມັນໄດ້. ກິດຈະກໍາການສົ່ງອອກຍັງເປີດໂດຍບໍ່ມີມັນ.</string>
+    <string name="max_launcher_tag_private">ສ່ວນຕົວ</string>
+    <string name="max_launcher_tag_disabled">ຄົນພິການ</string>
+    <string name="max_launcher_outcome_started">ກິດຈະກໍາເລີ່ມຕົ້ນ</string>
+    <string name="max_launcher_outcome_needs_root">ກິດ​ຈະ​ກໍາ​ນີ້​ບໍ່​ໄດ້​ຖືກ​ສົ່ງ​ອອກ — ຮາກ​ແມ່ນ​ຕ້ອງ​ການ​</string>
+    <string name="max_launcher_outcome_refused">Android ປະຕິເສດທີ່ຈະເລີ່ມກິດຈະກໍານີ້</string>
+    <string name="max_launcher_outcome_missing">ບໍ່ມີການເຄື່ອນໄຫວທີ່ມີຊື່ນັ້ນຖືກຕິດຕັ້ງ</string>
+</resources>

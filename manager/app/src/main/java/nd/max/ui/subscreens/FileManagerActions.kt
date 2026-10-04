@@ -30,6 +30,7 @@
  */
 package nd.max.ui.subscreens
 
+import android.content.res.Resources
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.ContentCopy
@@ -48,6 +49,8 @@ import androidx.compose.ui.res.stringResource
 import nd.max.R
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
+import nd.max.ui.util.ArchiveFormat
+import nd.max.ui.util.CompressionLevel
 import nd.max.ui.util.DirectoryListing
 import nd.max.ui.util.FileAction
 import nd.max.ui.util.FileArchive
@@ -55,6 +58,7 @@ import nd.max.ui.util.FileBrowser
 import nd.max.ui.util.FileEntry
 import nd.max.ui.util.FileFormat
 import nd.max.ui.util.FileOpGuard
+import nd.max.ui.util.FileOpOutcome
 import nd.max.ui.util.FileOpRefusal
 import nd.max.ui.util.FileOpRequest
 import nd.max.ui.util.FileOperation
@@ -62,6 +66,7 @@ import nd.max.ui.util.FileSortKey
 import nd.max.ui.util.FileTask
 import nd.max.ui.util.FileTaskKind
 import nd.max.ui.util.ListingFailure
+import nd.max.ui.util.WindowSide
 
 /** موقع سريع: اسمه في الموارد ومساره — ولا يُخمَّن مسار في الواجهة. */
 internal data class QuickLocation(val labelRes: Int, val path: String)
@@ -109,26 +114,15 @@ internal fun actionIcon(action: FileAction): ImageVector = when (action) {
  * طلب العملية لإجراء فوري — أو `null` حين لا يُنفَّذ من هنا.
  *
  * والنسخ والقصّ **لا يُنفَّذان هنا**: يملآن الحافظة فينتظران لصقًا. ومن احتاج نقلًا فوريًّا
- * يقطع مسافة أقلّ: قصّ ثم لصق في النافذة الأخرى — وهي رحلة يدعمها النموذج صراحةً.
+ * يقطع مسافة أقلّ: قصّ ثم لصق في النافذة الأخرى — وهي رحلة يدعمها النموذج صراحةً. والضغط
+ * أيضًا ليس هنا: صار له حوارٌ يختار منه المستخدم الاسم والصيغة والمستوى، فيُبنى الطلب
+ * في [compressRequest] بعد القرار لا قبله.
  */
 internal fun immediateRequest(action: FileAction, selected: List<FileEntry>, windowPath: String): FileOpRequest? {
     val paths = selected.map { it.path }.sorted()
     return when (action) {
         FileAction.Delete -> FileOpRequest(FileOperation.Delete, sources = paths)
-        FileAction.Compress -> {
-            val first = selected.firstOrNull() ?: return null
-            // الاسم من محرّك الأرشيف نفسه، ثم يُزاح إن كان مشغولًا: فما وعد به الصفّ
-            // («اضغط إلى x.zip») هو ما يُكتب على القرص.
-            val name = FileOpGuard.uniqueName(
-                FileArchive.archiveNameFor(first.name),
-                selected.map { it.name }.toSet(),
-            )
-            FileOpRequest(
-                operation = FileOperation.Compress,
-                sources = paths,
-                destination = FileBrowser.childPath(windowPath, name),
-            )
-        }
+        FileAction.Compress -> null
         FileAction.Extract -> {
             val archive = selected.singleOrNull() ?: return null
             FileOpRequest(
@@ -141,6 +135,71 @@ internal fun immediateRequest(action: FileAction, selected: List<FileEntry>, win
     }
 }
 
+/**
+ * حالة حوار الضغط: المصادر والاسم الافتراضي والصيغة — **في النموذج لا في الشاشة**.
+ *
+ * والاسم يُبنى بـ[FileOpGuard.uniqueName] قبل أن يراه المستخدم، فلا يُقترح اسم مشغول
+ * ثم يُرفض بعده — و[side] تُحمل معه فيبقى الطلب على نافذته لو تغيّرت النافذة النشطة.
+ */
+internal fun compressStateFor(
+    sources: List<FileEntry>,
+    side: WindowSide,
+    format: ArchiveFormat = ArchiveFormat.Zip,
+): CompressState? {
+    val first = sources.firstOrNull() ?: return null
+    val taken = sources.mapTo(HashSet()) { it.name }
+    val name = FileOpGuard.uniqueName(FileArchive.archiveNameFor(first.name, format), taken)
+    return CompressState(sources = sources, side = side, name = name, format = format)
+}
+
+/**
+ * سبب رفض اسم الأرشيف بنصّه، أو `null`.
+ *
+ * ويُقاس بنفس حرس العمليات ([FileOpGuard.isValidName]) وبأسماء نافذة الوجهة — فالرفض
+ * يأتي قبل الحوار لا بعده.
+ */
+internal fun compressNameRefusal(name: String, destinationNames: Set<String>): FileOpRefusal? = when {
+    !FileOpGuard.isValidName(name) -> FileOpRefusal.InvalidName
+    name in destinationNames -> FileOpRefusal.NameTaken
+    else -> null
+}
+
+/**
+ * تعديل الاسم في حوار الضغط: الاسم الجديد و**سبب رفضه رمزًا** لا نصًّا.
+ *
+ * والسبب رمز ([FileOpRefusal]) لأن النموذج لا يعرف `R` (قاعدة المستودع)، والواجهة هي التي
+ * تُترجمه — وقد كانت تُترجم في الشاشة، فنُقلت إلى الحوار حيث تُقرأ.
+ *
+ * ويأخذ `entriesOf` لا أسماءً جاهزة: الشاشة لا تبني مجموعة أسماء ثم تمرّرها، بل تُمرّر قراءة
+ * النافذة، فالاسم يُقاس على وجهة نافذته لا على النافذة النشطة لاحقًا.
+ */
+internal fun CompressState.named(value: String, entriesOf: (WindowSide) -> List<FileEntry>): CompressState {
+    val taken = entriesOf(side).mapTo(HashSet()) { it.name }
+    return copy(name = value, nameProblem = compressNameRefusal(value, taken))
+}
+
+/**
+ * تغيير الصيغة: **الامتداد يتبعها**، فلا يُكتب داخل ملفّ اسمه `.zip` أرشيفُ `tar.gz`.
+ */
+internal fun CompressState.switchedTo(format: ArchiveFormat): CompressState =
+    copy(format = format, name = FileArchive.renamedForFormat(name, format))
+
+/** مستوى الضغط المختار — يُحمل مع الطلب فيُمرَّر إلى المحرّك لا يُخمَّن. */
+internal fun CompressState.atLevel(level: CompressionLevel): CompressState = copy(level = level)
+
+/**
+ * الطلب الأخير بعد قرار المستخدم: الصيغة والمستوى يُمرَّران معه ([FileOpRequest]) فلا
+ * يخمّنهما المنفّذ من امتداد الاسم.
+ */
+internal fun compressRequest(state: CompressState, windowPath: String): FileOpRequest =
+    FileOpRequest(
+        operation = FileOperation.Compress,
+        sources = state.sources.map { it.path }.sorted(),
+        destination = FileBrowser.childPath(windowPath, state.name),
+        archiveFormat = state.format,
+        compressionLevel = state.level,
+    )
+
 /** سبب الرفض بنصّه لا برقمه. */
 internal fun refusalText(reason: FileOpRefusal): Int = when (reason) {
     FileOpRefusal.EmptySelection -> R.string.max_files_refuse_empty
@@ -149,6 +208,18 @@ internal fun refusalText(reason: FileOpRefusal): Int = when (reason) {
     FileOpRefusal.TargetInsideSource -> R.string.max_files_refuse_inside
     FileOpRefusal.InvalidName -> R.string.max_files_refuse_name
     FileOpRefusal.NameTaken -> R.string.max_files_refuse_taken
+}
+
+/**
+ * نصّ نتيجة العملية: نجاح مع العدد · «نُفِّذ ولم يُتحقّق» · فشل.
+ *
+ * وثلاثتها لا اثنتان ([FileOpOutcome]): «نُفِّذ» ليس «نجح»، ونصّهما لا يُدمج في جملة واحدة.
+ */
+internal fun outcomeMessage(resources: Resources, outcome: FileOpOutcome, count: Int): String = when {
+    outcome.ok -> resources.getString(R.string.max_files_outcome_ok) + " " +
+        resources.getString(R.string.max_files_outcome_count, count)
+    outcome.executed -> resources.getString(R.string.max_files_outcome_unverified)
+    else -> resources.getString(R.string.max_files_outcome_failed)
 }
 
 /** عنوان ترتيب القائمة. */

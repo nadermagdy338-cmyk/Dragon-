@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Packages installés et les activités qu\'ils déclarent</string>
+    <string name="max_launcher_loading">Lecture des packages installés et de leurs activités déclarées…</string>
+    <string name="max_launcher_empty">Aucun package installé ne déclare d\'activité sur cet appareil.</string>
+    <string name="max_launcher_search_placeholder">Rechercher par nom d\'application ou package</string>
+    <string name="max_launcher_search_clear">Effacer la recherche</string>
+    <string name="max_launcher_scope_all">Tous</string>
+    <string name="max_launcher_scope_user">Utilisateur</string>
+    <string name="max_launcher_scope_system">Système</string>
+    <string name="max_launcher_activity_count">%1$d activités</string>
+    <string name="max_launcher_no_match_title">Rien ne correspond</string>
+    <string name="max_launcher_no_match_detail">Aucun nom de package ou étiquette d’application ne contient ce texte dans la portée sélectionnée.</string>
+    <string name="max_launcher_no_match_clear">Effacer les filtres</string>
+    <string name="max_launcher_reading_activities">En lisant les activités que déclare ce package…</string>
+    <string name="max_launcher_no_activities">Ce package ne déclare aucune activité.</string>
+    <string name="max_launcher_root_off_title">La racine n\'est pas accordée</string>
+    <string name="max_launcher_root_off_detail">Les activités marquées comme privées ne sont pas exportées, donc seul root peut les démarrer. Les activités exportées restent ouvertes sans cela.</string>
+    <string name="max_launcher_tag_private">Privé</string>
+    <string name="max_launcher_tag_disabled">Désactivé</string>
+    <string name="max_launcher_outcome_started">Activité commencée</string>
+    <string name="max_launcher_outcome_needs_root">Cette activité n\'est pas exportée — root est requis</string>
+    <string name="max_launcher_outcome_refused">Android a refusé de démarrer cette activité</string>
+    <string name="max_launcher_outcome_missing">Aucune activité portant ce nom n\'est installée</string>
+</resources>

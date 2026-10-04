@@ -34,7 +34,7 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.HideSource
-import androidx.compose.material.icons.rounded.OpenInNew
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material.icons.rounded.SwapVert
@@ -173,7 +173,7 @@ internal fun fileManagerWindowCommands(
     add(
         MaxCommand(
             label = stringResource(R.string.max_files_open_other_window),
-            icon = Icons.Rounded.OpenInNew,
+            icon = Icons.AutoMirrored.Rounded.OpenInNew,
             onSelect = onOpenInOther,
         )
     )
@@ -204,7 +204,7 @@ internal fun fileManagerContextCommands(
         add(
             MaxCommand(
                 label = stringResource(R.string.max_files_open_cd),
-                icon = Icons.Rounded.OpenInNew,
+                icon = Icons.AutoMirrored.Rounded.OpenInNew,
                 onSelect = { onOpen(first) },
             )
         )

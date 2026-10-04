@@ -7,7 +7,7 @@
     <string name="all_set">一切就緒，您現在可以使用 Max Manager 了</string>
     <string name="allow_verbose_log">允許守護程序輸出詳細日誌</string>
     <string name="android_version">Android 版本</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">應用程式名稱</string>
     <string name="app_priority">應用程式優先級</string>
     <string name="app_priority_control">應用程式優先級控制</string>
@@ -723,15 +723,6 @@
     <string name="fps_overlay_notif_channel">FPS 疊加</string>
     <string name="fps_overlay_notif_title">Max Manager FPS 疊加正在運行</string>
     <string name="fps_overlay_notif_stop">停止</string>
-    <string name="fps_overlay_section_style">外貌</string>
-    <string name="fps_overlay_style">疊加樣式</string>
-    <string name="fps_overlay_style_android">安卓列表</string>
-    <string name="fps_overlay_style_pc">電腦等寬字體</string>
-    <string name="fps_overlay_style_mini">小型的</string>
-    <string name="fps_overlay_orientation">佈局方向</string>
-    <string name="fps_overlay_orientation_vertical">垂直的</string>
-    <string name="fps_overlay_orientation_horizontal">水平的</string>
-    <string name="fps_overlay_read_mode">FPS讀取方式</string>
     <string name="fps_overlay_read_mode_desc">如果您設備上的讀數始終為 0，請嘗試其他方法</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger（推薦）</string>
     <string name="fps_overlay_mode_kernel">核心節點</string>
@@ -740,14 +731,6 @@
     <string name="fps_overlay_text_size">文字大小</string>
     <string name="fps_overlay_bg_alpha">背景不透明度</string>
     <string name="fps_overlay_width_scale">寬度比例</string>
-    <string name="fps_overlay_section_metrics">顯示的指標</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU負載</string>
-    <string name="fps_overlay_metric_ram">RAM 用法</string>
-    <string name="fps_overlay_metric_watt">電池電量消耗</string>
-    <string name="fps_overlay_metric_temp">電池溫度</string>
-    <string name="fps_overlay_metric_render">渲染器標籤</string>
-    <string name="fps_overlay_metric_render_desc">顯示 VULKAN/OPENGL 而不是“FPS”作為標籤，從前台應用程式載入的庫中偵測到</string>
     <string name="dozemode_title">睡眠政策</string>
     <string name="dozemode_menu_desc">待機白名單、空閒行為和後台功率調整</string>
     <string name="dozemode_state_label">瞌睡狀態</string>
@@ -783,9 +766,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">開啟設定</string>
     <string name="processmgr_title">任務監視器</string>
-    <string name="processmgr_menu_desc">每個進程 CPU 和 RAM 使用，強制停止和浮動覆蓋</string>
     <string name="processmgr_stat_total">%1$d 進程</string>
-    <string name="processmgr_stat_breakdown">%1$d 用戶 \u00b7 %2$d 系統</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">熱門%1$d</string>
@@ -805,9 +786,6 @@
     <string name="processmgr_search_hint">搜尋正在運行的進程</string>
     <string name="processmgr_no_processes">沒有符合您搜尋的流程</string>
     <string name="processmgr_dialog_close">關閉</string>
-    <string name="processmgr_detail_version">版本</string>
-    <string name="processmgr_detail_build">建造</string>
-    <string name="processmgr_detail_package">包裹</string>
     <string name="processmgr_result_killed">被殺%1$s</string>
     <string name="processmgr_result_kill_failed">殺不了%1$s</string>
     <string name="processmgr_result_stopped">強制停止%1$s</string>
@@ -1455,7 +1433,6 @@
     <string name="max_home_reboot_desc">開啟安全重啟選項</string>
     <string name="max_home_ai_console">MAX人工智慧控制台</string>
     <string name="max_home_ai_working">正在套用請求的設定檔...</string>
-    <string name="max_home_ai_failed">上次 AI 操作失敗</string>
     <string name="max_home_retry">重試</string>
     <string name="max_home_ai_idle">尚未記錄人工智慧決策</string>
     <string name="home_system_stable">系統穩定</string>
@@ -1471,8 +1448,6 @@
     <string name="home_performance_monitor_desc">過去 72 秒的資源負載</string>
     <string name="home_quick_actions">指揮台</string>
     <string name="home_quick_actions_desc">直接存取重要的控件</string>
-    <string name="home_action_boost">效能簡介</string>
-    <string name="home_action_boost_desc">改變系統行為</string>
     <string name="home_action_thermal">熱力中心</string>
     <string name="home_action_thermal_desc">檢查熱量和冷卻</string>
     <string name="home_action_battery">動力中心</string>
@@ -1492,7 +1467,6 @@
     <string name="home_active">積極的</string>
     <string name="home_idle">閒置的</string>
     <string name="home_protected">受保護</string>
-    <string name="home_device_overview">打開設備概覽</string>
     <string name="home_live_performance">現場表演</string>
     <string name="home_live_performance_desc">電流負載和直接硬體控制</string>
     <string name="home_open_details">開啟詳細的熱數據</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">正在應用每個應用程式的最佳化</string>
     <string name="max_app_advanced_options">進階選項</string>
     <string name="max_app_save">節省</string>
+    <string name="home_gpu_max_freq">最大频率</string>
 </resources>

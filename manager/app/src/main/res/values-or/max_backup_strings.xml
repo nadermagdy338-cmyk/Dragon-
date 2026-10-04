@@ -93,7 +93,6 @@
     <string name="max_backup_sweep_title">ପ୍ରତ୍ୟେକ କପି ଯାଞ୍ଚ କରନ୍ତୁ |</string>
     <string name="max_backup_sweep_desc">ପ୍ରତ୍ୟେକ ଆର୍କାଇଭ୍ ଫାଇଲ୍ ପୁନ-ପ read ଼େ ଏବଂ ଏହାକୁ ଲେଖିବାବେଳେ ରେକର୍ଡ ହୋଇଥିବା ହ୍ୟାସ୍ ସହିତ ତୁଳନା କରେ |</string>
     <string name="max_backup_sweep_running">%2$s ର %1$s ଯାଞ୍ଚ କରୁଛି |</string>
-    <string name="max_backup_sweep_ok">%1$s ର %1$s କପି ସେମାନେ ରେକର୍ଡ କରିଥିବା ପ୍ରତ୍ୟେକ ହ୍ୟାସ୍ ସହିତ ମେଳ ଖାଏ |</string>
     <string name="max_backup_sweep_problems_title">ନକଲ ଯାହା ଧ୍ୟାନ ଆବଶ୍ୟକ କରେ |</string>
     <string name="max_backup_sweep_problem_unreadable">ରେକର୍ଡ ପ read ିହେଲା ନାହିଁ, ତେଣୁ କିଛି ଯାଞ୍ଚ କରାଯାଇପାରିବ ନାହିଁ |</string>
     <string name="max_backup_restore_one_title">%1$s ର ଏକ କପି ପୁନରୁଦ୍ଧାର କରିବା |</string>
@@ -298,4 +297,5 @@
     <string name="max_backup_help">not assumed. Restoring is refused unless every recorded file passes its own hash check. Nothing is uploaded and nothing is encrypted — a key shipped inside the APK is not a secret</string>
     <string name="max_backup_restore_device_done">%1$s ପୁନରୁଦ୍ଧାର ହେଲା · %2$s ଛାଡ଼ି ଦିଆଗଲା</string>
     <string name="max_backup_sweep_problem_detail">%2$s ଫାଇଲ୍ ମଧ୍ୟରୁ %1$s ନିଜ ହ୍ୟାସ୍ ସହିତ ମେଳ ହେଲା</string>
+    <string name="max_backup_sweep_ok">%1$s ର %2$s ସେମାନେ ରେକର୍ଡ କରିଥିବା ପ୍ରତ୍ୟେକ ହ୍ୟାସ୍ ସହିତ କପି ମେଳ ଖାଏ |</string>
 </resources>

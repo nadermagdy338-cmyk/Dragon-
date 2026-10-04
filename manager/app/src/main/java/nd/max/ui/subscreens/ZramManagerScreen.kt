@@ -59,6 +59,8 @@ import nd.max.ui.design.MaxScreen
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSliderRow
 import nd.max.ui.design.MaxTone
+import nd.max.ui.component.MaxDeviceInfoShortcut
+import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.viewmodel.ZramOpKind
 import nd.max.ui.viewmodel.ZramOperation
 import nd.max.ui.viewmodel.ZramSizePreset
@@ -213,6 +215,9 @@ fun ZramManagerScreen(
         }
     ) {
         // ---- What the kernel reports right now -------------------------------
+        // وبطاقة **swap/zram** الأولى تحمل في آخرها باب **More info** إلى قسم الذاكرة في
+        // «معلومات الجهاز» — سطر رابط بأيقونة الشاشة وكلمة (`MaxDeviceInfoShortcut`) لا كبسولة
+        // ولا صفًّا كاملًا يُزاح به العمل (أمر المالك: «زرًّا وليس أيقونة، باسم More info»).
         MaxSection(title = stringResource(R.string.zram_gauge_title)) {
             MaxGroup {
                 MaxMetricReadout(
@@ -254,6 +259,9 @@ fun ZramManagerScreen(
                         source = sysfsSource
                     )
                 )
+                // والباب آخر البطاقة، مفصولًا بخطّ داخلي: إجراء عليها لا صفّ بيانات بينها.
+                MaxGroupDivider()
+                MaxDeviceInfoShortcut(navController, MaxDestination.ZramManager)
             }
         }
 

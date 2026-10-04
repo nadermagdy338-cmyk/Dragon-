@@ -19,6 +19,10 @@ package nd.max.ui.component
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.animateColorAsState
+import nd.max.ui.design.MaxAlpha
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSpace
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.Spring
@@ -60,6 +64,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.RadioButton
@@ -94,6 +99,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -101,8 +107,27 @@ import androidx.compose.ui.draw.alpha
 import kotlin.math.roundToInt
 
 
-private val largeCorner = 26.dp
-private val smallCorner = 4.dp
+/*
+ * نصف قطر القوائم المجمَّعة — **من عقد البطاقة لا من رقم محلّي**.
+ *
+ * كان `26.dp`، بينما `MaxCardSpec.radius` = `MaxRadius.group` = 22dp. أي أنّ **أكثر بطاقة
+ * استعمالًا في التطبيق** (كل صفوف القوائم المجمَّعة، في العشرات من الشاشات) كانت على نصف قطر
+ * لا يعرفه العقد ولا يقدر أحد تغييره من مكان واحد. وهذان الرقمان كانا **داخل الملفّ** لا في
+ * موضع الاستعمال، فلم يصلهما توحيد الجولة الماضية (18/24/26 ← 22) — وهذا نصّ §١١ حرفيًّا
+ * («If I later change the card radius or spacing, I should be able to change it globally»).
+ */
+private val largeCorner = MaxCardSpec.radius
+private val smallCorner = MaxSpace.xs
+
+/**
+ * الفاصل بين مقاطع **سطح واحد** متّصل (لا بين بطاقتين منفصلتين).
+ *
+ * فاصل داخل السطح المتّصل، وليس شبكة: `MaxCardSpec.gridSpacing` (12dp) يفصل بطاقتين
+ * مستقلّتين، و`MaxSpace.row` (8dp) يفصل صفّين في قائمة الهيكل — أمّا هنا فالمقاطع تُرسم بحوافّ
+ * مكمّلة (عليا/وسطى/سفلى) لتُقرأ بطاقة واحدة، والفراغ بينها **لحام** لا فجوة. سُمّي ولذلك
+ * ليعرف قارئه أنّه **مقصود** لا بقية رقم قديم.
+ */
+private val GroupedRowSeam = 6.dp
 
 // Grouped-list geometry is intentionally different from standalone cards:
 // only the outer top/bottom edges are rounded, while the rows remain visually
@@ -121,7 +146,7 @@ private val bottomShape = RoundedCornerShape(
     bottomEnd = largeCorner
 )
 private val singleShape = RoundedCornerShape(largeCorner)
-private val iconContainerShape = RoundedCornerShape(12.dp)
+private val iconContainerShape = RoundedCornerShape(MaxRadius.control)
 
 /**
  * The card treatment shared by every grouped-list item across the app
@@ -137,8 +162,33 @@ private fun Modifier.expressiveCardSurface(shape: RoundedCornerShape): Modifier 
     return this
         .clip(shape)
         .background(colorScheme.surfaceContainerLow, shape)
-        .border(BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.32f)), shape)
+        // العرض والشفافية من العقد لا أرقامًا: كان `1.dp` مكتوبًا هنا و`0.32f` لا وجود لها في
+        // سلّم `MaxAlpha` أصلًا (أقرب قيمة `borderStrong` = 0.28f). والقيمة الآن مسمّاة.
+        .border(
+            BorderStroke(
+                MaxCardSpec.borderWidth,
+                colorScheme.outlineVariant.copy(alpha = MaxAlpha.borderStrong)
+            ),
+            shape
+        )
 }
+
+/**
+ * شكل مقطع واحد في مجموعة — **تعريف واحد بدل ثلاثة**.
+ *
+ * كان الاختيار الثلاثي مكرّرًا بنسخه في `ExpressiveList` و`ExpressiveLazyList` و`ExpressiveColumn`،
+ * فتصلح واحدة وتُنسى الثانية. وهذا نصّ §١٢ («prefer reusable components over duplicated UI
+ * implementations»).
+ */
+private fun groupedShape(index: Int, count: Int): RoundedCornerShape = when {
+    count == 1 -> singleShape
+    index == 0 -> topShape
+    index == count - 1 -> bottomShape
+    else -> middleShape
+}
+
+/** شكل الحاوية التي تُقصّ فوق كل مقاطع المجموعة. */
+private val groupedContainerShape = RoundedCornerShape(largeCorner)
 
 /**
  * A grouped list: one card per row, stacked with a gap so every row reads as its
@@ -154,7 +204,7 @@ fun ExpressiveList(
     modifier: Modifier = Modifier,
     title: String = "",
     content: List<@Composable () -> Unit>,
-    rowSpacing: Dp = 6.dp,
+    rowSpacing: Dp = GroupedRowSeam,
 ) {
     if (content.isEmpty()) return
 
@@ -164,24 +214,22 @@ fun ExpressiveList(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+                // **والمحاذاة مع مقاطع القائمة نفسها لا مع حافة الشاشة.**
+                //
+                // كان `start = 16.dp` ثابتًا: في ورقة سفلية (‏`CustomBottomSheet` لا يحمل حشوًا
+                // أفقيًّا) صار العنوان عند 16dp والمقاطع عند 0dp ⇒ عنوانان لا يحاذي ما تحته؛ وفي
+                // صفحة يحمل هيكلها الهامش صار 36dp على 360dp. والقاعدة الآن واحدة: عنوان القائمة
+                // **يحاذي مقاطعها**، ومن أراد إزاحة الاثنين معًا أعطى `modifier` للقائمة.
+                modifier = Modifier.padding(bottom = MaxSpace.sm)
             )
         }
         Column(
-            modifier = Modifier.clip(
-                if (content.size == 1) singleShape else RoundedCornerShape(largeCorner)
-            ),
+            modifier = Modifier.clip(groupedContainerShape),
             verticalArrangement = Arrangement.spacedBy(rowSpacing)
         ) {
             content.forEachIndexed { index, itemContent ->
-                val shape = when {
-                    content.size == 1 -> singleShape
-                    index == 0 -> topShape
-                    index == content.size - 1 -> bottomShape
-                    else -> middleShape
-                }
                 Column(
-                    modifier = Modifier.expressiveCardSurface(shape)
+                    modifier = Modifier.expressiveCardSurface(groupedShape(index, content.size))
                 ) {
                     itemContent()
                 }
@@ -194,7 +242,11 @@ fun ExpressiveList(
 fun <T> ExpressiveLazyList(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
-    contentPadding: PaddingValues = PaddingValues(all = 16.dp),
+    // **صفر لا 16dp.** حشو القائمة يملكه **المكان** لا المكوّن: على صفحة يحمل هيكلها هامشه
+    // (`MaxSpace.gutter`) فيصير 16dp فوقه = 36dp؛ وفي ورقة سفلية يحمله منادٍ واحد. والافتراضيّ
+    // الذي يفرض إزاحة على كل مستدعٍ هو نفس عطب «الهامش المضاعف» في صورة المالك، مكتوبًا مرّة واحدة
+    // في مكان يشترك فيه كل شيء.
+    contentPadding: PaddingValues = PaddingValues(),
     title: String = "",
     key: ((T) -> Any)? = null,
     items: List<T>,
@@ -206,25 +258,20 @@ fun <T> ExpressiveLazyList(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(bottom = MaxSpace.sm)
             )
         }
         LazyColumn(
             state = state,
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(GroupedRowSeam),
             contentPadding = contentPadding
         ) {
             itemsIndexed(
                 items = items,
                 key = if (key != null) { _, item -> key(item) } else null
             ) { index, item ->
-                val shape = when {
-                    items.size == 1 -> singleShape
-                    index == 0 -> topShape
-                    index == items.lastIndex -> bottomShape
-                    else -> middleShape
-                }
+                val shape = groupedShape(index, items.size)
                 Column(
                     modifier = Modifier
 
@@ -252,6 +299,16 @@ fun ExpressiveListItem(
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     headlineContent: @Composable () -> Unit,
+    /**
+     * خلفية الصفّ حين يكون **مُختارًا** (شفّافة إن لم يكن).
+     *
+     * أُضيف لأنّ `ExpressiveListItemHighlight` كان **نسخة ثانية من هذا الصفّ بحرفه** — تسعون
+     * سطرًا تُكرّر المنطق نفسه (الضغط، وقصّ الذيل، وألوان المحتوى، و`LineBreak.Heading`) وتزيد
+     * عليها سطرًا واحدًا: `.background(containerColor)`. فكل إصلاح كان يُكتب مرّتين، وواحد
+     * منهما يُنسى — وهو نصّ §١٤ («prefer reusable components over duplicated UI implementations»).
+     * الآن **تعريف واحد**، والتمييز معاملٌ لا نسخة.
+     */
+    containerColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Transparent,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     supportingContent: @Composable (() -> Unit)? = null,
     leadingContent: @Composable (() -> Unit)? = null,
@@ -264,10 +321,20 @@ fun ExpressiveListItem(
         animationSpec = tween(110),
         label = "expressiveItemPress"
     )
-    Row(
+    // **حدّ عرض خانة الذيل هو سبب وجود هذا الصندوق.**
+    //
+    // العطب الذي أبلغ عنه المالك: كلمة «Language» في الإعدادات انكسرت **حرفًا في كل سطر**.
+    // والسبب ليس النصّ ولا `maxLines`: خانة الذيل كانت `Box` بلا أي قيد عرض، فتُقاس عند عرضها
+    // الأقصى (اسم لغة طويل + سهم)، ويأخذ العمود الموزون `weight(1f)` ما بقي — وقد يبقى عرض
+    // حرف واحد. فالعلاج **هندسي**: الذيل لا يُسمح له بأكثر من [TRAILING_MAX_FRACTION] من الصفّ،
+    // فيبقى العنوان ≥٥٥٪ منها عنده ما يكفي لأطول كلمة فيه.
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val trailingMaxWidth = maxWidth * TRAILING_MAX_FRACTION
+        Row(
         modifier = Modifier
             .fillMaxWidth()
             .scale(pressScale)
+            .background(containerColor)
             .let {
                 if (onClick != null || onLongClick != null) {
                     it.combinedClickable(interactionSource = interactionSource, indication = null, onClick = onClick ?: {}, onLongClick = onLongClick)
@@ -276,12 +343,14 @@ fun ExpressiveListItem(
                 }
             }
             .then(modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            // حشو **داخل البطاقة** لا على الصفحة: القيم لم تتغيّر، وإنّما سُمّيت من العقد
+            // (`MaxCardSpec.padding` = 16dp · `MaxSpace.sm` = 8dp) فلا تبقى أرقامًا بلا مرجع.
+            .padding(horizontal = MaxCardSpec.padding, vertical = MaxSpace.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (leadingContent != null) {
             Box(
-                modifier = Modifier.padding(end = 16.dp),
+                modifier = Modifier.padding(end = MaxCardSpec.padding),
                 contentAlignment = Alignment.Center
             ) {
                 leadingContent()
@@ -290,7 +359,7 @@ fun ExpressiveListItem(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(vertical = 8.dp)
+                .padding(vertical = MaxSpace.sm)
         ) {
             // The headline and the trailing slot inherit LocalContentColor, and these rows
             // are painted directly onto the screen surface — whose Scaffold is transparent,
@@ -299,8 +368,12 @@ fun ExpressiveListItem(
             // unthemed while its card layout (which sets colours explicitly) looked right.
             // Pinning on-surface here themes every caller; a caller that wants another tone
             // still wins by passing its own colour.
+            // و`LineBreak.Heading` يمنع كسر **داخل الكلمة** حيث تُسحَب الكلمة إلى عمود أضيق من
+            // عرضها: بلا هذا التقييد يقسم المفكّك الجشع كلمة واحدة إلى حروف قبل أن يُقصّها.
+            // يُقدَّم لكل عنوان في المستودع يمرّ من هنا (ADR-12: منع التعطّل لا إصلاح مثيل).
             CompositionLocalProvider(
-                LocalContentColor provides MaterialTheme.colorScheme.onSurface
+                LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+                LocalTextStyle provides LocalTextStyle.current.copy(lineBreak = LineBreak.Heading)
             ) {
                 headlineContent()
                 if (supportingContent != null) {
@@ -321,7 +394,9 @@ fun ExpressiveListItem(
                 LocalContentColor provides MaterialTheme.colorScheme.onSurface
             ) {
                 Box(
-                    modifier = Modifier.padding(start = 16.dp),
+                    modifier = Modifier
+                        .padding(start = MaxCardSpec.padding)
+                        .widthIn(max = trailingMaxWidth),
                     contentAlignment = Alignment.Center
                 ) {
                     ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
@@ -331,94 +406,6 @@ fun ExpressiveListItem(
             }
         }
     }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun ExpressiveListItemHighlight(
-    onClick: (() -> Unit)? = null,
-    onLongClick: (() -> Unit)? = null,
-    headlineContent: @Composable () -> Unit,
-    containerColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Transparent, 
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
-    supportingContent: @Composable (() -> Unit)? = null,
-    leadingContent: @Composable (() -> Unit)? = null,
-    trailingContent: @Composable (() -> Unit)? = null,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val pressScale by animateFloatAsState(
-        targetValue = if (pressed) 0.985f else 1f,
-        animationSpec = tween(110),
-        label = "expressiveItemPress"
-    )
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .scale(pressScale)
-            .background(containerColor) 
-            .let {
-                if (onClick != null || onLongClick != null) {
-                    it.combinedClickable(interactionSource = interactionSource, indication = null, onClick = onClick ?: {}, onLongClick = onLongClick)
-                } else {
-                    it
-                }
-            }
-            .then(modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (leadingContent != null) {
-            Box(
-                modifier = Modifier.padding(end = 16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                leadingContent()
-            }
-        }
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(vertical = 8.dp)
-        ) {
-            // The headline and the trailing slot inherit LocalContentColor, and these rows
-            // are painted directly onto the screen surface — whose Scaffold is transparent,
-            // so contentColorFor() leaves the ambient content colour unresolved and the text
-            // fell through to black. That is why the Control screen's list layout read as
-            // unthemed while its card layout (which sets colours explicitly) looked right.
-            // Pinning on-surface here themes every caller; a caller that wants another tone
-            // still wins by passing its own colour.
-            CompositionLocalProvider(
-                LocalContentColor provides MaterialTheme.colorScheme.onSurface
-            ) {
-                headlineContent()
-                if (supportingContent != null) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
-                    ) {
-                        ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
-                            supportingContent()
-                        }
-                    }
-                }
-            }
-        }
-        if (trailingContent != null) {
-            // Same reason as the headline above: an untinted icon (the row caret) would
-            // otherwise resolve to black instead of the surface's content colour.
-            CompositionLocalProvider(
-                LocalContentColor provides MaterialTheme.colorScheme.onSurface
-            ) {
-                Box(
-                    modifier = Modifier.padding(start = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
-                        trailingContent()
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -440,6 +427,8 @@ fun ExpressiveInfoCard(
         animationSpec = tween(110),
         label = "expressiveItemPress"
     )
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val trailingMaxWidth = maxWidth * TRAILING_MAX_FRACTION
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -453,12 +442,14 @@ fun ExpressiveInfoCard(
                 }
             }
             .then(modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            // حشو **داخل البطاقة** لا على الصفحة: القيم لم تتغيّر، وإنّما سُمّيت من العقد
+            // (`MaxCardSpec.padding` = 16dp · `MaxSpace.sm` = 8dp) فلا تبقى أرقامًا بلا مرجع.
+            .padding(horizontal = MaxCardSpec.padding, vertical = MaxSpace.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (leadingContent != null) {
             Box(
-                modifier = Modifier.padding(end = 16.dp),
+                modifier = Modifier.padding(end = MaxCardSpec.padding),
                 contentAlignment = Alignment.Center
             ) {
                 leadingContent()
@@ -488,7 +479,9 @@ fun ExpressiveInfoCard(
         
         if (trailingContent != null) {
             Box(
-                modifier = Modifier.padding(start = 16.dp),
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .widthIn(max = trailingMaxWidth),
                 contentAlignment = Alignment.Center
             ) {
                 ProvideTextStyle(value = MaterialTheme.typography.bodySmall) {
@@ -496,6 +489,7 @@ fun ExpressiveInfoCard(
                 }
             }
         }
+    }
     }
 }
 
@@ -703,24 +697,16 @@ fun ExpressiveColumn(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(bottom = MaxSpace.sm)
             )
         }
         Column(
-            modifier = Modifier.clip(
-                if (content.size == 1) singleShape else RoundedCornerShape(largeCorner)
-            ),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            modifier = Modifier.clip(groupedContainerShape),
+            verticalArrangement = Arrangement.spacedBy(GroupedRowSeam)
         ) {
             content.forEachIndexed { index, itemContent ->
-                val shape = when {
-                    content.size == 1 -> singleShape
-                    index == 0 -> topShape
-                    index == content.size - 1 -> bottomShape
-                    else -> middleShape
-                }
                 Column(
-                    modifier = Modifier.expressiveCardSurface(shape)
+                    modifier = Modifier.expressiveCardSurface(groupedShape(index, content.size))
                 ) {
                     itemContent()
                 }
@@ -869,7 +855,7 @@ fun ExpressiveSliderItem(
             Text(title, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, color = colorScheme.onSurface)
         }
         Spacer(Modifier.height(10.dp))
-        Surface(color = badgeContainerColor, shape = RoundedCornerShape(10.dp), modifier = Modifier.scale(badgeScale)) {
+        Surface(color = badgeContainerColor, shape = RoundedCornerShape(MaxRadius.chip), modifier = Modifier.scale(badgeScale)) {
             Text(badgeText, modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp), style = nd.max.ui.theme.MonoValueStyleSmall, color = accent)
         }
         Spacer(modifier = Modifier.height(4.dp))
@@ -1083,3 +1069,15 @@ private fun PremiumSliderThumb(
         )
     }
 }
+
+/**
+ * أقصى نصيب لخانة الذيل من عرض الصفّ (نسبة من العرض الكامل).
+ *
+ * قيمته **مقيسة لا مختارة**: أطول قيمة ذيل في الاستخدام الفعلي اسمُ لغة (وأطولها
+ * `Português (Brasil)` ≈ ١٢٠dp بخطّ `labelMedium`)، وبقاء ٥٥٪ للعنوان يكفي أطولَ كلمة فيه
+ * (`Language` ≈ ٦٥dp) حتى مع تضخيم خطّ النظام إلى الضعف على شاشة ٣٢٠dp.
+ *
+ * والعطب الذي وُلد منه: كلمة «Language» في الإعدادات كُسرت **حرفًا في كل سطر**، لأن خانة الذيل
+ * كانت بلا قيد فتُقاس عند عرضها الأقصى ويأخذ العنوان الموزون ما يبقى.
+ */
+private const val TRAILING_MAX_FRACTION = 0.45f

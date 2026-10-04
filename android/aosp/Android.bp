@@ -34,27 +34,47 @@ android_app {
     ],
 }
 
+// الـdaemon — الاسم الرسمي الوحيد `sys.maxmanager-service`.
+//
+// ومصدره الحقيقي هو C في `archdaemon/jni` (وهو المبنيّ والمُتحقَّق منه بـ`Android.mk`
+// عبر ndk-build)، لا شجرة Rust: `runtime/daemon-rust/` لم يكن موجودًا في الشجرة أبدًا.
+//
+// والقسم `system` وحده (بلا `vendor`/`product_specific` معًا): سطر init في `maxmanager.rc`
+// يشير إلى `/system/bin/sys.maxmanager-service`، والوسم في `file_contexts` على المسار نفسه.
+// جمع قسمين كان يجعل Soong ينشر الوحدة إلى `/vendor/bin` ويخالف مسار init (عطب `path-conflict`).
 cc_binary {
-    name: "maxmanager_daemon",
+    name: "sys.maxmanager-service",
     srcs: [
-        "runtime/daemon-rust/src/**/*.rs",
+        "archdaemon/jni/Main.c",
+        "archdaemon/jni/src/*/*.c",
     ],
-    rustflags: [
-        "-Copt-level=3",
-        "-Cpanic=abort",
+    local_include_dirs: [
+        "archdaemon/jni/include",
+    ],
+    cflags: [
+        "-DNDEBUG",
+        "-std=c23",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic-errors",
+        "-Wpedantic",
+        "-O2",
+    ],
+    ldflags: [
+        "-flto",
     ],
     shared_libs: [
-        "libc++",
         "liblog",
         "libdl",
     ],
-    static_libs: [
-        "libmaxmanager_native",
-    ],
-    product_specific: true,
-    vendor: true,
 }
 
+// الملاحظة (دَين مُوثَّق — لم يُمَس في توحيد اسم الـdaemon):
+// وحدة مكتبة الـJNI (الطبقة الأصلية لـMax AI) ما زالت تُعلن مصدرًا غير موجود
+// (`runtime/daemon-rust/src/lib.rs`) وتجمع قسمين معًا (`vendor` + `product_specific`).
+// وهذا ليس مسار الـdaemon، فتُرِك كما هو حتى يقرّر المالك: توصيله بمصدره الحقيقي
+// `manager/src/main/rust` (cdylib `maxmanager_native`) أو إعادة تنظيم المسار كله.
 cc_library_shared {
     name: "libmaxmanager_native",
     srcs: [

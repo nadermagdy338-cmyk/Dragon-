@@ -25,9 +25,10 @@
  * then the other to learn a single fact is the cost of that split.
  *
  * They are merged here in the order the question is actually asked: **what is it
- * doing** (live), **what is it** (identity), **what can I change** (controls) —
- * with the limit's own effect stated against the current level, so the control
- * and the reading are not two unrelated halves of one page.
+ * doing** (live), **what is it** (identity), **what can I change** (controls).
+ *
+ * حدّ الشحن أُزيل من هذه الشاشة بأمر المالك؛ ومحرّكه في `ChargingViewModel`
+ * باقٍ كما هو (لا حذف لعمل مُنجز — ADR-18)، فالشاشة لا تعرض له مفتاحًا ولا شريطًا.
  *
  * Nothing was dropped in the move. The readings `BatteryDetail` owned that this
  * screen lacked — the driver's health verdict, the nameplate capacity, the pack's
@@ -73,11 +74,12 @@ import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSliderRow
 import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.design.MaxTone
+import nd.max.ui.component.MaxDeviceInfoShortcut
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 import nd.max.ui.viewmodel.BatteryHealthVerdict
 import nd.max.ui.viewmodel.BatteryStatus
-import nd.max.ui.util.ThermalUtil
+import nd.max.core.platform.ThermalUtil
 import nd.max.ui.viewmodel.ChargingViewModel
 import java.util.Locale
 
@@ -100,7 +102,7 @@ fun ChargingScreen(
     val navActions = MaxNavActions(navController)
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) { viewModel.loadState() }
+    LaunchedEffect(Unit) { viewModel.loadState(context) }
 
     /*
      * حرارة البطارية من نفس مصدر الشاشة الرئيسية: بثّ `ACTION_BATTERY_CHANGED` أوّلًا،
@@ -123,14 +125,10 @@ fun ChargingScreen(
     val gaugeAccent = if (viewModel.isCharging) colorScheme.tertiary else colorScheme.primary
     val voltage = viewModel.voltageMv / 1000f
     val amps = viewModel.currentMa / 1000f
-    val chargeLimitActive = viewModel.chargeLimitPercent < 100
     val fastChargeCeiling = viewModel.fastChargeMaxMa.coerceAtLeast(500).toFloat()
 
     var fastChargeMa by remember(viewModel.fastChargeCurrentMa) {
         mutableStateOf(viewModel.fastChargeCurrentMa.toFloat())
-    }
-    var chargeLimit by remember(viewModel.chargeLimitPercent) {
-        mutableStateOf(viewModel.chargeLimitPercent.coerceIn(50, 95).toFloat())
     }
 
     ScreenAccentProvider(accent) {
@@ -172,6 +170,8 @@ fun ChargingScreen(
             }
         ) {
             item(key = "charging_details") {
+                // وزرّ قسم البطارية في «معلومات الجهاز» في آخر بطاقة التفاصيل الحيّة — أوّل
+                // بطاقة في الشاشة — كبسولة بأيقونة وكلمة لا أيقونة مجرّدة (أمر المالك).
                 MaxSection(title = stringResource(R.string.charging_live_details_title)) {
                     MaxGroup {
                         ChargingFactRow(
@@ -204,6 +204,8 @@ fun ChargingScreen(
                             label = stringResource(R.string.charging_technology),
                             value = viewModel.batteryTechnology
                         )
+                        MaxGroupDivider()
+                        MaxDeviceInfoShortcut(navController, MaxDestination.Charging)
                     }
                 }
             }
@@ -279,41 +281,6 @@ fun ChargingScreen(
                                     viewModel.applyFastChargeCurrentMa(fastChargeMa.toInt())
                                 }
                             )
-                            MaxGroupDivider()
-                        }
-                        if (viewModel.chargeLimitSupported) {
-                            MaxSwitchRow(
-                                title = stringResource(R.string.charging_limit_title),
-                                checked = chargeLimitActive,
-                                onCheckedChange = { viewModel.setChargeLimitEnabled(it) },
-                                // الربط الذي كانت الشاشتان تفقده: الحدّ يُقرأ مقابل المستوى
-                                // الحالي، فيُعرف أين يقف الآن من الحدّ الذي ضبطه المستخدم.
-                                subtitle = if (chargeLimitActive) {
-                                    stringResource(
-                                        R.string.charging_limit_active_progress,
-                                        viewModel.chargeLimitPercent,
-                                        viewModel.capacityPercent
-                                    )
-                                } else {
-                                    stringResource(R.string.charging_limit_desc)
-                                },
-                                icon = Icons.Outlined.BatteryStd,
-                                iconTone = MaxTone.Accent
-                            )
-                            if (chargeLimitActive) {
-                                MaxGroupDivider()
-                                MaxSliderRow(
-                                    title = stringResource(R.string.charging_limit_slider_title),
-                                    value = chargeLimit,
-                                    onValueChange = { chargeLimit = it },
-                                    valueText = "$LTR_MARK${chargeLimit.toInt()}%$LTR_MARK",
-                                    valueRange = 50f..95f,
-                                    steps = 8,
-                                    onValueChangeFinished = {
-                                        viewModel.applyChargeLimit(chargeLimit.toInt())
-                                    }
-                                )
-                            }
                             MaxGroupDivider()
                         }
                         MaxSwitchRow(

@@ -1,28 +1,22 @@
 # Copyright (C) 2026 Nader Magdy. All rights reserved.
 # Proprietary and confidential — not licensed for use, copying, or distribution
 # without prior written permission from the copyright holder.
-# BoardConfig.mk for MaxManager ROM integration
-# ==============================================
-# Add this to your device BoardConfig.mk or create a new one
+#
+# MaxManager — board fragment (BOARD_* only).
+#
+# **ولماذا صار هذا الملفّ `BOARD_*` وحده (تكملة ١٣٩):** كان يجمع `PRODUCT_PACKAGES`
+# و`PRODUCT_COPY_FILES` و`BOARD_SEPOLICY_DIRS` في **ملفّ BoardConfig** الواحد. وعند
+# AOSP، متغيّرات `PRODUCT_*` لا تُقرأ من `BoardConfig.mk` أصلًا: تُقرأ في مرحلة
+# الـproduct، فيمرّ السطر بلا أثر ويظنّ قارئه أنه دمج التطبيق. وهو أسوأ أنواع العطب:
+# صامت. فانقسم الملفّ: `BOARD_*` هنا، و`PRODUCT_*` في `product-inclusion.mk`.
+#
+# **والمسار** `device/maxmanager/` هو نفسه الذي تفترضه حزمة المطوّرين
+# (`MaxManager-developer-bundle.zip`) — مسار واحد في الحالتين، بلا `[vendor]/[device]`
+# يُنسى استبداله.
 
-# Include MaxManager in system image
-PRODUCT_PACKAGES += \
-    MaxManager \
-    maxmanager_daemon \
-    libmaxmanager_native
+BOARD_SEPOLICY_DIRS += device/maxmanager/sepolicy
 
-# SELinux policy
-BOARD_SEPOLICY_DIRS += device/[vendor]/[device]/sepolicy
-
-# Init scripts
-PRODUCT_COPY_FILES += \
-    device/[vendor]/[device]/maxmanager.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/maxmanager.rc
-
-# Permissions
-PRODUCT_COPY_FILES += \
-    device/[vendor]/[device]/permissions/nd.max.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/nd.max.xml
-
-# Override default properties
-PRODUCT_PROPERTY_OVERRIDES += \
-    maxmanager.enable=1 \
-    maxmanager.verbose=0
+# ملاحظة: الـ`.rc` للـdaemon يُنسخ إلى `/system/etc/init/` لا إلى `vendor/etc/init/`
+# — سطر `service` في `maxmanager.rc` يشير إلى `/system/bin/sys.maxmanager-service`،
+# والوسم في `sepolicy/file_contexts` على المسار نفسه. ووضع الـ`.rc` في قسم آخر
+# يخالف الثلاثة. (وسبب آخر: `PRODUCT_COPY_FILES` موضعه `product-inclusion.mk`.)

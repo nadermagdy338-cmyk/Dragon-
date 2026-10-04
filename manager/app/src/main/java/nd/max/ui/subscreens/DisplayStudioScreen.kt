@@ -6,6 +6,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.subscreens
+import nd.max.ui.component.MaxDeviceInfoShortcut
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 
@@ -30,6 +31,7 @@ import androidx.navigation.NavHostController
 import nd.max.R
 import nd.max.ui.component.*
 import nd.max.ui.design.MaxHelpAction
+import nd.max.ui.design.MaxListScreen
 import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.mainscreens.TweaksSectionTitle
 import nd.max.ui.viewmodel.DisplayStudioViewModel
@@ -61,7 +63,7 @@ fun DisplayStudioScreen(
     var showRefreshDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.loadState()
+        viewModel.loadState(context)
         resolutionViewModel.loadState()
         tweakViewModel.loadAllConfiguration(context)
     }
@@ -73,44 +75,29 @@ fun DisplayStudioScreen(
     val currentHz = tweakViewModel.currentRefreshRate ?: resolutionViewModel.refreshRateHz
     val currentRateReason = tweakViewModel.currentRefreshRateReason
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            MaxManagerSubScreenTopBar(
-                scrollBehavior = scrollBehavior,
-                title = stringResource(R.string.display_studio_title),
-                onBack = { navController.popBackStack() },
-                accentIcon = Icons.Filled.DisplaySettings,
-                accent = colorScheme.secondary,
-                actions = {
-                    MaxHelpAction(
-                        title = stringResource(R.string.display_studio_title),
-                        body = stringResource(R.string.display_studio_desc),
-                    )
-                }
-            )
-        },
-        containerColor = colorScheme.surface
-    ) { innerPadding ->
-        if (!viewModel.isLoaded || !resolutionViewModel.isLoaded) {
-            Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                SectionLoadingIndicator()
+    ScreenAccentProvider(colorScheme.secondary) {
+        MaxListScreen(
+            title = stringResource(R.string.display_studio_title),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Filled.DisplaySettings,
+            accent = colorScheme.secondary,
+            actions = {
+                MaxHelpAction(
+                    title = stringResource(R.string.display_studio_title),
+                    body = stringResource(R.string.display_studio_desc),
+                )
             }
-        } else {
-            ScreenAccentProvider(colorScheme.secondary) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        top = innerPadding.calculateTopPadding() + 12.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 24.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // الشرح انتقل إلى علامة الاستفهام في شريط العنوان.
-                    item {
+        ) {
+            if (!viewModel.isLoaded || !resolutionViewModel.isLoaded) {
+                item {
+                    Box(
+                        Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center
+                    ) { SectionLoadingIndicator() }
+                }
+            } else {
+                // الشرح انتقل إلى علامة الاستفهام في شريط العنوان.
+                item {
                         DisplayHeroCard(
                             width = activeW,
                             height = activeH,
@@ -120,7 +107,16 @@ fun DisplayStudioScreen(
                             refresh = currentHz,
                             scale = scale,
                             onResolution = { MaxNavActions(navController).navigateTo(MaxDestination.Resolution) },
-                            onRefresh = { showRefreshDialog = true }
+                            onRefresh = { showRefreshDialog = true },
+                            trailing = {
+                                // وبطاقة العرض تحشو نفسها ٢٠dp، فحاشية الباب صفر فلا يُحتسب
+                                // البُعد مرّتين وتخرج الكلمة عن محاذاة عنوان البطاقة.
+                                MaxDeviceInfoShortcut(
+                                    navController = navController,
+                                    from = MaxDestination.DisplayStudio,
+                                    inset = 0.dp,
+                                )
+                            }
                         )
                     }
 
@@ -258,7 +254,6 @@ fun DisplayStudioScreen(
                     }
                 }
             }
-        }
     }
 
     RefreshRatePickerDialog(
@@ -279,7 +274,8 @@ private fun DisplayHeroCard(
     refresh: Int?,
     scale: Float,
     onResolution: () -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    trailing: (@Composable () -> Unit)? = null
 ) {
     val cs = MaterialTheme.colorScheme
     Column(
@@ -292,26 +288,29 @@ private fun DisplayHeroCard(
             ScreenAccentGlyph(Icons.Filled.DisplaySettings, cs.secondary, 42.dp)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text("DISPLAY", style = MaterialTheme.typography.labelLarge, color = cs.secondary, fontWeight = FontWeight.Bold)
-                Text("Live panel configuration", style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
+                Text(stringResource(R.string.display_studio_badge_display), style = MaterialTheme.typography.labelLarge, color = cs.secondary, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.display_studio_live_panel_config), style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
             }
             Surface(shape = MaterialTheme.shapes.large, color = cs.secondaryContainer) {
-                Text("LIVE", Modifier.padding(horizontal = 12.dp, vertical = 7.dp), color = cs.onSecondaryContainer, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.display_studio_badge_live), Modifier.padding(horizontal = 12.dp, vertical = 7.dp), color = cs.onSecondaryContainer, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             }
         }
         Spacer(Modifier.height(18.dp))
         Text("${width} × ${height}", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
-        Text("Current canvas", style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
+        Text(stringResource(R.string.display_studio_current_canvas), style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            DisplayMetric("Refresh", "${refresh ?: 0} Hz", Modifier.weight(1f), onRefresh)
-            DisplayMetric("Density", "$dpi DPI", Modifier.weight(1f), null)
-            DisplayMetric("Scale", "${(scale * 100).toInt()}%", Modifier.weight(1f), onResolution)
+            DisplayMetric(stringResource(R.string.display_studio_metric_refresh), "${refresh ?: 0} Hz", Modifier.weight(1f), onRefresh)
+            DisplayMetric(stringResource(R.string.display_studio_metric_density), "$dpi DPI", Modifier.weight(1f), null)
+            DisplayMetric(stringResource(R.string.display_studio_metric_scale), "${(scale * 100).toInt()}%", Modifier.weight(1f), onResolution)
         }
         Spacer(Modifier.height(12.dp))
         if (nativeWidth > 0 && nativeHeight > 0) {
-            Text("Native ${nativeWidth} × ${nativeHeight}", style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant)
+            Text(stringResource(R.string.display_studio_native, nativeWidth, nativeHeight), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant)
         }
+        // وباب قسم الشاشة في «معلومات الجهاز» آخر بطاقة العرض — وهي أوّل بطاقة في الشاشة.
+        // وبلا خطّ فاصل: هذه البطاقة تفصل بمقدار فراغ لا بخطوط، فالفاصل فيها عنصر غريب.
+        trailing?.invoke()
     }
 }
 

@@ -202,7 +202,6 @@
     <string name="max_live_section_exploration_desc">Ez dakiena bakarrik ikertzen du, eta akats bat merkea izango litzatekeen bitartean. Ezezko bakoitzari izena ematen zaio.</string>
     <string name="max_live_explore_allowed">Oraintxe bertan zundaketa bat onartzen da</string>
     <string name="max_live_explore_blocked">Zundarik ez: %1$s</string>
-    <string name="max_live_explore_budget">%2$d zundak erabili dute saio hau</string>
     <string name="max_live_explore_target">kasurik txarreneko kostua %1$s · informazioaren balioa %2$s</string>
     <string name="max_live_explore_last">Azken zundaketa</string>
     <string name="max_live_block_safety">segurtasun termikoa aktibatuta dago</string>
@@ -284,4 +283,5 @@
     <string name="max_ai_decisions_disabled">Erabaki automatikoak desgaituta daude</string>
     <string name="max_ai_master_disabled_desc">AI optimizazioa desaktibatuta dago. Eskuzko kontrolak eta babes termikoa independenteak izaten jarraitzen dute.</string>
     <string name="max_ai_settings_loading">Gordetako AI hobespenak kargatzen.</string>
+    <string name="max_live_explore_budget">%2$d zundak %1$dk erabili zuten saio hau</string>
 </resources>

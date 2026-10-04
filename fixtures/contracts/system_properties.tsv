@@ -1,0 +1,118 @@
+# سطح خصائص النظام المُعلَن — **جدول بيانات يُقاس، لا قائمة تُنسخ**
+#
+# الأعمدة مفصولة بـTAB: key · owner · daemon_scope · rust · script
+#
+#   owner         kotlin = يُعلَن في `manager/app/src/main/java/nd/max/MaxManagerProps.kt`
+#                 daemon = مفتاح يملكه الخادم ولا يقرؤه التطبيق (`.state` · `.service`)
+#   daemon_scope  كيف يقبله `archdaemon/jni/src/StartupInit/PropValidator.c`:
+#                 exact            = في `VALID_MAXMANAGER_PROPS[]` بالاسم
+#                 prefix:<P>       = تحت البادئة P في `VALID_PROP_PREFIXES[]`
+#                 nonpersist       = خارج نطاق الفحص أصلًا (`MAXMANAGER_PROPERTIES` = persist.sys.maxmanager)
+#                 DELETE_RISK      = ❌ غير مُغطّى ⇒ يُوسم STALE_PROP **ويُحذف عند كل تشغيل للخادم**
+#   rust          exact = النصّ الحرفي موجود في `binprofiles/src/props.rs`
+#                 ⚠️ وهذا العمود يقيس **`props.rs` وحده** — مفاتيح `binutils/src/utils/mod.rs`
+#                 الثلاثة (debugmode · state · conf.fstrim) يقيسها `cargo test` في `binutils`،
+#                 فصفوفها هنا تقول `rust=-`، أي «ليست في props.rs» لا «لا مرآة Rust لها».
+#   script        exact = النصّ الحرفي موجود في `mainfiles/props.sh`
+#
+# **ولماذا `DELETE_RISK` موجودة أصلًا؟** لأنها العطب الذي وُجد بهذا الجدول: أربعة مفاتيح
+# `persist.sys.maxmanager.gpu_studio.*` كانت خارج القائمة الدقيقة وخارج كل بادئة ⇒ كان الخادم
+# يحذفها عند كل إقلاع، فيُمحى «حفظ GPU Studio» للمستخدم بلا سطر عطل ظاهر. أُصلح بإضافة بادئة
+# رابعة في `PropValidator.c` (وقياسها مكتوب هناك بجانبها)، وصارت البوابة تفشل لو عاد أي مفتاح بلا غطاء.
+#
+# وما ليس في هذه القائمة (مثل `ro.*`، وأي مفتاح لا يبدأ بـ`persist.sys.maxmanager`) خارج نطاق
+# هذا العقد عن قصد: الخادم لا يفحصه أصلًا، ومفاتيح النظام ليست ملكنا.
+key	owner	daemon_scope	rust	script
+persist.sys.maxmanager	kotlin	exact	-	exact
+persist.sys.maxmanager.custom_charge_limit_percent	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_default_balanced_IO	kotlin	exact	exact	-
+persist.sys.maxmanager.custom_default_cpu_gov	kotlin	exact	exact	-
+persist.sys.maxmanager.custom_default_maligpu_gov	kotlin	exact	exact	-
+persist.sys.maxmanager.custom_doze_aggressive	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_doze_enabled	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_doze_gms_mode	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_fastcharge_ma	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_hdr_enable	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_performance_IO	kotlin	exact	exact	-
+persist.sys.maxmanager.custom_performance_cpu_gov	kotlin	exact	exact	-
+persist.sys.maxmanager.custom_performance_maligpu_gov	kotlin	exact	exact	-
+persist.sys.maxmanager.custom_powersave_IO	kotlin	exact	exact	-
+persist.sys.maxmanager.custom_powersave_cpu_gov	kotlin	exact	exact	-
+persist.sys.maxmanager.custom_powersave_maligpu_gov	kotlin	exact	exact	-
+persist.sys.maxmanager.custom_res_dpi	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_res_height	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_res_width	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_autogroup	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_bore	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_child_runs_first	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_cstate_aware	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_generic_overrides	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_printk	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_schedstats	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_tunable_scaling	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_uclamp_max	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sched_uclamp_min	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sic_boost	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_silky_brightness	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_sunlight_mode	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_swappiness	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_tcp_congestion	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_tcp_ecn	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_tcp_fastopen	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_tcp_reuse	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_tcp_sack	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_tcp_syncookies	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_touch_boost	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_touch_dt2w	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_video_enhance	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_zram_comp_algorithm	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_zram_preset	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.custom_zram_size_mb	kotlin	prefix:persist.sys.maxmanager.custom_	-	-
+persist.sys.maxmanager.debugmode	kotlin	exact	exact	exact
+persist.sys.maxmanager.default_balanced_IO	kotlin	exact	exact	-
+persist.sys.maxmanager.default_cpu_gov	kotlin	exact	exact	-
+persist.sys.maxmanager.default_maligpu_gov	kotlin	exact	exact	-
+persist.sys.maxmanager.disabletweak	kotlin	exact	exact	exact
+persist.sys.maxmanager.dropforeground	kotlin	exact	-	exact
+persist.sys.maxmanager.gpu_studio.governor	kotlin	prefix:persist.sys.maxmanager.gpu_studio.	-	-
+persist.sys.maxmanager.gpu_studio.max_freq	kotlin	prefix:persist.sys.maxmanager.gpu_studio.	-	-
+persist.sys.maxmanager.gpu_studio.min_freq	kotlin	prefix:persist.sys.maxmanager.gpu_studio.	-	-
+persist.sys.maxmanager.gpu_studio.mode	kotlin	prefix:persist.sys.maxmanager.gpu_studio.	-	-
+persist.sys.maxmanager.profilenotifications	kotlin	exact	-	exact
+persist.sys.maxmanager.service	daemon	exact	-	exact
+persist.sys.maxmanager.soctype	kotlin	exact	exact	exact
+persist.sys.maxmanager.state	daemon	exact	-	exact
+persist.sys.maxmanagerconf.AIenabled	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.AIobjective	kotlin	prefix:persist.sys.maxmanagerconf.	-	-
+persist.sys.maxmanagerconf.APreload	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.DThermal	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.SFL	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.bypasschg	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.bypasschgthreshold	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.bypasspath	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.clearbg	kotlin	exact	exact	exact
+persist.sys.maxmanagerconf.cpulimit	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.detailedlog	kotlin	prefix:persist.sys.maxmanagerconf.	-	-
+persist.sys.maxmanagerconf.disabletrace	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.dnd	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.fpsged	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.freqoffset	kotlin	exact	exact	exact
+persist.sys.maxmanagerconf.fstrim	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.iosched	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.justintime	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.litemode	kotlin	exact	exact	-
+persist.sys.maxmanagerconf.logd	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.logmaxkb	kotlin	prefix:persist.sys.maxmanagerconf.	-	-
+persist.sys.maxmanagerconf.logminlevel	kotlin	prefix:persist.sys.maxmanagerconf.	-	-
+persist.sys.maxmanagerconf.malisched	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.preloadbudget	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.refreshrate	kotlin	prefix:persist.sys.maxmanagerconf.	-	-
+persist.sys.maxmanagerconf.renderer	kotlin	exact	exact	exact
+persist.sys.maxmanagerconf.schedtunes	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.schemeconfig	kotlin	exact	exact	exact
+persist.sys.maxmanagerconf.showtoast	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.thermalcore	kotlin	exact	-	exact
+persist.sys.maxmanagerconf.usefpsgo	kotlin	exact	exact	exact
+persist.sys.maxmanagerconf.walttunes	kotlin	exact	-	exact
+persist.sys.maxmanagerdebug.soctype	kotlin	prefix:persist.sys.maxmanagerdebug.	-	-
+sys.maxmanager.manual_freq_session	kotlin	nonpersist	exact	-

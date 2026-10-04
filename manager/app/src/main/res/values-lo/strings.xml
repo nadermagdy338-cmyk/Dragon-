@@ -7,7 +7,7 @@
     <string name="all_set">ທຸກຢ່າງພ້ອມແລ້ວ, ທ່ານສາມາດໃຊ້ Max Manager ໄດ້ແລ້ວ</string>
     <string name="allow_verbose_log">ໃຫ້ daemon ສົ່ງອອກລາຍລະອຽດ</string>
     <string name="android_version">ເວີຊັ່ນ Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">ຊື່ແອັບ</string>
     <string name="app_priority">ຄວາມສຳຄັນຂອງແອັບ</string>
     <string name="app_priority_control">ຄວບຄຸມຄວາມສຳຄັນຂອງແອັບ</string>
@@ -515,7 +515,6 @@
     <string name="thermal_hide_trips">ເຊື່ອງການເດີນທາງ</string>
     <string name="thermal_trip_points">ຈຸດເດີນທາງ</string>
     <string name="thermal_trip_config">ກຳນົດຄ່າຈຸດເດີນທາງ</string>
-    <string name="zram_live_summary">- %6$d/%7$d MB</string>
     <string name="zram_presets_title">ການຕັ້ງຄ່າດ່ວນ</string>
     <string name="zram_tuning_title">ເຄື່ອງຈັກບີບອັດ</string>
     <string name="zram_custom_size">ຂະໜາດສະຫຼັບທີ່ກຳນົດເອງ</string>
@@ -724,15 +723,6 @@
     <string name="fps_overlay_notif_channel">ການວາງຊ້ອນ FPS</string>
     <string name="fps_overlay_notif_title">Max Manager ການວາງຊ້ອນ FPS ກຳລັງເຮັດວຽກຢູ່</string>
     <string name="fps_overlay_notif_stop">ຢຸດ</string>
-    <string name="fps_overlay_section_style">ຮູບລັກສະນະ</string>
-    <string name="fps_overlay_style">ຮູບແບບການຊ້ອນກັນ</string>
-    <string name="fps_overlay_style_android">ບັນຊີລາຍຊື່ Android</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">ມິນິ</string>
-    <string name="fps_overlay_orientation">ທິດທາງການຈັດວາງ</string>
-    <string name="fps_overlay_orientation_vertical">ຕັ້ງ</string>
-    <string name="fps_overlay_orientation_horizontal">ລວງນອນ</string>
-    <string name="fps_overlay_read_mode">ວິທີການອ່ານ FPS</string>
     <string name="fps_overlay_read_mode_desc">ລອງວິທີອື່ນຖ້າການອ່ານຢູ່ທີ່ 0 ໃນອຸປະກອນຂອງທ່ານ</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (ແນະນຳ)</string>
     <string name="fps_overlay_mode_kernel">ໂຫນດ Kernel</string>
@@ -741,14 +731,6 @@
     <string name="fps_overlay_text_size">ຂະໜາດຕົວໜັງສື</string>
     <string name="fps_overlay_bg_alpha">ຄວາມໂປ່ງໃສຂອງພື້ນຫຼັງ</string>
     <string name="fps_overlay_width_scale">ຂະໜາດຄວາມກວ້າງ</string>
-    <string name="fps_overlay_section_metrics">ສະແດງໃຫ້ເຫັນການວັດແທກ</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPUໂຫຼດ</string>
-    <string name="fps_overlay_metric_ram">RAM ການນຳໃຊ້</string>
-    <string name="fps_overlay_metric_watt">ດຶງພະລັງງານຫມໍ້ໄຟ</string>
-    <string name="fps_overlay_metric_temp">ອຸນຫະພູມຫມໍ້ໄຟ</string>
-    <string name="fps_overlay_metric_render">ປ້າຍກຳກັບຕົວສະແດງ</string>
-    <string name="fps_overlay_metric_render_desc">ສະແດງ VULKAN/OPENGL ແທນ \"FPS\" ເປັນປ້າຍກຳກັບ, ກວດພົບຈາກຫ້ອງສະໝຸດທີ່ໂຫລດໄວ້ຂອງແອັບ foreground</string>
     <string name="dozemode_title">ນະໂຍບາຍການນອນ</string>
     <string name="dozemode_menu_desc">ບັນຊີຂາວສະແຕນບາຍ, ພຶດຕິກຳບໍ່ເຄື່ອນໄຫວ ແລະ ການປັບພະລັງງານໃນພື້ນຫຼັງ</string>
     <string name="dozemode_state_label">ລັດ Doze</string>
@@ -784,9 +766,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">ເປີດການຕັ້ງຄ່າ</string>
     <string name="processmgr_title">Task Monitor</string>
-    <string name="processmgr_menu_desc">ການນຳໃຊ້ CPU ແລະ RAM ຕໍ່ຂະບວນການ, ດ້ວຍການຢຸດບັງຄັບ ແລະ ການວາງຊ້ອນກັນແບບລອຍ.</string>
     <string name="processmgr_stat_total">%1$dຂະບວນການ</string>
-    <string name="processmgr_stat_breakdown">%1$d ຜູ້ໃຊ້ \u00b7 %2$d ລະບົບ</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">ອັນດັບຕົ້ນໆ %1$d</string>
@@ -807,9 +787,6 @@
     <string name="processmgr_search_hint">ຄົ້ນຫາຂະບວນການແລ່ນ</string>
     <string name="processmgr_no_processes">ບໍ່ມີຂະບວນການໃດກົງກັບການຄົ້ນຫາຂອງທ່ານ</string>
     <string name="processmgr_dialog_close">ປິດ</string>
-    <string name="processmgr_detail_version">ຮຸ່ນ</string>
-    <string name="processmgr_detail_build">ກໍ່ສ້າງ</string>
-    <string name="processmgr_detail_package">ຊຸດ</string>
     <string name="processmgr_result_killed">ຂ້າ %1$s</string>
     <string name="processmgr_result_kill_failed">ບໍ່ສາມາດຂ້າ %1$s</string>
     <string name="processmgr_result_stopped">ບັງຄັບຢຸດ %1$s</string>
@@ -1459,7 +1436,6 @@
     <string name="max_home_reboot_desc">ເປີດຕົວເລືອກ reboot ທີ່ປອດໄພ</string>
     <string name="max_home_ai_console">MAX AI console</string>
     <string name="max_home_ai_working">ກຳລັງນຳໃຊ້ໂປຣໄຟລ໌ທີ່ຮ້ອງຂໍ...</string>
-    <string name="max_home_ai_failed">ການປະຕິບັດ AI ຫຼ້າສຸດລົ້ມເຫລວ</string>
     <string name="max_home_retry">ລອງໃໝ່</string>
     <string name="max_home_ai_idle">ຍັງບໍ່ມີການບັນທຶກການຕັດສິນໃຈຂອງ AI ເທື່ອ</string>
     <string name="home_system_stable">ສະຖຽນລະພາບລະບົບ</string>
@@ -1475,8 +1451,6 @@
     <string name="home_performance_monitor_desc">ການໂຫຼດຊັບພະຍາກອນໃນໄລຍະ 72 ວິນາທີທີ່ຜ່ານມາ</string>
     <string name="home_quick_actions">ແທ່ນສັ່ງ</string>
     <string name="home_quick_actions_desc">ເຂົ້າເຖິງການຄວບຄຸມໂດຍກົງ</string>
-    <string name="home_action_boost">ໂປຣໄຟລ໌ປະສິດທິພາບ</string>
-    <string name="home_action_boost_desc">ປ່ຽນແປງພຶດຕິກໍາຂອງລະບົບ</string>
     <string name="home_action_thermal">ສູນຄວາມຮ້ອນ</string>
     <string name="home_action_thermal_desc">ກວດເບິ່ງຄວາມຮ້ອນແລະຄວາມເຢັນ</string>
     <string name="home_action_battery">ສູນພະລັງງານ</string>
@@ -1496,7 +1470,6 @@
     <string name="home_active">ເຄື່ອນໄຫວ</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">ປ້ອງກັນ</string>
-    <string name="home_device_overview">ເປີດ​ພາບ​ລວມ​ອຸ​ປະ​ກອນ​</string>
     <string name="home_live_performance">ການສະແດງສົດ</string>
     <string name="home_live_performance_desc">ການໂຫຼດໃນປະຈຸບັນແລະການຄວບຄຸມຮາດແວໂດຍກົງ</string>
     <string name="home_open_details">ເປີດຂໍ້ມູນຄວາມຮ້ອນແບບລະອຽດ</string>
@@ -1698,7 +1671,6 @@
     <string name="home_session_real_yes">ແມ່ນແລ້ວ</string>
     <string name="home_session_real_no">ບໍ່</string>
     <string name="home_session_real_unknown">ການສັງເກດເບິ່ງ</string>
-    <string name="app_settings_system_bridge">ແອັບນີ້ມີສັນຍານແບບກຳນົດເອງໃນ %2$s ບໍລິບົດ. ເມື່ອມັນກາຍເປັນທາງໜ້າ, Max AI ສາມາດອ່ານຄວາມຕັ້ງໃຈນັ້ນໄດ້ ໃນຂະນະທີ່ການຄວບຄຸມນຳໃຊ້ພຽງແຕ່ເສັ້ນທາງທີ່ອະນຸຍາດເທົ່ານັ້ນ.</string>
     <string name="app_settings_open_live">Live loop</string>
     <string name="app_settings_open_control">ແຜນທີ່ຄວບຄຸມ</string>
     <string name="home_session_ai_bridge">Max AI: %1$s · ໂປຣໄຟລ໌ %2$s</string>
@@ -1790,4 +1762,7 @@
     <string name="max_app_master_on_desc">ການເພີ່ມປະສິດທິພາບຕໍ່ແອັບກຳລັງຖືກນຳໃຊ້</string>
     <string name="max_app_advanced_options">ຕົວເລືອກຂັ້ນສູງ</string>
     <string name="max_app_save">ບັນທຶກ</string>
+    <string name="home_gpu_max_freq">ຄວາມຖີ່ສູງສຸດ</string>
+    <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 ປະສິດທິພາບ %4$.2f\u00d7 \u00b7 RAM ບັນທຶກແລ້ວ %5$d MB \u00b7 Swap ໃຊ້ແລ້ວ %6$d/%7$d MB</string>
+    <string name="app_settings_system_bridge">app ນີ້​ມີ​ %1$d ສັນຍານ custom ໃນ %2$s ສະພາບການ. ໃນເວລາທີ່ມັນກາຍເປັນ foreground, Max AI ສາມາດອ່ານຄວາມຕັ້ງໃຈນັ້ນໄດ້ ໃນຂະນະທີ່ການຄວບຄຸມນຳໃຊ້ພຽງແຕ່ເສັ້ນທາງທີ່ອະນຸຍາດເທົ່ານັ້ນ.</string>
 </resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Pacotes instalados e as atividades que eles declaram</string>
+    <string name="max_launcher_loading">Lendo pacotes instalados e suas atividades declaradas…</string>
+    <string name="max_launcher_empty">Nenhum pacote instalado declara uma atividade neste dispositivo.</string>
+    <string name="max_launcher_search_placeholder">Pesquise por nome de aplicativo ou pacote</string>
+    <string name="max_launcher_search_clear">Limpe a pesquisa</string>
+    <string name="max_launcher_scope_all">Todos</string>
+    <string name="max_launcher_scope_user">Usuário</string>
+    <string name="max_launcher_scope_system">Sistema</string>
+    <string name="max_launcher_activity_count">%1$d atividades</string>
+    <string name="max_launcher_no_match_title">Nada corresponde</string>
+    <string name="max_launcher_no_match_detail">Nenhum nome de pacote ou rótulo de aplicativo contém esse texto no escopo selecionado.</string>
+    <string name="max_launcher_no_match_clear">Limpar filtros</string>
+    <string name="max_launcher_reading_activities">Lendo as atividades que este pacote declara…</string>
+    <string name="max_launcher_no_activities">Este pacote não declara nenhuma atividade.</string>
+    <string name="max_launcher_root_off_title">Raiz não é concedida</string>
+    <string name="max_launcher_root_off_detail">As atividades marcadas como privadas não são exportadas, portanto apenas o root pode iniciá-las. As atividades exportadas ainda abrem sem ele.</string>
+    <string name="max_launcher_tag_private">Privado</string>
+    <string name="max_launcher_tag_disabled">Desabilitado</string>
+    <string name="max_launcher_outcome_started">Atividade iniciada</string>
+    <string name="max_launcher_outcome_needs_root">Esta atividade não é exportada — é necessário root</string>
+    <string name="max_launcher_outcome_refused">Android se recusou a iniciar esta atividade</string>
+    <string name="max_launcher_outcome_missing">Nenhuma atividade com esse nome está instalada</string>
+</resources>

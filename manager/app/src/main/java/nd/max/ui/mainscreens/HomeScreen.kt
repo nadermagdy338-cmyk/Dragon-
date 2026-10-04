@@ -23,22 +23,23 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.launch
-import nd.max.R
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.ProfileRequestState
-import nd.max.ui.component.MaxSnackbarHost
-import nd.max.ui.component.ProfileDialog
 import nd.max.ui.component.RebootBottomSheet
 import nd.max.ui.component.RootAppDialog
 import nd.max.ui.component.maxAdaptiveContentWidth
+import nd.max.ui.util.HomeDeckStore
+import nd.max.ui.util.ScreenUsageStore
+import nd.max.ui.util.fallbackDeviceName
 import nd.max.ui.util.getRealDeviceName
 import nd.max.ui.viewmodel.DashboardState
 import nd.max.ui.viewmodel.HomeDashboardViewModel
@@ -54,20 +55,47 @@ fun HomeScreen(
     maxAiViewModel: nd.max.ui.viewmodel.MaxAiViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val context = LocalContext.current
-    // موارد من `LocalResources.current` (لا `LocalContext.current.resources`): تُبطل التركيب عند تغيّر
-    // التكوين، فتُبنى رسالة الشريط السفلي بلغة اللحظة لا بلغة إنشاء الشاشة.
-    val resources = LocalResources.current
     val navActions = MaxNavActions(navController)
     val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
     val ui by homeViewModel.uiState.collectAsStateWithLifecycle()
     val dashboard by dashboardViewModel.dashboardState.collectAsStateWithLifecycle()
     val maxAi by maxAiViewModel.state.collectAsStateWithLifecycle()
     val profileRequest by maxAiViewModel.profileRequest.collectAsStateWithLifecycle()
-    val snackbar = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     var showReboot by remember { mutableStateOf(false) }
-    var showProfile by remember { mutableStateOf(false) }
-    val deviceName = remember(context) { getRealDeviceName(context) }
+    // **والاسم لا يُقرأ في التركيب (عطب سرعة مُبلَّغ عنه: «جلب المعلومات في الشاشة الرئسية
+    // بطيء، انتظر دقيقة»):** كان `remember { getRealDeviceName(context) }` — و`remember`
+    // يُنفَّذ خلال التركيب على **الخيط الرئيسي**، والدالّة تنسخ `devices.db` من الأصول
+    // (**٤٫٢ ميغابايت** — مقيس) ثم تفتح SQLite وتستعلم بـ`LIKE` (مسح كامل). فأوّل إطار في
+    // الرئيسية كان ينتظر نسخة ٤ ميغابايت وقرصًا واستعلامًا.
+    // ⇒ ما لا يكلّف قراءة واحدة (`Build`) يُعرض أوّلًا، والاسم التسويقي يصل بعدها على خيط
+    // خلفيّ. ولا «مؤقّت تحميل» هنا: الاسم الافتراضي **اسم حقيقيّ للجهاز نفسه** لا بديل مُصنَّع.
+    var deviceName by remember(context) { mutableStateOf(fallbackDeviceName()) }
+    LaunchedEffect(context) {
+        val resolved = withContext(Dispatchers.IO) {
+            runCatching { getRealDeviceName(context) }.getOrNull()
+        }
+        if (!resolved.isNullOrBlank()) deviceName = resolved
+    }
+
+    // **بطاقات «منصة التحكم» (أمر المالك، الجولة ٢٠٢):** ٤ إلى ٦ عناصر — تلقائيًّا بالأكثر
+    // استعمالًا أو باختيار المستخدم، والوضع التلقائيّ هو الافتراضيّ. والقاعدة كلها في
+    // `homeDeckSelection` (صافية ومقيسة على JVM).
+    //
+    // **والعدّاد (الجولة ٢٠٣) من السجلّ الواحد `ScreenUsageStore` لا من عدّاد خاصّ بالمنصة:**
+    // ومنه تقرأ المنصة عبر `homeDeckUsage` كما يقرأ منه المُوجِّد، فلا يقول أحدهما للمستخدم
+    // «الأكثر استعمالًا» ويقول الآخر غيره.
+    //
+    // **ويُقرأ عند كل ظهور للرئيسية لا مرّةً واحدة عند التركيب:** من فتح شاشةً ثم عاد يرى
+    // ترتيبًا يضمّها، ومن فتح ورقة الإعداد يرى الأثر فيه فورًا. و`isVisible` هو مفتاح القراءة.
+    val deckStore = remember(context) { HomeDeckStore.of(context) }
+    val usageStore = remember(context) { ScreenUsageStore.of(context) }
+    var deckMode by remember { mutableStateOf(deckStore.mode) }
+    var deckManual by remember { mutableStateOf(deckStore.manualKeys) }
+    var showDeckSettings by remember { mutableStateOf(false) }
+    val deckUsage = remember(isVisible, deckMode, deckManual, showDeckSettings) {
+        homeDeckUsage(usageStore.counts())
+    }
+    val deckEntries = homeDeckSelection(deckMode, deckManual, deckUsage)
 
     LifecycleStartEffect(dashboardViewModel, isVisible) {
         if (isVisible && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
@@ -76,21 +104,22 @@ fun HomeScreen(
         onStopOrDispose { dashboardViewModel.setPollingActive(false) }
     }
 
-    Scaffold(
-        containerColor = Color.Transparent,
-        snackbarHost = { MaxSnackbarHost(snackbar) }
-    ) { padding ->
+    // ولا مضيف `Snackbar` هنا: كاتبه الوحيد كان ردّ «ملف الأداء» المُزال، ومضيف بلا رسالة
+    // لا يرسم شيئًا — فتِرْكُه كان يُبقي أسلاكًا تُشبه قدرةً وهي ليست كذلك.
+    Scaffold(containerColor = Color.Transparent) { padding ->
         HomeDashboardContent(
             ui = ui,
             dashboard = dashboard,
             maxAi = maxAi,
             profileRequest = profileRequest,
             deviceName = deviceName,
+            deckEntries = deckEntries,
+            onOpenDeck = { entry -> navActions.navigateRoute(entry.destination.route) },
+            onConfigureDeck = { showDeckSettings = true },
             topPadding = padding.calculateTopPadding(),
             // المسار يمرّ ببوّابة التنقّل نفسها التي تمرّ بها بقية الشاشات، فلا
             // يُنقل نمط `?pkg={pkg}` خامًّا إلى الـNavigator.
             onNavigate = navActions::navigateRoute,
-            onProfile = { if (ui.autoMode == "0") showProfile = true },
             onReboot = { showReboot = true },
             onSettings = { navActions.navigateTo(MaxDestination.Settings) },
             onAiRetry = maxAiViewModel::refresh
@@ -103,25 +132,24 @@ fun HomeScreen(
             onDismiss = { showReboot = false },
             onReboot = homeViewModel::rebootDevice
         )
-    }
-    RootAppDialog {
-        ProfileDialog(
-            show = showProfile,
-            onDismiss = { showProfile = false },
-            onProfile = { reason ->
-                homeViewModel.applyProfile(reason) { appliedNow ->
-                    scope.launch {
-                        snackbar.showSnackbar(
-                            resources.getString(
-                                if (appliedNow) R.string.toast_applying_profile
-                                else R.string.max_home_ai_failed
-                            )
-                        )
-                    }
-                }
-            }
+        HomeDeckSettingsSheet(
+            visible = showDeckSettings,
+            mode = deckMode,
+            manualKeys = deckManual,
+            usage = deckUsage,
+            onModeChange = { next ->
+                deckMode = next
+                deckStore.mode = next
+            },
+            onManualChange = { next ->
+                deckManual = next
+                deckStore.manualKeys = next
+            },
+            onDismiss = { showDeckSettings = false },
         )
     }
+    // وحوار «ملف الأداء» أُزيل بأمر المالك مع بطاقته: تبديل الملف صار في Max AI وحده
+    // (`ProfilesSection`)، وهو سطحه المُدقَّق — فيه أثر مُسجَّل وحالة «مُطبَّق» مقروءة من النظام.
 }
 
 @Composable
@@ -131,9 +159,11 @@ fun HomeDashboardContent(
     maxAi: MaxAiState,
     profileRequest: ProfileRequestState,
     deviceName: String,
+    deckEntries: List<HomeDeckEntry>,
+    onOpenDeck: (HomeDeckEntry) -> Unit,
+    onConfigureDeck: () -> Unit,
     topPadding: androidx.compose.ui.unit.Dp = 0.dp,
     onNavigate: (String) -> Unit,
-    onProfile: () -> Unit,
     onReboot: () -> Unit,
     onSettings: () -> Unit,
     onAiRetry: () -> Unit
@@ -176,10 +206,12 @@ fun HomeDashboardContent(
                     // المرحلة 4)، والوصول إلى GPU من الـdeck ← Control ← محور الرسوم. وحقل المسار كان
                     // يُمرَّر إلى صفّ محذوف فلم يبقَ له مستهلك — وحقل بلا مستهلك يبدو كأنه يُوصّل شيئًا.
                     onNavigate = onNavigate,
-                    onProfile = onProfile,
                     onReboot = onReboot,
                     onSettings = onSettings,
-                    onAiRetry = onAiRetry
+                    onAiRetry = onAiRetry,
+                    deckEntries = deckEntries,
+                    onOpenDeck = onOpenDeck,
+                    onConfigureDeck = onConfigureDeck
                 )
             }
         }
@@ -225,11 +257,9 @@ private fun TechnicalBackdrop() {
 internal fun gpuRouteForChipset(chipset: String): String? =
     chipset.takeIf(String::isNotBlank)?.let { MaxDestination.GpuStudio.launchRoute }
 
-internal fun gpuFamilyForChipset(chipset: String): String? {
-    val value = chipset.lowercase()
-    return when {
-        listOf("adreno", "qualcomm", "snapdragon").any(value::contains) -> "Adreno"
-        listOf("mali", "mediatek", "dimensity").any(value::contains) -> "Mali"
-        else -> null
-    }
-}
+/*
+ * وكان هنا `gpuFamilyForChipset` **الثاني** لقاعدة أسرة الرسوم — بلا مستدعٍ في الشجرة
+ * كلها (قيس: صفر)، والقاعدة الحيّة صارت `gpuFamilyOf` في `DeviceInfoModel` **ومقيسة**
+ * باختبار (`Adreno` لكوالكوم، `Mali` لميدياتك، و`Exynos` غير معروفة عن قصد). فقاعدتان
+ * لنفس الفكرة تفترقان يومًا؛ فبقيت المقيسة وحُذفت الميتة (تكملة ١٩٤).
+ */

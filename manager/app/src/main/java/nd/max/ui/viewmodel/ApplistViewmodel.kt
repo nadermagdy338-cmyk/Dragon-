@@ -42,7 +42,7 @@ import nd.max.R
 import nd.max.core.hardware.RootFileAccess
 import nd.max.ui.util.AppConfig
 import nd.max.ui.util.customizedFieldCount
-import nd.max.ui.util.EventLog
+import nd.max.core.platform.EventLog
 
 
 class ApplistViewmodel : ViewModel() {

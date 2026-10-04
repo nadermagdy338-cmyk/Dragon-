@@ -7,6 +7,7 @@
  * هنا. */
 
 package nd.max.ui.util
+import nd.max.core.platform.EventLog
 
 import com.topjohnwu.superuser.Shell
 
@@ -26,6 +27,34 @@ data class SetEditItem(val key: String, val value: String, val category: SetEdit
      * أن يعرف الاختبارُ صيغةً تُكتب في الشاشة وتتغيّر فيها وحدها.
      */
     val lazyKey: String get() = "$category:$key"
+
+    /**
+     * ما تعنيه `1` في هذه القيمة بالضبط.
+     *
+     * و`getprop` و`Settings` يكتبان الثنائيّ **بأربع صيغ** لا واحدة (`1` · `0` · `true` · `false`) —
+     * ومن يفترض أن `1` تعني دائماً `1` في الكتابة يُفسد مفتاحاً كان `true`. فالكتابة تردّ الصيغة
+     * التي قرأتها من الجهاز نفسها.
+     */
+    val booleanTrue: String
+        get() = if (value.equals("true", ignoreCase = true)) "true" else "1"
+
+    val booleanFalse: String
+        get() = if (value.equals("true", ignoreCase = true) || value.equals("false", ignoreCase = true)) "false" else "0"
+}
+
+/** نوع القيمة كما تُقرأ — ومعه يُختار المحرّر: مفتاح تبديل أو حقل نصّ. */
+enum class SetEditValueKind { Boolean, Text }
+
+/**
+ * يقرأ نوع القيمة من **القيمة نفسها** لا من المفتاح ولا من تخمين.
+ *
+ * والثنائي يُعرّف بأنّه يساوي واحدة من أربع صيغ بالضبط (
+ * `0` · `1` · `true` · `false`) بحروف حالة لا تفرّق: كل ما سواها نصّ حرّ (`2` · `unknown` · مسار ·
+ * `en-US`)، ولا يُختزل إلى مفتاح تبديل لأنّ الاختزال يُضيّع قيمًا صحيحة.
+ */
+fun setEditValueKind(value: String): SetEditValueKind = when (value.trim().lowercase()) {
+    "0", "1", "true", "false" -> SetEditValueKind.Boolean
+    else -> SetEditValueKind.Text
 }
 
 /** Keys that can break the device if fat-fingered; edits to these get an extra confirm step. */

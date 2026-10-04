@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">ಸ್ಥಾಪಿಸಲಾದ ಪ್ಯಾಕೇಜುಗಳು ಮತ್ತು ಅವರು ಘೋಷಿಸುವ ಚಟುವಟಿಕೆಗಳು</string>
+    <string name="max_launcher_loading">ಸ್ಥಾಪಿಸಲಾದ ಪ್ಯಾಕೇಜ್‌ಗಳು ಮತ್ತು ಅವುಗಳ ಘೋಷಿತ ಚಟುವಟಿಕೆಗಳನ್ನು ಓದಲಾಗುತ್ತಿದೆ...</string>
+    <string name="max_launcher_empty">ಯಾವುದೇ ಸ್ಥಾಪಿಸಲಾದ ಪ್ಯಾಕೇಜ್ ಈ ಸಾಧನದಲ್ಲಿ ಚಟುವಟಿಕೆಯನ್ನು ಘೋಷಿಸುವುದಿಲ್ಲ.</string>
+    <string name="max_launcher_search_placeholder">ಅಪ್ಲಿಕೇಶನ್ ಹೆಸರು ಅಥವಾ ಪ್ಯಾಕೇಜ್ ಮೂಲಕ ಹುಡುಕಿ</string>
+    <string name="max_launcher_search_clear">ಹುಡುಕಾಟವನ್ನು ತೆರವುಗೊಳಿಸಿ</string>
+    <string name="max_launcher_scope_all">ಎಲ್ಲಾ</string>
+    <string name="max_launcher_scope_user">ಬಳಕೆದಾರ</string>
+    <string name="max_launcher_scope_system">ವ್ಯವಸ್ಥೆ</string>
+    <string name="max_launcher_activity_count">%1$d ಚಟುವಟಿಕೆಗಳು</string>
+    <string name="max_launcher_no_match_title">ಯಾವುದೂ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ</string>
+    <string name="max_launcher_no_match_detail">ಆಯ್ದ ಸ್ಕೋಪ್‌ನಲ್ಲಿ ಯಾವುದೇ ಪ್ಯಾಕೇಜ್ ಹೆಸರು ಅಥವಾ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಆ ಪಠ್ಯವನ್ನು ಹೊಂದಿಲ್ಲ.</string>
+    <string name="max_launcher_no_match_clear">ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ</string>
+    <string name="max_launcher_reading_activities">ಈ ಪ್ಯಾಕೇಜ್ ಘೋಷಿಸುವ ಚಟುವಟಿಕೆಗಳನ್ನು ಓದುವುದು...</string>
+    <string name="max_launcher_no_activities">ಈ ಪ್ಯಾಕೇಜ್ ಯಾವುದೇ ಚಟುವಟಿಕೆಗಳನ್ನು ಘೋಷಿಸುವುದಿಲ್ಲ.</string>
+    <string name="max_launcher_root_off_title">ರೂಟ್ ನೀಡಲಾಗಿಲ್ಲ</string>
+    <string name="max_launcher_root_off_detail">ಖಾಸಗಿ ಎಂದು ಗುರುತಿಸಲಾದ ಚಟುವಟಿಕೆಗಳನ್ನು ರಫ್ತು ಮಾಡಲಾಗುವುದಿಲ್ಲ, ಆದ್ದರಿಂದ ರೂಟ್ ಮಾತ್ರ ಅವುಗಳನ್ನು ಪ್ರಾರಂಭಿಸಬಹುದು. ರಫ್ತು ಮಾಡಲಾದ ಚಟುವಟಿಕೆಗಳು ಅದಿಲ್ಲದೆ ಇನ್ನೂ ತೆರೆದಿರುತ್ತವೆ.</string>
+    <string name="max_launcher_tag_private">ಖಾಸಗಿ</string>
+    <string name="max_launcher_tag_disabled">ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</string>
+    <string name="max_launcher_outcome_started">ಚಟುವಟಿಕೆ ಪ್ರಾರಂಭವಾಯಿತು</string>
+    <string name="max_launcher_outcome_needs_root">ಈ ಚಟುವಟಿಕೆಯನ್ನು ರಫ್ತು ಮಾಡಲಾಗಿಲ್ಲ - ರೂಟ್ ಅಗತ್ಯವಿದೆ</string>
+    <string name="max_launcher_outcome_refused">ಈ ಚಟುವಟಿಕೆಯನ್ನು ಪ್ರಾರಂಭಿಸಲು Android ನಿರಾಕರಿಸಿದೆ</string>
+    <string name="max_launcher_outcome_missing">ಆ ಹೆಸರಿನ ಯಾವುದೇ ಚಟುವಟಿಕೆಯನ್ನು ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ</string>
+</resources>

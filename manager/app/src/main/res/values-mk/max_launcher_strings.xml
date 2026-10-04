@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Инсталирани пакети и активностите што ги декларираат</string>
+    <string name="max_launcher_loading">Читање на инсталираните пакети и нивните декларирани активности…</string>
+    <string name="max_launcher_empty">Ниту еден инсталиран пакет не објавува активност на овој уред.</string>
+    <string name="max_launcher_search_placeholder">Пребарувајте по име или пакет на апликација</string>
+    <string name="max_launcher_search_clear">Исчистете го пребарувањето</string>
+    <string name="max_launcher_scope_all">Сите</string>
+    <string name="max_launcher_scope_user">Корисник</string>
+    <string name="max_launcher_scope_system">Систем</string>
+    <string name="max_launcher_activity_count">%1$d активности</string>
+    <string name="max_launcher_no_match_title">Ништо не одговара</string>
+    <string name="max_launcher_no_match_detail">Ниту едно име на пакет или етикета на апликацијата не го содржи тој текст во избраниот опсег.</string>
+    <string name="max_launcher_no_match_clear">Исчистете ги филтрите</string>
+    <string name="max_launcher_reading_activities">Читајќи ги активностите, овој пакет објавува…</string>
+    <string name="max_launcher_no_activities">Овој пакет не прогласува никакви активности.</string>
+    <string name="max_launcher_root_off_title">Коренот не е даден</string>
+    <string name="max_launcher_root_off_detail">Активностите означени како приватни не се извезуваат, така што само root може да ги стартува. Извезените активности сè уште се отворени без него.</string>
+    <string name="max_launcher_tag_private">Приватен</string>
+    <string name="max_launcher_tag_disabled">Оневозможено</string>
+    <string name="max_launcher_outcome_started">Активноста започна</string>
+    <string name="max_launcher_outcome_needs_root">Оваа активност не се извезува - потребен е root</string>
+    <string name="max_launcher_outcome_refused">Андроид одби да ја започне оваа активност</string>
+    <string name="max_launcher_outcome_missing">Не е инсталирана активност со тоа име</string>
+</resources>

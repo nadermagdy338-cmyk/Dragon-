@@ -7,7 +7,7 @@
     <string name="all_set">အဆင်သင့်ဖြစ်ပြီ၊ သင်သည် Max Manager ကို ယခုအသုံးပြုနိုင်ပြီ</string>
     <string name="allow_verbose_log">ဒိုင်မွန်လုပ်ငန်းစဉ် အသေးစိတ်မှတ်တမ်းထုတ်ရန် ခွင့်ပြုပါ</string>
     <string name="android_version">Android ဗားရှင်း</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">အက်ပ်အမည်</string>
     <string name="app_priority">အက်ပ်ဦးစားပေးမှု</string>
     <string name="app_priority_control">အက်ပ်ဦးစားပေးမှု ထိန်းချုပ်ခြင်း</string>
@@ -513,7 +513,6 @@
     <string name="thermal_hide_trips">ခရီးများကို ဖျောက်ပါ။</string>
     <string name="thermal_trip_points">ခရီးအမှတ်များ</string>
     <string name="thermal_trip_config">Trip Point Config</string>
-    <string name="zram_live_summary">- %6$d/%7$d MB</string>
     <string name="zram_presets_title">အမြန်ကြိုတင်ပြင်ဆင်မှုများ</string>
     <string name="zram_tuning_title">Compression အင်ဂျင်</string>
     <string name="zram_custom_size">စိတ်ကြိုက် Swap Size</string>
@@ -721,15 +720,6 @@
     <string name="fps_overlay_notif_channel">FPS ထပ်ဆင့်</string>
     <string name="fps_overlay_notif_title">Max Manager FPS ထပ်ဆင့်လွှာကို လုပ်ဆောင်နေပါသည်။</string>
     <string name="fps_overlay_notif_stop">ရပ်</string>
-    <string name="fps_overlay_section_style">အသွင်အပြင်</string>
-    <string name="fps_overlay_style">ထပ်ဆင့်ပုံစံ</string>
-    <string name="fps_overlay_style_android">Android စာရင်း</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">မီနီ</string>
-    <string name="fps_overlay_orientation">အပြင်အဆင် ဦးတည်ချက်</string>
-    <string name="fps_overlay_orientation_vertical">ဒေါင်လိုက်</string>
-    <string name="fps_overlay_orientation_horizontal">အလျားလိုက်</string>
-    <string name="fps_overlay_read_mode">FPS စာဖတ်ခြင်းနည်းလမ်း</string>
     <string name="fps_overlay_read_mode_desc">သင့်စက်တွင် စာဖတ်ခြင်းသည် 0 တွင်ရှိနေပါက အခြားနည်းလမ်းကို စမ်းကြည့်ပါ။</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (အကြံပြုထားသည်)</string>
     <string name="fps_overlay_mode_kernel">Kernel node</string>
@@ -738,14 +728,6 @@
     <string name="fps_overlay_text_size">စာသားအရွယ်အစား</string>
     <string name="fps_overlay_bg_alpha">နောက်ခံအလင်းပိတ်</string>
     <string name="fps_overlay_width_scale">အကျယ်စကေး</string>
-    <string name="fps_overlay_section_metrics">မက်ထရစ်များကို ပြသထားသည်။</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU ပေးပါသည်။</string>
-    <string name="fps_overlay_metric_ram">RAM အသုံးပြုမှု</string>
-    <string name="fps_overlay_metric_watt">ဘက်ထရီပါဝါဆွဲ</string>
-    <string name="fps_overlay_metric_temp">ဘက်ထရီအပူချိန်</string>
-    <string name="fps_overlay_metric_render">သရုပ်ဖေါ်တံဆိပ်</string>
-    <string name="fps_overlay_metric_render_desc">အညွှန်းအဖြစ် \"FPS\" အစား VULKAN/OPENGL ကို ပြသည်</string>
     <string name="dozemode_title">အိပ်စက်ခြင်းမူဝါဒ</string>
     <string name="dozemode_menu_desc">အသင့်အနေအထားဖြင့် ခွင့်ပြုထားသောစာရင်း၊ ရပ်နားထားသော အပြုအမူနှင့် နောက်ခံပါဝါချိန်ညှိခြင်း။</string>
     <string name="dozemode_state_label">မှိန်းပြည်နယ်</string>
@@ -781,9 +763,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">ဆက်တင်များကိုဖွင့်ပါ။</string>
     <string name="processmgr_title">Task Monitor</string>
-    <string name="processmgr_menu_desc">လုပ်ငန်းစဉ်တစ်ခုလျှင် CPU နှင့် RAM အသုံးပြုမှု ၊ အတင်းရပ်ပြီး မျောပါထပ်ဆင့်</string>
     <string name="processmgr_stat_total">%1$d လုပ်ငန်းစဉ်များ</string>
-    <string name="processmgr_stat_breakdown">%1$d အသုံးပြုသူ \u00b7 %2$d စနစ်</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">ထိပ်တန်း %1$d</string>
@@ -803,9 +783,6 @@
     <string name="processmgr_search_hint">လုပ်ဆောင်နေသည့် လုပ်ငန်းစဉ်များကို ရှာဖွေပါ။</string>
     <string name="processmgr_no_processes">သင့်ရှာဖွေမှုနှင့် ကိုက်ညီသည့် လုပ်ငန်းစဉ်မရှိပါ။</string>
     <string name="processmgr_dialog_close">ပိတ်လိုက်</string>
-    <string name="processmgr_detail_version">ဗားရှင်း</string>
-    <string name="processmgr_detail_build">ဆောက်</string>
-    <string name="processmgr_detail_package">အထုပ်</string>
     <string name="processmgr_result_killed">%1$s အသတ်ခံရတယ်။</string>
     <string name="processmgr_result_kill_failed">%1$s မသတ်နိုင်ခဲ့ပါ။</string>
     <string name="processmgr_result_stopped">%1$s ရပ်တန့်ခိုင်းခြင်း။</string>
@@ -1451,7 +1428,6 @@
     <string name="max_home_reboot_desc">လုံခြုံသော ပြန်လည်စတင်ခြင်း ရွေးချယ်စရာများကို ဖွင့်ပါ။</string>
     <string name="max_home_ai_console">MAX AI ကွန်ဆိုးလ်</string>
     <string name="max_home_ai_working">တောင်းဆိုထားသော ပရိုဖိုင်ကို အသုံးပြုနေသည်...</string>
-    <string name="max_home_ai_failed">နောက်ဆုံး AI လုပ်ဆောင်ချက် မအောင်မြင်ပါ။</string>
     <string name="max_home_retry">ပြန်ကြိုးစားပါ။</string>
     <string name="max_home_ai_idle">AI ဆုံးဖြတ်ချက်ကို မမှတ်တမ်းတင်ရသေးပါ။</string>
     <string name="home_system_stable">စနစ်တည်ငြိမ်</string>
@@ -1467,8 +1443,6 @@
     <string name="home_performance_monitor_desc">ပြီးခဲ့သော 72 စက္ကန့်အတွင်း အရင်းအမြစ်ရယူသည်။</string>
     <string name="home_quick_actions">Command deck</string>
     <string name="home_quick_actions_desc">အရေးကြီးသော ထိန်းချုပ်မှုများသို့ တိုက်ရိုက်ဝင်ရောက်ပါ။</string>
-    <string name="home_action_boost">Performance နော်။</string>
-    <string name="home_action_boost_desc">စနစ်အမူအကျင့်ကို ပြောင်းလဲပါ။</string>
     <string name="home_action_thermal">အပူစင်တာ</string>
     <string name="home_action_thermal_desc">အပူနှင့်အအေးစစ်ဆေးပါ။</string>
     <string name="home_action_battery">ပါဝါစင်တာ</string>
@@ -1488,7 +1462,6 @@
     <string name="home_active">အသက်ဝင်သည်။</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">ကာကွယ်ထားသည်။</string>
-    <string name="home_device_overview">စက်အကျဉ်းချုပ်ကို ဖွင့်ပါ။</string>
     <string name="home_live_performance">တိုက်ရိုက်တင်ဆက်မှု</string>
     <string name="home_live_performance_desc">လက်ရှိဝန်နှင့် ဟာ့ဒ်ဝဲထိန်းချုပ်မှုများကို တိုက်ရိုက်လုပ်ဆောင်သည်။</string>
     <string name="home_open_details">အသေးစိတ်အပူဒေတာကိုဖွင့်ပါ။</string>
@@ -1790,4 +1763,6 @@
     <string name="max_app_master_on_desc">အက်ပ်တစ်ခုချင်းအလိုက် ပိုမိုကောင်းမွန်အောင်ပြုလုပ်ခြင်းများ လုပ်ဆောင်နေပါသည်။</string>
     <string name="max_app_advanced_options">အဆင့်မြင့် ရွေးချယ်မှုများ</string>
     <string name="max_app_save">သိမ်းဆည်းပါ။</string>
+    <string name="home_gpu_max_freq">အများဆုံးအကြိမ်ရေ</string>
+    <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 စွမ်းဆောင်ရည် %4$.2f\u00d7 \u00b7 RAM သိမ်းဆည်းခဲ့သည်။ %5$d MB \u00b7 Swap ကို သုံးသည်။ %6$d/%7$d MB</string>
 </resources>

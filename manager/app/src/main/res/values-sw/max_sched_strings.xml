@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Muda wa Mwisho Upeo (sisi)</string>
+    <string name="max_sched_tunable_deadline_period_min">Makataa ya Kipindi cha chini (sisi)</string>
+    <string name="max_sched_tunable_energy_aware">Ufahamu wa Nishati</string>
+    <string name="max_sched_tunable_latency">Kuchelewa (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Gharama ya Uhamiaji (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Kiwango cha chini cha Granularity (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Ukubwa wa Kundi la Uhamiaji</string>
+    <string name="max_sched_tunable_pelt_multiplier">Kizidishi cha PEL</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Kipindi cha Wakati Halisi (sisi)</string>
+    <string name="max_sched_tunable_rt_runtime">Wakati Halisi (sisi)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Sakafu ya UClamp ya Wakati Halisi</string>
+    <string name="max_sched_tunable_wakeup_granularity">Uzito wa Kuamka (ns)</string>
+</resources>

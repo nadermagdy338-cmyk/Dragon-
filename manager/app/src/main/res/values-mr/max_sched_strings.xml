@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">अंतिम मुदत कमाल (आम्ही)</string>
+    <string name="max_sched_tunable_deadline_period_min">अंतिम मुदत कालावधी मि (आम्ही)</string>
+    <string name="max_sched_tunable_energy_aware">ऊर्जा जागरूक</string>
+    <string name="max_sched_tunable_latency">विलंब (ns)</string>
+    <string name="max_sched_tunable_migration_cost">स्थलांतर खर्च (ns)</string>
+    <string name="max_sched_tunable_min_granularity">किमान ग्रॅन्युलॅरिटी (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">स्थलांतर बॅच आकार</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT गुणक</string>
+    <string name="max_sched_tunable_rr_timeslice">राऊंड-रॉबिन टाइमस्लाइस (ms)</string>
+    <string name="max_sched_tunable_rt_period">रिअल-टाइम कालावधी (आम्ही)</string>
+    <string name="max_sched_tunable_rt_runtime">रिअल-टाइम रनटाइम (आम्ही)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">रिअल-टाइम UClamp मजला</string>
+    <string name="max_sched_tunable_wakeup_granularity">वेकअप ग्रॅन्युलॅरिटी (ns)</string>
+</resources>

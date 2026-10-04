@@ -28,11 +28,14 @@
 package nd.max.ui.subscreens
 
 import nd.max.ui.util.ApkFacts
+import nd.max.ui.util.ArchiveFormat
+import nd.max.ui.util.CompressionLevel
 import nd.max.ui.util.DeepSearchOutcome
 import nd.max.ui.util.DirectoryListing
 import nd.max.ui.util.EntryCounts
 import nd.max.ui.util.FileBrowser
 import nd.max.ui.util.FileEntry
+import nd.max.ui.util.FileOpRefusal
 import nd.max.ui.util.FileOpRequest
 import nd.max.ui.util.FilePermissionRules
 import nd.max.ui.util.FileSearchFilters
@@ -41,6 +44,7 @@ import nd.max.ui.util.FileWindowState
 import nd.max.ui.util.PermissionSet
 import nd.max.ui.util.SearchLimits
 import nd.max.ui.util.TextPreview
+import nd.max.ui.util.WindowSide
 
 /** ما قُرئ من نافذة، وكيف يُعرض الآن. */
 internal data class WindowView(
@@ -50,6 +54,15 @@ internal data class WindowView(
     val filters: FileSearchFilters.Filter = FileSearchFilters.Filter(),
     val selection: FileSelection = FileSelection(),
     val selecting: Boolean = false,
+    /**
+     * مرساة النطاق: آخر مدخل لمسه المستخدم لمسًا **واحدًا** (سحب بدأ تحديدًا، أو نقرة
+     * عكست تحديدًا). فالسحب بعدها يمتدّ من هذه المرساة إليه بدل أن يضيف عنصرًا وحده.
+     *
+     * و`null` تعني «لا مرساة»: أوّل سحب يبدأ تحديدًا جديدًا ويصير هو المرساة. وتُصفَّر
+     * عند كل خروج من نمط التحديد وعند كل فعل جماعيّ («حدّد الكل» · «اعكس») — فالفعل
+     * الجماعيّ لا مدخلَ واحدًا يُنسب إليه.
+     */
+    val swipeAnchor: String? = null,
 ) {
     /** المدخلات كما قرأها الجهاز، بلا تصفية ولا ترتيب. */
     val entries: List<FileEntry> get() = (listing as? DirectoryListing.Entries)?.entries.orEmpty()
@@ -185,6 +198,27 @@ internal data class PropertiesState(
         }
     }
 }
+
+/**
+ * ضغط ينتظر قرارًا: الاسم والصيغة والمستوى — **والقرار يُبنى عليه الطلب**.
+ *
+ * ويُحمل معه المصادر لا التحديد الحاليّ: من فتح الحوار ثم لمس صفًّا آخر لا يُضاف إلى
+ * أرشيفه بلا أن يقول — والعدد يُعرض من هنا فيُعلن ما سيُضغط.
+ */
+internal data class CompressState(
+    val sources: List<FileEntry>,
+    /** النافذة التي طُلب الضغط فيها — فالطلب يُبنى على وجهتها لا على النافذة النشطة لاحقًا. */
+    val side: WindowSide,
+    val name: String,
+    val format: ArchiveFormat,
+    val level: CompressionLevel = CompressionLevel.Normal,
+    /**
+     * سبب رفض الاسم **رمزًا** (من [nd.max.ui.util.FileOpGuard]) أو `null`.
+     *
+     * ورمزًا لا نصًّا، لأن النموذج لا يعرف `R`: الواجهة هي التي تُترجمه إلى جملة.
+     */
+    val nameProblem: FileOpRefusal? = null,
+)
 
 /**
  * تعارض أسماء ينتظر قرارًا.

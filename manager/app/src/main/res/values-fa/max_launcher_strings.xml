@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">بسته های نصب شده و فعالیت هایی که آنها اعلام می کنند</string>
+    <string name="max_launcher_loading">خواندن بسته های نصب شده و فعالیت های اعلام شده آنها…</string>
+    <string name="max_launcher_empty">هیچ بسته نصب شده ای فعالیتی را در این دستگاه اعلام نمی کند.</string>
+    <string name="max_launcher_search_placeholder">جستجو بر اساس نام برنامه یا بسته</string>
+    <string name="max_launcher_search_clear">جستجو را پاک کنید</string>
+    <string name="max_launcher_scope_all">همه</string>
+    <string name="max_launcher_scope_user">کاربر</string>
+    <string name="max_launcher_scope_system">سیستم</string>
+    <string name="max_launcher_activity_count">%1$d فعالیت</string>
+    <string name="max_launcher_no_match_title">هیچ چیز مطابقت ندارد</string>
+    <string name="max_launcher_no_match_detail">هیچ نام بسته یا برچسب برنامه حاوی آن متن در محدوده انتخاب شده نیست.</string>
+    <string name="max_launcher_no_match_clear">فیلترها را پاک کنید</string>
+    <string name="max_launcher_reading_activities">خواندن فعالیت‌هایی که این بسته اعلام می‌کند…</string>
+    <string name="max_launcher_no_activities">این بسته هیچ فعالیتی را اعلام نمی کند.</string>
+    <string name="max_launcher_root_off_title">ریشه داده نمی شود</string>
+    <string name="max_launcher_root_off_detail">فعالیت هایی که به صورت خصوصی علامت گذاری شده اند صادر نمی شوند، بنابراین فقط root می تواند آنها را شروع کند. فعالیت های صادراتی هنوز بدون آن باز است.</string>
+    <string name="max_launcher_tag_private">خصوصی</string>
+    <string name="max_launcher_tag_disabled">از کار افتاده است</string>
+    <string name="max_launcher_outcome_started">فعالیت شروع شد</string>
+    <string name="max_launcher_outcome_needs_root">این فعالیت صادر نمی شود - root مورد نیاز است</string>
+    <string name="max_launcher_outcome_refused">اندروید از شروع این فعالیت خودداری کرد</string>
+    <string name="max_launcher_outcome_missing">هیچ فعالیتی با آن نام نصب نشده است</string>
+</resources>

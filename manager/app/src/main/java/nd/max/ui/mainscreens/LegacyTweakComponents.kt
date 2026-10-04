@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+import nd.max.ui.design.MaxRadius
 import nd.max.R
 import nd.max.ui.component.LeadingIcon
 import nd.max.ui.component.MaxLoadingState
@@ -112,7 +113,7 @@ fun FreqLimitSliderItem(
 
             Surface(
                 color = if (sliderValue.roundToInt() == 0) colorScheme.surfaceVariant else colorScheme.primaryContainer,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(MaxRadius.control)
             ) {
                 Text(
                     text = if (sliderValue.roundToInt() == 0) stringResource(R.string.disabled) else labels[sliderValue.roundToInt()],

@@ -26,10 +26,13 @@ import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.Gamepad
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.automirrored.rounded.Launch
 import androidx.compose.material.icons.automirrored.rounded.ListAlt
+import androidx.compose.material.icons.rounded.GraphicEq
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.NetworkCheck
 import androidx.compose.material.icons.rounded.Palette
@@ -108,6 +111,23 @@ sealed class MaxDestination(
      */
     data object MaxLive : MaxDestination("max_live", R.string.max_live_title, Icons.Rounded.Timeline, MaxAi)
 
+    /**
+     * `Device Info` — مقعد **قراءة** لعتاد الجهاز: المعالج والذاكرة والبطارية والشاشة
+     * والحرارة والمستشعرات والشبكة، كلٌّ في قسمه، ومع كل قسم بابٌ إلى الشاشة التي **تملك**
+     * موضوعه.
+     *
+     * **ولا أبَ له بقصد:** ليس تفضيلًا (فلا موضع له في الإعدادات) ولا تحكّمًا (فلا صفّ له في
+     * محاور `Control`)؛ وأقسامه ليست أبناءه في الشجرة بل **أقسام داخلية** يختارها شريط
+     * التبويبات، فلو صار أبوه `Control` لَظهر اسمه في قائمة المحاور مكرّرًا بلا معنى. ومدخله
+     * من الرئيسية (بطاقة معلومات الجهاز) ومن أي شاشة تفتحه من سجلّ المسارات.
+     *
+     * **ومساره ذو معامل اختياري في الاستعلام** (`?section=<key>`) — بنفس عقد `MaxBackup`
+     * و`Permissions` حرفيًّا: الدخول **المجرّد** (`device_info` بعد نزع الاستعلام) يفتح
+     * «نظرة عامة»، والدخول من قسم بعينه (زرّ الشاشة التي تملكه) يفتحه مباشرةً. ووجهةٌ
+     * واحدة بمعامل لا إحدى عشرة وجهة: التبويبات أقسامٌ داخلها لا مقاعد في الشجرة (ADR-02).
+     */
+    data object DeviceInfo : MaxDestination("device_info?section={section}", R.string.device_info, Icons.Rounded.Info)
+
     // Settings root: مقعد دائم في الشريط السفلي (طلب المالك)، وكان يُفتح من الشريط العلوي فقط.
     data object Settings : MaxDestination("settings", R.string.max_nav_settings, Icons.Rounded.Settings, isPrimary = true)
 
@@ -124,6 +144,26 @@ sealed class MaxDestination(
     data object PowerHub : MaxDestination("hub_power", R.string.max_hub_power, Icons.Rounded.BatteryChargingFull, Control)
     data object StorageHub : MaxDestination("hub_storage", R.string.max_hub_storage, Icons.Rounded.Storage, Control)
     data object NetworkHub : MaxDestination("hub_network", R.string.max_hub_network, Icons.Rounded.NetworkCheck, Control)
+
+    /**
+     * **العقدة العاشرة (`AU-01`، تكملة ٢٢٦):** الصوت عالم **نظام** كالطاقة والعرض، ومكانه مع
+     * جيرانه الذين يقرأون العتاد لا مع التطبيقات. والخريطة كلها في `SOUND-SCREEN-PLAN`.
+     *
+     * **وحدّها المُعلن من الآن:** العقدة تُقرأ الآن (`AU-02` الأجهزة و`AU-04` المؤثرات)، ولا
+     * صفوف فيها بعد لأنّ استوديو الصوت (`AU-05`) يُسجَّل في مرحلته — فلا تُبنى واجهة فوق بيانات
+     * لا وجود لها، وهذا هو ترتيب الإغلاق الملزم المكتوب في الخطة.
+     */
+    data object AudioHub : MaxDestination("hub_audio", R.string.max_hub_audio, Icons.AutoMirrored.Rounded.VolumeUp, Control)
+
+    /**
+     * سطح تحكّم الصوت (`AU-05`): مستويات الدفقات تُقرأ وتُكتب، والتشخيص يسمّي حدوده.
+     *
+     * **وسببُ وجودها وجهةً لا جسمَ الحوز:** جرد ما يُعلنه الجهاز انتقل إلى قسم الصوت في
+     * «معلومات الجهاز» (أمر المالك: «انقل ما صنعته إلى `device info` لكي لا يضيع الجهد»)، والحوز
+     * صار فهرسَ مجالٍ لا سطحًا. وهي **ابنةُ `AudioHub`** لا شاشةً معلّقة، فيسلّطها `maxHubRows`
+     * تلقائيًّا (تُقرأ `parent` لا قائمة مكتوبة بيد) — ويلتقطها `ControlLayoutModelTest` و`ScreenFinder`.
+     */
+    data object AudioStudio : MaxDestination("audio_studio", R.string.max_audio_studio_title, Icons.Rounded.GraphicEq, AudioHub)
 
     // Feature screens: CPU domain
     data object CpuCoreControl : MaxDestination("cpucorecontrol", R.string.cpu_core_control_title, Icons.Rounded.DeveloperBoard, CpuHub)
@@ -144,7 +184,19 @@ sealed class MaxDestination(
     data object TouchBoost : MaxDestination("touchboost", R.string.touch_boost_title, Icons.Rounded.TouchApp, ResponsivenessHub)
     data object FpsGo : MaxDestination("fpsgoscreen", R.string.str_fpsgo_settings, Icons.Rounded.Speed, ResponsivenessHub)
     data object Fas : MaxDestination("FasScreen", R.string.str_frame_aware_scheduling, Icons.Rounded.Schedule, ResponsivenessHub)
-    data object FpsOverlay : MaxDestination("fpsoverlay", R.string.fps_overlay_title, Icons.Rounded.PictureInPicture, ResponsivenessHub)
+
+    /**
+     * **انتقلت إلى الأدوات بأمر المالك** («انقل شاشة الأداء من شاشة الاستجابة إلى الأدوات»).
+     *
+     * والحجّة التي نقضها الأمر كانت حجّة **تصنيف** لا حجّة وصول: هي "شاشة" (HUD) تُعرض فوق
+     * التطبيقات الأخرى لا داخل مجالٍ يُضبط، وتُفتح لتُرى لا لتُشغّل سلسلة استجابة. فبقاؤها مع
+     * `FpsGo`/`Fas` كان يجعلها تُقرأ على أنها "ضبط معدل الإطارات" — وهو `FpsGo` نفسه.
+     *
+     * والأثر المقيس على الشجرة أوسع من موضع واحد: الخروج من `ResponsivenessHub` أسقطها من
+     * صفوف الـhub تلقائيًّا (`maxHubRows` تقرأ `parent` لا قائمة مكتوبة بيد)، فلم تحتج الشاشة
+     * ولا نموذج التخطيط أي تعديل آخر سوى إدخالها في `ControlToolDestinations`.
+     */
+    data object FpsOverlay : MaxDestination("fpsoverlay", R.string.fps_overlay_title, Icons.Rounded.PictureInPicture, Control)
 
     // Feature screens: Thermal domain
     data object ThermalDetail : MaxDestination("thermal_detail", R.string.thermal_title, Icons.Rounded.Thermostat, ThermalHub)
@@ -226,6 +278,29 @@ sealed class MaxDestination(
     data object Privilege : MaxDestination("privilege", R.string.max_privilege_title, Icons.Rounded.Shield, Settings)
     data object ModuleHealth : MaxDestination("module_health", R.string.max_module_title, Icons.Rounded.Build, Settings)
 
+    /**
+     * لوبي الألعاب بالعرضيّ — **سطح اللعب لا قائمة إعدادات**.
+     *
+     * كانت إلى جانبها شاشة مكتبة عمودية (`GameSpace`) أُزيلت بأمر المالك؛ فهذه الوجهة هي السطح
+     * الوحيد للألعاب: لوحة عرضية تُفتح من قائمة `Apps`، وتقود إلى التشغيل وملف اللعبة واللوحة
+     * الجانبية وإدارة المكتبة. **والوسم الافتراضي ([MaxRisk.Normal]) مقصود:** هذه الشاشة لا تكتب عتادًا
+     * (ADR-11)، و[MaxRisk.Advanced] محفوظ لأدوات الكتابة المحجوبة — فلا تُحجب لوحةُ اختيار لعبة.
+     */
+    data object GameLobby : MaxDestination("gamelobby", R.string.game_lobby_title, Icons.Rounded.Gamepad, Apps)
+
+    /**
+     * **باب اللوبي في قائمة `Apps`** — كان سطحًا لا يُوصل إليه إلا من شاشة المكتبة وحدها.
+     *
+     * وليس هذا تنظيمًا شكليًّا: قائمة `Apps` تسرد كل وجهة أبوها `Apps`، ولو دخل اللوبي بها لظهر
+     * صفًّا عاديًّا إلى جانب أدوات مثل `SetEdit`. واللوبي **سطح لعب** لا أداة، فيُستثنى من السرد
+     * ويُوضع له **صفّ بارز في رأس القائمة** (`ApplistScreen.LobbyBanner`) — نفس مبدأ «الأبواب التي
+     * تهمّ في الصفّ الأول» (`ApplistScreen.GameLobbyDoor`).
+     */
+    data object EmulatorHub : MaxDestination("emulatorhub", R.string.emu_hub_title, Icons.Rounded.Apps, Apps)
+    data object HmaCompanion : MaxDestination("hma_companion", R.string.hma_companion_title, Icons.Rounded.Shield, Control)
+
+    data object SpoofStudio : MaxDestination("spoofstudio", R.string.spoof_title, Icons.Rounded.AppSettingsAlt, Control)
+
     // Control - Advanced tools (gated, not preferences)
     data object SetEdit : MaxDestination("setedit", R.string.max_title_setedit, Icons.Rounded.Edit, Control, MaxRisk.Advanced)
     data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.AutoMirrored.Rounded.Launch, Control, MaxRisk.Advanced)
@@ -258,17 +333,20 @@ sealed class MaxDestination(
         /** Every destination registered in [MaxNavGraph]. */
         val All: List<MaxDestination> by lazy {
             listOf(
-                GetStarted, Now, Control, Apps, MaxAi, MaxLive, Settings,
+                GetStarted, Now, Control, Apps, MaxAi, MaxLive, DeviceInfo, Settings,
                 CpuHub, GpuHub, MemoryHub, DisplayHub, ResponsivenessHub, ThermalHub,
-                PowerHub, StorageHub, NetworkHub,
+                PowerHub, StorageHub, NetworkHub, AudioHub,
+                // وسطح التحكّم الصوتيّ داخل المجال العاشر — وبدونه لا صفَّ له في التخطيط
+                // ولا يُسلّط له بابٌ من قسم «معلومات الجهاز» (`AS-01`).
+                AudioStudio,
                 CpuCoreControl, GovernorSettings, PreferenceTweaks, GpuStudio,
                 ZramManager, DisplayStudio, Resolution, TouchBoost, FpsGo, Fas, FpsOverlay,
                 ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
                 Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
-                ProcessManager, DebloatFreeze, AppSettings,
+                ProcessManager, DebloatFreeze, AppSettings, GameLobby, EmulatorHub, HmaCompanion,
                 ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, Plugins, MaxBackup, Permissions, About,
                 Privilege, ModuleHealth,
-                SetEdit, ActivityLauncher, FileManager,
+                SetEdit, ActivityLauncher, FileManager, SpoofStudio,
             )
         }
 

@@ -1,0 +1,6 @@
+v=1
+pkg=com.example.game
+at=not-a-number
+future_key=whatever
+knob=gpu_profile outcome=future-outcome reason=unknown-device expected=gaming live=
+knob=thermal outcome=applied reason=verified expected=- live=-

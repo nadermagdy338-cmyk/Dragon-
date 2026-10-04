@@ -1,0 +1,430 @@
+{
+  "_comment": "سقف مفروض لرموز التصميم الحرفية. لا يُرفع؛ يُنزَل بـ--update بعد إصلاح.",
+  "by_file": {
+    "manager/app/src/main/java/nd/max/ui/component/AppIconComponent.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 3
+    },
+    "manager/app/src/main/java/nd/max/ui/component/CapabilityMatrixCard.kt": {
+      "border": 0,
+      "gap": 1,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/ContentStateComponents.kt": {
+      "border": 0,
+      "gap": 2,
+      "pad_all": 1,
+      "pad_h": 1,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/DecisionHierarchy.kt": {
+      "border": 0,
+      "gap": 2,
+      "pad_all": 1,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/DialogComponent.kt": {
+      "border": 0,
+      "gap": 2,
+      "pad_all": 5,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 2
+    },
+    "manager/app/src/main/java/nd/max/ui/component/ExpressiveListComponent.kt": {
+      "border": 0,
+      "gap": 1,
+      "pad_all": 1,
+      "pad_h": 2,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/GaugeComponent.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 1,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/HomeComponents.kt": {
+      "border": 0,
+      "gap": 7,
+      "pad_all": 5,
+      "pad_h": 8,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/LiveGraphComponent.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 1,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/MaxAiActiveBanner.kt": {
+      "border": 1,
+      "gap": 2,
+      "pad_all": 2,
+      "pad_h": 0,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/MaxAiEntryButton.kt": {
+      "border": 0,
+      "gap": 1,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/MaxControls.kt": {
+      "border": 1,
+      "gap": 1,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/MaxDesignSystem.kt": {
+      "border": 2,
+      "gap": 1,
+      "pad_all": 2,
+      "pad_h": 3,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/MaxInteractionComponents.kt": {
+      "border": 3,
+      "gap": 2,
+      "pad_all": 2,
+      "pad_h": 2,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/ModuleBackupComponent.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 0,
+      "pad_h": 2,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/NeuralClockWave.kt": {
+      "border": 0,
+      "gap": 1,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/NeuralDashboardKit.kt": {
+      "border": 2,
+      "gap": 4,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/NeuralPill.kt": {
+      "border": 1,
+      "gap": 1,
+      "pad_all": 0,
+      "pad_h": 1,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/PowerCoreCard.kt": {
+      "border": 0,
+      "gap": 3,
+      "pad_all": 3,
+      "pad_h": 1,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/PrivilegePanel.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 2,
+      "pad_h": 1,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/ProfileDialogComponent.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 2,
+      "pad_h": 0,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/RefreshRateComponent.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 2,
+      "pad_h": 0,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/RendererComponent.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 2,
+      "pad_h": 0,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/ScreenChrome.kt": {
+      "border": 1,
+      "gap": 2,
+      "pad_all": 0,
+      "pad_h": 2,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/SensorInventoryCard.kt": {
+      "border": 0,
+      "gap": 1,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/SettingsHeaderComponent.kt": {
+      "border": 0,
+      "gap": 3,
+      "pad_all": 0,
+      "pad_h": 3,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/StudioButtons.kt": {
+      "border": 1,
+      "gap": 0,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/component/StudioComponents.kt": {
+      "border": 1,
+      "gap": 12,
+      "pad_all": 1,
+      "pad_h": 2,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/ActivityCardSettings.kt": {
+      "border": 0,
+      "gap": 3,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/ApplistScreen.kt": {
+      "border": 1,
+      "gap": 3,
+      "pad_all": 0,
+      "pad_h": 3,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/AtlasDiagnosticsSection.kt": {
+      "border": 0,
+      "gap": 2,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt": {
+      "border": 0,
+      "gap": 8,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 4,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/GetStartedScreen.kt": {
+      "border": 0,
+      "gap": 1,
+      "pad_all": 0,
+      "pad_h": 3,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/HomeDashboardComponents.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 0,
+      "pad_h": 1,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/LegacyTweakComponents.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 0,
+      "pad_h": 3,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/LegendaryHomeDashboard.kt": {
+      "border": 2,
+      "gap": 9,
+      "pad_all": 0,
+      "pad_h": 1,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/SettingsScreen.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 0,
+      "pad_h": 4,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/mainscreens/StoryboardHome.kt": {
+      "border": 0,
+      "gap": 3,
+      "pad_all": 0,
+      "pad_h": 1,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/navigation/MaxNavBar.kt": {
+      "border": 0,
+      "gap": 3,
+      "pad_all": 0,
+      "pad_h": 4,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/AboutScreen.kt": {
+      "border": 0,
+      "gap": 1,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/AppSettingsScreen.kt": {
+      "border": 5,
+      "gap": 8,
+      "pad_all": 3,
+      "pad_h": 1,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/BypassChargeScreen.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 2,
+      "pad_h": 0,
+      "pad_v": 0,
+      "radius": 1
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/BypassCheckScreen.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 3,
+      "pad_h": 1,
+      "pad_v": 0,
+      "radius": 1
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/ColorSchemeScreen.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 0,
+      "pad_h": 3,
+      "pad_v": 0,
+      "radius": 2
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/CpuCoreControlScreen.kt": {
+      "border": 0,
+      "gap": 2,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/CustomThemeScreen.kt": {
+      "border": 1,
+      "gap": 12,
+      "pad_all": 2,
+      "pad_h": 4,
+      "pad_v": 1,
+      "radius": 6
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/DebloatFreezeScreen.kt": {
+      "border": 0,
+      "gap": 1,
+      "pad_all": 0,
+      "pad_h": 1,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/DisplayStudioScreen.kt": {
+      "border": 0,
+      "gap": 1,
+      "pad_all": 3,
+      "pad_h": 1,
+      "pad_v": 1,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/LogsViewerSections.kt": {
+      "border": 0,
+      "gap": 3,
+      "pad_all": 0,
+      "pad_h": 5,
+      "pad_v": 0,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/ModuleHealthScreen.kt": {
+      "border": 0,
+      "gap": 0,
+      "pad_all": 0,
+      "pad_h": 0,
+      "pad_v": 2,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/ProcessManagerScreen.kt": {
+      "border": 0,
+      "gap": 5,
+      "pad_all": 2,
+      "pad_h": 4,
+      "pad_v": 2,
+      "radius": 0
+    },
+    "manager/app/src/main/java/nd/max/ui/subscreens/SetEditScreen.kt": {
+      "border": 0,
+      "gap": 5,
+      "pad_all": 1,
+      "pad_h": 0,
+      "pad_v": 2,
+      "radius": 0
+    }
+  },
+  "counts": {
+    "border": 22,
+    "gap": 119,
+    "pad_all": 49,
+    "pad_h": 68,
+    "pad_v": 27,
+    "radius": 15
+  },
+  "distinct_radii": 5
+}

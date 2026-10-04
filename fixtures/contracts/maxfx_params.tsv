@@ -1,0 +1,39 @@
+# عقد معاملات مؤثّر `MaxFx` (maxfx) — **يُقرأ من الطرفين**: `maxfx/tests/dsp_test.c` (وقت الترجمة/التشغيل)
+# و`manager/app/src/test/java/nd/max/core/audio/MaxFxModelTest.kt`. فتعديل صفٍّ هنا يُسقط أحد الطرفين
+# أو كليهما، ولا يبقى ادّعاء تطابقٍ بلا قياس.
+#
+# الأعمدة: key · id (مفتاح effect_param_t كما يراه الطرفان) · kind (int|float) · default · min · max
+# وقيود التسجيل: الاسم هو لاحقة الخاصية `persist.audio.maxfx.<key>` أيضًا (انظر MaxFxModel.kt)،
+# والقيم الرقميّة نصٌّ عشريّ لأنّ الخاصية نصٌّ — والحدّ يفرضه الطرفان بقياسٍ واحد من هذا الجدول.
+#
+# والترتيب ملزم: id فريد وثابت، ولا يُعاد استخدام id بعد حذف صفّ — المُستهلك (المؤثّر على الجهاز)
+# قد يكون أقدم من الجدول.
+key	id	kind	default	min	max
+enable	1	int	0	0	1
+input_gain_db	2	float	0.0	-24.0	12.0
+output_gain_db	3	float	0.0	-24.0	12.0
+bass_gain_db	4	float	0.0	-12.0	15.0
+bass_freq_hz	5	float	120.0	40.0	300.0
+width	6	float	1.0	0.0	2.0
+clarity_db	7	float	0.0	-12.0	12.0
+tube_amount	8	float	0.0	0.0	1.0
+comp_threshold_db	9	float	-3.0	-60.0	0.0
+comp_ratio	10	float	1.0	1.0	20.0
+comp_attack_ms	11	float	10.0	0.5	200.0
+comp_release_ms	12	float	120.0	10.0	2000.0
+limiter_ceiling_db	13	float	-0.5	-24.0	0.0
+eq1_gain_db	14	float	0.0	-12.0	12.0
+eq2_gain_db	15	float	0.0	-12.0	12.0
+eq3_gain_db	16	float	0.0	-12.0	12.0
+eq4_gain_db	17	float	0.0	-12.0	12.0
+eq5_gain_db	18	float	0.0	-12.0	12.0
+eq1_freq_hz	19	float	60.0	20.0	20000.0
+eq2_freq_hz	20	float	230.0	20.0	20000.0
+eq3_freq_hz	21	float	910.0	20.0	20000.0
+eq4_freq_hz	22	float	3600.0	20.0	20000.0
+eq5_freq_hz	23	float	14000.0	20.0	20000.0
+eq1_q	24	float	1.0	0.3	10.0
+eq2_q	25	float	1.0	0.3	10.0
+eq3_q	26	float	1.0	0.3	10.0
+eq4_q	27	float	1.0	0.3	10.0
+eq5_q	28	float	1.0	0.3	10.0

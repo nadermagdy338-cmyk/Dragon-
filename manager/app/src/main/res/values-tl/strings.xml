@@ -7,7 +7,7 @@
     <string name="all_set">Handa na ang lahat, magagamit mo na ngayon ang Max Manager</string>
     <string name="allow_verbose_log">Mag-output ng detalyadong log ang daemon</string>
     <string name="android_version">Bersyon ng Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Pangalan ng app</string>
     <string name="app_priority">Prayoridad ng app</string>
     <string name="app_priority_control">Kontrol ng prayoridad ng app</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS Overlay</string>
     <string name="fps_overlay_notif_title">Max Manager Ang overlay ng FPS ay tumatakbo</string>
     <string name="fps_overlay_notif_stop">Tumigil ka</string>
-    <string name="fps_overlay_section_style">Hitsura</string>
-    <string name="fps_overlay_style">Estilo ng overlay</string>
-    <string name="fps_overlay_style_android">Listahan ng Android</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Direksyon ng layout</string>
-    <string name="fps_overlay_orientation_vertical">Patayo</string>
-    <string name="fps_overlay_orientation_horizontal">Pahalang</string>
-    <string name="fps_overlay_read_mode">Paraan ng pagbabasa ng FPS</string>
     <string name="fps_overlay_read_mode_desc">Subukan ang ibang paraan kung mananatili sa 0 ang pagbabasa sa iyong device</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (inirerekomenda)</string>
     <string name="fps_overlay_mode_kernel">Kernel node</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Laki ng text</string>
     <string name="fps_overlay_bg_alpha">Opacity ng background</string>
     <string name="fps_overlay_width_scale">Sukat ng lapad</string>
-    <string name="fps_overlay_section_metrics">Ipinapakita ang mga sukatan</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU load</string>
-    <string name="fps_overlay_metric_ram">RAM paggamit</string>
-    <string name="fps_overlay_metric_watt">Bunot ng lakas ng baterya</string>
-    <string name="fps_overlay_metric_temp">Temperatura ng baterya</string>
-    <string name="fps_overlay_metric_render">Label ng tagapag-render</string>
-    <string name="fps_overlay_metric_render_desc">Ipinapakita ang VULKAN/OPENGL sa halip na \"FPS\" bilang label, na nakita mula sa mga naka-load na library ng foreground app</string>
     <string name="dozemode_title">Patakaran sa Pagtulog</string>
     <string name="dozemode_menu_desc">Standby na whitelist, idle na gawi, at background power tuning</string>
     <string name="dozemode_state_label">Doze state</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Buksan ang mga setting</string>
     <string name="processmgr_title">Monitor ng Gawain</string>
-    <string name="processmgr_menu_desc">Bawat proseso CPU at RAM paggamit, na may force-stop at lumulutang na overlay</string>
     <string name="processmgr_stat_total">%1$d mga proseso</string>
-    <string name="processmgr_stat_breakdown">%1$d user \u00b7 %2$d system</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Nangungunang %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">Maghanap ng mga tumatakbong proseso</string>
     <string name="processmgr_no_processes">Walang mga prosesong tumutugma sa iyong paghahanap</string>
     <string name="processmgr_dialog_close">Isara</string>
-    <string name="processmgr_detail_version">Bersyon</string>
-    <string name="processmgr_detail_build">Bumuo</string>
-    <string name="processmgr_detail_package">Package</string>
     <string name="processmgr_result_killed">Pinatay %1$s</string>
     <string name="processmgr_result_kill_failed">Hindi mapatay si %1$s</string>
     <string name="processmgr_result_stopped">Sapilitang pinigilan %1$s</string>
@@ -1462,7 +1440,6 @@
     <string name="max_home_reboot_desc">Buksan ang ligtas na mga opsyon sa pag-reboot</string>
     <string name="max_home_ai_console">MAX AI console</string>
     <string name="max_home_ai_working">Inilapat ang hiniling na profile…</string>
-    <string name="max_home_ai_failed">Nabigo ang huling pagkilos ng AI</string>
     <string name="max_home_retry">Subukan muli</string>
     <string name="max_home_ai_idle">Wala pang naitalang desisyon ng AI</string>
     <string name="home_system_stable">MATATAG ANG SISTEMA</string>
@@ -1478,8 +1455,6 @@
     <string name="home_performance_monitor_desc">Pag-load ng mapagkukunan sa nakalipas na 72 segundo</string>
     <string name="home_quick_actions">Command deck</string>
     <string name="home_quick_actions_desc">Direktang pag-access sa mga kontrol na mahalaga</string>
-    <string name="home_action_boost">Profile ng pagganap</string>
-    <string name="home_action_boost_desc">Baguhin ang gawi ng system</string>
     <string name="home_action_thermal">Thermal center</string>
     <string name="home_action_thermal_desc">Suriin ang init at paglamig</string>
     <string name="home_action_battery">Power center</string>
@@ -1499,7 +1474,6 @@
     <string name="home_active">ACTIVE</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">PROTEKTAHAN</string>
-    <string name="home_device_overview">OPEN DEVICE PANGKALAHATANG-IDEYA</string>
     <string name="home_live_performance">Live na pagganap</string>
     <string name="home_live_performance_desc">Kasalukuyang pag-load at direktang mga kontrol ng hardware</string>
     <string name="home_open_details">Buksan ang detalyadong thermal data</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Inilalapat ang mga per-app optimization</string>
     <string name="max_app_advanced_options">Mga advanced na opsyon</string>
     <string name="max_app_save">I-save</string>
+    <string name="home_gpu_max_freq">Max freq</string>
 </resources>

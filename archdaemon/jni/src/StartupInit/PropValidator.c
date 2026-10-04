@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "AZenith.h"
+#include "MaxManager.h"
 
 const char* VALID_MAXMANAGER_PROPS[] = {
     "persist.sys.maxmanager",
@@ -70,9 +70,12 @@ const size_t VALID_MAXMANAGER_PROPS_COUNT = sizeof(VALID_MAXMANAGER_PROPS) / siz
 
 /*
  * Namespace prefixes owned by the Android app (MaxManagerProps.kt).
- * The app's feature surface (Conf toggles, custom tweaks, debug keys)
- * grows faster than the exact list above can track; keys under these
- * prefixes are always live app-owned settings.
+ * The app's feature surface (Conf toggles, custom tweaks, debug keys, the
+ * GPU Studio persistence keys) grows faster than the exact list above can
+ * track; keys under these prefixes are always live app-owned settings.
+ *
+ * فحص النطاق مقصود ومحدود: بادئة واحدة تُغفَل ⇒ كل مفاتيحها تُحذف في كل إقلاع، بلا سطر عطل
+ * ظاهر. ولذلك لا يكفي وجود البادئة: قائمة السطح المُعلَنة وحرّاسها هي التي تُثبّتها.
  *
  * Real-device proof this was needed (rodin/HyperOS 3 log, 2026-09-08):
  * persist.sys.maxmanagerconf.detailedlog was set from the Settings screen,
@@ -86,6 +89,21 @@ static const char* VALID_PROP_PREFIXES[] = {
     "persist.sys.maxmanagerconf.",
     "persist.sys.maxmanager.custom_",
     "persist.sys.maxmanagerdebug.",
+    /*
+     * Unified GPU Studio persistence (MaxManagerProps.GpuStudio.*).
+     *
+     * أُضيف لأن قياس سطح الخصائص (fixtures/contracts/system_properties.tsv + حرّاسه) كشف أن
+     * المفاتيح الأربعة (`gpu_studio.min_freq` · `max_freq` · `governor` · `mode`) تقع تحت نطاق
+     * الفحص `persist.sys.maxmanager` وليست في القائمة الدقيقة ولا تحت بادئة ⇒ فكان يُوسمها
+     * **`STALE_PROP` ويحذفها عند كل تشغيل للخادم**. أي أن «حفظ GPU Studio» في التطبيق كان يُمحى
+     * عند كل إقلاع — وهو بعينه صنف العطب الموثَّق أعلاه (`detailedlog`)، لا حالة جديدة.
+     *
+     * والعلاج هو المُعالج ذاته المُستخدم للنطاقات الأخرى: بادئة، لا أربعة أسماء دقيقة — لأن
+     * GPU Studio سطح قابل للنمو كـ`maxmanagerconf.` و`custom_`، وتكرار الدرس هو ما يوثقه هذا الاسم.
+     * وحرّاسان يُسقطان الانحدار: `suite_prop_validator` (دعوى سلوكية على `validateprop`) و
+     * `SystemPropertiesContractTest` (تحقّق أن كل مفتاح مُعلَن مُغطّى فعلًا).
+     */
+    "persist.sys.maxmanager.gpu_studio.",
 };
 
 /**

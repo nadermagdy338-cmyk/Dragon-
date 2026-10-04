@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 
-#include <AZenith.h>
+#include <MaxManager.h>
 #include <limits.h>
 
 #define MI_THERMAL_SCONFIG "/sys/devices/virtual/thermal/thermal_message/sconfig"

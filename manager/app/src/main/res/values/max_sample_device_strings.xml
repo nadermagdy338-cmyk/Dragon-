@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sample_pick_title">Choose sample device</string>
+    <string name="sample_pick_button">Choose sample device</string>
+    <string name="sample_auto_hint">Picking a device fills brand, manufacturer, model, device, product and fingerprint for you. Use Manual to type them yourself.</string>
+    <string name="sample_manual">Manual</string>
+    <string name="sample_close">Close</string>
+    <string name="sample_search">Search devices</string>
+    <string name="sample_empty">No matching device.</string>
+    <string name="sample_unavailable">The device catalog could not be read.</string>
+    <string name="sample_row_sub">Android %1$s · %2$s</string>
+    <string name="sample_row_sub_plain">%1$s</string>
+    <string name="sample_fp_shared">Same fingerprint as another catalog device</string>
+    <string name="sample_credit">Catalog data: COPG (Apache-2.0), %1$s</string>
+    <string name="sample_limit">The profile limit (100) is reached.</string>
+</resources>

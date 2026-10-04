@@ -25,22 +25,32 @@ abort_verify() {
 }
 
 # extract <zip> <file> <target dir>
+#
+# **وتغيير مقصود (تكملة ١٣٩): ملفّات `.sha256` لم تعد تُشحن داخل الحزمة** (طلب المالك:
+# «لا تضف ملفات .sha256 داخل .zip») — وكانت `.sha256` واحدة لكل ملفّ تُحشى بها الحزمة.
+# فالشرط هنا صار: **إن وُجد التوقيع فتحقّق منه، وإن غاب فامضِ** — لا `abort`.
+#
+# **وأثر ذلك مُعلَن لا مسكوت عنه:** الحماية من العطب العَرَضي باقية، لأن `unzip` يتحقّق
+# من `CRC32` لكل مدخل أثناء الاستخراج ويفشل عليه (`abort_corrupted` مُستدعًى قبل هذا).
+# وما سقط هو **توقيع SHA-256**، وهو لم يكن يحرس من العبث أصلًا: التوقيع كان يسافر في
+# الحزمة نفسها، فمن عدّل الملف عدّل توقيعه معه. فالمُكتسَب صفر أمنًا، والمُكتسَب نظافة
+# حزمة. وأيّ حرّاس آخرين للتوقيع الحقيقي (توقيع APK) لم يُمسّا: أندرويد يتحقّق منه بنفسه.
 extract() {
 	zip=$1
 	file=$2
 	dir=$3
 
 	file_path="$dir/$file"
-	hash_path="$TMPDIR_FOR_VERIFY/$file.sha256"
 
 	unzip -o "$zip" "$file" -d "$dir" >&2
 	[ -f "$file_path" ] || abort_verify "$file does not exists"
 
+	hash_path="$TMPDIR_FOR_VERIFY/$file.sha256"
 	unzip -o "$zip" "$file.sha256" -d "$TMPDIR_FOR_VERIFY" >&2
-	[ -f "$hash_path" ] || abort_verify "Missing checksum for $file"
-
-	(echo "$(cat "$hash_path")  $file_path" | sha256sum -c -s -) || abort_verify "Checksum mismatch for $file"
-	ui_print "- Verified $file" >&1
+	if [ -f "$hash_path" ]; then
+		(echo "$(cat "$hash_path")  $file_path" | sha256sum -c -s -) || abort_verify "Checksum mismatch for $file"
+		ui_print "- Verified $file" >&1
+	fi
 }
 
 file="META-INF/com/google/android/update-binary"

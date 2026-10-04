@@ -15,15 +15,30 @@
  */
 
 /**
- * قائمة المدخلات: **سطر واحد لكل مدخل** كما في MT.
+ * قائمة المدخلات — **اسم في سطره، وتاريخه تحته بخطّ صغير**، والحجم عمودٌ للمقارنة.
  *
- * وكان كل صفّ سطرين (الاسم، ثم «مجلد · 1.6 KB · drwxr-xr-x · 9/19/26» مجموعةً): أي أن
- * الشاشة كانت تنفق نصف ارتفاعها على معلومات تُسأل مرّة واحدة عند الحاجة، وتُعيد الصلاحيات
- * في كل صفّ لأن لا مكان لها غيره. هنا: رمز · اسم · حجم · تاريخ — والصلاحيات في نافذة
- * الخصائص، حيث تُعدَّل أصلًا.
+ * ⚠️ **وتصحيح مقيس (طلب المالك):** كان الصفّ **سطرًا واحدًا**: رمز · اسم · حجم · تاريخ،
+ * بعمودين ثابتَي العرض على اليمين. والنية كانت حسنة («لا تنفق الشاشة نصف ارتفاعها على
+ * معلومات تُسأل مرّة»)، لكن الحساب هو ما كسرها: العرض المتبقّي للاسم = عرض الشاشة −
+ * الحشو − الرمز − مربّع التحديد − العمودان − الفراغات. فعلى شاشة ٣٦٠dp ونمط حرف كبير
+ * (أو خطّ نظام مكبَّر) يقترب الناتج من الصفر، و`weight(1f)` بلا حدّ أدنى **يُعطي الصفر**
+ * ⇒ **الاسم لا يظهر** — وهو أوّل ما أبلغ عنه المالك («لا تظهر أسماء الملفات»).
  *
- * ولماذا عمودان ثابتا العرض للحجم والتاريخ: قائمة تتحرّك أعمدةُ أرقامها مع كل اسم طويل
- * تُقرأ سطرًا سطرًا لا عمودًا عمودًا، والغرض من الصفّ أن يُقارَن بجاره بنظرة.
+ * فالصفّ اليوم سطران، والقياس الذي يمنع تكرارهما:
+ *
+ * | الجزء | الموضع | لماذا |
+ * | --- | --- | --- |
+ * | الاسم | سطره الأول، بكامل العرض بعد الرمز | هو ما يُقرأ دائمًا، فلا يُنافسه رقم |
+ * | التاريخ | سطر ثانٍ بخطّ **صغير** (`labelSmall`) | طلب المالك صراحةً: تحت الملف لا بجانب الاسم |
+ * | الحجم | عمود ثابت على اليسار/اليمين | الرقم يُقارَن بجاره بنظرة، والمقارنة تحتاج عمودًا |
+ *
+ * **ولا يُنقل التاريخ إلى السطر الثاني ويرجع:** موضعه الآن مُثبَّت في [FileEntryRow] وحده.
+ *
+ * والسحب للتحديد: قِيس أنّ التحديد كان **الضغط الطويل وحده**، وهو يفتح قائمة عند الإصبع
+ * (فمن أراد تحديد ملفّين ضغط طويلًا ثم لمس الثاني لمسًا جديدًا). والمضاف الآن: **سحب أفقي**
+ * على الصفّ يتجاوز [SwipeSelectThreshold] يُدخل نمط التحديد ويحدّد ذلك المدخل — بلا ضغط
+ * طويل أولًا، وهو النمط الذي طلبه المالك (سحب للجانب للتحديد). والسحب لا يمنع التمرير
+ * الرأسي: `detectHorizontalDragGestures` تُلغى إن كان التمرير رأسيًّا، فيبقى الانزلاق سليمًا.
  *
  * ولماذا موضع اللمس يُقاس: قائمة الأوامر تُفتح **عند الإصبع** لا في زاوية الشاشة، وهذا
  * يقتضي أن يُعرف موضع الصفّ في الجذر وقت الضغط الطويل — يُقاس بـ`positionInRoot` ويُحفظ
@@ -32,8 +47,10 @@
 package nd.max.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -68,9 +85,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.util.FileEntry
@@ -84,6 +103,7 @@ import nd.max.ui.util.FileSelection
  *
  * @param onOpen النقرة العادية: فتح المجلد، أو المحرّر، أو تسليم الملف لتطبيق آخر.
  * @param onLongPress الضغط الطويل: يحدّد المدخل **ويفتح قائمته** عند موضع الإصبع المطلق.
+ * @param onSwipeSelect سحب أفقي على الصفّ: يُدخل التحديد ويحدّد هذا المدخل (بلا ضغط طويل).
  */
 @Composable
 fun FileEntryList(
@@ -93,6 +113,7 @@ fun FileEntryList(
     onOpen: (FileEntry) -> Unit,
     onToggleSelection: (FileEntry) -> Unit,
     onLongPress: (FileEntry, Offset) -> Unit,
+    onSwipeSelect: (FileEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val rowOrigins = remember { mutableStateMapOf<String, Offset>() }
@@ -108,6 +129,7 @@ fun FileEntryList(
                 onLongPress = { local ->
                     onLongPress(entry, (rowOrigins[entry.path] ?: Offset.Zero) + local)
                 },
+                onSwipeSelect = { onSwipeSelect(entry) },
                 onPositioned = { origin -> rowOrigins[entry.path] = origin },
             )
         }
@@ -122,6 +144,7 @@ private fun FileEntryRow(
     onOpen: () -> Unit,
     onToggleSelection: () -> Unit,
     onLongPress: (Offset) -> Unit,
+    onSwipeSelect: () -> Unit,
     onPositioned: (Offset) -> Unit,
 ) {
     val background = if (selected) {
@@ -129,6 +152,7 @@ private fun FileEntryRow(
     } else {
         Color.Transparent
     }
+    val threshold = with(LocalDensity.current) { SwipeSelectThreshold.toPx() }
 
     Row(
         modifier = Modifier
@@ -141,8 +165,21 @@ private fun FileEntryRow(
                     onLongPress = { offset -> onLongPress(offset) },
                 )
             }
+            // والسحب للتحديد في عقدة لمس **مستقلّة** عن النقرة: `detectHorizontalDragGestures`
+            // تُلغى إذا غلب التمرير الرأسي، فلا يُسرق الانزلاق من القائمة.
+            .pointerInput(entry.path, selecting) {
+                var travelled = 0f
+                detectHorizontalDragGestures(
+                    onDragStart = { travelled = 0f },
+                    onDragCancel = { travelled = 0f },
+                    onDragEnd = {
+                        if (abs(travelled) >= threshold) onSwipeSelect()
+                        travelled = 0f
+                    },
+                ) { _, delta -> travelled += delta }
+            }
             .heightIn(min = ROW_MIN_HEIGHT)
-            .padding(horizontal = MaxSpace.md),
+            .padding(horizontal = MaxSpace.md, vertical = RowVerticalPadding),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
     ) {
@@ -163,13 +200,22 @@ private fun FileEntryRow(
             },
             modifier = Modifier.size(GlyphSize),
         )
-        Text(
-            text = entry.name,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = entry.name,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            // التاريخ في سطره الثاني بخطّ صغير — طلب المالك: أسفل كل ملف لا بجانب الاسم.
+            Text(
+                text = FileFormat.date(entry.modifiedEpochSec) ?: MAX_VALUE_UNAVAILABLE,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         Text(
             text = if (entry.isDirectory) MAX_VALUE_UNAVAILABLE else FileFormat.size(entry.sizeBytes) ?: MAX_VALUE_UNAVAILABLE,
             style = MaterialTheme.typography.labelSmall,
@@ -177,14 +223,6 @@ private fun FileEntryRow(
             textAlign = TextAlign.End,
             maxLines = 1,
             modifier = Modifier.width(SizeColumnWidth),
-        )
-        Text(
-            text = FileFormat.date(entry.modifiedEpochSec) ?: MAX_VALUE_UNAVAILABLE,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.End,
-            maxLines = 1,
-            modifier = Modifier.width(DateColumnWidth),
         )
     }
 }
@@ -208,8 +246,12 @@ private fun entryGlyph(entry: FileEntry): ImageVector = when {
     }
 }
 
-private val ROW_MIN_HEIGHT = 44.dp
+/** ارتفاع أدنى لصفٍّ من سطرين — والسطران هما ما يجعل الاسم يظهر بلا مزاحمة. */
+private val ROW_MIN_HEIGHT = 52.dp
+private val RowVerticalPadding = MaxSpace.xs
 private val GlyphSize = 20.dp
 private val CheckboxSize = 20.dp
 private val SizeColumnWidth = 68.dp
-private val DateColumnWidth = 84.dp
+
+/** مسافة السحب التي تعني «حدّد هذا المدخل» — قُدّرت لتُفرَّق عن اهتزاز الإصبع. */
+private val SwipeSelectThreshold = 48.dp

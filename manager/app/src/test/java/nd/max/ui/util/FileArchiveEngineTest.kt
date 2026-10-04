@@ -17,8 +17,10 @@
 package nd.max.ui.util
 
 import java.io.File
+import java.io.FileOutputStream
 import java.nio.file.Files
 import java.util.Collections
+import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
@@ -274,6 +276,110 @@ class FileArchiveEngineTest {
         assertEquals(
             FileOpOutcome(false, false),
             ArchiveOutcome.failed(ArchiveFailure.WriteFailed).toFileOpOutcome(),
+        )
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // tar.gz — الصيغة الداخلية الجديدة
+    // ────────────────────────────────────────────────────────────────────────
+
+    /** gzip لـtar كتبه [FileTarCodec] — يُصنع بأسماء مداخل مُختارة يدويًّا (لا من قرص). */
+    private fun gzipTar(entries: List<Pair<File, String>>): File {
+        val archive = File(root, "evil.tar.gz")
+        GZIPOutputStream(FileOutputStream(archive)).use { gzip ->
+            FileTarCodec.write(entries, gzip)
+        }
+        return archive
+    }
+
+    @Test
+    fun aTarGzRoundTripsThroughTheDispatcher() {
+        val source = write("work/notes.txt", "hello tar")
+        write("work/nested/deep.txt", "deep tar")
+        File(root, "work/empty").mkdirs()
+        val archive = File(root, "out.tar.gz")
+
+        val packed = FileArchiveEngine.createTarGz(listOf(source.parentFile!!.path), archive.path)
+        assertTrue(packed.ok)
+        assertTrue(archive.exists())
+        assertTrue(archive.length() > 0L)
+
+        val destination = File(root, "untar")
+        val unpacked = FileArchiveEngine.extractArchive(archive.path, destination.path)
+        assertTrue(unpacked.ok)
+        assertEquals("hello tar", File(destination, "work/notes.txt").readText())
+        assertEquals("deep tar", File(destination, "work/nested/deep.txt").readText())
+        assertTrue("المجلد الفارغ وصل", File(destination, "work/empty").isDirectory)
+    }
+
+    /**
+     * الفحص الأمني في مسار tar **قبل كتابة كل مدخل** — والمدخل غير الآمن يطلب محو ما كُتب
+     * في هذه الدعوة وحدها، فلا يبقى على القرص نصف فكّ يُظنّ أنه كامل.
+     */
+    @Test
+    fun aTarSlipEntryIsRefusedAndWhatWasWrittenIsRemoved() {
+        val good = write("payload.bin", "ok")
+        val archive = gzipTar(
+            listOf(
+                good to "harmless.txt",
+                good to "../evil.txt",
+            ),
+        )
+
+        val destination = File(root, "dest")
+        val result = FileArchiveEngine.extractArchive(archive.path, destination.path)
+
+        assertEquals(ArchiveFailure.UnsafeEntry, result.failure)
+        assertFalse("لا ملف خارج الوجهة", File(root, "evil.txt").exists())
+        assertFalse("المدخل السليم مُحي أيضًا", File(destination, "harmless.txt").exists())
+    }
+
+    @Test
+    fun aFileThatIsNotATarIsDeclaredCorrupt() {
+        val notTar = write("plain.tar.gz", "this is not a tar at all")
+        val result = FileArchiveEngine.extractArchive(notTar.path, File(root, "dest").path)
+        assertEquals(ArchiveFailure.CorruptArchive, result.failure)
+    }
+
+    @Test
+    fun theDispatcherPicksTheFormatFromTheName() {
+        val source = write("pick/data.txt", "x")
+        val zipped = File(root, "pick.zip")
+        val tarred = File(root, "pick.tar.gz")
+
+        assertTrue(FileArchiveEngine.create(listOf(source.parentFile!!.path), zipped.path, ArchiveFormat.Zip).ok)
+        assertTrue(FileArchiveEngine.create(listOf(source.parentFile!!.path), tarred.path, ArchiveFormat.TarGz).ok)
+
+        // كل ملف يُفكّ بمسار صيغته: zip بمدخلاته، وtar.gz الذي يبدأ ببايت gzip السحري.
+        assertTrue(FileArchiveEngine.extractArchive(zipped.path, File(root, "z").path).ok)
+        assertTrue(FileArchiveEngine.extractArchive(tarred.path, File(root, "t").path).ok)
+        assertEquals("x", File(root, "z/pick/data.txt").readText())
+        assertEquals("x", File(root, "t/pick/data.txt").readText())
+    }
+
+    @Test
+    fun tarGzProgressIsMonotonicAndItsTotalMatchesThePayload() {
+        write("big/a.bin", "a".repeat(4096))
+        write("big/b.bin", "b".repeat(2048))
+        val seen = mutableListOf<Pair<Long, Long>>()
+
+        val result = FileArchiveEngine.createTarGz(
+            listOf(File(root, "big").path),
+            File(root, "big.tar.gz").path,
+        ) { done, total -> seen += done to total }
+
+        assertTrue(result.ok)
+        assertTrue("التقدّم يُبلَّغ", seen.isNotEmpty())
+        assertEquals(6144L, seen.last().second)
+        assertEquals(6144L, seen.last().first)
+        assertEquals(seen.map { it.first }.sorted(), seen.map { it.first })
+    }
+
+    @Test
+    fun noSourcesIsItsOwnFailureForTarToo() {
+        assertEquals(
+            ArchiveFailure.NoSources,
+            FileArchiveEngine.createTarGz(emptyList(), File(root, "o.tar.gz").path).failure,
         )
     }
 }

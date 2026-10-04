@@ -7,7 +7,7 @@
     <string name="all_set">ਸਭ ਤਿਆਰ ਹੈ, ਤੁਸੀਂ ਹੁਣ Max Manager ਵਰਤ ਸਕਦੇ ਹੋ</string>
     <string name="allow_verbose_log">ਡੈਮਨ ਵਿਸਤ੍ਰਿਤ ਲੌਗ ਆਉਟਪੁੱਟ</string>
     <string name="android_version">Android ਸੰਸਕਰਣ</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">ਐਪ ਦਾ ਨਾਮ</string>
     <string name="app_priority">ਐਪ ਤਰਜੀਹ</string>
     <string name="app_priority_control">ਐਪ ਤਰਜੀਹ ਨਿਯੰਤਰਣ</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS ਓਵਰਲੇ</string>
     <string name="fps_overlay_notif_title">Max Manager FPS ਓਵਰਲੇ ਚੱਲ ਰਿਹਾ ਹੈ</string>
     <string name="fps_overlay_notif_stop">ਰੂਕੋ</string>
-    <string name="fps_overlay_section_style">ਦਿੱਖ</string>
-    <string name="fps_overlay_style">ਓਵਰਲੇ ਸ਼ੈਲੀ</string>
-    <string name="fps_overlay_style_android">Android ਸੂਚੀ</string>
-    <string name="fps_overlay_style_pc">ਪੀਸੀ ਮੋਨੋਸਪੇਸ</string>
-    <string name="fps_overlay_style_mini">ਮਿੰਨੀ</string>
-    <string name="fps_overlay_orientation">ਖਾਕਾ ਦਿਸ਼ਾ</string>
-    <string name="fps_overlay_orientation_vertical">ਵਰਟੀਕਲ</string>
-    <string name="fps_overlay_orientation_horizontal">ਹਰੀਜੱਟਲ</string>
-    <string name="fps_overlay_read_mode">FPS ਰੀਡਿੰਗ ਵਿਧੀ</string>
     <string name="fps_overlay_read_mode_desc">ਜੇਕਰ ਤੁਹਾਡੀ ਡਿਵਾਈਸ \'ਤੇ ਰੀਡਿੰਗ 0 \'ਤੇ ਰਹਿੰਦੀ ਹੈ ਤਾਂ ਕੋਈ ਵੱਖਰਾ ਤਰੀਕਾ ਅਜ਼ਮਾਓ</string>
     <string name="fps_overlay_mode_surfaceflinger">ਸਰਫੇਸਫਲਿੰਗਰ (ਸਿਫਾਰਸ਼ੀ)</string>
     <string name="fps_overlay_mode_kernel">ਕਰਨਲ ਨੋਡ</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">ਟੈਕਸਟ ਦਾ ਆਕਾਰ</string>
     <string name="fps_overlay_bg_alpha">ਬੈਕਗ੍ਰਾਊਂਡ ਧੁੰਦਲਾਪਨ</string>
     <string name="fps_overlay_width_scale">ਚੌੜਾਈ ਦਾ ਪੈਮਾਨਾ</string>
-    <string name="fps_overlay_section_metrics">ਮੈਟ੍ਰਿਕਸ ਦਿਖਾਏ ਗਏ</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU ਲੋਡ</string>
-    <string name="fps_overlay_metric_ram">RAM ਵਰਤੋਂ</string>
-    <string name="fps_overlay_metric_watt">ਬੈਟਰੀ ਪਾਵਰ ਡਰਾਅ</string>
-    <string name="fps_overlay_metric_temp">ਬੈਟਰੀ ਦਾ ਤਾਪਮਾਨ</string>
-    <string name="fps_overlay_metric_render">ਰੈਂਡਰਰ ਲੇਬਲ</string>
-    <string name="fps_overlay_metric_render_desc">ਫੋਰਗਰਾਉਂਡ ਐਪ ਦੀਆਂ ਲੋਡ ਕੀਤੀਆਂ ਲਾਇਬ੍ਰੇਰੀਆਂ ਤੋਂ ਖੋਜੇ ਗਏ ਲੇਬਲ ਦੇ ਤੌਰ \'ਤੇ \"FPS\" ਦੀ ਬਜਾਏ VULKAN/OPENGL ਦਿਖਾਉਂਦਾ ਹੈ</string>
     <string name="dozemode_title">ਸਲੀਪ ਨੀਤੀ</string>
     <string name="dozemode_menu_desc">ਸਟੈਂਡਬਾਏ ਵ੍ਹਾਈਟਲਿਸਟ, ਨਿਸ਼ਕਿਰਿਆ ਵਿਵਹਾਰ, ਅਤੇ ਬੈਕਗ੍ਰਾਊਂਡ ਪਾਵਰ ਟਿਊਨਿੰਗ</string>
     <string name="dozemode_state_label">ਡੋਜ਼ ਰਾਜ</string>
@@ -785,9 +768,7 @@
     <string name="pid">ਪੀ.ਆਈ.ਡੀ</string>
     <string name="open_settings">ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ</string>
     <string name="processmgr_title">ਟਾਸਕ ਮਾਨੀਟਰ</string>
-    <string name="processmgr_menu_desc">ਪ੍ਰਤੀ-ਪ੍ਰਕਿਰਿਆ CPU ਅਤੇ RAM ਵਰਤੋਂ, ਫੋਰਸ-ਸਟਾਪ ਅਤੇ ਇੱਕ ਫਲੋਟਿੰਗ ਓਵਰਲੇਅ ਦੇ ਨਾਲ</string>
     <string name="processmgr_stat_total">%1$d ਪ੍ਰਕਿਰਿਆਵਾਂ</string>
-    <string name="processmgr_stat_breakdown">%1$d ਉਪਭੋਗਤਾ \u00b7 %2$d ਸਿਸਟਮ</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">ਸਿਖਰ %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">ਚੱਲ ਰਹੀਆਂ ਪ੍ਰਕਿਰਿਆਵਾਂ ਦੀ ਖੋਜ ਕਰੋ</string>
     <string name="processmgr_no_processes">ਕੋਈ ਵੀ ਪ੍ਰਕਿਰਿਆਵਾਂ ਤੁਹਾਡੀ ਖੋਜ ਨਾਲ ਮੇਲ ਨਹੀਂ ਖਾਂਦੀਆਂ</string>
     <string name="processmgr_dialog_close">ਬੰਦ ਕਰੋ</string>
-    <string name="processmgr_detail_version">ਸੰਸਕਰਣ</string>
-    <string name="processmgr_detail_build">ਬਣਾਓ</string>
-    <string name="processmgr_detail_package">ਪੈਕੇਜ</string>
     <string name="processmgr_result_killed">ਮਾਰਿਆ %1$s</string>
     <string name="processmgr_result_kill_failed">%1$s ਨੂੰ ਮਾਰ ਨਹੀਂ ਸਕਿਆ</string>
     <string name="processmgr_result_stopped">ਜ਼ਬਰਦਸਤੀ ਰੋਕਿਆ ਗਿਆ %1$s</string>
@@ -1459,7 +1437,6 @@
     <string name="max_home_reboot_desc">ਸੁਰੱਖਿਅਤ ਰੀਬੂਟ ਵਿਕਲਪ ਖੋਲ੍ਹੋ</string>
     <string name="max_home_ai_console">MAX AI ਕੰਸੋਲ</string>
     <string name="max_home_ai_working">ਬੇਨਤੀ ਕੀਤੀ ਪ੍ਰੋਫਾਈਲ ਨੂੰ ਲਾਗੂ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...</string>
-    <string name="max_home_ai_failed">ਪਿਛਲੀ AI ਕਾਰਵਾਈ ਅਸਫਲ ਰਹੀ</string>
     <string name="max_home_retry">ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
     <string name="max_home_ai_idle">ਅਜੇ ਤੱਕ ਕੋਈ AI ਫੈਸਲਾ ਦਰਜ ਨਹੀਂ ਕੀਤਾ ਗਿਆ</string>
     <string name="home_system_stable">ਸਿਸਟਮ ਸਥਿਰ</string>
@@ -1475,8 +1452,6 @@
     <string name="home_performance_monitor_desc">ਪਿਛਲੇ 72 ਸਕਿੰਟਾਂ ਵਿੱਚ ਸਰੋਤ ਲੋਡ</string>
     <string name="home_quick_actions">ਕਮਾਂਡ ਡੈੱਕ</string>
     <string name="home_quick_actions_desc">ਨਿਯੰਤਰਣਾਂ ਤੱਕ ਸਿੱਧੀ ਪਹੁੰਚ ਜੋ ਮਹੱਤਵਪੂਰਨ ਹੈ</string>
-    <string name="home_action_boost">ਪ੍ਰਦਰਸ਼ਨ ਪ੍ਰੋਫਾਈਲ</string>
-    <string name="home_action_boost_desc">ਸਿਸਟਮ ਵਿਵਹਾਰ ਨੂੰ ਬਦਲੋ</string>
     <string name="home_action_thermal">ਥਰਮਲ ਸੈਂਟਰ</string>
     <string name="home_action_thermal_desc">ਗਰਮੀ ਅਤੇ ਕੂਲਿੰਗ ਦੀ ਜਾਂਚ ਕਰੋ</string>
     <string name="home_action_battery">ਪਾਵਰ ਕੇਂਦਰ</string>
@@ -1496,7 +1471,6 @@
     <string name="home_active">ਕਿਰਿਆਸ਼ੀਲ</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">ਸੁਰੱਖਿਅਤ</string>
-    <string name="home_device_overview">ਡਿਵਾਈਸ ਓਵਰਵਿਊ ਖੋਲ੍ਹੋ</string>
     <string name="home_live_performance">ਲਾਈਵ ਪ੍ਰਦਰਸ਼ਨ</string>
     <string name="home_live_performance_desc">ਮੌਜੂਦਾ ਲੋਡ ਅਤੇ ਸਿੱਧੇ ਹਾਰਡਵੇਅਰ ਨਿਯੰਤਰਣ</string>
     <string name="home_open_details">ਵਿਸਤ੍ਰਿਤ ਥਰਮਲ ਡੇਟਾ ਖੋਲ੍ਹੋ</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">ਪ੍ਰਤੀ-ਐਪ ਅਨੁਕੂਲਨ ਲਾਗੂ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ</string>
     <string name="max_app_advanced_options">ਉੱਨਤ ਵਿਕਲਪ</string>
     <string name="max_app_save">ਸੇਵ ਕਰੋ</string>
+    <string name="home_gpu_max_freq">ਅਧਿਕਤਮ ਬਾਰੰਬਾਰਤਾ</string>
 </resources>

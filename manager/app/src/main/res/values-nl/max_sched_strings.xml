@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Deadline Periode Max (ons)</string>
+    <string name="max_sched_tunable_deadline_period_min">Deadlineperiode Min (ons)</string>
+    <string name="max_sched_tunable_energy_aware">Energiebewust</string>
+    <string name="max_sched_tunable_latency">Latentie (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Migratiekosten (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimale granulariteit (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Batchgrootte van migratie</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT-vermenigvuldiger</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin-tijdenslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Realtime periode (ons)</string>
+    <string name="max_sched_tunable_rt_runtime">Realtime runtime (ons)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Realtime UClamp-vloer</string>
+    <string name="max_sched_tunable_wakeup_granularity">Granulariteit bij ontwaken (ns)</string>
+</resources>

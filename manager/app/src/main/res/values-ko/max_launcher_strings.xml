@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">설치된 패키지 및 선언된 활동</string>
+    <string name="max_launcher_loading">설치된 패키지와 선언된 활동을 읽는 중…</string>
+    <string name="max_launcher_empty">설치된 패키지가 이 장치에 대한 활동을 선언하지 않습니다.</string>
+    <string name="max_launcher_search_placeholder">앱 이름 또는 패키지로 검색</string>
+    <string name="max_launcher_search_clear">검색 지우기</string>
+    <string name="max_launcher_scope_all">모두</string>
+    <string name="max_launcher_scope_user">사용자</string>
+    <string name="max_launcher_scope_system">체계</string>
+    <string name="max_launcher_activity_count">%1$d 활동</string>
+    <string name="max_launcher_no_match_title">일치하는 항목이 없습니다.</string>
+    <string name="max_launcher_no_match_detail">선택한 범위에는 해당 텍스트가 포함된 패키지 이름이나 앱 라벨이 없습니다.</string>
+    <string name="max_launcher_no_match_clear">필터 지우기</string>
+    <string name="max_launcher_reading_activities">이 패키지가 선언하는 활동을 읽는 중…</string>
+    <string name="max_launcher_no_activities">이 패키지는 활동을 선언하지 않습니다.</string>
+    <string name="max_launcher_root_off_title">루트가 부여되지 않음</string>
+    <string name="max_launcher_root_off_detail">비공개로 표시된 활동은 내보내지지 않으므로 루트만 시작할 수 있습니다. 내보낸 활동은 해당 항목 없이도 계속 열려 있습니다.</string>
+    <string name="max_launcher_tag_private">사적인</string>
+    <string name="max_launcher_tag_disabled">장애가 있는</string>
+    <string name="max_launcher_outcome_started">활동이 시작되었습니다</string>
+    <string name="max_launcher_outcome_needs_root">이 활동은 내보내지지 않습니다. 루트가 필요합니다.</string>
+    <string name="max_launcher_outcome_refused">Android에서 이 활동 시작을 거부했습니다.</string>
+    <string name="max_launcher_outcome_missing">해당 이름을 가진 활동이 설치되어 있지 않습니다.</string>
+</resources>

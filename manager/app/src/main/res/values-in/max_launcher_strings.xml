@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Paket yang diinstal dan aktivitas yang dideklarasikannya</string>
+    <string name="max_launcher_loading">Membaca paket yang diinstal dan aktivitas yang dinyatakannya…</string>
+    <string name="max_launcher_empty">Tidak ada paket terinstal yang mendeklarasikan aktivitas di perangkat ini.</string>
+    <string name="max_launcher_search_placeholder">Cari berdasarkan nama aplikasi atau paket</string>
+    <string name="max_launcher_search_clear">Hapus pencarian</string>
+    <string name="max_launcher_scope_all">Semua</string>
+    <string name="max_launcher_scope_user">Pengguna</string>
+    <string name="max_launcher_scope_system">Sistem</string>
+    <string name="max_launcher_activity_count">%1$d aktivitas</string>
+    <string name="max_launcher_no_match_title">Tidak ada yang cocok</string>
+    <string name="max_launcher_no_match_detail">Tidak ada nama paket atau label aplikasi yang berisi teks tersebut dalam cakupan yang dipilih.</string>
+    <string name="max_launcher_no_match_clear">Hapus filter</string>
+    <string name="max_launcher_reading_activities">Membaca aktivitas yang dinyatakan dalam paket ini…</string>
+    <string name="max_launcher_no_activities">Paket ini menyatakan tidak ada aktivitas.</string>
+    <string name="max_launcher_root_off_title">Root tidak diberikan</string>
+    <string name="max_launcher_root_off_detail">Aktivitas yang ditandai sebagai pribadi tidak diekspor, jadi hanya root yang dapat memulainya. Kegiatan ekspor tetap dibuka tanpa itu.</string>
+    <string name="max_launcher_tag_private">Pribadi</string>
+    <string name="max_launcher_tag_disabled">Dengan disabilitas</string>
+    <string name="max_launcher_outcome_started">Aktivitas dimulai</string>
+    <string name="max_launcher_outcome_needs_root">Aktivitas ini tidak diekspor — root diperlukan</string>
+    <string name="max_launcher_outcome_refused">Android menolak untuk memulai aktivitas ini</string>
+    <string name="max_launcher_outcome_missing">Tidak ada aktivitas dengan nama tersebut yang diinstal</string>
+</resources>

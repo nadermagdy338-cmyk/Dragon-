@@ -7,7 +7,7 @@
     <string name="all_set">Kõik on valmis, saate nüüd kasutada Max Manageri</string>
     <string name="allow_verbose_log">Taustprotsessi üksikasjalik logi</string>
     <string name="android_version">Androidi versioon</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Rakenduse nimi</string>
     <string name="app_priority">Rakenduse prioriteet</string>
     <string name="app_priority_control">Rakenduse prioriteedi juhtimine</string>
@@ -690,15 +690,6 @@
     <string name="fps_overlay_notif_channel">FPS-i ülekate</string>
     <string name="fps_overlay_notif_title">Max Manager FPS-i ülekate töötab</string>
     <string name="fps_overlay_notif_stop">Peatus</string>
-    <string name="fps_overlay_section_style">Välimus</string>
-    <string name="fps_overlay_style">Ülekatte stiil</string>
-    <string name="fps_overlay_style_android">Androidi loend</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Paigutuse suund</string>
-    <string name="fps_overlay_orientation_vertical">Vertikaalne</string>
-    <string name="fps_overlay_orientation_horizontal">Horisontaalne</string>
-    <string name="fps_overlay_read_mode">FPS lugemise meetod</string>
     <string name="fps_overlay_read_mode_desc">Proovige mõnda muud meetodit, kui näit jääb teie seadmes 0-le</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (soovitatav)</string>
     <string name="fps_overlay_mode_kernel">Kerneli sõlm</string>
@@ -707,14 +698,6 @@
     <string name="fps_overlay_text_size">Teksti suurus</string>
     <string name="fps_overlay_bg_alpha">Tausta läbipaistmatus</string>
     <string name="fps_overlay_width_scale">Laiuse skaala</string>
-    <string name="fps_overlay_section_metrics">Näidatud mõõdikud</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU koormus</string>
-    <string name="fps_overlay_metric_ram">RAM kasutamine</string>
-    <string name="fps_overlay_metric_watt">Aku energiatarve</string>
-    <string name="fps_overlay_metric_temp">Aku temperatuur</string>
-    <string name="fps_overlay_metric_render">Renderdaja silt</string>
-    <string name="fps_overlay_metric_render_desc">Kuvab sildina VULKAN/OPENGL, mitte \"FPS\", mis tuvastati esiplaani rakenduse laaditud teekides</string>
     <string name="dozemode_title">Unerežiimi poliitika</string>
     <string name="dozemode_menu_desc">Ooterežiimi valge nimekiri, jõudeoleku käitumine ja toite häälestamine taustal</string>
     <string name="dozemode_state_label">Uinunud olek</string>
@@ -750,9 +733,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Ava seaded</string>
     <string name="processmgr_title">Ülesande monitor</string>
-    <string name="processmgr_menu_desc">Protsessipõhine CPU ja RAM kasutamine koos sundseiskamise ja ujuva ülekattega</string>
     <string name="processmgr_stat_total">%1$d protsessid</string>
-    <string name="processmgr_stat_breakdown">%1$d kasutaja \u00b7 %2$d süsteem</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Ülemine %1$d</string>
@@ -772,9 +753,6 @@
     <string name="processmgr_search_hint">Otsige jooksvaid protsesse</string>
     <string name="processmgr_no_processes">Ükski protsess ei vasta teie otsingule</string>
     <string name="processmgr_dialog_close">Sule</string>
-    <string name="processmgr_detail_version">Versioon</string>
-    <string name="processmgr_detail_build">Ehitada</string>
-    <string name="processmgr_detail_package">pakett</string>
     <string name="processmgr_result_killed">Hukkus %1$s</string>
     <string name="processmgr_result_kill_failed">%1$s ei saanud tappa</string>
     <string name="processmgr_result_stopped">Sundpeatatud %1$s</string>
@@ -1425,7 +1403,6 @@
     <string name="max_home_reboot_desc">Avage turvalise taaskäivitamise valikud</string>
     <string name="max_home_ai_console">MAX AI konsool</string>
     <string name="max_home_ai_working">Taotletud profiili rakendamine…</string>
-    <string name="max_home_ai_failed">Viimane AI toiming ebaõnnestus</string>
     <string name="max_home_retry">Proovi uuesti</string>
     <string name="max_home_ai_idle">Tehisintellekti otsust pole veel salvestatud</string>
     <string name="home_system_stable">SÜSTEEM STABIILNE</string>
@@ -1441,8 +1418,6 @@
     <string name="home_performance_monitor_desc">Ressursikoormus viimase 72 sekundi jooksul</string>
     <string name="home_quick_actions">Käsutekk</string>
     <string name="home_quick_actions_desc">Otsene juurdepääs olulistele juhtnuppudele</string>
-    <string name="home_action_boost">Jõudlusprofiil</string>
-    <string name="home_action_boost_desc">Muutke süsteemi käitumist</string>
     <string name="home_action_thermal">Soojuskeskus</string>
     <string name="home_action_thermal_desc">Kontrollige soojust ja jahutust</string>
     <string name="home_action_battery">Jõukeskus</string>
@@ -1462,7 +1437,6 @@
     <string name="home_active">AKTIIVNE</string>
     <string name="home_idle">TÜÜDKÄIK</string>
     <string name="home_protected">KAITSETUD</string>
-    <string name="home_device_overview">AVA SEADME ÜLEVAADE</string>
     <string name="home_live_performance">Live esitus</string>
     <string name="home_live_performance_desc">Praegune koormus ja otsene riistvara juhtimine</string>
     <string name="home_open_details">Avage üksikasjalikud soojusandmed</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Rakendatakse rakendusepõhiseid optimeerimisi</string>
     <string name="max_app_advanced_options">Täpsemad valikud</string>
     <string name="max_app_save">Salvesta</string>
+    <string name="home_gpu_max_freq">Max sagedus</string>
 </resources>

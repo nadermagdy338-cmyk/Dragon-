@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Բազմախոս</string>
+    <string name="max_log_level_debug">Վրիպազերծել</string>
+    <string name="max_log_level_info">Ինֆո</string>
+    <string name="max_log_level_warn">Զգուշացում</string>
+    <string name="max_log_level_error">Սխալ</string>
+    <string name="max_log_level_assert">Պնդել</string>
+    <string name="max_log_level_fatal">Ճակատագրական</string>
+    <string name="max_log_buffer_main">Հիմնական</string>
+    <string name="max_log_buffer_system">Համակարգ</string>
+    <string name="max_log_buffer_crash">Վթար</string>
+    <string name="max_log_buffer_kernel">Միջուկ</string>
+    <string name="max_log_buffer_events">Իրադարձություններ</string>
+    <string name="max_log_buffer_radio">Ռադիո</string>
+    <string name="max_log_source_daemon">Դեյմոն</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Այլ</string>
+</resources>

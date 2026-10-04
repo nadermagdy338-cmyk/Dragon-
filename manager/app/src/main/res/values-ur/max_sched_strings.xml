@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">ڈیڈ لائن کی مدت زیادہ سے زیادہ (ہم)</string>
+    <string name="max_sched_tunable_deadline_period_min">ڈیڈ لائن پیریڈ منٹ (ہم)</string>
+    <string name="max_sched_tunable_energy_aware">توانائی سے آگاہ</string>
+    <string name="max_sched_tunable_latency">تاخیر (این ایس)</string>
+    <string name="max_sched_tunable_migration_cost">نقل مکانی کی لاگت (ns)</string>
+    <string name="max_sched_tunable_min_granularity">کم از کم گرانولیریٹی (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">مائیگریشن بیچ کا سائز</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT ضرب</string>
+    <string name="max_sched_tunable_rr_timeslice">راؤنڈ رابن ٹائم سلائس (ایم ایس)</string>
+    <string name="max_sched_tunable_rt_period">ریئل ٹائم پیریڈ (ہم)</string>
+    <string name="max_sched_tunable_rt_runtime">ریئل ٹائم رن ٹائم (ہم)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">ریئل ٹائم یوکلیمپ فلور</string>
+    <string name="max_sched_tunable_wakeup_granularity">ویک اپ گرینولریٹی (ns)</string>
+</resources>

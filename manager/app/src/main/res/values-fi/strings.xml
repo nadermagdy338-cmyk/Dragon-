@@ -7,7 +7,7 @@
     <string name="all_set">Kaikki on valmis, voit nyt käyttää Max Manageria</string>
     <string name="allow_verbose_log">Taustaprosessin yksityiskohtainen lokitus</string>
     <string name="android_version">Android-versio</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Sovelluksen nimi</string>
     <string name="app_priority">Sovelluksen prioriteetti</string>
     <string name="app_priority_control">Sovelluksen prioriteetin hallinta</string>
@@ -517,7 +517,6 @@
     <string name="thermal_hide_trips">Piilota matkat</string>
     <string name="thermal_trip_points">Matkapisteet</string>
     <string name="thermal_trip_config">Trip Point Config</string>
-    <string name="zram_live_summary">A %6$d/%7$d MB</string>
     <string name="zram_presets_title">Pika-esiasetukset</string>
     <string name="zram_tuning_title">Kompressiomoottori</string>
     <string name="zram_custom_size">Mukautettu vaihtokoko</string>
@@ -726,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS-peittokuva</string>
     <string name="fps_overlay_notif_title">Max Manager FPS-peittokuva on käynnissä</string>
     <string name="fps_overlay_notif_stop">Stop</string>
-    <string name="fps_overlay_section_style">Ulkonäkö</string>
-    <string name="fps_overlay_style">Päällystystyyli</string>
-    <string name="fps_overlay_style_android">Android luettelo</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Asettelun suunta</string>
-    <string name="fps_overlay_orientation_vertical">Pystysuora</string>
-    <string name="fps_overlay_orientation_horizontal">Vaakasuora</string>
-    <string name="fps_overlay_read_mode">FPS-lukumenetelmä</string>
     <string name="fps_overlay_read_mode_desc">Kokeile toista menetelmää, jos lukema pysyy 0:ssa laitteessasi</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (suositus)</string>
     <string name="fps_overlay_mode_kernel">Ytimen solmu</string>
@@ -743,14 +733,6 @@
     <string name="fps_overlay_text_size">Tekstin koko</string>
     <string name="fps_overlay_bg_alpha">Taustan läpinäkyvyys</string>
     <string name="fps_overlay_width_scale">Leveysasteikko</string>
-    <string name="fps_overlay_section_metrics">Mittarit näytetään</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU kuormitus</string>
-    <string name="fps_overlay_metric_ram">RAM käyttö</string>
-    <string name="fps_overlay_metric_watt">Akun virrankulutus</string>
-    <string name="fps_overlay_metric_temp">Akun lämpötila</string>
-    <string name="fps_overlay_metric_render">Renderöijän tunniste</string>
-    <string name="fps_overlay_metric_render_desc">Näyttää VULKAN/OPENGL-tunnisteen \"FPS\" sijasta etualan sovelluksen ladatuista kirjastoista</string>
     <string name="dozemode_title">Unikäytäntö</string>
     <string name="dozemode_menu_desc">Valmiustilan sallittujen luettelo, käyttämätön toiminta ja taustavirran viritys</string>
     <string name="dozemode_state_label">Torkkutila</string>
@@ -786,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Avaa asetukset</string>
     <string name="processmgr_title">Tehtävämonitori</string>
-    <string name="processmgr_menu_desc">Prosessikohtainen CPU ja RAM käyttö, pakkopysäytys ja kelluva peittokuva</string>
     <string name="processmgr_stat_total">%1$d prosesseja</string>
-    <string name="processmgr_stat_breakdown">%1$d käyttäjä \u00b7 %2$d järjestelmä</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Top %1$d</string>
@@ -808,9 +788,6 @@
     <string name="processmgr_search_hint">Hae käynnissä olevia prosesseja</string>
     <string name="processmgr_no_processes">Mikään prosessi ei vastaa hakuasi</string>
     <string name="processmgr_dialog_close">Lähellä</string>
-    <string name="processmgr_detail_version">Versio</string>
-    <string name="processmgr_detail_build">Rakentaa</string>
-    <string name="processmgr_detail_package">Paketti</string>
     <string name="processmgr_result_killed">Tapettu %1$s</string>
     <string name="processmgr_result_kill_failed">Ei voitu tappaa %1$s</string>
     <string name="processmgr_result_stopped">Pakotettu pysäytys %1$s</string>
@@ -1461,7 +1438,6 @@
     <string name="max_home_reboot_desc">Avaa turvallisen uudelleenkäynnistyksen vaihtoehdot</string>
     <string name="max_home_ai_console">MAX AI -konsoli</string>
     <string name="max_home_ai_working">Otetaan pyydettyä profiilia käyttöön…</string>
-    <string name="max_home_ai_failed">Viimeisin tekoälytoiminto epäonnistui</string>
     <string name="max_home_retry">Yritä uudelleen</string>
     <string name="max_home_ai_idle">Tekoälypäätöstä ei ole vielä tallennettu</string>
     <string name="home_system_stable">JÄRJESTELMÄ VAKAA</string>
@@ -1477,8 +1453,6 @@
     <string name="home_performance_monitor_desc">Resurssien kuormitus viimeisten 72 sekunnin aikana</string>
     <string name="home_quick_actions">Komennon kansi</string>
     <string name="home_quick_actions_desc">Suora pääsy tärkeisiin ohjaimiin</string>
-    <string name="home_action_boost">Suorituskykyprofiili</string>
-    <string name="home_action_boost_desc">Muuta järjestelmän käyttäytymistä</string>
     <string name="home_action_thermal">Lämpökeskus</string>
     <string name="home_action_thermal_desc">Tarkista lämpö ja jäähdytys</string>
     <string name="home_action_battery">Voimakeskus</string>
@@ -1498,7 +1472,6 @@
     <string name="home_active">AKTIIVINEN</string>
     <string name="home_idle">Tyhjäkäynti</string>
     <string name="home_protected">SUOJATTU</string>
-    <string name="home_device_overview">AVAA LAITTEEN YLEISKATSAUS</string>
     <string name="home_live_performance">Live-esitys</string>
     <string name="home_live_performance_desc">Nykyinen kuormitus ja suora laitteiston ohjaus</string>
     <string name="home_open_details">Avaa yksityiskohtaiset lämpötiedot</string>
@@ -1790,4 +1763,6 @@
     <string name="max_app_master_on_desc">Sovelluskohtaisia ​​optimointeja käytetään</string>
     <string name="max_app_advanced_options">Lisäasetukset</string>
     <string name="max_app_save">Tallentaa</string>
+    <string name="home_gpu_max_freq">Max taaj</string>
+    <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Tehokkuus %4$.2f\u00d7 \u00b7 RAM tallennettu %5$d MB \u00b7 Vaihto käytetty %6$d/%7$d MB</string>
 </resources>

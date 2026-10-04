@@ -16,7 +16,7 @@
 
 package nd.max
 
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 /**
  * Structured logger for the AppMonitor companion daemon (nd.max.AppMonitor).
@@ -39,7 +39,7 @@ import nd.max.ui.util.PropertyUtils
  * timestamped MaxManager.log, in the order they actually happened.
  *
  * Numeric levels below intentionally mirror the native LogLevel enum
- * (AZenith.h): 0=DEBUG, 1=INFO, 2=WARN, 3=ERROR, 4=FATAL.
+ * (MaxManager.h): 0=DEBUG, 1=INFO, 2=WARN, 3=ERROR, 4=FATAL.
  *
  * stderr output is kept alongside the CLI forward (not replaced by it) as a
  * fallback: sysmon.log still captures everything even if the daemon binary
@@ -55,6 +55,60 @@ import nd.max.ui.util.PropertyUtils
  */
 object AppMonitorLogger {
     private const val TAG = "appmonitor"
+
+    /**
+     * ملفّ الرفيق نفسه الذي يشير إليه `mainfiles/service.sh` و`package-recovery.log`.
+     * والمسار في [`MaxManagerPaths`] لا مكتوبًا هنا ثانيةً.
+     */
+    private const val SYS_MON = MaxManagerPaths.MODULE_CONFIG + "/sysmon.log"
+
+    /**
+     * سطر **لا يُفقد** — يُكتب مباشرةً في الملف، بلا مرور بإعادة توجيه صدفة ولا بمعالج انهيار.
+     *
+     * **والعطب الذي وُلد منه (مقيس من جهاز حقيقي، ٢٠٢٦-١٠-٠١):** مات الرفيق عند `17:36:33.595`
+     * باستثناء غير مُلتقَط من `main` (`cannot-create-shared-control-directory`)، و`sysmon.log` بقي
+     * **صفر بايت** — لأنّ السطر الوحيد الذي كان يُنفق حياته عليه هو ردّ فعل معالج الانهيار، وهو نفسه
+     * فشل (`E AndroidRuntime: Couldn't report crash` ثم `Error reporting crash … Bad file descriptor`).
+     * فصار أمام المستخدم إشعار «Java companion daemon crashed or failed to start» بعد دقيقتين،
+     * **وبلا سبب واحد يُقرأ** في أي ملفّ يرسله.
+     *
+     * فالسطر هنا **لا يُوكَل إلى غيره**: يُكتب قبل أيّ نداء قد يرمي، ويُحيط نفسه بـ`runCatching`
+     * فلا يُسقط ما يُرسَل من أجله. وهو لا يستعمل `AppMonitorLogger.log` (مسار `stderr`/الصدفة)
+     * عمدًا: ذاك ممكن أن يفشل في اللحظة نفسها التي نحتاجه فيها.
+     */
+    fun persist(event: String) {
+        val line = "${stamp()} I $event"
+        runCatching { java.io.File(SYS_MON).appendText(line + "\n") }
+    }
+
+    /**
+     * لحظة السطر — تُنشأ في كل نداء لا في حقل مشترك: `SimpleDateFormat` ليس آمنًا بين الخيوط،
+     * وعدد النُداءات في عمر العملية قليل (سطور الأحداث لا كل سطر سجل).
+     */
+    private fun stamp(): String = runCatching {
+        java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", java.util.Locale.US)
+            .format(java.util.Date())
+    }.getOrDefault("")
+
+    /**
+     * لقطة هويّة العملية التي تُرسَل مرّة واحدة عند قيام الرفيق.
+     *
+     * وفيها **سياق SELinux** (`/proc/self/attr/current`) و**الوسائط** — لأنّ سؤال «لماذا مات» كان
+     * في السجلّ السابق بلا جواب من هذا النوع: لا يُعرف باسم أيّ هويّة قام الرفيق، ولا بأيّ وسائط.
+     * وقراءة `/proc/self` لا تحتاج جذرًا ولا صدفة.
+     */
+    fun identitySnapshot(args: Array<String>): String {
+        val context = runCatching { java.io.File("/proc/self/attr/current").readText().trim() }
+            .getOrDefault("unknown")
+        val uid = runCatching { android.os.Process.myUid() }.getOrDefault(-1)
+        val pid = runCatching { android.os.Process.myPid() }.getOrDefault(-1)
+        val cmdline = runCatching { java.io.File("/proc/self/cmdline").readBytes().toString(Charsets.UTF_8) }
+            .getOrDefault("")
+            .replace('\u0000', ' ')
+            .trim()
+        return "EVENT=COMPANION_START pid=$pid uid=$uid context=$context args=${args.size} " +
+            "cmdline=$cmdline"
+    }
 
     private const val LEVEL_DEBUG = 0
     private const val LEVEL_INFO = 1

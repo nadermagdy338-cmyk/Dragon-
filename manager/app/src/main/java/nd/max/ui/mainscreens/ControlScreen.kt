@@ -43,6 +43,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarHostState
@@ -65,6 +66,7 @@ import nd.max.R
 import nd.max.ui.component.ExpressiveList
 import nd.max.ui.component.ExpressiveListItem
 import nd.max.ui.component.LeadingIcon
+import nd.max.ui.component.RootAppDialog
 import nd.max.ui.component.rememberConfigBackupFlow
 import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxListScreen
@@ -97,6 +99,13 @@ fun ControlScreen(navController: NavHostController) {
         mutableStateOf(prefs.getBoolean(CONTROL_LAYOUT_KEY, false))
     }
 
+    // **ومُوجِّد الشاشات في شريط الصفحة لا في جسمها:** الصفحة تعرض نحو أربعين صفًّا في تسع
+    // مجالات، فمن يبحث عن شاشة يعرف اسمًا لا مجالًا. والحقل داخل الصفحة كان يُزيح أوّل صفّ
+    // إلى أسفل الطيّة؛ وزرٌّ في الشريط لا يأخذ من القراءة شيئًا حتى يُستدعى.
+    // (وأمر المالك في هذه الجولة: «أوّلًا زرّ بحث … يدعم كل اللغات» — والعربي منه يُقاس في
+    // `ScreenFinderTest`، والأربع والثمانون لغة تُطوى بنفس الدالّة.)
+    var showFinder by rememberSaveable { mutableStateOf(false) }
+
     val backupFlow = rememberConfigBackupFlow(viewModel) { message ->
         scope.launch { snackbarHostState.showSnackbar(message) }
     }
@@ -113,6 +122,12 @@ fun ControlScreen(navController: NavHostController) {
         accentIcon = MaxDestination.Control.icon,
         snackbarHostState = snackbarHostState,
         actions = {
+            IconButton(onClick = { showFinder = true }) {
+                Icon(
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = stringResource(R.string.screen_finder_title),
+                )
+            }
             MaxViewMenu(
                 labels = listOf(
                     stringResource(R.string.control_view_compact),
@@ -156,6 +171,25 @@ fun ControlScreen(navController: NavHostController) {
                 onOpen = actions::navigateTo,
             )
         }
+    }
+
+    // والورقة في جذر التطبيق لا داخل هذه الشاشة: مُوجِّد يعرض نتائج من كل مكان يجب أن يرتفع
+    // فوق الشريط السفلي، وهو ما يضمنه تركيبُها في مضيف الحوارات الجذريّ.
+    RootAppDialog {
+        ScreenFinderSheet(
+            visible = showFinder,
+            onDismiss = { showFinder = false },
+            onOpen = { destination ->
+                showFinder = false
+                // **والتبويبات الأربعة بمسارها الخاصّ:** فتحُها بـ`navigateTo` ينشئ نسخةً ثانية
+                // في الرجوع، فتصير «رجوع» من الإعدادات تُرجع إلى الإعدادات نفسها.
+                if (destination.isPrimary) {
+                    actions.navigateToPrimary(destination)
+                } else {
+                    actions.navigateTo(destination)
+                }
+            },
+        )
     }
 }
 
@@ -262,8 +296,19 @@ private fun ControlRow(entry: ControlEntry, onOpen: (MaxDestination) -> Unit) {
 @Composable
 private fun ExpandedHubGroup(spec: ControlHubSpec, onOpen: (MaxDestination) -> Unit) {
     MaxSection(title = stringResource(spec.hub.titleRes)) {
+        // **وحوزٌ بلا صفوف يُفتح بلمسة — وهو استثناء واحد مُعلَن (تكملة ٢٢٦، `AU-01`):**
+        // قاعدة «التسمية لا تفتح شيئًا» صحيحة لكل حوز **صفوفه هي نفسها صفوفه في الصفحة**،
+        // فالرابط حينها يقود إلى ما يُعرض أصلًا. أما **الصوت** فعقده يُقرأ داخل شاشة الحوز
+        // (`AudioHubPreview`: الأجهزة والمعدّل والمؤثرات) ولا صفوف له بعد — فلو بقيت التسمية
+        // تسمية لصارت الصفحة الموسّعة تسمّي مجالًا لا سبيل إلى فتحه. فالفرع: صفٌّ واحد يقود
+        // إليه. وأمّا ما له صفوف فلم يتغيّر حرفيًّا (وكل بوّابات الصفوف القائمة تبقى كما هي).
+        val rows = if (spec.features.isEmpty()) {
+            listOf(ControlEntry(spec.hub, spec.hubSubtitleRes))
+        } else {
+            spec.features
+        }
         ExpressiveList(
-            content = controlRows(spec.features, onOpen),
+            content = controlRows(rows, onOpen),
             rowSpacing = ControlListRowSpacing,
         )
     }

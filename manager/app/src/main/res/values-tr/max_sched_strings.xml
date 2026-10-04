@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Son Teslim Süresi Maksimum (biz)</string>
+    <string name="max_sched_tunable_deadline_period_min">Son Teslim Süresi Minimum (biz)</string>
+    <string name="max_sched_tunable_energy_aware">Enerji Farkındalığı</string>
+    <string name="max_sched_tunable_latency">Gecikme (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Taşıma Maliyeti (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimum Parçalılık (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Taşıma Grubu Boyutu</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT Çarpanı</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Zaman Dilimi (ms)</string>
+    <string name="max_sched_tunable_rt_period">Gerçek Zamanlı Dönem (biz)</string>
+    <string name="max_sched_tunable_rt_runtime">Gerçek Zamanlı Çalışma Zamanı (biz)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Gerçek Zamanlı UClamp Zemini</string>
+    <string name="max_sched_tunable_wakeup_granularity">Uyandırma Parçalılığı (ns)</string>
+</resources>

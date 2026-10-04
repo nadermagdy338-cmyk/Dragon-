@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.HistoryToggleOff
+import androidx.compose.material.icons.rounded.HourglassEmpty
 import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Icon
@@ -81,6 +82,7 @@ fun maxTrustLabel(trust: MaxDataTrust): String = stringResource(
         MaxDataTrust.Live -> R.string.max_trust_live
         MaxDataTrust.Stale -> R.string.max_trust_stale
         MaxDataTrust.Snapshot -> R.string.max_trust_snapshot
+        MaxDataTrust.Loading -> R.string.max_trust_loading
         MaxDataTrust.Unreadable -> R.string.max_trust_unreadable
         MaxDataTrust.Unsupported -> R.string.max_trust_unsupported
     }
@@ -90,6 +92,7 @@ private fun trustIcon(trust: MaxDataTrust): ImageVector? = when (trust) {
     MaxDataTrust.Live -> null // rendered as a dot, the quiet default
     MaxDataTrust.Stale -> Icons.Rounded.HistoryToggleOff
     MaxDataTrust.Snapshot -> Icons.Rounded.Schedule
+    MaxDataTrust.Loading -> Icons.Rounded.HourglassEmpty
     MaxDataTrust.Unreadable -> Icons.Rounded.RemoveCircleOutline
     MaxDataTrust.Unsupported -> Icons.Rounded.Block
 }

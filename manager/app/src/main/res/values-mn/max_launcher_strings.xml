@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Суулгасан багцууд болон тэдгээрийн зарласан үйл ажиллагаа</string>
+    <string name="max_launcher_loading">Суулгасан багцууд болон тэдгээрийн зарласан үйл ажиллагааг уншиж байна...</string>
+    <string name="max_launcher_empty">Ямар ч суулгасан багц энэ төхөөрөмж дээр үйл ажиллагаа зарладаггүй.</string>
+    <string name="max_launcher_search_placeholder">Програмын нэр эсвэл багцаар хайх</string>
+    <string name="max_launcher_search_clear">Хайлтыг арилгана уу</string>
+    <string name="max_launcher_scope_all">Бүгд</string>
+    <string name="max_launcher_scope_user">Хэрэглэгч</string>
+    <string name="max_launcher_scope_system">Систем</string>
+    <string name="max_launcher_activity_count">%1$d үйл ажиллагаа</string>
+    <string name="max_launcher_no_match_title">Юу ч таарахгүй</string>
+    <string name="max_launcher_no_match_detail">Сонгосон хүрээн дэх ямар ч багцын нэр эсвэл програмын шошго тухайн текстийг агуулаагүй болно.</string>
+    <string name="max_launcher_no_match_clear">Шүүлтүүрийг цэвэрлэх</string>
+    <string name="max_launcher_reading_activities">Энэхүү багцад заасан үйл ажиллагааг уншихад…</string>
+    <string name="max_launcher_no_activities">Энэ багц ямар ч үйл ажиллагаа зарлаагүй.</string>
+    <string name="max_launcher_root_off_title">Root зөвшөөрөгдөөгүй</string>
+    <string name="max_launcher_root_off_detail">Хувийн гэж тэмдэглэгдсэн үйлдлүүд экспортлогдохгүй тул зөвхөн root-ээр эхлүүлж болно. Экспортын үйл ажиллагаа үүнгүйгээр нээлттэй хэвээр байна.</string>
+    <string name="max_launcher_tag_private">Хувийн</string>
+    <string name="max_launcher_tag_disabled">Идэвхгүй</string>
+    <string name="max_launcher_outcome_started">Үйл ажиллагаа эхэлсэн</string>
+    <string name="max_launcher_outcome_needs_root">Энэ үйл ажиллагааг экспортлоогүй - root шаардлагатай</string>
+    <string name="max_launcher_outcome_refused">Android энэ үйл ажиллагааг эхлүүлэхээс татгалзсан</string>
+    <string name="max_launcher_outcome_missing">Ийм нэртэй үйл ажиллагаа суулгаагүй байна</string>
+</resources>

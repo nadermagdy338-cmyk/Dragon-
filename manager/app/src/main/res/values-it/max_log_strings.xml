@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Verboso</string>
+    <string name="max_log_level_debug">Debug</string>
+    <string name="max_log_level_info">Informazioni</string>
+    <string name="max_log_level_warn">Avvertimento</string>
+    <string name="max_log_level_error">Errore</string>
+    <string name="max_log_level_assert">Asserire</string>
+    <string name="max_log_level_fatal">Fatale</string>
+    <string name="max_log_buffer_main">Principale</string>
+    <string name="max_log_buffer_system">Sistema</string>
+    <string name="max_log_buffer_crash">Incidente</string>
+    <string name="max_log_buffer_kernel">Nocciolo</string>
+    <string name="max_log_buffer_events">Eventi</string>
+    <string name="max_log_buffer_radio">Radio</string>
+    <string name="max_log_source_daemon">Demone</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">interfaccia utente</string>
+    <string name="max_log_source_other">Altro</string>
+</resources>

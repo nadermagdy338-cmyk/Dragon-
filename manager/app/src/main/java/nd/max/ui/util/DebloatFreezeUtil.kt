@@ -4,6 +4,7 @@
  * without prior written permission from the copyright holder.
  */
 package nd.max.ui.util
+import nd.max.core.platform.EventLog
 
 import android.content.Context
 import android.content.Intent

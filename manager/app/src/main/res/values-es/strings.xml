@@ -7,7 +7,7 @@
     <string name="all_set">Todo listo, ahora puedes usar Max Manager</string>
     <string name="allow_verbose_log">Registro detallado del daemon</string>
     <string name="android_version">Versión de Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Nombre de la aplicación</string>
     <string name="app_priority">Prioridad de la aplicación</string>
     <string name="app_priority_control">Control de prioridad de la aplicación</string>
@@ -699,15 +699,6 @@
     <string name="fps_overlay_notif_channel">Superposición de FPS</string>
     <string name="fps_overlay_notif_title">La superposición de FPS de Max Manager está en ejecución</string>
     <string name="fps_overlay_notif_stop">Detener</string>
-    <string name="fps_overlay_section_style">Aspecto</string>
-    <string name="fps_overlay_style">Estilo de la superposición</string>
-    <string name="fps_overlay_style_android">Lista de Android</string>
-    <string name="fps_overlay_style_pc">Monoespaciada de PC</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Dirección de la disposición</string>
-    <string name="fps_overlay_orientation_vertical">Vertical</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontal</string>
-    <string name="fps_overlay_read_mode">Método de lectura de FPS</string>
     <string name="fps_overlay_read_mode_desc">Prueba otro método si la lectura se queda en 0 en tu dispositivo</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (recomendado)</string>
     <string name="fps_overlay_mode_kernel">Nodo del núcleo</string>
@@ -716,14 +707,6 @@
     <string name="fps_overlay_text_size">Tamaño del texto</string>
     <string name="fps_overlay_bg_alpha">Opacidad del fondo</string>
     <string name="fps_overlay_width_scale">Escala de anchura</string>
-    <string name="fps_overlay_section_metrics">Métricas mostradas</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">Carga de CPU</string>
-    <string name="fps_overlay_metric_ram">Uso de RAM</string>
-    <string name="fps_overlay_metric_watt">Consumo de la batería</string>
-    <string name="fps_overlay_metric_temp">Temperatura de la batería</string>
-    <string name="fps_overlay_metric_render">Etiqueta del renderizador</string>
-    <string name="fps_overlay_metric_render_desc">Muestra VULKAN/OPENGL en lugar de «FPS» como etiqueta</string>
     <string name="dozemode_title">Política de reposo</string>
     <string name="dozemode_menu_desc">Lista blanca de espera</string>
     <string name="dozemode_state_label">Estado de Doze</string>
@@ -759,9 +742,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Abrir los ajustes</string>
     <string name="processmgr_title">Monitor de tareas</string>
-    <string name="processmgr_menu_desc">Uso de CPU y RAM por proceso</string>
     <string name="processmgr_stat_total">%1$d procesos</string>
-    <string name="processmgr_stat_breakdown">%1$d de usuario \u00b7 %2$d del sistema</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Primeros %1$d</string>
@@ -782,9 +763,6 @@
     <string name="processmgr_search_hint">Buscar procesos en ejecución</string>
     <string name="processmgr_no_processes">Ningún proceso coincide con tu búsqueda</string>
     <string name="processmgr_dialog_close">Cerrar</string>
-    <string name="processmgr_detail_version">Versión</string>
-    <string name="processmgr_detail_build">Compilación</string>
-    <string name="processmgr_detail_package">Paquete</string>
     <string name="processmgr_result_killed">Se terminó %1$s</string>
     <string name="processmgr_result_kill_failed">No se pudo terminar %1$s</string>
     <string name="processmgr_result_stopped">Se forzó la detención de %1$s</string>
@@ -1316,7 +1294,6 @@
     <string name="max_home_reboot_desc">Abrir opciones de reinicio seguras</string>
     <string name="max_home_ai_console">consola de MAX AI</string>
     <string name="max_home_ai_working">Aplicando el perfil solicitado…</string>
-    <string name="max_home_ai_failed">La última acción de la IA falló</string>
     <string name="max_home_retry">Reintentar</string>
     <string name="max_home_ai_idle">Aún no se ha registrado ninguna decisión de la IA</string>
     <string name="home_system_stable">SISTEMA ESTABLE</string>
@@ -1332,8 +1309,6 @@
     <string name="home_performance_monitor_desc">Carga de recursos en los últimos 72 segundos</string>
     <string name="home_quick_actions">Puente de mando</string>
     <string name="home_quick_actions_desc">Acceso directo a los controles que importan</string>
-    <string name="home_action_boost">Perfil de rendimiento</string>
-    <string name="home_action_boost_desc">Cambiar el comportamiento del sistema</string>
     <string name="home_action_thermal">Centro térmico</string>
     <string name="home_action_thermal_desc">Examinar el calor y la refrigeración</string>
     <string name="home_action_battery">Centro de energía</string>
@@ -1353,7 +1328,6 @@
     <string name="home_active">ACTIVO</string>
     <string name="home_idle">INACTIVO</string>
     <string name="home_protected">PROTEGIDO</string>
-    <string name="home_device_overview">ABRIR EL RESUMEN DEL DISPOSITIVO</string>
     <string name="home_live_performance">Rendimiento en vivo</string>
     <string name="home_live_performance_desc">Carga actual y controles directos del hardware</string>
     <string name="home_open_details">Abrir los datos térmicos detallados</string>
@@ -1379,7 +1353,6 @@
     <string name="home_story_network_headline">La actividad de red está modelando la latencia</string>
     <string name="home_story_network_desc">El tráfico actual es ↓ %1$s y ↑ %2$s. Esto puede afectar al ping en los juegos y a la respuesta en primer plano.</string>
     <string name="home_story_stable_headline">Ningún limitador único domina</string>
-    <string name="home_story_stable_desc">La CPU al %1$d%%</string>
     <string name="home_story_temp_value">%1$d°C</string>
     <string name="home_story_cpu_value">%1$d%% CPU</string>
     <string name="home_story_ram_value">%1$d%% RAM</string>
@@ -1790,4 +1763,6 @@
     <string name="max_app_master_on_desc">Se están aplicando optimizaciones por aplicación</string>
     <string name="max_app_advanced_options">Opciones avanzadas</string>
     <string name="max_app_save">Ahorrar</string>
+    <string name="home_gpu_max_freq">frecuencia máxima</string>
+    <string name="home_story_stable_desc">CPU %1$d%%, RAM %2$d%% y la temperatura de la batería %3$d°C están en un rango utilizable. Esta es la base para comparar los aumentos futuros.</string>
 </resources>

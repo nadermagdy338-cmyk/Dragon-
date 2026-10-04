@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Installitud paketid ja nendes deklareeritud tegevused</string>
+    <string name="max_launcher_loading">Installitud pakettide ja nende deklareeritud tegevuste lugemine…</string>
+    <string name="max_launcher_empty">Ükski installitud pakett ei deklareeri selles seadmes tegevust.</string>
+    <string name="max_launcher_search_placeholder">Otsige rakenduse nime või paketi järgi</string>
+    <string name="max_launcher_search_clear">Tühjendage otsing</string>
+    <string name="max_launcher_scope_all">Kõik</string>
+    <string name="max_launcher_scope_user">Kasutaja</string>
+    <string name="max_launcher_scope_system">Süsteem</string>
+    <string name="max_launcher_activity_count">%1$d tegevused</string>
+    <string name="max_launcher_no_match_title">Mitte miski ei ühti</string>
+    <string name="max_launcher_no_match_detail">Ükski paketi nimi ega rakenduse silt ei sisalda seda teksti valitud ulatuses.</string>
+    <string name="max_launcher_no_match_clear">Selge filtrid</string>
+    <string name="max_launcher_reading_activities">Lugedes selle paketi tegevusi…</string>
+    <string name="max_launcher_no_activities">See pakett ei deklareeri tegevusi.</string>
+    <string name="max_launcher_root_off_title">Juurt ei anta</string>
+    <string name="max_launcher_root_off_detail">Privaatseks märgitud tegevusi ei ekspordita, seega saab neid käivitada ainult root. Eksporditud tegevused on endiselt avatud ilma selleta.</string>
+    <string name="max_launcher_tag_private">Privaatne</string>
+    <string name="max_launcher_tag_disabled">Keelatud</string>
+    <string name="max_launcher_outcome_started">Tegevus algas</string>
+    <string name="max_launcher_outcome_needs_root">Seda tegevust ei ekspordita – nõutav on juur</string>
+    <string name="max_launcher_outcome_refused">Android keeldus seda tegevust alustamast</string>
+    <string name="max_launcher_outcome_missing">Selle nimega tegevust pole installitud</string>
+</resources>

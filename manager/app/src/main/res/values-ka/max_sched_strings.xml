@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">ბოლო ვადის მაქს (ჩვენ)</string>
+    <string name="max_sched_tunable_deadline_period_min">ბოლო ვადა მინ (ჩვენ)</string>
+    <string name="max_sched_tunable_energy_aware">ენერგიის გაცნობიერებული</string>
+    <string name="max_sched_tunable_latency">შეყოვნება (ნ)</string>
+    <string name="max_sched_tunable_migration_cost">მიგრაციის ღირებულება (ნ)</string>
+    <string name="max_sched_tunable_min_granularity">მინიმალური გრანულარობა (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">მიგრაციის სერიის ზომა</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT მულტიპლიკატორი</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (მმ)</string>
+    <string name="max_sched_tunable_rt_period">რეალურ დროში პერიოდი (ჩვენ)</string>
+    <string name="max_sched_tunable_rt_runtime">რეალურ დროში გაშვების დრო (ჩვენ)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">რეალურ დროში UClamp სართული</string>
+    <string name="max_sched_tunable_wakeup_granularity">Wakeup Granularity (ns)</string>
+</resources>

@@ -56,6 +56,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
 import nd.max.R
 import java.util.Locale
 import kotlin.math.abs
@@ -101,12 +103,12 @@ fun PowerCoreCard(
         modifier = modifier.fillMaxWidth(),
         accent = accent,
         containerColor = colors.surfaceContainerLow,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(MaxCardSpec.radius),
         onClick = onClick
     ) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(shape = RoundedCornerShape(14.dp), color = accent.copy(alpha = .12f)) {
+                Surface(shape = RoundedCornerShape(MaxRadius.row), color = accent.copy(alpha = .12f)) {
                     Icon(
                         imageVector = if (info.isCharging) Icons.Rounded.BatteryChargingFull else Icons.Rounded.BatteryStd,
                         contentDescription = null,
@@ -186,7 +188,7 @@ private fun PowerMetric(
     value: String,
     accent: Color
 ) {
-    Surface(modifier = modifier, shape = RoundedCornerShape(14.dp), color = accent.copy(alpha = .07f)) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(MaxRadius.row), color = accent.copy(alpha = .07f)) {
         Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Icon(icon, null, tint = accent, modifier = Modifier.size(17.dp))
             Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)

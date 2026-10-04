@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">గడువు వ్యవధి గరిష్టం (మాక్స్)</string>
+    <string name="max_sched_tunable_deadline_period_min">గడువు వ్యవధి కనిష్టం (మాకు)</string>
+    <string name="max_sched_tunable_energy_aware">ఎనర్జీ అవేర్</string>
+    <string name="max_sched_tunable_latency">జాప్యం (ns)</string>
+    <string name="max_sched_tunable_migration_cost">వలస ఖర్చు (ns)</string>
+    <string name="max_sched_tunable_min_granularity">కనిష్ట గ్రాన్యులారిటీ (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">మైగ్రేషన్ బ్యాచ్ పరిమాణం</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT గుణకం</string>
+    <string name="max_sched_tunable_rr_timeslice">రౌండ్-రాబిన్ టైమ్‌స్లైస్ (మిసె)</string>
+    <string name="max_sched_tunable_rt_period">నిజ-సమయ కాలం (మాకు)</string>
+    <string name="max_sched_tunable_rt_runtime">నిజ-సమయ రన్‌టైమ్ (మాకు)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">నిజ-సమయ UClamp ఫ్లోర్</string>
+    <string name="max_sched_tunable_wakeup_granularity">వేకప్ గ్రాన్యులారిటీ (ns)</string>
+</resources>

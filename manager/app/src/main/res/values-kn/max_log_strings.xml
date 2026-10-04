@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">ಮೌಖಿಕ</string>
+    <string name="max_log_level_debug">ಡೀಬಗ್ ಮಾಡಿ</string>
+    <string name="max_log_level_info">ಮಾಹಿತಿ</string>
+    <string name="max_log_level_warn">ಎಚ್ಚರಿಕೆ</string>
+    <string name="max_log_level_error">ದೋಷ</string>
+    <string name="max_log_level_assert">ಪ್ರತಿಪಾದಿಸಿ</string>
+    <string name="max_log_level_fatal">ಮಾರಕ</string>
+    <string name="max_log_buffer_main">ಮುಖ್ಯ</string>
+    <string name="max_log_buffer_system">ವ್ಯವಸ್ಥೆ</string>
+    <string name="max_log_buffer_crash">ಕ್ರ್ಯಾಶ್</string>
+    <string name="max_log_buffer_kernel">ಕರ್ನಲ್</string>
+    <string name="max_log_buffer_events">ಘಟನೆಗಳು</string>
+    <string name="max_log_buffer_radio">ರೇಡಿಯೋ</string>
+    <string name="max_log_source_daemon">ಡೀಮನ್</string>
+    <string name="max_log_source_appmonitor">ಆಪ್ ಮಾನಿಟರ್</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">ಇತರೆ</string>
+</resources>

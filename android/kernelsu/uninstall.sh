@@ -18,14 +18,14 @@ case "$MAXMANAGER_WATCHDOG_PID" in
     *) kill "$MAXMANAGER_WATCHDOG_PID" 2>/dev/null ;;
 esac
 
-for MAXMANAGER_PROCESS_NAME in maxmanager_daemon; do
+for MAXMANAGER_PROCESS_NAME in sys.maxmanager-service; do
     for MAXMANAGER_PID in $(pidof "$MAXMANAGER_PROCESS_NAME" 2>/dev/null); do
         kill "$MAXMANAGER_PID" 2>/dev/null
     done
 done
 
 sleep 1
-for MAXMANAGER_PROCESS_NAME in maxmanager_daemon; do
+for MAXMANAGER_PROCESS_NAME in sys.maxmanager-service; do
     for MAXMANAGER_PID in $(pidof "$MAXMANAGER_PROCESS_NAME" 2>/dev/null); do
         kill -9 "$MAXMANAGER_PID" 2>/dev/null
     done

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Perioada limită Max (noi)</string>
+    <string name="max_sched_tunable_deadline_period_min">Termen limită Perioada Min (noi)</string>
+    <string name="max_sched_tunable_energy_aware">Conștient de energie</string>
+    <string name="max_sched_tunable_latency">Latență (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Costul migrației (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Granularitate minimă (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Dimensiunea lotului de migrare</string>
+    <string name="max_sched_tunable_pelt_multiplier">Multiplicator PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Perioada în timp real (noi)</string>
+    <string name="max_sched_tunable_rt_runtime">Timp de rulare în timp real (noi)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Pardoseală UClamp în timp real</string>
+    <string name="max_sched_tunable_wakeup_granularity">Granularitatea trezirii (ns)</string>
+</resources>

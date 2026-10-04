@@ -7,7 +7,7 @@
     <string name="all_set">ସବୁ ସେଟ୍, ଆପଣ ଏବେ Max Manager ବ୍ୟବହାର କରିପାରିବେ</string>
     <string name="allow_verbose_log">ଡିମନ୍ ପ୍ରକ୍ରିୟା ବିସ୍ତୃତ ଲଗ୍</string>
     <string name="android_version">Android ସଂସ୍କରଣ</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">ଆପ୍ଲିକେସନ୍ ନାମ</string>
     <string name="app_priority">ଆପ୍ଲିକେସନ ପ୍ରାଧାନ୍ୟ</string>
     <string name="app_priority_control">ଆପ୍ଲିକେସନ ପ୍ରାଧାନ୍ୟ ନିୟନ୍ତ୍ରଣ</string>
@@ -676,15 +676,6 @@
     <string name="fps_overlay_notif_channel">FPS ଓଭରଲେଜ୍ |</string>
     <string name="fps_overlay_notif_title">Max Manager FPS ଓଭରଲେଟ୍ ଚାଲୁଛି |</string>
     <string name="fps_overlay_notif_stop">ବନ୍ଦ କର |</string>
-    <string name="fps_overlay_section_style">ଦୃଶ୍ୟ</string>
-    <string name="fps_overlay_style">ଆଚ୍ଛାଦନ ଶ style ଳୀ</string>
-    <string name="fps_overlay_style_android">ଆଣ୍ଡ୍ରଏଡ୍ ତାଲିକା |</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">ମିନି</string>
-    <string name="fps_overlay_orientation">ଲେଆଉଟ୍ ଦିଗ |</string>
-    <string name="fps_overlay_orientation_vertical">ଭୂଲମ୍ବ |</string>
-    <string name="fps_overlay_orientation_horizontal">ଭୂସମାନ୍ତର</string>
-    <string name="fps_overlay_read_mode">FPS ପଠନ ପଦ୍ଧତି |</string>
     <string name="fps_overlay_read_mode_desc">ଯଦି ଆପଣଙ୍କର ଡିଭାଇସରେ ପ reading ଼ିବା 0 ରେ ରହେ ତେବେ ଏକ ଭିନ୍ନ ପଦ୍ଧତି ଚେଷ୍ଟା କରନ୍ତୁ |</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (ପରାମର୍ଶିତ)</string>
     <string name="fps_overlay_mode_kernel">କର୍ଣ୍ଣଲ ନୋଡ୍ |</string>
@@ -693,13 +684,6 @@
     <string name="fps_overlay_text_size">ପାଠ୍ୟ ଆକାର |</string>
     <string name="fps_overlay_bg_alpha">ପୃଷ୍ଠଭୂମି ସ୍ୱଚ୍ଛତା |</string>
     <string name="fps_overlay_width_scale">ମୋଟେଇ ସ୍କେଲ |</string>
-    <string name="fps_overlay_section_metrics">ମେଟ୍ରିକ୍ ଦେଖାଯାଇଛି |</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU ଲୋଡ୍ |</string>
-    <string name="fps_overlay_metric_ram">RAM ବ୍ୟବହାର</string>
-    <string name="fps_overlay_metric_watt">ବ୍ୟାଟେରୀ ଶକ୍ତି ଡ୍ର</string>
-    <string name="fps_overlay_metric_temp">ବ୍ୟାଟେରୀ ତାପମାତ୍ରା |</string>
-    <string name="fps_overlay_metric_render">ରେଣ୍ଡର୍ ଲେବଲ୍ |</string>
     <string name="dozemode_title">ଶୋଇବା ନୀତି |</string>
     <string name="dozemode_menu_desc">ଷ୍ଟାଣ୍ଡବାଇ ହ୍ el ାଇଟଲିଷ୍ଟ, ନିଷ୍କ୍ରିୟ ଆଚରଣ, ଏବଂ ପୃଷ୍ଠଭୂମି ଶକ୍ତି ଟ୍ୟୁନିଂ |</string>
     <string name="dozemode_state_label">ଡୋଜ୍ ଷ୍ଟେଟ୍ |</string>
@@ -735,7 +719,6 @@
     <string name="pid">PID</string>
     <string name="open_settings">ସେଟିଂସମୂହ ଖୋଲନ୍ତୁ |</string>
     <string name="processmgr_title">ଟାସ୍କ ମନିଟର |</string>
-    <string name="processmgr_menu_desc">ପ୍ରତି-ପ୍ରକ୍ରିୟା CPU ଏବଂ RAM ବ୍ୟବହାର, ଫୋର୍ସ-ଷ୍ଟପ୍ ଏବଂ ଏକ ଭାସମାନ ଓଭରଲେଜ୍ ସହିତ |</string>
     <string name="processmgr_stat_total">%1$d ପ୍ରକ୍ରିୟା |</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
@@ -755,9 +738,6 @@
     <string name="processmgr_search_hint">ଚାଲିବା ପ୍ରକ୍ରିୟା ଖୋଜ |</string>
     <string name="processmgr_no_processes">କ search ଣସି ପ୍ରକ୍ରିୟା ଆପଣଙ୍କ ସନ୍ଧାନ ସହିତ ମେଳ ଖାଉ ନାହିଁ |</string>
     <string name="processmgr_dialog_close">ବନ୍ଦ</string>
-    <string name="processmgr_detail_version">ସଂସ୍କରଣ</string>
-    <string name="processmgr_detail_build">ନିର୍ମାଣ କରନ୍ତୁ |</string>
-    <string name="processmgr_detail_package">ପ୍ୟାକେଜ୍</string>
     <string name="processmgr_result_killed">%1$s ହତ୍ୟା</string>
     <string name="processmgr_result_kill_failed">ହତ୍ୟା କରିପାରିବ ନାହିଁ %1$s |</string>
     <string name="processmgr_result_stopped">ବଳ-ବନ୍ଦ %1$s |</string>
@@ -1361,7 +1341,6 @@
     <string name="max_home_reboot_desc">ସୁରକ୍ଷିତ ପୁନ bo ବୁଟ ବିକଳ୍ପ ଖୋଲନ୍ତୁ |</string>
     <string name="max_home_ai_console">MAX AI କୋନସୋଲ |</string>
     <string name="max_home_ai_working">ଅନୁରୋଧ କରାଯାଇଥିବା ପ୍ରୋଫାଇଲ୍ ପ୍ରୟୋଗ…</string>
-    <string name="max_home_ai_failed">ଶେଷ AI କାର୍ଯ୍ୟ ବିଫଳ ହେଲା |</string>
     <string name="max_home_retry">ପୁନ ry ଚେଷ୍ଟା କରନ୍ତୁ |</string>
     <string name="max_home_ai_idle">ଏପର୍ଯ୍ୟନ୍ତ କ AI ଣସି AI ନିଷ୍ପତ୍ତି ରେକର୍ଡ ହୋଇନାହିଁ |</string>
     <string name="home_system_stable">ସିଷ୍ଟମ୍ ସ୍ଥିର |</string>
@@ -1376,8 +1355,6 @@
     <string name="home_performance_monitor_desc">ଗତ 72 ସେକେଣ୍ଡରେ ଉତ୍ସ ଲୋଡ୍ |</string>
     <string name="home_quick_actions">କମାଣ୍ଡ୍ ଡେକ୍ |</string>
     <string name="home_quick_actions_desc">ସେହି ନିୟନ୍ତ୍ରଣକୁ ସିଧାସଳଖ ପ୍ରବେଶ |</string>
-    <string name="home_action_boost">କାର୍ଯ୍ୟଦକ୍ଷତା ପ୍ରୋଫାଇଲ୍ |</string>
-    <string name="home_action_boost_desc">ସିଷ୍ଟମ୍ ଆଚରଣ ପରିବର୍ତ୍ତନ କରନ୍ତୁ |</string>
     <string name="home_action_thermal">ତାପଜ କେନ୍ଦ୍ର</string>
     <string name="home_action_thermal_desc">ଉତ୍ତାପ ଏବଂ ଥଣ୍ଡା ଯାଞ୍ଚ କରନ୍ତୁ |</string>
     <string name="home_action_battery">ଶକ୍ତି କେନ୍ଦ୍ର</string>
@@ -1397,7 +1374,6 @@
     <string name="home_active">ସକ୍ରିୟ |</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">ସୁରକ୍ଷିତ |</string>
-    <string name="home_device_overview">ଡିଭାଇସ୍ ପୂର୍ବାବଲୋକନ ଖୋଲନ୍ତୁ |</string>
     <string name="home_live_performance">ଲାଇଭ୍ ପ୍ରଦର୍ଶନ</string>
     <string name="home_live_performance_desc">ସାମ୍ପ୍ରତିକ ଲୋଡ୍ ଏବଂ ସିଧାସଳଖ ହାର୍ଡୱେର୍ ନିୟନ୍ତ୍ରଣ |</string>
     <string name="home_open_details">ବିସ୍ତୃତ ତାପଜ ତଥ୍ୟ ଖୋଲନ୍ତୁ |</string>
@@ -1682,7 +1658,6 @@
     <string name="processmgr_kill_confirm_desc">ସିଧାସଳଖ PID %1$s କୁ SIGKILL ପଠାଏ · ଯଦି ଏହାର ଅନ୍ୟ ଉପାଦାନଗୁଡ଼ିକ ଚାଲୁଥାଏ ତେବେ ଆପ୍ ଏହି ପ୍ରକ୍ରିୟାକୁ ନିଜେ ପୁନ rest ଆରମ୍ଭ କରିପାରେ</string>
     <string name="setedit_sensitive_warning">ଏହା ଏକ ସମ୍ବେଦନଶୀଳ ସିଷ୍ଟମ୍ ସେଟିଂ · ଏହାକୁ ପରିବର୍ତ୍ତନ କରିବା ଉପକରଣ ସୁରକ୍ଷା କିମ୍ବା ସ୍ଥିରତା ଉପରେ ପ୍ରଭାବ ପକାଇପାରେ</string>
     <string name="setedit_delete_confirm_desc">ଏହା ସିଷ୍ଟମରୁ ଏଣ୍ଟ୍ରି ଅପସାରଣ କରେ · ଇତିହାସରୁ ଆପଣ ଏହାକୁ ପୁନ restore ସ୍ଥାପନ କରିପାରିବେ</string>
-    <string name="setedit_msg_restore_failed">Rest0 restore ପୁନ restore ସ୍ଥାପନ କରିପାରିବ ନାହିଁ |</string>
     <string name="logsviewer_buffers_desc">କେଉଁ ଲଗକେଟ୍ ବଫର୍ ଅନ୍ତର୍ଭୂକ୍ତ କରିବାକୁ · ଏହାକୁ ପରିବର୍ତ୍ତନ କରିବା ଦ୍ୱାରା ଲଗ ଷ୍ଟ୍ରିମ୍ ପୁନ rest ଆରମ୍ଭ ହୁଏ</string>
     <string name="logsviewer_share_report_desc">ଗୋଟିଏ ଟେକ୍ସଟ୍ ଫାଇଲ୍: କେଉଁ ଡିଭାଇସ୍ ଏବଂ ସେଟିଙ୍ଗ୍ ଏହି ଲଗ୍ ଉତ୍ପାଦନ କଲା, କିପରି ଏକ ରେଖା ଏବଂ ଏହାର ୟୁନିଟ୍ ପ read ଼ାଯାଏ, ପ୍ରତ୍ୟେକ କୋଡ୍ ର ଅର୍ଥ କ’ଣ, ବିଫଳ ହେଲା, ପ୍ରତ୍ୟେକ ବିଫଳତା ବିଷୟରେ କ’ଣ କରିବାକୁ ହେବ, ତା’ପରେ ପୁରା ଲଗ୍ · ଏହା ସହିତ ଅନ୍ୟ କିଛି ପଠାଇବା ଆବଶ୍ୟକ ନାହିଁ</string>
     <string name="logsviewer_file_desc">ଆକାର ସୀମା MaxManager.log ପାଇଁ ପ୍ରଯୁଜ୍ୟ ଏବଂ ଏହାକୁ ଗୋଟିଏ .1 ବ୍ୟାକଅପ୍ ରେ ଘୂର୍ଣ୍ଣନ କରେ · ଲେଭଲ୍ ଫିଲ୍ଟର୍ ଆପ୍ ପଠାଉଥିବା ରେଖା ପାଇଁ ପ୍ରଯୁଜ୍ୟ; ଇଞ୍ଜିନ୍ ର ନିଜସ୍ୱ ରେଖା ସବୁବେଳେ ରେକର୍ଡ କରାଯାଏ, ତେଣୁ କମ୍ ଶବ୍ଦ କ an ଣସି ଇଞ୍ଜିନ ବିଫଳତାକୁ ଲୁଚାଇ ପାରିବ ନାହିଁ</string>
@@ -1761,13 +1736,11 @@
     <string name="dex2oat_progress_reset_all">ସବୁ ଆପ୍ ରିସେଟ୍ ହେଉଛି\u2026</string>
     <string name="dex2oat_progress_resetting">%1$s ରିସେଟ୍ ହେଉଛି\u2026</string>
     <string name="display_animation_scale_desc">ଉଇଣ୍ଡୋ</string>
-    <string name="fps_overlay_metric_render_desc">“FPS” ବଦଳରେ VULKAN/OPENGL ଲେବଲ୍ ଦେଖାଏ, ଫୋରଗ୍ରାଉଣ୍ଡ ଆପ୍ ର ଲୋଡ୍ ହୋଇଥିବା ଲାଇବ୍ରେରୀରୁ ଚିହ୍ନଟ ହୁଏ</string>
     <string name="fps_overlay_needs_permission">“ଅନ୍ୟ ଆପ୍ ଉପରେ ଦେଖାନ୍ତୁ” ଅନୁମତି ଆବଶ୍ୟକ</string>
     <string name="logsviewer_clear_confirm_desc">ଏହା ସ୍କ୍ରିନ୍ ବଫର୍ ସଫା କରେ ଏବଂ ସିଷ୍ଟମ୍ ଲଗ୍ ମଧ୍ୟ ସଫା କରିବାକୁ “logcat -c” ଚଲାଏ।</string>
     <string name="logsviewer_empty_state">ଏପର୍ଯ୍ୟନ୍ତ ଲଗ୍ ଲାଇନ୍ ନାହିଁ\u2026</string>
     <string name="logsviewer_paused_banner">ବିରାମ \u2014 ନୂତନ ଲାଇନ୍ ବଫର୍ ହୁଅନ୍ତି</string>
     <string name="processmgr_overlay_permission_needed">ଫ୍ଲୋଟିଂ ମନିଟର ଦେଖାଇବାକୁ “ଅନ୍ୟ ଆପ୍ ଉପରେ ଦେଖାନ୍ତୁ” ଅନୁମତି ଆବଶ୍ୟକ।</string>
-    <string name="processmgr_stat_breakdown">%1$d ଉପଭୋକ୍ତା \u00b7 %2$d ସିଷ୍ଟମ୍</string>
     <string name="resolution_active_summary">ସକ୍ରିୟ: %1$d\u00d7%2$d (%3$s) \u00b7 %4$d DPI \u00b7 %5$d Hz</string>
     <string name="resolution_reset_native_desc">ପ୍ୟାନେଲ୍ ର ପ୍ରକୃତ %1$d\u00d7%2$d ପୁନରୁଦ୍ଧାର କରନ୍ତୁ (%3$d DPI)</string>
     <string name="sched_uclamp_desc">ଶେଡ୍ୟୁଲର୍ ଏକ ଟାସ୍କ ପାଇଁ CPU ର କେତେ କ୍ଷମତା ମାଗିପାରିବେ ତାହା ସୀମିତ କରେ (0\u20131024), ସକ୍ରିୟ ଗଭର୍ନରଠାରୁ ସ୍ୱାଧୀନ।</string>
@@ -1790,4 +1763,6 @@
     <string name="max_app_master_on_desc">ପ୍ରତି ଆପ୍ ଅପ୍ଟିମାଇଜେସନ୍ ପ୍ରୟୋଗ କରାଯାଉଛି</string>
     <string name="max_app_advanced_options">ଉନ୍ନତ ବିକଳ୍ପଗୁଡ଼ିକ</string>
     <string name="max_app_save">ସଞ୍ଚୟ କରନ୍ତୁ</string>
+    <string name="home_gpu_max_freq">ସର୍ବାଧିକ ଫ୍ରକ୍</string>
+    <string name="setedit_msg_restore_failed">ପୁନ restore ସ୍ଥାପନ ହୋଇପାରିବ ନାହିଁ %1$s</string>
 </resources>

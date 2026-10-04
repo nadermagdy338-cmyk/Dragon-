@@ -70,6 +70,7 @@ ansi-library-ktx = { module = "com.github.Fox2Code.AndroidANSI:library-ktx", ver
 androidx-transition = { group = "androidx.transition", name = "transition", version.ref = "androidx-transition" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation" }
 androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 
 # Core Android & Lifecycle
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }

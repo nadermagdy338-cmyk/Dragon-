@@ -1,0 +1,47 @@
+# عقد CLI الثنائية `sys.maxmanager-profilesettings` — الجدول المرجعي الذي تعيد دعاوى
+# `binprofiles` (`cargo test`) تشغيله على دوالّ التخطيط الخالصة نفسها (لا نسخة منها).
+#
+# الأعمدة مفصولة بـTAB، بهذا الترتيب:
+#   label · arg1 · kind · value
+#
+# و`arg1` = `-` تعني «لا argv[1]» (للصفوف التي لا تعنيه: صفوف الملكية).
+# و`kind` ∈ { command · candidate · runs · inert · trusted · untrusted }:
+#   command   ⇒ value اسم الأمر المتوقَّع من `argv[1]` (الرقم أو المرادف)
+#   candidate ⇒ `argv[1]` غير معروف فيُصنَّف مرشّحًا (بلا قرار تشغيل)
+#   runs      ⇒ يُشغَّل كبرنامج خارجي (قاعدة: فيه نقطة أو مسار موجود)
+#   inert     ⇒ لا نقطة ولا ملف ⇒ لا شيء يُنفَّذ (وكان هذا `if` داخليًّا بلا اسم)
+#   trusted   ⇒ value سطر أوامر الأب الذي **يجب قبوله**
+#   untrusted ⇒ value سطر أوامر الأب الذي **يجب رفضه**
+#
+# من يستدعي كل شكل (مقيس من المصدر، للتوثيق لا للتنفيذ):
+#   أرقام 0..3        ← `archdaemon/jni/src/SystemProfile/ProfileUtility.c:84` (`%d`)
+#   applyfreqbalance  ← `archdaemon/jni/src/System/System.c:167,170`
+#   applyfreqgame     ← **لا مستدعي في الشجرة** (مقيس): الوحيد بلا قارئ — مسجَّل لا محذوف (ADR-18)
+#   سطر الأب = `sh -c …` ← لأن `systemv()` يعمل بـ`execle("/system/bin/sh", "sh", "-c", …)`
+#
+# ⚠️ ولا يُقوَّل هذا الجدول ما ليس فيه: الشرطان يُثبَّتان كما هما، والثاني **فضفاض مقيسًا**
+# (أيّ سطر يحوي `sys.maxmanager` يمرّ) — والصفّ `loose-prefix-still-passes` يعلن ذلك صراحةً
+# بدل أن يمرّ بصمت. إصلاحه قرار مالك لا تنظيف مراجع.
+#
+# ⚠️ ولا تُعدّل صفًّا هنا لتُمرّر اختبارًا: إن سقط فالسؤال **أيّهما تغيّر حقًّا — الثنائية أم المُنتظَر؟**
+label	arg1	kind	value
+numeric-0-initializes	0	command	initialize
+alias-initialize	initialize	command	initialize
+numeric-1-performance	1	command	performance
+alias-performance	performance_profile	command	performance
+numeric-2-balanced	2	command	balanced
+alias-balanced	balanced_profile	command	balanced
+numeric-3-eco	3	command	eco
+alias-eco	eco_mode	command	eco
+applyfreqbalance	applyfreqbalance	command	applyfreqbalance
+applyfreqgame	applyfreqgame	command	applyfreqgame
+unknown-word-is-a-candidate	banana	candidate	-
+relative-script-with-a-dot-runs	./run.sh	runs	-
+dotted-argument-runs-even-if-missing	does-not-exist.sh	runs	-
+plain-word-without-a-file-is-inert	no-such-command-xyz	inert	-
+daemon-direct-caller-is-trusted	-	trusted	/system/bin/sys.maxmanager-service --run
+shell-wrapper-caller-is-trusted	-	trusted	sh -c sys.maxmanager-profilesettings 2
+loose-prefix-still-passes	-	trusted	sys.maxmanagerAnythingElse
+unrelated-shell-is-refused	-	untrusted	/system/bin/sh -c echo hi
+the-check-is-case-sensitive	-	untrusted	SYS.MAXMANAGER-SERVICE
+empty-cmdline-is-refused	-	untrusted	

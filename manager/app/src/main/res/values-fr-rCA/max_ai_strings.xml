@@ -68,7 +68,6 @@
     <string name="max_ai_learned_none">Aucun nouvel échantillon n\'a été ajouté parce que rien n\'a été mesuré.</string>
     <string name="max_ai_prediction">prédit %1$s · thermique %2$s · confiance %3$s</string>
     <string name="max_ai_prediction_error">erreur de prédiction %1$s</string>
-    <string name="max_ai_safety_level">niveau de sécurité</string>
     <string name="max_ai_value_unknown">inconnu</string>
     <string name="max_ai_stage_user">Ce que l\'utilisateur a fait</string>
     <string name="max_ai_user_override">L\'utilisateur l\'a défait manuellement après %1$s (%2$s), cela a donc été enregistré comme un rejet mesuré.</string>
@@ -284,4 +283,5 @@
     <string name="max_ai_settings_loading">Chargement des préférences IA enregistrées.</string>
     <string name="max_ai_learning_coverage">Couverture d\'apprentissage %1$d%%</string>
     <string name="max_ai_journal_clear_desc">Supprime les boucles enregistrées. Les verrouillages manuels, la propriété actuelle et tout ce que Max AI a appris sont conservés.</string>
+    <string name="max_ai_safety_level">niveau de sécurité %1$s</string>
 </resources>

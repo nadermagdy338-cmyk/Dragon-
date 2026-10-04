@@ -17,7 +17,7 @@ import nd.max.core.hardware.ControlOwnership
 import nd.max.core.hardware.DeviceStateCollector
 import nd.max.core.hardware.PredictiveSafety
 import nd.max.core.jni.PredictorBridge
-import nd.max.ui.util.EventLog
+import nd.max.core.platform.EventLog
 import javax.inject.Inject
 import javax.inject.Singleton
 

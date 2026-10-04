@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">រយៈពេលកំណត់អតិបរមា (យើង)</string>
+    <string name="max_sched_tunable_deadline_period_min">រយៈពេលផុតកំណត់អប្បបរមា (ពួកយើង)</string>
+    <string name="max_sched_tunable_energy_aware">ការយល់ដឹងអំពីថាមពល</string>
+    <string name="max_sched_tunable_latency">Latency (ns)</string>
+    <string name="max_sched_tunable_migration_cost">ថ្លៃ​ធ្វើ​ចំណាក​ស្រុក (ns)</string>
+    <string name="max_sched_tunable_min_granularity">កម្រិតអប្បបរមា (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">ទំហំបណ្តុំនៃការផ្លាស់ប្តូរ</string>
+    <string name="max_sched_tunable_pelt_multiplier">មេគុណ PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">ពេលវេលាពិត (ពួកយើង)</string>
+    <string name="max_sched_tunable_rt_runtime">ពេល​វេលា​ពិត​ប្រាកដ (យើង)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">ជាន់ UClamp ពេលវេលាពិត</string>
+    <string name="max_sched_tunable_wakeup_granularity">កម្រិតនៃការភ្ញាក់ដឹងខ្លួន (ns)</string>
+</resources>

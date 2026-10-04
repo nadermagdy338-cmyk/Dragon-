@@ -20,6 +20,8 @@ import nd.max.MaxManagerProps
 import nd.max.core.diagnostics.DiagnosticCenter
 import nd.max.core.hardware.ChargingHardwareBackend
 
+import android.content.Context
+import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,7 +34,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 /**
  * The device's own charging state, as a code rather than a sentence.
@@ -51,6 +53,14 @@ enum class BatteryStatus { Charging, Discharging, Full, NotCharging, Unknown }
  * they disagree the user should see both, not one of them silently chosen.
  */
 enum class BatteryHealthVerdict { Good, Overheat, Dead, OverVoltage, Cold, Unknown }
+
+/**
+ * مفتاح موفّر البطارية في `Settings.Global` — **نصًّا لأن الـSDK العام لا يعلن ثابته**
+ * (أمسكها `compileReleaseKotlin`: `Unresolved reference 'LOW_POWER'` في ثابت الـSDK).
+ * وهو **المفتاح نفسه** الذي تقرؤه `settings get global low_power` حرفيًّا — فلا يتغيّر
+ * المعنى ولا المصدر، وإنما الطريق: قراءة من الـContentResolver بدل رحلة صدفة.
+ */
+private const val LOW_POWER_KEY = "low_power"
 
 class ChargingViewModel : ViewModel() {
 
@@ -153,7 +163,17 @@ class ChargingViewModel : ViewModel() {
     private var batteryDir: String? = null
     private var pollJob: kotlinx.coroutines.Job? = null
 
-    fun loadState() {
+    /**
+     * فتح الشاشة: **ثلاث رحلات صدفة أُزيلت من مسار الأوّل** (عطب سرعة مُبلَّغ عنه).
+     *
+     * وكانت هنا ثلاث مرّات `Shell.cmd("test -e … && echo 1 || echo 0")` لسؤال **وجود عقدة**،
+     * و`Shell.cmd("settings get global low_power")` لسؤال **حالة المنصّة** — وكلّها في
+     * الصدفة الواحدة المُسلسَلة التي تنتظر خلفها الشاشات. والبديلان ليسا ترجيحًا: سؤال الوجود
+     * تجيبه الطبقة الموحّدة `RootFileAccess` (نفسها المستعملة في أعلاه بسطرين)، وسؤال موفّر
+     * البطارية تجيبه المنصّة من **المفتاح نفسه** (`Settings.Global.LOW_POWER` هو ما تقرؤه
+     * `settings get global low_power` حرفيًّا).
+     */
+    fun loadState(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             // دور مجلد البطارية ومرشّحو عقدة الشحن السريع: كلاهما كان حلقة `test` عبر صدفة
             // لكل مرشّح — وصار سؤالًا واحدًا للقائمة كلها (دفعة أصلية ثم احتياط مصرَّح).
@@ -171,7 +191,9 @@ class ChargingViewModel : ViewModel() {
                 }
 
                 val limitPath = "$dir/$CHARGE_LIMIT_NODE_NAME"
-                if (Shell.cmd("test -e $limitPath && echo 1 || echo 0").exec().out.joinToString("").trim() == "1") {
+                // وجود العقدة: الطبقة الموحّدة تسأل العملية أوّلًا ثم IPC ثم الصدفة — أي أن
+                // القدرة محفوظة حرفيًّا، والكلفة في الحالة الشائعة بلا صدفة.
+                if (RootFileAccess.exists(limitPath)) {
                     chargeLimitNodePath = limitPath
                     chargeLimitSupported = true
                 }
@@ -182,9 +204,9 @@ class ChargingViewModel : ViewModel() {
             val savedMa = PropertyUtils.get(PROP_FASTCHG_MA).toIntOrNull()
             savedMa?.let { fastChargeCurrentMa = it }
 
-            sicModeNodePath = SIC_MODE_CANDIDATES.firstOrNull {
-                Shell.cmd("test -e $it && echo 1 || echo 0").exec().out.joinToString("").trim() == "1"
-            }
+            // مرشّحو SIC في **نداء واحد** للقائمة كلّها — كما في مجلد البطارية أعلاه؛
+            // كانت حلقة `test -e` عبر صدفة **لكلّ مرشّح**.
+            sicModeNodePath = RootFileAccess.firstExisting(SIC_MODE_CANDIDATES) { it }
             sicBoostEnabled = PropertyUtils.get(PROP_SIC_BOOST) == "1"
             if (sicBoostEnabled) applySicBoostInternal(true)
 
@@ -194,8 +216,11 @@ class ChargingViewModel : ViewModel() {
                 if (savedLimit < CHARGE_LIMIT_DISABLED_PERCENT) applyChargeLimitInternal(savedLimit)
             }
 
-            batterySaverEnabled = Shell.cmd("settings get global low_power").exec()
-                .out.joinToString("").trim() == "1"
+            // بلا صدفة وبلا جذر: المفتاح نفسه من الـContentResolver. و«غير مضبوط» يُرجع
+            // `0` — وهو ما يعنيه الشرط القديم (`== "1"`) حرفيًّا.
+            batterySaverEnabled = runCatching {
+                Settings.Global.getInt(context.contentResolver, LOW_POWER_KEY, 0) == 1
+            }.getOrDefault(false)
 
             refreshStats()
             startPolling()

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Son Müddət Maks (ABŞ)</string>
+    <string name="max_sched_tunable_deadline_period_min">Son Müddət Min (biz)</string>
+    <string name="max_sched_tunable_energy_aware">Enerjidən xəbərdar</string>
+    <string name="max_sched_tunable_latency">Gecikmə (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Miqrasiya dəyəri (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimum Qranulyarlıq (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Miqrasiya Batch Ölçüsü</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT Multiplikatoru</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Real Zaman Dövrü (biz)</string>
+    <string name="max_sched_tunable_rt_runtime">Real-Time Runtime (biz)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Real Zamanlı UClamp Döşəməsi</string>
+    <string name="max_sched_tunable_wakeup_granularity">Oyanış Qranularlığı (ns)</string>
+</resources>

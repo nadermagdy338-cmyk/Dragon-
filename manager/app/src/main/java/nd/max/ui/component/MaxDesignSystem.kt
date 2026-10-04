@@ -50,9 +50,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import nd.max.ui.design.MaxAlpha
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSectionSpec
+import nd.max.ui.design.MaxSpace
 import nd.max.ui.theme.MonoValueStyleMedium
 
 @Composable
@@ -77,34 +83,58 @@ data class MaxSemanticColors(
     val neutral: Color
 )
 
+/*
+ * Studio opacity vocabulary — a view onto [MaxAlpha], not a second scale.
+ *
+ * These six names used to carry six numbers of their own (0.32 / 0.24 / 0.08 / 0.78 / 0.22 /
+ * 0.07) beside [MaxAlpha]'s own set, so "a faint border" had two spellings and the two surfaces
+ * that used them did not match. The names are kept because call sites depend on them; the values
+ * are now the canonical ones, which is what makes the two surfaces match by construction.
+ *
+ * The visible consequence is deliberate and small: a bordered surface is drawn at the canonical
+ * border weights (0.16 / 0.28) instead of 0.24 / 0.32.
+ */
 object MaxUiAlpha {
-    const val surfaceBorder = 0.32f
-    const val subtleBorder = 0.24f
-    const val accentSurface = 0.08f
-    const val mutedText = 0.78f
-    const val edgeLight = 0.22f
-    const val haloGlow = 0.07f
+    const val surfaceBorder = MaxAlpha.borderStrong
+    const val subtleBorder = MaxAlpha.border
+    const val accentSurface = MaxAlpha.toneWash
+    const val mutedText = MaxAlpha.supportingText
+    const val edgeLight = MaxAlpha.edgeLight
+    const val haloGlow = MaxAlpha.haloGlow
 }
 
+/*
+ * Studio metrics — now the same numbers as [MaxSpace] / [MaxRadius] / [MaxCardSpec].
+ *
+ * `pagePadding` and `MaxSpace.gutter` were both "the page margin", spelled twice with the same
+ * value; `cardRadius` 28 and `MaxRadius.group` 22 were both "a card's corner", spelled twice with
+ * *different* values. That second pair is the audit's core finding in one line. Every name here
+ * now resolves to the canonical token, so a card drawn through `MaxSurface` and a card drawn
+ * through [nd.max.ui.design.MaxCard] cannot disagree about their own corners.
+ */
 object MaxUiMetrics {
-    val pagePadding = 20.dp
-    val sectionGap = 28.dp
-    val itemGap = 12.dp
-    val cardPadding = 18.dp
-    val cardRadius = 28.dp
-    val smallRadius = 18.dp
-    val compactRadius = 12.dp
-    val screenHorizontalPadding = 20.dp
-    val screenTopPadding = 16.dp
-    val screenBottomPadding = 32.dp
-    val screenItemGap = 12.dp
+    val pagePadding = MaxSpace.gutter
+    val sectionGap = MaxSpace.section
+    val itemGap = MaxSpace.md
+    val cardPadding = MaxCardSpec.padding
+    val cardRadius = MaxCardSpec.radius
+    val smallRadius = MaxRadius.row
+    val compactRadius = MaxRadius.control
+    val screenHorizontalPadding = MaxSpace.gutter
+    val screenTopPadding = MaxSpace.lg
+    val screenBottomPadding = MaxSpace.pageBottom
+    val screenItemGap = MaxSpace.md
 }
 
-private val studioCardShape = RoundedCornerShape(28.dp)
-private val studioActionShape = RoundedCornerShape(18.dp)
+/*
+ * The studio's two shapes are the project's shapes, not two more radii. `MaxCard` draws at
+ * [MaxCardSpec.radius], so a studio panel and a card are the same object to the eye.
+ */
+private val studioCardShape = RoundedCornerShape(MaxCardSpec.radius)
+private val studioActionShape = RoundedCornerShape(MaxRadius.row)
 
 private fun studioSurfaceColor(scheme: ColorScheme, accent: Color?): Color =
-    accent?.copy(alpha = 0.045f)?.compositeOver(scheme.surfaceContainerLow)
+    accent?.copy(alpha = MaxAlpha.toneWash)?.compositeOver(scheme.surfaceContainerLow)
         ?: scheme.surfaceContainerLow
 
 @Composable
@@ -122,7 +152,11 @@ fun MaxSurface(
         .clip(studioCardShape)
         .background(studioSurfaceColor(scheme, accent))
         .border(
-            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) 0.22f else MaxUiAlpha.surfaceBorder)),
+            BorderStroke(
+                MaxCardSpec.borderWidth,
+                (accent ?: scheme.outlineVariant)
+                    .copy(alpha = if (accent != null) MaxUiAlpha.edgeLight else MaxUiAlpha.surfaceBorder),
+            ),
             studioCardShape
         )
     if (onClick != null) {
@@ -155,7 +189,11 @@ fun MaxSurfaceBox(
         .background(containerColor ?: studioSurfaceColor(scheme, accent))
     if (borderEnabled) {
         m = m.border(
-            BorderStroke(1.dp, (accent ?: scheme.outlineVariant).copy(alpha = if (accent != null) 0.22f else MaxUiAlpha.surfaceBorder)),
+            BorderStroke(
+                MaxCardSpec.borderWidth,
+                (accent ?: scheme.outlineVariant)
+                    .copy(alpha = if (accent != null) MaxUiAlpha.edgeLight else MaxUiAlpha.surfaceBorder),
+            ),
             shape
         )
     }
@@ -177,18 +215,33 @@ fun MaxSectionHeader(
     modifier: Modifier = Modifier,
     accent: Color = MaterialTheme.colorScheme.primary
 ) {
+    // الهندسة والأنماط من `MaxSectionSpec` لا أرقامًا محلّية: هي ما يجعل رأس هذا القسم
+    // ورأس اللوحة ورأس إعدادات التطبيق **نفس المستوى** في سلّم القراءة (انظر تعليق العقد).
     Column(modifier = modifier.fillMaxWidth().maxHeadingSemantics()) {
-        Box(Modifier.width(28.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(accent))
-        Spacer(Modifier.height(10.dp))
+        // الشريط هنا **أفقيّ** لأنّه يقع **فوق** الاسم بأمر المالك، وهو ما صار له عقدُه المُسمّى
+        // في `MaxSectionSpec` (`accentRule*`). والرأسيُّ يبقى للموضع الذي يُبرّره وحده: الشرطة
+        // **بجانب** الاسم في صفّ (`NeuralSectionHeader`).
+        Box(
+            Modifier
+                .width(MaxSectionSpec.accentRuleWidth)
+                .height(MaxSectionSpec.accentRuleHeight)
+                .clip(RoundedCornerShape(MaxSectionSpec.accentRadius))
+                .background(accent)
+        )
+        Spacer(Modifier.height(MaxSectionSpec.accentRuleGap))
         Text(
             title,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium.copy(lineBreak = LineBreak.Heading),
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold
         )
         if (!subtitle.isNullOrBlank()) {
-            Spacer(Modifier.height(4.dp))
-            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(MaxSectionSpec.titleGap))
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall.copy(lineBreak = LineBreak.Heading),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -203,7 +256,7 @@ fun MaxStatusPill(text: String, active: Boolean, accent: Color = MaterialTheme.c
     )
     Surface(
         modifier = Modifier.semantics { stateDescription = text },
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(MaxRadius.chip),
         color = color.copy(alpha = 0.08f).compositeOver(scheme.surfaceContainerLow),
         border = BorderStroke(1.dp, color.copy(alpha = 0.22f))
     ) {
@@ -232,7 +285,7 @@ fun MaxMetric(
     val scheme = MaterialTheme.colorScheme
     MaxSurface(modifier = modifier, accent = accent, onClick = onClick) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = RoundedCornerShape(12.dp), color = accent.copy(alpha = 0.10f)) {
+            Surface(shape = RoundedCornerShape(MaxRadius.control), color = accent.copy(alpha = 0.10f)) {
                 Icon(icon, null, tint = accent, modifier = Modifier.padding(9.dp).size(20.dp))
             }
             Spacer(Modifier.weight(1f))
@@ -304,7 +357,7 @@ fun MaxActionRow(
         border = BorderStroke(1.dp, scheme.outlineVariant.copy(alpha = MaxUiAlpha.surfaceBorder))
     ) {
         Row(Modifier.heightIn(min = 72.dp).padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = RoundedCornerShape(12.dp), color = accent.copy(alpha = MaxUiAlpha.accentSurface)) {
+            Surface(shape = RoundedCornerShape(MaxRadius.control), color = accent.copy(alpha = MaxUiAlpha.accentSurface)) {
                 Icon(icon, null, tint = accent, modifier = Modifier.padding(10.dp).size(20.dp))
             }
             Spacer(Modifier.width(14.dp))
@@ -316,7 +369,7 @@ fun MaxActionRow(
                 }
                 if (!value.isNullOrBlank()) {
                     Spacer(Modifier.height(7.dp))
-                    Surface(shape = RoundedCornerShape(6.dp), color = accent.copy(alpha = 0.08f)) {
+                    Surface(shape = RoundedCornerShape(MaxRadius.chip), color = accent.copy(alpha = 0.08f)) {
                         AnimatedContent(
                             targetState = value,
                             transitionSpec = { fadeIn(tween(MaxMotion.fast)) togetherWith fadeOut(tween(MaxMotion.fast)) },

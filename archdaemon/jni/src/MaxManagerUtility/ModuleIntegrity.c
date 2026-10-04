@@ -14,23 +14,132 @@
  * limitations under the License.
  */
 
-#include <AZenith.h>
+#include <MaxManager.h>
+
+#include <stdio.h>
+#include <string.h>
+
+/**
+ * هوية الوحدة كما هي مشحونة فعلًا في `mainfiles/module.prop`.
+ *
+ * **العطب الذي وُلد من هذين السطرين، مقيسًا على جهاز:** كان الفحص ينفّذ
+ * `grep -q '^name=Max Manager$'` — والاسم في `module.prop` صار `MaxManager` بلا فراغ
+ * (تغيير مقصود في تاريخ المستودع)، وبقي الفحص يطلب الاسم القديم. فصار الحارس يفشل على
+ * **كل تنصيب نظيف** لا على عبث طرف ثالث:
+ *
+ * ```
+ * --- START OF MAXMANAGER SERVICE ---
+ * 2026-09-28 20:59:16.060 F MaxManager: EVENT=MODULE_INTEGRITY_FAILED reason=modified_by_third_party
+ * ```
+ *
+ * ثم `exit(EXIT_FAILURE)`، فتُصفَّر `persist.sys.maxmanager.service` ويُكتب
+ * `persist.sys.maxmanager.state=stopped`، ولا يعمل بعد ذلك شيء من الخادم: لا ملف عام،
+ * ولا حاكم لكل تطبيق، ولا `--checkbypasschg` — وهذه هي رسالة المستخدم نفسها:
+ * `ERROR: MaxManager daemon is not running.`
+ *
+ * **ولماذا ثابتان لا نصّان في نداء:** لأن عطبًا كهذا لا يُمنع بتبديل نصّين، بل بمصدر واحد
+ * يُقاس من الطرفين. بوابة `module_identity` في `tools/bundle_contract.py` تقرأ هذين
+ * الثابتين وتقرأ `mainfiles/module.prop` وتُخرج بخطأ عند أي انزياح — فتغيير الاسم في
+ * `module.prop` يُسقط CI، ولا يُقتل خادم المستخدم صامتًا مرّة أخرى.
+ */
+#define MODULE_IDENTITY_NAME   "MaxManager"
+#define MODULE_IDENTITY_AUTHOR "MaxManager Project"
+
+/** سقف نصّ `module.prop` في الذاكرة — الملفّ الحقيقي يقارب ٢٥٠ بايتًا، والسقف يُستوعبه عشرة أضعاف. */
+#define MODULE_PROP_MAX_LEN 2048
+
+/**
+ * @brief صفّ `key=value` مطابق تمامًا: لا بادئة، ولا مسافة حول العلامة، و`\r` من CRLF مقبول.
+ * @note النصّ الزائد يُرفض: `name=MaxManagerX` ليس `name=MaxManager`، و`name =MaxManager` كذلك.
+ */
+static bool prop_line_equals(const char* line, const char* key, const char* expected) {
+    const size_t key_len = strlen(key);
+
+    if (strncmp(line, key, key_len) != 0 || line[key_len] != '=') {
+        return false;
+    }
+
+    const char* value = line + key_len + 1;
+    const size_t value_len = strcspn(value, "\r\n");
+
+    return value_len == strlen(expected) && strncmp(value, expected, value_len) == 0;
+}
+
+/**
+ * @brief هل نصّ `module.prop` يحمل هوية الوحدة؟
+ * @note دالّة **نقيّة** عمدًا: تُقاس على المضيف بمدخلات مكتوبة، بلا ملفّ وبلا صدفة.
+ * @note الاسم **والمؤلف** كلاهما مطلوب: مفتاح واحد صحيح لا يجعل الوحدة وحدة.
+ */
+bool module_identity_ok(const char* prop_text) {
+    if (prop_text == NULL) {
+        return false;
+    }
+
+    bool name_seen = false;
+    bool author_seen = false;
+    char line[MODULE_PROP_MAX_LEN];
+
+    const char* cursor = prop_text;
+    while (*cursor != '\0') {
+        const char* end = strpbrk(cursor, "\r\n");
+        const size_t length = end != NULL ? (size_t)(end - cursor) : strlen(cursor);
+
+        /* سطر أطول من كل module.prop حقيقي ⇒ النصّ ليس هو: يُرفض ولا يُقتطع. */
+        if (length >= sizeof(line)) {
+            return false;
+        }
+
+        memcpy(line, cursor, length);
+        line[length] = '\0';
+
+        if (prop_line_equals(line, "name", MODULE_IDENTITY_NAME)) {
+            name_seen = true;
+        }
+        if (prop_line_equals(line, "author", MODULE_IDENTITY_AUTHOR)) {
+            author_seen = true;
+        }
+
+        if (end == NULL) {
+            break;
+        }
+        cursor = end + 1;
+        while (*cursor == '\r' || *cursor == '\n') {
+            cursor++;
+        }
+    }
+
+    return name_seen && author_seen;
+}
+
+/**
+ * @brief قرار الحارس: هل يجب أن يموت الخادم الآن؟
+ * @return `true` حين يكون الملفّ غير مقروء **أو** الهوية مخالفة؛ و`false` على وحدة سليمة.
+ * @note الملفّ غير المقروء يبقى موتًا مقصودًا (لا هوية تُتحقَّق) — نفس سلوك النسخة القديمة.
+ * @note يُقاس على المضيف عبر `fopen` الموجَّه (`host_route_open`)، فلا يحتاج جهازًا ولا صدفة.
+ */
+bool module_identity_violated(void) {
+    char prop[MODULE_PROP_MAX_LEN] = {0};
+
+    FILE* handle = fopen(MODULE_PROP, "r");
+    if (handle == NULL) {
+        return true;
+    }
+
+    const size_t read_bytes = fread(prop, 1, sizeof(prop) - 1, handle);
+    fclose(handle);
+    prop[read_bytes] = '\0';
+
+    return !module_identity_ok(prop);
+}
 
 /**
  * @brief Checks if the module properties have been renamed or modified by a 3rd party.
  */
 void is_kanged(void) {
-    if (systemv("grep -q '^name=Max Manager$' %s", MODULE_PROP) != 0) [[clang::unlikely]] {
-        goto doorprize;
+    if (!module_identity_violated()) {
+        return;
     }
 
-    if (systemv("grep -q '^author=MaxManager Project$' %s", MODULE_PROP) != 0) [[clang::unlikely]] {
-        goto doorprize;
-    }
-
-    return;
-
-doorprize:
     log_zenith(LOG_FATAL, "EVENT=MODULE_INTEGRITY_FAILED reason=modified_by_third_party");
     notify("Daemon Error", "Trying to rename me?", true, 0);
     __system_property_set("persist.sys.maxmanager.service", "");

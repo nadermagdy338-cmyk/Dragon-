@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">ઇન્સ્ટોલ કરેલ પેકેજો અને તેઓ જે પ્રવૃત્તિઓ જાહેર કરે છે</string>
+    <string name="max_launcher_loading">ઇન્સ્ટોલ કરેલ પેકેજો અને તેમની ઘોષિત પ્રવૃત્તિઓ વાંચી રહ્યાં છે...</string>
+    <string name="max_launcher_empty">કોઈ ઇન્સ્ટોલ કરેલ પેકેજ આ ઉપકરણ પર પ્રવૃત્તિ જાહેર કરતું નથી.</string>
+    <string name="max_launcher_search_placeholder">એપ્લિકેશન નામ અથવા પેકેજ દ્વારા શોધો</string>
+    <string name="max_launcher_search_clear">શોધ સાફ કરો</string>
+    <string name="max_launcher_scope_all">બધા</string>
+    <string name="max_launcher_scope_user">વપરાશકર્તા</string>
+    <string name="max_launcher_scope_system">સિસ્ટમ</string>
+    <string name="max_launcher_activity_count">%1$d પ્રવૃત્તિઓ</string>
+    <string name="max_launcher_no_match_title">કંઈ મેળ ખાતું નથી</string>
+    <string name="max_launcher_no_match_detail">કોઈપણ પેકેજ નામ અથવા એપ્લિકેશન લેબલ પસંદ કરેલ સ્કોપમાં તે ટેક્સ્ટ ધરાવતું નથી.</string>
+    <string name="max_launcher_no_match_clear">ફિલ્ટર્સ સાફ કરો</string>
+    <string name="max_launcher_reading_activities">આ પેકેજ જાહેર કરે છે તે પ્રવૃત્તિઓ વાંચી રહ્યા છીએ...</string>
+    <string name="max_launcher_no_activities">આ પેકેજ કોઈ પ્રવૃત્તિઓ જાહેર કરતું નથી.</string>
+    <string name="max_launcher_root_off_title">રુટ આપવામાં આવતું નથી</string>
+    <string name="max_launcher_root_off_detail">ખાનગી તરીકે ચિહ્નિત થયેલ પ્રવૃત્તિઓ નિકાસ કરવામાં આવતી નથી, તેથી ફક્ત રૂટ જ તેને શરૂ કરી શકે છે. નિકાસ પ્રવૃત્તિઓ હજી પણ તેના વિના ખુલે છે.</string>
+    <string name="max_launcher_tag_private">ખાનગી</string>
+    <string name="max_launcher_tag_disabled">અક્ષમ</string>
+    <string name="max_launcher_outcome_started">પ્રવૃત્તિ શરૂ કરી</string>
+    <string name="max_launcher_outcome_needs_root">આ પ્રવૃત્તિ નિકાસ કરવામાં આવતી નથી — રુટ જરૂરી છે</string>
+    <string name="max_launcher_outcome_refused">Android એ આ પ્રવૃત્તિ શરૂ કરવાનો ઇનકાર કર્યો</string>
+    <string name="max_launcher_outcome_missing">તે નામની કોઈ પ્રવૃત્તિ ઇન્સ્ટોલ કરેલી નથી</string>
+</resources>

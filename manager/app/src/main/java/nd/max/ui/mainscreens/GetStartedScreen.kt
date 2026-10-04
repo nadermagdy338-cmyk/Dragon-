@@ -18,6 +18,7 @@
 
 package nd.max.ui.mainscreens
 
+import nd.max.ui.design.MaxCardSpec
 import nd.max.MaxManagerProps
 
 
@@ -79,7 +80,7 @@ import nd.max.ui.component.PrivilegePanel
 import nd.max.ui.component.ExpressiveSwitchItem
 import nd.max.ui.component.ScreenAccentGlyph
 import nd.max.ui.component.ScreenAccentProvider
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 import nd.max.ui.util.RootUtils
 
 /**
@@ -341,7 +342,7 @@ fun GetStartedScreen(navController: NavController) {
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                     ),
-                                    shape = RoundedCornerShape(20.dp),
+                                    shape = RoundedCornerShape(MaxCardSpec.radius),
                                     modifier = Modifier
                                         .weight(1f)
                                         .height(56.dp)
@@ -374,7 +375,7 @@ fun GetStartedScreen(navController: NavController) {
                                     containerColor = if (canGoNext) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
                                     contentColor = if (canGoNext) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                                 ),
-                                shape = RoundedCornerShape(20.dp),
+                                shape = RoundedCornerShape(MaxCardSpec.radius),
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(56.dp)

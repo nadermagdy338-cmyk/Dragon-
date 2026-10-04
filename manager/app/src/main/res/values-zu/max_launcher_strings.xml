@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Amaphakheji afakiwe kanye nemisebenzi abayimemezelayo</string>
+    <string name="max_launcher_loading">Ifunda amaphakheji afakiwe kanye nemisebenzi yawo emenyezelwe…</string>
+    <string name="max_launcher_empty">Alikho iphakheji elifakiwe elimemezela umsebenzi kule divayisi.</string>
+    <string name="max_launcher_search_placeholder">Sesha ngegama lohlelo lokusebenza noma iphakheji</string>
+    <string name="max_launcher_search_clear">Sula ukusesha</string>
+    <string name="max_launcher_scope_all">Konke</string>
+    <string name="max_launcher_scope_user">Umsebenzisi</string>
+    <string name="max_launcher_scope_system">Uhlelo</string>
+    <string name="max_launcher_activity_count">%1$d imisebenzi</string>
+    <string name="max_launcher_no_match_title">Akukho okufanayo</string>
+    <string name="max_launcher_no_match_detail">Alikho igama lephakheji noma ilebula yohlelo lokusebenza equkethe lowo mbhalo kusikophu esikhethiwe.</string>
+    <string name="max_launcher_no_match_clear">Sula izihlungi</string>
+    <string name="max_launcher_reading_activities">Ifunda imisebenzi evezwa yile phakheji...</string>
+    <string name="max_launcher_no_activities">Le phakheji isho ukuthi ayikho imisebenzi.</string>
+    <string name="max_launcher_root_off_title">Umsuka awunikezwa</string>
+    <string name="max_launcher_root_off_detail">Imisebenzi emakwe njengeyimfihlo ayithekeliswanga, ngakho-ke yi-root kuphela engayiqala. Imisebenzi ethunyelwe isavulwa ngaphandle kwayo.</string>
+    <string name="max_launcher_tag_private">Okuyimfihlo</string>
+    <string name="max_launcher_tag_disabled">Ikhutshaziwe</string>
+    <string name="max_launcher_outcome_started">Umsebenzi uqalile</string>
+    <string name="max_launcher_outcome_needs_root">Lo msebenzi awuthunyelwa ngaphandle - impande iyadingeka</string>
+    <string name="max_launcher_outcome_refused">I-Android yenqabile ukuqala lo msebenzi</string>
+    <string name="max_launcher_outcome_missing">Awukho umsebenzi onalelo gama ofakiwe</string>
+</resources>

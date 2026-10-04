@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Bertele-tele</string>
+    <string name="max_log_level_debug">Men-debug</string>
+    <string name="max_log_level_info">Informasi</string>
+    <string name="max_log_level_warn">Peringatan</string>
+    <string name="max_log_level_error">Kesalahan</string>
+    <string name="max_log_level_assert">Menegaskan</string>
+    <string name="max_log_level_fatal">Fatal</string>
+    <string name="max_log_buffer_main">Utama</string>
+    <string name="max_log_buffer_system">Sistem</string>
+    <string name="max_log_buffer_crash">Menabrak</string>
+    <string name="max_log_buffer_kernel">Inti</string>
+    <string name="max_log_buffer_events">Acara</string>
+    <string name="max_log_buffer_radio">Radio</string>
+    <string name="max_log_source_daemon">Daemon</string>
+    <string name="max_log_source_appmonitor">Monitor Aplikasi</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Lainnya</string>
+</resources>

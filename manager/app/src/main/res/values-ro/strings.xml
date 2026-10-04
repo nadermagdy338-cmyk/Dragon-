@@ -7,7 +7,7 @@
     <string name="all_set">Totul este pregătit, acum puteți utiliza Max Manager</string>
     <string name="allow_verbose_log">Procesul daemon scoate jurnal detaliat</string>
     <string name="android_version">Versiune Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Nume aplicație</string>
     <string name="app_priority">Prioritate aplicație</string>
     <string name="app_priority_control">Control prioritate aplicație</string>
@@ -726,15 +726,6 @@
     <string name="fps_overlay_notif_channel">Suprapunere FPS</string>
     <string name="fps_overlay_notif_title">Max Manager Suprapunerea FPS rulează</string>
     <string name="fps_overlay_notif_stop">Stop</string>
-    <string name="fps_overlay_section_style">Aspect</string>
-    <string name="fps_overlay_style">Stil de suprapunere</string>
-    <string name="fps_overlay_style_android">Lista Android</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Direcția aspectului</string>
-    <string name="fps_overlay_orientation_vertical">Vertical</string>
-    <string name="fps_overlay_orientation_horizontal">Orizontală</string>
-    <string name="fps_overlay_read_mode">Metoda de citire FPS</string>
     <string name="fps_overlay_read_mode_desc">Încercați o metodă diferită dacă citirea rămâne la 0 pe dispozitiv</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (recomandat)</string>
     <string name="fps_overlay_mode_kernel">Nod kernel</string>
@@ -743,14 +734,6 @@
     <string name="fps_overlay_text_size">Dimensiunea textului</string>
     <string name="fps_overlay_bg_alpha">Opacitatea fundalului</string>
     <string name="fps_overlay_width_scale">Scara de latime</string>
-    <string name="fps_overlay_section_metrics">Valorile afișate</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU încărcare</string>
-    <string name="fps_overlay_metric_ram">RAM utilizare</string>
-    <string name="fps_overlay_metric_watt">Consumul de energie a bateriei</string>
-    <string name="fps_overlay_metric_temp">Temperatura bateriei</string>
-    <string name="fps_overlay_metric_render">Etichetă de redare</string>
-    <string name="fps_overlay_metric_render_desc">Afișează VULKAN/OPENGL în loc de „FPS” ca etichetă, detectată din bibliotecile încărcate ale aplicației din prim-plan</string>
     <string name="dozemode_title">Politica de somn</string>
     <string name="dozemode_menu_desc">Lista albă de așteptare, comportament inactiv și reglarea puterii de fundal</string>
     <string name="dozemode_state_label">Starea de somn</string>
@@ -786,9 +769,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Deschideți setările</string>
     <string name="processmgr_title">Monitorizarea sarcinilor</string>
-    <string name="processmgr_menu_desc">Utilizare CPU și RAM per proces, cu oprire forțată și suprapunere flotantă</string>
     <string name="processmgr_stat_total">%1$d procese</string>
-    <string name="processmgr_stat_breakdown">%1$d utilizator \u00b7 %2$d sistem</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Sus %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">Căutați procesele care rulează</string>
     <string name="processmgr_no_processes">Niciun proces nu corespunde căutării dvs</string>
     <string name="processmgr_dialog_close">Aproape</string>
-    <string name="processmgr_detail_version">Versiune</string>
-    <string name="processmgr_detail_build">Construi</string>
-    <string name="processmgr_detail_package">Pachet</string>
     <string name="processmgr_result_killed">Ucis %1$s</string>
     <string name="processmgr_result_kill_failed">Nu am putut ucide %1$s</string>
     <string name="processmgr_result_stopped">Oprit forțat %1$s</string>
@@ -1461,7 +1439,6 @@
     <string name="max_home_reboot_desc">Deschideți opțiunile de repornire sigură</string>
     <string name="max_home_ai_console">Consola MAX AI</string>
     <string name="max_home_ai_working">Se aplică profilul solicitat...</string>
-    <string name="max_home_ai_failed">Ultima acțiune AI a eșuat</string>
     <string name="max_home_retry">Reîncercați</string>
     <string name="max_home_ai_idle">Nu s-a înregistrat încă nicio decizie AI</string>
     <string name="home_system_stable">SISTEM STABLE</string>
@@ -1477,8 +1454,6 @@
     <string name="home_performance_monitor_desc">Încărcarea resurselor în ultimele 72 de secunde</string>
     <string name="home_quick_actions">Puntea de comandă</string>
     <string name="home_quick_actions_desc">Acces direct la comenzile care contează</string>
-    <string name="home_action_boost">Profil de performanță</string>
-    <string name="home_action_boost_desc">Schimbați comportamentul sistemului</string>
     <string name="home_action_thermal">Centru termic</string>
     <string name="home_action_thermal_desc">Verificați căldura și răcirea</string>
     <string name="home_action_battery">Centru de putere</string>
@@ -1498,7 +1473,6 @@
     <string name="home_active">ACTIV</string>
     <string name="home_idle">INACTIV</string>
     <string name="home_protected">PROTEJAT</string>
-    <string name="home_device_overview">PREZENTAREA GENERALĂ A DISPOZITIVULUI DESCHIDERE</string>
     <string name="home_live_performance">Spectacol live</string>
     <string name="home_live_performance_desc">Sarcina curentă și controale hardware directe</string>
     <string name="home_open_details">Deschideți datele termice detaliate</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Se aplică optimizări per aplicație</string>
     <string name="max_app_advanced_options">Opțiuni avansate</string>
     <string name="max_app_save">Salva</string>
+    <string name="home_gpu_max_freq">Frecventa maxima</string>
 </resources>

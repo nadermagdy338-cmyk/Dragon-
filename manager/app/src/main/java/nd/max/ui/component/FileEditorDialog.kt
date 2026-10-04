@@ -48,10 +48,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Redo
+import androidx.compose.material.icons.automirrored.rounded.Redo
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Save
-import androidx.compose.material.icons.rounded.Undo
+import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.WrapText
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -129,13 +129,13 @@ fun FileEditorDialog(
                     )
                     IconButton(onClick = onUndo, enabled = canUndo) {
                         Icon(
-                            imageVector = Icons.Rounded.Undo,
+                            imageVector = Icons.AutoMirrored.Rounded.Undo,
                             contentDescription = stringResource(R.string.max_files_editor_undo),
                         )
                     }
                     IconButton(onClick = onRedo, enabled = canRedo) {
                         Icon(
-                            imageVector = Icons.Rounded.Redo,
+                            imageVector = Icons.AutoMirrored.Rounded.Redo,
                             contentDescription = stringResource(R.string.max_files_editor_redo),
                         )
                     }

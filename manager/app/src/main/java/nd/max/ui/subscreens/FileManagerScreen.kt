@@ -110,6 +110,7 @@ import nd.max.ui.design.MaxConditionKind
 import nd.max.ui.design.MaxConditionPanel
 import nd.max.ui.design.MaxContextMenu
 import nd.max.ui.design.MaxDrawer
+import nd.max.ui.design.MaxFullScreen
 import nd.max.ui.util.AccessBit
 import nd.max.ui.util.AccessScope
 import nd.max.ui.util.ApkInspector
@@ -126,6 +127,8 @@ import nd.max.ui.util.FileBrowser
 import nd.max.ui.util.FileClipboard
 import nd.max.ui.util.FileClipboardRules
 import nd.max.ui.util.FileConflictRules
+import nd.max.ui.util.FileDeleteTarget
+import nd.max.ui.util.FileDeleteTargets
 import nd.max.ui.util.FileEntry
 import nd.max.ui.util.FileHistory
 import nd.max.ui.util.FileOpenPlan
@@ -139,7 +142,6 @@ import nd.max.ui.util.FileOpVerdict
 import nd.max.ui.util.FilePermissionRules
 import nd.max.ui.util.FileSearchEngine
 import nd.max.ui.util.FileSearchPlan
-import nd.max.ui.util.FileSelection
 import nd.max.ui.util.FileSortKey
 import nd.max.ui.util.FileSystemEngine
 import nd.max.ui.util.FileTargets
@@ -191,6 +193,10 @@ fun FileManagerScreen() {
     var tasks by remember { mutableStateOf<List<FileTask>>(emptyList()) }
     var cancelledTasks by remember { mutableStateOf(setOf<Long>()) }
     var menuAnchor by remember { mutableStateOf<Offset?>(null) }
+
+    // النافذة التي أنشأ الضغط الطويل تحديدها — تُقرأ عند إغلاق القائمة بلا اختيار، والتفصيل
+    // في [selectionToClearAfterMenu].
+    var menuSelectsOnLongPress by remember { mutableStateOf<WindowSide?>(null) }
     var drawerOpen by remember { mutableStateOf(false) }
     var helpOpen by remember { mutableStateOf(false) }
     var mountAccess by remember { mutableStateOf<MountAccess?>(null) }
@@ -203,7 +209,8 @@ fun FileManagerScreen() {
     var renameWindowOpen by remember { mutableStateOf(false) }
     var newFolderOpen by remember { mutableStateOf(false) }
     var newFileOpen by remember { mutableStateOf(false) }
-    var deleteTargets by remember { mutableStateOf<List<String>?>(null) }
+    var compress by remember { mutableStateOf<CompressState?>(null) }
+    var deleteTargets by remember { mutableStateOf<FileDeleteTarget?>(null) }
     var pathEditOpen by remember { mutableStateOf(false) }
     var inputDraft by remember { mutableStateOf("") }
     var refused by remember { mutableStateOf<FileOpRefusal?>(null) }
@@ -220,6 +227,19 @@ fun FileManagerScreen() {
         if (side == WindowSide.First) firstView = transform(firstView) else secondView = transform(secondView)
     }
 
+    fun toggleSelection(side: WindowSide, entry: FileEntry) =
+        updateView(side) { it.toggledSelection(entry) }
+
+    fun swipeSelect(side: WindowSide, entry: FileEntry) =
+        updateView(side) { it.swipeSelect(side, windows, entry) }
+
+    // بعد اكتمال دورة القائمة: لم يُنفَّذ أمر ⇒ يُرفع التحديد الذي أنشأه الضغط الطويل وحده.
+    LaunchedEffect(menuAnchor) {
+        val side = selectionToClearAfterMenu(menuAnchor, menuSelectsOnLongPress) ?: return@LaunchedEffect
+        menuSelectsOnLongPress = null
+        updateView(side) { it.clearedSelection() }
+    }
+
     /** كل تفاعل مع نافذة **ينشّطها** أولًا: فلا يقع أمر على نافذة يظنّ المستخدم أنه في غيرها. */
     fun activate(side: WindowSide) {
         if (windows.active != side) windows = windows.activate(side)
@@ -229,12 +249,7 @@ fun FileManagerScreen() {
         scope.launch { snackbar.showSnackbar(message) }
     }
 
-    fun outcomeText(outcome: FileOpOutcome, count: Int): String = when {
-        outcome.ok -> resources.getString(R.string.max_files_outcome_ok) + " " +
-            resources.getString(R.string.max_files_outcome_count, count)
-        outcome.executed -> resources.getString(R.string.max_files_outcome_unverified)
-        else -> resources.getString(R.string.max_files_outcome_failed)
-    }
+    fun outcomeText(outcome: FileOpOutcome, count: Int): String = outcomeMessage(resources, outcome, count)
 
     /** انتقال: يسجّل الزيارة، ويمسح نتائج بحث قديم فلا تُقرأ على مجلد آخر. */
     fun go(side: WindowSide, target: String, push: Boolean = true) {
@@ -442,23 +457,26 @@ fun FileManagerScreen() {
                     fileClipboard = fresh
                     clipboardOriginSide = side
                 }
-                updateView(side) { it.copy(selecting = false, selection = FileSelection()) }
+                updateView(side) { it.clearedSelection() }
             }
             FileAction.Move -> {
                 FileClipboardRules.of(ClipboardMode.Cut, chosen.map { it.path }, sidePath)?.let { fresh ->
                     fileClipboard = fresh
                     clipboardOriginSide = side
                 }
-                updateView(side) { it.copy(selecting = false, selection = FileSelection()) }
+                updateView(side) { it.clearedSelection() }
             }
             FileAction.Rename -> {
                 rename = chosen.singleOrNull()
                 inputDraft = rename?.name.orEmpty()
             }
             FileAction.Details -> properties = chosen.singleOrNull()?.let(PropertiesState::of)
-            FileAction.Delete -> deleteTargets = chosen.map { it.path }
-            FileAction.Clear -> updateView(side) { it.copy(selecting = false, selection = FileSelection()) }
-            FileAction.Compress, FileAction.Extract ->
+            FileAction.Delete -> deleteTargets = FileDeleteTargets.of(chosen)
+            FileAction.Clear -> updateView(side) { it.clearedSelection() }
+            // الضغط يفتح حواره: الاسم والصيغة والمستوى قرار المستخدم، فيُبنى الطلب بعده
+            // ([compressRequest]) — لا يُخمَّن الامتداد في مكان آخر.
+            FileAction.Compress -> compress = compressStateFor(chosen, side)
+            FileAction.Extract ->
                 immediateRequest(action, chosen, sidePath)?.let { guardAndRun(it, side) }
         }
     }
@@ -497,14 +515,14 @@ fun FileManagerScreen() {
     LaunchedEffect(view.listing, pendingSelect) {
         val target = pendingSelect ?: return@LaunchedEffect
         if (view.entries.any { it.path == target }) {
-            updateView(windows.active) { it.copy(selecting = true, selection = FileSelection(setOf(target))) }
+            updateView(windows.active) { it.singleSelection(target) }
             pendingSelect = null
         }
     }
 
     BackHandler(enabled = menuAnchor != null) { menuAnchor = null }
     BackHandler(enabled = menuAnchor == null && view.selecting) {
-        updateView(windows.active) { it.copy(selecting = false, selection = FileSelection()) }
+        updateView(windows.active) { it.clearedSelection() }
     }
     BackHandler(enabled = menuAnchor == null && !view.selecting && results != null) { results = null }
     BackHandler(enabled = menuAnchor == null && !view.selecting && results == null && window.canGoBack) {
@@ -520,22 +538,11 @@ fun FileManagerScreen() {
         onToggleHidden = {
             val toggled = window.toggleHidden()
             windows = windows.with(windows.active, toggled)
-            updateView(windows.active) { it.copy(selecting = false).pruned(toggled, nowEpoch()) }
+            updateView(windows.active) { it.afterHiddenToggle(toggled, nowEpoch()) }
         },
         onAddBookmark = { bookmarks = FileBookmarks.add(bookmarks, window.path) },
-        onSelectAll = {
-            updateView(windows.active) {
-                it.copy(selecting = true, selection = FileSelection().selectAll(it.visible(window, nowEpoch())))
-            }
-        },
-        onInvertSelection = {
-            updateView(windows.active) {
-                it.copy(
-                    selecting = true,
-                    selection = it.selection.invert(it.visible(window, nowEpoch())),
-                )
-            }
-        },
+        onSelectAll = { updateView(windows.active) { it.allSelected(window, nowEpoch()) } },
+        onInvertSelection = { updateView(windows.active) { it.invertedSelection(window, nowEpoch()) } },
         onClearResults = { results = null },
         onHelp = { helpOpen = true },
     )
@@ -583,8 +590,17 @@ fun FileManagerScreen() {
             guardAndRun(FileOpRequest(FileOperation.CreateFile, destination = window.path, newName = name))
             newFileOpen = false
         },
+        onCompressName = { value -> compress = compress?.named(value) { viewOf(it).entries } },
+        onCompressFormat = { format -> compress = compress?.switchedTo(format) },
+        onCompressLevel = { level -> compress = compress?.atLevel(level) },
+        onCompressConfirm = {
+            compress?.let { state ->
+                compress = null
+                guardAndRun(compressRequest(state, windows.of(state.side).path), state.side)
+            }
+        },
         onDelete = {
-            deleteTargets?.let { targets -> guardAndRun(FileOpRequest(FileOperation.Delete, sources = targets)) }
+            deleteTargets?.let { target -> guardAndRun(FileOpRequest(FileOperation.Delete, sources = target.paths)) }
             deleteTargets = null
         },
         onPath = { raw ->
@@ -729,6 +745,7 @@ fun FileManagerScreen() {
                 FileDialog.RenameWindow -> renameWindowOpen = false
                 FileDialog.NewFolder -> newFolderOpen = false
                 FileDialog.NewFile -> newFileOpen = false
+                FileDialog.Compress -> compress = null
                 FileDialog.Delete -> deleteTargets = null
                 FileDialog.Path -> pathEditOpen = false
                 FileDialog.Refused -> refused = null
@@ -743,11 +760,10 @@ fun FileManagerScreen() {
 
     // ── التركيب ──────────────────────────────────────────────────────────────
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .onGloballyPositioned { coordinates -> rootSize = coordinates.size },
+    MaxFullScreen(
+        modifier = Modifier.onGloballyPositioned { coordinates -> rootSize = coordinates.size },
+        containerColor = MaterialTheme.colorScheme.surface,
+        snackbarHostState = snackbar,
     ) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val density = LocalDensity.current
@@ -809,18 +825,18 @@ fun FileManagerScreen() {
                             openEntry(entry)
                         }
                     },
-                    onToggleSelection = { side, entry ->
-                        updateView(side) { it.copy(selecting = true, selection = it.selection.toggle(entry.path)) }
+                    onToggleSelection = { side, entry -> toggleSelection(side, entry) },
+                    onSwipeSelect = { side, entry ->
+                        activate(side)
+                        swipeSelect(side, entry)
                     },
                     onLongPress = { side, entry, anchor ->
                         val current = viewOf(side)
                         val onSelection = entry.path in current.selection.paths
-                        updateView(side) {
-                            it.copy(
-                                selecting = true,
-                                selection = if (onSelection) it.selection else FileSelection(setOf(entry.path)),
-                            )
-                        }
+                        updateView(side) { it.longPressedSelection(entry, onSelection) }
+                        // ويُسجَّل أن هذا الضغط **أنشأ** التحديد — فإن أُغلقت القائمة بلا اختيار
+                        // رُفع التحديد ونمطه معًا (انظر أثر الإغلاق فوق).
+                        menuSelectsOnLongPress = side.takeUnless { onSelection }
                         activate(side)
                         menuAnchor = anchor
                     },
@@ -898,14 +914,13 @@ fun FileManagerScreen() {
                             newFolderOpen = true
                         },
                         onSearch = { search = SearchState(open = true, root = window.path, query = view.query) },
-                        onSelect = { updateView(windows.active) { it.copy(selecting = true) } },
+                        onSelect = { updateView(windows.active) { it.copy(selecting = true, swipeAnchor = null) } },
                         onDrawer = { drawerOpen = true },
                     )
                 }
             }
         }
 
-        SnackbarHost(hostState = snackbar, modifier = Modifier.align(Alignment.BottomCenter))
 
         MaxDrawer(
             open = drawerOpen,
@@ -952,6 +967,7 @@ fun FileManagerScreen() {
             renameWindowOpen = renameWindowOpen,
             newFolderOpen = newFolderOpen,
             newFileOpen = newFileOpen,
+            compress = compress,
             deleteTargets = deleteTargets,
             pathEditOpen = pathEditOpen,
             inputDraft = inputDraft,

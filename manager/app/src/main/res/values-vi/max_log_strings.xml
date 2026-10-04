@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">dài dòng</string>
+    <string name="max_log_level_debug">Gỡ lỗi</string>
+    <string name="max_log_level_info">Thông tin</string>
+    <string name="max_log_level_warn">Cảnh báo</string>
+    <string name="max_log_level_error">Lỗi</string>
+    <string name="max_log_level_assert">Khẳng định</string>
+    <string name="max_log_level_fatal">Gây tử vong</string>
+    <string name="max_log_buffer_main">Chủ yếu</string>
+    <string name="max_log_buffer_system">Hệ thống</string>
+    <string name="max_log_buffer_crash">Tai nạn</string>
+    <string name="max_log_buffer_kernel">hạt nhân</string>
+    <string name="max_log_buffer_events">Sự kiện</string>
+    <string name="max_log_buffer_radio">Radio</string>
+    <string name="max_log_source_daemon">Daemon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">giao diện người dùng</string>
+    <string name="max_log_source_other">Khác</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Thời hạn tối đa (chúng tôi)</string>
+    <string name="max_sched_tunable_deadline_period_min">Thời hạn tối thiểu (chúng tôi)</string>
+    <string name="max_sched_tunable_energy_aware">Nhận thức về năng lượng</string>
+    <string name="max_sched_tunable_latency">Độ trễ (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Chi phí di chuyển (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Độ chi tiết tối thiểu (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Kích thước lô di chuyển</string>
+    <string name="max_sched_tunable_pelt_multiplier">Hệ số PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Thời gian quay vòng (ms)</string>
+    <string name="max_sched_tunable_rt_period">Khoảng thời gian thực (chúng tôi)</string>
+    <string name="max_sched_tunable_rt_runtime">Thời gian chạy thời gian thực (chúng tôi)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Sàn UClamp thời gian thực</string>
+    <string name="max_sched_tunable_wakeup_granularity">Độ chi tiết khi thức dậy (ns)</string>
+</resources>

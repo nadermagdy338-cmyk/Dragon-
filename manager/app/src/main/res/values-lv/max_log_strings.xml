@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Runājošs</string>
+    <string name="max_log_level_debug">Atkļūdošana</string>
+    <string name="max_log_level_info">Informācija</string>
+    <string name="max_log_level_warn">Brīdinājums</string>
+    <string name="max_log_level_error">Kļūda</string>
+    <string name="max_log_level_assert">Apliecināt</string>
+    <string name="max_log_level_fatal">Liktenīgi</string>
+    <string name="max_log_buffer_main">Galvenā</string>
+    <string name="max_log_buffer_system">Sistēma</string>
+    <string name="max_log_buffer_crash">Avārija</string>
+    <string name="max_log_buffer_kernel">Kodols</string>
+    <string name="max_log_buffer_events">Pasākumi</string>
+    <string name="max_log_buffer_radio">Radio</string>
+    <string name="max_log_source_daemon">Dēmons</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Cits</string>
+</resources>

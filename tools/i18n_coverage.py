@@ -128,6 +128,18 @@ def app_language_codes() -> list[str]:
     return re.findall(r'"([^"]+)"', block)
 
 
+# استثناءات **مشروحة بسبب مقيس**: ترجمة تحذف وسيطًا لأنّ اللغة تُعبّر عنه بغير صيغة الوسيط،
+# وهذا يختلف عن الحذف العطب. وهما لا يفرّقهما النصّ بل النيّة — فيُسمّى الاستثناء بيديه.
+# والمفتاح هنا هو (locale, key)، وكل استثناء يجب أن يظلّ قائمًا و**مختلفًا فعلًا**:
+# لو صارت الترجمة مطابقة للأصل فالبوابة تُبلّغ عن استثناء قديم يُبرّئ ما لا يحتاج تبرئة.
+SPECIFIER_EXEMPT: dict[tuple[str, str], str] = {
+    ("ar", "detail_readable_paths"): (
+        "العربية تُعبّر عن الجمع بـ«مسار/مسارات» داخل النصّ، و`%2$s` لاحقة جمع إنجليزية (`%s`)، "
+        "فإبقاؤها يُنشئ «مساراتs». وقِيس أنّ المفتاح غير مُستدعى من الكود (لا نظير له في *.kt)."
+    ),
+}
+
+
 def real_defects(en: LocaleStrings, target: LocaleStrings) -> list[str]:
     """عيب حقيقي = ما يمكن أن يُسقط التطبيق أو يُسقط البناء، لا نقص ترجمة.
 
@@ -147,15 +159,52 @@ def real_defects(en: LocaleStrings, target: LocaleStrings) -> list[str]:
                     f"(lint: ExtraTranslation — خطأ قاتل يُسقط assembleRelease)"
                 )
                 continue
-            extra = set(SPECIFIER.findall(value)) - set(SPECIFIER.findall(en_keys[key]))
-            if extra:
-                problems.append(f"{file_name}:{key} يطلب {sorted(extra)} ولا يمرّره الكود")
+            want, got = set(SPECIFIER.findall(en_keys[key])), set(SPECIFIER.findall(value))
+            exempt = (target.locale, key) in SPECIFIER_EXEMPT
+            if got - want and not exempt:
+                problems.append(f"{file_name}:{key} يطلب {sorted(got - want)} ولا يمرّره الكود")
+            elif want - got and not exempt:
+                # **وهذا الاتّجاه كان غير مقيس** — قِيس بعده ٦٠ موضعًا في الـ٨٤ لغة،
+                # منها عربية وفرنسية وأمهرية وصربية؛ تُسقط قيمًا تُعرض في الواجهة بلا
+                # أن يسقط شيء ولا أن يُبلَّغ أحد. والـ`extra` وحده كان يرى الانهيار
+                # فقط (وسيط لا يمرّره الكود) ولا يرى المعلومة المفقودة.
+                problems.append(
+                    f"{file_name}:{key} يُسقط {sorted(want - got)} من نصّ الأصل — قيمة لا تظهر للمستخدم"
+                )
+            # فاصلة عارية زائدة عن الأصل: تُسقط `aapt2` (٨٥ ملفًّا قِيسًا) أو تُفسد
+            # التنسيق وقت التشغيل. مُعلَنة بالاتجاه: الزيادة عطب، والنقصان ليس كذلك
+            # (لغة تكتب النسبة بعلامتها الخاصّة).
+            if bare_percents(value) > bare_percents(en_keys[key]):
+                problems.append(
+                    f"{file_name}:{key} يُدخل {bare_percents(value)} فاصلة `%` عارية مقابل "
+                    f"{bare_percents(en_keys[key])} في الأصل — aapt2 يرفض الملف أو العرض يفسد"
+                )
+            # وتهريب الفاصلة العليا: عيب **بناء** لا نقص ترجمة — قيمة واحدة فيه تُسقط
+            # `mergeReleaseResources` كاملًا برسالة لا تسمّي السبب. أُضيف بعد قياس: ٥٨٥
+            # موضعًا في ٨٢ لغة بقيت أشهرًا وكل البوابات خضراء (تكملة ١٤٢).
+            if UNESCAPED_APOSTROPHE.search(value) and not QUOTED_VALUE.match(value):
+                problems.append(
+                    f"{file_name}:{key} يحمل فاصلة عليا غير مُهرَّبة (زوجيّ من الشرطات قبلها) "
+                    f"— aapt2 يُسقط الملف كله"
+                )
         path = os.path.join(RES, f"values-{target.locale}", file_name)
         if os.path.exists(path):
             names = [e.get("name") for e in ET.parse(path).getroot() if e.get("name")]
             dup = sorted({n for n in names if names.count(n) > 1})
             if dup:
                 problems.append(f"{file_name}: مفاتيح مكرّرة {dup}")
+    # والاستثناء **لا يبقى صالحًا إلى الأبد**: يخرج عند أول تحقّق لشرطه.
+    for (locale, key) in SPECIFIER_EXEMPT:
+        if locale != target.locale:
+            continue
+        found = next((v for f, ks in target.files.items() for k, v in ks.items() if k == key), None)
+        source = next((v for ks in en.files.values() for k, v in ks.items() if k == key), None)
+        if found is None or source is None:
+            problems.append(f"استثناء قديم: {locale}:{key} لم يعد موجودًا — يُحذف من SPECIFIER_EXEMPT")
+        elif set(SPECIFIER.findall(found)) == set(SPECIFIER.findall(source)):
+            problems.append(
+                f"استثناء قديم: {locale}:{key} صار مطابقًا للأصل — الاستثناء يُبرّئ ما لا يحتاج"
+            )
     return problems
 
 
@@ -294,12 +343,62 @@ def cmd_write_manifests(args: argparse.Namespace) -> int:
     return 0
 
 
+# وسائط التنسيق: المُحدِّدات تُقارَن بالمجموعة في `real_defects`، و`%%` مُهرَّبة مقصودة.
+# ويبقى **`%` عارية** — وهي أسوأ ما يمكن أن يُكتب في قيمة تُنسّق:
+#
+# **وهذا مقيس (تكملة ١٤٢):** قِيس على ١٣٦٣ ملفّ موارد أن **٨٥ ملفًّا** يرفضها `aapt2`،
+# و**٥ قيمات** فيها `%` عارية **زادها المترجم** (نقل `%%` من موضعه: `%%1$d%` مكان
+# `%1$d%%`، منها `values-eu` و`values-tr` — وواحدة منها `charging_limit_active` لم
+# يُسقطها `aapt2` أصلًا لكنها تُفسد العرض وقت التشغيل). ومقارنة المجموعة أعلاه **لا تراها**:
+# `%1$d` موجودة عند الطرفين، والزائد هو الحرف العاري. فالقاعدة هنا: **لا يجوز أن تزيد
+# الفاصلة العارية في الترجمة على الأصل** — والاتجاه هذا مقصود: لغة تكتب النسبة بعلامتها
+# (`٪` في العربية والفارسية) تكتب `%` أقلّ، وهذا مسموح لا عطب.
+PERCENT_TOKEN = re.compile(
+    r"%\d+\$[-#+0,(]*\d*(?:\.\d+)?[a-zA-Z]|%[-#+0,(]*\d*(?:\.\d+)?[a-zA-Z]|%%|%"
+)
+
+
+def bare_percents(text: str) -> int:
+    """عدد `%` التي ليست مُحدِّدًا ولا `%%` — وهي التي تُسقط `aapt2` أو تشوّه العرض."""
+    return sum(1 for m in PERCENT_TOKEN.finditer(text) if m.group(0) == "%")
+
+
+# فاصلة عليا غير مُهرَّبة: ما يسبقها **عدد زوجيّ** من الشرطات (وصفر زوجيّ).
+#
+# والقاعدة زوجيّة لا «لا شرطة قبله»: لأن `\\'` شرطة خلفية حرفية ثم فاصلة **عارية** — لا
+# يقبلها aapt2 أيضًا. وهذا هو نفس التعبير في `tools/code_health.py` (بوابة `unescaped_apostrophe`)
+# عن قصد: مسار الكتابة والبوابة يقيسان الشرط نفسه.
+UNESCAPED_APOSTROPHE = re.compile(r"(?<!\\)(?:\\\\)*'")
+QUOTED_VALUE = re.compile(r'^\s*".*"\s*$', re.S)
+
+
 def escape_android(text: str) -> str:
-    """تهريب قيمة أندرويد. بدونه يُفشل `aapt2` البناء على فاصلة عليا أو `&` غير مهربة."""
+    """تهريب قيمة أندرويد. بدونه يُفشل `aapt2` البناء على فاصلة عليا أو `&` غير مهربة.
+
+    **⚠️ والتهريب الأعمى كان يُفسد النصّ السليم — وهذا مُقاس (تكملة ١٤٢):** النسخة الأولى
+    كانت `text.replace("'", "\\'")` بلا فحص، فما كان مُهرَّبًا سابقًا في المصدر الإنجليزي
+    (`\\'`، وهي الصيغة الاصطلاحية في هذه الشجرة) صار `\\\\'` = شرطة خلفية حرفية ثم فاصلة
+    عارية. الأثر المُشحون: **٥٨٥ موضعًا في ٨٢ لغة** (`max_screen_strings.xml`) رفضها aapt2
+    بالرسالة الغامضة `Can not extract resource from ParsedResource`، وسقط بها
+    `mergeReleaseResources` كاملًا. فالقاعدة الآن **زوجيّة عدد الشرطات قبل الفاصلة**: فرديّ
+    مُهرَّب (يُترك كما هو) · زوجيّ عارٍ (يُهرَّب). ولا تُلمس `&`/`<` كما كانت.
+    """
     text = text.replace("&", "&amp;").replace("<", "&lt;")
     if len(text) > 1 and text.startswith('"') and text.endswith('"'):
         return '"' + text[1:-1].replace('"', '\\"') + '"'
-    return text.replace("'", "\\'")
+    out: list[str] = []
+    run = 0  # طول تتابع الشرطات المفتوح قبل الحرف الحالي (فرديّ = الحرف التالي مُهرَّب)
+    for ch in text:
+        if ch == "\\":
+            run += 1
+        elif ch == "'":
+            if run % 2 == 0:
+                out.append("\\")
+            run = 0
+        else:
+            run = 0
+        out.append(ch)
+    return "".join(out)
 
 
 def lone_percent(text: str) -> bool:
@@ -347,12 +446,24 @@ def cmd_apply_csv(args: argparse.Namespace) -> int:
             rejected.append(f"{file_name}:{key} — مكرّر في الدفعة نفسها")
             continue
         seen.add((file_name, key))
-        extra = set(SPECIFIER.findall(text)) - set(SPECIFIER.findall(source))
-        if extra:
-            rejected.append(f"{file_name}:{key} — يطلب {sorted(extra)} ولا يمرّره الكود")
+        want, got = set(SPECIFIER.findall(source)), set(SPECIFIER.findall(text))
+        if got - want:
+            rejected.append(f"{file_name}:{key} — يطلب {sorted(got - want)} ولا يمرّره الكود")
+            continue
+        # والاتّجاه الثاني يقيسه الدمج أيضًا: وسيط محذوف = قيمة لا تظهر للمستخدم، ولا شيء كان يمنعه.
+        if want - got:
+            rejected.append(f"{file_name}:{key} — يُسقط {sorted(want - got)} من نصّ الأصل")
             continue
         if lone_percent(text) and SPECIFIER.search(source):
             rejected.append(f"{file_name}:{key} — `%` مفرد في نص منسّق")
+            continue
+        # والتهريب: يُفحص هنا أيضًا لا في `escape_android` وحده — لأن `escape_android` يُصلح
+        # العطب صامتًا، وهذا السطر **يجعله يُعلن** أنه رآه (وإلا مرّ تصحيحٌ بلا قياس).
+        if UNESCAPED_APOSTROPHE.search(text) and not QUOTED_VALUE.match(text):
+            rejected.append(
+                f"{file_name}:{key} — فاصلة عليا غير مُهرَّبة (عدد زوجيّ من الشرطات قبلها) "
+                f"— aapt2 يُسقط الملف كله"
+            )
             continue
         accepted.setdefault(file_name, []).append((key, escape_android(text)))
     written = sum(len(v) for v in accepted.values())

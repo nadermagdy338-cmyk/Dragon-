@@ -57,8 +57,10 @@
     <string name="max_files_action_delete">Delete</string>
     <string name="max_files_action_copy">Copy</string>
     <string name="max_files_action_new_folder">New folder</string>
-    <string name="max_files_action_compress">Compress to tar.gz</string>
-    <string name="max_files_action_extract">Extract tar.gz here</string>
+    <!-- والاسمان لا يذكران صيغة: الصيغة صارت خيارًا في حوار الضغط (كان الزرّ يقول tar.gz
+         والاسم الافتراضي `.zip` — فيخبر الزرّ بغير ما سيحدث). -->
+    <string name="max_files_action_compress">Compress</string>
+    <string name="max_files_action_extract">Extract here</string>
     <string name="max_files_action_details">Details</string>
     <string name="max_files_action_select_all">Select all</string>
     <string name="max_files_action_invert">Invert selection</string>
@@ -72,9 +74,21 @@
     <string name="max_files_new_folder_field">Folder name</string>
     <string name="max_files_delete_title">Delete permanently</string>
     <string name="max_files_delete_body">%1$d entries will be removed with root. There is no recycle bin and no undo on this screen.</string>
+    <string name="max_files_delete_body_sized">%1$d entries will be removed with root. Total size: %2$s. There is no recycle bin and no undo on this screen.</string>
     <string name="max_files_destination_hint">Absolute path, for example /sdcard/Download</string>
     <string name="max_files_confirm">Apply</string>
     <string name="max_files_cancel">Cancel</string>
+
+    <!-- حوار الضغط: الاسم والصيغة والمستوى -->
+    <string name="max_files_compress_title">Compress</string>
+    <string name="max_files_compress_field">Archive name</string>
+    <string name="max_files_compress_format">Format</string>
+    <string name="max_files_compress_level">Compression</string>
+    <string name="max_files_compress_level_store">Store</string>
+    <string name="max_files_compress_level_fast">Fast</string>
+    <string name="max_files_compress_level_normal">Normal</string>
+    <string name="max_files_compress_level_max">Max</string>
+    <string name="max_files_compress_summary">%1$d items \u2192 %2$s</string>
 
     <!-- أسباب الرفض: تُعرض بنصّها لا برقمها -->
     <string name="max_files_refused_title">Not applied</string>

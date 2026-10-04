@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">لفظی</string>
+    <string name="max_log_level_debug">ڈیبگ</string>
+    <string name="max_log_level_info">معلومات</string>
+    <string name="max_log_level_warn">وارننگ</string>
+    <string name="max_log_level_error">خرابی</string>
+    <string name="max_log_level_assert">زور لگانا</string>
+    <string name="max_log_level_fatal">مہلک</string>
+    <string name="max_log_buffer_main">مین</string>
+    <string name="max_log_buffer_system">سسٹم</string>
+    <string name="max_log_buffer_crash">کریش</string>
+    <string name="max_log_buffer_kernel">دانا</string>
+    <string name="max_log_buffer_events">واقعات</string>
+    <string name="max_log_buffer_radio">ریڈیو</string>
+    <string name="max_log_source_daemon">ڈیمن</string>
+    <string name="max_log_source_appmonitor">ایپ مانیٹر</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">دیگر</string>
+</resources>

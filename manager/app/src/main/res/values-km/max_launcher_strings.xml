@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">កញ្ចប់ដែលបានដំឡើង និងសកម្មភាពដែលពួកគេប្រកាស</string>
+    <string name="max_launcher_loading">កំពុងអានកញ្ចប់ដែលបានដំឡើង និងសកម្មភាពដែលបានប្រកាសរបស់ពួកគេ...</string>
+    <string name="max_launcher_empty">គ្មានកញ្ចប់ដែលបានដំឡើងប្រកាសសកម្មភាពនៅលើឧបករណ៍នេះទេ។</string>
+    <string name="max_launcher_search_placeholder">ស្វែងរកតាមឈ្មោះកម្មវិធី ឬកញ្ចប់</string>
+    <string name="max_launcher_search_clear">ជម្រះការស្វែងរក</string>
+    <string name="max_launcher_scope_all">ទាំងអស់។</string>
+    <string name="max_launcher_scope_user">អ្នកប្រើប្រាស់</string>
+    <string name="max_launcher_scope_system">ប្រព័ន្ធ</string>
+    <string name="max_launcher_activity_count">%1$d សកម្មភាព</string>
+    <string name="max_launcher_no_match_title">គ្មានអ្វីត្រូវគ្នាទេ។</string>
+    <string name="max_launcher_no_match_detail">គ្មានឈ្មោះកញ្ចប់ ឬស្លាកកម្មវិធីមានអត្ថបទនោះនៅក្នុងវិសាលភាពដែលបានជ្រើសរើសទេ។</string>
+    <string name="max_launcher_no_match_clear">ជម្រះតម្រង</string>
+    <string name="max_launcher_reading_activities">កំពុងអានសកម្មភាពដែលកញ្ចប់នេះប្រកាស…</string>
+    <string name="max_launcher_no_activities">កញ្ចប់នេះប្រកាសថាមិនមានសកម្មភាពទេ។</string>
+    <string name="max_launcher_root_off_title">ឫសមិនត្រូវបានផ្តល់ឱ្យទេ។</string>
+    <string name="max_launcher_root_off_detail">សកម្មភាពដែលបានសម្គាល់ឯកជនមិនត្រូវបាននាំចេញទេ ដូច្នេះមានតែ root ប៉ុណ្ណោះដែលអាចចាប់ផ្តើមពួកវាបាន។ សកម្មភាពនាំចេញនៅតែបើកដោយគ្មានវា។</string>
+    <string name="max_launcher_tag_private">ឯកជន</string>
+    <string name="max_launcher_tag_disabled">ពិការ</string>
+    <string name="max_launcher_outcome_started">សកម្មភាពបានចាប់ផ្តើម</string>
+    <string name="max_launcher_outcome_needs_root">សកម្មភាពនេះមិនត្រូវបាននាំចេញទេ - ទាមទារជា root</string>
+    <string name="max_launcher_outcome_refused">ប្រព័ន្ធប្រតិបត្តិការ Android បានបដិសេធមិនចាប់ផ្តើមសកម្មភាពនេះ។</string>
+    <string name="max_launcher_outcome_missing">គ្មានសកម្មភាពដែលមានឈ្មោះនោះត្រូវបានដំឡើងទេ។</string>
+</resources>

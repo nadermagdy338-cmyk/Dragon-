@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <AZenith.h>
+#include <MaxManager.h>
 #include <sys/system_properties.h>
 
 /**
@@ -209,7 +209,7 @@ void clearlogs(void) {
     systemv("rm -f /data/adb/.config/MaxManager/preload/MaxManagerPR.log");
     systemv("rm -f /data/adb/.config/MaxManager/preload/MaxManagerPR.log.1");
     systemv("su -c \"am broadcast -a nd.max.ACTION_MANAGE -n "
-            "nd.max/.receiver.ZenithReceiver --ez clearall true >/dev/null "
+            "nd.max/.receiver.MaxManagerReceiver --ez clearall true >/dev/null "
             "2>&1\"");
 }
 
@@ -268,7 +268,7 @@ void shownotifications(void) {
 void hidenotifications(void) {
     
     systemv("su -c \"am broadcast -a nd.max.ACTION_MANAGE -n "
-            "nd.max/.receiver.ZenithReceiver --ez clearall true >/dev/null "
+            "nd.max/.receiver.MaxManagerReceiver --ez clearall true >/dev/null "
             "2>&1\"");
     
 }

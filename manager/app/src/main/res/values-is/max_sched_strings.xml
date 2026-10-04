@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Frestur Tímabil Hámark (við)</string>
+    <string name="max_sched_tunable_deadline_period_min">Frestur Tímabil Min (okkur)</string>
+    <string name="max_sched_tunable_energy_aware">Orkumeðvitaður</string>
+    <string name="max_sched_tunable_latency">Biðtími (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Flutningskostnaður (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Lágmarksstærð (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Flutningslotustærð</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT margfaldari</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Rauntímatímabil (við)</string>
+    <string name="max_sched_tunable_rt_runtime">Rauntími Runtime (við)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Rauntíma UClamp gólf</string>
+    <string name="max_sched_tunable_wakeup_granularity">Nákvæmni vakningar (ns)</string>
+</resources>

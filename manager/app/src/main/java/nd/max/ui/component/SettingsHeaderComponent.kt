@@ -22,6 +22,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -54,6 +55,11 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.delay
+import nd.max.ui.design.MaxAlpha
+import nd.max.ui.design.MaxCardShell
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSpace
 import nd.max.BuildConfig
 import nd.max.R
 import nd.max.ui.util.*
@@ -90,14 +96,13 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
         "${hours}h ${minutes}m"
     }
 
-    Surface(
+    // **ترحيل إلى القشرة:** `0.16f` هنا هي `MaxAlpha.border` (اسم كان مفقودًا لا قيمة مخترعة)،
+    // و`1.dp` هو `MaxCardSpec.borderWidth`. والباقي من العقد.
+    MaxCardShell(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
-        )
+        borderColor = MaterialTheme.colorScheme.primary.copy(alpha = MaxAlpha.border),
+        contentPadding = 0.dp,
+        verticalArrangement = Arrangement.Top,
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
@@ -111,7 +116,7 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
                 Box(
                     modifier = Modifier
                         .size(52.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(MaxRadius.inset))
                         .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
@@ -125,7 +130,8 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
                     }
                     Surface(
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                        shape = RoundedCornerShape(9.dp)
+                        // 9dp لم تكن على سلّم 4dp؛ وسم صغير يأخذ الخطوة المجاورة.
+                        shape = RoundedCornerShape(MaxSpace.sm)
                     ) {
                         Text(
                             text = "${hourFormat.format(time.time)}:${minuteFormat.format(time.time)}",
@@ -152,7 +158,7 @@ fun AppInfoHeaderContent(modifier: Modifier = Modifier) {
                 }
 
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(MaxRadius.control),
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
                 ) {
                     Text(

@@ -79,42 +79,24 @@ import kotlinx.coroutines.launch
 import nd.max.BuildConfig
 import nd.max.R
 import nd.max.ui.component.*
-import nd.max.ui.util.PropertyUtils
+import nd.max.ui.design.MaxListScreen
+import nd.max.core.platform.PropertyUtils
 
 
 @Composable
 fun AboutScreen(navController: NavController) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val context = LocalContext.current
-    val listState = rememberLazyListState()
-    
 
     val openLink = { url: String ->
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         context.startActivity(intent)
     }
 
-        
     ScreenAccentProvider(MaterialTheme.colorScheme.primary) {
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { 
-            AboutTopAppBar(
-                scrollBehavior = scrollBehavior,
-                onBack = { navController.popBackStack() }
-            ) 
-        },
-        containerColor = MaterialTheme.colorScheme.surface
-    ) { innerPadding ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                top = innerPadding.calculateTopPadding() + 12.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-            )
+        MaxListScreen(
+            title = stringResource(R.string.section_about),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Filled.Info
         ) {
 
             item {
@@ -186,12 +168,12 @@ fun AboutScreen(navController: NavController) {
                     content = listOf(
                         {
                             ExpressiveListItem(
-                                headlineContent = { Text(text = "MaxManager Project", fontWeight = FontWeight.SemiBold) },
+                                headlineContent = { Text(text = stringResource(R.string.about_project_name), fontWeight = FontWeight.SemiBold) },
                                 supportingContent = { Text(stringResource(R.string.str_creator_maintainer)) },
                                 leadingContent = {
                                     Image(
                                         painter = painterResource(R.drawable.avatar),
-                                        contentDescription = "MaxManager Project",
+                                        contentDescription = stringResource(R.string.about_project_name),
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier.size(48.dp).clip(CircleShape)
                                     )
@@ -208,13 +190,11 @@ fun AboutScreen(navController: NavController) {
                                 }
                             )
                         }
-                    )
-                )
+                    )                )
             }
         }
     }
-    }
-    }
+}
 
 
 /** Thin wrapper over [MaxManagerSectionTitle] — kept so existing call sites don't change. */
@@ -223,14 +203,4 @@ fun AboutSectionTitle(text: String) {
     MaxManagerSectionTitle(text = text, accent = MaterialTheme.colorScheme.primary)
 }
 
-@Composable
-fun AboutTopAppBar(scrollBehavior: TopAppBarScrollBehavior, onBack: () -> Unit) {
-    MaxManagerSubScreenTopBar(
-        scrollBehavior = scrollBehavior,
-        title = stringResource(R.string.section_about),
-        onBack = onBack,
-        accentIcon = Icons.Filled.Info,
-        accent = MaterialTheme.colorScheme.primary
-    )
-}
  

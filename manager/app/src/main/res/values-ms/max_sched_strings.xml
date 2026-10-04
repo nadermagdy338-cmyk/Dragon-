@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Tempoh Tarikh Akhir Maks (kami)</string>
+    <string name="max_sched_tunable_deadline_period_min">Tempoh Tarikh Akhir Min (kami)</string>
+    <string name="max_sched_tunable_energy_aware">Sedar Tenaga</string>
+    <string name="max_sched_tunable_latency">Latensi (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Kos Penghijrahan (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Kebutiran Minimum (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Saiz Kelompok Migrasi</string>
+    <string name="max_sched_tunable_pelt_multiplier">Pengganda PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Tempoh Masa Nyata (kami)</string>
+    <string name="max_sched_tunable_rt_runtime">Masa Jalanan Masa Nyata (kami)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Lantai UClamp Masa Nyata</string>
+    <string name="max_sched_tunable_wakeup_granularity">Kebutiran Bangun (ns)</string>
+</resources>

@@ -1,0 +1,2 @@
+v 1
+focused_app com.example.game 12288 10123

@@ -7,7 +7,7 @@
     <string name="all_set">Бүх зүйл бэлэн, та одоо Max Manager-ийг ашиглаж болно</string>
     <string name="allow_verbose_log">Дэлгэрэнгүй бүртгэл гаргах (демон)</string>
     <string name="android_version">Android хувилбар</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Програмын нэр</string>
     <string name="app_priority">Програмын тэргүүлэх чиглэл</string>
     <string name="app_priority_control">Програмын тэргүүлэх чиглэлийн хяналт</string>
@@ -723,15 +723,6 @@
     <string name="fps_overlay_notif_channel">FPS давхарлах</string>
     <string name="fps_overlay_notif_title">Max Manager FPS давхарлаж ажиллаж байна</string>
     <string name="fps_overlay_notif_stop">Зогс</string>
-    <string name="fps_overlay_section_style">Гадаад төрх</string>
-    <string name="fps_overlay_style">Давхардсан хэв маяг</string>
-    <string name="fps_overlay_style_android">Android жагсаалт</string>
-    <string name="fps_overlay_style_pc">Компьютерийн нэг орон зай</string>
-    <string name="fps_overlay_style_mini">Мини</string>
-    <string name="fps_overlay_orientation">Байршлын чиглэл</string>
-    <string name="fps_overlay_orientation_vertical">Босоо</string>
-    <string name="fps_overlay_orientation_horizontal">Хэвтээ</string>
-    <string name="fps_overlay_read_mode">FPS унших арга</string>
     <string name="fps_overlay_read_mode_desc">Хэрэв таны төхөөрөмж дээрх уншилт 0 хэвээр байвал өөр аргыг туршаад үзээрэй</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (санал болгож байна)</string>
     <string name="fps_overlay_mode_kernel">Цөмийн зангилаа</string>
@@ -740,14 +731,6 @@
     <string name="fps_overlay_text_size">Текстийн хэмжээ</string>
     <string name="fps_overlay_bg_alpha">Арын дэвсгэрийн тунгалаг байдал</string>
     <string name="fps_overlay_width_scale">Өргөн цар хүрээ</string>
-    <string name="fps_overlay_section_metrics">Үзүүлсэн хэмжүүр</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU ачаалал</string>
-    <string name="fps_overlay_metric_ram">RAM хэрэглээ</string>
-    <string name="fps_overlay_metric_watt">Зайны цэнэгийн зарцуулалт</string>
-    <string name="fps_overlay_metric_temp">Зайны температур</string>
-    <string name="fps_overlay_metric_render">Рендерийн шошго</string>
-    <string name="fps_overlay_metric_render_desc">"FPS"-н оронд VULKAN/OPENGL-г шошго болгон харуулж байгаа нь урд талын програмын ачаалагдсан сангаас илэрсэн.</string>
     <string name="dozemode_title">Унтах бодлого</string>
     <string name="dozemode_menu_desc">Зогсоолын цагаан жагсаалт, сул зогсолт, арын тэжээлийн тохируулга</string>
     <string name="dozemode_state_label">Нойрмог байдал</string>
@@ -783,9 +766,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Тохиргоог нээх</string>
     <string name="processmgr_title">Даалгаврын хяналт</string>
-    <string name="processmgr_menu_desc">Процесс бүрийн CPU ба RAM хэрэглээ, хүчээр зогсоох, хөвөгч давхарлах</string>
     <string name="processmgr_stat_total">%1$d процессууд</string>
-    <string name="processmgr_stat_breakdown">%1$d хэрэглэгчийн \u00b7 %2$d систем</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Топ %1$d</string>
@@ -805,9 +786,6 @@
     <string name="processmgr_search_hint">Ажиллаж байгаа процессуудыг хайх</string>
     <string name="processmgr_no_processes">Таны хайлтад тохирох процесс алга</string>
     <string name="processmgr_dialog_close">Хаах</string>
-    <string name="processmgr_detail_version">Хувилбар</string>
-    <string name="processmgr_detail_build">барих</string>
-    <string name="processmgr_detail_package">Багц</string>
     <string name="processmgr_result_killed">%1$s алагдсан</string>
     <string name="processmgr_result_kill_failed">%1$s-г алж чадсангүй</string>
     <string name="processmgr_result_stopped">Хүчээр зогссон %1$s</string>
@@ -1455,7 +1433,6 @@
     <string name="max_home_reboot_desc">Аюулгүй дахин ачаалах сонголтыг нээнэ үү</string>
     <string name="max_home_ai_console">MAX AI консол</string>
     <string name="max_home_ai_working">Хүссэн профайлыг ашиглаж байна...</string>
-    <string name="max_home_ai_failed">Сүүлийн AI үйлдэл амжилтгүй боллоо</string>
     <string name="max_home_retry">Дахин оролдоно уу</string>
     <string name="max_home_ai_idle">AI-ийн шийдвэр хараахан бүртгэгдээгүй байна</string>
     <string name="home_system_stable">СИСТЕМ ТОГТВОРТОЙ</string>
@@ -1471,8 +1448,6 @@
     <string name="home_performance_monitor_desc">Сүүлийн 72 секундын нөөцийн ачаалал</string>
     <string name="home_quick_actions">Командын тавцан</string>
     <string name="home_quick_actions_desc">Чухал байгаа удирдлагад шууд хандах</string>
-    <string name="home_action_boost">Гүйцэтгэлийн профайл</string>
-    <string name="home_action_boost_desc">Системийн зан төлөвийг өөрчлөх</string>
     <string name="home_action_thermal">Дулааны төв</string>
     <string name="home_action_thermal_desc">Дулаан ба хөргөлтийг шалгана уу</string>
     <string name="home_action_battery">Эрчим хүчний төв</string>
@@ -1492,7 +1467,6 @@
     <string name="home_active">ИДЭВХТЭЙ</string>
     <string name="home_idle">СУУДАЛ</string>
     <string name="home_protected">ХАМГААЛСАН</string>
-    <string name="home_device_overview">ТӨХӨӨРӨМЖИЙН ТОЙМЫГ НЭЭХ</string>
     <string name="home_live_performance">Амьд тоглолт</string>
     <string name="home_live_performance_desc">Одоогийн ачаалал ба техник хангамжийн шууд удирдлага</string>
     <string name="home_open_details">Нарийвчилсан дулааны өгөгдлийг нээх</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Аппликешн бүрийн оновчлолыг хэрэгжүүлж байна</string>
     <string name="max_app_advanced_options">Нарийвчилсан сонголтууд</string>
     <string name="max_app_save">Хадгалах</string>
+    <string name="home_gpu_max_freq">Хамгийн их давтамж</string>
 </resources>

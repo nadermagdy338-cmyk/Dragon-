@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Pacchetti installati e attività dichiarate</string>
+    <string name="max_launcher_loading">Lettura dei pacchetti installati e delle loro attività dichiarate…</string>
+    <string name="max_launcher_empty">Nessun pacchetto installato dichiara un\'attività su questo dispositivo.</string>
+    <string name="max_launcher_search_placeholder">Cerca per nome dell\'app o pacchetto</string>
+    <string name="max_launcher_search_clear">Cancella la ricerca</string>
+    <string name="max_launcher_scope_all">Tutto</string>
+    <string name="max_launcher_scope_user">Utente</string>
+    <string name="max_launcher_scope_system">Sistema</string>
+    <string name="max_launcher_activity_count">%1$d attività</string>
+    <string name="max_launcher_no_match_title">Niente corrisponde</string>
+    <string name="max_launcher_no_match_detail">Nessun nome di pacchetto o etichetta di app contiene quel testo nell\'ambito selezionato.</string>
+    <string name="max_launcher_no_match_clear">Cancella filtri</string>
+    <string name="max_launcher_reading_activities">Leggendo le attività dichiarate da questo pacchetto...</string>
+    <string name="max_launcher_no_activities">Questo pacchetto non dichiara alcuna attività.</string>
+    <string name="max_launcher_root_off_title">Il root non è concesso</string>
+    <string name="max_launcher_root_off_detail">Le attività contrassegnate come private non vengono esportate, quindi solo root può avviarle. Le attività esportate sono ancora aperte senza.</string>
+    <string name="max_launcher_tag_private">Privato</string>
+    <string name="max_launcher_tag_disabled">Disabilitato</string>
+    <string name="max_launcher_outcome_started">Attività iniziata</string>
+    <string name="max_launcher_outcome_needs_root">Questa attività non viene esportata: è richiesto il root</string>
+    <string name="max_launcher_outcome_refused">Android ha rifiutato di avviare questa attività</string>
+    <string name="max_launcher_outcome_missing">Non è installata alcuna attività con questo nome</string>
+</resources>

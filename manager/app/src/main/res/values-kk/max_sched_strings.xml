@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Соңғы мерзімнің максималды мерзімі (АҚШ)</string>
+    <string name="max_sched_tunable_deadline_period_min">Тапсыру мерзімі Мин. (АҚШ)</string>
+    <string name="max_sched_tunable_energy_aware">Энергиядан хабардар</string>
+    <string name="max_sched_tunable_latency">Кідіріс (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Тасымалдау құны (NS)</string>
+    <string name="max_sched_tunable_min_granularity">Ең аз түйіршіктілік (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Тасымалдау пакетінің өлшемі</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT мультипликаторы</string>
+    <string name="max_sched_tunable_rr_timeslice">Раунд-Робиннің уақыты (мс)</string>
+    <string name="max_sched_tunable_rt_period">Нақты уақыт кезеңі (біз)</string>
+    <string name="max_sched_tunable_rt_runtime">Нақты уақыттағы жұмыс уақыты (біз)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Нақты уақыттағы UClamp Floor</string>
+    <string name="max_sched_tunable_wakeup_granularity">Ояну түйіршіктігі (ns)</string>
+</resources>

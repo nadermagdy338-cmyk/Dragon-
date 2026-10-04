@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <AZenith.h>
+#include <MaxManager.h>
 
 /**
  * @brief Upper bound for one log file, in bytes, from the user's setting.

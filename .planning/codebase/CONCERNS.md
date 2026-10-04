@@ -151,7 +151,7 @@ accepted as baseline noise are kept at the bottom and explicitly marked.
 - **Evidence**: `version` = `5.2`, `version_type` = `Dazzling`, `update.json` = `5.2 (1823-bf02195-Dazzling)`,
   while `mainfiles/module.prop` reads `version=V1` / `versionCode=1`. Two mechanisms explain it:
   `.github/scripts/compile_zip.sh` lines 38–39 rewrite both lines at packaging time, and the CI step
-  “Sync Daemon Version String” bakes the same string into `archdaemon/jni/include/AZenith.h` beforehand —
+  “Sync Daemon Version String” bakes the same string into `archdaemon/jni/include/MaxManager.h` beforehand —
   the daemon's `check_module_version()` compares the two **byte-for-byte** and exits on mismatch.
   `.github/scripts/verify.sh` never validates `module.prop` itself, and `mainfiles/META-INF/.../update-binary`
   reads it through `grep_prop`.

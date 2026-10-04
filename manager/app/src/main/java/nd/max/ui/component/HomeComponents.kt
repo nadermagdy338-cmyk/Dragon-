@@ -25,7 +25,6 @@ import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
-import android.system.Os
 import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
@@ -90,13 +89,11 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.blur.blurEffect
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
 import nd.max.R
-import nd.max.ui.util.getAppVersion
 import nd.max.ui.util.getBannerGradientAlpha
-import nd.max.ui.util.getChipsetName
 import nd.max.ui.util.getHeaderImage
-import nd.max.ui.util.getRealDeviceName
-import nd.max.ui.util.getSELinuxStatus
 
 
 @Composable
@@ -325,7 +322,7 @@ fun BannerCard(
         MaxSurfaceBox(
             modifier = modifier,
             containerColor = Color.Transparent,
-            shape = RoundedCornerShape(26.dp),
+            shape = RoundedCornerShape(MaxCardSpec.radius),
             borderEnabled = false,
             onClick = onClick
         ) {
@@ -415,11 +412,11 @@ fun BannerCard(
 
         Surface(
             modifier = modifier
-                .clip(RoundedCornerShape(26.dp))
+                .clip(RoundedCornerShape(MaxCardSpec.radius))
                 .clickable { onClick() }
                 .animateContentSize(animationSpec = spring()), 
             color = colorScheme.secondaryContainer, 
-            shape = RoundedCornerShape(26.dp)
+            shape = RoundedCornerShape(MaxCardSpec.radius)
         ) {
             Row(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
@@ -535,11 +532,11 @@ fun InfoTile(
 
     Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(26.dp))
+            .clip(RoundedCornerShape(MaxCardSpec.radius))
             .clickable { onClick() }
             .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)),
         color = cardBgColor,
-        shape = RoundedCornerShape(26.dp)
+        shape = RoundedCornerShape(MaxCardSpec.radius)
     ) {
         Column(
             modifier = Modifier.padding(14.dp) 
@@ -548,7 +545,7 @@ fun InfoTile(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(82.dp) 
-                    .clip(RoundedCornerShape(18.dp)) 
+                    .clip(RoundedCornerShape(MaxRadius.tile)) 
                     .background(iconBoxBgColor),
                 contentAlignment = Alignment.Center
             ) {
@@ -624,210 +621,24 @@ fun InfoTile(
     }
 }
 
-@Composable
-fun DeviceInfoCard() {
-    val context = LocalContext.current
-    val colorScheme = MaterialTheme.colorScheme
-    var isExpanded by remember { mutableStateOf(false) }
-    
-    val uname = remember { Os.uname() }
-    val kernelVer = remember { uname.release }
-    val selinux = remember { getSELinuxStatus(context) }
-    val appVer = remember { getAppVersion(context) }
-    val chipsetName = remember { getChipsetName(context) }
-
-    var realDeviceName by remember { mutableStateOf("${Build.MANUFACTURER} ${Build.MODEL}") }
-
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            realDeviceName = getRealDeviceName(context)
-        }
-    }
-
-    val rotationAngle by animateFloatAsState(
-        targetValue = if (isExpanded) 180f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioLowBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "expandArrowRotation"
-    )
-
-    Surface(
-        shape = RoundedCornerShape(26.dp), 
-        color = colorScheme.surfaceColorAtElevation(1.dp),
-        onClick = { isExpanded = !isExpanded }
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(vertical = 16.dp)
-                .animateContentSize(animationSpec = spring(Spring.DampingRatioLowBouncy, Spring.StiffnessLow))
-        ) {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp), 
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                SmallLeadingIcon(Icons.Outlined.Info)
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    text = stringResource(R.string.device_info), 
-                    modifier = Modifier.weight(1f), 
-                    style = MaterialTheme.typography.titleMedium, 
-                    fontWeight = FontWeight.SemiBold
-                )
-                Icon(
-                    imageVector = Icons.Rounded.ExpandMore, 
-                    contentDescription = null,
-                    modifier = Modifier.graphicsLayer { 
-                        rotationZ = rotationAngle
-                    }
-                )
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp) 
-            ) {
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp) 
-                ) {
-                    DeviceInfoGridItem(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(R.string.kernel_version), 
-                        value = kernelVer
-                    )
-                    DeviceInfoGridItem(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(R.string.device_name), 
-                        value = realDeviceName
-                    )
-                }
-
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    DeviceInfoGridItem(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(R.string.str_chipset), 
-                        value = chipsetName
-                    )
-                    DeviceInfoGridItem(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(R.string.maxmanager_version), 
-                        value = appVer
-                    )
-                }
-
-                if (isExpanded) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-
-                        
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            DeviceInfoGridItem(
-                                modifier = Modifier.weight(1f),
-                                title = stringResource(R.string.fingerprint), 
-                                value = Build.FINGERPRINT
-                            )
-                            DeviceInfoGridItem(
-                                modifier = Modifier.weight(1f),
-                                title = stringResource(R.string.selinux_status), 
-                                value = selinux
-                            )
-                        }
-
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            DeviceInfoGridItem(
-                                modifier = Modifier.weight(1f),
-                                title = stringResource(R.string.instruction_sets), 
-                                value = Build.SUPPORTED_ABIS.joinToString(", ")
-                            )
-                            DeviceInfoGridItem(
-                                modifier = Modifier.weight(1f),
-                                title = stringResource(R.string.android_version), 
-                                value = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun DeviceInfoGridItem(modifier: Modifier = Modifier, title: String, value: String) {
-    val colorScheme = MaterialTheme.colorScheme
-    Surface(
-
-
-        modifier = modifier.height(86.dp),
-        color = colorScheme.surfaceVariant.copy(alpha = 0.5f), 
-        shape = RoundedCornerShape(18.dp) 
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = title, 
-                style = MaterialTheme.typography.labelSmall,
-                color = colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-
-            Box(
-                modifier = Modifier.weight(1f), 
-                contentAlignment = Alignment.TopStart
-            ) {
-                Text(
-                    text = value, 
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold, 
-                    color = colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    lineHeight = androidx.compose.ui.unit.TextUnit.Unspecified
-
-                )
-            }
-        }
-    }
-}
-
-
+/*
+ * **حُذفت هنا بطاقة `DeviceInfoCard` وشبكتها `DeviceInfoGridItem` (تكملة ١٩٤).**
+ *
+ * كانت بطاقة معلومات جهاز ثانية في الرئيسية، **ولا مستدعي لها في الشجرة كلها** (قيس: صفر
+ * نداء)؛ ومع ذلك كانت تعرض الكيرنل والاسم والشريحة والإصدار داخل نفسها وتفتح الباقي
+ * (الـfingerprint وSELinux وABI) بطيّ يدوي. فصارت **مصدرين لفكرة واحدة** بعد أن وُجدت
+ * شاشة `Phone Info`: نموذج موحّد (`DeviceInfoModel`) يقيس «أي حقل يُعرض ومتى يُقال غير
+ * مقروء»، وبطاقة تخالف صياغته في ثمانية حقول.
+ *
+ * والبديل ليس فراغًا: مدخل معلومات الجهاز في الرئيسية حبّة **باسم الوجهة نفسه**
+ * (`MaxDestination.DeviceInfo.titleRes` ← «Device Info») تفتح شاشة الجهاز كاملة، وكل قسم
+ * فيها بابٌ إلى شاشته المشابهة. فحُذف السطح الميت وسُدّ المدخل بالشاشة التي تملكه.
+ */
 
 @Composable
 fun LinkCard(icon: ImageVector, titleRes: Int, descRes: Int, onClick: () -> Unit) {
     val colorScheme = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(26.dp)
+    val shape = RoundedCornerShape(MaxCardSpec.radius)
     
     Surface(
         shape = shape, 
@@ -1026,7 +837,7 @@ fun RunningGameCard(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(26.dp))
+            .clip(RoundedCornerShape(MaxCardSpec.radius))
             .then(
 
                 if (!isNoApp) {
@@ -1040,7 +851,7 @@ fun RunningGameCard(
                 } else Modifier
             ),
         color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = RoundedCornerShape(26.dp)
+        shape = RoundedCornerShape(MaxCardSpec.radius)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),

@@ -28,6 +28,9 @@
     <string name="max_hub_storage_desc">Compilation mode and storage health</string>
     <string name="max_hub_network">Network</string>
     <string name="max_hub_network_desc">Traffic scheduling and link state</string>
+    <!-- The tenth domain (AU-01): read-first, like its neighbours. -->
+    <string name="max_hub_audio">Audio</string>
+    <string name="max_hub_audio_desc">Output devices, streams and declared effects</string>
 
     <!-- Domain hub sections -->
     <string name="max_hub_switches_title">Direct controls</string>

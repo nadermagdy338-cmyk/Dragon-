@@ -45,7 +45,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -174,7 +174,11 @@ fun FilePathBar(
     ) {
         IconButton(onClick = onBack, enabled = canGoBack) {
             Icon(
-                imageVector = Icons.Rounded.ArrowBack,
+                // `AutoMirrored`: سهم الرجوع يجب أن ينقلب في RTL — وهو **الوحيد** في
+                // `ui/**` الذي كان على الصيغة غير المنعكسة (قِيس بـ`grep`: ٥٣ موضعًا
+                // منعكسًا مقابل هذا). السهم غير المنعكس يشير إلى اليمين في العربية =
+                // «تقدّم» لا «رجوع».
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = stringResource(R.string.max_files_back_cd),
                 tint = if (canGoBack) {
                     MaterialTheme.colorScheme.onSurface

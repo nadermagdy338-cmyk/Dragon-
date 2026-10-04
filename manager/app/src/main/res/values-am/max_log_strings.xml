@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">አነጋገር</string>
+    <string name="max_log_level_debug">ማረም</string>
+    <string name="max_log_level_info">መረጃ</string>
+    <string name="max_log_level_warn">ማስጠንቀቂያ</string>
+    <string name="max_log_level_error">ስህተት</string>
+    <string name="max_log_level_assert">አስረግጠው</string>
+    <string name="max_log_level_fatal">ገዳይ</string>
+    <string name="max_log_buffer_main">ዋና</string>
+    <string name="max_log_buffer_system">ስርዓት</string>
+    <string name="max_log_buffer_crash">ብልሽት</string>
+    <string name="max_log_buffer_kernel">ከርነል</string>
+    <string name="max_log_buffer_events">ክስተቶች</string>
+    <string name="max_log_buffer_radio">ሬዲዮ</string>
+    <string name="max_log_source_daemon">ዴሞን</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">ዩአይ</string>
+    <string name="max_log_source_other">ሌላ</string>
+</resources>

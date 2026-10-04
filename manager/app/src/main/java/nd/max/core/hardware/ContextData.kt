@@ -8,8 +8,8 @@ package nd.max.core.hardware
 import android.content.Context
 import android.os.BatteryManager
 import android.os.PowerManager
-import nd.max.ui.util.SensorMonitorUtil
-import nd.max.ui.util.ThermalUtil
+import nd.max.core.platform.SensorMonitorUtil
+import nd.max.core.platform.ThermalUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

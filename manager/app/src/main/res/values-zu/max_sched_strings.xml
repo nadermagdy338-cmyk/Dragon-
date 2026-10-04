@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">I-Deadline Period Max (us)</string>
+    <string name="max_sched_tunable_deadline_period_min">Isikhathi Sokugcina Umnqamulajuqu Ubuncane (us)</string>
+    <string name="max_sched_tunable_energy_aware">Amandla Aware</string>
+    <string name="max_sched_tunable_latency">Ukubambezeleka (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Izindleko Zokuthutha (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Ubuncane beGranularity (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Usayizi Weqoqo Lokuthutha</string>
+    <string name="max_sched_tunable_pelt_multiplier">I-PELT Multiplier</string>
+    <string name="max_sched_tunable_rr_timeslice">I-Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Isikhathi Sesikhathi Sangempela (us)</string>
+    <string name="max_sched_tunable_rt_runtime">Isikhathi Sesikhathi Sangempela (us)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Isikhathi Sangempela UClamp Floor</string>
+    <string name="max_sched_tunable_wakeup_granularity">Imbudumbudu yokuvuka (ns)</string>
+</resources>

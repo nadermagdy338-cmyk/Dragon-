@@ -7,6 +7,7 @@
     <string name="max_sensor_service_unavailable">could not be reached</string>
     <string name="max_sensor_count">Sensors reported</string>
     <string name="max_sensor_kinds">Categories present</string>
+    <string name="max_sensor_kinds_absent">Categories absent</string>
     <string name="max_sensor_wakeup">Wake-up sensors (report while the device sleeps)</string>
     <string name="max_sensor_light">Ambient light</string>
     <string name="max_sensor_unit_lux">lux</string>
@@ -20,4 +21,6 @@
     <string name="max_sensor_kind_body">Body</string>
     <string name="max_sensor_kind_unpositioned">Unpositioned</string>
     <string name="max_sensor_kind_other">Other</string>
+    <!-- وسم صفّ مستشعر يُوقظ الجهاز — كلمة لا رمز، فتُترجَم إلى جانب بقية الأصناف. -->
+    <string name="max_sensor_wakeup_flag">wake-up</string>
 </resources>

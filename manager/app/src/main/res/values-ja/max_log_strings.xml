@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">冗長</string>
+    <string name="max_log_level_debug">デバッグ</string>
+    <string name="max_log_level_info">情報</string>
+    <string name="max_log_level_warn">警告</string>
+    <string name="max_log_level_error">エラー</string>
+    <string name="max_log_level_assert">アサート</string>
+    <string name="max_log_level_fatal">致命的</string>
+    <string name="max_log_buffer_main">主要</string>
+    <string name="max_log_buffer_system">システム</string>
+    <string name="max_log_buffer_crash">クラッシュ</string>
+    <string name="max_log_buffer_kernel">カーネル</string>
+    <string name="max_log_buffer_events">イベント</string>
+    <string name="max_log_buffer_radio">無線</string>
+    <string name="max_log_source_daemon">デーモン</string>
+    <string name="max_log_source_appmonitor">アプリモニター</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">他の</string>
+</resources>

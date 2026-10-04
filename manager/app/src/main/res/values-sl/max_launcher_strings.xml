@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Nameščeni paketi in dejavnosti, ki jih deklarirajo</string>
+    <string name="max_launcher_loading">Branje nameščenih paketov in njihovih deklariranih dejavnosti ...</string>
+    <string name="max_launcher_empty">Noben nameščen paket ne prijavi dejavnosti v tej napravi.</string>
+    <string name="max_launcher_search_placeholder">Iščite po imenu aplikacije ali paketu</string>
+    <string name="max_launcher_search_clear">Počisti iskanje</string>
+    <string name="max_launcher_scope_all">Vse</string>
+    <string name="max_launcher_scope_user">Uporabnik</string>
+    <string name="max_launcher_scope_system">Sistem</string>
+    <string name="max_launcher_activity_count">%1$d aktivnosti</string>
+    <string name="max_launcher_no_match_title">Nič se ne ujema</string>
+    <string name="max_launcher_no_match_detail">Nobeno ime paketa ali oznaka aplikacije ne vsebuje tega besedila v izbranem obsegu.</string>
+    <string name="max_launcher_no_match_clear">Počisti filtre</string>
+    <string name="max_launcher_reading_activities">Branje dejavnosti, ki jih navaja ta paket ...</string>
+    <string name="max_launcher_no_activities">Ta paket ne navaja nobenih dejavnosti.</string>
+    <string name="max_launcher_root_off_title">Root ni odobren</string>
+    <string name="max_launcher_root_off_detail">Dejavnosti, označene kot zasebne, se ne izvozijo, zato jih lahko zažene samo root. Izvozne dejavnosti so še vedno odprte brez tega.</string>
+    <string name="max_launcher_tag_private">Zasebno</string>
+    <string name="max_launcher_tag_disabled">Onemogočen</string>
+    <string name="max_launcher_outcome_started">Dejavnost se je začela</string>
+    <string name="max_launcher_outcome_needs_root">Ta dejavnost ni izvožena - potreben je root</string>
+    <string name="max_launcher_outcome_refused">Android je zavrnil začetek te dejavnosti</string>
+    <string name="max_launcher_outcome_missing">Nobena dejavnost s tem imenom ni nameščena</string>
+</resources>

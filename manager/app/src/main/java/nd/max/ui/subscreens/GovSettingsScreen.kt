@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 import nd.max.R
 import nd.max.ui.component.*
 import nd.max.ui.mainscreens.*
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 import nd.max.ui.util.*
 import nd.max.ui.viewmodel.TweakViewModel
 
@@ -118,9 +118,14 @@ fun GovSettings(
             ),
             
         ) {
+            // اختصار Max AI — **مُصلَّح عن اللافتة التي كانت هنا.** اللافتة القديمة كانت تقول
+            // «قد يتجاوز المحرك تغييراتك اليدوية هنا»، والمقيس في `ControlRegistry` أن المحرّك
+            // لا يملك مقبضًا للحاكم أصلًا: مقابضه تردّدات المعالج وسقف الرسوم والـboost. فالحاكم
+            // لا يُلمس، ووصفُ تجاوزٍ لم يقع ادّعاءٌ بلا دليل (ADR-07) — ولهذا `manual = false`.
             item {
-                nd.max.ui.component.MaxAiActiveBanner(
+                nd.max.ui.component.MaxAiShortcut(
                     navController = navController,
+                    manual = false,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
             }

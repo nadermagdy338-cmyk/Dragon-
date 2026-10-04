@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Installed packages and the activities they declare</string>
+    <string name="max_launcher_loading">Reading installed packages and their declared activities…</string>
+    <string name="max_launcher_empty">No installed package declares an activity on this device.</string>
+    <string name="max_launcher_search_placeholder">Search by app name or package</string>
+    <string name="max_launcher_search_clear">Clear the search</string>
+    <string name="max_launcher_scope_all">All</string>
+    <string name="max_launcher_scope_user">User</string>
+    <string name="max_launcher_scope_system">System</string>
+    <string name="max_launcher_activity_count">%1$d activities</string>
+    <string name="max_launcher_no_match_title">Nothing matches</string>
+    <string name="max_launcher_no_match_detail">No package name or app label contains that text in the selected scope.</string>
+    <string name="max_launcher_no_match_clear">Clear filters</string>
+    <string name="max_launcher_reading_activities">Reading the activities this package declares…</string>
+    <string name="max_launcher_no_activities">This package declares no activities.</string>
+    <string name="max_launcher_root_off_title">Root is not granted</string>
+    <string name="max_launcher_root_off_detail">Activities marked private are not exported, so only root can start them. Exported activities still open without it.</string>
+    <string name="max_launcher_tag_private">Private</string>
+    <string name="max_launcher_tag_disabled">Disabled</string>
+    <string name="max_launcher_outcome_started">Activity started</string>
+    <string name="max_launcher_outcome_needs_root">This activity is not exported — root is required</string>
+    <string name="max_launcher_outcome_refused">Android refused to start this activity</string>
+    <string name="max_launcher_outcome_missing">No activity with that name is installed</string>
+</resources>

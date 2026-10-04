@@ -38,6 +38,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nd.max.R
 import nd.max.ui.component.*
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.MaxSplitScreen
 import nd.max.ui.mainscreens.LabelText
 import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.util.DebloatAppInfo
@@ -50,7 +53,6 @@ fun DebloatFreezeScreen(
     viewModel: DebloatFreezeViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val listState = rememberLazyListState()
     val colorScheme = MaterialTheme.colorScheme
     var isSearchMode by remember { mutableStateOf(false) }
@@ -62,9 +64,15 @@ fun DebloatFreezeScreen(
 
     
     ScreenAccentProvider(colorScheme.tertiary) {
-        Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
+        // The shell owns the Scaffold, the insets and the scroll connection; this screen owns only
+        // its search-capable bar and its expressive list, which `MaxListScreen` cannot host without
+        // dropping `ExpressiveLazyList`'s card styling (shape per row position + placement spring).
+        MaxSplitScreen(
+            title = stringResource(R.string.debloat_freeze_title),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Outlined.DeleteSweep,
+            accent = colorScheme.tertiary,
+            topBar = { scrollBehavior ->
                 DebloatFreezeTopAppBar(
                     scrollBehavior = scrollBehavior,
                     onBack = { navController.popBackStack() },
@@ -74,49 +82,50 @@ fun DebloatFreezeScreen(
                     onSearchChange = { viewModel.updateSearch(it) },
                     onRefresh = { viewModel.loadApps(context) }
                 )
-            },
-            containerColor = colorScheme.surface
-        ) { innerPadding ->
-            Column(modifier = Modifier.fillMaxSize()) {
-                Spacer(Modifier.height(innerPadding.calculateTopPadding()))
-                MaxManagerInsight(
-                    text = stringResource(R.string.debloat_subtitle),
-                    accent = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 10.dp)
-                )
+            }
+        ) {
+            MaxManagerInsight(
+                text = stringResource(R.string.debloat_subtitle),
+                accent = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 10.dp)
+            )
 
-                DebloatTabRow(
-                    selectedTab = viewModel.selectedTab,
-                    totalCount = viewModel.totalCount,
-                    userCount = viewModel.userCount,
-                    systemCount = viewModel.systemCount,
-                    frozenCount = viewModel.frozenCount,
-                    onTabSelected = { viewModel.selectedTab = it }
-                )
+            DebloatTabRow(
+                selectedTab = viewModel.selectedTab,
+                totalCount = viewModel.totalCount,
+                userCount = viewModel.userCount,
+                systemCount = viewModel.systemCount,
+                frozenCount = viewModel.frozenCount,
+                onTabSelected = { viewModel.selectedTab = it }
+            )
 
-                if (viewModel.isLoading) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        SectionLoadingIndicator()
-                    }
-                } else {
-                    ExpressiveLazyList(
-                        state = listState,
-                        items = viewModel.filteredApps,
-                        key = { it.packageName },
-                        contentPadding = PaddingValues(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 8.dp,
-                            bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                        )
-                    ) { app ->
-                        DebloatAppRow(
-                            app = app,
-                            onToggleFreeze = { viewModel.toggleFreeze(context, app) },
-                            onUninstall = { pendingUninstall = app },
-                            onOpenSettings = { viewModel.openAppSettings(context, app.packageName) }
-                        )
-                    }
+            if (viewModel.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    SectionLoadingIndicator()
+                }
+            } else {
+                ExpressiveLazyList(
+                    modifier = Modifier.weight(1f),
+                    state = listState,
+                    items = viewModel.filteredApps,
+                    key = { it.packageName },
+                    // `MaxSplitScreen` يملك هامش الصفحة (`MaxSpace.gutter`) **و**الحجز الأسفل
+                    // (`pageBottom` + شريط النظام). وكان `start/end = 16.dp` فوقه ⇒ 36dp للجهة،
+                    // و`bottom = 16.dp + inset` حجزًا مضاعفًا — نفس عطب صورة المالك في شاشة رابعة.
+                    contentPadding = PaddingValues(
+                        top = MaxSpace.sm,
+                        bottom = MaxSpace.sm
+                    )
+                ) { app ->
+                    DebloatAppRow(
+                        app = app,
+                        onToggleFreeze = { viewModel.toggleFreeze(context, app) },
+                        onUninstall = { pendingUninstall = app },
+                        onOpenSettings = { viewModel.openAppSettings(context, app.packageName) }
+                    )
                 }
             }
         }
@@ -268,7 +277,7 @@ private fun DebloatAppIcon(app: DebloatAppInfo) {
             Image(
                 bitmap = bitmap,
                 contentDescription = app.label,
-                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(10.dp))
+                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(MaxRadius.chip))
             )
         }
     }

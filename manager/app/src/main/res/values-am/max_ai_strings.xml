@@ -45,7 +45,6 @@
     <string name="max_ai_timeline_show_less">የቅርብ ጊዜውን %1$d ብቻ አሳይ</string>
     <string name="max_ai_episode_no_action">ክፍተት ተለካ፣ ምንም አስተማማኝ እርምጃ የለም።</string>
     <string name="max_ai_stage_observed">የሚለካው</string>
-    <string name="max_ai_observed_body">እርካታ %1$s በዒላማው ላይ</string>
     <string name="max_ai_observed_technical">ሲፒዩ %1$s · temp %2$s · ባትሪ %3$s · ማህደረ ትውስታ %4$s</string>
     <string name="max_ai_stage_why">ለምን አስፈለገ</string>
     <string name="max_ai_why_body">ገባሪ አላማው %1$s ነበር፣ በዐውደ-ጽሑፉ የተለካው %2$s።</string>
@@ -117,7 +116,6 @@
     <string name="max_ai_insight_costly">ከፍተኛ ወጪ የተረጋገጠ</string>
     <string name="max_ai_insight_inconclusive">የማይጨበጥ</string>
     <string name="max_ai_insight_learning">አሁንም መማር</string>
-    <string name="max_ai_insights_summary">የተሻሻለ</string>
     <string name="max_ai_insights_events_summary">ደህንነት %1$d · ተንሸራታች %2$d · የተሻረ %3$d · የዘገየ ይለካል %4$d</string>
     <string name="max_ai_insights_prediction">አማካኝ ትንበያ ስህተት %1$s በላይ %2$d የሚለኩ ቀለበቶች</string>
     <string name="max_ai_section_system">እያንዳንዱ ቁጥጥር ማን ነው</string>
@@ -140,7 +138,6 @@
     <string name="max_ai_profile_row_desc">የመሠረት መገለጫዎች በእጅ ይቆያሉ እና ወዲያውኑ ይተገበራሉ; እነሱ AI knobs አይደሉም.</string>
     <string name="max_ai_refresh">አሁን ዑደት አሂድ</string>
     <string name="max_ai_refresh_desc">የ30ዎቹን ዑደት ከመጠበቅ ይልቅ አንድ ጊዜ ይለኩ፣ ያቅዱ እና እርምጃ ይውሰዱ።</string>
-    <string name="max_ai_counters">ውሳኔዎች</string>
     <string name="max_ai_deck_title">የመርከቧ መቆጣጠሪያ</string>
     <string name="max_ai_deck_desc">የቀጥታ ማብሪያ / ማጥፊያ እና የሚለወጠው ሁኔታ። ከዚህ በታች ያለው ሁሉ ማስረጃው ነው።</string>
     <string name="max_ai_deck_learning">የመማር እድገት</string>
@@ -284,4 +281,7 @@
     <string name="max_ai_decisions_disabled">አውቶማቲክ ውሳኔዎች ተሰናክለዋል።</string>
     <string name="max_ai_master_disabled_desc">AI ማመቻቸት ጠፍቷል። በእጅ መቆጣጠሪያዎች እና የሙቀት መከላከያዎች ገለልተኛ ሆነው ይቆያሉ.</string>
     <string name="max_ai_settings_loading">የተቀመጡ AI ምርጫዎችን በመጫን ላይ።</string>
+    <string name="max_ai_observed_body">እርካታ %1$s ከዒላማው %2$s፣ የ%3$s ክፍተት።</string>
+    <string name="max_ai_insights_summary">ተሻሽሏል። %1$d · ወደ ኋላ ተንከባሎ %2$d · ታግዷል %3$d · የማይለካ %4$d</string>
+    <string name="max_ai_counters">ውሳኔዎች %1$d · የተረጋገጠ %2$d · ተስተካክሏል %3$d · ለደህንነት ሲባል ታግዷል %4$d</string>
 </resources>

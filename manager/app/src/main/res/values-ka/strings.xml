@@ -7,7 +7,7 @@
     <string name="all_set">ყველაფერი მზად არის, ახლა შეგიძლიათ გამოიყენოთ Max Manager</string>
     <string name="allow_verbose_log">დემონის დეტალური ჟურნალი</string>
     <string name="android_version">Android ვერსია</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">აპლიკაციის სახელი</string>
     <string name="app_priority">აპლიკაციის პრიორიტეტი</string>
     <string name="app_priority_control">აპლიკაციის პრიორიტეტის კონტროლი</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS გადაფარვა</string>
     <string name="fps_overlay_notif_title">Max Manager FPS გადაფარვა მუშაობს</string>
     <string name="fps_overlay_notif_stop">გაჩერდი</string>
-    <string name="fps_overlay_section_style">გარეგნობა</string>
-    <string name="fps_overlay_style">გადაფარვის სტილი</string>
-    <string name="fps_overlay_style_android">ანდროიდის სია</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">მინი</string>
-    <string name="fps_overlay_orientation">განლაგების მიმართულება</string>
-    <string name="fps_overlay_orientation_vertical">ვერტიკალური</string>
-    <string name="fps_overlay_orientation_horizontal">ჰორიზონტალური</string>
-    <string name="fps_overlay_read_mode">FPS კითხვის მეთოდი</string>
     <string name="fps_overlay_read_mode_desc">სცადეთ სხვა მეთოდი, თუ თქვენს მოწყობილობაზე მაჩვენებელი რჩება 0-ზე</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (რეკომენდებულია)</string>
     <string name="fps_overlay_mode_kernel">ბირთვის კვანძი</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">ტექსტის ზომა</string>
     <string name="fps_overlay_bg_alpha">ფონის გამჭვირვალობა</string>
     <string name="fps_overlay_width_scale">სიგანის მასშტაბი</string>
-    <string name="fps_overlay_section_metrics">ნაჩვენებია მეტრიკა</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU დატვირთვა</string>
-    <string name="fps_overlay_metric_ram">RAM გამოყენება</string>
-    <string name="fps_overlay_metric_watt">ბატარეის ენერგიის მოხმარება</string>
-    <string name="fps_overlay_metric_temp">ბატარეის ტემპერატურა</string>
-    <string name="fps_overlay_metric_render">რენდერის ლეიბლი</string>
-    <string name="fps_overlay_metric_render_desc">აჩვენებს VULKAN/OPENGL-ის ნაცვლად \"FPS\", როგორც ლეიბლი, გამოვლენილი წინა პლანზე აპის ჩატვირთული ბიბლიოთეკებიდან</string>
     <string name="dozemode_title">ძილის პოლიტიკა</string>
     <string name="dozemode_menu_desc">ლოდინის თეთრი სია, უმოქმედო ქცევა და ფონური კვების რეგულირება</string>
     <string name="dozemode_state_label">დოზის შტატი</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">გახსენით პარამეტრები</string>
     <string name="processmgr_title">სამუშაო მონიტორი</string>
-    <string name="processmgr_menu_desc">პროცესის განმავლობაში CPU და RAM გამოყენება, ძალის შეჩერებით და მცურავი გადაფარვით</string>
     <string name="processmgr_stat_total">%1$d პროცესები</string>
-    <string name="processmgr_stat_breakdown">%1$d მომხმარებელი \u00b7 %2$d სისტემა</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">ტოპ %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">მიმდინარე პროცესების ძიება</string>
     <string name="processmgr_no_processes">არცერთი პროცესი არ ემთხვევა თქვენს ძიებას</string>
     <string name="processmgr_dialog_close">დახურვა</string>
-    <string name="processmgr_detail_version">ვერსია</string>
-    <string name="processmgr_detail_build">აშენება</string>
-    <string name="processmgr_detail_package">პაკეტი</string>
     <string name="processmgr_result_killed">მოკლეს %1$s</string>
     <string name="processmgr_result_kill_failed">ვერ მოკვლა %1$s</string>
     <string name="processmgr_result_stopped">ძალით შეჩერდა %1$s</string>
@@ -1462,7 +1440,6 @@
     <string name="max_home_reboot_desc">გახსენით უსაფრთხო გადატვირთვის პარამეტრები</string>
     <string name="max_home_ai_console">MAX AI კონსოლი</string>
     <string name="max_home_ai_working">მიმდინარეობს მოთხოვნილი პროფილის გამოყენება…</string>
-    <string name="max_home_ai_failed">ბოლო AI მოქმედება ჩაიშალა</string>
     <string name="max_home_retry">ხელახლა სცადეთ</string>
     <string name="max_home_ai_idle">AI გადაწყვეტილება ჯერ არ დაფიქსირებულა</string>
     <string name="home_system_stable">სისტემა სტაბილურია</string>
@@ -1478,8 +1455,6 @@
     <string name="home_performance_monitor_desc">რესურსის დატვირთვა ბოლო 72 წამის განმავლობაში</string>
     <string name="home_quick_actions">სარდლობის გემბანი</string>
     <string name="home_quick_actions_desc">პირდაპირი წვდომა მნიშვნელოვან კონტროლზე</string>
-    <string name="home_action_boost">შესრულების პროფილი</string>
-    <string name="home_action_boost_desc">სისტემის ქცევის შეცვლა</string>
     <string name="home_action_thermal">თერმული ცენტრი</string>
     <string name="home_action_thermal_desc">შეამოწმეთ სითბო და გაგრილება</string>
     <string name="home_action_battery">დენის ცენტრი</string>
@@ -1499,7 +1474,6 @@
     <string name="home_active">აქტიური</string>
     <string name="home_idle">უსაქმური</string>
     <string name="home_protected">დაცული</string>
-    <string name="home_device_overview">გახსენით მოწყობილობის მიმოხილვა</string>
     <string name="home_live_performance">ცოცხალი შესრულება</string>
     <string name="home_live_performance_desc">მიმდინარე დატვირთვა და პირდაპირი ტექნიკის კონტროლი</string>
     <string name="home_open_details">გახსენით დეტალური თერმული მონაცემები</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">გამოიყენება თითო აპის ოპტიმიზაცია</string>
     <string name="max_app_advanced_options">გაფართოებული პარამეტრები</string>
     <string name="max_app_save">შენახვა</string>
+    <string name="home_gpu_max_freq">მაქსიმალური სიხშირე</string>
 </resources>

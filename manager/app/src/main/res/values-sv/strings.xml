@@ -7,7 +7,7 @@
     <string name="all_set">Allt är klart, du kan nu använda Max Manager</string>
     <string name="allow_verbose_log">Demonen loggar detaljerade loggar</string>
     <string name="android_version">Android-version</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Appnamn</string>
     <string name="app_priority">Appprioritet</string>
     <string name="app_priority_control">Prioritetskontroll för appar</string>
@@ -517,7 +517,6 @@
     <string name="thermal_hide_trips">Göm resor</string>
     <string name="thermal_trip_points">Resepoäng</string>
     <string name="thermal_trip_config">Trip Point Config</string>
-    <string name="zram_live_summary">? %6$d/%7$d MB</string>
     <string name="zram_presets_title">Snabba förinställningar</string>
     <string name="zram_tuning_title">Kompressionsmotor</string>
     <string name="zram_custom_size">Anpassad växlingsstorlek</string>
@@ -726,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS-överlägg</string>
     <string name="fps_overlay_notif_title">Max Manager FPS-överlägg körs</string>
     <string name="fps_overlay_notif_stop">Stopp</string>
-    <string name="fps_overlay_section_style">Utseende</string>
-    <string name="fps_overlay_style">Överläggsstil</string>
-    <string name="fps_overlay_style_android">Android lista</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Layoutriktning</string>
-    <string name="fps_overlay_orientation_vertical">Vertikal</string>
-    <string name="fps_overlay_orientation_horizontal">Horisontell</string>
-    <string name="fps_overlay_read_mode">FPS-läsmetod</string>
     <string name="fps_overlay_read_mode_desc">Prova en annan metod om avläsningen stannar på 0 på din enhet</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (rekommenderas)</string>
     <string name="fps_overlay_mode_kernel">Kärnnod</string>
@@ -743,14 +733,6 @@
     <string name="fps_overlay_text_size">Textstorlek</string>
     <string name="fps_overlay_bg_alpha">Bakgrundens opacitet</string>
     <string name="fps_overlay_width_scale">Breddskala</string>
-    <string name="fps_overlay_section_metrics">Mätvärden visas</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU ladda</string>
-    <string name="fps_overlay_metric_ram">RAM användning</string>
-    <string name="fps_overlay_metric_watt">Batteriförbrukning</string>
-    <string name="fps_overlay_metric_temp">Batteritemperatur</string>
-    <string name="fps_overlay_metric_render">Renderer etikett</string>
-    <string name="fps_overlay_metric_render_desc">Visar VULKAN/OPENGL istället för \"FPS\" som etikett, upptäckt från förgrundsappens laddade bibliotek</string>
     <string name="dozemode_title">Sömnpolicy</string>
     <string name="dozemode_menu_desc">Vitlista i viloläge, viloläge och strömjustering i bakgrunden</string>
     <string name="dozemode_state_label">Slumra tillstånd</string>
@@ -786,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Öppna inställningar</string>
     <string name="processmgr_title">Uppgiftsövervakare</string>
-    <string name="processmgr_menu_desc">Användning per process CPU och RAM, med tvångsstopp och ett flytande överlägg</string>
     <string name="processmgr_stat_total">%1$d processer</string>
-    <string name="processmgr_stat_breakdown">%1$d användare \u00b7 %2$d system</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Topp %1$d</string>
@@ -809,9 +789,6 @@
     <string name="processmgr_search_hint">Sök på löpande processer</string>
     <string name="processmgr_no_processes">Inga processer matchar din sökning</string>
     <string name="processmgr_dialog_close">Nära</string>
-    <string name="processmgr_detail_version">Version</string>
-    <string name="processmgr_detail_build">Bygga</string>
-    <string name="processmgr_detail_package">Paket</string>
     <string name="processmgr_result_killed">Dödad %1$s</string>
     <string name="processmgr_result_kill_failed">Kunde inte döda %1$s</string>
     <string name="processmgr_result_stopped">Tvångsstoppad %1$s</string>
@@ -1462,7 +1439,6 @@
     <string name="max_home_reboot_desc">Öppna alternativ för säker omstart</string>
     <string name="max_home_ai_console">MAX AI-konsol</string>
     <string name="max_home_ai_working">Använder begärd profil...</string>
-    <string name="max_home_ai_failed">Den senaste AI-åtgärden misslyckades</string>
     <string name="max_home_retry">Försöka igen</string>
     <string name="max_home_ai_idle">Inget AI-beslut registrerat ännu</string>
     <string name="home_system_stable">SYSTEMSTABIL</string>
@@ -1478,8 +1454,6 @@
     <string name="home_performance_monitor_desc">Resursbelastning under de senaste 72 sekunderna</string>
     <string name="home_quick_actions">Kommandodäck</string>
     <string name="home_quick_actions_desc">Direkt åtkomst till kontrollerna som är viktiga</string>
-    <string name="home_action_boost">Prestandaprofil</string>
-    <string name="home_action_boost_desc">Ändra systemets beteende</string>
     <string name="home_action_thermal">Termiskt centrum</string>
     <string name="home_action_thermal_desc">Inspektera värme och kyla</string>
     <string name="home_action_battery">Kraftcenter</string>
@@ -1499,7 +1473,6 @@
     <string name="home_active">AKTIV</string>
     <string name="home_idle">PÅ TOMGÅNG</string>
     <string name="home_protected">SKYDDAD</string>
-    <string name="home_device_overview">ÖPPNA ENHETÖVERSIKT</string>
     <string name="home_live_performance">Liveframträdande</string>
     <string name="home_live_performance_desc">Aktuell belastning och direkta hårdvarukontroller</string>
     <string name="home_open_details">Öppna detaljerade termiska data</string>
@@ -1790,4 +1763,6 @@
     <string name="max_app_master_on_desc">Optimeringar per app tillämpas</string>
     <string name="max_app_advanced_options">Avancerade alternativ</string>
     <string name="max_app_save">Spara</string>
+    <string name="home_gpu_max_freq">Max frekv</string>
+    <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 Effektivitet %4$.2f\u00d7 \u00b7 RAM sparat %5$d MB \u00b7 Byt används %6$d/%7$d MB</string>
 </resources>

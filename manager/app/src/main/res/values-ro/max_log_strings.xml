@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Verbos</string>
+    <string name="max_log_level_debug">Depanați</string>
+    <string name="max_log_level_info">Info</string>
+    <string name="max_log_level_warn">Avertizare</string>
+    <string name="max_log_level_error">Eroare</string>
+    <string name="max_log_level_assert">Afirma</string>
+    <string name="max_log_level_fatal">Fatal</string>
+    <string name="max_log_buffer_main">Principal</string>
+    <string name="max_log_buffer_system">Sistem</string>
+    <string name="max_log_buffer_crash">Prăbușire</string>
+    <string name="max_log_buffer_kernel">Nucleu</string>
+    <string name="max_log_buffer_events">Evenimente</string>
+    <string name="max_log_buffer_radio">Radio</string>
+    <string name="max_log_source_daemon">Daemon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Alte</string>
+</resources>

@@ -15,9 +15,10 @@
  */
 
 package nd.max.ui.util
+import nd.max.core.platform.SensorInventory
 
-import nd.max.ui.util.SensorInventory.Kind
-import nd.max.ui.util.SensorInventory.ReadingState
+import nd.max.core.platform.SensorInventory.Kind
+import nd.max.core.platform.SensorInventory.ReadingState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -162,5 +163,52 @@ class SensorInventoryTest {
         assertEquals("0.15", SensorInventory.powerLabel(0.15f))
         assertEquals("10.0", SensorInventory.rangeLabel(10f))
         assertEquals("5000", SensorInventory.delayLabel(5000))
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // سطر التفاصيل (`DI-03`): حقول المستشعر التسعة، والمجهول يُحذف لا يُصفَّر
+    // ────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun `a detail line spells out every field the platform announced`() {
+        assertEquals(
+            "Motion · 1 · vendor · ±10.0 · 0.100 · 0.15 mA · 5000 us",
+            SensorInventory.detailLine(item("accel", 1), kindLabel = "Motion"),
+        )
+        // ووسم الإيقاظ يُلحق حين تُمرَّر كلمته، ويسقط حين لا كلمة لها في الواجهة.
+        assertEquals(
+            "Motion · 1 · vendor · ±10.0 · 0.100 · 0.15 mA · 5000 us · wake-up",
+            SensorInventory.detailLine(item("accel", 1, wakeUp = true), "Motion", "wake-up"),
+        )
+        assertEquals(
+            "Motion · 1 · vendor · ±10.0 · 0.100 · 0.15 mA · 5000 us",
+            SensorInventory.detailLine(item("accel", 1, wakeUp = true), "Motion", wakeUpLabel = null),
+        )
+    }
+
+    @Test
+    fun `a detail line drops what was not announced instead of writing a zero`() {
+        val bare = SensorInventory.Item(
+            name = "bmp",
+            vendor = "",
+            typeId = 6,
+            kind = Kind.ENVIRONMENT,
+            powerMilliAmp = 0f,
+            maxRange = 0f,
+            resolution = 0f,
+            minDelayUs = 0,
+            isWakeUp = false,
+        )
+        // الصنف والنوع الرقميّ يُقالان لأنهما معلنان دائمًا؛ والبائع الفارغ والمقادير الصفرية تُحذف.
+        assertEquals("Environment · 6", SensorInventory.detailLine(bare, "Environment"))
+    }
+
+    @Test
+    fun `resolution follows the same rule as power and range, where zero is silence`() {
+        assertNull(SensorInventory.resolutionLabel(0f))
+        assertNull(SensorInventory.resolutionLabel(-1f))
+        // والمدى والدقّة على قاعدة واحدة: ثلاثة أرقام معنوية (`0.100` لا `0.1`).
+        assertEquals("0.100", SensorInventory.resolutionLabel(0.1f))
+        assertEquals(SensorInventory.rangeLabel(0.1f), SensorInventory.resolutionLabel(0.1f))
     }
 }

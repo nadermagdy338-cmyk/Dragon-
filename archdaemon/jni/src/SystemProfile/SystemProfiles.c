@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "AZenith.h"
+#include "MaxManager.h"
 
 /**
  * @brief Thread worker function to run GamePreload asynchronously.

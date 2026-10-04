@@ -43,7 +43,6 @@
     <string name="max_perms_ref_restore_title">እነዚህ ክወናዎች ወደነበሩበት ይመለሱ?</string>
     <string name="max_perms_ref_restore_message">%1$s ኦፕሬሽኖች ወደ ማጣቀሻ እሴታቸው ይፃፋሉ። እያንዳንዳቸው ወደ ኋላ ይነበባሉ እና ሪፖርት ይደረጋሉ.</string>
     <string name="max_perms_ref_restore_more">…እና %1$s ተጨማሪ (ሁሉም ይጻፋሉ)</string>
-    <string name="max_perms_ref_restore_done">ተቀባይነት ያገኘው</string>
     <string name="max_perms_ref_delete">ማመሳከሪያውን ሰርዝ</string>
     <string name="max_perms_ref_delete_title">የተቀመጠው ማጣቀሻ ይሰረዝ?</string>
     <string name="max_perms_ref_delete_message">የተቀመጠው መመሪያ ተወግዷል። አፕ ኦፕስ ራሳቸው አልተነኩም።</string>
@@ -69,4 +68,5 @@
     <string name="max_perms_entry_title">ፈቃዶች እና የመተግበሪያ አማራጮች</string>
     <string name="max_perms_entry_desc">ይህ መተግበሪያ ምን እንደሚያውጅ እና ስርዓቱ ምን እንደሚፈቅድ ይመልከቱ</string>
     <string name="max_perms_entry_action">ፈቃዶችን ይክፈቱ</string>
+    <string name="max_perms_ref_restore_done">ተቀባይነት አግኝቷል %1$s · መሻር ተወግዷል %2$s · መሳሪያ የራሱን ዋጋ አስቀምጧል %3$s · ተቀባይነት አላገኘም። %4$s · የማይታወቅ %5$s</string>
 </resources>

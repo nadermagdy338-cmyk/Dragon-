@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Délai Max (nous)</string>
+    <string name="max_sched_tunable_deadline_period_min">Délai Min (nous)</string>
+    <string name="max_sched_tunable_energy_aware">Conscient de l\'énergie</string>
+    <string name="max_sched_tunable_latency">Latence (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Coût de migration (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Granularité minimale (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Taille du lot de migration</string>
+    <string name="max_sched_tunable_pelt_multiplier">Multiplicateur PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Tranche de temps Round-Robin (ms)</string>
+    <string name="max_sched_tunable_rt_period">Période en temps réel (nous)</string>
+    <string name="max_sched_tunable_rt_runtime">Runtime en temps réel (nous)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Plancher UClamp en temps réel</string>
+    <string name="max_sched_tunable_wakeup_granularity">Granularité de réveil (ns)</string>
+</resources>

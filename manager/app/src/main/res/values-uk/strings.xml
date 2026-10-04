@@ -7,7 +7,7 @@
     <string name="all_set">Усе готово, тепер ви можете використовувати Max Manager</string>
     <string name="allow_verbose_log">Докладні логи демона</string>
     <string name="android_version">Версія Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Назва застосунку</string>
     <string name="app_priority">Пріоритет застосунку</string>
     <string name="app_priority_control">Контроль пріоритету застосунку</string>
@@ -726,15 +726,6 @@
     <string name="fps_overlay_notif_channel">FPS Overlay</string>
     <string name="fps_overlay_notif_title">Max Manager Запущено накладання FPS</string>
     <string name="fps_overlay_notif_stop">СТІЙ</string>
-    <string name="fps_overlay_section_style">Зовнішній вигляд</string>
-    <string name="fps_overlay_style">Стиль накладання</string>
-    <string name="fps_overlay_style_android">Список Android</string>
-    <string name="fps_overlay_style_pc">ПК моноширинні</string>
-    <string name="fps_overlay_style_mini">Міні</string>
-    <string name="fps_overlay_orientation">Напрямок макета</string>
-    <string name="fps_overlay_orientation_vertical">Вертикальний</string>
-    <string name="fps_overlay_orientation_horizontal">Горизонтальний</string>
-    <string name="fps_overlay_read_mode">Метод зчитування FPS</string>
     <string name="fps_overlay_read_mode_desc">Спробуйте інший метод, якщо показання на вашому пристрої залишаються рівними 0</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (рекомендовано)</string>
     <string name="fps_overlay_mode_kernel">Вузол ядра</string>
@@ -743,14 +734,6 @@
     <string name="fps_overlay_text_size">Розмір тексту</string>
     <string name="fps_overlay_bg_alpha">Непрозорість фону</string>
     <string name="fps_overlay_width_scale">Шкала ширини</string>
-    <string name="fps_overlay_section_metrics">Показані показники</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU навантаження</string>
-    <string name="fps_overlay_metric_ram">RAM використання</string>
-    <string name="fps_overlay_metric_watt">Потужність батареї</string>
-    <string name="fps_overlay_metric_temp">Температура батареї</string>
-    <string name="fps_overlay_metric_render">Мітка рендерера</string>
-    <string name="fps_overlay_metric_render_desc">Показує VULKAN/OPENGL замість \"FPS\" як мітку, виявлену із завантажених бібліотек програми на передньому плані</string>
     <string name="dozemode_title">Політика сну</string>
     <string name="dozemode_menu_desc">Білий список у режимі очікування, режим очікування та фонове налаштування живлення</string>
     <string name="dozemode_state_label">Дрімає стан</string>
@@ -786,9 +769,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Відкрийте налаштування</string>
     <string name="processmgr_title">Монітор завдань</string>
-    <string name="processmgr_menu_desc">Використання CPU і RAM для кожного процесу з примусовою зупинкою та плаваючим накладанням</string>
     <string name="processmgr_stat_total">%1$d процеси</string>
-    <string name="processmgr_stat_breakdown">%1$d користувач \u00b7 %2$d система</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Зверху %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">Пошук запущених процесів</string>
     <string name="processmgr_no_processes">Жоден процес не відповідає вашому пошуку</string>
     <string name="processmgr_dialog_close">Закрити</string>
-    <string name="processmgr_detail_version">Версія</string>
-    <string name="processmgr_detail_build">Будувати</string>
-    <string name="processmgr_detail_package">Пакет</string>
     <string name="processmgr_result_killed">Убитий %1$s</string>
     <string name="processmgr_result_kill_failed">Не вдалося вбити %1$s</string>
     <string name="processmgr_result_stopped">Примусово зупинено %1$s</string>
@@ -1461,7 +1439,6 @@
     <string name="max_home_reboot_desc">Відкрийте параметри безпечного перезавантаження</string>
     <string name="max_home_ai_console">Консоль MAX AI</string>
     <string name="max_home_ai_working">Застосування запитуваного профілю…</string>
-    <string name="max_home_ai_failed">Остання дія AI не вдалася</string>
     <string name="max_home_retry">Повторіть спробу</string>
     <string name="max_home_ai_idle">Рішення ШІ ще не зареєстровано</string>
     <string name="home_system_stable">СИСТЕМА СТАБІЛЬНА</string>
@@ -1477,8 +1454,6 @@
     <string name="home_performance_monitor_desc">Завантаження ресурсу за останні 72 секунди</string>
     <string name="home_quick_actions">Командна палуба</string>
     <string name="home_quick_actions_desc">Прямий доступ до важливих елементів керування</string>
-    <string name="home_action_boost">Профіль продуктивності</string>
-    <string name="home_action_boost_desc">Змінити поведінку системи</string>
     <string name="home_action_thermal">Термальний центр</string>
     <string name="home_action_thermal_desc">Перевірте тепло та охолодження</string>
     <string name="home_action_battery">Центр влади</string>
@@ -1498,7 +1473,6 @@
     <string name="home_active">АКТИВНИЙ</string>
     <string name="home_idle">ПРОСТОЮЧИЙ</string>
     <string name="home_protected">ЗАХИЩЕНИЙ</string>
-    <string name="home_device_overview">ВІДКРИТИ ОГЛЯД ПРИСТРОЮ</string>
     <string name="home_live_performance">Живе виконання</string>
     <string name="home_live_performance_desc">Поточне навантаження та прямі апаратні засоби керування</string>
     <string name="home_open_details">Відкрийте детальні теплові дані</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Застосовується оптимізація для кожної програми</string>
     <string name="max_app_advanced_options">Розширені параметри</string>
     <string name="max_app_save">зберегти</string>
+    <string name="home_gpu_max_freq">Макс. частота</string>
 </resources>

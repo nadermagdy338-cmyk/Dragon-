@@ -26,7 +26,7 @@ import nd.max.core.hardware.GpuTweakPersistence
 import nd.max.core.hardware.HardwareControlArbiter
 import nd.max.core.hardware.HardwareControlKey
 import nd.max.core.hardware.ManualControlLocks
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 /**
  * ناتج ما حدث، **برمز لا بجملة**.

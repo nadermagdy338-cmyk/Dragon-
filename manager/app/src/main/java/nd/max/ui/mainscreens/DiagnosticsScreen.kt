@@ -54,6 +54,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import nd.max.ui.component.CapabilityMatrixCard
+import nd.max.ui.component.MaxDeviceInfoShortcut
+import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.component.maxAdaptiveContentWidth
 import nd.max.R
 import nd.max.ui.component.ExpressiveList
@@ -115,10 +117,16 @@ fun DiagnosticsScreen(navController: NavHostController) {
     var runtime by remember { mutableStateOf<HardwareRuntime.Snapshot?>(null) }
     var showScreenHelp by remember { mutableStateOf(false) }
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        capabilities = HardwareCapabilityResolver.resolve(context).also { snapshot ->
-            routes = runCatching { HardwareRouteHealth.verdicts(snapshot) }.getOrDefault(emptyList())
+        // **وعلى خيط IO لا على خيط التركيب (عطب سرعة مُبلَّغ عنه):** `LaunchedEffect` يُنفَّذ على
+        // موزّع التركيب — أي **الرئيسي** — وهذه الثلاثة **حاجبة** (استقصاء واجهات العتاد ومساراتها
+        // ثم لقطة وقت التشغيل)، فكانت تحجب أوّل إطار عند فتح الشاشة ولا يُرسم شيء قبلها.
+        // والتحديث من خيط خلفيّ إلى حالة اللقطة آمن (‏`mutableStateOf` تُكتب من أي خيط).
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            capabilities = HardwareCapabilityResolver.resolve(context).also { snapshot ->
+                routes = runCatching { HardwareRouteHealth.verdicts(snapshot) }.getOrDefault(emptyList())
+            }
+            runtime = runCatching { HardwareRuntime.snapshot(context) }.getOrNull()
         }
-        runtime = runCatching { HardwareRuntime.snapshot(context) }.getOrNull()
     }
 
     Scaffold(
@@ -188,12 +196,30 @@ fun DiagnosticsScreen(navController: NavHostController) {
                 )
             }
             item {
-                CapabilityMatrixCard(capabilities, routes) {
-                    capabilities = HardwareCapabilityResolver.resolve(context).also { snapshot ->
-                        routes = runCatching { HardwareRouteHealth.verdicts(snapshot) }.getOrDefault(emptyList())
-                    }
-                    runtime = runCatching { HardwareRuntime.snapshot(context) }.getOrNull()
-                }
+                // وزرّ قسم **المستشعرات** في «معلومات الجهاز» على جانب عنوان هذه البطاقة — وهي
+                // البطاقة الأولى ذات العنوان في شاشة التشخيص (`SensorInventoryCard` بطاقة
+                // المستشعرات فيها)، وهو نصّ طلب المالك: «في شاشة التشخيص زرّ يدخلك على قسم
+                // المستشعرات»، ولهذا صار الاختيار للمستشعرات لا للنظام (انظر
+                // `deviceInfoShortcutSection`).
+                CapabilityMatrixCard(
+                    snapshot = capabilities,
+                    routes = routes,
+                    onRefresh = {
+                        capabilities = HardwareCapabilityResolver.resolve(context).also { snapshot ->
+                            routes = runCatching { HardwareRouteHealth.verdicts(snapshot) }.getOrDefault(emptyList())
+                        }
+                        runtime = runCatching { HardwareRuntime.snapshot(context) }.getOrNull()
+                    },
+                    trailing = {
+                        // وبطاقة مصفوفة القدرات تحشو نفسها (`MaxSurface` ← `cardPadding`)،
+                        // فحاشية الباب صفر فلا يُحتسب البُعد مرّتين.
+                        MaxDeviceInfoShortcut(
+                            navController = navController,
+                            from = MaxDestination.Diagnostics,
+                            inset = 0.dp,
+                        )
+                    },
+                )
             }
             item {
                 RuntimeHealthCard(runtime)
@@ -256,7 +282,7 @@ fun DiagnosticsScreen(navController: NavHostController) {
 @Composable
 private fun RuntimeHealthCard(snapshot: HardwareRuntime.Snapshot?) {
     MaxSurface(modifier = Modifier.padding(top = 14.dp)) {
-        Text("Live hardware health", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.diagnostics_live_hw_health), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(8.dp))
         Text(
             snapshot?.let { "${it.cpuPolicies.size} CPU policies • ${it.gpuDevices.size} GPU devices • ZRAM ${if (it.zram.exists) "detected" else "not detected"}" }
@@ -872,7 +898,7 @@ private fun BootRow(label: String, value: String, ok: Boolean) {
 private fun OwnershipDiagnosticsCard() {
     val leases = nd.max.core.hardware.ControlOwnership.snapshot()
     MaxSurface(modifier = Modifier.padding(top = 14.dp)) {
-        Text("Active control ownership", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.diagnostics_active_ownership), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(6.dp))
         Text(
             if (leases.isEmpty()) "No policy currently owns a hardware control."
@@ -897,15 +923,15 @@ private fun HardwareReportCard(context: android.content.Context) {
     MaxSurface(modifier = Modifier.padding(top = 14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Column(Modifier.weight(1f)) {
-                Text("Hardware report", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text("Generate a compact report for support and compatibility reports.", style = MaxTextRole.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.diagnostics_hardware_report), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.diagnostics_hardware_report_desc), style = MaxTextRole.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             nd.max.ui.component.StudioTextButton(onClick = {
                 val report = HardwareRuntime.compactReport(context)
                 val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
                 clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("MaxManager Hardware Report", report))
                 Toast.makeText(context, "Hardware report copied", Toast.LENGTH_SHORT).show()
-            }) { Text("Copy") }
+            }) { Text(stringResource(R.string.diagnostics_copy)) }
         }
     }
 }

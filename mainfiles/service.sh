@@ -123,6 +123,11 @@ if [ "$PACKAGE_READY" -eq 1 ]; then
 
     # نسخة تطبيق-مستخدم مطابقة لنسخة الـpriv-app.
     #
+    # **ومقيس من جهاز حقيقي (٢٠٢٦-١٠-٠١):** `PackageManager` سجّل `Package nd.max at
+    # /product/priv-app/MaxManager ignored: updated version 68 better than this 68` — أي أن
+    # النسختين بالـ`versionCode` نفسه، والقسم المُحدَّث هو الذي يُخدَم. ولا يُغيَّر التغليف هنا
+    # (قرار إصدار لا قرار سكربت)، لكن السطر التالي يُبقي الحقيقة في السجلّ: أيّ مسار يُخدَم الآن.
+    #
     # ولماذا: ما تُثبّته الوحدة هو **تطبيق نظام** (`/product/priv-app`)، ومديرو الروت (KernelSU Next
     # وAPatch وMagisk) يعرضون في قوائمهم تطبيقات المستخدم — فيغيب تطبيق الوحدة عن القائمة التي
     # يُمنح منها الإذن. وكتابة النسخة نفسها في قسم البيانات تجعل الحزمة **تطبيق نظام مُحدَّث**:
@@ -175,14 +180,78 @@ STATE=$(getprop "$PROP_STATE")
     setprop "$PROP_SERVICE" ""
 }
 
-# Exec Java Companion Daemon only when PackageManager can resolve the app.
-if [ "$PACKAGE_READY" -eq 1 ]; then
+readonly COMPANION_NAME="sys.maxmanager-appmonitoring"
+
+launch_companion() {
+    # والمخرَج **يُضاف** لا يُقتطع: كان `>` يمحو ما كتبه رفيق سابق في الإقلاع نفسه —
+    # والحالة التي دفعت الثمن هي التي تُشفى: موت الرفيق في الإقلاع يُتبع بإعادة تشغيل
+    # (من الحارس في التطبيق، أو من شاشة فحص الشحن) — فلو مُحي السابق لم يبق دليل يُرسل.
     nohup app_process -Djava.class.path="$APK_MOUNTED" / \
-        --nice-name=sys.maxmanager-appmonitoring nd.max.AppMonitor \
+        --nice-name="$COMPANION_NAME" nd.max.AppMonitor \
         "$MODULE_CONFIG/app_status" \
         "$MODULE_CONFIG/background_apps" \
-        "$MODULE_CONFIG/java.lock" >"$MODULE_CONFIG/sysmon.log" 2>&1 &
+        "$MODULE_CONFIG/java.lock" >>"$MODULE_CONFIG/sysmon.log" 2>&1 &
+}
+
+# اسم الرفيق يضعه `--nice-name`، فيُقاس حضوره **بالاسم** لا بالتخمين.
+companion_alive() {
+    pids=$(/system/bin/toybox pidof "$COMPANION_NAME" 2>/dev/null) || return 1
+    [ -n "$pids" ]
+}
+
+# Exec Java Companion Daemon only when PackageManager can resolve the app.
+COMPANION_READY=0
+if [ "$PACKAGE_READY" -eq 1 ]; then
+    launch_companion
+    # **ولا يُبدأ الخادم على ظنّ أنّ الرفيق حيّ:** الخادم ينتظر قفله ١٢٠ ثانية كاملة ثم يُغلق الوحدة
+    # كلها برسالة «Java companion daemon crashed or failed to start» — وهذا يقع فعلًا حين يموت الرفيق
+    # في أوّل ثانية من عمره (عطب مقيس: تكملة ٢٢٧، حيث مُنع تخزين المستخدم قبل فتح الشاشة). والمهلة
+    # هنا قصيرة عن قصد: الرفيق الذي لا يستطيع التهيئة **يقولها في سجلّه ويخرج**، فلا معنى لانتظار طويل.
+    if ! /system/bin/toybox pidof init >/dev/null 2>&1; then
+        # وغياب أداة الفحص **لا يُسقط الوحدة**: يُعلن أنه لم يُقس، ويُعاد السلوك السابق (الخادم يفحص بنفسه).
+        log_recovery "pidof unavailable; companion liveness not measured"
+        COMPANION_READY=1
+    else
+        attempt=0
+        while [ "$attempt" -lt 15 ]; do
+            if companion_alive; then
+                COMPANION_READY=1
+                break
+            fi
+            attempt=$((attempt + 1))
+            sleep 1
+        done
+
+        if [ "$COMPANION_READY" -eq 1 ]; then
+            log_recovery "java companion running pid=$(/system/bin/toybox pidof "$COMPANION_NAME" 2>/dev/null | tr ' ' ',')"
+        else
+            # ومحاولة ثانية واحدة: أوّل ثانية من الإقلاع قد تسبق جاهزية `app_process`، والثانية تُنقذ الجلسة.
+            log_recovery "java companion not alive after ${attempt}s; retrying once"
+            launch_companion
+            attempt=0
+            while [ "$attempt" -lt 10 ]; do
+                if companion_alive; then
+                    COMPANION_READY=1
+                    break
+                fi
+                attempt=$((attempt + 1))
+                sleep 1
+            done
+            if [ "$COMPANION_READY" -eq 1 ]; then
+                log_recovery "java companion running after retry"
+            else
+                log_recovery "java companion failed to start; see sysmon.log (service not started)"
+            fi
+        fi
+    fi
 fi
 
-# Run MaxManager service
-sleep 1 && exec "$BIN_SVC" --run
+# Run MaxManager service — **فقط** إذا كان الرفيق حيًّا.
+# وليس الشرط وجود الحزمة وحده: انظر تعليق الفحص أعلاه — الرسالة المُضلّلة («crashed or failed to start»)
+# تُستبدل بسطر واحد صادق في `package-recovery.log` يسمّي ما جرى.
+if [ "$COMPANION_READY" -eq 1 ]; then
+    sleep 1 && exec "$BIN_SVC" --run
+else
+    log_recovery "service not started; java companion unavailable"
+    exit 0
+fi

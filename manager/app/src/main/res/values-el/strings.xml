@@ -7,7 +7,7 @@
     <string name="all_set">Όλα έτοιμα, μπορείτε τώρα να χρησιμοποιήσετε το Max Manager</string>
     <string name="allow_verbose_log">Αναλυτική καταγραφή δαίμονα</string>
     <string name="android_version">Έκδοση Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Όνομα εφαρμογής</string>
     <string name="app_priority">Προτεραιότητα εφαρμογής</string>
     <string name="app_priority_control">Έλεγχος προτεραιότητας εφαρμογής</string>
@@ -724,15 +724,6 @@
     <string name="fps_overlay_notif_channel">Επικάλυψη FPS</string>
     <string name="fps_overlay_notif_title">Max Manager Η επικάλυψη FPS εκτελείται</string>
     <string name="fps_overlay_notif_stop">Στάση</string>
-    <string name="fps_overlay_section_style">Εμφάνιση</string>
-    <string name="fps_overlay_style">Στυλ επικάλυψης</string>
-    <string name="fps_overlay_style_android">Λίστα Android</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Μίνι</string>
-    <string name="fps_overlay_orientation">Κατεύθυνση διάταξης</string>
-    <string name="fps_overlay_orientation_vertical">Κατακόρυφος</string>
-    <string name="fps_overlay_orientation_horizontal">Οριζόντιος</string>
-    <string name="fps_overlay_read_mode">Μέθοδος ανάγνωσης FPS</string>
     <string name="fps_overlay_read_mode_desc">Δοκιμάστε μια διαφορετική μέθοδο εάν η ένδειξη παραμένει στο 0 στη συσκευή σας</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (συνιστάται)</string>
     <string name="fps_overlay_mode_kernel">Κόμβος πυρήνα</string>
@@ -741,14 +732,6 @@
     <string name="fps_overlay_text_size">Μέγεθος κειμένου</string>
     <string name="fps_overlay_bg_alpha">Αδιαφάνεια φόντου</string>
     <string name="fps_overlay_width_scale">Κλίμακα πλάτους</string>
-    <string name="fps_overlay_section_metrics">Εμφανίζονται μετρήσεις</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU φορτίο</string>
-    <string name="fps_overlay_metric_ram">RAM χρήση</string>
-    <string name="fps_overlay_metric_watt">Ανάληψη ισχύος μπαταρίας</string>
-    <string name="fps_overlay_metric_temp">Θερμοκρασία μπαταρίας</string>
-    <string name="fps_overlay_metric_render">Ετικέτα Renderer</string>
-    <string name="fps_overlay_metric_render_desc">Εμφανίζει το VULKAN/OPENGL αντί για το \"FPS\" ως ετικέτα, που εντοπίστηκε από τις φορτωμένες βιβλιοθήκες της εφαρμογής στο προσκήνιο</string>
     <string name="dozemode_title">Πολιτική ύπνου</string>
     <string name="dozemode_menu_desc">Λίστα επιτρεπόμενων σε αναμονή, συμπεριφορά αδράνειας και συντονισμός ισχύος στο παρασκήνιο</string>
     <string name="dozemode_state_label">Doze κατάσταση</string>
@@ -784,9 +767,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Ανοίξτε τις ρυθμίσεις</string>
     <string name="processmgr_title">Παρακολούθηση εργασιών</string>
-    <string name="processmgr_menu_desc">Χρήση ανά διεργασία CPU και RAM, με αναγκαστική διακοπή και αιωρούμενη επικάλυψη</string>
     <string name="processmgr_stat_total">%1$d διαδικασίες</string>
-    <string name="processmgr_stat_breakdown">Σύστημα %1$d χρήστη \u00b7 %2$d</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Κορυφαία %1$d</string>
@@ -806,9 +787,6 @@
     <string name="processmgr_search_hint">Εκτελούμενες διαδικασίες αναζήτησης</string>
     <string name="processmgr_no_processes">Καμία διαδικασία δεν αντιστοιχεί στην αναζήτησή σας</string>
     <string name="processmgr_dialog_close">Κοντά</string>
-    <string name="processmgr_detail_version">Εκδοχή</string>
-    <string name="processmgr_detail_build">Οικοδομώ</string>
-    <string name="processmgr_detail_package">Πακέτο</string>
     <string name="processmgr_result_killed">Σκοτώθηκε %1$s</string>
     <string name="processmgr_result_kill_failed">Δεν μπορούσα να σκοτώσω %1$s</string>
     <string name="processmgr_result_stopped">Αναγκαστική διακοπή %1$s</string>
@@ -1458,7 +1436,6 @@
     <string name="max_home_reboot_desc">Ανοίξτε τις επιλογές ασφαλούς επανεκκίνησης</string>
     <string name="max_home_ai_console">Κονσόλα MAX AI</string>
     <string name="max_home_ai_working">Εφαρμογή προφίλ που ζητήθηκε…</string>
-    <string name="max_home_ai_failed">Η τελευταία ενέργεια AI απέτυχε</string>
     <string name="max_home_retry">Δοκιμάζω πάλι</string>
     <string name="max_home_ai_idle">Δεν έχει καταγραφεί ακόμη απόφαση AI</string>
     <string name="home_system_stable">ΣΥΣΤΗΜΑ ΣΤΑΘΕΡΟ</string>
@@ -1474,8 +1451,6 @@
     <string name="home_performance_monitor_desc">Φόρτωση πόρων τα τελευταία 72 δευτερόλεπτα</string>
     <string name="home_quick_actions">Κατάστρωμα εντολών</string>
     <string name="home_quick_actions_desc">Άμεση πρόσβαση στους ελέγχους που έχουν σημασία</string>
-    <string name="home_action_boost">Προφίλ απόδοσης</string>
-    <string name="home_action_boost_desc">Αλλαγή συμπεριφοράς συστήματος</string>
     <string name="home_action_thermal">Θερμικό κέντρο</string>
     <string name="home_action_thermal_desc">Επιθεωρήστε τη θερμότητα και την ψύξη</string>
     <string name="home_action_battery">Κέντρο ισχύος</string>
@@ -1495,7 +1470,6 @@
     <string name="home_active">ΕΝΕΡΓΟΣ</string>
     <string name="home_idle">ΑΕΡΓΟΣ</string>
     <string name="home_protected">ΠΡΟΣΤΑΤΕΥΕΤΑΙ</string>
-    <string name="home_device_overview">ΑΝΟΙΞΤΕ ΕΠΙΣΚΟΠΗΣΗ ΣΥΣΚΕΥΗΣ</string>
     <string name="home_live_performance">Ζωντανή απόδοση</string>
     <string name="home_live_performance_desc">Τρέχον φορτίο και άμεσοι έλεγχοι υλικού</string>
     <string name="home_open_details">Ανοίξτε τα λεπτομερή θερμικά δεδομένα</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Εφαρμόζονται βελτιστοποιήσεις ανά εφαρμογή</string>
     <string name="max_app_advanced_options">Προηγμένες επιλογές</string>
     <string name="max_app_save">Εκτός</string>
+    <string name="home_gpu_max_freq">Μέγιστη συχν</string>
 </resources>

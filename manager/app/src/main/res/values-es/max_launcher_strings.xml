@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Paquetes instalados y las actividades que declaran.</string>
+    <string name="max_launcher_loading">Lectura de paquetes instalados y sus actividades declaradas...</string>
+    <string name="max_launcher_empty">Ningún paquete instalado declara una actividad en este dispositivo.</string>
+    <string name="max_launcher_search_placeholder">Buscar por nombre de aplicación o paquete</string>
+    <string name="max_launcher_search_clear">Limpiar la búsqueda</string>
+    <string name="max_launcher_scope_all">Todo</string>
+    <string name="max_launcher_scope_user">Usuario</string>
+    <string name="max_launcher_scope_system">Sistema</string>
+    <string name="max_launcher_activity_count">%1$d actividades</string>
+    <string name="max_launcher_no_match_title">Nada coincide</string>
+    <string name="max_launcher_no_match_detail">Ningún nombre de paquete o etiqueta de aplicación contiene ese texto en el ámbito seleccionado.</string>
+    <string name="max_launcher_no_match_clear">Limpiar filtros</string>
+    <string name="max_launcher_reading_activities">Leyendo las actividades que este paquete declara…</string>
+    <string name="max_launcher_no_activities">Este paquete no declara actividades.</string>
+    <string name="max_launcher_root_off_title">No se otorga root</string>
+    <string name="max_launcher_root_off_detail">Las actividades marcadas como privadas no se exportan, por lo que sólo el root puede iniciarlas. Las actividades exportadas siguen abiertas sin él.</string>
+    <string name="max_launcher_tag_private">Privado</string>
+    <string name="max_launcher_tag_disabled">Desactivado</string>
+    <string name="max_launcher_outcome_started">Actividad iniciada</string>
+    <string name="max_launcher_outcome_needs_root">Esta actividad no se exporta; se requiere root</string>
+    <string name="max_launcher_outcome_refused">Android se negó a iniciar esta actividad</string>
+    <string name="max_launcher_outcome_missing">No hay ninguna actividad con ese nombre instalada.</string>
+</resources>

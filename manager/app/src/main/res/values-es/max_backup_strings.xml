@@ -224,7 +224,6 @@
     <string name="max_backup_storage_size_unknown">No pudo leerse</string>
     <string name="max_backup_storage_public_ok">Escribiendo en la carpeta compartida de abajo, así que cualquier gestor de archivos puede llegar al archivo sin root.</string>
     <string name="max_backup_storage_fallback_title">Las copias están en la carpeta de la app</string>
-    <string name="max_backup_storage_fallback_desc">because both folders are searched.</string>
     <string name="max_backup_storage_grant">Conceder acceso a todos los archivos</string>
     <string name="max_backup_storage_grant_failed">Este dispositivo no tiene pantalla para ese permiso. Las copias se quedan en la carpeta de la app.</string>
     <string name="max_backup_entry_title">Max Backup</string>
@@ -298,4 +297,5 @@
     <string name="max_backup_day_fri">vie</string>
     <string name="max_backup_day_sat">sáb</string>
     <string name="max_backup_day_sun">dom</string>
+    <string name="max_backup_storage_fallback_desc">La carpeta compartida %1$s necesita el permiso "Acceso a todos los archivos". Hasta que se conceda, las copias van a %2$s y las copias ya realizadas allí siguen siendo legibles, porque se buscan en ambas carpetas.</string>
 </resources>

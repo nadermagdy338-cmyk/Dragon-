@@ -7,7 +7,7 @@
     <string name="all_set">Mọi thứ đã sẵn sàng, bạn có thể sử dụng Max Manager ngay bây giờ</string>
     <string name="allow_verbose_log">Daemon xuất log chi tiết</string>
     <string name="android_version">Phiên bản Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Tên ứng dụng</string>
     <string name="app_priority">Ưu tiên ứng dụng</string>
     <string name="app_priority_control">Kiểm soát ưu tiên ứng dụng</string>
@@ -723,15 +723,6 @@
     <string name="fps_overlay_notif_channel">Lớp phủ FPS</string>
     <string name="fps_overlay_notif_title">Max Manager Lớp phủ FPS đang chạy</string>
     <string name="fps_overlay_notif_stop">Dừng lại</string>
-    <string name="fps_overlay_section_style">Vẻ bề ngoài</string>
-    <string name="fps_overlay_style">Kiểu lớp phủ</string>
-    <string name="fps_overlay_style_android">danh sách Android</string>
-    <string name="fps_overlay_style_pc">PC đơn cách</string>
-    <string name="fps_overlay_style_mini">nhỏ</string>
-    <string name="fps_overlay_orientation">Hướng bố cục</string>
-    <string name="fps_overlay_orientation_vertical">Thẳng đứng</string>
-    <string name="fps_overlay_orientation_horizontal">Nằm ngang</string>
-    <string name="fps_overlay_read_mode">Phương pháp đọc FPS</string>
     <string name="fps_overlay_read_mode_desc">Hãy thử phương pháp khác nếu kết quả vẫn ở mức 0 trên thiết bị của bạn</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (được khuyến nghị)</string>
     <string name="fps_overlay_mode_kernel">Nút hạt nhân</string>
@@ -740,14 +731,6 @@
     <string name="fps_overlay_text_size">Kích thước văn bản</string>
     <string name="fps_overlay_bg_alpha">Độ mờ nền</string>
     <string name="fps_overlay_width_scale">Thang đo chiều rộng</string>
-    <string name="fps_overlay_section_metrics">Số liệu được hiển thị</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU tải</string>
-    <string name="fps_overlay_metric_ram">RAM cách sử dụng</string>
-    <string name="fps_overlay_metric_watt">Tốn pin</string>
-    <string name="fps_overlay_metric_temp">Nhiệt độ pin</string>
-    <string name="fps_overlay_metric_render">Nhãn trình kết xuất</string>
-    <string name="fps_overlay_metric_render_desc">Hiển thị VULKAN/OPENGL thay vì \"FPS\" làm nhãn, được phát hiện từ thư viện đã tải của ứng dụng nền trước</string>
     <string name="dozemode_title">Chính sách về giấc ngủ</string>
     <string name="dozemode_menu_desc">Danh sách trắng ở chế độ chờ, trạng thái không hoạt động và điều chỉnh nguồn ở chế độ nền</string>
     <string name="dozemode_state_label">Trạng thái ngủ gật</string>
@@ -783,9 +766,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Mở cài đặt</string>
     <string name="processmgr_title">Giám sát tác vụ</string>
-    <string name="processmgr_menu_desc">Cách sử dụng CPU và RAM trên mỗi quy trình, với tính năng dừng cưỡng bức và lớp phủ nổi</string>
     <string name="processmgr_stat_total">%1$d quy trình</string>
-    <string name="processmgr_stat_breakdown">%1$d người dùng \u00b7 %2$d hệ thống</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Hàng đầu %1$d</string>
@@ -805,9 +786,6 @@
     <string name="processmgr_search_hint">Tìm kiếm các tiến trình đang chạy</string>
     <string name="processmgr_no_processes">Không có quy trình nào phù hợp với tìm kiếm của bạn</string>
     <string name="processmgr_dialog_close">Đóng</string>
-    <string name="processmgr_detail_version">Phiên bản</string>
-    <string name="processmgr_detail_build">Xây dựng</string>
-    <string name="processmgr_detail_package">Bưu kiện</string>
     <string name="processmgr_result_killed">Bị giết %1$s</string>
     <string name="processmgr_result_kill_failed">Không thể giết %1$s</string>
     <string name="processmgr_result_stopped">Bị buộc dừng %1$s</string>
@@ -1455,7 +1433,6 @@
     <string name="max_home_reboot_desc">Mở tùy chọn khởi động lại an toàn</string>
     <string name="max_home_ai_console">Bảng điều khiển MAX AI</string>
     <string name="max_home_ai_working">Đang áp dụng hồ sơ được yêu cầu…</string>
-    <string name="max_home_ai_failed">Hành động AI cuối cùng không thành công</string>
     <string name="max_home_retry">Thử lại</string>
     <string name="max_home_ai_idle">Chưa có quyết định AI nào được ghi lại</string>
     <string name="home_system_stable">HỆ THỐNG ỔN ĐỊNH</string>
@@ -1471,8 +1448,6 @@
     <string name="home_performance_monitor_desc">Tải tài nguyên trong 72 giây qua</string>
     <string name="home_quick_actions">Bộ chỉ huy</string>
     <string name="home_quick_actions_desc">Truy cập trực tiếp vào các điều khiển quan trọng</string>
-    <string name="home_action_boost">Hồ sơ hiệu suất</string>
-    <string name="home_action_boost_desc">Thay đổi hành vi của hệ thống</string>
     <string name="home_action_thermal">Trung tâm nhiệt</string>
     <string name="home_action_thermal_desc">Kiểm tra hệ thống sưởi và làm mát</string>
     <string name="home_action_battery">Trung tâm quyền lực</string>
@@ -1492,7 +1467,6 @@
     <string name="home_active">TÍCH CỰC</string>
     <string name="home_idle">nhàn rỗi</string>
     <string name="home_protected">được bảo vệ</string>
-    <string name="home_device_overview">MỞ TỔNG QUAN THIẾT BỊ</string>
     <string name="home_live_performance">Biểu diễn trực tiếp</string>
     <string name="home_live_performance_desc">Tải hiện tại và điều khiển phần cứng trực tiếp</string>
     <string name="home_open_details">Mở dữ liệu nhiệt chi tiết</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Tối ưu hóa cho mỗi ứng dụng đang được áp dụng</string>
     <string name="max_app_advanced_options">Tùy chọn nâng cao</string>
     <string name="max_app_save">Cứu</string>
+    <string name="home_gpu_max_freq">Tần số tối đa</string>
 </resources>

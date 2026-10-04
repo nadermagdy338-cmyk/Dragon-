@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">締め切り期間の最大値 (us)</string>
+    <string name="max_sched_tunable_deadline_period_min">締切期間分 (us)</string>
+    <string name="max_sched_tunable_energy_aware">エネルギーを意識した</string>
+    <string name="max_sched_tunable_latency">レイテンシ (ns)</string>
+    <string name="max_sched_tunable_migration_cost">移行コスト (ns)</string>
+    <string name="max_sched_tunable_min_granularity">最小粒度 (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">移行バッチサイズ</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT乗数</string>
+    <string name="max_sched_tunable_rr_timeslice">ラウンドロビン タイムスライス (ミリ秒)</string>
+    <string name="max_sched_tunable_rt_period">リアルタイム期間 (us)</string>
+    <string name="max_sched_tunable_rt_runtime">リアルタイム ランタイム (us)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">リアルタイム UClamp フロア</string>
+    <string name="max_sched_tunable_wakeup_granularity">ウェイクアップ粒度 (ns)</string>
+</resources>

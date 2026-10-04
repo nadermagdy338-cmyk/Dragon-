@@ -7,7 +7,7 @@
     <string name="all_set">Allt tilbúið, þú getur nú notað Max Manager</string>
     <string name="allow_verbose_log">Leyfa nákvæmar annálar frá bakgrunnsþjónustu</string>
     <string name="android_version">Android útgáfa</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Forritaheiti</string>
     <string name="app_priority">Forgangsröð forrits</string>
     <string name="app_priority_control">Stjórnun forgangsröðunar forrits</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS yfirborð</string>
     <string name="fps_overlay_notif_title">Max Manager FPS yfirborð er í gangi</string>
     <string name="fps_overlay_notif_stop">Hættu</string>
-    <string name="fps_overlay_section_style">Útlit</string>
-    <string name="fps_overlay_style">Yfirborðsstíll</string>
-    <string name="fps_overlay_style_android">Android listi</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Lítill</string>
-    <string name="fps_overlay_orientation">Skipulagsstefna</string>
-    <string name="fps_overlay_orientation_vertical">Lóðrétt</string>
-    <string name="fps_overlay_orientation_horizontal">Lárétt</string>
-    <string name="fps_overlay_read_mode">FPS lestraraðferð</string>
     <string name="fps_overlay_read_mode_desc">Prófaðu aðra aðferð ef lesturinn helst á 0 í tækinu þínu</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (mælt með)</string>
     <string name="fps_overlay_mode_kernel">Kjarnahnútur</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Textastærð</string>
     <string name="fps_overlay_bg_alpha">Ógegnsæi í bakgrunni</string>
     <string name="fps_overlay_width_scale">Breidd mælikvarði</string>
-    <string name="fps_overlay_section_metrics">Mælingar sýndar</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU hlaða</string>
-    <string name="fps_overlay_metric_ram">RAM notkun</string>
-    <string name="fps_overlay_metric_watt">Rafhlöðunotkun</string>
-    <string name="fps_overlay_metric_temp">Hitastig rafhlöðunnar</string>
-    <string name="fps_overlay_metric_render">Renderer merki</string>
-    <string name="fps_overlay_metric_render_desc">Sýnir VULKAN/OPENGL í stað \"FPS\" sem merki, greint frá hlaðnum söfnum forgrunnsappsins</string>
     <string name="dozemode_title">Svefnstefna</string>
     <string name="dozemode_menu_desc">Hvítlisti í biðstöðu, aðgerðalaus hegðun og aflstilling í bakgrunni</string>
     <string name="dozemode_state_label">Blundar ríki</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Opnaðu stillingar</string>
     <string name="processmgr_title">Verkefnaeftirlit</string>
-    <string name="processmgr_menu_desc">Notkun CPU og RAM í hverju ferli, með þvingunarstöðvun og fljótandi yfirlagi</string>
     <string name="processmgr_stat_total">%1$d ferlar</string>
-    <string name="processmgr_stat_breakdown">%1$d notandi \u00b7 %2$d kerfi</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Efst %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">Leitaðu að hlaupandi ferlum</string>
     <string name="processmgr_no_processes">Engin ferli passa við leitina þína</string>
     <string name="processmgr_dialog_close">Loka</string>
-    <string name="processmgr_detail_version">Útgáfa</string>
-    <string name="processmgr_detail_build">Byggja</string>
-    <string name="processmgr_detail_package">Pakki</string>
     <string name="processmgr_result_killed">Drap %1$s</string>
     <string name="processmgr_result_kill_failed">Gat ekki drepið %1$s</string>
     <string name="processmgr_result_stopped">Þvingað stöðvað %1$s</string>
@@ -1462,7 +1440,6 @@
     <string name="max_home_reboot_desc">Opnaðu valkosti fyrir örugga endurræsingu</string>
     <string name="max_home_ai_console">MAX AI leikjatölva</string>
     <string name="max_home_ai_working">Notar umbeðinn prófíl...</string>
-    <string name="max_home_ai_failed">Síðasta gervigreindaraðgerð mistókst</string>
     <string name="max_home_retry">Reyndu aftur</string>
     <string name="max_home_ai_idle">Engin ákvörðun um gervigreind skráð enn</string>
     <string name="home_system_stable">STÖÐUGLEGT KERFI</string>
@@ -1478,8 +1455,6 @@
     <string name="home_performance_monitor_desc">Tilfangahleðsla síðustu 72 sekúndur</string>
     <string name="home_quick_actions">Stjórnborð</string>
     <string name="home_quick_actions_desc">Beinn aðgangur að stjórntækjum sem skipta máli</string>
-    <string name="home_action_boost">Frammistöðusnið</string>
-    <string name="home_action_boost_desc">Breyta kerfishegðun</string>
     <string name="home_action_thermal">Varmamiðstöð</string>
     <string name="home_action_thermal_desc">Skoðaðu hita og kælingu</string>
     <string name="home_action_battery">Kraftstöð</string>
@@ -1499,7 +1474,6 @@
     <string name="home_active">VIRK</string>
     <string name="home_idle">AÐGERÐ</string>
     <string name="home_protected">VERNDUR</string>
-    <string name="home_device_overview">OPNA YFIRLIT TÆKI</string>
     <string name="home_live_performance">Lifandi flutningur</string>
     <string name="home_live_performance_desc">Núverandi álag og bein vélbúnaðarstýringar</string>
     <string name="home_open_details">Opnaðu nákvæmar hitaupplýsingar</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Verið er að beita hagræðingu fyrir hvert forrit</string>
     <string name="max_app_advanced_options">Ítarlegir valkostir</string>
     <string name="max_app_save">Vista</string>
+    <string name="home_gpu_max_freq">Hámarks tíðni</string>
 </resources>

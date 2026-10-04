@@ -19,6 +19,9 @@ package nd.max.ui.viewmodel
 import nd.max.MaxManagerProps
 import nd.max.core.hardware.RootFileAccess
 
+import android.content.ContentResolver
+import android.content.Context
+import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,7 +30,7 @@ import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 import nd.max.ui.util.XiaomiVendorHalUtil
 
 /**
@@ -93,7 +96,8 @@ class DisplayStudioViewModel : ViewModel() {
     var videoEnhanceEnabled by mutableStateOf(false); private set
     var hdrEnabled by mutableStateOf(false); private set
 
-    fun loadState() {
+    fun loadState(context: Context) {
+        val resolver = context.contentResolver
         viewModelScope.launch(Dispatchers.IO) {
             // أربع قوائم مرشّحين: كانت ثمانية نداءات وجود متتابعة (`test -e` عبر صدفة لكل
             // مرشّح)، وصارت نداءً واحدًا لكل قائمة عبر الدفعة الأصلية.
@@ -116,19 +120,43 @@ class DisplayStudioViewModel : ViewModel() {
             if (videoEnhanceEnabled) apply(videoEnhanceNode, true)
             if (hdrEnabled) apply(hdrNode, true)
 
-            animationScale = readSetting("global", "window_animation_scale")?.toFloatOrNull() ?: 1f
-            fontScale = readSetting("system", "font_scale")?.toFloatOrNull() ?: 1f
-            screenTimeoutSeconds = ((readSetting("system", "screen_off_timeout")?.toLongOrNull() ?: 30_000L) / 1000L).toInt()
-            nightLightEnabled = readSetting("secure", "night_display_activated") == "1"
-            colorInversionEnabled = readSetting("secure", "accessibility_display_inversion_enabled") == "1"
+            animationScale = readSetting(resolver, "global", "window_animation_scale")?.toFloatOrNull() ?: 1f
+            fontScale = readSetting(resolver, "system", "font_scale")?.toFloatOrNull() ?: 1f
+            screenTimeoutSeconds = ((readSetting(resolver, "system", "screen_off_timeout")?.toLongOrNull() ?: 30_000L) / 1000L).toInt()
+            nightLightEnabled = readSetting(resolver, "secure", "night_display_activated") == "1"
+            colorInversionEnabled = readSetting(resolver, "secure", "accessibility_display_inversion_enabled") == "1"
 
             isLoaded = true
         }
     }
 
-    private fun readSetting(namespace: String, key: String): String? =
-        Shell.cmd("settings get $namespace $key").exec().out.joinToString("").trim()
+    /**
+     * قراءة إعداد واحد — **بالواجهة المباشرة أوّلًا، والصدفة احتياطًا**.
+     *
+     * ** ولماذا (عطب سرعة مُبلَّغ عنه في فتح الشاشات):** كانت `Shell.cmd("settings get …")`
+     * لكل مفتاح — **خمس رحلات صدفة** في كل فتح لهذه الشاشة (ولادة عملية + تفسير صدفة لكل واحدة)،
+     * وهي رحلات تُصطفّ على صدَفة الجذر الواحدة في التطبيق. والإعداد نفسه تقرؤه واجهة أندرويد
+     * بلا جذر وبلا صدفة (`Settings`)، فالقراءة المباشرة تُلغي الخمس.
+     *
+     * **وحدّها معلن:** إن رفضت المنصّة المفتاح (‏`SecurityException` في المفاتيح المحميّة) عادت
+     * الصدفة كما كانت حرفيًّا — فالسلوك على جهاز لا تُقرأ فيه الواجهة **محفوظ**، لا مُفترَض.
+     * و`null` من الواجهة يعني «غير مضبوط» — وهي بالضبط ما تعنيه `settings get` بـ`null`.
+     */
+    private fun readSetting(resolver: ContentResolver, namespace: String, key: String): String? {
+        val direct = runCatching {
+            when (namespace) {
+                "global" -> Settings.Global.getString(resolver, key)
+                "system" -> Settings.System.getString(resolver, key)
+                "secure" -> Settings.Secure.getString(resolver, key)
+                else -> null
+            }
+        }
+        if (direct.isSuccess) {
+            return direct.getOrNull()?.takeIf { it.isNotEmpty() && it != "null" }
+        }
+        return Shell.cmd("settings get $namespace $key").exec().out.joinToString("").trim()
             .takeIf { it.isNotEmpty() && it != "null" }
+    }
 
 
     private fun apply(node: FeatureNode?, enabled: Boolean) {

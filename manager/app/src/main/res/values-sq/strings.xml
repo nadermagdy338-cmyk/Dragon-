@@ -7,7 +7,7 @@
     <string name="all_set">Gjithçka gati, tani mund të përdorni Max Manager</string>
     <string name="allow_verbose_log">Lejo regjistrim të detajuar të daemonit</string>
     <string name="android_version">Versioni Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Emri i aplikacionit</string>
     <string name="app_priority">Prioriteti i aplikacionit</string>
     <string name="app_priority_control">Kontrolli i prioritetit të aplikacionit</string>
@@ -724,15 +724,6 @@
     <string name="fps_overlay_notif_channel">Mbivendosja FPS</string>
     <string name="fps_overlay_notif_title">Max Manager Mbivendosja FPS po funksionon</string>
     <string name="fps_overlay_notif_stop">Ndalo</string>
-    <string name="fps_overlay_section_style">Pamja e jashtme</string>
-    <string name="fps_overlay_style">Stili i mbivendosjes</string>
-    <string name="fps_overlay_style_android">Lista e Android</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Drejtimi i paraqitjes</string>
-    <string name="fps_overlay_orientation_vertical">Vertikale</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontale</string>
-    <string name="fps_overlay_read_mode">Metoda e leximit të FPS</string>
     <string name="fps_overlay_read_mode_desc">Provoni një metodë tjetër nëse leximi qëndron në 0 në pajisjen tuaj</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (rekomandohet)</string>
     <string name="fps_overlay_mode_kernel">Nyja e bërthamës</string>
@@ -741,14 +732,6 @@
     <string name="fps_overlay_text_size">Madhësia e tekstit</string>
     <string name="fps_overlay_bg_alpha">Opaciteti i sfondit</string>
     <string name="fps_overlay_width_scale">Shkalla e gjerësisë</string>
-    <string name="fps_overlay_section_metrics">Tregohen matjet</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU ngarkesë</string>
-    <string name="fps_overlay_metric_ram">RAM përdorimi</string>
-    <string name="fps_overlay_metric_watt">Marrja e fuqisë së baterisë</string>
-    <string name="fps_overlay_metric_temp">Temperatura e baterisë</string>
-    <string name="fps_overlay_metric_render">Etiketa e interpretuesit</string>
-    <string name="fps_overlay_metric_render_desc">Shfaq VULKAN/OPENGL në vend të \"FPS\" si etiketë, zbuluar nga bibliotekat e ngarkuara të aplikacionit në plan të parë</string>
     <string name="dozemode_title">Politika e gjumit</string>
     <string name="dozemode_menu_desc">Lista e bardhë e gatishmërisë, sjellja e papunë dhe akordimi i energjisë në sfond</string>
     <string name="dozemode_state_label">Doze gjendje</string>
@@ -784,9 +767,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Hap cilësimet</string>
     <string name="processmgr_title">Monitorimi i detyrave</string>
-    <string name="processmgr_menu_desc">Përdorimi CPU dhe RAM për proces, me ndalim të forcës dhe një mbivendosje lundruese</string>
     <string name="processmgr_stat_total">%1$d proceset</string>
-    <string name="processmgr_stat_breakdown">Sistemi %1$d përdorues \u00b7 %2$d</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Top %1$d</string>
@@ -806,9 +787,6 @@
     <string name="processmgr_search_hint">Kërkoni për proceset e ekzekutimit</string>
     <string name="processmgr_no_processes">Asnjë proces nuk përputhet me kërkimin tuaj</string>
     <string name="processmgr_dialog_close">Mbylle</string>
-    <string name="processmgr_detail_version">Versioni</string>
-    <string name="processmgr_detail_build">Ndërtoni</string>
-    <string name="processmgr_detail_package">Paketa</string>
     <string name="processmgr_result_killed">I vrarë %1$s</string>
     <string name="processmgr_result_kill_failed">Nuk mund të vrisja %1$s</string>
     <string name="processmgr_result_stopped">Ndaluar me forcë %1$s</string>
@@ -1458,7 +1436,6 @@
     <string name="max_home_reboot_desc">Hap opsionet e rindezjes së sigurt</string>
     <string name="max_home_ai_console">Konsola MAX AI</string>
     <string name="max_home_ai_working">Po aplikon profilin e kërkuar…</string>
-    <string name="max_home_ai_failed">Veprimi i fundit i AI dështoi</string>
     <string name="max_home_retry">Provo sërish</string>
     <string name="max_home_ai_idle">Asnjë vendim i AI nuk është regjistruar ende</string>
     <string name="home_system_stable">SISTEMI I QËNDRUESHËM</string>
@@ -1474,8 +1451,6 @@
     <string name="home_performance_monitor_desc">Ngarkesa e burimit gjatë 72 sekondave të fundit</string>
     <string name="home_quick_actions">Kuvertë komanduese</string>
     <string name="home_quick_actions_desc">Qasje e drejtpërdrejtë në kontrollet që kanë rëndësi</string>
-    <string name="home_action_boost">Profili i performancës</string>
-    <string name="home_action_boost_desc">Ndryshoni sjelljen e sistemit</string>
     <string name="home_action_thermal">Qendra termike</string>
     <string name="home_action_thermal_desc">Inspektoni ngrohjen dhe ftohjen</string>
     <string name="home_action_battery">Qendra e energjisë</string>
@@ -1495,7 +1470,6 @@
     <string name="home_active">AKTIVE</string>
     <string name="home_idle">PATARE</string>
     <string name="home_protected">I MBROJTUR</string>
-    <string name="home_device_overview">HAP PAJISJEN E PËRGJITHSHME</string>
     <string name="home_live_performance">Performanca e drejtpërdrejtë</string>
     <string name="home_live_performance_desc">Ngarkesa aktuale dhe kontrollet e drejtpërdrejta të harduerit</string>
     <string name="home_open_details">Hapni të dhënat e detajuara termike</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Po aplikohen optimizimet për çdo aplikacion</string>
     <string name="max_app_advanced_options">Opsione të avancuara</string>
     <string name="max_app_save">Ruaj</string>
+    <string name="home_gpu_max_freq">Frekuenca maksimale</string>
 </resources>

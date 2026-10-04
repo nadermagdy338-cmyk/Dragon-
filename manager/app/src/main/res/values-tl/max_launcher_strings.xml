@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Mga naka-install na pakete at ang mga aktibidad na kanilang ipinapahayag</string>
+    <string name="max_launcher_loading">Binabasa ang mga naka-install na pakete at ang kanilang mga ipinahayag na aktibidad...</string>
+    <string name="max_launcher_empty">Walang naka-install na package na nagdedeklara ng aktibidad sa device na ito.</string>
+    <string name="max_launcher_search_placeholder">Maghanap ayon sa pangalan ng app o package</string>
+    <string name="max_launcher_search_clear">I-clear ang paghahanap</string>
+    <string name="max_launcher_scope_all">Lahat</string>
+    <string name="max_launcher_scope_user">Gumagamit</string>
+    <string name="max_launcher_scope_system">Sistema</string>
+    <string name="max_launcher_activity_count">%1$d aktibidad</string>
+    <string name="max_launcher_no_match_title">Walang tugma</string>
+    <string name="max_launcher_no_match_detail">Walang pangalan ng package o label ng app na naglalaman ng text na iyon sa napiling saklaw.</string>
+    <string name="max_launcher_no_match_clear">I-clear ang mga filter</string>
+    <string name="max_launcher_reading_activities">Ang pagbabasa ng mga aktibidad na ipinapahayag ng package na ito...</string>
+    <string name="max_launcher_no_activities">Idineklara ng package na ito na walang aktibidad.</string>
+    <string name="max_launcher_root_off_title">Ang ugat ay hindi ipinagkaloob</string>
+    <string name="max_launcher_root_off_detail">Ang mga aktibidad na minarkahang pribado ay hindi na-export, kaya root lang ang makakapagsimula sa kanila. Bukas pa rin ang mga nai-export na aktibidad nang wala ito.</string>
+    <string name="max_launcher_tag_private">Pribado</string>
+    <string name="max_launcher_tag_disabled">Hindi pinagana</string>
+    <string name="max_launcher_outcome_started">Nagsimula ang aktibidad</string>
+    <string name="max_launcher_outcome_needs_root">Ang aktibidad na ito ay hindi na-export — root ay kinakailangan</string>
+    <string name="max_launcher_outcome_refused">Tumanggi ang Android na simulan ang aktibidad na ito</string>
+    <string name="max_launcher_outcome_missing">Walang aktibidad na may ganoong pangalan ang naka-install</string>
+</resources>

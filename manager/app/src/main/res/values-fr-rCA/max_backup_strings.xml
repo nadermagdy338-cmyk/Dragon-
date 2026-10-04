@@ -71,7 +71,6 @@
     <string name="max_backup_delete_done">Sauvegarde supprimée</string>
     <string name="max_backup_delete_failed">La sauvegarde n\'a pas pu être supprimée</string>
     <string name="max_backup_prune_title">Supprimer les anciennes sauvegardes ?</string>
-    <string name="max_backup_prune_message">Tout, sauf les copies les plus récentes de cette application, est supprimé.</string>
     <string name="max_backup_prune_confirm">Enlever l\'ancien</string>
     <string name="max_backup_prune_done">%1$s sauvegardes supprimées</string>
     <string name="max_backup_restore_title">Rétablir cette sauvegarde ?</string>
@@ -222,7 +221,6 @@
     <string name="max_backup_storage_size_unknown">Impossible de lire</string>
     <string name="max_backup_storage_public_ok">Écrivez dans le dossier partagé ci-dessous afin que n\'importe quel gestionnaire de fichiers puisse accéder à l\'archive sans root.</string>
     <string name="max_backup_storage_fallback_title">Les copies sont dans le dossier de l\'application</string>
-    <string name="max_backup_storage_fallback_desc">Le dossier partagé %1$s nécessite l\'autorisation « Accès à tous les fichiers ». Jusqu\'à ce qu\'elle soit accordée, les copies vont vers 1 — et les copies déjà prises là-bas restent lisibles, car les deux dossiers sont recherchés.</string>
     <string name="max_backup_storage_grant">Accorder l\'accès à tous les fichiers</string>
     <string name="max_backup_storage_grant_failed">Cet appareil n\'a pas d\'écran pour cette autorisation. Les copies demeurent dans le dossier de l\'application.</string>
     <string name="max_backup_entry_title">Sauvegarde maximale</string>
@@ -252,7 +250,6 @@
     <string name="max_backup_collapse">Réduire la liste</string>
     <string name="max_backup_incomplete_count">%1$s les copies sont incomplètes : elles ont été interrompues, et la liste des dossiers l\'indique.</string>
     <string name="max_backup_fav_only">Favoris seulement (%1$s)</string>
-    <string name="max_backup_row_unstar">Supprimer des signets</string>
     <string name="max_backup_schedule_title">Sauvegarde planifiée</string>
     <string name="max_backup_schedule_desc">Le système l\'exécute dans la première fenêtre autorisée après votre heure, et non à la minute exacte.</string>
     <string name="max_backup_schedule_enable">Exécuter selon un horaire</string>
@@ -298,4 +295,7 @@
     <string name="max_backup_row_star">Ajouter %1$s aux favoris</string>
     <string name="max_backup_set_add_path_title">Ajouter un dossier à %1$s</string>
     <string name="max_backup_stage_apk">Archivage de l\'APK</string>
+    <string name="max_backup_prune_message">Tout sauf les %1$s copies les plus récentes de cette application est supprimé.</string>
+    <string name="max_backup_storage_fallback_desc">Le dossier partagé %1$s nécessite l\'autorisation « Accès à tous les fichiers ». Jusqu\'à ce qu\'elle soit accordée, les copies vont vers %2$s — et les copies déjà prises là-bas restent lisibles, car les deux dossiers sont recherchés.</string>
+    <string name="max_backup_row_unstar">Supprimer %1$s des favoris</string>
 </resources>

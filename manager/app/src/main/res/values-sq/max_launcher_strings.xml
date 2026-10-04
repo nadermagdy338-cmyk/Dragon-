@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Paketat e instaluara dhe aktivitetet që ato deklarojnë</string>
+    <string name="max_launcher_loading">Leximi i paketave të instaluara dhe aktiviteteve të tyre të deklaruara…</string>
+    <string name="max_launcher_empty">Asnjë paketë e instaluar nuk deklaron një aktivitet në këtë pajisje.</string>
+    <string name="max_launcher_search_placeholder">Kërkoni sipas emrit ose paketës së aplikacionit</string>
+    <string name="max_launcher_search_clear">Pastro kërkimin</string>
+    <string name="max_launcher_scope_all">Të gjitha</string>
+    <string name="max_launcher_scope_user">Përdoruesi</string>
+    <string name="max_launcher_scope_system">Sistemi</string>
+    <string name="max_launcher_activity_count">%1$d aktivitete</string>
+    <string name="max_launcher_no_match_title">Asgjë nuk përputhet</string>
+    <string name="max_launcher_no_match_detail">Asnjë emër i paketës ose etiketë aplikacioni nuk e përmban atë tekst në shtrirjen e zgjedhur.</string>
+    <string name="max_launcher_no_match_clear">Pastro filtrat</string>
+    <string name="max_launcher_reading_activities">Duke lexuar aktivitetet kjo paketë deklaron…</string>
+    <string name="max_launcher_no_activities">Kjo paketë deklaron asnjë aktivitet.</string>
+    <string name="max_launcher_root_off_title">Rrënja nuk jepet</string>
+    <string name="max_launcher_root_off_detail">Aktivitetet e shënuara si private nuk eksportohen, kështu që vetëm root mund t\'i hapë ato. Aktivitetet e eksportuara janë ende të hapura pa të.</string>
+    <string name="max_launcher_tag_private">Privat</string>
+    <string name="max_launcher_tag_disabled">I paaftë</string>
+    <string name="max_launcher_outcome_started">Aktiviteti filloi</string>
+    <string name="max_launcher_outcome_needs_root">Ky aktivitet nuk eksportohet - kërkohet rrënjë</string>
+    <string name="max_launcher_outcome_refused">Android refuzoi të fillojë këtë aktivitet</string>
+    <string name="max_launcher_outcome_missing">Nuk është instaluar asnjë aktivitet me atë emër</string>
+</resources>

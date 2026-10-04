@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Maksimalus terminas (m)</string>
+    <string name="max_sched_tunable_deadline_period_min">Termino laikotarpis Min (m)</string>
+    <string name="max_sched_tunable_energy_aware">Energijos suvokimas</string>
+    <string name="max_sched_tunable_latency">Vėlavimas (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Perkėlimo kaina (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimalus granuliuotumas (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Perkėlimo partijos dydis</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT daugiklis</string>
+    <string name="max_sched_tunable_rr_timeslice">Apvalaus patikrinimo laiko pjūvis (ms)</string>
+    <string name="max_sched_tunable_rt_period">Laikotarpis realiuoju laiku (mes)</string>
+    <string name="max_sched_tunable_rt_runtime">Realaus laiko vykdymo laikas (mes)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Realaus laiko UClamp grindys</string>
+    <string name="max_sched_tunable_wakeup_granularity">Wakeup detalumas (ns)</string>
+</resources>

@@ -1,0 +1,30 @@
+# thermalcore PID policy contract — عقود نواة القرار الحرارية (`thermalcore/src/policy_manager.rs`)
+#
+# العقد: `PidController::compute(current_temp, target_temp, dt_seconds)` — يستهلك ويتوقّع `f32`.
+# المعاملات المُعلَنة (`thermalcore/src/constants.rs`): kp=0.008 · ki=0.0005 · kd=0.02 ·
+# PID_INTEGRAL_LIMIT=100.0، والمخرج يُقصّ إلى [0.0, 1.0].
+#
+# الصفوف تُطبَّق **بالترتيب داخل كل `run`** على وحدة تحكّم واحدة (فالحالة — integral و prev_error —
+# هي نصف العقد). والقيم المتوقّعة **مشتقّة حسابيًّا بخط اليد** من الصيغة، لا مُسجَّلة من مخرَج الكود:
+#   P = kp*err · I = ki*clamp(integral) · D = kd*(err - prev_err)/dt · out = clamp(P+I+D, 0, 1)
+# فلو غُيّر معامل أو أُزيل قصٌّ أو انقلبت إشارة، سقط الصفّ — وهو المطلوب.
+#
+# action=compute ⇒ الأعمدة الثلاثة أرقام. action=reset ⇒ الحالة تُصفَّر (`PidController::reset`).
+# الأعمدة مفصولة بعلامة جدولة: run · action · current_temp · target_temp · dt_seconds · expected_output · note
+#
+# ملاحظة على الدقّة: المقارنة بتسامح 1e-4 — أكبر بكثير من ضجيج f32 (‏~1e-7) وأصغر بكثير من
+# أي انحراف ناتج عن تغيير معامل (‏≥ 0.02 لخطوة error=20).
+# run	action	current_temp	target_temp	dt_seconds	expected_output	note
+A	compute	60	40	1.0	0.57	baseline: P=0.16 I=0.01 D=0.4
+A	compute	55	40	1.0	0.0375	derivative uses previous error (D=-0.1)
+A	compute	56	40	1.0	0.1735	integral accumulates across steps: 35+16=51
+B	compute	200	0	1.0	1.0	integral clamp at +100 (would be 200) and output clamp (raw 5.65)
+B	compute	200	0	1.0	1.0	integral stays clamped (100+200 -> 100), D=0
+C	compute	100	0	0.0	0.0	dt<=0 returns 0.0 before touching integral/prev_error
+C	compute	100	0	1.0	1.0	state was NOT polluted by the dt=0 step (integral=100 not 200)
+C	compute	100	0	-0.5	0.0	negative dt also returns 0.0 early
+D	compute	30	40	1.0	0.0	negative raw output (-0.285) clamps to 0.0
+F	compute	60	40	10.0	0.25	integral clamp visible INSIDE the output range (clamped 100 not 200)
+E	compute	60	40	1.0	0.57	step before reset
+E	reset	-	-	-	-	PidController::reset zeroes integral and prev_error
+E	compute	60	40	1.0	0.57	same call as run E step 1: if reset were a no-op integral=40 -> 0.58

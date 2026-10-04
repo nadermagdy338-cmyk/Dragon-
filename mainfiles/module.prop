@@ -1,8 +1,7 @@
 id=MaxManager
-name=Max Manager
-version=V1
+name=MaxManager
+version=v1.0
 versionCode=1
 author=MaxManager Project
-description=Max Manager - adaptive, chip-aware performance tuning for your device.
+description=MaxManager - adaptive, chip-aware performance tuning for your device.
 updateJson=
-banner=module.banner.avif

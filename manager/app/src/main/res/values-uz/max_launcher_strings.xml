@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">O\'rnatilgan paketlar va ular e\'lon qilgan harakatlar</string>
+    <string name="max_launcher_loading">O\'rnatilgan paketlar va ularning e\'lon qilingan faoliyati o\'qilmoqda...</string>
+    <string name="max_launcher_empty">Hech bir oʻrnatilgan paket bu qurilmada faollikni eʼlon qilmaydi.</string>
+    <string name="max_launcher_search_placeholder">Ilova nomi yoki paketi boʻyicha qidiring</string>
+    <string name="max_launcher_search_clear">Qidiruvni tozalang</string>
+    <string name="max_launcher_scope_all">Hammasi</string>
+    <string name="max_launcher_scope_user">Foydalanuvchi</string>
+    <string name="max_launcher_scope_system">Tizim</string>
+    <string name="max_launcher_activity_count">%1$d tadbirlar</string>
+    <string name="max_launcher_no_match_title">Hech narsa mos kelmaydi</string>
+    <string name="max_launcher_no_match_detail">Hech bir paket nomi yoki ilova yorlig\'i tanlangan doirada ushbu matnni o\'z ichiga olmaydi.</string>
+    <string name="max_launcher_no_match_clear">Filtrlarni tozalash</string>
+    <string name="max_launcher_reading_activities">Ushbu paketda e\'lon qilingan tadbirlarni o\'qish…</string>
+    <string name="max_launcher_no_activities">Ushbu paket hech qanday faoliyatni e\'lon qilmaydi.</string>
+    <string name="max_launcher_root_off_title">Root berilmaydi</string>
+    <string name="max_launcher_root_off_detail">Shaxsiy deb belgilangan harakatlar eksport qilinmaydi, shuning uchun ularni faqat root boshlashi mumkin. Eksport qilingan faoliyat hali ham usiz ochiq.</string>
+    <string name="max_launcher_tag_private">Shaxsiy</string>
+    <string name="max_launcher_tag_disabled">O\'chirilgan</string>
+    <string name="max_launcher_outcome_started">Faoliyat boshlandi</string>
+    <string name="max_launcher_outcome_needs_root">Ushbu faoliyat eksport qilinmaydi - ildiz kerak</string>
+    <string name="max_launcher_outcome_refused">Android bu faoliyatni boshlashdan bosh tortdi</string>
+    <string name="max_launcher_outcome_missing">Bunday nomdagi faoliyat o‘rnatilmagan</string>
+</resources>

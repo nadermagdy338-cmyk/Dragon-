@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -27,10 +28,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -41,9 +45,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,15 +64,40 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
+import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nd.max.R
+import nd.max.core.platform.FpsMonitorUtil
+import nd.max.core.platform.FpsReadMode
+import nd.max.core.platform.HUD_OWNER_SCREEN
+import nd.max.core.platform.HudArrangement
+import nd.max.core.platform.HudField
+import nd.max.core.platform.HudForm
+import nd.max.core.platform.HudLive
+import nd.max.core.platform.HudReading
+import nd.max.core.platform.HudRecorder
+import nd.max.core.platform.HudSampler
+import nd.max.core.platform.HudTally
+import nd.max.core.platform.acceptsArrangement
 import nd.max.service.FpsOverlayService
-import nd.max.ui.component.ScreenAccentProvider
+import nd.max.ui.component.HudFieldTile
+import nd.max.ui.component.HudRestoreTab
+import nd.max.ui.component.HudSurface
+import nd.max.ui.design.MaxChoiceRow
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
+import nd.max.ui.design.MaxDataTrust
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
+import nd.max.ui.design.MaxMetric
+import nd.max.ui.design.MaxMetricLine
+import nd.max.ui.design.MaxNavigationRow
 import nd.max.ui.design.MaxScreen
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSegmented
@@ -74,18 +106,11 @@ import nd.max.ui.design.MaxSliderRow
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.design.MaxTone
-import nd.max.ui.util.FpsMonitorUtil
+import nd.max.ui.component.ScreenAccentProvider
 import nd.max.ui.util.FpsOverlayPrefs
-import nd.max.ui.util.FpsReadMode
 
-/**
- * Colour presets for the overlay text.
- *
- * Each entry now carries a translatable name so the swatches are not a
- * colour-only control: screen readers announce the name, and the selected
- * swatch also shows a check mark.
- */
-private val OVERLAY_COLORS: List<Pair<String, Int>> = listOf(
+/** ألوان الأرقام المُقترحة. والاسم مرافق للون لأنّ اللون وحده لا يُنطق. */
+private val HUD_ACCENTS: List<Pair<String, Int>> = listOf(
     "#00E676" to R.string.max_fps_color_green,
     "#00E5FF" to R.string.max_fps_color_cyan,
     "#FFEA00" to R.string.max_fps_color_yellow,
@@ -95,53 +120,66 @@ private val OVERLAY_COLORS: List<Pair<String, Int>> = listOf(
 )
 
 /**
- * On-screen performance overlay.
+ * لوحة الأداء — إعدادها.
  *
- * Rebuilt on the MaxManager Design Language. What changed and why:
+ * ### ما بُني من الصفر، ولماذا
  *
- *  - Missing overlay permission used to be a grey summary line under a
- *    switch. It is a real blocking condition, so it is now a
- *    PermissionRequired banner with a direct action into the Android
- *    permission screen.
- *  - The permission is re-read on every resume, so revoking it from system
- *    settings no longer leaves this screen claiming the overlay is available.
- *  - Style, orientation and frame source were dropdowns for 2-3 options
- *    each. Dropdowns hide the choices; segmented controls show them.
- *  - Orientation is genuinely inert outside the Android list style, so the
- *    control is now disabled *and* says why, instead of silently doing
- *    nothing when tapped.
- *  - The colour row was colour-only with sub-minimum touch targets. Each
- *    swatch is now a 48dp radio target with a name, a spoken selected state
- *    and a contrast-aware check mark.
- *  - The frame source section states that sampling falls back to another
- *    source when the selected one returns nothing, which is what the sampler
- *    already does. Hiding that made the picker look stronger than it is.
+ * الشاشة السابقة قسّمت نفسها إلى «تراكب · مصدر · عرض · مقاييس» وقدّمت لكل خيار صفًّا: مفتاحًا
+ * لمقياس، ومقطعًا لشكل، ومقطعًا لاتجاه. والعطب ليس في الألوان بل في **حلقة التغذية الراجعة**:
+ * لا شيء في الشاشة كان يقول ما ستراه، فالمستخدم يختار شكلًا ثم يخرج إلى لعبة ليرى أثره — ثم
+ * يعود ليعدّل. فصار المحور هنا ثلاثة أسئلة مرتّبة كما يسألها المستخدم:
+ *
+ * 1. **الحالة** — ما تعرضه اللوحة **الآن** (معاينة حيّة، نفس المُصيِّر الذي يُرسم فوق اللعبة).
+ * 2. **الحقول** — ماذا يُعرض، وكل حقل يرتدي قيمته الحيّة في بلاطته.
+ * 3. **الشكل** — كيف يُعرض.
+ *
+ * ثم فصلان للأسباب لا للشكل: **المصدر** (لماذا لا أرى رقمًا؟) و**الجلسة** (ما قِسته، وأين يخرج).
+ *
+ * ### ورأس المال الفعليّ: زرّ التسجيل صار يسجّل
+ *
+ * في نسخة سابقة كان في اللوحة زرّ تسجيل يقلب **متغيّرًا منطقيًّا داخل الواجهة** ولا يكتب شيئًا:
+ * نقطة حمراء تتوهّج وملفّ لا يوجد. وذلك أسوأ من غياب الزرّ، لأنّ المستخدم يظنّ أنّه قاس بينما
+ * لم يُحفظ له رقم واحد. والآن التسجيل جلسة حقيقية ([HudRecorder]) بإحصاء وتصدير CSV.
+ *
+ * ### وحدود مُعلنة
+ *
+ * - المعاينة تعمل بمُشغِّل **واحد** مشترك مع التراكب؛ فإن كان التراكب يعمل فالشاشة تقرأ منه ولا
+ *   تُشغّل قارئًا ثانيًا (وإلا فكل قراءة تُنفَّذ مرّتين على جهاز يُقاس أداؤه).
+ * - والإحصاء من **الحلقة الأخيرة** لا من الجلسة كلّها إن تجاوزت السقف، ويُقال ذلك في وصف الفصل.
  */
 @Composable
 fun FpsOverlayScreen(navController: NavController) {
     val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
+    val scope = rememberCoroutineScope()
 
     var state by remember { mutableStateOf(FpsOverlayPrefs.load(context)) }
     var hasOverlayPermission by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
-    var readModeIndex by remember {
+    var modeIndex by remember {
         FpsMonitorUtil.init(context)
-        mutableStateOf(FpsMonitorUtil.currentMode.ordinal)
+        mutableIntStateOf(FpsMonitorUtil.currentMode.ordinal)
     }
+    val snapshot by HudLive.snapshot.collectAsState()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
         hasOverlayPermission = Settings.canDrawOverlays(context)
-        if (hasOverlayPermission && state.enabled) startOverlayService(context)
+        if (hasOverlayPermission && state.enabled) startPanel(context)
     }
 
-    // The permission can be revoked from system settings while this screen is
-    // in the background, so re-read it on resume instead of trusting a value
-    // captured once at first composition.
+    // المعاينة تقرأ بمُشغِّل الشاشة **فقط** إن لم يكن التراكب يعمل؛ وإلا فالقارئ الواحد هو قارئه.
     LifecycleResumeEffect(Unit) {
         hasOverlayPermission = Settings.canDrawOverlays(context)
-        onPauseOrDispose { }
+        if (!FpsOverlayService.isRunning) {
+            HudSampler.start(
+                context = context,
+                owner = HUD_OWNER_SCREEN,
+                scope = scope,
+                fields = { FpsOverlayPrefs.load(context).fields }
+            )
+        }
+        onPauseOrDispose { HudSampler.stop(HUD_OWNER_SCREEN) }
     }
 
     fun requestOverlayPermission() {
@@ -156,7 +194,7 @@ fun FpsOverlayScreen(navController: NavController) {
     fun persist(newState: FpsOverlayPrefs.State) {
         state = newState
         FpsOverlayPrefs.save(context, newState)
-        if (newState.enabled && hasOverlayPermission) startOverlayService(context)
+        if (newState.enabled && hasOverlayPermission) startPanel(context)
     }
 
     fun setEnabled(enabled: Boolean) {
@@ -165,25 +203,30 @@ fun FpsOverlayScreen(navController: NavController) {
             return
         }
         persist(state.copy(enabled = enabled))
-        if (!enabled) stopOverlayService(context)
+        if (!enabled) stopPanel(context)
     }
 
-    val styleOptions = listOf(
-        stringResource(R.string.fps_overlay_style_android),
-        stringResource(R.string.fps_overlay_style_pc),
-        stringResource(R.string.fps_overlay_style_mini)
+    // الترتيب هو ترتيب [HudForm] حرفيًّا (`ordinal` يُقرأ ويُكتب به)، فلا يُعاد ترتيبها هنا.
+    val formOptions = listOf(
+        stringResource(R.string.hud_form_strip),
+        stringResource(R.string.hud_form_pane),
+        stringResource(R.string.hud_form_ring),
+        stringResource(R.string.hud_form_badge)
     )
-    val orientationOptions = listOf(
-        stringResource(R.string.fps_overlay_orientation_vertical),
-        stringResource(R.string.fps_overlay_orientation_horizontal)
+    val arrangementOptions = listOf(
+        stringResource(R.string.hud_arrangement_line),
+        stringResource(R.string.hud_arrangement_stack)
     )
     val sourceOptions = listOf(
         stringResource(R.string.fps_overlay_mode_surfaceflinger),
         stringResource(R.string.fps_overlay_mode_kernel),
         stringResource(R.string.fps_overlay_mode_dumpsys)
     )
-
-    val orientationEnabled = state.styleMode == 0
+    val sourceNotes = listOf(
+        stringResource(R.string.hud_source_surfaceflinger_note),
+        stringResource(R.string.hud_source_kernel_note),
+        stringResource(R.string.hud_source_dumpsys_note)
+    )
 
     ScreenAccentProvider(scheme.tertiary) {
         MaxScreen(
@@ -203,17 +246,69 @@ fun FpsOverlayScreen(navController: NavController) {
                 )
             }
         ) {
+            // ── ١. الحالة: ما تراه الآن ─────────────────────────────────────
             MaxSection(
-                title = stringResource(R.string.max_fps_section_overlay),
-                description = stringResource(R.string.max_fps_section_overlay_desc)
+                title = stringResource(R.string.hud_section_state),
+                description = stringResource(R.string.hud_section_state_desc)
             ) {
+                // المعاينة تحمل أدوات النافذة الثلاث نفسها. والإخفاء فيها **ليس تمثيلًا**: يطوي
+                // المعاينة إلى الكبسولة ذاتها التي تبقى فوق اللعبة — فيعرف المستخدم ما سيتبقّى على
+                // شاشته قبل أن يُطفئ التراكب ويجرّب في لعبة. والتسجيل هنا حقيقيّ كالإخفاء: يشغّل
+                // `HudRecorder` نفسه الذي يعمل فوق اللعبة.
+                //
+                // و**العرض بمقاس المحتوى لا بعرض الشاشة** (أمر المالك: «النافذة كبيرة دون داعي
+                // مما يؤثر على الرؤية واللعب»): كانت المعاينة تُمدّ (`fillMaxWidth`) فتبدو شريطًا
+                // أسودَ بعرض الشاشة بينما نافذة اللعب بعرض أرقامها — معاينة تكذب في المقاس الذي
+                // جاءت لتصفه. و`IntrinsicSize.Max` تعني «بعرض محتواها، وإذا لم يتّسع في المعروض
+                // يُقصّ عليه» فتطابق النافذة في الحالتين.
+                var previewHidden by remember { mutableStateOf(false) }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MaxSpace.groupPadding),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (previewHidden) {
+                        HudRestoreTab(onShow = { previewHidden = false })
+                    } else {
+                        HudSurface(
+                            form = state.form,
+                            arrangement = state.arrangement,
+                            reading = snapshot.reading,
+                            fields = state.orderedFields,
+                            accent = remember(state.colorHex) { parseAccent(state.colorHex) },
+                            textSizeSp = state.textSizeSp,
+                            backgroundAlpha = state.backgroundAlpha,
+                            framesHistory = snapshot.framesHistory.takeLast(state.graphSpan),
+                            showGraph = state.showGraph,
+                            recording = snapshot.recording,
+                            onToggleRecording = {
+                                if (HudRecorder.isLive) HudRecorder.stop() else HudRecorder.start()
+                            },
+                            onHide = { previewHidden = true },
+                            // والإغلاق هنا لا يُغلق شيئًا — لا خدمة في هذه الشاشة — ووجوده مقصود:
+                            // من رأى الزرّ في موضعه هنا لا يبحث عنه فوق اللعبة.
+                            onClose = {},
+                            modifier = Modifier.width(IntrinsicSize.Max)
+                        )
+                    }
+                    Spacer(Modifier.size(MaxSpace.xs))
+                    Text(
+                        text = stringResource(R.string.hud_preview_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant
+                    )
+                }
+
                 MaxGroup {
                     MaxSwitchRow(
                         title = stringResource(R.string.fps_overlay_enable),
-                        subtitle = if (hasOverlayPermission) {
-                            stringResource(R.string.fps_overlay_intro)
-                        } else {
+                        subtitle = if (!hasOverlayPermission) {
                             stringResource(R.string.fps_overlay_needs_permission)
+                        } else if (state.enabled) {
+                            stringResource(R.string.hud_status_running)
+                        } else {
+                            stringResource(R.string.hud_status_stopped)
                         },
                         checked = state.enabled && hasOverlayPermission,
                         onCheckedChange = { setEnabled(it) },
@@ -223,48 +318,55 @@ fun FpsOverlayScreen(navController: NavController) {
                 }
             }
 
+            // ── ٢. الحقول: ماذا يُعرض ───────────────────────────────────────
             MaxSection(
-                title = stringResource(R.string.max_fps_section_source),
-                description = stringResource(R.string.fps_overlay_read_mode_desc)
+                title = stringResource(R.string.hud_section_fields),
+                description = stringResource(R.string.hud_section_fields_desc)
             ) {
-                MaxSegmented(
-                    options = sourceOptions,
-                    selectedIndex = readModeIndex,
-                    onSelect = { index ->
-                        readModeIndex = index
-                        FpsMonitorUtil.setMode(context, FpsReadMode.entries[index])
-                    }
-                )
                 Text(
-                    text = stringResource(R.string.max_fps_source_fallback_note),
-                    style = MaterialTheme.typography.bodySmall,
+                    text = stringResource(
+                        R.string.hud_fields_count,
+                        state.fields.size,
+                        HudField.entries.size
+                    ),
+                    style = MaterialTheme.typography.labelMedium,
                     color = scheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = MaxSpace.groupPadding)
                 )
+                HudFieldGrid(
+                    reading = snapshot.reading,
+                    selected = state.fields,
+                    onToggle = { field ->
+                        val next = state.fields.toMutableSet()
+                        if (!next.add(field)) next.remove(field)
+                        persist(state.copy(fields = next))
+                    }
+                )
             }
 
-            MaxSection(title = stringResource(R.string.max_fps_section_presentation)) {
+            // ── ٣. الشكل ───────────────────────────────────────────────────
+            MaxSection(title = stringResource(R.string.hud_section_shape)) {
                 MaxSegmented(
-                    options = styleOptions,
-                    selectedIndex = state.styleMode,
-                    onSelect = { index -> persist(state.copy(styleMode = index)) }
+                    options = formOptions,
+                    selectedIndex = state.form.ordinal,
+                    onSelect = { persist(state.copy(form = HudForm.entries[it])) }
                 )
                 MaxSegmented(
-                    options = orientationOptions,
-                    selectedIndex = state.orientation,
-                    onSelect = { index -> persist(state.copy(orientation = index)) },
-                    enabled = orientationEnabled
+                    options = arrangementOptions,
+                    selectedIndex = state.arrangement.ordinal,
+                    onSelect = { persist(state.copy(arrangement = HudArrangement.entries[it])) },
+                    enabled = state.form.acceptsArrangement()
                 )
-                if (!orientationEnabled) {
+                if (!state.form.acceptsArrangement()) {
                     Text(
-                        text = stringResource(R.string.max_fps_orientation_locked),
+                        text = stringResource(R.string.hud_arrangement_locked),
                         style = MaterialTheme.typography.bodySmall,
                         color = scheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = MaxSpace.groupPadding)
                     )
                 }
 
-                OverlayColorRow(
+                HudAccentRow(
                     selectedHex = state.colorHex,
                     onSelect = { hex -> persist(state.copy(colorHex = hex)) }
                 )
@@ -282,9 +384,9 @@ fun FpsOverlayScreen(navController: NavController) {
                     MaxGroupDivider()
                     MaxSliderRow(
                         title = stringResource(R.string.fps_overlay_bg_alpha),
-                        value = state.bgAlpha,
-                        onValueChange = { state = state.copy(bgAlpha = it) },
-                        valueText = "${(state.bgAlpha * 100).toInt()} %",
+                        value = state.backgroundAlpha,
+                        onValueChange = { state = state.copy(backgroundAlpha = it) },
+                        valueText = "${(state.backgroundAlpha * 100).toInt()} %",
                         valueRange = 0f..1f,
                         steps = 9,
                         onValueChangeFinished = { persist(state) }
@@ -299,58 +401,232 @@ fun FpsOverlayScreen(navController: NavController) {
                         steps = 13,
                         onValueChangeFinished = { persist(state) }
                     )
+                    MaxGroupDivider()
+                    MaxSwitchRow(
+                        title = stringResource(R.string.hud_graph_title),
+                        subtitle = stringResource(R.string.hud_graph_desc),
+                        checked = state.showGraph,
+                        onCheckedChange = { persist(state.copy(showGraph = it)) }
+                    )
+                    if (state.showGraph) {
+                        MaxSegmented(
+                            options = FpsOverlayPrefs.GRAPH_SPANS.map {
+                                stringResource(R.string.hud_graph_span, it)
+                            },
+                            selectedIndex = FpsOverlayPrefs.GRAPH_SPANS.indexOf(state.graphSpan)
+                                .coerceAtLeast(0),
+                            onSelect = { persist(state.copy(graphSpan = FpsOverlayPrefs.GRAPH_SPANS[it])) }
+                        )
+                    }
+                    MaxGroupDivider()
+                    MaxSwitchRow(
+                        title = stringResource(R.string.hud_snap_title),
+                        subtitle = stringResource(R.string.hud_snap_desc),
+                        checked = state.snapEdges,
+                        onCheckedChange = { persist(state.copy(snapEdges = it)) }
+                    )
                 }
             }
 
-            MaxSection(title = stringResource(R.string.fps_overlay_section_metrics)) {
+            // ── ٤. المصدر: لماذا لا أرى رقمًا؟ ──────────────────────────────
+            MaxSection(
+                title = stringResource(R.string.max_fps_section_source),
+                description = stringResource(R.string.fps_overlay_read_mode_desc)
+            ) {
+                MaxGroup {
+                    FpsReadMode.entries.forEachIndexed { index, mode ->
+                        if (index > 0) MaxGroupDivider()
+                        MaxChoiceRow(
+                            title = sourceOptions[index],
+                            subtitle = sourceNotes[index],
+                            selected = modeIndex == index,
+                            onSelect = {
+                                modeIndex = index
+                                FpsMonitorUtil.setMode(context, mode)
+                            }
+                        )
+                    }
+                }
+                val health = when {
+                    snapshot.owner == null -> null
+                    snapshot.reading?.framesAnswered == true ->
+                        stringResource(R.string.hud_source_answered, sourceOptions[modeIndex])
+
+                    else -> stringResource(R.string.hud_source_silent)
+                }
+                if (health != null) {
+                    Text(
+                        text = health,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = MaxSpace.groupPadding)
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.max_fps_source_fallback_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = MaxSpace.groupPadding)
+                )
+            }
+
+            // ── ٥. الجلسة: ما قِسته، وأين يخرج ─────────────────────────────
+            MaxSection(
+                title = stringResource(R.string.hud_section_session),
+                description = stringResource(R.string.hud_section_session_desc)
+            ) {
                 MaxGroup {
                     MaxSwitchRow(
-                        title = stringResource(R.string.fps_overlay_metric_fps),
-                        checked = state.showFps,
-                        onCheckedChange = { persist(state.copy(showFps = it)) }
+                        title = if (snapshot.recording) {
+                            stringResource(R.string.hud_session_stop)
+                        } else {
+                            stringResource(R.string.hud_session_start)
+                        },
+                        subtitle = stringResource(R.string.hud_session_record_note),
+                        checked = snapshot.recording,
+                        onCheckedChange = { on ->
+                            if (on) HudRecorder.start() else HudRecorder.stop()
+                        }
                     )
-                    MaxGroupDivider()
-                    MaxSwitchRow(
-                        title = stringResource(R.string.fps_overlay_metric_cpu),
-                        checked = state.showCpu,
-                        onCheckedChange = { persist(state.copy(showCpu = it)) }
+                }
+
+                val tally = HudRecorder.tally()
+                if (tally == null) {
+                    Text(
+                        text = stringResource(R.string.hud_session_empty),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = MaxSpace.groupPadding)
                     )
-                    MaxGroupDivider()
-                    MaxSwitchRow(
-                        title = stringResource(R.string.fps_overlay_metric_ram),
-                        checked = state.showRam,
-                        onCheckedChange = { persist(state.copy(showRam = it)) }
+                } else {
+                    SessionStats(
+                        tally = tally,
+                        trust = if (snapshot.recording) MaxDataTrust.Live else MaxDataTrust.Snapshot
                     )
-                    MaxGroupDivider()
-                    MaxSwitchRow(
-                        title = stringResource(R.string.fps_overlay_metric_watt),
-                        checked = state.showWatt,
-                        onCheckedChange = { persist(state.copy(showWatt = it)) }
-                    )
-                    MaxGroupDivider()
-                    MaxSwitchRow(
-                        title = stringResource(R.string.fps_overlay_metric_temp),
-                        checked = state.showTemp,
-                        onCheckedChange = { persist(state.copy(showTemp = it)) }
-                    )
-                    MaxGroupDivider()
-                    MaxSwitchRow(
-                        title = stringResource(R.string.fps_overlay_metric_render),
-                        subtitle = stringResource(R.string.fps_overlay_metric_render_desc),
-                        checked = state.showRender,
-                        onCheckedChange = { persist(state.copy(showRender = it)) }
-                    )
+                    MaxGroup {
+                        MaxNavigationRow(
+                            title = stringResource(R.string.hud_session_export),
+                            subtitle = stringResource(R.string.hud_session_export_note),
+                            onClick = { exportSession(context, scope) }
+                        )
+                        MaxGroupDivider()
+                        MaxNavigationRow(
+                            title = stringResource(R.string.hud_session_clear),
+                            onClick = { HudRecorder.clear() }
+                        )
+                    }
                 }
             }
         }
     }
 }
 
+/**
+ * شبكة الحقول: بلاطتان في الصفّ.
+ *
+ * والصفّ الأخير يُكمَّل بفراغ موزون لا بمحاذاة يسار — فبلاطة واحدة في صفّ نصفُه فارغ تبدو عطبًا.
+ */
 @Composable
-private fun OverlayColorRow(
-    selectedHex: String,
-    onSelect: (String) -> Unit
+private fun HudFieldGrid(
+    reading: HudReading?,
+    selected: Set<HudField>,
+    onToggle: (HudField) -> Unit
 ) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaxSpace.groupPadding),
+        verticalArrangement = Arrangement.spacedBy(MaxSpace.xs)
+    ) {
+        HudField.entries.chunked(2).forEach { pair ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)
+            ) {
+                pair.forEach { field ->
+                    HudFieldTile(
+                        field = field,
+                        reading = reading,
+                        selected = field in selected,
+                        onToggle = { onToggle(field) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+/** إحصاء الجلسة — صفوف القراءة القياسية نفسها التي تُعرض بها قراءات الشاشات الأخرى. */
+@Composable
+private fun SessionStats(tally: HudTally, trust: MaxDataTrust) {
+    MaxGroup {
+        MaxMetricLine(
+            MaxMetric(
+                label = stringResource(R.string.hud_session_samples),
+                value = tally.samples.toString(),
+                trust = trust
+            )
+        )
+        MaxMetricLine(
+            MaxMetric(
+                label = stringResource(R.string.hud_session_span),
+                value = sessionClock(tally.spanMs),
+                trust = trust
+            )
+        )
+        MaxMetricLine(
+            MaxMetric(
+                label = stringResource(R.string.hud_session_frames_avg),
+                value = tally.framesAverage?.let { "%.1f".format(it) },
+                unit = "FPS",
+                trust = trust
+            )
+        )
+        MaxMetricLine(
+            MaxMetric(
+                label = stringResource(R.string.hud_session_frames_range),
+                value = if (tally.framesLow != null && tally.framesHigh != null) {
+                    "%.0f – %.0f".format(tally.framesLow, tally.framesHigh)
+                } else {
+                    null
+                },
+                unit = "FPS",
+                trust = trust
+            )
+        )
+        MaxMetricLine(
+            MaxMetric(
+                label = stringResource(R.string.hud_session_heat_peak),
+                value = tally.heatPeak?.let { "%.1f".format(it) },
+                unit = "°C",
+                trust = trust
+            )
+        )
+        MaxMetricLine(
+            MaxMetric(
+                label = stringResource(R.string.hud_session_power_avg),
+                value = tally.powerAverage?.let { "%.2f".format(it) },
+                unit = "W",
+                trust = trust
+            )
+        )
+        if (tally.droppedSamples > 0) {
+            MaxMetricLine(
+                MaxMetric(
+                    label = stringResource(R.string.hud_session_dropped),
+                    value = tally.droppedSamples.toString(),
+                    trust = MaxDataTrust.Snapshot,
+                    note = stringResource(R.string.hud_session_dropped_note)
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun HudAccentRow(selectedHex: String, onSelect: (String) -> Unit) {
     val selectedLabel = stringResource(R.string.max_fps_color_selected)
     val unselectedLabel = stringResource(R.string.max_fps_color_not_selected)
 
@@ -365,11 +641,11 @@ private fun OverlayColorRow(
             modifier = Modifier.padding(horizontal = MaxSpace.groupPadding)
         )
         Row(horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
-            OVERLAY_COLORS.forEach { (hex, nameRes) ->
+            HUD_ACCENTS.forEach { (hex, nameRes) ->
                 val name = stringResource(nameRes)
                 val selected = hex.equals(selectedHex, ignoreCase = true)
-                val swatch = remember(hex) { Color(android.graphics.Color.parseColor(hex)) }
-                // Contrast-aware mark: a white check on a white swatch is invisible.
+                val swatch = remember(hex) { parseAccent(hex) }
+                // علامة تُرى على الأبيض كما على الأسود.
                 val markColor = if (swatch.luminance() > 0.5f) Color.Black else Color.White
 
                 Box(
@@ -417,14 +693,69 @@ private fun OverlayColorRow(
     }
 }
 
-private fun startOverlayService(context: Context) {
+private fun parseAccent(hex: String): Color =
+    runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrDefault(Color(0xFF00E676))
+
+/** مدّة بصيغة `د:ث` — تنسيق واحد يُقارَن رأسيًّا. */
+private fun sessionClock(ms: Long): String {
+    val seconds = (ms / 1000).coerceAtLeast(0)
+    return "%d:%02d".format(seconds / 60, seconds % 60)
+}
+
+/**
+ * الجلسة ملفًّا، ثم حصّة للمشاركة.
+ *
+ * وتُكتب في `cacheDir` لا في التخزين المشترك: ملفّ قياس مؤقّت لا يستحقّ أن يُلوّث مجلّد
+ * التنزيلات، ويُشارَك بالمسار الذي يُصرّح به `file_paths.xml` (`cache-path`).
+ */
+private fun exportSession(context: Context, scope: CoroutineScope) {
+    val body = HudRecorder.csv()
+    if (body == null) {
+        Toast.makeText(context, context.getString(R.string.hud_session_empty), Toast.LENGTH_SHORT)
+            .show()
+        return
+    }
+    scope.launch {
+        val share = withContext(Dispatchers.IO) {
+            runCatching {
+                val folder = File(context.cacheDir, "hud").apply { mkdirs() }
+                val file = File(folder, "maxmanager-hud-${System.currentTimeMillis()}.csv")
+                file.writeText(body)
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    file
+                )
+                Intent.createChooser(
+                    Intent(Intent.ACTION_SEND).apply {
+                        type = "text/csv"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    },
+                    context.getString(R.string.hud_session_export)
+                )
+            }.getOrNull()
+        }
+        if (share == null) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.hud_session_export_failed),
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            context.startActivity(share)
+        }
+    }
+}
+
+private fun startPanel(context: Context) {
     ContextCompat.startForegroundService(
         context,
         Intent(context, FpsOverlayService::class.java)
     )
 }
 
-private fun stopOverlayService(context: Context) {
+private fun stopPanel(context: Context) {
     context.startService(
         Intent(context, FpsOverlayService::class.java)
             .setAction(FpsOverlayService.ACTION_STOP)

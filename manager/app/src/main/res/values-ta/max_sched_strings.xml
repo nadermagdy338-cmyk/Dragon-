@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">காலக்கெடு காலம் அதிகபட்சம் (நாங்கள்)</string>
+    <string name="max_sched_tunable_deadline_period_min">காலக்கெடு காலம் குறைந்தபட்சம் (நாங்கள்)</string>
+    <string name="max_sched_tunable_energy_aware">ஆற்றல் விழிப்புணர்வு</string>
+    <string name="max_sched_tunable_latency">தாமதம் (ns)</string>
+    <string name="max_sched_tunable_migration_cost">இடம்பெயர்வு செலவு (ns)</string>
+    <string name="max_sched_tunable_min_granularity">குறைந்தபட்ச கிரானுலாரிட்டி (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">இடம்பெயர்வு தொகுதி அளவு</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT பெருக்கி</string>
+    <string name="max_sched_tunable_rr_timeslice">ரவுண்ட்-ராபின் டைம்ஸ்லைஸ் (மி.எஸ்)</string>
+    <string name="max_sched_tunable_rt_period">நிகழ்நேர காலம் (நாங்கள்)</string>
+    <string name="max_sched_tunable_rt_runtime">நிகழ்நேர இயக்க நேரம் (நாங்கள்)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">நிகழ்நேர UClamp தளம்</string>
+    <string name="max_sched_tunable_wakeup_granularity">வேக்கப் கிரானுலாரிட்டி (என்எஸ்)</string>
+</resources>

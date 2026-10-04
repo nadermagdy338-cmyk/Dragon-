@@ -325,8 +325,32 @@ mod tests {
     #[cfg(unix)]
     use std::os::unix::fs::PermissionsExt;
 
+    /// قفل اختبارات هذا الملفّ — لأنّ الراية `CANCELLED` **حالة عامة**، والاختبارات تُشغَّل في
+    /// خيوط متوازية داخل العملية نفسها.
+    ///
+    /// **والسباق الذي يمنعه مقيس لا مُتخيَّل** (تشغيل CI **#36** سقط به): اختبار يطلب الإلغاء ثم
+    /// يمسح، وفي الوقت نفسه اختبار آخر يمسح بـ`scan_packed` — وهي **تُصفّر الراية عمدًا** («مسح
+    /// جديد لا يُقتل بطلب قديم»)، وكذلك `scan_fresh` — فيقرأ الأول `cancelled = false` ويسقط
+    /// اختبار بريء. و`SCAN_LOCK` لا يحمي من هذا: `request_cancel` تُكتب **قبل** القفل عن قصد
+    /// (تُنادى من Kotlin والأمر يخصّ المسح العامل في تلك اللحظة)، فالتسلسل مطلوب في الاختبار
+    /// نفسه لا في الإنتاج — ولا سطر إنتاجيّ تغيّر هنا.
+    static TEST_LOCK: Mutex<()> = Mutex::new(());
+
+    /// يُؤخذ في كل اختبار **يلمس** الإلغاء: من يطلبه، ومن يُصفّره، ومن يقرأه.
+    ///
+    /// ومُفسَد القفل (`poison`) لا يُسقط التالي: الفشل مسجَّل أصلًا، وإسقاط بقيّة الاختبارات
+    /// بـ`PoisonError` يجعل عطبًا واحدًا يبدو كثلاثة.
+    fn serialized() -> std::sync::MutexGuard<'static, ()> {
+        TEST_LOCK.lock().unwrap_or_else(|poison| poison.into_inner())
+    }
+
     /// يمسح مع إبطال أي طلب إلغاء سابق — فالحالتان العامّتان (تقدّم/إلغاء) تُقاسان من
     /// `scan` الخام، ولذلك يُنظّف قبل كل قياس لا بعده.
+    ///
+    /// **والقفل ليس هنا عمدًا:** `PROGRESS` تُقرأ **بعد** رجوع المسح (`progress()` في آخر
+    /// الاختبار)، فلو أُخذ القفل داخل هذه الدالّة لتحرّر قبل التأكيد — ولعاد السباق من بابه.
+    /// فالقاعدة على المنادي: **`let _serial = serialized();` في أوّل جسم كل اختبار يمسّ الحالتين**
+    /// (مسح، أو إلغاء، أو قراءة العدّاد).
     fn scan_fresh(roots: &[String], max_entries: usize) -> ScanOutcome {
         CANCELLED.store(false, Ordering::Relaxed);
         scan(roots, max_entries)
@@ -381,6 +405,7 @@ mod tests {
 
     #[test]
     fn the_scan_accumulates_bytes_and_files_per_bucket() {
+        let _serial = serialized();
         let tree = Tree::new("buckets");
         tree.write("a/one.jpg", 100);
         tree.write("a/two.png", 200);
@@ -408,6 +433,7 @@ mod tests {
 
     #[test]
     fn empty_files_are_counted_but_never_added_to_a_bucket() {
+        let _serial = serialized();
         let tree = Tree::new("empty");
         tree.write("a/empty.jpg", 0);
         tree.write("a/real.jpg", 7);
@@ -421,6 +447,7 @@ mod tests {
 
     #[test]
     fn the_cap_stops_the_scan_and_says_so() {
+        let _serial = serialized();
         let tree = Tree::new("cap");
         for index in 0..10 {
             tree.write(&format!("a/f{index}.txt"), 1);
@@ -433,6 +460,7 @@ mod tests {
 
     #[test]
     fn the_largest_list_is_sorted_by_bytes_then_path() {
+        let _serial = serialized();
         let tree = Tree::new("largest");
         tree.write("a/small.txt", 1);
         tree.write("a/big.txt", 500);
@@ -448,6 +476,7 @@ mod tests {
 
     #[test]
     fn a_path_that_is_not_a_directory_is_ignored_but_an_unreadable_one_is_counted() {
+        let _serial = serialized();
         // مسار غير موجود ليس «مجلدًا متخطّى» — نفس شرط Kotlin (`isDirectory` قبل العدّ).
         let missing = scan_fresh(&["/definitely/not/here".to_string()], DEFAULT_MAX_ENTRIES);
         assert_eq!(missing.skipped, 0);
@@ -474,6 +503,7 @@ mod tests {
 
     #[test]
     fn cancellation_asked_during_a_scan_stops_it_and_is_reported() {
+        let _serial = serialized();
         let tree = Tree::new("cancel");
         tree.write("a/one.txt", 1);
         request_cancel();
@@ -483,6 +513,7 @@ mod tests {
 
     #[test]
     fn a_new_scan_clears_a_stale_cancellation_request() {
+        let _serial = serialized();
         let tree = Tree::new("fresh");
         tree.write("a/one.txt", 1);
         request_cancel();
@@ -493,6 +524,7 @@ mod tests {
 
     #[test]
     fn progress_is_readable_and_ends_at_the_final_count() {
+        let _serial = serialized();
         let tree = Tree::new("progress");
         tree.write("a/one.txt", 1);
         tree.write("a/two.txt", 1);
@@ -502,6 +534,8 @@ mod tests {
 
     #[test]
     fn the_packet_carries_header_buckets_and_largest() {
+        // تصفير الراية هنا عمدًا (`scan_packed`) — فالاختبار يشترك في الحالة العامة ويأخذ القفل.
+        let _serial = serialized();
         let tree = Tree::new("packet");
         tree.write("a/one.jpg", 5);
         let packed = scan_packed(&tree.path("a"), DEFAULT_MAX_ENTRIES);
@@ -509,6 +543,10 @@ mod tests {
         assert!(rows[0].starts_with("S\u{1}1\u{1}0\u{1}0\u{1}0"));
         assert!(rows[1].starts_with("B\u{1}images\u{1}5\u{1}1"));
         assert!(rows[2].starts_with("L\u{1}"));
+        // ومَدخل فارغ لا يلمس الحالتين أصلًا (يرجع قبل القفل والتصفير) — فلا قفل ثانٍ هنا:
+        // و`Mutex` في Rust **غير قابل لإعادة الدخول**، فقفلٌ ثانٍ في الخيط نفسه يجمّد الاختبار
+        // ويجمّد معه كل اختبار ينتظر القفل — وقد وقع هذا بالقياس في أوّل تشغيل محلّي، وأمسكه
+        // سطر `has been running for over 60 seconds` لا المُصرّف.
         assert_eq!(scan_packed("", 10), "");
     }
 }

@@ -96,12 +96,8 @@
     <string name="max_fps_permission_title">مطلوب صلاحية الطبقات</string>
     <string name="max_fps_permission_detail">يحتاج أندرويد إلى صلاحية «العرض فوق التطبيقات الأخرى» قبل أن يرسم MaxManager الطبقة.</string>
     <string name="max_fps_permission_action">فتح إعدادات الصلاحية</string>
-    <string name="max_fps_section_overlay">الطبقة</string>
-    <string name="max_fps_section_overlay_desc">يرسم قراءة مختصرة فوق كل ما يعمل على الشاشة.</string>
     <string name="max_fps_section_source">مصدر بيانات الإطار</string>
     <string name="max_fps_source_fallback_note">إذا لم يُرجع المصدر المختار شيئًا، ينتقل MaxManager تلقائيًا إلى مصدر آخر.</string>
-    <string name="max_fps_section_presentation">العرض</string>
-    <string name="max_fps_orientation_locked">ينطبق الاتجاه على قائمة أندرويد فقط.</string>
     <string name="max_fps_color_selected">محدد</string>
     <string name="max_fps_color_not_selected">غير محدد</string>
     <string name="max_fps_color_green">أخضر</string>
@@ -260,10 +256,12 @@
 
     <!-- لغة التطبيق (الإعدادات) -->
     <string name="max_language_title">اللغة</string>
+    <string name="max_language_count">%1$d لغة</string>
     <string name="max_language_desc">لغة عرض التطبيق، وتُطَبَّق فورًا.</string>
     <string name="max_language_auto">تلقائي (النظام)</string>
     <string name="max_language_search_hint">ابحث عن لغة</string>
-    <string name="max_language_empty">لا لغة مطابقة</string>
+    <string name="max_language_empty">لا توجد لغات</string>
+    <string name="max_language_clear_search">مسح البحث</string>
     <string name="max_language_device_section">لغات جهازك</string>
     <string name="max_language_all_section">كل اللغات</string>
     <string name="max_language_partial_note">بعض اللغات ما زالت مترجمة جزئيًا، والنص الناقص يظهر بالإنجليزية.</string>
@@ -498,4 +496,138 @@
     <string name="max_atlas_share_confirm_message">التقرير يحمل أسماء واجهات ووحدات وأعمارًا ووصفًا تقريبيًّا للجهاز. ولا يحمل أي معرّف، ولا حساب، ولا مسارًا خاصًّا بك، ولا قائمة حزم، ولا سطر سجل. وأنت تختار الوجهة بعد ذلك.</string>
     <string name="max_atlas_share">اختر تطبيقًا</string>
     <string name="max_atlas_share_cancel">إلغاء</string>
+
+    <!-- ══ تكملة ١٣٨: نسخ الواجهة الذي كان مكتوبًا في الكود ══════════════════ -->
+
+    <!-- DiagnosticsScreen -->
+    <string name="diagnostics_live_hw_health">صحّة العتاد الحيّة</string>
+    <string name="diagnostics_active_ownership">ملكية التحكم النشطة</string>
+    <string name="diagnostics_hardware_report">تقرير العتاد</string>
+    <string name="diagnostics_hardware_report_desc">أنشئ تقريرًا موجزًا لأغراض الدعم والتوافق.</string>
+    <string name="diagnostics_copy">نسخ</string>
+
+    <!-- AboutScreen -->
+    <string name="about_project_name">مشروع MaxManager</string>
+
+    <!-- DisplayStudioScreen -->
+    <string name="display_studio_live_panel_config">ضبط اللوحة مباشرةً</string>
+    <string name="display_studio_current_canvas">اللوحة الحالية</string>
+    <string name="display_studio_badge_display">العرض</string>
+    <string name="display_studio_badge_live">مباشر</string>
+
+    <!-- ProcessManagerScreen -->
+    <string name="process_manager_overview_title">مدير العمليات</string>
+    <string name="process_manager_overview_subtitle">نشاط العمليات واستهلاك الموارد، مباشرةً</string>
+    <string name="process_manager_running_title">العمليات الجارية</string>
+    <string name="process_manager_running_hint">اضغط على عمليّة للإجراءات</string>
+    <string name="process_manager_refresh_hint">يُحدَّث كل ٣ ثوانٍ</string>
+
+    <!-- BypassChargeScreen -->
+    <string name="bypass_charge_section_control">التحكم</string>
+    <string name="bypass_charge_section_threshold">العتبة</string>
+    <string name="bypass_charge_section_configuration">التهيئة</string>
+    <string name="bypass_charge_row_path">مسار الشحن الجانبي</string>
+    <string name="bypass_charge_row_policy">سياسة التفعيل</string>
+    <string name="bypass_charge_row_behavior">سلوك الشحن</string>
+    <string name="bypass_charge_row_profile">نمط الأداء</string>
+    <string name="bypass_charge_row_stop_at">أوقف الشحن عند العتبة</string>
+    <string name="bypass_charge_state_unsupported">غير مدعوم</string>
+    <string name="bypass_charge_state_setup_required">يلزم التهيئة</string>
+    <string name="bypass_charge_state_needs_setup">يلزم الإعداد</string>
+    <string name="bypass_charge_state_enabled">مُفعَّل</string>
+    <string name="bypass_charge_state_ready">جاهز</string>
+    <string name="bypass_charge_daemon_controlled">يديره الديمون</string>
+    <string name="bypass_charge_note">يطبّق الديمون المميّز الشحن الجانبي على عقدة شحن مكتشَفة، ولا يعلن MaxManager الدعم حتى تُكتشَف عقدة متوافقة.</string>
+
+    <!-- AppSettingsScreen -->
+    <string name="app_settings_section_thermal_gpu">حاكم الحرارة ومعالج الرسوم</string>
+    <string name="app_settings_thermal_gpu_note">«الافتراضي» يترك الجهاز كما هو ويُسند إدارة التطبيق إلى HyperOS / Game Turbo.</string>
+    <string name="app_settings_cpu_governor">حاكم المعالج</string>
+    <string name="app_settings_gpu_governor">حاكم معالج الرسوم</string>
+    <string name="app_settings_cpu_governors_none">لم يُكتشَف أيّ حاكم معالج مشترك</string>
+    <string name="app_settings_cpu_governors_note">لا تُعرض إلا الحكام التي تدعمها كل سياسات المعالج</string>
+    <string name="app_settings_gpu_governors_none">لم تُكتشَف عقدة حاكم معالج الرسوم</string>
+    <string name="app_settings_gpu_governors_note">لا تُعرض إلا الحكام التي يبلّغ عنها مشغّل معالج الرسوم</string>
+    <string name="app_settings_customize_profiles">خصّص أنماط: موفّر / متوازن / ألعاب / أداء</string>
+    <string name="app_settings_reset_all">أعِد كل إعدادات التطبيق إلى الافتراضي</string>
+    <string name="app_settings_cpu_unavailable">التحكم في تردد المعالج غير متاح على هذه النواة.</string>
+    <string name="app_settings_save_cpu_controls">احفظ ضوابط المعالج</string>
+    <string name="app_settings_customize_thermal_presets">خصّص أنماط الحرارة / معالج الرسوم</string>
+    <string name="app_settings_restore_preset_defaults">أعِد قيم الأنماط الافتراضية</string>
+    <string name="app_settings_thermal_presets_note">كل نسبة مأخوذة من القدرة التي يعلنها الجهاز، لا من السقف الذي تصادف أن النظام يسمح به الآن. فـ«الألعاب» (٨٥٪) و«الأداء» (١٠٠٪) لا يهبطان أبدًا دون جهاز لم يُمسّ: وحين تُمسك سياسة الجهاز نفسها بسقف أدنى فإنّهما يطلبان السقف المُعلَن، ويسجّل السجل ما كان، وما يقدر عليه الجهاز، وما طُلب. وتحت ذلك تُقيّد النسبة سقف معالج الرسوم وكل سياسة معالج لم تضبطها بيدك، مقرَّبةً لأسفل إلى خطوة تردد حقيقية؛ ونمط تبريد (متوازن، موفّر، مخصّص) لا يخفض سقفًا إلا ولا يرفعه أبدًا.</string>
+
+    <!-- أسماء الأنماط في قوائم المنتقي -->
+    <string name="profile_label_power">موفّر</string>
+    <string name="profile_label_gaming">ألعاب</string>
+    <string name="profile_label_custom">مخصّص</string>
+
+    <!-- ══ تكملة ١٣٨ (ب): الصنف الذي لا تراه بوابة `hardcoded_ui_literals` ══ -->
+
+    <!-- بطاقة الميزات لكل تطبيق -->
+    <string name="appfeature_cpu_boost_title">تعزيز المعالج عند التشغيل</string>
+    <string name="appfeature_cpu_boost_summary">رفع ترددات المعالج مؤقّتًا عند فتح هذا التطبيق</string>
+    <string name="appfeature_kill_bg_title">إغلاق تطبيقات الخلفيّة</string>
+    <string name="appfeature_kill_bg_summary">مسح عمليات الخلفية ما دام هذا التطبيق في المقدّمة</string>
+    <string name="appfeature_gpu_freq_title">أقصى تردد لمعالج الرسوم</string>
+    <string name="appfeature_gpu_freq_none">التحكم في التردد غير متاح على هذه النواة</string>
+    <string name="appfeature_gpu_freq_capped">أعلى تردد لمعالج الرسوم ما دام هذا التطبيق مفتوحًا. وتُسرَد كل خطوة يعلنها المشغّل (حتى %1$s)؛ والجهاز يسمح حاليًّا بـ %2$s — واختيار الخطوة العليا يُحرّر ذلك السقف بدل تثبيت تردد. و«الافتراضي» يتركه ديناميكيًّا.</string>
+    <string name="appfeature_gpu_freq_dynamic">أعلى تردد لمعالج الرسوم ما دام هذا التطبيق مفتوحًا، من الخطوات التي يعلنها المشغّل. و«الافتراضي» يتركه ديناميكيًّا.</string>
+    <string name="appfeature_hw_ui_title">إجبار عرض الواجهة بالعتاد</string>
+    <string name="appfeature_hw_ui_summary">إجبار عرض كل طبقات الواجهة بمعالج الرسوم</string>
+    <string name="appfeature_touch_title">نمط استجابة اللمس</string>
+    <string name="appfeature_touch_summary">«سريع الاستجابة» يُفعّل تعزيز اللمس المتاح ما دام هذا التطبيق في المقدّمة، و«مراعٍ للبطارية» يُبقيه مُطفأً. و«اتّبع النظام» يحترم الإعداد العام وكشف الألعاب المتوافقة.</string>
+    <string name="appfeature_touch_follow_rom">اتّبع النظام</string>
+    <string name="appfeature_touch_responsive">سريع الاستجابة</string>
+    <string name="appfeature_touch_battery_aware">مراعٍ للبطارية</string>
+    <string name="appfeature_haptic_title">تقليل الاهتزاز اللمسي</string>
+    <string name="appfeature_haptic_summary">تعطيل الاهتزاز أو تقليله لتحرير دورات المعالج</string>
+    <string name="appfeature_notif_title">إسكات الإشعارات</string>
+    <string name="appfeature_notif_summary">حجب أصوات الإشعارات وشاراتها ما دام هذا التطبيق نشطًا</string>
+    <string name="appfeature_wifi_title">منع سكون الواي فاي</string>
+    <string name="appfeature_wifi_summary">منع الواي فاي من الدخول في السكون ما دام هذا التطبيق نشطًا</string>
+
+    <!-- دليل الميزات لكل تطبيق -->
+    <string name="appguide_cd">دليل الميزات</string>
+    <string name="appguide_title">دليل ميزات كل تطبيق</string>
+    <string name="appguide_got_it">فهمت</string>
+    <string name="appguide_cpu_boost_desc">يرفع تردد المعالج إلى أقصاه لثلاث ثوانٍ عند فتح التطبيق، فيقلّ زمن التحميل بدرجة كبيرة.</string>
+    <string name="appguide_thermal_title">نمط الحرارة</string>
+    <string name="appguide_thermal_desc">يتجاوز حدود خفض الأداء الحراري الافتراضية في النظام. فنمط «الألعاب» يسمح بحرارة أعلى قبل إبطاء اللعبة، ونمط «موفّر الطاقة» يُبقي الهاتف باردًا.</string>
+    <string name="appguide_gpu_gov_title">حاكم معالج الرسوم</string>
+    <string name="appguide_gpu_gov_desc">يتحكم في سرعة تصاعد معالج الرسوم. فـ«msm-adreno-tz» ديناميكي، ونمط «الأداء» يفرض أقصى قدرة رسومية باستمرار.</string>
+    <string name="appguide_hw_ui_title">إجبار عرض الواجهة بالعتاد</string>
+    <string name="appguide_hw_ui_desc">يفرض عرض طبقات واجهة هذا التطبيق بمعالج الرسوم بدل العرض البرمجي. ويسري من التشغيل البارد التالي للتطبيق، لا فورًا على عملية تعمل بالفعل.</string>
+    <string name="appguide_kill_bg_title">إغلاق تطبيقات الخلفيّة</string>
+    <string name="appguide_kill_bg_desc">يُنفّذ كنسًا مكثّفًا للذاكرة كلّما جُلب هذا التطبيق إلى المقدّمة، ليتوفّر أقصى قدر من الذاكرة.</string>
+    <string name="appguide_bypass_title">الشحن الجانبي</string>
+    <string name="appguide_bypass_desc">إن دعمته النواة، يُغذّي اللوحة مباشرةً من الشاحن دون المرور بالبطارية، فيقلّ الحرارة أثناء اللعب المكثّف.</string>
+
+    <!-- قسم ضوابط المعالج لكل تطبيق -->
+    <string name="appsettings_cpu_mode">النمط</string>
+    <string name="appsettings_cpu_mode_dynamic">نطاق ديناميكي</string>
+    <string name="appsettings_cpu_mode_exact">تثبيت دقيق</string>
+    <string name="appsettings_cpu_min">الأدنى</string>
+    <string name="appsettings_cpu_max">الأعلى</string>
+    <string name="appsettings_cpu_locked">تردد مثبّت</string>
+    <string name="appsettings_cpu_summary_default">المعالج: الافتراضي</string>
+    <string name="appsettings_cpu_summary_exact">المعالج: تثبيت دقيق · %1$d</string>
+    <string name="appsettings_cpu_summary_dynamic">المعالج: نطاق ديناميكي · %1$d</string>
+    <string name="appsettings_cpu_not_applied">تعذّر تطبيق ضوابط المعالج.</string>
+    <string name="appsettings_cpu_verified">ضوابط المعالج مُتحقّقة للتطبيق النشط.</string>
+
+    <!-- شرائط هوية التطبيق -->
+    <string name="app_badge_system">نظام</string>
+    <string name="app_badge_game">لعبة</string>
+
+    <string name="display_studio_metric_refresh">التحديث</string>
+    <string name="display_studio_metric_density">الكثافة</string>
+    <string name="display_studio_metric_scale">المقياس</string>
+    <string name="display_studio_native">الأصلي %1$d × %2$d</string>
+    <string name="process_manager_metric_running">الجارية</string>
+    <string name="process_manager_metric_apps">التطبيقات</string>
+    <string name="process_manager_metric_system">النظام</string>
+
+    <!-- وصف صوتي لزرّي التسجيل في نافذة الأداء العائمة -->
+    <string name="fps_overlay_stop">أوقف التسجيل</string>
+    <string name="fps_overlay_record">ابدأ التسجيل</string>
 </resources>

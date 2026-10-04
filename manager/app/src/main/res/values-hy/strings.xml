@@ -7,7 +7,7 @@
     <string name="all_set">Ամեն ինչ պատրաստ է, այժմ կարող եք օգտագործել Max Manager-ը</string>
     <string name="allow_verbose_log">Դեամոնի մանրամասն լոգերի թողարկում</string>
     <string name="android_version">Android տարբերակ</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Հավելվածի անուն</string>
     <string name="app_priority">Հավելվածի առաջնահերթություն</string>
     <string name="app_priority_control">Հավելվածի առաջնահերթությունների վերահսկում</string>
@@ -723,15 +723,6 @@
     <string name="fps_overlay_notif_channel">FPS ծածկույթ</string>
     <string name="fps_overlay_notif_title">Max Manager FPS ծածկույթն աշխատում է</string>
     <string name="fps_overlay_notif_stop">Դադարեցրեք</string>
-    <string name="fps_overlay_section_style">Արտաքին տեսք</string>
-    <string name="fps_overlay_style">Ծածկման ոճը</string>
-    <string name="fps_overlay_style_android">Android ցուցակ</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Մինի</string>
-    <string name="fps_overlay_orientation">Դասավորության ուղղություն</string>
-    <string name="fps_overlay_orientation_vertical">Ուղղահայաց</string>
-    <string name="fps_overlay_orientation_horizontal">Հորիզոնական</string>
-    <string name="fps_overlay_read_mode">FPS ընթերցման մեթոդ</string>
     <string name="fps_overlay_read_mode_desc">Փորձեք այլ մեթոդ, եթե ձեր սարքում ցուցմունքը մնա 0-ի վրա</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (խորհուրդ է տրվում)</string>
     <string name="fps_overlay_mode_kernel">Միջուկի հանգույց</string>
@@ -740,14 +731,6 @@
     <string name="fps_overlay_text_size">Տեքստի չափը</string>
     <string name="fps_overlay_bg_alpha">Ֆոնի անթափանցիկություն</string>
     <string name="fps_overlay_width_scale">Լայնության սանդղակ</string>
-    <string name="fps_overlay_section_metrics">Ցուցադրված չափումներ</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU բեռ</string>
-    <string name="fps_overlay_metric_ram">RAM օգտագործումը</string>
-    <string name="fps_overlay_metric_watt">Մարտկոցի էներգիայի սպառում</string>
-    <string name="fps_overlay_metric_temp">Մարտկոցի ջերմաստիճանը</string>
-    <string name="fps_overlay_metric_render">Renderer label</string>
-    <string name="fps_overlay_metric_render_desc">Ցույց է տալիս VULKAN/OPENGL-ը \"FPS\"-ի փոխարեն որպես պիտակ, որը հայտնաբերվել է առաջին պլանի հավելվածի բեռնված գրադարաններից</string>
     <string name="dozemode_title">Քնի քաղաքականություն</string>
     <string name="dozemode_menu_desc">Սպասման սպիտակ ցուցակ, անգործուն վարքագիծ և ֆոնային էներգիայի կարգավորում</string>
     <string name="dozemode_state_label">Դոզե նահանգ</string>
@@ -783,9 +766,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Բացեք կարգավորումները</string>
     <string name="processmgr_title">Առաջադրանքների մոնիտոր</string>
-    <string name="processmgr_menu_desc">CPU և RAM յուրաքանչյուր գործընթացի օգտագործում՝ ուժային կանգառով և լողացող ծածկով</string>
     <string name="processmgr_stat_total">%1$d գործընթացներ</string>
-    <string name="processmgr_stat_breakdown">%1$d օգտվող \u00b7 %2$d համակարգ</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Լավագույն %1$d</string>
@@ -806,9 +787,6 @@
     <string name="processmgr_search_hint">Գործող գործընթացների որոնում</string>
     <string name="processmgr_no_processes">Ոչ մի գործընթաց չի համապատասխանում ձեր որոնմանը</string>
     <string name="processmgr_dialog_close">Փակել</string>
-    <string name="processmgr_detail_version">Տարբերակ</string>
-    <string name="processmgr_detail_build">Կառուցել</string>
-    <string name="processmgr_detail_package">Փաթեթ</string>
     <string name="processmgr_result_killed">Սպանվել է %1$s</string>
     <string name="processmgr_result_kill_failed">Չհաջողվեց սպանել %1$s</string>
     <string name="processmgr_result_stopped">Ուժով դադարեցված %1$s</string>
@@ -1457,7 +1435,6 @@
     <string name="max_home_reboot_desc">Բացեք անվտանգ վերագործարկման ընտրանքները</string>
     <string name="max_home_ai_console">MAX AI վահանակ</string>
     <string name="max_home_ai_working">Պահանջվող պրոֆիլի կիրառում…</string>
-    <string name="max_home_ai_failed">AI-ի վերջին գործողությունը ձախողվեց</string>
     <string name="max_home_retry">Կրկին փորձեք</string>
     <string name="max_home_ai_idle">AI-ի որոշում դեռ չի գրանցվել</string>
     <string name="home_system_stable">ՀԱՄԱԿԱՐԳԸ ԿԱՅՈՒՆ</string>
@@ -1473,8 +1450,6 @@
     <string name="home_performance_monitor_desc">Ռեսուրսների բեռնվածությունը վերջին 72 վայրկյանում</string>
     <string name="home_quick_actions">Հրամանատարության տախտակ</string>
     <string name="home_quick_actions_desc">Ուղղակի մուտք դեպի կարևոր հսկիչներ</string>
-    <string name="home_action_boost">Կատարման պրոֆիլը</string>
-    <string name="home_action_boost_desc">Փոխել համակարգի վարքագիծը</string>
     <string name="home_action_thermal">Ջերմային կենտրոն</string>
     <string name="home_action_thermal_desc">Ստուգեք ջերմությունը և հովացումը</string>
     <string name="home_action_battery">Էլեկտրաէներգիայի կենտրոն</string>
@@ -1494,7 +1469,6 @@
     <string name="home_active">ԱԿՏԻՎ</string>
     <string name="home_idle">ՊԱՐԶ</string>
     <string name="home_protected">ՊԱՇՏՊԱՆՎԱԾ</string>
-    <string name="home_device_overview">ԲԱՑ ՍԱՐՔԻ ակնարկ</string>
     <string name="home_live_performance">Կենդանի կատարում</string>
     <string name="home_live_performance_desc">Ընթացիկ բեռնվածություն և ուղղակի ապարատային հսկողություն</string>
     <string name="home_open_details">Բացեք մանրամասն ջերմային տվյալները</string>
@@ -1703,7 +1677,6 @@
     <string name="apps_bridge_title">Հավելվածի վարքագիծը համակարգում</string>
     <string name="apps_bridge_desc">Յուրաքանչյուր հավելվածի ընտրությունը մեկուսացված չէ. դրանք սնուցում են ծանրաբեռնվածության մտադրությունը, պրոֆիլի վարքագիծը և ուղիղ կառավարման օղակը:</string>
     <string name="apps_bridge_profiles_title">Կազմաձևված հավելվածներն ազդում են նիստերի վրա</string>
-    <string name="apps_bridge_profiles_desc">%1$d հարմարեցված հավելվածներ.</string>
     <string name="apps_bridge_control_title">Բացեք կառավարման քարտեզը</string>
     <string name="apps_bridge_control_desc">Վերանայեք սարքի գծերը, որոնք կիրառում են հավելվածների վարքագիծը CPU, GPU, էկրանի, էներգիայի և հիշողության միջոցով:</string>
     <string name="max_live_automation_title">Խելացի կառավարման պլան</string>
@@ -1790,4 +1763,6 @@
     <string name="max_app_master_on_desc">Կիրառվում են յուրաքանչյուր հավելվածի օպտիմալացում</string>
     <string name="max_app_advanced_options">Ընդլայնված ընտրանքներ</string>
     <string name="max_app_save">Պահպանել</string>
+    <string name="home_gpu_max_freq">Առավելագույն հաճախականություն</string>
+    <string name="apps_bridge_profiles_desc">%1$d հարմարեցված հավելվածներ · %2$d Խաղի թեկնածուները կարող են ձևավորել աշխատանքային ծանրաբեռնվածության մասին թյունինգ:</string>
 </resources>

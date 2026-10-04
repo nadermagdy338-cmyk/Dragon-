@@ -117,7 +117,7 @@ object MtkUtils {
             }
         }
         val node = getGpuDevfreqNode() ?: return "N/A"
-        val hz = readInt("$node/cur_freq")?.toLongOrNull()?.takeIf { it > 0L } ?: return "N/A"
+        val hz = readInt("$node/cur_freq")?.toLong()?.takeIf { it > 0L } ?: return "N/A"
         return formatMHz(hz)
     }
 

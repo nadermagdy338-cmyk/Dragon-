@@ -7,7 +7,7 @@
     <string name="all_set">Viss ir gatavs, tagad varat lietot Max Manager</string>
     <string name="allow_verbose_log">Detaļēta dēmona izvade</string>
     <string name="android_version">Android versija</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Lietotnes nosaukums</string>
     <string name="app_priority">Lietotnes prioritāte</string>
     <string name="app_priority_control">Lietotnes prioritātes kontrole</string>
@@ -724,15 +724,6 @@
     <string name="fps_overlay_notif_channel">FPS pārklājums</string>
     <string name="fps_overlay_notif_title">Max Manager FPS pārklājums darbojas</string>
     <string name="fps_overlay_notif_stop">Stop</string>
-    <string name="fps_overlay_section_style">Izskats</string>
-    <string name="fps_overlay_style">Pārklājuma stils</string>
-    <string name="fps_overlay_style_android">Android saraksts</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Izkārtojuma virziens</string>
-    <string name="fps_overlay_orientation_vertical">Vertikāli</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontāli</string>
-    <string name="fps_overlay_read_mode">FPS lasīšanas metode</string>
     <string name="fps_overlay_read_mode_desc">Izmēģiniet citu metodi, ja rādījums jūsu ierīcē paliek 0</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (ieteicams)</string>
     <string name="fps_overlay_mode_kernel">Kodola mezgls</string>
@@ -741,14 +732,6 @@
     <string name="fps_overlay_text_size">Teksta lielums</string>
     <string name="fps_overlay_bg_alpha">Fona necaurredzamība</string>
     <string name="fps_overlay_width_scale">Platuma skala</string>
-    <string name="fps_overlay_section_metrics">Parādīta metrika</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU slodze</string>
-    <string name="fps_overlay_metric_ram">RAM lietošana</string>
-    <string name="fps_overlay_metric_watt">Akumulatora enerģijas patēriņš</string>
-    <string name="fps_overlay_metric_temp">Akumulatora temperatūra</string>
-    <string name="fps_overlay_metric_render">Renderētāja etiķete</string>
-    <string name="fps_overlay_metric_render_desc">Parāda VULKAN/OPENGL, nevis \"FPS\", kā etiķeti, kas noteikta no priekšplāna lietotnes ielādētām bibliotēkām.</string>
     <string name="dozemode_title">Miega politika</string>
     <string name="dozemode_menu_desc">Gaidstāves baltais saraksts, darbība dīkstāvē un fona jaudas regulēšana</string>
     <string name="dozemode_state_label">Miega stāvoklis</string>
@@ -784,9 +767,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Atveriet iestatījumus</string>
     <string name="processmgr_title">Uzdevumu monitors</string>
-    <string name="processmgr_menu_desc">Procesa CPU un RAM lietojums ar piespiedu apturēšanu un peldošu pārklājumu</string>
     <string name="processmgr_stat_total">%1$d procesi</string>
-    <string name="processmgr_stat_breakdown">%1$d lietotāja \u00b7 %2$d sistēma</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Top %1$d</string>
@@ -807,9 +788,6 @@
     <string name="processmgr_search_hint">Meklēt darbojošos procesus</string>
     <string name="processmgr_no_processes">Neviens process neatbilst jūsu meklēšanas vaicājumam</string>
     <string name="processmgr_dialog_close">Aizvērt</string>
-    <string name="processmgr_detail_version">Versija</string>
-    <string name="processmgr_detail_build">Veidot</string>
-    <string name="processmgr_detail_package">Iepakojums</string>
     <string name="processmgr_result_killed">Nogalināts %1$s</string>
     <string name="processmgr_result_kill_failed">Nevarēja nogalināt %1$s</string>
     <string name="processmgr_result_stopped">Piespiedu apturēšana %1$s</string>
@@ -1460,7 +1438,6 @@
     <string name="max_home_reboot_desc">Atveriet drošas atsāknēšanas opcijas</string>
     <string name="max_home_ai_console">MAX AI konsole</string>
     <string name="max_home_ai_working">Notiek pieprasītā profila lietošana…</string>
-    <string name="max_home_ai_failed">Pēdējā AI darbība neizdevās</string>
     <string name="max_home_retry">Mēģiniet vēlreiz</string>
     <string name="max_home_ai_idle">AI lēmums vēl nav reģistrēts</string>
     <string name="home_system_stable">SISTĒMA STABILA</string>
@@ -1476,8 +1453,6 @@
     <string name="home_performance_monitor_desc">Resursu slodze pēdējo 72 sekunžu laikā</string>
     <string name="home_quick_actions">Komandu klājs</string>
     <string name="home_quick_actions_desc">Tieša piekļuve svarīgajām vadības ierīcēm</string>
-    <string name="home_action_boost">Veiktspējas profils</string>
-    <string name="home_action_boost_desc">Mainiet sistēmas uzvedību</string>
     <string name="home_action_thermal">Termiskais centrs</string>
     <string name="home_action_thermal_desc">Pārbaudiet siltumu un dzesēšanu</string>
     <string name="home_action_battery">Spēka centrs</string>
@@ -1497,7 +1472,6 @@
     <string name="home_active">AKTĪVS</string>
     <string name="home_idle">DĪKŠGAITA</string>
     <string name="home_protected">AIZSARGĀTS</string>
-    <string name="home_device_overview">ATVĒRT IERĪCES PĀRSKATU</string>
     <string name="home_live_performance">Tiešraides priekšnesums</string>
     <string name="home_live_performance_desc">Pašreizējā slodze un tiešā aparatūras vadība</string>
     <string name="home_open_details">Atveriet detalizētus termiskos datus</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Tiek piemērota optimizācija katrai lietotnei</string>
     <string name="max_app_advanced_options">Papildu opcijas</string>
     <string name="max_app_save">Saglabāt</string>
+    <string name="home_gpu_max_freq">Maksimālā frekvence</string>
 </resources>

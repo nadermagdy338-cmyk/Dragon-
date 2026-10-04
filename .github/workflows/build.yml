@@ -18,6 +18,7 @@ on:
       - "tools/**"
       - "manager/**"
       - "archdaemon/**"
+      - "maxfx/**"
       - "mainfiles/**"
       - "preloadbin/**"
       - "thermalcore/**"
@@ -176,7 +177,18 @@ jobs:
         run: |
           start=$SECONDS
           python3 tools/kt_balance.py --assert
+          # ← و`--self-test` يقيس **الماسح** على شجرة مصنوعة معلومة النتيجة (17 حالة): توازن
+          # الأقواس والنصوص والتعليقات، وXML مبتور يجب أن يُمسك. وهذه هي الأداة التي تحرس
+          # تعديلات الواجهة كلها، وكانت — وحدها بين بوابات هذا المستودع — بلا فحص ذاتي.
+          python3 tools/kt_balance.py --self-test
           python3 tools/code_health.py --assert
+          # ← وفحص ذاتي (٢٤ حالة) لهذه البوابة نفسها: فاصلة عليا تُمسك ومُهرَّبة تمرّ · مفتاح
+          # مكرّر · مورد غير معلَن · عقد محتوى بلا `@Composable` مقابل نظيره السليم وقابل
+          # الاتّساع · كتابة عتاد حقيقية مقابل إخماد `2>/dev/null` مقابل تعليق. وسبب الإضافة
+          # مقيس: **التأكيد كان يطلب اسم الدالة في بلاغ لا يحمله** (كان يسمّي الوسيط `content`
+          # وحده) — فسقط التأكيد ولم يكن في التشغيل ما يكشفه. أي أنّ الفحص الذاتي نفسه أمسك
+          # عطبًا في **محتوى البلاغ** قبل أن يصل إلى قارئ.
+          python3 tools/code_health.py --self-test
           python3 tools/i18n_coverage.py --assert
           # المفاتيح اليتيمة: كانت `--prune` تُعيد 0 دائمًا، فالفحص كان أداة ولا يُسقط شيئًا.
           # صارت بـ`--assert` **بوابة قراءة فقط**: تُسقط التشغيل عند أول مفتاح لم يعد مستعملًا
@@ -192,7 +204,62 @@ jobs:
           # في خطوة «Verify JNI symbols in built libraries» أدناه — فالثواني هنا تكشف انصراف
           # الاسم قبل أن يستهلك البناءُ الأصلِي دقائقَ ثم يمرّ.
           python3 tools/jni_symbols.py --assert
+          # ← عقد مؤثّر MaxFx (العقد المزدوج): الرموز الثلاثة وتوقيعاتها الحرفية · بقاء `AELI` ·
+          # سلامة اللقطات المجمَّدة (حجم · `package` · `IMMUTABLE`) · إغلاق تضمين `libfmq` ·
+          # اتساق البناء والأعمدة — كلّها بلا مُصرّف، لأنّ غلاف AIDL لا يُترجم إلا في هذه
+          # الخطوة نفسها. وسببه مقيس: لقطةٌ مبتورة (٠ بايت) وقعت فعلًا في الشجرة، ولم يمسكها
+          # `kt_balance` (ملفٌّ فارغ متوازن) ولا `code_health` (ولا نصّ فيه).
+          python3 tools/maxfx_contract.py --assert
+          python3 tools/maxfx_contract.py --self-test
+          python3 tools/fetch_maxfx_aidl.py --self-test
           python3 tools/jni_symbols.py --self-test
+          # ← الوحدات الميتة: ملفّ Rust **خارج شجرة الوحدات** (لا يُصرَّف إطلاقًا، فيتعفّن بلا
+          # خطأ ولا تحذير — مقيس: `thermalcore/src/prediction.rs` يقرأ سبعة حقول لا وجود لها
+          # في نوعه، ولو وُصل لَما تُرجم) ووحدة C **مبنية بلا مُستخدِم خارجي**. والأساس المُعلَن
+          # في الأداة نفسها، فإضافة أو إزالة وحدة تستلزم تحديثه صراحةً لا أن تمرّ بصمت.
+          # و`--self-test` يقيس الأداة على شجرة مصغّرة — ومنها أن المتغيّر المحلّي لا يُقرأ
+          # تعريفًا ملفًّا (وهو عطب حقيقي أصاب أول نسخة منها).
+          python3 tools/dead_modules.py --assert
+          python3 tools/dead_modules.py --self-test
+          # ← رموز التصميم: سقف مفروض على الأرقام الحرفية في `ui/**`. المراجعة قاست الحالة
+          # قبل الإصلاح: **٤٨٠ حرفيًّا · ٢٢ نصف قطر متمايزًا**، وهو ميل يعود مع كل شاشة تُكتب
+          # على عجل — فالبوابة لا تُصلح بل **تُثبّت السقف** على ما بقي. وأي حرفيّ جديد يُحمرّ
+          # البناء **ويسمّي الملفّ الذي أضافه** (والعدّ لكل ملف ليس ترفًا: بلا تقسيم لكل ملف
+          # سمّى التقرير ملفًّا بريئًا في أول طفرة قِيست). و`--self-test` يقيس الماسح على نصّ
+          # معروف — وفيه حالتان متعاكستان: الرمز لا يُعدّ، والتعليق لا يُعدّ.
+          python3 tools/design_tokens.py --assert
+          python3 tools/design_tokens.py --self-test
+          # ← عقد التحزيم والتكامل: ١٤ فحصًا جمعت ما كان يُقاس بالعين في جولة
+          # `BUNDLE-01` — وأهمّها عقدان كلف أحدهما ثباتًا والآخر عطبًا حقيقيًّا:
+          #   • سلسلة الإصدار متّفقة في ثلاثتها (`version` · `module.prop` · `MaxManager.h`)
+          #     — لأن `check_module_version()` في الخادم يُشغّل `grep -q '^version=%s$' module.prop`
+          #     واختلاف بايت **يُخرج الخادم عند الإقلاع**. وكان الفحص السابق في الـworkflow
+          #     يُشتقّ سلسلة مستحيلة (‏`5.2 (…-Dazzling)` مقابل `V1`) فيُفشل كل تشغيل.
+          #   • مسار الديمون متّفقًا في أربعة ملفّات — وكان قد انزاح فعلًا (الـ`.rc` في
+          #     `vendor/etc/init` والثنائيّ في `/system/bin`، و`vendor_file_type` على مسار
+          #     نظام)، وكل ما يُستخرجه `customize.sh` موجودًا — وهو ما كان يمنع حزمة
+          #     لا تُفلّش لو حُذف ملفّ من الشجرة ونُسي سطر استخراجه.
+          # و`--self-test` يكسر كل عقد من الـ`14` ويطالب باسمه: أداة لا تُكسر لا تقيس.
+          python3 tools/bundle_contract.py --assert
+          python3 tools/bundle_contract.py --self-test
+          # ── موارد أندرويد بـ**aapt2 الحقيقي** (تكملة ١٤٢) ──
+          #
+          # ولماذا لا يُقلَّد حكمه: عطبُ موردٍ لا يُشخَّص بقراءة الكود، ورسالته **لا تسمّي
+          # السبب** («Can not extract resource from ParsedResource»). وقِيس أن حكمه ليس
+          # تمثيلًا قابلًا لإعادة البناء أصلًا: نفس النصّ (`100% and 50%`) **يمرّ** وحده
+          # ويرسب مع نصٍّ آخر في الملفّ نفسه.
+          #
+          # والثمن مقيس: **٥٨٥ فاصلة عليا مُضاعفة في ٨٢ لغة** (من `escape_android` الذي كان
+          # يُهرّب كل `'` بلا فحص) · **٥ وسائط نقلها المترجم** (`%%1$d%` مكان `%1$d%%`) ·
+          # **٨٣ ملفًّا** فيه `%` عارية في نصّ غير مُنسَّق — كلها أسقطت `mergeReleaseResources`
+          # في جولتَي CI كاملتين ولم تكن أيّ بوّابة تراها. ثوانٍ هنا بدل دقائق بعد الأصليّ
+          # وRust. وبلا `aapt2` (جهاز بلا SDK) تُعلن غير مُتحقَّقة ولا تدّعي نجاحًا.
+          python3 tools/resource_compile.py --assert
+          python3 tools/resource_compile.py --self-test
+          # بوابة RTL — مضافة بعد أن أبلغ المالك عن انكسار النصّ في العربية؛ تقيس الحشو
+          # الجهتي والأيقونات غير المنعكسة لا سلوك التخطيط الفعليّ (وذاك يحتاج جهازًا).
+          python3 tools/rtl_guard.py --assert
+          python3 tools/rtl_guard.py --self-test
           # ← أداة قياس استقلال النصّ عن أصول GPL (PHASE 11): `--self-test` يسقط ما لا
           # يحتاج نسخة من الأصل المرجعي (٨ حالات معلومة النتيجة). و`--assert` نفسه
           # **يحتاج** مجلّدي الأصل (ZKM · vtools) وهما ليسا في الشجرة — فمكانه جلسة
@@ -209,12 +276,85 @@ jobs:
           # أول ملف GPL يعود إلى مسار الإصدار يُسقط التشغيل في ثوانٍ، قبل دقائق البناء.
           #
           # و`--self-test` (١٤/١٤) يقيس الأداة نفسها على شجرة مصغّرة معلومة النتيجة: أداة تدقيق
-          # تُصنّف كل شيء «سليمًا» لا تُثبت شيئًا — وهو نفس الدرس الذي أضاف `--self-test` لكل
-          # بوابات هذا المستودع.
+          # تُصنّف كل شيء «سليمًا» لا تُثبت شيئًا — وهو نفس الدرس الذي أضاف `--self-test` لكل          # بوابات هذا المستودع.
           python3 tools/license_audit.py --self-test
           python3 tools/license_audit.py --assert
           python3 tools/license_audit.py --json --provenance
+          # ← مانيفست المصادر: `--assert` يقارن الشجرة بالمعلَن، و`--self-test` (٨ حالات)
+          # يقيس الأداة نفسها. وكانت تُشغَّل في CI بلا قياس ذاتي، وهو الدرس ذاته
+          # المُوثَّق في بوابات هذا المستودع: أداة لا تُقاس تصدأ بصمت.
+          python3 tools/source_manifest.py --assert
+          python3 tools/source_manifest.py --self-test
+          # ← أصول الـREADME المتحرّكة (تكملة ١٤٦): الصور في `docs/assets/` لا تُقرأ في البيئة
+          # (لا مُصيَّر SVG)، فالمراجعة بالعين غير ممكنة — والمراجعة التي لا تُقاس تُنتج ادّعاءً.
+          # والأداة وُلدت من **عطب حقيقي وقع في تلك الجولة**: رمز `--` غير مشروع داخل تعليق XML،
+          # فسقط ملفّان من التحليل ولم يكن في التشغيل ما يكشفه. وتفرض فوقه سبع قواعد من سلوك GitHub
+          # الفعليّ (SMIL وحدها: الوسوم النصّية وحركات CSS تُجرَّد · `xlink:href` يُجرَّد فيُهمل
+          # التحريك بصمت · `tspan` بـ`opacity` غير موثوقة · `keyTimes` يجب أن يبدأ بـ0 وينتهي بـ1
+          # إلا في `calcMode=discrete` · حدود الحجم عند ٢٠٠KB/٥MB · ووجود كل ملفّ مُشار إليه).
+          # واللقطات الموعودة ولم تُضف **تُعلَن معلّقة ولا تُفشل** — يضيفها المالك، وما يُفشل هو أصل
+          # مكسور أو ملفّ SVG معطوب.
+          # ← وثيقة التصميم: `DESIGN.md` تُقاس على مصدر الرموز لا على الذاكرة (`design_doc.py`).
+          # ووُجدت من فكرة `DESIGN.md` كما تعرضها `VoltAgent/awesome-design-md` — بالنصوص نفسها
+          # (ألوان · محارف · مسافات · أنصاف أقطار · حركة) — لكنّ ربطها هنا **بالمصدر** لا بصورة
+          # موقع: كلّ رقم في الوثيقة يُقارَن بـ`MaxTokens.kt`، وكلّ لون في الأصول باللوحة المُعلَنة،
+          # ونِسَب التجاذب تُعاد حسابها، ونغمات التحذير في اللوحة تُطابَق بثوابت الشيفرة حرفًا.
+          # وأوّل تشغيل لها كشف رقمًا بلا اسم في `ICON_TILE` كان تعليقه يدّعي خلافه.
+          python3 tools/design_doc.py --assert
+          python3 tools/design_doc.py --self-test
+          python3 tools/readme_assets.py --assert
+          python3 tools/readme_assets.py --self-test
+          # ← جودة الأصول المرئية (تكملة ١٥٠): `readme_assets` ترى ما يُفسد الملفّ (XML مبتور،
+          # SMIL غير مدعوم، حجم، مرجع مفقود) وهي **لا ترى** ما يُفسد التصميم: نصًّا لا يُقرأ
+          # عند عرض حقيقي (٣٩٠px هاتفًا)، أو خارج حدود الـ`viewBox`، أو مرسومًا في موضع لا يصحّ
+          # إلا بوجود الحركة — فحين يُجرَّد SMIL يقع العنصر في مكان خاطئ. وهذا ليس افتراضًا:
+          # `atlas-cycle.svg` المنشور كان كل نصوصه الـ٢٣ دون ١١px على الهاتف (أصغرها ٣٫٥px)،
+          # و`control-plane.svg` كان فيه نصّ خارج اللوحة ونقطة ساكنة في موضع الحركة — وكلّه
+          # مرّ على البوّابة الأولى بلا بلاغ. و`--self-test` (١١ حالة معلومة النتيجة) يقيس
+          # الأداة نفسها: حالة إيجابية لكل قاعدة وسلبية لما يجب ألّا يُبلَّغ عنه.
+          python3 tools/svg_review.py --assert
+          python3 tools/svg_review.py --self-test
+          # ← معرض اللقطات (تكملة ١٥٢): صفحة المنتج كانت تعِد بأنّ إسقاط لقطة بالاسم الصحيح
+          # «يُظهرها بلا تعديل» — ولا آلية تحقّق ذلك، فالوعد كان عبارة لا سطرًا يعمل.
+          # والأداة تقلب الطرفين: تقرأ `docs/screenshots/gallery.json` ولا تكتب `<img>` إلا لملفّ
+          # موجود، فتكتب الشبكة بين علامتَين في الـREADMEين، و`--assert` يقيس الكتلة بالمولَّد
+          # حرفيًّا — فتعديلها بيد يسقط التشغيل بدل أن يتقادم المعرض بصمت.
+          # وتفرض فوق ذلك ما لا يراه الـREADME: مسار كلّ شاشة مقابلًا على `MaxDestinations.kt`،
+          # والتسمية تحت حدّ الطول (وهو ما يمنع تسمية طويلة من إفساد تراصف الصفّ)، وصحّة ملفّ
+          # PNG حقيقية (توقيع · IHDR · IDAT · IEND · CRC لكل مقطع) ونسبته وسقف حجمه، وتسمية كلّ
+          # ملفّ في المجلّد لا يذكره العقد — وهو العطب الذي يحذّر منه عقد الأسماء نفسه.
+          # و«لا لقطة موجودة» **ليست** فشلًا: المنصّب يعُدّها معلَّقة، فما يُسقط التشغيل هو عطب
+          # حقيقيّ لا نقص تغطية. و`--self-test` (٣٥ حالة معلومة النتيجة) يقيس الأداة: ملفّ مقطوع ·
+          # ملفّ ليس صورة · نسبة مخالفة للشاشة · حجم فوق السقف · جذر مكرّر · مسار مجهول · تسمية
+          # طويلة · انزياح الكتلة بيد — وحالة سليمة تمرّ (أداة تفشل دائمًا لا تفرّق بين عطب وسلامة).
+          python3 tools/screenshot_gallery.py --assert
+          python3 tools/screenshot_gallery.py --self-test
           echo "✅ Contract gates passed in $((SECONDS - start))s"
+
+      # ── تكافؤ منطق الخادم الأصلي — بلا NDK وبلا جهاز ──
+      #
+      # الخادم C لا يُبنى للأندرويد هنا (يحتاج NDK/ARM)، لكن **قسمًا كبيرًا منه منطق قرار محض**:
+      # قائمة الخصائص المسموحة، وتصعيد/تطبيق الـrenderer والـresolution، وحسم البروفايل بلا
+      # المطابقة، وجدول عُقد تجاوز الشحن. وهذه تُبنى **للمضيف** بـ`clang` مع شيم صغير لـ
+      # `<sys/system_properties.h>`، وتُقاس بدعاوى قابلة للتكذيب (`archdaemon/tests/`).
+      #
+      # وهي **ليست** بديلًا عن الجهاز: لا sysfs ولا root ولا ثنائية ARM — فما يُثبته هو
+      # **المنطق وحده**، وسلوك الجهاز يبقى «يحتاج جهازًا» كما هو معلن في التقرير. وثوانٍ هنا
+      # تكشف انحدار المنطق قبل بناء الأصل الذي يستهلك دقائق ثم يمرّ صامتًا.
+      # و«قياس الأداة» معه: `self-check` يُنشئ طفرة مُزيلة لملكية نطاق `maxmanagerconf.`
+      # (وهي الانحدار الموصوف في تعليق المصدر) ويشترط أن **تسقط** الدعوى — فمجموعة لا يمكن
+      # أن تفشل لا تُثبت شيئًا.
+      # ── نواة MaxFx DSP على المضيف (بلا NDK ولا جهاز) ──
+      #
+      # نفس منطق «Native parity harness» أدناه: النواة نقّية (`maxfx_dsp` بلا أندرويد وبلا عقد
+      # مؤثّرات) فتُبنى وتُقاس هنا بـ246 دعوى من العقد نفسه (`maxfx_params.tsv`)، و`self-check`
+      # يحقن طفراتٍ **يجب أن تُسقط المجموعة** — فمجموعةٌ لا تفشل أبدًا لا تُثبت شيئًا. وثوانٍ هنا
+      # تنقذ الدقائق التي يستهلكها بناء الأصل ثم يمرّ وهو معطوب.
+      - name: MaxFx DSP tests + mutation self-check (host, no NDK/device)
+        run: make -C maxfx/tests run self-check
+
+      - name: Native parity harness (host, no NDK/device)
+        run: make -C archdaemon/tests run self-check
 
       - name: Copy changelog file
         run: bash .github/scripts/changelog.sh
@@ -227,20 +367,41 @@ jobs:
           echo "V_TYPE=$V_TYPE" >> "$GITHUB_ENV"
           echo "Build mode set to: $V_TYPE"
 
-      # كان هذا خطوة كتابة **ثانية** لنفس السلسلة في نفس الملف الذي كتبه `verify.sh` قبله
-      # (بنفس الحساب) — أي مصدرين للحقيقة يمكن أن ينزاحا في صمت. فصار **تحقّقًا** لا كتابة:
-      # يقرأ ما كتبه `verify.sh` ويقارنه بالسلسلة التي سيحسبها `compile_zip.sh` لاحقًا.
+      # **مصدر واحد لسلسلة الإصدار — وثلاثة مواضع يجب أن تتفق بايت ببايت.**
       #
-      # والسبب الذي وُجدت من أجله باقٍ ومُعلَن: `check_module_version()` في الخادم يقارن
-      # `MODULE_VERSION` المطبوعة فيه بسطر `version=` في `module.prop`؛ واختلاف بايت ببايت
-      # يُخرج الخادم عند الإقلاع (ModuleIntegrity.c -> "MaxManager version mismatch").
-      # ويجب أن يقع هذا قبل تصريف الخادم — وهو موضعه بالفعل.
-      - name: Confirm the daemon version string
+      # والسبب مقيس في الخادم: `check_module_version()`
+      # (`archdaemon/jni/src/MaxManagerUtility/ModuleIntegrity.c:44`) يُنفّذ
+      # `grep -q '^version=%s$' module.prop` و`%s` هو `MODULE_VERSION` المطبوعة فيه؛ فاختلاف
+      # بايت ببايت **يُخرج الخادم عند الإقلاع** (`EVENT=MODULE_INTEGRITY_FAILED
+      # reason=version_mismatch`) ويُسقط `persist.sys.maxmanager.service`. فالبوابة هنا ليست
+      # تكميلية: هي تمنع حزمة تُقلع ثم تموت.
+      #
+      # **وكانت هذه الخطوة معطوبة فعليًّا:** كانت تشتقّ سلسلة جديدة
+      # (`$(cat version) ($(count)-$(short)-$(cat version_type))`) وتطالب `MaxManager.h` بها،
+      # بينما `MaxManager.h` يقول `"V1"` و`module.prop` يقول `V1` — أي أنّ الثلاثة كانوا
+      # متفقين على `V1`، والسلسلة المُشتقّة (`5.2 (1823-…-Dazzling)`) **لا وجود لها في الشجرة**
+      # ⇒ الشرط يفشل حتمًا، ولو كان الباقي كله سليمًا. وكان البناء الأخضر يمرّ بمعنى واحد فقط:
+      # ألّا تكون هذه الخطوة قد نُفّذت.
+      #
+      # فالصواب ليس «اشتقاق سلسلة ومطالبة الملفين بها»، بل **مطالبة المصادر الثلاثة**
+      # (ملف `version` ⇒ `module.prop` ⇒ `MaxManager.h`) أن تقول الشيء نفسه. وهذا ما يلي.
+      - name: Confirm the single version string across its three homes
         run: |
-          expected="$(cat version) ($(git rev-list HEAD --count)-$(git rev-parse --short HEAD)-$(cat version_type | tr -d '\n\r '))"
-          grep -qF "MODULE_VERSION \"$expected\"" archdaemon/jni/include/AZenith.h \
-            || { echo "::error::AZenith.h MODULE_VERSION does not match '$expected'"; exit 1; }
-          echo "✅ MODULE_VERSION matches: $expected"
+          set -e
+          file_version="$(cat version | tr -d '\n\r ')"
+          prop_version="$(sed -n 's/^version=//p' mainfiles/module.prop | tr -d '\n\r ')"
+          header_version="$(sed -n 's/^#define MODULE_VERSION "\(.*\)"$/\1/p' archdaemon/jni/include/MaxManager.h | tr -d '\n\r ')"
+          test -n "$file_version" \
+            || { echo "::error::version file is empty"; exit 1; }
+          for pair in "version:$file_version" "mainfiles/module.prop:$prop_version" \
+                      "archdaemon/jni/include/MaxManager.h:$header_version"; do
+            where="${pair%%:*}"; value="${pair#*:}"
+            test "$value" = "$file_version" \
+              || { echo "::error::version mismatch — version='$file_version' but $where='$value'"; exit 1; }
+          done
+          # الرقم التسلسلي للبناء يبقى مُشتقًّا من الالتزامات (لا معنى لكتابته بيد)،
+          # وهو لا يدخل في مقارنة الخادم — الخادم يقرأ `version=` وحده.
+          echo "✅ version string agrees in all three homes: $file_version"
 
       - name: Use the runner's preinstalled NDK r29 (fall back to downloading it)
         id: ndk_preinstalled
@@ -356,6 +517,40 @@ jobs:
         working-directory: ./manager/src/main/rust
         run: cargo test
 
+      # ── عقد CLI الثنائية `sys.maxmanager-utilityconf` (بلا NDK ولا جهاز) ──
+      # لماذا هذا الخط موجود: كان جدول هذه الثنائية (١١ أمرًا) غير مقيس إطلاقًا؛
+      # والخادم C يرسل `setrender vulkan` ثم **يفترض** أن ذلك يضبط `debug.hwui.renderer`
+      # (الافتراض مكتوب في `archdaemon/tests/parity_test.c`). والدعاوى الآن تقرأ
+      # `fixtures/contracts/binutils_cli.tsv` **وقت الترجمة** (`include_str!`) — فتعديل الجدول
+      # أو الجدول الخالص في `binutils/src/utils/plan.rs` يُسقط الاختبار، ولا يُخزَّن نجاح كاذب.
+      # وهذا كان يتعذّر قبل اليوم: الحزمة كانت تربط `-llog` دائمًا فيفشل `cargo test` على المضيف
+      # (`unable to find library -llog`) — والربط الآن مشروط بـ`target_os = "android"` وحده،
+      # وسلوك الجهاز لم يتغيّر (مقيس: ثنائيّا ABI يطلبان `liblog.so` ويستعملان الرمز الحقيقي).
+      - name: Rust unit tests (utility binary, host)
+        working-directory: ./binutils
+        run: cargo test
+
+      # ── عقد ثنائية الملف `sys.maxmanager-profilesettings` (بلا NDK ولا جهاز) ──
+      # لماذا هذا الخط موجود: كان قرار الملكية **مكتوبًا ولا يُقاس** — حرس Kotlin كان يتأكّد أن
+      # الشرطين موجودان **كنصّ**، ولم يقِس **ما يقرّرانه**. وهنا يُقيَّمان فعلًا على سطري الأوامر
+      # الحقيقيين (أب = الخادم، وأب = `sh` الذي يلفّه `systemv`)، مع أسماء الأوامر الستّة
+      # ومرادفاتها وقاعدة الاحتياط — كلّها في `fixtures/contracts/profilesettings_cli.tsv`.
+      - name: Rust unit tests (profile binary, host)
+        working-directory: ./binprofiles
+        run: cargo test
+
+      # ── نواة القرار الحرارية `thermalcore` (بلا NDK ولا جهاز) ──
+      # لماذا هذا الخط موجود: كانت هذه الحزمة **بلا اختبار مضيف واحد**، ولم يكن `cargo test`
+      # فيها يعمل أصلًا: `#[link(name = "log")]` غير مشروط كان يفشل في الربط على المضيف
+      # (`unable to find library -llog`) — نفس السبب المقيس الذي أبقى `binutils` بلا اختبار.
+      # والربط الآن مشروط بـ`target_os = "android"` (والرمز الحقيقي لا يزال هو المُستعمل على
+      # الجهاز)، فصار PID — وهو **قلب قرار الخنق الحراري** الذي يناديه `monitor.rs` كل دورة —
+      # يُقاس على المضيف: `fixtures/contracts/thermal_policy.tsv` (١٣ صفًّا · ٦ تشغيلات)
+      # بقيم **مشتقّة حسابيًّا** لا مُسجَّلة من المخرَج.
+      - name: Rust unit tests (thermal core, host)
+        working-directory: ./thermalcore
+        run: cargo test
+
       # ── ⚠️ ترتيب مكتبتَي jniLibs مقصود ومُقاس — لا تعكسه ──
       #
       # كان هنا العطب الذي أسقط بوابة JNI في CI («مكتبة معلنة بلا أي ثنائية:
@@ -432,6 +627,110 @@ jobs:
       - name: Verify JNI symbols in built libraries
         run: python3 tools/jni_symbols.py --assert --require-binaries
 
+      # ── مؤثّر MaxFx النظاميّ: يُبنى للعمودين، ورمز مكتبته `AELI` يُقاس على الثنائية ──
+      #
+      # ولماذا فحصُ الرمز هنا: `AELI` هو العقد الذي يبحث عنه حمّال المؤثّرات في `audioserver`
+      # (`AUDIO_EFFECT_LIBRARY_INFO_SYM` في `maxfx_effect_abi.h`) — ومكتبةٌ تُبنى ناجحةً بلا رمزٍ
+      # مُصدَّر **لا تُحمَّل أبدًا** على الجهاز، وسماعُ المستخدم لا يتغيّر بلا سطرِ عطلٍ واحد. والعمودان
+      # معًا (arm64-v8a/armeabi-v7a) لأنّ نسخةً واحدة تعني «الميزة لا تعمل» على الهاتف الآخر — وهو
+      # بالضبط ما سقطت به مكتبةٌ طرفية سابقة (ADR-53). والبناء من `maxfx/jni/` بنمط `archdaemon`:
+      # مجلد خروجه `maxfx/libs/` منفصل، فلا يمسّه `clean-installed-binaries` ولا يمسّ `jniLibs`.
+      - name: Build the MaxFx system effect and verify its five contract symbols (AELI + AIDL)
+        run: |
+          set -e
+          set -e
+          # ── رؤوس AIDL أوّلًا: غلافُ العقد المزدوج يُترجم بها ──
+          #
+          # `aidl` من `build-tools` في SDK هذه البيئة، والتوليد **مُعلَن نتيجته**
+          # (`GEN=ok …` أو `GEN=skipped reason=…`) — ولا يُسكِت الفشل: البوابة أدناه تسقط
+          # إن غابت الرموز الأربعة الجديدة. والمسارات والنسخ المجمَّدة في `maxfx/aidl/README.md`.
+          sh maxfx/aidl/gen.sh
+          # والرأس مطلوبٌ بالاسم، والمصادر **تُبحَث ولا تُفترض**: المولِّد يكتب الرؤوس
+          # ببادئة `aidl/` (‏`gen/aidl/android/…`) والمصادر من `GetOutputFilePath` التي تبني
+          # من اسم الحزمة وحده (‏`gen/android/…`) — قِيس في `37034110669`: الفحص بحث في
+          # `gen/aidl/…/IEffect.cpp` فلم يجده. وتركُ المصادر عطبُ **ربطٍ** لا ترجمة
+          # (‏`37031374179`: `undefined symbol: BnEffect::createBinder()`).
+          if [ ! -s maxfx/gen/aidl/android/hardware/audio/effect/BnEffect.h ]; then
+            echo "::error::رأس الواجهة المُولَّد غائب ⇒ لا يُبنى غلاف createEffect/queryEffect/destroyEffect"
+            exit 1
+          fi
+          echo "--- أين صارت المصادر المُولَّدة؟ ---"
+          find maxfx/gen -name '*.cpp' | head -5 || true
+          aidl_srcs="$(find maxfx/gen -name '*.cpp' | wc -l | tr -d ' ')"
+          echo "عدد مصادر AIDL المُولَّدة: $aidl_srcs"
+          if [ "$aidl_srcs" -eq 0 ]; then
+            echo "::error::لم يُولَّد أيّ مصدر ⇒ رابطٌ بلا تعريف"
+            exit 1
+          fi
+          # ── بيانٌ مقيس لأعيان الـNDK: هل لا تزال رؤوس الـC++ غائبة؟ ──
+          #
+          # الكود المُولَّد يُضمِّن رؤوس `android/binder_*.h` لطبقة الـC++، والـNDK يُشحَن
+          # واجهة C فقط — وذاك سبب وجود `maxfx/third_party/libbinder_ndk_cpp` المنسوخة.
+          # وهذا السطر ليس تشخيصًا للعطب بل **بيانًا يُثبّت الحاجة**: يومَ يُشحَن الرأس في
+          # الـNDK يُطبع اسم مساره، فيصير نسخنا مرشّحًا للإزالة بقرار لا بتخمين.
+          vendored="maxfx/third_party/libbinder_ndk_cpp"
+          for h in binder_interface_utils.h binder_auto_utils.h binder_stability.h \
+                   binder_enums.h binder_internal_logging.h binder_parcel_utils.h \
+                   binder_parcelable_utils.h binder_to_string.h; do
+            if [ ! -s "$vendored/android/$h" ]; then
+              echo "::error::رأسٌ منسوخ غائب أو فارغ: $vendored/android/$h"
+              exit 1
+            fi
+          done
+          echo "✅ رؤوس binder_ndk المنسوخة كاملة في $vendored"
+          found="$(find "$ANDROID_NDK_HOME" -name 'binder_interface_utils.h' -print -quit 2>/dev/null || true)"
+          if [ -n "$found" ]; then
+            echo "⚠️ ملاحظة: الـNDK صار يُشحَن $found — يُراجَع نسخنا الرسوميّ (لا يُحذف تلقائيًّا)."
+          fi
+          # ── تصريف سطحيّ لبدائل `compat/`: ثوانٍ هنا بدل دورة بناء كاملة ──
+          #
+          # بدائلنا تُقلّد سطح `libbase`/`libutils` بقدر ما تستعمله `libfmq`، وسطحٌ ناقص
+          # فيها لا يُكشف إلا **داخل** بناء المكتبة — بعد التوليد ودقائق من الترجمة. ووقع
+          # فعلًا: التشغيل `37030025157` سقط بـ«use of undeclared identifier 'ERROR'» في
+          # `FmqInternal.cpp` — وهو عطبُ سطحٍ يُمسك بتصريف سطرٍ واحد.
+          # والحاضنة تُحاكي موضع الاستعمال حرفيًّا (‏`namespace android::hardware::details`)
+          # وتُصرَّف بمُصرّف الـNDK نفسه (فسياق `android/log.h` حقيقيّ لا مُستبدَل) وبـ`-Werror`
+          # كما في `Android.mk` — فلا يُقاس سطحٌ بغير ما يُبنى به. وهي لا تدخل المكتبة:
+          # ليست في `LOCAL_SRC_FILES`، و`ndk-build` لا يُجمّع الملفّات تلقائيًّا.
+          ndk_cxx="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang++"
+          if [ -x "$ndk_cxx" ]; then
+            "$ndk_cxx" -std=c++20 -Wall -Wextra -Werror -fsyntax-only \
+              -Imaxfx/third_party/libfmq/compat \
+              maxfx/third_party/libfmq/compat/logging_surface_test.cpp
+            echo "✅ سطح بدائل compat يُصرَّف (logging)"
+          else
+            echo "::warning::مُصرّف الـNDK غير موجود ⇒ سطح بدائل compat **غير مُتحقَّق** — لا يُدَّعى"
+          fi
+          export NDK_CCACHE="$(command -v ccache || true)"
+          (cd maxfx && ndk-build)
+          readelf_bin="$(command -v llvm-readelf || command -v readelf)"
+          # الرموز الخمسة: `AELI` (HIDL ≤11) والثلاثة (AIDL 12+) — و`libmaxfx.so` الواحدة
+          # تُصدِّرها معًا فيعمل الجهاز على الجيلين بلا نسختين ولا تفريع.
+          for abi in arm64-v8a armeabi-v7a; do
+            so="maxfx/libs/$abi/libmaxfx.so"
+            if [ ! -s "$so" ]; then
+              echo "::error::libmaxfx.so غائب في $so — البناء لم يُنتج العمود"
+              exit 1
+            fi
+            symbols="$("$readelf_bin" --dyn-syms -W "$so" | awk '$7 != "UND" { print $8 }')"
+            missing=""
+            for sym in AELI createEffect queryEffect destroyEffect; do
+              if ! printf '%s\n' "$symbols" | grep -qx "$sym"; then
+                missing="$missing $sym"
+              fi
+            done
+            if [ -n "$missing" ]; then
+              echo "::error::رموز ناقصة في $so:$missing — المكتبة ستبني ولا تُحمَّل على الجهاز"
+              echo "   مصنع AIDL يبحث بـdlsym عن createEffect/queryEffect/destroyEffect،"
+              echo "   وAELI هو عقد الجيل الأقدم. غياب أيٍّ منها = «لا تغيّر في الصوت» بلا سطر عطل."
+              printf '%s\n' "$symbols" | grep -E '^(AELI|createEffect|queryEffect|destroyEffect)$' || true
+              "$readelf_bin" --dyn-syms -W "$so" | head -25
+              exit 1
+            fi
+            echo "✅ $so · الخمسة مُصدَّرة"
+            printf '%s\n' "$symbols" | grep -E '^(AELI|createEffect|queryEffect|destroyEffect)$' | sed 's/^/     /'
+          done
+
       # والخمسة الباقية تُشغَّل في الخلفية وتُحصَد بعد Gradle (الشرح أعلاه).
       # ولا `wait` بين الخطوتين: كل خطوة صدفة shell مستقلة، فالشهادة هنا **ملفٌ تكتبه الخلفية**
       # بصدفة خروجها — وهذا ما تقرأه خطوة الحصاد.
@@ -485,11 +784,20 @@ jobs:
           # الصورة قد تشحن `android-36`؛ والمطلوب اليوم **android-37.0** (Android 17).
           # نستعمل ما في الصورة إن كان هو المطلوب بالضبط، وإلا نُنزّله — والتحقّق بالاسم لا بالتفاؤل.
           sdk="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
-          if [ -d "$sdk/platforms/android-37.0" ] && [ -d "$sdk/build-tools/37.0.0" ]; then
+          # ── ولماذا **إصداري build-tools** لا واحد (عطب مقيس على مضيف نظيف) ──
+          #
+          # `compileSdk = 37` في `app/build.gradle.kts`، لكن AGP يطلب `build-tools` بنسخة
+          # **مشتقّة من إصداره** لا من `compileSdk`: على هذا المضيف فشل التصريف بالنصّ
+          # «Failed to find Build Tools revision 36.0.0» — أي أن المطلوب **36.0.0** لا 37.0.0.
+          # وكان الشرط هنا يكتفي بـ`37.0.0`، فالـrunner الذي يشحن 37.0.0 بلا 36.0.0 كان يمرّ
+          # من الفحص ثم **يفشل في Gradle بعد دقائق** (وبالضبط بعد بناء Rust/الـdaemon).
+          # و`BUILD_RUNNER` يجعل هذا واقعًا لا احتمالًا: وسم أكبر أو runner خاص بلا 36.0.0.
+          if [ -d "$sdk/platforms/android-37.0" ] && [ -d "$sdk/build-tools/37.0.0" ] \
+             && [ -d "$sdk/build-tools/36.0.0" ]; then
             echo "ANDROID_SDK_ROOT=$sdk" >> "$GITHUB_ENV"
             echo "ANDROID_HOME=$sdk" >> "$GITHUB_ENV"
             echo "SDK_PREINSTALLED=1" >> "$GITHUB_ENV"
-            echo "✅ SDK من الصورة: android-37.0 + build-tools 37.0.0"
+            echo "✅ SDK من الصورة: android-37.0 + build-tools 36.0.0/37.0.0"
           else
             echo "ℹ️ SDK ناقص في الصورة ⇒ التنزيل كالمعتاد"
           fi
@@ -498,10 +806,24 @@ jobs:
         if: env.SDK_PREINSTALLED != '1'
         uses: android-actions/setup-android@v3
         with:
-          packages: "platform-tools platforms;android-37.0 build-tools;37.0.0"
+          # الإصداران معًا: 37.0.0 لما تطلبه أدوات السطر، و36.0.0 لما يطلبه AGP بالاسم.
+          packages: "platform-tools platforms;android-37.0 build-tools;37.0.0 build-tools;36.0.0"
 
       - name: Add Android Build Tools to PATH
         run: echo "$ANDROID_SDK_ROOT/build-tools/37.0.0" >> "$GITHUB_PATH"
+
+      # حرس صريح: `aapt2` الذي يُترجم الموارد **موجود** قبل أن يبدأ Gradle. وقد كان غيابه
+      # يُعلن «الموارد غير متحقّقة» في البوّابات ثم يُسقط `processReleaseResources` بعد دقائق.
+      - name: Verify aapt2 is present in the SDK
+        run: |
+          sdk="$ANDROID_SDK_ROOT"
+          for bt in 36.0.0 37.0.0; do
+            if [ -x "$sdk/build-tools/$bt/aapt2" ]; then
+              echo "✅ aapt2 present: $sdk/build-tools/$bt/aapt2"; exit 0
+            fi
+          done
+          echo "::error::aapt2 is missing from build-tools 36.0.0 and 37.0.0 — resource compilation cannot run"
+          exit 1
 
       # ── حالة مشروع Gradle: تُقبل لالتزام **مطابق** فقط ──
       #
@@ -690,6 +1012,39 @@ jobs:
       # والحرس أدناه يمنع حالة شجرة أخرى) — فكل التزام جديد يبدأ باردًا؛ (ب) النافذة المقيسة
       # ‏16:06 هي الحدّ الأعلى للتفاؤل: إن نزل القاتل قبلها فالرافعة المتبقية هي الأنوية
       # (`vars.BUILD_RUNNER`، موثّقة أعلى هذا الملف).
+      # ── مادة التوقيع تُستعاد من سرّ، لا من الشجرة ──
+      #
+      # `.gitignore` يُسقط `*.jks` بقاعدة المالك («مخزن المفاتيح مادة توقيع لا مصدر»)،
+      # و`build.gradle.kts` يقرأ **كلمة المرور** من البيئة. فبقي في CI نصف المعادلة:
+      # السرّ `KEYSTORE_PASSWORD` موجود، والملفّ غائب ⇒ `:app:validateSigningRelease`
+      # يفشل قبل أن تُشغَّل الاختبارات أصلًا (مقاس في التشغيل الأول: `Keystore file
+      # '/home/runner/work/Gg/Gg/manager/app/maxmanager.jks' not found for signing config
+      # 'release'`). وهذا كان يُحمرّ **كل** دفعة إلى `main` قبل هذه الخطوة.
+      #
+      # فالقاعدة واحدة: الملفّ يُستعاد من `KEYSTORE_BASE64` (base64 للمفتاح، سرّ مخزون
+      # مُشفَّرًا) إن وُجد. وإن غاب فلا يُشترى الأخضر بأسرار — يُبنى APK debug غير موقّع
+      # (نفس مبدأ فرع `experimental`/PR أدناه)، ويُعلَن ذلك في السجل بتحذير صريح.
+      # و`SIGNED_BUILD` هو **المصدر الواحد** لقرار «موقّع أم لا»: يُصدَّر فيُقرأ في اختيار
+      # النسخة، وفي التحقّق من الـAPK، وفي `compile_zip.sh` — فلا تتكرّر القاعدة في موضعين.
+      - name: Materialize the release keystore from CI secrets
+        id: keystore
+        run: |
+          signed=0
+          if [ "$V_TYPE" != "experimental" ] && [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+            if [ -n "${KEYSTORE_BASE64:-}" ]; then
+              printf '%s' "$KEYSTORE_BASE64" | base64 -d > manager/app/maxmanager.jks
+              test -s manager/app/maxmanager.jks \
+                || { echo "::error::KEYSTORE_BASE64 decoded to an empty file" >&2; exit 1; }
+              signed=1
+              echo "وتوقيع الإصدار: مادة المفتاح أُعيد بناؤها من سرّ KEYSTORE_BASE64."
+            else
+              echo "::warning::KEYSTORE_BASE64 غير مضبوط — سيُبنى APK debug غير موقّع بدل إصدار موقّع. أضف السرّ لتحصل على إصدار موقّع."
+            fi
+          fi
+          echo "SIGNED_BUILD=$signed" >> "$GITHUB_ENV"
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
       - name: Compile main sources (checkpoint 1/2)
         working-directory: ./manager
         run: |
@@ -702,10 +1057,12 @@ jobs:
           # KEYSTORE_PASSWORD is configured. Fall back to an unsigned debug
           # build so PR CI still validates the code without needing a
           # signed release artifact.
-          if [ "$V_TYPE" == "experimental" ] || [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-            variant="Debug"
-          else
+          # نسخة البناء تُقرأ من `SIGNED_BUILD` (المصدر الواحد)، لا من تكرار شرط
+          # `V_TYPE`/`GITHUB_EVENT_NAME` هنا — فالقاعدة في موضعين تتباعد.
+          if [ "$SIGNED_BUILD" = "1" ]; then
             variant="Release"
+          else
+            variant="Debug"
           fi
 
           # AGP 9.x creates unit-test components only for the tested build type by default.
@@ -724,13 +1081,22 @@ jobs:
           # (تعمل بـ`always()`)، فلا تضيع أسطر المترجم إذا لصق أحدثهم الذيل وحده.
           # و`pipefail` ليست تزيّدًا: بلا `pipefail` يصير رمز خروج الأنبوب هو `tee` (نجاح)
           # فيمرّ فشل المُصرّف بلا أن يُحمرّ التشغيل — وهذا أسوأ من غياب السجل.
+          # ── و`src/debug` يُصرَّف دائمًا، ولو كانت النسخة Release (عطب مقيس · HANDOFF: CI-03) ──
+          # اختيار النسخة من `SIGNED_BUILD` يعني `Release` على **كل** دفع (سرّ المفتاح موجود)،
+          # و`Debug` في طلبات السحب وحدها (CI لا يعطي الأسرار لِـ`pull_request`). ⇒ `src/debug`
+          # لم يُصرَّف ولا مرّة على `main`، وظلّ `StudioPreviews.kt` معطوبًا بلا أن يُرى حتى أول
+          # طلب سحب (٣ رسائل مُصرّف في التشغيل 37070560470). والمهمّة الثانية بلا توقيع ولا أسرار،
+          # وثمنها دقيقة واحدة: عطب مصدر debug يُمسك في الخطوة نفسها لا بعد أسبوعين.
+          tasks=":app:compile${variant}Kotlin"
+          if [ "$variant" != "Debug" ]; then tasks="$tasks :app:compileDebugKotlin"; fi
+          echo "compile tasks: $tasks"
           set -o pipefail
           ./gradlew \
             -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" \
             -Pkotlin.compiler.execution.strategy=daemon \
             -Pkotlin.daemon.jvmargs=-Xmx4g \
             -Pkotlin.build.report.output=file \
-            ":app:compile${variant}Kotlin" \
+            $tasks \
             --build-cache \
             --parallel 2>&1 | tee /tmp/gradle-build.log
           # يُصدَّر للخطوة التالية (كل خطوة صدفة مستقلة): التغليف يحتاج النسخة نفسها.
@@ -868,15 +1234,19 @@ jobs:
       - name: Validate Manager APK
         env:
           # Public certificate identity, not a credential. Keep validation self-contained.
-          # البصمة تتغيّر مع كل keystore جديد. هذه بصمة keystore 2026-09-18
-          # (alias: azenith_key، كلمة المرور في سر KEYSTORE_PASSWORD).
-          EXPECTED_RELEASE_SIGNER_SHA256: 72e335af259a9770c79c5e2c66d2f7afbc194492b979444d2acab839022f0fc0
+          # البصمة تتغيّر مع كل keystore جديد، وهذا الحرس هو ما يمنع توقيعًا بمفتاح
+          # غير المعلَن: البصمة تُحدَّث **في الالتزام نفسه** الذي يُولَّد فيه المفتاح،
+          # فلا تُكتب البصمة يدويًّا بعد اليوم إلا بمفتاح جديد معلَن.
+          # هذه بصمة keystore 2026-09-28 (alias: azenith_key، RSA 2048، صالح 30 سنة،
+          # وكلمتا المخزن والمفتاح في سر واحد: KEYSTORE_PASSWORD).
+          # والأثر على المستخدمين: من ثبّت نسخة قديمة لا يرقّي فوقها (يلزم إلغاء تثبيت).
+          EXPECTED_RELEASE_SIGNER_SHA256: 468f4fb4507183512ecaea03718d591dbd6eb30015230071869547f2d5e59727
         run: |
           set -eu
-          if [ "$V_TYPE" = "experimental" ] || [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            apk_path="manager/app/build/outputs/apk/debug/app-debug.apk"
-          else
+          if [ "$SIGNED_BUILD" = "1" ]; then
             apk_path="manager/app/build/outputs/apk/release/app-release.apk"
+          else
+            apk_path="manager/app/build/outputs/apk/debug/app-debug.apk"
           fi
           test -f "$apk_path" || { echo "Expected APK is missing: $apk_path" >&2; exit 1; }
 
@@ -892,8 +1262,14 @@ jobs:
           # (`nativeAvailable=false`) وهذا الحرس صامت. فالآن يقيس المكتبة **بالاسم**.
           # وحدّه المُعلن: يقيس ما دخل الحزمة فعلًا بعد التوقيع، فلا يغني عن
           # «Assert jniLibs…» قبل البوابة — كلاهما يُبلّغ عن العطب في موضعه.
+          # و`libmaxfx.so` مُضاف إلى هذا الحرس (تكملة ٢٤١): الطبقة النظاميّة **تُنسخ إلى الجهاز من
+          # مدخل الحزمة نفسه** (`AudioEffectLibraryStaging` تقرأ `lib/<abi>/libmaxfx.so`، لأنّ
+          # `nativeLibraryDir` ليس مجلّدًا حقيقيًّا حين `extractNativeLibs=false`). **فمكتبةٌ خارج
+          # الحزمة = نسخٌ يفشل = زرّ يُرفض بـ`effect-library-not-shipped-in-app`** — وهو عطبٌ صامت
+          # في كل الحالات السابقة، وهذا الحرس هو ما يجعله يُبلَّغ في CI لا في جهاز المُستخدم.
+          # ويُقاس هنا بعد `ndk-build` (خطوة أعلاه في **المهمّة نفسها**) وبعد التوقيع: ما دخل الحزمة فعلًا.
           for abi in arm64-v8a armeabi-v7a; do
-            for lib in libmaxmanager_native.so; do
+            for lib in libmaxmanager_native.so libmaxfx.so; do
               unzip -l "$apk_path" | grep -qF "lib/$abi/$lib" \
                 || { echo "::error::APK is missing lib/$abi/$lib" >&2; unzip -l "$apk_path" | grep -E "lib/" >&2; exit 1; }
             done
@@ -911,7 +1287,7 @@ jobs:
           test "$version_name" = "$EXPECTED_APK_VERSION_NAME" \
             || { echo "Unexpected APK versionName: $version_name (expected $EXPECTED_APK_VERSION_NAME)" >&2; exit 1; }
 
-          if [ "$V_TYPE" != "experimental" ] && [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+          if [ "$SIGNED_BUILD" = "1" ]; then
             test -n "$EXPECTED_RELEASE_SIGNER_SHA256" \
               || { echo "Expected release signer fingerprint is not configured" >&2; exit 1; }
             actual_signer="$(apksigner verify --print-certs "$apk_path" \
@@ -932,64 +1308,14 @@ jobs:
         id: compileZip
         run: bash .github/scripts/compile_zip.sh
 
-      # Developer bundle: the same APK, the same privileged permissions, the
-      # same /product paths as the module — plus Soong definitions so AOSP
-      # builders can integrate it as a first-class prebuilt. Closed-source
-      # friendly: everything needed ships as prebuilt, no app sources.
+      # Developer bundle: **مجلّد مدمج واحد** (`maxmanager/`) بلا نسخة ثانية من أيّ أثر،
+      # وفيه الـdaemon وخدمة init وسياسة SELinux — الملفّات التي كانت في
+      # `android/aosp/` ولا يقرأها أحد (تكملة ١٣٩). الـscript نفسه قابل للتشغيل محليًّا
+      # فيمكن قياس الشجرة لا وصفها.
       - name: Package developer integration bundle
-        run: |
-          set -e
-          rm -rf developer-bundle
-          test -f "$APK_PATH" || { echo "Validated APK is missing: $APK_PATH" >&2; exit 1; }
-          apk_path="$APK_PATH"
-
-          # Path 1 — image modders (super.img unpack/repack, HyperOS ports):
-          # mirror of the module system tree, minus root-specific scripts.
-          mkdir -p developer-bundle/overlay/product/priv-app/MaxManager
-          mkdir -p developer-bundle/overlay/product/etc/permissions
-          cp "$apk_path" developer-bundle/overlay/product/priv-app/MaxManager/MaxManager.apk
-          cp android/overlay/product/etc/permissions/privapp-permissions-nd.max.xml \
-             developer-bundle/overlay/product/etc/permissions/
-
-          # Path 2 — AOSP source builds: Soong import of the same prebuilt.
-          mkdir -p developer-bundle/aosp/prebuilt
-          cp "$apk_path" developer-bundle/aosp/prebuilt/MaxManager.apk
-          cp android/overlay/product/etc/permissions/privapp-permissions-nd.max.xml developer-bundle/aosp/
-          {
-            printf '%s\n' 'android_app_import {'
-            printf '%s\n' '    name: "MaxManager",' '    apk: "prebuilt/MaxManager.apk",' '    certificate: "platform",' '    privileged: true,' '    product_specific: true,' '    dex_preopt: { enabled: true },' '}'
-          } > developer-bundle/aosp/Android.bp
-          {
-            printf '%s\n' 'PRODUCT_PACKAGES += MaxManager'
-            printf '%s\n' 'PRODUCT_COPY_FILES += \'
-            printf '%s\n' '    device/maxmanager/privapp-permissions-nd.max.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/privapp-permissions-nd.max.xml'
-          } > developer-bundle/aosp/product-inclusion.mk
-
-          printf '%s\n' \
-            'MaxManager developer integration bundle' \
-            '' \
-            'The APK already contains the JNI native libraries built by CI.' \
-            '' \
-            'A) Image modders (super.img unpack/repack, HyperOS ports):' \
-            '   copy overlay/product/* into the product partition image at the' \
-            '   same paths. Owner root:root, mode 644. The APK is presigned, so' \
-            '   privileged permissions come from privapp-permissions-nd.max.xml.' \
-            '   These are the exact paths the flashable module overlays via' \
-            '   OverlayFS, so behavior matches the rooted install.' \
-            '' \
-            'B) AOSP source builds:' \
-            '   1. Copy the aosp/ directory to device/maxmanager/ (any path).' \
-            '   2. Include product-inclusion.mk from your product makefile.' \
-            '   3. Soong re-signs the APK with certificate: "platform" and the' \
-            '      permission XML is copied to product/etc/permissions.' \
-            '' \
-            'C) Rooted users: use MaxManager-<version>.zip (the module) instead.' \
-            '' \
-            'This bundle ships prebuilts only: no app sources, no init service,' \
-            'no SELinux policy. SELinux contexts are inherited from the' \
-            'priv-app directory conventions of the target build.' \
-            > developer-bundle/README.txt
-          (cd developer-bundle && zip -r ../MaxManager-developer-bundle.zip .)
+        env:
+          APK_PATH: ${{ env.APK_PATH }}
+        run: bash .github/scripts/build_developer_bundle.sh
 
       - name: Validate artifacts
         run: |
@@ -1000,12 +1326,40 @@ jobs:
           unzip -t "$module_zip" > /dev/null
           unzip -l "$module_zip" | grep -q "system/product/priv-app/MaxManager/MaxManager.apk" \
             || { echo "module zip: priv-app APK missing"; exit 1; }
-          unzip -l "$module_zip" | grep -q "system/product/priv-app/MaxManager/MaxManager.apk.sha256" \
-            || { echo "module zip: priv-app APK checksum missing"; exit 1; }
           unzip -l "$module_zip" | grep -q "system/product/etc/permissions/privapp-permissions-nd.max.xml" \
             || { echo "module zip: permissions XML missing"; exit 1; }
-          unzip -l "$module_zip" | grep -q "system/product/etc/permissions/privapp-permissions-nd.max.xml.sha256" \
-            || { echo "module zip: permissions XML checksum missing"; exit 1; }
+
+          # **الحرس المعكوس** (تكملة ١٣٩): كان السطران السابقان يُطالبان بملفّات `.sha256`
+          # **داخل** الحزمة — وهي عينها ما طلب المالك إسقاطه. فانقلبت البوابة إلى مانع،
+          # على الحزمتين، ومقيسةً على **المُشحون** لا على نيّة الـscript.
+          for archive in "$module_zip" MaxManager-developer-bundle.zip; do
+            if unzip -l "$archive" | grep -q '\.sha256'; then
+              echo "$archive must not contain .sha256 files:" >&2
+              unzip -l "$archive" | grep '\.sha256' >&2
+              exit 1
+            fi
+          done
+          echo "✅ neither archive carries a .sha256 file"
+
+          # **وتحقّق المحتوى بالقيمة لا بالوجود**: يُفكّ الضغط ويُقاس بـ`sha256sum -c`،
+          # وهو ما كانت تفعله الـ`.sha256` داخل الحزمة — بلا أن تسافر فيها.
+          sums="$(mktemp -d)"
+          trap 'rm -rf "$sums"' EXIT
+          mkdir -p "$sums/module" "$sums/bundle"
+          unzip -q "$module_zip" -d "$sums/module"
+          unzip -q MaxManager-developer-bundle.zip -d "$sums/bundle"
+          workspace="$PWD"
+          for pair in "module:$module_zip:checksums-module.sha256" \
+                      "bundle:MaxManager-developer-bundle.zip:checksums-developer-bundle.sha256"; do
+            name="${pair%%:*}"; rest="${pair#*:}"
+            archive="${rest%%:*}"; manifest="$workspace/${rest#*:}"
+            test -s "$manifest" || { echo "$manifest is missing or empty"; exit 1; }
+            # `--status` هو نطير `-s` في GNU coreutils (‏`-s` علََم busybox/toybox،
+            # ومن استعمله هنا خرج بـ`invalid option`). ونفس الدلالة: صفر صمت ونجاح.
+            (cd "$sums/$name" && sha256sum -c --status "$manifest") \
+              || { echo "$archive payload does not match its checksum manifest"; exit 1; }
+            echo "✅ $archive verifies against $(basename "$manifest") ($(wc -l < "$manifest") entries)"
+          done
           # الأسماء الخمسة التي يستخرجها المنصّب بعينها (mainfiles/customize.sh:115-119) —
           # بلا واحد منها يُركّب الموديول ناقصًا على الجهاز. وكان يُتحقَّق من اسم واحد فقط.
           # الأسماء الخمسة × العمودين (تكملة ١١٠): كان يطالب بـ64-بت ويمنع 32-بت، وصار
@@ -1018,27 +1372,75 @@ jobs:
                 || { echo "module zip: missing libs/$abi/$binary (installer requires it)" >&2; exit 1; }
             done
           done
-          unzip -t MaxManager-developer-bundle.zip > /dev/null
-          unzip -l MaxManager-developer-bundle.zip | grep -q "overlay/product/priv-app/MaxManager/MaxManager.apk" \
-            || { echo "developer bundle: overlay APK missing"; exit 1; }
-          unzip -l MaxManager-developer-bundle.zip | grep -q "overlay/product/etc/permissions/privapp-permissions-nd.max.xml" \
-            || { echo "developer bundle: permissions XML missing"; exit 1; }
-          unzip -l MaxManager-developer-bundle.zip | grep -q "aosp/Android.bp" \
-            || { echo "developer bundle: Android.bp missing"; exit 1; }
-          unzip -l MaxManager-developer-bundle.zip | grep -q "aosp/product-inclusion.mk" \
-            || { echo "developer bundle: product-inclusion.mk missing"; exit 1; }
+
+          # ── الـdaemon ELF داخل `system/bin/` في الحزمة — بوابتان لا واحدة (تكملة ١١١) ──
+          # ١) الوجود: كان الملف غائبًا ومقبولًا (`system/bin/` فارغ) فيُكتشف ذلك في اليد لا في CI.
+          # ٢) الصلاحية: وجودُ الملف لا يكفي — يُقاس كـ`ELF` 64-بت ARM64 وتنفيذيًّا لا مكتبة.
+          #    يُستخرج من الحزمة نفسها (لا من الشجرة) ليكون الدليل على **المُشحون** لا على المصدر.
+          unzip -l "$module_zip" | grep -qF "system/bin/sys.maxmanager-service" \
+            || { echo "module zip: system/bin/sys.maxmanager-service missing (the daemon must be visible in the package)" >&2; exit 1; }
+          daemon_tmp="$(mktemp)"
+          unzip -p "$module_zip" system/bin/sys.maxmanager-service > "$daemon_tmp"
+          daemon_desc="$(file -b "$daemon_tmp")"
+          case "$daemon_desc" in
+            *"ELF 64-bit"*"aarch64"*) echo "✅ daemon in zip: $daemon_desc" ;;
+            *) echo "module zip: system/bin/sys.maxmanager-service is not an ARM64 ELF: $daemon_desc" >&2; exit 1 ;;
+          esac
+          readelf -h "$daemon_tmp" | grep -qE '^[[:space:]]+Type:[[:space:]]+(DYN|EXEC)' \
+            || { echo "module zip: system/bin/sys.maxmanager-service is not an executable ELF:" >&2; readelf -h "$daemon_tmp" >&2; exit 1; }
+          rm -f "$daemon_tmp"
+          # ── حزمة المطوّرين: مجلّد مدمج واحد، **وبلا تكرار** (تكملة ١٣٩) ───────
+          # وكان هذا القسم يطالب بمسارين للتطبيق نفسه (`overlay/…` و`aosp/prebuilt/…`)
+          # — أي أنّ التكرار كان **مطلوبًا** في البوابة، لا مكتشفًا. فالآن يُقاس العكس:
+          # كل أثر **مرّة واحدة**، وموجودًا، وبالديمون.
+          bundle="MaxManager-developer-bundle.zip"
+          unzip -t "$bundle" > /dev/null
+          app_dir="maxmanager"
+          for required in \
+            "$app_dir/product/priv-app/MaxManager/MaxManager.apk" \
+            "$app_dir/product/etc/permissions/privapp-permissions-nd.max.xml" \
+            "$app_dir/system/bin/sys.maxmanager-service" \
+            "$app_dir/system/etc/init/maxmanager.rc" \
+            "$app_dir/sepolicy/maxmanager.te" \
+            "$app_dir/sepolicy/file_contexts" \
+            "$app_dir/Android.bp" \
+            "$app_dir/product-inclusion.mk" \
+            "$app_dir/BoardConfig.mk" \
+            "$app_dir/README.txt"; do
+            unzip -l "$bundle" | grep -qF "$required" \
+              || { echo "developer bundle: $required missing"; exit 1; }
+          done
+          apk_count="$(unzip -l "$bundle" | grep -cE 'MaxManager\.apk$' || true)"
+          test "$apk_count" = "1" \
+            || { echo "developer bundle must carry exactly one APK, found $apk_count"; exit 1; }
+          daemon_count="$(unzip -l "$bundle" | grep -cE 'sys\.maxmanager-service$' || true)"
+          test "$daemon_count" = "1" \
+            || { echo "developer bundle must carry exactly one daemon, found $daemon_count"; exit 1; }
+          # ولا مجلّدين متوازيين يكرّران الأثر: الفرعان القديمان (`overlay/`، `aosp/`) ممنوعان.
+          for stale in '/overlay/' '/aosp/'; do
+            if unzip -l "$bundle" | grep -q "$stale"; then
+              echo "developer bundle still carries the duplicated $stale tree" >&2; exit 1
+            fi
+          done
 
           tmp_dir="$(mktemp -d)"
           trap 'rm -rf "$tmp_dir"' EXIT
           unzip -p "$module_zip" system/product/priv-app/MaxManager/MaxManager.apk > "$tmp_dir/module.apk"
-          unzip -p MaxManager-developer-bundle.zip overlay/product/priv-app/MaxManager/MaxManager.apk > "$tmp_dir/developer-overlay.apk"
-          unzip -p MaxManager-developer-bundle.zip aosp/prebuilt/MaxManager.apk > "$tmp_dir/developer-aosp.apk"
-          for artifact_apk in "$tmp_dir/module.apk" "$tmp_dir/developer-overlay.apk" "$tmp_dir/developer-aosp.apk"; do
+          unzip -p "$bundle" "$app_dir/product/priv-app/MaxManager/MaxManager.apk" > "$tmp_dir/developer.apk"
+          for artifact_apk in "$tmp_dir/module.apk" "$tmp_dir/developer.apk"; do
             artifact_sha256="$(sha256sum "$artifact_apk" | cut -d' ' -f1)"
             test "$artifact_sha256" = "$APK_SHA256" \
               || { echo "Artifact contains an APK different from the validated build: $artifact_apk" >&2; exit 1; }
             apksigner verify "$artifact_apk"
           done
+
+          # وديمون الحزمة يُقاس بالقيمة لا بالوجود (كما يُقاس ديمون الموديول).
+          unzip -p "$bundle" "$app_dir/system/bin/sys.maxmanager-service" > "$tmp_dir/developer-daemon"
+          dev_daemon_desc="$(file -b "$tmp_dir/developer-daemon")"
+          case "$dev_daemon_desc" in
+            *"ELF 64-bit"*"aarch64"*) echo "✅ developer daemon: $dev_daemon_desc" ;;
+            *) echo "developer bundle daemon is not an ARM64 ELF: $dev_daemon_desc" >&2; exit 1 ;;
+          esac
           echo "All artifact validations passed."
 
       # Upload only after validation passed, so a broken package never
@@ -1054,54 +1456,91 @@ jobs:
       # reason. `continue-on-error` on the first attempt is what allows the retry
       # to run; the retry itself is not tolerant, so a genuine outage still fails
       # the job instead of shipping a build that cannot be downloaded.
-      # compression-level: 0 (store) on every upload below.
+      # ── `archive: false`: الملفّ المُنزَّل هو الحزمة نفسها، لا حزمة داخل حزمة ────
       #
-      # `compile_zip.sh` already emits `zip -r9`, so the payload the artifact
-      # backend receives is an archives-of-archives: zlib level 6 then spends
-      # CPU finding nothing to compress, on tens of megabytes. The action's own
-      # manifest documents 0 as the value for "large files that are not easily
-      # compressed" ("significantly faster uploads"). The downloaded file is
-      # byte-identical either way — only the container's compression method
-      # changes — so this costs nothing in validation or in what users get.
+      # **الأمر وهندسته:** «لا أريد ملفًّا مضغوطًا داخل ملفّ مضغوط عندما ينتهي البناء».
+      # والعطب كان مُقاسًا على ما يحمّله المالك فعلًا من الأثر: `actions/upload-artifact@v4`
+      # يضغط ما يُعطى له دائمًا، وكان يُعطى له **حزمة** — فيخرج التنزيل كملفّ واحد
+      # `MaxManager-module.zip` لا يحوي إلا `MaxManager-v1.0.zip` (16035333 بايت)، وحزمة
+      # المطوّرين كذلك: زيب يحوي زيبًا ومانيفستين.
+      #
+      # والعلاج هو المعامل الذي أضافته GitHub لهذا السبب بعينه: `archive: false` على
+      # `upload-artifact@v7` (إعلان التغيير، 2026-02-26: «You no longer have to unzip when
+      # downloading a single file» و«you no longer have a compressed file within another
+      # compressed file (i.e., the double zip problem)»).
+      #
+      # **وما يحكمه `archive: false`، فلا يُنسى:** ملفّ واحد لكلّ أثر، واسم الأثر يُؤخذ من
+      # **اسم الملفّ** لا من `name`، ولذلك لا يُكتب `name` هنا — الفراغ مقصود ومعلّق عليه.
+      # وبهذا تصل الحزمة كما بُنيت بترتيب بايتاتها **وبأذوناتها**: التغليف الافتراضي يُسقط
+      # أذونات الملفّات (كلّها 644) — وهو نفسه ما كان يُهدّد الخادم في الحزمة
+      # (`libs/*/sys.maxmanager-*` و`system/bin/sys.maxmanager-service` تحمل `0755` داخل
+      # الحزمة، مقيسًا بـ`unzip -Z`).
+      #
+      # والمانيفستان لا يسافران داخل حزمة أثر واحد مع زيب المطوّرين (فلا يُقبل ملفّان في أثر
+      # غير مضغوط)، ولهما أثرهما الثالث — وهو زيب يحوي **نصّين لا زيبات**، فليس عطبًا من
+      # الصنف الذي أُزيل، وشرط المالك «لا `.sha256` داخل الـzip» يخصّ حزمتي التوزيع لا أثرهما.
       - name: Upload Build Artifact
         id: upload_module
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: MaxManager-module
+          # بلا `name`: اسم الأثر = اسم الملفّ (`MaxManager-v1.0.zip`) — فيصله المستخدم
+          # باسمه الصحيح وبلا فكّ ضغط.
           path: ${{ steps.compileZip.outputs.zipName }}
           if-no-files-found: error
-          compression-level: 0
+          archive: false
 
       - name: Retry Build Artifact upload
         if: steps.upload_module.outcome == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: MaxManager-module
           path: ${{ steps.compileZip.outputs.zipName }}
           if-no-files-found: error
           overwrite: true
-          compression-level: 0
+          archive: false
 
       - name: Upload developer integration artifact
         id: upload_developer_bundle
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: MaxManager-developer-bundle
+          # بلا `name` كذلك: اسم الأثر = `MaxManager-developer-bundle.zip`.
           path: MaxManager-developer-bundle.zip
           if-no-files-found: error
-          compression-level: 0
+          archive: false
 
       - name: Retry developer integration upload
         if: steps.upload_developer_bundle.outcome == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: MaxManager-developer-bundle
           path: MaxManager-developer-bundle.zip
           if-no-files-found: error
           overwrite: true
-          compression-level: 0
+          archive: false
+
+      # المانيفستان بأثر مستقلّ — نصّان لا زيبان، ودورهما أن يُقارَنا بالحزمتين لا أن يسافرا
+      # داخلهما (وهو شرط المالك الذي يشهد له حرس `Validate artifacts` أعلاه).
+      - name: Upload checksum manifests
+        id: upload_checksums
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: MaxManager-checksums
+          path: |
+            checksums-module.sha256
+            checksums-developer-bundle.sha256
+          if-no-files-found: error
+
+      - name: Retry checksum manifest upload
+        if: steps.upload_checksums.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          name: MaxManager-checksums
+          path: |
+            checksums-module.sha256
+            checksums-developer-bundle.sha256
+          if-no-files-found: error
+          overwrite: true
 
       # Delivery is optional and must never decide whether the build is green:
       # the artifacts above are the build's output, and this step is only how

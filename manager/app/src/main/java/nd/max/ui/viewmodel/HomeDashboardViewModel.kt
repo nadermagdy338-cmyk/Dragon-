@@ -22,6 +22,8 @@ import nd.max.core.hardware.RootFileAccess
 import nd.max.core.jni.ProbeBridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,13 +31,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nd.max.core.hardware.GpuHardwareBackend
 import nd.max.ui.util.CpuTopologyUtil
-import nd.max.ui.util.FpsMonitorUtil
+import nd.max.core.platform.FpsMonitorUtil
 import nd.max.ui.util.LoadHistory
 import nd.max.ui.util.LoadHistoryStore
 import nd.max.ui.util.LoadSample
 import nd.max.ui.util.MtkUtils
-import nd.max.ui.util.ThermalUtil
-import nd.max.ui.util.getChipsetName
+import nd.max.core.platform.ThermalUtil
+import nd.max.core.platform.getChipsetName
 import java.io.File
 
 /**
@@ -71,6 +73,15 @@ data class CpuCoreState(
 
 data class DashboardState(
     val intelligence: PerformanceIntelligence = PerformanceIntelligence(),
+    /**
+     * طابع آخر دورة قياس **اكتملت** (٠ = لم تُقرأ بعد).
+     *
+     * **ولماذا وُلد (تكملة ٢٠٥):** كانت الواجهة تقرأ «قيمة غائبة» فتُسمّيها **«غير مقروء»** —
+     * وهذا حكمٌ كاذب في اللحظة التي تسبق أول قراءة: المصدر لم يفشل، بل السؤال لم يُطرح بعد.
+     * ومعه صار في الواجهة تمييز بين «يُقرأ الآن» و«غير مقروء» و«لم تُقرأ بعد» — وهو نصّ روح
+     * ADR-07: لا يُدَّعي عطب لم يُقس كما لا يُدَّعى رقم.
+     */
+    val readingsAtMs: Long = 0L,
     val ramUsedMb: Int = 0,
     val ramTotalMb: Int = 0,
     val cpuLoadPercent: Int = 0,
@@ -201,6 +212,12 @@ private val LEADING_INTEGER = Regex("\\d+")
  */
 private const val HISTORY_SAVE_INTERVAL_MS = 30_000L
 
+/**
+ * إيقاع نبضة القياس. **ولا يُقصَّر لمجرد الظهور:** كل تقصير يزيد عدد القراءات على العتاد،
+ * والسرعة جاءت من التوازي وكاش الاحتياط الثقيل (تكملة ٢٠٥) لا من سؤال العتاد أكثر.
+ */
+private const val POLL_INTERVAL_MS = 2_000L
+
 class HomeDashboardViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context: Context = application.applicationContext
@@ -271,6 +288,25 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
+    /** قراءات المجموعة السريعة: إطار العمل لا الجذر. */
+    private data class FastReadings(
+        val ram: FpsMonitorUtil.RamInfo,
+        val cpuLoad: Int,
+        val cpuFreqMhz: Int,
+        val battery: FloatArray,
+        val storage: FloatArray,
+        val network: LongArray,
+    )
+
+    /** قراءات المجموعة البطيئة: ما يمرّ بعقد الجذر أو شرائح البائع. */
+    private data class SlowReadings(
+        val thermal: IntArray,
+        val cores: List<CpuCoreState>,
+        val gpu: Pair<Int?, Int?>,
+        val swap: Pair<Int, Int>?,
+        val batteryTemp: Float,
+    )
+
     fun setPollingActive(active: Boolean) {
         if (!active) {
             pollingJob?.cancel()
@@ -284,19 +320,74 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         lastTxBytes = TrafficStats.getTotalTxBytes()
         pollingJob = viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                val ram = FpsMonitorUtil.getRamInfo(context)
-                val cpuLoad = FpsMonitorUtil.getCpuLoad()
-                // طبقة القراءة الأسرع (قارئ أصلي ← IPC ← ملف ← صدفة): هذه الدورة كل ثانيتين،
-                // وصدفة `cat` لكل نبضة كانت رحلة كاملة.
-                val cpuFreq = RootFileAccess.read("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq")
-                    ?.toLongOrNull()?.div(1000)?.toInt() ?: 0
-                val battery = readBattery()
-                val thermal = readThermal()
-                val storage = readStorage()
-                val network = readNetwork()
-                val cores = readCores()
-                val gpu = readGpu()
-                val swap = readSwap()
+                // **نبضةٌ متوازية تنشر ما جاهز فورًا (تكملة ٢٠٥ — عطب أداء مُبلّغ عنه).**
+                //
+                // كانت هذه القراءات **سلسلةً متتابعة**: كل قارئ ينتظر الذي قبله، وحصيلة
+                // الانتظار هي مجموعها لا أقصاها — ثم لا يُنشر شيء حتى يكتمل آخرها. فالنبضة
+                // الواحدة قد تستغرق عشرات الثواني على جهاز بطيء، والمالك يرى «لا قراءة» دقيقةً
+                // ثم تُعرض الأرقام دفعةً واحدة.
+                //
+                // وصارت قراءتين **مصدرين مستقلّين متوازيين**:
+                //
+                // 1. **السريع:** ما تقرؤه إطار العمل وحدها أو عقدةٌ واحدة (`ActivityManager` ·
+                //    `TrafficStats` · `StatFs` · بثّ البطارية · `scaling_cur_freq`) — يُنشر
+                //    **فورًا**، فتظهر أرقام الرئيسية في أوّل إطار بدل أن تنتظر الصدفة.
+                // 2. **البطيء:** ما يمرّ بعقد الجذر أو شرائح البائع (المناطق الحرارية · الأنوية ·
+                //    الرسوم · المبادلة · حرارة البطارية) — يتوازى معه، ثم يُنشر ناتجه فوقه.
+                //
+                // **ولماذا هذان تجميعان لا أحد عشر مهمّة حرّة:** كل مجموعة تحمل قارئها المتتابع
+                // بالأثر الحسّاس، فلا يتنافس قارئان على الكاش الداخلي نفسه (`coreTopology` ·
+                // كاش عقدة الرسوم · كاش مناطق الحرارة) — توازٍ بلا سباق.
+                val fast = coroutineScope {
+                    val ram = async { FpsMonitorUtil.getRamInfo(context) }
+                    val cpuLoad = async { FpsMonitorUtil.getCpuLoad() }
+                    // طبقة القراءة الأسرع (قارئ أصلي ← IPC ← ملف ← صدفة): وصدفة `cat` لكل
+                    // نبضة كانت رحلة كاملة.
+                    val cpuFreq = async {
+                        RootFileAccess.read("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq")
+                            ?.toLongOrNull()?.div(1000)?.toInt() ?: 0
+                    }
+                    val battery = async { readBattery() }
+                    val storage = async { readStorage() }
+                    val network = async { readNetwork() }
+                    FastReadings(
+                        ram = ram.await(),
+                        cpuLoad = cpuLoad.await(),
+                        cpuFreqMhz = cpuFreq.await(),
+                        battery = battery.await(),
+                        storage = storage.await(),
+                        network = network.await(),
+                    )
+                }
+                publishFastReadings(fast)
+                // والأسماء نفسها التي يستعملها ما بعدها: النشر الكامل يقرأ من المجموعة السريعة
+                // كما كان يقرأ من قراءاتها المتتابعة — **قيمة واحدة من قارئ واحد**، لا نسخة ثانية.
+                val ram = fast.ram
+                val cpuLoad = fast.cpuLoad
+                val cpuFreq = fast.cpuFreqMhz
+                val battery = fast.battery
+                val storage = fast.storage
+                val network = fast.network
+
+                val slow = coroutineScope {
+                    val thermal = async { readThermal() }
+                    val cores = async { readCores() }
+                    val gpu = async { readGpu() }
+                    val swap = async { readSwap() }
+                    val batteryTemp = async { ThermalUtil.readBatteryTemperatureC(context) }
+                    SlowReadings(
+                        thermal = thermal.await(),
+                        cores = cores.await(),
+                        gpu = gpu.await(),
+                        swap = swap.await(),
+                        batteryTemp = batteryTemp.await(),
+                    )
+                }
+                val thermal = slow.thermal
+                val cores = slow.cores
+                val gpu = slow.gpu
+                val swap = slow.swap
+                val batteryTemp = slow.batteryTemp
                 val onlineCores = cores.filter { it.online }
                 val cpuTopCoreMhz = onlineCores.maxOfOrNull { it.freqMhz } ?: 0
                 val cpuCeilingMhz = cores.maxOfOrNull { it.maxFreqMhz } ?: 0
@@ -311,7 +402,6 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 val ramPercent = if (ram.totalMb > 0) {
                     (ram.usedMb.toFloat() / ram.totalMb * 100f).coerceIn(0f, 100f)
                 } else 0f
-                val batteryTemp = ThermalUtil.readBatteryTemperatureC(context)
                 val powerWatt = FpsMonitorUtil.getPowerWatt()
                 val intelligence = updatePerformanceIntelligence(
                     previous = previous.intelligence,
@@ -360,26 +450,61 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     batteryTempC = batteryTemp,
                     isCharging = battery[3].toInt() == BatteryManager.BATTERY_STATUS_CHARGING ||
                                  battery[3].toInt() == BatteryManager.BATTERY_STATUS_FULL,
-                    batteryStatus = when (battery[3].toInt()) {
-                        BatteryManager.BATTERY_STATUS_CHARGING -> "Charging"
-                        BatteryManager.BATTERY_STATUS_DISCHARGING -> "Discharging"
-                        BatteryManager.BATTERY_STATUS_FULL -> "Full"
-                        BatteryManager.BATTERY_STATUS_NOT_CHARGING -> "Not Charging"
-                        else -> "Unknown"
-                    },
+                    batteryStatus = batteryStatusOf(battery[3].toInt()),
                     powerWatt = powerWatt,
                     swapUsedMb = swap?.first, swapTotalMb = swap?.second,
                     cpuTempC = thermal[0], gpuTempC = thermal[1], skinTempC = thermal[2],
                     storageUsedGb = storage[0], storageTotalGb = storage[1],
                     downloadSpeedKbps = network[0], uploadSpeedKbps = network[1],
                     uptimeMinutes = SystemClock.elapsedRealtime() / 60_000L,
-                    intelligence = intelligence
+                    intelligence = intelligence,
+                    // **وطابع القراءة يُكتب هنا لا في النشر الأوّل:** `readingsAtMs > 0` تعني
+                    // «اكتملت دورة قراءة واحدة على الأقل» — وهذا ما يفرّق في الواجهة بين
+                    // «يُقرأ الآن» و«غير مقروء» (تكملة ٢٠٥).
+                    readingsAtMs = System.currentTimeMillis()
                 )
-                delay(2000)
+                delay(POLL_INTERVAL_MS)
             }
         }.also { job ->
             job.invokeOnCompletion { if (pollingJob === job) pollingJob = null }
         }
+    }
+
+    /**
+     * النشر الأوّل في كل نبضة: ما تُجيبه إطار العمل وحدها — **قبل** أن تمرّ أي قراءة بالجذر.
+     *
+     * وهو ما يجعل «سرعة ظهور القراءات» تُقاس بالإطار لا بالثانية: أرقام الذاكرة والمعالج
+     * والبطارية والتخزين والشبكة تُكتب في `StateFlow` فور جهوزها، ثم يتلوها النشر الكامل فوقها.
+     * **ولا يُخترع حقل:** كل قيمة هنا جاءت من قارئها، والحقول التي لم تُقرأ بعد تبقى كما كانت
+     * في الحالة السابقة (صفرًا كانت أو قراءةً قديمة توسم «قديمة» في الواجهة).
+     */
+    private fun publishFastReadings(fast: FastReadings) {
+        val previous = _dashboardState.value
+        val status = fast.battery[3].toInt()
+        _dashboardState.value = previous.copy(
+            ramUsedMb = fast.ram.usedMb,
+            ramTotalMb = fast.ram.totalMb,
+            cpuLoadPercent = fast.cpuLoad,
+            cpuFreqMhz = fast.cpuFreqMhz,
+            batteryPercent = fast.battery[0].toInt(),
+            batteryVoltageV = fast.battery[1] / 1000f,
+            isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL,
+            batteryStatus = batteryStatusOf(status),
+            storageUsedGb = fast.storage[0],
+            storageTotalGb = fast.storage[1],
+            downloadSpeedKbps = fast.network[0],
+            uploadSpeedKbps = fast.network[1],
+        )
+    }
+
+    /** خريطة حالة البطارية — واحدة، يستعملها النشران فلا يختلف نصّان لحالة واحدة. */
+    private fun batteryStatusOf(raw: Int): String = when (raw) {
+        BatteryManager.BATTERY_STATUS_CHARGING -> "Charging"
+        BatteryManager.BATTERY_STATUS_DISCHARGING -> "Discharging"
+        BatteryManager.BATTERY_STATUS_FULL -> "Full"
+        BatteryManager.BATTERY_STATUS_NOT_CHARGING -> "Not Charging"
+        else -> "Unknown"
     }
 
     /** كتابة تجزئة تاريخ الحمل — على مسار IO أصلًا (حلقة القياس)، فلا تجمّد الواجهة. */
@@ -554,6 +679,10 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
     private fun buildCoreTopology(): List<CpuCoreState> {
         val clusters = CpuTopologyUtil.detectClusters()
         if (clusters.isEmpty()) return emptyList()
+        // الأسماء تُقرأ **دفعةً واحدة لكل الأنوية** لا سؤالًا لكل نواة: `decodeCoreName` كانت تفتح
+        // صدفة جذر لكل نواة (`Shell.cmd("cat …").exec()`) وهذا المسار يُعاد في كل دورة قياس على
+        // الرئيسية. والنتيجة نفسها — الاسم لكل نواة لم يتغيّر، وإنّما سقطت الرحلات.
+        val names = CpuTopologyUtil.coreNames(clusters.flatMap { it.cores })
         return clusters.flatMap { cluster ->
             val ceiling = CpuTopologyUtil.clusterMaxFreqMhz(cluster.policyPath)
             // الأرضية تُقرأ مع السقف ومعها: المدى كله خاصية مدى إقلاع، ولذلك يُحلّان
@@ -565,7 +694,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     maxFreqMhz = ceiling,
                     minFreqMhz = floor,
                     clusterTag = cluster.shortTag,
-                    coreName = CpuTopologyUtil.decodeCoreName(cpu)
+                    coreName = names[cpu]
                 )
             }
         }.sortedBy { it.cpu }
@@ -765,10 +894,19 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
 
             // Fallback for MTK/vendor kernels where thermal sysfs nodes are
             // hidden or their names do not contain a recognizable category.
-            val service = ThermalUtil.readThermalServiceTemperatures()
-            if (cpu == 0) cpu = service[0]
-            if (gpu == 0) gpu = service[1]
-            if (skin == 0) skin = service[2]
+            //
+            // **ولا يُسأل إلا حين تنقص فئة فعلًا (تكملة ٢٠٥ — عطب أداء مقيس):** كان النداء
+            // **مطلقًا في كل نبضة قياس (كل ثانيتين)**، وهو نداء `dumpsys thermalservice`
+            // عبر صدفة الجذر، **ثم يُطرح ناتجه في الحال** في الحالة الشائعة (المناطق مقروءة
+            // من `sysfs`) — أي رحلة ثقيلة كل ثانيتين بلا خبر. وقد أُضيف معه كاش بنافذة
+            // صلاحية في `ThermalUtil`، وهذا الشرط هو الطرف الثاني من الإصلاح: **لا
+            // يُسأل سؤال ثقيل لا يجيبه إلا حالةٌ نادرة، ولا يجيبه في الحالة الشائعة.**
+            if (cpu == 0 || gpu == 0 || skin == 0) {
+                val service = ThermalUtil.readThermalServiceTemperatures()
+                if (cpu == 0) cpu = service[0]
+                if (gpu == 0) gpu = service[1]
+                if (skin == 0) skin = service[2]
+            }
 
             // Last-resort SoC fallback for vendor kernels that expose an
             // unnamed/"system" sensor instead of CPU-specific zones.

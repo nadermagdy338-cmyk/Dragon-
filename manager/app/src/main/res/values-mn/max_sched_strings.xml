@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Эцсийн хугацаа хамгийн их (бид)</string>
+    <string name="max_sched_tunable_deadline_period_min">Эцсийн хугацаа Мин (бид)</string>
+    <string name="max_sched_tunable_energy_aware">Эрчим хүчийг мэддэг</string>
+    <string name="max_sched_tunable_latency">Хоцролт (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Шилжилтийн зардал (NS)</string>
+    <string name="max_sched_tunable_min_granularity">Хамгийн бага нарийвчлал (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Шилжилтийн багцын хэмжээ</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT үржүүлэгч</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (мс)</string>
+    <string name="max_sched_tunable_rt_period">Бодит цагийн хугацаа (бид)</string>
+    <string name="max_sched_tunable_rt_runtime">Бодит цагийн ажлын цаг (бид)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Бодит цагийн UClamp Floor</string>
+    <string name="max_sched_tunable_wakeup_granularity">Сэрүүлэлтийн нарийвчлал (ns)</string>
+</resources>

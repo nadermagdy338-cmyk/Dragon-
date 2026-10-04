@@ -23,8 +23,8 @@ import android.net.TrafficStats
 import android.os.BatteryManager
 import android.os.PowerManager
 import nd.max.core.jni.PredictorBridge
-import nd.max.ui.util.FpsMonitorUtil
-import nd.max.ui.util.ThermalUtil
+import nd.max.core.platform.FpsMonitorUtil
+import nd.max.core.platform.ThermalUtil
 
 /**
  * حالة الجهاز الطبيعية (normalized) للمحرك الذكي — نفس الإحداثيات

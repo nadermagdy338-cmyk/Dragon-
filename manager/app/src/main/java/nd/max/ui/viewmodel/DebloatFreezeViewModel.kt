@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.ui.util.DebloatAppInfo
 import nd.max.ui.util.DebloatFreezeUtil
-import nd.max.ui.util.EventLog
+import nd.max.core.platform.EventLog
 
 /** Tab filters for the Debloat & Freeze app list. */
 enum class DebloatTab { ALL, USER, SYSTEM, FROZEN }

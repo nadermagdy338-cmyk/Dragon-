@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">冗长</string>
+    <string name="max_log_level_debug">调试</string>
+    <string name="max_log_level_info">信息</string>
+    <string name="max_log_level_warn">警告</string>
+    <string name="max_log_level_error">错误</string>
+    <string name="max_log_level_assert">断言</string>
+    <string name="max_log_level_fatal">致命的</string>
+    <string name="max_log_buffer_main">主要的</string>
+    <string name="max_log_buffer_system">系统</string>
+    <string name="max_log_buffer_crash">碰撞</string>
+    <string name="max_log_buffer_kernel">核心</string>
+    <string name="max_log_buffer_events">活动</string>
+    <string name="max_log_buffer_radio">收音机</string>
+    <string name="max_log_source_daemon">守护进程</string>
+    <string name="max_log_source_appmonitor">应用程序监控器</string>
+    <string name="max_log_source_ui">用户界面</string>
+    <string name="max_log_source_other">其他</string>
+</resources>

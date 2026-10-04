@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Макс. краен срок (нас)</string>
+    <string name="max_sched_tunable_deadline_period_min">Краен срок Мин. (нас)</string>
+    <string name="max_sched_tunable_energy_aware">Енергийна осведоменост</string>
+    <string name="max_sched_tunable_latency">Закъснение (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Разходи за миграция (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Минимална детайлност (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Размер на партидата за мигриране</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT Multiplier</string>
+    <string name="max_sched_tunable_rr_timeslice">Времеви отрязък с кръгов режим (ms)</string>
+    <string name="max_sched_tunable_rt_period">Период в реално време (нас)</string>
+    <string name="max_sched_tunable_rt_runtime">Време за изпълнение в реално време (нас)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">UClamp Floor в реално време</string>
+    <string name="max_sched_tunable_wakeup_granularity">Гранулация при събуждане (ns)</string>
+</resources>

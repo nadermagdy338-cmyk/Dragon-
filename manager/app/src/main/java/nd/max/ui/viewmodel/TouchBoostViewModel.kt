@@ -27,7 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nd.max.core.hardware.RootFileAccess
 import nd.max.core.hardware.WriteVerification
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 import nd.max.XiaomiVendorFeatures
 
 /**

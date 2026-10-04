@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nd.max.MaxManagerProps
 import nd.max.R
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 /**
  * سطح ضبط واحد لشبكة النظام (`/proc/sys/net/ipv4`) ومجدول النواة (`/proc/sys/kernel/sched_*`).

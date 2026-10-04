@@ -72,7 +72,7 @@ class PropBridgeTest {
 
     @Test
     fun `the native reader is tried before the reflection fallback`() {
-        val text = File(repoRoot, "manager/app/src/main/java/nd/max/ui/util/PropertyUtil.kt").readText()
+        val text = File(repoRoot, "manager/app/src/main/java/nd/max/core/platform/PropertyUtil.kt").readText()
         val native = text.indexOf("PropBridge.get(key)")
         val reflection = text.indexOf("getMethod.invoke(null, key, def)")
         assertTrue("PropBridge.get must be present", native >= 0)
@@ -86,7 +86,7 @@ class PropBridgeTest {
             "manager/app/src/main/java/nd/max/AppMonitor.kt",
             "manager/app/src/main/java/nd/max/ui/viewmodel/HomeViewmodel.kt",
             "manager/app/src/main/java/nd/max/ui/mainscreens/GetStartedScreen.kt",
-            "manager/app/src/main/java/nd/max/ui/util/PropertyUtil.kt",
+            "manager/app/src/main/java/nd/max/core/platform/PropertyUtil.kt",
         )
         for (rel in converted) {
             val text = File(repoRoot, rel).readText()

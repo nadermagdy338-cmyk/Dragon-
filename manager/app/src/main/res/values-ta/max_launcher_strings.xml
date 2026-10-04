@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">நிறுவப்பட்ட தொகுப்புகள் மற்றும் அவை அறிவிக்கும் செயல்பாடுகள்</string>
+    <string name="max_launcher_loading">நிறுவப்பட்ட தொகுப்புகள் மற்றும் அவற்றின் அறிவிக்கப்பட்ட செயல்பாடுகளைப் படிக்கிறது...</string>
+    <string name="max_launcher_empty">நிறுவப்பட்ட எந்த தொகுப்பும் இந்தச் சாதனத்தில் செயல்பாட்டை அறிவிக்கவில்லை.</string>
+    <string name="max_launcher_search_placeholder">பயன்பாட்டின் பெயர் அல்லது தொகுப்பு மூலம் தேடவும்</string>
+    <string name="max_launcher_search_clear">தேடலை அழிக்கவும்</string>
+    <string name="max_launcher_scope_all">அனைத்து</string>
+    <string name="max_launcher_scope_user">பயனர்</string>
+    <string name="max_launcher_scope_system">அமைப்பு</string>
+    <string name="max_launcher_activity_count">%1$d செயல்பாடுகள்</string>
+    <string name="max_launcher_no_match_title">எதுவும் பொருந்தவில்லை</string>
+    <string name="max_launcher_no_match_detail">தேர்ந்தெடுக்கப்பட்ட ஸ்கோப்பில் எந்த பேக்கேஜ் பெயரும் ஆப்ஸ் லேபிளும் அந்த உரையைக் கொண்டிருக்கவில்லை.</string>
+    <string name="max_launcher_no_match_clear">வடிகட்டிகளை அழிக்கவும்</string>
+    <string name="max_launcher_reading_activities">இந்தத் தொகுப்பு அறிவிக்கும் செயல்பாடுகளைப் படித்து...</string>
+    <string name="max_launcher_no_activities">இந்த தொகுப்பு எந்த செயல்பாடுகளையும் அறிவிக்கவில்லை.</string>
+    <string name="max_launcher_root_off_title">ரூட் வழங்கப்படவில்லை</string>
+    <string name="max_launcher_root_off_detail">தனிப்பட்டதாகக் குறிக்கப்பட்ட செயல்பாடுகள் ஏற்றுமதி செய்யப்படவில்லை, எனவே ரூட் மட்டுமே அவற்றைத் தொடங்க முடியும். ஏற்றுமதி செய்யப்பட்ட செயல்பாடுகள் இல்லாமல் இன்னும் திறந்திருக்கும்.</string>
+    <string name="max_launcher_tag_private">தனியார்</string>
+    <string name="max_launcher_tag_disabled">முடக்கப்பட்டது</string>
+    <string name="max_launcher_outcome_started">செயல்பாடு தொடங்கியது</string>
+    <string name="max_launcher_outcome_needs_root">இந்த செயல்பாடு ஏற்றுமதி செய்யப்படவில்லை - ரூட் தேவை</string>
+    <string name="max_launcher_outcome_refused">இந்தச் செயல்பாட்டைத் தொடங்க Android மறுத்துவிட்டது</string>
+    <string name="max_launcher_outcome_missing">அந்த பெயரில் எந்த செயல்பாடும் நிறுவப்படவில்லை</string>
+</resources>

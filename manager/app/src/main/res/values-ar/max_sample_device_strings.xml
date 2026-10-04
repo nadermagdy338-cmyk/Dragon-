@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sample_pick_title">اختر جهازًا نموذجيًا</string>
+    <string name="sample_pick_button">اختيار جهاز نموذجي</string>
+    <string name="sample_auto_hint">اختيار الجهاز يملأ العلامة والمُصنِّع والطراز والجهاز والمنتج والبصمة تلقائيًا. استخدم «يدوي» لكتابتها بنفسك.</string>
+    <string name="sample_manual">يدوي</string>
+    <string name="sample_close">إغلاق</string>
+    <string name="sample_search">ابحث عن جهاز</string>
+    <string name="sample_empty">لا جهاز مطابق.</string>
+    <string name="sample_unavailable">تعذّرت قراءة كتالوج الأجهزة.</string>
+    <string name="sample_row_sub">أندرويد %1$s · %2$s</string>
+    <string name="sample_row_sub_plain">%1$s</string>
+    <string name="sample_fp_shared">البصمة نفسها لجهاز آخر في الكتالوج</string>
+    <string name="sample_credit">بيانات الكتالوج: COPG (Apache-2.0)، %1$s</string>
+    <string name="sample_limit">بلغتَ حدّ الملفات (100).</string>
+</resources>

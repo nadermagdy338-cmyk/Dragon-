@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Орнотулган пакеттер жана алар жарыялаган иш-аракеттер</string>
+    <string name="max_launcher_loading">Орнотулган пакеттер жана алардын жарыяланган аракеттери окулууда…</string>
+    <string name="max_launcher_empty">Эч бир орнотулган топтом бул түзмөктө аракет жарыялабайт.</string>
+    <string name="max_launcher_search_placeholder">Колдонмонун аты же пакети боюнча издөө</string>
+    <string name="max_launcher_search_clear">Издөөнү тазалоо</string>
+    <string name="max_launcher_scope_all">Баары</string>
+    <string name="max_launcher_scope_user">Колдонуучу</string>
+    <string name="max_launcher_scope_system">Система</string>
+    <string name="max_launcher_activity_count">%1$d иш-чаралар</string>
+    <string name="max_launcher_no_match_title">Эч нерсе дал келбейт</string>
+    <string name="max_launcher_no_match_detail">Эч бир пакеттин аталышы же колдонмо энбелгиси тандалган чөйрөдө ал текстти камтыбайт.</string>
+    <string name="max_launcher_no_match_clear">Чыпкаларды тазалоо</string>
+    <string name="max_launcher_reading_activities">Бул пакетте айтылган иш-аракеттерди окуу…</string>
+    <string name="max_launcher_no_activities">Бул пакет эч кандай иш-аракеттерди жарыялабайт.</string>
+    <string name="max_launcher_root_off_title">Root берилбейт</string>
+    <string name="max_launcher_root_off_detail">Купуя деп белгиленген аракеттер экспорттолбойт, андыктан аларды root гана башташы мүмкүн. Экспорттолгон иш-аракеттер ансыз деле ачылат.</string>
+    <string name="max_launcher_tag_private">Жеке</string>
+    <string name="max_launcher_tag_disabled">Өчүрүлгөн</string>
+    <string name="max_launcher_outcome_started">Актив башталды</string>
+    <string name="max_launcher_outcome_needs_root">Бул аракет экспорттолбойт — тамыр керек</string>
+    <string name="max_launcher_outcome_refused">Android бул аракетти баштоодон баш тартты</string>
+    <string name="max_launcher_outcome_missing">Мындай аталыштагы иш-аракеттер орнотулган эмес</string>
+</resources>

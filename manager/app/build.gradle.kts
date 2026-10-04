@@ -119,6 +119,31 @@ android {
         throw GradleException("KS_PWD must be set to produce a signed release artifact")
     }
 
+    /**
+     * **مصدر المكتبات الأصليّة** — `maxfx/libs/` حيث يُخرج `ndk-build` مؤثّرنا النظاميّ.
+     *
+     * **ولماذا يُضاف إلى `jniLibs` مع أنّ التعليق في سير عمل CI يقول إنّ مجلّده منفصل:** الانفصال
+     * كان يمنع `clean-installed-binaries` من مسّه؛ وهذا يبقى صحيحًا (البناء يكتب في `maxfx/libs`،
+     * والتنظيف لا يمسّه). وأمّا **الشحن** فلم يكن له مسار أصلًا: الطبقة النظاميّة تُنسخ إلى الجهاز من
+     * ملفّ المكتبة (‏[`AudioEffectLibraryStaging`] تقرأ مدخل `lib/<abi>/libmaxfx.so` من الحزمة)،
+     * **فمكتبةٌ لا تُشحَن لا تُنسخ ولا تُحمَّل** — و«صفر تغيير» في لوق المالك كان بعضُها هذا بعينه.
+     *
+     * **وحدُّ هذا السطر مُعلَن:** Gradle **لا يبني** المكتبة (لا `externalNativeBuild`) — يبنبها
+     * `ndk-build` قبل Gradle في CI. فبناءٌ محليّ بلا `ndk-build` سابق يُنتج تطبيقًا بلا مكتبة،
+     * وتُقرأ الحاجة في الشاشة بسببها الصريح (`effect-library-not-shipped-in-app`).
+     *
+     * **والشرط مقصود لا تحوّطًا:** المصدر يُضاف **إن وُجد المجلّد وقت التهيئة فقط**. فالبناء المحليّ
+     * بلا `ndk-build` سابق لا يُدخل مصدرًا غائبًا (ولا يُخاطر بسلوك AGP غير المقيس هنا)، والـCI يضيفه
+     * دائمًا لأنّه يبني بـ`ndk-build` قبله. **وحدّه مُعلَن:** هذا الشرط وتغليف المكتبة **لم يُقيَما في
+     * هذه البيئة** (لا Android SDK ولا NDK فيها) — ويتحقّقان في CI بخطوة تقيس المدخل داخل الحزمة.
+     *
+     * والمسار من جذر المشروع (`manager/`) فلا يتوقّف على مجلّد التشغيل.
+     */
+    val maxFxLibsDir = rootProject.file("../maxfx/libs")
+    if (maxFxLibsDir.isDirectory) {
+        sourceSets["main"].jniLibs.srcDir(maxFxLibsDir)
+    }
+
     defaultConfig {
         applicationId = "nd.max"
         minSdk = 29
@@ -148,10 +173,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("azenith.jks")
+            storeFile = file("maxmanager.jks")
             if (!ksPwd.isNullOrEmpty()) {
                 storePassword = ksPwd
-                keyAlias = "azenith_key"
+                keyAlias = "azenith_key" // alias unchanged: renaming it needs the store password (CI secret); regenerating would change the signer fingerprint
                 keyPassword = ksPwd
             }
         }
@@ -232,6 +257,10 @@ android {
     kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
+            // Compose Material3 still marks several stable-looking APIs as experimental. They are
+            // opted in once here instead of repeating `@file:OptIn` per screen, which is how the
+            // tree ended up with a mix of files that had it and files that did not compile.
+            optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
         }
     }
 }
@@ -245,6 +274,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.compose.animation.core)
+    // Declared explicitly (DI-01): `HorizontalPager` in Device Info was being pulled through
+    // material3 transitively; a page pulled from an undeclared dependency breaks on a material3
+    // upgrade with no visible cause.
+    implementation(libs.androidx.compose.foundation)
 
     implementation(libs.androidx.navigation.compose)
     

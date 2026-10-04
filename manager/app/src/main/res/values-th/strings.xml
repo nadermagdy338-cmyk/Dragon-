@@ -7,7 +7,7 @@
     <string name="all_set">ทุกอย่างพร้อมแล้ว คุณสามารถใช้ Max Manager ได้แล้ว</string>
     <string name="allow_verbose_log">ให้เดมอนแสดงบันทึกโดยละเอียด</string>
     <string name="android_version">เวอร์ชัน Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">ชื่อแอป</string>
     <string name="app_priority">ลำดับความสำคัญของแอป</string>
     <string name="app_priority_control">ควบคุมลำดับความสำคัญของแอป</string>
@@ -723,15 +723,6 @@
     <string name="fps_overlay_notif_channel">การซ้อนทับ FPS</string>
     <string name="fps_overlay_notif_title">Max Manager โอเวอร์เลย์ FPS กำลังทำงานอยู่</string>
     <string name="fps_overlay_notif_stop">หยุด</string>
-    <string name="fps_overlay_section_style">รูปร่าง</string>
-    <string name="fps_overlay_style">สไตล์การซ้อนทับ</string>
-    <string name="fps_overlay_style_android">รายการหุ่นยนต์</string>
-    <string name="fps_overlay_style_pc">พีซีแบบโมโนสเปซ</string>
-    <string name="fps_overlay_style_mini">มินิ</string>
-    <string name="fps_overlay_orientation">ทิศทางเค้าโครง</string>
-    <string name="fps_overlay_orientation_vertical">แนวตั้ง</string>
-    <string name="fps_overlay_orientation_horizontal">แนวนอน</string>
-    <string name="fps_overlay_read_mode">วิธีการอ่าน FPS</string>
     <string name="fps_overlay_read_mode_desc">ลองใช้วิธีอื่นหากการอ่านยังคงเป็น 0 บนอุปกรณ์ของคุณ</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (แนะนำ)</string>
     <string name="fps_overlay_mode_kernel">โหนดเคอร์เนล</string>
@@ -740,14 +731,6 @@
     <string name="fps_overlay_text_size">ขนาดข้อความ</string>
     <string name="fps_overlay_bg_alpha">ความทึบของพื้นหลัง</string>
     <string name="fps_overlay_width_scale">สเกลความกว้าง</string>
-    <string name="fps_overlay_section_metrics">เมตริกที่แสดง</string>
-    <string name="fps_overlay_metric_fps">เฟรมต่อวินาที</string>
-    <string name="fps_overlay_metric_cpu">CPU โหลด</string>
-    <string name="fps_overlay_metric_ram">RAM การใช้งาน</string>
-    <string name="fps_overlay_metric_watt">การดึงพลังงานแบตเตอรี่</string>
-    <string name="fps_overlay_metric_temp">อุณหภูมิแบตเตอรี่</string>
-    <string name="fps_overlay_metric_render">ป้ายกำกับการเรนเดอร์</string>
-    <string name="fps_overlay_metric_render_desc">แสดง VULKAN/OPENGL แทนที่จะเป็น \"FPS\" เป็นป้ายกำกับ ซึ่งตรวจพบจากไลบรารีที่โหลดของแอปเบื้องหน้า</string>
     <string name="dozemode_title">นโยบายการนอนหลับ</string>
     <string name="dozemode_menu_desc">รายการที่อนุญาตพิเศษในการสแตนด์บาย พฤติกรรมการไม่ได้ใช้งาน และการปรับพลังงานพื้นหลัง</string>
     <string name="dozemode_state_label">รัฐเคลิ้ม</string>
@@ -783,9 +766,7 @@
     <string name="pid">พีไอดี</string>
     <string name="open_settings">เปิดการตั้งค่า</string>
     <string name="processmgr_title">การตรวจสอบงาน</string>
-    <string name="processmgr_menu_desc">การใช้งานต่อกระบวนการ CPU และ RAM พร้อมการบังคับหยุดและการซ้อนทับแบบลอย</string>
     <string name="processmgr_stat_total">%1$d กระบวนการ</string>
-    <string name="processmgr_stat_breakdown">%1$d ผู้ใช้ \u00b7 %2$d ระบบ</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">บนสุด %1$d</string>
@@ -805,9 +786,6 @@
     <string name="processmgr_search_hint">ค้นหากระบวนการที่กำลังทำงานอยู่</string>
     <string name="processmgr_no_processes">ไม่มีกระบวนการที่ตรงกับการค้นหาของคุณ</string>
     <string name="processmgr_dialog_close">ปิด</string>
-    <string name="processmgr_detail_version">เวอร์ชัน</string>
-    <string name="processmgr_detail_build">สร้าง</string>
-    <string name="processmgr_detail_package">บรรจุุภัณฑ์</string>
     <string name="processmgr_result_killed">ฆ่า %1$s</string>
     <string name="processmgr_result_kill_failed">ไม่สามารถฆ่า %1$s ได้</string>
     <string name="processmgr_result_stopped">บังคับหยุด %1$s</string>
@@ -1454,7 +1432,6 @@
     <string name="max_home_reboot_desc">เปิดตัวเลือกการรีบูตอย่างปลอดภัย</string>
     <string name="max_home_ai_console">คอนโซล MAX AI</string>
     <string name="max_home_ai_working">กำลังใช้โปรไฟล์ที่ร้องขอ...</string>
-    <string name="max_home_ai_failed">การดำเนินการ AI ล่าสุดล้มเหลว</string>
     <string name="max_home_retry">ลองอีกครั้ง</string>
     <string name="max_home_ai_idle">ยังไม่มีการบันทึกการตัดสินใจของ AI</string>
     <string name="home_system_stable">เสถียรภาพของระบบ</string>
@@ -1470,8 +1447,6 @@
     <string name="home_performance_monitor_desc">โหลดทรัพยากรในช่วง 72 วินาทีที่ผ่านมา</string>
     <string name="home_quick_actions">ดาดฟ้าคำสั่ง</string>
     <string name="home_quick_actions_desc">เข้าถึงการควบคุมที่สำคัญได้โดยตรง</string>
-    <string name="home_action_boost">โปรไฟล์ประสิทธิภาพ</string>
-    <string name="home_action_boost_desc">เปลี่ยนพฤติกรรมของระบบ</string>
     <string name="home_action_thermal">ศูนย์ระบายความร้อน</string>
     <string name="home_action_thermal_desc">ตรวจสอบความร้อนและความเย็น</string>
     <string name="home_action_battery">ศูนย์เพาเวอร์</string>
@@ -1491,7 +1466,6 @@
     <string name="home_active">คล่องแคล่ว</string>
     <string name="home_idle">ไม่ได้ใช้งาน</string>
     <string name="home_protected">ได้รับการคุ้มครอง</string>
-    <string name="home_device_overview">เปิดภาพรวมอุปกรณ์</string>
     <string name="home_live_performance">การแสดงสด</string>
     <string name="home_live_performance_desc">โหลดปัจจุบันและการควบคุมฮาร์ดแวร์โดยตรง</string>
     <string name="home_open_details">เปิดข้อมูลความร้อนโดยละเอียด</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">กำลังใช้การเพิ่มประสิทธิภาพต่อแอป</string>
     <string name="max_app_advanced_options">ตัวเลือกขั้นสูง</string>
     <string name="max_app_save">บันทึก</string>
+    <string name="home_gpu_max_freq">ความถี่สูงสุด</string>
 </resources>

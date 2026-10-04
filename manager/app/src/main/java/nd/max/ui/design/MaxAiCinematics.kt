@@ -411,11 +411,14 @@ fun MaxEpisodeCard(
         label = "episodeChevron",
     )
 
-    Surface(
+    // **ترحيل إلى القشرة:** الخلفية المتلوّنة والحدّ يُمرّران (تمييز الحكم مقصود)، والضغط صار
+    // على القشرة كلّها (`onClick`) — وهو بالضبط ما كان `Surface(…, onClick)` يفعله.
+    MaxCardShell(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(MaxRadius.group),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = MaxAlpha.toneContainer),
-        border = BorderStroke(MaxSize.hairlineBorder, verdictTone.border(strong = expanded)),
+        container = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = MaxAlpha.toneContainer),
+        borderColor = verdictTone.border(strong = expanded),
+        contentPadding = 0.dp,
+        verticalArrangement = Arrangement.Top,
         onClick = onToggle,
     ) {
         Column(

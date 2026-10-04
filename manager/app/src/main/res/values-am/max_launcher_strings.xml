@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">የተጫኑ ጥቅሎች እና የሚያወጁዋቸው እንቅስቃሴዎች</string>
+    <string name="max_launcher_loading">የተጫኑ ፓኬጆችን እና የታወቁ ተግባራቶቻቸውን በማንበብ…</string>
+    <string name="max_launcher_empty">ምንም የተጫነ ጥቅል በዚህ መሳሪያ ላይ ያለ እንቅስቃሴን አይገልጽም።</string>
+    <string name="max_launcher_search_placeholder">በመተግበሪያ ስም ወይም ጥቅል ይፈልጉ</string>
+    <string name="max_launcher_search_clear">ፍለጋውን አጽዳ</string>
+    <string name="max_launcher_scope_all">ሁሉም</string>
+    <string name="max_launcher_scope_user">ተጠቃሚ</string>
+    <string name="max_launcher_scope_system">ስርዓት</string>
+    <string name="max_launcher_activity_count">%1$d እንቅስቃሴዎች</string>
+    <string name="max_launcher_no_match_title">ምንም አይዛመድም።</string>
+    <string name="max_launcher_no_match_detail">በተመረጠው ወሰን ውስጥ ምንም የጥቅል ስም ወይም የመተግበሪያ መለያ ያንን ጽሑፍ አልያዘም።</string>
+    <string name="max_launcher_no_match_clear">ማጣሪያዎችን አጽዳ</string>
+    <string name="max_launcher_reading_activities">ይህ ፓኬጅ የሚያውጃቸውን ተግባራት በማንበብ…</string>
+    <string name="max_launcher_no_activities">ይህ ጥቅል ምንም እንቅስቃሴዎችን አይገልጽም።</string>
+    <string name="max_launcher_root_off_title">ሥር አልተሰጠም።</string>
+    <string name="max_launcher_root_off_detail">የግል ምልክት የተደረገባቸው ተግባራት ወደ ውጭ አይላኩም፣ ስለዚህ ስርወ ብቻ ነው ሊጀምረው የሚችለው። ወደ ውጭ የሚላኩ እንቅስቃሴዎች ያለሱ አሁንም ክፍት ናቸው።</string>
+    <string name="max_launcher_tag_private">የግል</string>
+    <string name="max_launcher_tag_disabled">ተሰናክሏል።</string>
+    <string name="max_launcher_outcome_started">እንቅስቃሴ ተጀመረ</string>
+    <string name="max_launcher_outcome_needs_root">ይህ እንቅስቃሴ ወደ ውጭ አይላክም - ስር ያስፈልጋል</string>
+    <string name="max_launcher_outcome_refused">አንድሮይድ ይህን እንቅስቃሴ ለመጀመር ፈቃደኛ አልሆነም።</string>
+    <string name="max_launcher_outcome_missing">በዚያ ስም ምንም እንቅስቃሴ አልተጫነም።</string>
+</resources>

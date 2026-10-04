@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">ఇన్‌స్టాల్ చేయబడిన ప్యాకేజీలు మరియు అవి ప్రకటించే కార్యకలాపాలు</string>
+    <string name="max_launcher_loading">ఇన్‌స్టాల్ చేయబడిన ప్యాకేజీలు మరియు వాటి డిక్లేర్డ్ కార్యకలాపాలను చదవడం...</string>
+    <string name="max_launcher_empty">ఇన్‌స్టాల్ చేయబడిన ప్యాకేజీ ఏదీ ఈ పరికరంలో కార్యాచరణను ప్రకటించలేదు.</string>
+    <string name="max_launcher_search_placeholder">యాప్ పేరు లేదా ప్యాకేజీ ద్వారా శోధించండి</string>
+    <string name="max_launcher_search_clear">శోధనను క్లియర్ చేయండి</string>
+    <string name="max_launcher_scope_all">అన్నీ</string>
+    <string name="max_launcher_scope_user">వినియోగదారు</string>
+    <string name="max_launcher_scope_system">వ్యవస్థ</string>
+    <string name="max_launcher_activity_count">%1$d కార్యకలాపాలు</string>
+    <string name="max_launcher_no_match_title">ఏదీ సరిపోలలేదు</string>
+    <string name="max_launcher_no_match_detail">ఎంచుకున్న స్కోప్‌లో ఏ ప్యాకేజీ పేరు లేదా యాప్ లేబుల్ ఆ వచనాన్ని కలిగి లేదు.</string>
+    <string name="max_launcher_no_match_clear">ఫిల్టర్‌లను క్లియర్ చేయండి</string>
+    <string name="max_launcher_reading_activities">ఈ ప్యాకేజీ ప్రకటించిన కార్యకలాపాలను చదవడం...</string>
+    <string name="max_launcher_no_activities">ఈ ప్యాకేజీ ఎటువంటి కార్యకలాపాలను ప్రకటించింది.</string>
+    <string name="max_launcher_root_off_title">రూట్ మంజూరు చేయబడలేదు</string>
+    <string name="max_launcher_root_off_detail">ప్రైవేట్‌గా గుర్తు పెట్టబడిన కార్యకలాపాలు ఎగుమతి చేయబడవు, కాబట్టి రూట్ మాత్రమే వాటిని ప్రారంభించగలదు. ఎగుమతి చేయబడిన కార్యకలాపాలు అది లేకుండా ఇప్పటికీ తెరవబడతాయి.</string>
+    <string name="max_launcher_tag_private">ప్రైవేట్</string>
+    <string name="max_launcher_tag_disabled">వికలాంగుడు</string>
+    <string name="max_launcher_outcome_started">కార్యాచరణ ప్రారంభమైంది</string>
+    <string name="max_launcher_outcome_needs_root">ఈ కార్యాచరణ ఎగుమతి చేయబడలేదు - రూట్ అవసరం</string>
+    <string name="max_launcher_outcome_refused">ఈ కార్యాచరణను ప్రారంభించడానికి Android నిరాకరించింది</string>
+    <string name="max_launcher_outcome_missing">ఆ పేరుతో కార్యాచరణ ఏదీ ఇన్‌స్టాల్ చేయబడలేదు</string>
+</resources>

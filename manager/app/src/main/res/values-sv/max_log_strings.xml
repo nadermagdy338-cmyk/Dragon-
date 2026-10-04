@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Mångordig</string>
+    <string name="max_log_level_debug">Felsök</string>
+    <string name="max_log_level_info">Info</string>
+    <string name="max_log_level_warn">Varning</string>
+    <string name="max_log_level_error">Fel</string>
+    <string name="max_log_level_assert">Hävda</string>
+    <string name="max_log_level_fatal">Dödlig</string>
+    <string name="max_log_buffer_main">Main</string>
+    <string name="max_log_buffer_system">System</string>
+    <string name="max_log_buffer_crash">Krascha</string>
+    <string name="max_log_buffer_kernel">Kärna</string>
+    <string name="max_log_buffer_events">Händelser</string>
+    <string name="max_log_buffer_radio">Radio</string>
+    <string name="max_log_source_daemon">Demon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Andra</string>
+</resources>

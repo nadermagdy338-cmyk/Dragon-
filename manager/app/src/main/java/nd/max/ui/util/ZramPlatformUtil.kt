@@ -4,6 +4,7 @@
  * Licensed under the Apache License, Version 2.0.
  */
 package nd.max.ui.util
+import nd.max.core.platform.PropertyUtils
 
 import nd.max.core.hardware.RootFileAccess
 

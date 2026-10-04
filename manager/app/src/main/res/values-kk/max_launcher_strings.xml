@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Орнатылған пакеттер және олар жариялайтын әрекеттер</string>
+    <string name="max_launcher_loading">Орнатылған пакеттер және олардың жарияланған әрекеттері оқылуда…</string>
+    <string name="max_launcher_empty">Ешбір орнатылған бума бұл құрылғыда әрекетті жарияламайды.</string>
+    <string name="max_launcher_search_placeholder">Қолданба аты немесе бума бойынша іздеңіз</string>
+    <string name="max_launcher_search_clear">Іздеуді өшіріңіз</string>
+    <string name="max_launcher_scope_all">Барлығы</string>
+    <string name="max_launcher_scope_user">Пайдаланушы</string>
+    <string name="max_launcher_scope_system">Жүйе</string>
+    <string name="max_launcher_activity_count">%1$d әрекеттер</string>
+    <string name="max_launcher_no_match_title">Ештеңе сәйкес келмейді</string>
+    <string name="max_launcher_no_match_detail">Ешбір бума атауы немесе қолданба белгісі таңдалған аумақта бұл мәтінді қамтымайды.</string>
+    <string name="max_launcher_no_match_clear">Сүзгілерді тазалау</string>
+    <string name="max_launcher_reading_activities">Осы пакетте көрсетілген әрекеттерді оқу…</string>
+    <string name="max_launcher_no_activities">Бұл пакет ешқандай әрекеттерді жарияламайды.</string>
+    <string name="max_launcher_root_off_title">Түбір берілмейді</string>
+    <string name="max_launcher_root_off_detail">Жеке деп белгіленген әрекеттер экспортталмайды, сондықтан оларды тек root ғана бастауға болады. Экспортталған әрекеттер онсыз әлі де ашық.</string>
+    <string name="max_launcher_tag_private">Жеке</string>
+    <string name="max_launcher_tag_disabled">Өшірілген</string>
+    <string name="max_launcher_outcome_started">Белсенділік басталды</string>
+    <string name="max_launcher_outcome_needs_root">Бұл әрекет экспортталмайды — түбір қажет</string>
+    <string name="max_launcher_outcome_refused">Android бұл әрекетті бастаудан бас тартты</string>
+    <string name="max_launcher_outcome_missing">Мұндай атаумен әрекет орнатылмаған</string>
+</resources>

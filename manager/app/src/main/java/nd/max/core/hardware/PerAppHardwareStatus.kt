@@ -34,6 +34,17 @@ import nd.max.MaxManagerPaths
 object PerAppHardwareStatus {
 
     /**
+     * إصدار العقد — يُكتب في السطر الأول ويُتخطّاه القارئ (لا مطابقة مفتاح له)، فهو **مصافحة
+     * إضافة لا كسر** (ADR-05). ويقابله `v 1` في `app_status` — لا `MODULE_VERSION` في الخادم،
+     * فهو **سلسلة إصدار البناء** (قيمة ملف `version`، ويقارنها الخادم بـ`module.prop` عند
+     * الإقلاع) لا رقم بروتوكول (انظر `AppStatusProtocol.VERSION`).
+     * التفصيل في `docs/ai/ARCHITECTURE-AUDIT.md` §١٢.٥.
+     */
+    const val VERSION = 1
+
+    private const val VERSION_PREFIX = "v="
+
+    /**
      * نتيجة مقبض واحد. الرموز ثابتة ومقصودة: الواجهة تترجمها، والسجل يبقى قابلًا للمقارنة
      * بين إصدارات دون تغيّر نصوصه.
      */
@@ -145,6 +156,9 @@ object PerAppHardwareStatus {
      * `flush` لما أمكن إثبات أن ما يُكتب يُقرأ — وهي نقطة الفشل الحقيقية في قنوات الحالة.
      */
     internal fun encode(pkg: String, atMs: Long, records: Collection<Record>): String = buildString {
+        // سطر الإصدار أولًا: القارئ لا يعرف مفتاح `v` فلا يُطابقه ولا يتأثّر به (مقيس في
+        // `PerAppHardwareStatusTest`)، والكاتب يُعلن به أنه يفهم عقد v1.
+        appendLine("$VERSION_PREFIX$VERSION")
         appendLine("$PKG_PREFIX${singleLine(pkg)}")
         appendLine("$AT_PREFIX$atMs")
         records.forEach { record ->

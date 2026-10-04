@@ -7,7 +7,7 @@
     <string name="all_set">הכל מוכן, כעת אתה יכול להשתמש ב-Max Manager</string>
     <string name="allow_verbose_log">רשומות מפורטות של תהליך הרקע</string>
     <string name="android_version">גרסת Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">שם האפליקציה</string>
     <string name="app_priority">עדיפות אפליקציה</string>
     <string name="app_priority_control">בקרת עדיפות אפליקציה</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">שכבת FPS</string>
     <string name="fps_overlay_notif_title">Max Manager שכבת-על FPS פועלת</string>
     <string name="fps_overlay_notif_stop">לְהַפְסִיק</string>
-    <string name="fps_overlay_section_style">הוֹפָעָה</string>
-    <string name="fps_overlay_style">סגנון שכבת-על</string>
-    <string name="fps_overlay_style_android">רשימת אנדרואיד</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">מיני</string>
-    <string name="fps_overlay_orientation">כיוון פריסה</string>
-    <string name="fps_overlay_orientation_vertical">אֲנָכִי</string>
-    <string name="fps_overlay_orientation_horizontal">אופקי</string>
-    <string name="fps_overlay_read_mode">שיטת קריאה FPS</string>
     <string name="fps_overlay_read_mode_desc">נסה שיטה אחרת אם הקריאה נשארת ב-0 במכשיר שלך</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (מומלץ)</string>
     <string name="fps_overlay_mode_kernel">צומת ליבה</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">גודל טקסט</string>
     <string name="fps_overlay_bg_alpha">אטימות רקע</string>
     <string name="fps_overlay_width_scale">סולם רוחב</string>
-    <string name="fps_overlay_section_metrics">מוצגים מדדים</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU טען</string>
-    <string name="fps_overlay_metric_ram">RAM שימוש</string>
-    <string name="fps_overlay_metric_watt">צריכת חשמל של סוללה</string>
-    <string name="fps_overlay_metric_temp">טמפרטורת הסוללה</string>
-    <string name="fps_overlay_metric_render">תווית מעבד</string>
-    <string name="fps_overlay_metric_render_desc">מציג את VULKAN/OPENGL במקום \"FPS\" בתור התווית, שזוהתה מהספריות הטעונות של אפליקציית החזית</string>
     <string name="dozemode_title">מדיניות שינה</string>
     <string name="dozemode_menu_desc">רשימת הלבנים בהמתנה, התנהגות סרק וכוונון כוח ברקע</string>
     <string name="dozemode_state_label">מצב נמנום</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">פתח את ההגדרות</string>
     <string name="processmgr_title">צג משימות</string>
-    <string name="processmgr_menu_desc">שימוש לכל תהליך CPU וRAM, עם עצירה בכוח ושכבת-על צפה</string>
     <string name="processmgr_stat_total">%1$d תהליכים</string>
-    <string name="processmgr_stat_breakdown">%1$d משתמש \u00b7 %2$d מערכת</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">למעלה %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">חיפוש תהליכים רצים</string>
     <string name="processmgr_no_processes">אין תהליכים שתואמים לחיפוש שלך</string>
     <string name="processmgr_dialog_close">לִסְגוֹר</string>
-    <string name="processmgr_detail_version">גִרְסָה</string>
-    <string name="processmgr_detail_build">לִבנוֹת</string>
-    <string name="processmgr_detail_package">חֲבִילָה</string>
     <string name="processmgr_result_killed">נהרג %1$s</string>
     <string name="processmgr_result_kill_failed">לא ניתן היה להרוג את %1$s</string>
     <string name="processmgr_result_stopped">עצירה בכוח %1$s</string>
@@ -1461,7 +1439,6 @@
     <string name="max_home_reboot_desc">פתח את אפשרויות אתחול בטוח</string>
     <string name="max_home_ai_console">קונסולת MAX AI</string>
     <string name="max_home_ai_working">מחיל את הפרופיל המבוקש...</string>
-    <string name="max_home_ai_failed">פעולת הבינה המלאכותית האחרונה נכשלה</string>
     <string name="max_home_retry">נסה שוב</string>
     <string name="max_home_ai_idle">עדיין לא נרשמה החלטת AI</string>
     <string name="home_system_stable">מערכת יציבה</string>
@@ -1477,8 +1454,6 @@
     <string name="home_performance_monitor_desc">עומס משאבים במהלך 72 השניות האחרונות</string>
     <string name="home_quick_actions">סיפון פיקוד</string>
     <string name="home_quick_actions_desc">גישה ישירה לפקדים החשובים</string>
-    <string name="home_action_boost">פרופיל ביצועים</string>
-    <string name="home_action_boost_desc">שנה את התנהגות המערכת</string>
     <string name="home_action_thermal">מרכז תרמי</string>
     <string name="home_action_thermal_desc">בדוק את החום והקירור</string>
     <string name="home_action_battery">מרכז כוח</string>
@@ -1498,7 +1473,6 @@
     <string name="home_active">פָּעִיל</string>
     <string name="home_idle">לְהִתְבַּטֵל</string>
     <string name="home_protected">מוּגָן</string>
-    <string name="home_device_overview">פתח את סקירת המכשיר</string>
     <string name="home_live_performance">הופעה חיה</string>
     <string name="home_live_performance_desc">עומס נוכחי ובקרות חומרה ישירות</string>
     <string name="home_open_details">פתח נתונים תרמיים מפורטים</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">מתבצעות אופטימיזציות לכל אפליקציה</string>
     <string name="max_app_advanced_options">אפשרויות מתקדמות</string>
     <string name="max_app_save">לְהַצִיל</string>
+    <string name="home_gpu_max_freq">תדירות מקסימלית</string>
 </resources>

@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nd.max.R
+import nd.max.ui.component.AppIconImage
 import nd.max.ui.component.ExpressiveListItem
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
@@ -39,6 +40,7 @@ import nd.max.ui.design.MaxListScreen
 import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxSearchField
 import nd.max.ui.design.MaxSegmented
+import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 
 /**
@@ -87,7 +89,9 @@ fun ActivityLauncherScreen(navController: NavController) {
 
     BackHandler(enabled = selected != null) { viewModel.closeDetail() }
 
-    val onBack = {
+    // `popBackStack()` returns Boolean while `closeDetail()` returns Unit; without the explicit
+    // Unit type the lambda infers `() -> Any` and no longer satisfies the shell's `() -> Unit`.
+    val onBack: () -> Unit = {
         if (selected != null) viewModel.closeDetail() else navController.popBackStack()
     }
 
@@ -213,7 +217,16 @@ private fun IndexLevel(
                         overflow = TextOverflow.Ellipsis,
                     )
                 },
-                leadingContent = { AppBadge(label = app.label) },
+                // أيقونة التطبيق الحقيقية. كان هنا حرفًا بدلًا منها بحجّة أن حلّ `Drawable` لكل
+                // صفّ أغلى ما يفعله فهرس تطبيقات — والحجّة سبقت `AppIconCache`: الصورة تُرسم
+                // مرّة واحدة لكل حزمة على `Dispatchers.IO`، وكل صفّ بعدها يقرأها من `LruCache`
+                // في O(1) بلا أي نداء إلى `PackageManager`.
+                leadingContent = {
+                    AppIconImage(
+                        packageName = app.packageName,
+                        size = MaxSize.rowIconContainer,
+                    )
+                },
                 trailingContent = {
                     Text(
                         text = stringResource(
@@ -332,34 +345,9 @@ private fun ActivityTagChip(tag: ActivityTag) {
     }
 }
 
-/**
- * Letter badge instead of the app icon.
- *
- * Resolving a `Drawable` for every visible row is the single most expensive thing
- * an app index can do — it is why the version of this screen this replaced had to
- * defer icon loading at all. A letter is drawn from text the row already holds.
+/*
+ * كان هنا `AppBadge`: حرف بدل أيقونة التطبيق، بحجّة أن حلّ `Drawable` لكل صفّ أغلى ما يفعله
+ * فهرس تطبيقات. الحجّة صحيحة لكنها لم تعد تنطبق: `AppIconCache` يحفظ الصورة لكل حزمة،
+ * و`loadIcon(pm, packageName, …)` يحلّها مرّة على `Dispatchers.IO` — فالشارة الحرفية صارت
+ * أيقونةً ناقصة لا قرارًا مبنيًّا على قياس. أُزيلت ولا تُعاد.
  */
-@Composable
-private fun AppBadge(label: String) {
-    val letter = label.trim().firstOrNull()?.uppercase() ?: "?"
-    Box(
-        modifier = Modifier.size(MaxSpace.xxl),
-        contentAlignment = Alignment.Center,
-    ) {
-        Surface(
-            shape = RoundedCornerShape(MaxRadius.control),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-        ) {
-            Box(
-                modifier = Modifier.size(MaxSpace.xl),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = letter,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
-    }
-}

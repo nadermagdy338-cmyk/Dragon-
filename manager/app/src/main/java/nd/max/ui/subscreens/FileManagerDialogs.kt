@@ -32,6 +32,7 @@ package nd.max.ui.subscreens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import nd.max.R
+import nd.max.ui.component.FileCompressDialog
 import nd.max.ui.component.FileConflictDialog
 import nd.max.ui.component.FileEditorDialog
 import nd.max.ui.component.FilePropertiesDialog
@@ -41,11 +42,15 @@ import nd.max.ui.design.MaxConfirmDialog
 import nd.max.ui.design.MaxInputDialog
 import nd.max.ui.util.AccessBit
 import nd.max.ui.util.AccessScope
+import nd.max.ui.util.ArchiveFormat
+import nd.max.ui.util.CompressionLevel
 import nd.max.ui.util.ConflictChoice
+import nd.max.ui.util.FileDeleteTarget
 import nd.max.ui.util.FileEntry
 import nd.max.ui.util.FileOpGuard
 import nd.max.ui.util.FileOpRefusal
 import nd.max.ui.util.FileWindowsState
+import nd.max.ui.util.StorageScanModel
 
 /** كل نافذة تُفتح فوق الشاشة — ونوع مغلق فلا تُخترع نافذة بلا إغلاق. */
 internal enum class FileDialog {
@@ -53,6 +58,7 @@ internal enum class FileDialog {
     RenameWindow,
     NewFolder,
     NewFile,
+    Compress,
     Delete,
     Path,
     Refused,
@@ -70,6 +76,10 @@ internal data class FileManagerCallbacks(
     val onRenameWindow: (String) -> Unit,
     val onNewFolder: (String) -> Unit,
     val onNewFile: (String) -> Unit,
+    val onCompressName: (String) -> Unit,
+    val onCompressFormat: (ArchiveFormat) -> Unit,
+    val onCompressLevel: (CompressionLevel) -> Unit,
+    val onCompressConfirm: () -> Unit,
     val onDelete: () -> Unit,
     val onPath: (String) -> Unit,
     val onProperties: (PropertiesState) -> Unit,
@@ -96,7 +106,8 @@ internal fun FileManagerDialogs(
     renameWindowOpen: Boolean,
     newFolderOpen: Boolean,
     newFileOpen: Boolean,
-    deleteTargets: List<String>?,
+    compress: CompressState?,
+    deleteTargets: FileDeleteTarget?,
     pathEditOpen: Boolean,
     inputDraft: String,
     refused: FileOpRefusal?,
@@ -170,12 +181,41 @@ internal fun FileManagerDialogs(
         )
     }
 
+    // ── الضغط: الخيارات قبل الكتابة ────────────────────────────────────────
+    compress?.let { state ->
+        FileCompressDialog(
+            visible = true,
+            name = state.name,
+            format = state.format,
+            level = state.level,
+            sourceCount = state.sources.size,
+            // السبب رمزٌ في النموذج، والجملة تُبنى هنا (النماذج لا تعرف `R`).
+            nameProblem = state.nameProblem?.let { stringResource(refusalText(it)) },
+            onName = callbacks.onCompressName,
+            onFormat = callbacks.onCompressFormat,
+            onLevel = callbacks.onCompressLevel,
+            onConfirm = callbacks.onCompressConfirm,
+            onDismiss = { callbacks.onDismiss(FileDialog.Compress) },
+        )
+    }
+
     // ── الحذف: نهائي ومؤكَّد ─────────────────────────────────────────────────
-    deleteTargets?.let { targets ->
+    deleteTargets?.let { target ->
+        // الحجم يُعرض **فقط** إن كان كل عنصر حجمه معروفًا؛ وإلا يُقال إن الحجم غير معروف.
+        // وحوار حذف جذريّ يجب أن يقول الثمن قبل التأكيد لا بعده (فجوة §10.5 في المواصفة).
+        val size = target.sizeBytes
         MaxConfirmDialog(
             visible = true,
             title = stringResource(R.string.max_files_delete_title),
-            message = stringResource(R.string.max_files_delete_body, targets.size),
+            message = if (size == null) {
+                stringResource(R.string.max_files_delete_body, target.count)
+            } else {
+                stringResource(
+                    R.string.max_files_delete_body_sized,
+                    target.count,
+                    StorageScanModel.formatBytes(size),
+                )
+            },
             confirmLabel = stringResource(R.string.max_files_action_delete),
             destructive = true,
             onConfirm = callbacks.onDelete,

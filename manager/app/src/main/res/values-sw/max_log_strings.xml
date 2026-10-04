@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Kitenzi</string>
+    <string name="max_log_level_debug">Tatua</string>
+    <string name="max_log_level_info">Habari</string>
+    <string name="max_log_level_warn">Onyo</string>
+    <string name="max_log_level_error">Hitilafu</string>
+    <string name="max_log_level_assert">Kudai</string>
+    <string name="max_log_level_fatal">mbaya</string>
+    <string name="max_log_buffer_main">Kuu</string>
+    <string name="max_log_buffer_system">Mfumo</string>
+    <string name="max_log_buffer_crash">Kuanguka</string>
+    <string name="max_log_buffer_kernel">Kernel</string>
+    <string name="max_log_buffer_events">Matukio</string>
+    <string name="max_log_buffer_radio">Redio</string>
+    <string name="max_log_source_daemon">Daemon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Nyingine</string>
+</resources>

@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.blur.blurEffect
 import dev.chrisbanes.haze.hazeEffect
+import nd.max.ui.design.MaxRadius
 import nd.max.ui.component.MaxMotion
 import nd.max.ui.component.maxPressMotion
 import nd.max.ui.design.MaxAlpha
@@ -98,7 +99,7 @@ fun NavigationRailBar(
     isBlurEnabled: Boolean = false,
     hazeState: HazeState? = null,
 ) {
-    val navigationShape = RoundedCornerShape(28.dp)
+    val navigationShape = RoundedCornerShape(MaxRadius.sheet)
     val isBlurActive = isBlurEnabled && hazeState != null
 
     Surface(
@@ -166,7 +167,7 @@ fun BottomNavBar(
     isBlurEnabled: Boolean = false,
     hazeState: HazeState? = null,
 ) {
-    val pillShape = RoundedCornerShape(28.dp)
+    val pillShape = RoundedCornerShape(MaxRadius.sheet)
     val isBlurActive = isBlurEnabled && hazeState != null
 
     Box(
@@ -259,7 +260,7 @@ private fun NavPill(
     Column(
         modifier = modifier
             .maxPressMotion(interactionSource)
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(MaxRadius.tile))
             .background(background)
             .selectable(
                 selected = isSelected,

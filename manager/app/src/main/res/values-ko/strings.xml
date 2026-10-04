@@ -7,7 +7,7 @@
     <string name="all_set">모든 준비 완료. 이제 Max Manager를 사용할 수 있습니다</string>
     <string name="allow_verbose_log">데몬 상세 로그 출력</string>
     <string name="android_version">Android 버전</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">앱 이름</string>
     <string name="app_priority">앱 우선순위</string>
     <string name="app_priority_control">앱 우선순위 제어</string>
@@ -723,15 +723,6 @@
     <string name="fps_overlay_notif_channel">FPS 오버레이</string>
     <string name="fps_overlay_notif_title">Max Manager FPS 오버레이가 실행 중입니다.</string>
     <string name="fps_overlay_notif_stop">멈추다</string>
-    <string name="fps_overlay_section_style">모습</string>
-    <string name="fps_overlay_style">오버레이 스타일</string>
-    <string name="fps_overlay_style_android">안드로이드 목록</string>
-    <string name="fps_overlay_style_pc">PC 모노스페이스</string>
-    <string name="fps_overlay_style_mini">미니</string>
-    <string name="fps_overlay_orientation">레이아웃 방향</string>
-    <string name="fps_overlay_orientation_vertical">수직의</string>
-    <string name="fps_overlay_orientation_horizontal">수평의</string>
-    <string name="fps_overlay_read_mode">FPS 판독 방식</string>
     <string name="fps_overlay_read_mode_desc">기기의 판독값이 0으로 유지되는 경우 다른 방법을 시도해 보세요.</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger(권장)</string>
     <string name="fps_overlay_mode_kernel">커널 노드</string>
@@ -740,14 +731,6 @@
     <string name="fps_overlay_text_size">텍스트 크기</string>
     <string name="fps_overlay_bg_alpha">배경 불투명도</string>
     <string name="fps_overlay_width_scale">폭 스케일</string>
-    <string name="fps_overlay_section_metrics">표시된 측정항목</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU 로드</string>
-    <string name="fps_overlay_metric_ram">RAM 사용법</string>
-    <string name="fps_overlay_metric_watt">배터리 전력 소모</string>
-    <string name="fps_overlay_metric_temp">배터리 온도</string>
-    <string name="fps_overlay_metric_render">렌더러 라벨</string>
-    <string name="fps_overlay_metric_render_desc">포그라운드 앱의 로드된 라이브러리에서 감지되어 \"FPS\" 대신 VULKAN/OPENGL을 레이블로 표시합니다.</string>
     <string name="dozemode_title">수면 정책</string>
     <string name="dozemode_menu_desc">대기 화이트리스트, 유휴 동작 및 백그라운드 전원 조정</string>
     <string name="dozemode_state_label">졸음 상태</string>
@@ -783,9 +766,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">설정 열기</string>
     <string name="processmgr_title">작업 모니터</string>
-    <string name="processmgr_menu_desc">강제 중지 및 플로팅 오버레이를 포함한 프로세스별 CPU 및 RAM 사용</string>
     <string name="processmgr_stat_total">%1$d 프로세스</string>
-    <string name="processmgr_stat_breakdown">%1$d 사용자 \u00b7 %2$d 시스템</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">상단 %1$d</string>
@@ -805,9 +786,6 @@
     <string name="processmgr_search_hint">실행 중인 프로세스 검색</string>
     <string name="processmgr_no_processes">검색어와 일치하는 프로세스가 없습니다.</string>
     <string name="processmgr_dialog_close">닫다</string>
-    <string name="processmgr_detail_version">버전</string>
-    <string name="processmgr_detail_build">짓다</string>
-    <string name="processmgr_detail_package">패키지</string>
     <string name="processmgr_result_killed">사망 %1$s</string>
     <string name="processmgr_result_kill_failed">죽일 수 없었어요 %1$s</string>
     <string name="processmgr_result_stopped">강제 정지 %1$s</string>
@@ -1454,7 +1432,6 @@
     <string name="max_home_reboot_desc">안전한 재부팅 옵션 열기</string>
     <string name="max_home_ai_console">MAX AI 콘솔</string>
     <string name="max_home_ai_working">요청한 프로필을 적용하는 중…</string>
-    <string name="max_home_ai_failed">마지막 AI 작업 실패</string>
     <string name="max_home_retry">다시 해 보다</string>
     <string name="max_home_ai_idle">아직 AI 결정이 기록되지 않았습니다.</string>
     <string name="home_system_stable">시스템 안정</string>
@@ -1470,8 +1447,6 @@
     <string name="home_performance_monitor_desc">지난 72초 동안의 리소스 로드</string>
     <string name="home_quick_actions">커맨드 덱</string>
     <string name="home_quick_actions_desc">중요한 컨트롤에 직접 액세스</string>
-    <string name="home_action_boost">성능 프로필</string>
-    <string name="home_action_boost_desc">시스템 동작 변경</string>
     <string name="home_action_thermal">온천 센터</string>
     <string name="home_action_thermal_desc">열 및 냉각 검사</string>
     <string name="home_action_battery">파워 센터</string>
@@ -1491,7 +1466,6 @@
     <string name="home_active">활동적인</string>
     <string name="home_idle">게으른</string>
     <string name="home_protected">보호됨</string>
-    <string name="home_device_overview">개방형 장치 개요</string>
     <string name="home_live_performance">라이브 공연</string>
     <string name="home_live_performance_desc">현재 로드 및 직접 하드웨어 제어</string>
     <string name="home_open_details">자세한 열 데이터 열기</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">앱별 최적화가 적용되고 있습니다</string>
     <string name="max_app_advanced_options">고급 옵션</string>
     <string name="max_app_save">구하다</string>
+    <string name="home_gpu_max_freq">최대 주파수</string>
 </resources>

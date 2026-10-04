@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">מִלוּלִי</string>
+    <string name="max_log_level_debug">לְנַפּוֹת</string>
+    <string name="max_log_level_info">מידע</string>
+    <string name="max_log_level_warn">אַזהָרָה</string>
+    <string name="max_log_level_error">שְׁגִיאָה</string>
+    <string name="max_log_level_assert">לִטעוֹן</string>
+    <string name="max_log_level_fatal">קָטלָנִי</string>
+    <string name="max_log_buffer_main">רָאשִׁי</string>
+    <string name="max_log_buffer_system">מַעֲרֶכֶת</string>
+    <string name="max_log_buffer_crash">לְהִתְרַסֵק</string>
+    <string name="max_log_buffer_kernel">גַרעִין</string>
+    <string name="max_log_buffer_events">אירועים</string>
+    <string name="max_log_buffer_radio">רָדִיוֹ</string>
+    <string name="max_log_source_daemon">דימון</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">ממשק משתמש</string>
+    <string name="max_log_source_other">אַחֵר</string>
+</resources>

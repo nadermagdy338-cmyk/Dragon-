@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Maksimalno razdoblje roka (nas)</string>
+    <string name="max_sched_tunable_deadline_period_min">Razdoblje roka Min (us)</string>
+    <string name="max_sched_tunable_energy_aware">Energetski svjestan</string>
+    <string name="max_sched_tunable_latency">Latencija (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Trošak migracije (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimalna granularnost (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Veličina serije migracije</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT Multiplikator</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-robin vremenski odsječak (ms)</string>
+    <string name="max_sched_tunable_rt_period">Razdoblje stvarnog vremena (nas)</string>
+    <string name="max_sched_tunable_rt_runtime">Real-Time Runtime (nas)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">UClamp pod u stvarnom vremenu</string>
+    <string name="max_sched_tunable_wakeup_granularity">Granularnost buđenja (ns)</string>
+</resources>

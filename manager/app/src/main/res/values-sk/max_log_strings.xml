@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Úplné</string>
+    <string name="max_log_level_debug">Debug</string>
+    <string name="max_log_level_info">Info</string>
+    <string name="max_log_level_warn">POZOR</string>
+    <string name="max_log_level_error">Chyba</string>
+    <string name="max_log_level_assert">Tvrdiť</string>
+    <string name="max_log_level_fatal">Osudný</string>
+    <string name="max_log_buffer_main">Hlavné</string>
+    <string name="max_log_buffer_system">Systém</string>
+    <string name="max_log_buffer_crash">Zrútiť sa</string>
+    <string name="max_log_buffer_kernel">Kernel</string>
+    <string name="max_log_buffer_events">Udalosti</string>
+    <string name="max_log_buffer_radio">Rádio</string>
+    <string name="max_log_source_daemon">Démon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Iné</string>
+</resources>

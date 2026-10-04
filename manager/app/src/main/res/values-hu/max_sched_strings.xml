@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Határidő maximális időtartama (mi)</string>
+    <string name="max_sched_tunable_deadline_period_min">Határidő Min. (mi)</string>
+    <string name="max_sched_tunable_energy_aware">Energiatudatos</string>
+    <string name="max_sched_tunable_latency">Késés (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Átállási költség (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Minimális szemcsézettség (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Migrációs köteg mérete</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT szorzó</string>
+    <string name="max_sched_tunable_rr_timeslice">Körrobin időszelet (ms)</string>
+    <string name="max_sched_tunable_rt_period">Valós idejű időszak (mi)</string>
+    <string name="max_sched_tunable_rt_runtime">Valós idejű futásidő (mi)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Valós idejű UClamp padló</string>
+    <string name="max_sched_tunable_wakeup_granularity">Ébresztő részletesség (ns)</string>
+</resources>

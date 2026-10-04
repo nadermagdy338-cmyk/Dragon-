@@ -1,67 +1,124 @@
 /*
  * Copyright (C) 2026 Nader Magdy. All rights reserved.
- * Proprietary and confidential — not licensed for use, copying, or distribution
- * without prior written permission from the copyright holder.
  *
-محرّر إعدادات النظام والخصائص (global/secure/system): بحث، وتبويبات تصنيف، وورقة تفاصيل
- * للتعديل، وتاريخ للتعديلات الأخيرة. */
-
-@file:OptIn(ExperimentalMaterial3Api::class)
+ * MaxManager proprietary source. See LICENSE at the repository root: this file is
+ * MaxManager-owned and carries no third-party licence obligations.
+ */
 
 package nd.max.ui.subscreens
 
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.WarningAmber
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nd.max.R
-import nd.max.ui.component.*
+import nd.max.ui.component.ConfirmDialogHost
+import nd.max.ui.component.CustomBottomSheet
+import nd.max.ui.component.ExpressiveListItem
+import nd.max.ui.component.MaxEmptyState
+import nd.max.ui.component.ScreenAccentProvider
+import nd.max.ui.component.StudioButton
+import nd.max.ui.component.StudioOutlinedButton
+import nd.max.ui.component.StudioTextButton
+import nd.max.ui.component.StudioTonalButton
+import nd.max.ui.component.rememberConfirmDialog
+import nd.max.ui.design.MaxListScreen
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSearchField
+import nd.max.ui.design.MaxSegmented
+import nd.max.ui.design.MaxSize
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.util.SetEditCategory
 import nd.max.ui.util.SetEditItem
 import nd.max.ui.util.isSensitiveSetEditKey
+import nd.max.ui.util.setEditValueKind
+import nd.max.ui.util.SetEditValueKind
+import nd.max.ui.viewmodel.SetEditAction
 import nd.max.ui.viewmodel.SetEditHistoryEntry
+import nd.max.ui.viewmodel.SetEditSort
 import nd.max.ui.viewmodel.SetEditViewModel
 
+/**
+ * محرّر الإعدادات والخصائص — قراءة مباشرة من الجهاز، وتعديل بإثبات، ويوميّة تُرجع ما غُيّر.
+ *
+ * ### ما أُعيد تصميمه، ولماذا كل تغيير مقصود
+ *
+ * 1. **النبض المُزخرف أُزيل.** كانت الشاشة تفتح على كتلة تنبض بلا توقّف (`rememberInfiniteTransition`
+ *    بين 0.96 و1.04، تكرار لا ينتهي) في شاشة تُعدّل قيم نظام. حركة لا تحمل معلومة تُدفع من بطارية
+ *    الجهاز الذي تجلس عليه — والشاشة الآن تبدأ **بما يُقاس**: عدد المعروض من الكلّ.
+ * 2. **العنوان لم يُكرَّر.** كان مكتوبًا في الشريط العلويّ وفي كتلة البطل معًا.
+ * 3. **اليوميّة صارت يوميّة.** كان المعروض منها **المحذوف وحده**: تعديل تكتبه للتوّ لا أثر له في أي
+ *    مكان. وهي الآن تشمل **التعديل والإنشاء والحذف**، بأحدثها أوّلًا، ومحفوظ فيها **القيمة السابقة**.
+ * 4. **و«أعِد القيمة القديمة» أُضيف** في ورقة التعديل: أوّل ما يحتاجه من حرّر مفتاحًا وأراد الرجوع —
+ *    وكان عليه أن يتذكّر الرقم القديم بنفسه.
+ * 5. **المحرّر يتكيّف مع نوع القيمة.** نصف مفاتيح `Settings` إمّا `0/1` وإمّا `true/false`؛ وكانت
+ *    كلّها حقل نصّ خامًّا فيُكتب الرقم من الذاكرة. فالآن يُقرأ النوع من القيمة نفسها
+ *    ([setEditValueKind]) فيُعرض **مفتاح تبديل** إن كانت ثنائية، **وحقل نصّ يبقى معها** للقيم
+ *    التي لا تُختصر (`2`، `unknown`، مسار).
+ * 6. **«ما غيّرتُه فقط» والترتيب بالاسم** أُضيفا: بعد عشر دقائق من التعديل تصير القائمة ألفًا،
+ *    والسؤال «ما الذي لمسته؟» لا جواب له بالتمرير.
+ * 7. **وصف الفئة في التبويب صار عدًّا مقيسًا** في الرأس لا محرفًا في العنوان.
+ *
+ * **والحدّ المعلَن:** هذه الشاشة **تكتب على الجهاز** — كل نتيجة كتابة تُعلَن في لقطة (نجحت أو فشلت)
+ * ولا تُفترض، والقراءة كلها عبر `SetEditUtil` (أوامر `settings`/`getprop`) لا عبر كتابة ملفّات.
+ */
 @Composable
 fun SetEditScreen(
     navController: NavController,
     viewModel: SetEditViewModel = viewModel()
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val listState = rememberLazyListState()
     val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
-    // موارد من `LocalResources.current`: كل نصوص هذه الشاشة تُقرأ داخل لامبدات استجابة (onSave/onDelete/…)
-    // التي لا تُبطل فيها قراءة `LocalContext.current.resources` عند تغيّر التكوين.
+    // موارد من `LocalResources.current`: كل نصوص هذه الشاشة تُقرأ داخل لامبدات استجابة (onSave/onDelete/…).
     val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     var selectedItem by remember { mutableStateOf<SetEditItem?>(null) }
     var pendingDelete by remember { mutableStateOf<SetEditItem?>(null) }
-    var showHistorySheet by remember { mutableStateOf(false) }
-    var showAddSheet by remember { mutableStateOf(false) }
+    var showJournal by remember { mutableStateOf(false) }
+    var showAdd by remember { mutableStateOf(false) }
 
     val deleteConfirmDialog = rememberConfirmDialog(
         onConfirm = {
@@ -92,94 +149,90 @@ fun SetEditScreen(
     }
 
     ScreenAccentProvider(colorScheme.primary) {
-        Scaffold(
-                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                topBar = {
-                    MaxManagerSubScreenTopBar(
-                        scrollBehavior = scrollBehavior,
-                        title = stringResource(R.string.setedit_title),
-                        onBack = { navController.popBackStack() },
-                        accentIcon = Icons.Filled.Dns,
-                        accent = colorScheme.primary,
-                        actions = {
-                            IconButton(onClick = { showHistorySheet = true }) {
-                                Icon(Icons.Outlined.History, contentDescription = stringResource(R.string.setedit_history_cd))
-                            }
-                            IconButton(onClick = { showAddSheet = true }) {
-                                Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.setedit_add_cd))
-                            }
-                        }
+        MaxListScreen(
+            title = stringResource(R.string.setedit_title),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Filled.Dns,
+            accent = colorScheme.primary,
+            snackbarHostState = snackbarHostState,
+            actions = {
+                IconButton(onClick = { showJournal = true }) {
+                    Icon(Icons.Outlined.History, contentDescription = stringResource(R.string.setedit_history_cd))
+                }
+                IconButton(onClick = { showAdd = true }) {
+                    Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.setedit_add_cd))
+                }
+            }
+        ) {
+            item {
+                StateHeader(
+                    shown = viewModel.filteredItems.size,
+                    total = viewModel.items.size,
+                    journalCount = viewModel.journal.size,
+                    onlyEdited = viewModel.onlyEdited,
+                    onOnlyEdited = viewModel::filterOnlyEdited
+                )
+                Spacer(Modifier.height(MaxSpace.sm))
+            }
+
+            item {
+                MaxSearchField(
+                    value = viewModel.searchQuery,
+                    onValueChange = { viewModel.setSearchQuery(it) },
+                    placeholder = stringResource(R.string.setedit_search_hint)
+                )
+                Spacer(Modifier.height(MaxSpace.sm))
+            }
+
+            item {
+                CategoryStrip(
+                    selected = viewModel.selectedCategory,
+                    onSelect = { viewModel.setCategory(it) }
+                )
+                Spacer(Modifier.height(MaxSpace.sm))
+                SortStrip(sort = viewModel.sort, onSort = viewModel::chooseSort)
+                Spacer(Modifier.height(MaxSpace.sm))
+            }
+
+            when {
+                viewModel.isLoading && viewModel.items.isEmpty() -> item { SectionLoadingIndicator() }
+
+                viewModel.filteredItems.isEmpty() -> item {
+                    MaxEmptyState(
+                        title = stringResource(R.string.setedit_empty_title),
+                        message = stringResource(R.string.setedit_no_items)
                     )
-                },
-                snackbarHost = { SnackbarHost(snackbarHostState) },
-                containerColor = colorScheme.surface
-            ) { innerPadding ->
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        top = innerPadding.calculateTopPadding() + 12.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                }
+
+                else -> items(viewModel.filteredItems, key = { it.lazyKey }) { item ->
+                    SetEditRow(
+                        item = item,
+                        edited = viewModel.editedKeys.contains(item.key),
+                        onClick = { selectedItem = item }
                     )
-                ) {
-                    item {
-                        SetEditHero(
-                            itemCount = viewModel.items.size,
-                            filteredCount = viewModel.filteredItems.size,
-                            onHistory = { showHistorySheet = true },
-                            onAdd = { showAddSheet = true }
-                        )
-                        Spacer(Modifier.height(12.dp))
-                    }
-
-                    item {
-                        OutlinedTextField(
-                            value = viewModel.searchQuery,
-                            onValueChange = { viewModel.setSearchQuery(it) },
-                            placeholder = { Text(stringResource(R.string.setedit_search_hint)) },
-                            leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-                            singleLine = true,
-                            shape = RoundedCornerShape(MaxUiMetrics.smallRadius),
-                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp)
-                        )
-                    }
-
-                    item {
-                        SetEditCategoryTabs(
-                            selected = viewModel.selectedCategory,
-                            onSelect = { viewModel.setCategory(it) }
-                        )
-                        Spacer(Modifier.height(8.dp))
-                    }
-
-                    if (viewModel.isLoading && viewModel.items.isEmpty()) {
-                        item { SectionLoadingIndicator() }
-                    } else if (viewModel.filteredItems.isEmpty()) {
-                        item {
-                            Box(Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
-                                Text(stringResource(R.string.setedit_no_items), color = colorScheme.onSurfaceVariant)
-                            }
-                        }
-                    } else {
-                        items(viewModel.filteredItems, key = { it.lazyKey }) { item ->
-                            SetEditRow(item, onClick = { selectedItem = item })
-                        }
-                    }
                 }
             }
         }
+    }
 
     ConfirmDialogHost(handle = deleteConfirmDialog)
 
     CustomBottomSheet(visible = selectedItem != null, onDismiss = { selectedItem = null }) {
         selectedItem?.let { item ->
-            SetEditDetailSheetContent(
+            DetailSheet(
                 item = item,
+                previousValue = viewModel.previousValueOf(item.key),
                 onSave = { newValue ->
                     viewModel.saveItem(item, newValue) { ok, key ->
-                        if (ok) resources.getString(R.string.setedit_msg_saved, key) else resources.getString(R.string.setedit_msg_save_failed, key)
+                        if (ok) resources.getString(R.string.setedit_msg_saved, key)
+                        else resources.getString(R.string.setedit_msg_save_failed, key)
+                    }
+                    selectedItem = null
+                },
+                onRevert = { previous ->
+                    viewModel.saveItem(item, previous) { ok, key ->
+                        if (ok) resources.getString(R.string.setedit_msg_saved, key)
+                        else resources.getString(R.string.setedit_msg_save_failed, key)
                     }
                     selectedItem = null
                 },
@@ -197,328 +250,459 @@ fun SetEditScreen(
         }
     }
 
-    CustomBottomSheet(visible = showHistorySheet, onDismiss = { showHistorySheet = false }) {
-        SetEditHistorySheetContent(
-            history = viewModel.deletedHistory,
+    CustomBottomSheet(visible = showJournal, onDismiss = { showJournal = false }) {
+        JournalSheet(
+            entries = viewModel.journal,
             onRestore = { entry ->
                 viewModel.restoreFromHistory(entry) { ok, key ->
-                    if (ok) resources.getString(R.string.setedit_msg_restored, key) else resources.getString(R.string.setedit_msg_restore_failed, key)
+                    if (ok) resources.getString(R.string.setedit_msg_restored, key)
+                    else resources.getString(R.string.setedit_msg_restore_failed, key)
                 }
             }
         )
     }
 
-    CustomBottomSheet(visible = showAddSheet, onDismiss = { showAddSheet = false }) {
-        SetEditAddSheetContent(
+    CustomBottomSheet(visible = showAdd, onDismiss = { showAdd = false }) {
+        AddSheet(
             onCreate = { category, key, value ->
                 viewModel.createItem(category, key, value) { ok, k ->
-                    if (ok) resources.getString(R.string.setedit_msg_created, k) else resources.getString(R.string.setedit_msg_create_failed, k)
+                    if (ok) resources.getString(R.string.setedit_msg_created, k)
+                    else resources.getString(R.string.setedit_msg_create_failed, k)
                 }
-                showAddSheet = false
+                showAdd = false
             }
         )
     }
 }
 
+/**
+ * رأس الشاشة: ما يُعرض من الكلّ، وعدد ما غُيّر في هذه الجلسة، ومفتاح «ما غيّرتُه فقط».
+ *
+ * وهو **بديل كتلة البطل** التي كانت تنبض: لا حركة، ولا تكرار للعنوان، وكل رقم فيه مقيس.
+ */
 @Composable
-private fun SetEditHero(
-    itemCount: Int,
-    filteredCount: Int,
-    onHistory: () -> Unit,
-    onAdd: () -> Unit
+private fun StateHeader(
+    shown: Int,
+    total: Int,
+    journalCount: Int,
+    onlyEdited: Boolean,
+    onOnlyEdited: (Boolean) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
-    val infinite = rememberInfiniteTransition(label = "setedit_hero")
-    val pulse by infinite.animateFloat(
-        initialValue = 0.96f,
-        targetValue = 1.04f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse"
-    )
-
-    MaxSurface(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        accent = colors.primary
+        shape = RoundedCornerShape(MaxRadius.group),
+        color = colors.surfaceContainerLow
     ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(72.dp)
-                        .graphicsLayer { scaleX = pulse; scaleY = pulse }
-                        .background(colors.primaryContainer, RoundedCornerShape(22.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Outlined.Tune,
-                        contentDescription = null,
-                        tint = colors.onPrimaryContainer,
-                        modifier = Modifier.size(34.dp)
-                    )
-                }
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        stringResource(R.string.setedit_title),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "${stringResource(R.string.setedit_tab_all)} · $filteredCount/$itemCount",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colors.onSurfaceVariant
-                    )
-                }
+        Column(Modifier.padding(MaxSpace.lg)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.setedit_counts, shown, total),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = stringResource(R.string.setedit_journal_count, journalCount),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colors.primary
+                )
             }
-
-            Spacer(Modifier.height(18.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                nd.max.ui.component.StudioTonalButton(
-                    onClick = onAdd,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(MaxUiMetrics.smallRadius)
-                ) {
-                    Icon(Icons.Outlined.Add, null)
-                    Spacer(Modifier.width(7.dp))
-                    Text(stringResource(R.string.setedit_add_cd))
-                }
-                nd.max.ui.component.StudioOutlinedButton(
-                    onClick = onHistory,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(MaxUiMetrics.smallRadius)
-                ) {
-                    Icon(Icons.Outlined.History, null)
-                    Spacer(Modifier.width(7.dp))
-                    Text(stringResource(R.string.setedit_history_cd))
-                }
-            }
+            Spacer(Modifier.height(MaxSpace.sm))
+            MaxSwitchRow(
+                title = stringResource(R.string.setedit_only_edited),
+                checked = onlyEdited,
+                onCheckedChange = onOnlyEdited,
+                icon = Icons.Outlined.History
+            )
+        }
     }
 }
 
+/**
+ * تبويبات الفئة — من `MaxSegmented` فلا نمط جديد، والعدّاد في الرأس لا في التبويب.
+ *
+ * و«الكل» أوّلًا لأنّه ما يُقرأ أوّلًا: الشاشة تقرأ كل الأصناف ثم تُصفّي في العرض، فالتبويب
+ * **عرض** لا أمر قراءة جديد — إلا حين يُختار صنف بعينه فيُقرأ وحده ([SetEditViewModel.setCategory]).
+ */
 @Composable
-private fun SetEditCategoryTabs(selected: SetEditCategory?, onSelect: (SetEditCategory?) -> Unit) {
-    val tabs: List<Pair<SetEditCategory?, String>> = listOf(
+private fun CategoryStrip(selected: SetEditCategory?, onSelect: (SetEditCategory?) -> Unit) {
+    val options = listOf(
         null to stringResource(R.string.setedit_tab_all),
         SetEditCategory.GLOBAL to stringResource(R.string.setedit_tab_global),
         SetEditCategory.SECURE to stringResource(R.string.setedit_tab_secure),
         SetEditCategory.SYSTEM to stringResource(R.string.setedit_tab_system),
         SetEditCategory.ANDROID_PROP to stringResource(R.string.setedit_tab_android)
     )
-    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        tabs.forEachIndexed { index, (category, label) ->
-            SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
-                selected = selected == category,
-                onClick = { onSelect(category) }
-            ) {
-                Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-        }
-    }
+    MaxSegmented(
+        options = options.map { it.second },
+        selectedIndex = options.indexOfFirst { it.first == selected }.coerceAtLeast(0),
+        onSelect = { index -> options.getOrNull(index)?.let { onSelect(it.first) } }
+    )
+}
+
+/** الترتيب: `MaxSegmented` بعنصرين — «كما ورد» و«بالاسم». */
+@Composable
+private fun SortStrip(sort: SetEditSort, onSort: (SetEditSort) -> Unit) {
+    MaxSegmented(
+        options = listOf(
+            stringResource(R.string.setedit_sort_natural),
+            stringResource(R.string.setedit_sort_name)
+        ),
+        selectedIndex = if (sort == SetEditSort.ByKey) 1 else 0,
+        onSelect = { index -> onSort(if (index == 1) SetEditSort.ByKey else SetEditSort.Natural) }
+    )
 }
 
 @Composable
-private fun SetEditRow(item: SetEditItem, onClick: () -> Unit) {
+private fun SetEditRow(item: SetEditItem, edited: Boolean, onClick: () -> Unit) {
     val isSensitive = remember(item.key) { isSensitiveSetEditKey(item.key) }
     ExpressiveListItem(
         onClick = onClick,
         headlineContent = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(item.key, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f, fill = false))
+                Text(
+                    text = item.key,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                // علامة «غُيّر في هذه الجلسة»: تُغني عن تذكّر ما لمسته، وتُقرأ بجانب المفتاح
+                // نفسه لا في شاشة أخرى.
+                if (edited) {
+                    Spacer(Modifier.width(MaxSpace.xs))
+                    Text(
+                        text = stringResource(R.string.setedit_marker_edited),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 if (isSensitive) {
-                    Spacer(Modifier.width(6.dp))
-                    Icon(Icons.Outlined.WarningAmber, contentDescription = stringResource(R.string.setedit_sensitive_cd), tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(MaxSpace.xs))
+                    Icon(
+                        imageVector = Icons.Outlined.WarningAmber,
+                        contentDescription = stringResource(R.string.setedit_sensitive_cd),
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(MaxSpace.lg)
+                    )
                 }
             }
         },
         supportingContent = {
-            Text(item.value, maxLines = 1, overflow = TextOverflow.Ellipsis, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
+            Text(
+                text = item.value,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     )
 }
 
+/**
+ * ورقة التعديل: المفتاح وقيمته (للنسخ)، والقيمة السابقة إن وُجدت، ومحرّر **يتكيّف** مع النوع.
+ *
+ * والمحرّر المزدوج (مفتاح تبديل **وحقل نصّ**) مقصود لا تردّد: التبديل أسرع وأأمن للثنائيات، والحقل
+ * يبقى لأنّ القيمة الحقيقية قد تكون `2` أو `unknown` — فيُكتب النصّ الذي تراه العين، لا ما يفترضه
+ * التطبيق.
+ */
 @Composable
-private fun SetEditDetailSheetContent(item: SetEditItem, onSave: (String) -> Unit, onDelete: () -> Unit) {
+private fun DetailSheet(
+    item: SetEditItem,
+    previousValue: String?,
+    onSave: (String) -> Unit,
+    onRevert: (String) -> Unit,
+    onDelete: () -> Unit
+) {
     val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
     var editValue by remember(item.key) { mutableStateOf(item.value) }
     val isSensitive = remember(item.key) { isSensitiveSetEditKey(item.key) }
+    val kind = remember(item.value) { setEditValueKind(item.value) }
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = MaxUiMetrics.screenHorizontalPadding, vertical = 8.dp)) {
-        Text(stringResource(R.string.setedit_edit_sheet_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(16.dp))
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = MaxSpace.gutter, vertical = MaxSpace.sm)
+    ) {
+        Text(
+            text = stringResource(R.string.setedit_edit_sheet_title),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = item.key,
+            style = MaterialTheme.typography.bodySmall,
+            fontFamily = FontFamily.Monospace,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(MaxSpace.md))
 
         if (isSensitive) {
             Surface(
                 color = MaterialTheme.colorScheme.errorContainer,
-                shape = RoundedCornerShape(MaxUiMetrics.compactRadius),
+                shape = RoundedCornerShape(MaxRadius.control),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.WarningAmber, contentDescription = null, tint = MaterialTheme.colorScheme.onErrorContainer)
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.setedit_sensitive_warning), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
+                Row(
+                    modifier = Modifier.padding(MaxSpace.md),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.WarningAmber,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                    Spacer(Modifier.width(MaxSpace.sm))
+                    Text(
+                        text = stringResource(R.string.setedit_sensitive_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
                 }
             }
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(MaxSpace.md))
         }
 
-        Text(stringResource(R.string.setedit_label_key), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-        nd.max.ui.component.StudioOutlinedButton(
-            onClick = { clipboard.setText(androidx.compose.ui.text.AnnotatedString(item.key)) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(MaxUiMetrics.compactRadius)
-        ) {
-            Icon(Icons.Outlined.ContentCopy, contentDescription = stringResource(R.string.setedit_action_copy_cd), modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(item.key, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-        Spacer(Modifier.height(12.dp))
+        CopyRow(
+            label = stringResource(R.string.setedit_label_current_value),
+            value = item.value,
+            onCopy = { clipboard.setText(AnnotatedString(item.value)) },
+            copyDescription = stringResource(R.string.setedit_action_copy_cd)
+        )
 
-        Text(stringResource(R.string.setedit_label_current_value), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-        nd.max.ui.component.StudioOutlinedButton(
-            onClick = { clipboard.setText(androidx.compose.ui.text.AnnotatedString(item.value)) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(MaxUiMetrics.compactRadius)
-        ) {
-            Icon(Icons.Outlined.ContentCopy, contentDescription = stringResource(R.string.setedit_action_copy_cd), modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(item.value, maxLines = 1, overflow = TextOverflow.Ellipsis, fontFamily = FontFamily.Monospace)
+        if (previousValue != null && previousValue != item.value) {
+            Spacer(Modifier.height(MaxSpace.sm))
+            StudioOutlinedButton(
+                onClick = { onRevert(previousValue) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(MaxRadius.control)
+            ) {
+                Text(stringResource(R.string.setedit_revert, previousValue))
+            }
         }
-        Spacer(Modifier.height(12.dp))
+
+        Spacer(Modifier.height(MaxSpace.md))
+        if (kind == SetEditValueKind.Boolean) {
+            MaxSwitchRow(
+                title = stringResource(R.string.setedit_label_new_value),
+                subtitle = stringResource(R.string.setedit_boolean_hint),
+                checked = editValue.equals(item.booleanTrue, ignoreCase = true),
+                onCheckedChange = { on -> editValue = if (on) item.booleanTrue else item.booleanFalse }
+            )
+            Spacer(Modifier.height(MaxSpace.xs))
+        }
 
         OutlinedTextField(
             value = editValue,
             onValueChange = { editValue = it },
             label = { Text(stringResource(R.string.setedit_label_new_value)) },
             singleLine = true,
-            shape = RoundedCornerShape(MaxUiMetrics.compactRadius),
+            shape = RoundedCornerShape(MaxRadius.control),
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(MaxSpace.md))
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            nd.max.ui.component.StudioTonalButton(
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
+            StudioTonalButton(
                 onClick = onDelete,
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(MaxUiMetrics.compactRadius),
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer
-                )
+                shape = RoundedCornerShape(MaxRadius.control)
             ) {
-                Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
+                Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(MaxSpace.lg))
                 Text(stringResource(R.string.setedit_action_delete))
             }
-            nd.max.ui.component.StudioButton(onClick = { onSave(editValue) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(MaxUiMetrics.compactRadius)) {
-                Icon(Icons.Outlined.Save, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
+            StudioButton(
+                onClick = { onSave(editValue) },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(MaxRadius.control)
+            ) {
                 Text(stringResource(R.string.setedit_action_save))
             }
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(MaxSpace.sm))
     }
 }
 
 @Composable
-private fun SetEditHistorySheetContent(history: List<SetEditHistoryEntry>, onRestore: (SetEditHistoryEntry) -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = MaxUiMetrics.screenHorizontalPadding, vertical = 8.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.setedit_history_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text(stringResource(R.string.setedit_history_count, history.size), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+private fun CopyRow(label: String, value: String, onCopy: () -> Unit, copyDescription: String) {
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(Modifier.height(MaxSpace.xs))
+        StudioOutlinedButton(
+            onClick = onCopy,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(MaxRadius.control)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.ContentCopy,
+                contentDescription = copyDescription,
+                modifier = Modifier.size(MaxSpace.lg)
+            )
+            Spacer(Modifier.width(MaxSpace.sm))
+            Text(value, maxLines = 1, overflow = TextOverflow.Ellipsis, fontFamily = FontFamily.Monospace)
         }
-        Spacer(Modifier.height(16.dp))
+    }
+}
 
-        if (history.isEmpty()) {
-            Box(Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Icon(Icons.Outlined.History, contentDescription = null, modifier = Modifier.size(40.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(stringResource(R.string.setedit_history_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
+/**
+ * اليوميّة: تعديل وإنشاء وحذف — بأحدثها أوّلًا، ومع كلّ سطر ما يكفي ليُفهم ويُرجَع.
+ *
+ * والسطر يحمل **القيمة السابقة** للسطر المُعدَّل (`old → new`)، لأنّ «١٠٤٨» وحدها لا تقول إن كانت
+ * قديمة أو جديدة.
+ */
+@Composable
+private fun JournalSheet(entries: List<SetEditHistoryEntry>, onRestore: (SetEditHistoryEntry) -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = MaxSpace.gutter, vertical = MaxSpace.sm)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.setedit_history_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = stringResource(R.string.setedit_history_count, entries.size),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Spacer(Modifier.height(MaxSpace.md))
+
+        if (entries.isEmpty()) {
+            Box(Modifier.fillMaxWidth().padding(vertical = MaxSpace.xxl), contentAlignment = Alignment.Center) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.History,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = stringResource(R.string.setedit_history_empty),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         } else {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.heightIn(max = 420.dp)) {
-                history.forEach { entry ->
+            Column(
+                verticalArrangement = Arrangement.spacedBy(MaxSpace.xs),
+                modifier = Modifier.heightIn(max = MaxSize.dialogListMax)
+            ) {
+                entries.forEach { entry ->
                     ExpressiveListItem(
-                        headlineContent = { Text(entry.item.key, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold) },
-                        supportingContent = { Text(entry.item.value, maxLines = 1, overflow = TextOverflow.Ellipsis, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall) },
+                        headlineContent = {
+                            Text(
+                                text = entry.item.key,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        },
+                        supportingContent = { JournalLine(entry) },
                         trailingContent = {
-                            nd.max.ui.component.StudioTextButton(onClick = { onRestore(entry) }) { Text(stringResource(R.string.setedit_history_restore)) }
+                            StudioTextButton(onClick = { onRestore(entry) }) {
+                                Text(stringResource(R.string.setedit_history_restore))
+                            }
                         }
                     )
                 }
             }
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(MaxSpace.sm))
     }
 }
 
 @Composable
-private fun SetEditAddSheetContent(onCreate: (SetEditCategory, String, String) -> Unit) {
+private fun JournalLine(entry: SetEditHistoryEntry) {
+    val action = when (entry.action) {
+        SetEditAction.CREATED -> stringResource(R.string.setedit_action_created)
+        SetEditAction.MODIFIED -> stringResource(R.string.setedit_action_modified)
+        SetEditAction.DELETED -> stringResource(R.string.setedit_action_deleted)
+    }
+    val previous = entry.previousValue
+    Text(
+        text = if (previous != null) "$action · $previous → ${entry.item.value}" else "$action · ${entry.item.value}",
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        fontFamily = FontFamily.Monospace,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+@Composable
+private fun AddSheet(onCreate: (SetEditCategory, String, String) -> Unit) {
     var category by remember { mutableStateOf(SetEditCategory.GLOBAL) }
     var key by remember { mutableStateOf("") }
     var value by remember { mutableStateOf("") }
+    val categories = listOf(
+        SetEditCategory.GLOBAL to stringResource(R.string.setedit_tab_global),
+        SetEditCategory.SECURE to stringResource(R.string.setedit_tab_secure),
+        SetEditCategory.SYSTEM to stringResource(R.string.setedit_tab_system),
+        SetEditCategory.ANDROID_PROP to stringResource(R.string.setedit_tab_android)
+    )
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = MaxUiMetrics.screenHorizontalPadding, vertical = 8.dp)) {
-        Text(stringResource(R.string.setedit_add_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(16.dp))
-
-        Text(stringResource(R.string.setedit_add_category_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.height(8.dp))
-        val categories = listOf(
-            SetEditCategory.GLOBAL to stringResource(R.string.setedit_tab_global),
-            SetEditCategory.SECURE to stringResource(R.string.setedit_tab_secure),
-            SetEditCategory.SYSTEM to stringResource(R.string.setedit_tab_system),
-            SetEditCategory.ANDROID_PROP to stringResource(R.string.setedit_tab_android)
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = MaxSpace.gutter, vertical = MaxSpace.sm)) {
+        Text(
+            text = stringResource(R.string.setedit_add_title),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
         )
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            categories.forEachIndexed { index, (cat, label) ->
-                SegmentedButton(
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = categories.size),
-                    selected = category == cat,
-                    onClick = { category = cat }
-                ) { Text(label) }
-            }
-        }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(MaxSpace.md))
 
+        Text(
+            text = stringResource(R.string.setedit_add_category_label),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(MaxSpace.xs))
+        MaxSegmented(
+            options = categories.map { it.second },
+            selectedIndex = categories.indexOfFirst { it.first == category }.coerceAtLeast(0),
+            onSelect = { index -> categories.getOrNull(index)?.let { category = it.first } }
+        )
+        Spacer(Modifier.height(MaxSpace.md))
+
+        // والمفتاح المكرّر يُمنع من جهة الكتابة نفسها (`settings put` يستبدل)، فالمقارنة هنا
+        // **بين ما يُكتب وما هو موجود** تُنفَّذ في الشاشة بصياغة «سيُكتب فوق الموجود».
         OutlinedTextField(
             value = key,
             onValueChange = { key = it },
             label = { Text(stringResource(R.string.setedit_add_key_label)) },
             singleLine = true,
-            shape = RoundedCornerShape(MaxUiMetrics.compactRadius),
+            shape = RoundedCornerShape(MaxRadius.control),
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(MaxSpace.sm))
         OutlinedTextField(
             value = value,
             onValueChange = { value = it },
             label = { Text(stringResource(R.string.setedit_add_value_label)) },
             singleLine = true,
-            shape = RoundedCornerShape(MaxUiMetrics.compactRadius),
+            shape = RoundedCornerShape(MaxRadius.control),
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(MaxSpace.md))
 
-        nd.max.ui.component.StudioButton(
+        StudioButton(
             onClick = { onCreate(category, key.trim(), value) },
             enabled = key.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(MaxUiMetrics.compactRadius)
+            shape = RoundedCornerShape(MaxRadius.control)
         ) {
             Text(stringResource(R.string.setedit_add_confirm))
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(MaxSpace.sm))
     }
 }

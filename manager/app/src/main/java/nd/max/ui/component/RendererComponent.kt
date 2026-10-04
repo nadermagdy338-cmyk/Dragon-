@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import dev.chrisbanes.haze.blur.blurEffect
 import dev.chrisbanes.haze.hazeEffect
+import nd.max.ui.design.MaxRadius
 import nd.max.R
 
 
@@ -111,7 +112,7 @@ fun RendererDialog(
                     .widthIn(min = 320.dp, max = 400.dp) 
                     .padding(24.dp) 
                     .scale(scale)
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(MaxRadius.sheet))
                     .then(
                         if (isBlurEnabled && hazeState != null) {
                             Modifier.hazeEffect(state = hazeState) { blurEffect { blurRadius = 24.dp } }

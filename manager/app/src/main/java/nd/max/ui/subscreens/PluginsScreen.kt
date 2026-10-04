@@ -51,15 +51,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
+import nd.max.ui.design.MaxCardShell
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
 import nd.max.ui.design.MaxGroup
@@ -212,10 +215,13 @@ private fun TemplateSection(onCopy: () -> Unit) {
         title = stringResource(R.string.max_plugins_template),
         description = stringResource(R.string.max_plugins_template_note),
     ) {
-        Surface(
+        // **ترحيل إلى القشرة:** كانت بلا حدّ، فيُمرّر `Color.Transparent` صراحةً — فلا يظهر
+        // حدّ جديد من ترحيل. والحشو هنا **متباين** ومكتوب على النصّ نفسه، فيبقى مكانه.
+        MaxCardShell(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(MaxRadius.group),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            borderColor = Color.Transparent,
+            contentPadding = 0.dp,
+            verticalArrangement = Arrangement.Top,
         ) {
             Text(
                 text = PluginContract.manifestTemplate(),

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">स्थापित पॅकेज आणि त्यांनी घोषित केलेल्या क्रियाकलाप</string>
+    <string name="max_launcher_loading">स्थापित पॅकेजेस आणि त्यांचे घोषित क्रियाकलाप वाचत आहे...</string>
+    <string name="max_launcher_empty">कोणतेही स्थापित पॅकेज या डिव्हाइसवर क्रियाकलाप घोषित करत नाही.</string>
+    <string name="max_launcher_search_placeholder">ॲप नाव किंवा पॅकेजद्वारे शोधा</string>
+    <string name="max_launcher_search_clear">शोध साफ करा</string>
+    <string name="max_launcher_scope_all">सर्व</string>
+    <string name="max_launcher_scope_user">वापरकर्ता</string>
+    <string name="max_launcher_scope_system">प्रणाली</string>
+    <string name="max_launcher_activity_count">%1$d क्रियाकलाप</string>
+    <string name="max_launcher_no_match_title">काहीही जुळत नाही</string>
+    <string name="max_launcher_no_match_detail">कोणत्याही पॅकेज नाव किंवा ॲप लेबलमध्ये निवडलेल्या स्कोपमध्ये तो मजकूर नाही.</string>
+    <string name="max_launcher_no_match_clear">फिल्टर साफ करा</string>
+    <string name="max_launcher_reading_activities">हे पॅकेज घोषित करत असलेल्या क्रियाकलापांचे वाचन…</string>
+    <string name="max_launcher_no_activities">हे पॅकेज कोणतेही क्रियाकलाप घोषित करत नाही.</string>
+    <string name="max_launcher_root_off_title">रूट मंजूर नाही</string>
+    <string name="max_launcher_root_off_detail">खाजगी चिन्हांकित क्रियाकलाप निर्यात केले जात नाहीत, त्यामुळे फक्त रूट त्यांना सुरू करू शकते. निर्यात क्रियाकलाप अद्याप त्याशिवाय खुले आहेत.</string>
+    <string name="max_launcher_tag_private">खाजगी</string>
+    <string name="max_launcher_tag_disabled">अक्षम</string>
+    <string name="max_launcher_outcome_started">उपक्रम सुरू झाला</string>
+    <string name="max_launcher_outcome_needs_root">ही क्रिया निर्यात केलेली नाही — रूट आवश्यक आहे</string>
+    <string name="max_launcher_outcome_refused">Android ने हा क्रियाकलाप सुरू करण्यास नकार दिला</string>
+    <string name="max_launcher_outcome_missing">त्या नावाचा कोणताही उपक्रम स्थापित केलेला नाही</string>
+</resources>

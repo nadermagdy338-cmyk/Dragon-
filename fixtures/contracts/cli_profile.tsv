@@ -1,0 +1,31 @@
+# عقد قناة التحكّم عبر CLI — الجدول المرجعي الذي تعيد `suite_cli_profile` تشغيله على
+# `archdaemon/jni/src/BinaryCLI/CLIUtility.c` نفسه (لا نسخة منه).
+#
+# الأعمدة مفصولة بـTAB، بهذا الترتيب:
+#   label · ai_enabled · profile · extra_args · expected_exit · expected_log · expected_notify · expected_profiler
+#
+# و`extra_args` قد يحمل **أكثر من عَلَم** مفصولة بفراغ — لأن الدلالة المُثبَّتة أن `--from-ai`
+# يُقبل في أي فهرس ≥ ٣، وحالة بعَلَم واحد لا تقيس ذلك.
+#
+# و`-` تعني «حقل فارغ». وفي `expected_log` تعني «لا سطر `CLI_PROFILE_` إطلاقًا»، وفي
+# `expected_notify`/`expected_profiler` تعني «لم يُنادَ أصلًا».
+#
+# لماذا جدول لا دعاوى مكتوبة بيد: العقد صار بيانات يُقرأ ويُقارن، لا نسخة ثانية من المنطق.
+# وإضافة سطر تُضيف حالة قابلة للتكذيب، ولا تُعدّل شيفرة اختبار.
+label	ai_enabled	profile	extra	expected_exit	expected_log	expected_notify	expected_profiler
+manual-performance-without-ai	0	1	-	0	EVENT=CLI_PROFILE_APPLY profile=PERFORMANCE	Powerful state	1
+manual-balanced-without-ai	0	2	-	0	EVENT=CLI_PROFILE_APPLY profile=BALANCED	Optimal state	2
+manual-eco-without-ai	0	3	-	0	EVENT=CLI_PROFILE_APPLY profile=ECO	Endurance state	3
+manual-initialize-is-acknowledged-not-a-failure	0	0	-	0	EVENT=CLI_PROFILE_APPLY_REJECTED reason=profile_zero_is_initialize_only	-	-
+manual-blocked-while-ai-runs	1	2	-	1	EVENT=CLI_PROFILE_MANUAL_BLOCKED ai=1	-	-
+manual-eco-blocked-while-ai-runs	1	3	-	1	EVENT=CLI_PROFILE_MANUAL_BLOCKED ai=1	-	-
+from-ai-balanced-allowed-while-ai-runs	1	2	--from-ai	0	EVENT=CLI_PROFILE_APPLY profile=BALANCED	Optimal state	2
+from-ai-performance-allowed-while-ai-runs	1	1	--from-ai	0	EVENT=CLI_PROFILE_APPLY profile=PERFORMANCE	Powerful state	1
+from-ai-eco-allowed-while-ai-runs	1	3	--from-ai	0	EVENT=CLI_PROFILE_APPLY profile=ECO	Endurance state	3
+from-ai-initialize-still-rejected	1	0	--from-ai	0	EVENT=CLI_PROFILE_APPLY_REJECTED reason=profile_zero_is_initialize_only	-	-
+invalid-profile-is-rejected	0	9	-	1	-	-	-
+invalid-profile-with-ai-flag-is-rejected	1	9	--from-ai	1	-	-	-
+missing-profile-argument-is-rejected	0	-	-	1	-	-	-
+from-ai-after-an-unrelated-flag-still-counts	1	2	--verbose --from-ai	0	EVENT=CLI_PROFILE_APPLY profile=BALANCED	Optimal state	2
+unrelated-flag-is-not-from-ai	1	2	--verbose	1	EVENT=CLI_PROFILE_MANUAL_BLOCKED ai=1	-	-
+extra-flag-with-ai-off-is-ignored	0	2	--verbose	0	EVENT=CLI_PROFILE_APPLY profile=BALANCED	Optimal state	2

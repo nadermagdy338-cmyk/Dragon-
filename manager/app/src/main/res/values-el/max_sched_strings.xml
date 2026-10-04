@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Μέγιστος χρόνος προθεσμίας (εμάς)</string>
+    <string name="max_sched_tunable_deadline_period_min">Προθεσμία Ελάχ. (εμάς)</string>
+    <string name="max_sched_tunable_energy_aware">Ενεργειακή επίγνωση</string>
+    <string name="max_sched_tunable_latency">Καθυστέρηση (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Κόστος μετανάστευσης (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Ελάχιστη ευκρίνεια (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Μέγεθος παρτίδας μετεγκατάστασης</string>
+    <string name="max_sched_tunable_pelt_multiplier">Πολλαπλασιαστής PELT</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Περίοδος σε πραγματικό χρόνο (εμάς)</string>
+    <string name="max_sched_tunable_rt_runtime">Χρόνος εκτέλεσης σε πραγματικό χρόνο (εμάς)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Όροφος UClamp σε πραγματικό χρόνο</string>
+    <string name="max_sched_tunable_wakeup_granularity">Κοκκοποίηση αφύπνισης (ns)</string>
+</resources>

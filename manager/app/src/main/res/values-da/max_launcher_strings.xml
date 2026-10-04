@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Installerede pakker og de aktiviteter, de erklærer</string>
+    <string name="max_launcher_loading">Læser installerede pakker og deres erklærede aktiviteter...</string>
+    <string name="max_launcher_empty">Ingen installeret pakke erklærer en aktivitet på denne enhed.</string>
+    <string name="max_launcher_search_placeholder">Søg efter appnavn eller pakke</string>
+    <string name="max_launcher_search_clear">Ryd søgningen</string>
+    <string name="max_launcher_scope_all">Alle</string>
+    <string name="max_launcher_scope_user">Bruger</string>
+    <string name="max_launcher_scope_system">System</string>
+    <string name="max_launcher_activity_count">%1$d aktiviteter</string>
+    <string name="max_launcher_no_match_title">Intet matcher</string>
+    <string name="max_launcher_no_match_detail">Intet pakkenavn eller app-etiket indeholder den tekst i det valgte omfang.</string>
+    <string name="max_launcher_no_match_clear">Ryd filtre</string>
+    <string name="max_launcher_reading_activities">Læser de aktiviteter, denne pakke erklærer...</string>
+    <string name="max_launcher_no_activities">Denne pakke erklærer ingen aktiviteter.</string>
+    <string name="max_launcher_root_off_title">Root gives ikke</string>
+    <string name="max_launcher_root_off_detail">Aktiviteter, der er markeret som private, eksporteres ikke, så kun root kan starte dem. Eksporterede aktiviteter er stadig åbne uden det.</string>
+    <string name="max_launcher_tag_private">Privat</string>
+    <string name="max_launcher_tag_disabled">Handicappet</string>
+    <string name="max_launcher_outcome_started">Aktiviteten startede</string>
+    <string name="max_launcher_outcome_needs_root">Denne aktivitet eksporteres ikke – root er påkrævet</string>
+    <string name="max_launcher_outcome_refused">Android nægtede at starte denne aktivitet</string>
+    <string name="max_launcher_outcome_missing">Ingen aktivitet med det navn er installeret</string>
+</resources>

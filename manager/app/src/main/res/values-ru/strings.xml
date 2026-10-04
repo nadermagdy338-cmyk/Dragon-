@@ -7,7 +7,7 @@
     <string name="all_set">Всё готово, теперь вы можете использовать Max Manager</string>
     <string name="allow_verbose_log">Подробный журнал демона</string>
     <string name="android_version">Версия Android</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Имя приложения</string>
     <string name="app_priority">Приоритет приложения</string>
     <string name="app_priority_control">Управление приоритетом приложения</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">Наложение FPS</string>
     <string name="fps_overlay_notif_title">Max Manager Оверлей FPS запущен.</string>
     <string name="fps_overlay_notif_stop">Останавливаться</string>
-    <string name="fps_overlay_section_style">Появление</string>
-    <string name="fps_overlay_style">Стиль наложения</string>
-    <string name="fps_overlay_style_android">Список Android</string>
-    <string name="fps_overlay_style_pc">ПК моноширинный</string>
-    <string name="fps_overlay_style_mini">Мини</string>
-    <string name="fps_overlay_orientation">Направление макета</string>
-    <string name="fps_overlay_orientation_vertical">Вертикальный</string>
-    <string name="fps_overlay_orientation_horizontal">Горизонтальный</string>
-    <string name="fps_overlay_read_mode">Метод чтения FPS</string>
     <string name="fps_overlay_read_mode_desc">Попробуйте другой метод, если на вашем устройстве показания остаются равными 0.</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (рекомендуется)</string>
     <string name="fps_overlay_mode_kernel">Узел ядра</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Размер текста</string>
     <string name="fps_overlay_bg_alpha">Непрозрачность фона</string>
     <string name="fps_overlay_width_scale">Масштаб ширины</string>
-    <string name="fps_overlay_section_metrics">Показанные показатели</string>
-    <string name="fps_overlay_metric_fps">ФПС</string>
-    <string name="fps_overlay_metric_cpu">CPU нагрузка</string>
-    <string name="fps_overlay_metric_ram">RAM использование</string>
-    <string name="fps_overlay_metric_watt">Потребление энергии от аккумулятора</string>
-    <string name="fps_overlay_metric_temp">Температура батареи</string>
-    <string name="fps_overlay_metric_render">Метка рендерера</string>
-    <string name="fps_overlay_metric_render_desc">Показывает VULKAN/OPENGL вместо «FPS» в качестве метки, обнаруженной в загруженных библиотеках приложения на переднем плане.</string>
     <string name="dozemode_title">Политика сна</string>
     <string name="dozemode_menu_desc">Белый список режима ожидания, поведение в режиме ожидания и настройка фонового энергопотребления</string>
     <string name="dozemode_state_label">Состояние дремоты</string>
@@ -785,9 +768,7 @@
     <string name="pid">ПИД</string>
     <string name="open_settings">Открыть настройки</string>
     <string name="processmgr_title">Монитор задач</string>
-    <string name="processmgr_menu_desc">Использование CPU и RAM для каждого процесса, с принудительной остановкой и плавающим наложением</string>
     <string name="processmgr_stat_total">%1$d процессы</string>
-    <string name="processmgr_stat_breakdown">%1$d пользователь7 %2$d система</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Топ %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">Поиск запущенных процессов</string>
     <string name="processmgr_no_processes">Нет процессов, соответствующих вашему запросу</string>
     <string name="processmgr_dialog_close">Закрывать</string>
-    <string name="processmgr_detail_version">Версия</string>
-    <string name="processmgr_detail_build">Строить</string>
-    <string name="processmgr_detail_package">Упаковка</string>
     <string name="processmgr_result_killed">Убит %1$s</string>
     <string name="processmgr_result_kill_failed">Не удалось убить %1$s</string>
     <string name="processmgr_result_stopped">Принудительно остановлен %1$s</string>
@@ -1459,7 +1437,6 @@
     <string name="max_home_reboot_desc">Открыть параметры безопасной перезагрузки</string>
     <string name="max_home_ai_console">Консоль MAX AI</string>
     <string name="max_home_ai_working">Применение запрошенного профиля…</string>
-    <string name="max_home_ai_failed">Последнее действие ИИ не удалось</string>
     <string name="max_home_retry">Повторить попытку</string>
     <string name="max_home_ai_idle">Решение ИИ пока не зарегистрировано</string>
     <string name="home_system_stable">СИСТЕМА СТАБИЛЬНАЯ</string>
@@ -1475,8 +1452,6 @@
     <string name="home_performance_monitor_desc">Загрузка ресурса за последние 72 секунды</string>
     <string name="home_quick_actions">Командная колода</string>
     <string name="home_quick_actions_desc">Прямой доступ к важным элементам управления</string>
-    <string name="home_action_boost">Профиль производительности</string>
-    <string name="home_action_boost_desc">Изменить поведение системы</string>
     <string name="home_action_thermal">Термальный центр</string>
     <string name="home_action_thermal_desc">Проверка обогрева и охлаждения</string>
     <string name="home_action_battery">Энергетический центр</string>
@@ -1496,7 +1471,6 @@
     <string name="home_active">АКТИВНЫЙ</string>
     <string name="home_idle">ПРАЗДНЫЙ</string>
     <string name="home_protected">ЗАЩИЩЕНО</string>
-    <string name="home_device_overview">ОТКРЫТЬ ОБЗОР УСТРОЙСТВА</string>
     <string name="home_live_performance">Живое выступление</string>
     <string name="home_live_performance_desc">Текущая нагрузка и прямое аппаратное управление</string>
     <string name="home_open_details">Открыть подробные тепловые данные</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Применяется оптимизация для каждого приложения.</string>
     <string name="max_app_advanced_options">Расширенные параметры</string>
     <string name="max_app_save">Сохранять</string>
+    <string name="home_gpu_max_freq">Макс. частота</string>
 </resources>

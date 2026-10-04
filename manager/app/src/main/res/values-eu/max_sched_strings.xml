@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Gehienezko epea (gu)</string>
+    <string name="max_sched_tunable_deadline_period_min">Epea Gutxienez (gu)</string>
+    <string name="max_sched_tunable_energy_aware">Energia Jakitun</string>
+    <string name="max_sched_tunable_latency">Latentzia (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Migrazio kostua (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Gutxieneko granularitatea (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Migrazio lotearen tamaina</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT biderkatzailea</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (ms)</string>
+    <string name="max_sched_tunable_rt_period">Denbora errealeko epea (gu)</string>
+    <string name="max_sched_tunable_rt_runtime">Denbora errealeko exekuzioa (gu)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Denbora errealeko UClamp solairua</string>
+    <string name="max_sched_tunable_wakeup_granularity">Wakeup Granularity (ns)</string>
+</resources>

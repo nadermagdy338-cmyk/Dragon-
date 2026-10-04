@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Толық</string>
+    <string name="max_log_level_debug">Түзету</string>
+    <string name="max_log_level_info">Ақпарат</string>
+    <string name="max_log_level_warn">Ескерту</string>
+    <string name="max_log_level_error">Қате</string>
+    <string name="max_log_level_assert">Бекіту</string>
+    <string name="max_log_level_fatal">Өлім</string>
+    <string name="max_log_buffer_main">Негізгі</string>
+    <string name="max_log_buffer_system">Жүйе</string>
+    <string name="max_log_buffer_crash">Апат</string>
+    <string name="max_log_buffer_kernel">Ядро</string>
+    <string name="max_log_buffer_events">Оқиғалар</string>
+    <string name="max_log_buffer_radio">Радио</string>
+    <string name="max_log_source_daemon">Демон</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Басқа</string>
+</resources>

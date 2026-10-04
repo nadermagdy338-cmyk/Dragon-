@@ -45,7 +45,6 @@
     <string name="max_ai_timeline_show_less">Акыркы %1$d гана көрсөтүү</string>
     <string name="max_ai_episode_no_action">Ачыштык өлчөнөт, коопсуз кадам жок</string>
     <string name="max_ai_stage_observed">Эмнени өлчөдү</string>
-    <string name="max_ai_observed_body">Максатка %1$s канааттануу, %3$s боштук.</string>
     <string name="max_ai_observed_technical">cpu %1$s · температура %2$s · батарея %3$s · эстутум %4$s</string>
     <string name="max_ai_stage_why">Эмне үчүн маанилүү болгон</string>
     <string name="max_ai_why_body">Активдүү максат %1$s, %2$s контекстинде өлчөнгөн.</string>
@@ -284,4 +283,5 @@
     <string name="max_ai_decisions_disabled">Автоматтык чечимдер өчүрүлгөн</string>
     <string name="max_ai_master_disabled_desc">AI оптималдаштыруу өчүк. Кол менен башкаруу жана жылуулук коргоо көз карандысыз бойдон калууда.</string>
     <string name="max_ai_settings_loading">Сакталган AI параметрлери жүктөлүүдө.</string>
+    <string name="max_ai_observed_body">канааттануу %1$s бутага каршы %2$s, боштук %3$s.</string>
 </resources>

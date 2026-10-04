@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">ထည့်သွင်းထားသော ပက်ကေ့ဂျ်များနှင့် လှုပ်ရှားမှုများ</string>
+    <string name="max_launcher_loading">ထည့်သွင်းထားသော ပက်ကေ့ဂျ်များနှင့် ၎င်းတို့၏ ကြေညာထားသော လုပ်ဆောင်ချက်များကို ဖတ်နေသည်...</string>
+    <string name="max_launcher_empty">ထည့်သွင်းထားသည့် ပက်ကေ့ချ်သည် ဤစက်ပစ္စည်းပေါ်ရှိ လုပ်ဆောင်ချက်တစ်ခုကို ကြေညာခြင်းမရှိပါ။</string>
+    <string name="max_launcher_search_placeholder">အက်ပ်အမည် သို့မဟုတ် ပက်ကေ့ခ်ျဖြင့် ရှာဖွေပါ။</string>
+    <string name="max_launcher_search_clear">ရှာဖွေမှုကို ရှင်းလင်းပါ။</string>
+    <string name="max_launcher_scope_all">အားလုံး</string>
+    <string name="max_launcher_scope_user">အသုံးပြုသူ</string>
+    <string name="max_launcher_scope_system">စနစ်</string>
+    <string name="max_launcher_activity_count">%1$d လှုပ်ရှားမှုများ</string>
+    <string name="max_launcher_no_match_title">ဘာမှမတိုက်ဆိုင်ဘူး။</string>
+    <string name="max_launcher_no_match_detail">ပက်ကေ့ဂျ်အမည် သို့မဟုတ် အက်ပ်အညွှန်းတွင် ရွေးချယ်ထားသော နယ်ပယ်တွင် ထိုစာသားမပါဝင်ပါ။</string>
+    <string name="max_launcher_no_match_clear">စစ်ထုတ်မှုများကို ရှင်းလင်းပါ။</string>
+    <string name="max_launcher_reading_activities">ဤပက်ကေ့ဂျ်တွင် လှုပ်ရှားမှုများကို ဖတ်ရှုနေသည်...</string>
+    <string name="max_launcher_no_activities">ဤပက်ကေ့ဂျ်တွင် လှုပ်ရှားမှုမရှိဟု ကြေငြာသည်။</string>
+    <string name="max_launcher_root_off_title">Root မရဘူး။</string>
+    <string name="max_launcher_root_off_detail">ကိုယ်ပိုင်အမှတ်အသားပြုထားသော လုပ်ဆောင်ချက်များကို တင်ပို့ခြင်းမပြုပါ၊ ထို့ကြောင့် root သာလျှင် ၎င်းတို့ကို စတင်နိုင်ပါသည်။ တင်ပို့ခြင်းလုပ်ငန်းများကို ပြုလုပ်ခြင်းမရှိဘဲ ဖွင့်ထားဆဲဖြစ်သည်။</string>
+    <string name="max_launcher_tag_private">သီးသန့်</string>
+    <string name="max_launcher_tag_disabled">မသန်စွမ်း</string>
+    <string name="max_launcher_outcome_started">လှုပ်ရှားမှုစတင်ခဲ့သည်။</string>
+    <string name="max_launcher_outcome_needs_root">ဤလုပ်ဆောင်ချက်ကို မတင်ပို့ပါ — root လိုအပ်သည်။</string>
+    <string name="max_launcher_outcome_refused">Android သည် ဤလုပ်ဆောင်ချက်ကို စတင်ရန် ငြင်းဆိုခဲ့သည်။</string>
+    <string name="max_launcher_outcome_missing">ထိုအမည်ပါသော လုပ်ဆောင်ချက်ကို ထည့်သွင်းထားခြင်းမရှိပါ။</string>
+</resources>

@@ -44,7 +44,7 @@ import nd.max.ui.navigation.maxHubRows
 import nd.max.ui.viewmodel.TweakViewModel
 
 /**
- * Shared body of the nine Control domain hubs (ADR-04).
+ * Shared body of the ten Control domain hubs (ADR-04; the tenth is Audio, `AU-01`).
  *
  * Navigation rows and their one-line roles come from [maxHubRows] and
  * [maxDestinationRole], so the hub and the Control page's expanded layout always
@@ -77,21 +77,34 @@ fun MaxDomainHubScreen(navController: NavHostController, destination: MaxDestina
             )
         },
     ) {
+        // **وقائمة شاشات المجال بلا رأس (بأمر المالك):** كان عنوانها
+        // `max_hub_tools_title` («الأدوات المتاحة») — والأمر: «أي شيء باسم الأدوات المتاحة…
+        // أزيله». فذهب الاسم وبقي ما تحته: الشريط العلوي يسمّي المجال أصلًا، وتكرار اسمه فوق
+        // قائمته لا يضيف خبرًا. والصفوف في بطاقتها كما كانت — `MaxGroup` هو البطاقة في العقد،
+        // و`MaxSection` رأسٌ فوقها فقط.
         if (rows.isNotEmpty()) {
-            MaxSection(title = stringResource(R.string.max_hub_tools_title)) {
-                MaxGroup {
-                    rows.forEachIndexed { index, row ->
-                        if (index > 0) MaxGroupDivider()
-                        MaxRow(
-                            title = stringResource(row.titleRes),
-                            subtitle = stringResource(maxDestinationRole(row)),
-                            icon = row.icon,
-                            onClick = { actions.navigateTo(row) },
-                        )
-                    }
+            MaxGroup {
+                rows.forEachIndexed { index, row ->
+                    if (index > 0) MaxGroupDivider()
+                    MaxRow(
+                        title = stringResource(row.titleRes),
+                        subtitle = stringResource(maxDestinationRole(row)),
+                        icon = row.icon,
+                        onClick = { actions.navigateTo(row) },
+                    )
                 }
+                // **ولا بابَ لمعلومات الجهاز في صفحة المحور (أمر المالك، الجولة ٢٠١):**
+                // «يجب أن تكون الزرّ جزءًا من فلسفة الشاشة التي هي فيها» — وهذه الصفحة
+                // **فهرس أبواب**، فبابٌ لمعلومات الجهاز فيها زيادة لا خبر؛ وقد قاست لقطةُ
+                // المالك أنه ظهر شريطًا وحيدًا بعد صفٍّ واحد في صفحة الرسوم. الأبواب في
+                // الشاشات التي **تعمل** على الموضوع لا في فهرسه (انظر `MaxDeviceInfoShortcut`).
             }
         }
+
+        // **والعقدة العاشرة (`AU-01`) صارت كأخواتها: فهرسُ بابٍ لا جسمَ سطح.** كان لها جسم قراءةٍ
+        // مؤقّت (‏`AU-02`/`AU-04`: الأجهزة والمعدّل والمؤثرات)، ونُقل بأمر المالك إلى قسم الصوت في
+        // «معلومات الجهاز» («انقل ما صنعته إلى `device info` لكي لا يضيع الجهد») — والمقابض صارت
+        // على سطح التحكّم `AudioStudio`، وهو صفّها الوحيد في `maxHubRows` (يُقرأ `parent`).
 
         if (hubOwnsDirectControls(destination)) {
             HubDirectControls(destination)
@@ -156,6 +169,9 @@ private fun HubDirectControls(
                     onClick = { showRendererDialog = true },
                 )
             }
+            // ولا بابَ لمعلومات الجهاز بعد المفاتيح أيضًا (الجولة ٢٠١): هذه آخر بطاقة في
+            // صفحةٍ هي نفسها فهرس أبواب، فبابٌ بعدها يُقرأ زائدًا لا خبرًا — والباب مقصده
+            // الشاشات التي تعمل على الموضوع.
         }
     }
 
@@ -254,6 +270,7 @@ private fun maxHubQuestionTitle(hub: MaxDestination): Int = when (hub) {
     MaxDestination.PowerHub -> R.string.max_hub_power_question_title
     MaxDestination.StorageHub -> R.string.max_hub_storage_question_title
     MaxDestination.NetworkHub -> R.string.max_hub_network_question_title
+    MaxDestination.AudioHub -> R.string.max_hub_audio_question_title
     else -> R.string.max_hub_generic_question_title
 }
 
@@ -268,6 +285,7 @@ private fun maxHubQuestionDescription(hub: MaxDestination): Int = when (hub) {
     MaxDestination.PowerHub -> R.string.max_hub_power_question_desc
     MaxDestination.StorageHub -> R.string.max_hub_storage_question_desc
     MaxDestination.NetworkHub -> R.string.max_hub_network_question_desc
+    MaxDestination.AudioHub -> R.string.max_hub_audio_question_desc
     else -> R.string.max_hub_generic_question_desc
 }
 

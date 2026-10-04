@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">સમયમર્યાદા મહત્તમ (અમે)</string>
+    <string name="max_sched_tunable_deadline_period_min">ડેડલાઇન પીરિયડ મિનિટ (અમે)</string>
+    <string name="max_sched_tunable_energy_aware">એનર્જી અવેર</string>
+    <string name="max_sched_tunable_latency">લેટન્સી (ns)</string>
+    <string name="max_sched_tunable_migration_cost">સ્થળાંતર ખર્ચ (ns)</string>
+    <string name="max_sched_tunable_min_granularity">ન્યૂનતમ ગ્રેન્યુલારિટી (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">સ્થળાંતર બેચનું કદ</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT ગુણક</string>
+    <string name="max_sched_tunable_rr_timeslice">રાઉન્ડ-રોબિન ટાઈમસ્લાઈસ (ms)</string>
+    <string name="max_sched_tunable_rt_period">રીઅલ-ટાઇમ પીરિયડ (અમે)</string>
+    <string name="max_sched_tunable_rt_runtime">રીઅલ-ટાઇમ રનટાઇમ (અમે)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">રીઅલ-ટાઇમ UClamp ફ્લોર</string>
+    <string name="max_sched_tunable_wakeup_granularity">વેકઅપ ગ્રેન્યુલારિટી (ns)</string>
+</resources>

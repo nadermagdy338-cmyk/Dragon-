@@ -7,7 +7,7 @@
     <string name="all_set">ሁሉም ዝግጁ ነው፣ አሁን Max Manager መጠቀም ይችላሉ</string>
     <string name="allow_verbose_log">ጠባቂ ሂደት ዝርዝር ሎግ ያሳይ</string>
     <string name="android_version">Android ስሪት</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">የመተግበሪያ ስም</string>
     <string name="app_priority">የመተግበሪያ ቅድሚያ</string>
     <string name="app_priority_control">የመተግበሪያ ቅድሚያ ቁጥጥር</string>
@@ -517,7 +517,6 @@
     <string name="thermal_hide_trips">ጉዞዎችን ደብቅ</string>
     <string name="thermal_trip_points">የጉዞ ነጥቦች</string>
     <string name="thermal_trip_config">የጉዞ ነጥብ ውቅር</string>
-    <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 ቅልጥፍና %4$.2f\u00d7 %6$d/%7$d MB</string>
     <string name="zram_presets_title">ፈጣን ቅድመ-ቅምጦች</string>
     <string name="zram_tuning_title">መጭመቂያ ሞተር</string>
     <string name="zram_custom_size">ብጁ ስዋፕ መጠን</string>
@@ -726,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS ተደራቢ</string>
     <string name="fps_overlay_notif_title">Max Manager FPS ተደራቢ እየሰራ ነው።</string>
     <string name="fps_overlay_notif_stop">ተወ</string>
-    <string name="fps_overlay_section_style">መልክ</string>
-    <string name="fps_overlay_style">ተደራቢ ዘይቤ</string>
-    <string name="fps_overlay_style_android">አንድሮይድ ዝርዝር</string>
-    <string name="fps_overlay_style_pc">PC monospace</string>
-    <string name="fps_overlay_style_mini">ሚኒ</string>
-    <string name="fps_overlay_orientation">የአቀማመጥ አቅጣጫ</string>
-    <string name="fps_overlay_orientation_vertical">አቀባዊ</string>
-    <string name="fps_overlay_orientation_horizontal">አግድም</string>
-    <string name="fps_overlay_read_mode">FPS የማንበብ ዘዴ</string>
     <string name="fps_overlay_read_mode_desc">ንባቡ በመሳሪያዎ ላይ 0 ላይ ከቆየ ሌላ ዘዴ ይሞክሩ</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (የሚመከር)</string>
     <string name="fps_overlay_mode_kernel">የከርነል መስቀለኛ መንገድ</string>
@@ -743,14 +733,6 @@
     <string name="fps_overlay_text_size">የጽሑፍ መጠን</string>
     <string name="fps_overlay_bg_alpha">የበስተጀርባ ግልጽነት</string>
     <string name="fps_overlay_width_scale">ስፋት ልኬት</string>
-    <string name="fps_overlay_section_metrics">መለኪያዎች ታይተዋል።</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU ጭነት</string>
-    <string name="fps_overlay_metric_ram">RAM አጠቃቀም</string>
-    <string name="fps_overlay_metric_watt">የባትሪ ኃይል መሳል</string>
-    <string name="fps_overlay_metric_temp">የባትሪ ሙቀት</string>
-    <string name="fps_overlay_metric_render">የአድራጊ መለያ</string>
-    <string name="fps_overlay_metric_render_desc">ከ "FPS" ይልቅ VULKAN/OPENGLን እንደ መለያው ያሳያል፣ ከቀዳሚው መተግበሪያ ከተጫኑ ቤተ-መጽሐፍት ተገኝቷል</string>
     <string name="dozemode_title">የእንቅልፍ ፖሊሲ</string>
     <string name="dozemode_menu_desc">ተጠባባቂ የተፈቀደላቸው ዝርዝር፣ የስራ ፈት ባህሪ እና የበስተጀርባ ሃይል ማስተካከያ</string>
     <string name="dozemode_state_label">የዶዝ ሁኔታ</string>
@@ -786,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">ቅንብሮችን ይክፈቱ</string>
     <string name="processmgr_title">ተግባር መከታተያ</string>
-    <string name="processmgr_menu_desc">በሂደት CPU እና RAM አጠቃቀም፣ በኃይል ማቆሚያ እና ተንሳፋፊ</string>
     <string name="processmgr_stat_total">%1$d ሂደቶች</string>
-    <string name="processmgr_stat_breakdown">%1$d ተጠቃሚ \u00b7 %2$d ስርዓት</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">ከፍተኛ %1$d</string>
@@ -809,13 +789,9 @@
     <string name="processmgr_search_hint">የማሄድ ሂደቶችን ይፈልጉ</string>
     <string name="processmgr_no_processes">ከፍለጋዎ ጋር የሚዛመዱ ሂደቶች የሉም</string>
     <string name="processmgr_dialog_close">ገጠመ</string>
-    <string name="processmgr_detail_version">ሥሪት</string>
-    <string name="processmgr_detail_build">ይገንቡ</string>
-    <string name="processmgr_detail_package">ጥቅል</string>
     <string name="processmgr_result_killed">ተገደለ %1$s</string>
     <string name="processmgr_result_kill_failed">%1$s መግደል አልተቻለም</string>
     <string name="processmgr_result_stopped">በግዳጅ የቆመ %1$s</string>
-    <string name="processmgr_result_stop_failed">በግድ ማቆም አልተቻለም</string>
     <string name="setedit_title">የንብረት አርታዒ</string>
     <string name="setedit_menu_desc">ጥሬ ቅንብሮችን እና የስርዓት ንብረቶችን በቀጥታ ያስሱ እና ያስተካክሉ</string>
     <string name="setedit_tab_all">ሁሉም</string>
@@ -989,7 +965,6 @@
     <string name="sched_printk_desc">ኮንሶል / ነባሪ / ትንሹ-ኮንሶል / ነባሪ-ኮንሶል የምዝግብ ማስታወሻ ደረጃዎች፣ በቦታ ተለያይተዋል።</string>
     <string name="charging_title">የኃይል መሙያ መቆጣጠሪያ</string>
     <string name="charging_desc">የአሁኑን ገደቦች እና የቀጥታ ሃይል ቴሌሜትሪ ይሙሉ</string>
-    <string name="charging_live_summary">%1$d%% \u00b7 %2$s \u00b7 %3$.2f V \u00b7</string>
     <string name="charging_status_charging">በመሙላት ላይ</string>
     <string name="charging_status_not_charging">እየሞላ አይደለም።</string>
     <string name="charging_battery_ready">ባትሪ ዝግጁ</string>
@@ -1462,7 +1437,6 @@
     <string name="max_home_reboot_desc">ደህንነቱ የተጠበቀ ዳግም ማስጀመር አማራጮችን ይክፈቱ</string>
     <string name="max_home_ai_console">MAX AI ኮንሶል</string>
     <string name="max_home_ai_working">የተጠየቀውን መገለጫ በመተግበር ላይ…</string>
-    <string name="max_home_ai_failed">የመጨረሻው AI እርምጃ አልተሳካም።</string>
     <string name="max_home_retry">እንደገና ይሞክሩ</string>
     <string name="max_home_ai_idle">እስካሁን ምንም የ AI ውሳኔ አልተመዘገበም።</string>
     <string name="home_system_stable">ስርዓት የተረጋጋ</string>
@@ -1478,8 +1452,6 @@
     <string name="home_performance_monitor_desc">ባለፉት 72 ሰከንድ የግብአት ጭነት</string>
     <string name="home_quick_actions">የትእዛዝ ወለል</string>
     <string name="home_quick_actions_desc">ወደ አስፈላጊዎቹ መቆጣጠሪያዎች ቀጥተኛ መዳረሻ</string>
-    <string name="home_action_boost">የአፈጻጸም መገለጫ</string>
-    <string name="home_action_boost_desc">የስርዓት ባህሪን ይቀይሩ</string>
     <string name="home_action_thermal">የሙቀት ማእከል</string>
     <string name="home_action_thermal_desc">ሙቀትን እና ቅዝቃዜን ይፈትሹ</string>
     <string name="home_action_battery">የኃይል ማእከል</string>
@@ -1499,7 +1471,6 @@
     <string name="home_active">ንቁ</string>
     <string name="home_idle">IDLE</string>
     <string name="home_protected">የተጠበቀ</string>
-    <string name="home_device_overview">የመሣሪያ አጠቃላይ እይታ</string>
     <string name="home_live_performance">የቀጥታ አፈጻጸም</string>
     <string name="home_live_performance_desc">የአሁኑ ጭነት እና ቀጥተኛ የሃርድዌር መቆጣጠሪያዎች</string>
     <string name="home_open_details">ዝርዝር የሙቀት መረጃን ይክፈቱ</string>
@@ -1790,4 +1761,8 @@
     <string name="max_app_master_on_desc">በየመተግበሪያ ማሻሻያዎች በመተግበር ላይ ናቸው።</string>
     <string name="max_app_advanced_options">የላቁ አማራጮች</string>
     <string name="max_app_save">አስቀምጥ</string>
+    <string name="home_gpu_max_freq">ከፍተኛ ድግግሞሽ</string>
+    <string name="zram_live_summary">%1$d MB %2$s \u00b7 Swappiness %3$d \u00b7 ቅልጥፍና %4$.2f\u00d7 \u00b7 RAM ተቀምጧል %5$d MB \u00b7 ስዋፕ ጥቅም ላይ ውሏል %6$d/%7$d MB</string>
+    <string name="processmgr_result_stop_failed">"ማስገደድ ማቆም አልተቻለም %1$s</string>
+    <string name="charging_live_summary">%1$d%% \u00b7 %2$s \u00b7 %3$.2f V \u00b7 %4$d mA \u00b7 %5$.1f\u00b0C</string>
 </resources>

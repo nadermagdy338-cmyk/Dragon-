@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import nd.max.ui.activitylauncher.ActivityLauncherScreen
 import nd.max.ui.mainscreens.*
 import nd.max.ui.subscreens.*
+import nd.max.ui.subscreens.audio.AudioStudioScreen
 import nd.max.ui.subscreens.hubs.*
 
 /**
@@ -29,6 +30,23 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.Apps.route) { ApplistScreen(navController) }
     composable(MaxDestination.MaxAi.route) { MaxAiScreen(navController) }
     composable(MaxDestination.MaxLive.route) { MaxLiveScreen(navController) }
+    composable(
+        route = MaxDestination.DeviceInfo.route,
+        // `section` اختياريّ بقيمة افتراضية فارغة: الدخول المجرّد (من الرئيسية أو من قائمة)
+        // يمرّ بـ`launchRoute` المنزوع الاستعلام فيصل فارغًا ← «نظرة عامة»، وزرّ الشاشة التي
+        // تملك الموضوع يمرّ بمفتاح القسم فيُفتح عليه. **والمعامل يجب أن يُعلَن هنا**: مسار
+        // يحمل معاملًا غير معلَن يُهمله الـNavigator صامتًا، فتُفتح الشاشة على النظرة العامة
+        // ولا يقول أحد إن الزرّ لم يعمل.
+        arguments = listOf(navArgument("section") { type = NavType.StringType; defaultValue = "" })
+    ) { entry ->
+        DeviceInfoScreen(
+            navController = navController,
+            // ولا حارس `isNotBlank` هنا: الفراغ والمجهول يسقطان إلى «نظرة عامة» في
+            // `deviceInfoSectionOf` نفسها — وهي دالّة صافية مقيسة على JVM، فلا تصير
+            // قاعدةُ قسمٍ مكتوبةً في الرسم الملاحيّ حيث لا اختبار لها.
+            sectionKey = entry.arguments?.getString("section"),
+        )
+    }
     composable(MaxDestination.Settings.route) { SettingsScreen(navController) }
 
     // Control domain hubs: one parameterized entry per domain (F-07).
@@ -41,6 +59,15 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.PowerHub.route) { MaxDomainHubScreen(navController, MaxDestination.PowerHub) }
     composable(MaxDestination.StorageHub.route) { MaxDomainHubScreen(navController, MaxDestination.StorageHub) }
     composable(MaxDestination.NetworkHub.route) { MaxDomainHubScreen(navController, MaxDestination.NetworkHub) }
+    composable(MaxDestination.AudioHub.route) { MaxDomainHubScreen(navController, MaxDestination.AudioHub) }
+    // سطح التحكّم: مستويات الدفقات تُكتب هنا (عبر الـViewModel والـarbiter)، والجرد في «معلومات الجهاز».
+    composable(MaxDestination.AudioStudio.route) { AudioStudioScreen(navController) }
+
+    composable(MaxDestination.SpoofStudio.route) { SpoofStudioScreen(navController) }
+
+    composable(MaxDestination.GameLobby.route) { GameLobbyScreen(navController) }
+    composable(MaxDestination.EmulatorHub.route) { EmulatorHubScreen(navController) }
+    composable(MaxDestination.HmaCompanion.route) { HmaCompanionScreen(navController) }
 
     // Feature screens
     composable(MaxDestination.CpuCoreControl.route) { CpuCoreControlScreen(navController) }

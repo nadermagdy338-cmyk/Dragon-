@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">स्थापना गरिएका प्याकेजहरू र तिनीहरूले घोषणा गर्ने गतिविधिहरू</string>
+    <string name="max_launcher_loading">स्थापित प्याकेजहरू र तिनीहरूका घोषित गतिविधिहरू पढ्दै...</string>
+    <string name="max_launcher_empty">कुनै पनि स्थापित प्याकेजले यस उपकरणमा गतिविधि घोषणा गर्दैन।</string>
+    <string name="max_launcher_search_placeholder">एप नाम वा प्याकेज द्वारा खोज्नुहोस्</string>
+    <string name="max_launcher_search_clear">खोज खाली गर्नुहोस्</string>
+    <string name="max_launcher_scope_all">सबै</string>
+    <string name="max_launcher_scope_user">प्रयोगकर्ता</string>
+    <string name="max_launcher_scope_system">प्रणाली</string>
+    <string name="max_launcher_activity_count">%1$d गतिविधिहरू</string>
+    <string name="max_launcher_no_match_title">केहि मिल्दैन</string>
+    <string name="max_launcher_no_match_detail">कुनै प्याकेज नाम वा एप लेबलले चयन गरिएको दायरामा त्यो पाठ समावेश गर्दैन।</string>
+    <string name="max_launcher_no_match_clear">फिल्टरहरू खाली गर्नुहोस्</string>
+    <string name="max_launcher_reading_activities">यस प्याकेजले घोषणा गरेका गतिविधिहरू पढ्दै...</string>
+    <string name="max_launcher_no_activities">यो प्याकेजले कुनै गतिविधि घोषणा गर्दैन।</string>
+    <string name="max_launcher_root_off_title">रूट प्रदान गरिएको छैन</string>
+    <string name="max_launcher_root_off_detail">निजी चिन्ह लगाइएका गतिविधिहरू निर्यात गरिँदैन, त्यसैले केवल रूटले तिनीहरूलाई सुरु गर्न सक्छ। यो बिना निर्यात गतिविधिहरु अझै खुला छ।</string>
+    <string name="max_launcher_tag_private">निजी</string>
+    <string name="max_launcher_tag_disabled">असक्षम</string>
+    <string name="max_launcher_outcome_started">गतिविधि सुरु भयो</string>
+    <string name="max_launcher_outcome_needs_root">यो गतिविधि निर्यात गरिएको छैन — रूट आवश्यक छ</string>
+    <string name="max_launcher_outcome_refused">एन्ड्रोइडले यो गतिविधि सुरु गर्न अस्वीकार गर्यो</string>
+    <string name="max_launcher_outcome_missing">त्यो नामको कुनै गतिविधि स्थापना गरिएको छैन</string>
+</resources>

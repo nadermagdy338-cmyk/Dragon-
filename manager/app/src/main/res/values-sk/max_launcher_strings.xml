@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Nainštalované balíky a aktivity, ktoré deklarujú</string>
+    <string name="max_launcher_loading">Čítanie nainštalovaných balíkov a ich deklarovaných aktivít...</string>
+    <string name="max_launcher_empty">Žiadny nainštalovaný balík nedeklaruje aktivitu na tomto zariadení.</string>
+    <string name="max_launcher_search_placeholder">Vyhľadávajte podľa názvu aplikácie alebo balíka</string>
+    <string name="max_launcher_search_clear">Vymazať vyhľadávanie</string>
+    <string name="max_launcher_scope_all">Všetky</string>
+    <string name="max_launcher_scope_user">Používateľ</string>
+    <string name="max_launcher_scope_system">Systém</string>
+    <string name="max_launcher_activity_count">%1$d aktivít</string>
+    <string name="max_launcher_no_match_title">Nič sa nezhoduje</string>
+    <string name="max_launcher_no_match_detail">Žiadny názov balíka ani štítok aplikácie neobsahuje tento text vo vybratom rozsahu.</string>
+    <string name="max_launcher_no_match_clear">Vymazať filtre</string>
+    <string name="max_launcher_reading_activities">Čítanie aktivít, ktoré tento balík deklaruje...</string>
+    <string name="max_launcher_no_activities">Tento balík nedeklaruje žiadne aktivity.</string>
+    <string name="max_launcher_root_off_title">Root nie je udelený</string>
+    <string name="max_launcher_root_off_detail">Aktivity označené ako súkromné ​​sa neexportujú, takže ich môže spustiť iba root. Exportované aktivity sa otvárajú aj bez neho.</string>
+    <string name="max_launcher_tag_private">Súkromné</string>
+    <string name="max_launcher_tag_disabled">Zakázané</string>
+    <string name="max_launcher_outcome_started">Aktivita začala</string>
+    <string name="max_launcher_outcome_needs_root">Táto aktivita sa neexportuje – vyžaduje sa root</string>
+    <string name="max_launcher_outcome_refused">Android odmietol spustiť túto aktivitu</string>
+    <string name="max_launcher_outcome_missing">Nie je nainštalovaná žiadna aktivita s týmto názvom</string>
+</resources>

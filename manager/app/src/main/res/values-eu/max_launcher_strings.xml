@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Instalatutako paketeak eta deklaratzen dituzten jarduerak</string>
+    <string name="max_launcher_loading">Instalatutako paketeak eta haien deklaratutako jarduerak irakurtzen…</string>
+    <string name="max_launcher_empty">Instalatutako pakete batek ez du jarduerarik deklaratzen gailu honetan.</string>
+    <string name="max_launcher_search_placeholder">Bilatu aplikazioaren izenaren edo paketearen arabera</string>
+    <string name="max_launcher_search_clear">Garbitu bilaketa</string>
+    <string name="max_launcher_scope_all">Denak</string>
+    <string name="max_launcher_scope_user">Erabiltzailea</string>
+    <string name="max_launcher_scope_system">Sistema</string>
+    <string name="max_launcher_activity_count">%1$d jarduerak</string>
+    <string name="max_launcher_no_match_title">Ezer ez dator bat</string>
+    <string name="max_launcher_no_match_detail">Ez dago pakete-izenik edo aplikazioaren etiketarik testu hori hautatutako esparruan.</string>
+    <string name="max_launcher_no_match_clear">Garbitu iragazkiak</string>
+    <string name="max_launcher_reading_activities">Pakete honek adierazten dituen jarduerak irakurtzean...</string>
+    <string name="max_launcher_no_activities">Pakete honek ez du jarduerarik adierazten.</string>
+    <string name="max_launcher_root_off_title">Erroa ez da ematen</string>
+    <string name="max_launcher_root_off_detail">Pribatutzat markatutako jarduerak ez dira esportatzen, beraz root-ek bakarrik abi ditzake. Esportatutako jarduerak oraindik irekita daude hura gabe.</string>
+    <string name="max_launcher_tag_private">Pribatua</string>
+    <string name="max_launcher_tag_disabled">Ezindua</string>
+    <string name="max_launcher_outcome_started">Jarduera hasi zen</string>
+    <string name="max_launcher_outcome_needs_root">Jarduera hau ez da esportatzen - root beharrezkoa da</string>
+    <string name="max_launcher_outcome_refused">Android-ek uko egin zion jarduera hau hastea</string>
+    <string name="max_launcher_outcome_missing">Ez dago izen hori duen jarduerarik instalatuta</string>
+</resources>

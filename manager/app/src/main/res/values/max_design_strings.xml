@@ -12,6 +12,8 @@
     <string name="max_trust_live">Live</string>
     <string name="max_trust_stale">Last sample</string>
     <string name="max_trust_snapshot">Snapshot</string>
+    <!-- الدورة الأولى لم تكتمل: السؤال لم يُطرح بعد، وهو ليس «لا قراءة». -->
+    <string name="max_trust_loading">Reading…</string>
     <string name="max_trust_unreadable">No reading</string>
     <string name="max_trust_unsupported">Not supported</string>
 

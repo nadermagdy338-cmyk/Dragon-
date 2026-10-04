@@ -9,7 +9,7 @@ An Android 11+ performance suite with two halves that ship together:
 1. **Magisk/KernelSU module** (`mainfiles/`, `binprofiles/`, `binutils/`, `archdaemon/`, `preloadbin/`, `thermalcore/`) — Rust/shell binaries that apply profiles, CPU/GPU policies, I/O scheduler, thermal service, game preload.
 2. **Manager app** (`manager/app`, package `nd.max`, Kotlin + Compose + Hilt) — the control surface and the home of **Max AI**, an autonomous knob-level optimizer with a safety governor.
 
-Version: `5.2` / `Dazzling` (`version`, `version_type`, `module.json`). License Apache-2.0. Localized to ~100 locales via Crowdin.
+Version: `v1.0` — single-sourced in the `version` file and mirrored byte-for-byte in `mainfiles/module.prop` (`version=v1.0`) and `archdaemon/jni/include/MaxManager.h` (`MODULE_VERSION "v1.0"`), because the daemon greps `module.prop` for it at boot. `version_type` is now a build-mode token (`stable`), not a codename. License Apache-2.0. Localized to ~100 locales via Crowdin.
 
 ## Repo state at handoff
 

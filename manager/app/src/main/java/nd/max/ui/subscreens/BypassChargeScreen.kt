@@ -5,6 +5,10 @@
  */
 
 package nd.max.ui.subscreens
+import nd.max.ui.design.MaxCardSpec
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSectionSpec
+import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
 
@@ -69,9 +73,9 @@ import com.topjohnwu.superuser.Shell
 import nd.max.MaxManagerProps
 import nd.max.R
 import nd.max.ui.component.MaxUiMetrics
-import nd.max.ui.component.MaxManagerSubScreenTopBar
 import nd.max.ui.component.ScreenAccentProvider
-import nd.max.ui.util.PropertyUtils
+import nd.max.ui.design.MaxListScreen
+import nd.max.core.platform.PropertyUtils
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -82,7 +86,6 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BypassChargeScreen(navController: NavHostController) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val colors = MaterialTheme.colorScheme
 
     var bypassPath by remember { mutableStateOf("") }
@@ -112,29 +115,12 @@ fun BypassChargeScreen(navController: NavHostController) {
     }
 
     ScreenAccentProvider(colors.tertiary) {
-        androidx.compose.material3.Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            containerColor = colors.surface,
-            topBar = {
-                MaxManagerSubScreenTopBar(
-                    scrollBehavior = scrollBehavior,
-                    title = stringResource(R.string.bcharging),
-                    onBack = { navController.popBackStack() },
-                    accentIcon = Icons.Filled.BatteryChargingFull,
-                    accent = colors.tertiary
-                )
-            }
-        ) { innerPadding ->
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    top = innerPadding.calculateTopPadding() + 12.dp,
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 24.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                ),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
+        MaxListScreen(
+            title = stringResource(R.string.bcharging),
+            onBack = { navController.popBackStack() },
+            accentIcon = Icons.Filled.BatteryChargingFull,
+            accent = colors.tertiary
+        ) {
                 item {
                     BypassHero(
                         enabled = bypassEnabled == true,
@@ -153,8 +139,10 @@ fun BypassChargeScreen(navController: NavHostController) {
                 }
 
                 item {
-                    SectionLabel("Control")
-                    Spacer(Modifier.height(7.dp))
+                    SectionLabel(stringResource(R.string.bypass_charge_section_control))
+                    // 7dp لم تكن على سلّم 4dp، والمكان هنا **بعده عنوان القسم** بعينه
+                    // (`MaxSectionSpec.spaceAfter`) — وهو نفسه بين عنواني القسمين الآخرين.
+                    Spacer(Modifier.height(MaxSectionSpec.spaceAfter))
                     Card(
                         colors = CardDefaults.cardColors(containerColor = colors.surfaceContainerLow),
                         shape = RoundedCornerShape(MaxUiMetrics.cardRadius)
@@ -197,8 +185,8 @@ fun BypassChargeScreen(navController: NavHostController) {
                 }
 
                 item {
-                    SectionLabel("Threshold")
-                    Spacer(Modifier.height(7.dp))
+                    SectionLabel(stringResource(R.string.bypass_charge_section_threshold))
+                    Spacer(Modifier.height(MaxSectionSpec.spaceAfter))
                     threshold?.let { value ->
                         Card(
                             colors = CardDefaults.cardColors(containerColor = colors.surfaceContainerLow),
@@ -260,8 +248,8 @@ fun BypassChargeScreen(navController: NavHostController) {
                 }
 
                 item {
-                    SectionLabel("Configuration")
-                    Spacer(Modifier.height(7.dp))
+                    SectionLabel(stringResource(R.string.bypass_charge_section_configuration))
+                    Spacer(Modifier.height(MaxSectionSpec.spaceAfter))
                     Card(
                         colors = CardDefaults.cardColors(containerColor = colors.surfaceContainerLow),
                         shape = RoundedCornerShape(MaxUiMetrics.cardRadius)
@@ -269,22 +257,22 @@ fun BypassChargeScreen(navController: NavHostController) {
                         Column {
                             ConfigRow(
                                 icon = Icons.Filled.SettingsInputComponent,
-                                title = "Bypass path",
+                                title = stringResource(R.string.bypass_charge_row_path),
                                 value = when {
-                                    unsupported -> "Unsupported"
-                                    needsSetup -> "Setup required"
+                                    unsupported -> stringResource(R.string.bypass_charge_state_unsupported)
+                                    needsSetup -> stringResource(R.string.bypass_charge_state_setup_required)
                                     else -> bypassPath
                                 }
                             )
                             ConfigRow(
                                 icon = Icons.Filled.Security,
-                                title = "Activation policy",
-                                value = "Performance profile"
+                                title = stringResource(R.string.bypass_charge_row_policy),
+                                value = stringResource(R.string.bypass_charge_row_profile)
                             )
                             ConfigRow(
                                 icon = Icons.Filled.Info,
-                                title = "Charging behavior",
-                                value = "Stop charging at threshold"
+                                title = stringResource(R.string.bypass_charge_row_behavior),
+                                value = stringResource(R.string.bypass_charge_row_stop_at)
                             )
                         }
                     }
@@ -324,13 +312,13 @@ fun BypassChargeScreen(navController: NavHostController) {
                 item {
                     Surface(
                         color = colors.surfaceContainer,
-                        shape = RoundedCornerShape(18.dp)
+                        shape = RoundedCornerShape(MaxRadius.tile)
                     ) {
                         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.Top) {
                             Icon(Icons.Filled.Info, null, tint = colors.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             Spacer(Modifier.size(10.dp))
                             Text(
-                                "Bypass is applied by the privileged daemon to a detected charging node. Max Manager does not claim support until a compatible node has been detected.",
+                                stringResource(R.string.bypass_charge_note),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = colors.onSurfaceVariant
                             )
@@ -338,7 +326,6 @@ fun BypassChargeScreen(navController: NavHostController) {
                     }
                 }
             }
-        }
     }
 }
 
@@ -346,10 +333,10 @@ fun BypassChargeScreen(navController: NavHostController) {
 private fun BypassHero(enabled: Boolean, available: Boolean, needsSetup: Boolean, unsupported: Boolean) {
     val colors = MaterialTheme.colorScheme
     val status = when {
-        unsupported -> "Unsupported"
-        needsSetup -> "Needs setup"
-        enabled -> "Enabled"
-        else -> "Ready"
+        unsupported -> stringResource(R.string.bypass_charge_state_unsupported)
+        needsSetup -> stringResource(R.string.bypass_charge_state_needs_setup)
+        enabled -> stringResource(R.string.bypass_charge_state_enabled)
+        else -> stringResource(R.string.bypass_charge_state_ready)
     }
     val statusColor = when {
         unsupported -> colors.error
@@ -357,19 +344,20 @@ private fun BypassHero(enabled: Boolean, available: Boolean, needsSetup: Boolean
         else -> colors.onSurfaceVariant
     }
 
-    Column(Modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 4.dp)) {
+    // الحشو الأفقي كان `2.dp`: إزاحة أفقية لا تُقرأ محاذاة وتُخرج العنوان عن حدّ البطاقات تحته.
+    Column(Modifier.fillMaxWidth().padding(vertical = MaxSpace.xs)) {
         Text(
-            "Charging bypass",
+            stringResource(R.string.charging_bypass_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-        Spacer(Modifier.height(5.dp))
+        Spacer(Modifier.height(MaxSpace.xs))
         Text(
-            "Keep the charger feeding the system while reducing battery charging above your chosen level.",
+            stringResource(R.string.charging_bypass_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = colors.onSurfaceVariant
         )
-        Spacer(Modifier.height(13.dp))
+        Spacer(Modifier.height(MaxSpace.md))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(9.dp).clip(RoundedCornerShape(50)).background(statusColor))
             Spacer(Modifier.size(8.dp))
@@ -378,7 +366,7 @@ private fun BypassHero(enabled: Boolean, available: Boolean, needsSetup: Boolean
                 Spacer(Modifier.size(12.dp))
                 Text("•", color = colors.outline)
                 Spacer(Modifier.size(12.dp))
-                Text("Daemon controlled", style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
+                Text(stringResource(R.string.bypass_charge_daemon_controlled), style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
             }
         }
     }
@@ -390,7 +378,7 @@ private fun BypassIllustration(modifier: Modifier, active: Boolean, muted: Boole
     val accent = if (muted) colors.outline else colors.primary
     val secondary = if (muted) colors.outlineVariant else colors.tertiary
 
-    Surface(modifier = modifier, color = colors.surfaceContainerLow, shape = RoundedCornerShape(26.dp)) {
+    Surface(modifier = modifier, color = colors.surfaceContainerLow, shape = RoundedCornerShape(MaxCardSpec.radius)) {
         Canvas(Modifier.fillMaxWidth().height(190.dp).padding(18.dp)) {
             val cy = size.height / 2f
             val batteryLeft = size.width * .36f
@@ -446,14 +434,20 @@ private fun SectionLabel(text: String) {
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(start = 3.dp)
+        // والمحاذاة الأفقية من الهيكل: كان `start = 3.dp` يُزاح العنوان عن بطاقة قسمه
+        // بثلاثة بكسلات — لا تُرى كخطأ ولا تُقرأ محاذاة.
+        modifier = Modifier
     )
 }
 
 @Composable
 private fun ConfigRow(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, value: String) {
     val colors = MaterialTheme.colorScheme
-    Row(Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+    // حشو **داخل البطاقة**: 17dp و14dp كانتا خارج سلّم الرموز، وعقد البطاقة يعطي 16/12.
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = MaxCardSpec.padding, vertical = MaxSpace.md),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Icon(icon, null, tint = colors.onSurfaceVariant, modifier = Modifier.size(20.dp))
         Spacer(Modifier.size(13.dp))
         Text(title, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))

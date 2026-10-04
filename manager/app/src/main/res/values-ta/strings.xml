@@ -7,7 +7,7 @@
     <string name="all_set">எல்லாம் தயார், நீங்கள் இப்போது Max Manager ஐப் பயன்படுத்தலாம்</string>
     <string name="allow_verbose_log">டீமான் விரிவான பதிவை வெளியிட அனுமதி</string>
     <string name="android_version">Android பதிப்பு</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">பயன்பாட்டின் பெயர்</string>
     <string name="app_priority">பயன்பாட்டின் முன்னுரிமை</string>
     <string name="app_priority_control">பயன்பாட்டு முன்னுரிமை கட்டுப்பாடு</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">FPS மேலடுக்கு</string>
     <string name="fps_overlay_notif_title">Max Manager FPS மேலடுக்கு இயங்குகிறது</string>
     <string name="fps_overlay_notif_stop">நிறுத்து</string>
-    <string name="fps_overlay_section_style">தோற்றம்</string>
-    <string name="fps_overlay_style">மேலடுக்கு நடை</string>
-    <string name="fps_overlay_style_android">Android பட்டியல்</string>
-    <string name="fps_overlay_style_pc">பிசி மோனோஸ்பேஸ்</string>
-    <string name="fps_overlay_style_mini">மினி</string>
-    <string name="fps_overlay_orientation">தளவமைப்பு திசை</string>
-    <string name="fps_overlay_orientation_vertical">செங்குத்து</string>
-    <string name="fps_overlay_orientation_horizontal">கிடைமட்ட</string>
-    <string name="fps_overlay_read_mode">FPS வாசிப்பு முறை</string>
     <string name="fps_overlay_read_mode_desc">உங்கள் சாதனத்தில் வாசிப்பு 0 இல் இருந்தால் வேறு முறையை முயற்சிக்கவும்</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (பரிந்துரைக்கப்படுகிறது)</string>
     <string name="fps_overlay_mode_kernel">கர்னல் முனை</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">உரை அளவு</string>
     <string name="fps_overlay_bg_alpha">பின்னணி ஒளிபுகாநிலை</string>
     <string name="fps_overlay_width_scale">அகல அளவு</string>
-    <string name="fps_overlay_section_metrics">அளவீடுகள் காட்டப்பட்டுள்ளன</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU சுமை</string>
-    <string name="fps_overlay_metric_ram">RAM பயன்பாடு</string>
-    <string name="fps_overlay_metric_watt">பேட்டரி பவர் டிரா</string>
-    <string name="fps_overlay_metric_temp">பேட்டரி வெப்பநிலை</string>
-    <string name="fps_overlay_metric_render">ரெண்டரர் லேபிள்</string>
-    <string name="fps_overlay_metric_render_desc">\"FPS\" க்கு பதிலாக VULKAN/OPENGL ஐ லேபிளாகக் காட்டுகிறது, முன்புற பயன்பாட்டின் ஏற்றப்பட்ட நூலகங்களிலிருந்து கண்டறியப்பட்டது</string>
     <string name="dozemode_title">தூக்கக் கொள்கை</string>
     <string name="dozemode_menu_desc">காத்திருப்பு அனுமதிப்பட்டியல், செயலற்ற நடத்தை மற்றும் பின்னணி பவர் டியூனிங்</string>
     <string name="dozemode_state_label">டோஸ் நிலை</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">அமைப்புகளைத் திறக்கவும்</string>
     <string name="processmgr_title">பணி கண்காணிப்பு</string>
-    <string name="processmgr_menu_desc">ஒவ்வொரு செயல்முறைக்கும் CPU மற்றும் RAM பயன்பாடு, ஃபோர்ஸ்-ஸ்டாப் மற்றும் மிதக்கும் மேலடுக்கு</string>
     <string name="processmgr_stat_total">%1$d செயல்முறைகள்</string>
-    <string name="processmgr_stat_breakdown">%1$d பயனர் \u00b7 %2$d அமைப்பு</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">மேல் %1$d</string>
@@ -808,9 +789,6 @@
     <string name="processmgr_search_hint">இயங்கும் செயல்முறைகளைத் தேடுங்கள்</string>
     <string name="processmgr_no_processes">உங்கள் தேடலுக்கு எந்த செயல்முறையும் பொருந்தவில்லை</string>
     <string name="processmgr_dialog_close">மூடு</string>
-    <string name="processmgr_detail_version">பதிப்பு</string>
-    <string name="processmgr_detail_build">கட்டுங்கள்</string>
-    <string name="processmgr_detail_package">தொகுப்பு</string>
     <string name="processmgr_result_killed">கொல்லப்பட்டார் %1$s</string>
     <string name="processmgr_result_kill_failed">%1$s ஐக் கொல்ல முடியவில்லை</string>
     <string name="processmgr_result_stopped">வலுக்கட்டாயமாக நிறுத்தப்பட்டது %1$s</string>
@@ -1462,7 +1440,6 @@
     <string name="max_home_reboot_desc">பாதுகாப்பான மறுதொடக்க விருப்பங்களைத் திறக்கவும்</string>
     <string name="max_home_ai_console">MAX AI கன்சோல்</string>
     <string name="max_home_ai_working">கோரப்பட்ட சுயவிவரத்தைப் பயன்படுத்துகிறது…</string>
-    <string name="max_home_ai_failed">கடைசி AI செயல் தோல்வியடைந்தது</string>
     <string name="max_home_retry">மீண்டும் முயற்சிக்கவும்</string>
     <string name="max_home_ai_idle">AI முடிவு இன்னும் பதிவு செய்யப்படவில்லை</string>
     <string name="home_system_stable">சிஸ்டம் நிலையானது</string>
@@ -1478,8 +1455,6 @@
     <string name="home_performance_monitor_desc">கடந்த 72 வினாடிகளில் ஆதார சுமை</string>
     <string name="home_quick_actions">கட்டளை தளம்</string>
     <string name="home_quick_actions_desc">முக்கியமான கட்டுப்பாடுகளுக்கான நேரடி அணுகல்</string>
-    <string name="home_action_boost">செயல்திறன் சுயவிவரம்</string>
-    <string name="home_action_boost_desc">அமைப்பின் நடத்தையை மாற்றவும்</string>
     <string name="home_action_thermal">வெப்ப மையம்</string>
     <string name="home_action_thermal_desc">வெப்பம் மற்றும் குளிர்ச்சியை சரிபார்க்கவும்</string>
     <string name="home_action_battery">சக்தி மையம்</string>
@@ -1499,7 +1474,6 @@
     <string name="home_active">செயலில்</string>
     <string name="home_idle">செயலற்ற</string>
     <string name="home_protected">பாதுகாக்கப்பட்டது</string>
-    <string name="home_device_overview">சாதன மேலோட்டத்தைத் திற</string>
     <string name="home_live_performance">நேரடி செயல்திறன்</string>
     <string name="home_live_performance_desc">தற்போதைய சுமை மற்றும் நேரடி வன்பொருள் கட்டுப்பாடுகள்</string>
     <string name="home_open_details">விரிவான வெப்பத் தரவைத் திறக்கவும்</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">பயன்பாட்டிற்கான மேம்படுத்தல்கள் பயன்படுத்தப்படுகின்றன</string>
     <string name="max_app_advanced_options">மேம்பட்ட விருப்பங்கள்</string>
     <string name="max_app_save">சேமிக்கவும்</string>
+    <string name="home_gpu_max_freq">அதிகபட்ச அதிர்வெண்</string>
 </resources>

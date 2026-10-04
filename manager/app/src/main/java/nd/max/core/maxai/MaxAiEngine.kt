@@ -39,8 +39,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
 import nd.max.core.jni.PredictorBridge
-import nd.max.ui.util.EventLog
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.EventLog
+import nd.max.core.platform.PropertyUtils
 
 /**
  * MAX AI PERFORMANCE ENGINE — المحرك الذكي الموحد.
@@ -111,6 +111,18 @@ class MaxAiEngine @Inject constructor(
 
         /** تهدئة حلقات الانحراف لكل مقبض — الانحراف قد يدوم دورات. */
         private const val DRIFT_COOLDOWN_MS = 300_000L
+
+        /**
+         * عدد الكتابات **غير المتحقّقة المتتالية** على المقبض نفسه قبل الإقلاع عنه في هذه الجلسة.
+         *
+         * **والعطب الذي وُلد منه (مقيس، ٢٠٢٦-١٠-٠١):** على `rodin` كتب السجلّ
+         * `step not verified :: cpu_limits:policy7: … (Atlas: all eligible routes failed)` **تسع
+         * مرّات في ثلاث دقائق ونصف** — أي أن المحرك أعاد المحاولة على مقبض يعرف أنه لا يُكتب أصلًا،
+         * فلا تعلُّم ولا فائدة، بل كتابة معاملة كاملة (وخط أساس واسترجاع) كل دورة. والحدّ صغير عن
+         * قصد: الأثر المهمّ (الجذر) يُعالَج في بناء السلّم نفسه (`ControlRegistry.ceilingLadder`)،
+         * وهذا **شبكة أمان** لأي مقبض آخر لا يُثبت الكتابة على هذا العتاد.
+         */
+        private const val ABANDON_AFTER_UNVERIFIED = 3
 
         /** أفق التنبؤ الحراري الأمامي لمحرك الأمان (خطوة = دورة). */
         private const val THERMAL_FORECAST_STEPS = 6
@@ -230,6 +242,15 @@ class MaxAiEngine @Inject constructor(
 
     /** لحطة أحدث حلقة انحراف لكل مقبض (تهدئة). */
     private val driftNoticedAtMs = java.util.concurrent.ConcurrentHashMap<String, Long>()
+
+    /** عدّاد الكتابات غير المتحقّقة المتتالية لكل مقبض — يُصفَّر بأوّل كتابة مثبتة. */
+    private val unverifiedStreak = java.util.concurrent.ConcurrentHashMap<String, Int>()
+
+    /** مقابض أُقلع عنها في هذه الجلسة — تُسقط من المرشّحين فلا تُكلَّف معاملة أخرى. */
+    private val abandonedKnobs = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
+    /** من أُعلن عنه مرّة — فلا يتكرّر السطر كل دورة (نفس قاعدة `reportedGiveUp` في المشرف). */
+    private val abandonedNoted = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
     // ── دورة الحياة ───────────────────────────────────────
 
@@ -395,6 +416,32 @@ class MaxAiEngine @Inject constructor(
         decisionCycle(snapshot, objective, objectiveSource, appContextKey)
     }
 
+    /**
+     * يعدّ الكتابات غير المتحقّقة المتتالية، ويُقلع عن المقبض عند بلوغ الحدّ — ويقول السبب **مرّة**.
+     *
+     * والسبب يُسجَّل بنصّ العتاد نفسه (`outcome.detail`) لا بصياغة ثانية له، فيبقى أثرُه صالحًا
+     * للقراءة بعد أشهر: `reason=unverified_writes` ثم تفصيل المعاملة كما كتبه `MinimalPlanner`.
+     */
+    private fun noteUnverified(key: String, detail: String) {
+        val streak = unverifiedStreak.merge(key, 1, Int::plus) ?: 1
+        if (streak < ABANDON_AFTER_UNVERIFIED) return
+        if (!abandonedKnobs.add(key)) return
+        if (abandonedNoted.add(key)) {
+            DiagnosticCenter.record(
+                "maxai",
+                "knob abandoned reason=unverified_writes streak=$streak key=$key detail=$detail",
+                level = DiagnosticCenter.Level.WARN,
+            )
+        }
+    }
+
+    /** كتابة مثبتة تُعيد المقبض إلى المرشّحين: الإقلاع يخصّ **جلسة** الفشل لا العتاد. */
+    private fun noteVerified(key: String) {
+        if (unverifiedStreak.remove(key) == null) return
+        abandonedKnobs.remove(key)
+        abandonedNoted.remove(key)
+    }
+
     private suspend fun decisionCycle(
         before: DeviceStateCollector.DeviceSnapshot,
         objective: Objective,
@@ -412,6 +459,9 @@ class MaxAiEngine @Inject constructor(
             // Safety/RECOVERY are excluded from this gate at a lower layer
             // (ManualControlLocks.blocks) so safety supremacy is preserved.
             if (control.key in ManualControlLocks.lockedKeys()) return@filter false
+            // وأُقلع عنه بعد كتابات غير متحقّقة متتالية: لا معاملة على مقبض لا يُثبت هذا
+            // العتاد كتابته — والحدّ مكتوب في [`ABANDON_AFTER_UNVERIFIED`].
+            if (control.key in abandonedKnobs) return@filter false
             val winner = ownership[control.key]
             winner == null || winner.token == TOKEN || winner.owner.priority <= ControlOwnership.Owner.MAX_AI.priority
         }
@@ -453,6 +503,7 @@ class MaxAiEngine @Inject constructor(
         }
 
         // Prioritize controls with DynamicIntentLearner
+        // (والمرشّحون هنا مُصفَّون فعلًا: قفل المستخدم، والإقلاع عن مقبض لا يُثبت — انظر أعلاه)
         val prioritizedControls = dynamicIntentLearner.prioritizeControls(
             availableControls, appContextKey, objective.preferredDirection(before)
         )
@@ -557,7 +608,10 @@ class MaxAiEngine @Inject constructor(
 
         if (!outcome.verified) {
             // لم يثبت التغيير على العتاد: لا مكافأة ولا ادعاء نجاح.
-            if (!outcome.blocked) bumpCounter(PREF_ADJUSTED)
+            if (!outcome.blocked) {
+                bumpCounter(PREF_ADJUSTED)
+                noteUnverified(step.control.key, outcome.detail)
+            }
             DiagnosticCenter.record("maxai", "step not verified :: ${outcome.detail}")
             journal.record(
                 buildEpisode(
@@ -590,6 +644,9 @@ class MaxAiEngine @Inject constructor(
             }
             return@withContext
         }
+
+        // نُفِّذ وتُحقق منه: العدّاد يُصفَّر — الفشل العابر لا يُعدم المقبض لهذه الجلسة.
+        noteVerified(step.control.key)
 
         // نُفِّذ وتُحقق منه: انتظر استجابة النطام ثم قِس الأثر الفعلي.
         //

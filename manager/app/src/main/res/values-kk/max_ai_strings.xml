@@ -119,7 +119,6 @@
     <string name="max_ai_insight_learning">Әлі үйренуде</string>
     <string name="max_ai_insights_summary">Жақсартылған %1$d · артқа айналдырылған %2$d · блокталған %3$d · өлшенбеген %4$d</string>
     <string name="max_ai_insights_events_summary">Қауіпсіздік %1$d · дрейф %2$d · қайта анықталған %3$d · кейінге қалдырылған өлшенген %4$d</string>
-    <string name="max_ai_insights_prediction">Орташа болжау қатесі %1$s өлшенген ілмектер үстінде</string>
     <string name="max_ai_section_system">Әрбір бақылау кімге тиесілі</string>
     <string name="max_ai_section_system_desc">Ортақ иелік журналындағы аппараттық құрал тұтқасына бір жеңімпаз.</string>
     <string name="max_ai_owner_none">Қазіргі уақытта ешбір түйме автоматтандырылған контроллерге тиесілі емес.</string>
@@ -284,4 +283,5 @@
     <string name="max_ai_decisions_disabled">Автоматты шешімдер өшірілді</string>
     <string name="max_ai_master_disabled_desc">AI оңтайландыру өшірулі. Қолмен басқару және термиялық қорғаныс тәуелсіз болып қалады.</string>
     <string name="max_ai_settings_loading">Сақталған AI теңшелімдері жүктелуде.</string>
+    <string name="max_ai_insights_prediction">Орташа болжам қатесі %1$s %2$d өлшенген ілмектер үстінде</string>
 </resources>

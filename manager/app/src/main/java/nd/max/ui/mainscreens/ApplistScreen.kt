@@ -6,6 +6,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.floatingBottomBarPadding
@@ -230,6 +232,13 @@ fun ApplistScreen(navController: NavHostController) {
                             )
                         }
 
+                        // **باب اللوبي في الصفّ الأول** لا بين صفوف الأدوات: هو سطح اللعب الذي
+                        // يُدخل لعبةً إلى المكتبة ويُسلّح اللوحة الجانبية لها — فهو أوّل ما يُطلب
+                        // من هذه القائمة، وبقيّة الصفوف أدوات تحرير.
+                        item(key = "apps_lobby_door") {
+                            GameLobbyDoor(onOpen = { MaxNavActions(navController).navigateTo(MaxDestination.GameLobby) })
+                        }
+
                         item(key = "apps_workspace_links") {
                             WorkspaceLinks(
                                 onOpen = { MaxNavActions(navController).navigateTo(it) }
@@ -299,7 +308,7 @@ private fun AppSearchField(
         },
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(MaxRadius.tile),
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -428,7 +437,7 @@ private fun ApplistItem(app: ApplistViewmodel.AppInfo, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(MaxRadius.tile),
         color = colors.surfaceContainerLow,
         border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .42f)),
         onClick = onClick
@@ -497,7 +506,8 @@ private fun ApplistItem(app: ApplistViewmodel.AppInfo, onClick: () -> Unit) {
 private fun AppTypeTag(text: String, color: Color) {
     Box(
         Modifier
-            .clip(RoundedCornerShape(7.dp))
+            // 7dp لم تكن على سلّم 4dp؛ أقرب مرامٍ هو `MaxSpace.sm` بهامش 1dp.
+            .clip(RoundedCornerShape(MaxSpace.sm))
             .background(color.copy(alpha = .12f))
             .padding(horizontal = 7.dp, vertical = 2.dp)
     ) {
@@ -510,6 +520,30 @@ private fun AppTypeTag(text: String, color: Color) {
     }
 }
 /**
+ * باب لوبي الألعاب — صفّ واحد بارز فوق صفوف أدوات القائمة.
+ *
+ * **ولماذا لا يُسرد في `WorkspaceLinks`:** تلك الصفوف أدوات تحرير (`SetEdit` وما إليه)، واللوبي
+ * **سطح لعب** مختلف الطبع. ووضعه في الصفّ الأول ليس تفضيلًا شكليًّا: هو المدخل الذي يجعل لعبةً
+ * تدخل المكتبة وتُسلّح لها اللوحة — وهو أوّل ما يطلبه من فتح `Apps` لأجل الألعاب.
+ *
+ * **وهو `MaxSection` + `MaxGroup` + `MaxRow` لا بطاقة جديدة:** العنوان يقول في أيّ مجال نحن
+ * («الألعاب»)، والصفّ يحمل الاسم والوصف والأيقونة — فالباب يُقرأ كبقيّة أبواب التطبيق لا كاستثناء.
+ */
+@Composable
+private fun GameLobbyDoor(onOpen: () -> Unit) {
+    MaxSection(title = stringResource(R.string.game_lobby_section)) {
+        MaxGroup {
+            MaxRow(
+                title = stringResource(MaxDestination.GameLobby.titleRes),
+                subtitle = stringResource(R.string.game_lobby_scope),
+                icon = MaxDestination.GameLobby.icon,
+                onClick = onOpen,
+            )
+        }
+    }
+}
+
+/**
  * Workspace rows for the Apps destination. Keeps Process manager and
  * Debloat & freeze reachable from Apps itself instead of only through the
  * legacy tweaks screen (F-04).
@@ -520,7 +554,9 @@ private fun WorkspaceLinks(onOpen: (MaxDestination) -> Unit) {
         it.parent == MaxDestination.Apps &&
             it != MaxDestination.AppSettings &&
             it != MaxDestination.ProcessManager &&
-            it != MaxDestination.DebloatFreeze
+            it != MaxDestination.DebloatFreeze &&
+            // اللوبي سطح لعب لا صفّ أدوات: له باب بارز في رأس القائمة، فلا يُسرد مرّتين.
+            it != MaxDestination.GameLobby
     }
     if (links.isEmpty()) return
     MaxSection(title = stringResource(R.string.max_nav_apps)) {

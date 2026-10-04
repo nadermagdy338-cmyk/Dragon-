@@ -60,13 +60,20 @@ data class ControlGroupSpec(
  * وأما **السمة** فقد عادت إلى الإعدادات بأمر مالك: صارت صفًّا فوق بطاقة اللغة، لأن من يغيّر
  * السمة يبحث عنها في الإعدادات لا في صندوق الأدوات. ومخطّط الألوان بقي هنا — مختلف عنه:
  * ذاك يسأل «أي ألوان تُشتقّ من بذرة»، وهذا يسأل «ما السمة نفسها».
+ *
+ * و**شاشة الأداء** (`MaxDestination.FpsOverlay`) دخلت هنا بأمر مالك: كانت في `ResponsivenessHub`
+ * فتُقرأ على أنها «ضبط معدل الإطارات» وهو `FpsGo` نفسه. وموضعها هنا بعد أدوات النظام: هي طبقة
+ * تُرى فوق التطبيقات لا إعداد يُضبط داخل مجال، والقارئ يطلبها ليعرف لا ليضبط.
  */
 val ControlToolDestinations: List<MaxDestination> = listOf(
     MaxDestination.MaxBackup,
     MaxDestination.Permissions,
+    MaxDestination.SpoofStudio,
+    MaxDestination.HmaCompanion,
     MaxDestination.FileManager,
     MaxDestination.ProcessManager,
     MaxDestination.Logs,
+    MaxDestination.FpsOverlay,
     MaxDestination.ColorScheme,
     MaxDestination.SetEdit,
     MaxDestination.ActivityLauncher,
@@ -99,6 +106,8 @@ private val ControlBands = listOf(
         listOf(
             MaxDestination.StorageHub,
             MaxDestination.NetworkHub,
+            // والعقدة العاشرة (`AU-01`): الصوت عالم نظام — يُقرأ مع الشبكة والتخزين لا مع التطبيقات.
+            MaxDestination.AudioHub,
         ),
     ),
 )

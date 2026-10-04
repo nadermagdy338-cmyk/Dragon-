@@ -18,10 +18,9 @@ mod utils;
 mod chipsets;
 mod profiles;
 mod props;
+mod plan;
 
 use std::env;
-use std::path::Path;
-use std::process::Command;
 use std::fs;
 use utils::*;
 use profiles::*;
@@ -42,10 +41,16 @@ fn get_process_cmdline(pid: u32) -> Option<String> {
         .map(|s| s.replace('\0', " ").trim().to_string())
 }
 
+/// هل المستدعي هو الخادم؟ عقد الملكية في `docs/ai/ARCHITECTURE-AUDIT.md` §١٢.١.
+///
+/// قراءة المصدر هنا (من أين نعرف الأب)، و**القرار** في `plan::caller_is_trusted` حيث
+/// يُقاس بـ`cargo test` على سطري الأوامر الحقيقيين. والشرح الكامل لِـ«لماذا الشرط الثاني
+/// ليس تكرارًا ميتًا» مكتوب هناك مع الشرط نفسه — لأن التعليق يجب أن يعيش حيث يعيش الكود
+/// الذي يحرسه، لا في ملف آخر يفقد صلة القراءة.
 fn verify_caller() -> bool {
     if let Some(ppid) = get_parent_pid() {
         if let Some(cmdline) = get_process_cmdline(ppid) {
-            return cmdline.contains("sys.maxmanager-service") || cmdline.contains("sys.maxmanager");
+            return plan::caller_is_trusted(&cmdline);
         }
     }
     false
@@ -58,22 +63,21 @@ fn main() {
         eprintln!("\x1b[31mError: This utility can only be called by sys.maxmanager-service\x1b[0m");
         std::process::exit(1);
     }
-    
-    if args.len() > 1 {
-        match args[1].as_str() {
-            "0" | "initialize" => initialize(),
-            "1" | "performance_profile" => performance_profile(),
-            "2" | "balanced_profile" => balanced_profile(),
-            "3" | "eco_mode" => eco_mode(),
-            "applyfreqbalance" => applyfreqbalance(),
-            "applyfreqgame" => applyfreqgame(),
-            _ => {
-                if Path::new(&args[1]).exists() || args[1].contains('.') {
-                    let _ = Command::new(&args[1])
-                        .args(&args[2..])
-                        .status();
-                }
+
+    // التفكيك والقاعدة الخالصة في `plan` (ويقيسهما `cargo test` على جدول العقود)،
+    // وهنا التنفيذ وحده.
+    match plan::classify(&args) {
+        plan::Classification::Known(plan::Command::Initialize) => initialize(),
+        plan::Classification::Known(plan::Command::Performance) => performance_profile(),
+        plan::Classification::Known(plan::Command::Balanced) => balanced_profile(),
+        plan::Classification::Known(plan::Command::Eco) => eco_mode(),
+        plan::Classification::Known(plan::Command::ApplyFreqBalance) => applyfreqbalance(),
+        plan::Classification::Known(plan::Command::ApplyFreqGame) => applyfreqgame(),
+        plan::Classification::Candidate(arg) => {
+            if plan::should_run_external(&arg) {
+                plan::run_external(&arg, &args[2..]);
             }
         }
+        plan::Classification::Empty => {}
     }
 }

@@ -7,7 +7,7 @@
     <string name="all_set">Wszystko gotowe, możesz teraz korzystać z Max Manager</string>
     <string name="allow_verbose_log">Demon wysyła szczegółowe logi</string>
     <string name="android_version">Wersja Androida</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">Nazwa aplikacji</string>
     <string name="app_priority">Priorytet aplikacji</string>
     <string name="app_priority_control">Kontrola priorytetu aplikacji</string>
@@ -725,15 +725,6 @@
     <string name="fps_overlay_notif_channel">Nakładka FPS</string>
     <string name="fps_overlay_notif_title">Max Manager Nakładka FPS jest uruchomiona</string>
     <string name="fps_overlay_notif_stop">Zatrzymywać się</string>
-    <string name="fps_overlay_section_style">Wygląd</string>
-    <string name="fps_overlay_style">Styl nakładki</string>
-    <string name="fps_overlay_style_android">Lista Androida</string>
-    <string name="fps_overlay_style_pc">Monoprzestrzeń na PC</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Kierunek układu</string>
-    <string name="fps_overlay_orientation_vertical">Pionowy</string>
-    <string name="fps_overlay_orientation_horizontal">Poziomy</string>
-    <string name="fps_overlay_read_mode">Metoda odczytu FPS</string>
     <string name="fps_overlay_read_mode_desc">Wypróbuj inną metodę, jeśli odczyt na urządzeniu utrzymuje się na poziomie 0</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (zalecane)</string>
     <string name="fps_overlay_mode_kernel">Węzeł jądra</string>
@@ -742,14 +733,6 @@
     <string name="fps_overlay_text_size">Rozmiar tekstu</string>
     <string name="fps_overlay_bg_alpha">Nieprzezroczystość tła</string>
     <string name="fps_overlay_width_scale">Skala szerokości</string>
-    <string name="fps_overlay_section_metrics">Pokazano dane</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU obciążenie</string>
-    <string name="fps_overlay_metric_ram">RAM użycie</string>
-    <string name="fps_overlay_metric_watt">Pobór mocy baterii</string>
-    <string name="fps_overlay_metric_temp">Temperatura akumulatora</string>
-    <string name="fps_overlay_metric_render">Etykieta modułu renderującego</string>
-    <string name="fps_overlay_metric_render_desc">Pokazuje etykietę VULKAN/OPENGL zamiast „FPS” wykrytą na podstawie załadowanych bibliotek aplikacji na pierwszym planie</string>
     <string name="dozemode_title">Polityka dotycząca snu</string>
     <string name="dozemode_menu_desc">Biała lista trybu gotowości, zachowanie w stanie bezczynności i dostosowywanie mocy w tle</string>
     <string name="dozemode_state_label">Stan drzemki</string>
@@ -785,9 +768,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Otwórz ustawienia</string>
     <string name="processmgr_title">Monitor zadań</string>
-    <string name="processmgr_menu_desc">Użycie CPU i RAM na proces, z wymuszonym zatrzymaniem i pływającą nakładką</string>
     <string name="processmgr_stat_total">%1$d procesów</string>
-    <string name="processmgr_stat_breakdown">%1$d użytkownik \u00b7 %2$d system</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Góra %1$d</string>
@@ -807,9 +788,6 @@
     <string name="processmgr_search_hint">Wyszukaj działające procesy</string>
     <string name="processmgr_no_processes">Żaden proces nie pasuje do Twojego wyszukiwania</string>
     <string name="processmgr_dialog_close">Zamknąć</string>
-    <string name="processmgr_detail_version">Wersja</string>
-    <string name="processmgr_detail_build">Zbudować</string>
-    <string name="processmgr_detail_package">Pakiet</string>
     <string name="processmgr_result_killed">Zabity %1$s</string>
     <string name="processmgr_result_kill_failed">Nie udało się zabić %1$s</string>
     <string name="processmgr_result_stopped">Zatrzymanie siłą %1$s</string>
@@ -1460,7 +1438,6 @@
     <string name="max_home_reboot_desc">Otwórz opcje bezpiecznego ponownego uruchamiania</string>
     <string name="max_home_ai_console">Konsola MAX AI</string>
     <string name="max_home_ai_working">Stosuję żądany profil…</string>
-    <string name="max_home_ai_failed">Ostatnia akcja AI nie powiodła się</string>
     <string name="max_home_retry">Spróbować ponownie</string>
     <string name="max_home_ai_idle">Nie zarejestrowano jeszcze żadnej decyzji AI</string>
     <string name="home_system_stable">SYSTEM STABILNY</string>
@@ -1476,8 +1453,6 @@
     <string name="home_performance_monitor_desc">Obciążenie zasobów w ciągu ostatnich 72 sekund</string>
     <string name="home_quick_actions">Pokład dowodzenia</string>
     <string name="home_quick_actions_desc">Bezpośredni dostęp do najważniejszych elementów sterujących</string>
-    <string name="home_action_boost">Profil wydajności</string>
-    <string name="home_action_boost_desc">Zmień zachowanie systemu</string>
     <string name="home_action_thermal">Centrum termalne</string>
     <string name="home_action_thermal_desc">Sprawdź ogrzewanie i chłodzenie</string>
     <string name="home_action_battery">Centrum mocy</string>
@@ -1497,7 +1472,6 @@
     <string name="home_active">AKTYWNY</string>
     <string name="home_idle">BEZCZYNNY</string>
     <string name="home_protected">CHRONIONY</string>
-    <string name="home_device_overview">OTWÓRZ PRZEGLĄD URZĄDZEŃ</string>
     <string name="home_live_performance">Występ na żywo</string>
     <string name="home_live_performance_desc">Bieżące obciążenie i bezpośrednia kontrola sprzętu</string>
     <string name="home_open_details">Otwórz szczegółowe dane termiczne</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Stosowane są optymalizacje dla poszczególnych aplikacji</string>
     <string name="max_app_advanced_options">Zaawansowane opcje</string>
     <string name="max_app_save">Ratować</string>
+    <string name="home_gpu_max_freq">Maksymalna częstotliwość</string>
 </resources>

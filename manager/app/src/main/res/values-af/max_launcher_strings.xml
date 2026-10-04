@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Geïnstalleerde pakkette en die aktiwiteite wat hulle verklaar</string>
+    <string name="max_launcher_loading">Lees geïnstalleerde pakkette en hul verklaarde aktiwiteite...</string>
+    <string name="max_launcher_empty">Geen geïnstalleerde pakket verklaar \'n aktiwiteit op hierdie toestel nie.</string>
+    <string name="max_launcher_search_placeholder">Soek volgens programnaam of pakket</string>
+    <string name="max_launcher_search_clear">Vee die soektog uit</string>
+    <string name="max_launcher_scope_all">Almal</string>
+    <string name="max_launcher_scope_user">Gebruiker</string>
+    <string name="max_launcher_scope_system">Stelsel</string>
+    <string name="max_launcher_activity_count">%1$d aktiwiteite</string>
+    <string name="max_launcher_no_match_title">Niks pas nie</string>
+    <string name="max_launcher_no_match_detail">Geen pakketnaam of programetiket bevat daardie teks in die geselekteerde omvang nie.</string>
+    <string name="max_launcher_no_match_clear">Vee filters uit</string>
+    <string name="max_launcher_reading_activities">Lees die aktiwiteite wat hierdie pakket verklaar ...</string>
+    <string name="max_launcher_no_activities">Hierdie pakket verklaar geen aktiwiteite nie.</string>
+    <string name="max_launcher_root_off_title">Wortel word nie toegestaan ​​nie</string>
+    <string name="max_launcher_root_off_detail">Aktiwiteite wat privaat gemerk is, word nie uitgevoer nie, so slegs root kan dit begin. Uitgevoerde aktiwiteite is steeds oop sonder dit.</string>
+    <string name="max_launcher_tag_private">Privaat</string>
+    <string name="max_launcher_tag_disabled">Gestrem</string>
+    <string name="max_launcher_outcome_started">Aktiwiteit het begin</string>
+    <string name="max_launcher_outcome_needs_root">Hierdie aktiwiteit word nie uitgevoer nie – wortel word vereis</string>
+    <string name="max_launcher_outcome_refused">Android het geweier om hierdie aktiwiteit te begin</string>
+    <string name="max_launcher_outcome_missing">Geen aktiwiteit met daardie naam is geïnstalleer nie</string>
+</resources>

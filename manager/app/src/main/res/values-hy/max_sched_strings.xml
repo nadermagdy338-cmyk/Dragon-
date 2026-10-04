@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">Վերջնաժամկետ առավելագույն ժամկետը (մեզ)</string>
+    <string name="max_sched_tunable_deadline_period_min">Վերջնաժամկետ ժամկետ Min (մեզ)</string>
+    <string name="max_sched_tunable_energy_aware">Էներգետիկ տեղյակ</string>
+    <string name="max_sched_tunable_latency">Հետաձգում (ns)</string>
+    <string name="max_sched_tunable_migration_cost">Միգրացիայի արժեքը (ns)</string>
+    <string name="max_sched_tunable_min_granularity">Նվազագույն հատիկություն (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">Միգրացիոն խմբաքանակի չափը</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT բազմապատկիչ</string>
+    <string name="max_sched_tunable_rr_timeslice">Round-Robin Timeslice (մվ)</string>
+    <string name="max_sched_tunable_rt_period">Իրական ժամանակի ժամանակաշրջան (մեզ)</string>
+    <string name="max_sched_tunable_rt_runtime">Իրական ժամանակի գործարկման ժամանակ (մեզ)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">Իրական ժամանակի UClamp հատակ</string>
+    <string name="max_sched_tunable_wakeup_granularity">Wakeup Granularity (ns)</string>
+</resources>

@@ -53,8 +53,8 @@
     <string name="max_files_action_delete">احذف</string>
     <string name="max_files_action_copy">انسخ</string>
     <string name="max_files_action_new_folder">مجلد جديد</string>
-    <string name="max_files_action_compress">اضغط إلى tar.gz</string>
-    <string name="max_files_action_extract">فكّ tar.gz هنا</string>
+    <string name="max_files_action_compress">اضغط</string>
+    <string name="max_files_action_extract">فكّ هنا</string>
     <string name="max_files_action_details">التفاصيل</string>
     <string name="max_files_action_select_all">حدّد الكل</string>
     <string name="max_files_action_invert">اعكس التحديد</string>
@@ -68,9 +68,21 @@
     <string name="max_files_new_folder_field">اسم المجلد</string>
     <string name="max_files_delete_title">حذف نهائي</string>
     <string name="max_files_delete_body">سيُحذف %1$d مدخلًا بصلاحية الجذر. لا سلة مهملات ولا رجوع في هذه الشاشة.</string>
+    <string name="max_files_delete_body_sized">سيُحذف %1$d مدخلًا بصلاحية الجذر. الحجم الإجماليّ: %2$s. لا سلة مهملات ولا رجوع في هذه الشاشة.</string>
     <string name="max_files_destination_hint">مسار مطلق، مثل ‎/sdcard/Download</string>
     <string name="max_files_confirm">طبّق</string>
     <string name="max_files_cancel">إلغاء</string>
+
+    <!-- حوار الضغط: الاسم والصيغة والمستوى -->
+    <string name="max_files_compress_title">ضغط</string>
+    <string name="max_files_compress_field">اسم الأرشيف</string>
+    <string name="max_files_compress_format">الصيغة</string>
+    <string name="max_files_compress_level">الضغط</string>
+    <string name="max_files_compress_level_store">بلا ضغط</string>
+    <string name="max_files_compress_level_fast">سريع</string>
+    <string name="max_files_compress_level_normal">عادي</string>
+    <string name="max_files_compress_level_max">أقصى</string>
+    <string name="max_files_compress_summary">%1$d عنصر \u2192 %2$s</string>
 
     <!-- أسباب الرفض: تُعرض بنصّها لا برقمها -->
     <string name="max_files_refused_title">لم يُطبَّق</string>

@@ -7,7 +7,7 @@
     <string name="all_set">Alles klaar, u kunt nu Max Manager gebruiken</string>
     <string name="allow_verbose_log">Daemon gedetailleerde logboeken</string>
     <string name="android_version">Android-versie</string>
-    <string name="app_name">Max Manager</string>
+    <string name="app_name">MaxManager</string>
     <string name="app_name_settings">App-naam</string>
     <string name="app_priority">App-prioriteit</string>
     <string name="app_priority_control">App-prioriteitscontrole</string>
@@ -724,15 +724,6 @@
     <string name="fps_overlay_notif_channel">FPS-overlay</string>
     <string name="fps_overlay_notif_title">Max Manager FPS-overlay is actief</string>
     <string name="fps_overlay_notif_stop">Stop</string>
-    <string name="fps_overlay_section_style">Verschijning</string>
-    <string name="fps_overlay_style">Overlay-stijl</string>
-    <string name="fps_overlay_style_android">Android-lijst</string>
-    <string name="fps_overlay_style_pc">PC-monospace</string>
-    <string name="fps_overlay_style_mini">Mini</string>
-    <string name="fps_overlay_orientation">Indeling richting</string>
-    <string name="fps_overlay_orientation_vertical">Verticaal</string>
-    <string name="fps_overlay_orientation_horizontal">Horizontaal</string>
-    <string name="fps_overlay_read_mode">FPS-leesmethode</string>
     <string name="fps_overlay_read_mode_desc">Probeer een andere methode als de waarde op uw apparaat op 0 blijft staan</string>
     <string name="fps_overlay_mode_surfaceflinger">SurfaceFlinger (aanbevolen)</string>
     <string name="fps_overlay_mode_kernel">Kernel-knooppunt</string>
@@ -741,14 +732,6 @@
     <string name="fps_overlay_text_size">Tekstgrootte</string>
     <string name="fps_overlay_bg_alpha">Achtergronddekking</string>
     <string name="fps_overlay_width_scale">Breedte schaal</string>
-    <string name="fps_overlay_section_metrics">Statistieken weergegeven</string>
-    <string name="fps_overlay_metric_fps">FPS</string>
-    <string name="fps_overlay_metric_cpu">CPU belasting</string>
-    <string name="fps_overlay_metric_ram">RAM gebruik</string>
-    <string name="fps_overlay_metric_watt">Stroomverbruik van de batterij</string>
-    <string name="fps_overlay_metric_temp">Batterij temperatuur</string>
-    <string name="fps_overlay_metric_render">Renderer-label</string>
-    <string name="fps_overlay_metric_render_desc">Toont VULKAN/OPENGL in plaats van \"FPS\" als label, gedetecteerd uit de geladen bibliotheken van de app op de voorgrond</string>
     <string name="dozemode_title">Slaapbeleid</string>
     <string name="dozemode_menu_desc">Witte lijst voor stand-by, inactief gedrag en afstemmen van achtergrondvermogen</string>
     <string name="dozemode_state_label">Dommel staat</string>
@@ -784,9 +767,7 @@
     <string name="pid">PID</string>
     <string name="open_settings">Instellingen openen</string>
     <string name="processmgr_title">Taakmonitor</string>
-    <string name="processmgr_menu_desc">Per proces CPU en RAM gebruik, met geforceerde stop en een zwevende overlay</string>
     <string name="processmgr_stat_total">%1$d processen</string>
-    <string name="processmgr_stat_breakdown">%1$d gebruiker \u00b7 %2$d systeem</string>
     <string name="processmgr_sort_cpu">CPU</string>
     <string name="processmgr_sort_ram">RAM</string>
     <string name="processmgr_limit_format">Bovenste %1$d</string>
@@ -807,9 +788,6 @@
     <string name="processmgr_search_hint">Zoek lopende processen</string>
     <string name="processmgr_no_processes">Er zijn geen processen die overeenkomen met uw zoekopdracht</string>
     <string name="processmgr_dialog_close">Dichtbij</string>
-    <string name="processmgr_detail_version">Versie</string>
-    <string name="processmgr_detail_build">Bouwen</string>
-    <string name="processmgr_detail_package">Pakket</string>
     <string name="processmgr_result_killed">Gedood %1$s</string>
     <string name="processmgr_result_kill_failed">Kon %1$s niet doden</string>
     <string name="processmgr_result_stopped">Geforceerd gestopt %1$s</string>
@@ -1461,7 +1439,6 @@
     <string name="max_home_reboot_desc">Open veilige herstartopties</string>
     <string name="max_home_ai_console">MAX AI-console</string>
     <string name="max_home_ai_working">Aangevraagd profiel toepassen…</string>
-    <string name="max_home_ai_failed">Laatste AI-actie mislukt</string>
     <string name="max_home_retry">Opnieuw proberen</string>
     <string name="max_home_ai_idle">Er is nog geen AI-beslissing vastgelegd</string>
     <string name="home_system_stable">SYSTEEM STABIEL</string>
@@ -1477,8 +1454,6 @@
     <string name="home_performance_monitor_desc">Bronbelasting gedurende de afgelopen 72 seconden</string>
     <string name="home_quick_actions">Commandodek</string>
     <string name="home_quick_actions_desc">Directe toegang tot de bedieningselementen die er toe doen</string>
-    <string name="home_action_boost">Prestatieprofiel</string>
-    <string name="home_action_boost_desc">Verander het systeemgedrag</string>
     <string name="home_action_thermal">Thermisch centrum</string>
     <string name="home_action_thermal_desc">Inspecteer de verwarming en koeling</string>
     <string name="home_action_battery">Machtscentrum</string>
@@ -1498,7 +1473,6 @@
     <string name="home_active">ACTIEF</string>
     <string name="home_idle">INACTIEF</string>
     <string name="home_protected">BESCHERMD</string>
-    <string name="home_device_overview">OPEN APPARAATOVERZICHT</string>
     <string name="home_live_performance">Live optreden</string>
     <string name="home_live_performance_desc">Huidige belasting en directe hardwarecontroles</string>
     <string name="home_open_details">Open gedetailleerde thermische gegevens</string>
@@ -1790,4 +1764,5 @@
     <string name="max_app_master_on_desc">Er worden optimalisaties per app toegepast</string>
     <string name="max_app_advanced_options">Geavanceerde opties</string>
     <string name="max_app_save">Redden</string>
+    <string name="home_gpu_max_freq">Max. freq</string>
 </resources>

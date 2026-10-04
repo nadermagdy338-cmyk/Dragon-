@@ -109,6 +109,28 @@ git diff --check                       # whitespace errors / conflict markers
 grep -rn '<<<<<<<\|>>>>>>>' manager/app/src/main/java | grep -v Binary || echo OK
 ```
 
+### 1.1 عقد التحزيم والتكامل (يُشغَّل عند أي مساس بـ`mainfiles/` أو `android/` أو `.github/scripts/`)
+
+```sh
+python3 tools/bundle_contract.py --assert      # ١٤ عقدًا: سلاسل الإصدار، مسار الديمون، ما يستخرجه المنصّب
+python3 tools/bundle_contract.py --self-test   # الأداة تُقاس: تكسر الـ١٤ عقدًا وتطالب باسم كل واحد (١٥/١٥)
+```
+
+**ولماذا فحوص بعينها** — كل واحد منها يقابل عطبًا `مقيسًا` لا احتمالًا:
+
+| العقد | العطب الذي يقابله (مقيسًا) |
+| --- | --- |
+| `version_triangle` | `check_module_version()` في الخادم يُنفّذ `grep -q '^version=%s$' module.prop` واختلاف بايت **يُخرج الخادم عند الإقلاع** |
+| `daemon_path` · `rc_partition` · `sepolicy_partition` · `board_no_product` | مسار الديمون مكتوب في أربعة ملفّات وقد **انزاح فعلًا**: الـ`.rc` إلى `vendor/etc/init` والثنائيّ في `/system/bin` · `vendor_file_type` على مسار نظام · `PRODUCT_*` في `BoardConfig.mk` (لا تُقرأ منه) |
+| `extract_targets` | `customize.sh` يُوقف التركيب عند ملفّ غائب ⇒ حذف ملفّ ونسيان سطر استخراجه = **حزمة لا تُفلّش** |
+| `no_sha256_shipped` · `verify_optional_hash` | `.sha256` أُخرجت من الحزمة بناءً على طلب؛ ومنعُ الإخراج أو العكس كلاهما عطب، فالبوابة تقيس **الاتجاهين** |
+| `no_banner` · `single_version_writer` | الـbanner أُزيل من ثلاثة مواضع، وسلسلة الإصدار لها مصدران إن عاد `compile_zip.sh` يكتبها |
+| `no_second_copy` | نسختان من `maxmanager.rc`/`sepolicy` تنزاحان بصمت |
+| `script_syntax` | `bash -n` على كل سكربت تحزيم وتثبيت — كلفته ميلي ثانية |
+| `selftests_wired` | **ثلاث بوابات** (`kt_balance` · `code_health` · `source_manifest`) كانت تسجّل `--self-test` ولا يشغّلها أيّ تشغيل — فقِيست الأداة **بيدٍ** ثم صارت سطرًا في الوثائق لا يقيس شيئًا. والعقد يقيس الاقتران ويُبطل الاستثناء القديم في الاتجاهين |
+
+**وحدّها المُعلَن:** لا تُصرّف Soong ولا تشغّل `neverallow` ولا تفكّ حزمة — فهذه تحتاج شجرة AOSP ونسخة مبنيّة. وما تقيسه هو **اتّفاق النصوص** لا **سلامة الناتج**.
+
 ## 2. Kotlin structural sanity (per changed file)
 
 ```sh

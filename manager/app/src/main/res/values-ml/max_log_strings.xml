@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">വാചാലമായ</string>
+    <string name="max_log_level_debug">ഡീബഗ് ചെയ്യുക</string>
+    <string name="max_log_level_info">വിവരം</string>
+    <string name="max_log_level_warn">മുന്നറിയിപ്പ്</string>
+    <string name="max_log_level_error">പിശക്</string>
+    <string name="max_log_level_assert">ഉറപ്പിക്കുക</string>
+    <string name="max_log_level_fatal">മാരകമായ</string>
+    <string name="max_log_buffer_main">പ്രധാന</string>
+    <string name="max_log_buffer_system">സിസ്റ്റം</string>
+    <string name="max_log_buffer_crash">ക്രാഷ്</string>
+    <string name="max_log_buffer_kernel">കേർണൽ</string>
+    <string name="max_log_buffer_events">ഇവൻ്റുകൾ</string>
+    <string name="max_log_buffer_radio">റേഡിയോ</string>
+    <string name="max_log_source_daemon">ഡെമൺ</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">മറ്റുള്ളവ</string>
+</resources>

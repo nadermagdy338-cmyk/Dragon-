@@ -33,8 +33,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nd.max.R
 import nd.max.core.maxai.MaxAiEngine
-import nd.max.ui.util.EventLog
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.EventLog
+import nd.max.core.platform.PropertyUtils
 import nd.max.ui.util.RootUtils
 import nd.max.ui.util.isBannerImageEnabled
 import javax.inject.Inject

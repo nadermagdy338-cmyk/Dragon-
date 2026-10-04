@@ -7,6 +7,7 @@
     <string name="max_sensor_service_unavailable">تعذّر الوصول إليها</string>
     <string name="max_sensor_count">المستشعرات المُعلَنة</string>
     <string name="max_sensor_kinds">الأصناف الموجودة</string>
+    <string name="max_sensor_kinds_absent">الأصناف الغائبة</string>
     <string name="max_sensor_wakeup">مستشعرات إيقاظ (تُبلّغ والجهاز نائم)</string>
     <string name="max_sensor_light">إضاءة البيئة</string>
     <string name="max_sensor_unit_lux">لوكس</string>
@@ -20,4 +21,6 @@
     <string name="max_sensor_kind_body">جسد</string>
     <string name="max_sensor_kind_unpositioned">بلا موضع</string>
     <string name="max_sensor_kind_other">غير مصنّف</string>
+    <!-- وسم صفّ مستشعر يُوقظ الجهاز — كلمة لا رمز، فتُترجَم إلى جانب بقية الأصناف. -->
+    <string name="max_sensor_wakeup_flag">إيقاظ</string>
 </resources>

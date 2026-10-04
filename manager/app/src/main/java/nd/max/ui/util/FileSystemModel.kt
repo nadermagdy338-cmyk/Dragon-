@@ -416,6 +416,29 @@ data class FileSelection(val paths: Set<String> = emptySet()) {
     /** عكس الاختيار — الإجراء الذي يجعل «حدّد الكل ثم استثنِ واحدًا» ممكنًا. */
     fun invert(entries: List<FileEntry>): FileSelection =
         FileSelection(entries.map { it.path }.filterNot { it in paths }.toSet())
+
+    /**
+     * امتداد **النطاق**: كل ما بين [from] و[to] في [ordered]، **يُضاف** ولا يستبدل.
+     *
+     * وهو الاثنان في العنصر نفسه: الطرفان داخلان (كالنطاق في كل مدير ملفات)، والاتجاه
+     * لا يهمّ (من الأسفل إلى الأعلى كمن الأعلى إلى الأسفل). و[ordered] هو **الترتيب
+     * المعروض** لا ترتيب القراءة — فالنطاق الذي يبنيه المستخدم من عينه لا من مجلد مُرتَّب
+     * في الخفاء.
+     *
+     * **والإضافة لا الاستبدال** قرار: النطاق يُوسَّع على ما اختاره المستخدم بيده، وإلا
+     * كان سحبٌ واحد يهدم تحديدًا بناه نقرةً نقرة.
+     *
+     * وطرفٌ غائب عن [ordered] (مسار من مجلد آخر، أو اختفى بمرشّح) يُعيد التحديد **كما هو**
+     * بلا استثناء وبلا تخمين: لا يُختار ما لم يُرَ.
+     */
+    fun withRange(ordered: List<String>, from: String, to: String): FileSelection {
+        val start = ordered.indexOf(from)
+        val end = ordered.indexOf(to)
+        if (start < 0 || end < 0) return this
+        val low = minOf(start, end)
+        val high = maxOf(start, end)
+        return FileSelection(paths + ordered.subList(low, high + 1))
+    }
 }
 
 /**
@@ -457,6 +480,17 @@ data class FileOpRequest(
      * فيكتب العنصر باسمه الجديد — ويُثبت الوجود على الاسم الجديد لا على القديم.
      */
     val renamed: Map<String, String> = emptyMap(),
+
+    /**
+     * صيغة الأرشيف المختارة — تُقرأ في [FileOperation.Compress] وحده.
+     *
+     * وموضعها الطلب لا الشاشة: المنفّذ لا يخمّن الصيغة من امتداد الاسم، والواجهة لا تكتب
+     * في المحرّك مباشرةً — نفس قاعدة [FileOpGuard].
+     */
+    val archiveFormat: ArchiveFormat = ArchiveFormat.Zip,
+
+    /** مستوى الضغط المختار — لا يغيّر شيئًا في `zip` عند المستوى الافتراضي. */
+    val compressionLevel: CompressionLevel = CompressionLevel.Normal,
 )
 
 sealed interface FileOpVerdict {

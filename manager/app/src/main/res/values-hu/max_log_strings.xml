@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Bőbeszédű</string>
+    <string name="max_log_level_debug">Hibakeresés</string>
+    <string name="max_log_level_info">Info</string>
+    <string name="max_log_level_warn">Figyelmeztetés</string>
+    <string name="max_log_level_error">Hiba</string>
+    <string name="max_log_level_assert">Állítsd</string>
+    <string name="max_log_level_fatal">Halálos</string>
+    <string name="max_log_buffer_main">Fő</string>
+    <string name="max_log_buffer_system">Rendszer</string>
+    <string name="max_log_buffer_crash">Összeomlás</string>
+    <string name="max_log_buffer_kernel">Kernel</string>
+    <string name="max_log_buffer_events">Események</string>
+    <string name="max_log_buffer_radio">Rádió</string>
+    <string name="max_log_source_daemon">Démon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Más</string>
+</resources>

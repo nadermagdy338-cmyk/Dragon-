@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Įdiegti paketai ir jų deklaruojama veikla</string>
+    <string name="max_launcher_loading">Skaityti įdiegtus paketus ir jų deklaruotą veiklą…</string>
+    <string name="max_launcher_empty">Nė vienas įdiegtas paketas nedeklaruoja veiklos šiame įrenginyje.</string>
+    <string name="max_launcher_search_placeholder">Ieškokite pagal programos pavadinimą arba paketą</string>
+    <string name="max_launcher_search_clear">Išvalyti paiešką</string>
+    <string name="max_launcher_scope_all">Visi</string>
+    <string name="max_launcher_scope_user">Vartotojas</string>
+    <string name="max_launcher_scope_system">Sistema</string>
+    <string name="max_launcher_activity_count">%1$d veikla</string>
+    <string name="max_launcher_no_match_title">Niekas neatitinka</string>
+    <string name="max_launcher_no_match_detail">Jokiame paketo pavadinime ar programos etiketėje nėra tokio teksto pasirinktoje srityje.</string>
+    <string name="max_launcher_no_match_clear">Išvalyti filtrai</string>
+    <string name="max_launcher_reading_activities">Skaitydami šiame pakete deklaruojamas veiklas…</string>
+    <string name="max_launcher_no_activities">Šiame pakete deklaruojama, kad nėra jokios veiklos.</string>
+    <string name="max_launcher_root_off_title">Šaknis nesuteikiamas</string>
+    <string name="max_launcher_root_off_detail">Veiklos, pažymėtos privačiomis, neeksportuojamos, todėl jas pradėti gali tik root. Eksportuojama veikla vis dar vykdoma be jo.</string>
+    <string name="max_launcher_tag_private">Privatus</string>
+    <string name="max_launcher_tag_disabled">Išjungta</string>
+    <string name="max_launcher_outcome_started">Veikla prasidėjo</string>
+    <string name="max_launcher_outcome_needs_root">Ši veikla neeksportuojama – būtina šakninė</string>
+    <string name="max_launcher_outcome_refused">Android atsisakė pradėti šią veiklą</string>
+    <string name="max_launcher_outcome_missing">Jokia veikla tokiu pavadinimu neįdiegta</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_sched_strings.xml -->
+<resources>
+    <string name="max_sched_tunable_deadline_period_max">අවසාන කාල සීමාව උපරිම (අප)</string>
+    <string name="max_sched_tunable_deadline_period_min">අවසාන කාල සීමාව අවම (අප)</string>
+    <string name="max_sched_tunable_energy_aware">බලශක්ති දැනුවත් කිරීම</string>
+    <string name="max_sched_tunable_latency">ප්‍රමාදය (ns)</string>
+    <string name="max_sched_tunable_migration_cost">සංක්‍රමණ පිරිවැය (ns)</string>
+    <string name="max_sched_tunable_min_granularity">අවම කැටිති (ns)</string>
+    <string name="max_sched_tunable_nr_migrate">සංක්‍රමණ කණ්ඩායම් ප්‍රමාණය</string>
+    <string name="max_sched_tunable_pelt_multiplier">PELT ගුණකය</string>
+    <string name="max_sched_tunable_rr_timeslice">රවුන්ඩ්-රොබින් ටයිම්ස්ලයිස් (මිලි)</string>
+    <string name="max_sched_tunable_rt_period">තත්‍ය කාලීන කාල සීමාව (අප)</string>
+    <string name="max_sched_tunable_rt_runtime">තත්‍ය කාලීන ධාවන කාලය (අප)</string>
+    <string name="max_sched_tunable_uclamp_min_rt_default">තත්‍ය කාලීන UClamp මහල</string>
+    <string name="max_sched_tunable_wakeup_granularity">පිබිදීමේ කැටිති (ns)</string>
+</resources>

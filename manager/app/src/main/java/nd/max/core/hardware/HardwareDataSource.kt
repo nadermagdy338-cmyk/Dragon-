@@ -14,9 +14,9 @@ import android.os.BatteryManager
 import android.os.StatFs
 import android.util.DisplayMetrics
 import android.view.WindowManager
-import nd.max.ui.util.FpsMonitorUtil
-import nd.max.ui.util.ThermalUtil
-import nd.max.ui.util.getChipsetName
+import nd.max.core.platform.FpsMonitorUtil
+import nd.max.core.platform.ThermalUtil
+import nd.max.core.platform.getChipsetName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -125,10 +125,14 @@ open class HardwareDataSource(private val context: Context) {
         var skin = zones.filter { it.category == "Skin" && it.temperatureC > 0 }
             .maxOfOrNull { it.temperatureC } ?: 0
 
-        val service = ThermalUtil.readThermalServiceTemperatures()
-        if (cpu == 0) cpu = service[0]
-        if (gpu == 0) gpu = service[1]
-        if (skin == 0) skin = service[2]
+        // **والسؤال الثقيل يُؤجَّل إلى حين الحاجة (تكملة ٢٠٥):** `dumpsys thermalservice` عبر
+        // الجذر لا يُنفّذ إلا إذا نقصت فئة من مناطق النواة — وهو الحال الذي وُلد له أصلًا.
+        if (cpu == 0 || gpu == 0 || skin == 0) {
+            val service = ThermalUtil.readThermalServiceTemperatures()
+            if (cpu == 0) cpu = service[0]
+            if (gpu == 0) gpu = service[1]
+            if (skin == 0) skin = service[2]
+        }
 
         if (cpu == 0) {
             cpu = zones.asSequence()

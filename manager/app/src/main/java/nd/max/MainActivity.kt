@@ -4,6 +4,7 @@
  * without prior written permission from the copyright holder.
  */
 package nd.max
+import nd.max.core.platform.EventLog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -39,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,6 +63,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -166,6 +169,24 @@ fun MainScreen(fromTileType: String? = null) {
     val settingsPrefs = remember { context.getSharedPreferences("settings", Context.MODE_PRIVATE) }
     val primaryRoutes = remember { MaxDestination.PrimaryRoutes }
     val navActions = remember(navController) { MaxNavActions(navController) }
+
+    // **والسجلّ الواحد يُكتب هنا — في المكان الوحيد الذي تمرّ به كل وجهة:** مستمعٌ واحدٌ على
+    // الرّسّام يقيس **أيّ** شاشةٍ تُفتح من أيّ مكان، لا نقرات مكان بعينه؛ فمن يفتح الحرارة من
+    // شاشة التحكّم تُحتسب له كما لو فتحها من بطاقة الرئيسية. والكتابة **محلية على الجهاز**
+    // (`SharedPreferences` ← `ScreenUsageStore`) ولا تخرج منه ولا تُقرأ من الشبكة.
+    //
+    // **ومفتاحها المسار لا مفتاح بطاقة (الجولة ٢٠٣):** كان هذا المستمع يسجّل في المنصة وحدها
+    // بمسارٍ يُترجَم إلى مفتاح بطاقة، فما ليس في بركة البطاقات لم يُسجَّل أصلًا — ولا يقرؤه
+    // المُوجِّد. صار العدّ **لكل وجهة** بالمسار (هويّتها، ADR-02)، ومنه تقرأ المنصة ما يعنّيها
+    // عبر `homeDeckUsage` — فسجلٌّ واحد، والفاتحان لا يفترقان يومًا.
+    val screenUsageStore = remember(context) { ScreenUsageStore.of(context) }
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            screenUsageStore.record(destination.route)
+        }
+        navController.addOnDestinationChangedListener(listener)
+        onDispose { navController.removeOnDestinationChangedListener(listener) }
+    }
     LaunchedEffect(fromTileType) {
         when (fromTileType) {
             "bypass" -> navController.navigate(MaxDestination.BypassCharging.route) {

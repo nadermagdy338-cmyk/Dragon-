@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Geïnstalleerde pakketten en de activiteiten die zij declareren</string>
+    <string name="max_launcher_loading">Geïnstalleerde pakketten en hun aangegeven activiteiten lezen...</string>
+    <string name="max_launcher_empty">Geen enkel geïnstalleerd pakket meldt een activiteit op dit apparaat.</string>
+    <string name="max_launcher_search_placeholder">Zoek op app-naam of pakket</string>
+    <string name="max_launcher_search_clear">Wis de zoekopdracht</string>
+    <string name="max_launcher_scope_all">Alle</string>
+    <string name="max_launcher_scope_user">Gebruiker</string>
+    <string name="max_launcher_scope_system">Systeem</string>
+    <string name="max_launcher_activity_count">%1$d activiteiten</string>
+    <string name="max_launcher_no_match_title">Niets komt overeen</string>
+    <string name="max_launcher_no_match_detail">Geen enkele pakketnaam of app-label bevat die tekst in het geselecteerde bereik.</string>
+    <string name="max_launcher_no_match_clear">Filters wissen</string>
+    <string name="max_launcher_reading_activities">Het lezen van de activiteiten die dit pakket vermeldt...</string>
+    <string name="max_launcher_no_activities">Dit pakket declareert geen activiteiten.</string>
+    <string name="max_launcher_root_off_title">Root wordt niet verleend</string>
+    <string name="max_launcher_root_off_detail">Activiteiten die als privé zijn gemarkeerd, worden niet geëxporteerd, dus alleen root kan ze starten. Geëxporteerde activiteiten zijn nog steeds open zonder dit.</string>
+    <string name="max_launcher_tag_private">Privé</string>
+    <string name="max_launcher_tag_disabled">Gehandicapt</string>
+    <string name="max_launcher_outcome_started">Activiteit gestart</string>
+    <string name="max_launcher_outcome_needs_root">Deze activiteit wordt niet geëxporteerd; root is vereist</string>
+    <string name="max_launcher_outcome_refused">Android weigerde deze activiteit te starten</string>
+    <string name="max_launcher_outcome_missing">Er is geen activiteit met die naam geïnstalleerd</string>
+</resources>

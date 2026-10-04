@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Տեղադրված փաթեթները և դրանց հայտարարած գործունեությունը</string>
+    <string name="max_launcher_loading">Տեղադրված փաթեթների և դրանց հայտարարված գործունեության ընթերցում…</string>
+    <string name="max_launcher_empty">Ոչ մի տեղադրված փաթեթ այս սարքում գործունեություն չի հայտարարում:</string>
+    <string name="max_launcher_search_placeholder">Որոնել ըստ հավելվածի անվանման կամ փաթեթի</string>
+    <string name="max_launcher_search_clear">Մաքրել որոնումը</string>
+    <string name="max_launcher_scope_all">Բոլորը</string>
+    <string name="max_launcher_scope_user">Օգտատեր</string>
+    <string name="max_launcher_scope_system">Համակարգ</string>
+    <string name="max_launcher_activity_count">%1$d գործունեություն</string>
+    <string name="max_launcher_no_match_title">Ոչինչ չի համապատասխանում</string>
+    <string name="max_launcher_no_match_detail">Փաթեթի ոչ մի անուն կամ հավելվածի պիտակ չի պարունակում այդ տեքստը ընտրված շրջանակում:</string>
+    <string name="max_launcher_no_match_clear">Մաքրել զտիչները</string>
+    <string name="max_launcher_reading_activities">Այս փաթեթի գործողությունները կարդալով հայտարարվում է…</string>
+    <string name="max_launcher_no_activities">Այս փաթեթը չի հայտարարում որևէ գործունեություն:</string>
+    <string name="max_launcher_root_off_title">Արմատը չի տրվում</string>
+    <string name="max_launcher_root_off_detail">Մասնավոր նշված գործողությունները չեն արտահանվում, ուստի միայն root-ը կարող է դրանք սկսել: Առանց դրա արտահանվող գործունեությունը դեռ բաց է։</string>
+    <string name="max_launcher_tag_private">Մասնավոր</string>
+    <string name="max_launcher_tag_disabled">Հաշմանդամ</string>
+    <string name="max_launcher_outcome_started">Գործունեությունը սկսվել է</string>
+    <string name="max_launcher_outcome_needs_root">Այս գործունեությունը չի արտահանվում. արմատը պահանջվում է</string>
+    <string name="max_launcher_outcome_refused">Android-ը հրաժարվեց սկսել այս գործունեությունը</string>
+    <string name="max_launcher_outcome_missing">Այդ անունով գործունեություն չի տեղադրվել</string>
+</resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Zainstalowane pakiety i deklarowane przez nie działania</string>
+    <string name="max_launcher_loading">Odczytywanie zainstalowanych pakietów i ich zadeklarowanych działań…</string>
+    <string name="max_launcher_empty">Żaden zainstalowany pakiet nie deklaruje aktywności na tym urządzeniu.</string>
+    <string name="max_launcher_search_placeholder">Szukaj według nazwy aplikacji lub pakietu</string>
+    <string name="max_launcher_search_clear">Wyczyść wyszukiwanie</string>
+    <string name="max_launcher_scope_all">Wszystko</string>
+    <string name="max_launcher_scope_user">Użytkownik</string>
+    <string name="max_launcher_scope_system">System</string>
+    <string name="max_launcher_activity_count">%1$d aktywności</string>
+    <string name="max_launcher_no_match_title">Nic nie pasuje</string>
+    <string name="max_launcher_no_match_detail">Żadna nazwa pakietu ani etykieta aplikacji nie zawiera tego tekstu w wybranym zakresie.</string>
+    <string name="max_launcher_no_match_clear">Wyczyść filtry</string>
+    <string name="max_launcher_reading_activities">Czytając działania deklarowane w tym pakiecie…</string>
+    <string name="max_launcher_no_activities">Ten pakiet nie deklaruje żadnych działań.</string>
+    <string name="max_launcher_root_off_title">Root nie jest przyznawany</string>
+    <string name="max_launcher_root_off_detail">Działania oznaczone jako prywatne nie są eksportowane, więc tylko root może je uruchomić. Wyeksportowane działania są nadal otwarte bez niego.</string>
+    <string name="max_launcher_tag_private">Prywatny</string>
+    <string name="max_launcher_tag_disabled">Wyłączony</string>
+    <string name="max_launcher_outcome_started">Aktywność rozpoczęta</string>
+    <string name="max_launcher_outcome_needs_root">Ta aktywność nie jest eksportowana — wymagany jest root</string>
+    <string name="max_launcher_outcome_refused">Android odmówił rozpoczęcia tej działalności</string>
+    <string name="max_launcher_outcome_missing">Nie zainstalowano żadnego działania o tej nazwie</string>
+</resources>

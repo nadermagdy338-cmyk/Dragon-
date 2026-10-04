@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Vifurushi vilivyosakinishwa na shughuli wanazotangaza</string>
+    <string name="max_launcher_loading">Inasoma vifurushi vilivyosakinishwa na shughuli zao zilizotangazwa...</string>
+    <string name="max_launcher_empty">Hakuna kifurushi kilichosakinishwa kinachotangaza shughuli kwenye kifaa hiki.</string>
+    <string name="max_launcher_search_placeholder">Tafuta kwa jina la programu au kifurushi</string>
+    <string name="max_launcher_search_clear">Futa utafutaji</string>
+    <string name="max_launcher_scope_all">Wote</string>
+    <string name="max_launcher_scope_user">Mtumiaji</string>
+    <string name="max_launcher_scope_system">Mfumo</string>
+    <string name="max_launcher_activity_count">%1$d shughuli</string>
+    <string name="max_launcher_no_match_title">Hakuna kinacholingana</string>
+    <string name="max_launcher_no_match_detail">Hakuna jina la kifurushi au lebo ya programu iliyo na maandishi hayo katika upeo uliochaguliwa.</string>
+    <string name="max_launcher_no_match_clear">Futa vichungi</string>
+    <string name="max_launcher_reading_activities">Kusoma shughuli ambazo kifurushi hiki kinatangaza…</string>
+    <string name="max_launcher_no_activities">Kifurushi hiki kinatangaza hakuna shughuli.</string>
+    <string name="max_launcher_root_off_title">Mizizi haijatolewa</string>
+    <string name="max_launcher_root_off_detail">Shughuli zilizowekwa alama ya faragha hazihamishwi, kwa hivyo ni mzizi pekee unaoweza kuzianzisha. Shughuli zilizotumwa bado hufunguliwa bila hiyo.</string>
+    <string name="max_launcher_tag_private">Privat</string>
+    <string name="max_launcher_tag_disabled">Imezimwa</string>
+    <string name="max_launcher_outcome_started">Shughuli imeanza</string>
+    <string name="max_launcher_outcome_needs_root">Shughuli hii haijahamishwa - mzizi unahitajika</string>
+    <string name="max_launcher_outcome_refused">Android ilikataa kuanzisha shughuli hii</string>
+    <string name="max_launcher_outcome_missing">Hakuna shughuli iliyo na jina hilo iliyosakinishwa</string>
+</resources>

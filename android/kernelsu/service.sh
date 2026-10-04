@@ -5,7 +5,7 @@
 
 MODDIR=${0%/*}
 MAXMANAGER_ROOT=/data/adb/maxmanager
-MAXMANAGER_DAEMON="$MODDIR/bin/maxmanager_daemon"
+MAXMANAGER_DAEMON="$MODDIR/system/bin/sys.maxmanager-service"
 MAXMANAGER_LOG="$MAXMANAGER_ROOT/daemon.log"
 MAXMANAGER_WATCHDOG_PID="$MAXMANAGER_ROOT/watchdog.pid"
 MAXMANAGER_WATCHDOG_LOCK="$MAXMANAGER_ROOT/watchdog.lock"

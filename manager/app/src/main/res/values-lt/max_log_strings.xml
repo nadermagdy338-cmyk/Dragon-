@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Daugiakalbis</string>
+    <string name="max_log_level_debug">Derinimas</string>
+    <string name="max_log_level_info">Informacija</string>
+    <string name="max_log_level_warn">Įspėjimas</string>
+    <string name="max_log_level_error">Klaida</string>
+    <string name="max_log_level_assert">Tvirtinti</string>
+    <string name="max_log_level_fatal">Mirtinas</string>
+    <string name="max_log_buffer_main">Pagrindinis</string>
+    <string name="max_log_buffer_system">Sistema</string>
+    <string name="max_log_buffer_crash">Avarija</string>
+    <string name="max_log_buffer_kernel">Branduolys</string>
+    <string name="max_log_buffer_events">Renginiai</string>
+    <string name="max_log_buffer_radio">Radijas</string>
+    <string name="max_log_source_daemon">Demonas</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Kita</string>
+</resources>

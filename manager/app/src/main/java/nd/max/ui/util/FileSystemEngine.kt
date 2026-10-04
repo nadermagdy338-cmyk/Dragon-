@@ -242,19 +242,35 @@ object FileSystemEngine {
     }
 
     /**
-     * الضغط: **zip** افتراضيًّا (كما في MT) و`tar.gz` عند طلبه صراحةً باسم الامتداد.
+     * الضغط بصيغة ومستوى مختارَين من المستخدم.
      *
-     * والاختيار من امتداد الهدف لا من مزاج الواجهة: اسم الأرشيف الذي وُعد به المستخدم هو
-     * نفسه الذي يحدّد الصيغة، فلا يُكتب محتواه بصيغة تخالف اسمه.
+     * **والسلّم مقصود:** المحرّك الداخلي أولًا للصيغتين (يقرأ ما تقرأه العملية نفسها، ويعمل
+     * حيث لا `tar` على الجهاز)، وإن قال إنّ مصدرًا لا يُقرأ (مسار جذري لا تراه العملية)
+     * سقطنا إلى `tar` عبر الصدفة — وهي قدرة كانت موجودة ولا تُفقد بإضافة مسار داخلي.
+     *
+     * والافتراضي مشتقّ من **الامتداد** لا من مزاج الواجهة: فمن وعد المستخدم باسم `.tar.gz`
+     * لا يكتب داخله zip.
      */
-    fun compress(paths: List<String>, archivePath: String): FileOpOutcome {
+    fun compress(
+        paths: List<String>,
+        archivePath: String,
+        format: ArchiveFormat = if (FileArchive.isZip(archivePath)) ArchiveFormat.Zip else ArchiveFormat.TarGz,
+        level: CompressionLevel = CompressionLevel.Normal,
+    ): FileOpOutcome {
         if (paths.isEmpty()) return FileOpOutcome(false, false)
         val archive = FileBrowser.normalize(archivePath)
-        if (FileArchive.isZip(archive)) {
-            return FileArchiveEngine.createZip(paths, archive).toFileOpOutcome()
+        val outcome = FileArchiveEngine.create(paths, archive, format, level)
+        if (format == ArchiveFormat.TarGz && outcome.failure == ArchiveFailure.UnreadableSource) {
+            return tarThroughShell(paths, archive)
         }
-        // `tar -C` مقصود: نضغط من داخل المجلد الأب فتُخزَّن المسارات نسبية، وإلا صار فكّ
-        // الأرشيف على جهاز آخر كتابة في مسار لا وجود له.
+        return outcome.toFileOpOutcome()
+    }
+
+    /**
+     * `tar -C` مقصود: نضغط من داخل المجلد الأب فتُخزَّن المسارات نسبية، وإلا صار فكّ
+     * الأرشيف على جهاز آخر كتابة في مسار لا وجود له.
+     */
+    private fun tarThroughShell(paths: List<String>, archive: String): FileOpOutcome {
         val parent = FileBrowser.parentOf(paths.first()) ?: return FileOpOutcome(false, false)
         val names = paths.map(FileBrowser::nameOf).joinToString(" ") { PrivilegedShell.quote(it) }
         val executed = PrivilegedShell.run(
@@ -265,16 +281,19 @@ object FileSystemEngine {
     }
 
     /**
-     * الفكّ: zip بمحرّكنا الداخلي (مع حماية `zip-slip`)، و`tar.gz`/`tgz`/`tar` بالأداة.
+     * الفكّ: المحرّك الداخلي للصيغ الأربع (مع حماية `zip-slip`)، والصدفة احتياطًا لما
+     * لا تقرؤه العملية (مسار جذري).
      *
      * وzip يُفكّ داخليًّا لا بـ`unzip`، لأن `unzip` غير مضمون على كل جهاز أندرويد —
-     * وميزة تعمل على بعض الأجهزة أسوأ من ميزة تقول إنها لم تستطع.
+     * وميزة تعمل على بعض الأجهزة أسوأ من ميزة تقول إنها لم تستطع. و`tar`/`tar.gz` صارا
+     * كذلك بعد أن كانا يعتمدان على وجود ثنائيَّة `tar` على الجهاز.
      */
     fun extract(archivePath: String, destination: String): FileOpOutcome {
         val archive = FileBrowser.normalize(archivePath)
         val dir = FileBrowser.normalize(destination)
-        if (FileArchive.isZip(archive)) {
-            return FileArchiveEngine.extractZip(archive, dir).toFileOpOutcome()
+        val outcome = FileArchiveEngine.extractArchive(archive, dir)
+        if (FileArchive.isZip(archive) || outcome.failure != ArchiveFailure.UnreadableSource) {
+            return outcome.toFileOpOutcome()
         }
         val prepared = PrivilegedShell.run("mkdir -p ${PrivilegedShell.quote(dir)}") != null
         val executed = prepared && PrivilegedShell.run(

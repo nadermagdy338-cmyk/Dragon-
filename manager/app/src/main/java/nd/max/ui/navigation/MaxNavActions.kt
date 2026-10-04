@@ -5,6 +5,7 @@
  */
 package nd.max.ui.navigation
 
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 
 /**
@@ -58,4 +59,27 @@ data class MaxNavActions(private val navController: NavHostController) {
     )
 
     fun back() = navController.popBackStack()
+}
+
+/** Opens existing per-app settings without duplicating its configuration store. */
+fun NavController.openAppSettings(pkg: String) {
+    navigate(MaxDestination.AppSettings.route.replace("{pkg}", android.net.Uri.encode(pkg)))
+}
+
+/**
+ * فتح وجهة بلا نيّة سابقة من **أي** `NavController` — للشاشات التي تستلم النوع الأعمّ
+ * ([NavController]) لا [NavHostController] (`GpuStudioScreen` مثلًا، وقد أمسك المُصرّف
+ * الفرق: `Argument type mismatch: actual type is 'NavController'`).
+ *
+ * وكان الحلّ الأوّل أن يُضيّق نوع الشاشة إلى `NavHostController` — وهو تغيير في **توقيع
+ * شاشة** لا في حاجة الاختصار: شاشة لا تُنشئ رسمًا ملاحيًّا تحتاج `NavController` وحده،
+ * وتضييقها كي يمرّ صفٌّ واحد يجعل نوعها مقيَّدًا بما لا تستعمله. فبقي التوقيع على اتساعه،
+ * وهذا المدخل يمرّ بـ[MaxDestination.launchRoute] نفسه الذي يمرّ به [MaxNavActions.navigateTo]
+ * — فلا ينشأ مسار يدويّ خارج السجلّ (ADR-02)، ولا قاعدةٌ ثانية تحلّ محلّ [MaxNavActions].
+ */
+fun NavController.navigateTypedTo(dest: MaxDestination) {
+    check(!dest.needsLaunchArgument) {
+        "${dest.route} needs an argument in its path; open it with the typed helper"
+    }
+    navigate(dest.launchRoute)
 }

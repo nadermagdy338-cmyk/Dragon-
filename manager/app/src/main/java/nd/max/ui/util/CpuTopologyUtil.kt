@@ -18,6 +18,8 @@ package nd.max.ui.util
 
 import com.topjohnwu.superuser.Shell
 import nd.max.core.hardware.RootFileAccess
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Single source of truth for this device's CPU cluster topology.
@@ -50,15 +52,27 @@ object CpuTopologyUtil {
 
     /** Total logical CPU count as reported by the kernel, independent of current online/offline state. */
     fun totalCpuCount(): Int {
-        val fromList = Shell.cmd(
-            "cat /sys/devices/system/cpu/possible 2>/dev/null"
-        ).exec().out.joinToString("").trim()
-        val fromRange = parseCpuRange(fromList)
+        // **قراءة داخل العملية أوّلًا (رحلة صدفة أُزيلت من مسار فتح الشاشات):**
+        // `/sys/devices/system/cpu/possible` عقدة نواة يقرأها uid التطبيق بلا جذر، فكانت
+        // `Shell.cmd("cat …")` **رحمة كاملة لسؤال لا يحتاج جذرًا** — وتُسأل عند فتح شاشة
+        // الأنوية/الترددات/التحكم. والصقلة تبقى آخر طبقات الحقيقة لا تُحذف: ما لم يُقرأ من
+        // العملية يُسأل عنه بالجذر كما كان. والعدوان يعطيان الرقم نفسه على كل جهاز مقيس.
+        val fromRange = parseCpuRange(RootFileAccess.read(CPU_POSSIBLE_PATH).orEmpty())
         if (fromRange.isNotEmpty()) return fromRange.size
 
-        return Shell.cmd("ls -d /sys/devices/system/cpu/cpu[0-9]* 2>/dev/null | wc -l")
+        // والاحتياطي داخل العملية أيضًا: عدد المجلّدات `cpu0…cpuN` — نفس ما يعدّه `ls | wc -l`.
+        val counted = runCatching {
+            File(CPU_ROOT).listFiles { file -> CPU_DIRECTORY.matches(file.name) }?.size
+        }.getOrNull()
+        if (counted != null && counted > 0) return counted
+
+        return Shell.cmd("ls -d $CPU_ROOT/cpu[0-9]* 2>/dev/null | wc -l")
             .exec().out.joinToString("").trim().toIntOrNull() ?: 0
     }
+
+    private const val CPU_ROOT = "/sys/devices/system/cpu"
+    private const val CPU_POSSIBLE_PATH = "$CPU_ROOT/possible"
+    private val CPU_DIRECTORY = Regex("cpu\\d+")
 
     /** Parses kernel range lists like "0-3,4-6,7" into an explicit list of ints. */
     private fun parseCpuRange(raw: String): List<Int> {
@@ -145,18 +159,32 @@ object CpuTopologyUtil {
         return khz / 1000
     }
 
-    /** cpu0 has no writable 'online' node on most kernels — it's always considered online. */
-    fun isCoreOnline(cpu: Int): Boolean {
-        if (cpu == 0) {
-            val hasNode = Shell.cmd("test -e /sys/devices/system/cpu/cpu0/online && echo 1 || echo 0")
-                .exec().out.joinToString("").trim() == "1"
-            if (!hasNode) return true
-        }
+    private fun onlinePath(cpu: Int) = "/sys/devices/system/cpu/cpu$cpu/online"
+
+    /**
+     * حالات الاتصال لكل الأنوية في **نداء واحد**.
+     *
+     * **ولماذا لم تبقَ نواةً نواة:** هذه هي القائمة التي تُقرأ **في كل دورة تحديث** (‏`refreshRows`
+     * كل ٣ ثوانٍ في `CpuCoreControlViewModel`)، وكان كل سؤال فيها رحلةً مستقلة إلى القارئ الأصلي أو
+     * إلى `RootNodeService`. والدفعة الواحدة تقرأ الملفات داخل العملية في نداء JNI واحد
+     * (`RootFileAccess.readMany`، تكملة ١١٢) — فثمانية أنوية صارت رحلةً واحدة لا ثمانيًا. والقيمة
+     * نفسها لكل نواة بلا تغيير: `readMany` موثَّقة بأن دلالتها لكل عقدة هي دلالة [RootFileAccess.read]
+     * حرفيًّا (المقصوص غير الفارغ، أو `null`)، والترتيب بمحاذاة الفهرس.
+     *
+     * **وسقطت معها مساءلة `test -e` لـ`cpu0`** التي كانت رحلة صدفة كاملة في كل دورة: النتيجة
+     * واحدة، لأن ما لا يُقرأ يُعدّ متصلًا — وهو نصّ القاعدة القديمة نفسها.
+     */
+    fun onlineStates(cpus: List<Int>): Map<Int, Boolean> {
+        if (cpus.isEmpty()) return emptyMap()
+        val values = RootFileAccess.readMany(cpus.map(::onlinePath))
         // عقد غائبة/غير مقروءة = "" كما كانت مع `exec().out` الفارغ — والقاعدة نفسها:
-        // ما ليس "0" صريحًا يُعدّ متصلًا.
-        val v = RootFileAccess.read("/sys/devices/system/cpu/cpu$cpu/online").orEmpty()
-        return v != "0"
+        // ما ليس "0" صريحًا يُعدّ متصلًا. (وقبله كان cpu0 يُعالَج بحالة خاصة لأن معظم النوى
+        // لا تُنشئ له عقدة `online` أصلًا؛ والقاعدة أعلاه تُنتج النتيجة نفسها بنصّها.)
+        return cpus.mapIndexed { index, cpu -> cpu to (values.getOrNull(index).orEmpty() != "0") }.toMap()
     }
+
+    /** حالة نواة واحدة — تُقرأ دفعةً من عنصر واحد، فالمسار واحد لا مساران. */
+    fun isCoreOnline(cpu: Int): Boolean = onlineStates(listOf(cpu))[cpu] ?: true
 
     /**
      * Toggles a single core's hotplug state. CPU0 is never offlined here — most
@@ -169,21 +197,62 @@ object CpuTopologyUtil {
         return true
     }
 
+    private fun midrPath(cpu: Int) = "/sys/devices/system/cpu/cpu$cpu/regs/identification/midr_el1"
+
     /**
+     * MIDR لكل نواة، **مُخزَّن** لأن قيمته عتاد لا حالة: رقم الجزء ومعرّف المُنفّذ لا يتغيّران
+     * ما دامت العملية حيّة. وكان كل سؤال يفتح صدفة جذر كاملة (`cat ... | exec`) — والآن يُقرأ
+     * مرة واحدة بالدفعة، والباقي بحثٌ في خريطة.
+     */
+    private val midrByCpu = ConcurrentHashMap<Int, String>()
+
+    /**
+     * هل استُنفدت محاولة قراءة MIDR؟ يُرفع بعد دفعةٍ لم تُقرأ فيها أيّ نواة، فلا تُعاد
+     * **الدفعة الفاشلة** في كل دورة تحديث — وهي التي كانت تُفشل المسار كله بأطول طريق للقراءة.
+     * وحدّه مُعلَن: عقدة تُصبح مقروءة بعد ذلك لا يُعاد سؤالها هذه الجلسة، وهو ثمن موثَّق لتفادي
+     * تكرار رحلة في كل تحديث؛ والقيمة الناقصة تُعرض مجهولة كما كانت (لا تُخترع).
+     */
+    @Volatile
+    private var midrUnreadable = false
+
+    /**
+     * أسماء الشرائح لعدّة أنوية في **نداء قراءة واحد** — الجدول نفسه، والتصنيع نفسه.
+     *
      * Best-effort ARM core codename decoded from the MIDR_EL1 register some
      * kernels expose per-core under regs/identification. Table sourced from the
      * real ARM Ltd. (implementer 0x41) ARM_CPU_PART_* values used by the Linux
      * kernel and util-linux's lscpu — not guessed. Returns null (caller just
      * shows the core count) rather than ever inventing a model name.
      */
-    fun decodeCoreName(cpu: Int): String? {
-        val midrHex = Shell.cmd(
-            "cat /sys/devices/system/cpu/cpu$cpu/regs/identification/midr_el1 2>/dev/null"
-        ).exec().out.joinToString("").trim().removePrefix("0x").removePrefix("0X")
-        val midr = midrHex.toLongOrNull(16) ?: return null
+    fun coreNames(cpus: List<Int>): Map<Int, String?> {
+        if (cpus.isEmpty()) return emptyMap()
+        val distinct = cpus.distinct()
+        val missing = distinct.filter { !midrByCpu.containsKey(it) }
+        if (missing.isNotEmpty() && !midrUnreadable) {
+            val codes = RootFileAccess.readMany(missing.map(::midrPath))
+            var read = 0
+            missing.forEachIndexed { index, cpu ->
+                val code = codes.getOrNull(index)?.trim()?.removePrefix("0x")?.removePrefix("0X").orEmpty()
+                // الفشل لا يُخزَّن: يُعاد سؤاله في الدورة القادمة (نداء واحد لها كلها)، أمّا قراءة
+                // ناجحة فثابتة. فلا يُثبَّت عطب عابر كأنه حقيقة، ولا يُكرَّر الطلب في كل نواة.
+                if (code.isNotEmpty()) {
+                    midrByCpu[cpu] = code
+                    read++
+                }
+            }
+            if (read == 0) midrUnreadable = true
+        }
+        return distinct.associateWith { decodeMidr(midrByCpu[it].orEmpty()) }
+    }
+
+    /** اسم نواة واحدة — دفعةٌ من عنصر واحد، فلا يوجد مسار ثانٍ يقرأ الطريقة الأخرى. */
+    fun decodeCoreName(cpu: Int): String? = coreNames(listOf(cpu))[cpu]
+
+    private fun decodeMidr(hex: String): String? {
+        val midr = hex.toLongOrNull(16) ?: return null
         val implementer = (midr shr 24) and 0xFF
-        val partNum = ((midr shr 4) and 0xFFF).toInt()
         if (implementer != 0x41L) return null // Only decode ARM Ltd. designs; don't guess for others.
+        val partNum = ((midr shr 4) and 0xFFF).toInt()
         return ARM_LTD_PARTS[partNum]
     }
 
@@ -255,13 +324,27 @@ object CpuTopologyUtil {
         "system-background" to "System Background"
     )
 
-    /** Reads current core assignment for every cpuset group that exists on this device. */
+    /**
+     * Reads current core assignment for every cpuset group that exists on this device.
+     *
+     * **والوجود والقراءة دفعةً واحدة.** كان السؤال ثماني رحلات (‏`exists` ثم `read` لكل مجموعة)
+     * وهذا المسار يعمل في كل تحميل للشاشة. والقياس نفسه لكل مجموعة بلا تغيير: مسار غير موجود
+     * يُسقط مجموعته، والقراءة الفاشلة تعني `""` كما كانت (`parseCpuRange("")` = قائمة فارغة).
+     */
     fun readCpusetGroups(): List<CpusetGroup> {
-        return CPUSET_GROUPS.mapNotNull { (key, label) ->
-            val path = "$CPUSET_BASE/$key/cpus"
-            if (!RootFileAccess.exists(path)) return@mapNotNull null
-            val raw = RootFileAccess.read(path).orEmpty()
-            CpusetGroup(key = key, label = label, path = path, cores = parseCpuRange(raw))
+        val paths = CPUSET_GROUPS.map { (key, _) -> "$CPUSET_BASE/$key/cpus" }
+        val flags = RootFileAccess.existing(paths)
+        val present = CPUSET_GROUPS.indices.filter { flags.getOrNull(it) == true }
+        if (present.isEmpty()) return emptyList()
+        val values = RootFileAccess.readMany(present.map { paths[it] })
+        return present.mapIndexed { index, groupIndex ->
+            val (key, label) = CPUSET_GROUPS[groupIndex]
+            CpusetGroup(
+                key = key,
+                label = label,
+                path = paths[groupIndex],
+                cores = parseCpuRange(values.getOrNull(index).orEmpty())
+            )
         }
     }
 

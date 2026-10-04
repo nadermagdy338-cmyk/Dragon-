@@ -6,7 +6,7 @@
 package nd.max.core.hardware
 
 import nd.max.MaxManagerProps
-import nd.max.ui.util.PropertyUtils
+import nd.max.core.platform.PropertyUtils
 
 /**
  * Bounded persisted Global Tweaks consumer for verified GPU Studio state.

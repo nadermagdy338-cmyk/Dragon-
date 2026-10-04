@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_launcher_strings.xml -->
+<resources>
+    <string name="max_launcher_subtitle">Paquetes instalados e as actividades que declaran</string>
+    <string name="max_launcher_loading">Lendo paquetes instalados e as súas actividades declaradas...</string>
+    <string name="max_launcher_empty">Ningún paquete instalado declara unha actividade neste dispositivo.</string>
+    <string name="max_launcher_search_placeholder">Busca por nome da aplicación ou paquete</string>
+    <string name="max_launcher_search_clear">Limpar a busca</string>
+    <string name="max_launcher_scope_all">Todos</string>
+    <string name="max_launcher_scope_user">Usuario</string>
+    <string name="max_launcher_scope_system">Sistema</string>
+    <string name="max_launcher_activity_count">%1$d actividades</string>
+    <string name="max_launcher_no_match_title">Nada coincide</string>
+    <string name="max_launcher_no_match_detail">Ningún nome de paquete ou etiqueta de aplicación contén ese texto no ámbito seleccionado.</string>
+    <string name="max_launcher_no_match_clear">Borrar filtros</string>
+    <string name="max_launcher_reading_activities">Lendo as actividades que este paquete declara...</string>
+    <string name="max_launcher_no_activities">Este paquete non declara ningunha actividade.</string>
+    <string name="max_launcher_root_off_title">Non se concede a raíz</string>
+    <string name="max_launcher_root_off_detail">As actividades marcadas como privadas non se exportan, polo que só o root pode inicialas. As actividades exportadas seguen abertas sen ela.</string>
+    <string name="max_launcher_tag_private">Privado</string>
+    <string name="max_launcher_tag_disabled">Desactivado</string>
+    <string name="max_launcher_outcome_started">A actividade comezou</string>
+    <string name="max_launcher_outcome_needs_root">Esta actividade non se exporta; é necesario root</string>
+    <string name="max_launcher_outcome_refused">Android negouse a iniciar esta actividade</string>
+    <string name="max_launcher_outcome_missing">Non hai ningunha actividade instalada con ese nome</string>
+</resources>

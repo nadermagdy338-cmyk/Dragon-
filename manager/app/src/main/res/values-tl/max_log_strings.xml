@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ترجمات مضافة — المصدر: values/max_log_strings.xml -->
+<resources>
+    <string name="max_log_level_verbose">Verbose</string>
+    <string name="max_log_level_debug">I-debug</string>
+    <string name="max_log_level_info">Impormasyon</string>
+    <string name="max_log_level_warn">Babala</string>
+    <string name="max_log_level_error">Error</string>
+    <string name="max_log_level_assert">Igiit</string>
+    <string name="max_log_level_fatal">Nakamamatay</string>
+    <string name="max_log_buffer_main">Pangunahing</string>
+    <string name="max_log_buffer_system">Sistema</string>
+    <string name="max_log_buffer_crash">Bumagsak</string>
+    <string name="max_log_buffer_kernel">Kernel</string>
+    <string name="max_log_buffer_events">Mga kaganapan</string>
+    <string name="max_log_buffer_radio">Radyo</string>
+    <string name="max_log_source_daemon">Daemon</string>
+    <string name="max_log_source_appmonitor">AppMonitor</string>
+    <string name="max_log_source_ui">UI</string>
+    <string name="max_log_source_other">Iba pa</string>
+</resources>
