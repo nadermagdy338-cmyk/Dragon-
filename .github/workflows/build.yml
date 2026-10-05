@@ -1240,7 +1240,7 @@ jobs:
           # هذه بصمة keystore 2026-09-28 (alias: azenith_key، RSA 2048، صالح 30 سنة،
           # وكلمتا المخزن والمفتاح في سر واحد: KEYSTORE_PASSWORD).
           # والأثر على المستخدمين: من ثبّت نسخة قديمة لا يرقّي فوقها (يلزم إلغاء تثبيت).
-          EXPECTED_RELEASE_SIGNER_SHA256: 468f4fb4507183512ecaea03718d591dbd6eb30015230071869547f2d5e59727
+          EXPECTED_RELEASE_SIGNER_SHA256: 5fdc5cb8353ef65b453f4cb9bbc5f97758fe4974df5422c0c03e53505aea2a0e
         run: |
           set -eu
           if [ "$SIGNED_BUILD" = "1" ]; then
