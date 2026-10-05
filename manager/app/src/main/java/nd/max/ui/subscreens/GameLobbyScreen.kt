@@ -719,8 +719,10 @@ private fun LobbyHexButton(
     accent: Boolean = false,
     active: Boolean = false
 ) {
+    val interaction = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
+            .lobbyPress(interaction)
             .size(width = HexWidth, height = MaxSize.minTouchTarget)
             .clip(LobbyHexShape)
             .background(
