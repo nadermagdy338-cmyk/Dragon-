@@ -179,9 +179,10 @@ class SpoofProfileTest {
             mapOf("com.a.game" to "p1")))
         val records = raw.lines().drop(1).filter { it.isNotEmpty() }
         assertTrue(records.all { it.startsWith("P\t") || it.startsWith("B\t") || it.startsWith("A\t") })
-        assertEquals(9, records.first { it.startsWith("P\t") }.split('\t').size)
+        // سبعة حقول أساسية + بصمة + SDK_INT + manufacturer (‏schema 4) = تسعة، ومعها وسم السجلّ "P" عشرة.
+        assertEquals(10, records.first { it.startsWith("P\t") }.split('\t').size)
         assertEquals(3, records.first { it.startsWith("B\t") }.split('\t').size)
-        assertEquals("3", raw.lines().first().substringAfterLast('\t'))
+        assertEquals("4", raw.lines().first().substringAfterLast('\t'))
         // Base64 has no underscore, and a denied identifier would need a name and a slot: there are neither.
         for (forbidden in listOf("IMEI", "IMSI", "ICCID", "ANDROID_ID", "SERIAL", "MAC", "SDK_INT", "FINGERPRINT")) {
             assertFalse("$forbidden appeared in an exported file", raw.contains(forbidden))

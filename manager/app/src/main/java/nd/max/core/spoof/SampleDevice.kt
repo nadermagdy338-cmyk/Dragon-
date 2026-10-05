@@ -31,8 +31,18 @@ data class SampleDevice(
     val androidRelease: String?
         get() = fingerprint.split(':').getOrNull(1)?.substringBefore('/')?.takeIf { RELEASE.matches(it) }
 
-    fun toProfile(): SpoofProfile =
-        SpoofProfile(profileId, name, brand, model, device, product, fingerprint, sdkInt = null, manufacturer = manufacturer)
+    /**
+     * الحقول الثلاثة الحاكمة تُشتقّ من **البصمة** لا من حقول COPG التسويقية: في أندرويد
+     * `BRAND/PRODUCT/DEVICE` هي حرفيًّا الثلاثة الأولى من `Build.FINGERPRINT`، وحقل `DEVICE` في كتالوج
+     * COPG اسم تسويقي (‏«REDMAGIC 9 Pro» بدل كود الجهاز `NX769J`). الاشتقاق من البصمة هو ما يجعل
+     * الملف متّسقًا مع نفسه، ومع [SpoofProfileValidation]، ومع ما يكتبه مُحوِّل الهوية في المحرّك.
+     */
+    fun toProfile(): SpoofProfile {
+        val parts = fingerprint.split('/')
+        return SpoofProfile(profileId, name, parts.getOrNull(0).orEmpty(), model,
+            parts.getOrNull(2)?.substringBefore(':').orEmpty(), parts.getOrNull(1).orEmpty(),
+            fingerprint, sdkInt = null, manufacturer = manufacturer)
+    }
 
     private companion object { val RELEASE = Regex("[0-9A-Za-z.]{1,10}") }
 }

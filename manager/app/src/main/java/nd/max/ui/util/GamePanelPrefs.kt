@@ -37,6 +37,7 @@ object GamePanelPrefs {
     private const val KEY_ENABLED = "game_panel_enabled"
     private const val KEY_SNAP = "game_panel_snap"
     private const val KEY_SIDE = "game_panel_side"
+    private const val KEY_HANDLE_Y = "game_panel_handle_y"
 
     /** الحافة الافتراضية: يمين الشاشة — وهي الموضع الذي تعتاده ألواح الألعاب. */
     val DEFAULT_SIDE: PanelSide = PanelSide.End
@@ -44,7 +45,9 @@ object GamePanelPrefs {
     data class State(
         val enabledPackages: Set<String> = emptySet(),
         val snapEdges: Boolean = true,
-        val side: PanelSide = DEFAULT_SIDE
+        val side: PanelSide = DEFAULT_SIDE,
+        /** ارتفاع المقبض كنسبة 0..1 من المدى المتاح؛ سالب = لم يُسحب بعد (الوضع الافتراضي). */
+        val handleY: Float = -1f
     )
 
     fun load(context: Context): State {
@@ -55,7 +58,8 @@ object GamePanelPrefs {
         return State(
             enabledPackages = packages,
             snapEdges = p.getBoolean(KEY_SNAP, true),
-            side = enumOr(p.getString(KEY_SIDE, null), PanelSide.entries, DEFAULT_SIDE)
+            side = enumOr(p.getString(KEY_SIDE, null), PanelSide.entries, DEFAULT_SIDE),
+            handleY = p.getFloat(KEY_HANDLE_Y, -1f)
         )
     }
 
@@ -71,6 +75,11 @@ object GamePanelPrefs {
     fun saveSide(context: Context, side: PanelSide) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
             .putString(KEY_SIDE, side.name).apply()
+    }
+
+    fun saveHandleY(context: Context, fraction: Float) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putFloat(KEY_HANDLE_Y, fraction.coerceIn(0f, 1f)).apply()
     }
 
     private fun <T> enumOr(raw: String?, values: List<T>, fallback: T): T where T : Enum<T> =

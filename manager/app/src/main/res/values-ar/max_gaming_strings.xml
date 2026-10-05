@@ -135,4 +135,26 @@
     <string name="game_panel_chip_load">حِمل المعالج</string>
     <string name="game_panel_tool_bypass">تجاوز الشحن</string>
     <string name="game_panel_graph_empty">بانتظار الإطارات…</string>
+    <!-- لوحة بنمط «المكعّب»: بلاطات تكتب بالروت فعلًا -->
+    <string name="game_panel_tool_wifi">الواي فاي</string>
+    <string name="game_panel_tool_data">بيانات الجوال</string>
+    <string name="game_panel_hz_default">افتراضي</string>
+    <string name="game_panel_tool_info">معلومات</string>
+    <string name="game_panel_tool_screenrec">تسجيل الشاشة</string>
+    <string name="game_panel_tool_screenrec_on">يسجّل…</string>
+    <string name="game_panel_tool_optimize">تحسين</string>
+    <string name="game_panel_tool_touch">تعزيز اللمس</string>
+    <string name="game_panel_tool_reminder">منبّه</string>
+    <string name="game_panel_tool_close">إغلاق</string>
+    <string name="game_panel_notify_normal">إشعارات عادية</string>
+    <string name="game_panel_notify_dnd">عدم الإزعاج</string>
+    <string name="game_panel_msg_on">%1$s: مُفعَّل</string>
+    <string name="game_panel_msg_off">%1$s: متوقف</string>
+    <string name="game_panel_msg_freed">تم تنظيف الذاكرة: +%1$d ميجابايت</string>
+    <string name="game_panel_msg_reminder">منبّه بعد %1$d دقيقة</string>
+    <string name="game_panel_reminder_done">منبّه وقت اللعب: حان وقت استراحة</string>
+    <string name="game_panel_msg_saved">حُفظ تسجيل الشاشة في Movies/MaxManager</string>
+    <string name="game_panel_auto_locked">الوضع التلقائي يدير البروفايل</string>
+    <string name="game_panel_view_list">عرض قائمة</string>
+    <string name="game_panel_view_grid">عرض شبكة</string>
 </resources>

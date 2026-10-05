@@ -96,11 +96,20 @@ object SpoofCapabilityResolver {
 
 /** Reject contradictory fingerprint identities instead of manufacturing missing Build values. */
 object SpoofProfileValidation {
+    private val STRUCTURE = Regex("([^/:\\s]+)/([^/:\\s]+)/([^/:\\s]+):([^/:\\s]+)/([^/:\\s]+)/([^/:\\s]+):([^/:\\s]+)/([^/:\\s]+)")
+
     fun valid(profile: SpoofProfile): Boolean {
         val fp = profile.fingerprint ?: return true
-        val match = Regex("([^/:\\s]+)/([^/:\\s]+)/([^/:\\s]+):([^/:\\s]+)/([^/:\\s]+)/([^/:\\s]+):([^/:\\s]+)/([^/:\\s]+)")
-            .matchEntire(fp) ?: return false
-        return match.groupValues[1] == profile.brand && match.groupValues[2] == profile.product &&
-            match.groupValues[3] == profile.device
+        return fingerprintMatches(profile.brand, profile.product, profile.device, fp)
+    }
+
+    /**
+     * هل تحمل البصمة بنية `brand/product/device:…` المعروفة وتُطابق الثلاثة الحاكمة؟ تُستعمل أيضًا
+     * لإسقاط بصمة أبطلها تعديل يدويّ للهوية (فلا تُكتب بصمة تتناقض مع حقولها).
+     */
+    fun fingerprintMatches(brand: String, product: String, device: String, fingerprint: String): Boolean {
+        val match = STRUCTURE.matchEntire(fingerprint) ?: return false
+        return match.groupValues[1] == brand && match.groupValues[2] == product &&
+            match.groupValues[3] == device
     }
 }

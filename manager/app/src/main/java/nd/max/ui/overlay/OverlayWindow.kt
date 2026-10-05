@@ -14,6 +14,7 @@ import android.os.Build
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
@@ -160,13 +161,47 @@ class OverlayWindow(
         params.y = y
         refresh()
     }
+    /** الموضع الحالي للنافذة بالبكسل. */
+    fun position(): Pair<Int, Int> = params.x to params.y
+
+    /** تحريك لكل إطار: لا يستدعي النظام إن لم يتغيّر الموضع فعلًا. */
+    fun moveTo(x: Int, y: Int) {
+        if (params.x == x && params.y == y) return
+        params.x = x
+        params.y = y
+        refresh()
+    }
+
+    /** معالج لمس خارجي (السحب الناعم)، أو `null` فيعود اللمس إلى محتوى Compose. */
+    fun setTouchHandler(handler: View.OnTouchListener?) {
+        host?.setOnTouchListener(handler)
+    }
+
+    fun hostView(): View? = host
+
+    /** ينفّذ مرة واحدة بعد أول قياس للمحتوى، فلا تُرى النافذة في غير مكانها. */
+    fun onceLaidOut(block: () -> Unit) {
+        val view = host ?: return
+        if (view.width > 0 && view.height > 0) {
+            block()
+            return
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                if (view.width <= 0 || view.height <= 0) return
+                if (view.viewTreeObserver.isAlive) view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                block()
+            }
+        })
+    }
+
 
 
     /**
      * وضع ملء الشاشة للوحة المفتوحة: نافذة MATCH_PARENT تمتدّ تحت القصّة (cutout) وشرائط النظام،
      * وتعود إلى WRAP_CONTENT للمقبض. لا يُستدعى إلا على الخيط الرئيسي بعد `mount`.
      */
-    fun setFullScreen(on: Boolean) {
+    fun setFullScreen(on: Boolean, atX: Int? = null, atY: Int? = null) {
         val size = if (on) WindowManager.LayoutParams.MATCH_PARENT else WindowManager.LayoutParams.WRAP_CONTENT
         params.width = size
         params.height = size
@@ -181,6 +216,8 @@ class OverlayWindow(
             }
         } else {
             params.flags = params.flags and WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN.inv()
+            atX?.let { params.x = it }
+            atY?.let { params.y = it }
         }
         refresh()
     }

@@ -115,6 +115,32 @@ import nd.max.ui.util.GamePanelPrefs
 import nd.max.ui.util.customizedFieldCount
 import nd.max.ui.viewmodel.AppSettingsViewModel
 import nd.max.ui.viewmodel.GameSpaceViewModel
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.State
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.translate
+import kotlin.math.abs
+import nd.max.ui.component.LobbyReactor
+import nd.max.ui.component.lobbyIntro
+import nd.max.ui.component.lobbyLoop
+import nd.max.ui.component.lobbyPress
+import nd.max.ui.component.lobbySelectionPlate
+import nd.max.ui.component.lobbySheen
+import nd.max.ui.component.rememberLobbyIntro
+import nd.max.ui.component.rememberLobbySheenPhase
 
 private val TopBarHeight = 64.dp
 private val BottomBarHeight = 64.dp
@@ -185,6 +211,7 @@ fun GameLobbyScreen(
     }
     val openProfile: () -> Unit = { if (active != null) profileOpen = true }
     val animations = rememberLobbyAnimationsEnabled()
+    val intro = rememberLobbyIntro(animations)
     val battery by rememberLobbyBattery()
     val clock by rememberLobbyClock()
 
@@ -198,7 +225,11 @@ fun GameLobbyScreen(
         val emblemSize = minOf(maxHeight * 0.80f, maxWidth * 0.40f)
         val tabWidth = (maxWidth * 0.26f).coerceIn(160.dp, 260.dp)
 
-        LobbyEmblem(Modifier.align(Alignment.Center).size(emblemSize), animate = animations)
+        LobbyReactor(
+            Modifier.align(Alignment.Center).size(emblemSize).lobbyIntro(intro, scaleFrom = 0.78f),
+            animate = animations,
+            pulseKey = active?.packageName
+        )
 
         LobbyGameList(
             modifier = Modifier.align(Alignment.CenterStart).width(listWidth).fillMaxHeight(),
@@ -206,11 +237,12 @@ fun GameLobbyScreen(
             favorites = library.favorites,
             activePackage = active?.packageName,
             loading = library.loading,
-            onSelect = { selected = it }
+            onSelect = { selected = it },
+            intro = intro
         )
 
         LobbyTopBar(
-            modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(),
+            modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth().lobbyIntro(intro, fromBelow = (-30).dp, start = 0.05f),
             clock = clock,
             battery = battery,
             active = active,
@@ -222,7 +254,8 @@ fun GameLobbyScreen(
 
         if (active != null) {
             Row(
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = TopBarHeight, end = MaxSpace.lg),
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = TopBarHeight, end = MaxSpace.lg)
+                    .lobbyIntro(intro, fromStart = (-48).dp, start = 0.25f),
                 horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
             ) {
                 LobbyFeatureTile(
@@ -242,20 +275,30 @@ fun GameLobbyScreen(
                 )
             }
             Column(
-                modifier = Modifier.align(Alignment.BottomEnd).padding(end = MaxSpace.lg, bottom = MaxSpace.md),
+                modifier = Modifier.align(Alignment.BottomEnd).padding(end = MaxSpace.lg, bottom = MaxSpace.md)
+                    .lobbyIntro(intro, fromStart = (-72).dp, start = 0.3f),
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(MaxSpace.md)
             ) {
-                Text(
-                    text = active.label,
-                    color = LobbyPalette.Ink,
-                    fontSize = 38.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.End,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.widthIn(max = TitleMaxWidth)
-                )
+                AnimatedContent(
+                    targetState = active.label,
+                    transitionSpec = {
+                        (slideInHorizontally(spring(dampingRatio = 0.75f, stiffness = 380f)) { it / 4 } + fadeIn(tween(220))) togetherWith
+                            (slideOutHorizontally(tween(160)) { -it / 4 } + fadeOut(tween(140)))
+                    },
+                    label = "lobbyTitle"
+                ) { title ->
+                    Text(
+                        text = title,
+                        color = LobbyPalette.Ink,
+                        fontSize = 38.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.End,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.widthIn(max = TitleMaxWidth)
+                    )
+                }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
                     LobbyStartButton(
                         label = stringResource(R.string.lobby_start),
@@ -297,7 +340,7 @@ fun GameLobbyScreen(
         }
 
         LobbyBottomTab(
-            modifier = Modifier.align(Alignment.BottomCenter),
+            modifier = Modifier.align(Alignment.BottomCenter).lobbyIntro(intro, fromBelow = 56.dp, start = 0.4f),
             label = stringResource(R.string.lobby_tab_lobby),
             width = tabWidth
         )
@@ -350,7 +393,8 @@ private fun LobbyGameList(
     favorites: Set<String>,
     activePackage: String?,
     loading: Boolean,
-    onSelect: (String) -> Unit
+    onSelect: (String) -> Unit,
+    intro: State<Float>
 ) {
     LazyColumn(
         modifier = modifier,
@@ -367,8 +411,10 @@ private fun LobbyGameList(
                 )
             }
         }
-        items(games, key = { it.packageName }) { app ->
+        itemsIndexed(games, key = { _, game -> game.packageName }) { index, app ->
             LobbyGameRow(
+                index = index,
+                intro = intro,
                 app = app,
                 selected = app.packageName == activePackage,
                 favorite = app.packageName in favorites,
@@ -379,7 +425,7 @@ private fun LobbyGameList(
 }
 
 @Composable
-private fun LobbyGameRow(app: GameApp, selected: Boolean, favorite: Boolean, onClick: () -> Unit) {
+private fun LobbyGameRow(app: GameApp, selected: Boolean, favorite: Boolean, index: Int, intro: State<Float>, onClick: () -> Unit) {
     val context = LocalContext.current
     val meta by produceState<GameLobbyMeta?>(null, app.packageName) {
         value = withContext(Dispatchers.IO) { GameLobbyMetaReader.read(context, app.packageName) }
@@ -391,11 +437,13 @@ private fun LobbyGameRow(app: GameApp, selected: Boolean, favorite: Boolean, onC
     val sizeText = meta?.sizeBytes?.let { Formatter.formatShortFileSize(context, it) }
     val metaLine = listOfNotNull(sizeText, ageText).joinToString(" · ")
     val shape = RoundedCornerShape(GameIconRadius)
-
+    val sel = animateFloatAsState(if (selected) 1f else 0f, spring(dampingRatio = 0.62f, stiffness = 420f), label = "rowSel")
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = GameRowHeight)
+            .lobbyIntro(intro, fromStart = 64.dp, start = (0.10f + index * 0.045f).coerceAtMost(0.62f))
+            .lobbySelectionPlate(sel)
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
             .padding(horizontal = MaxSpace.lg, vertical = MaxSpace.xs),
         verticalAlignment = Alignment.CenterVertically,
@@ -404,11 +452,16 @@ private fun LobbyGameRow(app: GameApp, selected: Boolean, favorite: Boolean, onC
         Box(
             modifier = Modifier
                 .size(GameIconSize)
+                .graphicsLayer {
+                    val k = 1f + 0.10f * sel.value
+                    scaleX = k
+                    scaleY = k
+                }
                 .drawBehind {
-                    if (selected) {
+                    if (sel.value > 0.01f) {
                         drawCircle(
                             brush = Brush.radialGradient(
-                                listOf(LobbyPalette.Red.copy(alpha = 0.45f), Color.Transparent),
+                                listOf(LobbyPalette.Red.copy(alpha = 0.45f * sel.value), Color.Transparent),
                                 center = center,
                                 radius = size.maxDimension * 0.95f
                             ),
@@ -480,9 +533,11 @@ private fun LobbyTopBar(
         LobbyBatteryPill(battery)
         Spacer(Modifier.weight(1f))
         if (active != null) {
-            Box(
-                modifier = Modifier
-                    .size(width = HexWidth, height = MaxSize.minTouchTarget)
+            val interaction = remember { MutableInteractionSource() }
+    Box(
+        modifier = Modifier
+            .lobbyPress(interaction)
+            .size(width = HexWidth, height = MaxSize.minTouchTarget)
                     .clip(LobbyHexShape)
                     .background(LobbyPalette.PanelRaised),
                 contentAlignment = Alignment.Center
@@ -588,17 +643,35 @@ private fun LobbyFeatureTile(icon: ImageVector, title: String, value: String, ac
 
 @Composable
 private fun LobbyStartButton(label: String, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val animate = rememberLobbyAnimationsEnabled()
+    val sheen = lobbyLoop(animate, 2600)
+    val flow = lobbyLoop(animate, 1500)
+    val glow = lobbyLoop(animate, 2200, RepeatMode.Reverse, FastOutSlowInEasing, rest = 0.5f)
     Box(
         modifier = Modifier
+            .lobbyPress(interaction, 0.95f)
             .size(width = StartWidth, height = StartHeight)
+            .drawBehind {
+                drawRect(
+                    Brush.radialGradient(
+                        listOf(LobbyPalette.Red.copy(alpha = 0.16f + 0.20f * glow.value), Color.Transparent),
+                        center = center,
+                        radius = size.width * 0.72f
+                    ),
+                    topLeft = Offset(-size.width * 0.2f, -size.height * 0.9f),
+                    size = Size(size.width * 1.4f, size.height * 2.8f)
+                )
+            }
             .clip(LobbyAngledShape)
             .background(Brush.horizontalGradient(listOf(LobbyPalette.RedDeep, LobbyPalette.Red, LobbyPalette.RedDeep)))
+            .lobbySheen(sheen)
             .border(MaxSize.hairlineBorder, LobbyPalette.RedBright.copy(alpha = 0.6f), LobbyAngledShape)
-            .clickable(role = Role.Button, onClick = onClick),
+            .clickable(interactionSource = interaction, indication = LocalIndication.current, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
-            LobbyChevrons(forward = true)
+            LobbyChevrons(forward = true, phase = flow)
             Text(
                 text = label,
                 color = LobbyPalette.Ink,
@@ -607,19 +680,21 @@ private fun LobbyStartButton(label: String, onClick: () -> Unit) {
                 fontStyle = FontStyle.Italic,
                 maxLines = 1
             )
-            LobbyChevrons(forward = false)
+            LobbyChevrons(forward = false, phase = flow)
         }
     }
 }
 
-/** زخرفة الزرّ: شيفرونان متتاليان يتجهان إلى النص من الجانبين (متناظران فلا يحتاجان انعكاس RTL). */
 @Composable
-private fun LobbyChevrons(forward: Boolean) {
+private fun LobbyChevrons(forward: Boolean, phase: State<Float>) {
     Canvas(Modifier.size(width = 20.dp, height = 18.dp)) {
         val w = size.width
         val h = size.height
         val stroke = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        listOf(0f, w * 0.45f).forEach { dx ->
+        listOf(0f, w * 0.45f).forEachIndexed { i, dx ->
+            val k = (phase.value + (if (forward) i else 1 - i) * 0.5f) % 1f
+            val alpha = 0.35f + 0.65f * (1f - abs(2f * k - 1f))
+            val shift = (if (forward) 1f else -1f) * 2.dp.toPx() * k
             val path = Path().apply {
                 if (forward) {
                     moveTo(dx + w * 0.10f, h * 0.10f)
@@ -631,7 +706,7 @@ private fun LobbyChevrons(forward: Boolean) {
                     lineTo(dx + w * 0.45f, h * 0.90f)
                 }
             }
-            drawPath(path = path, color = Color.White.copy(alpha = 0.9f), style = stroke)
+            translate(left = shift) { drawPath(path = path, color = Color.White.copy(alpha = alpha), style = stroke) }
         }
     }
 }
@@ -653,7 +728,7 @@ private fun LobbyHexButton(
                 else Brush.verticalGradient(listOf(LobbyPalette.PanelRaised, LobbyPalette.Surface))
             )
             .border(MaxSize.hairlineBorder, if (accent) LobbyPalette.RedBright.copy(alpha = 0.6f) else LobbyPalette.Hairline, LobbyHexShape)
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(interactionSource = interaction, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center
     ) {
@@ -678,6 +753,7 @@ private fun LobbyBottomTab(modifier: Modifier, label: String, width: Dp) {
             .size(width = width, height = BottomBarHeight - MaxSpace.md)
             .clip(LobbyTabShape)
             .background(Brush.verticalGradient(listOf(LobbyPalette.Red.copy(alpha = 0.92f), LobbyPalette.RedDeep)))
+            .lobbySheen(rememberLobbySheenPhase(), 0.2f)
             .semantics {
                 role = Role.Tab
                 selected = true

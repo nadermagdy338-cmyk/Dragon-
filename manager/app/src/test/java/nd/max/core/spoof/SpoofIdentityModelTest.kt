@@ -85,7 +85,16 @@ class SpoofIdentityModelTest {
     }
     @Test fun versionTwoMigratesWithoutInventingGlobalOrOverrides() {
         val data = SpoofWorkspace(listOf(global), mapOf("com.example.app" to global.id))
-        val old = SpoofWorkspaceCodec.encode(data).replace("MAXMANAGER_SPOOF\t4", "MAXMANAGER_SPOOF\t2")
+        // ملفّ schema 2 **حقيقيّ**: الترويسة، وسجلّ `P` بحقوله الثمانية (‏schema 4 زاد `manufacturer` تاسعًا).
+        // تبديل الترويسة وحدها يسلّم المرمِّز سجلًّا بتسعة حقول يزعم أنه schema 2 — فيرفضه بحقّ.
+        val encoded = SpoofWorkspaceCodec.encode(data).lines().filter { it.isNotEmpty() }
+        val old = buildString {
+            append(encoded.first().substringBeforeLast('\t')).append("\t2\n")
+            encoded.drop(1).forEach { line ->
+                val parts = line.split('\t')
+                append(if (parts.first() == "P") parts.dropLast(1).joinToString("\t") else line).append('\n')
+            }
+        }
         val migrated = SpoofWorkspaceCodec.decode(old)
         assertEquals(data, migrated)
         assertNull(migrated.globalProfileId)

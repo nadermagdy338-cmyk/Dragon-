@@ -32,7 +32,10 @@ object SpoofDeviceCatalog {
         val device = SampleDevice(field("key"), field("name"), field("brand"), field("manufacturer"), field("model"),
             field("device"), field("product"), field("fingerprint"))
         require(KEY.matches(device.key))
-        device.toProfile() // نفس قواعد الملف المحفوظ: يرمي إن كانت قيمة غير صالحة فيُسقط هذا الجهاز وحده.
+        // نفس قواعد الملف المحفوظ: الهوية المستخرَجة تُخضع لفحص الاتّساق نفسه، فالجهاز الذي لا يصير
+        // ملفًا محفوظًا صالحًا (بصمة تحمل اسمًا تسويقيًّا في خانة كود الجهاز) يُرفض ولا يُعرض —
+        // فلا يختار المستخدم جهازًا يرفضه التطبيق في الخطوة التالية.
+        require(SpoofProfileValidation.valid(device.toProfile()))
         return device
     }
 }

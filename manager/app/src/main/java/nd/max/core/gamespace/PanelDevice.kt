@@ -75,6 +75,18 @@ class PanelDevice(context: Context) {
         val pct = if (level >= 0 && scale > 0) "${level * 100 / scale}%" else "--"
         return "$time · $pct" + (if (charging) " ⚡" else "") + " · " + CockpitModel.speedText(netBytesPerSecond())
     }
+    /** الحالة مفكّكة الحقول لكبسولات اللوحة (الوقت/البطارية/سرعة الشبكة). */
+    fun status(): PanelStatus {
+        val time = android.text.format.DateFormat.getTimeFormat(app).format(java.util.Date())
+        val intent = app.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
+        val state = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        val charging = state == BatteryManager.BATTERY_STATUS_CHARGING || state == BatteryManager.BATTERY_STATUS_FULL
+        val pct = if (level >= 0 && scale > 0) level * 100 / scale else null
+        return PanelStatus(time, pct, charging, netBytesPerSecond())
+    }
+
 
     /** الذاكرة المتاحة (MB) من `MemAvailable` — قراءة بلا جذر. */
     fun availMb(): Int = runCatching {
@@ -84,12 +96,14 @@ class PanelDevice(context: Context) {
     }.getOrDefault(0)
 
     /**
-     * يقتل العمليات المخبّأة/الفارغة فقط (`am kill-all` لا يمسّ المقدّمة) ثم يدمج الذاكرة (نفس
-     * أمر شاشة ZRAM)، ويعيد **المتاح الذي زاد فعلًا** بالقياس لا بالتقدير. من خيط IO.
+     * يُسقط مخابئ النواة (`drop_caches`) ويدمج الذاكرة (`compact_memory`) — **ولا يقتل أي تطبيق**:
+     * قتل تطبيقات المستخدم عملية لا رجعة فيها، وقد أُلغيت في هذا المشروع ويمنعها
+     * `ControlPlaneArchitectureTest` من العودة. ويعيد **المتاح الذي زاد فعلًا** بالقياس لا بالتقدير.
+     * من خيط IO.
      */
     fun cleanMemory(): Int {
         val before = availMb()
-        Shell.cmd("am kill-all", "echo 1 > /proc/sys/vm/compact_memory 2>/dev/null").exec()
+        Shell.cmd("echo 3 > /proc/sys/vm/drop_caches 2>/dev/null", "echo 1 > /proc/sys/vm/compact_memory 2>/dev/null").exec()
         Thread.sleep(500)
         return (availMb() - before).coerceAtLeast(0)
     }
@@ -129,3 +143,6 @@ class PanelDevice(context: Context) {
         if (id != 0) Resources.getSystem().getInteger(id) else fallback
     }.getOrDefault(fallback)
 }
+
+/** لقطة الحالة العامة: `batteryPct` غائب = غير معروف، و`netBytes < 0` = العدّاد غير مدعوم. */
+data class PanelStatus(val time: String, val batteryPct: Int?, val charging: Boolean, val netBytes: Long)

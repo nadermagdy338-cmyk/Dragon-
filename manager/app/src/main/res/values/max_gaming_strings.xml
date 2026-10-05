@@ -135,4 +135,26 @@
     <string name="game_panel_chip_load">CPU load</string>
     <string name="game_panel_tool_bypass">Bypass charging</string>
     <string name="game_panel_graph_empty">Waiting for frames…</string>
+    <!-- Energy-cube style panel: real root-backed tiles (AGENTS.md §0.2: values + values-ar only) -->
+    <string name="game_panel_tool_wifi">Wi-Fi</string>
+    <string name="game_panel_tool_data">Mobile data</string>
+    <string name="game_panel_hz_default">Default</string>
+    <string name="game_panel_tool_info">Info</string>
+    <string name="game_panel_tool_screenrec">Screen record</string>
+    <string name="game_panel_tool_screenrec_on">Recording…</string>
+    <string name="game_panel_tool_optimize">Optimize</string>
+    <string name="game_panel_tool_touch">Touch boost</string>
+    <string name="game_panel_tool_reminder">Reminder</string>
+    <string name="game_panel_tool_close">Close</string>
+    <string name="game_panel_notify_normal">Normal alerts</string>
+    <string name="game_panel_notify_dnd">Do not disturb</string>
+    <string name="game_panel_msg_on">%1$s on</string>
+    <string name="game_panel_msg_off">%1$s off</string>
+    <string name="game_panel_msg_freed">Memory cleaned: +%1$d MB</string>
+    <string name="game_panel_msg_reminder">Reminder in %1$d min</string>
+    <string name="game_panel_reminder_done">Play-time reminder: time for a break</string>
+    <string name="game_panel_msg_saved">Screen recording saved to Movies/MaxManager</string>
+    <string name="game_panel_auto_locked">Auto mode is managing the profile</string>
+    <string name="game_panel_view_list">List view</string>
+    <string name="game_panel_view_grid">Grid view</string>
 </resources>

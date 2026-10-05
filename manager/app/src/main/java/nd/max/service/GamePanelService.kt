@@ -33,6 +33,8 @@ import nd.max.core.gamespace.PanelClocks
 import nd.max.core.gamespace.GamePanelState
 import nd.max.core.gamespace.PanelSide
 import nd.max.core.gamespace.PanelSubject
+import nd.max.core.gamespace.PANEL_REFRESH_CHOICES
+import nd.max.core.gamespace.PanelSessionClock
 import nd.max.core.gamespace.PanelLifetime
 import nd.max.core.gamespace.gameLibrary
 import nd.max.core.gamespace.nextRefreshRate
@@ -49,6 +51,8 @@ import nd.max.core.platform.HudRecorder
 import nd.max.core.platform.HudSampler
 import nd.max.ui.component.GamePanelSurface
 import nd.max.ui.overlay.OverlayWindow
+import nd.max.ui.overlay.SilkDragController
+import androidx.compose.ui.geometry.Offset
 import nd.max.ui.util.FpsOverlayPrefs
 import nd.max.ui.util.GamePanelPrefs
 
@@ -132,10 +136,31 @@ class GamePanelService : LifecycleService() {
     private var refreshRateHz: Int? = null
     private var clocks by mutableStateOf(PanelClocks())
     private var controls by mutableStateOf(PanelControlState())
+    private lateinit var silk: SilkDragController
+    private var handleY = -1f
+    private var dockAt: Pair<Int, Int>? = null
+    private var openOrigin by mutableStateOf(Offset(1f, 0.5f))
 
     override fun onCreate() {
         super.onCreate()
-        window = OverlayWindow(this)
+        val saved = GamePanelPrefs.load(this)
+        val metrics = resources.displayMetrics
+        window = OverlayWindow(
+            this,
+            startX = if (saved.side == PanelSide.Start) 0 else metrics.widthPixels,
+            startY = ((if (saved.handleY >= 0f) saved.handleY else 0.3f) * metrics.heightPixels * 0.78f).toInt()
+        )
+        silk = SilkDragController(
+            context = applicationContext,
+            window = window,
+            dockedStart = { state.side == PanelSide.Start },
+            savedFraction = { handleY },
+            onOpen = { openPanel() },
+            onSettled = { fraction ->
+                handleY = fraction
+                GamePanelPrefs.saveHandleY(applicationContext, fraction)
+            }
+        )
         startOverlayForeground(
             OverlayNotice(
                 channelId = CHANNEL_ID,
@@ -177,12 +202,15 @@ class GamePanelService : LifecycleService() {
                 return START_NOT_STICKY
             }
             isRunning = true
+            window.setTouchHandler(silk)
+            window.onceLaidOut { placeWindow() }
         }
         return START_STICKY
     }
 
     override fun onDestroy() {
         HudSampler.stop(HUD_OWNER_OVERLAY)
+        silk.release()
         window.unmount()
         isRunning = false
         super.onDestroy()
@@ -208,6 +236,7 @@ class GamePanelService : LifecycleService() {
                 runCatching { FpsMonitorUtil.getForegroundPackage() }.getOrNull()
             }
             val subject = panelSubject(foreground, library)
+            if (subject is PanelSubject.Tracked) PanelSessionClock.touch(subject.packageName)
             // لعبة جديدة ⟹ الفتح لا يُنقل إليها: الفتح حالة جلسة لا حالة مخزّنة.
             val sameGame = subject is PanelSubject.Tracked && state.subject == subject
             val open = if (sameGame) state.openByUser else false
@@ -217,6 +246,7 @@ class GamePanelService : LifecycleService() {
                 enabled = subject is PanelSubject.Tracked && subject.packageName in prefs.enabledPackages,
                 openByUser = open
             ).copy(side = prefs.side)
+            if (!silk.busy) handleY = prefs.handleY
             if (state.mode == GamePanelMode.Open) {
                 clocks = withContext(Dispatchers.IO) { runCatching { PanelClockReader.read() }.getOrDefault(PanelClocks()) }
                 controls = withContext(Dispatchers.IO) { runCatching { PanelControls.read() }.getOrDefault(controls) }
@@ -247,8 +277,18 @@ class GamePanelService : LifecycleService() {
      * **ولا كتابة من هنا:** المالك القائم يطبّق ذرّيًّا بقراءة نهائية وبـ`resetprop` مقيّد،
      * وتكرار الكتابة في موضع ثانٍ هو ما يمنعه ADR-11.
      */
+    /**
+     * معدّلات التحديث التي تدعمها الشاشة فعلًا (مثل 60/90/120/144/165)، وإلا الاحتياط القديم.
+     * نفس طريقة `RefreshRateReceiver` في القراءة (`toInt`) فلا يُرفض معدّل عرضناه.
+     */
+    private fun supportedRefreshRates(): List<Int> = runCatching {
+        val dm = getSystemService(Context.DISPLAY_SERVICE) as android.hardware.display.DisplayManager
+        dm.getDisplay(android.view.Display.DEFAULT_DISPLAY).supportedModes
+            .map { it.refreshRate.toInt() }.distinct().sorted()
+    }.getOrDefault(emptyList()).ifEmpty { PANEL_REFRESH_CHOICES }
+
     private fun cycleRefreshRate() {
-        val next = nextRefreshRate(refreshRateHz)
+        val next = nextRefreshRate(refreshRateHz, supportedRefreshRates())
         val intent = Intent(applicationContext, nd.max.RefreshRateReceiver::class.java)
             .setAction("nd.max.SET_FPS")
         if (next == null) intent.putExtra("reset", true) else intent.putExtra("fps", next)
@@ -282,15 +322,20 @@ class GamePanelService : LifecycleService() {
      * واحد مرئيّ عند الإقلاع لا انزياح دائم.
      */
     private fun placeWindow() {
-        // الوضع المفتوح ملء الشاشة: لا موضع جانبيّ يُحسب له.
         if (state.mode == GamePanelMode.Open) {
+            window.setTouchHandler(null)
             window.setFullScreen(true)
             return
         }
+        if (silk.busy) return
         window.setFullScreen(false)
+        window.setTouchHandler(silk)
         val (screenWidth, screenHeight) = window.screenBounds()
         val content = window.contentSize() ?: return
-        val side = state.side
+        if (handleY >= 0f) {
+            silk.dock()
+            return
+        }
         val placement = panelPlacement(
             screenWidth = screenWidth,
             screenHeight = screenHeight,
@@ -298,10 +343,26 @@ class GamePanelService : LifecycleService() {
             panelHeight = content.second,
             insetTop = 0,
             insetBottom = 0,
-            side = side
+            side = state.side
         )
         window.place(placement.x, placement.y)
     }
+
+    /** يفتح اللوحة من موضع المقبض الحالي: تتّسع النافذة وتنطلق موجة الدخول من نقطة المقبض. */
+    private fun openPanel() {
+        val (_, screenHeight) = window.screenBounds()
+        val at = window.position()
+        val height = window.contentSize()?.second ?: 0
+        dockAt = at
+        openOrigin = Offset(
+            if (state.side == PanelSide.Start) 0f else 1f,
+            ((at.second + height / 2f) / screenHeight).coerceIn(0f, 1f)
+        )
+        window.setTouchHandler(null)
+        state = state.copy(mode = GamePanelMode.Open, openByUser = true)
+        window.setFullScreen(true)
+    }
+
 
     /** يفتح شاشة إعدادات التطبيق التي يعيش فيها مقبض عدم الإزعاج (أثره عالميّ ومالكه هناك). */
     private fun openAppSettings() {
@@ -337,13 +398,11 @@ class GamePanelService : LifecycleService() {
             clocks = clocks,
             controls = controls,
             frames = snapshot.framesHistory,
-            onOpen = {
-                state = state.copy(mode = GamePanelMode.Open, openByUser = true)
-                window.setFullScreen(true)
-            },
+            onOpen = { openPanel() },
             onCollapse = {
                 state = state.copy(mode = GamePanelMode.Handle, openByUser = false)
-                window.setFullScreen(false)
+                window.setFullScreen(false, dockAt?.first, dockAt?.second)
+                window.setTouchHandler(silk)
                 // بعد قياس المقبض الجديد لا القديم، فيُوضع على الحافة فورًا لا بعد الاستطلاع التالي.
                 android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ placeWindow() }, 80L)
             },
@@ -352,7 +411,9 @@ class GamePanelService : LifecycleService() {
             onToggleRecording = { toggleRecording() },
             onOpenControls = { openAppSettings() },
             onSelectProfile = { id -> selectProfile(id) },
-            onToggleBypass = { toggleBypass() }
+            onToggleBypass = { toggleBypass() },
+            handleFx = silk.fx,
+            origin = openOrigin
         )
     }
 }

@@ -144,9 +144,15 @@ object SpoofCopgContract {
             // المُصنِّع يتبع الملف الأصل ما دامت الهوية لم تُعدَّل يدويًّا؛ تعديل BRAND يُسقطه كي لا يتناقض مع العلامة.
             val base = workspace.profiles.firstOrNull { it.id == originalId }
             val manufacturer = base?.manufacturer?.takeIf { base.brand == resolved[SpoofField.BRAND] }
+            // تعديل BRAND/PRODUCT/DEVICE يدويًّا يُبطل البصمة (فهي تحمل الثلاثة) فتُحذَف بدل أن تُكتب
+            // متناقضة — نفس قاعدة المُصنِّع أعلاه، وADR-07: الغائب أهدأ من قيمة تُناقض ما حولها.
+            val fingerprint = resolved[SpoofField.FINGERPRINT]?.takeIf {
+                SpoofProfileValidation.fingerprintMatches(resolved.getValue(SpoofField.BRAND)!!,
+                    resolved.getValue(SpoofField.PRODUCT)!!, resolved.getValue(SpoofField.DEVICE)!!, it)
+            }
             val profile = SpoofProfile(id, id, resolved.getValue(SpoofField.BRAND)!!,
                 resolved.getValue(SpoofField.MODEL)!!, resolved.getValue(SpoofField.DEVICE)!!,
-                resolved.getValue(SpoofField.PRODUCT)!!, resolved[SpoofField.FINGERPRINT],
+                resolved.getValue(SpoofField.PRODUCT)!!, fingerprint,
                 resolved[SpoofField.SDK_INT]?.toIntOrNull(), manufacturer)
             if (!SpoofProfileValidation.valid(profile)) return SpoofCopgPlanResult.Refused(SpoofCopgRefusal.UNSUPPORTED_POLICY)
             effectiveProfiles += profile

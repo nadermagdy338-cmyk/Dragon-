@@ -5,7 +5,7 @@
  "sourceRef": "JSON@e1d7da6c24cb571c5d123a6f7c85fafbb42b870b",
  "retrieved": "2026-10-04",
  "license": "Apache-2.0",
- "modified": "Device blocks only (PACKAGES_*_DEVICE) extracted from module/COPG.json and re-keyed; game package lists and tags dropped.",
+ "modified": "Device blocks only (PACKAGES_*_DEVICE) extracted from module/COPG.json and re-keyed; game package lists and tags dropped. The five entries whose FINGERPRINT embeds a marketing name in the device slot (BLACK_SHARK_4, INFINIX_GT_50_PRO, LEGION_Y700, ROG_PHONE_6D, XIAOMI_11T_PRO) are refused by the app's identity check at parse time and are not offered.",
  "devices": [
   {
    "key": "BLACK_SHARK_4__CHINA_",

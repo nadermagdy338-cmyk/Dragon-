@@ -142,7 +142,7 @@ fun LobbyEmblem(modifier: Modifier = Modifier, animate: Boolean = true) {
         transition.animateFloat(
             initialValue = 0f,
             targetValue = 360f,
-            animationSpec = infiniteRepeatable(tween(durationMillis = 90_000, easing = LinearEasing), RepeatMode.Restart),
+            animationSpec = infiniteRepeatable(tween(durationMillis = 42_000, easing = LinearEasing), RepeatMode.Restart),
             label = "lobbyRingSpin"
         )
     } else {

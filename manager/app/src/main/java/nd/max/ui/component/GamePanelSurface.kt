@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.R
+import nd.max.ui.overlay.HandleFx
 import nd.max.core.gamespace.GamePanelMode
 import nd.max.core.gamespace.BypassState
 import nd.max.core.gamespace.PanelClocks
@@ -77,8 +78,6 @@ import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
 import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxSpace
 
-private val HANDLE_WIDTH = 22.dp
-private val HANDLE_HEIGHT = 112.dp
 private val PANEL_MAX_WIDTH = 640.dp
 private val PANEL_MAX_HEIGHT = 420.dp
 private val TOOLS_WIDTH = 108.dp
@@ -129,17 +128,24 @@ fun GamePanelSurface(
     onToggleRecording: () -> Unit,
     onOpenControls: () -> Unit,
     onSelectProfile: (String) -> Unit,
-    onToggleBypass: () -> Unit
+    onToggleBypass: () -> Unit,
+    handleFx: HandleFx? = null,
+    origin: Offset = Offset(1f, 0.5f)
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         when (mode) {
             GamePanelMode.Hidden -> Unit
-            GamePanelMode.Handle -> GamePanelHandle(
-                side = side,
-                gameLabel = gameLabel,
-                accent = if ((reading?.heat ?: 0f) >= HEAT_WARN_C) PanelDanger else accent,
-                onOpen = onOpen
-            )
+            GamePanelMode.Handle -> {
+                val hot = (reading?.heat ?: 0f) >= HEAT_WARN_C
+                GamePanelHandle(
+                    side = side,
+                    gameLabel = gameLabel,
+                    accent = if (hot) PanelDanger else accent,
+                    hot = hot,
+                    fx = handleFx,
+                    onOpen = onOpen
+                )
+            }
             GamePanelMode.Open -> GamePanelCockpit(
                 gameLabel = gameLabel,
                 reading = reading,
@@ -158,7 +164,8 @@ fun GamePanelSurface(
                 onToggleRecording = onToggleRecording,
                 onOpenControls = onOpenControls,
                 onSelectProfile = onSelectProfile,
-                onToggleBypass = onToggleBypass
+                onToggleBypass = onToggleBypass,
+                origin = origin
             )
         }
     }
@@ -169,38 +176,6 @@ private fun panelShape(side: PanelSide, radius: Dp) = if (side == PanelSide.End)
     AbsoluteRoundedCornerShape(topLeft = radius, bottomLeft = radius, topRight = 0.dp, bottomRight = 0.dp)
 } else {
     AbsoluteRoundedCornerShape(topLeft = 0.dp, bottomLeft = 0.dp, topRight = radius, bottomRight = radius)
-}
-
-@Composable
-private fun GamePanelHandle(side: PanelSide, gameLabel: String, accent: Color, onOpen: () -> Unit) {
-    val openLabel = stringResource(R.string.game_panel_open_cd)
-    val shape = panelShape(side, MaxRadius.control)
-    Column(
-        modifier = Modifier
-            .width(HANDLE_WIDTH)
-            .height(HANDLE_HEIGHT)
-            .background(Brush.verticalGradient(listOf(PanelTop, PanelBottom)), shape)
-            .border(PanelEdge, accent.copy(alpha = 0.55f), shape)
-            .clip(shape)
-            .clickable(role = Role.Button, onClick = onOpen)
-            .semantics { contentDescription = "$openLabel · $gameLabel" }
-            .padding(vertical = MaxSpace.sm),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Icon(
-            imageVector = if (side == PanelSide.End) Icons.Rounded.ChevronLeft else Icons.Rounded.ChevronRight,
-            contentDescription = null,
-            tint = accent,
-            modifier = Modifier.size(MaxSpace.lg)
-        )
-        Icon(
-            imageVector = Icons.Rounded.Gamepad,
-            contentDescription = null,
-            tint = PanelMuted,
-            modifier = Modifier.size(MaxSpace.md)
-        )
-    }
 }
 
 /** اسم اللعبة المقروء بدل اسم الحزمة؛ إن لم يُقرأ يبقى اسم الحزمة. */
