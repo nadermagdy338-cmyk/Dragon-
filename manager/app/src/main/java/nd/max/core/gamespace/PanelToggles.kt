@@ -86,7 +86,9 @@ val REMINDER_STEPS: List<Int> = listOf(30, 60, 90, 120)
 fun nextReminderMinutes(current: Int): Int {
     if (current <= 0) return REMINDER_STEPS.first()
     val index = REMINDER_STEPS.indexOf(current)
-    return if (index < 0 || index == REMINDER_STEPS.lastIndex) 0 else REMINDER_STEPS[index + 1]
+    // قيمة غير معروفة (مثل 45) تبدأ من أول خطوة؛ والصفر حصرًا بعد آخر خطوة.
+    if (index < 0) return REMINDER_STEPS.first()
+    return if (index == REMINDER_STEPS.lastIndex) 0 else REMINDER_STEPS[index + 1]
 }
 
 /** منبّه وقت اللعب: مؤقّت في الذاكرة ينبّه بـToast + نغمة إشعار، ولا يحتاج إذنًا إضافيًّا. */
