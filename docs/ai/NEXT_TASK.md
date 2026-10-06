@@ -1,3 +1,18 @@
+## SPOOF-PERAPP-REBUILD-01 — إعادة تصميم تبويب التزييف من الصفر بعد الرفض الثالث — 2026-10-06 · DONE_WITH_CONCERNS
+
+**المطلوب (المالك):** «قائمة التزييف وكل شيء سيئ وفاشل — أعد التصميم من الصفر، وابحث في الإنترنت عن كل ما تحتاجه، وأزل ما لا يفيد ولا يعمل، وبسّطها».
+
+**نُفّذ:** (1) **`AppSpoofSection.kt` مُعاد كتابته من الصفر** — 286 سطرًا بدل 411 وبلا تمرير متداخل (الشاشة تُستضاف داخل `LazyColumn` استضافةً واحدة): بطاقة واحدة «ما يراه هذا التطبيق الآن» بحالة صادقة ← `MaxSearchField` + **قائمة أجهزة عمودية** (15 جهازًا) نقرة واحدة = تجهيز ← زرّان فقط «تجهيز» و«إرجاع» ← حوار التجهيز **يحمل الإقرار نفسه** (لا قسم إقرار منفصل مدفون) ← آخر نتيجة كتابة في `MaxInfoStrip` (نجاح، أو `spoof_ui_apply_reason` باسم السبب). (2) **إنارة مسار كان أعمى بنيويًّا:** `core/spoof/**` لم يكن يكتب سجلًّا إطلاقًا ⇒ `SpoofStudioViewModel` صار يسجّل `EventLog.userTriggered/result` + `DiagnosticCenter.record(SCREEN, "apply …")` **بلا بوابة** (يظهر في كل تصدير) في `applySample` و`acknowledge` و`applyLocked`، و`SCREEN = "SpoofPerApp"`؛ ودالّتان متسلسلتان `applyForApp` و`restoreForApp`. (3) **حُذفت 5 ملفّات واجهة بلا مستدعٍ** (صفر مرجع في `main/java`, `test/java`, `di/`): `SpoofDeviceRow` · `SpoofProfileEditor` · `SampleDevicePickerDialog` · `AppSpoofTagsSection` · `SpoofSurfaceSections`. (4) نصوص `spoof_ui_apply_reason`/`restore_*` في `values/` و`values-ar/` فقط (§0.2).
+
+**البحث (من المصدر لا من الذاكرة):** `AlirezaParsi/COPG` (المحرّك المثبَّت فعلًا، Zygisk) — الضبط `/data/adb/modules/COPG/COPG.json` بصيغة `PACKAGES_<NAME>` + `PACKAGES_<NAME>_DEVICE`، **يُقرأ عند إقلاع كل تطبيق هدف ⇒ إعادة تشغيل التطبيق المستهدف لا النظام**، ويشترط Zygisk Next/ReZygisk/NeoZygisk — والجهاز يحمل `zygisk_vector`+`zygisksu` ✅. و`Seyud/device_faker` GPL-3.0 ⇒ **صفر نقل** (`docs/ai/DEVICE_FAKER_ANALYSIS.md`).
+
+**التشخيص من تصدير المالك:** الجذر يعمل (3084 كتابة `matched`) وCOPG مثبَّتة ونسخة الجهاز = HEAD — و**صفر أحداث تزييف في كل السجل** لأن المسار لم يكن يسجّل أصلًا، فصار الفشل الآن قابلًا للتشخيص بالدليل.
+
+**القياس:** كل البوابات exit 0 — `kt_balance` 2198 ملفًا/0 عوائق · `code_health` 0 (بعد إصلاح عطبين حقيقيين اكتشفتهما: فاصلة عليا غير مهرّبة، وملفّ log في جذر المستودع نُقل خارجه) · `i18n_coverage` 0 عوائق · `--prune all` 0 يتيم في 84 لغة · `resource_compile` بـaapt2 حقيقيّ · `dead_modules` · `rtl_guard` · `design_tokens` · `license_audit` · `jni_symbols`. والاختبارات النقيّة بمصرِّف Kotlin 2.3.10: `PerAppDeviceModelTest` 4/4 · `SpoofCopgContractTest` 12/12. و**كل مراجع `R.string` في الشاشة الجديدة تُحلّ في `values/` و`values-ar/` معًا**.
+
+**حدود صادقة:** طبقة Compose **غير مُترجَمة في هذه البيئة** (aapt2/aidl x86-64 على مضيف aarch64 ⇒ `cannot execute`) — لم يُشغَّل `:app:compileReleaseKotlin` ولا `testReleaseUnitTest`. لا مراجعة سلامة مستقلة (لا أداة `spawn_agents` في هذه الجلسة). **لم تُحذف الوحدات الجوهرية المُختبَرة** (`SpoofFpsTargets` · `SpoofExistingPerApp` · `SpoofApplyBackend` · `SpoofEngineRegistry` · `SpoofEngineAdapter` · `SpoofCapabilityMatrix`): بلا مستدعٍ إنتاجي الآن لكنها تعمل واختباراتها تمرّ — ADR-18 يمنع الحذف بلا قرار مالك، وهي معروضة للقرار.
+**NEXT:** بناء وتركيب على الجهاز ← تبويب «تزييف» ← اختيار جهاز ثم «تجهيز» ← **إعادة تشغيل التطبيق المستهدف** ← تصدير تشخيصي جديد يجب أن يحمل سطر `apply ok` أو `apply refused: <REASON>`.
+
 ## SPOOF-PERAPP-DEVICE-01 — تبويب التزييف «الجهاز أولًا» على منوال device_faker — 2026-10-06 · DONE_WITH_CONCERNS
 
 **المطلوب (المالك، بلقطة):** «لا يزال التزييف في per-app القديم… يشبه COPG وليس ما أردته (Seyud/device_faker) في per-app». قُرئت اللقطة بأداة المستودع فتأكّد أن الشاشة كانت تعرض سياسة الوراثة COPG («عام مخصص متوقف» · «هذا التطبيق يرث القالب المشترك») لا **اختيار جهاز** — فالشكوى صحيحة والمحلّ نموذجيّ.

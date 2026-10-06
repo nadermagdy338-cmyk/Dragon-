@@ -2,10 +2,13 @@
 package nd.max.ui.viewmodel
 
 import android.os.Build
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import nd.max.core.diagnostics.DiagnosticCenter
+import nd.max.core.platform.EventLog
 import nd.max.core.spoof.AppSpoofProfile
 import nd.max.core.spoof.CopgTag
 import nd.max.core.spoof.CopgTagRules
@@ -36,6 +39,13 @@ class SpoofStudioViewModel @Inject constructor(
     val globalConfig = engine.globalConfig
     val lastWrite = engine.lastWrite
     val lastGlobalWrite = engine.lastGlobalWrite
+
+    /**
+     * إصدار الإعدادات الذي نجحت عنده آخر كتابة — فحين يُعدَّل شيء بعده يبطل ادّعاء «مُتحقَّق»
+     * (ADR-07: لا حالة معروضة بلا مصدر يقيسها. كان اللواء يقول «مُتحقَّق» عن جهاز اختير بعد الكتابة).
+     */
+    private val mutableVerifiedRevision = MutableStateFlow<Long?>(null)
+    val verifiedRevision = mutableVerifiedRevision.asStateFlow()
     val recovery = engine.recovery
     val recoveryFailed = engine.recoveryFailed
     fun restore(engineId: String) { viewModelScope.launch { engine.restore(engineId) } }
@@ -50,7 +60,10 @@ class SpoofStudioViewModel @Inject constructor(
     )
 
     init { viewModelScope.launch { repository.load(); engine.refresh() } }
-    fun acknowledge(pkg: String, accepted: Boolean) { viewModelScope.launch { repository.acknowledge(pkg, accepted) } }
+    fun acknowledge(pkg: String, accepted: Boolean) {
+        EventLog.userTriggered(SCREEN, if (accepted) "acknowledge" else "revoke", pkg)
+        viewModelScope.launch { repository.acknowledge(pkg, accepted) }
+    }
     fun change(transform: (SpoofWorkspace) -> SpoofWorkspace) {
         viewModelScope.launch { mutableSaved.value = repository.update(transform) }
     }
@@ -68,11 +81,14 @@ class SpoofStudioViewModel @Inject constructor(
      * جهاز عيّنة ⇒ ملف كامل الحقول دفعة واحدة، ثم ربطه بتطبيق (`pkg`) أو جعله العالمي (`pkg == null`).
      * المعرّف ثابت لكل جهاز فاختيارُه ثانيةً يحدّث الملف نفسه لا يُكرّره، والحدّ (100) يُحترم قبل الإضافة.
      */
-    fun applySample(sample: SampleDevice, pkg: String?) = change { latest ->
-        val exists = latest.profiles.any { it.id == sample.profileId }
-        if (!exists && latest.profiles.size >= 100) return@change latest
-        val withProfile = latest.upsert(sample.toProfile())
-        if (pkg != null) withProfile.bind(pkg, sample.profileId) else withProfile.copy(globalProfileId = sample.profileId)
+    fun applySample(sample: SampleDevice, pkg: String?) {
+        EventLog.userTriggered(SCREEN, "pick_device", pkg?.let { "$it:${sample.key}" } ?: sample.key)
+        change { latest ->
+            val exists = latest.profiles.any { it.id == sample.profileId }
+            if (!exists && latest.profiles.size >= 100) return@change latest
+            val withProfile = latest.upsert(sample.toProfile())
+            if (pkg != null) withProfile.bind(pkg, sample.profileId) else withProfile.copy(globalProfileId = sample.profileId)
+        }
     }
 
     /**
@@ -103,6 +119,49 @@ class SpoofStudioViewModel @Inject constructor(
     fun importWorkspace(incoming: SpoofWorkspace) = change { planSpoofImport(it, incoming).workspace }
     fun refresh() { viewModelScope.launch { engine.refresh() } }
     fun apply(global: Boolean = false, clear: Boolean = false, expectedRevision: Long = configuration.value.revision) {
-        viewModelScope.launch { engine.apply(global, clear, expectedRevision) }
+        viewModelScope.launch { applyLocked(global, clear, expectedRevision) }
     }
+
+    /**
+     * إقرار هذا التطبيق (إن لزم) ثم تجهيزه — **بتسلسل واحد لا فجوة فيه**: الإقرار يُقرأ قبل الكتابة،
+     * فحوار الواجهة لا يحتاج أن يجمع مراجعة قديمة قد يكون أي إقرار أو تغيير أزاحها.
+     */
+    fun applyForApp(packageName: String, acknowledgeNeeded: Boolean) {
+        viewModelScope.launch {
+            if (acknowledgeNeeded) repository.acknowledge(packageName, true)
+            applyLocked(global = false, clear = false, expectedRevision = configuration.value.revision)
+        }
+    }
+
+    /** حذف ربط هذا التطبيق ثم إعادة كتابة المحرّك بلا هذا التطبيق — بتسلسل واحد أيضًا. */
+    fun restoreForApp(packageName: String) {
+        viewModelScope.launch {
+            if (!repository.update { it.bind(packageName, null) }) return@launch
+            applyLocked(global = false, clear = false, expectedRevision = configuration.value.revision)
+        }
+    }
+
+    private suspend fun applyLocked(global: Boolean, clear: Boolean, expectedRevision: Long) {
+        val started = SystemClock.elapsedRealtime()
+        engine.apply(global, clear, expectedRevision)
+        // إنارة مسار كان أعمى بنيويًّا (تصدير 2026-10-06: صفر أحداث تزييف في السجل): النتيجة
+        // تُسجَّل دائمًا عبر DiagnosticCenter (بلا بوابة، تظهر في كل تصدير) وصيغة OP_RESULT
+        // المقيسة — فالتصدير القادم يسمّي سبب الرفض بالاسم بدل الصمت.
+        val write = if (global) engine.lastGlobalWrite.value else engine.lastWrite.value
+        val durationMs = SystemClock.elapsedRealtime() - started
+        mutableVerifiedRevision.value = expectedRevision.takeIf { write?.applied == true }
+        EventLog.result(SCREEN, "apply", null, write?.applied == true, durationMs)
+        when {
+            write == null -> DiagnosticCenter.record(SCREEN,
+                "apply: no engine outcome (config changed under confirmation)",
+                level = DiagnosticCenter.Level.WARN)
+            write.applied -> DiagnosticCenter.record(SCREEN,
+                "apply ok: engine config written and read back",
+                level = DiagnosticCenter.Level.INFO)
+            else -> DiagnosticCenter.record(SCREEN, "apply refused: ${write.reason}",
+                level = DiagnosticCenter.Level.WARN)
+        }
+    }
+
+    companion object { private const val SCREEN = "SpoofPerApp" }
 }
