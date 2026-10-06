@@ -1,3 +1,29 @@
+## CI-GUARD-STALE-01 — 2026-10-06 · DONE_WITH_CONCERNS
+
+**المشكلة (من سجلّ CI للمالك):** `:app:testReleaseUnitTest` ⇒ **2557 اختبارًا · فشل واحد**: `MaxAiPresentationArchitectureTest > objective selection observes state rather than remembered getter` عند السطر `79`.
+
+**السبب:** ذلك السطر كان `assertTrue(text.contains("viewModel.profileRequest.collectAsStateWithLifecycle()"))` — أي حرس **يطالب شاشة Max AI بسطح أُزيل بأمر المالك** (قسم «Base profiles» في `GOV-ONE-CHOICE-01` ومعَه `MaxAiViewModel.requestProfile`)، ولم يبقَ له مستهلك في `MaxAiScreen.kt` (صفر مرجع). والحقل `profileRequest` **حيٌّ ويُستعمل** في `HomeScreen` ← لوحة الحكم و`HomeActivityViewModel` — فلم يكن الخيار حذفه ولا إعادة القسم، بل **تصحيح الحرس**.
+
+**الإصلاح:** قُلب الشرط إلى `assertFalse(text.contains("profileRequest"))` بتعليق يشرح القرار ⇒ الحرس صار **يمنع عودة السطح المزال إلى الشاشة صامتًا** (أقوى، لا أضعف)، والشرطان الأولان (`state.objectivePreference` موجود · `viewModel.objectivePreference()` ممنوع) بلا تغيير.
+
+**القياس:** `/tmp/run-maxai-guard.sh` (kotlinc 2.3.10 + JUnit 4.13.2 من `cwd=manager`): **قبل** `Tests run: 7, Failures: 1` عند السطر ٧٩ (إعادة إنتاج مطابقة لسطر CI) ⇒ **بعد** `OK (7 tests)` · `JUNIT_EXIT=0`. وفحص أثر تعديلي السابق: الحرسان الوحيدان اللذان يقرآن `CpuCoreControlScreen.kt` (`DeviceInfoShortcutEntryTest` · `DeviceInfoShortcutOrdersTest`) شرائطهما التي تخصّ الملفّ **كلها تمرّ** (`MaxDeviceInfoShortcut(` · `MaxDestination.CpuCoreControl` · ترتيب `trailing?.invoke()` بعد `CoreGridMap(`). والبوابات الخفيفة بعد الإصلاح: `kt_balance` 2208/0 · `code_health` · `i18n_coverage` · `--prune all` 0 يتيم — **exit 0**.
+
+**حدود صادقة:** لا Gradle هنا ⇒ لم تُشغَّل المجموعة كاملة (2557)، والمقيس هو الصنف الفاشل + الحرسان الملامسان، والمجموع يُنتظر من CI. وتحذيرات المُصرّف الثلاثة في السجلّ (`Unnecessary safe call` · `Check for instance is always 'true'` · `Locale` deprecated) **لم تُمسّ**: ضجيج أساس لا يُصلَح بلا طلب (I-43/I-44).
+**NEXT:** تشغيل CI: `:app:testReleaseUnitTest` أخضر (2557 · 0).
+
+## CPU-APPLY-FLOATING-01 — 2026-10-06 · DONE_WITH_CONCERNS
+
+**المطلوب (المالك، وقاله مرّتين):** «تغيير طريقة عرض نجاح التغيير الجديد لتسهيل تجربة الاستخدام — بدل أن يظهر في **بداية الشاشة** «Limits applied / The values read back match what was requested» **اجعلها نافذة عائمة مع تصميم احترافي، وتأكّد أن لا تُغطّي عن شيء**.»
+
+**العطب قبل التنفيذ:** الإشعار كان **أوّل عنصر** في `LazyColumn` (`item(key = "max_banner")` قبل الرأس) ⇒ يظهر في رأس الصفحة بينما زرّ «تطبيق» في أسفلها، وأوّل تمرير يدفنه.
+
+**نُفِّذ:** (١) ملفّ جديد `ui/design/MaxFloatingNotice.kt` (٢٧٤ سطرًا): بطاقة طافية **معتمة** (`surfaceContainerHigh`) بحدّ نبرويّ وظلّ `MaxSpace.sm` وشكل `MaxRadius.group`، أيقونة الحالة في حاوية `MaxSize.iconContainer`، وزرّ إغلاق `MaxSize.minTouchTarget` نصّه البديل إجراء الإشعار نفسه، و`liveRegion = Polite`؛ ونمطها **`Surface` داخل `Box` لا `Popup`** بعد تشخيص: الـ`Popup` لا يعلم شيئًا عن الصفحة فلا يستطيع أن يُبلّغها بارتفاعه ⇒ يضمن «لا يُزاح شيء» ولا يضمن **«لا يُغطّى شيء»** — وهي التي طلبها المالك. فالنافذة **تُقاس** (`onSizeChanged`) ويُحجز ارتفاعها في أسفل القائمة ⇒ تطفو فوق فراغ لها، بلا صفّ مغطّى. (٢) `MaxListScreen` اكتسب `floatingNotice: MaxCondition? = null`، والجسم في `Box`، و**زرّ «إلى الأعلى» يختفي ما دامت النافذة محجوزة** (كلاهما في أسفل النهاية فلا يتراكبان)، والحالة الحاجبة تُلغي النافذة. لا شاشة أخرى تمرّر `floatingNotice`. (٣) `CpuCoreControlScreen`: `banner` ← `floatingNotice`، و`cpuActionBanner` ← `cpuActionNotice` (صفر مرجع للقديم)، ودالّة خالصة جديدة `cpuActionKind(reason)` يشترك فيها البطاقةُ وقرارُ الزوال، و**تأكيد النجاح وحده يزول بعد ٦ ثوانٍ** (`FloatingNoticeDwellMillis`) لأن الحقيقة كاملة في صفوف العنقود فوقه؛ والفشل/الانتظار/«غير مدعوم» يبقى حتى يُغلق. **صفر مفاتيح جديدة** ⇒ لا مساس بـi18n.
+
+**القياس (مُصرّف Compose حقيقيّ — لا تقدير):** بُنيت حاضنة خارج المستودع (`/tmp/kverify-compose.sh`): `kotlin-compiler-embeddable 2.3.10` + `kotlin-compose-compiler-plugin-embeddable 2.3.10` + مسار صفّ ٣٨٧ عنصرًا (٢٢٠ جرة + `classes.jar` من ١٦٧ `aar`) + `android-36/android.jar` + R مولَّد من شجرة الموارد + `BuildConfig`. النتيجة: قبل التعديل (`worktree` على `9b2743a`، ٥٦٧ مصدرًا) **٤٥** خطأً مميّزًا، وبعده (٥٦٨ مصدرًا) **نفس الـ٤٥** — `comm` فارغ في الاتجاهين و**صفر خطأ في الملفّات الثلاثة**. والـ٤٥ كلها بيئيّة سابقة (`IRootNodeService` من AIDL غير موجود هنا). **وعطب حقيقيّ أمسكه المصرّف:** `Dp.Zero` غير موجود في Compose (`unresolved reference 'Zero'`) في ملفّين — أُصلح إلى `0.dp` وأُعيد القياس ⇒ صفر خطأ. **وصفر مرجع لـ`cpuActionBanner`.** والبوابات العشر بعد الإصلاح **exit 0**: `kt_balance` ٢٢٠٨/٠ · `code_health` · `i18n_coverage` · `--prune all` ٠ يتيم · `resource_compile` بـaapt2 · `jni_symbols` · `license_audit` · `dead_modules` · `rtl_guard` · `design_tokens`.
+
+**حدود صادقة:** الترجمة الكاملة غير مُتحقّقة (aapt2/aidl x86-64 على aarch64) — المُتحقَّق أنواع Kotlin/Compose لكل `main`، وهي جزئية بإعلان (بلا kapt/KSP ولا موارد وقت تشغيل). و**سلوك العائمة على الجهاز لم يُقَس**: التغطية الفعلية والموضع مع شريط التنقّل وRTL تحتاج هاتفًا (المقيس هو رياضيّات الحجز لا المظهر). و**٦ ثوانٍ قرار لا قياس** (رقم واحد يُبدّل). ولا مراجعة سلامة مستقلّة (لا أداة `spawn_agents`) — والجولة **لا تمسّ `core/**` ولا العتاد والإقلاع**. وتنبيه بيئيّ: هذه البيئة **تُودِع تلقائيًّا** (`7b9c518`)، فـ«git نظيف» لا يعني «لم يُعدَّل».
+**NEXT:** تركيب ← شاشة التحكّم بالنواة ← «تطبيق»: بطاقة **أسفل** الشاشة (لا رأسها) تقول «تم تطبيق الحدود / القيم المقروءة الآن تطابق ما طُلب»، **لا تُغطّي صفًّا**، وتزول وحدها بعد نحو ٦ ثوانٍ؛ والفشل يبقى حتى الإغلاق ← ثم تمرير إلى آخر القائمة للتأكد أن آخر صفّ يُقرأ كاملًا تحت البطاقة.
+
 ## CHANGELOG-BUTTON-01 · ENGINE-REFUSAL-01 — 2026-10-06 · DONE_WITH_CONCERNS
 
 **المطلوب (المالك، ثلاث نقاط):** (١) «أزل زرّ سجلّ التغييرات من Settings — الزرّ الذي في البار العلوي» · (٢) «راجع سجلّ التغييرات في `/storage/emulated/0/MaxManger/` : Engine refusal» · (٣) «واصلح مشكلة `MaxManager_Logs_20261006_192024.tar.gz` — ENGINE_UNAVAILABLE».

@@ -76,7 +76,14 @@ class MaxAiPresentationArchitectureTest {
         val text = source("ui/mainscreens/MaxAiScreen.kt")
         assertTrue(text.contains("state.objectivePreference"))
         assertFalse(text.contains("viewModel.objectivePreference()"))
-        assertTrue(text.contains("viewModel.profileRequest.collectAsStateWithLifecycle()"))
+        // **تصحيح حرس قديم (CI-GUARD-STALE-01):** كان هنا
+        // `assertTrue(text.contains("viewModel.profileRequest.collectAsStateWithLifecycle()"))`
+        // — أي أنه يطالب بسطح *أُزيل بأمر المالك*: قسم «Base profiles» في Controls حُذف مع
+        // `MaxAiViewModel.requestProfile`، ولم يبقَ لطلب المسبق مستهلك في هذه الشاشة. فالخيار
+        // الصحيح ليس حذف السطر ولا إبقاءه مسقوفًا، بل **قلبُه إلى شرط يقيس الحالة الجارية**:
+        // الشاشة لا تحمل السطح المزال أبدًا. وبهذا لا يعود الطلب المسبق إلى هذه الشاشة صامتًا
+        // (والسطح نفسه باقٍ حيًّا حيث يخصّه: `HomeScreen` ← `profileRequest` ← لوحة الحكم).
+        assertFalse(text.contains("profileRequest"))
     }
 
     @Test
