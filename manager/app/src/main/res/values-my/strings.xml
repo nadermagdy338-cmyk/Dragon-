@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">လက်ရှိစက်ကိရိယာသည် ဤလုပ်ဆောင်ချက်ကို မပံ့ပိုးပါ</string>
     <string name="cd_app_icon">အက်ပ်သင်္ကေတ</string>
     <string name="cd_back">နောက်သို့</string>
-    <string name="cd_changelog">ပြောင်းလဲမှုမှတ်တမ်း</string>
     <string name="cd_clear">ရှင်းလင်းပါ</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">မီနူး</string>
@@ -97,7 +96,6 @@
     <string name="done">ပြီးပါပြီ</string>
     <string name="enable_bypass_charge">ဘေးထွက်အားသွင်းခြင်းကို ဖွင့်ပါ</string>
     <string name="enable_bypass_charge_desc">စွမ်းဆောင်ရည်ပြင်ဆင်မှုအစီအစဉ်အောက်တွင် ဘေးထွက်အားသွင်းခြင်းကို ဖွင့်ပါ</string>
-    <string name="err_failed_load_changelog">ပြောင်းလဲမှုမှတ်တမ်းကို တင်ရန် မအောင်မြင်ပါ</string>
     <string name="err_invalid_backup">အရန်ဖိုင်သည် မမှန်ကန်ပါ သို့မဟုတ် ပျက်စီးနေပါသည် (.zx)</string>
     <string name="fingerprint">လက်ဗွေ</string>
     <string name="fpsgo_ged">FPSGO နှင့် GED ပါရာမီတာများ</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">တည်ဆောက်ရက်စွဲ</string>
     <string name="str_by_using_per_app_refresh_rate">ဤအက်ပ်ပြန်လည်ဆန်းသစ်နှုန်းကို ဖွင့်ပါက မျက်နှာပြင်ပြန်လည်ဆန်းသစ်နှုန်းကို Max Manager မှ လုံးလုံးစီမံခန့်ခွဲမည်</string>
-    <string name="str_changelog">ပြောင်းလဲမှုမှတ်တမ်း</string>
     <string name="str_channel">ချန်နယ်</string>
     <string name="str_check_environment">လည်ပတ်မှုပတ်ဝန်းကျင်ကို စစ်ဆေးပါ</string>
     <string name="str_checking_current">စက်၏လက်ရှိအားသွင်းမှုအခြေအနေကို စစ်ဆေးနေသည်... ကျေးဇူးပြု၍ စောင့်ဆိုင်းပါ</string>

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Lo msebenzi awusekelwa kule divayisi</string>
     <string name="cd_app_icon">Isithonjana sesicelo</string>
     <string name="cd_back">Emuva</string>
-    <string name="cd_changelog">Umlando wezinguquko</string>
     <string name="cd_clear">Sula</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Imenyu</string>
@@ -97,7 +96,6 @@
     <string name="done">Kwenziwe</string>
     <string name="enable_bypass_charge">Vula ukushaja nge-bypass</string>
     <string name="enable_bypass_charge_desc">Ngaphansi kohlelo lokusebenza, vula ukushaja nge-bypass</string>
-    <string name="err_failed_load_changelog">Ukulayisha umlando wezinguquko kuhlulekile</string>
     <string name="err_invalid_backup">Ifayela le-backup alivumelekile noma lonakele (.zx)</string>
     <string name="fingerprint">Isithupha</string>
     <string name="fpsgo_ged">Amapharamitha e-FPSGO ne-GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Usuku lokwakha</string>
     <string name="str_by_using_per_app_refresh_rate">Uma uvula izinga lokuvuselela lalesi sicelo, izinga lokuvuselela lesikrini lizolawulwa ngokuphelele yi-Max Manager</string>
-    <string name="str_changelog">Umlando wezinguquko</string>
     <string name="str_channel">Isiteshi</string>
     <string name="str_check_environment">Hlola indawo yokusebenza</string>
     <string name="str_checking_current">Kuhlonzwa isimo samanje sokushaja kwedivayisi… Sicela ulinde</string>

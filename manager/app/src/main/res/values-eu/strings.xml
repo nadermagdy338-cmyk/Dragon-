@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Gailu honek ez du funtzio hau onartzen</string>
     <string name="cd_app_icon">Aplikazioaren ikonoa</string>
     <string name="cd_back">Atzera</string>
-    <string name="cd_changelog">Aldaketa-egunkaria</string>
     <string name="cd_clear">Garbitu</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menua</string>
@@ -97,7 +96,6 @@
     <string name="done">Eginda</string>
     <string name="enable_bypass_charge">Gaitu alboko elikadura</string>
     <string name="enable_bypass_charge_desc">Errendimendu-profila aktibatuta, gaitu alboko elikadura</string>
-    <string name="err_failed_load_changelog">Huts egin du aldaketa-egunkaria kargatzeak</string>
     <string name="err_invalid_backup">Segurtasun-kopia fitxategia baliogabea edo hondatuta (.zx)</string>
     <string name="fingerprint">Hatz-marka</string>
     <string name="fpsgo_ged">FPSGO eta GED parametroak</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Eraikuntza data</string>
     <string name="str_by_using_per_app_refresh_rate">Aplikazio honen freskatze-maiztasuna gaituta, pantailaren freskatze-maiztasuna Max Manager-ek kudeatuko du erabat</string>
-    <string name="str_changelog">Aldaketa-egunkaria</string>
     <string name="str_channel">Kanala</string>
     <string name="str_check_environment">Egiaztatu exekuzio-ingurunea</string>
     <string name="str_checking_current">Gailuaren karga-egoera detektatzen… Itxaron, mesedez</string>

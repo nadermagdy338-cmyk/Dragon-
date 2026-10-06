@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Η συσκευή δεν υποστηρίζει αυτήν τη λειτουργία</string>
     <string name="cd_app_icon">Εικονίδιο εφαρμογής</string>
     <string name="cd_back">Πίσω</string>
-    <string name="cd_changelog">Αρχείο αλλαγών</string>
     <string name="cd_clear">Εκκαθάριση</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Μενού</string>
@@ -97,7 +96,6 @@
     <string name="done">Τέλος</string>
     <string name="enable_bypass_charge">Ενεργοποίηση παράκαμψης φόρτισης</string>
     <string name="enable_bypass_charge_desc">Ενεργοποίηση παράκαμψης φόρτισης υπό σχήμα απόδοσης</string>
-    <string name="err_failed_load_changelog">Αποτυχία φόρτωσης αρχείου αλλαγών</string>
     <string name="err_invalid_backup">Το αρχείο αντιγράφου ασφαλείας είναι άκυρο ή κατεστραμμένο (.zx)</string>
     <string name="fingerprint">Δακτυλικό αποτύπωμα</string>
     <string name="fpsgo_ged">Παράμετροι FPSGO και GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Ημερομηνία κατασκευής</string>
     <string name="str_by_using_per_app_refresh_rate">Ενεργοποιώντας τον ρυθμό ανανέωσης ανά εφαρμογή, ο ρυθμός ανανέωσης οθόνης ελέγχεται πλήρως από το Max Manager.</string>
-    <string name="str_changelog">Αρχείο αλλαγών</string>
     <string name="str_channel">Κανάλι</string>
     <string name="str_check_environment">Έλεγχος περιβάλλοντος λειτουργίας</string>
     <string name="str_checking_current">Έλεγχος τρέχουσας κατάστασης φόρτισης συσκευής… Παρακαλώ περιμένετε</string>

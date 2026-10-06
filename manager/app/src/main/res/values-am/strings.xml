@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">ይህ መሣሪያ ይህን ተግባር አይደግፈውም</string>
     <string name="cd_app_icon">የመተግበሪያ አዶ</string>
     <string name="cd_back">ተመለስ</string>
-    <string name="cd_changelog">የለውጥ ሎግ</string>
     <string name="cd_clear">አጽዳ</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">ምናሌ</string>
@@ -97,7 +96,6 @@
     <string name="done">ተከናውኗል</string>
     <string name="enable_bypass_charge">የተለየ ሃይል አቅርቦት አንቃ</string>
     <string name="enable_bypass_charge_desc">በአፈጻጸም ውቅር ስር የተለየ ሃይል አቅርቦት ያንቁ</string>
-    <string name="err_failed_load_changelog">የለውጥ ሎግ መጫን አልተሳካም</string>
     <string name="err_invalid_backup">የመጠባበቂያ ፋይል ልክ ያልሆነ ወይም የተበላሸ ነው (.zx)</string>
     <string name="fingerprint">አሻራ</string>
     <string name="fpsgo_ged">FPSGO እና GED መመዘኛዎች</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">የግንባታ ቀን</string>
     <string name="str_by_using_per_app_refresh_rate">ይህን የመተግበሪያ ማደሻ ፍጥነት ሲነቁ፣ የስክሪን ማደሻ ፍጥነት ሙሉ በሙሉ በMax Manager ይተዳደራል</string>
-    <string name="str_changelog">የለውጥ ሎግ</string>
     <string name="str_channel">ቻናል</string>
     <string name="str_check_environment">የሩጫ አካባቢ ያረጋግጡ</string>
     <string name="str_checking_current">የመሣሪያውን አሁን ያለው የባትሪ መሙላት ሁኔታ እያረጋገጠ ነው… እባክዎ ይጠብቁ</string>

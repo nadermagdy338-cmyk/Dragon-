@@ -13,6 +13,13 @@ data class SpoofEngineConfig(
     val ownedKeys: List<String>,
     /** Module eligibility is measured separately from JSON parseability. */
     val engineAvailable: Boolean? = null,
+    /**
+     * **ولماذا السبب معه لا بدلًا منه:** «غير متاح» صفة، و[unavailableReason] هو الدليل الذي
+     * يجيب «وما العمل؟» — فالواجهة تعرضه قبل أن ينقر المستخدم «تجهيز»، فلا يكتشف الرفض بعد الفعل.
+     * و`null` هنا تعني الحالتين معًا: متاح، أو غير مقيس (بلا جذر مسبق) — والفرق بينهما يحمله
+     * [engineAvailable] وحده، فلا يُقرأ الجهل «متاحًا».
+     */
+    val unavailableReason: SpoofEngineReason? = null,
 )
 
 /** Independent implementation of the external WebUI-documented COPG file interface; no upstream native code bundled. */
@@ -23,8 +30,10 @@ class SpoofCopgBackend @Inject constructor(private val transaction: SpoofConfigT
         if (!PrivilegeManager.cachedRootGranted()) return SpoofEngineConfig(path, null, null, emptyList())
         val text = RootFileAccess.read(path)
         val keys = text?.let(SpoofCopgContract::ownedKeys)
+        // القياس مرّة واحدة: الحكم والسبب من نداء واحد، فلا يُسأل مدير الجذر سؤالًا يعرف جوابه.
+        val reason = transaction.eligibility(SpoofCopgContract.MODULE_ID, requestRoot = false)
         return SpoofEngineConfig(path, RootFileAccess.exists(path), if (text == null) null else keys != null,
-            keys.orEmpty(), transaction.eligibility(SpoofCopgContract.MODULE_ID, requestRoot = false) == null)
+            keys.orEmpty(), reason == null, reason)
     }
 
     fun apply(workspace: SpoofWorkspace): SpoofEngineWrite {

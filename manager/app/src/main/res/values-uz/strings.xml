@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Joriy qurilma ushbu funksiyani qo‘llab-quvvatlamaydi</string>
     <string name="cd_app_icon">Ilova belgisi</string>
     <string name="cd_back">Orqaga</string>
-    <string name="cd_changelog">O‘zgarishlar jurnali</string>
     <string name="cd_clear">Tozalash</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menyu</string>
@@ -97,7 +96,6 @@
     <string name="done">Tayyor</string>
     <string name="enable_bypass_charge">Quvvatni aylanib o‘tishni yoqish</string>
     <string name="enable_bypass_charge_desc">Ishlash konfiguratsiyasi ostida quvvatni aylanib o‘tishni yoqish</string>
-    <string name="err_failed_load_changelog">O‘zgarishlar jurnalini yuklash muvaffaqiyatsiz tugadi</string>
     <string name="err_invalid_backup">Zaxira fayli yaroqsiz yoki buzilgan (.zx)</string>
     <string name="fingerprint">Barmoq izi</string>
     <string name="fpsgo_ged">FPSGO va GED parametrlari</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Qurilish sanasi</string>
     <string name="str_by_using_per_app_refresh_rate">Ushbu ilova uchun yangilanish tezligini yoqish bilan ekran yangilanish tezligi to‘liq Max Manager tomonidan boshqariladi</string>
-    <string name="str_changelog">O‘zgarishlar jurnali</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">Ish muhitini tekshirish</string>
     <string name="str_checking_current">Qurilmaning joriy zaryad holati tekshirilmoqda… Iltimos, kuting</string>

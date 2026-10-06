@@ -34,6 +34,7 @@ import nd.max.core.spoof.SampleDevice
 import nd.max.core.spoof.SampleDeviceCatalog
 import nd.max.core.spoof.SampleDeviceSearch
 import nd.max.core.spoof.SpoofDeviceCatalog
+import nd.max.core.spoof.SpoofEngineReason
 import nd.max.ui.component.MaxInfoStrip
 import nd.max.ui.component.MaxStatusPill
 import nd.max.ui.design.MaxGroup
@@ -76,6 +77,7 @@ internal fun AppSpoofSection(
     val busy by viewModel.busy.collectAsStateWithLifecycle()
     val acknowledged by viewModel.acknowledgments.collectAsStateWithLifecycle()
     val lastWrite by viewModel.lastWrite.collectAsStateWithLifecycle()
+    val engineConfig by viewModel.engineConfig.collectAsStateWithLifecycle()
     val verifiedRevision by viewModel.verifiedRevision.collectAsStateWithLifecycle()
     val context = LocalContext.current
     // يُقرأ الأصل مرّة واحدة هنا — قراءتان لنفس الملفّ لا تفيدان أحدًا.
@@ -121,6 +123,13 @@ internal fun AppSpoofSection(
                     )
                 },
             )
+        }
+
+        // 1.5 — حال المحرّك تُقال **قبل** الفعل لا بعده. تصدير ٢٠٢٦-١٠-٠٦ حمل `apply refused:
+        // ENGINE_UNAVAILABLE` بعد أن نقر المستخدم «تجهيز»: فالمستخدم دفع ثمن الفشل ليعرف السبب.
+        // والآن يُقاس السبب باسمه هنا، ونصّه يقول ما يُفعل به (تفعيل/إقلاع/إعادة تثبيت).
+        engineConfig?.unavailableReason?.let { reason ->
+            MaxInfoStrip(text = engineRefusalText(reason), accent = MaxTone.Caution.content())
         }
 
         // 2 — الجهاز المطلوب: بحث + قائمة، نقرة واحدة = اختيار لهذا التطبيق. بلا تمرير داخلي
@@ -206,7 +215,7 @@ internal fun AppSpoofSection(
                 )
                 write.applied -> MaxInfoStrip(text = stringResource(R.string.identity_config_verified))
                 else -> MaxInfoStrip(
-                    text = stringResource(R.string.spoof_ui_apply_reason, write.reason.name),
+                    text = engineRefusalText(write.reason),
                     accent = MaxTone.Caution.content(),
                 )
             }
@@ -264,6 +273,27 @@ internal fun AppSpoofSection(
             },
         )
     }
+}
+
+/**
+ * نصّ رفض المحرّك. **الحالات الأربع المقيسة لها نصوص تقول ما يُفعل بها**، وما لا نصّ له يُعرض
+ * باسم رمزه كما كان — فلا تُبتلع حالةٌ جديدة في جملة عامّة.
+ *
+ * ولماذا يحتاج هذا دالّة: العطب المُصلَح (تصدير ٢٠٢٦-١٠-٠٦) كان **رمزًا واحدًا** (`ENGINE_UNAVAILABLE`)
+ * لأربع حالات علاجها مختلف، يُعرض للمستخدم بلا فكّ ولا إجراء. فالنصّ هنا هو نصف الإصلاح، والنصف
+ * الآخر في `SpoofEngineGate` الذي يسمّي الحالة بدقّة.
+ */
+@Composable
+private fun engineRefusalText(reason: SpoofEngineReason): String {
+    val specific = when (reason) {
+        SpoofEngineReason.ENGINE_MODULE_ABSENT -> R.string.spoof_engine_absent
+        SpoofEngineReason.ENGINE_DISABLED -> R.string.spoof_engine_disabled
+        SpoofEngineReason.ENGINE_REMOVAL_PENDING -> R.string.spoof_engine_removal_pending
+        SpoofEngineReason.ENGINE_UPDATE_PENDING -> R.string.spoof_engine_update_pending
+        else -> null
+    }
+    return if (specific != null) stringResource(specific)
+    else stringResource(R.string.spoof_ui_apply_reason, reason.name)
 }
 
 /** صفّ جهاز واحد: الاسم + إصدار أندرويد والطراز + علامة الاختيار. لا شيء آخر. */

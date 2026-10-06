@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Peranti semasa tidak menyokong fungsi ini</string>
     <string name="cd_app_icon">Ikon aplikasi</string>
     <string name="cd_back">Kembali</string>
-    <string name="cd_changelog">Log perubahan</string>
     <string name="cd_clear">Kosongkan</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Selesai</string>
     <string name="enable_bypass_charge">Dayakan bypass pengecasan</string>
     <string name="enable_bypass_charge_desc">Dayakan bypass pengecasan di bawah profil prestasi</string>
-    <string name="err_failed_load_changelog">Gagal memuatkan log perubahan</string>
     <string name="err_invalid_backup">Fail sandaran tidak sah atau rosak (.zx)</string>
     <string name="fingerprint">Cap jari</string>
     <string name="fpsgo_ged">Parameter FPSGO dan GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Tarikh binaan</string>
     <string name="str_by_using_per_app_refresh_rate">Selepas mendayakan kadar segar semula aplikasi ini, kadar segar semula skrin akan diurus sepenuhnya oleh Max Manager</string>
-    <string name="str_changelog">Log perubahan</string>
     <string name="str_channel">Saluran</string>
     <string name="str_check_environment">Periksa persekitaran pelaksanaan</string>
     <string name="str_checking_current">Sedang mengesan status pengecasan semasa peranti… Sila tunggu</string>

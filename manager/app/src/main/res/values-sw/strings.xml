@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Kifaa hiki hakitumii kipengele hiki</string>
     <string name="cd_app_icon">Aikoni ya programu</string>
     <string name="cd_back">Rudi</string>
-    <string name="cd_changelog">Changelog</string>
     <string name="cd_clear">Futa</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menyu</string>
@@ -97,7 +96,6 @@
     <string name="done">Imekamilika</string>
     <string name="enable_bypass_charge">Washa kuchaji kwa njia mbadala</string>
     <string name="enable_bypass_charge_desc">Washa kuchaji kwa njia mbadala chini ya mpango wa utendaji</string>
-    <string name="err_failed_load_changelog">Imeshindwa kupakia changelog</string>
     <string name="err_invalid_backup">Faili ya nakala rudufu si sahihi au imeharibika (.zx)</string>
     <string name="fingerprint">Alama ya vidole</string>
     <string name="fpsgo_ged">Vigezo vya FPSGO na GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Tarehe ya ujenzi</string>
     <string name="str_by_using_per_app_refresh_rate">Ukiwezesha kasi ya kuonyesha upya kwa programu hii, skrini itadhibitiwa kabisa na Max Manager</string>
-    <string name="str_changelog">Changelog</string>
     <string name="str_channel">Kituo</string>
     <string name="str_check_environment">Angalia mazingira ya uendeshaji</string>
     <string name="str_checking_current">Inaangalia hali ya sasa ya kuchaji ya kifaa... Tafadhali subiri</string>

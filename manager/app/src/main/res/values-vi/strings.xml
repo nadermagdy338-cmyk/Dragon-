@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Thiết bị hiện tại không hỗ trợ chức năng này</string>
     <string name="cd_app_icon">Biểu tượng ứng dụng</string>
     <string name="cd_back">Quay lại</string>
-    <string name="cd_changelog">Nhật ký thay đổi</string>
     <string name="cd_clear">Xóa</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Hoàn tất</string>
     <string name="enable_bypass_charge">Bật nguồn điện bypass</string>
     <string name="enable_bypass_charge_desc">Bật nguồn điện bypass trong cấu hình hiệu suất</string>
-    <string name="err_failed_load_changelog">Tải nhật ký thay đổi thất bại</string>
     <string name="err_invalid_backup">Tệp sao lưu không hợp lệ hoặc bị hỏng (.zx)</string>
     <string name="fingerprint">Dấu vân tay</string>
     <string name="fpsgo_ged">Tham số FPSGO và GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Ngày xây dựng</string>
     <string name="str_by_using_per_app_refresh_rate">Sau khi bật tần số làm tươi cho ứng dụng này, tần số làm tươi màn hình sẽ hoàn toàn do Max Manager quản lý</string>
-    <string name="str_changelog">Nhật ký thay đổi</string>
     <string name="str_channel">Kênh</string>
     <string name="str_check_environment">Kiểm tra môi trường chạy</string>
     <string name="str_checking_current">Đang kiểm tra trạng thái sạc hiện tại của thiết bị… Vui lòng chờ</string>

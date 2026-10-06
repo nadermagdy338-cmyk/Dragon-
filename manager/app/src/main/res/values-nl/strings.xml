@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Deze functie wordt niet ondersteund op dit apparaat</string>
     <string name="cd_app_icon">App-pictogram</string>
     <string name="cd_back">Terug</string>
-    <string name="cd_changelog">Wijzigingslog</string>
     <string name="cd_clear">Wissen</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Gereed</string>
     <string name="enable_bypass_charge">Bypass-laden inschakelen</string>
     <string name="enable_bypass_charge_desc">Schakel bypass-laden in onder prestatieprofiel</string>
-    <string name="err_failed_load_changelog">Laden van wijzigingslog mislukt</string>
     <string name="err_invalid_backup">Back-upbestand is ongeldig of beschadigd (.zx)</string>
     <string name="fingerprint">Vingerafdruk</string>
     <string name="fpsgo_ged">FPSGO- en GED-parameters</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Bouwdatum</string>
     <string name="str_by_using_per_app_refresh_rate">Na inschakelen van deze app verversingsfrequentie, wordt schermverversing volledig beheerd door Max Manager</string>
-    <string name="str_changelog">Wijzigingslog</string>
     <string name="str_channel">Kanaal</string>
     <string name="str_check_environment">Controleer runtime-omgeving</string>
     <string name="str_checking_current">Apparaat oplaadstatus controleren… een ogenblik</string>

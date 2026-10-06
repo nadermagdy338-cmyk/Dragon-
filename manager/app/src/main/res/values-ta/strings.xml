@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">தற்போதைய சாதனம் இந்த அம்சத்தை ஆதரிக்கவில்லை</string>
     <string name="cd_app_icon">பயன்பாட்டு ஐகான்</string>
     <string name="cd_back">பின் செல்</string>
-    <string name="cd_changelog">மாற்றப் பதிவு</string>
     <string name="cd_clear">அழி</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">மெனு</string>
@@ -97,7 +96,6 @@
     <string name="done">முடிந்தது</string>
     <string name="enable_bypass_charge">பைபாஸ் சார்ஜிங்கை இயக்கு</string>
     <string name="enable_bypass_charge_desc">செயல்திறன் சுயவிவரத்தின் கீழ் பைபாஸ் சார்ஜிங்கை இயக்கு</string>
-    <string name="err_failed_load_changelog">மாற்றப் பதிவை ஏற்றுவதில் தோல்வி</string>
     <string name="err_invalid_backup">காப்பு கோப்பு தவறானது அல்லது சேதமடைந்தது (.zx)</string>
     <string name="fingerprint">கைரேகை</string>
     <string name="fpsgo_ged">FPSGO மற்றும் GED அளவுருக்கள்</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">கட்டமைப்பு தேதி</string>
     <string name="str_by_using_per_app_refresh_rate">இந்த பயன்பாட்டு புதுப்பிப்பு வீதத்தை இயக்கிய பிறகு, திரை புதுப்பிப்பு வீதம் முற்றிலும் Max Manager ஆல் நிர்வகிக்கப்படும்</string>
-    <string name="str_changelog">மாற்றப் பதிவு</string>
     <string name="str_channel">சேனல்</string>
     <string name="str_check_environment">இயக்க சூழலைச் சரிபார்க்கவும்</string>
     <string name="str_checking_current">சாதனத்தின் தற்போதைய சார்ஜிங் நிலை சரிபார்க்கப்படுகிறது... தயவுசெய்து காத்திருங்கள்</string>

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Huidige toestel ondersteun nie hierdie funksie nie</string>
     <string name="cd_app_icon">Program ikoon</string>
     <string name="cd_back">Terug</string>
-    <string name="cd_changelog">Veranderingslogboek</string>
     <string name="cd_clear">Vee uit</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Kieslys</string>
@@ -97,7 +96,6 @@
     <string name="done">Klaar</string>
     <string name="enable_bypass_charge">Aktiveer omleiding kragtoevoer</string>
     <string name="enable_bypass_charge_desc">Aktiveer omleiding kragtoevoer onder prestasieprofiel</string>
-    <string name="err_failed_load_changelog">Kon nie veranderingslogboek laai nie</string>
     <string name="err_invalid_backup">Rugsteun lêer is ongeldig of beskadig (.zx)</string>
     <string name="fingerprint">Vingerafdruk</string>
     <string name="fpsgo_ged">FPSGO en GED parameters</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Bou datum</string>
     <string name="str_by_using_per_app_refresh_rate">Na aktivering van hierdie program se verfrissingstempo, sal skermverfrissingtempo volledig deur Max Manager bestuur word</string>
-    <string name="str_changelog">Veranderingslogboek</string>
     <string name="str_channel">Kanaal</string>
     <string name="str_check_environment">Kontroleer loopomgewing</string>
     <string name="str_checking_current">Besig om toestel se huidige laaistatus te kontroleer... wag asseblief</string>

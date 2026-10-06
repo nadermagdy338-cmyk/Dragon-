@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Mevcut cihaz bu işlevi desteklemiyor</string>
     <string name="cd_app_icon">Uygulama simgesi</string>
     <string name="cd_back">Geri</string>
-    <string name="cd_changelog">Sürüm notları</string>
     <string name="cd_clear">Temizle</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menü</string>
@@ -97,7 +96,6 @@
     <string name="done">Tamamlandı</string>
     <string name="enable_bypass_charge">Baypas şarjı etkinleştir</string>
     <string name="enable_bypass_charge_desc">Performans profili altında baypas şarjı etkinleştir</string>
-    <string name="err_failed_load_changelog">Sürüm notları yüklenemedi</string>
     <string name="err_invalid_backup">Yedek dosyası geçersiz veya bozuk (.zx)</string>
     <string name="fingerprint">Parmak izi</string>
     <string name="fpsgo_ged">FPSGO ve GED parametreleri</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Derleme tarihi</string>
     <string name="str_by_using_per_app_refresh_rate">Bu uygulama yenileme hızını etkinleştirdikten sonra ekran yenileme hızı tamamen Max Manager tarafından yönetilecektir.</string>
-    <string name="str_changelog">Sürüm notları</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">Çalışma ortamını kontrol et</string>
     <string name="str_checking_current">Cihazın mevcut şarj durumu kontrol ediliyor… Lütfen bekleyin</string>

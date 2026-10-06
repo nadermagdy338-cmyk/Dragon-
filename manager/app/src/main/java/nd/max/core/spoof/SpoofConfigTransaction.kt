@@ -51,14 +51,24 @@ class SpoofConfigTransaction @Inject constructor(
         else -> error("unknown-engine")
     }
 
+    /**
+     * تهيئة المحرّك: **قياسٌ ثم حكمٌ مسمّى** ([SpoofEngineGate])، لا شرط مركّب يُخرج رمزًا واحدًا.
+     *
+     * والترتيب مقصود: المسار أوّلًا (رفض أيّ هدف غير مُدرَج قبل لمس الجذر)، ثم تهيئة المخزن،
+     * ثم الجذر، ثم هوية الوحدة، ثم علامات مدير الجذر. وكلّ سبب يخرج من هنا يُسمّى بحالته المقيسة
+     * — وتلك هي عطب التصدير الذي أُصلح: كان الرمز يقول «ENGINE_UNAVAILABLE» بينما `COPG` مثبَّتة.
+     *
+     * والعلامات تُسأل **بعد** مطابقة الهوية فقط، فلا تُدفع كلفة ثلاثة أسئلة عن وحدةٍ ليست هي.
+     */
     fun eligibility(engine: String, requestRoot: Boolean = true): SpoofEngineReason? {
         path(engine) // reject any non-allowlisted target before root access
         if (!SharedHardwareOwnershipStore.isConfigured()) return SpoofEngineReason.STORE_UNCONFIGURED
         if (!PrivilegeManager.cachedRootGranted() && (!requestRoot || !PrivilegeManager.requestRoot())) return SpoofEngineReason.ROOT_REQUIRED
         val dir = "/data/adb/modules/$engine"
-        if (RootFileAccess.read("$dir/module.prop")?.lineSequence()?.any { it.trim() == "id=$engine" } != true ||
-            listOf("disable", "remove", "update").any { RootFileAccess.exists("$dir/$it") }) return SpoofEngineReason.ENGINE_UNAVAILABLE
-        return null
+        SpoofEngineGate.identityReason(RootFileAccess.read("$dir/module.prop"), engine)?.let { return it }
+        return SpoofEngineGate.markerReason(
+            SpoofEngineGate.markers.filterTo(mutableSetOf()) { RootFileAccess.exists("$dir/$it") },
+        )
     }
 
     fun apply(engine: String, original: String, target: String): SpoofEngineWrite = transaction.apply(engine, original, target)

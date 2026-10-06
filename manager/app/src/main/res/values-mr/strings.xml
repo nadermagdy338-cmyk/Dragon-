@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">हा उपकरण हे कार्य समर्थन करत नाही</string>
     <string name="cd_app_icon">अ‍ॅप आयकॉन</string>
     <string name="cd_back">परत</string>
-    <string name="cd_changelog">बदल लॉग</string>
     <string name="cd_clear">साफ करा</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">मेनू</string>
@@ -97,7 +96,6 @@
     <string name="done">पूर्ण</string>
     <string name="enable_bypass_charge">बायपास पॉवर सक्षम करा</string>
     <string name="enable_bypass_charge_desc">कार्यक्षमता योजनेखाली बायपास पॉवर सक्षम करा</string>
-    <string name="err_failed_load_changelog">बदल लॉग लोड करण्यात अयशस्वी</string>
     <string name="err_invalid_backup">बॅकअप फाइल अवैध किंवा खराब आहे (.zx)</string>
     <string name="fingerprint">फिंगरप्रिंट</string>
     <string name="fpsgo_ged">FPSGO आणि GED पॅरामीटर्स</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">बिल्ड दिनांक</string>
     <string name="str_by_using_per_app_refresh_rate">हा अ‍ॅप रिफ्रेश रेट सक्षम केल्यानंतर, स्क्रीन रिफ्रेश रेट पूर्णपणे Max Manager द्वारे व्यवस्थापित केला जाईल</string>
-    <string name="str_changelog">बदल लॉग</string>
     <string name="str_channel">वाहिनी</string>
     <string name="str_check_environment">कार्यकारी वातावरण तपासा</string>
     <string name="str_checking_current">डिव्हाइसची सध्याची चार्ज स्थिती तपासली जात आहे… कृपया प्रतीक्षा करा</string>

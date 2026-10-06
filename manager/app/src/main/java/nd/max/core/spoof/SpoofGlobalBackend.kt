@@ -16,9 +16,10 @@ class SpoofGlobalBackend @Inject constructor(private val transaction: SpoofConfi
         if (!PrivilegeManager.cachedRootGranted()) return SpoofEngineConfig(path, null, null, emptyList())
         val text = RootFileAccess.read(path)
         val obj = text?.let { runCatching { Json.parseToJsonElement(it) as? JsonObject }.getOrNull() }
+        val reason = transaction.eligibility(SpoofGlobalContract.MODULE_ID, requestRoot = false)
         return SpoofEngineConfig(path, RootFileAccess.exists(path),
             if (text == null) null else obj?.get(SpoofGlobalContract.MODULE_ID) is JsonObject, emptyList(),
-            transaction.eligibility(SpoofGlobalContract.MODULE_ID, requestRoot = false) == null)
+            reason == null, reason)
     }
     fun prepare(workspace: SpoofWorkspace): SpoofEngineWrite {
         transaction.eligibility(SpoofGlobalContract.MODULE_ID)?.let { return SpoofEngineWrite(false, it) }

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">ឧបករណ៍នេះមិនគាំទ្រមុខងារនេះទេ</string>
     <string name="cd_app_icon">រូបតំណាងកម្មវិធី</string>
     <string name="cd_back">ត្រឡប់ក្រោយ</string>
-    <string name="cd_changelog">កំណត់ត្រាកំណែ</string>
     <string name="cd_clear">សម្អាត</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">ម៉ឺនុយ</string>
@@ -97,7 +96,6 @@
     <string name="done">រួចរាល់</string>
     <string name="enable_bypass_charge">បើកដំណើរការការផ្គត់ផ្គង់ថាមពលជំនួស (Bypass)</string>
     <string name="enable_bypass_charge_desc">នៅក្រោមគម្រោងអនុវត្តដំណើរការខ្ពស់ បើក Bypass Charging</string>
-    <string name="err_failed_load_changelog">ការផ្ទុកកំណត់ត្រាកំណែបរាជ័យ</string>
     <string name="err_invalid_backup">ឯកសារបម្រុងទុកមិនត្រឹមត្រូវ ឬខូច (.zx)</string>
     <string name="fingerprint">ស្នាមម្រាមដៃ</string>
     <string name="fpsgo_ged">ប៉ារ៉ាម៉ែត្រ FPSGO និង GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">កាលបរិច្ឆេទសាងសង់</string>
     <string name="str_by_using_per_app_refresh_rate">បន្ទាប់ពីបើកដំណើរការអត្រាធ្វើឱ្យស្រស់ក្នុងមួយកម្មវិធីនេះ អត្រាធ្វើឱ្យស្រស់អេក្រង់នឹងត្រូវបានគ្រប់គ្រងទាំងស្រុងដោយ Max Manager</string>
-    <string name="str_changelog">កំណត់ត្រាកំណែ</string>
     <string name="str_channel">ប៉ុស្តិ៍</string>
     <string name="str_check_environment">ពិនិត្យបរិស្ថានដំណើរការ</string>
     <string name="str_checking_current">កំពុងពិនិត្យស្ថានភាពសាកថ្មបច្ចុប្បន្នរបស់ឧបករណ៍… សូមរង់ចាំ</string>

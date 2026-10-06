@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Este dispositivo não suporta esta função</string>
     <string name="cd_app_icon">Ícone do aplicativo</string>
     <string name="cd_back">Voltar</string>
-    <string name="cd_changelog">Registro de alterações</string>
     <string name="cd_clear">Limpar</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Concluído</string>
     <string name="enable_bypass_charge">Ativar carregamento por bypass</string>
     <string name="enable_bypass_charge_desc">Ativar carregamento por bypass no perfil de desempenho</string>
-    <string name="err_failed_load_changelog">Falha ao carregar o registro de alterações</string>
     <string name="err_invalid_backup">Arquivo de backup inválido ou corrompido (.zx)</string>
     <string name="fingerprint">Impressão digital</string>
     <string name="fpsgo_ged">Parâmetros FPSGO e GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Data de compilação</string>
     <string name="str_by_using_per_app_refresh_rate">Ao ativar a taxa de atualização por aplicativo, a taxa de atualização da tela será totalmente gerenciada pelo Max Manager.</string>
-    <string name="str_changelog">Registro de alterações</string>
     <string name="str_channel">Canal</string>
     <string name="str_check_environment">Verificar ambiente de execução</string>
     <string name="str_checking_current">Verificando o estado atual de carregamento do dispositivo… Aguarde.</string>

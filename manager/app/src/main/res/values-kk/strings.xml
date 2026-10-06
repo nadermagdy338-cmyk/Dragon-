@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Ағымдағы құрылғы бұл функцияны қолдамайды</string>
     <string name="cd_app_icon">Қолданба белгішесі</string>
     <string name="cd_back">Артқа</string>
-    <string name="cd_changelog">Жаңарту журналы</string>
     <string name="cd_clear">Тазалау</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Мәзір</string>
@@ -97,7 +96,6 @@
     <string name="done">Дайын</string>
     <string name="enable_bypass_charge">Айналма қуаттандыруды қосу</string>
     <string name="enable_bypass_charge_desc">Өнімділік конфигурациясы бойынша айналма қуаттандыруды қосу</string>
-    <string name="err_failed_load_changelog">Жаңарту журналын жүктеу сәтсіз аяқталды</string>
     <string name="err_invalid_backup">Сақтық көшірме файлы жарамсыз немесе бүлінген (.zx)</string>
     <string name="fingerprint">Саусақ ізі</string>
     <string name="fpsgo_ged">FPSGO және GED параметрлері</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Құрастырылған күні</string>
     <string name="str_by_using_per_app_refresh_rate">Осы қолданбаның жаңарту жиілігін қосқаннан кейін экран жаңарту жиілігін толығымен Max Manager басқарады</string>
-    <string name="str_changelog">Жаңарту журналы</string>
     <string name="str_channel">Арна</string>
     <string name="str_check_environment">Орындау ортасын тексеру</string>
     <string name="str_checking_current">Құрылғының ағымдағы зарядтау күйі тексерілуде… Күте тұрыңыз</string>

@@ -3,9 +3,27 @@ package nd.max.core.spoof
 
 import java.util.UUID
 
+/**
+ * سبب رفض المحرّك — **وهو ما تعرضه الشاشة بنصّه ويُقرأ في التصدير بنصّه**، فالأسماء هنا واجهة
+ * لا تفصيلًا داخليًّا. ولذلك انقسمت `ENGINE_UNAVAILABLE` الواحدة إلى أربع (تصدير ٢٠٢٦-١٠-٠٦):
+ * كانت تقول «رفض المحرّك: ENGINE_UNAVAILABLE» عن أربع حالات علاجها مختلف — مجلّد وحدةٍ غائب،
+ * أو وحدةٌ معطَّلة في مدير الجذر، أو محذوفة تنتظر إقلاعًا، أو محدَّثة تنتظر إقلاعًا — و`COPG`
+ * كانت **مثبَّتة** في ذلك التصدير. فالمقيس الآن يُسمّى باسمه ([SpoofEngineGate])، ومن يقرأ
+ * الملفّ وحده يعرف أيّ إجراء يلزمه بلا سؤال. والاسم يبقى بعد إعادة التشغيل: يُحفظ في سجلّ
+ * الاسترداد نصًّا (`SpoofRecoveryRecord.reason`) ولا يُفكَّك إلى هذا الـenum، فإعادة التسمية
+ * لا تُفسد سجلًّا قديمًا.
+ */
 enum class SpoofEngineReason {
     OK, STORE_UNCONFIGURED, ROOT_REQUIRED, ENGINE_CONFIG_MISSING, ENGINE_CONFIG_UNREADABLE,
-    CONFIG_UNPARSEABLE, KEY_COLLISION, NOTHING_BOUND, ENGINE_UNAVAILABLE, FOREIGN_PACKAGE_CONFLICT,
+    /** لا مجلّد للوحدة، أو `module.prop` غائب/غير مقروء/بلا سطر `id=` يطابق معرّف المحرّك. */
+    ENGINE_MODULE_ABSENT,
+    /** الوحدة معطَّلة في مدير الجذر (علامة `disable`) — يُفعَّل هناك ثم يُعاد التجهيز. */
+    ENGINE_DISABLED,
+    /** الوحدة في طابور الحذف (علامة `remove`) — يُتمّ الإقلاع الحذف أو تُعاد الوحدة. */
+    ENGINE_REMOVAL_PENDING,
+    /** تحديثٌ للوحدة لم يُطبَّق (علامة `update`) — إقلاعٌ واحد يُتمّه ثم يُعاد التجهيز. */
+    ENGINE_UPDATE_PENDING,
+    CONFIG_UNPARSEABLE, KEY_COLLISION, NOTHING_BOUND, FOREIGN_PACKAGE_CONFLICT,
     UNSUPPORTED_POLICY, ARBITER_BLOCKED, ARBITER_UNAVAILABLE, WRITE_FAILED, NOT_VERIFIED,
     RECOVERY_STORE_FAILED, RECOVERY_REQUIRED, RECOVERY_MISSING, CONFIG_CHANGED, ACKNOWLEDGMENT_REQUIRED,
     GLOBAL_LAYER_CONFLICT, UNSUPPORTED_TAG,

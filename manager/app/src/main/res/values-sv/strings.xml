@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Enheten stöder inte denna funktion</string>
     <string name="cd_app_icon">Appikon</string>
     <string name="cd_back">Tillbaka</string>
-    <string name="cd_changelog">Ändringslogg</string>
     <string name="cd_clear">Rensa</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Meny</string>
@@ -97,7 +96,6 @@
     <string name="done">Klar</string>
     <string name="enable_bypass_charge">Aktivera bypass-strömförsörjning</string>
     <string name="enable_bypass_charge_desc">Aktivera bypass-strömförsörjning under prestandaprofil</string>
-    <string name="err_failed_load_changelog">Misslyckades med att ladda ändringslogg</string>
     <string name="err_invalid_backup">Säkerhetskopian är ogiltig eller skadad (.zx)</string>
     <string name="fingerprint">Fingeravtryck</string>
     <string name="fpsgo_ged">FPSGO och GED-parametrar</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Byggdatum</string>
     <string name="str_by_using_per_app_refresh_rate">När denna appuppdateringsfrekvens är aktiverad kommer skärmens uppdateringsfrekvens att hanteras helt av Max Manager</string>
-    <string name="str_changelog">Ändringslogg</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">Kontrollera körningsmiljö</string>
     <string name="str_checking_current">Kontrollerar enhetens laddningsstatus... Vänta</string>

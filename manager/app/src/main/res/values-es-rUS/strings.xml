@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">El dispositivo actual no admite esta función</string>
     <string name="cd_app_icon">Icono de la aplicación</string>
     <string name="cd_back">Volver</string>
-    <string name="cd_changelog">Registro de cambios</string>
     <string name="cd_clear">Limpiar</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menú</string>
@@ -97,7 +96,6 @@
     <string name="done">Hecho</string>
     <string name="enable_bypass_charge">Habilitar carga por bypass</string>
     <string name="enable_bypass_charge_desc">Habilita la carga por bypass en el perfil de rendimiento</string>
-    <string name="err_failed_load_changelog">Error al cargar el registro de cambios</string>
     <string name="err_invalid_backup">El archivo de copia de seguridad no es válido o está dañado (.zx)</string>
     <string name="fingerprint">Huella digital</string>
     <string name="fpsgo_ged">Parámetros FPSGO y GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Fecha de compilación</string>
     <string name="str_by_using_per_app_refresh_rate">Al habilitar la tasa de refresco de esta aplicación, la tasa de refresco de la pantalla será gestionada completamente por Max Manager</string>
-    <string name="str_changelog">Registro de cambios</string>
     <string name="str_channel">Canal</string>
     <string name="str_check_environment">Verificar entorno de ejecución</string>
     <string name="str_checking_current">Comprobando el estado de carga actual del dispositivo... Espere</string>

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Данное устройство не поддерживает эту функцию</string>
     <string name="cd_app_icon">Иконка приложения</string>
     <string name="cd_back">Назад</string>
-    <string name="cd_changelog">Список изменений</string>
     <string name="cd_clear">Очистить</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Меню</string>
@@ -97,7 +96,6 @@
     <string name="done">Готово</string>
     <string name="enable_bypass_charge">Включить байпасное питание</string>
     <string name="enable_bypass_charge_desc">Включить байпасное питание в профиле производительности</string>
-    <string name="err_failed_load_changelog">Не удалось загрузить список изменений</string>
     <string name="err_invalid_backup">Файл резервной копии недействителен или повреждён (.zx)</string>
     <string name="fingerprint">Отпечаток</string>
     <string name="fpsgo_ged">Параметры FPSGO и GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Дата сборки</string>
     <string name="str_by_using_per_app_refresh_rate">При включении этой частоты обновления для приложения, частота обновления экрана будет полностью управляться Max Manager</string>
-    <string name="str_changelog">Список изменений</string>
     <string name="str_channel">Канал</string>
     <string name="str_check_environment">Проверка окружения</string>
     <string name="str_checking_current">Проверка текущего состояния зарядки устройства… Подождите</string>

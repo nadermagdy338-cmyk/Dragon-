@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Denne enheten støtter ikke denne funksjonen</string>
     <string name="cd_app_icon">App-ikon</string>
     <string name="cd_back">Tilbake</string>
-    <string name="cd_changelog">Endringslogg</string>
     <string name="cd_clear">Tøm</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Meny</string>
@@ -97,7 +96,6 @@
     <string name="done">Fullført</string>
     <string name="enable_bypass_charge">Aktiver bypass-lading</string>
     <string name="enable_bypass_charge_desc">Aktiver bypass-lading under ytelsesprofil</string>
-    <string name="err_failed_load_changelog">Kunne ikke laste endringslogg</string>
     <string name="err_invalid_backup">Sikkerhetskopifil er ugyldig eller skadet (.zx)</string>
     <string name="fingerprint">Fingeravtrykk</string>
     <string name="fpsgo_ged">FPSGO og GED-parametere</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Byggedato</string>
     <string name="str_by_using_per_app_refresh_rate">Når du aktiverer oppdateringsfrekvens per app, styres skjermens oppdateringsfrekvens helt av Max Manager</string>
-    <string name="str_changelog">Endringslogg</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">Sjekk kjøremiljø</string>
     <string name="str_checking_current">Sjekker enhetens nåværende ladestatus… Vennligst vent</string>

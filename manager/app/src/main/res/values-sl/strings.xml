@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Naprava ne podpira te funkcije</string>
     <string name="cd_app_icon">Ikona aplikacije</string>
     <string name="cd_back">Nazaj</string>
-    <string name="cd_changelog">Dnevnik sprememb</string>
     <string name="cd_clear">Počisti</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Meni</string>
@@ -97,7 +96,6 @@
     <string name="done">Končano</string>
     <string name="enable_bypass_charge">Omogoči bypass polnjenje</string>
     <string name="enable_bypass_charge_desc">Omogoči bypass polnjenje v profilu zmogljivosti</string>
-    <string name="err_failed_load_changelog">Nalaganje dnevnika sprememb ni uspelo</string>
     <string name="err_invalid_backup">Varnostna kopija je neveljavna ali poškodovana (.zx)</string>
     <string name="fingerprint">Prstni odtis</string>
     <string name="fpsgo_ged">Parametri FPSGO in GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Datum izdelave</string>
     <string name="str_by_using_per_app_refresh_rate">Ko je omogočena hitrost osveževanja za to aplikacijo, bo Max Manager v celoti upravljal hitrost osveževanja zaslona</string>
-    <string name="str_changelog">Dnevnik sprememb</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">Preveri okolje</string>
     <string name="str_checking_current">Preverjanje trenutnega stanja polnjenja naprave… Prosimo, počakaj</string>

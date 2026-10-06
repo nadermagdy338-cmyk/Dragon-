@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Энэ төхөөрөмж дээр энэ функц дэмжигдэхгүй</string>
     <string name="cd_app_icon">Програмын дүрс</string>
     <string name="cd_back">Буцах</string>
-    <string name="cd_changelog">Өөрчлөлтийн бүртгэл</string>
     <string name="cd_clear">Цэвэрлэх</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Цэс</string>
@@ -97,7 +96,6 @@
     <string name="done">Дуусгах</string>
     <string name="enable_bypass_charge">Давхар цахилгаан хангамжийг идэвхжүүлэх</string>
     <string name="enable_bypass_charge_desc">Гүйцэтгэлийн тохиргооны дор давхар цахилгаан хангамжийг идэвхжүүлэх</string>
-    <string name="err_failed_load_changelog">Өөрчлөлтийн бүртгэлийг ачаалахад алдаа гарлаа</string>
     <string name="err_invalid_backup">Нөөц файл хүчингүй эсвэл гэмтсэн (.zx)</string>
     <string name="fingerprint">Хурууны хээ</string>
     <string name="fpsgo_ged">FPSGO болон GED параметрүүд</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Бүтээх огноо</string>
     <string name="str_by_using_per_app_refresh_rate">Энэ програмын сэргээх хурдыг идэвхжүүлснээр дэлгэцийн сэргээх хурдыг бүхэлд нь Max Manager удирдана</string>
-    <string name="str_changelog">Өөрчлөлтийн бүртгэл</string>
     <string name="str_channel">Суваг</string>
     <string name="str_check_environment">Ажиллагааны орчныг шалгах</string>
     <string name="str_checking_current">Төхөөрөмжийн одоогийн цэнэглэлтийн төлөвийг шалгаж байна… Түр хүлээнэ үү</string>

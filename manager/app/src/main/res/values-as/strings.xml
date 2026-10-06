@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">এই ডিভাইচত এই কাৰ্য্য সমৰ্থিত নহয়</string>
     <string name="cd_app_icon">এপ আইকন</string>
     <string name="cd_back">উভতি যাওক</string>
-    <string name="cd_changelog">পৰিৱৰ্তন লগ</string>
     <string name="cd_clear">পৰিষ্কাৰ কৰক</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">মেনু</string>
@@ -97,7 +96,6 @@
     <string name="done">সম্পন্ন</string>
     <string name="enable_bypass_charge">বাইপাছ চাৰ্জিং সক্ষম কৰক</string>
     <string name="enable_bypass_charge_desc">কাৰ্য্যদক্ষতা কনফিগাৰেশ্যনত বাইপাছ চাৰ্জিং সক্ষম কৰক</string>
-    <string name="err_failed_load_changelog">পৰিৱৰ্তন লগ ল\'ড কৰাত বিফল</string>
     <string name="err_invalid_backup">বেকআপ ফাইল অবৈধ বা ক্ষতিগ্ৰস্ত (.zx)</string>
     <string name="fingerprint">ফিংগাৰপ্ৰিণ্ট</string>
     <string name="fpsgo_ged">FPSGO আৰু GED পেৰামিটাৰ</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">নিৰ্মাণ তাৰিখ</string>
     <string name="str_by_using_per_app_refresh_rate">এই এপ ৰিফ্ৰেশ্ব ৰেট সক্ষম কৰিলে, স্ক্ৰীন ৰিফ্ৰেশ্ব ৰেট সম্পূৰ্ণৰূপে Max Manager দ্বাৰা পৰিচালিত হ\'ব</string>
-    <string name="str_changelog">পৰিৱৰ্তন লগ</string>
     <string name="str_channel">চেনেল</string>
     <string name="str_check_environment">চলন পৰিৱেশ পৰীক্ষা কৰক</string>
     <string name="str_checking_current">ডিভাইচৰ বৰ্তমান চাৰ্জিং অৱস্থা পৰীক্ষা কৰি আছে… অনুগ্ৰহ কৰি অপেক্ষা কৰক</string>

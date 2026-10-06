@@ -67,7 +67,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.topjohnwu.superuser.Shell
-import dev.jeziellago.compose.markdowntext.MarkdownText
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -149,20 +148,11 @@ fun SettingsScreen(
         withContext(Dispatchers.IO) { PrivilegeManager.refresh() }
     }
 
-    var showChangelogSheet by remember { mutableStateOf(false) }
+    // **سجلّ التغييرات أُزيل من الإعدادات (أمر المالك، ٢٠٢٦-١٠-٠٦).** كان زرًّا في البار العلوي
+    // وورقةً تُحمَّل من `assets/changelog.md`. حُذف الاثنان معًا لا الزرّ وحده: ورقةٌ بلا فاتح كودٌ
+    // لا يصل إليه أحد، وكان حذفُ الزرّ وحده يُبقي قراءةَ ملفٍّ كاملة في كل فتحة شاشة بلا قارئ.
     var showScreenHelp by remember { mutableStateOf(false) }
     var showLanguageSheet by remember { mutableStateOf(false) }
-    var changelogText by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.withContext(Dispatchers.IO) {
-            try {
-                changelogText = context.assets.open("changelog.md").bufferedReader().use { it.readText() }
-            } catch (e: Exception) {
-                changelogText = resources.getString(R.string.err_failed_load_changelog) + "\n${e.message}"
-            }
-        }
-    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -261,7 +251,6 @@ fun SettingsScreen(
             topBar = {
                 SettingsScreenTopAppBar(
                     scrollBehavior = scrollBehavior,
-                    onChangelogClick = { showChangelogSheet = true },
                     onHelpClick = { showScreenHelp = true }
                 )
             },
@@ -710,53 +699,6 @@ fun SettingsScreen(
                 }
             }
         }
-        RootAppDialog {
-            CustomBottomSheet(
-                visible = showChangelogSheet,
-                onDismiss = { showChangelogSheet = false }
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.85f)
-                ) {
-                    Text(
-                        text = stringResource(R.string.str_changelog),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 16.dp)
-                    )
-
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 24.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 24.dp)
-                    ) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        MarkdownText(
-                            markdown = changelogText,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(
-                            modifier = Modifier.height(
-                                WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 64.dp
-                            )
-                        )
-                    }
-                }
-            }
-        }
 
     }
 
@@ -776,10 +718,13 @@ fun SettingsSectionTitle(text: String) {
     MaxManagerSectionTitle(text = text, accent = MaterialTheme.colorScheme.primary)
 }
 
+/**
+ * بار الإعدادات العلوي. **وفعلٌ واحد فيه: المساعدة** — و«سجلّ التغييرات» حُذف منه بأمر المالك
+ * (٢٠٢٦-١٠-٠٦)، ومعه ورقتُه في [SettingsScreen]: زرٌّ يُفتح إلى شيء لا يُقرأ أثقلُ من غيابه.
+ */
 @Composable
 fun SettingsScreenTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
-    onChangelogClick: () -> Unit,
     onHelpClick: () -> Unit
 ) {
     val accentIconAlpha by animateFloatAsState(
@@ -815,12 +760,6 @@ fun SettingsScreenTopAppBar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
                         contentDescription = stringResource(R.string.cd_screen_help)
-                    )
-                }
-                IconButton(onClick = onChangelogClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.TextSnippet,
-                        contentDescription = stringResource(R.string.cd_changelog)
                     )
                 }
             },

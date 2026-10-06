@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">આ ઉપકરણ આ સુવિધાને સપોર્ટ કરતું નથી</string>
     <string name="cd_app_icon">એપ આઇકોન</string>
     <string name="cd_back">પાછા</string>
-    <string name="cd_changelog">ચેન્જલોગ</string>
     <string name="cd_clear">સાફ કરો</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">મેનુ</string>
@@ -97,7 +96,6 @@
     <string name="done">પૂર્ણ</string>
     <string name="enable_bypass_charge">બાયપાસ પાવર સક્ષમ કરો</string>
     <string name="enable_bypass_charge_desc">પ્રદર્શન રૂપરેખાંકન યોજના હેઠળ બાયપાસ પાવર સક્ષમ કરો</string>
-    <string name="err_failed_load_changelog">ચેન્જલોગ લોડ કરવામાં નિષ્ફળ</string>
     <string name="err_invalid_backup">બેકઅપ ફાઇલ અમાન્ય અથવા ક્ષતિગ્રસ્ત છે (.zx)</string>
     <string name="fingerprint">ફિંગરપ્રિન્ટ</string>
     <string name="fpsgo_ged">FPSGO અને GED પરિમાણો</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">બિલ્ડ તારીખ</string>
     <string name="str_by_using_per_app_refresh_rate">આ એપ રિફ્રેશ રેટ સક્ષમ કર્યા પછી, સ્ક્રીન રિફ્રેશ રેટ સંપૂર્ણપણે Max Manager દ્વારા સંચાલિત થશે</string>
-    <string name="str_changelog">ચેન્જલોગ</string>
     <string name="str_channel">ચેનલ</string>
     <string name="str_check_environment">રન ટાઇમ વાતાવરણ તપાસો</string>
     <string name="str_checking_current">ઉપકરણની વર્તમાન ચાર્જ સ્થિતિ તપાસી રહ્યા છીએ… કૃપા કરીને રાહ જુઓ</string>

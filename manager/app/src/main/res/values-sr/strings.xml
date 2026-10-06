@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Ovaj uređaj ne podržava ovu funkciju</string>
     <string name="cd_app_icon">Ikona aplikacije</string>
     <string name="cd_back">Nazad</string>
-    <string name="cd_changelog">Dnevnik promena</string>
     <string name="cd_clear">Obriši</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Meni</string>
@@ -97,7 +96,6 @@
     <string name="done">Gotovo</string>
     <string name="enable_bypass_charge">Omogući bypass punjenje</string>
     <string name="enable_bypass_charge_desc">Omogućava bypass punjenje u režimu performansi</string>
-    <string name="err_failed_load_changelog">Učitavanje dnevnika promena nije uspelo</string>
     <string name="err_invalid_backup">Datoteka rezervne kopije je nevažeća ili oštećena (.zx)</string>
     <string name="fingerprint">Otisak prsta (Fingerprint)</string>
     <string name="fpsgo_ged">FPSGO i GED parametri</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Datum izgradnje</string>
     <string name="str_by_using_per_app_refresh_rate">Kada omogućite brzinu osvežavanja po aplikaciji, brzinu osvežavanja ekrana će u potpunosti upravljati Max Manager.</string>
-    <string name="str_changelog">Dnevnik promena</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">Proveri okruženje</string>
     <string name="str_checking_current">Proveravam trenutni status punjenja uređaja… Molimo sačekajte</string>

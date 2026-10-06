@@ -15,6 +15,10 @@
     <string name="spoof_ui_apply_confirm_text">يُجهَّز هذا التطبيق وحده؛ لا تُمسّ التطبيقات الأخرى. أعد تشغيل التطبيق المستهدف بعدها لا النظام. أي تعديل لاحق يلغي هذا التأكيد.</string>
     <string name="spoof_ui_apply_confirm">تطبيق</string>
     <string name="spoof_ui_apply_reason">رفض المحرّك: %1$s</string>
+    <string name="spoof_engine_absent">وحدة المحرّك غير مقروءة. تأكّد من وجود وحدة يقول module.prop فيها id=COPG، ثم ثبّتها أو أعد تثبيتها وأعد فتح هذه الشاشة.</string>
+    <string name="spoof_engine_disabled">وحدة COPG معطَّلة في مدير الجذر. فعّلها من هناك وأعد الإقلاع ثم جهّز مرة أخرى.</string>
+    <string name="spoof_engine_removal_pending">COPG في طابور الحذف وسيزول بعد الإقلاع القادم. أعد تثبيتها قبل التجهيز.</string>
+    <string name="spoof_engine_update_pending">تحديث COPG ينتظر إقلاعًا. أعد الإقلاع أولًا ثم جهّز مرة أخرى.</string>
     <string name="spoof_ui_apply_pending">تغيّر بعد آخر تجهيز — جهّزه مرة أخرى ليصير واقعًا.</string>
     <string name="spoof_ui_restore_title">استعمال جهازك الحقيقي</string>
     <string name="spoof_ui_restore_action">أزل التزييف عن هذا التطبيق</string>

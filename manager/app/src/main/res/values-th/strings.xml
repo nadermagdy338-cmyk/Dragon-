@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">อุปกรณ์นี้ไม่รองรับฟังก์ชันนี้</string>
     <string name="cd_app_icon">ไอคอนแอป</string>
     <string name="cd_back">ย้อนกลับ</string>
-    <string name="cd_changelog">บันทึกการเปลี่ยนแปลง</string>
     <string name="cd_clear">ล้าง</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">เมนู</string>
@@ -97,7 +96,6 @@
     <string name="done">เสร็จสิ้น</string>
     <string name="enable_bypass_charge">เปิดใช้งานบายพาสการจ่ายไฟ</string>
     <string name="enable_bypass_charge_desc">เปิดบายพาสการจ่ายไฟภายใต้โปรไฟล์ประสิทธิภาพ</string>
-    <string name="err_failed_load_changelog">โหลดบันทึกการเปลี่ยนแปลงล้มเหลว</string>
     <string name="err_invalid_backup">ไฟล์สำรองไม่ถูกต้องหรือเสียหาย (.zx)</string>
     <string name="fingerprint">ลายนิ้วมือ</string>
     <string name="fpsgo_ged">พารามิเตอร์ FPSGO และ GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">วันที่สร้าง</string>
     <string name="str_by_using_per_app_refresh_rate">เมื่อเปิดใช้อัตรารีเฟรชเฉพาะแอปนี้ อัตรารีเฟรชหน้าจอจะถูกจัดการโดย Max Manager ทั้งหมด</string>
-    <string name="str_changelog">บันทึกการเปลี่ยนแปลง</string>
     <string name="str_channel">ช่อง</string>
     <string name="str_check_environment">ตรวจสอบสภาพแวดล้อม</string>
     <string name="str_checking_current">กำลังตรวจสอบสถานะการชาร์จปัจจุบันของอุปกรณ์… โปรดรอ</string>

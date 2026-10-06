@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Denne enhed understøtter ikke denne funktion</string>
     <string name="cd_app_icon">App-ikon</string>
     <string name="cd_back">Tilbage</string>
-    <string name="cd_changelog">Ændringslog</string>
     <string name="cd_clear">Ryd</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Færdig</string>
     <string name="enable_bypass_charge">Aktiver bypass-strøm</string>
     <string name="enable_bypass_charge_desc">Aktiver bypass-strøm under præstationsprofil</string>
-    <string name="err_failed_load_changelog">Kunne ikke indlæse ændringslog</string>
     <string name="err_invalid_backup">Sikkerhedskopifilen er ugyldig eller beskadiget (.zx)</string>
     <string name="fingerprint">Fingeraftryk</string>
     <string name="fpsgo_ged">FPSGO- og GED-parametre</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Byggedato</string>
     <string name="str_by_using_per_app_refresh_rate">Når denne app-opdateringshastighed aktiveres, styres skærmens opdateringshastighed udelukkende af Max Manager</string>
-    <string name="str_changelog">Ændringslog</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">Tjek kørselsmiljø</string>
     <string name="str_checking_current">Kontrollerer enhedens aktuelle opladningsstatus… Vent venligst</string>

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">ອຸປະກອນນີ້ບໍ່ຮອງຮັບຟັງຊັນນີ້</string>
     <string name="cd_app_icon">ໄອຄອນແອັບ</string>
     <string name="cd_back">ກັບຄືນ</string>
-    <string name="cd_changelog">ບັນທຶກການອັບເດດ</string>
     <string name="cd_clear">ລຶບ</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">ເມນູ</string>
@@ -97,7 +96,6 @@
     <string name="done">ສຳເລັດ</string>
     <string name="enable_bypass_charge">ເປີດໃຊ້ງານ By-pass charging</string>
     <string name="enable_bypass_charge_desc">ເປີດໃຊ້ງານ By-pass charging ພາຍໃຕ້ໂປຣໄຟລ໌ປະສິດທິພາບ</string>
-    <string name="err_failed_load_changelog">ໂຫຼດບັນທຶກການອັບເດດລົ້ມເຫຼວ</string>
     <string name="err_invalid_backup">ໄຟລ໌ສຳຮອງບໍ່ຖືກຕ້ອງ ຫຼື ເສຍຫາຍ (.zx)</string>
     <string name="fingerprint">ລາຍນິ້ວມື</string>
     <string name="fpsgo_ged">ຕົວກຳນົດ FPSGO ແລະ GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">ວັນທີສ້າງ</string>
     <string name="str_by_using_per_app_refresh_rate">ເມື່ອເປີດໃຊ້ອັດຕາການຣີເຟຣຊສະເພາະແອັບ, ອັດຕາການຣີເຟຣຊໜ້າຈໍຈະຖືກຈັດການໂດຍ Max Manager ຢ່າງສົມບູນ</string>
-    <string name="str_changelog">ບັນທຶກການອັບເດດ</string>
     <string name="str_channel">ຊ່ອງ</string>
     <string name="str_check_environment">ກວດສອບສະພາບແວດລ້ອມການເຮັດວຽກ</string>
     <string name="str_checking_current">ກຳລັງກວດສອບສະຖານະການສາກໄຟປັດຈຸບັນຂອງອຸປະກອນ... ກະລຸນາລໍຖ້າ</string>

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Тековниот уред не ја поддржува оваа функција</string>
     <string name="cd_app_icon">Икона на апликацијата</string>
     <string name="cd_back">Назад</string>
-    <string name="cd_changelog">Дневник на промени</string>
     <string name="cd_clear">Исчисти</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Мени</string>
@@ -97,7 +96,6 @@
     <string name="done">Завршено</string>
     <string name="enable_bypass_charge">Овозможи бајпас напојување</string>
     <string name="enable_bypass_charge_desc">Овозможете бајпас напојување под перформанс профилот</string>
-    <string name="err_failed_load_changelog">Неуспешно вчитување на дневникот на промени</string>
     <string name="err_invalid_backup">Резервната датотека е неважечка или оштетена (.zx)</string>
     <string name="fingerprint">Отисок на прст</string>
     <string name="fpsgo_ged">FPSGO и GED параметри</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Датум на изградба</string>
     <string name="str_by_using_per_app_refresh_rate">Со овозможување на оваа стапка на освежување по апликација, стапката на освежување на екранот целосно ќе се управува од Max Manager</string>
-    <string name="str_changelog">Дневник на промени</string>
     <string name="str_channel">Канал</string>
     <string name="str_check_environment">Проверете ја околината</string>
     <string name="str_checking_current">Се проверува тековната состојба на полнење на уредот… Ве молиме почекајте</string>

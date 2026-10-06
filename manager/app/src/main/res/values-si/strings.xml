@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">වත්මන් උපාංගය මෙම විශේෂාංගය සහාය නොදක්වයි</string>
     <string name="cd_app_icon">යෙදුම් අයිකනය</string>
     <string name="cd_back">ආපසු</string>
-    <string name="cd_changelog">වෙනස්කම් ලොගය</string>
     <string name="cd_clear">මකන්න</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">මෙනුව</string>
@@ -97,7 +96,6 @@
     <string name="done">අවසන්</string>
     <string name="enable_bypass_charge">බයිපාස් බල සැපයුම සක්‍රිය කරන්න</string>
     <string name="enable_bypass_charge_desc">කාර්ය සාධන වින්‍යාසය යටතේ බයිපාස් බල සැපයුම සක්‍රිය කරන්න</string>
-    <string name="err_failed_load_changelog">වෙනස්කම් ලොගය පැටවීම අසමත් විය</string>
     <string name="err_invalid_backup">උපස්ථ ගොනුව වලංගු නැත හෝ හානි වී ඇත (.zx)</string>
     <string name="fingerprint">ඇඟිලි සලකුණ</string>
     <string name="fpsgo_ged">FPSGO සහ GED පරාමිතීන්</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">ගොඩනැගීමේ දිනය</string>
     <string name="str_by_using_per_app_refresh_rate">මෙම යෙදුම සඳහා නැවුම් කිරීමේ අනුපාතය සක්‍රිය කළ විට, තිර නැවුම් කිරීමේ අනුපාතය සම්පූර්ණයෙන්ම Max Manager විසින් කළමනාකරණය කරනු ඇත</string>
-    <string name="str_changelog">වෙනස්කම් ලොගය</string>
     <string name="str_channel">නාලිකාව</string>
     <string name="str_check_environment">ධාවන පරිසරය පරීක්ෂා කරන්න</string>
     <string name="str_checking_current">උපාංගයේ වත්මන් ආරෝපණ තත්වය පරීක්ෂා කරමින්... කරුණාකර බලා සිටින්න</string>

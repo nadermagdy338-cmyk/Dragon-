@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">מכשיר זה אינו תומך בתכונה זו</string>
     <string name="cd_app_icon">סמל אפליקציה</string>
     <string name="cd_back">חזרה</string>
-    <string name="cd_changelog">יומן שינויים</string>
     <string name="cd_clear">נקה</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">תפריט</string>
@@ -97,7 +96,6 @@
     <string name="done">סיום</string>
     <string name="enable_bypass_charge">הפעל טעינת מעקף</string>
     <string name="enable_bypass_charge_desc">הפעלת טעינת מעקף תחת תצורת ביצועים</string>
-    <string name="err_failed_load_changelog">טעינת יומן השינויים נכשלה</string>
     <string name="err_invalid_backup">קובץ גיבוי לא חוקי או פגום (.zx)</string>
     <string name="fingerprint">טביעת אצבע</string>
     <string name="fpsgo_ged">פרמטרי FPSGO ו-GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">תאריך בנייה</string>
     <string name="str_by_using_per_app_refresh_rate">בהפעלת קצב רענון לפי אפליקציה, קצב רענון המסך ינוהל כולו על ידי Max Manager</string>
-    <string name="str_changelog">יומן שינויים</string>
     <string name="str_channel">ערוץ</string>
     <string name="str_check_environment">בדוק סביבת הרצה</string>
     <string name="str_checking_current">בודק מצב טעינה נוכחי של המכשיר… אנא המתן</string>

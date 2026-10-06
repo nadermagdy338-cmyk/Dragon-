@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">მიმდინარე მოწყობილობა არ უჭერს მხარს ამ ფუნქციას</string>
     <string name="cd_app_icon">აპლიკაციის ხატულა</string>
     <string name="cd_back">უკან</string>
-    <string name="cd_changelog">ცვლილებების ჟურნალი</string>
     <string name="cd_clear">გასუფთავება</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">მენიუ</string>
@@ -97,7 +96,6 @@
     <string name="done">დასრულება</string>
     <string name="enable_bypass_charge">შემოვლებითი კვების ჩართვა</string>
     <string name="enable_bypass_charge_desc">შემოვლებითი კვების ჩართვა შესრულების კონფიგურაციის ქვეშ</string>
-    <string name="err_failed_load_changelog">ცვლილებების ჟურნალის ჩატვირთვა ვერ მოხერხდა</string>
     <string name="err_invalid_backup">სარეზერვო ფაილი არასწორია ან დაზიანებულია (.zx)</string>
     <string name="fingerprint">თითის ანაბეჭდი</string>
     <string name="fpsgo_ged">FPSGO და GED პარამეტრები</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">აშენების თარიღი</string>
     <string name="str_by_using_per_app_refresh_rate">ამ აპლიკაციის განახლების სიხშირის ჩართვის შემდეგ, ეკრანის განახლების სიხშირე მთლიანად Max Manager-ის მიერ იმართება</string>
-    <string name="str_changelog">ცვლილებების ჟურნალი</string>
     <string name="str_channel">არხი</string>
     <string name="str_check_environment">სამუშაო გარემოს შემოწმება</string>
     <string name="str_checking_current">მოწყობილობის მიმდინარე დატენვის მდგომარეობის შემოწმება... გთხოვთ მოიცადოთ</string>

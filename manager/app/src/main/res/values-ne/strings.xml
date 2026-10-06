@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">हालको यन्त्रले यो सुविधा समर्थन गर्दैन</string>
     <string name="cd_app_icon">एप आइकन</string>
     <string name="cd_back">फर्कनुहोस्</string>
-    <string name="cd_changelog">परिवर्तन लग</string>
     <string name="cd_clear">सफा गर्नुहोस्</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">मेनु</string>
@@ -97,7 +96,6 @@
     <string name="done">सम्पन्न</string>
     <string name="enable_bypass_charge">बाइपास पावर सप्लाई सक्षम गर्नुहोस्</string>
     <string name="enable_bypass_charge_desc">प्रदर्शन कन्फिगरेसन योजना अन्तर्गत बाइपास पावर सप्लाई सक्षम गर्नुहोस्</string>
-    <string name="err_failed_load_changelog">परिवर्तन लग लोड गर्न असफल</string>
     <string name="err_invalid_backup">ब्याकअप फाइल अमान्य वा बिग्रिएको छ (.zx)</string>
     <string name="fingerprint">फिंगरप्रिन्ट</string>
     <string name="fpsgo_ged">FPSGO र GED प्यारामिटरहरू</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">निर्माण मिति</string>
     <string name="str_by_using_per_app_refresh_rate">यस एपको ताजा दर सक्षम गरेपछि, स्क्रिन ताजा दर पूर्ण रूपमा Max Manager द्वारा व्यवस्थित हुनेछ</string>
-    <string name="str_changelog">परिवर्तन लग</string>
     <string name="str_channel">च्यानल</string>
     <string name="str_check_environment">सञ्चालन वातावरण जाँच गर्नुहोस्</string>
     <string name="str_checking_current">यन्त्रको हालको चार्ज स्थिति जाँच गर्दै… कृपया प्रतीक्षा गर्नुहोस्</string>

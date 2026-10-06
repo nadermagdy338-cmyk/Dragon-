@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Diese Funktion wird vom aktuellen Gerät nicht unterstützt</string>
     <string name="cd_app_icon">App-Symbol</string>
     <string name="cd_back">Zurück</string>
-    <string name="cd_changelog">Änderungsprotokoll</string>
     <string name="cd_clear">Löschen</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menü</string>
@@ -97,7 +96,6 @@
     <string name="done">Fertig</string>
     <string name="enable_bypass_charge">Bypass-Laden aktivieren</string>
     <string name="enable_bypass_charge_desc">Bypass-Laden im Performance-Profil aktivieren</string>
-    <string name="err_failed_load_changelog">Laden des Änderungsprotokolls fehlgeschlagen</string>
     <string name="err_invalid_backup">Sicherungsdatei ungültig oder beschädigt (.zx)</string>
     <string name="fingerprint">Fingerabdruck</string>
     <string name="fpsgo_ged">FPSGO und GED-Parameter</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Build-Datum</string>
     <string name="str_by_using_per_app_refresh_rate">Wenn eine individuelle Bildwiederholfrequenz für diese App aktiviert ist, wird die Bildwiederholfrequenz vollständig von Max Manager verwaltet</string>
-    <string name="str_changelog">Änderungsprotokoll</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">Laufzeitumgebung prüfen</string>
     <string name="str_checking_current">Aktuellen Ladezustand prüfen… Bitte warten</string>

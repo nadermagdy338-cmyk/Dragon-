@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Այս սարքը չի աջակցում այս գործառույթը</string>
     <string name="cd_app_icon">Հավելվածի պատկերակ</string>
     <string name="cd_back">Վերադառնալ</string>
-    <string name="cd_changelog">Փոփոխությունների մատյան</string>
     <string name="cd_clear">Մաքրել</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Մենյու</string>
@@ -97,7 +96,6 @@
     <string name="done">Ավարտված</string>
     <string name="enable_bypass_charge">Միացնել շրջանցող սնուցումը</string>
     <string name="enable_bypass_charge_desc">Կատարման պրոֆիլի տակ միացնել շրջանցող սնուցումը</string>
-    <string name="err_failed_load_changelog">Ձախողվեց փոփոխությունների մատյանի բեռնումը</string>
     <string name="err_invalid_backup">Պահուստային ֆայլն անվավեր է կամ վնասված (.zx)</string>
     <string name="fingerprint">Մատնահետք</string>
     <string name="fpsgo_ged">FPSGO և GED պարամետրեր</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Կառուցման ամսաթիվ</string>
     <string name="str_by_using_per_app_refresh_rate">Այս հավելվածի թարմացման հաճախականությունը միացնելուց հետո էկրանի թարմացման հաճախականությունը ամբողջությամբ կկառավարվի Max Manager-ի կողմից</string>
-    <string name="str_changelog">Փոփոխությունների մատյան</string>
     <string name="str_channel">Ալիք</string>
     <string name="str_check_environment">Ստուգել աշխատանքային միջավայրը</string>
     <string name="str_checking_current">Ստուգվում է սարքի ընթացիկ լիցքավորման կարգավիճակը… Խնդրում ենք սպասել</string>

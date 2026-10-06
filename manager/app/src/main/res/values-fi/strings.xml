@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Tämä laite ei tue tätä toimintoa</string>
     <string name="cd_app_icon">Sovelluskuvake</string>
     <string name="cd_back">Takaisin</string>
-    <string name="cd_changelog">Muutosloki</string>
     <string name="cd_clear">Tyhjennä</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Valikko</string>
@@ -97,7 +96,6 @@
     <string name="done">Valmis</string>
     <string name="enable_bypass_charge">Ota ohituslataus käyttöön</string>
     <string name="enable_bypass_charge_desc">Ota ohituslataus käyttöön suorituskykyprofiilissa</string>
-    <string name="err_failed_load_changelog">Muutoslokin lataus epäonnistui</string>
     <string name="err_invalid_backup">Varmuuskopiotiedosto on virheellinen tai vioittunut (.zx)</string>
     <string name="fingerprint">Sormenjälki</string>
     <string name="fpsgo_ged">FPSGO- ja GED-parametrit</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Koontipäivämäärä</string>
     <string name="str_by_using_per_app_refresh_rate">Kun tämän sovelluksen virkistystaajuus on käytössä, näytön virkistystaajuutta hallitsee Max Manager</string>
-    <string name="str_changelog">Muutosloki</string>
     <string name="str_channel">Kanava</string>
     <string name="str_check_environment">Tarkista suoritusympäristö</string>
     <string name="str_checking_current">Tarkistetaan laitteen nykyistä lataustilaa… Odota</string>

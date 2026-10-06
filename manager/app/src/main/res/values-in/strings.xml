@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Perangkat saat ini tidak mendukung fitur ini</string>
     <string name="cd_app_icon">Ikon aplikasi</string>
     <string name="cd_back">Kembali</string>
-    <string name="cd_changelog">Log perubahan</string>
     <string name="cd_clear">Hapus</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Selesai</string>
     <string name="enable_bypass_charge">Aktifkan bypass pengisian daya</string>
     <string name="enable_bypass_charge_desc">Aktifkan bypass pengisian daya di bawah profil performa</string>
-    <string name="err_failed_load_changelog">Gagal memuat log perubahan</string>
     <string name="err_invalid_backup">File cadangan tidak valid atau rusak (.zx)</string>
     <string name="fingerprint">Sidik jari</string>
     <string name="fpsgo_ged">Parameter FPSGO dan GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Tanggal pembuatan</string>
     <string name="str_by_using_per_app_refresh_rate">Setelah mengaktifkan refresh rate per aplikasi ini, refresh rate layar akan sepenuhnya dikelola oleh Max Manager</string>
-    <string name="str_changelog">Log perubahan</string>
     <string name="str_channel">Saluran</string>
     <string name="str_check_environment">Periksa lingkungan runtime</string>
     <string name="str_checking_current">Memeriksa status pengisian daya perangkat saat ini… Harap tunggu</string>

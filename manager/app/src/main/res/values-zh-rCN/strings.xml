@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">当前设备不支持此功能</string>
     <string name="cd_app_icon">应用图标</string>
     <string name="cd_back">返回</string>
-    <string name="cd_changelog">更新日志</string>
     <string name="cd_clear">清除</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">菜单</string>
@@ -97,7 +96,6 @@
     <string name="done">完成</string>
     <string name="enable_bypass_charge">启用旁路供电</string>
     <string name="enable_bypass_charge_desc">性能配置方案下启用旁路供电</string>
-    <string name="err_failed_load_changelog">加载更新日志失败</string>
     <string name="err_invalid_backup">备份文件无效或已损坏 (.zx)</string>
     <string name="fingerprint">指纹</string>
     <string name="fpsgo_ged">FPSGO 与 GED 参数</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">构建日期</string>
     <string name="str_by_using_per_app_refresh_rate">启用此应用刷新率后，屏幕刷新率将完全由 Max Manager 管理</string>
-    <string name="str_changelog">更新日志</string>
     <string name="str_channel">频道</string>
     <string name="str_check_environment">检查运行环境</string>
     <string name="str_checking_current">正在检测设备当前充电状态… 请稍候</string>

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">ਮੌਜੂਦਾ ਡਿਵਾਈਸ ਇਸ ਫੀਚਰ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦੀ</string>
     <string name="cd_app_icon">ਐਪ ਆਈਕਨ</string>
     <string name="cd_back">ਵਾਪਸ</string>
-    <string name="cd_changelog">ਬਦਲਾਅ ਲੌਗ</string>
     <string name="cd_clear">ਸਾਫ਼ ਕਰੋ</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">ਮੀਨੂ</string>
@@ -97,7 +96,6 @@
     <string name="done">ਮੁਕੰਮਲ</string>
     <string name="enable_bypass_charge">ਬਾਈਪਾਸ ਚਾਰਜਿੰਗ ਚਾਲੂ ਕਰੋ</string>
     <string name="enable_bypass_charge_desc">ਪਰਫਾਰਮੈਂਸ ਸੰਰਚਨਾ ਅਧੀਨ ਬਾਈਪਾਸ ਚਾਰਜਿੰਗ ਚਾਲੂ ਕਰੋ</string>
-    <string name="err_failed_load_changelog">ਬਦਲਾਅ ਲੌਗ ਲੋਡ ਕਰਨ ਵਿਚ ਅਸਫ਼ਲ</string>
     <string name="err_invalid_backup">ਬੈਕਅੱਪ ਫਾਇਲ ਅਵੈਧ ਜਾਂ ਖਰਾਬ (.zx)</string>
     <string name="fingerprint">ਫਿੰਗਰਪ੍ਰਿੰਟ</string>
     <string name="fpsgo_ged">FPSGO ਅਤੇ GED ਪੈਰਾਮੀਟਰ</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">ਉਸਾਰੀ ਮਿਤੀ</string>
     <string name="str_by_using_per_app_refresh_rate">ਇਹ ਐਪ ਰਿਫਰੈਸ਼ ਰੇਟ ਚਾਲੂ ਕਰਨ \'ਤੇ, ਸਕ੍ਰੀਨ ਰਿਫਰੈਸ਼ ਰੇਟ ਪੂਰੀ ਤਰ੍ਹਾਂ Max Manager ਦੁਆਰਾ ਪ੍ਰਬੰਧਿਤ ਹੋਵੇਗਾ</string>
-    <string name="str_changelog">ਬਦਲਾਅ ਲੌਗ</string>
     <string name="str_channel">ਚੈਨਲ</string>
     <string name="str_check_environment">ਰਨ-ਟਾਈਮ ਵਾਤਾਵਰਨ ਜਾਂਚ ਕਰੋ</string>
     <string name="str_checking_current">ਡਿਵਾਈਸ ਮੌਜੂਦਾ ਚਾਰਜ ਸਥਿਤੀ ਜਾਂਚ ਕੀਤੀ ਜਾ ਰਹੀ… ਕਿਰਪਾ ਕਰਕੇ ਉਡੀਕ ਕਰੋ</string>

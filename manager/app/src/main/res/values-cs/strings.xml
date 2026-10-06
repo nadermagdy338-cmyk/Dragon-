@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Toto zařízení tuto funkci nepodporuje</string>
     <string name="cd_app_icon">Ikona aplikace</string>
     <string name="cd_back">Zpět</string>
-    <string name="cd_changelog">Protokol změn</string>
     <string name="cd_clear">Vymazat</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Nabídka</string>
@@ -97,7 +96,6 @@
     <string name="done">Hotovo</string>
     <string name="enable_bypass_charge">Povolit bypass nabíjení</string>
     <string name="enable_bypass_charge_desc">Povolit bypass nabíjení v režimu výkonu</string>
-    <string name="err_failed_load_changelog">Načtení protokolu změn selhalo</string>
     <string name="err_invalid_backup">Zálohovací soubor je neplatný nebo poškozený (.zx)</string>
     <string name="fingerprint">Otisak</string>
     <string name="fpsgo_ged">FPSGO a parametry GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Datum sestavení</string>
     <string name="str_by_using_per_app_refresh_rate">Povolením obnovovací frekvence pro tuto aplikaci bude obrazovka plně spravována Max Manager.</string>
-    <string name="str_changelog">Protokol změn</string>
     <string name="str_channel">Kanál</string>
     <string name="str_check_environment">Zkontrolovat provozní prostředí</string>
     <string name="str_checking_current">Probíhá kontrola aktuálního stavu nabíjení zařízení… Prosím čekejte.</string>

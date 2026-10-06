@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">این ویژگی در دستگاه فعلی پشتیبانی نمی‌شود</string>
     <string name="cd_app_icon">آیکون برنامه</string>
     <string name="cd_back">بازگشت</string>
-    <string name="cd_changelog">تاریخچه تغییرات</string>
     <string name="cd_clear">پاک کردن</string>
     <string name="cd_github">گیت‌هاب</string>
     <string name="cd_menu">منو</string>
@@ -97,7 +96,6 @@
     <string name="done">انجام شد</string>
     <string name="enable_bypass_charge">فعال کردن تغذیه بای‌پس</string>
     <string name="enable_bypass_charge_desc">فعال کردن تغذیه بای‌پس در پیکربندی عملکرد</string>
-    <string name="err_failed_load_changelog">بارگیری تاریخچه تغییرات ناموفق بود</string>
     <string name="err_invalid_backup">فایل پشتیبان نامعتبر یا خراب است (.zx)</string>
     <string name="fingerprint">اثر انگشت</string>
     <string name="fpsgo_ged">پارامترهای FPSGO و GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">تاریخ ساخت</string>
     <string name="str_by_using_per_app_refresh_rate">پس از فعال‌سازی نرخ تازه‌سازی برای این برنامه، نرخ تازه‌سازی صفحه نمایش کاملاً توسط Max Manager مدیریت خواهد شد</string>
-    <string name="str_changelog">تاریخچه تغییرات</string>
     <string name="str_channel">کانال</string>
     <string name="str_check_environment">بررسی محیط اجرا</string>
     <string name="str_checking_current">در حال بررسی وضعیت شارژ فعلی دستگاه... لطفاً صبر کنید</string>

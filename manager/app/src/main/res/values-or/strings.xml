@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">ଏହି ଡିଭାଇସ୍ ଏହି ଫଙ୍କସନ୍ ସମର୍ଥନ କରେ ନାହିଁ</string>
     <string name="cd_app_icon">ଆପ୍ ଆଇକନ୍</string>
     <string name="cd_back">ପଛକୁ</string>
-    <string name="cd_changelog">ପରିବର୍ତ୍ତନ ଲଗ୍</string>
     <string name="cd_clear">ସଫା କରନ୍ତୁ</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">ମେନୁ</string>
@@ -97,7 +96,6 @@
     <string name="done">ସମାପ୍ତ</string>
     <string name="enable_bypass_charge">ବାଇପାସ୍ ଚାର୍ଜିଂ ସକ୍ଷମ କରନ୍ତୁ</string>
     <string name="enable_bypass_charge_desc">କାର୍ଯ୍ୟଦକ୍ଷତା ବିନ୍ୟାସରେ ବାଇପାସ୍ ଚାର୍ଜିଂ ସକ୍ଷମ କରନ୍ତୁ</string>
-    <string name="err_failed_load_changelog">ପରିବର୍ତ୍ତନ ଲଗ୍ ଲୋଡ୍ କରିବାରେ ବିଫଳ</string>
     <string name="err_invalid_backup">ବ୍ୟାକଅପ୍ ଫାଇଲ୍ ଅବୈଧ କିମ୍ବା ଦୂଷିତ (.zx)</string>
     <string name="fingerprint">ଫିଙ୍ଗରପ୍ରିଣ୍ଟ</string>
     <string name="fpsgo_ged">FPSGO ଏବଂ GED ପାରାମିଟର</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">ନିର୍ମାଣ ତାରିଖ</string>
     <string name="str_by_using_per_app_refresh_rate">ଏହି ଆପ୍ ରିଫ୍ରେସ୍ ରେଟ୍ ସକ୍ଷମ କଲେ, ସ୍କ୍ରିନ୍ ରିଫ୍ରେସ୍ ରେଟ୍ ସମ୍ପୂର୍ଣ୍ଣ ଭାବେ Max Manager ଦ୍ୱାରା ପରିଚାଳିତ ହେବ</string>
-    <string name="str_changelog">ପରିବର୍ତ୍ତନ ଲଗ୍</string>
     <string name="str_channel">ଚ୍ୟାନେଲ୍</string>
     <string name="str_check_environment">ରନ୍ ପରିବେଶ ଯାଞ୍ଚ କରନ୍ତୁ</string>
     <string name="str_checking_current">ଡିଭାଇସର ବର୍ତ୍ତମାନର ଚାର୍ଜିଂ ସ୍ଥିତି ଯାଞ୍ଚ କରାଯାଉଛି… ଦୟାକରି ଅପେକ୍ଷା କରନ୍ତୁ</string>

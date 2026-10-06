@@ -36,7 +36,6 @@
     <string name="cd_app_icon">أيقونة التطبيق</string>
     <string name="cd_back">رجوع</string>
     <string name="cd_back_to_top">أعلى الصفحة</string>
-    <string name="cd_changelog">سجل التغييرات</string>
     <string name="cd_clear">مسح</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">قائمة</string>
@@ -126,7 +125,6 @@
     <string name="done">تم</string>
     <string name="enable_bypass_charge">تفعيل الشحن الجانبي</string>
     <string name="enable_bypass_charge_desc">تفعيل الشحن الجانبي في ملف تعريف الأداء</string>
-    <string name="err_failed_load_changelog">فشل تحميل سجل التغييرات</string>
     <string name="err_invalid_backup">ملف النسخة الاحتياطية غير صالح أو تالف (.zx)</string>
     <string name="fingerprint">البصمة</string>
     <string name="fpsgo_ged">معلمات FPSGO و GED</string>
@@ -356,7 +354,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">تاريخ البناء</string>
     <string name="str_by_using_per_app_refresh_rate">بعد تفعيل معدل التحديث لكل تطبيق، سيتم إدارة معدل تحديث الشاشة بالكامل بواسطة Max Manager</string>
-    <string name="str_changelog">سجل التغييرات</string>
     <string name="str_channel">القناة</string>
     <string name="str_check_environment">التحقق من بيئة التشغيل</string>
     <string name="str_checking_current">جاري فحص حالة شحن الجهاز الحالية… الرجاء الانتظار</string>

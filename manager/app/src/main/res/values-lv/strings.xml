@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Šī ierīce neatbalsta šo funkciju</string>
     <string name="cd_app_icon">Lietotnes ikona</string>
     <string name="cd_back">Atpakaļ</string>
-    <string name="cd_changelog">Izmaiņu žurnāls</string>
     <string name="cd_clear">Notīrīt</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Izvēlne</string>
@@ -97,7 +96,6 @@
     <string name="done">Gatavs</string>
     <string name="enable_bypass_charge">Iespējot apvada uzlādi</string>
     <string name="enable_bypass_charge_desc">Veiktspējas profilā iespējot apvada uzlādi</string>
-    <string name="err_failed_load_changelog">Neizdevās ielādēt izmaiņu žurnālu</string>
     <string name="err_invalid_backup">Dublējuma fails ir nederīgs vai bojāts (.zx)</string>
     <string name="fingerprint">Pirkstu nospiedums</string>
     <string name="fpsgo_ged">FPSGO un GED parametri</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Izstrādes datums</string>
     <string name="str_by_using_per_app_refresh_rate">Iespējojot šīs lietotnes atsvaidzes frekvenci, ekrāna atsvaidzes frekvenci pilnībā pārvaldīs Max Manager</string>
-    <string name="str_changelog">Izmaiņu žurnāls</string>
     <string name="str_channel">Kanāls</string>
     <string name="str_check_environment">Pārbaudīt darba vidi</string>
     <string name="str_checking_current">Notiek ierīces pašreizējā uzlādes stāvokļa pārbaude… Lūdzu, uzgaidiet</string>

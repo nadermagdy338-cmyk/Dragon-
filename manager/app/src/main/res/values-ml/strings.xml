@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">ഈ ഫീച്ചർ നിങ്ങളുടെ ഉപകരണത്തിൽ പിന്തുണയ്ക്കുന്നില്ല</string>
     <string name="cd_app_icon">ആപ്പ് ഐക്കൺ</string>
     <string name="cd_back">തിരികെ</string>
-    <string name="cd_changelog">മാറ്റ രേഖ</string>
     <string name="cd_clear">മായ്ക്കുക</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">മെനു</string>
@@ -97,7 +96,6 @@
     <string name="done">പൂർത്തിയായി</string>
     <string name="enable_bypass_charge">ബൈപാസ് ചാർജിംഗ് പ്രവർത്തനക്ഷമമാക്കുക</string>
     <string name="enable_bypass_charge_desc">പ്രകടന പ്രൊഫൈലിൽ ബൈപാസ് ചാർജിംഗ് പ്രവർത്തനക്ഷമമാക്കുക</string>
-    <string name="err_failed_load_changelog">മാറ്റ രേഖ ലോഡ് ചെയ്യുന്നതിൽ പരാജയം</string>
     <string name="err_invalid_backup">ബാക്കപ്പ് ഫയൽ അസാധുവാണ് അല്ലെങ്കിൽ കേടായിരിക്കുന്നു (.zx)</string>
     <string name="fingerprint">ഫിംഗർപ്രിന്റ്</string>
     <string name="fpsgo_ged">FPSGO, GED പാരാമീറ്ററുകൾ</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">ബിൽഡ് തീയതി</string>
     <string name="str_by_using_per_app_refresh_rate">ഈ ആപ്പിന്റെ റിഫ്രഷ് റേറ്റ് പ്രവർത്തനക്ഷമമാക്കിയാൽ, സ്ക്രീൻ റിഫ്രഷ് റേറ്റ് പൂർണ്ണമായും Max Manager നിയന്ത്രിക്കും</string>
-    <string name="str_changelog">മാറ്റ രേഖ</string>
     <string name="str_channel">ചാനൽ</string>
     <string name="str_check_environment">റൺ എൻവയോൺമെന്റ് പരിശോധിക്കുക</string>
     <string name="str_checking_current">ഉപകരണത്തിന്റെ നിലവിലെ ചാർജിംഗ് നില പരിശോധിക്കുന്നു… ദയവായി കാത്തിരിക്കുക</string>

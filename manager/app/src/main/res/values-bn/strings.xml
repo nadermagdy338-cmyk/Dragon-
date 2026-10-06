@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">বর্তমান ডিভাইস এই ফাংশন সমর্থন করে না</string>
     <string name="cd_app_icon">অ্যাপ আইকন</string>
     <string name="cd_back">পেছনে</string>
-    <string name="cd_changelog">পরিবর্তন লগ</string>
     <string name="cd_clear">মুছুন</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">মেনু</string>
@@ -97,7 +96,6 @@
     <string name="done">সম্পন্ন</string>
     <string name="enable_bypass_charge">বাইপাস চার্জিং সক্রিয় করুন</string>
     <string name="enable_bypass_charge_desc">পারফরম্যান্স কনফিগারেশন স্কিমে বাইপাস চার্জিং সক্রিয় করুন</string>
-    <string name="err_failed_load_changelog">পরিবর্তন লগ লোড করতে ব্যর্থ</string>
     <string name="err_invalid_backup">ব্যাকআপ ফাইল অবৈধ বা ক্ষতিগ্রস্ত (.zx)</string>
     <string name="fingerprint">ফিঙ্গারপ্রিন্ট</string>
     <string name="fpsgo_ged">FPSGO ও GED প্যারামিটার</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">নির্মাণ তারিখ</string>
     <string name="str_by_using_per_app_refresh_rate">এই অ্যাপ রিফ্রেশ রেট সক্রিয় করার পর, স্ক্রিন রিফ্রেশ রেট সম্পূর্ণরূপে Max Manager দ্বারা পরিচালিত হবে</string>
-    <string name="str_changelog">পরিবর্তন লগ</string>
     <string name="str_channel">চ্যানেল</string>
     <string name="str_check_environment">রানিং এনভায়রনমেন্ট পরীক্ষা করুন</string>
     <string name="str_checking_current">ডিভাইসের বর্তমান চার্জিং অবস্থা সনাক্ত করা হচ্ছে… অনুগ্রহ করে অপেক্ষা করুন</string>

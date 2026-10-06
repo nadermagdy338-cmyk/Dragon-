@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Mövcud cihaz bu funksiyanı dəstəkləmir</string>
     <string name="cd_app_icon">Tətbiq ikonu</string>
     <string name="cd_back">Geri</string>
-    <string name="cd_changelog">Dəyişiklik jurnalı</string>
     <string name="cd_clear">Təmizlə</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menyu</string>
@@ -97,7 +96,6 @@
     <string name="done">Tamam</string>
     <string name="enable_bypass_charge">Yan keçid enerji təchizatını aktivləşdir</string>
     <string name="enable_bypass_charge_desc">Performans profili altında yan keçid enerji təchizatını aktivləşdir</string>
-    <string name="err_failed_load_changelog">Dəyişiklik jurnalını yükləmək uğursuz oldu</string>
     <string name="err_invalid_backup">Ehtiyat nüsxə faylı etibarsız və ya zədələnmişdir (.zx)</string>
     <string name="fingerprint">Barmaq izi</string>
     <string name="fpsgo_ged">FPSGO və GED parametrləri</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Qurulum tarixi</string>
     <string name="str_by_using_per_app_refresh_rate">Bu tətbiq yeniləmə tezliyi aktiv edildikdə, ekran yeniləmə tezliyi tamamilə Max Manager tərəfindən idarə ediləcək</string>
-    <string name="str_changelog">Dəyişiklik jurnalı</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">İş mühitini yoxlayın</string>
     <string name="str_checking_current">Cihazın cari doldurma statusu yoxlanılır… Zəhmət olmasa gözləyin</string>

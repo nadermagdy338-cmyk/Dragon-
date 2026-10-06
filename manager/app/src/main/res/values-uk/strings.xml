@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Пристрій не підтримує цю функцію</string>
     <string name="cd_app_icon">Іконка застосунку</string>
     <string name="cd_back">Назад</string>
-    <string name="cd_changelog">Журнал змін</string>
     <string name="cd_clear">Очистити</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Меню</string>
@@ -97,7 +96,6 @@
     <string name="done">Готово</string>
     <string name="enable_bypass_charge">Увімкнути байпасне живлення</string>
     <string name="enable_bypass_charge_desc">Увімкнути байпасне живлення в схемі продуктивності</string>
-    <string name="err_failed_load_changelog">Помилка завантаження журналу змін</string>
     <string name="err_invalid_backup">Файл резервної копії недійсний або пошкоджений (.zx)</string>
     <string name="fingerprint">Відбиток</string>
     <string name="fpsgo_ged">Параметри FPSGO та GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Дата збірки</string>
     <string name="str_by_using_per_app_refresh_rate">Після ввімкнення цієї частоти оновлення для застосунку, частота екрана повністю керуватиметься Max Manager</string>
-    <string name="str_changelog">Журнал змін</string>
     <string name="str_channel">Канал</string>
     <string name="str_check_environment">Перевірити середовище</string>
     <string name="str_checking_current">Перевірка поточного стану заряджання пристрою… Зачекайте</string>

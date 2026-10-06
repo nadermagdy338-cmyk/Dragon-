@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Hindi sinusuportahan ng kasalukuyang device ang function na ito</string>
     <string name="cd_app_icon">Icon ng app</string>
     <string name="cd_back">Bumalik</string>
-    <string name="cd_changelog">Changelog</string>
     <string name="cd_clear">I-clear</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Tapos na</string>
     <string name="enable_bypass_charge">Paganahin ang bypass charging</string>
     <string name="enable_bypass_charge_desc">Paganahin ang bypass charging sa ilalim ng performance profile</string>
-    <string name="err_failed_load_changelog">Nabigo ang pag-load ng changelog</string>
     <string name="err_invalid_backup">Hindi valid o sira ang backup file (.zx)</string>
     <string name="fingerprint">Fingerprint</string>
     <string name="fpsgo_ged">FPSGO at GED parameter</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Petsa ng build</string>
     <string name="str_by_using_per_app_refresh_rate">Pagkatapos paganahin ang per-app refresh rate na ito, ang screen refresh rate ay ganap nang pamamahalaan ng Max Manager</string>
-    <string name="str_changelog">Changelog</string>
     <string name="str_channel">Channel</string>
     <string name="str_check_environment">Suriin ang running environment</string>
     <string name="str_checking_current">Sinusuri ang kasalukuyang charging status ng device… mangyaring maghintay</string>

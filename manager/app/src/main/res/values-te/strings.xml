@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">ప్రస్తుత పరికరం ఈ ఫంక్షన్‌కు మద్దతు ఇవ్వదు</string>
     <string name="cd_app_icon">యాప్ చిహ్నం</string>
     <string name="cd_back">తిరిగి వెళ్ళు</string>
-    <string name="cd_changelog">మార్పుల చరిత్ర</string>
     <string name="cd_clear">క్లియర్</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">మెనూ</string>
@@ -97,7 +96,6 @@
     <string name="done">పూర్తి</string>
     <string name="enable_bypass_charge">బైపాస్ ఛార్జింగ్ ప్రారంభించండి</string>
     <string name="enable_bypass_charge_desc">పనితీరు కాన్ఫిగరేషన్ కింద బైపాస్ ఛార్జింగ్ ప్రారంభించండి</string>
-    <string name="err_failed_load_changelog">మార్పుల చరిత్ర లోడ్ చేయడంలో విఫలమైంది</string>
     <string name="err_invalid_backup">బ్యాకప్ ఫైల్ చెల్లదు లేదా పాడైంది (.zx)</string>
     <string name="fingerprint">ఫింగర్‌ప్రింట్</string>
     <string name="fpsgo_ged">FPSGO మరియు GED పారామితులు</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">నిర్మాణ తేదీ</string>
     <string name="str_by_using_per_app_refresh_rate">ఈ యాప్ రిఫ్రెష్ రేట్ ప్రారంభించిన తర్వాత, స్క్రీన్ రిఫ్రెష్ రేట్ పూర్తిగా Max Manager ద్వారా నిర్వహించబడుతుంది</string>
-    <string name="str_changelog">మార్పుల చరిత్ర</string>
     <string name="str_channel">ఛానెల్</string>
     <string name="str_check_environment">రన్ టైమ్ ఎన్విరాన్‌మెంట్ తనిఖీ చేయండి</string>
     <string name="str_checking_current">పరికరం యొక్క ప్రస్తుత ఛార్జింగ్ స్థితిని గుర్తిస్తోంది… దయచేసి వేచి ఉండండి</string>

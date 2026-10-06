@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Þessi tæki styður ekki þessa virkni</string>
     <string name="cd_app_icon">Forritatákn</string>
     <string name="cd_back">Til baka</string>
-    <string name="cd_changelog">Breytingaskrá</string>
     <string name="cd_clear">Hreinsa</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Valmynd</string>
@@ -97,7 +96,6 @@
     <string name="done">Lokið</string>
     <string name="enable_bypass_charge">Virkja hliðarhleðslu</string>
     <string name="enable_bypass_charge_desc">Virkja hliðarhleðslu í frammistöðustillingu</string>
-    <string name="err_failed_load_changelog">Mistókst að hlaða breytingaskrá</string>
     <string name="err_invalid_backup">Öryggisafrit skrá ógild eða skemmd (.zx)</string>
     <string name="fingerprint">Fingrafar</string>
     <string name="fpsgo_ged">FPSGO og GED færibreytur</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Smíðadagsetning</string>
     <string name="str_by_using_per_app_refresh_rate">Þegar kveikt er á endurnýjunartíðni forrits, mun skjáendurnýjunartíðni verða alfarið stjórnað af Max Manager</string>
-    <string name="str_changelog">Breytingaskrá</string>
     <string name="str_channel">Rás</string>
     <string name="str_check_environment">Athuga keyrslumhverfi</string>
     <string name="str_checking_current">Athuga núverandi hleðslustöðu tækis… vinsamlegast bíðið</string>

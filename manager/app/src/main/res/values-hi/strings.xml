@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">यह उपकरण इस सुविधा का समर्थन नहीं करता</string>
     <string name="cd_app_icon">ऐप आइकन</string>
     <string name="cd_back">वापस</string>
-    <string name="cd_changelog">बदलाव लॉग</string>
     <string name="cd_clear">साफ़ करें</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">मेनू</string>
@@ -97,7 +96,6 @@
     <string name="done">पूर्ण</string>
     <string name="enable_bypass_charge">बायपास चार्जिंग सक्षम करें</string>
     <string name="enable_bypass_charge_desc">प्रदर्शन कॉन्फ़िगरेशन योजना के तहत बायपास चार्जिंग सक्षम करें</string>
-    <string name="err_failed_load_changelog">बदलाव लॉग लोड करने में विफल</string>
     <string name="err_invalid_backup">बैकअप फ़ाइल अमान्य या क्षतिग्रस्त है (.zx)</string>
     <string name="fingerprint">फिंगरप्रिंट</string>
     <string name="fpsgo_ged">FPSGO और GED पैरामीटर</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">निर्माण दिनांक</string>
     <string name="str_by_using_per_app_refresh_rate">इस ऐप के लिए रीफ्रेश दर सक्षम करने पर, स्क्रीन रीफ्रेश दर पूरी तरह से Max Manager द्वारा प्रबंधित की जाएगी</string>
-    <string name="str_changelog">बदलाव लॉग</string>
     <string name="str_channel">चैनल</string>
     <string name="str_check_environment">रनटाइम वातावरण जाँचें</string>
     <string name="str_checking_current">उपकरण की वर्तमान चार्ज स्थिति की जाँच की जा रही है… कृपया प्रतीक्षा करें</string>

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">To urządzenie nie obsługuje tej funkcji</string>
     <string name="cd_app_icon">Ikona aplikacji</string>
     <string name="cd_back">Wstecz</string>
-    <string name="cd_changelog">Dziennik zmian</string>
     <string name="cd_clear">Wyczyść</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Gotowe</string>
     <string name="enable_bypass_charge">Włącz zasilanie bypass</string>
     <string name="enable_bypass_charge_desc">Włącz zasilanie bypass w profilu wydajnościowym</string>
-    <string name="err_failed_load_changelog">Nie udało się załadować dziennika zmian</string>
     <string name="err_invalid_backup">Plik kopii zapasowej jest nieprawidłowy lub uszkodzony (.zx)</string>
     <string name="fingerprint">Odcisk palca</string>
     <string name="fpsgo_ged">Parametry FPSGO i GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Data kompilacji</string>
     <string name="str_by_using_per_app_refresh_rate">Po włączeniu częstotliwości odświeżania dla tej aplikacji, częstotliwość odświeżania ekranu będzie w pełni zarządzana przez Max Manager.</string>
-    <string name="str_changelog">Dziennik zmian</string>
     <string name="str_channel">Kanał</string>
     <string name="str_check_environment">Sprawdź środowisko uruchomieniowe</string>
     <string name="str_checking_current">Sprawdzanie aktualnego stanu ładowania urządzenia… Proszę czekać</string>

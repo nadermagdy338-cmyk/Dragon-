@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Este dispositivo non admite esta función</string>
     <string name="cd_app_icon">Icona da aplicación</string>
     <string name="cd_back">Volver</string>
-    <string name="cd_changelog">Rexistro de cambios</string>
     <string name="cd_clear">Limpar</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menú</string>
@@ -97,7 +96,6 @@
     <string name="done">Feito</string>
     <string name="enable_bypass_charge">Activar carga bypass</string>
     <string name="enable_bypass_charge_desc">Activar carga bypass no perfil de rendemento</string>
-    <string name="err_failed_load_changelog">Erro ao cargar o rexistro de cambios</string>
     <string name="err_invalid_backup">O ficheiro de copia de seguridade non é válido ou está danado (.zx)</string>
     <string name="fingerprint">Pegada dixital</string>
     <string name="fpsgo_ged">Parámetros FPSGO e GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Data de compilación</string>
     <string name="str_by_using_per_app_refresh_rate">Ao activar esta taxa de actualización por app, a taxa de actualización da pantalla será xestionada completamente por Max Manager.</string>
-    <string name="str_changelog">Rexistro de cambios</string>
     <string name="str_channel">Canal</string>
     <string name="str_check_environment">Comprobar contorno de execución</string>
     <string name="str_checking_current">Comprobando o estado actual de carga do dispositivo... Agarde.</string>

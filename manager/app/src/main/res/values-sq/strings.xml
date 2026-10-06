@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Kjo pajisje nuk e mbështet këtë funksion</string>
     <string name="cd_app_icon">Ikona e aplikacionit</string>
     <string name="cd_back">Mbrapa</string>
-    <string name="cd_changelog">Regjistri i ndryshimeve</string>
     <string name="cd_clear">Pastro</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Përfunduar</string>
     <string name="enable_bypass_charge">Aktivizo furnizimin anashkalues</string>
     <string name="enable_bypass_charge_desc">Aktivizo furnizimin anashkalues në planin e performancës</string>
-    <string name="err_failed_load_changelog">Ngarkimi i regjistrit të ndryshimeve dështoi</string>
     <string name="err_invalid_backup">Skedari rezervë është i pavlefshëm ose i dëmtuar (.zx)</string>
     <string name="fingerprint">Gjurmë gishti</string>
     <string name="fpsgo_ged">Parametrat FPSGO dhe GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Data e ndërtimit</string>
     <string name="str_by_using_per_app_refresh_rate">Duke aktivizuar këtë ritëm rifreskimi për aplikacionin, ritmi i rifreskimit të ekranit do të menaxhohet plotësisht nga Max Manager</string>
-    <string name="str_changelog">Regjistri i ndryshimeve</string>
     <string name="str_channel">Kanali</string>
     <string name="str_check_environment">Kontrollo mjedisin e ekzekutimit</string>
     <string name="str_checking_current">Duke kontrolluar statusin aktual të karikimit… Ju lutem prisni</string>

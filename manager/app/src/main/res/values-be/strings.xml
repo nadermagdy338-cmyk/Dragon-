@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Гэтая прылада не падтрымлівае гэтую функцыю</string>
     <string name="cd_app_icon">Значок прыкладання</string>
     <string name="cd_back">Назад</string>
-    <string name="cd_changelog">Чэйнджлаг</string>
     <string name="cd_clear">Ачысціць</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Меню</string>
@@ -97,7 +96,6 @@
     <string name="done">Гатова</string>
     <string name="enable_bypass_charge">Уключыць абыходны зарад</string>
     <string name="enable_bypass_charge_desc">Уключыць абыходны зарад у профілі прадукцыйнасці</string>
-    <string name="err_failed_load_changelog">Не атрымалася загрузіць чэйнджлаг</string>
     <string name="err_invalid_backup">Няправільны або пашкоджаны файл рэзервовай копіі (.zx)</string>
     <string name="fingerprint">Адбітак пальца</string>
     <string name="fpsgo_ged">Параметры FPSGO і GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Дата зборкі</string>
     <string name="str_by_using_per_app_refresh_rate">Пасля ўключэння частаты абнаўлення для гэтага прыкладання, частата экрана будзе кіравацца выключна Max Manager</string>
-    <string name="str_changelog">Чэйнджлаг</string>
     <string name="str_channel">Канал</string>
     <string name="str_check_environment">Праверыць асяроддзе выканання</string>
     <string name="str_checking_current">Праверка бягучага стану зарада прылады… Калі ласка, пачакайце</string>

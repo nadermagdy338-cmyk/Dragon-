@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">このデバイスはこの機能をサポートしていません</string>
     <string name="cd_app_icon">アプリアイコン</string>
     <string name="cd_back">戻る</string>
-    <string name="cd_changelog">変更履歴</string>
     <string name="cd_clear">クリア</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">メニュー</string>
@@ -97,7 +96,6 @@
     <string name="done">完了</string>
     <string name="enable_bypass_charge">バイパス充電を有効化</string>
     <string name="enable_bypass_charge_desc">パフォーマンスプロファイルでバイパス充電を有効化</string>
-    <string name="err_failed_load_changelog">変更履歴の読み込みに失敗しました</string>
     <string name="err_invalid_backup">バックアップファイルが無効か破損しています (.zx)</string>
     <string name="fingerprint">指紋</string>
     <string name="fpsgo_ged">FPSGOとGEDパラメータ</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">ビルド日</string>
     <string name="str_by_using_per_app_refresh_rate">このアプリのリフレッシュレートを有効にすると、画面のリフレッシュレートは完全にMax Managerによって管理されます</string>
-    <string name="str_changelog">変更履歴</string>
     <string name="str_channel">チャンネル</string>
     <string name="str_check_environment">実行環境を確認</string>
     <string name="str_checking_current">デバイスの現在の充電状態を確認中… しばらくお待ちください</string>

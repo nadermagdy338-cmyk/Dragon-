@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Cette fonction n\'est pas prise en charge par l\'appareil actuel</string>
     <string name="cd_app_icon">Icône de l\'application</string>
     <string name="cd_back">Retour</string>
-    <string name="cd_changelog">Journal des modifications</string>
     <string name="cd_clear">Effacer</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Terminé</string>
     <string name="enable_bypass_charge">Activer l\'alimentation de dérivation</string>
     <string name="enable_bypass_charge_desc">Active l\'alimentation de dérivation sous le profil performance</string>
-    <string name="err_failed_load_changelog">Échec du chargement du journal des modifications</string>
     <string name="err_invalid_backup">Fichier de sauvegarde invalide ou corrompu (.zx)</string>
     <string name="fingerprint">Empreinte</string>
     <string name="fpsgo_ged">Paramètres FPSGO et GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Date de construction</string>
     <string name="str_by_using_per_app_refresh_rate">En activant ce taux de rafraîchissement par application, le taux de rafraîchissement de l\'écran sera entièrement géré par Max Manager.</string>
-    <string name="str_changelog">Journal des modifications</string>
     <string name="str_channel">Chaîne</string>
     <string name="str_check_environment">Vérifier l\'environnement d\'exécution</string>
     <string name="str_checking_current">Vérification de l\'état de charge actuel de l\'appareil... Veuillez patienter.</string>

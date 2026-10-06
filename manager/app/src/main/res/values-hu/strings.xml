@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">A jelenlegi eszköz nem támogatja ezt a funkciót</string>
     <string name="cd_app_icon">Alkalmazásikon</string>
     <string name="cd_back">Vissza</string>
-    <string name="cd_changelog">Változásnapló</string>
     <string name="cd_clear">Törlés</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menü</string>
@@ -97,7 +96,6 @@
     <string name="done">Kész</string>
     <string name="enable_bypass_charge">Bypass töltés engedélyezése</string>
     <string name="enable_bypass_charge_desc">Teljesítményprofil esetén bypass töltés engedélyezése</string>
-    <string name="err_failed_load_changelog">A változásnapló betöltése sikertelen</string>
     <string name="err_invalid_backup">A biztonsági mentés fájl érvénytelen vagy sérült (.zx)</string>
     <string name="fingerprint">Ujjlenyomat</string>
     <string name="fpsgo_ged">FPSGO és GED paraméterek</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Build dátum</string>
     <string name="str_by_using_per_app_refresh_rate">Ha engedélyezi az alkalmazásonkénti frissítési sebességet, a képernyő frissítési sebességét teljes mértékben az Max Manager kezeli</string>
-    <string name="str_changelog">Változásnapló</string>
     <string name="str_channel">Csatorna</string>
     <string name="str_check_environment">Futási környezet ellenőrzése</string>
     <string name="str_checking_current">Az eszköz aktuális töltési állapotának ellenőrzése… Kérjük, várjon</string>

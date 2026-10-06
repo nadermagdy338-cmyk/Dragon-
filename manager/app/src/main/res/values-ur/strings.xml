@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">یہ ڈیوائس اس فیچر کو سپورٹ نہیں کرتی</string>
     <string name="cd_app_icon">ایپ کا آئیکون</string>
     <string name="cd_back">واپس</string>
-    <string name="cd_changelog">تغییرات لاگ</string>
     <string name="cd_clear">صاف کریں</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">مینیو</string>
@@ -97,7 +96,6 @@
     <string name="done">مکمل</string>
     <string name="enable_bypass_charge">بائی پاس چارجنگ فعال کریں</string>
     <string name="enable_bypass_charge_desc">پرفارمنس کنفیگریشن پروفائل میں بائی پاس چارجنگ فعال کریں</string>
-    <string name="err_failed_load_changelog">تغییرات لاگ لوڈ کرنے میں ناکامی</string>
     <string name="err_invalid_backup">بیک اپ فائل غلط یا خراب ہے (.zx)</string>
     <string name="fingerprint">فنگر پرنٹ</string>
     <string name="fpsgo_ged">FPSGO اور GED پیرامیٹرز</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">تعمیر کی تاریخ</string>
     <string name="str_by_using_per_app_refresh_rate">اس ایپ ریفریش ریٹ کو فعال کرنے کے بعد، اسکرین ریفریش ریٹ مکمل طور پر Max Manager کے ذریعے منظم ہوگا</string>
-    <string name="str_changelog">تغییرات لاگ</string>
     <string name="str_channel">چینل</string>
     <string name="str_check_environment">رن ٹائم ماحول چیک کریں</string>
     <string name="str_checking_current">ڈیوائس کے موجودہ چارجنگ سٹیٹس کا پتہ لگایا جا رہا ہے... براہ کرم انتظار کریں</string>

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Това устройство не поддържа тази функция</string>
     <string name="cd_app_icon">Икона на приложението</string>
     <string name="cd_back">Назад</string>
-    <string name="cd_changelog">Списък с промени</string>
     <string name="cd_clear">Изчисти</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Меню</string>
@@ -97,7 +96,6 @@
     <string name="done">Готово</string>
     <string name="enable_bypass_charge">Активиране на байпас захранване</string>
     <string name="enable_bypass_charge_desc">Активиране на байпас захранване при профил на производителност</string>
-    <string name="err_failed_load_changelog">Неуспешно зареждане на списъка с промени</string>
     <string name="err_invalid_backup">Резервният файл е невалиден или повреден (.zx)</string>
     <string name="fingerprint">Отпечатък</string>
     <string name="fpsgo_ged">Параметри FPSGO и GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Дата на компилация</string>
     <string name="str_by_using_per_app_refresh_rate">След като активирате честотата на опресняване за това приложение, честотата на опресняване на екрана ще се управлява изцяло от Max Manager</string>
-    <string name="str_changelog">Списък с промени</string>
     <string name="str_channel">Канал</string>
     <string name="str_check_environment">Проверка на работната среда</string>
     <string name="str_checking_current">Проверка на текущото състояние на зареждане на устройството… Моля, изчакайте</string>

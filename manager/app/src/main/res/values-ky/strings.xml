@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Учурдагы түзмөк бул функцияны колдобойт</string>
     <string name="cd_app_icon">Колдонмо сөлөкөтү</string>
     <string name="cd_back">Артка</string>
-    <string name="cd_changelog">Өзгөртүү журналы</string>
     <string name="cd_clear">Тазалоо</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Меню</string>
@@ -97,7 +96,6 @@
     <string name="done">Бүттү</string>
     <string name="enable_bypass_charge">Күйүүчү кубаттоону күйгүзүү</string>
     <string name="enable_bypass_charge_desc">Иштөө конфигурациясында күйүүчү кубаттоону күйгүзүү</string>
-    <string name="err_failed_load_changelog">Өзгөртүү журналын жүктөө иштебей калды</string>
     <string name="err_invalid_backup">Камдык көчүрмө файлы жараксыз же бузулган (.zx)</string>
     <string name="fingerprint">Манжа изи</string>
     <string name="fpsgo_ged">FPSGO жана GED параметрлери</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Курулуш датасы</string>
     <string name="str_by_using_per_app_refresh_rate">Бул колдонмонун жаңыртуу ылдамдыгын күйгүзгөндө, экрандын жаңыртуу ылдамдыгы толугу менен Max Manager тарабынан башкарылат</string>
-    <string name="str_changelog">Өзгөртүү журналы</string>
     <string name="str_channel">Канал</string>
     <string name="str_check_environment">Иштөө чөйрөсүн текшерүү</string>
     <string name="str_checking_current">Түзмөктүн учурдагы кубаттоо абалы текшерилүүдө… Күтө туруңуз</string>

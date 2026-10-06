@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">현재 기기에서 지원되지 않는 기능입니다</string>
     <string name="cd_app_icon">앱 아이콘</string>
     <string name="cd_back">뒤로</string>
-    <string name="cd_changelog">변경 로그</string>
     <string name="cd_clear">지우기</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">메뉴</string>
@@ -97,7 +96,6 @@
     <string name="done">완료</string>
     <string name="enable_bypass_charge">바이패스 충전 활성화</string>
     <string name="enable_bypass_charge_desc">성능 프로필에서 바이패스 충전 활성화</string>
-    <string name="err_failed_load_changelog">변경 로그 로드 실패</string>
     <string name="err_invalid_backup">백업 파일이 유효하지 않거나 손상되었습니다(.zx)</string>
     <string name="fingerprint">지문</string>
     <string name="fpsgo_ged">FPSGO 및 GED 매개변수</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">빌드 날짜</string>
     <string name="str_by_using_per_app_refresh_rate">이 앱 주사율을 활성화하면 화면 주사율이 Max Manager에 의해 완전히 관리됩니다</string>
-    <string name="str_changelog">변경 로그</string>
     <string name="str_channel">채널</string>
     <string name="str_check_environment">실행 환경 확인</string>
     <string name="str_checking_current">기기의 현재 충전 상태를 확인 중입니다... 잠시 기다려 주세요</string>

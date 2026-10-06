@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">El dispositiu actual no admet aquesta funció</string>
     <string name="cd_app_icon">Icona de l\'aplicació</string>
     <string name="cd_back">Tornar</string>
-    <string name="cd_changelog">Registre de canvis</string>
     <string name="cd_clear">Netejar</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menú</string>
@@ -97,7 +96,6 @@
     <string name="done">Fet</string>
     <string name="enable_bypass_charge">Activar alimentació de derivació</string>
     <string name="enable_bypass_charge_desc">Activa l\'alimentació de derivació amb el perfil de rendiment</string>
-    <string name="err_failed_load_changelog">Error en carregar el registre de canvis</string>
     <string name="err_invalid_backup">El fitxer de còpia de seguretat no és vàlid o està danyat (.zx)</string>
     <string name="fingerprint">Empremta</string>
     <string name="fpsgo_ged">Paràmetres FPSGO i GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Data de compilació</string>
     <string name="str_by_using_per_app_refresh_rate">En activar la freqüència de refresc per a aquesta aplicació, la freqüència de refresc de la pantalla serà gestionada completament per Max Manager</string>
-    <string name="str_changelog">Registre de canvis</string>
     <string name="str_channel">Canal</string>
     <string name="str_check_environment">Comprovar entorn d\'execució</string>
     <string name="str_checking_current">Comprovant l\'estat de càrrega actual del dispositiu… Espereu, si us plau</string>

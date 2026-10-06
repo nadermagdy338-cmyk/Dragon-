@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Il dispositivo non supporta questa funzione</string>
     <string name="cd_app_icon">Icona app</string>
     <string name="cd_back">Indietro</string>
-    <string name="cd_changelog">Registro modifiche</string>
     <string name="cd_clear">Cancella</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -97,7 +96,6 @@
     <string name="done">Completato</string>
     <string name="enable_bypass_charge">Abilita alimentazione bypass</string>
     <string name="enable_bypass_charge_desc">Abilita alimentazione bypass nei profili prestazionali</string>
-    <string name="err_failed_load_changelog">Caricamento registro modifiche fallito</string>
     <string name="err_invalid_backup">File di backup non valido o danneggiato (.zx)</string>
     <string name="fingerprint">Impronta</string>
     <string name="fpsgo_ged">Parametri FPSGO e GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Data build</string>
     <string name="str_by_using_per_app_refresh_rate">Abilitando questa frequenza di aggiornamento per app, la frequenza dello schermo sarà completamente gestita da Max Manager</string>
-    <string name="str_changelog">Registro modifiche</string>
     <string name="str_channel">Canale</string>
     <string name="str_check_environment">Verifica ambiente di esecuzione</string>
     <string name="str_checking_current">Rilevamento stato di ricarica del dispositivo in corso… Attendere</string>

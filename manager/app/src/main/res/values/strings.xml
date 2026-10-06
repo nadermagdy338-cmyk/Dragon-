@@ -75,7 +75,6 @@
     <string name="cd_app_icon">App Icon</string>
     <string name="cd_back">Back</string>
     <string name="cd_back_to_top">Back to top</string>
-    <string name="cd_changelog">Changelog</string>
     <string name="cd_clear">Clear</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menu</string>
@@ -168,7 +167,6 @@
     <string name="done">Done</string>
     <string name="enable_bypass_charge">Enable Bypass Charging</string>
     <string name="enable_bypass_charge_desc">Enable bypass charging under performance profile</string>
-    <string name="err_failed_load_changelog">Failed to load changelog</string>
     <string name="err_invalid_backup">Backup file is invalid or corrupted (.zx)</string>
     <string name="fingerprint">Fingerprint</string>
     <string name="fpsgo_ged">FPSGO &amp; GED Parameters</string>
@@ -1095,7 +1093,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Build Date</string>
     <string name="str_by_using_per_app_refresh_rate">When per-app refresh rate is enabled, the screen refresh rate will be fully managed by Max Manager</string>
-    <string name="str_changelog">Changelog</string>
     <string name="str_channel">Channel</string>
     <string name="str_check_environment">Check Environment</string>
     <string name="str_checking_current">Checking current charging state of the device… Please wait</string>

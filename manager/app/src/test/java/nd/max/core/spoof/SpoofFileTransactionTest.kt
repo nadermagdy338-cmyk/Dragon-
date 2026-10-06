@@ -97,8 +97,10 @@ class SpoofFileTransactionTest {
         assertTrue(f.events.isEmpty())
     }
     @Test fun changedEligibilityInsideLockNeverWrites() {
-        val f = Fixture().apply { cachedFailure = SpoofEngineReason.ENGINE_UNAVAILABLE }
-        assertEquals(SpoofEngineReason.ENGINE_UNAVAILABLE, f.transaction().apply(engine, "A", "B").reason)
+        // `ENGINE_DISABLED` هنا عيّنةُ سببٍ من عائلة المحرّك المقيسة (كان الرمز الواحد `ENGINE_UNAVAILABLE`):
+        // المقصود أنّ تغيّر التهيئة **داخل القفل** يمنع الكتابة بأيّ رمز — لا أنّ هذا السبب بعينه يُفحَص.
+        val f = Fixture().apply { cachedFailure = SpoofEngineReason.ENGINE_DISABLED }
+        assertEquals(SpoofEngineReason.ENGINE_DISABLED, f.transaction().apply(engine, "A", "B").reason)
         assertTrue(f.events.isEmpty())
     }
     @Test fun corruptJournalIsNotReplaced() {

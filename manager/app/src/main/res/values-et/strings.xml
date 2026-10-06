@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Seade ei toeta seda funktsiooni</string>
     <string name="cd_app_icon">Rakenduse ikoon</string>
     <string name="cd_back">Tagasi</string>
-    <string name="cd_changelog">Muudatuste logi</string>
     <string name="cd_clear">Puhasta</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Menüü</string>
@@ -97,7 +96,6 @@
     <string name="done">Valmis</string>
     <string name="enable_bypass_charge">Luba möödaviiklaadimine</string>
     <string name="enable_bypass_charge_desc">Luba jõudlusprofiili all möödaviiklaadimine</string>
-    <string name="err_failed_load_changelog">Muudatuste logi laadimine ebaõnnestus</string>
     <string name="err_invalid_backup">Varukoopiafail on vigane või rikutud (.zx)</string>
     <string name="fingerprint">Sõrmejälg</string>
     <string name="fpsgo_ged">FPSGO ja GED parameetrid</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Koostamise kuupäev</string>
     <string name="str_by_using_per_app_refresh_rate">Selle rakenduse värskendussageduse lubamine annab ekraani värskendamise täielikult Max Manageri hallata</string>
-    <string name="str_changelog">Muudatuste logi</string>
     <string name="str_channel">Kanal</string>
     <string name="str_check_environment">Kontrolli töökeskkonda</string>
     <string name="str_checking_current">Kontrollin seadme praegust laadimisolekut… Palun oodake</string>

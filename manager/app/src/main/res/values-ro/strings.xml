@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Dispozitivul curent nu suportă această funcție</string>
     <string name="cd_app_icon">Pictogramă aplicație</string>
     <string name="cd_back">Înapoi</string>
-    <string name="cd_changelog">Jurnal modificări</string>
     <string name="cd_clear">Ștergere</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Meniu</string>
@@ -97,7 +96,6 @@
     <string name="done">Finalizat</string>
     <string name="enable_bypass_charge">Activează alimentarea bypass</string>
     <string name="enable_bypass_charge_desc">Activează alimentarea bypass în configurația de performanță</string>
-    <string name="err_failed_load_changelog">Încărcarea jurnalului de modificări a eșuat</string>
     <string name="err_invalid_backup">Fișierul de rezervă este invalid sau deteriorat (.zx)</string>
     <string name="fingerprint">Amprentă</string>
     <string name="fpsgo_ged">Parametri FPSGO și GED</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Data compilării</string>
     <string name="str_by_using_per_app_refresh_rate">Prin activarea ratei de reîmprospătare per aplicație, aceasta va fi gestionată complet de Max Manager.</string>
-    <string name="str_changelog">Jurnal modificări</string>
     <string name="str_channel">Canal</string>
     <string name="str_check_environment">Verificare mediu de funcționare</string>
     <string name="str_checking_current">Se verifică starea curentă de încărcare a dispozitivului… Vă rugăm să așteptați</string>

@@ -23,7 +23,6 @@
     <string name="bypass_not_supported">Šis įrenginys nepalaiko šios funkcijos</string>
     <string name="cd_app_icon">Programos piktograma</string>
     <string name="cd_back">Grįžti</string>
-    <string name="cd_changelog">Pakeitimų žurnalas</string>
     <string name="cd_clear">Išvalyti</string>
     <string name="cd_github">GitHub</string>
     <string name="cd_menu">Meniu</string>
@@ -97,7 +96,6 @@
     <string name="done">Baigta</string>
     <string name="enable_bypass_charge">Įjungti aplenkiamąjį maitinimą</string>
     <string name="enable_bypass_charge_desc">Įjungti aplenkiamąjį maitinimą pagal našumo profilį</string>
-    <string name="err_failed_load_changelog">Nepavyko įkelti pakeitimų žurnalo</string>
     <string name="err_invalid_backup">Atsarginės kopijos failas netinkamas arba sugadintas (.zx)</string>
     <string name="fingerprint">Antspaudas</string>
     <string name="fpsgo_ged">FPSGO ir GED parametrai</string>
@@ -243,7 +241,6 @@
     <string name="str_bannergradientalpha_100_toint">%1$d%%</string>
     <string name="str_build_date">Sukūrimo data</string>
     <string name="str_by_using_per_app_refresh_rate">Įjungus šios programos atnaujinimo dažnį, ekrano atnaujinimo dažnį visiškai valdys Max Manager</string>
-    <string name="str_changelog">Pakeitimų žurnalas</string>
     <string name="str_channel">Kanalas</string>
     <string name="str_check_environment">Patikrinti veikimo aplinką</string>
     <string name="str_checking_current">Tikrinama dabartinė įrenginio įkrovimo būsena… palaukite</string>

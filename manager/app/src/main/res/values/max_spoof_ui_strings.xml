@@ -15,6 +15,10 @@
     <string name="spoof_ui_apply_confirm_text">Only this app is prepared; other apps are untouched. Restart the target app afterwards, not the system. A later edit cancels this confirmation.</string>
     <string name="spoof_ui_apply_confirm">Apply</string>
     <string name="spoof_ui_apply_reason">Engine refusal: %1$s</string>
+    <string name="spoof_engine_absent">The engine module is not readable. Confirm a module whose module.prop says id=COPG, install or reinstall it, then reopen this screen.</string>
+    <string name="spoof_engine_disabled">The COPG module is disabled in your root manager. Enable it there, reboot, then apply again.</string>
+    <string name="spoof_engine_removal_pending">COPG is marked for removal and will be gone after the next reboot. Reinstall it before applying.</string>
+    <string name="spoof_engine_update_pending">A COPG update is waiting for a reboot. Reboot first, then apply again.</string>
     <string name="spoof_ui_apply_pending">Changed since the last apply — apply again to make it real.</string>
     <string name="spoof_ui_restore_title">Use your real device</string>
     <string name="spoof_ui_restore_action">Remove spoof for this app</string>
