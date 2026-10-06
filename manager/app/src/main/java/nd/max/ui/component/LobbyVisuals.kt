@@ -2,6 +2,7 @@
 package nd.max.ui.component
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -10,55 +11,52 @@ import android.content.pm.ActivityInfo
 import android.os.BatteryManager
 import android.provider.Settings
 import android.text.format.DateFormat
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import kotlinx.coroutines.delay
 import java.util.Date
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.min
-import kotlin.math.sin
+import kotlinx.coroutines.delay
 
 /**
  * لغة اللوبي البصرية — **داكنة دائمًا**: اللوبي سطح لعب لا صفحة إعدادات، فلا يتبع ثيم النظام
  * الفاتح (نفس سابقة `GamePanelSurface`). الألوان هنا ثوابت السطح وحده؛ أمّا الفراغات والأنصاف فتأتي
  * من `MaxSpace`/`MaxRadius` حتى لا يتفرّع لها نظام ثانٍ.
  *
- * ### وما استُعير وما لم يُستعَر
+ * ### الشكل الحالي: بطاقات Carousel بعمق
  *
- * الشكل العام (قائمة ألعاب يسارية · حلقة HUD وسطى · زرّ بدء مائل · قائمة إعدادات بشريط جانبي) هو
- * ما طلبه المالك صراحةً في هذه الجولة (يتقدّم على بند «لا تقليد شكل» في `AGENTS.md` §0.4 لهذه
- * الشاشة وحدها — انظر تسجيله في `NEXT_TASK.md`). **ولم يُنقل أيّ أصل**: لا شعار، لا شخصية، لا صورة،
- * لا خط؛ الحلقة والعلامة المركزية مرسومتان هنا بالكود، والعلامة مختلفة عن علامة أي جهة.
+ * بطاقة اللعبة المحدَّدة كبيرة بإطار متوهّج، وجارتاها أصغر ومائلتان وخافتتان؛ شريط تبويب علويّ
+ * مائل؛ وصفّ أزرار سفليّ يتوسّطه «ابدأ». هذا الشكل طلبه المالك صراحةً لهذه الشاشة (يتقدّم على
+ * بند «لا تقليد شكل» في `AGENTS.md` §0.4 لها وحدها — انظر تسجيله في `NEXT_TASK.md`).
+ * **ولم يُنقل أيّ أصل**: لا شعار، لا صورة، لا خط، لا ألوان؛ الأشكال والتوهّج مرسومة هنا بالكود،
+ * والصور هي أيقونات التطبيقات المثبَّتة فعلًا على الجهاز.
+ *
+ * ### أحمر العلامة ثابت هنا عن قصد
+ *
+ * `DESIGN.md` يجعل الـaccent مستعارًا من ثيم المستخدم. اللوبي سطح لعب بهوية ثابتة، فيُثبَّت
+ * أحمره (استثناء معلن لهذه الشاشة وللّوحة الجانبية). وبما أنّ الأحمر هو العلامة فهو **لا يعني
+ * خطرًا أبدًا**: حالات التحذير تأخذ [Caution]/[Positive] الثابتتين مع أيقونة، لا أحمرًا وحده.
  */
 object LobbyPalette {
     val Black = Color(0xFF050608)
@@ -72,9 +70,20 @@ object LobbyPalette {
     val Ink = Color(0xFFF2F3F8)
     val Muted = Color(0xFF8F96AB)
     val Hairline = Color(0x33FFFFFF)
+
+    /** سيان — للبيانات الحيّة فقط (حافة البطاقة، قراءات الجاهزية)، ولا يُستعمل لزرّ إجراء. */
+    val Cyan = Color(0xFF3DD9FF)
+
+    /** نفس `Positive` في `DESIGN.md` على الداكن (تباين ١٠٫٢٣). */
+    val Positive = Color(0xFF5FD9AC)
+
+    /** نفس `Caution` في `DESIGN.md` على الداكن (تباين ١٠٫٥٠). */
+    val Caution = Color(0xFFFFB86B)
 }
 
-/** سداسيّ مدبَّب الجانبين — شكل الأزرار الصغيرة (المقبض، الشارة، زرّ التقدّم). */
+/**
+ * سداسيّ مدبَّب الجانبين — للعناصر الصغيرة التي تحمل صورة. محفوظ كما كان.
+ */
 val LobbyHexShape = GenericShape { size, _ ->
     val w = size.width
     val h = size.height
@@ -104,18 +113,43 @@ val LobbyAngledShape = GenericShape { size, _ ->
     close()
 }
 
-/** شبه منحرف أعرض عند القاعدة — لسان التبويب السفلي. */
-val LobbyTabShape = GenericShape { size, _ ->
-    val s = size.height * 0.60f
-    moveTo(s, 0f)
-    lineTo(size.width - s, 0f)
-    lineTo(size.width, size.height)
-    lineTo(0f, size.height)
+/** شبه منحرف أعرض عند الأعلى — شريط التبويب العلويّ المعلَّق. */
+val LobbyStripShape = GenericShape { size, _ ->
+    val s = size.height * 0.45f
+    moveTo(0f, 0f)
+    lineTo(size.width, 0f)
+    lineTo(size.width - s, size.height)
+    lineTo(s, size.height)
     close()
 }
 
 /**
- * هل الحركة مسموحة؟ — مقياس النظام `animator_duration_scale`؛ إذا صفّره المستخدم لا تدور الحلقة.
+ * بصمة اللوبي: زاويتان مقطوعتان بزاوية ٤٥° (بداية-أعلى ونهاية-أسفل) والأخريان حادّتان.
+ * تنعكس في RTL فيبقى القطع على القطر نفسه بصريًّا. شكلٌ واحد للبطاقة والبلاطات بدل
+ * `GenericShape` متفرّقة بأحجام مختلفة.
+ */
+class LobbyChamferShape(private val cut: Dp) : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+        val c = with(density) { cut.toPx() }.coerceAtMost(minOf(size.width, size.height) / 2f)
+        val w = size.width
+        val h = size.height
+        val rtl = layoutDirection == LayoutDirection.Rtl
+        fun x(v: Float): Float = if (rtl) w - v else v
+        val path = Path().apply {
+            moveTo(x(c), 0f)
+            lineTo(x(w), 0f)
+            lineTo(x(w), h - c)
+            lineTo(x(w - c), h)
+            lineTo(x(0f), h)
+            lineTo(x(0f), c)
+            close()
+        }
+        return Outline.Generic(path)
+    }
+}
+
+/**
+ * هل الحركة مسموحة؟ — مقياس النظام `animator_duration_scale`؛ إذا صفّره المستخدم لا تتنفّس الحافة.
  * (دعم الحركة المخفَّضة يمرّ من هذا الباب الواحد، لا من فحص في كل مكوّن.)
  */
 @Composable
@@ -129,144 +163,33 @@ fun rememberLobbyAnimationsEnabled(): Boolean {
 }
 
 /**
- * حلقة الـHUD الوسطى: توهّج أحمر · حلقة علامات تدور ببطء · قوسان جانبيان · قرص داخلي بنقاط شبكية ·
- * علامة مركزية. كلّها `Canvas` — لا أصل نقطيّ ولا ملف.
- *
- * الطبقة الدوّارة **منفصلة** عن الثابتة وتُدار بـ`graphicsLayer`، فالدوران لا يعيد رسم القرص
- * الداخلي (مئات النقاط) كل إطار.
+ * خلفية اللوبي: أسود بتوهّج بلون اللعبة المحدَّدة خلف البطاقة المركزية، وقاعدة حمراء خافتة من
+ * الأسفل. اللون يأتي من أيقونة اللعبة نفسها فتتبدّل الخلفية معها بلا أي أصل مرافق.
  */
 @Composable
-fun LobbyEmblem(modifier: Modifier = Modifier, animate: Boolean = true) {
-    val spin: State<Float> = if (animate) {
-        val transition = rememberInfiniteTransition(label = "lobbyRing")
-        transition.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(tween(durationMillis = 42_000, easing = LinearEasing), RepeatMode.Restart),
-            label = "lobbyRingSpin"
-        )
-    } else {
-        remember { mutableStateOf(0f) }
-    }
-    Box(modifier) {
-        Canvas(Modifier.fillMaxSize()) { drawEmblemStatic(this) }
-        Canvas(Modifier.fillMaxSize().graphicsLayer { rotationZ = spin.value }) { drawEmblemTicks(this) }
-    }
-}
-
-private fun drawEmblemStatic(scope: DrawScope) = with(scope) {
-    val c = center
-    val r = min(size.width, size.height) / 2f
-    // توهّج خلفي
-    drawCircle(
-        brush = Brush.radialGradient(
-            colors = listOf(LobbyPalette.Red.copy(alpha = 0.34f), LobbyPalette.Red.copy(alpha = 0.08f), Color.Transparent),
-            center = c,
-            radius = r * 1.18f
-        ),
-        radius = r * 1.18f,
-        center = c
-    )
-    // الحلقة الخارجية الداكنة
-    drawCircle(color = LobbyPalette.Surface, radius = r * 0.93f, center = c)
-    drawCircle(color = Color(0xFF22252E), radius = r * 0.93f, center = c, style = Stroke(width = r * 0.012f))
-    // قوسان جانبيان (يسار/يمين)
-    val arcRadius = r * 0.74f
-    val arcStroke = r * 0.055f
-    val arcTopLeft = Offset(c.x - arcRadius, c.y - arcRadius)
-    val arcSize = Size(arcRadius * 2f, arcRadius * 2f)
-    listOf(130f to 100f, -50f to 100f).forEach { (start, sweep) ->
-        drawArc(
-            color = Color(0xFF3A3D48),
-            startAngle = start,
-            sweepAngle = sweep,
-            useCenter = false,
-            topLeft = arcTopLeft,
-            size = arcSize,
-            style = Stroke(width = arcStroke, cap = StrokeCap.Butt)
-        )
-        drawArc(
-            color = LobbyPalette.Red.copy(alpha = 0.55f),
-            startAngle = start + 8f,
-            sweepAngle = sweep * 0.45f,
-            useCenter = false,
-            topLeft = arcTopLeft,
-            size = arcSize,
-            style = Stroke(width = arcStroke * 0.30f, cap = StrokeCap.Butt)
-        )
-    }
-    // القرص الداخلي + شبكة النقاط
-    val inner = r * 0.52f
-    drawCircle(
-        brush = Brush.radialGradient(
-            colors = listOf(Color(0xFF2B0609), Color(0xFF0B0405)),
-            center = c,
-            radius = inner
-        ),
-        radius = inner,
-        center = c
-    )
-    val clip = Path().apply { addOval(androidx.compose.ui.geometry.Rect(c, inner)) }
-    clipPath(clip) {
-        val step = r * 0.047f
-        val dot = r * 0.0075f
-        var y = c.y - inner
-        while (y <= c.y + inner) {
-            var x = c.x - inner
-            while (x <= c.x + inner) {
-                drawCircle(color = LobbyPalette.Red.copy(alpha = 0.30f), radius = dot, center = Offset(x, y))
-                x += step
+fun LobbyBackdrop(tone: Color, modifier: Modifier = Modifier) {
+    Box(
+        modifier
+            .fillMaxSize()
+            .background(LobbyPalette.Black)
+            .drawBehind {
+                drawRect(
+                    Brush.radialGradient(
+                        colors = listOf(tone.copy(alpha = 0.30f), tone.copy(alpha = 0.08f), Color.Transparent),
+                        center = Offset(size.width * 0.5f, size.height * 0.46f),
+                        radius = size.width * 0.55f
+                    )
+                )
+                drawRect(
+                    Brush.verticalGradient(
+                        colors = listOf(Color.Transparent, LobbyPalette.RedDeep.copy(alpha = 0.40f)),
+                        startY = size.height * 0.55f,
+                        endY = size.height
+                    )
+                )
             }
-            y += step
-        }
-    }
-    drawCircle(color = LobbyPalette.Red.copy(alpha = 0.55f), radius = inner, center = c, style = Stroke(width = r * 0.008f))
-    drawEmblemMark(this, c, inner * 0.52f)
-}
-
-private fun drawEmblemTicks(scope: DrawScope) = with(scope) {
-    val c = center
-    val r = min(size.width, size.height) / 2f
-    val count = 120
-    for (i in 0 until count) {
-        val angle = (2.0 * PI * i / count).toFloat()
-        val major = i % 10 == 0
-        val inner = r * (if (major) 0.835f else 0.855f)
-        val outer = r * 0.90f
-        val color = if (major) LobbyPalette.Red.copy(alpha = 0.85f) else Color(0xFF50535F)
-        drawLine(
-            color = color,
-            start = Offset(c.x + cos(angle) * inner, c.y + sin(angle) * inner),
-            end = Offset(c.x + cos(angle) * outer, c.y + sin(angle) * outer),
-            strokeWidth = if (major) r * 0.010f else r * 0.006f
-        )
-    }
-}
-
-/** العلامة المركزية: ثلاث شفرات مائلة (وسطى أطول). رسم أصلي، لا يطابق علامة أي جهة. */
-private fun drawEmblemMark(scope: DrawScope, c: Offset, s: Float) = with(scope) {
-    fun blade(cx: Float, top: Float, bottom: Float, width: Float, skew: Float): Path = Path().apply {
-        moveTo(c.x + (cx - width / 2f + skew) * s, c.y + top * s)
-        lineTo(c.x + (cx + width / 2f + skew) * s, c.y + top * s)
-        lineTo(c.x + (cx + width / 2f) * s, c.y + bottom * s)
-        lineTo(c.x + (cx - width / 2f) * s, c.y + bottom * s)
-        close()
-    }
-    val brush = Brush.verticalGradient(
-        colors = listOf(LobbyPalette.RedBright, LobbyPalette.RedDeep),
-        startY = c.y - s,
-        endY = c.y + s
     )
-    drawPath(blade(cx = 0f, top = -1.0f, bottom = 0.95f, width = 0.34f, skew = 0f), brush = brush)
-    drawPath(blade(cx = -0.70f, top = -0.62f, bottom = 0.70f, width = 0.30f, skew = 0.22f), brush = brush)
-    drawPath(blade(cx = 0.70f, top = -0.62f, bottom = 0.70f, width = 0.30f, skew = -0.22f), brush = brush)
 }
-
-/** خلفية اللوبي: أسود بتدرّج أحمر خافت من الوسط. */
-fun lobbyBackdropBrush(): Brush = Brush.radialGradient(
-    colors = listOf(Color(0xFF1A0508), LobbyPalette.Black),
-    radius = 1400f
-)
 
 // ───────────────────────────── نافذة الشاشة: عرضي + ملء الشاشة ─────────────────────────────
 
@@ -298,9 +221,13 @@ fun LobbyWindowEffect() {
     }
 }
 
-// ───────────────────────────── قراءات الشريط العلوي ─────────────────────────────
+// ───────────────────────────── قراءات الجاهزية ─────────────────────────────
 
-data class LobbyBattery(val percent: Int, val charging: Boolean)
+/**
+ * @param tempTenthsC حرارة البطارية بعُشر الدرجة كما يُبلّغها النظام، و`null` إن لم تُبلَّغ.
+ *   هي حرارة **البطارية** لا المعالج: المعالج يحتاج مسارًا لا يملكه اللوبي، فلا يُدَّعى.
+ */
+data class LobbyBattery(val percent: Int, val charging: Boolean, val tempTenthsC: Int? = null)
 
 /** بطارية الجهاز: قراءة لاصقة (sticky) بلا تسجيل مستقبِل، تُجدَّد كل نصف دقيقة. `null` قبل أول قراءة. */
 @Composable
@@ -321,7 +248,29 @@ private fun readBattery(context: Context): LobbyBattery? = runCatching {
     if (level < 0 || scale <= 0) return null
     val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
     val charging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
-    LobbyBattery(percent = (level * 100 / scale).coerceIn(0, 100), charging = charging)
+    val temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, Int.MIN_VALUE).takeIf { it != Int.MIN_VALUE }
+    LobbyBattery(percent = (level * 100 / scale).coerceIn(0, 100), charging = charging, tempTenthsC = temp)
+}.getOrNull()
+
+data class LobbyMemory(val availBytes: Long, val totalBytes: Long)
+
+/** ذاكرة النظام الحرّة (`ActivityManager.MemoryInfo`، بلا إذن)، تُجدَّد كل عشر ثوانٍ. `null` قبل أول قراءة. */
+@Composable
+fun rememberLobbyMemory(): State<LobbyMemory?> {
+    val context = LocalContext.current
+    return produceState<LobbyMemory?>(null, context) {
+        while (true) {
+            value = readMemory(context)
+            delay(10_000L)
+        }
+    }
+}
+
+private fun readMemory(context: Context): LobbyMemory? = runCatching {
+    val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val info = ActivityManager.MemoryInfo()
+    manager.getMemoryInfo(info)
+    LobbyMemory(availBytes = info.availMem, totalBytes = info.totalMem)
 }.getOrNull()
 
 /** ساعة الجهاز بتنسيق النظام (12/24)، تتحدّث عند بداية كل دقيقة. */

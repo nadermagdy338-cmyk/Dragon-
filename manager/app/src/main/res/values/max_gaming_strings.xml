@@ -80,6 +80,14 @@
     <string name="lobby_meta_age_days">Installed %1$d d ago</string>
     <string name="lobby_empty">No games yet. Tap “Manage games” to add apps.</string>
     <string name="lobby_battery_cd">Battery %1$d%%</string>
+    <string name="lobby_tab_all">All games</string>
+    <string name="lobby_empty_favorites">No favorites yet. Open a game and tap the star.</string>
+    <string name="lobby_loading">Reading your games…</string>
+    <string name="lobby_card_position">%1$s, %2$d of %3$d</string>
+    <string name="lobby_ready_battery_cd">Battery: %1$s</string>
+    <string name="lobby_ready_temp_cd">Battery temperature: %1$s</string>
+    <string name="lobby_ready_ram_cd">Free memory: %1$s</string>
+    <string name="lobby_ready_unavailable">not available</string>
     <string name="lobby_settings_title">%1$s · Game profile</string>
     <string name="lobby_close_settings">Close game profile</string>
     <string name="lobby_section_touch">Adjust operation</string>

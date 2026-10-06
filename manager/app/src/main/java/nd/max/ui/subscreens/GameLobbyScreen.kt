@@ -5,59 +5,61 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.text.format.Formatter
+import android.util.LruCache
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Bookmark
-import androidx.compose.material.icons.rounded.BookmarkBorder
+import androidx.compose.material.icons.rounded.BatteryAlert
+import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.BatteryFull
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material.icons.rounded.StarBorder
+import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.VideogameAsset
 import androidx.compose.material.icons.rounded.ViewSidebar
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -67,18 +69,17 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -86,27 +87,40 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
 import nd.max.core.gamespace.GameApp
 import nd.max.core.gamespace.GameLibraryAccess
 import nd.max.core.gamespace.GameLobbyMeta
 import nd.max.core.gamespace.GameLobbyMetaReader
+import nd.max.core.gamespace.LobbyModel
 import nd.max.core.gamespace.gameLibrary
 import nd.max.core.platform.ForegroundAppResolver
 import nd.max.service.GamePanelService
-import nd.max.ui.component.AppIconImage
 import nd.max.ui.component.LobbyAngledShape
+import nd.max.ui.component.LobbyBackdrop
 import nd.max.ui.component.LobbyBattery
-import nd.max.ui.component.LobbyEmblem
-import nd.max.ui.component.LobbyHexShape
+import nd.max.ui.component.LobbyCardPager
+import nd.max.ui.component.LobbyChamferShape
+import nd.max.ui.component.LobbyGameCard
+import nd.max.ui.component.LobbyGlowPad
+import nd.max.ui.component.LobbyMemory
 import nd.max.ui.component.LobbyPalette
-import nd.max.ui.component.LobbyTabShape
+import nd.max.ui.component.LobbyTabStrip
 import nd.max.ui.component.LobbyWindowEffect
-import nd.max.ui.component.lobbyBackdropBrush
+import nd.max.ui.component.lobbyIntro
+import nd.max.ui.component.lobbyLoop
+import nd.max.ui.component.lobbyPress
 import nd.max.ui.component.rememberLobbyAnimationsEnabled
 import nd.max.ui.component.rememberLobbyBattery
 import nd.max.ui.component.rememberLobbyClock
+import nd.max.ui.component.rememberLobbyIntro
+import nd.max.ui.component.rememberLobbyMemory
+import nd.max.ui.component.rememberLobbyTone
+import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
+import nd.max.ui.design.MaxDuration
 import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.openAppSettings
@@ -115,64 +129,54 @@ import nd.max.ui.util.GamePanelPrefs
 import nd.max.ui.util.customizedFieldCount
 import nd.max.ui.viewmodel.AppSettingsViewModel
 import nd.max.ui.viewmodel.GameSpaceViewModel
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.runtime.State
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.drawscope.translate
-import kotlin.math.abs
-import nd.max.ui.component.LobbyReactor
-import nd.max.ui.component.lobbyIntro
-import nd.max.ui.component.lobbyLoop
-import nd.max.ui.component.lobbyPress
-import nd.max.ui.component.lobbySelectionPlate
-import nd.max.ui.component.lobbySheen
-import nd.max.ui.component.rememberLobbyIntro
-import nd.max.ui.component.rememberLobbySheenPhase
 
-private val TopBarHeight = 64.dp
-private val BottomBarHeight = 64.dp
-private val GameRowHeight = 76.dp
-private val GameIconSize = 58.dp
-private val GameIconRadius = 14.dp
-private val StartWidth = 232.dp
-private val StartHeight = 56.dp
-private val HexWidth = 56.dp
-private val TileWidth = 150.dp
-private val TileHeight = 64.dp
-private val TileRadius = 14.dp
-private val TitleMaxWidth = 340.dp
+private val TopBarHeight = 56.dp
+private val ActionHeight = 60.dp
+private val ReadinessHeight = 28.dp
+private val StartWidth = 220.dp
+private val TileWidth = 148.dp
+private val MinCardHeight = 120.dp
+private val MaxCardHeight = 260.dp
+private val CompactWidth = 700.dp
+
+/** نسبة عرض البطاقة إلى ارتفاعها (١٦:١٠). */
+private const val CARD_ASPECT = 1.6f
+
+/** أكبر حصّة من عرض الشاشة تأخذها البطاقة المركزية، فتبقى للجارتين مساحة ظاهرة. */
+private const val CARD_MAX_WIDTH_SHARE = 0.46f
+
+/** حرارة بطارية تُعلَّم تنبيهًا (٤٢°م) — عتبة عرض للّون والأيقونة، لا قرارًا على العتاد. */
+private const val WARM_TENTHS = 420
+
+/** بطارية منخفضة تُعلَّم تنبيهًا. */
+private const val LOW_BATTERY_PERCENT = 15
+
+/** قراءة حجم الحزمة وعمرها تتكرّر كلما دخلت بطاقة إلى الشاشة؛ التخزين يمنع إعادة قراءة الجهاز في كل تمرير. */
+private val metaCache = LruCache<String, GameLobbyMeta>(64)
 
 /**
- * لوبي الألعاب — **سطح لعب عرضيّ كامل الشاشة**، بتصميم لوبي REDMAGIC كما طلب المالك:
- * قائمة ألعاب يسارية، حلقة HUD وسطى، عنوان اللعبة وزرّ «ابدأ» يمينًا، لسان سفلي، وقائمة إعدادات
- * بشريط جانبي ([GameProfileDialog]).
+ * لوبي الألعاب — **سطح لعب عرضيّ كامل الشاشة** ببطاقات Carousel بعمق كما طلب المالك:
+ * البطاقة المحدَّدة كبيرة بإطار متوهّج وجارتاها مائلتان، شريط تبويب علويّ مائل (الكل · المفضّلة)،
+ * صفّ جاهزية حقيقيّ (بطارية · حرارة البطارية · ذاكرة حرّة)، وصفّ أزرار سفليّ يتوسّطه «ابدأ».
  *
- * ### ما حُذف
+ * ### ما يقوم عليه التصميم
  *
- * `GameSpaceScreen` (مكتبة عمودية) أُزيلت بأمر المالك؛ وما كانت تقدّمه انتقل إلى هنا:
- * الإدراج والإزالة في [ManageGamesDialog]، والمفضّلة في الشريط، والملف في الحوار.
+ * - **المحتوى هو البطل:** لا حلقة مفاعل ولا جمرات ولا ضوء ماسح؛ حلقة مستمرّة **واحدة** هي
+ *   تنفّس حافة البطاقة وتوهّج «ابدأ».
+ * - **لا نصّ مقطوع:** عناوين البطاقات سطران، وبياناتها سطران، وأسماء البلاطات سطران.
+ * - **لون الخلفية من اللعبة نفسها:** يُستخرج من أيقونتها المثبَّتة فتتبدّل الخلفية بتبدّل البطاقة.
  *
- * ### وما لم يتغيّر (حدود معلنة)
+ * ### ما لم يتغيّر (حدود معلنة)
  *
  * - لا كتابة عتاد من هذه الشاشة (ADR-11): التشغيل يمرّ بـ`GameLibraryAccess.launch`، والإعدادات
  *   بـ`AppSettingsViewModel.updateSetting`، ومفتاح اللوحة بـ`GamePanelPrefs` وخدمتها.
- * - لا أرقام مختلقة (ADR-07): الصفّ يعرض حجم الحزمة وعمر التثبيت المقروءين فعلًا، ولا «وقت لعب».
- * - لا أصول منقولة: كل رسم بالكود، والأيقونات هي أيقونات التطبيقات الحقيقية.
+ * - لا أرقام مختلقة (ADR-07): البطاقة تعرض حجم الحزمة وعمر التثبيت المقروءين فعلًا ولا «وقت لعب»،
+ *   وصفّ الجاهزية يعرض «—» لما لم يُقرأ.
+ * - لا تبويب بلا شاشة خلفه: «الكل» و«المفضّلة» مرشِّحان حقيقيّان للقائمة نفسها.
+ * - لا أصول منقولة: كل رسم بالكود، والصور هي أيقونات التطبيقات الحقيقية.
  *
- * **غير مُتحقَّق على جهاز:** القفل العرضي وإخفاء الأشرطة وقصّ الكاميرا (display cutout).
+ * **غير مُتحقَّق على جهاز:** القفل العرضي وإخفاء الأشرطة وقصّ الكاميرا (display cutout)، واتجاه ميل
+ * الجارتين، وانعكاس الـPager في RTL، وسلاسة ٦٠fps أثناء السحب.
  */
 @Composable
 fun GameLobbyScreen(
@@ -182,6 +186,8 @@ fun GameLobbyScreen(
 ) {
     LobbyWindowEffect()
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
     val library by viewModel.library.collectAsStateWithLifecycle()
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
     var favoritesOnly by rememberSaveable { mutableStateOf(false) }
@@ -196,10 +202,39 @@ fun GameLobbyScreen(
             .filter { !favoritesOnly || it.packageName in library.favorites }
             .sortedWith(compareByDescending<GameApp> { it.packageName in library.favorites }.thenBy { it.label.lowercase() })
     }
-    val active = games.firstOrNull { it.packageName == selected } ?: games.firstOrNull()
+    val gamesState = rememberUpdatedState(games)
+    val initialPage = remember { LobbyModel.targetPage(games.map { it.packageName }, selected) }
+    val pagerState = rememberPagerState(initialPage = initialPage) { gamesState.value.size }
+    val restore = remember { LobbyRestoreGate() }
+
+    // القائمة تغيّرت (تحميل · مرشِّح · إعادة ترتيب بالمفضّلة): أعد الـCarousel إلى اللعبة المحدَّدة.
+    LaunchedEffect(games) {
+        if (games.isNotEmpty()) {
+            val target = LobbyModel.targetPage(games.map { it.packageName }, selected)
+            if (pagerState.currentPage != target) pagerState.scrollToPage(target)
+            restore.games = games
+        }
+    }
+    // استقرّت صفحة بفعل المستخدم: احفظ الحزمة. تُتجاهل الإصدارات الناتجة عن تغيّر القائمة نفسها،
+    // وإلا كتبت فوق التحديد الصحيح مؤشّرًا قديمًا قبل أن تُعيد الدالة أعلاه الموضع.
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }.collect { page ->
+            val current = gamesState.value
+            if (restore.games === current) current.getOrNull(page)?.let { selected = it.packageName }
+        }
+    }
+    // نقرة اهتزاز خفيفة كلما عبرت بطاقة جديدة المركز بسحبة حقيقية (لا بإعادة الموضع البرمجية).
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.drop(1).collect {
+            if (restore.games === gamesState.value && pagerState.isScrollInProgress) {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            }
+        }
+    }
+
+    val active = games.getOrNull(pagerState.currentPage)
     val activeConfig: AppConfig? = active?.let { settingsViewModel.fullConfig[it.packageName] }
     val panelEnabled = active?.packageName in panelPrefs.enabledPackages
-    val isFavorite = active?.packageName in library.favorites
 
     val setPanel: (Boolean) -> Unit = { enabled ->
         active?.packageName?.let {
@@ -212,149 +247,114 @@ fun GameLobbyScreen(
     val openProfile: () -> Unit = { if (active != null) profileOpen = true }
     val animations = rememberLobbyAnimationsEnabled()
     val intro = rememberLobbyIntro(animations)
+    val breathe = lobbyLoop(animations, 2800, RepeatMode.Reverse, FastOutSlowInEasing, rest = 0.5f)
     val battery by rememberLobbyBattery()
+    val memory by rememberLobbyMemory()
     val clock by rememberLobbyClock()
+    val backdropTone by animateColorAsState(
+        targetValue = rememberLobbyTone(active?.packageName),
+        animationSpec = tween(MaxDuration.standard),
+        label = "lobbyTone"
+    )
 
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(lobbyBackdropBrush())
-            .displayCutoutPadding()
-    ) {
-        val listWidth = (maxWidth * 0.30f).coerceIn(220.dp, 340.dp)
-        val emblemSize = minOf(maxHeight * 0.80f, maxWidth * 0.40f)
-        val tabWidth = (maxWidth * 0.26f).coerceIn(160.dp, 260.dp)
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val compact = maxWidth < CompactWidth
+        LobbyBackdrop(tone = backdropTone)
 
-        LobbyReactor(
-            Modifier.align(Alignment.Center).size(emblemSize).lobbyIntro(intro, scaleFrom = 0.78f),
-            animate = animations,
-            pulseKey = active?.packageName
-        )
+        Column(
+            modifier = Modifier.fillMaxSize().displayCutoutPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LobbyTopBar(
+                modifier = Modifier.lobbyIntro(intro, fromBelow = (-24).dp),
+                compact = compact,
+                clock = clock,
+                tabs = listOf(stringResource(R.string.lobby_tab_all), stringResource(R.string.gaming_favorites)),
+                tabDescriptions = listOf(stringResource(R.string.lobby_tab_all), stringResource(R.string.lobby_favorites_filter)),
+                selectedTab = if (favoritesOnly) 1 else 0,
+                onTab = { favoritesOnly = it == 1 },
+                onRefresh = viewModel::refresh,
+                onManage = { manageOpen = true },
+                onClose = { navController.navigateUp() }
+            )
 
-        LobbyGameList(
-            modifier = Modifier.align(Alignment.CenterStart).width(listWidth).fillMaxHeight(),
-            games = games,
-            favorites = library.favorites,
-            activePackage = active?.packageName,
-            loading = library.loading,
-            onSelect = { selected = it },
-            intro = intro
-        )
-
-        LobbyTopBar(
-            modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth().lobbyIntro(intro, fromBelow = (-30).dp, start = 0.05f),
-            clock = clock,
-            battery = battery,
-            active = active,
-            favoritesOnly = favoritesOnly,
-            onFavoritesOnly = { favoritesOnly = !favoritesOnly },
-            onRefresh = viewModel::refresh,
-            onClose = { navController.navigateUp() }
-        )
-
-        if (active != null) {
-            Row(
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = TopBarHeight, end = MaxSpace.lg)
-                    .lobbyIntro(intro, fromStart = (-48).dp, start = 0.25f),
-                horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
+            BoxWithConstraints(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
-                LobbyFeatureTile(
-                    icon = Icons.Rounded.ViewSidebar,
-                    title = stringResource(R.string.lobby_tile_panel),
-                    value = stringResource(if (panelEnabled) R.string.lobby_state_on else R.string.lobby_state_off),
-                    active = panelEnabled,
-                    onClick = { setPanel(!panelEnabled) }
-                )
-                val tweaks = activeConfig?.customizedFieldCount() ?: 0
-                LobbyFeatureTile(
-                    icon = Icons.Rounded.Tune,
-                    title = stringResource(R.string.lobby_tile_profile),
-                    value = if (tweaks > 0) stringResource(R.string.lobby_tile_profile_value, tweaks) else stringResource(R.string.lobby_tile_profile_none),
-                    active = tweaks > 0,
-                    onClick = openProfile
-                )
-            }
-            Column(
-                modifier = Modifier.align(Alignment.BottomEnd).padding(end = MaxSpace.lg, bottom = MaxSpace.md)
-                    .lobbyIntro(intro, fromStart = (-72).dp, start = 0.3f),
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(MaxSpace.md)
-            ) {
-                AnimatedContent(
-                    targetState = active.label,
-                    transitionSpec = {
-                        (slideInHorizontally(spring(dampingRatio = 0.75f, stiffness = 380f)) { it / 4 } + fadeIn(tween(220))) togetherWith
-                            (slideOutHorizontally(tween(160)) { -it / 4 } + fadeOut(tween(140)))
-                    },
-                    label = "lobbyTitle"
-                ) { title ->
-                    Text(
-                        text = title,
-                        color = LobbyPalette.Ink,
-                        fontSize = 38.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.End,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.widthIn(max = TitleMaxWidth)
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
-                    LobbyStartButton(
-                        label = stringResource(R.string.lobby_start),
-                        onClick = { launchFailed = !GameLibraryAccess.launch(context, active.packageName) }
-                    )
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
-                    LobbyHexButton(
-                        icon = Icons.Rounded.VideogameAsset,
-                        description = stringResource(R.string.lobby_manage_games),
-                        onClick = { manageOpen = true }
-                    )
-                    LobbyHexButton(
-                        icon = if (isFavorite) Icons.Rounded.Star else Icons.Rounded.StarBorder,
-                        description = stringResource(if (isFavorite) R.string.gaming_unfavorite else R.string.gaming_favorite),
-                        active = isFavorite,
-                        onClick = { viewModel.favorite(active.packageName, !isFavorite) }
-                    )
-                    LobbyHexButton(
-                        icon = Icons.Rounded.Settings,
-                        description = stringResource(R.string.lobby_open_profile),
-                        accent = true,
-                        onClick = openProfile
-                    )
+                val cardHeight = (maxHeight - LobbyGlowPad * 2).coerceIn(MinCardHeight, MaxCardHeight)
+                val cardWidth = minOf(cardHeight * CARD_ASPECT, maxWidth * CARD_MAX_WIDTH_SHARE)
+                when {
+                    games.isNotEmpty() -> LobbyCardPager(
+                        state = pagerState,
+                        cardWidth = cardWidth,
+                        cardHeight = cardHeight,
+                        onSelect = { target -> scope.launch { pagerState.animateScrollToPage(target) } },
+                        modifier = Modifier.lobbyIntro(intro, fromBelow = 24.dp, start = 0.1f, scaleFrom = 0.94f),
+                        key = { index -> games.getOrNull(index)?.packageName ?: index }
+                    ) { index, emphasis ->
+                        val app = games.getOrNull(index)
+                        if (app != null) {
+                            val favorite = app.packageName in library.favorites
+                            LobbyGameCard(
+                                packageName = app.packageName,
+                                title = app.label,
+                                meta = rememberLobbyMetaText(app.packageName),
+                                favorite = favorite,
+                                favoriteDescription = stringResource(if (favorite) R.string.gaming_unfavorite else R.string.gaming_favorite),
+                                positionDescription = stringResource(R.string.lobby_card_position, app.label, index + 1, games.size),
+                                emphasis = emphasis,
+                                breathe = breathe,
+                                starEnabled = index == pagerState.currentPage,
+                                onToggleFavorite = { viewModel.favorite(app.packageName, !favorite) }
+                            )
+                        }
+                    }
+                    library.loading -> LobbyNotice(stringResource(R.string.lobby_loading))
+                    else -> Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(MaxSpace.lg)
+                    ) {
+                        LobbyNotice(stringResource(if (favoritesOnly) R.string.lobby_empty_favorites else R.string.lobby_empty))
+                        if (!favoritesOnly) {
+                            LobbyTile(
+                                icon = Icons.Rounded.VideogameAsset,
+                                title = stringResource(R.string.lobby_manage_games),
+                                value = null,
+                                active = true,
+                                onClick = { manageOpen = true }
+                            )
+                        }
+                    }
                 }
             }
-        } else if (!library.loading) {
-            Column(
-                modifier = Modifier.align(Alignment.BottomEnd).padding(end = MaxSpace.lg, bottom = MaxSpace.md),
-                horizontalAlignment = Alignment.End
-            ) {
-                LobbyHexButton(
-                    icon = Icons.Rounded.VideogameAsset,
-                    description = stringResource(R.string.lobby_manage_games),
-                    accent = true,
-                    onClick = { manageOpen = true }
+
+            LobbyReadiness(battery = battery, memory = memory)
+
+            if (active != null) {
+                LobbyActionBar(
+                    modifier = Modifier.padding(bottom = MaxSpace.md).lobbyIntro(intro, fromBelow = 32.dp, start = 0.25f),
+                    breathe = breathe,
+                    panelEnabled = panelEnabled,
+                    tweaks = activeConfig?.customizedFieldCount() ?: 0,
+                    onPanel = { setPanel(!panelEnabled) },
+                    onProfile = openProfile,
+                    onStart = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        launchFailed = !GameLibraryAccess.launch(context, active.packageName)
+                    }
                 )
+            } else {
+                Spacer(Modifier.height(ActionHeight + MaxSpace.md))
             }
         }
 
-        LobbyBottomTab(
-            modifier = Modifier.align(Alignment.BottomCenter).lobbyIntro(intro, fromBelow = 56.dp, start = 0.4f),
-            label = stringResource(R.string.lobby_tab_lobby),
-            width = tabWidth
-        )
-
         Column(
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = TopBarHeight),
+            modifier = Modifier.align(Alignment.TopCenter).displayCutoutPadding().padding(top = TopBarHeight),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (library.failed) {
-                Text(stringResource(R.string.gaming_config_failed), color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
-            }
-            if (launchFailed) {
-                Text(stringResource(R.string.game_space_launch_failed), color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
-            }
+            if (library.failed) LobbyCaution(stringResource(R.string.gaming_config_failed))
+            if (launchFailed) LobbyCaution(stringResource(R.string.game_space_launch_failed))
         }
     }
 
@@ -384,121 +384,31 @@ fun GameLobbyScreen(
     }
 }
 
-// ───────────────────────────── قائمة الألعاب ─────────────────────────────
-
-@Composable
-private fun LobbyGameList(
-    modifier: Modifier,
-    games: List<GameApp>,
-    favorites: Set<String>,
-    activePackage: String?,
-    loading: Boolean,
-    onSelect: (String) -> Unit,
-    intro: State<Float>
-) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(top = TopBarHeight + MaxSpace.sm, bottom = BottomBarHeight + MaxSpace.sm),
-        verticalArrangement = Arrangement.spacedBy(MaxSpace.xs)
-    ) {
-        if (games.isEmpty()) {
-            item(key = "empty") {
-                Text(
-                    text = stringResource(if (loading) R.string.spoof_reading else R.string.lobby_empty),
-                    color = LobbyPalette.Muted,
-                    fontSize = 15.sp,
-                    modifier = Modifier.padding(MaxSpace.lg)
-                )
-            }
-        }
-        itemsIndexed(games, key = { _, game -> game.packageName }) { index, app ->
-            LobbyGameRow(
-                index = index,
-                intro = intro,
-                app = app,
-                selected = app.packageName == activePackage,
-                favorite = app.packageName in favorites,
-                onClick = { onSelect(app.packageName) }
-            )
-        }
-    }
+/** يحمل آخر قائمة أُعيد إليها موضع الـCarousel؛ مرجعٌ لا حالة، فلا يسبّب إعادة تركيب. */
+private class LobbyRestoreGate {
+    var games: List<GameApp>? = null
 }
 
+/**
+ * سطرا بيانات البطاقة: حجم الحزمة وعمر التثبيت، كلٌّ في سطر. أرقام مقروءة فعلًا من النظام (ADR-07)،
+ * وما لم يُقرأ لا يُكتب. يقرأ على IO مرّة ويحفظ في [metaCache].
+ */
 @Composable
-private fun LobbyGameRow(app: GameApp, selected: Boolean, favorite: Boolean, index: Int, intro: State<Float>, onClick: () -> Unit) {
+private fun rememberLobbyMetaText(packageName: String): String {
     val context = LocalContext.current
-    val meta by produceState<GameLobbyMeta?>(null, app.packageName) {
-        value = withContext(Dispatchers.IO) { GameLobbyMetaReader.read(context, app.packageName) }
+    val meta by produceState<GameLobbyMeta?>(metaCache.get(packageName), packageName) {
+        if (value == null) {
+            val read = withContext(Dispatchers.IO) { GameLobbyMetaReader.read(context, packageName) }
+            metaCache.put(packageName, read)
+            value = read
+        }
     }
     val today = stringResource(R.string.lobby_meta_age_today)
     val ageText = meta?.installedDays?.let { days ->
         if (days < 1) today else stringResource(R.string.lobby_meta_age_days, days)
     }
     val sizeText = meta?.sizeBytes?.let { Formatter.formatShortFileSize(context, it) }
-    val metaLine = listOfNotNull(sizeText, ageText).joinToString(" · ")
-    val shape = RoundedCornerShape(GameIconRadius)
-    val sel = animateFloatAsState(if (selected) 1f else 0f, spring(dampingRatio = 0.62f, stiffness = 420f), label = "rowSel")
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = GameRowHeight)
-            .lobbyIntro(intro, fromStart = 64.dp, start = (0.10f + index * 0.045f).coerceAtMost(0.62f))
-            .lobbySelectionPlate(sel)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
-            .padding(horizontal = MaxSpace.lg, vertical = MaxSpace.xs),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(GameIconSize)
-                .graphicsLayer {
-                    val k = 1f + 0.10f * sel.value
-                    scaleX = k
-                    scaleY = k
-                }
-                .drawBehind {
-                    if (sel.value > 0.01f) {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                listOf(LobbyPalette.Red.copy(alpha = 0.45f * sel.value), Color.Transparent),
-                                center = center,
-                                radius = size.maxDimension * 0.95f
-                            ),
-                            radius = size.maxDimension * 0.95f
-                        )
-                    }
-                }
-                .clip(shape)
-                .then(if (selected) Modifier.border(MaxSize.activeRing, LobbyPalette.Red, shape) else Modifier)
-        ) {
-            AppIconImage(packageName = app.packageName, size = GameIconSize, contentDescription = null)
-        }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
-                Text(
-                    text = app.label,
-                    color = if (selected) LobbyPalette.Ink else LobbyPalette.Ink.copy(alpha = 0.78f),
-                    fontSize = 19.sp,
-                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, fill = false)
-                )
-                if (favorite) {
-                    Icon(
-                        imageVector = Icons.Rounded.Star,
-                        contentDescription = stringResource(R.string.gaming_favorites),
-                        tint = LobbyPalette.RedBright,
-                        modifier = Modifier.size(MaxSize.iconGlyphSmall)
-                    )
-                }
-            }
-            if (selected && metaLine.isNotEmpty()) {
-                Text(text = metaLine, color = LobbyPalette.Muted, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-        }
-    }
+    return listOfNotNull(sizeText, ageText).joinToString("\n")
 }
 
 // ───────────────────────────── الشريط العلوي ─────────────────────────────
@@ -506,156 +416,269 @@ private fun LobbyGameRow(app: GameApp, selected: Boolean, favorite: Boolean, ind
 @Composable
 private fun LobbyTopBar(
     modifier: Modifier,
+    compact: Boolean,
     clock: String,
-    battery: LobbyBattery?,
-    active: GameApp?,
-    favoritesOnly: Boolean,
-    onFavoritesOnly: () -> Unit,
+    tabs: List<String>,
+    tabDescriptions: List<String>,
+    selectedTab: Int,
+    onTab: (Int) -> Unit,
     onRefresh: () -> Unit,
+    onManage: () -> Unit,
     onClose: () -> Unit
 ) {
-    Row(
-        modifier = modifier
-            .height(TopBarHeight)
-            .padding(horizontal = MaxSpace.lg),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)
-    ) {
-        Text(
-            text = stringResource(R.string.lobby_brand),
-            color = LobbyPalette.Ink,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Black,
-            fontStyle = FontStyle.Italic,
-            letterSpacing = 8.sp
-        )
-        Text(text = clock, color = LobbyPalette.Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
-        LobbyBatteryPill(battery)
-        Spacer(Modifier.weight(1f))
-        if (active != null) {
-            val interaction = remember { MutableInteractionSource() }
     Box(
-        modifier = Modifier
-            .lobbyPress(interaction)
-            .size(width = HexWidth, height = MaxSize.minTouchTarget)
-                    .clip(LobbyHexShape)
-                    .background(LobbyPalette.PanelRaised),
-                contentAlignment = Alignment.Center
-            ) {
-                AppIconImage(packageName = active.packageName, size = 30.dp, contentDescription = null)
+        modifier = modifier
+            .fillMaxWidth()
+            .height(TopBarHeight)
+            .padding(horizontal = MaxSpace.sm)
+    ) {
+        Row(
+            modifier = Modifier.align(Alignment.CenterStart),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
+        ) {
+            LobbyIconButton(icon = Icons.Rounded.Close, description = stringResource(R.string.lobby_close), onClick = onClose)
+            if (!compact) {
+                Text(
+                    text = stringResource(R.string.lobby_brand),
+                    color = LobbyPalette.Ink,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Black,
+                    fontStyle = FontStyle.Italic,
+                    letterSpacing = 4.sp
+                )
             }
+            Text(text = clock, color = LobbyPalette.Muted, fontSize = 14.sp)
         }
-        Spacer(Modifier.weight(1f))
-        LobbyIconButton(
-            icon = if (favoritesOnly) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
-            description = stringResource(R.string.lobby_favorites_filter),
-            tint = if (favoritesOnly) LobbyPalette.RedBright else LobbyPalette.Ink,
-            onClick = onFavoritesOnly
+        LobbyTabStrip(
+            labels = tabs,
+            descriptions = tabDescriptions,
+            selected = selectedTab,
+            onSelect = onTab,
+            description = stringResource(R.string.lobby_tab_lobby),
+            modifier = Modifier.align(Alignment.Center)
         )
-        LobbyIconButton(icon = Icons.Rounded.Refresh, description = stringResource(R.string.gaming_refresh), onClick = onRefresh)
-        LobbyIconButton(icon = Icons.Rounded.Close, description = stringResource(R.string.lobby_close), onClick = onClose)
+        Row(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LobbyIconButton(icon = Icons.Rounded.Refresh, description = stringResource(R.string.gaming_refresh), onClick = onRefresh)
+            LobbyIconButton(icon = Icons.Rounded.VideogameAsset, description = stringResource(R.string.lobby_manage_games), onClick = onManage)
+        }
     }
 }
 
 @Composable
-private fun LobbyIconButton(icon: ImageVector, description: String, onClick: () -> Unit, tint: Color = LobbyPalette.Ink) {
+private fun LobbyIconButton(icon: ImageVector, description: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(MaxSize.minTouchTarget)
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(imageVector = icon, contentDescription = description, tint = tint)
+        Icon(imageVector = icon, contentDescription = description, tint = LobbyPalette.Ink)
+    }
+}
+
+// ───────────────────────────── صفّ الجاهزية ─────────────────────────────
+
+/**
+ * ثلاث قراءات حيّة تحت البطاقة. المجهول «—» لا صفر (ADR-07)، والتنبيه **لونٌ وأيقونة معًا** —
+ * لا أحمر، لأن الأحمر هو العلامة هنا فلا يصلح إشارة خطر.
+ */
+@Composable
+private fun LobbyReadiness(battery: LobbyBattery?, memory: LobbyMemory?) {
+    val unavailable = stringResource(R.string.lobby_ready_unavailable)
+    val lowBattery = battery != null && !battery.charging && battery.percent <= LOW_BATTERY_PERCENT
+    val warm = (battery?.tempTenthsC ?: 0) >= WARM_TENTHS
+    val batteryText = battery?.let { "${it.percent}%" }
+    val tempText = LobbyModel.temperatureText(battery?.tempTenthsC)
+    val memoryText = LobbyModel.freeMemoryText(memory?.availBytes)
+    Row(
+        modifier = Modifier.height(ReadinessHeight),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.xl)
+    ) {
+        ReadinessItem(
+            icon = when {
+                lowBattery -> Icons.Rounded.BatteryAlert
+                battery?.charging == true -> Icons.Rounded.BatteryChargingFull
+                else -> Icons.Rounded.BatteryFull
+            },
+            text = batteryText ?: MAX_VALUE_UNAVAILABLE,
+            tint = when {
+                lowBattery -> LobbyPalette.Caution
+                battery?.charging == true -> LobbyPalette.Positive
+                else -> LobbyPalette.Cyan
+            },
+            description = if (battery != null) {
+                stringResource(R.string.lobby_battery_cd, battery.percent)
+            } else {
+                stringResource(R.string.lobby_ready_battery_cd, unavailable)
+            }
+        )
+        ReadinessItem(
+            icon = if (warm) Icons.Rounded.Warning else Icons.Rounded.Thermostat,
+            text = tempText ?: MAX_VALUE_UNAVAILABLE,
+            tint = if (warm) LobbyPalette.Caution else LobbyPalette.Cyan,
+            description = stringResource(R.string.lobby_ready_temp_cd, tempText ?: unavailable)
+        )
+        ReadinessItem(
+            icon = Icons.Rounded.Memory,
+            text = memoryText ?: MAX_VALUE_UNAVAILABLE,
+            tint = LobbyPalette.Cyan,
+            description = stringResource(R.string.lobby_ready_ram_cd, memoryText ?: unavailable)
+        )
     }
 }
 
 @Composable
-private fun LobbyBatteryPill(battery: LobbyBattery?) {
-    if (battery == null) return
-    val description = stringResource(R.string.lobby_battery_cd, battery.percent)
-    val fill = when {
-        battery.charging -> Color(0xFF3DDC84)
-        battery.percent <= 15 -> LobbyPalette.Red
-        else -> Color(0xFF39D353)
-    }
+private fun ReadinessItem(icon: ImageVector, text: String, tint: Color, description: String) {
     Row(
-        modifier = Modifier.semantics { contentDescription = description },
+        modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = description },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)
     ) {
-        Canvas(Modifier.size(width = 30.dp, height = 14.dp)) {
-            val nub = 3.dp.toPx()
-            val stroke = 1.6.dp.toPx()
-            val body = Size(size.width - nub, size.height)
-            drawRoundRect(
-                color = Color.White.copy(alpha = 0.85f),
-                size = body,
-                cornerRadius = CornerRadius(3.dp.toPx()),
-                style = Stroke(width = stroke)
-            )
-            val inset = stroke * 1.6f
-            drawRoundRect(
-                color = fill,
-                topLeft = Offset(inset, inset),
-                size = Size((body.width - inset * 2f) * battery.percent / 100f, body.height - inset * 2f),
-                cornerRadius = CornerRadius(1.5.dp.toPx())
-            )
-            drawRoundRect(
-                color = Color.White.copy(alpha = 0.85f),
-                topLeft = Offset(body.width, size.height * 0.30f),
-                size = Size(nub, size.height * 0.40f),
-                cornerRadius = CornerRadius(1.dp.toPx())
-            )
-        }
-        Text(text = "${battery.percent}%", color = LobbyPalette.Ink.copy(alpha = 0.8f), fontSize = 13.sp)
+        Icon(imageVector = icon, contentDescription = null, tint = tint, modifier = Modifier.size(MaxSize.iconGlyphSmall))
+        Text(
+            text = text,
+            color = LobbyPalette.Ink.copy(alpha = 0.85f),
+            fontSize = 13.sp,
+            fontFamily = FontFamily.Monospace,
+            maxLines = 1
+        )
     }
 }
 
-// ───────────────────────────── يمين: بلاطات وأزرار ─────────────────────────────
+// ───────────────────────────── حالات فارغة وتحذير ─────────────────────────────
 
 @Composable
-private fun LobbyFeatureTile(icon: ImageVector, title: String, value: String, active: Boolean, onClick: () -> Unit) {
-    val shape = RoundedCornerShape(TileRadius)
+private fun LobbyNotice(text: String) {
+    Text(
+        text = text,
+        color = LobbyPalette.Muted,
+        fontSize = 15.sp,
+        modifier = Modifier.padding(horizontal = MaxSpace.xxl)
+    )
+}
+
+/** رسالة فشل: لون تنبيه وأيقونة معًا، لا أحمرًا وحده. */
+@Composable
+private fun LobbyCaution(text: String) {
+    Row(
+        modifier = Modifier.padding(top = MaxSpace.xs),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs)
+    ) {
+        Icon(imageVector = Icons.Rounded.Warning, contentDescription = null, tint = LobbyPalette.Caution, modifier = Modifier.size(MaxSize.iconGlyphSmall))
+        Text(text = text, color = LobbyPalette.Caution, fontSize = 13.sp)
+    }
+}
+
+// ───────────────────────────── الصفّ السفليّ ─────────────────────────────
+
+@Composable
+private fun LobbyActionBar(
+    modifier: Modifier,
+    breathe: State<Float>,
+    panelEnabled: Boolean,
+    tweaks: Int,
+    onPanel: () -> Unit,
+    onProfile: () -> Unit,
+    onStart: () -> Unit
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)
+    ) {
+        LobbyTile(
+            icon = Icons.Rounded.Tune,
+            title = stringResource(R.string.lobby_tile_profile),
+            value = if (tweaks > 0) stringResource(R.string.lobby_tile_profile_value, tweaks) else stringResource(R.string.lobby_tile_profile_none),
+            active = tweaks > 0,
+            onClick = onProfile,
+            onClickLabel = stringResource(R.string.lobby_open_profile)
+        )
+        LobbyStartButton(label = stringResource(R.string.lobby_start), breathe = breathe, onClick = onStart)
+        LobbyTile(
+            icon = Icons.Rounded.ViewSidebar,
+            title = stringResource(R.string.lobby_tile_panel),
+            value = stringResource(if (panelEnabled) R.string.lobby_state_on else R.string.lobby_state_off),
+            active = panelEnabled,
+            onClick = onPanel
+        )
+    }
+}
+
+/**
+ * بلاطة بزاوية مشطوفة: أيقونة + اسم (حتى سطرين) + حالة. [value] اختياريّة للبلاطة التي لا حالة لها.
+ */
+@Composable
+private fun LobbyTile(
+    icon: ImageVector,
+    title: String,
+    value: String?,
+    active: Boolean,
+    onClick: () -> Unit,
+    onClickLabel: String? = null
+) {
+    val shape = remember { LobbyChamferShape(MaxSpace.sm) }
+    val interaction = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
-            .size(width = TileWidth, height = TileHeight)
+            .lobbyPress(interaction)
+            .size(width = TileWidth, height = ActionHeight)
             .clip(shape)
             .background(Brush.verticalGradient(listOf(LobbyPalette.PanelRaised, LobbyPalette.Surface)))
             .border(MaxSize.hairlineBorder, if (active) LobbyPalette.Red.copy(alpha = 0.8f) else LobbyPalette.Hairline, shape)
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(
+                interactionSource = interaction,
+                indication = LocalIndication.current,
+                onClickLabel = onClickLabel,
+                role = Role.Button,
+                onClick = onClick
+            )
             .padding(horizontal = MaxSpace.md),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
     ) {
         Icon(imageVector = icon, contentDescription = null, tint = if (active) LobbyPalette.RedBright else LobbyPalette.Muted)
-        Column {
-            Text(text = title, color = LobbyPalette.Ink, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Column(Modifier.weight(1f)) {
             Text(
-                text = value,
-                color = if (active) LobbyPalette.RedBright else LobbyPalette.Muted,
-                fontSize = 11.sp,
-                maxLines = 1,
+                text = title,
+                color = LobbyPalette.Ink,
+                fontSize = 12.sp,
+                lineHeight = 15.sp,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
+            if (value != null) {
+                Text(
+                    text = value,
+                    color = if (active) LobbyPalette.RedBright else LobbyPalette.Muted,
+                    fontSize = 12.sp,
+                    lineHeight = 15.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
 
+/** زرّ «ابدأ»: الإجراء الأوحد المتوهّج في الشاشة. توهّجه يتنفّس مع حافة البطاقة (الحلقة الوحيدة). */
 @Composable
-private fun LobbyStartButton(label: String, onClick: () -> Unit) {
+private fun LobbyStartButton(label: String, breathe: State<Float>, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
-    val animate = rememberLobbyAnimationsEnabled()
-    val sheen = lobbyLoop(animate, 2600)
-    val flow = lobbyLoop(animate, 1500)
-    val glow = lobbyLoop(animate, 2200, RepeatMode.Reverse, FastOutSlowInEasing, rest = 0.5f)
     Box(
         modifier = Modifier
             .lobbyPress(interaction, 0.95f)
-            .size(width = StartWidth, height = StartHeight)
+            .size(width = StartWidth, height = ActionHeight)
             .drawBehind {
                 drawRect(
                     Brush.radialGradient(
-                        listOf(LobbyPalette.Red.copy(alpha = 0.16f + 0.20f * glow.value), Color.Transparent),
+                        listOf(LobbyPalette.Red.copy(alpha = 0.16f + 0.20f * breathe.value), Color.Transparent),
                         center = center,
                         radius = size.width * 0.72f
                     ),
@@ -665,36 +688,33 @@ private fun LobbyStartButton(label: String, onClick: () -> Unit) {
             }
             .clip(LobbyAngledShape)
             .background(Brush.horizontalGradient(listOf(LobbyPalette.RedDeep, LobbyPalette.Red, LobbyPalette.RedDeep)))
-            .lobbySheen(sheen)
             .border(MaxSize.hairlineBorder, LobbyPalette.RedBright.copy(alpha = 0.6f), LobbyAngledShape)
             .clickable(interactionSource = interaction, indication = LocalIndication.current, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
-            LobbyChevrons(forward = true, phase = flow)
+            LobbyChevrons(forward = true)
             Text(
                 text = label,
                 color = LobbyPalette.Ink,
-                fontSize = 22.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 fontStyle = FontStyle.Italic,
                 maxLines = 1
             )
-            LobbyChevrons(forward = false, phase = flow)
+            LobbyChevrons(forward = false)
         }
     }
 }
 
+/** شيفرونان ثابتان يحيطان بنص الزرّ (متماثلان، فلا يحتاجان انعكاس RTL). */
 @Composable
-private fun LobbyChevrons(forward: Boolean, phase: State<Float>) {
-    Canvas(Modifier.size(width = 20.dp, height = 18.dp)) {
+private fun LobbyChevrons(forward: Boolean) {
+    Canvas(Modifier.size(width = MaxSize.iconGlyph, height = MaxSize.iconGlyphSmall)) {
         val w = size.width
         val h = size.height
         val stroke = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        listOf(0f, w * 0.45f).forEachIndexed { i, dx ->
-            val k = (phase.value + (if (forward) i else 1 - i) * 0.5f) % 1f
-            val alpha = 0.35f + 0.65f * (1f - abs(2f * k - 1f))
-            val shift = (if (forward) 1f else -1f) * 2.dp.toPx() * k
+        listOf(0f, w * 0.45f).forEach { dx ->
             val path = Path().apply {
                 if (forward) {
                     moveTo(dx + w * 0.10f, h * 0.10f)
@@ -706,66 +726,8 @@ private fun LobbyChevrons(forward: Boolean, phase: State<Float>) {
                     lineTo(dx + w * 0.45f, h * 0.90f)
                 }
             }
-            translate(left = shift) { drawPath(path = path, color = Color.White.copy(alpha = alpha), style = stroke) }
+            drawPath(path = path, color = Color.White.copy(alpha = 0.85f), style = stroke)
         }
-    }
-}
-
-@Composable
-private fun LobbyHexButton(
-    icon: ImageVector,
-    description: String,
-    onClick: () -> Unit,
-    accent: Boolean = false,
-    active: Boolean = false
-) {
-    val interaction = remember { MutableInteractionSource() }
-    Box(
-        modifier = Modifier
-            .lobbyPress(interaction)
-            .size(width = HexWidth, height = MaxSize.minTouchTarget)
-            .clip(LobbyHexShape)
-            .background(
-                if (accent) Brush.verticalGradient(listOf(LobbyPalette.Red, LobbyPalette.RedDeep))
-                else Brush.verticalGradient(listOf(LobbyPalette.PanelRaised, LobbyPalette.Surface))
-            )
-            .border(MaxSize.hairlineBorder, if (accent) LobbyPalette.RedBright.copy(alpha = 0.6f) else LobbyPalette.Hairline, LobbyHexShape)
-            .clickable(interactionSource = interaction, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
-            .semantics { contentDescription = description },
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = if (active) LobbyPalette.RedBright else LobbyPalette.Ink
-        )
-    }
-}
-
-// ───────────────────────────── اللسان السفلي ─────────────────────────────
-
-/**
- * لسان «لوبي الألعاب». وحيد عن قصد: اللسان الثاني في الأصل المرجعيّ (قاعدة/مساحة ثانية) خارج
- * نطاق هذه الجولة بأمر المالك («نعمل على لوبي الألعاب فقط»)، فلا يُرسم لسان بلا شاشة خلفه.
- */
-@Composable
-private fun LobbyBottomTab(modifier: Modifier, label: String, width: Dp) {
-    Row(
-        modifier = modifier
-            .size(width = width, height = BottomBarHeight - MaxSpace.md)
-            .clip(LobbyTabShape)
-            .background(Brush.verticalGradient(listOf(LobbyPalette.Red.copy(alpha = 0.92f), LobbyPalette.RedDeep)))
-            .lobbySheen(rememberLobbySheenPhase(), 0.2f)
-            .semantics {
-                role = Role.Tab
-                selected = true
-            },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Icon(imageVector = Icons.Rounded.Home, contentDescription = null, tint = LobbyPalette.Ink)
-        Spacer(Modifier.width(MaxSpace.sm))
-        Text(text = label, color = LobbyPalette.Ink, fontSize = 18.sp, fontWeight = FontWeight.Medium, maxLines = 1)
     }
 }
 

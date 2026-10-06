@@ -80,6 +80,14 @@
     <string name="lobby_meta_age_days">نُصّبت منذ %1$d يوم</string>
     <string name="lobby_empty">لا ألعاب بعد. اضغط «إدارة الألعاب» لإضافة تطبيقات.</string>
     <string name="lobby_battery_cd">البطارية %1$d%%</string>
+    <string name="lobby_tab_all">كل الألعاب</string>
+    <string name="lobby_empty_favorites">لا مفضلة بعد. افتح لعبة واضغط النجمة.</string>
+    <string name="lobby_loading">جارٍ قراءة ألعابك…</string>
+    <string name="lobby_card_position">%1$s، %2$d من %3$d</string>
+    <string name="lobby_ready_battery_cd">البطارية: %1$s</string>
+    <string name="lobby_ready_temp_cd">حرارة البطارية: %1$s</string>
+    <string name="lobby_ready_ram_cd">الذاكرة الحرة: %1$s</string>
+    <string name="lobby_ready_unavailable">غير متاحة</string>
     <string name="lobby_settings_title">%1$s · ملف اللعبة</string>
     <string name="lobby_close_settings">إغلاق ملف اللعبة</string>
     <string name="lobby_section_touch">ضبط التشغيل</string>
