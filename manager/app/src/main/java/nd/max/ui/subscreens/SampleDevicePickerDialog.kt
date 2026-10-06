@@ -64,9 +64,15 @@ internal fun SampleDevicePickerDialog(
     onPick: (SampleDevice) -> Unit,
     onManual: () -> Unit,
     onDismiss: () -> Unit,
+    /** كتالوج محمّل سابقًا (من صفّ الأجهزة في الشاشة) فلا يُقرأ الأصل مرّتين. */
+    preset: SampleDeviceCatalog? = null,
 ) {
     val context = LocalContext.current
-    val load by produceState<CatalogLoad>(CatalogLoad.Loading, context) {
+    val load by produceState<CatalogLoad>(preset?.let(CatalogLoad::Ready) ?: CatalogLoad.Loading, context, preset) {
+        if (preset != null) {
+            value = CatalogLoad.Ready(preset)
+            return@produceState
+        }
         value = withContext(Dispatchers.IO) {
             runCatching { context.assets.open("spoof/device_catalog.json").bufferedReader().use { it.readText() } }
                 .getOrNull()?.let(SpoofDeviceCatalog::parse)?.let { CatalogLoad.Ready(it) } ?: CatalogLoad.Failed

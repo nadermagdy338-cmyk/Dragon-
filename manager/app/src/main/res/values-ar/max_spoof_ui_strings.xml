@@ -5,6 +5,15 @@
     <string name="spoof_ui_pill_unverified">غير مُتحقَّق</string>
     <string name="spoof_ui_pill_off">متوقف</string>
     <string name="spoof_ui_device_title">الجهاز</string>
+    <string name="spoof_device_for_app">جهاز هذا التطبيق</string>
+    <string name="spoof_device_real_hint">هذا التطبيق يرى جهازك الحقيقي. انقر جهازًا أدناه لتغيير ذلك.</string>
+    <string name="spoof_device_changes_n">يغيّر %1$d حقولًا عن جهازك</string>
+    <string name="spoof_device_changes_none">مطابق لجهازك الحقيقي</string>
+    <string name="spoof_device_pick">نقرة واحدة تمنح هذا التطبيق ذلك الجهاز</string>
+    <string name="spoof_device_more">المزيد من الأجهزة</string>
+    <string name="spoof_device_in_use">مستخدم الآن</string>
+    <string name="spoof_device_fingerprint">البصمة</string>
+    <string name="spoof_device_restart">أعد تشغيل التطبيق المستهدف بعده، لا النظام.</string>
     <string name="spoof_ui_global_hint_perapp">هذا التطبيق يرث القالب المشترك المحفوظ (قراءة فقط هنا). بدّل إلى مخصص لمنح هذا التطبيق جهازه الخاص.</string>
     <string name="spoof_ui_apply_title">تطبيق لهذا التطبيق</string>
     <string name="spoof_ui_apply_notice">يُجهّز هذا التطبيق وحده عبر محكّم التحكم مع قراءة بعد الكتابة. بعدها أعد تشغيل التطبيق المستهدف لا النظام. الملف المتحقّق ليس إثباتًا لما يراه التطبيق.</string>
@@ -20,7 +29,7 @@
     <string name="spoof_ui_saved_profiles">الملفات المحفوظة</string>
     <string name="spoof_ui_saved_profiles_n">%1$d محفوظ</string>
     <string name="spoof_ui_advanced">متقدّم</string>
-    <string name="spoof_ui_advanced_summary">سياسة كل فئة</string>
+    <string name="spoof_ui_advanced_summary">الوضع والملفات والخيارات والتحقق</string>
     <string name="spoof_ui_status">الحالة والتحقق</string>
     <string name="spoof_ui_status_ok">لا شيء يحتاج انتباهك</string>
     <string name="spoof_ui_status_n">%1$d ملاحظات</string>
