@@ -38,6 +38,7 @@ import nd.max.ui.util.CleanOutcome
 import nd.max.ui.util.UltraCleanCategory
 import nd.max.ui.util.UltraCleanEngine
 import nd.max.ui.util.UltraCleanModel
+import javax.inject.Inject
 
 data class UltraCleanerUiState(
     /** القياس الأول أو إعادة قياس جارية. */

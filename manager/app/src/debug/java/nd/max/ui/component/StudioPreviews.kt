@@ -22,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import nd.max.core.maxai.MaxAiState
-import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.mainscreens.HOME_DECK_DEFAULT
 import nd.max.ui.mainscreens.HomeDashboardContent
 import nd.max.ui.mainscreens.HomeDeckPool
@@ -152,11 +151,10 @@ private fun HomeCommandPreview(missing: Boolean = false) {
             ui = HomeUiState(rootStatus = true, moduleInstalled = true, autoMode = "0"),
             dashboard = if (missing) DashboardState(chipsetName = "Unknown SoC") else DashboardState(ramUsedMb = 4300, ramTotalMb = 8192, cpuLoadPercent = 48, cpuFreqMhz = 2400, chipsetName = "Snapdragon 8 Gen 3", batteryPercent = 74, batteryTempC = 37.4f, batteryStatus = "Discharging", storageUsedGb = 128f, storageTotalGb = 256f, downloadSpeedKbps = 850, uploadSpeedKbps = 120, displayWidth = 1440, displayHeight = 3200, displayRefreshHz = 120, loadSamples = previewSamples),
             maxAi = MaxAiState(aiEnabled = true, strategyLabel = "Balanced"),
-            profileRequest = ProfileRequestState(),
             deviceName = "MAX Preview Device",
             deckEntries = HomeDeckPool.take(HOME_DECK_DEFAULT),
             onOpenDeck = {}, onConfigureDeck = {},
-            onNavigate = {}, onReboot = {}, onSettings = {}, onAiRetry = {}
+            onNavigate = {}, onReboot = {}, onSettings = {}
         )
     }
 }

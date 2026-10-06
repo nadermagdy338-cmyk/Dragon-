@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nd.max.core.hardware.GpuHardwareBackend
 import nd.max.ui.util.CpuTopologyUtil
 import nd.max.core.platform.FpsMonitorUtil
@@ -333,7 +334,8 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         _memoryBoost.value = MemoryBoostState(running = true)
         viewModelScope.launch {
             val outcome = withContext(Dispatchers.IO) {
-                MemoryBoostEngine.boost(MemoryBoostEngine.availableMb(context))
+                // الدالّة لا القيمة: المحرّك يقرأ «قبل» ثم ينفّذ ثم يقرأ «بعد» بنفسه.
+                MemoryBoostEngine.boost { MemoryBoostEngine.availableMb(context) }
             }
             _memoryBoost.value = MemoryBoostState(outcome = outcome)
         }
