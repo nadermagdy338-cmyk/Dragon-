@@ -201,6 +201,51 @@ class SpoofIdentityModelTest {
                 overrides = mapOf(SpoofField.MODEL to "Different"))))
         assertEquals(SpoofCopgRefusal.KEY_COLLISION, refusal(data))
     }
+    @Test fun independentCopyDetachesOneAppWithoutTouchingTheSharedTemplate() {
+        val data = workspace().bind("com.other.app", global.id)
+            .copyProfileForApp("com.example.app", "copy1", "Global (copy)")
+        // التطبيق صار «مخصّصًا» على نسخة مستقلّة، وقيم النسخة هي قيم القالب لحظةَ النسخ.
+        assertEquals("copy1", data.bindings["com.example.app"])
+        assertEquals(SpoofInheritanceMode.CUSTOM, data.appPolicy("com.example.app").mode)
+        assertEquals("Pixel", field(data).target)
+        assertEquals(SpoofSource.APP_PROFILE, field(data).source)
+        // تطبيق آخر يبقى على القالب المشترك، والقالب نفسه لم يتغيّر: نسخة لا مرجع.
+        assertEquals(global.id, data.bindings["com.other.app"])
+        assertEquals(listOf(global, custom), data.profiles.filterNot { it.id == "copy1" })
+    }
+    @Test fun editingTheCopyNeverReachesTheSharedTemplateOrAnotherApp() {
+        val data = workspace().bind("com.other.app", global.id)
+            .copyProfileForApp("com.example.app", "copy1", "Global (copy)")
+        val edited = data.copy(profiles = data.profiles.map { if (it.id == "copy1") it.copy(model = "Edited") else it })
+        assertEquals("Edited", field(edited).target)
+        assertEquals("Pixel", EffectiveSpoofProfileResolver.resolve(edited, "com.other.app", observed)
+            .fields.first { it.field == SpoofField.MODEL }.target)
+        assertEquals(global, edited.profiles.first { it.id == global.id })
+    }
+    @Test fun copyCarriesThisAppOwnOptionsAndFailsClosedWithoutASource() {
+        val data = workspace().bind("com.example.app", custom.id)
+            .setAppPolicy("com.example.app", AppSpoofProfile(SpoofInheritanceMode.CUSTOM, tags = setOf("dnd")))
+            .copyProfileForApp("com.example.app", "copy2", "Custom (copy)")
+        assertEquals("copy2", data.bindings["com.example.app"])
+        assertEquals(setOf("dnd"), data.appPolicy("com.example.app").tags)
+        // بلا مصدر (لا ربط ولا قالب عام) وبلا حزمة صحيحة: فشل صريح لا كتابة صامتة.
+        assertTrue(runCatching {
+            SpoofWorkspace(listOf(global)).copyProfileForApp("com.example.app", "copy3", "Copy")
+        }.isFailure)
+        assertTrue(runCatching {
+            workspace().copyProfileForApp("com..bad", "copy4", "Copy")
+        }.isFailure)
+    }
+    @Test fun copyRefusesDuplicateIdBlankNameAndTheHundredProfileCap() {
+        assertTrue(runCatching {
+            workspace().copyProfileForApp("com.example.app", global.id, "Copy")
+        }.isFailure)
+        assertTrue(runCatching {
+            workspace().copyProfileForApp("com.example.app", "copy5", "  ")
+        }.isFailure)
+        val full = SpoofWorkspace((1..100).map { global.copy(id = "p$it") }, emptyMap(), "p1")
+        assertTrue(runCatching { full.copyProfileForApp("com.example.app", "copy6", "Copy") }.isFailure)
+    }
     @Test fun capabilitiesNeverInventRootOrProcessEvidence() {
         assertEquals(SpoofCapabilityState.UNKNOWN, SpoofCapabilityResolver.state(SpoofField.MODEL, null))
         assertEquals(SpoofCapabilityState.UNAVAILABLE, SpoofCapabilityResolver.state(SpoofField.MODEL, false))

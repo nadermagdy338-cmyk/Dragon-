@@ -82,6 +82,25 @@ data class SpoofWorkspace(
         return copy(bindings = bindings - pkg, appPolicies = appPolicies - pkg)
     }
 
+    /**
+     * P1 — نسخة هذا التطبيق وحده كملف مشترك جديد: القالب الجديد نسخة مستقلة
+     * (لا مرجع)، والأصل المشترك لا يتأثر. المعرّف الجديد إلزامي لمنع الالتباس.
+     */
+    fun copyProfileForApp(
+        pkg: String,
+        newId: String,
+        newName: String,
+    ): SpoofWorkspace {
+        require(validPackage(pkg))
+        val sourceId = bindings[pkg] ?: globalProfileId
+            ?: error("no-source-profile")
+        val source = profiles.firstOrNull { it.id == sourceId }
+            ?: error("missing-source-profile")
+        require(profiles.none { it.id == newId })
+        require(newName.isSpoofValue())
+        return upsert(source.copy(id = newId, name = newName)).bind(pkg, newId)
+    }
+
     fun appPolicy(pkg: String): AppSpoofProfile = appPolicies[pkg]
         ?: AppSpoofProfile(if (pkg in bindings) SpoofInheritanceMode.CUSTOM else SpoofInheritanceMode.GLOBAL)
 

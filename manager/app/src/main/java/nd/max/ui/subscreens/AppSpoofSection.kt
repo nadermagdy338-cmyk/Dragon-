@@ -158,6 +158,17 @@ internal fun AppSpoofSection(
                                     values[SpoofField.DEVICE].orEmpty(), values[SpoofField.PRODUCT].orEmpty()) }.getOrNull()
                                 newProfileForApp = editing != null
                             }) { Text(stringResource(R.string.spoof_ui_new_from_device)) }
+                            // نسخة مستقلة: القالب الموروث يُنسخ إلى ملفّ خاصّ بهذا التطبيق وحده،
+                            // فلا يبقى تعديله لاحقًا مقيّدًا بحدود القالب المشترك ولا معدّلًا له.
+                            val copySource = if (policy.mode == SpoofInheritanceMode.CUSTOM) selected
+                                else if (policy.mode == SpoofInheritanceMode.GLOBAL) globalProfile else null
+                            if (copySource != null) {
+                                val copyName = stringResource(R.string.spoof_ui_copy_name, copySource.name)
+                                TextButton(enabled = !busy && workspace.profiles.size < 100,
+                                    onClick = { viewModel.copyProfileForApp(packageName, copyName) }) {
+                                    Text(stringResource(R.string.spoof_ui_copy_for_app))
+                                }
+                            }
                         }
                     }
                 }

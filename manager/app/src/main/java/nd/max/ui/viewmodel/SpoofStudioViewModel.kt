@@ -20,6 +20,7 @@ import nd.max.core.spoof.SpoofWorkspace
 import nd.max.core.spoof.planSpoofImport
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -72,6 +73,20 @@ class SpoofStudioViewModel @Inject constructor(
         if (!exists && latest.profiles.size >= 100) return@change latest
         val withProfile = latest.upsert(sample.toProfile())
         if (pkg != null) withProfile.bind(pkg, sample.profileId) else withProfile.copy(globalProfileId = sample.profileId)
+    }
+
+    /**
+     * «نسخة مستقلة» لهذا التطبيق: ينسخ ملفّه الحاليّ (المربوط، أو القالب العام إن كان وارثًا) إلى
+     * ملفٍّ جديد بمعرّف جديد (‏`copy_<uuid>`) ثم يربط التطبيق بالنسخة فيصير وضعه «مخصّصًا». الأصل
+     * المشترك لا يُعدَّل، فتعديل هذه النسخة لاحقًا لا يغيّر أيّ تطبيق آخر — وهذا هو الفرق عن
+     * وراثة القالب. الاسم يأتي من الواجهة (نصّ مُعرَّب) لأن الـViewModel لا يملك موارد.
+     *
+     * التشغيل متسامح عن قصد: بلا مصدر (لا ربط ولا قالب عام) أو عند بلوغ حدّ المئة لا تتغيّر
+     * الحالة ولا يُرمى استثناء (`repository.update` نفسه يفشل مغلقًا) — والزرّ في الواجهة لا يظهر أصلًا
+     * حين لا مصدر، فالحالتان حزامان لا مسارًا اعتياديًّا.
+     */
+    fun copyProfileForApp(pkg: String, newName: String) = change { latest ->
+        runCatching { latest.copyProfileForApp(pkg, "copy_" + UUID.randomUUID(), newName) }.getOrDefault(latest)
     }
 
     /** يضيف/يزيل وسمًا لتطبيق — على أحدث حالة تحت القفل. وسم متعارض مع آخر قائم يُستبدل به (الأحدث يفوز). */

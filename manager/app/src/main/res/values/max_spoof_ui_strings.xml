@@ -15,6 +15,8 @@
     <string name="spoof_ui_apply_confirm">Apply</string>
     <string name="spoof_ui_edit_current">Edit fields</string>
     <string name="spoof_ui_new_from_device">New from this device</string>
+    <string name="spoof_ui_copy_for_app">Independent copy</string>
+    <string name="spoof_ui_copy_name">%1$s (copy)</string>
     <string name="spoof_ui_saved_profiles">Saved profiles</string>
     <string name="spoof_ui_saved_profiles_n">%1$d saved</string>
     <string name="spoof_ui_advanced">Advanced</string>
