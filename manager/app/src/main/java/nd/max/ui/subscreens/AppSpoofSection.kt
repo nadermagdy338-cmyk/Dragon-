@@ -224,7 +224,12 @@ internal fun AppSpoofSection(
                     }
                 }
 
-                // 4 — متقدّم: كل السياسة والخيارات والملفّات والتحقّق — لا تزحم الفعل اليومي.
+                // 4 — إقرار المخاطر: قرب الفعل لا في قاع الصفحة (التجهيز معطّل حتى يُقرأ).
+                SpoofBarrierSection(packageName, packageName in acknowledged, !busy,
+                    onAcknowledge = { viewModel.acknowledge(packageName, true) },
+                    onRevoke = { viewModel.acknowledge(packageName, false) })
+
+                // 5 — متقدّم: كل السياسة والخيارات والملفّات والتحقّق — لا تزحم الفعل اليومي.
                 MaxCollapsibleGroup(
                     title = stringResource(R.string.spoof_ui_advanced),
                     summary = stringResource(R.string.spoof_ui_advanced_summary),
@@ -360,10 +365,6 @@ internal fun AppSpoofSection(
                     }
                 }
 
-                // 5 — إقرار المخاطر
-                SpoofBarrierSection(packageName, packageName in acknowledged, !busy,
-                    onAcknowledge = { viewModel.acknowledge(packageName, true) },
-                    onRevoke = { viewModel.acknowledge(packageName, false) })
             }
         }
     }
