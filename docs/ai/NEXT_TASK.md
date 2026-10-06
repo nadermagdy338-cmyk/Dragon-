@@ -8,6 +8,8 @@
 
 **القياس:** `/tmp/run-maxai-guard.sh` (kotlinc 2.3.10 + JUnit 4.13.2 من `cwd=manager`): **قبل** `Tests run: 7, Failures: 1` عند السطر ٧٩ (إعادة إنتاج مطابقة لسطر CI) ⇒ **بعد** `OK (7 tests)` · `JUNIT_EXIT=0`. وفحص أثر تعديلي السابق: الحرسان الوحيدان اللذان يقرآن `CpuCoreControlScreen.kt` (`DeviceInfoShortcutEntryTest` · `DeviceInfoShortcutOrdersTest`) شرائطهما التي تخصّ الملفّ **كلها تمرّ** (`MaxDeviceInfoShortcut(` · `MaxDestination.CpuCoreControl` · ترتيب `trailing?.invoke()` بعد `CoreGridMap(`). والبوابات الخفيفة بعد الإصلاح: `kt_balance` 2208/0 · `code_health` · `i18n_coverage` · `--prune all` 0 يتيم — **exit 0**.
 
+**تقرير لا إصلاح (`TEST-HARNESS-STALE-01`):** `tools/test_maxai_jvm.py` **ميت** — يسرد ٣ مسارات محذوفة (`ui/component/FilePaneColumn.kt` · `ui/util/FilePaneModel.kt` · `ui/util/FilePaneModelTest.kt`) وصنفَي اختبار لم يعودا (`FilePaneModelTest` · `MaxAiTimelineSearchTest`)، وبعد إسقاطها لا تُغلق مجموعته الخالصة (تطلب `FileArchiveEngine.kt`/`FilePermissionModel.kt` ثم Compose/Android). **وليست في CI ولا في البوابات**، فقرار تصحيحها (أيّ مصادر تُعرَب الآن) يُترك لجولة قادمة ولم يُعدَّل منها شيء.
+
 **حدود صادقة:** لا Gradle هنا ⇒ لم تُشغَّل المجموعة كاملة (2557)، والمقيس هو الصنف الفاشل + الحرسان الملامسان، والمجموع يُنتظر من CI. وتحذيرات المُصرّف الثلاثة في السجلّ (`Unnecessary safe call` · `Check for instance is always 'true'` · `Locale` deprecated) **لم تُمسّ**: ضجيج أساس لا يُصلَح بلا طلب (I-43/I-44).
 **NEXT:** تشغيل CI: `:app:testReleaseUnitTest` أخضر (2557 · 0).
 
