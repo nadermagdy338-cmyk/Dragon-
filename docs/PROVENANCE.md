@@ -10,11 +10,11 @@
 
 | المقياس | العدد |
 | --- | --- |
-| ملفات متعقّبة | 2771 |
+| ملفات متعقّبة | 2803 |
 | ملفات مشتقّة من GPL | **0** |
 | منها داخل مسار الإصدار | **0** |
 | ملفات مجهولة الترخيص | 0 |
-| ملفات مملوكة (MaxManager) | 2319 |
+| ملفات مملوكة (MaxManager) | 2351 |
 | ملفات برخصة طرف ثالث حُرّة | 452 |
 | تبعيات Gradle | 43 |
 | صناديق Cargo | 108 |
@@ -48,7 +48,7 @@
 
 ## ج) ملفات بلا أصل خارجي مُعلَن
 
-العدد: **2292** ملفًا (موارد، أيقونات، خطوط، بيانات، ومصادر بترويسة ملكية داخلية بلا ذكر أصل خارجي). وتفصيلها الكامل في `build/license-report.json`.
+العدد: **2320** ملفًا (موارد، أيقونات، خطوط، بيانات، ومصادر بترويسة ملكية داخلية بلا ذكر أصل خارجي). وتفصيلها الكامل في `build/license-report.json`.
 
 ## د) التبعيات الخارجية
 
@@ -417,13 +417,21 @@
 | `manager/app/src/main/java/nd/max/core/diagnostics/LogEventLine.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/diagnostics/LogHeader.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/diagnostics/LogSettingsDigest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/gamespace/CockpitModel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/gamespace/GameLibrary.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/gamespace/GameLibraryAccess.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/gamespace/GameLobbyMeta.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/gamespace/GameProfileDocument.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/gamespace/GameProfilePersistence.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/gamespace/GameProfileRepository.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/gamespace/GameSessionPanel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/gamespace/GameSpaceRepository.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/gamespace/LobbyModel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/gamespace/PanelClocks.kt` | MaxManager app | Proprietary (All rights reserved) | REPO_DEFAULT | ADD_COPYRIGHT_HEADER |
+| `manager/app/src/main/java/nd/max/core/gamespace/PanelControls.kt` | MaxManager app | Proprietary (All rights reserved) | REPO_DEFAULT | ADD_COPYRIGHT_HEADER |
+| `manager/app/src/main/java/nd/max/core/gamespace/PanelDevice.kt` | MaxManager app | Proprietary (All rights reserved) | REPO_DEFAULT | ADD_COPYRIGHT_HEADER |
+| `manager/app/src/main/java/nd/max/core/gamespace/PanelHandleMath.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/gamespace/PanelToggles.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/hardware/AdaptiveProfileEngine.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/hardware/AtlasAdapters.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/hardware/AtlasAdaptiveExecutor.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -525,6 +533,8 @@
 | `manager/app/src/main/java/nd/max/core/privilege/ShizukuGateway.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/core/recommendation/RecommendationModels.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/recommendation/RecommendationTextClassifier.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/spoof/CopgTag.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/spoof/SampleDevice.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofApplyBackend.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofApplyEngine.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofBarrierStore.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -533,6 +543,7 @@
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofConfigurationRepository.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofCopgBackend.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofCopgContract.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/spoof/SpoofDeviceCatalog.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofEngineAdapter.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofEngineRegistry.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofExistingPerApp.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -577,11 +588,16 @@
 | `manager/app/src/main/java/nd/max/ui/component/FilePropertiesDialog.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/component/FileSearchDialog.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/component/FileWindowChrome.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
-| `manager/app/src/main/java/nd/max/ui/component/GamePanelSurface.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/component/GamePanelCockpit.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/component/GamePanelHandle.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/component/GamePanelSurface.kt` | MaxManager app | Proprietary (All rights reserved) | REPO_DEFAULT | ADD_COPYRIGHT_HEADER |
 | `manager/app/src/main/java/nd/max/ui/component/GaugeComponent.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/component/HomeComponents.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/component/HudSurface.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/component/LiveGraphComponent.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/component/LobbyCarousel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/component/LobbyMotion.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/component/LobbyVisuals.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/component/MaxAiEntryButton.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/component/MaxAiShortcut.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/component/MaxControls.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -665,6 +681,7 @@
 | `manager/app/src/main/java/nd/max/ui/navigation/MaxNavBar.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/navigation/MaxNavGraph.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/overlay/OverlayWindow.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/overlay/SilkDragController.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/settings/AppLanguage.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/settings/LanguagePicker.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/settings/SettingsPreference.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -672,6 +689,7 @@
 | `manager/app/src/main/java/nd/max/ui/subscreens/AboutScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/AppSettingsScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/AppSpoofSection.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/subscreens/AppSpoofTagsSection.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/BypassChargeScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/BypassCheckScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/ChargingScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
@@ -704,13 +722,12 @@
 | `manager/app/src/main/java/nd/max/ui/subscreens/FileManagerState.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/FpsGoSettingsScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/FpsOverlayScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/subscreens/GameLobbyManageDialog.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/GameLobbyScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
-| `manager/app/src/main/java/nd/max/ui/subscreens/GameSpaceScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/subscreens/GameProfileDialog.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/GovSettingsScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/GpuStudioScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/HmaCompanionScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
-| `manager/app/src/main/java/nd/max/ui/subscreens/IdentityAppPicker.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
-| `manager/app/src/main/java/nd/max/ui/subscreens/IdentityEngineSection.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/LogsViewerScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/LogsViewerSections.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/MaxBackupHubScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
@@ -728,11 +745,10 @@
 | `manager/app/src/main/java/nd/max/ui/subscreens/PrivilegeScreen.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/ProcessManagerScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/ResolutionScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/subscreens/SampleDevicePickerDialog.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/SetEditScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/SpoofProfileEditor.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
-| `manager/app/src/main/java/nd/max/ui/subscreens/SpoofStudioScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/SpoofSurfaceSections.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
-| `manager/app/src/main/java/nd/max/ui/subscreens/SpoofTransferSection.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/StorageDetailScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/ThermalDetailScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/TouchBoostScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
@@ -943,10 +959,15 @@
 | `manager/app/src/test/java/nd/max/core/diagnostics/LogDiagnosticReportTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/diagnostics/LogEventLineTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/diagnostics/LogHeaderTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/gamespace/CockpitModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/gamespace/GameLibraryTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/gamespace/GameLobbyMetaTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/gamespace/GameProfileDocumentTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/gamespace/GameProfilePersistenceTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/gamespace/GameSessionPanelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/gamespace/LobbyModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/gamespace/PanelHandleMathTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/gamespace/PanelTogglesTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/hardware/AtlasAdapterRegistryTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/hardware/AtlasAdaptiveExecutorTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/hardware/AtlasAdaptiveReadTransportTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -1004,9 +1025,11 @@
 | `manager/app/src/test/java/nd/max/core/platform/HudSessionTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/platform/ProcessFeedTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/recommendation/RecommendationTextClassifierTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/spoof/CopgTagTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofApplyBackendTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofCapabilityMatrixTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofCopgContractTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/spoof/SpoofDeviceCatalogTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofEngineAdapterTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofEngineRegistryTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofExistingPerAppTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
