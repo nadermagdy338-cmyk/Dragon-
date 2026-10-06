@@ -86,6 +86,7 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     composable(MaxDestination.DozeMode.route) { DozeModeScreen(navController) }
     composable(MaxDestination.Dex2oat.route) { Dex2oatScreen(navController) }
     composable(MaxDestination.StorageDetail.route) { StorageDetailScreen(navController) }
+    composable(MaxDestination.UltraCleaner.route) { UltraCleanerScreen(navController) }
     composable(MaxDestination.NetworkScheduler.route) { NetworkSchedulerScreen(navController) }
     composable(MaxDestination.NetworkDetail.route) { NetworkDetailScreen(navController) }
     composable(MaxDestination.ProcessManager.route) { ProcessManagerScreen(navController) }

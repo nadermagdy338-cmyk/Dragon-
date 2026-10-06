@@ -33,7 +33,6 @@ import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nd.max.core.maxai.MaxAiState
-import nd.max.core.maxai.ProfileRequestState
 import nd.max.ui.component.RebootBottomSheet
 import nd.max.ui.component.RootAppDialog
 import nd.max.ui.component.maxAdaptiveContentWidth
@@ -60,7 +59,6 @@ fun HomeScreen(
     val ui by homeViewModel.uiState.collectAsStateWithLifecycle()
     val dashboard by dashboardViewModel.dashboardState.collectAsStateWithLifecycle()
     val maxAi by maxAiViewModel.state.collectAsStateWithLifecycle()
-    val profileRequest by maxAiViewModel.profileRequest.collectAsStateWithLifecycle()
     var showReboot by remember { mutableStateOf(false) }
     // **والاسم لا يُقرأ في التركيب (عطب سرعة مُبلَّغ عنه: «جلب المعلومات في الشاشة الرئسية
     // بطيء، انتظر دقيقة»):** كان `remember { getRealDeviceName(context) }` — و`remember`
@@ -87,6 +85,16 @@ fun HomeScreen(
     //
     // **ويُقرأ عند كل ظهور للرئيسية لا مرّةً واحدة عند التركيب:** من فتح شاشةً ثم عاد يرى
     // ترتيبًا يضمّها، ومن فتح ورقة الإعداد يرى الأثر فيه فورًا. و`isVisible` هو مفتاح القراءة.
+    // **طبقة الامتياز:** تُقرأ من `PrivilegeManager` الموجود — لا قارئ ثانٍ للصلاحيات. وهي
+    // تُعرض كحالة في البطل، فتُجمَع كما تُجمَع حالة Max AI (نفس الأسلوب، نفس المصدر).
+    val privilege by nd.max.core.privilege.PrivilegeManager.snapshot.collectAsStateWithLifecycle()
+    val boost by dashboardViewModel.memoryBoost.collectAsStateWithLifecycle()
+
+    // **وجولة الرئيسية** (`HomeGuideModel`): هل أُتمّت؟ والسجلّ على الجهاز وحده، والقراءة عند
+    // التركيب لا في كل إطار. و`?` في الرأس يعيدها بطلب صريح.
+    val guideStore = remember(context) { HomeGuideStore.of(context) }
+    var guideFinished by remember { mutableStateOf(guideStore.finished) }
+
     val deckStore = remember(context) { HomeDeckStore.of(context) }
     val usageStore = remember(context) { ScreenUsageStore.of(context) }
     var deckMode by remember { mutableStateOf(deckStore.mode) }
@@ -111,18 +119,28 @@ fun HomeScreen(
             ui = ui,
             dashboard = dashboard,
             maxAi = maxAi,
-            profileRequest = profileRequest,
             deviceName = deviceName,
             deckEntries = deckEntries,
             onOpenDeck = { entry -> navActions.navigateRoute(entry.destination.route) },
             onConfigureDeck = { showDeckSettings = true },
+            accessLevel = privilege.level,
+            guideFinished = guideFinished,
+            onGuideFinish = {
+                guideFinished = true
+                guideStore.finished = true
+            },
+            onShowGuide = {
+                guideFinished = false
+                guideStore.restart()
+            },
+            boost = boost,
+            onBoost = dashboardViewModel::boostMemory,
             topPadding = padding.calculateTopPadding(),
             // المسار يمرّ ببوّابة التنقّل نفسها التي تمرّ بها بقية الشاشات، فلا
             // يُنقل نمط `?pkg={pkg}` خامًّا إلى الـNavigator.
             onNavigate = navActions::navigateRoute,
             onReboot = { showReboot = true },
             onSettings = { navActions.navigateTo(MaxDestination.Settings) },
-            onAiRetry = maxAiViewModel::refresh
         )
     }
 
@@ -148,10 +166,12 @@ fun HomeScreen(
             onDismiss = { showDeckSettings = false },
         )
     }
-    // وحوار «ملف الأداء» أُزيل بأمر المالك مع بطاقته: تبديل الملف يمرّ بالمحرك من لوحة الحكم
-    // في الرئيسية (`VerdictPanel` ← `profileRequest`، فيه أثر مُسجَّل وحالة «مُطبَّق» مقروءة من
-    // النظام) ومن بلاطة الإعدادات السريعة — وقسم Max AI القديم (`ProfilesSection`) أُزيل
-    // بأمر المالك (`MAXAI-CONTROLS-TRIM-01`) فلم يبقَ تكرار ثالث.
+    // وحوار «ملف الأداء» أُزيل بأمر المالك مع بطاقته، وبطاقة «قصة الأداء» (`VerdictPanel`)
+    // أُزيلت من هذه الشاشة بأمر المالك أيضًا (`HOME-STORY-TRIM-01`): تبديل الملف يمرّ بالمحرك
+    // من بلاطة الإعدادات السريعة ومن شاشة Max AI — وقسم `ProfilesSection` القديم أُزيل
+    // (`MAXAI-CONTROLS-TRIM-01`) فلم يبقَ تكرار ثالث. و`profileRequest` لم يبقَ له مستهلك هنا
+    // فسُلِّم إلى الشاشات التي تعرضه فعلًا (`HomeActivityViewModel` لبلاطة النشاط) بدل أن
+    // يُجمَع في الرئيسية بلا قارئ.
 }
 
 @Composable
@@ -159,7 +179,6 @@ fun HomeDashboardContent(
     ui: HomeUiState,
     dashboard: DashboardState,
     maxAi: MaxAiState,
-    profileRequest: ProfileRequestState,
     deviceName: String,
     deckEntries: List<HomeDeckEntry>,
     onOpenDeck: (HomeDeckEntry) -> Unit,
@@ -168,7 +187,12 @@ fun HomeDashboardContent(
     onNavigate: (String) -> Unit,
     onReboot: () -> Unit,
     onSettings: () -> Unit,
-    onAiRetry: () -> Unit
+    accessLevel: nd.max.core.privilege.PrivilegeLevel = nd.max.core.privilege.PrivilegeLevel.NONE,
+    guideFinished: Boolean = true,
+    onGuideFinish: () -> Unit = {},
+    onShowGuide: () -> Unit = {},
+    boost: nd.max.ui.viewmodel.MemoryBoostState = nd.max.ui.viewmodel.MemoryBoostState(),
+    onBoost: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     val backdrop = remember(colors.background, colors.primary, colors.tertiary) {
@@ -202,7 +226,6 @@ fun HomeDashboardContent(
                     ui = ui,
                     dashboard = dashboard,
                     maxAi = maxAi,
-                    profileRequest = profileRequest,
                     deviceName = deviceName,
                     // ولا مسار GPU هنا: صفّ «الرسوم/المعالج» نُقل إلى شاشاته المالكة (خطة storyboard-home
                     // المرحلة 4)، والوصول إلى GPU من الـdeck ← Control ← محور الرسوم. وحقل المسار كان
@@ -210,10 +233,15 @@ fun HomeDashboardContent(
                     onNavigate = onNavigate,
                     onReboot = onReboot,
                     onSettings = onSettings,
-                    onAiRetry = onAiRetry,
                     deckEntries = deckEntries,
                     onOpenDeck = onOpenDeck,
-                    onConfigureDeck = onConfigureDeck
+                    onConfigureDeck = onConfigureDeck,
+                    accessLevel = accessLevel,
+                    guideFinished = guideFinished,
+                    onGuideFinish = onGuideFinish,
+                    onShowGuide = onShowGuide,
+                    boost = boost,
+                    onBoost = onBoost
                 )
             }
         }

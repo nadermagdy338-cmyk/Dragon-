@@ -34,6 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import android.provider.Settings
 
 object MaxMotion {
     const val fast = 160
@@ -81,7 +83,35 @@ object MaxMotion {
             )
 }
 
-/** A restrained reveal used for dashboard blocks and settings groups. */
+/**
+ * هل أوقف المستخدم حركات النظام؟ (`Settings.Global.ANIMATOR_DURATION_SCALE == 0`).
+ *
+ * يُقرأ مرّة عند التركيب لا في كل إطار: هو تفضيل نظام يُقلَّب في الإعدادات، ومن غيّره يعيد
+ * فتح الشاشة فيُعاد التركيب. والقراءة مغلّفة بـ`runCatching` لأن مزوّد الإعدادات قد يحجب
+ * المفتاح على بعض البنيات — وحجبُه ليس «الحركة مطلوبة»، بل «لا نعرف»، والمجهول هنا يُحلّ إلى
+ * السلوك المعتاد لا إلى إسقاط حركة لم يطلبها أحد.
+ */
+@Composable
+fun rememberAnimationsEnabled(): Boolean {
+    val context = LocalContext.current
+    return remember(context) {
+        runCatching {
+            Settings.Global.getFloat(
+                context.contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                1f
+            ) != 0f
+        }.getOrDefault(true)
+    }
+}
+
+/**
+ * A restrained reveal used for dashboard blocks and settings groups.
+ *
+ * **ويحترم إيقاف الحركة في النظام:** من أوقف الحركات (`ANIMATOR_DURATION_SCALE = 0`) يُعرض له
+ * المحتوى كما هو بلا fade ولا إزاحة — لا «حركة أسرع». وهذا شرط خطة المستوى (`DESIGN.md`:
+ * "احترم Reduce Motion")، وكان غير مطبَّق: الـAPI كان يُنادي `animateTo` بلا سؤال.
+ */
 @Composable
 fun MaxReveal(
     visible: Boolean = true,
@@ -89,6 +119,10 @@ fun MaxReveal(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    if (!rememberAnimationsEnabled()) {
+        if (visible) content()
+        return
+    }
     val entrance = remember { Animatable(0f) }
     LaunchedEffect(visible) {
         if (visible) {

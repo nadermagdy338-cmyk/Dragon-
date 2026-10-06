@@ -5,10 +5,10 @@
  */
 package nd.max.ui.mainscreens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,25 +24,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.BatteryChargingFull
-import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PowerSettingsNew
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Thermostat
-import androidx.compose.material.icons.rounded.Timeline
-import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -52,29 +47,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.max
 import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSpace
 import nd.max.R
 import nd.max.core.maxai.MaxAiState
-import nd.max.core.maxai.ProfileRequestState
+import nd.max.core.privilege.PrivilegeLevel
 import nd.max.ui.component.MaxAiEntryButton
-import nd.max.ui.component.NeuralActionTile
-import nd.max.ui.design.MaxCardData
-import nd.max.ui.design.MaxCardGrid
-import nd.max.ui.design.MaxTone
+import nd.max.ui.component.MaxReveal
+import nd.max.ui.component.NeuralPalette
+import nd.max.ui.component.NeuralSparkline
 import nd.max.ui.component.NeuralCaption
 import nd.max.ui.component.NeuralFactTile
-import nd.max.ui.component.NeuralFeedRow
 import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralSectionHeader
-import nd.max.ui.component.NeuralTile
-import nd.max.ui.component.NeuralTrack
 import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.theme.MonoValueStyleSmall
 import nd.max.ui.viewmodel.DashboardState
 import nd.max.ui.viewmodel.HomeUiState
+import nd.max.ui.viewmodel.MemoryBoostState
 import nd.max.ui.util.LoadSample
 import kotlin.math.roundToInt
 
@@ -86,16 +79,31 @@ import kotlin.math.roundToInt
  * passport, AI console, the old "live performance" gauge stack, the base
  * profile row) is gone; those live in Max AI, Control and Diagnostics.
  *
- * Reading order, each block earning its place exactly once:
- *  0. storyboard— what your choices are actually doing right now: the last per-app
- *               session's verified hardware results, MAX AI's owned knobs, and your
- *               own manual locks. It states outcomes, never instruments: heat, load and
- *               cores keep living in the screens that own them.
- *  1. pulse   — device identity, heat, uptime, battery and power draw at a glance
- *  2. focus   — appears only when something is actually wrong
- *  3. matrix  — memory and storage capacity: RAM, ZRAM and internal storage side by side
- *  4. verdict — the limiter, in one sentence, with recent events
- *  5. deck    — four destinations people actually reach for
+ * Reading order, each block earning its place exactly once (`MAX-MANAGER-LEVEL-UP.md` §5.1):
+ *  0. header  — brand, engine state, power and settings
+ *  1. hero    — device identity, **access mode**, heat, MAX AI, uptime/battery/power draw,
+ *               and the door to Device Info. One honest number is allowed to be loud here.
+ *  2. guide   — the moving banners, until the tour is finished (§5.4).
+ *  3. pulse   — CPU | GPU as live clocks with frequency history, not a second load gauge.
+ *  4. activity— what your choices are actually doing right now: the last per-app session's
+ *               verified hardware results, MAX AI's owned knobs, and your own manual locks.
+ *               It states outcomes, never instruments.
+ *  5. focus   — appears only when something is actually wrong.
+ *  6. matrix  — memory and storage capacity: RAM, ZRAM and internal storage side by side,
+ *               now with the two actions that make it usable (Boost, and the cleaner door).
+ *  7. cleaner — storage pressure and the door to Ultra Cleaner (§6).
+ *  8. deck    — four destinations people actually reach for.
+ *
+ * **ورحلت `VerdictPanel` («قصة الأداء») بأمر المالك (`HOME-STORY-TRIM-01`):** كانت بطاقةً
+ * بعنوان وشريط ثقة وحُكم محدِّد وجدول أحداث، تجيب سؤالًا لم يسأله أحد عند فتح التطبيق، وتُكرّر
+ * ما تقوله ثلاث بطاقات فوقها. ومنطقها (`PerformanceIntelligence`) حُذف من المشروع لا من
+ * هذه الشاشة وحدها: بلا مستهلك لا معنى لعمل دوري في مسار القياس. ولا تُستبدل ببطاقة «ذكاء»
+ * أخرى فارغة — الحُكم الباقي هو `FocusCard`، وهي تظهر عند عطل حقيقي فقط.
+ *
+ * **وما لم يُبنَ من الخطة عن قصد (°5.3):** «شبكة الحيوية 2×2» لا تُضاف، لأن ما فيها موجود
+ * أقوى منها: بطاقة CPU/GPU تعرض **تاريخًا** من 36 عيّنة لا رقمًا، والحرارة والبطارية والوقت
+ * وواط السحب في البطل، والذاكرة في مصفوفتها. وخليّة `CPU` بجانب بطاقة CPU هي الرسم الثاني
+ * لنفس الرقم — وهو ما يمنعه عقد هذه الشاشة نفسه («لا يُرسم قياس مرّتين»).
  *
  * The measurement panels that duplicated owner screens (CPU/GPU load tiles, the
  * core matrix, RAM/swap/storage budgets) are gone from here per the storyboard plan's
@@ -124,7 +132,6 @@ internal fun LegendaryHomeDashboard(
     ui: HomeUiState,
     dashboard: DashboardState,
     maxAi: MaxAiState,
-    profileRequest: ProfileRequestState,
     deviceName: String,
     // **وبطاقات المنصة تُمرَّر ولا تُكتب هنا (أمر المالك):** عددها ٤ إلى ٦ وترتيبها يتبع
     // الاستعمال أو اختيار المستخدم — والقاعدة في `homeDeckSelection` وحدها، فلا نسخة ثانية
@@ -136,14 +143,39 @@ internal fun LegendaryHomeDashboard(
     onNavigate: (String) -> Unit,
     onReboot: () -> Unit,
     onSettings: () -> Unit,
-    onAiRetry: () -> Unit
+    /**
+     * طبقة الامتياز المكتشفة — تُقرأ من `PrivilegeManager` الموجود لا من قراءة ثانية.
+     *
+     * وهي **حالة لا شرح** (طلب §5.2-2): شارة تحمل الاسم، وسطر واحد يقول ما يُفتح وما يُقفل.
+     */
+    accessLevel: PrivilegeLevel,
+    /** هل أُتمّت جولة البانرات؟ (سجلّ الجهاز — `HomeGuideStore`). */
+    guideFinished: Boolean,
+    onGuideFinish: () -> Unit,
+    /** حالة «تعزيز الذاكرة» الأخيرة، تُعرض في بطاقة الذاكرة. */
+    boost: MemoryBoostState,
+    onBoost: () -> Unit,
+    /** `?` في الرأس: يعيد جولة البانرات بطلب صريح (`HomeGuideModel`). */
+    onShowGuide: () -> Unit,
 ) {
     val online = ui.rootStatus && ui.moduleInstalled
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        HomeHeader(online, onSettings, onReboot)
-        PulsePanel(
+        /*
+         * الدخول المتتابع (عقد §5.4-أ): كل كتلة تفيد ثم تُسلّم العين إلى التي تحتها.
+         * والتأخير يزيد بمقدار ثابت عبر `index`، و`MaxReveal` نفسه يقصّه عنده حدّه (160ms)
+         * ويحترم إيقاف الحركة في النظام — فلا يُضبط رقم الدخول هنا.
+         *
+         * والرقم **مشتقّ من الموضع** لا مكتوب لكل كتلة: إدخال كتلة في الوسط لا يترك فجوة في
+         * الإيقاع، وهو نفس مبدأ «لا رقمين لفكرة واحدة» في بقية الشاشة.
+         */
+        var slot = 0
+        MaxReveal(delayMillis = RevealStep * slot++) {
+            HomeHeader(online, onSettings, onReboot, onShowGuide)
+        }
+        MaxReveal(delayMillis = RevealStep * slot++) { PulsePanel(
             deviceName = deviceName,
             dashboard = dashboard,
+            accessLevel = accessLevel,
             // حالة الوعي في Max AI تُقرأ من مسارها الحقيقي (`MaxAiState.aiEnabled`) ولا تُخمَّن من
             // وجود الشاشة: باقي الواجهة تكذب ADR-07 ("المجهول يُعلَن مجهولًا")، ووجود الشاشة
             // لا يقول مُشغّل من متوقّف.
@@ -157,33 +189,48 @@ internal fun LegendaryHomeDashboard(
             // مدخل Max AI من أول بطاقة (طلب المالك): كان مقعدًا في الشريط السفلي، وصار
             // بوّابة في البطاقة التي تُقرأ أولًا — والمقعد الذي أخلاه صار للإعدادات.
             onMaxAi = { onNavigate(MaxDestination.MaxAi.route) }
-        )
-        HardwarePulseCards(
+        ) }
+        MaxReveal(delayMillis = RevealStep * slot++) {
+            HomeGuideStrip(finished = guideFinished, onFinish = onGuideFinish)
+        }
+        MaxReveal(delayMillis = RevealStep * slot++) { HardwarePulseCards(
             dashboard = dashboard,
             onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
             onGpu = { onNavigate(MaxDestination.GpuStudio.route) }
-        )
+        ) }
         // بطاقة نشاط واحدة: تحكي الأثر المؤكد فقط، وتترك القياسات لشاشاتها المالكة.
-        UnifiedActivityCard(maxAi = maxAi)
-        FocusCard(dashboard, onNavigate)
+        MaxReveal(delayMillis = RevealStep * slot++) { UnifiedActivityCard(maxAi = maxAi) }
+        MaxReveal(delayMillis = RevealStep * slot++) { FocusCard(dashboard, onNavigate) }
         // مصفوفة الذاكرة تحت بطاقة التحذير مباشرة: من رأى «التخزين يكاد يمتلئ» يجد
         // تحته الأرقام التي تشرح العبارة، بلا أن يعيد هذا السطر إطلاق الحُكم نفسه.
-        MemoryMatrixCard(dashboard = dashboard, onNavigate = onNavigate)
-        VerdictPanel(
-            dashboard = dashboard,
-            maxAi = maxAi,
-            request = profileRequest,
-            onLive = { onNavigate(MaxDestination.MaxLive.route) },
-            onThermal = { onNavigate(MaxDestination.ThermalDetail.route) },
-            onRetry = onAiRetry
-        )
-        CommandDeck(
+        MaxReveal(delayMillis = RevealStep * slot++) {
+            MemoryMatrixCard(
+                dashboard = dashboard,
+                onNavigate = onNavigate,
+                boost = boost,
+                onBoost = onBoost,
+            )
+        }
+        // وبطاقة التنظيف تحت المصفوفة: كلتاهما عن السعة، والقارئ ينتقل من «كم بقي» إلى
+        // «ما أستطيع تحريره» بلا بطاقة ثالثة بينهما تفصل السؤال عن جوابه.
+        MaxReveal(delayMillis = RevealStep * slot++) {
+            UltraCleanerHomeCard(dashboard = dashboard, onNavigate = onNavigate)
+        }
+        MaxReveal(delayMillis = RevealStep * slot++) { CommandDeck(
             entries = deckEntries,
             onOpen = onOpenDeck,
             onConfigure = onConfigureDeck,
-        )
+        ) }
     }
 }
+
+/**
+ * إيقاع الدخول بين كتلتين متجاورتين.
+ *
+ * و`MaxReveal` يقصّ التأخير عنده حده (160ms) فلا يتجاوز آخر بلوك سقف الحركة، والرقم هنا
+ * **ثابت واحد** يُضرب في الموضع — لا جدول تأخيرات مكتوب بيد يتخلّف عن التخطيط عند أول تعديل.
+ */
+private const val RevealStep = 40
 
 /**
  * Brand, one state, two actions. The engine state is said once: it used to be a pill
@@ -192,7 +239,12 @@ internal fun LegendaryHomeDashboard(
  * information (color, dot, localized word), so the duplicate line went.
  */
 @Composable
-private fun HomeHeader(online: Boolean, onSettings: () -> Unit, onReboot: () -> Unit) {
+private fun HomeHeader(
+    online: Boolean,
+    onSettings: () -> Unit,
+    onReboot: () -> Unit,
+    onShowGuide: () -> Unit,
+) {
     val p = neuralPalette()
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -210,6 +262,13 @@ private fun HomeHeader(online: Boolean, onSettings: () -> Unit, onReboot: () -> 
             accent = if (online) p.ok else p.danger,
             filled = true,
             dot = true
+        )
+        // **`?` قبل الزرّين بأمر §5.1:** الجولة تُطلب من الرأس لا من داخل البطاقة، ومن
+        // أتمّها ثم أرادها يعود إلى هنا — فلا بحث في الشاشة عن مفتاح إعادة العرض.
+        HeaderButton(
+            Icons.Rounded.HelpOutline,
+            stringResource(R.string.home_banner_restore),
+            onShowGuide
         )
         Spacer(Modifier.width(8.dp))
         HeaderButton(Icons.Rounded.PowerSettingsNew, stringResource(R.string.max_home_power), onReboot)
@@ -402,7 +461,9 @@ private fun FrequencyMetricCard(
             lineHeight = 16.sp
         )
 
-        FrequencySparkline(
+        // والموجة من الكومبوننت المشترك (`NeuralSparkline`) لا من نسخة محليّة: شاشة CPU
+        // ترسم الموجة نفسها لكل نواة، ونسختان تفترقان عند أوّل تعديل.
+        NeuralSparkline(
             samples = graph,
             accent = accent,
             floorFraction = floorFraction,
@@ -444,79 +505,6 @@ private fun formatHardwareFrequency(mhz: Int?): String {
     } else "$value MHz"
 }
 
-@Composable
-private fun FrequencySparkline(
-    samples: List<Float>,
-    accent: Color,
-    floorFraction: Float? = null,
-    modifier: Modifier = Modifier
-) {
-    val p = neuralPalette()
-    val grid = p.muted.copy(alpha = .07f)
-    val floorLine = p.muted.copy(alpha = .22f)
-    Canvas(modifier) {
-        if (samples.size < 2) return@Canvas
-        val w = size.width
-        val h = size.height
-        val top = 5f
-        val bottom = h - 5f
-        val usable = (bottom - top).coerceAtLeast(1f)
-        val step = w / (samples.size - 1).toFloat()
-        val points = samples.mapIndexed { index, value ->
-            Offset(step * index, top + usable * (1f - value.coerceIn(0f, 1f)))
-        }
-
-        drawLine(grid, Offset(0f, top), Offset(w, top), 1f)
-        drawLine(grid, Offset(0f, h / 2f), Offset(w, h / 2f), 1f)
-        drawLine(grid, Offset(0f, bottom), Offset(w, bottom), 1f)
-
-        // خطّ الأرضية المعلنة: يُرسم على مستواه الحقيقي داخل المدى، فيصبح المدى مقروءًا من
-        // الرسم نفسه لا مِن نصّ مجاور. ويُشتقّ من الرقم الذي أعلنته النواة، لا من أدنى عيّنة.
-        floorFraction?.let { fraction ->
-            val y = top + usable * (1f - fraction)
-            drawLine(floorLine, Offset(0f, y), Offset(w, y), 1.dp.toPx())
-        }
-
-        val path = androidx.compose.ui.graphics.Path().apply {
-            moveTo(points.first().x, points.first().y)
-            for (i in 0 until points.lastIndex) {
-                val a = points[i]
-                val b = points[i + 1]
-                quadraticTo(a.x, a.y, (a.x + b.x) / 2f, (a.y + b.y) / 2f)
-            }
-            lineTo(points.last().x, points.last().y)
-        }
-        val fill = androidx.compose.ui.graphics.Path().apply {
-            addPath(path)
-            lineTo(points.last().x, bottom)
-            lineTo(points.first().x, bottom)
-            close()
-        }
-        drawPath(
-            fill,
-            brush = Brush.verticalGradient(
-                listOf(accent.copy(alpha = .20f), accent.copy(alpha = .015f)),
-                startY = top,
-                endY = bottom
-            )
-        )
-        drawPath(
-            path,
-            color = accent.copy(alpha = .14f),
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 7.dp.toPx())
-        )
-        drawPath(
-            path,
-            color = accent,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(
-                width = 2.2.dp.toPx(),
-                cap = androidx.compose.ui.graphics.StrokeCap.Round,
-                join = androidx.compose.ui.graphics.StrokeJoin.Round
-            )
-        )
-        drawCircle(accent, radius = 3.dp.toPx(), center = points.last())
-    }
-}
 
 /**
  * مقاس البطاقة الأولى — **٩٥٪ من مقاسها السابق** بأمر المالك («اجعل أوّل بطاقة في الشاشة
@@ -539,6 +527,8 @@ private const val PULSE_SCALE = 0.95f
 private fun PulsePanel(
     deviceName: String,
     dashboard: DashboardState,
+    /** طبقة الامتياز المكتشفة — تُقرأ في الشارة والسطر تحتها، لا في شرح منفصل. */
+    accessLevel: PrivilegeLevel,
     /** حالة Max AI الحقيقية — تُعلّم المؤشّر في زرّه بلا سطر يشرح. */
     aiEnabled: Boolean,
     onOverview: () -> Unit,
@@ -580,6 +570,36 @@ private fun PulsePanel(
                     overflow = TextOverflow.Ellipsis
                 )
             }
+        }
+        /*
+         * **وضع الوصول — حالة لا شرح (عقد §5.2-2).**
+         *
+         * الشارة تحمل الاسم من **سجلّ الصلاحيات** (`PrivilegeLevel.labelRes`) لا من نصّ ثانٍ
+         * مكتوب هنا؛ وسطر واحد تحتها يقول ما تُفتحه هذه الطبقة وما تبقي عليه مقفلاً. وبلا
+         * السطر تُقرأ «أساسي» كعطبٍ في التطبيق لا كحدٍّ على الجهاز — وهذا الفرق نفسه هو ما
+         * بنت عليه الخطة §10.3 («كل زر مُقفل يقول ماذا ينقصه لا يختفي»).
+         *
+         * **والوسم غير قابل للضغط، عن قصد:** هو يقرأ حالة، والذاهب لتغييرها يجد الصلاحيات في
+         * الإعدادات — مدخل واحد للفعل خير من وسم يُنفّذ شيئًا لا يُرى. (وسمٌ يقود إلى شاشة
+         * ثانية كان سيحمل `navigates = true`؛ وهذا لا يقود، فلا سهم.)
+         */
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            NeuralPill(
+                text = stringResource(accessLabelRes(accessLevel)),
+                accent = accessAccent(accessLevel, p),
+                filled = true,
+                dot = true,
+            )
+            Spacer(Modifier.width(MaxSpace.sm))
+            Text(
+                stringResource(accessNoteRes(accessLevel)),
+                color = p.muted,
+                fontSize = 11.sp,
+                lineHeight = 15.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -737,256 +757,3 @@ private fun FocusCard(dashboard: DashboardState, onNavigate: (String) -> Unit) {
         }
     }
 }
-
-/**
- * مصفوفة الذاكرة — سعة RAM وZRAM والتخزين الداخلي في بطاقة واحدة.
- *
- * **ما هي وما ليست:** تعرض **حقائق سعة** (المستخدَم من الإجمالي، والمتاح)، ولا تُصدر حُكم ضغط.
- * وهذا ليس تحفّظًا شكليًّا: `ADR-34` يقرّر أن ضغط الذاكرة يُقاس بPSI لا بنسبة الامتلاء،
- * وأجهزة بنسبة امتلاء متقاربة تختلف في أثرها على الأداء اختلافًا كبيرًا. فالحُكم في هذه الشاشة
- * يبقى في `FocusCard` وحدها، وهذه البطاقة تجيب السؤال الآخر: «كم بقي؟».
- *
- * **ولذلك لا عتبات ولا ألوان إنذار هنا:** لون كلّ صفّ هوية (الأزرق/التركوا/الثانوي) لا حكم،
- * والمقارنة تكفلها الأشرطة والرقم المكتوب. ولون تحذير مستحدث هنا يعني عتبة امتلاء هي بالضبط
- * ما نهى عنه ADR-34 — والقارئ ينسى أن العتبة أُضيفت في الواجهة.
- *
- * **والمصادر أوعية موجودة، لا أوعية جديدة:** الأرقام من نفس لقطة اللوحة، والإجراءات إلى
- * الشاشتين المالكين للرقم (`ZramManager` · `StorageDetail`) — ولهذا صار كل صفّ قابلًا للنقر
- * بذاته: نقر بطاقة كاملة كان سيوصل صفّ التخزين إلى شاشة الذاكرة، وهي كذبة صغيرة.
- *
- * **وما لم يُقرأ لا يُصاغ:** غياب التبديل أو إجمالي الذاكرة يُكتب نصًّا («غير متاح»)
- * وبلا شريط، لا أحد عشرًا صفرًا ولا شريطًا فارغًا يُقرأ كـ«فارغ».
- */
-@Composable
-private fun MemoryMatrixCard(
-    dashboard: DashboardState,
-    onNavigate: (String) -> Unit
-) {
-    val p = neuralPalette()
-    val ramTotal = dashboard.ramTotalMb
-    val ramUsed = dashboard.ramUsedMb
-    val swapTotal = dashboard.swapTotalMb
-    val swapUsed = dashboard.swapUsedMb
-    val storageTotal = dashboard.storageTotalGb
-    val storageFree = (storageTotal - dashboard.storageUsedGb).coerceAtLeast(0f)
-
-    NeuralPanel(accent = p.accent) {
-        NeuralSectionHeader(
-            title = stringResource(R.string.home_memory_storage),
-            caption = stringResource(R.string.home_memory_storage_desc),
-            accent = p.accent,
-        )
-
-        MemoryFactRow(
-            label = stringResource(R.string.ram_label),
-            detail = if (ramTotal > 0) "${gigabytes(ramUsed)} / ${gigabytes(ramTotal)}" else null,
-            status = if (ramTotal > 0) {
-                stringResource(R.string.home_available_memory, gigabytes(ramTotal - ramUsed))
-            } else {
-                stringResource(R.string.max_home_unavailable)
-            },
-            fraction = if (ramTotal > 0) fractionOf(ramUsed, ramTotal) else null,
-            accent = p.accent,
-            // صفّ RAM كان يفتح **مدير ZRAM** — عطب مقصود (نسخ الصفّ المجاور) لا خيار: من
-            // يضغط «RAM» يسأل عن الذاكرة العشوائية، ومدير ZRAM شاشةٌ أخرى. الصحيح مركز
-            // الذاكرة (`MemoryHub`) الذي يضمّ RAM وZRAM معًا؛ وصفّ ZRAM تحت يبقى على مديره.
-            onClick = { onNavigate(MaxDestination.MemoryHub.route) },
-        )
-
-        MemoryFactRow(
-            label = stringResource(R.string.home_memory_swap_label),
-            detail = if (swapTotal != null && swapTotal > 0 && swapUsed != null) {
-                "${gigabytes(swapUsed)} / ${gigabytes(swapTotal)}"
-            } else {
-                null
-            },
-            status = if (swapTotal != null && swapTotal > 0 && swapUsed != null) {
-                stringResource(R.string.home_available_swap, gigabytes(swapTotal - swapUsed))
-            } else {
-                stringResource(R.string.home_zram_unavailable)
-            },
-            fraction = if (swapTotal != null && swapTotal > 0 && swapUsed != null) {
-                fractionOf(swapUsed, swapTotal)
-            } else {
-                null
-            },
-            accent = p.accentAlt,
-            onClick = { onNavigate(MaxDestination.ZramManager.route) },
-        )
-
-        MemoryFactRow(
-            label = stringResource(R.string.home_internal_storage),
-            detail = if (storageTotal > 0f) {
-                "${dashboard.storageUsedGb.oneDecimal()} / ${storageTotal.oneDecimal()} GB"
-            } else {
-                null
-            },
-            status = if (storageTotal > 0f) {
-                stringResource(R.string.home_available_storage, storageFree.oneDecimal())
-            } else {
-                stringResource(R.string.max_home_unavailable)
-            },
-            fraction = if (storageTotal > 0f) {
-                (dashboard.storageUsedGb / storageTotal).coerceIn(0f, 1f)
-            } else {
-                null
-            },
-            accent = p.ok,
-            onClick = { onNavigate(MaxDestination.StorageDetail.route) },
-        )
-    }
-}
-
-/**
- * صفّ سعة واحد: اسم الوعاء · المستخدَم/الإجمالي · المتاح · شريط.
- *
- * والمتاح هو السطر الأبرز لأنه سؤال المستخدم فعلًا («كم بقي؟»)، والمستخدَم/الإجمالي يبقى
- * بجانب الاسم لأن بدون إجمالي لا يُقرأ المتاح على أنه كثير أو قليل.
- */
-@Composable
-private fun MemoryFactRow(
-    label: String,
-    detail: String?,
-    status: String,
-    fraction: Float?,
-    accent: Color,
-    onClick: () -> Unit
-) {
-    val p = neuralPalette()
-    NeuralTile(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        verticalSpacing = 6.dp,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
-    ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(7.dp).clip(RoundedCornerShape(50)).background(accent))
-                Spacer(Modifier.width(7.dp))
-                NeuralCaption(label)
-            }
-            if (detail != null) {
-                NeuralValue(
-                    detail,
-                    style = MonoValueStyleSmall.copy(fontSize = 12.sp),
-                    color = p.text
-                )
-            }
-            // السهم في نهاية السطر: هذا الصفّ **بابٌ** لا بيان (`NeuralTile(onClick)` يقود
-            // إلى وجهة مختلفة لكل صفّ: مركز الذاكرة · مدير ZRAM · تفصيل التخزين) — وكان
-            // يُقرأ رقمًا وبطاقة فحسب، وهو نفس العطب الذي أبلغ عنه المالك في وسم Max AI
-            // («لا يدل على أنه سيدخلك إلى شاشة أخرى»)، مُقاسًا هنا في ثلاثة صفوف معًا.
-            Spacer(Modifier.width(6.dp))
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                null,
-                Modifier.size(15.dp),
-                tint = accent,
-            )
-        }
-        Text(status, color = accent, fontSize = 11.sp, lineHeight = 15.sp)
-        fraction?.let { NeuralTrack(it, accent.copy(alpha = .85f), height = 5.dp) }
-    }
-}
-
-/** One verdict: what is limiting the device, how sure we are, what changed. */
-@Composable
-private fun VerdictPanel(
-    dashboard: DashboardState,
-    maxAi: MaxAiState,
-    request: ProfileRequestState,
-    onLive: () -> Unit,
-    onThermal: () -> Unit,
-    onRetry: () -> Unit
-) {
-    val p = neuralPalette()
-    val intel = dashboard.intelligence
-    val accent = when (intel.realImprovement) {
-        true -> p.ok
-        false -> p.danger
-        null -> p.accent
-    }
-    NeuralPanel(accent = accent) {
-        NeuralSectionHeader(
-            title = stringResource(R.string.home_story_title),
-            caption = stringResource(R.string.home_session_confidence, intel.confidencePercent),
-            accent = accent,
-            trailing = {
-                NeuralPill(
-                    text = when (intel.realImprovement) {
-                        true -> stringResource(R.string.home_session_real_yes)
-                        false -> stringResource(R.string.home_session_real_no)
-                        null -> stringResource(R.string.home_session_collecting)
-                    },
-                    accent = accent,
-                    filled = true
-                )
-            }
-        )
-        Text(
-            intel.explanation,
-            color = p.text,
-            fontSize = 12.5.sp,
-            lineHeight = 18.sp,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis
-        )
-        NeuralTrack(intel.confidencePercent / 100f, accent)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NeuralFactTile(
-                caption = stringResource(R.string.home_story_bottleneck),
-                value = intel.primaryLimiter,
-                accent = accent,
-                modifier = Modifier.weight(1f)
-            )
-            NeuralFactTile(
-                caption = stringResource(R.string.home_session_workload),
-                value = intel.samples.lastOrNull()?.workload ?: "\u2014",
-                accent = p.accentAlt,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        intel.events.lastOrNull()?.let { event ->
-            NeuralFeedRow(
-                icon = Icons.Rounded.Bolt,
-                title = event.title,
-                meta = event.impact.takeIf { it.isNotBlank() },
-                accent = p.accentAlt
-            )
-        }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralPill(
-                text = stringResource(R.string.home_session_open_loop),
-                accent = p.accent,
-                icon = Icons.Rounded.Timeline,
-                navigates = true,
-                onClick = onLive
-            )
-            Spacer(Modifier.width(8.dp))
-            NeuralPill(
-                text = stringResource(R.string.home_session_open_heat),
-                accent = p.warn,
-                icon = Icons.Rounded.Thermostat,
-                navigates = true,
-                onClick = onThermal
-            )
-            Spacer(Modifier.weight(1f))
-            if (request.inFlight) {
-                NeuralValue(
-                    stringResource(R.string.max_home_ai_working),
-                    style = MonoValueStyleSmall.copy(fontSize = 10.sp),
-                    color = p.muted
-                )
-            } else if (request.result != null) {
-                NeuralPill(
-                    text = stringResource(R.string.max_home_retry),
-                    accent = p.muted,
-                    onClick = onRetry
-                )
-            } else if (maxAi.strategyLabel.isNotBlank()) {
-                NeuralCaption(maxAi.strategyLabel)
-            }
-        }
-    }
-}
-

@@ -911,7 +911,7 @@
     <string name="home_action_advanced">تحكم متقدم</string>
     <string name="home_action_advanced_desc">ضبط الجهاز بالكامل</string>
     <string name="home_memory_storage">مصفوفة الذاكرة</string>
-    <string name="home_memory_storage_desc">ضغط RAM وZRAM والتخزين الداخلي</string>
+    <string name="home_memory_storage_desc">المتاح من الذاكرة وZRAM والتخزين الداخلي</string>
     <string name="home_details">التفاصيل</string>
     <string name="home_device_resources">نسيج الجهاز</string>
     <string name="home_device_resources_desc">الشاشة والشبكة واستهلاك الطاقة الحي</string>
@@ -1071,15 +1071,7 @@
     <string name="home_focus_storage_desc">المساحة الحرة منخفضة، وهذا يبطّئ الكتابة والتخزين المؤقت.</string>
     <string name="home_focus_memory">ضغط على الذاكرة</string>
     <string name="home_focus_memory_desc">الذاكرة تكاد تمتلئ. أوقف تطبيقات الخلفية أو فعّل ZRAM.</string>
-    <string name="home_story_title">قصة الأداء</string>
-    <string name="home_story_bottleneck">العامل المحدِّد</string>
-    <string name="home_session_workload">نوع الحِمل</string>
-    <string name="home_session_confidence">ذكاء الأداء · ثقة %1$d%%</string>
-    <string name="home_session_collecting">قيد الجمع</string>
-    <string name="home_session_open_loop">الحلقة الحيّة</string>
-    <string name="home_session_open_heat">الحرارة</string>
-    <string name="home_session_real_yes">نعم</string>
-    <string name="home_session_real_no">لا</string>
+
     <string name="telegram_group">مجموعة تيليجرام</string>
     <string name="telegram_group_desc">انضم إلى مجتمعنا على تيليجرام</string>
     <string name="app_tab_performance">أداء</string>
@@ -1258,7 +1250,7 @@
     <string name="display_night_light_desc">اجعل الشاشة أدفأ لتقليل إجهاد العين ليلًا</string>
     <string name="display_color_inversion_title">عكس الألوان</string>
     <string name="display_color_inversion_desc">اعكس ألوان الشاشة على مستوى النظام (إمكانية وصول)</string>
-    <string name="cpu_core_control_title">شبكة الأنوية</string>
+    <string name="cpu_core_control_title">أنوية المعالج</string>
     <string name="cpu_core_control_desc">فعّل أو عطّل أنوية المعالج فرديًا واضبط حالات طاقة العناقيد يدويًا</string>
     <string name="cpu_core_control_subtitle">اختر بنفسك أي أنوية فعلية تبقى مشتغلة لكل عنقود</string>
     <string name="cpu_core_unavailable">التحكم بإضافة وإزالة الأنوية فرديًا غير متاح على هذا الجهاز.</string>
@@ -1733,36 +1725,7 @@
     <string name="max_home_state_charging_desc">الجهاز يشحن. راقب الحرارة إن كان هناك عمل ثقيل جارٍ.</string>
     <string name="max_home_state_balanced">متوازن</string>
     <string name="max_home_state_balanced_desc">لوحة الحالة الحية داخل النطاق الطبيعي.</string>
-    <string name="home_story_pressure">الضغط</string>
-    <string name="home_story_live_loop">الحلقة الحية</string>
-    <string name="home_story_heat_map">خريطة الحرارة</string>
-    <string name="home_story_heat_headline">الحرارة تصوغ الأداء</string>
-    <string name="home_story_heat_desc">البطارية عند %1$d°م والحِمل %2$d%%. أفضل خطوة تالية هي فهم مصدر الحرارة قبل طلب أداء أعلى.</string>
-    <string name="home_story_cpu_headline">حِمل الحوسبة هو عنق الزجاجة الحالي</string>
-    <string name="home_story_cpu_desc">حِمل المعالج %1$d%% عند %2$s. Max Manager يرى ضغطًا حقيقيًا لا مجرد ملف مختار.</string>
-    <string name="home_story_memory_headline">ضغط الذاكرة يتزايد</string>
-    <string name="home_story_memory_desc">الذاكرة مستخدمة بنسبة %1$d%% مع %2$s متاحة. ZRAM وسلوك التطبيقات أهم من المعالج الخام الآن.</string>
-    <string name="home_story_storage_headline">المساحة الحرة ضيقة</string>
-    <string name="home_story_storage_desc">التخزين ممتلئ بنسبة %1$d%% مع %2$s جيجابايت حرة. قلة المساحة الحرة قد تسبب تقطيعًا في الإدخال والإخراج تحت الحِمل.</string>
-    <string name="home_story_ai_headline">MAX AI قرأ الجهاز قراءة جديدة</string>
-    <string name="home_story_ai_desc">نتيجة الهدف %1$d%% تحت استراتيجية %2$s الحالية. افتح الحلقة الحية لترى سبب اختياره كل خطوة.</string>
-    <string name="home_story_network_headline">نشاط الشبكة يصوغ زمن الاستجابة</string>
-    <string name="home_story_network_desc">الحركة الحالية ↓ %1$s و ↑ %2$s. هذا قد يؤثر في زمن استجابة الألعاب وسلاسة الواجهة.</string>
-    <string name="home_story_stable_headline">لا يوجد محدِّد واحد مهيمن</string>
-    <string name="home_story_stable_desc">المعالج %1$d%% والذاكرة %2$d%% وحرارة البطارية %3$d°م كلها في نطاق مقبول. هذه هي خط الأساس لمقارنة أي تعزيز لاحق.</string>
-    <string name="home_story_temp_value">%1$d°م</string>
-    <string name="home_story_cpu_value">%1$d%% معالج</string>
-    <string name="home_story_ram_value">%1$d%% ذاكرة</string>
-    <string name="home_story_storage_value">%1$d%% ممتلئ</string>
-    <string name="home_story_score_value">%1$d%% نتيجة</string>
-    <string name="home_story_net_value">%1$s إجمالًا</string>
-    <string name="home_story_thermal_limit">الحرارة</string>
-    <string name="home_story_compute_limit">المعالج</string>
-    <string name="home_story_memory_limit">الذاكرة وZRAM</string>
-    <string name="home_story_io_limit">إدخال وإخراج التخزين</string>
-    <string name="home_story_network_limit">الشبكة</string>
-    <string name="home_story_no_limit">لا شيء واضح</string>
-    <string name="home_story_stable_value">خط الأساس</string>
+
     <string name="control_workspace_subtitle">اعرض كل واجهة ضبط حسب جزء الجهاز الذي تؤثر فيه</string>
     <string name="control_map_title">خريطة التحكم</string>
     <string name="control_map_desc">ابدأ من العَرَض الذي تشعر به ثم افتح المجال الذي يملك النظام الفرعي المحدِّد.</string>
@@ -1841,32 +1804,11 @@
     <string name="home_passport_open_control">التحكم</string>
     <string name="home_passport_open_apps">التطبيقات</string>
     <string name="home_passport_open_live">الحي</string>
-    <string name="home_session_title">تقرير الجلسة</string>
-    <string name="home_session_subtitle">قبل وبعد من نافذة الجلسة الحية الحالية</string>
-    <string name="home_session_cpu_delta">تغيّر المعالج</string>
-    <string name="home_session_ram_delta">تغيّر الذاكرة</string>
-    <string name="home_session_gpu_delta">تغيّر المعالج الرسومي</string>
-    <string name="home_session_correlation">الارتباط</string>
-    <string name="home_session_grade_hot">ساخن</string>
-    <string name="home_session_grade_busy">مشغول</string>
-    <string name="home_session_grade_clean">نظيف</string>
-    <string name="home_session_summary_heat">المعالج عند %1$d%% والحرارة %2$d°م. الجلسة تقترب على الأرجح من حدّها الحراري.</string>
-    <string name="home_session_summary_ramp">الحِمل يتصاعد: تغيّر المعالج بـ%1$d%% والذاكرة بـ%2$d%% مقارنةً ببداية هذه النافذة.</string>
-    <string name="home_session_summary_ai">MAX AI يقيّم هذه الجلسة حاليًا بـ%1$d%% باستخدام %2$s. افتح الحلقة لفحص القرارات.</string>
-    <string name="home_session_summary_baseline">النافذة الحالية خط أساس مفيد: المعالج %1$d%% والذاكرة %2$d%% بلا إشارة تدهور قوية.</string>
-    <string name="home_session_corr_heat">الحِمل ↔ الحرارة</string>
-    <string name="home_session_corr_stable">لا رابط قوي</string>
-    <string name="home_session_limiter">المحدِّد</string>
-    <string name="home_session_before_after">قبل → الآن</string>
-    <string name="home_session_real_gain">كسب حقيقي؟</string>
-    <string name="home_session_timeline">الخط الزمني</string>
-    <string name="home_session_grade_real">كسب مُتحقَّق</string>
-    <string name="home_session_grade_not_real">غير مستدام</string>
-    <string name="home_session_real_unknown">تحت المراقبة</string>
+
     <string name="app_settings_system_bridge">لهذا التطبيق %1$d إشارة مخصصة في سياق %2$s. عندما يصبح في المقدمة يستطيع Max AI قراءة هذه النية بينما يطبّق التحكم المسارات المسموح بها فقط.</string>
     <string name="app_settings_open_live">الحلقة الحية</string>
     <string name="app_settings_open_control">خريطة التحكم</string>
-    <string name="home_session_ai_bridge">Max AI: %1$s · الملف %2$s</string>
+
     <string name="apps_bridge_title">سلوك التطبيقات في النظام</string>
     <string name="apps_bridge_desc">خيارات كل تطبيق ليست معزولة: فهي تغذّي نية حِمل العمل وسلوك الملف وحلقة التحكم الحية.</string>
     <string name="apps_bridge_profiles_title">التطبيقات المضبوطة تؤثر في الجلسات</string>
@@ -2868,4 +2810,87 @@
     <string name="hma_companion_higher">زاد عدد الحزم المرئية. راجع تغيّر الحزم والسياسات.</string>
     <string name="hma_companion_unknown">القياس غير قابل للمقارنة أو غير مقروء.</string>
     <string name="hma_companion_baseline">احفظ العدد الحالي خط أساس</string>
+
+    <!-- ================================================================
+         الرئيسية · LEVEL UP (MAX-MANAGER-LEVEL-UP.md)
+         ================================================================ -->
+
+    <string name="home_access_basic">أساسي</string>
+    <string name="home_access_note_none">لا روت ولا شيزوكو بعد. المقابض التي تحتاج إعدادًا تبقى مقفلة، ويقول كلٌّ منها ما يحتاجه.</string>
+    <string name="home_access_note_shizuku">امتياز مستوى ADB جاهز. المقابض التي تكتب على العتاد مباشرةً تحتاج روتًا بعد.</string>
+    <string name="home_access_note_root">الجذر جاهز. كل كتابة على العتاد تُقرأ من الجهاز بعدها للتحقق.</string>
+
+    <string name="home_banner_local_title">على هذا الجهاز</string>
+    <string name="home_banner_local_body">الإعدادات تُطبَّق على هذا الجهاز. لا يُرفع شيء.</string>
+    <string name="home_banner_access_title">وضع الوصول</string>
+    <string name="home_banner_access_body">روت أو شيزوكو أو ADB أو أساسي — كما اكتُشف. والمقفل يصرّح بما يحتاجه.</string>
+    <string name="home_banner_ai_title">ماكس AI يقرّر</string>
+    <string name="home_banner_ai_body">ماكس AI يختار أقل تغيير كافٍ. وأنت تنقض.</string>
+    <string name="home_banner_verify_title">تُقرأ ولا تُفترض</string>
+    <string name="home_banner_verify_body">كل كتابة على العتاد تُقرأ من الجهاز بعد وقوعها.</string>
+    <string name="home_banner_clean_title">الكاش أولًا</string>
+    <string name="home_banner_clean_body">التنظيف الفائق يزيل كاشًا مقيسًا. وملفاتك فقط إذا أشّرت.</string>
+    <string name="home_banner_cpu_title">تردد حي</string>
+    <string name="home_banner_cpu_body">شاشة الأنوية تعرض تردد كل نواة الآن، لا خريطة أسماء.</string>
+    <string name="home_banner_back">السابق</string>
+    <string name="home_banner_next">التالي</string>
+    <string name="home_banner_skip">تخطٍّ</string>
+    <string name="home_banner_step">الخطوة %1$d من %2$d</string>
+    <string name="home_banner_done">تم</string>
+    <string name="home_banner_dismiss">إغلاق الجولة</string>
+    <string name="home_banner_restore">إظهار الجولة مجددًا</string>
+
+    <string name="home_memory_boost">تعزيز</string>
+    <string name="home_memory_boost_desc">يوقف التطبيقات المخبأة ثم يعرض الذاكرة التي حُرّرت فعلًا.</string>
+    <string name="home_memory_boost_blocked">التعزيز يحتاج روتًا أو شيزوكو. لم يُوقف شيء.</string>
+    <string name="home_memory_boost_none">لا شيء يستحق الإيقاف الآن.</string>
+    <string name="home_memory_boost_freed">حُرِّر %1$s</string>
+    <string name="home_memory_boost_running">يُوقف التطبيقات المخبأة…</string>
+    <string name="home_memory_boost_measured">قيس قبل وبعد من MemAvailable.</string>
+
+    <string name="ultra_cleaner_title">التنظيف الفائق</string>
+    <string name="home_cleaner_action">تنظيف</string>
+    <string name="ultra_cleaner_tagline">مقيس، لا تقدير.</string>
+    <string name="ultra_cleaner_intro">الكاش أولًا. ملفاتك فقط إذا أشّرت.</string>
+    <string name="ultra_cleaner_cat_app_caches">كاش التطبيقات</string>
+    <string name="ultra_cleaner_cat_app_caches_desc">ملفات مؤقتة يبقيها التطبيق في التخزين الداخلي</string>
+    <string name="ultra_cleaner_cat_shared">كاش التخزين المشترك</string>
+    <string name="ultra_cleaner_cat_shared_desc">كاش تتركه التطبيقات في Android/data</string>
+    <string name="ultra_cleaner_cat_thumbs">الصور المصغّرة</string>
+    <string name="ultra_cleaner_cat_thumbs_desc">كل مجلد .thumbnails، يُعاد بناؤه عند الحاجة</string>
+    <string name="ultra_cleaner_cat_apk">ملفات التثبيت</string>
+    <string name="ultra_cleaner_cat_apk_desc">ملفات APK في التنزيلات. أشّر للحذف.</string>
+    <string name="ultra_cleaner_cat_empty">مجلدات فارغة</string>
+    <string name="ultra_cleaner_cat_empty_desc">مجلدات لا شيء بداخلها، خارج Android</string>
+    <string name="ultra_cleaner_cat_logs">تقارير الانهيار والسجلات</string>
+    <string name="ultra_cleaner_cat_logs_desc">آثار ANR وtombstones وصندوق النظام</string>
+    <string name="ultra_cleaner_needs_root">يحتاج جذرًا</string>
+    <string name="ultra_cleaner_measuring">يُقاس…</string>
+    <string name="ultra_cleaner_unmeasured">لم يُقس</string>
+    <string name="ultra_cleaner_clean_amount">تنظيف %1$s</string>
+    <string name="ultra_cleaner_clean_selected">تنظيف المختار</string>
+    <string name="ultra_cleaner_scope_limited">بدون روت أو شيزوكو يُنظَّف كاش هذا التطبيق فقط.</string>
+    <string name="ultra_cleaner_scope_root">جذر: سجلات النظام وتقارير الانهيار مشمولة.</string>
+    <string name="ultra_cleaner_freed">حُرِّر %1$s</string>
+    <string name="ultra_cleaner_freed_none">لم يُزَل شيء مقيس.</string>
+    <string name="ultra_cleaner_partial">بعض الفئات لم تُقس، فلا تُحسب.</string>
+    <string name="ultra_cleaner_used_of">%1$s من %2$s مستخدم</string>
+    <string name="ultra_cleaner_free">%1$s متاحة</string>
+    <string name="ultra_cleaner_nearly_full">التخزين ممتلئ بنسبة %1$d%%</string>
+    <string name="ultra_cleaner_select_safe">اختر المجموعة الآمنة</string>
+    <string name="ultra_cleaner_measure_again">أعد القياس</string>
+    <string name="max_role_max_live">حلقة القرار كما تجري، وما قرّرته.</string>
+    <string name="max_role_ultra_cleaner">كاش وبقايا وسجلات بمقاسات مقيسة.</string>
+
+    <string name="cpu_live_subtitle">التردد الحي لكل نواة</string>
+    <string name="cpu_live_average">المتوسط</string>
+    <string name="cpu_live_highest">الأعلى الآن</string>
+    <string name="cpu_live_cores">الأنوية</string>
+    <string name="cpu_live_cluster_range">الأنوية %1$d–%2$d · حتى %3$s</string>
+    <string name="cpu_live_share">%1$d%% من %2$s</string>
+    <string name="cpu_live_hidden">النواة تخفي cpufreq</string>
+    <string name="cpu_live_offline">متوقفة</string>
+    <string name="cpu_live_disclaimer">أندرويد يخفي الاستخدام الحقيقي. كل رقم هنا = تردد النواة ÷ أقصاها.</string>
+    <string name="cpu_live_identity_map">خريطة العناقيد</string>
+    <string name="cpu_live_advanced">الحدود والإعدادات والأنوية اليدوية</string>
 </resources>

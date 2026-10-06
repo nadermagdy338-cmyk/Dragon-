@@ -38,6 +38,9 @@ import nd.max.ui.util.LoadSample
 import nd.max.ui.util.MtkUtils
 import nd.max.core.platform.ThermalUtil
 import nd.max.core.platform.getChipsetNameWithPartCode
+import nd.max.core.privilege.PrivilegeManager
+import nd.max.ui.util.BoostOutcome
+import nd.max.ui.util.MemoryBoostEngine
 import java.io.File
 
 /**
@@ -71,8 +74,19 @@ data class CpuCoreState(
         else (freqMhz.toFloat() / maxFreqMhz).coerceIn(0f, 1f)
 }
 
+/**
+ * حالة «تعزيز الذاكرة» كما تُعرض.
+ *
+ * وثلاث حالات لا حالة واحدة بـ`Boolean`: «يُنفَّذ الآن» ≠ «انتهى بحصيلة» ≠ «لم يُنفَّذ لنقص
+ * صلاحية» — وواحدة منها كانت ستُكتب في الواجهة كذبًا لو جُمعت في علمين متقاطعين.
+ */
+data class MemoryBoostState(
+    val running: Boolean = false,
+    val outcome: BoostOutcome? = null,
+    val blocked: Boolean = false,
+)
+
 data class DashboardState(
-    val intelligence: PerformanceIntelligence = PerformanceIntelligence(),
     /**
      * طابع آخر دورة قياس **اكتملت** (٠ = لم تُقرأ بعد).
      *
@@ -170,35 +184,19 @@ data class DashboardState(
     val swapTotalMb: Int? = null
 )
 
-data class PerformanceIntelligenceSample(
-    val timestampMs: Long,
-    val cpuPercent: Int,
-    val ramPercent: Int,
-    val gpuPercent: Int?,
-    val temperatureC: Float,
-    val powerWatt: Float,
-    val displayPixels: Long,
-    val networkKbps: Long,
-    val workload: String
-)
-
-data class PerformanceIntelligenceEvent(
-    val timestampMs: Long,
-    val title: String,
-    val reason: String,
-    val impact: String
-)
-
-data class PerformanceIntelligence(
-    val sessionStartedAtMs: Long = System.currentTimeMillis(),
-    val samples: List<PerformanceIntelligenceSample> = emptyList(),
-    val events: List<PerformanceIntelligenceEvent> = emptyList(),
-    val primaryLimiter: String = "Baseline",
-    val explanation: String = "Collecting live samples",
-    val realImprovement: Boolean? = null,
-    val confidencePercent: Int = 0
-)
-
+/*
+ * **ورحل «ذكاء الأداء» (`PerformanceIntelligence`) بأمر المالك (`HOME-STORY-TRIM-01`).**
+ *
+ * كان ثلاثة أنواعٍ وعدّادَ ثقة وحُكمَ محدِّدٍ يُبنى هنا كل دورتين، ويُعرض في **بطاقة واحدة**
+ * (`VerdictPanel` في الرئيسية) — وقد حُذفت البطاقة، فبقي المُنتِج بلا مستهلك: ثلاثة أنواع
+ * ونحو سبعين سطرًا تُحسب كل ثانيتين ولا يقرؤها أحد. وهذا ليس تنظيفًا شكليًّا: عملٌ دوريّ في
+ * مسار القياس يُقرأ منه أن **شيئًا يُقاس**، ويُصعِّب لاحقًا معرفة ما إذا كان الرقم مسؤوليةً
+ * حيّة أم بقية.
+ *
+ * **ولم يُنقل إلى `MaxLive` عن قصد:** ما يقيسه (عتبات ثابتة على CPU/حرارة/ذاكرة + «ثقة»
+ * = نسبة امتلاء النافذة) ليس قياسًا بل عتباتٍ مُعلنة في الواجهة، و`MaxLive` تعرض الحلقة
+ * الحيّة بمقاييسها الحقيقية. فنقلُه كان سيُنشئ نسخةً ثانية من الحكم في مكانٍ ثانٍ.
+ */
 
 internal fun primaryBatteryTemperatureC(state: DashboardState): Float? =
     state.batteryTempC.takeIf { it.isFinite() && it > 0f }
@@ -224,6 +222,14 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
 
     private val _dashboardState = MutableStateFlow(DashboardState())
     val dashboardState: StateFlow<DashboardState> = _dashboardState.asStateFlow()
+
+    /*
+     * «تعزيز الذاكرة» — حالة قصيرة تُقرأ في بطاقة الذاكرة، ولا تُخلط بـ[DashboardState]:
+     * ذاك ليست قراءة عتاد دوريّة بل **نتيجة فعل طلبه المستخدم**، وعمرها ينتهي عند الفعل الذي
+     * يليها. وخلطُها بالقراءات كان سيجعل كل دورة قياس (كل ثانيتين) تحمل معها نتيجة فعل قديم.
+     */
+    private val _memoryBoost = MutableStateFlow(MemoryBoostState())
+    val memoryBoost: StateFlow<MemoryBoostState> = _memoryBoost.asStateFlow()
 
     private var lastRxBytes = TrafficStats.getTotalRxBytes()
     private var lastTxBytes = TrafficStats.getTotalTxBytes()
@@ -307,6 +313,31 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         val swap: Pair<Int, Int>?,
         val batteryTemp: Float,
     )
+
+    /**
+     * تعزيز الذاكرة: يقيس، يوقف المخبأ، يقيس — والناتج رقم مقيس أو لا رقم.
+     *
+     * **والصلاحية تُقرأ سلبيًّا (`cachedRootGranted`) لا بطلب:** من لا جذر له يجب ألاّ يرى
+     * نافذة صلاحية لأنه مرّ على الرئيسية. فمن لا جذر له تُكتب له الحالة `blocked` ويُقال له
+     * ما ينقصه — وهو نصّ الخطة («كل زرّ مُقفل يقول ماذا ينقصه لا يختفي»).
+     *
+     * ولا يُنادى مرّتين في وقت واحد: الفحص على `running` يمنع تراكب أمرين على الصدفة نفسها.
+     */
+    fun boostMemory() {
+        if (_memoryBoost.value.running) return
+        val root = PrivilegeManager.cachedRootGranted()
+        if (!root) {
+            _memoryBoost.value = MemoryBoostState(blocked = true)
+            return
+        }
+        _memoryBoost.value = MemoryBoostState(running = true)
+        viewModelScope.launch {
+            val outcome = withContext(Dispatchers.IO) {
+                MemoryBoostEngine.boost(MemoryBoostEngine.availableMb(context))
+            }
+            _memoryBoost.value = MemoryBoostState(outcome = outcome)
+        }
+    }
 
     fun setPollingActive(active: Boolean) {
         if (!active) {
@@ -404,16 +435,6 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     (ram.usedMb.toFloat() / ram.totalMb * 100f).coerceIn(0f, 100f)
                 } else 0f
                 val powerWatt = FpsMonitorUtil.getPowerWatt()
-                val intelligence = updatePerformanceIntelligence(
-                    previous = previous.intelligence,
-                    cpuPercent = cpuLoad,
-                    ramPercent = ramPercent.toInt(),
-                    gpuPercent = gpu.first,
-                    temperatureC = batteryTemp.takeIf { it.isFinite() && it > 0f } ?: thermal[0].toFloat(),
-                    powerWatt = powerWatt,
-                    displayPixels = dispInfoPixelCount(),
-                    networkKbps = network[0] + network[1]
-                )
 
                 // عيّنة واحدة تحمل CPU وGPU معًا، ومعها طابعها: فتبقى الرسوم بعد إعادة فتح
                 // التطبيق زوجًا مرتّبًا لا قائمتين قد تنفصلان إحداهما عن الأخرى. ومع النسبتين
@@ -458,7 +479,6 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     storageUsedGb = storage[0], storageTotalGb = storage[1],
                     downloadSpeedKbps = network[0], uploadSpeedKbps = network[1],
                     uptimeMinutes = SystemClock.elapsedRealtime() / 60_000L,
-                    intelligence = intelligence,
                     // **وطابع القراءة يُكتب هنا لا في النشر الأوّل:** `readingsAtMs > 0` تعني
                     // «اكتملت دورة قراءة واحدة على الأقل» — وهذا ما يفرّق في الواجهة بين
                     // «يُقرأ الآن» و«غير مقروء» (تكملة ٢٠٥).
@@ -513,86 +533,6 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         if (samples.isEmpty()) return
         historyStore.save(samples)
     }
-
-    private fun dispInfoPixelCount(): Long {
-        val display = getDisplayInfo()
-        return display.getOrElse(0) { 0 }.toLong() * display.getOrElse(1) { 0 }.toLong()
-    }
-
-    private fun updatePerformanceIntelligence(
-        previous: PerformanceIntelligence,
-        cpuPercent: Int,
-        ramPercent: Int,
-        gpuPercent: Int?,
-        temperatureC: Float,
-        powerWatt: Float,
-        displayPixels: Long,
-        networkKbps: Long
-    ): PerformanceIntelligence {
-        val now = System.currentTimeMillis()
-        val workload = when {
-            cpuPercent >= 75 && (gpuPercent ?: 0) >= 55 -> "CPU+GPU workload"
-            cpuPercent >= 75 -> "CPU-bound workload"
-            (gpuPercent ?: 0) >= 60 -> "GPU-bound workload"
-            ramPercent >= 82 -> "Memory pressure"
-            networkKbps >= 1024 -> "Network-active workload"
-            else -> "Light/system workload"
-        }
-        val sample = PerformanceIntelligenceSample(now, cpuPercent, ramPercent, gpuPercent, temperatureC, powerWatt, displayPixels, networkKbps, workload)
-        val samples = (previous.samples + sample).takeLast(180)
-        val baseline = samples.take(30).takeIf { it.size >= 3 } ?: samples
-        val baseCpu = baseline.map { it.cpuPercent }.average().takeUnless { it.isNaN() } ?: cpuPercent.toDouble()
-        val baseTemp = baseline.map { it.temperatureC }.average().takeUnless { it.isNaN() } ?: temperatureC.toDouble()
-        val basePower = baseline.map { it.powerWatt }.filter { it > 0f }.average().takeUnless { it.isNaN() } ?: powerWatt.toDouble()
-        val cpuDelta = cpuPercent - baseCpu
-        val tempDelta = temperatureC - baseTemp
-        val powerDelta = if (powerWatt > 0f && basePower > 0.0) powerWatt - basePower else 0.0
-        val primaryLimiter = when {
-            temperatureC >= 45f && cpuPercent >= 55 -> "Thermal"
-            cpuPercent >= 82 -> "CPU"
-            (gpuPercent ?: 0) >= 82 -> "GPU"
-            ramPercent >= 86 -> "Memory"
-            powerWatt >= 7f && temperatureC >= 40f -> "Power/Thermal"
-            displayPixels > 0L && (gpuPercent ?: 0) >= 60 -> "Display/GPU"
-            else -> "Baseline"
-        }
-        val explanation = when (primaryLimiter) {
-            "Thermal" -> "Temperature rose ${signed(cpuDelta)} CPU points and ${signed(tempDelta)}°C from baseline; sustained boost may throttle."
-            "CPU" -> "CPU load is the dominant pressure; GPU and memory are not the first limiter."
-            "GPU" -> "GPU load is dominating the current frame path; display resolution/refresh may affect this."
-            "Memory" -> "RAM pressure is high; ZRAM and app behavior are likely affecting responsiveness."
-            "Power/Thermal" -> "Power draw and heat are rising together, so improvement must be judged by sustainability, not peak speed."
-            "Display/GPU" -> "The render target is interacting with GPU load; resolution and refresh are part of the performance story."
-            else -> "No single limiter dominates yet; this window is a real baseline for before/after comparison."
-        }
-        val realImprovement = when {
-            samples.size < 6 -> null
-            cpuDelta < -8 && tempDelta <= 1.5 && powerDelta <= 1.0 -> true
-            cpuDelta > 10 && tempDelta > 2.5 -> false
-            else -> null
-        }
-        val event = when {
-            previous.primaryLimiter != primaryLimiter && samples.size > 3 -> PerformanceIntelligenceEvent(
-                now,
-                "Limiter changed to $primaryLimiter",
-                explanation,
-                if (primaryLimiter == "Baseline") "System returned to baseline" else "User should inspect the $primaryLimiter path"
-            )
-            realImprovement == true && previous.realImprovement != true -> PerformanceIntelligenceEvent(now, "Improvement looks real", explanation, "Lower pressure without extra heat")
-            realImprovement == false && previous.realImprovement != false -> PerformanceIntelligenceEvent(now, "Gain is not sustainable", explanation, "Load and heat rose together")
-            else -> null
-        }
-        return previous.copy(
-            samples = samples,
-            events = (previous.events + listOfNotNull(event)).takeLast(24),
-            primaryLimiter = primaryLimiter,
-            explanation = explanation,
-            realImprovement = realImprovement,
-            confidencePercent = ((samples.size.coerceAtMost(30) / 30f) * 100).toInt()
-        )
-    }
-
-    private fun signed(value: Double): String = if (value >= 0) "+${value.toInt()}" else value.toInt().toString()
 
     /**
      * Live per-core frequencies — read in **one in-process native batch** (`ProbeBridge`),

@@ -80,18 +80,21 @@ class HomeDeckModelTest {
     }
 
     @Test
-    fun `a new user sees the four cards of today, in the same order`() {
+    fun `a new user sees the four action-first cards, in the same order`() {
         assertEquals(HomeDeckDefaultKeys, keys())
+        // **والأربعة نفسها بعد جولة المستوى (`MAX-MANAGER-LEVEL-UP.md` §5.5).** والفحص يبقى
+        // مكتوبًا بأسماء المفاتيح لا بالطول وحده: تغيير بطاقة واحدة في الافتراضيّ يُكسر هنا
+        // إن كان بلا قرار مكتوب، وهو المقصود.
         assertEquals(
-            listOf("display", "thermal", "battery", "control"),
+            listOf("clean", "thermal", "battery", "display"),
             HomeDeckDefaultKeys,
         )
         assertEquals(
             listOf(
-                MaxDestination.DisplayStudio,
+                MaxDestination.UltraCleaner,
                 MaxDestination.ThermalDetail,
                 MaxDestination.Charging,
-                MaxDestination.Control,
+                MaxDestination.DisplayStudio,
             ),
             homeDeckSelection(HomeDeckMode.Auto, emptyList(), emptyMap()).map { it.destination },
         )
@@ -123,8 +126,8 @@ class HomeDeckModelTest {
             keys(usage = mapOf("zram" to 1)).size,
         )
         assertEquals(
-            "والمستعملة تتقدّم، وتُكمَّل الثانية بترتيب البركة",
-            listOf("zram", "display"),
+            "والمستعملة تتقدّم، وتُكمَّل الثانية بترتيب البركة (وأوّلها التنظيف بعد جولة المستوى)",
+            listOf("zram", "clean"),
             keys(usage = mapOf("zram" to 1)),
         )
 
@@ -143,7 +146,7 @@ class HomeDeckModelTest {
         val first = keys(usage = linkedMapOf("gpu" to 2, "cpu" to 2, "network" to 2, "storage" to 2))
         val second = keys(usage = linkedMapOf("storage" to 2, "network" to 2, "cpu" to 2, "gpu" to 2))
         assertEquals(first, second)
-        // وترتيب البركة هو الفاصل: storage(5) ثم network(6) ثم cpu(7) ثم gpu(8).
+        // وترتيب البركة هو الفاصل: storage(6) ثم network(7) ثم cpu(8) ثم gpu(9).
         assertEquals(listOf("storage", "network", "cpu", "gpu"), first)
     }
 

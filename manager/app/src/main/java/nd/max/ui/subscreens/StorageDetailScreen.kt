@@ -121,9 +121,16 @@ private const val MOUNT_REFRESH_MS = 5_000L
  */
 private const val SCAN_ENTRY_CAP = 120_000
 
-/** أين ينتهي «قريب من الامتلاء» ويبدأ «ممتلئ» — نفس سقوف الشاشة السابقة، لم تُغيَّر. */
-private const val DANGER_FRACTION = 0.90f
-private const val BUSY_FRACTION = 0.75f
+/**
+ * أين ينتهي «قريب من الامتلاء» ويبدأ «ممتلئ» — نفس سقوف الشاشة السابقة، لم تُغيَّر.
+ *
+ * **و`internal` لا `private` بعد أن قرأتهما بطاقة الرئيسية:** بطاقة التنظيف في الرئيسية تعرض
+ * شريط السعة نفسه بنفس اللون، فلو كتبت عتبتَيها لصار للسعة الواحدة **حكمان** يفترقان يومًا
+ * (٩٠٪ تقول «ممتلئ» هنا و«مشغول» هناك). العتبة قرارٌ واحد يملكه مالك السعة — هذه الشاشة —
+ * والقارئ يستعيره.
+ */
+internal const val DANGER_FRACTION = 0.90f
+internal const val BUSY_FRACTION = 0.75f
 
 @Composable
 fun StorageDetailScreen(navController: NavHostController) {

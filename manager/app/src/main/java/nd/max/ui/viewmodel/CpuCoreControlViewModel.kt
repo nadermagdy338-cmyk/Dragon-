@@ -50,6 +50,14 @@ data class CpuCoreRow(
 )
 
 /**
+ * طول تاريخ التردد لكل نواة.
+ *
+ * ٣٦ عيّنة بدورة ٣ ثوانٍ = **دقيقة وربع تقريبًا** — مدى يكفي لرؤية هبوط/صعود دورة تحميل،
+ * ولا يكفي لينمو في الذاكرة (‏٨ أنوية × ٣٦ عددًا صحيحة = نحو كيلوبايت واحد).
+ */
+private const val CORE_HISTORY_LIMIT = 36
+
+/**
  * إعداد سريع للأنوية — **ومعه اسماه في الموارد**.
  *
  * وكان الحقلان `String` يحملان **اسم المورد** لا معرّفه، في حين أن الشاشة كانت تكتب النصّ
@@ -223,6 +231,25 @@ class CpuCoreControlViewModel @Inject constructor(
     var clusterMaxFreqMhz by mutableStateOf<Map<String, Int>>(emptyMap())
         private set
     var coreRows by mutableStateOf<List<CpuCoreRow>>(emptyList())
+
+    /**
+     * تردّد كل نواة **الآن** بالميغاهرتز — من عقدتها هي لا من عقدة العنقود.
+     *
+     * وهي بيانات البطل الجديد في الشاشة (§8 من خطة المستوى): «ما تردّد كل نواة الآن؟».
+     * و`null` = العقدة غير مقروءة (لا صفر)، و`0` = مطفأة/مسكّنة — والتمييز بينهما يُعرض في
+     * البلاطة لا يُخفي.
+     */
+    var coreFreqMhz by mutableStateOf<Map<Int, Int?>>(emptyMap())
+
+    /**
+     * تاريخ تردّد كل نواة — آخر [CORE_HISTORY_LIMIT] عيّنة حيّة، لموجة كل بلاطة.
+     *
+     * **وما لا يدخل التاريخ:** `null` و`0`. لو دخلًا لرسمت النواة المطفأة هبوطًا إلى القاع
+     * ثم صعودًا، وهو **حدث لم يقع في تردّدها** بل في حالة اتصالها — ولها صفّها الذي يقوله
+     * («متوقّفة»). والموجة إذن رسمُ تردّدٍ لا رسمُ اتصال. والقائمة محدودة الطول من الهاية
+     * اللاحقة، فلا تنمو بخلفية شاشة مفتوحة.
+     */
+    var coreFreqHistory by mutableStateOf<Map<Int, List<Int>>>(emptyMap())
         private set
     var manualControlEnabled by mutableStateOf(false)
         @JvmName("setManualControlEnabledState") private set
@@ -353,6 +380,19 @@ class CpuCoreControlViewModel @Inject constructor(
                     isMaster = cpu == 0,
                     coreName = names[cpu]
                 )
+            }
+        }
+        // **وقراءة التردد في الدفعة نفسها لا في رحلة ثانية:** الدورة كلها رحلة `readMany`
+        // واحدة لحالات الاتصال وأخرى للترددات — لا سؤال لكل نواة في كل دورة.
+        val freqs = CpuTopologyUtil.coreFreqMhz(cpus)
+        coreFreqMhz = freqs
+        coreFreqHistory = cpus.associateWith { cpu ->
+            val sample = freqs[cpu]
+            val previous = coreFreqHistory[cpu].orEmpty()
+            if (sample == null || sample <= 0) {
+                previous
+            } else {
+                (previous + sample).takeLast(CORE_HISTORY_LIMIT)
             }
         }
     }

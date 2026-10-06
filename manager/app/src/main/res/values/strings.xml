@@ -341,7 +341,7 @@
     <string name="display_night_light_desc">Tint the display warmer to reduce eye strain at night</string>
     <string name="display_color_inversion_title">Color inversion</string>
     <string name="display_color_inversion_desc">Invert on-screen colors system-wide (accessibility)</string>
-    <string name="cpu_core_control_title">Core Grid</string>
+    <string name="cpu_core_control_title">CPU cores</string>
     <string name="cpu_core_probe_detail">Reading the CPU topology and cpufreq policies this kernel exposes.</string>
     <string name="cpu_core_control_desc">Toggle individual processor cores and set cluster power states by hand</string>
     <string name="cpu_core_control_subtitle">Hand-pick which physical cores stay powered, per cluster</string>
@@ -1633,7 +1633,7 @@
     <string name="home_action_advanced">Advanced controls</string>
     <string name="home_action_advanced_desc">Full device tuning</string>
     <string name="home_memory_storage">Memory matrix</string>
-    <string name="home_memory_storage_desc">RAM, ZRAM and internal storage pressure</string>
+    <string name="home_memory_storage_desc">Capacity left in RAM, ZRAM and internal storage</string>
     <!-- ZRAM is a unit name, not a word: it is not translated in any locale (see ADR-40). -->
     <string name="home_memory_swap_label" translatable="false">ZRAM</string>
     <string name="home_details">DETAILS</string>
@@ -1712,38 +1712,6 @@
     <string name="home_zram_unavailable">Compressed swap is unavailable</string>
     <string name="home_available_storage">%1$s GB free</string>
 
-    <string name="home_story_title">Performance story</string>
-    <string name="home_story_pressure">Pressure</string>
-    <string name="home_story_bottleneck">Limiter</string>
-    <string name="home_story_live_loop">Live loop</string>
-    <string name="home_story_heat_map">Heat map</string>
-    <string name="home_story_heat_headline">Heat is shaping performance</string>
-    <string name="home_story_heat_desc">Battery is at %1$d°C while CPU load is %2$d%%. The best next action is to understand where heat is coming from before pushing more performance.</string>
-    <string name="home_story_cpu_headline">Compute load is the current bottleneck</string>
-    <string name="home_story_cpu_desc">CPU load is %1$d%% at %2$s. Max Manager is seeing real pressure, not just a selected profile.</string>
-    <string name="home_story_memory_headline">Memory pressure is building</string>
-    <string name="home_story_memory_desc">RAM is %1$d%% used with %2$s available. ZRAM and app behavior matter more than raw CPU right now.</string>
-    <string name="home_story_storage_headline">Storage headroom is tight</string>
-    <string name="home_story_storage_desc">Storage is %1$d%% full with %2$s GB free. Low free space can become I/O stutter under load.</string>
-    <string name="home_story_ai_headline">MAX AI has a fresh device read</string>
-    <string name="home_story_ai_desc">Objective score is %1$d%% under the current %2$s strategy. Open the live loop to see why it chooses each move.</string>
-    <string name="home_story_network_headline">Network activity is shaping latency</string>
-    <string name="home_story_network_desc">Current traffic is ↓ %1$s and ↑ %2$s. This can affect game ping and foreground responsiveness.</string>
-    <string name="home_story_stable_headline">No single limiter is dominating</string>
-    <string name="home_story_stable_desc">CPU %1$d%%, RAM %2$d%% and battery temperature %3$d°C are in a usable range. This is the baseline to compare future boosts against.</string>
-    <string name="home_story_temp_value">%1$d°C</string>
-    <string name="home_story_cpu_value">%1$d%% CPU</string>
-    <string name="home_story_ram_value">%1$d%% RAM</string>
-    <string name="home_story_storage_value">%1$d%% full</string>
-    <string name="home_story_score_value">%1$d%% score</string>
-    <string name="home_story_net_value">%1$s total</string>
-    <string name="home_story_thermal_limit">Thermal</string>
-    <string name="home_story_compute_limit">CPU</string>
-    <string name="home_story_memory_limit">RAM/ZRAM</string>
-    <string name="home_story_io_limit">Storage I/O</string>
-    <string name="home_story_network_limit">Network</string>
-    <string name="home_story_no_limit">None obvious</string>
-    <string name="home_story_stable_value">Baseline</string>
     <string name="control_workspace_subtitle">Map every tuning surface by the part of the device it affects</string>
     <string name="control_view_compact">Compact</string>
     <string name="control_view_expanded">Expanded</string>
@@ -1828,42 +1796,10 @@
     <string name="home_passport_open_apps">Apps</string>
     <string name="home_passport_open_live">Live</string>
 
-    <string name="home_session_title">Session report</string>
-    <string name="home_session_subtitle">Before/after from the current live window</string>
-    <string name="home_session_cpu_delta">CPU shift</string>
-    <string name="home_session_ram_delta">RAM shift</string>
-    <string name="home_session_gpu_delta">GPU shift</string>
-    <string name="home_session_correlation">Correlation</string>
-    <string name="home_session_open_loop">Live loop</string>
-    <string name="home_session_open_heat">Thermals</string>
-    <string name="home_session_grade_hot">Hot</string>
-    <string name="home_session_grade_busy">Busy</string>
-    <string name="home_session_grade_clean">Clean</string>
-    <string name="home_session_summary_heat">CPU is at %1$d%% while temperature is %2$d°C. This session is likely becoming thermally limited.</string>
-    <string name="home_session_summary_ramp">Load is ramping: CPU changed by %1$d%% and RAM by %2$d%% compared with the start of this window.</string>
-    <string name="home_session_summary_ai">MAX AI currently scores this session at %1$d%% using %2$s. Open the loop to inspect decisions.</string>
-    <string name="home_session_summary_baseline">Current window is a useful baseline: CPU %1$d%% and RAM %2$d%% without a strong degradation signal.</string>
-    <string name="home_session_corr_heat">Load ↔ heat</string>
-    <string name="home_session_corr_stable">No strong link</string>
-
-    <string name="home_session_confidence">Performance Intelligence · %1$d%% confidence</string>
-    <string name="home_session_workload">Workload</string>
-    <string name="home_session_limiter">Limiter</string>
-    <string name="home_session_before_after">Before → now</string>
-    <string name="home_session_real_gain">Real gain?</string>
-    <string name="home_session_timeline">Timeline</string>
-    <string name="home_session_collecting">Collecting</string>
-    <string name="home_session_grade_real">Verified gain</string>
-    <string name="home_session_grade_not_real">Not sustainable</string>
-    <string name="home_session_real_yes">Yes</string>
-    <string name="home_session_real_no">No</string>
-    <string name="home_session_real_unknown">Watching</string>
-
     <string name="app_settings_system_bridge">This app has %1$d custom signals in the %2$s context. When it becomes foreground, Max AI can read that intent while Control applies only the allowed lanes.</string>
     <string name="app_settings_open_live">Live loop</string>
     <string name="app_settings_open_control">Control map</string>
 
-    <string name="home_session_ai_bridge">Max AI: %1$s · profile %2$s</string>
     <string name="apps_bridge_title">App behavior in the system</string>
     <string name="apps_bridge_desc">Per-app choices are not isolated: they feed workload intent, profile behavior and the live control loop.</string>
     <string name="apps_bridge_profiles_title">Configured apps affect sessions</string>
@@ -1900,7 +1836,6 @@
     <string name="max_role_file_manager">Browse, inspect and modify files as root, with every operation guarded and verified.</string>
     <string name="max_role_plugins">Read the published contract for third-party plugins and what was accepted or refused on this device.</string>
     <string name="max_role_activity_launcher">Open hidden Android activities for debugging and vendor tools.</string>
-
 
     <!-- Neural home dashboard v2 -->
     <string name="home_spectrum_title">Load spectrum</string>
@@ -2912,4 +2847,94 @@
     <string name="hma_companion_higher">Visibility count increased. Review package and policy changes.</string>
     <string name="hma_companion_unknown">Measurement is not comparable or unreadable.</string>
     <string name="hma_companion_baseline">Save current count as baseline</string>
+
+    <!-- ================================================================
+         HOME · LEVEL UP (MAX-MANAGER-LEVEL-UP.md)
+         Access mode · guide banners · memory actions · live clocks ·
+         Ultra Cleaner. Written in values/ and values-ar first (ADR-14).
+         ================================================================ -->
+
+    <!-- Hero: the access mode is a fact, and the line under it says what it opens. -->
+    <string name="home_access_basic">Basic</string>
+    <string name="home_access_note_none">No root or Shizuku yet. Controls that need setup stay locked, and each says what it needs.</string>
+    <string name="home_access_note_shizuku">ADB-level access is ready. Controls that write hardware directly still need root.</string>
+    <string name="home_access_note_root">Root is ready. Hardware writes run with a read-back verification.</string>
+
+    <!-- Guide banners: they move on their own and stop when touched. -->
+    <string name="home_banner_local_title">On this phone</string>
+    <string name="home_banner_local_body">Settings are applied on this device. Nothing is uploaded.</string>
+    <string name="home_banner_access_title">Access mode</string>
+    <string name="home_banner_access_body">Root, Shizuku, ADB or Basic — as detected. A locked control says what it needs.</string>
+    <string name="home_banner_ai_title">Max AI decides</string>
+    <string name="home_banner_ai_body">Max AI picks the smallest change that works. You can override it.</string>
+    <string name="home_banner_verify_title">Read back, not assumed</string>
+    <string name="home_banner_verify_body">Every hardware write is read from the device after it lands.</string>
+    <string name="home_banner_clean_title">Caches first</string>
+    <string name="home_banner_clean_body">Ultra Cleaner removes measured caches. Your own files only if you tick them.</string>
+    <string name="home_banner_cpu_title">Live clocks</string>
+    <string name="home_banner_cpu_body">CPU cores show the live frequency of every core, not a map of names.</string>
+    <string name="home_banner_back">Back</string>
+    <string name="home_banner_next">Next</string>
+    <string name="home_banner_skip">Skip</string>
+    <string name="home_banner_step">Step %1$d of %2$d</string>
+    <string name="home_banner_done">Done</string>
+    <string name="home_banner_dismiss">Close the guide</string>
+    <string name="home_banner_restore">Show the guide again</string>
+
+    <!-- Memory card: the two actions are the point of the redesign. -->
+    <string name="home_memory_boost">Boost</string>
+    <string name="home_memory_boost_desc">Stops cached background apps, then shows the memory actually freed.</string>
+    <string name="home_memory_boost_blocked">Boost needs root or Shizuku. Nothing was stopped.</string>
+    <string name="home_memory_boost_none">Nothing worth stopping right now.</string>
+    <string name="home_memory_boost_freed">Freed %1$s</string>
+    <string name="home_memory_boost_running">Stopping cached apps…</string>
+    <string name="home_memory_boost_measured">Measured before and after from MemAvailable.</string>
+
+    <!-- Ultra Cleaner -->
+    <string name="ultra_cleaner_title">Ultra Cleaner</string>
+    <string name="home_cleaner_action">Clean</string>
+    <string name="ultra_cleaner_tagline">Measured, not estimated.</string>
+    <string name="ultra_cleaner_intro">Caches first. Your own files only if you tick them.</string>
+    <string name="ultra_cleaner_cat_app_caches">App caches</string>
+    <string name="ultra_cleaner_cat_app_caches_desc">Temporary files apps keep in internal storage</string>
+    <string name="ultra_cleaner_cat_shared">Shared storage caches</string>
+    <string name="ultra_cleaner_cat_shared_desc">Cache left in Android/data by installed apps</string>
+    <string name="ultra_cleaner_cat_thumbs">Thumbnails</string>
+    <string name="ultra_cleaner_cat_thumbs_desc">Every .thumbnails folder, rebuilt when needed</string>
+    <string name="ultra_cleaner_cat_apk">Installer files</string>
+    <string name="ultra_cleaner_cat_apk_desc">APK files in Download. Tick to remove.</string>
+    <string name="ultra_cleaner_cat_empty">Empty folders</string>
+    <string name="ultra_cleaner_cat_empty_desc">Folders with nothing inside, outside Android</string>
+    <string name="ultra_cleaner_cat_logs">Crash reports and logs</string>
+    <string name="ultra_cleaner_cat_logs_desc">ANR traces, tombstones and the system dropbox</string>
+    <string name="ultra_cleaner_needs_root">Needs root</string>
+    <string name="ultra_cleaner_measuring">Measuring…</string>
+    <string name="ultra_cleaner_unmeasured">Could not measure</string>
+    <string name="ultra_cleaner_clean_amount">Clean %1$s</string>
+    <string name="ultra_cleaner_clean_selected">Clean selected</string>
+    <string name="ultra_cleaner_scope_limited">Without root or Shizuku only the cache of this app can be cleared.</string>
+    <string name="ultra_cleaner_scope_root">Root: system logs and crash reports are included.</string>
+    <string name="ultra_cleaner_freed">Freed %1$s</string>
+    <string name="ultra_cleaner_freed_none">Nothing measurable was removed.</string>
+    <string name="ultra_cleaner_partial">Some categories could not be measured, so they are not counted.</string>
+    <string name="ultra_cleaner_used_of">%1$s of %2$s used</string>
+    <string name="ultra_cleaner_free">%1$s free</string>
+    <string name="ultra_cleaner_nearly_full">Storage is %1$d%% full</string>
+    <string name="ultra_cleaner_select_safe">Select the safe set</string>
+    <string name="ultra_cleaner_measure_again">Measure again</string>
+    <string name="max_role_max_live">The decision loop as it happens, and what it decided.</string>
+    <string name="max_role_ultra_cleaner">Measured caches, leftovers and logs.</string>
+
+    <!-- CPU: the screen answers "what is each core clocked at right now". -->
+    <string name="cpu_live_subtitle">Live clock of every core</string>
+    <string name="cpu_live_average">Average</string>
+    <string name="cpu_live_highest">Highest now</string>
+    <string name="cpu_live_cores">Cores</string>
+    <string name="cpu_live_cluster_range">Cores %1$d–%2$d · up to %3$s</string>
+    <string name="cpu_live_share">%1$d%% of %2$s</string>
+    <string name="cpu_live_hidden">Kernel hides cpufreq</string>
+    <string name="cpu_live_offline">Offline</string>
+    <string name="cpu_live_disclaimer">Android hides true utilisation. Every number here is a core clock as a share of its own maximum.</string>
+    <string name="cpu_live_identity_map">Cluster map</string>
+    <string name="cpu_live_advanced">Limits, presets and manual cores</string>
 </resources>

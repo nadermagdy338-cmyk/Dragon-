@@ -163,11 +163,34 @@ fun CpuCoreControlScreen(
                 MaxAiShortcut(navController = navController, manual = true)
             }
         ) {
+            /*
+             * **البطل الجديد: التردد الحي (`MAX-MANAGER-LEVEL-UP.md` §8.1).**
+             *
+             * وكان الأوّل خريطةَ ألقاب (`CPU0 Efficiency…`) بلا رقم واحد حيّ — وهي تجيب سؤالًا
+             * لم يسأله أحد عند فتح الشاشة. والبطل الآن يجيب السؤال المفروض: «ما تردد كل نواة الآن؟»
+             * — ولا تُحذف الخريطة، بل تنتقل إلى ما بعد الترددات (خريطة هويّة لا بطلًا).
+             */
+            item {
+                CpuLiveClockHero(
+                    coreRows = viewModel.coreRows,
+                    coreFreqMhz = viewModel.coreFreqMhz,
+                    clusterMaxFreqMhz = viewModel.clusterMaxFreqMhz,
+                )
+            }
+
+            item {
+                CpuLiveClockGrid(
+                    clusters = viewModel.clusters,
+                    coreRows = viewModel.coreRows,
+                    coreFreqMhz = viewModel.coreFreqMhz,
+                    coreFreqHistory = viewModel.coreFreqHistory,
+                    clusterMaxFreqMhz = viewModel.clusterMaxFreqMhz,
+                )
+            }
+
             item {
                 CpuHeroCard(
                     chipsetName = viewModel.chipsetName,
-                    onlineCores = viewModel.onlineCores,
-                    totalCores = viewModel.totalCores,
                     coreRows = viewModel.coreRows,
                     trailing = {
                         // وبطاقة المعالج بلا حاوية تحشوها (عمودٌ على الصفحة)، فحاشية الباب
@@ -397,31 +420,232 @@ private fun ClusterCoreSummary(
     )
 }
 
+/**
+ * سقف النواة المعلن — سقف عنقودها من `cpuinfo_max_freq`.
+ *
+ * **وهو المواصفة لا القياس الحيّ:** لو قسمنا على أعلى عيّنة رأيناها لصار الرقم يتغيّر من
+ * نفسه (٠٫٦ ثم ٠٫٨ لأن نواة أخرى صعدت)، ولو قسمنا على `scaling_max_freq` الحيّ لصار حدّ الخنق
+ * الحراري «١٠٠٪». والسقف المعلن هو المقام الوحيد الذي لا يتحرّك — وهو نفسه الذي تعرضه بقية
+ * الشاشة في حدود التردد.
+ */
+private fun coreCeilingMhz(row: CpuCoreRow, clusterMaxFreqMhz: Map<String, Int>): Int =
+    clusterMaxFreqMhz[row.cluster.policyPath] ?: 0
+
+/**
+ * نسبة النواة من سقفها: `التردد الجاري ÷ أقصاها`.
+ *
+ * **و`null` ليست صفرًا:** نواة تخفي `cpufreq` لا تُقاس، ونواة مطفأة لا تردّد لها أصلًا؛
+ * وكلتاهما تُنتج `null` فتُكتب حالةٌ لا «٠٪» (وهو نصّ خطة المستوى §8.2 حرفيًّا).
+ */
+private fun coreSharePercent(freqMhz: Int?, ceilingMhz: Int): Int? {
+    if (freqMhz == null || freqMhz <= 0 || ceilingMhz <= 0) return null
+    return ((freqMhz.toFloat() / ceilingMhz) * 100f).toInt().coerceIn(0, 100)
+}
+
+/**
+ * بطل الشاشة: **متوسط · الأعلى الآن · عدد الأنوية** (`MAX-MANAGER-LEVEL-UP.md` §8.1).
+ *
+ * وثلاثة أرقام لا أكثر، لأن الثلاثة هي ما يجيب «كيف حال المعالج الآن»: أين يقف في المتوسط،
+ * وأين ذروته، وكم نواة تعمل أصلًا. وكلٌّ منها يُحسب من القراءة الحيّة وحدها — لا رقم محفوظ.
+ *
+ * **وسطر الصدق تحتهم جزء من البطل لا تذييل:** أندرويد يحجب الاستخدام الحقيقي (`/proc/stat`)
+ * منذ أندرويد ٨، فالرقم المعروض **نسبة من السقف** لا «حملًا». وبلا هذا السطر يُقرأ الرقم
+ * «استخدام معالج» ويُصدَّق — وهو أصدق ما يمكن أن تفعله شاشة تعرض قياسًا محدودًا.
+ */
+@Composable
+private fun CpuLiveClockHero(
+    coreRows: List<CpuCoreRow>,
+    coreFreqMhz: Map<Int, Int?>,
+    clusterMaxFreqMhz: Map<String, Int>,
+) {
+    val p = neuralPalette()
+    val shares = coreRows.mapNotNull { row ->
+        coreSharePercent(coreFreqMhz[row.cpu], coreCeilingMhz(row, clusterMaxFreqMhz))
+    }
+    val average = shares.takeIf { it.isNotEmpty() }?.let { it.sum() / it.size }
+    val highestMhz = coreRows.mapNotNull { coreFreqMhz[it.cpu]?.takeIf { frequency -> frequency > 0 } }
+        .maxOrNull()
+    val online = coreRows.count { it.online }
+    MaxSection(title = stringResource(R.string.cpu_live_subtitle)) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
+        ) {
+            NeuralFactTile(
+                caption = stringResource(R.string.cpu_live_average),
+                value = average?.let { "$it%" } ?: "\u2014",
+                accent = p.accent,
+                modifier = Modifier.weight(1f),
+            )
+            NeuralFactTile(
+                caption = stringResource(R.string.cpu_live_highest),
+                value = formatCpuFrequency((highestMhz ?: 0) * 1000L),
+                accent = p.accentAlt,
+                modifier = Modifier.weight(1f),
+            )
+            NeuralFactTile(
+                caption = stringResource(R.string.cpu_live_cores),
+                value = "$LTR_MARK$online/${coreRows.size}$LTR_MARK",
+                accent = p.ok,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        Text(
+            text = stringResource(R.string.cpu_live_disclaimer),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/**
+ * بلاطات النواة الحيّة، **مجموعة حسب العنقود** — وهذا ما يفرّقها فعلًا.
+ *
+ * والتجميع ليس تجميلًا: على big.LITTLE كل نوى العنقود تشترك في سياسة تردّد واحدة، فعنوان
+ * «الأنوية ٠–٣ · حتى 2.1 GHz» يقول للقارئ لماذا تشترك الأربع في سقف — وهو المعنى الذي كانت
+ * خريطة الأسماء تقوله بلا رقم.
+ */
+@Composable
+private fun CpuLiveClockGrid(
+    clusters: List<CpuTopologyUtil.CpuCluster>,
+    coreRows: List<CpuCoreRow>,
+    coreFreqMhz: Map<Int, Int?>,
+    coreFreqHistory: Map<Int, List<Int>>,
+    clusterMaxFreqMhz: Map<String, Int>,
+) {
+    val scheme = MaterialTheme.colorScheme
+    clusters.forEach { cluster ->
+        val rows = coreRows.filter { it.cluster.policyPath == cluster.policyPath }
+        if (rows.isEmpty()) return@forEach
+        val ceiling = clusterMaxFreqMhz[cluster.policyPath] ?: 0
+        MaxSection(
+            title = stringResource(
+                R.string.cpu_live_cluster_range,
+                rows.minOf { it.cpu },
+                rows.maxOf { it.cpu },
+                formatCpuFrequency(ceiling.toLong() * 1000L),
+            )
+        ) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
+                verticalArrangement = Arrangement.spacedBy(MaxSpace.sm),
+                maxItemsInEachRow = 2,
+            ) {
+                rows.forEach { row ->
+                    CoreClockTile(
+                        row = row,
+                        freqMhz = coreFreqMhz[row.cpu],
+                        ceilingMhz = clusterMaxFreqMhz[row.cluster.policyPath] ?: 0,
+                        history = coreFreqHistory[row.cpu].orEmpty(),
+                        accent = if (row.online) clusterAccent(row.cluster) else scheme.outline,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * بلاطة نواة واحدة: `Core N` · نسبة من السقف · **التردد الكبير** · موجة.
+ *
+ * **وترتيب القراءة مقصود:** الرقم الكبير هو التردد لا النسبة، لأن المالك طلب صراحةً أن يرى
+ * «التردد الحقيقي والديناميكي» — والنسبة سطرٌ صغير بجانب الاسم يشرح موضع الرقم من سقفه.
+ *
+ * **وحالات ثلاث لا رقم واحد:** مطفأة تكتب «متوقفة»، وذاكرة تُخفي `cpufreq` تكتب «النواة تخفي
+ * `cpufreq`»، والمقروءة تكتب تردّدها. ولا تُعرض ٠ ميغاهرتز في أيّ منها.
+ */
+@Composable
+private fun CoreClockTile(
+    row: CpuCoreRow,
+    freqMhz: Int?,
+    ceilingMhz: Int,
+    history: List<Int>,
+    accent: Color,
+    modifier: Modifier = Modifier,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val share = coreSharePercent(freqMhz, ceilingMhz)
+    val live = row.online && freqMhz != null && freqMhz > 0
+    val tileShape = RoundedCornerShape(MaxRadius.row)
+    Column(
+        modifier
+            .clip(tileShape)
+            .background(
+                accent.copy(alpha = if (row.online) MaxAlpha.toneContainerStrong else MaxAlpha.toneContainer)
+            )
+            .border(
+                width = MaxSize.hairlineBorder,
+                color = accent.copy(alpha = if (row.online) MaxAlpha.borderStrong else MaxAlpha.border),
+                shape = tileShape,
+            )
+            .padding(vertical = MaxSpace.sm, horizontal = MaxSpace.xs),
+        verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline),
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "${stringResource(R.string.cpu_label)}$LTR_MARK${row.cpu}",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = scheme.onSurface,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = share?.let { "$LTR_MARK$it%$LTR_MARK" } ?: "\u2014",
+                style = MaterialTheme.typography.labelSmall,
+                color = accent,
+            )
+        }
+        Text(
+            text = when {
+                !row.online -> stringResource(R.string.cpu_live_offline)
+                freqMhz == null -> stringResource(R.string.cpu_live_hidden)
+                else -> formatCpuFrequency(freqMhz.toLong() * 1000L)
+            },
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = if (live) scheme.onSurface else scheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        // والموجة **تاريخ هذه النواة وحدها** (§8.2): موجة العنقود كانت سترسم لكل نوى
+        // العنقود الشكل نفسه، فتُقرأ الأربع كأنها تعمل وتتوقف معًا.
+        NeuralSparkline(
+            samples = if (ceilingMhz > 0) {
+                history.map { (it.toFloat() / ceilingMhz).coerceIn(0f, 1f) }
+            } else {
+                emptyList()
+            },
+            accent = accent,
+            modifier = Modifier.fillMaxWidth().height(MaxSpace.xxl),
+        )
+    }
+}
+
 @Composable
 private fun CpuHeroCard(
     chipsetName: String,
-    onlineCores: Int,
-    totalCores: Int,
     coreRows: List<CpuCoreRow>,
     trailing: (@Composable () -> Unit)? = null
 ) {
     val scheme = MaterialTheme.colorScheme
-    val availability = if (totalCores == 0) 0f else onlineCores.toFloat() / totalCores
-    val allOnline = totalCores > 0 && onlineCores == totalCores
-    val statusColor = if (allOnline) scheme.secondary else scheme.tertiary
 
-    // The page opens with one line of facts and one picture: how much of this
-    // CPU is up, and which cores are up. The circular gauge that used to sit
-    // here restated the same ratio four times (value, unit, ring, caption) and
-    // pushed the first real control below the fold on a phone, so it is now a
-    // single summary line plus a 4dp bar.
+    /*
+     * **ومع سقوط «كم نواة متصلة» من هنا:** الرقم صار في [CpuLiveClockHero] مرّة واحدة، وكان
+     * مكرّرًا في موضعين (سطر هنا · وعدّاد في الخريطة). والقاعدة في هذا المشروع لا تُكرّر قياسًا
+     * على سطح واحد — وهذا هو نفس الحذف الذي وقع في الرئيسية بحرفيّته.
+     *
+     * فالمنزلة الجديدة لهذه البطاقة **خريطة هويّة**: الشريحة، وأيّ نواة إلى أيّ عنقود تنتمي.
+     * وهي معلومة ثابتة لا قياس متغيّر، ولذلك يجوز أن تُقرأ مرّة.
+     */
     Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)
         ) {
-            IconBadge(icon = Icons.Outlined.Memory, tint = statusColor, size = 40)
+            IconBadge(icon = Icons.Outlined.Memory, tint = scheme.secondary, size = 40)
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)
@@ -435,26 +659,11 @@ private fun CpuHeroCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "$LTR_MARK$onlineCores/$totalCores$LTR_MARK " +
-                        stringResource(R.string.cpu_core_online_label),
+                    text = stringResource(R.string.cpu_live_identity_map),
                     style = MaterialTheme.typography.bodySmall,
                     color = scheme.onSurfaceVariant
                 )
             }
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(MaxSpace.hairline + 2.dp)
-                .clip(RoundedCornerShape(MaxRadius.pill))
-                .background(scheme.surfaceContainerHighest)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(availability.coerceIn(0f, 1f))
-                    .fillMaxHeight()
-                    .background(statusColor)
-            )
         }
         CoreGridMap(coreRows = coreRows)
         // وباب قسم المعالج في «معلومات الجهاز» آخر بطاقة الشريحة: من عمل على سقوف التردّد هنا

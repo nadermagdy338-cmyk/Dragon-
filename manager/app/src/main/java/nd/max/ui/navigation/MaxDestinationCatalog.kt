@@ -85,6 +85,9 @@ fun maxDestinationRole(destination: MaxDestination): Int = when (destination) {
     MaxDestination.DozeMode -> R.string.max_role_doze
     MaxDestination.Dex2oat -> R.string.max_role_dex2oat
     MaxDestination.StorageDetail -> R.string.max_role_storage
+    // والتنظيف الفائق: دورٌ يقول **ما يفعله** لا ما يُعرض فيه — يحذف مقيسًا. ولو ترك للعبارة
+    // العامة («افتح واجهة التحكم المركّزة هذه») لقرأ المستخدم بابًا لا يقول إنه يحذف شيئًا.
+    MaxDestination.UltraCleaner -> R.string.max_role_ultra_cleaner
     MaxDestination.NetworkScheduler -> R.string.max_role_network_scheduler
     MaxDestination.NetworkDetail -> R.string.max_role_network_detail
     // ودور السطح العاشر: يقول **ما يفعله** لا ما يُعرض فيه — مستويات الدفقات تُكتب، والتشخيص يسمّي الحدّ.

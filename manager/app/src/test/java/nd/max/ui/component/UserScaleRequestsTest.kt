@@ -110,16 +110,25 @@ class UserScaleRequestsTest {
         val maxAiCall = pulse.substringAfter("MaxAiEntryButton(").substringBefore("onMaxAi")
         assertFalse("المعامل تسرّب إلى زرّ Max AI", maxAiCall.contains("PULSE_SCALE"))
 
-        val pillCall = pulse.substringAfter("NeuralPill(").substringBefore("onOverview")
+        /*
+         * **والمَعلَم تغيّر بعد جولة المستوى:** كانت هذه أوّل `NeuralPill(` في البطل، ودخلت
+         * قبله حبّة **وضع الوصول** (`accessLabelRes`) في صفّ الهوية. وأخذُ أوّل حبّة صار يقيس
+         * حبّة الدولة لا حبّة الجهاز — أي يقيس شيئًا آخر ويقول «تسرّب» أو «لم يتسرّب» عنه.
+         * فالمَعلَم صار ما يميّز الحبّة المقصودة فعلًا: **نصّها من سجلّ الوجهة** (`DeviceInfo.titleRes`)
+         * — وهي نفسها قاعدة ADR-02 (الاسم من السجلّ لا نصًّا مكتوبًا).
+         */
+        val pillCall = pulse.substringAfter("MaxDestination.DeviceInfo.titleRes")
+            .substringBefore("onOverview")
         assertFalse("المعامل تسرّب إلى حبّة معلومات الجهاز", pillCall.contains("PULSE_SCALE"))
+        assertTrue(
+            "والحبّة المقيسة هي حبّة الجهاز لا حبّة وضع الوصول",
+            pillCall.contains("compact = true"),
+        )
 
         assertTrue(
             "وحدّ اللمس ٤٨dp لزرّ Max AI قائم في موضعه",
             read("ui/component/MaxAiEntryButton.kt").contains("minimumInteractiveComponentSize()"),
         )
-        assertTrue(
-            "والحبّة المضغوطة هي التي كبرت: النداء في البطاقة الأولى مضغوط",
-            pillCall.contains("compact = true"),
-        )
+
     }
 }

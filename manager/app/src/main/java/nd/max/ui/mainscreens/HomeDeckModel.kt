@@ -13,9 +13,12 @@
  *
  * ⇒ وثلاثة أرقام وثلاث قواعد هي كل هذا الملفّ:
  *
- * 1. **٤ هو الافتراضيّ، و٢ الأدنى، و٦ الأقصى.** والأربعة الافتراضية هي **البطاقات الأربع القائمة
- *    اليوم** بنصّها ونبرتها (العرض · الحرارة · الطاقة · تحكّم متقدّم) — فالمستخدم الجديد لا يرى
- *    تغييرًا في أوّل تشغيل، وهو عين ما طلبه المالك («٤ خيارات ثابتين لو لسه مستخدم جديد»).
+ * 1. **٤ هو الافتراضيّ، و٢ الأدنى، و٦ الأقصى.** والأربعة الافتراضية بعد جولة المستوى
+ *    (`MAX-MANAGER-LEVEL-UP.md` §5.5) هي **أقرب البطاقات إلى الفعل**: التنظيف الفائق · الحرارة ·
+ *    الطاقة · العرض. ودخل «التنظيف» لأن الشاشة جديدة ولا مدخل آخر لها في الرئيسية، وخرج
+ *    «تحكّم متقدّم» لأن وجهته (`Control`) صارت **بابًا في الشريط السفلي** (`MaxDestination.Control`
+ *    في `PrimaryDestinations`) فبطاقةٌ تُكرّر مقعدًا في الشريط تعدُّ بطاقةً بلا مقابل.
+ *    والقاعدة لم تتغيّر: من لم يستعمل شيئًا يرى الأربعة بترتيب البركة.
  *    **ونزل الأدنى من ٤ إلى ٢ بأمر المالك** («الافتراضي ٤ … والحد الأدنى ٢ بدل ٤»)، فصار ممكنًا
  *    أن يرى المستخدم بطاقتين. **والافتراضيّ لم ينزل معه، وهذا مربط الفرس:** كان الرقم نفسه
  *    (`HOME_DECK_MIN`) يخدم الغرضين، فلو حُرّك لتغيّر الاثنان معًا — أي نزل الافتراضيّ إلى اثنتين
@@ -41,6 +44,7 @@ package nd.max.ui.mainscreens
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.CleaningServices
 import androidx.compose.material.icons.rounded.DataUsage
 import androidx.compose.material.icons.rounded.DeveloperBoard
 import androidx.compose.material.icons.rounded.DisplaySettings
@@ -48,6 +52,7 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Thermostat
+import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Wifi
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -94,12 +99,16 @@ enum class HomeDeckMode { Auto, Manual }
  * جديدًا بل الحالة القائمة، وما بعده بذورٌ تُظهرها الاستعمالات لا الأذواق.
  */
 val HomeDeckPool: List<HomeDeckEntry> = listOf(
+    /**
+     * الأولى بالافتراضيّ — وهي الشاشة الوحيدة في الرئيسية التي لا مدخل آخر لها.
+     * (بطاقة التنظيف في الرئيسية تفتحها أيضًا، والمنصة هي المدخل الدائم.)
+     */
     HomeDeckEntry(
-        key = "display",
-        destination = MaxDestination.DisplayStudio,
-        titleRes = R.string.display_studio_title,
-        descriptionRes = R.string.max_hub_display_desc,
-        icon = Icons.Rounded.DisplaySettings,
+        key = "clean",
+        destination = MaxDestination.UltraCleaner,
+        titleRes = R.string.ultra_cleaner_title,
+        descriptionRes = R.string.max_role_ultra_cleaner,
+        icon = Icons.Rounded.CleaningServices,
         tone = MaxTone.Accent,
     ),
     HomeDeckEntry(
@@ -118,6 +127,18 @@ val HomeDeckPool: List<HomeDeckEntry> = listOf(
         icon = Icons.Rounded.BatteryChargingFull,
         tone = MaxTone.Positive,
     ),
+    HomeDeckEntry(
+        key = "display",
+        destination = MaxDestination.DisplayStudio,
+        titleRes = R.string.display_studio_title,
+        descriptionRes = R.string.max_hub_display_desc,
+        icon = Icons.Rounded.DisplaySettings,
+        tone = MaxTone.Accent,
+    ),
+    /**
+     * «تحكّم متقدّم» خرج من الأربعة الأولى ولم يخرج من البركة: من استعملها تظلّ تُقدَّم له في
+     * التلقائيّ — والترتيب اليدويّ يبقى بترتيب البركة لا بترتيب النقر.
+     */
     HomeDeckEntry(
         key = "control",
         destination = MaxDestination.Control,
@@ -173,6 +194,22 @@ val HomeDeckPool: List<HomeDeckEntry> = listOf(
         descriptionRes = R.string.max_role_device_info,
         icon = Icons.Rounded.Info,
         tone = MaxTone.Neutral,
+    ),
+    /**
+     * «الحلقة الحيّة» — **مدخلها الجديد بعد حذف قصة الأداء** (`HOME-STORY-TRIM-01`).
+     *
+     * كانت البطاقة المحذوفة تحمل زرًّا واحدًا يدخل إلى `MaxLive` وزرًّا آخر إلى `ThermalDetail`؛
+     * والثاني له بطاقة في المنصة أصلًا (‏`thermal`)، والأول لم يبقَ له مدخل من الشاشة الرئيسية
+     * — وهذا عطّب توصيل لا نوصل به: من عرف الزرّ يفقد طريقه. فدخلت البطاقة البركة، **لا الأربعة
+     * الأولى**: هي مقصد من يقصد التشخيص لا أوّل ما يفتحه المستخدم الجديد.
+     */
+    HomeDeckEntry(
+        key = "max_live",
+        destination = MaxDestination.MaxLive,
+        titleRes = R.string.max_live_title,
+        descriptionRes = R.string.max_role_max_live,
+        icon = Icons.Rounded.Timeline,
+        tone = MaxTone.Accent,
     ),
 )
 

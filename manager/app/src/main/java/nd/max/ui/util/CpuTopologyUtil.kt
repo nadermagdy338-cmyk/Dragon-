@@ -159,6 +159,38 @@ object CpuTopologyUtil {
         return khz / 1000
     }
 
+    /**
+     * تردد كل نواة **الآن** بالميغاهرتز — دفعة واحدة، ومن عقدة النواة لا عقدة العنقود.
+     *
+     * **ولماذا عقدة النواة:** على big.LITTLE كل نوى العنقود تشترك في تردّد سياستها الواحدة،
+     * فسؤال العنقود يعيد رقمًا واحدًا لكل نوى العنقود — أي **يخفي** أن نواةً تعمل وأخرى ساكنة.
+     * وهذا بالضبط ما يشكوه المالك في خريطة الأنوية الحالية («عرض جامد»). والعقدة الفردية
+     * (`cpu<N>/cpufreq/scaling_cur_freq`) هي الرقم الذي يختلف فعلًا بين نوى العنقود الواحد.
+     *
+     * **والدفعة:** نواةً نواةً تعني ثماني رحلات قراءة في كل دورة تحديث (٣ ثوان)؛ و`readMany`
+     * تقرأ الـ٨ في رحلة واحدة — نفس ما يُفعله [onlineStates] ومعلّلًا في تعليقه.
+     *
+     * **وثلاث دلالات لا تُخلط:**
+     * - **`null`** = العقدة غير مقروءة (النواة تخفي cpufreq أو لا تُعلنها). لا صفر.
+     * - **`0`** = العقدة قُرئت وأعادت صفرًا/سالبًا: النواة مسكّنة أو مطفأة. ويُعرض حسب
+     *   [onlineStates] لا وحده — فالنواة المطفأة تُكتب «متوقّفة» لا «٠ ميغاهرتز».
+     * - **رقم موجب** = التردد الحي بالميغاهرتز.
+     */
+    fun coreFreqMhz(cpus: List<Int>): Map<Int, Int?> {
+        if (cpus.isEmpty()) return emptyMap()
+        val values = RootFileAccess.readMany(cpus.map(::curFreqPath))
+        return cpus.mapIndexed { index, cpu ->
+            val khz = values.getOrNull(index)?.trim()?.toLongOrNull()
+            cpu to when {
+                khz == null -> null
+                khz <= 0L -> 0
+                else -> (khz / 1000L).toInt()
+            }
+        }.toMap()
+    }
+
+    private fun curFreqPath(cpu: Int) = "/sys/devices/system/cpu/cpu$cpu/cpufreq/scaling_cur_freq"
+
     private fun onlinePath(cpu: Int) = "/sys/devices/system/cpu/cpu$cpu/online"
 
     /**

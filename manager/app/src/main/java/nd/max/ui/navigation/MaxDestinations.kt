@@ -219,6 +219,27 @@ sealed class MaxDestination(
     data object Dex2oat : MaxDestination("dex2oat", R.string.dex2oat_title, Icons.Rounded.Science, StorageHub)
     data object StorageDetail : MaxDestination("storage_detail", R.string.detail_storage, Icons.Rounded.DataUsage, StorageHub)
 
+    /**
+     * التنظيف الفائق — **قدرة جديدة لا مدخل ثانٍ لشاشة قائمة** (`MAX-MANAGER-LEVEL-UP.md` §6.1).
+     *
+     * و`StorageDetail` يبقى كما هو: هو **محلّل قراءة** يقول أيّ مصرف أخذ المساحة، وهذه شاشة
+     * **تُنفّذ حذفًا مقيسًا**. ووجهتان لا وجهة واحدة بأمر المالك، لأن السؤالين مختلفان: «أين
+     * ذهبت مساحتي؟» و«ما أستطيع تحريره الآن؟» — ودمجهما كان سيضع زرّ حذف في شاشة قياس.
+     *
+     * **وأبوها `StorageHub` بالضرورة:** صفّها في محور التخزين يأتي من `maxHubRows` التي تقرأ
+     * `parent` — فلا قائمة مكتوبة بيد تصطفّ ولا تُحدَّث. والأيقونة `CleaningServices` لأنها
+     * المكنسة في مجموعة الأيقونات، وليست أيقونة `DebloatFreeze` المطابقة (تلك للتجميد).
+     */
+    data object UltraCleaner : MaxDestination(
+        "ultra_cleaner",
+        R.string.ultra_cleaner_title,
+        Icons.Rounded.CleaningServices,
+        StorageHub,
+        // `Advanced` لا `Dangerous`: الشاشة تحذف كاشًا وبقايا وسجلات — ولا تكتب على عتاد ولا
+        // تفقد بيانات تطبيق. ورفعها إلى `Dangerous` كان سيصنّفها بما ليست فيه.
+        risk = MaxRisk.Advanced,
+    )
+
     // Feature screens: Network domain
     data object NetworkScheduler : MaxDestination("networkscheduler", R.string.net_sched_title, Icons.Rounded.NetworkCheck, NetworkHub)
     data object NetworkDetail : MaxDestination("network_detail", R.string.detail_network, Icons.Rounded.Wifi, NetworkHub)
@@ -340,7 +361,7 @@ sealed class MaxDestination(
                 CpuCoreControl, GovernorSettings, PreferenceTweaks, GpuStudio,
                 ZramManager, DisplayStudio, Resolution, TouchBoost, FpsGo, Fas, FpsOverlay,
                 ThermalDetail, Charging, BypassCharging, BypassChargingCheck, DozeMode,
-                Dex2oat, StorageDetail, NetworkScheduler, NetworkDetail,
+                Dex2oat, StorageDetail, UltraCleaner, NetworkScheduler, NetworkDetail,
                 ProcessManager, DebloatFreeze, AppSettings, GameLobby, EmulatorHub, HmaCompanion,
                 ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, Plugins, MaxBackup, Permissions, About,
                 Privilege, ModuleHealth,
