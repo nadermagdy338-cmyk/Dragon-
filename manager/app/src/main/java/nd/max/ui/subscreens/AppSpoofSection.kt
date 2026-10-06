@@ -43,6 +43,7 @@ import nd.max.ui.design.MaxSearchField
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
+import nd.max.ui.design.content
 import nd.max.ui.viewmodel.SpoofStudioViewModel
 
 /**
