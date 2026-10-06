@@ -37,7 +37,7 @@ import nd.max.ui.util.LoadHistoryStore
 import nd.max.ui.util.LoadSample
 import nd.max.ui.util.MtkUtils
 import nd.max.core.platform.ThermalUtil
-import nd.max.core.platform.getChipsetName
+import nd.max.core.platform.getChipsetNameWithPartCode
 import java.io.File
 
 /**
@@ -264,7 +264,8 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
     init {
         viewModelScope.launch(Dispatchers.IO) {
             restoreLoadHistory()
-            val chip = getChipsetName(context)
+            // السطر يحمل رمز القطعة بين قوسين بجانب اسم المعالج (طلب المالك، 2026-10-06).
+            val chip = getChipsetNameWithPartCode(context)
             val dispInfo = getDisplayInfo()
             _dashboardState.value = _dashboardState.value.copy(
                 chipsetName = chip,

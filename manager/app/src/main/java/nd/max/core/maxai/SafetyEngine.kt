@@ -54,6 +54,16 @@ class SafetyEngine @Inject constructor(
         /** تنبؤ يتجاوز هذا الحد خلال الأفق الأمامي → تدخل وقائي. */
         const val PREDICTED_ENGAGE_C = 52f
 
+        /**
+         * حدّ الطوارئ وحده — لا يُستخدم إلا حين يُطفأ Max AI بأمر المستخدم.
+         *
+         * ولزومه: كان المحرك يعمل دائمًا بكل عتباته، فمن يُطفئ AI والجهاز عند ٤٩°م يجد سقفًا
+         * يُكتب في الدورة التالية (≤٣٠ث) فيعود يحجب اختياراته في شاشة التحكم — وهو عين الشكوى.
+         * فالوضع المطفأ لا يعني إطفاء الحماية، بل **تضييقها إلى حاجز أخير** عالٍ لا يزاحم
+         * المستخدم: ٥٨°م فوق كل عتبات الاستخدام العادي، ودونه لا يكتب المحرك شيئًا.
+         */
+        const val EMERGENCY_TEMP_C = 58f
+
         /** سقف المدى عند التدخل (نسبة مدى العتاد). */
         const val ENGAGE_CAP_FRACTION = 0.55f
 
@@ -88,6 +98,13 @@ class SafetyEngine @Inject constructor(
     )
 
     private var retry: RetryState? = null
+
+    /**
+     * هل المحرك مسلَّح (يحمي بكل عتباته)؟ يُسلَّح بتفعيل Max AI ويُجرَّد بإطفائه.
+     *
+     * والافتراض `true`: من لم يستدعِ شيئًا يحصل على الحماية الكاملة — فلا يصير الجرّ عرضيًّا.
+     */
+    private var armed: Boolean = true
 
     /**
      * حالة المنحنى المتدرّج + آخر سقف كُتب فعلًا.
@@ -141,6 +158,12 @@ class SafetyEngine @Inject constructor(
         if (thermalC <= 0f) return current
 
         val desired = when {
+            // مجرَّد (Max AI مطفأ): لا حماية اعتيادية ولا تنبؤ وقائي — حاجز الطوارئ وحده.
+            !armed -> when {
+                thermalC >= EMERGENCY_TEMP_C -> SafetyLevel.CRITICAL
+                current.engaged && thermalC >= RELEASE_TEMP_C -> current.level
+                else -> SafetyLevel.NORMAL
+            }
             thermalC >= CRITICAL_TEMP_C || predicted >= CRITICAL_TEMP_C + 2f ->
                 SafetyLevel.CRITICAL
             thermalC >= ENGAGE_TEMP_C || predicted >= PREDICTED_ENGAGE_C ->
@@ -278,7 +301,8 @@ class SafetyEngine @Inject constructor(
         }
         if (!isRetry && !tighten) prefs.edit().putLong(PREF_INTERVENTIONS, count).apply()
 
-        val reason = if (tighten) {
+        val emergencyNote = if (armed) "" else " — حماية طوارئ وحيدة (Max AI مطفأ، الحاجز ${EMERGENCY_TEMP_C.toInt()}°م)"
+        val reason = (if (tighten) {
             "الحرارة ${thermalC.toInt()}°م داخل نطاق الحماية — تضييق السقف إلى " +
                 "${(capFraction * 100).toInt()}٪ من المدى"
         } else when (level) {
@@ -288,11 +312,11 @@ class SafetyEngine @Inject constructor(
             else -> "حرارة ${thermalC.toInt()}°م " +
                 (if (predictedC >= PREDICTED_ENGAGE_C) "(والتنبؤ ${predictedC.toInt()}°م) " else "") +
                 "تجاوز عتبة الأمان ${ENGAGE_TEMP_C.toInt()}°م — سقف أداء آمن"
-        }
+        }) + emergencyNote
         DiagnosticCenter.record(
             "safety",
             "SAFETY_${if (tighten) "TIGHTEN" else if (isRetry) "RETRY" else "ENGAGED"} " +
-                "level=$level cap=${(capFraction * 100).toInt()}% " +
+                "level=$level cap=${(capFraction * 100).toInt()}% armed=$armed " +
                 "applied=${outcome.applied} blocked=${outcome.blocked} failed=${outcome.failed} :: ${outcome.detail}"
         )
         if (!isRetry && !tighten) {
@@ -340,5 +364,67 @@ class SafetyEngine @Inject constructor(
             interventions = current.interventions,
             lastReason = reason,
         )
+    }
+
+    /**
+     * وقوفٌ بطلب صريح: يحرّر سقوف الأمان ويعيد الحالة يدوية — **بلا انتظار برودة مقيسة**.
+     *
+     * ولماذا يلزم غير [release] الداخلية: تلك تُستدعى من المنحنى حين تُثبَّت البرودة ([CURVE] يقول
+     * إن ثلاث قياسات تحت عتبة التراجع شرط)، فإن أُطفئ Max AI والجهاز حارّ لحظتها **لا تُستدعى أبدًا**
+     * ويبقى السقف مكتوبًا في النواة. والسقف ملك `Owner.SAFETY` أي يحجب اليدوي في المُحكِّم، فيرى
+     * المستخدم أن خياراته في شاشة التحكم لا تعمل بعد الإطفاء — ولا مخرج عنده إلا إعادة التشغيل.
+     * (وهذا هو سبب الشكوى المقيس في تصدير ٢٠٢٦-١٠-٠٦: `ai_enabled=0` والسقوف/العقود باقية.)
+     *
+     * ولا يمنع ذلك السلامة من العودة: الحلقة السريعة تبقى تعمل، فإن عادت الحرارة تجاوزت العتبة
+     * تُعاد الحماية في الدورة التالية ([evaluate] لا تعتمد على هذه الدالة).
+     */
+    fun disarm(reason: String): SafetyStatus {
+        // التجريد **قبل** التحرير: لو تأخّر لدخلت دورة بينهما فاشتركت بعتبات الحماية الكاملة.
+        armed = false
+        return standDown(reason)
+    }
+
+    /**
+     * تسليح الحماية بكل عتباتها — يُستدعى عند تفعيل Max AI.
+     * ولا يكتب على العتاد: الدورة السريعة القادمة تكشف إن كانت الحرارة تستدعي سقفًا.
+     */
+    fun arm() {
+        armed = true
+    }
+
+    /** هل الحماية مسلَّحة بكل عتباتها؟ (يُقرأ للعرض والفحص، لا للقرار.) */
+    val isArmed: Boolean get() = armed
+
+    /**
+     * التحرير الفعلي: يرفع سقف الأمان ويعيد الحالة `NORMAL` كتابةً لا ادّعاءً.
+     * ولا يُستدعى إلا من [disarm] — حتى لا يوجد مسار يحرّر السقف ويُبقي المحرك مسلَّحًا.
+     */
+    private fun standDown(reason: String): SafetyStatus {
+        retry = null
+        // حالة المنحنى تُصفَّر مع السقف: بند تكامليّ قديم كان سيشدّد أول تدخل قادم بلا سبب حاض.
+        curveState = MaxAiThermalCurve.State()
+        lastCapFraction = 0f
+        lastCapAtMs = 0L
+        ceilingKnobs.leaveAll(TOKEN)
+        DiagnosticCenter.record(
+            "safety",
+            "SAFETY_STAND_DOWN $reason — released ceilings, manual control takes over"
+        )
+        EventLog.userAction(
+            screen = "SafetyEngine",
+            field = "thermal_guard",
+            old = if (_status.value.engaged) _status.value.level.name else "normal",
+            new = "stand-down:$reason",
+        )
+        val current = _status.value
+        val next = SafetyStatus(
+            level = SafetyLevel.NORMAL,
+            thermalC = current.thermalC,
+            engaged = false,
+            interventions = current.interventions,
+            lastReason = reason,
+        )
+        _status.value = next
+        return next
     }
 }

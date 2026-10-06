@@ -1,3 +1,31 @@
+## HOME-CHIPSET-CODE-01 — رمز المعالج بين قوسين بجانب اسمه في الشاشة الرئيسية — 2026-10-06 · DONE_WITH_CONCERNS
+
+**المطلوب (المالك):** «أضِف بين الأقواس (رمز المعالج زي MT6899) بجانب اسم المعالج في الشاشة الرئيسية».
+
+**ولما يلزم:** رمز `MT6899` يحمل في الكتالوج المشحون **أربعة** أسماء (‏8500 · 8500-Ultra · 8400 Ultimate · 8550 SUPER)، وجهاز المالك يعلنه ⇒ اسم العرض مجموعة مرشّحين والرمز هو الحاكم بلا ترجيح مزيّف (ADR-07).
+
+**نُفّذ:** `displayPartCode` + `displayWithPartCode` + `chipsetLineWithPartCode` في `ChipsetIdentity` (نقيّ): بلا رمز ← الاسم · الرمز موجود ← لا تكرار · `Unknown (SoC)` ← تصير `Unknown (MT6899)` · والمصادر المُقوّية لا تُسمّي رمزًا · و`getChipsetNameWithPartCode` في `HardwareUtil` يُستدعى مرة واحدة في `HomeDashboardViewModel` · والسطر في `LegendaryHomeDashboard` من سطر إلى **سطرين** فلا يُقتطع الرمز · و**فصل نقيّ**: `ChipsetMatcher` + `extractChipVariants` + `cleanSocName` نُقلت من `HardwareUtil.kt` (Android) إلى `core/platform/ChipsetMatcher.kt` بلا تغيير سلوك لتصير قابلة للقياس.
+
+**القياس:** `ChipsetPartCodeLineTest` **10/10** بمصرِّف Kotlin 2.3.10 + تكذيب (سقط أولًا على توقّع خاطئ في الاختبار نفسه فصُحّح) · والبوابات العشر exit 0 (‏`kt_balance` 2202 ملفًا/0 عوائق).
+
+**حدود صادقة:** الترجمة غير مُتحقّقة في هذه البيئة؛ و`ChipsetIdentityTest` لا يُشغَّل هنا (يحتاج `org.json`/Android). **يحتاج جهازًا:** أيّ رمز يُعلنه هاتف المالك فعلًا، وسلامة السطرين بلا اقتطاع.
+**NEXT:** تركيب ← الرئيسية ← لقطة تُثبت `… (MT6899)`.
+
+## MAXAI-STANDDOWN-01 + AI-THERMAL-STAGED-01 — إطفاء Max AI يعيد الضبط لصاحبه، والسقف الحراري يُوزَّع بالأدوار — 2026-10-06 · DONE_WITH_CONCERNS
+
+**المطلوب (المالك):** (١) سببان لعدم عودة الخيارات بعد إطفاء Max AI (‏«أضطر إلى إعادة تشغيل الهاتف») و(٢) اختيار خنق أذكى حرارًيا: «لا يستخدم سكينًا لذبح نملة — يخفض بعض الأنوية لا كلّها، وإلى تردد مناسب لا إلى أقلّ شيء مباشرة».
+
+**القياس من تصدير 2026-10-06:** `current_modes`=0 و`current_profile`=2 ⇒ AI مطفأ؛ وصفر `master_switch` في النافذة كلها ⇒ الإطفاء وقع قبل السجل (فإعادة التشغيل هي التي أنتجت النافذة المقروءة). و**157 من 157** `PERAPP_KNOB knob=gpu_profile` خرجت `reason=gpu-ceiling-held` (`live=none`) ⇒ اختيارات المستخدم تُرفض كلها. و**11** `APPLY_DRIFT_REASSERT_FAILED error=apply-not-verified-and-rollback-failed`. و**558** `WRITE_CHECK …/ged/hal/custom_upbound_gpu_freq wrote=0 read=0 verdict=differs` ⇒ تحرير سقف GED يُحكم عليه بالفشل من نصّ العقدة (عطب مُشخَّص، غير مُصلَح).
+
+**الأسباب الجذرية:** (١) سقف `Owner.SAFETY` محرَّرٌ فقط عند برودة مقيسة ⇒ إن أُطفئ AI والجهاز حارّ بقي السقف يحجب اليدوي. (٢) التحرير يعيد خطّ أساس المحكّم لا اختيار المستخدم. (٣) الأمان لم يكن يعلم أن AI مطفأ فيعيد الكتابة كل دورة.
+
+**نُفِّذ:** `SafetyEngine.arm()/disarm()/isArmed` + `EMERGENCY_TEMP_C=58` (الوضع المجرّد = حاجز طوارئ فقط) + `armed=` في التشخيص + تصفير المنحنى عند التحرير · `MaxAiEngine.standDownToControlPlane()` (تجريد ⇐ تحرير ملكية AI ⇐ إعادة ملفّ المستخدم) يُستدعى عند الإطفاء و**عند بدء التطبيق** إذا كان AI مطفأً وبقيت عقود عهد AI · `ThermalCapDistribution` جديد: صغير `base+0.25`/٠٫٦٠ · وسط `base+0.12`/٠٫٤٥ · أداء `base`/٠٫٢٥، والعنقود الوحيد = أداء، موصولًا في `CpuCeilingKnobs.cap`/`capDiscovered`.
+
+**القياس:** `ThermalCapDistributionTest` **13/13** بمصرف Kotlin 2.3.10 + **تكذيب**: بحذف الأرضية سقط اختبار واحد بالاسم ثم عاد. والبوابات العشر **exit 0** (‏`kt_balance` 2200/0 · `resource_compile` بـaapt2 · `i18n` و`--prune` · `code_health` · `jni_symbols` · `license_audit` · `dead_modules` · `rtl_guard` · `design_tokens`). وحرس `presetsStayOutOfTheSafetyAndDecisionPath` لم يُخترق.
+
+**حدود صادقة:** الترجمة **غير مُتحقّقة في هذه البيئة** (aapt2/aidl x86-64 ضد aarch64) — لا `compileReleaseKotlin` ولا `testReleaseUnitTest`؛ و`MaxAiThermalCurveTest` لم يُشغَّل هنا (سلسلة `TrustModel→MaxAiInsights→ControlRegistry` تصل إلى Android). **ومراجعة سلامة مستقلة (Luna) إلزامية ولم تحدث**: الـdiff يمسّ `core/maxai` وفيه تخفيف مقصود للخنق (توزيع بدل سقف موحّد) وتضييق عتبة الأمان في الوضع المجرّد (٤٨ ⇒ ٥٨°م) — مُبرَّر بأمر المالك، ولا يُغلق إلا بحكم §6. ويحتاج جهازًا: عودة اختيارات التحكم فعلًا عند الإطفاء، وظهور سطر `stand-down … manual_path=reapplied`، وكفاية التبريد بعد التوزيع.
+**NEXT:** بناء وتركيب ← إطفاء المفتاح ← تصدير تشخيصي يُقرأ فيه `stand-down (ai switched off)` ← سيناريو حرارة يقيس `SAFETY_*` مع `armed=` و`applied=` لكل عنقود ← ثم مراجعة Luna على الـdiff قبل الإغلاق.
+
 ## SPOOF-PERAPP-REBUILD-01 — إعادة تصميم تبويب التزييف من الصفر بعد الرفض الثالث — 2026-10-06 · DONE_WITH_CONCERNS
 
 **المطلوب (المالك):** «قائمة التزييف وكل شيء سيئ وفاشل — أعد التصميم من الصفر، وابحث في الإنترنت عن كل ما تحتاجه، وأزل ما لا يفيد ولا يعمل، وبسّطها».

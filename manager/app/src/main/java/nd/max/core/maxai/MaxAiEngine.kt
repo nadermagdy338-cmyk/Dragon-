@@ -277,6 +277,12 @@ class MaxAiEngine @Inject constructor(
         scope.launch {
             val preference = runCatching { objectivePreference() }.getOrNull()
             _state.update { it.copy(aiEnabled = readAiEnabled(), objectivePreference = preference) }
+            // بدء التطبيق و Max AI مطفأ مع بقاء أثر جلسة سابقة ⇒ تُكنس الآن، لا بإعادة تشغيل الهاتف.
+            // ولذلك الشرط مُقاس لا مُفترض: لا يُكتب على العتاد إن لم يكن هناك ما يحجبه أصلًا.
+            val aiOffAtStart = !readAiEnabled()
+            if (aiOffAtStart && staleAiEraOwnership()) standDownToControlPlane("ai off at start")
+            // `isArmed` شرط ثانٍ لا تكرار: بلا حماية مكتوبة لا يُسجَّل سطر في كل بدء تطبيق.
+            else if (aiOffAtStart && safetyEngine.isArmed) safetyEngine.disarm("ai off at start")
             while (isActive) {
                 runCycleSingleFlight()
                 delay(CYCLE_MS)
@@ -1591,7 +1597,56 @@ class MaxAiEngine @Inject constructor(
     }
 
     /**
-     * تبديل Max AI. عند الإيقاف تُترك سقوف المحرك باسترجاع الأساس.
+     * هل بقيت في المُحكِّم عقود يعود مالكها إلى عهد AI (سقف أمان أو مقبض AI)؟
+     *
+     * ولزوم السؤال: البدء بلا AI **ليس** دليلًا على نظافة العتاد — العتاد يحفظ ما كُتب فيه،
+     * والعقود تعيش في العملية. فالكنس يُشترط عليه دليل (`snapshot` غير فارغ أو أمان واقف)،
+     * فلا تصير كل بداية تطبيق كتابةً على العتاد بلا سبب.
+     */
+    private fun staleAiEraOwnership(): Boolean = runCatching {
+        safetyEngine.engaged || arbiter.snapshot().any {
+            it.owner == ControlOwnership.Owner.MAX_AI || it.owner == ControlOwnership.Owner.SAFETY
+        }
+    }.getOrDefault(false)
+
+    /**
+     * وقوفٌ كامل عند إطفاء Max AI — فلا يبقى في العتاد أو في المُحكِّم أثرٌ من عهد العقل.
+     *
+     * والخطوات ثلاث مرتّبة بترتيبها السببي:
+     *
+     * 1. **سقوف الأمان** ([SafetyEngine.disarm]): كانت هي العطب — ملكها `Owner.SAFETY` أي أعلى
+     *    من اليدوي، وكانت تُترك لأن الاسترجاع مشروط ببرودة مقيسة قد لا تتحقّق لحظة الإطفاء. فتبقى
+     *    الترددات مقصوصة ويظنّ المستخدم أن ما فعله Max AI لم يُرفع إلا بإعادة تشغيل.
+     * 2. **عقود AI الباقية** في المُحكِّم تُسترجع إلى خطّ أساسها المحفوظ (قرار #6).
+     * 3. **ثم تُعاد اختيارات شاشة التحكم** لا ما تركه العقل: ملفّ المستخدم الحالي يُطبَّق بعد أن صار
+     *    AI مطفأً (والوحدة ترفض المسار اليدوي أثناء تفعيله، فيتقدّم الإطفاء على هذا النداء).
+     *
+     * والنتيجة تُسجَّل **بلا بوابة** (تصدير تشخيصي كامل): أي إطفاء يترك سطرًا يقول أيّ ملفّ أُعيد،
+     * وهل نجح المسار اليدوي — فلم تبقَ «حالة بعد الإطفاء» بلا شاهد. (ADR-07/ADR-16.)
+     */
+    private suspend fun standDownToControlPlane(why: String) {
+        withContext(Dispatchers.IO) {
+            val safetyBefore = safetyEngine.status.value
+            // تجريد الأمان أولًا: بمجرّد الإطفاء لا يزاحم المستخدم على المقابض، ولا يبقى حاجز
+            // الطوارئ المهجور عنوانه (§SafetyEngine.EMERGENCY_TEMP_C).
+            safetyEngine.disarm(why)
+            // يحرّر **كل** مفاتيح هذا المالك (لا السقوف وحدها) مع استرجاع خط أساسها المحفوظ.
+            ceilingKnobs.leaveAll(TOKEN)
+            val profile = runCatching { ProfileApplier.currentProfile() }.getOrNull()
+            val reapplied = profile != null && runCatching { ProfileApplier.apply(profile) }.getOrDefault(false)
+            val line = "stand-down ($why): safety_was=${if (safetyBefore.engaged) safetyBefore.level.name else "normal"}" +
+                " profile=${profile ?: "none"} manual_path=${if (reapplied) "reapplied" else "not-reapplied"}"
+            DiagnosticCenter.record(
+                "maxai",
+                line,
+                level = if (reapplied) DiagnosticCenter.Level.INFO else DiagnosticCenter.Level.WARN,
+            )
+            EventLog.userAction("MaxAiEngine", "stand_down", why, if (reapplied) "control-plane-reapplied" else "control-plane-unchanged")
+        }
+    }
+
+    /**
+     * تبديل Max AI. عند الإيقاف يُوقف العقل ويُعاد مالك الضبط إلى المستخدم ([standDownToControlPlane]).
      *
      * **والعطب المُصلَح هنا (تكملة ١١١):** كان الزر يبدو كأنه لا يستجيب لعشرات الثواني،
      * ولذلك سببان اجتمعا — (١) `_state.aiEnabled` لم يكن يتغيّر إلا بـ`publish` داخل دورة
@@ -1620,12 +1675,7 @@ class MaxAiEngine @Inject constructor(
             )
             // (٣) فإن فشلت الكتابة حقًّا عاد الزر إلى ما هو كائن — تصحيح لا ادّعاء.
             if (!confirmed) _state.update { it.copy(aiEnabled = readAiEnabled()) }
-            if (!enabled) {
-                // إيقاف العقل = تحرير كل مقبض يملكه مع استرجاع خط أساسه
-                // المحفوظ في المُحكِّم (قرار #6) — لا "حالة مستقرة" غامضة.
-                ceilingKnobs.leaveAll(TOKEN)
-                arbiter.releaseToken(TOKEN, restore = true)
-            }
+            if (!enabled) standDownToControlPlane("ai switched off") else safetyEngine.arm()
             runCycleSingleFlight()
         }
     }

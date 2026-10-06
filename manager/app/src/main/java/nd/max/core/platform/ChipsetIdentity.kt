@@ -37,6 +37,15 @@ private const val OLD_ROW_SUFFIX = "_OLD"
 /** بادئة «المجهول» — مرجع واحد فلا تُنسخ في موضعين. */
 internal const val UNKNOWN_LABEL_PREFIX = "Unknown ("
 
+/** كلمة النائب التي يضعها [ChipsetResolver.unknown] في قوسي العرض المجهول (لا رقم قطعة). */
+internal const val UNKNOWN_PLACEHOLDER_CODE = "SoC"
+
+/**
+ * ذيل سطر المجهول — يُزاح حين يُعرف رمز القطعة، فلا يُقرأ «Unknown (SoC) (MT6899)» بقوسين،
+ * بل «Unknown (MT6899)». ومبنيّ من الكلمة نفسها فلا تتفرّق نسختان للكلمة الواحدة.
+ */
+internal const val UNKNOWN_FALLBACK_SUFFIX = UNKNOWN_PLACEHOLDER_CODE + ")"
+
 /** الكلمة التي لا تُعلن شريحة: خاصية غير مضبوطة تُقرأ `"unknown"` على أجهزة كثيرة. */
 private const val UNKNOWN_WORD = "unknown"
 
@@ -124,6 +133,48 @@ internal data class ChipsetIdentity(
     val ambiguous: Boolean get() = match == ChipsetMatch.AMBIGUOUS
 
     val unknown: Boolean get() = match == ChipsetMatch.UNKNOWN
+
+    /**
+     * رمز القطعة للعرض: حقل [partCode] إن عُرف، وإلا **أوّل ما أعلنه الجهاز** من مصادر لا
+     * تُسمّي (‏`ro.soc.model` أو `ro.hardware` …).
+     *
+     * ولماذا السقوط إلى المصادر: في الحالة [ChipsetMatch.UNKNOWN] يبقى `partCode` فارغًا بينما
+     * الرمز **معلَن فعلًا** في المصادر (‏`unknown()` تبني العرض من كلمة `SoC` لا من الرمز)، فيُعرض
+     * الرقم الذي سأله المالك بدل «مجهول» بلا هوية. والمصادر المُقوِّية (بائع/GPU) تُستثنى:
+     * اسم مُصيّر في قوسين ليس رمز معالج.
+     */
+    val displayPartCode: String?
+        get() = partCode?.takeIf { it.isNotBlank() }
+            ?: sources.firstOrNull { !it.declaresName && !it.corroborates && it.value.isNotBlank() }?.value
+
+    /**
+     * سطر الشريحة كما يُعرض في الشاشة الرئيسية: الاسم ثم **رمز القطعة بين قوسين**.
+     * مثال (جهاز يعلن `MT6899` والكتالوج يحمل أربعة أسماء له):
+     * `MediaTek Dimensity 8500 / 8500-Ultra / 8400 Ultimate / 8550 SUPER (MT6899)` — فيقرأ
+     * المستخدم رمز قطعه ويحسم أيّ الأسماء له بلا تخمين من التطبيق (ADR-07).
+     */
+    val displayWithPartCode: String get() = chipsetLineWithPartCode(display, displayPartCode)
+}
+
+/**
+ * تركيب سطر الشريحة: `الاسم (الرمز)`. والقواعد الثلاث من حالات حقيقية لا من ذوق:
+ *
+ * * **بلا رمز** ⇒ الاسم وحده، فلا قوس فارغ ولا `(null)`.
+ * * **والرمز موجود في الاسم أصلًا** ⇒ لا يُكرّر (العرض قد يحمل رمزه، مثل استنتاج بلغ صفًّا باسمه).
+ * * **والعرض مجهول** (`Unknown (SoC)` من [ChipsetResolver]) ⇒ **يُزاح النائب ويوضع الرمز**:
+ *   `Unknown (MT6899)` — فالقوس هناك محجوز للرمز لا لكلمة `SoC`.
+ */
+internal fun chipsetLineWithPartCode(display: String, partCode: String?): String {
+    val name = display.trim()
+    val code = partCode?.trim().orEmpty()
+    return when {
+        code.isEmpty() -> name
+        name.isEmpty() -> code
+        name.contains(code, ignoreCase = true) -> name
+        name.endsWith(UNKNOWN_FALLBACK_SUFFIX) ->
+            name.dropLast(UNKNOWN_FALLBACK_SUFFIX.length) + code + ")"
+        else -> "$name ($code)"
+    }
 }
 
 /**
@@ -136,11 +187,11 @@ internal object ChipsetResolver {
         val declared = sources
             .map { it.copy(value = cleanSocName(it.value)) }
             .filter { it.value.isNotEmpty() && !it.value.equals(UNKNOWN_WORD, ignoreCase = true) }
-        if (declared.isEmpty()) return unknown("SoC", declared)
+        if (declared.isEmpty()) return unknown(UNKNOWN_PLACEHOLDER_CODE, declared)
 
         // المراجع (`corroborates`) لا تُسمّي: GPU وبائع لا يسمّيان شريحة، فلا تُسأل عن اسم أصلًا.
         val assertions = declared.filterNot { it.corroborates }
-        if (assertions.isEmpty()) return unknown("SoC", declared)
+        if (assertions.isEmpty()) return unknown(UNKNOWN_PLACEHOLDER_CODE, declared)
 
         // ── (٠) طبقة التأكيدات: كل مصدر يقول **ما يسمّيه**، ثم تُطابَق التأكيدات بعضها ببعض ──
         // وهذه هي القاعدة التي طلبها المالك: «طابق الأدلة مع الكتالوج بدل اختيار أول نتيجة».

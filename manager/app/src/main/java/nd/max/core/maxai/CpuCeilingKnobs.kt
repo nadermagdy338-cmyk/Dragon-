@@ -71,7 +71,7 @@ class CpuCeilingKnobs @Inject constructor(
             ?.let { facts -> capDiscovered(facts, fraction, owner, token) }
         if (viaAtlas != null && viaAtlas.applied > 0) return viaAtlas
 
-        val direct = submitPerPolicy(owner, token) { policy ->
+        val direct = submitPerPolicy(owner, token, fraction) { policy, perPolicyFraction ->
             val hwMin = policy.hwMinKHz ?: policy.minKHz ?: 0L
             val hwMax = policy.hwMaxKHz ?: policy.maxKHz ?: return@submitPerPolicy null
             // الكسر يبقى على **مدى العتاد** (هذا معناه: نسبة من المدى)، وما يُكتب
@@ -79,7 +79,7 @@ class CpuCeilingKnobs @Inject constructor(
             // وليست في جدول OPP لا يرفضها السائق، بل يُبدّلها بقيمة أخرى — فيقرأ
             // المُحكِّم قيمةً ≠ المطلوب ويحكم على تغييرٍ ناجح بالفشل ثم يسترجع
             // (التفصيل والقياس في `CpuHardwareBackend.snapToAvailableAtOrBelow`).
-            val cappedMax = hwMin + ((hwMax - hwMin) * fraction).toLong()
+            val cappedMax = hwMin + ((hwMax - hwMin) * perPolicyFraction).toLong()
             val min = CpuHardwareBackend.snapToAvailableAtOrBelow(policy, hwMin)
             val max = CpuHardwareBackend.snapToAvailableAtOrBelow(policy, cappedMax)
             "$min:$max"
@@ -96,7 +96,7 @@ class CpuCeilingKnobs @Inject constructor(
      * وطرحُه على مخطِّط كان سيُدخل قرارًا في عملية لا قرار فيها. والكاتب واحد في الحالتين.
      */
     fun release(owner: ControlOwnership.Owner, token: String): KnobOutcome =
-        submitPerPolicy(owner, token) { policy ->
+        submitPerPolicy(owner, token, fractionOfRange = 1f) { policy, _ ->
             val hwMin = policy.hwMinKHz ?: policy.minKHz ?: return@submitPerPolicy null
             val hwMax = policy.hwMaxKHz ?: policy.maxKHz ?: return@submitPerPolicy null
             // التحرير أيضًا يُكتب بترددات حقيقية: `cpuinfo_max_freq` قد يكون أكبر من
@@ -115,12 +115,23 @@ class CpuCeilingKnobs @Inject constructor(
     private fun submitPerPolicy(
         owner: ControlOwnership.Owner,
         token: String,
-        desiredFor: (CpuHardwareBackend.Policy) -> String?,
+        /**
+         * السقف المطلوب ككسر من المدى. ويُوزَّع بالأدوار ([ThermalCapDistribution]) قبل الكتابة:
+         * العنقود الأصغر يُخفَّض أقل ليبقى الجهاز قابلًا للاستعمال، والعنقود الأكبر يُخفَّض أكثر
+         * لأنه أغلى النوى حرارةً. وكان الكسر نفسه يُكتب للجميع فيتجمّد الهاتف (طلب المالك).
+         */
+        fractionOfRange: Float,
+        desiredFor: (CpuHardwareBackend.Policy, Float) -> String?,
     ): KnobOutcome {
         val policies = CpuHardwareBackend.policies()
         if (policies.isEmpty()) {
             return KnobOutcome(0, 0, 0, "no cpufreq policies")
         }
+        // قراءة واحدة للسياسات تكفي للتوزيع والكتابة معًا — لا قراءة sysfs ثانية.
+        val fractionByName = ThermalCapDistribution.fractions(
+            policies.map { ThermalCapDistribution.Cluster(it.name, it.provenMaxKHz ?: it.maxKHz ?: 0L) },
+            fractionOfRange,
+        )
 
         var applied = 0
         var blocked = 0
@@ -128,7 +139,7 @@ class CpuCeilingKnobs @Inject constructor(
         val details = StringBuilder()
 
         policies.forEach { policy ->
-            val desired = desiredFor(policy) ?: return@forEach
+            val desired = desiredFor(policy, fractionByName[policy.name] ?: fractionOfRange) ?: return@forEach
             val key = HardwareControlKey.cpuLimits(policy.name)
             val baseline = "${policy.minKHz ?: ""}:${policy.maxKHz ?: ""}"
 
@@ -186,6 +197,11 @@ class CpuCeilingKnobs @Inject constructor(
             AtlasDiscoveredControl.isReviewedControlRoute(HardwareControlKey.cpuLimits(fact.name))
         },
     ): KnobOutcome {
+        // التوزيع بالأدوار على دليل أطلس نفسه — فلا يكتب مساران كسرًا واحدًا لكل العناقيد.
+        val byName = ThermalCapDistribution.fractions(
+            facts.map { ThermalCapDistribution.Cluster(it.name, it.provenMaxKHz ?: it.maxKHz ?: 0L) },
+            fraction,
+        )
         val report = maxAtlas.execute(
             context = AtlasAdapterContext(
                 privileged = access.privileged,
@@ -199,7 +215,9 @@ class CpuCeilingKnobs @Inject constructor(
                 ),
                 owner = owner,
                 token = token,
-                ceilingKHzByKnob = facts.associate { it.name to fractionCeiling(it, fraction) },
+                ceilingKHzByKnob = facts.associate { fact ->
+                    fact.name to fractionCeiling(fact, byName[fact.name] ?: fraction)
+                },
                 reviewed = { name -> facts.firstOrNull { it.name == name }?.let(reviewed) ?: false },
             ),
         )

@@ -573,7 +573,10 @@ private fun PulsePanel(
                     color = p.muted,
                     fontSize = 11.sp * PULSE_SCALE,
                     lineHeight = 15.sp * PULSE_SCALE,
-                    maxLines = 1,
+                    // سطران لا سطر: السطر يحمل الآن رمز القطعة بين قوسين (طلب المالك)، والاسم قد
+                    // يكون مجموع مرشّحين — بسطر واحد كان الاقتطاع سيأكل **الرمز**، وهو ما جاء
+                    // المستخدم لأجله. فالزيادة هنا شرط وصول المعلومة لا تجميل.
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
