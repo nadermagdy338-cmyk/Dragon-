@@ -299,8 +299,6 @@ sealed class MaxDestination(
     data object EmulatorHub : MaxDestination("emulatorhub", R.string.emu_hub_title, Icons.Rounded.Apps, Apps)
     data object HmaCompanion : MaxDestination("hma_companion", R.string.hma_companion_title, Icons.Rounded.Shield, Control)
 
-    data object SpoofStudio : MaxDestination("spoofstudio", R.string.spoof_title, Icons.Rounded.AppSettingsAlt, Control)
-
     // Control - Advanced tools (gated, not preferences)
     data object SetEdit : MaxDestination("setedit", R.string.max_title_setedit, Icons.Rounded.Edit, Control, MaxRisk.Advanced)
     data object ActivityLauncher : MaxDestination("activitylauncher", R.string.max_title_activity_launcher, Icons.AutoMirrored.Rounded.Launch, Control, MaxRisk.Advanced)
@@ -346,7 +344,7 @@ sealed class MaxDestination(
                 ProcessManager, DebloatFreeze, AppSettings, GameLobby, EmulatorHub, HmaCompanion,
                 ColorPalette, ColorScheme, Diagnostics, Logs, ConfigBackup, Plugins, MaxBackup, Permissions, About,
                 Privilege, ModuleHealth,
-                SetEdit, ActivityLauncher, FileManager, SpoofStudio,
+                SetEdit, ActivityLauncher, FileManager,
             )
         }
 

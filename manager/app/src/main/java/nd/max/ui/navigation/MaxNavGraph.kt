@@ -63,8 +63,6 @@ fun NavGraphBuilder.maxNavGraph(navController: NavHostController) {
     // سطح التحكّم: مستويات الدفقات تُكتب هنا (عبر الـViewModel والـarbiter)، والجرد في «معلومات الجهاز».
     composable(MaxDestination.AudioStudio.route) { AudioStudioScreen(navController) }
 
-    composable(MaxDestination.SpoofStudio.route) { SpoofStudioScreen(navController) }
-
     composable(MaxDestination.GameLobby.route) { GameLobbyScreen(navController) }
     composable(MaxDestination.EmulatorHub.route) { EmulatorHubScreen(navController) }
     composable(MaxDestination.HmaCompanion.route) { HmaCompanionScreen(navController) }

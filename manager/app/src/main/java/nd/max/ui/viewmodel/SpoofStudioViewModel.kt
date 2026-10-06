@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
+// الاسم تاريخي: هذا هو ViewModel تبويب «تزييف» لكل تطبيق (لا استوديو عام بعده).
 class SpoofStudioViewModel @Inject constructor(
     private val repository: SpoofConfigurationRepository,
     private val engine: SpoofApplyEngine,

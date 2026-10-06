@@ -293,7 +293,7 @@ fun AppSettingsScreen(
                         val spoofPackage = packageName?.takeIf(nd.max.core.spoof.SpoofWorkspace::validPackage)
                         if (selectedTab == SPOOF_TAB) {
                             if (spoofPackage != null) {
-                                AppSpoofSection(spoofPackage, onOpenStudio = { navController.navigate(MaxDestination.SpoofStudio.route) })
+                                AppSpoofSection(spoofPackage)
                             }
                         } else {
                         if (!localMasterOn) {

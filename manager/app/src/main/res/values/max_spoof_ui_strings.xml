@@ -5,8 +5,14 @@
     <string name="spoof_ui_pill_unverified">Not verified</string>
     <string name="spoof_ui_pill_off">Off</string>
     <string name="spoof_ui_device_title">Device</string>
-    <string name="spoof_ui_global_hint">This app follows the system-wide device. Change it in Spoof Studio.</string>
-    <string name="spoof_ui_open_studio">Open Spoof Studio</string>
+    <string name="spoof_ui_global_hint_perapp">This app inherits the saved shared template (read-only here). Switch to Custom to give this app its own device.</string>
+    <string name="spoof_ui_apply_title">Apply for this app</string>
+    <string name="spoof_ui_apply_notice">Prepares only this app through the control arbiter with read-back. Afterwards restart the target app, not the system. Verified file is not proof of what the app sees.</string>
+    <string name="spoof_ui_apply_need_ack">Acknowledge the risk below first, then apply.</string>
+    <string name="spoof_ui_apply_action">Review and apply</string>
+    <string name="spoof_ui_apply_confirm_title">Apply this app only?</string>
+    <string name="spoof_ui_apply_confirm_text">Only this app is prepared; other apps are untouched. Restart the target app afterwards, not the system. A later edit cancels this confirmation.</string>
+    <string name="spoof_ui_apply_confirm">Apply</string>
     <string name="spoof_ui_edit_current">Edit fields</string>
     <string name="spoof_ui_new_from_device">New from this device</string>
     <string name="spoof_ui_saved_profiles">Saved profiles</string>

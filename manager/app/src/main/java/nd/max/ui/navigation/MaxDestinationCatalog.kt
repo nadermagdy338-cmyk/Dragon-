@@ -99,7 +99,6 @@ fun maxDestinationRole(destination: MaxDestination): Int = when (destination) {
     MaxDestination.MaxBackup -> R.string.max_role_max_backup
     MaxDestination.Permissions -> R.string.max_role_permissions
     MaxDestination.FileManager -> R.string.max_role_file_manager
-    MaxDestination.SpoofStudio -> R.string.spoof_role
     MaxDestination.GameLobby -> R.string.game_lobby_scope
     MaxDestination.EmulatorHub -> R.string.emu_hub_scope
     MaxDestination.HmaCompanion -> R.string.hma_companion_scope

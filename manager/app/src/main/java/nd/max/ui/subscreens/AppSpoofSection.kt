@@ -13,7 +13,6 @@ import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,24 +46,29 @@ import nd.max.ui.design.MaxTone
 import nd.max.ui.viewmodel.SpoofStudioViewModel
 
 /**
- * هوية التطبيق (تزييف لكل تطبيق) — **غرفة واحدة يراها المستخدم من بابين**: تبويب «تزييف» في إعدادات التطبيق،
- * وتبويب «التطبيق» في استوديو التزييف. كلاهما يقرأ ويكتب عبر `SpoofStudioViewModel` (مصدر واحد) فلا فرق بينهما.
+ * هوية التطبيق (تزييف لكل تطبيق) — **الموضع الوحيد**: تبويب «تزييف» في إعدادات التطبيق
+ * بجانب «العرض». لا استوديو عام ولا باب آخر. يقرأ ويكتب عبر `SpoofStudioViewModel`
+ * (المستودع الواحد) فلا ازدواج.
  *
  * ### الترتيب (من الأهم إلى الأقل)
  * 1. **بطاقة الحالة:** أي جهاز يراه هذا التطبيق الآن + شارة الدليل (لا «تم التزييف» بلا دليل).
- * 2. **وضع التطبيق:** عام · مخصّص · متوقف.
+ * 2. **وضع التطبيق:** عام · مخصّص · متوقف. العام يرث القالب العام المحفوظ (قراءة فقط هنا)؛
+ *    المخصّص يربط هذا التطبيق وحده بملف؛ المتوقف يترك الجهاز الحقيقي.
+ *    مستلهم مفاهيميًا من فكرة القالب↔التطبيق في device_faker (GPL تحليل فقط، صفر نسخ):
+ *    القالب يُعاد استعماله والربط لكل حزمة على حدة، لكن الوراثة عندنا حقلًا حقلًا
+ *    مع أصل معلن لكل قيمة — لا استبدالًا كاملًا صامتًا.
  * 3. **بطاقة الجهاز:** زرّ واحد بارز «اختيار جهاز نموذجي» (تلقائي)، وتعديل الحقول يدويًّا لمن يريد.
  * 4. **الخيارات:** خمس مجموعات مطوية ([AppSpoofTagsSection]).
  * 5. **الحالة والتحقق:** كل الملاحظات الطويلة في مجموعة مطوية واحدة بدل أن تتكدّس فوق الشاشة.
- * 6. **إقرار المخاطر.**
- *
- * @param onOpenStudio يظهر زرّ «فتح استوديو التزييف» فقط إن أُعطي (من شاشة إعدادات التطبيق)؛ وفي الاستوديو نفسه يُترك `null`.
+ * 6. **التطبيق على المحرّك:** تجهيز هذا التطبيق وحده (مراجعة ثم تأكيد) مع تذكير بإعادة تشغيل
+ *    التطبيق المستهدف — لا النظام. الفكرة السلوكية (إعادة تشغيل الهدف لا النظام)
+ *    مستلهمة مفاهيميًا من device_faker، والتنفيذ عبر معاملتنا القائمة لا غير.
+ * 7. **إقرار المخاطر.**
  */
 @Composable
 internal fun AppSpoofSection(
     packageName: String,
     viewModel: SpoofStudioViewModel = hiltViewModel(),
-    onOpenStudio: (() -> Unit)? = null,
 ) {
     val configuration by viewModel.configuration.collectAsStateWithLifecycle()
     val busy by viewModel.busy.collectAsStateWithLifecycle()
@@ -79,6 +83,8 @@ internal fun AppSpoofSection(
     var editing by remember(packageName) { mutableStateOf<SpoofProfile?>(null) }
     var newProfileForApp by remember(packageName) { mutableStateOf(false) }
     var pickingSample by remember(packageName) { mutableStateOf(false) }
+    // تأكيد واحد لتجهيز هذا التطبيق: أي تعديل لاحق يلغي التأكيد بدل تطبيق ما لم يُرَ.
+    var applyConfirm by remember(packageName) { mutableStateOf<IdentityPerAppConfirmation?>(null) }
     val newProfileName = stringResource(R.string.spoof_new_profile)
     Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.lg)) {
         when {
@@ -123,15 +129,14 @@ internal fun AppSpoofSection(
                     }
                 })
 
-                // 3 — الجهاز
+                // 3 — الجهاز: قالب عام يُرى ولا يُحرَّر هنا، أو ملف هذا التطبيق وحده
                 if (policy.mode != SpoofInheritanceMode.DISABLED) {
                     MaxSection(title = stringResource(R.string.spoof_ui_device_title)) {
                         if (policy.mode == SpoofInheritanceMode.GLOBAL) {
-                            MaxInfoStrip(text = stringResource(R.string.spoof_ui_global_hint))
-                            if (onOpenStudio != null) {
-                                OutlinedButton(onClick = onOpenStudio, modifier = Modifier.fillMaxWidth()) {
-                                    Text(stringResource(R.string.spoof_ui_open_studio))
-                                }
+                            MaxInfoStrip(text = stringResource(R.string.spoof_ui_global_hint_perapp))
+                            if (globalProfile != null) {
+                                MaxRow(title = globalProfile.name, subtitle = globalProfile.model,
+                                    icon = Icons.Rounded.PhoneAndroid, iconTone = MaxTone.Neutral)
                             }
                         }
                         FilledTonalButton(enabled = !busy, onClick = { pickingSample = true }, modifier = Modifier.fillMaxWidth()) {
@@ -245,7 +250,24 @@ internal fun AppSpoofSection(
                         }
                 }
 
-                // 6 — إقرار المخاطر
+                // 6 — التطبيق على المحرّك: هذا التطبيق وحده. التجهيز يكتب الإعداد عبر
+                // المحكّم ثم يقرأه بعد الكتابة؛ وبعدها أعد تشغيل التطبيق المستهدف لا النظام.
+                if (policy.mode != SpoofInheritanceMode.DISABLED) {
+                    val canApply = !busy && packageName in acknowledged
+                    MaxSection(title = stringResource(R.string.spoof_ui_apply_title),
+                        description = stringResource(R.string.spoof_ui_apply_notice)) {
+                        if (packageName !in acknowledged) {
+                            MaxInfoStrip(text = stringResource(R.string.spoof_ui_apply_need_ack))
+                        }
+                        FilledTonalButton(enabled = canApply, onClick = {
+                            applyConfirm = IdentityPerAppConfirmation(stateRevision = configuration.revision)
+                        }, modifier = Modifier.fillMaxWidth()) {
+                            Text(stringResource(R.string.spoof_ui_apply_action))
+                        }
+                    }
+                }
+
+                // 7 — إقرار المخاطر
                 SpoofBarrierSection(packageName, packageName in acknowledged, !busy,
                     onAcknowledge = { viewModel.acknowledge(packageName, true) },
                     onRevoke = { viewModel.acknowledge(packageName, false) })
@@ -272,4 +294,20 @@ internal fun AppSpoofSection(
         else viewModel.saveProfile(updated)
         editing = null; newProfileForApp = false
     }) }
+    applyConfirm?.let { confirmation ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { applyConfirm = null },
+            title = { Text(stringResource(R.string.spoof_ui_apply_confirm_title)) },
+            text = { Text(stringResource(R.string.spoof_ui_apply_confirm_text)) },
+            confirmButton = {
+                TextButton(enabled = !busy && configuration.revision == confirmation.stateRevision, onClick = {
+                    viewModel.apply(global = false, clear = false, expectedRevision = confirmation.stateRevision)
+                    applyConfirm = null
+                }) { Text(stringResource(R.string.spoof_ui_apply_confirm)) }
+            },
+            dismissButton = { TextButton(onClick = { applyConfirm = null }) { Text(stringResource(R.string.spoof_cancel)) } },
+        )
+    }
 }
+
+private data class IdentityPerAppConfirmation(val stateRevision: Long)

@@ -5,8 +5,14 @@
     <string name="spoof_ui_pill_unverified">غير مُتحقَّق</string>
     <string name="spoof_ui_pill_off">متوقف</string>
     <string name="spoof_ui_device_title">الجهاز</string>
-    <string name="spoof_ui_global_hint">هذا التطبيق يتبع جهاز النظام العام. غيّره من استوديو التزييف.</string>
-    <string name="spoof_ui_open_studio">فتح استوديو التزييف</string>
+    <string name="spoof_ui_global_hint_perapp">هذا التطبيق يرث القالب المشترك المحفوظ (قراءة فقط هنا). بدّل إلى مخصص لمنح هذا التطبيق جهازه الخاص.</string>
+    <string name="spoof_ui_apply_title">تطبيق لهذا التطبيق</string>
+    <string name="spoof_ui_apply_notice">يُجهّز هذا التطبيق وحده عبر محكّم التحكم مع قراءة بعد الكتابة. بعدها أعد تشغيل التطبيق المستهدف لا النظام. الملف المتحقّق ليس إثباتًا لما يراه التطبيق.</string>
+    <string name="spoof_ui_apply_need_ack">أقرّ بالمخاطر أدناه أولًا ثم طبّق.</string>
+    <string name="spoof_ui_apply_action">مراجعة وتطبيق</string>
+    <string name="spoof_ui_apply_confirm_title">تطبيق لهذا التطبيق وحده؟</string>
+    <string name="spoof_ui_apply_confirm_text">يُجهَّز هذا التطبيق وحده؛ لا تُمسّ التطبيقات الأخرى. أعد تشغيل التطبيق المستهدف بعدها لا النظام. أي تعديل لاحق يلغي هذا التأكيد.</string>
+    <string name="spoof_ui_apply_confirm">تطبيق</string>
     <string name="spoof_ui_edit_current">تعديل الحقول</string>
     <string name="spoof_ui_new_from_device">جديد من هذا الجهاز</string>
     <string name="spoof_ui_saved_profiles">الملفات المحفوظة</string>

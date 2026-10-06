@@ -68,7 +68,6 @@ data class ControlGroupSpec(
 val ControlToolDestinations: List<MaxDestination> = listOf(
     MaxDestination.MaxBackup,
     MaxDestination.Permissions,
-    MaxDestination.SpoofStudio,
     MaxDestination.HmaCompanion,
     MaxDestination.FileManager,
     MaxDestination.ProcessManager,
