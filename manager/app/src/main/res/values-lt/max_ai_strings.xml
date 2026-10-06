@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Spektaklis</string>
     <string name="max_ai_objective_pick_balanced">Subalansuota</string>
     <string name="max_ai_objective_pick_battery">Baterija</string>
-    <string name="max_ai_profile_row_desc">Baziniai profiliai lieka rankiniai ir naudojami nedelsiant; jie nėra AI rankenėlės.</string>
     <string name="max_ai_refresh">Dabar paleiskite ciklą</string>
     <string name="max_ai_refresh_desc">Išmatuokite, suplanuokite ir veikite vieną kartą, o ne laukite 30-ųjų ciklo.</string>
     <string name="max_ai_counters">Sprendimai %1$d · patvirtinti %2$d · pakoreguoti %3$d · užblokuoti dėl saugumo %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d rankenėlės turi išmatuotą verdiktą · %2$d iš viso įvertintų pavyzdžių.</string>
     <string name="max_ai_deck_decisions">Sprendimo įrašas</string>
     <string name="max_ai_deck_live_summary">%1$d rankenėlės žiūrint ir %2$d priklauso – atidarykite animuotą bėgimo kilpos vaizdą.</string>
-    <string name="max_ai_section_profiles">Baziniai profiliai</string>
-    <string name="max_ai_profile_active">Taikoma</string>
     <string name="max_ai_safety_engaged_title">Įjungta šiluminė sauga</string>
     <string name="max_ai_safety_critical_title">Kritinė temperatūra</string>
     <string name="max_ai_safety_detail">Išmatuotos %1$s, %2$d intervencijos nuo įdiegimo.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Įrašytas programos kontekstas</string>
     <string name="max_ai_journal_all_contexts">Visi kontekstai</string>
     <string name="max_ai_exploration_inactive">Nėra dabartinio tyrimo patvirtinimo: AI išjungtas arba laukia naujo įvertinto ciklo.</string>
-    <string name="max_ai_profile_request">Naujausia profilio užklausa</string>
-    <string name="max_ai_profile_applying">Profilio taikymas. Prieš siųsdami kitą užklausą, palaukite rezultato.</string>
-    <string name="max_ai_profile_verified">Pritaikyta ir patikrinta.</string>
-    <string name="max_ai_profile_executed">Komanda baigta; aparatinės įrangos patikrinimas nepatvirtintas.</string>
-    <string name="max_ai_profile_adjusted">Reguliuojama pagal valdymo plokštumą. Patikrinkite įrašytą rezultatą.</string>
-    <string name="max_ai_profile_blocked">Užblokuotas šiluminės saugos. Neteigiama, kad sėkmė.</string>
-    <string name="max_ai_profile_skipped">Užklausa praleista. Naujas profilis nebuvo patvirtintas.</string>
-    <string name="max_ai_profile_failed">Prašymas nepavyko. Prieš bandydami dar kartą, patikrinkite sprendimo įrašą.</string>
     <string name="max_live_plan_snapshot">Paskutinis įvertintas planas, o ne dabartinė veikla</string>
     <string name="max_ai_learning_coverage">Mokymosi aprėptis %1$d%%</string>
     <string name="max_ai_cycle_running">Įrenginio įvertinimas</string>

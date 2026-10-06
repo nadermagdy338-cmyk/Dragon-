@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Performanca</string>
     <string name="max_ai_objective_pick_balanced">E ekuilibruar</string>
     <string name="max_ai_objective_pick_battery">Bateria</string>
-    <string name="max_ai_profile_row_desc">Profilet e bazës qëndrojnë manuale dhe aplikohen menjëherë; ato nuk janë pulla të AI.</string>
     <string name="max_ai_refresh">Drejtoni një cikël tani</string>
     <string name="max_ai_refresh_desc">Matni, planifikoni dhe veproni një herë në vend që të prisni ciklin e viteve \'30.</string>
     <string name="max_ai_counters">Vendimet %1$d · verifikuar %2$d · rregulluar %3$d · bllokuar për siguri %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d pullat mbajnë një verdikt të matur · %2$d mostra të klasifikuara në total.</string>
     <string name="max_ai_deck_decisions">Procesverbali i vendimit</string>
     <string name="max_ai_deck_live_summary">%1$d pullat nën vëzhgim dhe %2$d në pronësi — hapni pamjen e animuar të ciklit të funksionimit.</string>
-    <string name="max_ai_section_profiles">Profilet bazë</string>
-    <string name="max_ai_profile_active">Aplikuar</string>
     <string name="max_ai_safety_engaged_title">Siguria termike e angazhuar</string>
     <string name="max_ai_safety_critical_title">Temperatura kritike</string>
     <string name="max_ai_safety_detail">Matur %1$s, %2$d ndërhyrje që nga instalimi.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Konteksti i aplikacionit të regjistruar</string>
     <string name="max_ai_journal_all_contexts">Të gjitha kontekstet</string>
     <string name="max_ai_exploration_inactive">Asnjë miratim aktual i eksplorimit: AI është i fikur ose pret një cikël të ri të vlerësuar.</string>
-    <string name="max_ai_profile_request">Kërkesa e fundit e profilit</string>
-    <string name="max_ai_profile_applying">Aplikimi i një profili. Prisni rezultatin përpara se të dërgoni një kërkesë tjetër.</string>
-    <string name="max_ai_profile_verified">Aplikuar dhe verifikuar.</string>
-    <string name="max_ai_profile_executed">Komanda e përfunduar; verifikimi i harduerit nuk është konfirmuar.</string>
-    <string name="max_ai_profile_adjusted">Rregulluar nga rrafshi i kontrollit. Kontrolloni rezultatin e regjistruar.</string>
-    <string name="max_ai_profile_blocked">Bllokuar nga siguria termike. Asnjë sukses nuk pretendohet.</string>
-    <string name="max_ai_profile_skipped">Kërkesa u anashkalua. Asnjë profil i ri nuk u konfirmua.</string>
-    <string name="max_ai_profile_failed">Kërkesa dështoi. Inspektoni të dhënat e vendimit përpara se të provoni përsëri.</string>
     <string name="max_live_plan_snapshot">Plani i fundit i vlerësuar, jo aktiviteti aktual</string>
     <string name="max_ai_learning_coverage">Mbulimi mësimor %1$d%%</string>
     <string name="max_ai_cycle_running">Vlerësimi i pajisjes</string>

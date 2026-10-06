@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Ytelse</string>
     <string name="max_ai_objective_pick_balanced">Balansert</string>
     <string name="max_ai_objective_pick_battery">Batteri</string>
-    <string name="max_ai_profile_row_desc">Basisprofiler forblir manuelle og påføres umiddelbart; de er ikke AI-knotter.</string>
     <string name="max_ai_refresh">Kjør en syklus nå</string>
     <string name="max_ai_refresh_desc">Mål, planlegg og handle én gang i stedet for å vente på 30-tallssyklusen.</string>
     <string name="max_ai_counters">Beslutninger %1$d · verifisert %2$d · justert %3$d · blokkert for sikkerhets skyld %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knotter har en målt vurdering · %2$d graderte prøver totalt.</string>
     <string name="max_ai_deck_decisions">Beslutningsprotokoll</string>
     <string name="max_ai_deck_live_summary">%1$d knotter under vakt og %2$d eid — åpne den animerte visningen av løpesløyfen.</string>
-    <string name="max_ai_section_profiles">Basisprofiler</string>
-    <string name="max_ai_profile_active">Påført</string>
     <string name="max_ai_safety_engaged_title">Termisk sikkerhet aktivert</string>
     <string name="max_ai_safety_critical_title">Kritisk temperatur</string>
     <string name="max_ai_safety_detail">Målt %1$s, %2$d inngrep siden installasjon.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Registrert appkontekst</string>
     <string name="max_ai_journal_all_contexts">Alle sammenhenger</string>
     <string name="max_ai_exploration_inactive">Ingen nåværende letegodkjenning: AI er av eller venter på en ny evaluert syklus.</string>
-    <string name="max_ai_profile_request">Siste profilforespørsel</string>
-    <string name="max_ai_profile_applying">Bruker en profil. Vent på resultatet før du sender en ny forespørsel.</string>
-    <string name="max_ai_profile_verified">Brukt og verifisert.</string>
-    <string name="max_ai_profile_executed">Kommando fullført; maskinvareverifisering er ikke bekreftet.</string>
-    <string name="max_ai_profile_adjusted">Justert av kontrollplanet. Sjekk det registrerte resultatet.</string>
-    <string name="max_ai_profile_blocked">Blokkert av termisk sikkerhet. Ingen suksess er hevdet.</string>
-    <string name="max_ai_profile_skipped">Forespørsel hoppet over. Ingen ny profil ble bekreftet.</string>
-    <string name="max_ai_profile_failed">Forespørselen mislyktes. Inspiser beslutningsprotokollen før du prøver på nytt.</string>
     <string name="max_live_plan_snapshot">Sist evaluert plan, ikke gjeldende aktivitet</string>
     <string name="max_ai_learning_coverage">Læringsdekning %1$d%%</string>
     <string name="max_ai_cycle_running">Evaluering av enheten</string>

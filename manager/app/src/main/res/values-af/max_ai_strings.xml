@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Prestasie</string>
     <string name="max_ai_objective_pick_balanced">Gebalanseerd</string>
     <string name="max_ai_objective_pick_battery">Battery</string>
-    <string name="max_ai_profile_row_desc">Basisprofiele bly handmatig en word onmiddellik toegepas; hulle is nie KI-knoppies nie.</string>
     <string name="max_ai_refresh">Begin nou \'n siklus</string>
     <string name="max_ai_refresh_desc">Meet, beplan en tree een keer op in plaas daarvan om vir die 30s-siklus te wag.</string>
     <string name="max_ai_counters">Besluite %1$d · geverifieer %2$d · aangepas %3$d · geblokkeer vir veiligheid %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knoppies dra \'n afgemete oordeel · %2$d gegradeerde monsters in totaal.</string>
     <string name="max_ai_deck_decisions">Besluitrekord</string>
     <string name="max_ai_deck_live_summary">%1$d knoppies onder kyk en %2$d besit — maak die geanimeerde aansig van die looplus oop.</string>
-    <string name="max_ai_section_profiles">Basis profiele</string>
-    <string name="max_ai_profile_active">Toegepas</string>
     <string name="max_ai_safety_engaged_title">Termiese veiligheid ingeskakel</string>
     <string name="max_ai_safety_critical_title">Kritiese temperatuur</string>
     <string name="max_ai_safety_detail">Gemeet %1$s, %2$d ingrypings sedert installering.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Opgeneemde programkonteks</string>
     <string name="max_ai_journal_all_contexts">Alle kontekste</string>
     <string name="max_ai_exploration_inactive">Geen huidige eksplorasiegoedkeuring nie: KI is af of wag op \'n vars geëvalueerde siklus.</string>
-    <string name="max_ai_profile_request">Jongste profielversoek</string>
-    <string name="max_ai_profile_applying">Pas \'n profiel toe. Wag vir die uitslag voordat jy nog \'n versoek stuur.</string>
-    <string name="max_ai_profile_verified">Toegepas en geverifieer.</string>
-    <string name="max_ai_profile_executed">Opdrag voltooi; hardeware verifikasie is nie bevestig nie.</string>
-    <string name="max_ai_profile_adjusted">Verstel deur die beheervlak. Gaan die aangetekende resultaat na.</string>
-    <string name="max_ai_profile_blocked">Geblokkeer deur termiese veiligheid. Geen sukses word geëis nie.</string>
-    <string name="max_ai_profile_skipped">Versoek oorgeslaan. Geen nuwe profiel is bevestig nie.</string>
-    <string name="max_ai_profile_failed">Die versoek het misluk. Inspekteer die besluitrekord voordat jy weer probeer.</string>
     <string name="max_live_plan_snapshot">Laaste geëvalueerde plan, nie huidige aktiwiteit nie</string>
     <string name="max_ai_learning_coverage">Leerdekking %1$d%%</string>
     <string name="max_ai_cycle_running">Evalueer die toestel</string>

@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">പ്രകടനം</string>
     <string name="max_ai_objective_pick_balanced">സമതുലിതമായ</string>
     <string name="max_ai_objective_pick_battery">ബാറ്ററി</string>
-    <string name="max_ai_profile_row_desc">അടിസ്ഥാന പ്രൊഫൈലുകൾ മാനുവൽ ആയി തുടരുകയും ഉടനടി പ്രയോഗിക്കുകയും ചെയ്യുന്നു; അവ AI നോബുകളല്ല.</string>
     <string name="max_ai_refresh">ഇപ്പോൾ ഒരു സൈക്കിൾ ഓടിക്കുക</string>
     <string name="max_ai_refresh_desc">30-കളുടെ സൈക്കിളിനായി കാത്തിരിക്കുന്നതിന് പകരം ഒരിക്കൽ അളക്കുക, ആസൂത്രണം ചെയ്യുക, പ്രവർത്തിക്കുക.</string>
     <string name="max_ai_counters">തീരുമാനങ്ങൾ %1$d · പരിശോധിച്ചുറപ്പിച്ചു %2$d · ക്രമീകരിച്ചു %3$d · സുരക്ഷയ്ക്കായി തടഞ്ഞു %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d നോബുകൾ അളന്ന വിധി വഹിക്കുന്നു · മൊത്തത്തിൽ %2$d ഗ്രേഡ് ചെയ്ത സാമ്പിളുകൾ.</string>
     <string name="max_ai_deck_decisions">തീരുമാന രേഖ</string>
     <string name="max_ai_deck_live_summary">വാച്ചിന് കീഴിലുള്ള %1$d നോബുകളും %2$d ഉടമസ്ഥതയിലുള്ളതും — റണ്ണിംഗ് ലൂപ്പിൻ്റെ ആനിമേറ്റഡ് കാഴ്ച തുറക്കുക.</string>
-    <string name="max_ai_section_profiles">അടിസ്ഥാന പ്രൊഫൈലുകൾ</string>
-    <string name="max_ai_profile_active">പ്രയോഗിച്ചു</string>
     <string name="max_ai_safety_engaged_title">താപ സുരക്ഷ ഏർപ്പെട്ടിരിക്കുന്നു</string>
     <string name="max_ai_safety_critical_title">ഗുരുതരമായ താപനില</string>
     <string name="max_ai_safety_detail">ഇൻസ്റ്റാൾ ചെയ്തതു മുതൽ %1$s, %2$d ഇടപെടലുകൾ അളന്നു.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">ആപ്പ് സന്ദർഭം രേഖപ്പെടുത്തി</string>
     <string name="max_ai_journal_all_contexts">എല്ലാ സന്ദർഭങ്ങളും</string>
     <string name="max_ai_exploration_inactive">നിലവിൽ പര്യവേക്ഷണ അനുമതിയില്ല: AI ഓഫാണ് അല്ലെങ്കിൽ ഒരു പുതിയ മൂല്യനിർണ്ണയ സൈക്കിളിനായി കാത്തിരിക്കുകയാണ്.</string>
-    <string name="max_ai_profile_request">ഏറ്റവും പുതിയ പ്രൊഫൈൽ അഭ്യർത്ഥന</string>
-    <string name="max_ai_profile_applying">ഒരു പ്രൊഫൈൽ പ്രയോഗിക്കുന്നു. മറ്റൊരു അഭ്യർത്ഥന അയയ്‌ക്കുന്നതിന് മുമ്പ് ഫലത്തിനായി കാത്തിരിക്കുക.</string>
-    <string name="max_ai_profile_verified">പ്രയോഗിച്ചു പരിശോധിച്ചു.</string>
-    <string name="max_ai_profile_executed">കമാൻഡ് പൂർത്തിയായി; ഹാർഡ്‌വെയർ പരിശോധന സ്ഥിരീകരിച്ചിട്ടില്ല.</string>
-    <string name="max_ai_profile_adjusted">നിയന്ത്രണ തലം വഴി ക്രമീകരിച്ചു. രേഖപ്പെടുത്തിയ ഫലം പരിശോധിക്കുക.</string>
-    <string name="max_ai_profile_blocked">താപ സുരക്ഷ തടഞ്ഞു. വിജയമൊന്നും അവകാശപ്പെടാനില്ല.</string>
-    <string name="max_ai_profile_skipped">അഭ്യർത്ഥന ഒഴിവാക്കി. പുതിയ പ്രൊഫൈലൊന്നും സ്ഥിരീകരിച്ചിട്ടില്ല.</string>
-    <string name="max_ai_profile_failed">അഭ്യർത്ഥന പരാജയപ്പെട്ടു. വീണ്ടും ശ്രമിക്കുന്നതിന് മുമ്പ് തീരുമാന രേഖ പരിശോധിക്കുക.</string>
     <string name="max_live_plan_snapshot">അവസാനമായി വിലയിരുത്തിയ പ്ലാൻ, നിലവിലെ പ്രവർത്തനമല്ല</string>
     <string name="max_ai_learning_coverage">പഠന കവറേജ് %1$d%%</string>
     <string name="max_ai_cycle_running">ഉപകരണം വിലയിരുത്തുന്നു</string>

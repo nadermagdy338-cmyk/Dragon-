@@ -128,7 +128,6 @@
     <string name="max_ai_objective_pick_performance">ପ୍ରଦର୍ଶନ</string>
     <string name="max_ai_objective_pick_balanced">ସନ୍ତୁଳିତ |</string>
     <string name="max_ai_objective_pick_battery">ବ୍ୟାଟେରୀ</string>
-    <string name="max_ai_profile_row_desc">ବେସ୍ ପ୍ରୋଫାଇଲ୍ ମାନୁଆଲ୍ ରହିଥାଏ ଏବଂ ତୁରନ୍ତ ପ୍ରୟୋଗ କରାଯାଏ; ସେମାନେ ଏଇ ନୋବ ନୁହଁନ୍ତି |</string>
     <string name="max_ai_refresh">ବର୍ତ୍ତମାନ ଏକ ଚକ୍ର ଚଲାନ୍ତୁ |</string>
     <string name="max_ai_refresh_desc">S ୦ ଦଶକର ଚକ୍ରକୁ ଅପେକ୍ଷା କରିବା ପରିବର୍ତ୍ତେ ଥରେ ମାପ, ଯୋଜନା ଏବଂ କାର୍ଯ୍ୟ କର |</string>
     <string name="max_ai_counters">ନିଷ୍ପତ୍ତି %1$d · ଯାଞ୍ଚ ହୋଇଥିବା %2$d · ନିୟନ୍ତ୍ରିତ %3$d · ସୁରକ୍ଷା ପାଇଁ ଅବରୋଧ %4$d</string>
@@ -136,8 +135,6 @@
     <string name="max_ai_deck_learning">ଅଗ୍ରଗତି ଶିଖିବା |</string>
     <string name="max_ai_deck_learning_row">%1$d ନୋବଗୁଡିକ ଏକ ମାପାଯାଇଥିବା ରାୟ ବହନ କରେ · %2$d ଗ୍ରେଡ୍ ନମୁନା |</string>
     <string name="max_ai_deck_decisions">ନିଷ୍ପତ୍ତି ରେକର୍ଡ |</string>
-    <string name="max_ai_section_profiles">ମୂଳ ପ୍ରୋଫାଇଲ୍ |</string>
-    <string name="max_ai_profile_active">ପ୍ରୟୋଗ |</string>
     <string name="max_ai_safety_engaged_title">ତାପଜ ସୁରକ୍ଷା ନିୟୋଜିତ |</string>
     <string name="max_ai_safety_critical_title">ଗୁରୁତର ତାପମାତ୍ରା |</string>
     <string name="max_ai_safety_detail">ସଂସ୍ଥାପିତ ହେବା ପରଠାରୁ ମାପ %1$s, %2$d ହସ୍ତକ୍ଷେପ |</string>
@@ -243,9 +240,6 @@
     <string name="max_ai_journal_context">ରେକର୍ଡ ହୋଇଥିବା ଆପ୍ ପ୍ରସଙ୍ଗ |</string>
     <string name="max_ai_journal_all_contexts">ସମସ୍ତ ପ୍ରସଙ୍ଗ |</string>
     <string name="max_ai_exploration_inactive">କ current ଣସି ସାମ୍ପ୍ରତିକ ଅନୁସନ୍ଧାନ ଅନୁମୋଦନ ନାହିଁ: AI ବନ୍ଦ ଅଛି କିମ୍ବା ଏକ ନୂତନ ମୂଲ୍ୟାଙ୍କିତ ଚକ୍ରକୁ ଅପେକ୍ଷା କରିଛି |</string>
-    <string name="max_ai_profile_request">ସର୍ବଶେଷ ପ୍ରୋଫାଇଲ୍ ଅନୁରୋଧ |</string>
-    <string name="max_ai_profile_verified">ପ୍ରୟୋଗ ଏବଂ ଯା ified ୍ଚ</string>
-    <string name="max_ai_profile_executed">ନିର୍ଦ୍ଦେଶ ସମାପ୍ତ; ହାର୍ଡୱେର୍ ଯାଞ୍ଚ ନିଶ୍ଚିତ ହୋଇନାହିଁ |</string>
     <string name="max_live_plan_snapshot">ଶେଷ ମୂଲ୍ୟାଙ୍କନ ଯୋଜନା, ସାମ୍ପ୍ରତିକ କାର୍ଯ୍ୟକଳାପ ନୁହେଁ |</string>
     <string name="max_ai_learning_coverage">କଭରେଜ୍ ଶିଖିବା %1$d %%</string>
     <string name="max_ai_cycle_running">ଉପକରଣର ମୂଲ୍ୟାଙ୍କନ</string>
@@ -271,11 +265,6 @@
     <string name="max_ai_cadence_calm">କେବଳ ପର୍ଯ୍ୟାୟ ଚକ୍ର · ନିଷ୍ପତ୍ତି ବଦଳାଇଥିବା କ othing ଣସି ଜିନିଷ ଶେଷରୁ ଘୁଞ୍ଚି ନାହିଁ</string>
     <string name="max_ai_journal_clear_desc">ରେକର୍ଡ ହୋଇଥିବା ଲୁପ୍ ଡିଲିଟ୍ କରେ · ମାନୁଆଲ୍ ଲକ୍, ସାମ୍ପ୍ରତିକ ମାଲିକାନା ଏବଂ Max AI ଶିଖାଯାଇଥିବା ସବୁକିଛି ରଖାଯାଏ</string>
     <string name="max_ai_journal_clear_confirm_message">%1$d ରେକର୍ଡ ହୋଇଥିବା ଲୁପ୍ (ଗୁଡିକ) ବିଲୋପ ହେବ · ନୋବ ଲକ୍, ସାମ୍ପ୍ରତିକ ମାଲିକାନା ମାନଚିତ୍ର ଏବଂ ମାପାଯାଇଥିବା ପ୍ରଭାବଗୁଡିକ ଅସ୍ପୃଶ୍ୟ ରହିଥାଏ - କେବଳ ବର୍ଣ୍ଣନା ଲିଭାଯାଇଥାଏ</string>
-    <string name="max_ai_profile_applying">ଏକ ପ୍ରୋଫାଇଲ୍ ପ୍ରୟୋଗ କରିବା · ଅନ୍ୟ ଏକ ଅନୁରୋଧ ପଠାଇବା ପୂର୍ବରୁ ଫଳାଫଳକୁ ଅପେକ୍ଷା କରନ୍ତୁ</string>
-    <string name="max_ai_profile_adjusted">କଣ୍ଟ୍ରୋଲ୍ ପ୍ଲେନ୍ ଦ୍ୱାରା ନିୟନ୍ତ୍ରିତ · ରେକର୍ଡ ହୋଇଥିବା ଫଳାଫଳ ଯାଞ୍ଚ କରନ୍ତୁ</string>
-    <string name="max_ai_profile_blocked">ତାପଜ ସୁରକ୍ଷା ଦ୍ୱାରା ଅବରୋଧିତ · କ success ଣସି ସଫଳତା ଦାବି କରାଯାଇ ନାହିଁ</string>
-    <string name="max_ai_profile_skipped">ଅନୁରୋଧ ଏଡ଼ାଇ ଦିଆଗଲା · କ new ଣସି ନୂତନ ପ୍ରୋଫାଇଲ୍ ନିଶ୍ଚିତ ହୋଇନାହିଁ</string>
-    <string name="max_ai_profile_failed">ଅନୁରୋଧ ବିଫଳ ହେଲା · ପୁନ ry ଚେଷ୍ଟା କରିବା ପୂର୍ବରୁ ନିଷ୍ପତ୍ତି ରେକର୍ଡ ଯାଞ୍ଚ କରନ୍ତୁ</string>
     <string name="max_ai_cycle_running_desc">ଏକ ଚକ୍ର ଚାଲିଛି · ବାରମ୍ବାର ଅନୁରୋଧଗୁଡିକ ମିଶ୍ରିତ ହୋଇଛି, ପୁନ play ଚିତ୍ରିତ ନୁହେଁ</string>
     <string name="max_ai_cycle_failed_desc">କ successful ଣସି ସଫଳ ମୂଲ୍ୟାଙ୍କନ ଦାବି କରାଯାଇ ନାହିଁ · ପୁନ ry ଚେଷ୍ଟା କରିବାକୁ ଟ୍ୟାପ୍ କରନ୍ତୁ; ସବିଶେଷ ତଥ୍ୟ ନିଦାନରେ ଅଛି</string>
     <string name="max_ai_master_disabled_desc">AI ଅପ୍ଟିମାଇଜେସନ୍ ବନ୍ଦ ଅଛି · ମାନୁଆଲ ନିୟନ୍ତ୍ରଣ ଏବଂ ତାପଜ ସୁରକ୍ଷା ସ୍ୱାଧୀନ ରହିଥାଏ</string>

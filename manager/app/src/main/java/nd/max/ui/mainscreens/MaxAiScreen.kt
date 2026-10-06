@@ -36,7 +36,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,18 +47,17 @@ import nd.max.core.hardware.ProfileApplier
 import nd.max.core.maxai.CadenceStatus
 import nd.max.core.maxai.ControlOutcomeModel
 import nd.max.core.maxai.ControlRegistry
-import nd.max.core.maxai.DecisionResult
 import nd.max.core.maxai.MaxAiCandidate
 import nd.max.core.maxai.MaxAiEpisode
 import nd.max.core.maxai.MaxAiEpisodeKind
 import nd.max.core.maxai.MaxAiInsights
 import nd.max.core.maxai.MaxAiOverride
+import nd.max.core.maxai.Objective
 import nd.max.core.maxai.MaxAiRejection
 import nd.max.core.maxai.MaxAiCadence
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.maxai.MaxAiVerdict
 import nd.max.core.maxai.OwnershipCommitState
-import nd.max.core.maxai.ProfileRequestState
 import nd.max.core.maxai.SafetyEnforcement
 import nd.max.core.maxai.SafetyLevel
 import nd.max.core.maxai.SafetyStatus
@@ -116,7 +114,6 @@ fun MaxAiScreen(
     val episodes by viewModel.episodes.collectAsStateWithLifecycle()
     val insights by viewModel.insights.collectAsStateWithLifecycle()
     val nowMs by viewModel.nowMs.collectAsStateWithLifecycle()
-    val profileRequest by viewModel.profileRequest.collectAsStateWithLifecycle()
     val cycleStatus by viewModel.cycleStatus.collectAsStateWithLifecycle()
 
     var workspace by rememberSaveable { mutableStateOf(MaxAiWorkspace.Overview) }
@@ -319,7 +316,6 @@ fun MaxAiScreen(
         if (workspace == MaxAiWorkspace.Controls) {
             item(key = "controls_deck") { ControlDeck(state, viewModel, navController, episodes.size, nowMs) }
             item(key = "controls_ownership") { OwnershipSection(state) }
-            item(key = "controls_profiles") { ProfilesSection(state, profileRequest, viewModel) }
         }
     }
 }
@@ -641,10 +637,26 @@ private fun ObjectiveSection(state: MaxAiState, viewModel: MaxAiViewModel) {
         "screen_off" -> stringResource(R.string.max_ai_objective_source_screen_off)
         else -> stringResource(R.string.max_ai_objective_source_learned)
     }
+    // الهدف الفاعل يُشتق من **الأوزان المنشورة** (قياس المحرك) لا من التفضيل المحفوظ:
+    // فقد يكون المحرك على هدف آخر لأن الشاشة مطفأة أو لأن التعلّم تقدّم على التفضيل.
+    val activeTone = activeObjective(state.objectiveWeights?.let { Objective.labelFor(it) })
+    val activeLabel = activeTone?.let { tone ->
+        stringResource(
+            when (tone) {
+                ObjectiveTone.Performance -> R.string.max_ai_objective_pick_performance
+                ObjectiveTone.Balanced -> R.string.max_ai_objective_pick_balanced
+                ObjectiveTone.Battery -> R.string.max_ai_objective_pick_battery
+            },
+        )
+    }
 
     MaxSection(
         title = stringResource(R.string.max_ai_section_objective),
-        description = source,
+        description = if (activeLabel != null) {
+            stringResource(R.string.max_ai_objective_active, activeLabel) + " · " + source
+        } else {
+            source
+        },
     ) {
         if (preference == null) {
             MaxGroup { MaxRow(title = stringResource(R.string.max_ai_settings_loading)) }
@@ -666,6 +678,18 @@ private fun ObjectiveSection(state: MaxAiState, viewModel: MaxAiViewModel) {
                 viewModel.setObjectivePreference(ObjectivePreferenceKeys[index])
             },
         )
+
+        // حين لا يكون التفضيل هو الفاعل، يُقال ذلك صراحةً: قائمة الاختيار تعرض تفضيلًا
+        // محفوظًا والمحرك على غيره — وإخفاء الفرق يجعل المستخدم يقرأ اختياره على أنه الواقع.
+        if (activeLabel != null && state.objectiveSource != "user") {
+            MaxGroup {
+                MaxRow(
+                    title = stringResource(R.string.max_ai_objective_override, activeLabel),
+                    icon = Icons.Rounded.Tune,
+                    iconTone = MaxTone.Caution,
+                )
+            }
+        }
 
         val weights = state.objectiveWeights
         if (weights == null) {
@@ -1538,106 +1562,6 @@ private fun OwnershipSection(state: MaxAiState) {
             }
         }
     }
-}
-
-// ── ملفات الأساس ─────────────────────────────────
-
-/**
- * ملفات الأساس اليدوية: تُطبَّق فورًا عبر خدمة التوافق الخارجية، وليست مقابض
- * للذكاء. وسم "مُطبَّق" يأتي من [MaxAiState.currentProfile] المقروء من النظام،
- * فلا ادعاء تطبيق بلا قراءة.
- */
-@Composable
-private fun ProfilesSection(
-    state: MaxAiState,
-    request: ProfileRequestState,
-    viewModel: MaxAiViewModel,
-) {
-    val context = LocalContext.current
-    // موارد من `LocalResources.current`: الأسماء تُقرأ داخل `onClick` لتمريرها إلى المحرك،
-    // فتُقرأ بلغة اللحظة لا بلغة إنشاء الشاشة.
-    val resources = LocalResources.current
-    val active = state.currentProfile
-
-    MaxSection(
-        title = stringResource(R.string.max_ai_section_profiles),
-        description = stringResource(R.string.max_ai_profile_row_desc),
-    ) {
-        if (request.inFlight || request.result != null) {
-            MaxGroup {
-                MaxRow(
-                    title = stringResource(R.string.max_ai_profile_request),
-                    subtitle = stringResource(
-                        when {
-                            request.inFlight -> R.string.max_ai_profile_applying
-                            request.result == DecisionResult.VERIFIED -> R.string.max_ai_profile_verified
-                            request.result == DecisionResult.BLOCKED_FOR_SAFETY -> R.string.max_ai_profile_blocked
-                            request.result == DecisionResult.ADJUSTED -> R.string.max_ai_profile_adjusted
-                            request.result == DecisionResult.EXECUTED -> R.string.max_ai_profile_executed
-                            request.result == DecisionResult.SKIPPED -> R.string.max_ai_profile_skipped
-                            else -> R.string.max_ai_profile_failed
-                        },
-                    ),
-                    icon = Icons.Rounded.Tune,
-                    iconTone = if (request.result == DecisionResult.FAILED) MaxTone.Critical else MaxTone.Neutral,
-                )
-            }
-        }
-        MaxGroup {
-            BaseProfileRow(
-                label = stringResource(R.string.max_ai_profile_performance),
-                active = active == ProfileApplier.PROFILE_PERFORMANCE,
-                inFlight = request.inFlight,
-                onClick = {
-                    viewModel.requestProfile(
-                        ProfileApplier.PROFILE_PERFORMANCE,
-                        resources.getString(R.string.max_ai_profile_performance),
-                    )
-                },
-            )
-            MaxGroupDivider()
-            BaseProfileRow(
-                label = stringResource(R.string.max_ai_profile_balanced),
-                active = active == ProfileApplier.PROFILE_BALANCED,
-                inFlight = request.inFlight,
-                onClick = {
-                    viewModel.requestProfile(
-                        ProfileApplier.PROFILE_BALANCED,
-                        resources.getString(R.string.max_ai_profile_balanced),
-                    )
-                },
-            )
-            MaxGroupDivider()
-            BaseProfileRow(
-                label = stringResource(R.string.max_ai_profile_eco),
-                active = active == ProfileApplier.PROFILE_ECO,
-                inFlight = request.inFlight,
-                onClick = {
-                    viewModel.requestProfile(
-                        ProfileApplier.PROFILE_ECO,
-                        resources.getString(R.string.max_ai_profile_eco),
-                    )
-                },
-            )
-        }
-    }
-}
-
-/** سطر ملف أساس واحد؛ الوسم حالة مقروءة من النظام لا أثر نقرة. */
-@Composable
-private fun BaseProfileRow(label: String, active: Boolean, inFlight: Boolean, onClick: () -> Unit) {
-    MaxRow(
-        title = label,
-        subtitle = when {
-            inFlight -> stringResource(R.string.max_ai_profile_applying)
-            active -> stringResource(R.string.max_ai_profile_active)
-            else -> null
-        },
-        icon = Icons.Rounded.Tune,
-        iconTone = if (active) MaxTone.Positive else MaxTone.Neutral,
-        enabled = !inFlight,
-        onClick = if (inFlight) null else onClick,
-    )
 }
 
 // ── تنسيق وترجمة الحالات ──────────────────────────────

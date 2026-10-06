@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">عملکرد</string>
     <string name="max_ai_objective_pick_balanced">متعادل</string>
     <string name="max_ai_objective_pick_battery">باتری</string>
-    <string name="max_ai_profile_row_desc">پروفایل های پایه دستی می مانند و بلافاصله اعمال می شوند. آنها دستگیره های هوش مصنوعی نیستند.</string>
     <string name="max_ai_refresh">اکنون یک چرخه را اجرا کنید</string>
     <string name="max_ai_refresh_desc">به جای انتظار برای چرخه دهه 30، یک بار اندازه گیری، برنامه ریزی و اقدام کنید.</string>
     <string name="max_ai_counters">تصمیمات %1$d · تایید شده %2$d · تنظیم شده %3$d · مسدود شده برای ایمنی %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d دستگیره ها دارای یک حکم اندازه گیری شده هستند · %2$d نمونه های درجه بندی شده در مجموع.</string>
     <string name="max_ai_deck_decisions">سابقه تصمیم گیری</string>
     <string name="max_ai_deck_live_summary">%1$d دستگیره زیر تماشا و %2$d متعلق به - نمای متحرک حلقه در حال اجرا را باز کنید.</string>
-    <string name="max_ai_section_profiles">پروفایل های پایه</string>
-    <string name="max_ai_profile_active">اعمال شد</string>
     <string name="max_ai_safety_engaged_title">ایمنی حرارتی درگیر شده است</string>
     <string name="max_ai_safety_critical_title">دمای بحرانی</string>
     <string name="max_ai_safety_detail">%1$s، %2$d مداخلات از زمان نصب اندازه گیری شد.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">زمینه برنامه ضبط شده</string>
     <string name="max_ai_journal_all_contexts">همه زمینه ها</string>
     <string name="max_ai_exploration_inactive">عدم تایید اکتشاف فعلی: هوش مصنوعی خاموش است یا در انتظار یک چرخه ارزیابی جدید است.</string>
-    <string name="max_ai_profile_request">آخرین درخواست پروفایل</string>
-    <string name="max_ai_profile_applying">اعمال نمایه قبل از ارسال درخواست دیگر منتظر نتیجه باشید.</string>
-    <string name="max_ai_profile_verified">اعمال و تأیید شد.</string>
-    <string name="max_ai_profile_executed">دستور تکمیل شد؛ تأیید سخت افزار تأیید نشده است.</string>
-    <string name="max_ai_profile_adjusted">توسط هواپیمای کنترلی تنظیم می شود. نتیجه ثبت شده را بررسی کنید.</string>
-    <string name="max_ai_profile_blocked">توسط ایمنی حرارتی مسدود شده است. هیچ موفقیتی ادعا نمی شود.</string>
-    <string name="max_ai_profile_skipped">درخواست نادیده گرفته شد. هیچ نمایه جدیدی تایید نشد.</string>
-    <string name="max_ai_profile_failed">درخواست ناموفق بود. قبل از تلاش مجدد، سوابق تصمیم را بررسی کنید.</string>
     <string name="max_live_plan_snapshot">آخرین طرح ارزیابی شده، نه فعالیت فعلی</string>
     <string name="max_ai_learning_coverage">پوشش آموزشی %1$d%%</string>
     <string name="max_ai_cycle_running">ارزیابی دستگاه</string>

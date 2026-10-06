@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Učinkovitost</string>
     <string name="max_ai_objective_pick_balanced">Uravnotežen</string>
     <string name="max_ai_objective_pick_battery">Baterija</string>
-    <string name="max_ai_profile_row_desc">Osnovni profili ostanejo ročni in se nanesejo takoj; niso AI gumbi.</string>
     <string name="max_ai_refresh">Zaženite cikel zdaj</string>
     <string name="max_ai_refresh_desc">Merite, načrtujte in ukrepajte enkrat, namesto da čakate na cikel 30-ih.</string>
     <string name="max_ai_counters">Odločitve %1$d · preverjeno %2$d · prilagojeno %3$d · blokirano zaradi varnosti %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d gumbi nosijo izmerjeno oceno · %2$d ocenjeni vzorci skupaj.</string>
     <string name="max_ai_deck_decisions">Zapisnik odločitve</string>
     <string name="max_ai_deck_live_summary">%1$d gumbi pod nadzorom in %2$d v lasti — odprite animirani pogled tekaške zanke.</string>
-    <string name="max_ai_section_profiles">Osnovni profili</string>
-    <string name="max_ai_profile_active">Uporabljeno</string>
     <string name="max_ai_safety_engaged_title">Vključena toplotna varnost</string>
     <string name="max_ai_safety_critical_title">Kritična temperatura</string>
     <string name="max_ai_safety_detail">Izmerjeno %1$s, %2$d posegov od namestitve.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Posneti kontekst aplikacije</string>
     <string name="max_ai_journal_all_contexts">Vsi konteksti</string>
     <string name="max_ai_exploration_inactive">Ni trenutne odobritve raziskovanja: umetna inteligenca je izklopljena ali čaka na nov ovrednoten cikel.</string>
-    <string name="max_ai_profile_request">Zadnja zahteva za profil</string>
-    <string name="max_ai_profile_applying">Uporaba profila. Počakajte na rezultat, preden pošljete novo zahtevo.</string>
-    <string name="max_ai_profile_verified">Uporabljeno in preverjeno.</string>
-    <string name="max_ai_profile_executed">Ukaz končan; preverjanje strojne opreme ni potrjeno.</string>
-    <string name="max_ai_profile_adjusted">Prilagojeno s krmilno ravnino. Preverite zabeležen rezultat.</string>
-    <string name="max_ai_profile_blocked">Blokiran zaradi toplotne varnosti. Uspeh se ne trdi.</string>
-    <string name="max_ai_profile_skipped">Zahteva preskočena. Noben nov profil ni bil potrjen.</string>
-    <string name="max_ai_profile_failed">Zahteva ni uspela. Pred ponovnim poskusom preglejte zapis odločitve.</string>
     <string name="max_live_plan_snapshot">Nazadnje ovrednoten načrt, ne trenutna dejavnost</string>
     <string name="max_ai_learning_coverage">Pokritost učenja %1$d%%</string>
     <string name="max_ai_cycle_running">Ocenjevanje naprave</string>

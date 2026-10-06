@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">パフォーマンス</string>
     <string name="max_ai_objective_pick_balanced">バランスの取れた</string>
     <string name="max_ai_objective_pick_battery">バッテリー</string>
-    <string name="max_ai_profile_row_desc">基本プロファイルは手動のままで、すぐに適用されます。 AI ノブではありません。</string>
     <string name="max_ai_refresh">今すぐサイクルを実行してください</string>
     <string name="max_ai_refresh_desc">30 代のサイクルを待つのではなく、一度測定し、計画し、行動しましょう。</string>
     <string name="max_ai_counters">決定 %1$d · 検証済み %2$d · 調整済み %3$d · 安全のためブロック %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d ノブには、測定された判定結果が表示されます。合計で %2$d のグレーディングされたサンプルが含まれます。</string>
     <string name="max_ai_deck_decisions">決定記録</string>
     <string name="max_ai_deck_live_summary">監視下にある %1$d ノブと %2$d を所有する - 実行ループのアニメーション ビューを開きます。</string>
-    <string name="max_ai_section_profiles">基本プロファイル</string>
-    <string name="max_ai_profile_active">適用済み</string>
     <string name="max_ai_safety_engaged_title">熱安全性が作動しています</string>
     <string name="max_ai_safety_critical_title">臨界温度</string>
     <string name="max_ai_safety_detail">インストール以来、%1$s、%2$d の介入を測定しました。</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">記録されたアプリのコンテキスト</string>
     <string name="max_ai_journal_all_contexts">すべてのコンテキスト</string>
     <string name="max_ai_exploration_inactive">現在探査の承認がありません: AI がオフになっているか、新たに評価されるサイクルを待っています。</string>
-    <string name="max_ai_profile_request">最新のプロフィールリクエスト</string>
-    <string name="max_ai_profile_applying">プロファイルを適用しています。別のリクエストを送信する前に、結果を待ってください。</string>
-    <string name="max_ai_profile_verified">適用され、検証されました。</string>
-    <string name="max_ai_profile_executed">コマンドが完了しました。ハードウェア検証は未確認です。</string>
-    <string name="max_ai_profile_adjusted">コントロールプレーンによって調整されます。記録結果を確認します。</string>
-    <string name="max_ai_profile_blocked">熱安全装置によってブロックされています。成功は主張されていません。</string>
-    <string name="max_ai_profile_skipped">リクエストはスキップされました。新しいプロフィールは確認されませんでした。</string>
-    <string name="max_ai_profile_failed">リクエストは失敗しました。再試行する前に決定記録を検査してください。</string>
     <string name="max_live_plan_snapshot">現在のアクティビティではなく、最後に評価された計画</string>
     <string name="max_ai_learning_coverage">学習範囲 %1$d%%</string>
     <string name="max_ai_cycle_running">デバイスの評価</string>

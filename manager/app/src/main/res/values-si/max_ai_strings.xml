@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">කාර්ය සාධනය</string>
     <string name="max_ai_objective_pick_balanced">සමබරයි</string>
     <string name="max_ai_objective_pick_battery">බැටරි</string>
-    <string name="max_ai_profile_row_desc">මූලික පැතිකඩයන් අතින් පවතින අතර වහාම යොදනු ලැබේ; ඒවා AI බොත්තම් නොවේ.</string>
     <string name="max_ai_refresh">දැන් චක්රයක් ධාවනය කරන්න</string>
     <string name="max_ai_refresh_desc">30 ගණන්වල චක්‍රය බලා සිටීම වෙනුවට වරක් මැනීම, සැලසුම් කිරීම සහ ක්‍රියා කිරීම.</string>
     <string name="max_ai_counters">තීරණ %1$d · සත්‍යාපනය කරන ලදී %2$d · සකස් කරන ලද %3$d · ආරක්ෂාව සඳහා අවහිර කරන ලදී %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d බොත්තම් මනින ලද තීන්දුවක් දරයි · %2$d ශ්‍රේණිගත කළ සාම්පල එකතුව.</string>
     <string name="max_ai_deck_decisions">තීරණ වාර්තාව</string>
     <string name="max_ai_deck_live_summary">ඔරලෝසුව යටතේ %1$d බොත්තම් සහ %2$d සතු — ධාවන ලූපයේ සජීවිකරණ දර්ශනය විවෘත කරන්න.</string>
-    <string name="max_ai_section_profiles">මූලික පැතිකඩ</string>
-    <string name="max_ai_profile_active">අයදුම් කළා</string>
     <string name="max_ai_safety_engaged_title">තාප ආරක්ෂාව යෙදී ඇත</string>
     <string name="max_ai_safety_critical_title">විවේචනාත්මක උෂ්ණත්වය</string>
     <string name="max_ai_safety_detail">ස්ථාපනය කිරීමේ සිට මනින ලද %1$s, %2$d මැදිහත්වීම්.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">පටිගත කළ යෙදුම් සන්දර්භය</string>
     <string name="max_ai_journal_all_contexts">සියලු සන්දර්භ</string>
     <string name="max_ai_exploration_inactive">වත්මන් ගවේෂණ අනුමැතිය නැත: AI ක්‍රියාවිරහිතයි හෝ නැවුම් ඇගයුම් චක්‍රයක් බලාපොරොත්තුවෙන් සිටී.</string>
-    <string name="max_ai_profile_request">නවතම පැතිකඩ ඉල්ලීම</string>
-    <string name="max_ai_profile_applying">පැතිකඩක් යෙදීම. තවත් ඉල්ලීමක් යැවීමට පෙර ප්රතිඵලය සඳහා රැඳී සිටින්න.</string>
-    <string name="max_ai_profile_verified">අයදුම් කර තහවුරු කර ඇත.</string>
-    <string name="max_ai_profile_executed">විධානය සම්පූර්ණයි; දෘඪාංග සත්යාපනය තහවුරු කර නැත.</string>
-    <string name="max_ai_profile_adjusted">පාලක තලය මගින් සකස් කර ඇත. වාර්තාගත ප්රතිඵලය පරීක්ෂා කරන්න.</string>
-    <string name="max_ai_profile_blocked">තාප ආරක්ෂාව මගින් අවහිර කර ඇත. කිසිදු සාර්ථකත්වයක් ඉල්ලා නැත.</string>
-    <string name="max_ai_profile_skipped">ඉල්ලීම මඟ හැරිණි. නව පැතිකඩක් තහවුරු කර නැත.</string>
-    <string name="max_ai_profile_failed">ඉල්ලීම අසාර්ථක විය. නැවත උත්සාහ කිරීමට පෙර තීරණ වාර්තාව පරීක්ෂා කරන්න.</string>
     <string name="max_live_plan_snapshot">අවසාන ඇගයීම් සැලැස්ම, වත්මන් ක්‍රියාකාරකම් නොවේ</string>
     <string name="max_ai_learning_coverage">ඉගෙනුම් ආවරණය %1$d%%</string>
     <string name="max_ai_cycle_running">උපාංගය ඇගයීම</string>

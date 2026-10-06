@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Performans</string>
     <string name="max_ai_objective_pick_balanced">Dengeli</string>
     <string name="max_ai_objective_pick_battery">Pil</string>
-    <string name="max_ai_profile_row_desc">Taban profilleri manuel kalır ve hemen uygulanır; bunlar AI düğmeleri değil.</string>
     <string name="max_ai_refresh">Şimdi bir döngü çalıştırın</string>
     <string name="max_ai_refresh_desc">30\'lu yılların döngüsünü beklemek yerine bir kez ölçün, planlayın ve harekete geçin.</string>
     <string name="max_ai_counters">Kararlar %1$d · doğrulandı %2$d · ayarlandı %3$d · güvenlik nedeniyle engellendi %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d düğmeler ölçülen bir karar taşır · Toplamda %2$d derecelendirilmiş örnekler.</string>
     <string name="max_ai_deck_decisions">Karar kaydı</string>
     <string name="max_ai_deck_live_summary">%1$d kontrol altındaki ve %2$d sahip olunan düğmeler — çalışan döngünün animasyonlu görünümünü açar.</string>
-    <string name="max_ai_section_profiles">Temel profiller</string>
-    <string name="max_ai_profile_active">Uygulandı</string>
     <string name="max_ai_safety_engaged_title">Termal güvenlik devrede</string>
     <string name="max_ai_safety_critical_title">Kritik sıcaklık</string>
     <string name="max_ai_safety_detail">Kurulumdan bu yana ölçülen %1$s, %2$d müdahaleleri.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Kaydedilen uygulama bağlamı</string>
     <string name="max_ai_journal_all_contexts">Tüm bağlamlar</string>
     <string name="max_ai_exploration_inactive">Mevcut keşif onayı yok: Yapay zeka kapalı veya yeni değerlendirilmiş bir döngü bekliyor.</string>
-    <string name="max_ai_profile_request">En son profil isteği</string>
-    <string name="max_ai_profile_applying">Profil uygulama. Başka bir istek göndermeden önce sonucu bekleyin.</string>
-    <string name="max_ai_profile_verified">Uygulandı ve doğrulandı.</string>
-    <string name="max_ai_profile_executed">Komut tamamlandı; donanım doğrulaması onaylanmadı.</string>
-    <string name="max_ai_profile_adjusted">Kontrol düzlemi tarafından ayarlanır. Kaydedilen sonucu kontrol edin.</string>
-    <string name="max_ai_profile_blocked">Termal güvenlik tarafından engellendi. Hiçbir başarı iddia edilmiyor.</string>
-    <string name="max_ai_profile_skipped">İstek atlandı. Yeni profil onaylanmadı.</string>
-    <string name="max_ai_profile_failed">İstek başarısız oldu. Yeniden denemeden önce karar kaydını inceleyin.</string>
     <string name="max_live_plan_snapshot">Mevcut etkinlik değil, son değerlendirilen plan</string>
     <string name="max_ai_learning_coverage">Öğrenme kapsamı %1$d%%</string>
     <string name="max_ai_cycle_running">Cihazın değerlendirilmesi</string>

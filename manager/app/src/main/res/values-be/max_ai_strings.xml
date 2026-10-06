@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Прадукцыйнасць</string>
     <string name="max_ai_objective_pick_balanced">Ураўнаважаны</string>
     <string name="max_ai_objective_pick_battery">акумулятар</string>
-    <string name="max_ai_profile_row_desc">Базавыя профілі захоўваюцца ўручную і наносяцца неадкладна; яны не ручкі AI.</string>
     <string name="max_ai_refresh">Запусціце цыкл зараз</string>
     <string name="max_ai_refresh_desc">Вымярайце, плануйце і дзейнічайце адзін раз, а не чакайце цыкла 30-х.</string>
     <string name="max_ai_counters">Рашэнні %1$d · праверана %2$d · скарэкціравана %3$d · заблакіравана для бяспекі %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d ручкі нясуць вымераны вердыкт · %2$d узораў з адзнакай.</string>
     <string name="max_ai_deck_decisions">Запіс рашэння</string>
     <string name="max_ai_deck_live_summary">%1$d ручкі пад наглядам і %2$d ва ўласнасці — адкрываюць аніміраваны выгляд бегу.</string>
-    <string name="max_ai_section_profiles">Базавыя профілі</string>
-    <string name="max_ai_profile_active">Ужывальная</string>
     <string name="max_ai_safety_engaged_title">Цеплавая бяспека ўключана</string>
     <string name="max_ai_safety_critical_title">Крытычная тэмпература</string>
     <string name="max_ai_safety_detail">Вымерана %1$s, %2$d умяшанняў з моманту ўстаноўкі.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Запісаны кантэкст праграмы</string>
     <string name="max_ai_journal_all_contexts">Усе кантэксты</string>
     <string name="max_ai_exploration_inactive">Няма бягучага дазволу на даследаванне: штучны інтэлект выключаны або чакае новага цыкла ацэнкі.</string>
-    <string name="max_ai_profile_request">Апошні запыт профілю</string>
-    <string name="max_ai_profile_applying">Прымяненне профілю. Дачакайцеся выніку перад адпраўкай наступнага запыту.</string>
-    <string name="max_ai_profile_verified">Ужыта і праверана.</string>
-    <string name="max_ai_profile_executed">Каманда выканана; апаратная праверка не пацверджана.</string>
-    <string name="max_ai_profile_adjusted">Рэгулюецца па плоскасці кіравання. Праверце запісаны вынік.</string>
-    <string name="max_ai_profile_blocked">Заблякаваны цеплавой бяспекай. Ніякага поспеху не сцвярджаецца.</string>
-    <string name="max_ai_profile_skipped">Запыт прапушчаны. Новы профіль не пацверджаны.</string>
-    <string name="max_ai_profile_failed">Запыт не выкананы. Праверце запіс рашэння перад паўторнай спробай.</string>
     <string name="max_live_plan_snapshot">Апошні ацэнены план, а не бягучая дзейнасць</string>
     <string name="max_ai_learning_coverage">Ахоп навучання %1$d%%</string>
     <string name="max_ai_cycle_running">Ацэнка прылады</string>

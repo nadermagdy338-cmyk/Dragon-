@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">စွမ်းဆောင်ရည်</string>
     <string name="max_ai_objective_pick_balanced">မျှမျှတတ</string>
     <string name="max_ai_objective_pick_battery">ဘက်ထရီ</string>
-    <string name="max_ai_profile_row_desc">အခြေခံပရိုဖိုင်များကို manual တွင်ရှိနေစေပြီးချက်ချင်းအသုံးပြုသည်။ ၎င်းတို့သည် AI ခလုတ်များမဟုတ်ပါ။</string>
     <string name="max_ai_refresh">အခုပဲ လည်ပတ်လိုက်ပါ။</string>
     <string name="max_ai_refresh_desc">30s လည်ပတ်မှုကို စောင့်မည့်အစား တိုင်းတာပါ၊ အစီအစဉ်ဆွဲပြီး တစ်ကြိမ်လုပ်ဆောင်ပါ။</string>
     <string name="max_ai_counters">ဆုံးဖြတ်ချက်များ %1$d · စိစစ်ပြီး %2$d · ချိန်ညှိထားသော %3$d · လုံခြုံရေးအတွက် ပိတ်ဆို့ထားသည် %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d ခလုတ်များသည် တိုင်းထွာစီရင်ချက်ချခြင်း · %2$d အဆင့်သတ်မှတ်ထားသော နမူနာများ စုစုပေါင်း။</string>
     <string name="max_ai_deck_decisions">ဆုံးဖြတ်ချက်မှတ်တမ်း</string>
     <string name="max_ai_deck_live_summary">နာရီအောက်ရှိ %1$d ခလုတ်များနှင့် %2$d ပိုင်ဆိုင်သည် — လည်ပတ်နေသည့်ကွင်းဆက်၏ ကာတွန်းမြင်ကွင်းကို ဖွင့်ပါ။</string>
-    <string name="max_ai_section_profiles">အခြေခံပရိုဖိုင်များ</string>
-    <string name="max_ai_profile_active">အသုံးချပါ။</string>
     <string name="max_ai_safety_engaged_title">အပူဘေးကင်းရေး စေ့စပ်ရေး</string>
     <string name="max_ai_safety_critical_title">အရေးကြီးသောအပူချိန်</string>
     <string name="max_ai_safety_detail">ထည့်သွင်းပြီးကတည်းက %1$s၊ %2$d ကြားဝင်ဆောင်ရွက်ပေးမှုများကို တိုင်းတာသည်။</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">မှတ်တမ်းတင်ထားသော အက်ပ်အကြောင်းအရာ</string>
     <string name="max_ai_journal_all_contexts">အကြောင်းအရာအားလုံး</string>
     <string name="max_ai_exploration_inactive">လက်ရှိရှာဖွေရေးအတည်ပြုချက်မရှိပါ- AI ပိတ်ထားသည် သို့မဟုတ် အသစ်အဆန်းအကဲဖြတ်သည့်စက်ဝန်းကို စောင့်နေသည်။</string>
-    <string name="max_ai_profile_request">နောက်ဆုံးပရိုဖိုင် တောင်းဆိုချက်</string>
-    <string name="max_ai_profile_applying">ပရိုဖိုင်ကို အသုံးပြုခြင်း။ အခြားတောင်းဆိုချက်ကို မပို့မီ ရလဒ်ကို စောင့်ပါ။</string>
-    <string name="max_ai_profile_verified">အသုံးချပြီး စစ်ဆေးပြီးပါပြီ။</string>
-    <string name="max_ai_profile_executed">အမိန့် ပြီးဆုံးသည်; ဟာ့ဒ်ဝဲအတည်ပြုခြင်းကို အတည်မပြုပါ။</string>
-    <string name="max_ai_profile_adjusted">ထိန်းချုပ်မှုလေယာဉ်ဖြင့် ချိန်ညှိထားသည်။ မှတ်တမ်းတင်ထားသောရလဒ်ကိုစစ်ဆေးပါ။</string>
-    <string name="max_ai_profile_blocked">အပူဘေးကင်းမှုဖြင့် ပိတ်ဆို့ထားသည်။ အောင်မြင်တယ်လို့ မဆိုထားပါဘူး။</string>
-    <string name="max_ai_profile_skipped">တောင်းဆိုမှုကို ကျော်သွားခဲ့သည်။ ပရိုဖိုင်အသစ်ကို အတည်ပြုထားခြင်းမရှိပါ။</string>
-    <string name="max_ai_profile_failed">တောင်းဆိုမှု မအောင်မြင်ပါ။ ထပ်မကြိုးစားမီ ဆုံးဖြတ်ချက်မှတ်တမ်းကို စစ်ဆေးပါ။</string>
     <string name="max_live_plan_snapshot">လက်ရှိလုပ်ဆောင်ချက်မဟုတ်ဘဲ နောက်ဆုံးအကဲဖြတ်ထားသော အစီအစဉ်</string>
     <string name="max_ai_learning_coverage">သင်ယူမှုလွှမ်းခြုံနိုင်မှု %1$d%%</string>
     <string name="max_ai_cycle_running">စက်ပစ္စည်းကို အကဲဖြတ်ခြင်း။</string>

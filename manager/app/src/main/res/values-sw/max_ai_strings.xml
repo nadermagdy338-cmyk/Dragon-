@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Utendaji</string>
     <string name="max_ai_objective_pick_balanced">Imesawazishwa</string>
     <string name="max_ai_objective_pick_battery">Betri</string>
-    <string name="max_ai_profile_row_desc">Profaili za msingi hukaa mwongozo na hutumiwa mara moja; sio vifundo vya AI.</string>
     <string name="max_ai_refresh">Endesha mzunguko sasa</string>
     <string name="max_ai_refresh_desc">Pima, panga na chukua hatua mara moja badala ya kungoja mzunguko wa miaka ya 30.</string>
     <string name="max_ai_counters">Maamuzi %1$d · yamethibitishwa %2$d · yamerekebishwa %3$d · yamezuiwa kwa usalama %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d vifundo hubeba uamuzi uliopimwa · %2$d sampuli zilizowekwa alama kwa jumla.</string>
     <string name="max_ai_deck_decisions">Rekodi ya uamuzi</string>
     <string name="max_ai_deck_live_summary">%1$d vifundo vilivyo chini ya saa na %2$d inayomilikiwa — fungua mwonekano uliohuishwa wa kitanzi kinachoendelea.</string>
-    <string name="max_ai_section_profiles">Profaili za msingi</string>
-    <string name="max_ai_profile_active">Imetumika</string>
     <string name="max_ai_safety_engaged_title">Usalama wa joto unahusika</string>
     <string name="max_ai_safety_critical_title">Joto muhimu</string>
     <string name="max_ai_safety_detail">Hatua zilizopimwa %1$s, %2$d tangu kusakinishwa.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Muktadha wa programu iliyorekodiwa</string>
     <string name="max_ai_journal_all_contexts">Miktadha yote</string>
     <string name="max_ai_exploration_inactive">Hakuna idhini ya sasa ya uchunguzi: AI imezimwa au inasubiri mzunguko mpya wa kutathminiwa.</string>
-    <string name="max_ai_profile_request">Ombi la hivi karibuni la wasifu</string>
-    <string name="max_ai_profile_applying">Kutuma wasifu. Subiri matokeo kabla ya kutuma ombi lingine.</string>
-    <string name="max_ai_profile_verified">Imetumika na kuthibitishwa.</string>
-    <string name="max_ai_profile_executed">Amri imekamilika; uthibitishaji wa maunzi haujathibitishwa.</string>
-    <string name="max_ai_profile_adjusted">Imerekebishwa na ndege ya kudhibiti. Angalia matokeo yaliyorekodiwa.</string>
-    <string name="max_ai_profile_blocked">Imezuiwa na usalama wa joto. Hakuna mafanikio yanayodaiwa.</string>
-    <string name="max_ai_profile_skipped">Ombi limerukwa. Hakuna wasifu mpya uliothibitishwa.</string>
-    <string name="max_ai_profile_failed">Ombi limeshindwa. Kagua rekodi ya uamuzi kabla ya kujaribu tena.</string>
     <string name="max_live_plan_snapshot">Mpango uliotathminiwa mwisho, sio shughuli ya sasa</string>
     <string name="max_ai_learning_coverage">Ufikiaji wa masomo %1$d%%</string>
     <string name="max_ai_cycle_running">Tathmini ya kifaa</string>

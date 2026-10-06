@@ -139,40 +139,23 @@ fun GovSettings(
             
             item { TweaksSectionTitle(stringResource(R.string.section_CPUSettings)) }
             item {
-                if (viewModel.defaultGovIndex != null && 
-                    viewModel.powersaveGovIndex != null && 
-                    viewModel.performanceGovIndex != null && 
-                    viewModel.freqOffsetIndex != null) {
+                if (viewModel.cpuGovIndex != null &&
+                    viewModel.freqOffsetIndex != null &&
+                    viewModel.availableGovernors?.isNotEmpty() == true) {
                     ExpressiveList(
                         content = listOf(
                             {
+                                // خيار واحد يعرض **الساري في النواة**: كانت ثلاثة صفوف
+                                // (متوازن/أداء/توفير) تُقرأ ثلاثة أرقام لحقيقة واحدة،
+                                // ولا يقول أيّها مطبَّق الآن. والكتابة تذهب للملامح الثلاثة
+                                // معًا ثم تُطبَّق فورًا (`TweakViewModel.updateCpuGovernor`).
                                 ExpressiveDropdownItem(
-                                    icon = Icons.Outlined.Water,
-                                    title = stringResource(R.string.default_cpu_gov),
-                                    summary = stringResource(R.string.default_cpu_gov_desc),
+                                    icon = Icons.Outlined.Memory,
+                                    title = stringResource(R.string.cpu_governor),
+                                    summary = stringResource(R.string.cpu_governor_desc),
                                     items = viewModel.availableGovernors ?: emptyList(),
-                                    selectedIndex = viewModel.defaultGovIndex!!,
-                                    onItemSelected = { viewModel.updateDefaultGovernor(it) }
-                                )
-                            },
-                            {
-                                ExpressiveDropdownItem(
-                                    icon = Icons.Outlined.OfflineBolt,
-                                    title = stringResource(R.string.performance_cpu_gov),
-                                    summary = stringResource(R.string.performance_cpu_gov_desc),
-                                    items = viewModel.availableGovernors ?: emptyList(),
-                                    selectedIndex = viewModel.performanceGovIndex!!,
-                                    onItemSelected = { viewModel.updatePerformanceGovernor(it) }
-                                )
-                            },
-                            {
-                                ExpressiveDropdownItem(
-                                    icon = Icons.Outlined.EnergySavingsLeaf,
-                                    title = stringResource(R.string.powersave_cpu_gov),
-                                    summary = stringResource(R.string.powersave_cpu_gov_desc),
-                                    items = viewModel.availableGovernors ?: emptyList(),
-                                    selectedIndex = viewModel.powersaveGovIndex!!,
-                                    onItemSelected = { viewModel.updatePowersaveGovernor(it) }
+                                    selectedIndex = viewModel.cpuGovIndex!!,
+                                    onItemSelected = { viewModel.updateCpuGovernor(it) }
                                 )
                             },
                             {
@@ -192,42 +175,22 @@ fun GovSettings(
 
             item { TweaksSectionTitle(stringResource(R.string.io_settings)) }
             item {
+                // خيار واحد يعرض الجدولة السارية (ما بين قوسَي عقدة النواة)، ويكتب للملامح
+                // الثلاثة معًا ثم يطبّق على أجهزة الكتل فورًا. ولا صفّ لملف بعينه بعد اليوم.
                 if (viewModel.availableIOSchedulers == null) {
                     SectionLoadingIndicator()
                 } else if (viewModel.availableIOSchedulers!!.isNotEmpty()) {
-                    if (viewModel.balancedIOIndex != null && 
-                        viewModel.performanceIOIndex != null && 
-                        viewModel.powersaveIOIndex != null) {
+                    if (viewModel.ioSchedulerIndex != null) {
                         ExpressiveList(
                             content = listOf(
                                 {
                                     ExpressiveDropdownItem(
                                         icon = Icons.Outlined.Water,
-                                        title = stringResource(R.string.balanced_io_scheduler),
-                                        summary = stringResource(R.string.balanced_io_scheduler_desc),
+                                        title = stringResource(R.string.io_scheduler),
+                                        summary = stringResource(R.string.io_scheduler_desc),
                                         items = viewModel.availableIOSchedulers ?: emptyList(),
-                                        selectedIndex = viewModel.balancedIOIndex!!,
-                                        onItemSelected = { viewModel.updateBalancedIO(it) }
-                                    )
-                                },
-                                {
-                                    ExpressiveDropdownItem(
-                                        icon = Icons.Outlined.OfflineBolt,
-                                        title = stringResource(R.string.performance_io_scheduler),
-                                        summary = stringResource(R.string.performance_io_scheduler_desc),
-                                        items = viewModel.availableIOSchedulers ?: emptyList(),
-                                        selectedIndex = viewModel.performanceIOIndex!!,
-                                        onItemSelected = { viewModel.updatePerformanceIO(it) }
-                                    )
-                                },
-                                {
-                                    ExpressiveDropdownItem(
-                                        icon = Icons.Outlined.EnergySavingsLeaf,
-                                        title = stringResource(R.string.powersave_io_scheduler),
-                                        summary = stringResource(R.string.powersave_io_scheduler_desc),
-                                        items = viewModel.availableIOSchedulers ?: emptyList(),
-                                        selectedIndex = viewModel.powersaveIOIndex!!,
-                                        onItemSelected = { viewModel.updatePowersaveIO(it) }
+                                        selectedIndex = viewModel.ioSchedulerIndex!!,
+                                        onItemSelected = { viewModel.updateIoScheduler(it) }
                                     )
                                 }
                             )
@@ -236,10 +199,9 @@ fun GovSettings(
                         SectionLoadingIndicator()
                     }
                 } else {
-
+                    // لا جدولة معلنة على هذا الجهاز: لا صفّ فارغ ولا قائمة وهمية.
                 }
             }
-            
 
             if (viewModel.isMaliGpuAvailable == true) {
                 item { TweaksSectionTitle(text = stringResource(R.string.section_mali_gpu)) }
@@ -247,39 +209,17 @@ fun GovSettings(
                     if (viewModel.availableMaliGovernors == null) {
                         SectionLoadingIndicator()
                     } else if (viewModel.availableMaliGovernors!!.isNotEmpty()) {
-                        if (viewModel.balancedMaliGovIndex != null && 
-                            viewModel.performanceMaliGovIndex != null && 
-                            viewModel.powersaveMaliGovIndex != null) {
+                        if (viewModel.maliGovIndex != null) {
                             ExpressiveList(
                                 content = listOf(
                                     {
                                         ExpressiveDropdownItem(
-                                            icon = Icons.Outlined.Water,
-                                            title = stringResource(R.string.balanced_mali_gov),
-                                            summary = stringResource(R.string.balanced_mali_gov_desc),
+                                            icon = Icons.Outlined.Tune,
+                                            title = stringResource(R.string.mali_gpu_governor),
+                                            summary = stringResource(R.string.mali_gpu_governor_desc),
                                             items = viewModel.availableMaliGovernors ?: emptyList(),
-                                            selectedIndex = viewModel.balancedMaliGovIndex!!,
-                                            onItemSelected = { viewModel.updateBalancedMaliGov(it) }
-                                        )
-                                    },
-                                    {
-                                        ExpressiveDropdownItem(
-                                            icon = Icons.Outlined.OfflineBolt,
-                                            title = stringResource(R.string.performance_mali_gov),
-                                            summary = stringResource(R.string.performance_mali_gov_desc),
-                                            items = viewModel.availableMaliGovernors ?: emptyList(),
-                                            selectedIndex = viewModel.performanceMaliGovIndex!!,
-                                            onItemSelected = { viewModel.updatePerformanceMaliGov(it) }
-                                        )
-                                    },
-                                    {
-                                        ExpressiveDropdownItem(
-                                            icon = Icons.Outlined.EnergySavingsLeaf,
-                                            title = stringResource(R.string.powersave_mali_gov),
-                                            summary = stringResource(R.string.powersave_mali_gov_desc),
-                                            items = viewModel.availableMaliGovernors ?: emptyList(),
-                                            selectedIndex = viewModel.powersaveMaliGovIndex!!,
-                                            onItemSelected = { viewModel.updatePowersaveMaliGov(it) }
+                                            selectedIndex = viewModel.maliGovIndex!!,
+                                            onItemSelected = { viewModel.updateMaliGovernor(it) }
                                         )
                                     }
                                 )
@@ -289,7 +229,7 @@ fun GovSettings(
                         }
                     }
                 }
-            }              
+            }
         }
     }
     }

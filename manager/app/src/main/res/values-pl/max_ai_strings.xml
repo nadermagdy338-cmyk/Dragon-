@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Wydajność</string>
     <string name="max_ai_objective_pick_balanced">Zrównoważony</string>
     <string name="max_ai_objective_pick_battery">Bateria</string>
-    <string name="max_ai_profile_row_desc">Profile podstawowe pozostają ręczne i są nakładane natychmiast; nie są to pokrętła AI.</string>
     <string name="max_ai_refresh">Uruchom teraz cykl</string>
     <string name="max_ai_refresh_desc">Mierz, planuj i działaj raz, zamiast czekać na cykl 30-ty.</string>
     <string name="max_ai_counters">Decyzje %1$d · zweryfikowane %2$d · skorygowane %3$d · zablokowane ze względów bezpieczeństwa %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">Pokrętła %1$d zawierają zmierzony werdykt · W sumie %2$d próbki stopniowane.</string>
     <string name="max_ai_deck_decisions">Zapis decyzji</string>
     <string name="max_ai_deck_live_summary">Pokrętła %1$d pod zegarkiem i %2$d posiadane — otwierają animowany widok biegnącej pętli.</string>
-    <string name="max_ai_section_profiles">Profile podstawowe</string>
-    <string name="max_ai_profile_active">Stosowany</string>
     <string name="max_ai_safety_engaged_title">Włączone zabezpieczenie termiczne</string>
     <string name="max_ai_safety_critical_title">Krytyczna temperatura</string>
     <string name="max_ai_safety_detail">Zmierzono %1$s, %2$d interwencji od czasu instalacji.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Nagrany kontekst aplikacji</string>
     <string name="max_ai_journal_all_contexts">Wszystkie konteksty</string>
     <string name="max_ai_exploration_inactive">Brak aktualnego zatwierdzenia eksploracji: sztuczna inteligencja jest wyłączona lub oczekuje na nowy, oceniony cykl.</string>
-    <string name="max_ai_profile_request">Najnowsze żądanie profilu</string>
-    <string name="max_ai_profile_applying">Stosowanie profilu. Poczekaj na wynik przed wysłaniem kolejnego żądania.</string>
-    <string name="max_ai_profile_verified">Zastosowane i zweryfikowane.</string>
-    <string name="max_ai_profile_executed">Polecenie wykonane; weryfikacja sprzętu nie została potwierdzona.</string>
-    <string name="max_ai_profile_adjusted">Regulowane przez płaszczyznę sterowania. Sprawdź zarejestrowany wynik.</string>
-    <string name="max_ai_profile_blocked">Zablokowany przez zabezpieczenie termiczne. Nie ma mowy o sukcesie.</string>
-    <string name="max_ai_profile_skipped">Żądanie pominięte. Żaden nowy profil nie został potwierdzony.</string>
-    <string name="max_ai_profile_failed">Żądanie nie powiodło się. Przed ponowną próbą sprawdź zapis decyzji.</string>
     <string name="max_live_plan_snapshot">Ostatnio oceniany plan, a nie bieżąca aktywność</string>
     <string name="max_ai_learning_coverage">Zakres nauki %1$d%%</string>
     <string name="max_ai_cycle_running">Ocena urządzenia</string>

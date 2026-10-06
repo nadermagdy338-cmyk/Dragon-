@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Prestasi</string>
     <string name="max_ai_objective_pick_balanced">Seimbang</string>
     <string name="max_ai_objective_pick_battery">Bateri</string>
-    <string name="max_ai_profile_row_desc">Profil asas kekal manual dan digunakan serta-merta; mereka bukan tombol AI.</string>
     <string name="max_ai_refresh">Jalankan kitaran sekarang</string>
     <string name="max_ai_refresh_desc">Ukur, rancang dan bertindak sekali daripada menunggu kitaran 30-an.</string>
     <string name="max_ai_counters">Keputusan %1$d · disahkan %2$d · diselaraskan %3$d · disekat untuk keselamatan %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d tombol membawa keputusan terukur · %2$d sampel berperingkat secara keseluruhan.</string>
     <string name="max_ai_deck_decisions">Rekod keputusan</string>
     <string name="max_ai_deck_live_summary">%1$d tombol di bawah jam tangan dan %2$d dimiliki — buka paparan animasi gelung larian.</string>
-    <string name="max_ai_section_profiles">Profil asas</string>
-    <string name="max_ai_profile_active">Digunakan</string>
     <string name="max_ai_safety_engaged_title">Keselamatan terma terlibat</string>
     <string name="max_ai_safety_critical_title">Suhu kritikal</string>
     <string name="max_ai_safety_detail">Diukur %1$s, %2$d campur tangan sejak pemasangan.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Konteks apl yang dirakam</string>
     <string name="max_ai_journal_all_contexts">Semua konteks</string>
     <string name="max_ai_exploration_inactive">Tiada kelulusan penerokaan semasa: AI dimatikan atau menunggu kitaran penilaian baharu.</string>
-    <string name="max_ai_profile_request">Permintaan profil terkini</string>
-    <string name="max_ai_profile_applying">Memohon profil. Tunggu keputusan sebelum menghantar permintaan lain.</string>
-    <string name="max_ai_profile_verified">Digunakan dan disahkan.</string>
-    <string name="max_ai_profile_executed">Perintah selesai; pengesahan perkakasan tidak disahkan.</string>
-    <string name="max_ai_profile_adjusted">Dilaraskan oleh satah kawalan. Semak keputusan yang direkodkan.</string>
-    <string name="max_ai_profile_blocked">Disekat oleh keselamatan terma. Tiada kejayaan dituntut.</string>
-    <string name="max_ai_profile_skipped">Permintaan dilangkau. Tiada profil baharu disahkan.</string>
-    <string name="max_ai_profile_failed">Permintaan itu gagal. Periksa rekod keputusan sebelum mencuba semula.</string>
     <string name="max_live_plan_snapshot">Pelan penilaian terakhir, bukan aktiviti semasa</string>
     <string name="max_ai_learning_coverage">Liputan pembelajaran %1$d%%</string>
     <string name="max_ai_cycle_running">Menilai peranti</string>

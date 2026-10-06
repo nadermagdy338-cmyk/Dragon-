@@ -171,6 +171,16 @@ object AppMonitor {
     // ── Per-App Config state ──────────────────────────────────────────────
     @Volatile private var lastAppliedPkg = ""
 
+    // ── حالة الإشعار المستمر (يُبنى على الحقيقة لا على لحظة البناء) ────────
+    // الإشعار كان يُبنى عند تبديل التطبيق أو عند تغيير إعداده **وهو في المقدمة** فقط،
+    // فمن عدّل إعداد تطبيق من داخل MaxManager (أو شغّل Max AI وغيّر هدفه) بقي الإشعار
+    // على نصّه القديم — وهي الشكوى المنقولة: «أغيّر إلى بطارية فلا يتغيّر الإشعار».
+    // وهذه الحقول تجعل الدورة تعرف ماذا تعرض الآن، فتعيد البناء عند أول فرق.
+    @Volatile private var notifiedPkg = ""
+    @Volatile private var notifiedPid = "0"
+    @Volatile private var notifiedAiSignature = ""
+    @Volatile private var notifiedConfigModified = -1L
+
     // هل تعديلات per-app حيّة على العتاد الآن؟ يُنشر في app_status
     // (perapp_active) كي يتحول محرك MAX AI إلى وضع المراقبة أثناء
     // ملكية ملف التطبيق — قيمة فعلية لا مؤقت.
@@ -1196,6 +1206,18 @@ object AppMonitor {
                     lastAppliedPkg = pkgName
                     if (foregroundConfirmed) updateActiveAppNotification(pkgName, focusedApp)
                 }.onFailure { AppMonitorLogger.e("EVENT=LIVE_CONFIG_REAPPLY_FAILED pkg=$pkgName sw=$currentSwitchId", it) }
+            }
+        }
+
+        // الإشعار المستمر يتبع الحقيقة لا لحظة بنائه: تغيّر حالة Max AI (تشغيل أو هدف) أو
+        // تغيّر إعداد التطبيق المذكور فيه يُعيد بناءه — وهذا هو الموضع الذي يعمل فيه المستخدم
+        // عندما يعدّل إعدادات تطبيق من داخل MaxManager (فلا يكون التطبيق في المقدمة أصلًا،
+        // وكان الإشعار يبقى على نصّه القديم حتى تبديل تطبيق تالٍ — وهي الشكوى المنقولة).
+        if (notifiedPkg.isNotBlank()) {
+            val ai = aiSignature()
+            val modified = appListModified()
+            if (ai != notifiedAiSignature || modified != notifiedConfigModified) {
+                updateActiveAppNotification(notifiedPkg, if (pkgName == notifiedPkg) focusedApp else "")
             }
         }
 
@@ -2346,13 +2368,40 @@ object AppMonitor {
         }.onFailure { AppMonitorLogger.e("EVENT=GAME_INFO_WRITE_FAILED pkg=$pkg sw=$currentSwitchId", it) }
     }
 
+    /**
+     * سطر Max AI في الإشعار: هل يعمل، وعلى أي هدف.
+     *
+     * ووُجد لأن الشكوى الحرفية كانت «أغيّر إلى بطارية فلا يتغيّر في الإشعار» — وهدف
+     * Max AI لم يكن مذكورًا في الإشعار أصلًا، فلا شيء يتغيّر فيه حين يتغيّر.
+     * والقراءة من الخصائص لا من ذاكرة المحرك: الإشعار يُبنى في عملية المراقبة، والمحرك
+     * في عملية التطبيق — والخصيصة هي القناة الوحيدة المقروءة بين العملتين هنا.
+     *
+     * و`null` تعني «مطفأ» لا «لا جواب»: الحقلان يُقرآن دائمًا (المفتاح والهدف معًا)،
+     * وتركيب السطر — أو إسقاطه من النص المطويّ — قرار المتصل.
+     */
+    private fun maxAiNoticeLine(context: Context): String? {
+        if (propRead(MaxManagerProps.Conf.AI_ENABLED) != "1") return null
+        val label = when (propRead(MaxManagerProps.Conf.AI_OBJECTIVE)) {
+            "performance" -> R.string.max_ai_objective_pick_performance
+            "battery" -> R.string.max_ai_objective_pick_battery
+            else -> R.string.max_ai_objective_pick_balanced
+        }
+        return context.getString(R.string.notif_maxai_running, context.getString(label))
+    }
+
     private fun updateActiveAppNotification(pkg: String, focusedApp: String) {
         runCatching {
             val context = systemContext ?: return@runCatching
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? AndroidNotificationManager ?: return@runCatching
             val channelId = "maxmanager_per_app"
             nm.createNotificationChannel(NotificationChannel(channelId, "Per-App Manager", AndroidNotificationManager.IMPORTANCE_LOW))
-            val pid = focusedApp.substringAfter(" ", "0").substringBefore(" ")
+            // نداء بلا معرّف (تحديث من خارج المقدمة) يُبقي آخر معرّف قيس لجلسة هذا التطبيق —
+            // كتابةُ PID تطبيقٍ آخر في إشعار هذا التطبيق كانت ستكون رقمًا كاذبًا.
+            val pid = if (focusedApp.isBlank()) {
+                notifiedPid
+            } else {
+                focusedApp.substringAfter(" ", "0").substringBefore(" ").also { notifiedPid = it }
+            }
             val profile = readAppConfigField(pkg, "gpu_profile").ifBlank { "default" }
             val thermal = readAppConfigField(pkg, "thermal_profile").ifBlank { "default" }
             val cpuGov = readAppConfigField(pkg, "cpu_governor").ifBlank { "default" }
@@ -2363,22 +2412,43 @@ object AppMonitor {
             val liveCpuGov = shellRead("cat /sys/devices/system/cpu/cpufreq/policy0/scaling_governor 2>/dev/null").ifBlank { "N/A" }
             val liveGpuGov = savedGpuNode.takeIf { it.isNotBlank() }
                 ?.let(GpuHardwareBackend::refresh)?.governor.orEmpty().ifBlank { "N/A" }
-            val body = "PID: $pid\nThermal/GPU: $gpuProfile\nCPU Governor: $cpuGov (live: $liveCpuGov)\nGPU Governor: $gpuGov (live: $liveGpuGov)\nGPU Frequency: $gpuFreq"
+            // حين يعمل Max AI يُذكر في الإشعار (المطلوب حرفيًا: «يكفي ذكر أن Max AI يعمل»)،
+            // وحين يكون مطفأً يبقى السطر الطويل يقول ذلك — والسطر القصير لا يزيد ضجيجًا
+            // بما لا يفعله أحد: الإشعار المطويّ يحمل ما يعمل، لا ما هو متوقف.
+            val aiLine = maxAiNoticeLine(context)
+            val body = "PID: $pid\nThermal/GPU: $gpuProfile\nCPU Governor: $cpuGov (live: $liveCpuGov)\n" +
+                "GPU Governor: $gpuGov (live: $liveGpuGov)\nGPU Frequency: $gpuFreq\n" +
+                (aiLine ?: context.getString(R.string.notif_maxai_off))
             val intent = Intent().setClassName("nd.max", "nd.max.MainActivity")
             val pi = PendingIntent.getActivity(context, 2409, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             val builder = Notification.Builder(context, channelId)
                 .setSmallIcon(android.R.drawable.stat_notify_sync_noanim)
                 .setContentTitle("MaxManager • $appLabel")
-                .setContentText("Per-App active • PID $pid • GPU $gpuProfile")
+                .setContentText(
+                    "Per-App active • PID $pid • GPU $gpuProfile" +
+                        (aiLine?.let { " • $it" } ?: ""),
+                )
                 .setStyle(Notification.BigTextStyle().bigText(body))
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setContentIntent(pi)
             nm.notify(2409, builder.build())
+            // ما عُرض للتوّ هو مرجع الدورة التالية: أي فرق فيه يعيد البناء فورًا.
+            notifiedPkg = pkg
+            notifiedAiSignature = aiSignature()
+            notifiedConfigModified = appListModified()
         }.onFailure { AppMonitorLogger.e("EVENT=PERAPP_NOTIFICATION_FAILED pkg=$pkg sw=$currentSwitchId", it) }
     }
 
+    /** بصمة حالة Max AI كما تُعرض في الإشعار (تشغيل/هدف) — وفرقها يُعيد بناء الإشعار. */
+    private fun aiSignature(): String =
+        "${propRead(MaxManagerProps.Conf.AI_ENABLED)}|${propRead(MaxManagerProps.Conf.AI_OBJECTIVE)}"
+
     private fun clearActiveAppNotification() {
+        notifiedPkg = ""
+        notifiedPid = "0"
+        notifiedAiSignature = ""
+        notifiedConfigModified = -1L
         runCatching {
             val context = systemContext ?: return@runCatching
             (context.getSystemService(Context.NOTIFICATION_SERVICE) as? AndroidNotificationManager)?.cancel(2409)

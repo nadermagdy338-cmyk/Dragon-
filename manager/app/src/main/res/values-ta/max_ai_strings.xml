@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">செயல்திறன்</string>
     <string name="max_ai_objective_pick_balanced">சமச்சீர்</string>
     <string name="max_ai_objective_pick_battery">பேட்டரி</string>
-    <string name="max_ai_profile_row_desc">அடிப்படை சுயவிவரங்கள் கைமுறையாக இருக்கும் மற்றும் உடனடியாகப் பயன்படுத்தப்படும்; அவை AI கைப்பிடிகள் அல்ல.</string>
     <string name="max_ai_refresh">இப்போது ஒரு சுழற்சியை இயக்கவும்</string>
     <string name="max_ai_refresh_desc">30களின் சுழற்சிக்காக காத்திருப்பதற்குப் பதிலாக ஒருமுறை அளந்து, திட்டமிட்டு செயல்படவும்.</string>
     <string name="max_ai_counters">முடிவுகள் %1$d · சரிபார்க்கப்பட்டது %2$d · சரிசெய்யப்பட்டது %3$d · பாதுகாப்பிற்காக தடுக்கப்பட்டது %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d கைப்பிடிகள் அளவிடப்பட்ட தீர்ப்பைக் கொண்டுள்ளன · மொத்தத்தில் %2$d தரப்படுத்தப்பட்ட மாதிரிகள்.</string>
     <string name="max_ai_deck_decisions">முடிவு பதிவு</string>
     <string name="max_ai_deck_live_summary">%1$d கடிகாரத்தின் கீழ் கைப்பிடிகள் மற்றும் %2$d சொந்தமானது - இயங்கும் லூப்பின் அனிமேஷன் காட்சியைத் திறக்கவும்.</string>
-    <string name="max_ai_section_profiles">அடிப்படை சுயவிவரங்கள்</string>
-    <string name="max_ai_profile_active">விண்ணப்பிக்கப்பட்டது</string>
     <string name="max_ai_safety_engaged_title">வெப்ப பாதுகாப்பு ஈடுபட்டுள்ளது</string>
     <string name="max_ai_safety_critical_title">முக்கியமான வெப்பநிலை</string>
     <string name="max_ai_safety_detail">நிறுவியதில் இருந்து அளவிடப்பட்ட %1$s, %2$d தலையீடுகள்.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">பதிவுசெய்யப்பட்ட பயன்பாட்டு சூழல்</string>
     <string name="max_ai_journal_all_contexts">அனைத்து சூழல்களும்</string>
     <string name="max_ai_exploration_inactive">தற்போதைய ஆய்வு அனுமதி இல்லை: AI முடக்கத்தில் உள்ளது அல்லது புதிய மதிப்பீடு செய்யப்பட்ட சுழற்சிக்காக காத்திருக்கிறது.</string>
-    <string name="max_ai_profile_request">சமீபத்திய சுயவிவர கோரிக்கை</string>
-    <string name="max_ai_profile_applying">சுயவிவரத்தைப் பயன்படுத்துதல். மற்றொரு கோரிக்கையை அனுப்பும் முன் முடிவுக்காக காத்திருக்கவும்.</string>
-    <string name="max_ai_profile_verified">விண்ணப்பித்து சரிபார்க்கப்பட்டது.</string>
-    <string name="max_ai_profile_executed">கட்டளை முடிந்தது; வன்பொருள் சரிபார்ப்பு உறுதிப்படுத்தப்படவில்லை.</string>
-    <string name="max_ai_profile_adjusted">கட்டுப்பாட்டு விமானம் மூலம் சரிசெய்யப்பட்டது. பதிவுசெய்யப்பட்ட முடிவைச் சரிபார்க்கவும்.</string>
-    <string name="max_ai_profile_blocked">வெப்ப பாதுகாப்பு மூலம் தடுக்கப்பட்டது. எந்த வெற்றியும் இல்லை.</string>
-    <string name="max_ai_profile_skipped">கோரிக்கை தவிர்க்கப்பட்டது. புதிய சுயவிவரம் எதுவும் உறுதிப்படுத்தப்படவில்லை.</string>
-    <string name="max_ai_profile_failed">கோரிக்கை தோல்வியடைந்தது. மீண்டும் முயற்சிக்கும் முன் முடிவுப் பதிவைச் சரிபார்க்கவும்.</string>
     <string name="max_live_plan_snapshot">கடைசியாக மதிப்பிடப்பட்ட திட்டம், தற்போதைய செயல்பாடு அல்ல</string>
     <string name="max_ai_learning_coverage">கற்றல் கவரேஜ் %1$d%%</string>
     <string name="max_ai_cycle_running">சாதனத்தை மதிப்பீடு செய்தல்</string>

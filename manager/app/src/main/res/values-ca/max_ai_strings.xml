@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Rendiment</string>
     <string name="max_ai_objective_pick_balanced">Equilibrat</string>
     <string name="max_ai_objective_pick_battery">Bateria</string>
-    <string name="max_ai_profile_row_desc">Els perfils base es mantenen manuals i s\'apliquen immediatament; no són botons AI.</string>
     <string name="max_ai_refresh">Feu un cicle ara</string>
     <string name="max_ai_refresh_desc">Mesura, planifica i actua una vegada en comptes d\'esperar al cicle dels 30.</string>
     <string name="max_ai_counters">Decisions %1$d · verificades %2$d · ajustades %3$d · bloquejades per seguretat %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">Els botons %1$d porten un veredicte mesurat · %2$d mostres graduades en total.</string>
     <string name="max_ai_deck_decisions">Registre de decisions</string>
     <string name="max_ai_deck_live_summary">%1$d comandaments sota vigilància i %2$d propietat: obriu la vista animada del bucle en curs.</string>
-    <string name="max_ai_section_profiles">Perfils base</string>
-    <string name="max_ai_profile_active">Aplicat</string>
     <string name="max_ai_safety_engaged_title">Seguretat tèrmica activada</string>
     <string name="max_ai_safety_critical_title">Temperatura crítica</string>
     <string name="max_ai_safety_detail">Intervencions mesurades %1$s, %2$d des de la instal·lació.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Context de l\'aplicació gravat</string>
     <string name="max_ai_journal_all_contexts">Tots els contextos</string>
     <string name="max_ai_exploration_inactive">No hi ha aprovació d\'exploració actual: la IA està desactivada o està pendent d\'un nou cicle avaluat.</string>
-    <string name="max_ai_profile_request">Última sol·licitud de perfil</string>
-    <string name="max_ai_profile_applying">Aplicant un perfil. Espereu el resultat abans d\'enviar una altra sol·licitud.</string>
-    <string name="max_ai_profile_verified">Aplicat i verificat.</string>
-    <string name="max_ai_profile_executed">Comandament completat; la verificació del maquinari no està confirmada.</string>
-    <string name="max_ai_profile_adjusted">Ajustat pel pla de control. Comproveu el resultat registrat.</string>
-    <string name="max_ai_profile_blocked">Bloquejat per seguretat tèrmica. No es reclama cap èxit.</string>
-    <string name="max_ai_profile_skipped">S\'ha omès la sol·licitud. No s\'ha confirmat cap perfil nou.</string>
-    <string name="max_ai_profile_failed">La sol·licitud ha fallat. Inspeccioneu el registre de decisió abans de tornar-ho a provar.</string>
     <string name="max_live_plan_snapshot">Últim pla avaluat, no activitat actual</string>
     <string name="max_ai_learning_coverage">Cobertura d\'aprenentatge %1$d%%</string>
     <string name="max_ai_cycle_running">Avaluació del dispositiu</string>

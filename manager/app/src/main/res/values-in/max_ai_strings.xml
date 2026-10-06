@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Pertunjukan</string>
     <string name="max_ai_objective_pick_balanced">Seimbang</string>
     <string name="max_ai_objective_pick_battery">Baterai</string>
-    <string name="max_ai_profile_row_desc">Profil dasar tetap manual dan segera diterapkan; itu bukan tombol AI.</string>
     <string name="max_ai_refresh">Jalankan siklus sekarang</string>
     <string name="max_ai_refresh_desc">Ukur, rencanakan, dan bertindak sekali daripada menunggu siklus 30an.</string>
     <string name="max_ai_counters">Keputusan %1$d · diverifikasi %2$d · disesuaikan %3$d · diblokir demi keamanan %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d kenop memberikan hasil yang terukur · %2$d sampel yang dinilai secara total.</string>
     <string name="max_ai_deck_decisions">Catatan keputusan</string>
     <string name="max_ai_deck_live_summary">%1$d kenop di bawah arloji dan %2$d dimiliki — membuka tampilan animasi loop yang sedang berjalan.</string>
-    <string name="max_ai_section_profiles">Profil dasar</string>
-    <string name="max_ai_profile_active">Terapan</string>
     <string name="max_ai_safety_engaged_title">Keamanan termal diaktifkan</string>
     <string name="max_ai_safety_critical_title">Suhu kritis</string>
     <string name="max_ai_safety_detail">Mengukur intervensi %1$s, %2$d sejak instalasi.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Konteks aplikasi yang direkam</string>
     <string name="max_ai_journal_all_contexts">Semua konteks</string>
     <string name="max_ai_exploration_inactive">Tidak ada persetujuan eksplorasi saat ini: AI tidak aktif atau menunggu siklus evaluasi baru.</string>
-    <string name="max_ai_profile_request">Permintaan profil terbaru</string>
-    <string name="max_ai_profile_applying">Menerapkan profil. Tunggu hasilnya sebelum mengirim permintaan lain.</string>
-    <string name="max_ai_profile_verified">Diterapkan dan diverifikasi.</string>
-    <string name="max_ai_profile_executed">Perintah selesai; verifikasi perangkat keras tidak dikonfirmasi.</string>
-    <string name="max_ai_profile_adjusted">Disesuaikan dengan bidang kontrol. Periksa hasil rekamannya.</string>
-    <string name="max_ai_profile_blocked">Diblokir oleh keamanan termal. Tidak ada keberhasilan yang diklaim.</string>
-    <string name="max_ai_profile_skipped">Permintaan dilewati. Tidak ada profil baru yang dikonfirmasi.</string>
-    <string name="max_ai_profile_failed">Permintaan gagal. Periksa catatan keputusan sebelum mencoba lagi.</string>
     <string name="max_live_plan_snapshot">Rencana yang terakhir dievaluasi, bukan aktivitas saat ini</string>
     <string name="max_ai_learning_coverage">Cakupan pembelajaran %1$d%%</string>
     <string name="max_ai_cycle_running">Mengevaluasi perangkat</string>

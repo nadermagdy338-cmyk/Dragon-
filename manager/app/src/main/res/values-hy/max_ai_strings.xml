@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Կատարում</string>
     <string name="max_ai_objective_pick_balanced">Հավասարակշռված</string>
     <string name="max_ai_objective_pick_battery">Մարտկոց</string>
-    <string name="max_ai_profile_row_desc">Հիմնական պրոֆիլները մնում են ձեռքով և կիրառվում են անմիջապես; դրանք արհեստական ​​ինտելեկտի բռնակներ չեն:</string>
     <string name="max_ai_refresh">Գործարկել ցիկլը հիմա</string>
     <string name="max_ai_refresh_desc">Չափեք, պլանավորեք և գործեք մեկ անգամ՝ 30-ականների ցիկլին սպասելու փոխարեն:</string>
     <string name="max_ai_counters">Որոշումներ %1$d · ստուգված %2$d · ճշգրտված %3$d · արգելափակված է անվտանգության համար %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d գլխիկները կրում են չափված դատավճիռ · %2$d գնահատված նմուշներ ընդհանուր առմամբ:</string>
     <string name="max_ai_deck_decisions">Որոշման արձանագրություն</string>
     <string name="max_ai_deck_live_summary">%1$d բռնակներ ժամացույցի տակ և %2$d պատկանող — բացեք վազող օղակի անիմացիոն տեսքը:</string>
-    <string name="max_ai_section_profiles">Բազային պրոֆիլներ</string>
-    <string name="max_ai_profile_active">Կիրառվել է</string>
     <string name="max_ai_safety_engaged_title">Ջերմային անվտանգությունը ներգրավված է</string>
     <string name="max_ai_safety_critical_title">Կրիտիկական ջերմաստիճան</string>
     <string name="max_ai_safety_detail">Չափված %1$s, %2$d միջամտություններ տեղադրման պահից:</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Ձայնագրված հավելվածի համատեքստը</string>
     <string name="max_ai_journal_all_contexts">Բոլոր համատեքստերը</string>
     <string name="max_ai_exploration_inactive">Ընթացիկ հետախուզական հաստատում չկա. AI-ն անջատված է կամ սպասում է նոր գնահատված ցիկլին:</string>
-    <string name="max_ai_profile_request">Վերջին պրոֆիլի հարցումը</string>
-    <string name="max_ai_profile_applying">Կիրառելով պրոֆիլ: Սպասեք արդյունքին մեկ այլ հարցում ուղարկելուց առաջ:</string>
-    <string name="max_ai_profile_verified">Կիրառված և հաստատված:</string>
-    <string name="max_ai_profile_executed">Հրաման ավարտված; ապարատային ստուգումը հաստատված չէ:</string>
-    <string name="max_ai_profile_adjusted">Կարգավորվում է կառավարման ինքնաթիռով: Ստուգեք գրանցված արդյունքը:</string>
-    <string name="max_ai_profile_blocked">Արգելափակված է ջերմային անվտանգությամբ: Ոչ մի հաջողություն չի հայտարարվում:</string>
-    <string name="max_ai_profile_skipped">Հարցումը բաց է թողնվել: Ոչ մի նոր պրոֆիլ չի հաստատվել:</string>
-    <string name="max_ai_profile_failed">Հարցումը ձախողվեց: Ստուգեք որոշման արձանագրությունը՝ նորից փորձելուց առաջ:</string>
     <string name="max_live_plan_snapshot">Վերջին գնահատված պլանը, ոչ ընթացիկ գործունեությունը</string>
     <string name="max_ai_learning_coverage">Ուսուցման ծածկույթ %1$d%%</string>
     <string name="max_ai_cycle_running">Սարքի գնահատում</string>

@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Frammistaða</string>
     <string name="max_ai_objective_pick_balanced">Jafnvægi</string>
     <string name="max_ai_objective_pick_battery">Rafhlaða</string>
-    <string name="max_ai_profile_row_desc">Grunnsnið er handvirkt og er beitt strax; þeir eru ekki gervigreindarhnappar.</string>
     <string name="max_ai_refresh">Hlaupa hring núna</string>
     <string name="max_ai_refresh_desc">Mældu, skipuleggja og bregðast við einu sinni í stað þess að bíða eftir 30s hringrásinni.</string>
     <string name="max_ai_counters">Ákvarðanir %1$d · staðfestar %2$d · leiðréttar %3$d · lokað vegna öryggis %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d hnappar bera mældan dóm · %2$d flokkuð sýni alls.</string>
     <string name="max_ai_deck_decisions">Ákvarðanaskrá</string>
     <string name="max_ai_deck_live_summary">%1$d hnappar undir eftirliti og %2$d í eigu — opnaðu hreyfimyndina af hlaupandi lykkju.</string>
-    <string name="max_ai_section_profiles">Grunnsnið</string>
-    <string name="max_ai_profile_active">Beitt</string>
     <string name="max_ai_safety_engaged_title">Hitaöryggi virkjuð</string>
     <string name="max_ai_safety_critical_title">Mikilvægt hitastig</string>
     <string name="max_ai_safety_detail">Mæld %1$s, %2$d inngrip frá uppsetningu.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Skráð appsamhengi</string>
     <string name="max_ai_journal_all_contexts">Allt samhengi</string>
     <string name="max_ai_exploration_inactive">Ekkert núverandi könnunarsamþykki: gervigreind er slökkt eða bíður ný metinnar lotu.</string>
-    <string name="max_ai_profile_request">Nýjasta prófílbeiðnin</string>
-    <string name="max_ai_profile_applying">Að sækja um prófíl. Bíddu eftir niðurstöðunni áður en þú sendir aðra beiðni.</string>
-    <string name="max_ai_profile_verified">Beitt og staðfest.</string>
-    <string name="max_ai_profile_executed">Skipun lokið; Staðfesting vélbúnaðar er ekki staðfest.</string>
-    <string name="max_ai_profile_adjusted">Stillt af stjórnborðinu. Athugaðu skráða niðurstöðu.</string>
-    <string name="max_ai_profile_blocked">Lokað af hitaöryggi. Ekki er fullyrt um árangur.</string>
-    <string name="max_ai_profile_skipped">Beiðni sleppt. Enginn nýr prófíll var staðfestur.</string>
-    <string name="max_ai_profile_failed">Beiðnin mistókst. Skoðaðu ákvörðunarskrána áður en þú reynir aftur.</string>
     <string name="max_live_plan_snapshot">Síðast metin áætlun, ekki núverandi starfsemi</string>
     <string name="max_ai_learning_coverage">Námsumfjöllun %1$d%%</string>
     <string name="max_ai_cycle_running">Að meta tækið</string>

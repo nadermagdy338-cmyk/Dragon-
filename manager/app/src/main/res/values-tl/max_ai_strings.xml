@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Pagganap</string>
     <string name="max_ai_objective_pick_balanced">Balanseng</string>
     <string name="max_ai_objective_pick_battery">Baterya</string>
-    <string name="max_ai_profile_row_desc">Ang mga base profile ay mananatiling manu-mano at inilapat kaagad; hindi sila AI knobs.</string>
     <string name="max_ai_refresh">Magpatakbo ng isang cycle ngayon</string>
     <string name="max_ai_refresh_desc">Sukatin, planuhin at kumilos nang isang beses sa halip na maghintay para sa 30s cycle.</string>
     <string name="max_ai_counters">Mga desisyon %1$d · na-verify %2$d · inayos %3$d · hinarangan para sa kaligtasan %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">Ang %1$d knobs ay may sinusukat na hatol · %2$d namarkahan na mga sample sa kabuuan.</string>
     <string name="max_ai_deck_decisions">Talaan ng desisyon</string>
     <string name="max_ai_deck_live_summary">%1$d knobs sa ilalim ng relo at %2$d pagmamay-ari — buksan ang animated na view ng running loop.</string>
-    <string name="max_ai_section_profiles">Mga base profile</string>
-    <string name="max_ai_profile_active">Inilapat</string>
     <string name="max_ai_safety_engaged_title">Nakatuon ang thermal safety</string>
     <string name="max_ai_safety_critical_title">Kritikal na temperatura</string>
     <string name="max_ai_safety_detail">Sinusukat ang %1$s, %2$d mga interbensyon mula noong i-install.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Naka-record na konteksto ng app</string>
     <string name="max_ai_journal_all_contexts">Lahat ng konteksto</string>
     <string name="max_ai_exploration_inactive">Walang kasalukuyang pag-apruba sa paggalugad: Naka-off ang AI o naghihintay ng isang bagong nasuri na cycle.</string>
-    <string name="max_ai_profile_request">Pinakabagong kahilingan sa profile</string>
-    <string name="max_ai_profile_applying">Paglalapat ng profile. Maghintay para sa resulta bago magpadala ng isa pang kahilingan.</string>
-    <string name="max_ai_profile_verified">Inilapat at na-verify.</string>
-    <string name="max_ai_profile_executed">Nakumpleto ang utos; hindi nakumpirma ang pag-verify ng hardware.</string>
-    <string name="max_ai_profile_adjusted">Inayos ng control plane. Suriin ang naitala na resulta.</string>
-    <string name="max_ai_profile_blocked">Na-block ng thermal safety. Walang tagumpay na inaangkin.</string>
-    <string name="max_ai_profile_skipped">Nilaktawan ang kahilingan. Walang bagong profile ang nakumpirma.</string>
-    <string name="max_ai_profile_failed">Nabigo ang kahilingan. Suriin ang rekord ng desisyon bago subukang muli.</string>
     <string name="max_live_plan_snapshot">Huling nasuri na plano, hindi kasalukuyang aktibidad</string>
     <string name="max_ai_learning_coverage">Saklaw ng pag-aaral %1$d%%</string>
     <string name="max_ai_cycle_running">Pagsusuri ng aparato</string>

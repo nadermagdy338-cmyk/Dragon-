@@ -132,7 +132,6 @@
     <string name="max_ai_objective_pick_performance">Performance</string>
     <string name="max_ai_objective_pick_balanced">Équilibré</string>
     <string name="max_ai_objective_pick_battery">Batterie</string>
-    <string name="max_ai_profile_row_desc">Les profils de base restent manuels et s\'appliquent immédiatement ; ce ne sont pas des réglages IA.</string>
     <string name="max_ai_refresh">Lancer un cycle maintenant</string>
     <string name="max_ai_refresh_desc">Mesurer</string>
     <string name="max_ai_counters">Décisions %1$d · vérifiées %2$d · ajustées %3$d · bloquées pour la sécurité %4$d</string>
@@ -142,8 +141,6 @@
     <string name="max_ai_deck_learning_row">%1$d réglages portent un verdict mesuré · %2$d échantillons notés au total.</string>
     <string name="max_ai_deck_decisions">Registre des décisions</string>
     <string name="max_ai_deck_live_summary">%1$d réglages sous surveillance et %2$d détenus — ouvrez la vue animée de la boucle en cours.</string>
-    <string name="max_ai_section_profiles">Profils de base</string>
-    <string name="max_ai_profile_active">Appliqué</string>
     <string name="max_ai_safety_engaged_title">Sécurité thermique engagée</string>
     <string name="max_ai_safety_critical_title">Température critique</string>
     <string name="max_ai_safety_section">Sécurité thermique</string>
@@ -261,14 +258,6 @@
     <string name="max_ai_journal_context">Contexte d\'app enregistré</string>
     <string name="max_ai_journal_all_contexts">Tous les contextes</string>
     <string name="max_ai_exploration_inactive">Aucune approbation d\'exploration en cours : l\'IA est désactivée ou attend un nouveau cycle évalué.</string>
-    <string name="max_ai_profile_request">Dernière demande de profil</string>
-    <string name="max_ai_profile_applying">Application d\'un profil en cours. Attendez le résultat avant d\'envoyer une autre demande.</string>
-    <string name="max_ai_profile_verified">Appliqué et vérifié.</string>
-    <string name="max_ai_profile_executed">Commande terminée ; la vérification matérielle n\'est pas confirmée.</string>
-    <string name="max_ai_profile_adjusted">Ajusté par le plan de contrôle. Vérifiez le résultat enregistré.</string>
-    <string name="max_ai_profile_blocked">Bloqué par la sécurité thermique. Aucun succès n\'est revendiqué.</string>
-    <string name="max_ai_profile_skipped">Demande ignorée. Aucun nouveau profil n\'a été confirmé.</string>
-    <string name="max_ai_profile_failed">La demande a échoué. Examinez l\'enregistrement de décision avant de réessayer.</string>
     <string name="max_live_plan_snapshot">Dernier plan évalué, pas l\'activité actuelle</string>
     <string name="max_ai_learning_coverage">Couverture d\'apprentissage %1$d%%</string>
     <string name="max_ai_cycle_running">Évaluation de l\'appareil</string>

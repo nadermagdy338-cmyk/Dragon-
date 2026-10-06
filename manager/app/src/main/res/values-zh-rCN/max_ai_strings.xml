@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">表现</string>
     <string name="max_ai_objective_pick_balanced">均衡</string>
     <string name="max_ai_objective_pick_battery">电池</string>
-    <string name="max_ai_profile_row_desc">基本配置文件保持手动并立即应用；它们不是人工智能旋钮。</string>
     <string name="max_ai_refresh">现在运行一个循环</string>
     <string name="max_ai_refresh_desc">测量、计划和行动一次，而不是等待 30 秒的周期。</string>
     <string name="max_ai_counters">决定 %1$d · 验证 %2$d · 调整 %3$d · 为了安全而封锁 %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d 旋钮携带测量结果 · 总共 %2$d 分级样本。</string>
     <string name="max_ai_deck_decisions">决策记录</string>
     <string name="max_ai_deck_live_summary">手表下的 %1$d 旋钮和拥有的 %2$d 旋钮 — 打开运行循环的动画视图。</string>
-    <string name="max_ai_section_profiles">基本型材</string>
-    <string name="max_ai_profile_active">应用</string>
     <string name="max_ai_safety_engaged_title">热安全已启用</string>
     <string name="max_ai_safety_critical_title">临界温度</string>
     <string name="max_ai_safety_detail">自安装以来测量了%1$s、%2$d干预。</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">记录的应用程序上下文</string>
     <string name="max_ai_journal_all_contexts">所有上下文</string>
     <string name="max_ai_exploration_inactive">目前没有勘探批准：人工智能已关闭或正在等待新的评估周期。</string>
-    <string name="max_ai_profile_request">最新个人资料请求</string>
-    <string name="max_ai_profile_applying">应用配置文件。在发送另一个请求之前等待结果。</string>
-    <string name="max_ai_profile_verified">已应用并验证。</string>
-    <string name="max_ai_profile_executed">命令完成；硬件验证未确认。</string>
-    <string name="max_ai_profile_adjusted">由控制平面调整。检查记录的结果。</string>
-    <string name="max_ai_profile_blocked">被热安全阻止。没有声称成功。</string>
-    <string name="max_ai_profile_skipped">请求被跳过。没有确认新的个人资料。</string>
-    <string name="max_ai_profile_failed">请求失败。重试之前检查决策记录。</string>
     <string name="max_live_plan_snapshot">最后评估的计划，而不是当前的活动</string>
     <string name="max_ai_learning_coverage">学习覆盖率%1$d%%</string>
     <string name="max_ai_cycle_running">评估设备</string>

@@ -136,7 +136,6 @@
     <string name="max_ai_objective_pick_performance">Өнімділік</string>
     <string name="max_ai_objective_pick_balanced">Теңдестірілген</string>
     <string name="max_ai_objective_pick_battery">Батарея</string>
-    <string name="max_ai_profile_row_desc">Негізгі профильдер қолмен қалады және дереу қолданылады; олар AI тұтқалары емес.</string>
     <string name="max_ai_refresh">Қазір циклды іске қосыңыз</string>
     <string name="max_ai_refresh_desc">30-шы жылдар циклін күтудің орнына бір рет өлшеңіз, жоспарлаңыз және әрекет етіңіз.</string>
     <string name="max_ai_counters">Шешімдер %1$d · тексерілді %2$d · реттелген %3$d · қауіпсіздік үшін блокталған %4$d</string>
@@ -146,8 +145,6 @@
     <string name="max_ai_deck_learning_row">%1$d тұтқалары өлшенген үкімді тасымалдайды · %2$d жалпы бағаланған үлгілер.</string>
     <string name="max_ai_deck_decisions">Шешім жазбасы</string>
     <string name="max_ai_deck_live_summary">Сағат астындағы %1$d тұтқалары және %2$d иеліктері — іске қосу циклінің анимациялық көрінісін ашады.</string>
-    <string name="max_ai_section_profiles">Негізгі профильдер</string>
-    <string name="max_ai_profile_active">Қолданылған</string>
     <string name="max_ai_safety_engaged_title">Жылу қауіпсіздігі қосылған</string>
     <string name="max_ai_safety_critical_title">Критикалық температура</string>
     <string name="max_ai_safety_detail">Орнатқаннан бері өлшенген %1$s, %2$d араласулар.</string>
@@ -265,14 +262,6 @@
     <string name="max_ai_journal_context">Жазылған қолданба мәтінмәні</string>
     <string name="max_ai_journal_all_contexts">Барлық контексттер</string>
     <string name="max_ai_exploration_inactive">Ағымдағы барлауды мақұлдау жоқ: AI өшірулі немесе жаңа бағаланған циклды күтуде.</string>
-    <string name="max_ai_profile_request">Соңғы профиль сұрауы</string>
-    <string name="max_ai_profile_applying">Профильді қолдану. Басқа сұрау жібермес бұрын нәтижені күтіңіз.</string>
-    <string name="max_ai_profile_verified">Қолданылған және тексерілген.</string>
-    <string name="max_ai_profile_executed">Команда орындалды; аппараттық тексеру расталмаған.</string>
-    <string name="max_ai_profile_adjusted">Басқару жазықтығы арқылы реттеледі. Жазылған нәтижені тексеріңіз.</string>
-    <string name="max_ai_profile_blocked">Термиялық қауіпсіздікпен блокталған. Ешқандай табыс мәлімделмейді.</string>
-    <string name="max_ai_profile_skipped">Сұрау өткізіп жіберілді. Жаңа профиль расталмады.</string>
-    <string name="max_ai_profile_failed">Сұрау орындалмады. Қайталаудан бұрын шешім жазбасын тексеріңіз.</string>
     <string name="max_live_plan_snapshot">Ағымдағы әрекет емес, соңғы бағаланған жоспар</string>
     <string name="max_ai_learning_coverage">Оқуды қамту %1$d%%</string>
     <string name="max_ai_cycle_running">Құрылғыны бағалау</string>

@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Продуктивність</string>
     <string name="max_ai_objective_pick_balanced">Збалансований</string>
     <string name="max_ai_objective_pick_battery">Акумулятор</string>
-    <string name="max_ai_profile_row_desc">Базові профілі залишаються ручними і накладаються негайно; вони не ручки AI.</string>
     <string name="max_ai_refresh">Запустіть цикл зараз</string>
     <string name="max_ai_refresh_desc">Вимірюйте, плануйте та дійте один раз замість того, щоб чекати циклу 30-х років.</string>
     <string name="max_ai_counters">Рішення %1$d · перевірено %2$d · скориговано %3$d · заблоковано для безпеки %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d ручки несуть виміряний вердикт · %2$d загальна оцінка зразків.</string>
     <string name="max_ai_deck_decisions">Запис рішення</string>
     <string name="max_ai_deck_live_summary">%1$d ручки під наглядом і %2$d у власності — відкривають анімований перегляд циклу бігу.</string>
-    <string name="max_ai_section_profiles">Базові профілі</string>
-    <string name="max_ai_profile_active">Прикладний</string>
     <string name="max_ai_safety_engaged_title">Термічна безпека включена</string>
     <string name="max_ai_safety_critical_title">Критична температура</string>
     <string name="max_ai_safety_detail">Виміряно %1$s, %2$d втручань з моменту встановлення.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Записаний контекст програми</string>
     <string name="max_ai_journal_all_contexts">Усі контексти</string>
     <string name="max_ai_exploration_inactive">Немає поточного дозволу на дослідження: AI вимкнено або очікує нового циклу оцінки.</string>
-    <string name="max_ai_profile_request">Останній запит профілю</string>
-    <string name="max_ai_profile_applying">Застосування профілю. Дочекайтеся результату, перш ніж відправляти інший запит.</string>
-    <string name="max_ai_profile_verified">Застосований і перевірений.</string>
-    <string name="max_ai_profile_executed">Команда виконана; апаратна перевірка не підтверджена.</string>
-    <string name="max_ai_profile_adjusted">Регулюється контрольною площиною. Перевірте записаний результат.</string>
-    <string name="max_ai_profile_blocked">Блокується термозахистом. Ніякого успіху не стверджується.</string>
-    <string name="max_ai_profile_skipped">Запит пропущено. Новий профіль не підтверджено.</string>
-    <string name="max_ai_profile_failed">Запит не виконано. Перед повторною спробою перевірте запис рішення.</string>
     <string name="max_live_plan_snapshot">Останній оцінений план, а не поточна діяльність</string>
     <string name="max_ai_learning_coverage">Охоплення навчанням %1$d%%</string>
     <string name="max_ai_cycle_running">Оцінка пристрою</string>

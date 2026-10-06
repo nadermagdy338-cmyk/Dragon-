@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">ಪ್ರದರ್ಶನ</string>
     <string name="max_ai_objective_pick_balanced">ಸಮತೋಲಿತ</string>
     <string name="max_ai_objective_pick_battery">ಬ್ಯಾಟರಿ</string>
-    <string name="max_ai_profile_row_desc">ಮೂಲ ಪ್ರೊಫೈಲ್‌ಗಳು ಹಸ್ತಚಾಲಿತವಾಗಿರುತ್ತವೆ ಮತ್ತು ತಕ್ಷಣವೇ ಅನ್ವಯಿಸಲಾಗುತ್ತದೆ; ಅವು AI ಗುಬ್ಬಿಗಳಲ್ಲ.</string>
     <string name="max_ai_refresh">ಈಗ ಸೈಕಲ್ ಓಡಿಸಿ</string>
     <string name="max_ai_refresh_desc">30 ರ ಚಕ್ರಕ್ಕಾಗಿ ಕಾಯುವ ಬದಲು ಒಮ್ಮೆ ಅಳೆಯಿರಿ, ಯೋಜಿಸಿ ಮತ್ತು ಕಾರ್ಯನಿರ್ವಹಿಸಿ.</string>
     <string name="max_ai_counters">ನಿರ್ಧಾರಗಳು %1$d · ಪರಿಶೀಲಿಸಲಾಗಿದೆ %2$d · ಸರಿಹೊಂದಿಸಲಾಗಿದೆ %3$d · ಸುರಕ್ಷತೆಗಾಗಿ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d ನಾಬ್‌ಗಳು ಅಳತೆ ಮಾಡಿದ ತೀರ್ಪನ್ನು ಒಯ್ಯುತ್ತವೆ · %2$d ಶ್ರೇಣೀಕೃತ ಮಾದರಿಗಳು ಒಟ್ಟಾರೆಯಾಗಿ.</string>
     <string name="max_ai_deck_decisions">ನಿರ್ಧಾರ ದಾಖಲೆ</string>
     <string name="max_ai_deck_live_summary">ವಾಚ್ ಅಡಿಯಲ್ಲಿ %1$d ನಾಬ್‌ಗಳು ಮತ್ತು %2$d ಮಾಲೀಕತ್ವದಲ್ಲಿದೆ - ಚಾಲನೆಯಲ್ಲಿರುವ ಲೂಪ್‌ನ ಅನಿಮೇಟೆಡ್ ವೀಕ್ಷಣೆಯನ್ನು ತೆರೆಯಿರಿ.</string>
-    <string name="max_ai_section_profiles">ಮೂಲ ಪ್ರೊಫೈಲ್ಗಳು</string>
-    <string name="max_ai_profile_active">ಅನ್ವಯಿಸಲಾಗಿದೆ</string>
     <string name="max_ai_safety_engaged_title">ಉಷ್ಣ ಸುರಕ್ಷತೆ ತೊಡಗಿಸಿಕೊಂಡಿದೆ</string>
     <string name="max_ai_safety_critical_title">ನಿರ್ಣಾಯಕ ತಾಪಮಾನ</string>
     <string name="max_ai_safety_detail">ಸ್ಥಾಪಿಸಿದಾಗಿನಿಂದ %1$s, %2$d ಮಧ್ಯಸ್ಥಿಕೆಗಳನ್ನು ಅಳೆಯಲಾಗಿದೆ.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">ರೆಕಾರ್ಡ್ ಮಾಡಿದ ಅಪ್ಲಿಕೇಶನ್ ಸಂದರ್ಭ</string>
     <string name="max_ai_journal_all_contexts">ಎಲ್ಲಾ ಸಂದರ್ಭಗಳು</string>
     <string name="max_ai_exploration_inactive">ಪ್ರಸ್ತುತ ಅನ್ವೇಷಣೆ ಅನುಮೋದನೆ ಇಲ್ಲ: AI ಆಫ್ ಆಗಿದೆ ಅಥವಾ ತಾಜಾ ಮೌಲ್ಯಮಾಪನ ಚಕ್ರಕ್ಕಾಗಿ ಕಾಯುತ್ತಿದೆ.</string>
-    <string name="max_ai_profile_request">ಇತ್ತೀಚಿನ ಪ್ರೊಫೈಲ್ ವಿನಂತಿ</string>
-    <string name="max_ai_profile_applying">ಪ್ರೊಫೈಲ್ ಅನ್ನು ಅನ್ವಯಿಸಲಾಗುತ್ತಿದೆ. ಮತ್ತೊಂದು ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸುವ ಮೊದಲು ಫಲಿತಾಂಶಕ್ಕಾಗಿ ನಿರೀಕ್ಷಿಸಿ.</string>
-    <string name="max_ai_profile_verified">ಅನ್ವಯಿಸಲಾಗಿದೆ ಮತ್ತು ಪರಿಶೀಲಿಸಲಾಗಿದೆ.</string>
-    <string name="max_ai_profile_executed">ಆದೇಶ ಪೂರ್ಣಗೊಂಡಿದೆ; ಹಾರ್ಡ್‌ವೇರ್ ಪರಿಶೀಲನೆಯನ್ನು ದೃಢೀಕರಿಸಲಾಗಿಲ್ಲ.</string>
-    <string name="max_ai_profile_adjusted">ನಿಯಂತ್ರಣ ಸಮತಲದಿಂದ ಹೊಂದಿಸಲಾಗಿದೆ. ದಾಖಲಾದ ಫಲಿತಾಂಶವನ್ನು ಪರಿಶೀಲಿಸಿ.</string>
-    <string name="max_ai_profile_blocked">ಉಷ್ಣ ಸುರಕ್ಷತೆಯಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. ಯಾವುದೇ ಯಶಸ್ಸನ್ನು ಹೇಳಲಾಗುವುದಿಲ್ಲ.</string>
-    <string name="max_ai_profile_skipped">ವಿನಂತಿಯನ್ನು ಬಿಟ್ಟುಬಿಡಲಾಗಿದೆ. ಯಾವುದೇ ಹೊಸ ಪ್ರೊಫೈಲ್ ಅನ್ನು ದೃಢೀಕರಿಸಲಾಗಿಲ್ಲ.</string>
-    <string name="max_ai_profile_failed">ವಿನಂತಿಯು ವಿಫಲವಾಗಿದೆ. ಮರುಪ್ರಯತ್ನಿಸುವ ಮೊದಲು ನಿರ್ಧಾರದ ದಾಖಲೆಯನ್ನು ಪರೀಕ್ಷಿಸಿ.</string>
     <string name="max_live_plan_snapshot">ಕೊನೆಯದಾಗಿ ಮೌಲ್ಯಮಾಪನ ಮಾಡಿದ ಯೋಜನೆ, ಪ್ರಸ್ತುತ ಚಟುವಟಿಕೆಯಲ್ಲ</string>
     <string name="max_ai_learning_coverage">ಕಲಿಕೆಯ ವ್ಯಾಪ್ತಿ %1$d%%</string>
     <string name="max_ai_cycle_running">ಸಾಧನದ ಮೌಲ್ಯಮಾಪನ</string>

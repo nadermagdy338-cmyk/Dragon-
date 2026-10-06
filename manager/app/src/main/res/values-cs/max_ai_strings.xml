@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Výkon</string>
     <string name="max_ai_objective_pick_balanced">Vyrovnaný</string>
     <string name="max_ai_objective_pick_battery">Baterie</string>
-    <string name="max_ai_profile_row_desc">Základní profily zůstávají manuální a jsou aplikovány okamžitě; nejsou to knoflíky AI.</string>
     <string name="max_ai_refresh">Nyní spusťte cyklus</string>
     <string name="max_ai_refresh_desc">Změřte, naplánujte a jednejte jednou místo čekání na cyklus 30s.</string>
     <string name="max_ai_counters">Rozhodnutí %1$d · ověřeno %2$d · upraveno %3$d · z důvodu bezpečnosti blokováno %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knoflíky nesou měřený verdikt · %2$d celkově hodnocených vzorků.</string>
     <string name="max_ai_deck_decisions">Záznam rozhodnutí</string>
     <string name="max_ai_deck_live_summary">%1$d knoflíky pod hlídáním a %2$d vlastněné — otevřete animovaný pohled na běžící smyčku.</string>
-    <string name="max_ai_section_profiles">Základní profily</string>
-    <string name="max_ai_profile_active">Aplikovaný</string>
     <string name="max_ai_safety_engaged_title">Zapojena tepelná bezpečnost</string>
     <string name="max_ai_safety_critical_title">Kritická teplota</string>
     <string name="max_ai_safety_detail">Naměřeno %1$s, %2$d zásahů od instalace.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Zaznamenaný kontext aplikace</string>
     <string name="max_ai_journal_all_contexts">Všechny souvislosti</string>
     <string name="max_ai_exploration_inactive">Žádné aktuální schválení průzkumu: AI je vypnutá nebo čeká na nový vyhodnocený cyklus.</string>
-    <string name="max_ai_profile_request">Nejnovější žádost o profil</string>
-    <string name="max_ai_profile_applying">Použití profilu. Před odesláním další žádosti počkejte na výsledek.</string>
-    <string name="max_ai_profile_verified">Uplatněno a ověřeno.</string>
-    <string name="max_ai_profile_executed">Příkaz dokončen; ověření hardwaru není potvrzeno.</string>
-    <string name="max_ai_profile_adjusted">Upraveno řídicí rovinou. Zkontrolujte zaznamenaný výsledek.</string>
-    <string name="max_ai_profile_blocked">Blokováno tepelnou pojistkou. Žádný úspěch se netvrdí.</string>
-    <string name="max_ai_profile_skipped">Požadavek přeskočen. Žádný nový profil nebyl potvrzen.</string>
-    <string name="max_ai_profile_failed">Žádost se nezdařila. Před dalším pokusem zkontrolujte záznam rozhodnutí.</string>
     <string name="max_live_plan_snapshot">Naposledy hodnocený plán, nikoli aktuální činnost</string>
     <string name="max_ai_learning_coverage">Pokrytí učení %1$d%%</string>
     <string name="max_ai_cycle_running">Hodnocení zařízení</string>

@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Teljesítmény</string>
     <string name="max_ai_objective_pick_balanced">Kiegyensúlyozott</string>
     <string name="max_ai_objective_pick_battery">Akkumulátor</string>
-    <string name="max_ai_profile_row_desc">Az alapprofilok manuálisak maradnak, és azonnal alkalmazhatók; ezek nem AI gombok.</string>
     <string name="max_ai_refresh">Futtasson most egy ciklust</string>
     <string name="max_ai_refresh_desc">Mérjen, tervezzen és cselekedjen egyszer, ahelyett, hogy megvárná a 30-as évek ciklusát.</string>
     <string name="max_ai_counters">Döntések %1$d · ellenőrzött %2$d · módosítva %3$d · biztonsági szempontból letiltva %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">A %1$d gombok mért ítéletet hordoznak · %2$d osztályozott minták összesen.</string>
     <string name="max_ai_deck_decisions">Döntési jegyzőkönyv</string>
     <string name="max_ai_deck_live_summary">%1$d gombok figyelés alatt és %2$d tulajdonban lévő gombok — a futóhurok animált nézetének megnyitása.</string>
-    <string name="max_ai_section_profiles">Alap profilok</string>
-    <string name="max_ai_profile_active">Alkalmazott</string>
     <string name="max_ai_safety_engaged_title">A hővédelem bekapcsolva</string>
     <string name="max_ai_safety_critical_title">Kritikus hőmérséklet</string>
     <string name="max_ai_safety_detail">Mért %1$s, %2$d beavatkozás a telepítés óta.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Rögzített alkalmazáskörnyezet</string>
     <string name="max_ai_journal_all_contexts">Minden összefüggés</string>
     <string name="max_ai_exploration_inactive">Nincs jelenlegi feltárási jóváhagyás: a mesterséges intelligencia ki van kapcsolva, vagy új kiértékelt ciklusra vár.</string>
-    <string name="max_ai_profile_request">Legutóbbi profilkérés</string>
-    <string name="max_ai_profile_applying">Profil alkalmazása. Várja meg az eredményt, mielőtt újabb kérést küldene.</string>
-    <string name="max_ai_profile_verified">Alkalmazva és ellenőrizve.</string>
-    <string name="max_ai_profile_executed">A parancs teljesítve; a hardver ellenőrzése nincs megerősítve.</string>
-    <string name="max_ai_profile_adjusted">A vezérlősík állítja be. Ellenőrizze a rögzített eredményt.</string>
-    <string name="max_ai_profile_blocked">Termikus biztonság blokkolja. Nem állítják a sikert.</string>
-    <string name="max_ai_profile_skipped">A kérés kimaradt. Új profilt nem erősítettek meg.</string>
-    <string name="max_ai_profile_failed">A kérés meghiúsult. Az újrapróbálkozás előtt ellenőrizze a döntési jegyzőkönyvet.</string>
     <string name="max_live_plan_snapshot">Utoljára értékelt terv, nem aktuális tevékenység</string>
     <string name="max_ai_learning_coverage">Tanulási lefedettség %1$d%%</string>
     <string name="max_ai_cycle_running">A készülék értékelése</string>

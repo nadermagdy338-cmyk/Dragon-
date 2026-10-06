@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Prestatie</string>
     <string name="max_ai_objective_pick_balanced">Evenwichtig</string>
     <string name="max_ai_objective_pick_battery">Batterij</string>
-    <string name="max_ai_profile_row_desc">Basisprofielen blijven handmatig en worden direct aangebracht; het zijn geen AI-knoppen.</string>
     <string name="max_ai_refresh">Voer nu een cyclus uit</string>
     <string name="max_ai_refresh_desc">Meet, plan en handel één keer in plaats van te wachten op de jaren \'30-cyclus.</string>
     <string name="max_ai_counters">Beslissingen %1$d · geverifieerd %2$d · aangepast %3$d · geblokkeerd voor de veiligheid %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knoppen geven een gemeten oordeel weer · %2$d beoordeelde monsters in totaal.</string>
     <string name="max_ai_deck_decisions">Beslissingsverslag</string>
     <string name="max_ai_deck_live_summary">%1$d knoppen onder toezicht en %2$d in eigendom: open de geanimeerde weergave van de lopende lus.</string>
-    <string name="max_ai_section_profiles">Basisprofielen</string>
-    <string name="max_ai_profile_active">Toegepast</string>
     <string name="max_ai_safety_engaged_title">Thermische veiligheid ingeschakeld</string>
     <string name="max_ai_safety_critical_title">Kritische temperatuur</string>
     <string name="max_ai_safety_detail">Gemeten %1$s, %2$d interventies sinds installatie.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Opgenomen app-context</string>
     <string name="max_ai_journal_all_contexts">Alle contexten</string>
     <string name="max_ai_exploration_inactive">Momenteel geen goedkeuring voor verkenning: AI staat uit of wacht op een nieuwe geëvalueerde cyclus.</string>
-    <string name="max_ai_profile_request">Laatste profielverzoek</string>
-    <string name="max_ai_profile_applying">Een profiel toepassen. Wacht op het resultaat voordat u een nieuw verzoek verzendt.</string>
-    <string name="max_ai_profile_verified">Toegepast en geverifieerd.</string>
-    <string name="max_ai_profile_executed">Commando voltooid; hardwareverificatie is niet bevestigd.</string>
-    <string name="max_ai_profile_adjusted">Aangepast door het besturingsvlak. Controleer het geregistreerde resultaat.</string>
-    <string name="max_ai_profile_blocked">Geblokkeerd door thermische veiligheid. Er wordt geen succes geclaimd.</string>
-    <string name="max_ai_profile_skipped">Verzoek overgeslagen. Er werd geen nieuw profiel bevestigd.</string>
-    <string name="max_ai_profile_failed">Het verzoek is mislukt. Controleer het beslissingsrecord voordat u het opnieuw probeert.</string>
     <string name="max_live_plan_snapshot">Laatst geëvalueerd plan, niet huidige activiteit</string>
     <string name="max_ai_learning_coverage">Leerdekking %1$d%%</string>
     <string name="max_ai_cycle_running">Evalueren van het apparaat</string>

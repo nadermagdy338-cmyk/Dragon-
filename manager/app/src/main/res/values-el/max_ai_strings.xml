@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Εκτέλεση</string>
     <string name="max_ai_objective_pick_balanced">Ισορροπημένο</string>
     <string name="max_ai_objective_pick_battery">Μπαταρία</string>
-    <string name="max_ai_profile_row_desc">Τα βασικά προφίλ παραμένουν χειροκίνητα και εφαρμόζονται αμέσως. δεν είναι κουμπιά AI.</string>
     <string name="max_ai_refresh">Κάνε έναν κύκλο τώρα</string>
     <string name="max_ai_refresh_desc">Μετρήστε, σχεδιάστε και ενεργήστε μια φορά αντί να περιμένετε τον κύκλο της δεκαετίας του \'30.</string>
     <string name="max_ai_counters">Αποφάσεις %1$d · επαληθευμένες %2$d · προσαρμοσμένες %3$d · αποκλεισμένες για ασφάλεια %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d πόμολα φέρουν μια μετρημένη ετυμηγορία · %2$d βαθμολογημένα δείγματα συνολικά.</string>
     <string name="max_ai_deck_decisions">Αρχείο απόφασης</string>
     <string name="max_ai_deck_live_summary">%1$d πόμολα υπό παρακολούθηση και %2$d ιδιοκτησία — ανοίξτε την κινούμενη προβολή του τρέχοντος βρόχου.</string>
-    <string name="max_ai_section_profiles">Βασικά προφίλ</string>
-    <string name="max_ai_profile_active">Εφαρμοσμένος</string>
     <string name="max_ai_safety_engaged_title">Έχει ενεργοποιηθεί η θερμική ασφάλεια</string>
     <string name="max_ai_safety_critical_title">Κρίσιμη θερμοκρασία</string>
     <string name="max_ai_safety_detail">Μετρήθηκαν %1$s, %2$d παρεμβάσεις από την εγκατάσταση.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Ηχογραφημένο περιβάλλον εφαρμογής</string>
     <string name="max_ai_journal_all_contexts">Όλα τα πλαίσια</string>
     <string name="max_ai_exploration_inactive">Δεν υπάρχει τρέχουσα έγκριση εξερεύνησης: Η τεχνητή νοημοσύνη είναι απενεργοποιημένη ή αναμένει νέο αξιολογημένο κύκλο.</string>
-    <string name="max_ai_profile_request">Τελευταίο αίτημα προφίλ</string>
-    <string name="max_ai_profile_applying">Εφαρμογή προφίλ. Περιμένετε το αποτέλεσμα πριν στείλετε άλλο αίτημα.</string>
-    <string name="max_ai_profile_verified">Εφαρμόστηκε και επαληθεύτηκε.</string>
-    <string name="max_ai_profile_executed">Η εντολή ολοκληρώθηκε. η επαλήθευση υλικού δεν επιβεβαιώνεται.</string>
-    <string name="max_ai_profile_adjusted">Ρυθμίζεται από το επίπεδο ελέγχου. Ελέγξτε το καταγεγραμμένο αποτέλεσμα.</string>
-    <string name="max_ai_profile_blocked">Μπλοκαρισμένο από θερμική ασφάλεια. Καμία επιτυχία δεν αξιώνεται.</string>
-    <string name="max_ai_profile_skipped">Το αίτημα παραβλέφθηκε. Δεν επιβεβαιώθηκε νέο προφίλ.</string>
-    <string name="max_ai_profile_failed">Το αίτημα απέτυχε. Επιθεωρήστε το αρχείο απόφασης πριν προσπαθήσετε ξανά.</string>
     <string name="max_live_plan_snapshot">Τελευταίο αξιολογημένο σχέδιο, όχι τρέχουσα δραστηριότητα</string>
     <string name="max_ai_learning_coverage">Μάθηση %1$d%%</string>
     <string name="max_ai_cycle_running">Αξιολόγηση της συσκευής</string>

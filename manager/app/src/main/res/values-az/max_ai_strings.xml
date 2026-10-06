@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Performans</string>
     <string name="max_ai_objective_pick_balanced">Balanslı</string>
     <string name="max_ai_objective_pick_battery">Batareya</string>
-    <string name="max_ai_profile_row_desc">Əsas profillər əl ilə qalır və dərhal tətbiq olunur; onlar AI düymələri deyil.</string>
     <string name="max_ai_refresh">İndi bir dövrə keçin</string>
     <string name="max_ai_refresh_desc">30-cu illərin dövrünü gözləmək əvəzinə bir dəfə ölçün, planlaşdırın və hərəkət edin.</string>
     <string name="max_ai_counters">Qərarlar %1$d · təsdiqlənmiş %2$d · düzəliş edilmiş %3$d · təhlükəsizlik üçün bloklanmış %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d düymələri ölçülmüş hökmü daşıyır · %2$d cəmi qiymətləndirilir nümunələr.</string>
     <string name="max_ai_deck_decisions">Qərar qeydi</string>
     <string name="max_ai_deck_live_summary">%1$d düymələr nəzarət altındadır və %2$d sahibidir — qaçış dövrəsinin cizgi görünüşünü açın.</string>
-    <string name="max_ai_section_profiles">Əsas profillər</string>
-    <string name="max_ai_profile_active">Tətbiq olunub</string>
     <string name="max_ai_safety_engaged_title">İstilik təhlükəsizliyi təmin edilir</string>
     <string name="max_ai_safety_critical_title">Kritik temperatur</string>
     <string name="max_ai_safety_detail">Quraşdırıldıqdan sonra ölçülən %1$s, %2$d müdaxilələr.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Qeydə alınmış proqram konteksti</string>
     <string name="max_ai_journal_all_contexts">Bütün kontekstlər</string>
     <string name="max_ai_exploration_inactive">Cari kəşfiyyat təsdiqi yoxdur: AI söndürülüb və ya yeni qiymətləndirilmiş dövrü gözləyir.</string>
-    <string name="max_ai_profile_request">Ən son profil sorğusu</string>
-    <string name="max_ai_profile_applying">Profilin tətbiqi. Başqa sorğu göndərməzdən əvvəl nəticəni gözləyin.</string>
-    <string name="max_ai_profile_verified">Tətbiq edilmiş və təsdiqlənmişdir.</string>
-    <string name="max_ai_profile_executed">Əmr tamamlandı; aparat yoxlanışı təsdiqlənməyib.</string>
-    <string name="max_ai_profile_adjusted">İdarəetmə müstəvisi ilə tənzimlənir. Qeydə alınan nəticəni yoxlayın.</string>
-    <string name="max_ai_profile_blocked">İstilik təhlükəsizliyi ilə bloklanır. Heç bir uğur iddia edilmir.</string>
-    <string name="max_ai_profile_skipped">Sorğu atlandı. Heç bir yeni profil təsdiqlənmədi.</string>
-    <string name="max_ai_profile_failed">Sorğu uğursuz oldu. Yenidən cəhd etməzdən əvvəl qərar qeydini yoxlayın.</string>
     <string name="max_live_plan_snapshot">Son qiymətləndirilmiş plan, cari fəaliyyət deyil</string>
     <string name="max_ai_learning_coverage">Öyrənmə əhatəsi %1$d%%</string>
     <string name="max_ai_cycle_running">Cihazın qiymətləndirilməsi</string>

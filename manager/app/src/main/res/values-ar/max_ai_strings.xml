@@ -31,6 +31,8 @@
     <string name="max_ai_objective_source_user">تفضيلك الصريح هو من يحدد الأوزان.</string>
     <string name="max_ai_objective_source_learned">أوزان مستنتجة من استخدامك المقيس.</string>
     <string name="max_ai_objective_source_screen_off">الشاشة مطفأة: طاقة وحرارة فقط.</string>
+    <string name="max_ai_objective_active">الفاعل الآن: %1$s</string>
+    <string name="max_ai_objective_override">الفاعل الآن %1$s؛ وتفضيلك يُطبَّق حين لا يتقدّم عليه شيء.</string>
     <string name="max_ai_weight_performance">الأداء</string>
     <string name="max_ai_weight_battery">البطارية</string>
     <string name="max_ai_weight_thermal">المتسع الحراري</string>
@@ -155,7 +157,6 @@
     <string name="max_ai_objective_pick_performance">الأداء</string>
     <string name="max_ai_objective_pick_balanced">التوازن</string>
     <string name="max_ai_objective_pick_battery">البطارية</string>
-    <string name="max_ai_profile_row_desc">ملفات الأساس تبقى يدوية وتُطبق فورًا؛ ليست مقابض للذكاء.</string>
     <string name="max_ai_refresh">شغّل دورة الآن</string>
     <string name="max_ai_refresh_desc">قس وخطِّط ونفّذ مرة بدل انتطار دورة الثلاثين ثانية.</string>
     <string name="max_ai_counters">قرارات %1$d · مُتحقق %2$d · معدلة %3$d · محجوبة للأمان %4$d</string>
@@ -166,8 +167,6 @@
     <string name="max_ai_deck_learning_row">%1$d مقبضًا له حكم مقيس · %2$d حكمًا متراكمًا إجمالًا.</string>
     <string name="max_ai_deck_decisions">سجل القرارات</string>
     <string name="max_ai_deck_live_summary">%1$d مقبضًا تحت المراقبة و%2$d مملوك — افتح العرض المتحرك للحلقة الجارية.</string>
-    <string name="max_ai_section_profiles">ملفات الأساس</string>
-    <string name="max_ai_profile_active">مُطبَّق</string>
 
     <string name="max_ai_safety_engaged_title">أمان حراري مُشتبك</string>
     <string name="max_ai_safety_critical_title">حرارة حرجة</string>
@@ -305,14 +304,6 @@
     <string name="max_ai_journal_context">سياق التطبيق المسجل</string>
     <string name="max_ai_journal_all_contexts">كل السياقات</string>
     <string name="max_ai_exploration_inactive">لا سماح حالي بالاستكشاف: الذكاء متوقف أو ينتظر دورة تقييم حديثة.</string>
-    <string name="max_ai_profile_request">آخر طلب ملف أساس</string>
-    <string name="max_ai_profile_applying">جار تطبيق ملف أساس. انتظر النتيجة قبل إرسال طلب آخر.</string>
-    <string name="max_ai_profile_verified">طُبق وتُحقق منه.</string>
-    <string name="max_ai_profile_executed">اكتمل الأمر؛ لم يتأكد التحقق من العتاد.</string>
-    <string name="max_ai_profile_adjusted">عدّلته طبقة التحكم. راجع النتيجة المسجلة.</string>
-    <string name="max_ai_profile_blocked">حجبته الحماية الحرارية. لا يُدعى نجاح التطبيق.</string>
-    <string name="max_ai_profile_skipped">تُخطي الطلب. لم يتأكد تطبيق ملف جديد.</string>
-    <string name="max_ai_profile_failed">فشل الطلب. افحص سجل القرار قبل إعادة المحاولة.</string>
     <string name="max_live_plan_snapshot">آخر خطة جرى تقييمها، وليست نشاطا جاريا</string>
     <string name="max_ai_learning_coverage">تغطية التعلم %1$d%%</string>
     <string name="max_ai_cycle_running">جار تقييم الجهاز</string>

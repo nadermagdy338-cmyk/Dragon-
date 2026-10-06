@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Prestanda</string>
     <string name="max_ai_objective_pick_balanced">Balanserad</string>
     <string name="max_ai_objective_pick_battery">Batteri</string>
-    <string name="max_ai_profile_row_desc">Basprofiler förblir manuella och appliceras omedelbart; de är inte AI-rattar.</string>
     <string name="max_ai_refresh">Kör en cykel nu</string>
     <string name="max_ai_refresh_desc">Mät, planera och agera en gång istället för att vänta på 30-talscykeln.</string>
     <string name="max_ai_counters">Beslut %1$d · verifierade %2$d · justerade %3$d · blockerade för säkerhets skull %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d-rattarna har en uppmätt bedömning · %2$d graderade prover totalt.</string>
     <string name="max_ai_deck_decisions">Beslutsprotokoll</string>
     <string name="max_ai_deck_live_summary">%1$d rattar under övervakning och %2$d ägda — öppna den animerade vyn av löpslingan.</string>
-    <string name="max_ai_section_profiles">Basprofiler</string>
-    <string name="max_ai_profile_active">Tillämpad</string>
     <string name="max_ai_safety_engaged_title">Termisk säkerhet inkopplad</string>
     <string name="max_ai_safety_critical_title">Kritisk temperatur</string>
     <string name="max_ai_safety_detail">Uppmätt %1$s, %2$d ingrepp sedan installation.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Inspelad appkontext</string>
     <string name="max_ai_journal_all_contexts">Alla sammanhang</string>
     <string name="max_ai_exploration_inactive">Inget aktuellt utforskningsgodkännande: AI är avstängd eller väntar på en ny utvärderad cykel.</string>
-    <string name="max_ai_profile_request">Senaste profilförfrågan</string>
-    <string name="max_ai_profile_applying">Tillämpa en profil. Vänta på resultatet innan du skickar en ny förfrågan.</string>
-    <string name="max_ai_profile_verified">Tillämpad och verifierad.</string>
-    <string name="max_ai_profile_executed">Kommandot slutfört; hårdvaruverifiering är inte bekräftad.</string>
-    <string name="max_ai_profile_adjusted">Justeras av kontrollplanet. Kontrollera det inspelade resultatet.</string>
-    <string name="max_ai_profile_blocked">Blockerad av termisk säkerhet. Ingen framgång påstås.</string>
-    <string name="max_ai_profile_skipped">Begäran hoppades över. Ingen ny profil har bekräftats.</string>
-    <string name="max_ai_profile_failed">Begäran misslyckades. Inspektera beslutsprotokollet innan du försöker igen.</string>
     <string name="max_live_plan_snapshot">Senast utvärderade plan, inte aktuell aktivitet</string>
     <string name="max_ai_learning_coverage">Lärande täckning %1$d%%</string>
     <string name="max_ai_cycle_running">Utvärdera enheten</string>

@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Performance</string>
     <string name="max_ai_objective_pick_balanced">Balanced</string>
     <string name="max_ai_objective_pick_battery">Battery</string>
-    <string name="max_ai_profile_row_desc">Base profiles stay manual and are applied immediately; they are not AI knobs.</string>
     <string name="max_ai_refresh">Run a cycle now</string>
     <string name="max_ai_refresh_desc">Measure, plan and act once instead of waiting for the 30s cycle.</string>
     <string name="max_ai_counters">Decisions %1$d · verified %2$d · adjusted %3$d · blocked for safety %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knobs carry a measured verdict · %2$d graded samples in total.</string>
     <string name="max_ai_deck_decisions">Decision record</string>
     <string name="max_ai_deck_live_summary">%1$d knobs under watch and %2$d owned — open the animated view of the running loop.</string>
-    <string name="max_ai_section_profiles">Base profiles</string>
-    <string name="max_ai_profile_active">Applied</string>
     <string name="max_ai_safety_engaged_title">Thermal safety engaged</string>
     <string name="max_ai_safety_critical_title">Critical temperature</string>
     <string name="max_ai_safety_detail">Measured %1$s, %2$d interventions since install.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Recorded app context</string>
     <string name="max_ai_journal_all_contexts">All contexts</string>
     <string name="max_ai_exploration_inactive">No current exploration approval: AI is off or awaiting a fresh evaluated cycle.</string>
-    <string name="max_ai_profile_request">Latest profile request</string>
-    <string name="max_ai_profile_applying">Applying a profile. Wait for the result before sending another request.</string>
-    <string name="max_ai_profile_verified">Applied and verified.</string>
-    <string name="max_ai_profile_executed">Command completed; hardware verification is not confirmed.</string>
-    <string name="max_ai_profile_adjusted">Adjusted by the control plane. Check the recorded result.</string>
-    <string name="max_ai_profile_blocked">Blocked by thermal safety. No success is claimed.</string>
-    <string name="max_ai_profile_skipped">Request skipped. No new profile was confirmed.</string>
-    <string name="max_ai_profile_failed">The request failed. Inspect the decision record before retrying.</string>
     <string name="max_live_plan_snapshot">Last evaluated plan, not current activity</string>
     <string name="max_ai_learning_coverage">Learning coverage %1$d%%</string>
     <string name="max_ai_cycle_running">Evaluating the device</string>

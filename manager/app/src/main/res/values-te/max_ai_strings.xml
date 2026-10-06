@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">ప్రదర్శన</string>
     <string name="max_ai_objective_pick_balanced">సమతుల్యం</string>
     <string name="max_ai_objective_pick_battery">బ్యాటరీ</string>
-    <string name="max_ai_profile_row_desc">బేస్ ప్రొఫైల్‌లు మాన్యువల్‌గా ఉంటాయి మరియు వెంటనే వర్తించబడతాయి; అవి AI నాబ్‌లు కావు.</string>
     <string name="max_ai_refresh">ఇప్పుడే సైకిల్‌ను నడపండి</string>
     <string name="max_ai_refresh_desc">30ల సైకిల్ కోసం వేచి ఉండే బదులు ఒకసారి కొలవండి, ప్లాన్ చేయండి మరియు చర్య తీసుకోండి.</string>
     <string name="max_ai_counters">నిర్ణయాలు %1$d · ధృవీకరించబడింది %2$d · సర్దుబాటు చేయబడింది %3$d · భద్రత కోసం బ్లాక్ చేయబడింది %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d నాబ్‌లు కొలవబడిన తీర్పును కలిగి ఉంటాయి · మొత్తంగా %2$d గ్రేడెడ్ నమూనాలు.</string>
     <string name="max_ai_deck_decisions">నిర్ణయ రికార్డు</string>
     <string name="max_ai_deck_live_summary">వాచ్ కింద %1$d నాబ్‌లు మరియు %2$d స్వంతం — నడుస్తున్న లూప్ యొక్క యానిమేటెడ్ వీక్షణను తెరవండి.</string>
-    <string name="max_ai_section_profiles">బేస్ ప్రొఫైల్స్</string>
-    <string name="max_ai_profile_active">దరఖాస్తు చేసుకున్నారు</string>
     <string name="max_ai_safety_engaged_title">థర్మల్ భద్రత నిమగ్నమై ఉంది</string>
     <string name="max_ai_safety_critical_title">క్లిష్టమైన ఉష్ణోగ్రత</string>
     <string name="max_ai_safety_detail">ఇన్‌స్టాల్ చేసినప్పటి నుండి %1$s, %2$d జోక్యాలను కొలుస్తారు.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">యాప్ సందర్భం రికార్డ్ చేయబడింది</string>
     <string name="max_ai_journal_all_contexts">అన్ని సందర్భాలు</string>
     <string name="max_ai_exploration_inactive">ప్రస్తుత అన్వేషణ ఆమోదం లేదు: AI ఆఫ్‌లో ఉంది లేదా తాజా మూల్యాంకన చక్రం కోసం వేచి ఉంది.</string>
-    <string name="max_ai_profile_request">తాజా ప్రొఫైల్ అభ్యర్థన</string>
-    <string name="max_ai_profile_applying">ప్రొఫైల్‌ని వర్తింపజేస్తోంది. మరొక అభ్యర్థనను పంపే ముందు ఫలితం కోసం వేచి ఉండండి.</string>
-    <string name="max_ai_profile_verified">దరఖాస్తు మరియు ధృవీకరించబడింది.</string>
-    <string name="max_ai_profile_executed">ఆదేశం పూర్తయింది; హార్డ్‌వేర్ ధృవీకరణ నిర్ధారించబడలేదు.</string>
-    <string name="max_ai_profile_adjusted">నియంత్రణ విమానం ద్వారా సర్దుబాటు చేయబడింది. రికార్డ్ చేసిన ఫలితాన్ని తనిఖీ చేయండి.</string>
-    <string name="max_ai_profile_blocked">థర్మల్ భద్రత ద్వారా నిరోధించబడింది. ఎలాంటి విజయం సాధించలేదు.</string>
-    <string name="max_ai_profile_skipped">అభ్యర్థన దాటవేయబడింది. కొత్త ప్రొఫైల్ ఏదీ నిర్ధారించబడలేదు.</string>
-    <string name="max_ai_profile_failed">అభ్యర్థన విఫలమైంది. మళ్లీ ప్రయత్నించే ముందు నిర్ణయ రికార్డును తనిఖీ చేయండి.</string>
     <string name="max_live_plan_snapshot">చివరిగా మూల్యాంకనం చేయబడిన ప్లాన్, ప్రస్తుత కార్యాచరణ కాదు</string>
     <string name="max_ai_learning_coverage">లెర్నింగ్ కవరేజ్ %1$d%%</string>
     <string name="max_ai_cycle_running">పరికరాన్ని మూల్యాంకనం చేస్తోంది</string>

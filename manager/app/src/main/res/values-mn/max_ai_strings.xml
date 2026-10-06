@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Гүйцэтгэл</string>
     <string name="max_ai_objective_pick_balanced">Тэнцвэртэй</string>
     <string name="max_ai_objective_pick_battery">Зай</string>
-    <string name="max_ai_profile_row_desc">Үндсэн профайл нь гарын авлага хэвээр байх бөгөөд нэн даруй хэрэглэнэ; Тэд хиймэл оюун ухааны товчлуур биш.</string>
     <string name="max_ai_refresh">Яг одоо мөчлөг гүйлгэ</string>
     <string name="max_ai_refresh_desc">30-аад оны мөчлөгийг хүлээхийн оронд нэг удаа хэмжиж, төлөвлөж, үйлдэл хий.</string>
     <string name="max_ai_counters">Шийдвэр %1$d · баталгаажуулсан %2$d · тохируулсан %3$d · аюулгүй байдлын үүднээс блоклосон %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d товчлуурууд нь хэмжсэн дүгнэлтийг агуулна · %2$d зэрэглүүлсэн дээжийг нийтдээ.</string>
     <string name="max_ai_deck_decisions">Шийдвэрийн бүртгэл</string>
     <string name="max_ai_deck_live_summary">Цагны доорх %1$d товчлуурууд болон %2$d эзэмшдэг — гүйлтийн давталтын хөдөлгөөнт дүрсийг нээнэ.</string>
-    <string name="max_ai_section_profiles">Үндсэн профайлууд</string>
-    <string name="max_ai_profile_active">Хэрэглэсэн</string>
     <string name="max_ai_safety_engaged_title">Дулааны аюулгүй байдлыг хангасан</string>
     <string name="max_ai_safety_critical_title">Чухал температур</string>
     <string name="max_ai_safety_detail">Суулгаснаас хойшхи %1$s, %2$d хөндлөнгийн оролцоог хэмжсэн.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Бичсэн програмын контекст</string>
     <string name="max_ai_journal_all_contexts">Бүх контекст</string>
     <string name="max_ai_exploration_inactive">Одоогоор хайгуулын зөвшөөрөл байхгүй: AI унтарсан эсвэл шинэ үнэлгээний мөчлөгийг хүлээж байна.</string>
-    <string name="max_ai_profile_request">Хамгийн сүүлийн профайлын хүсэлт</string>
-    <string name="max_ai_profile_applying">Профайл ашиглаж байна. Өөр хүсэлт илгээхийн өмнө үр дүнг хүлээнэ үү.</string>
-    <string name="max_ai_profile_verified">Хэрэглэж, баталгаажуулсан.</string>
-    <string name="max_ai_profile_executed">Тушаал дууссан; техник хангамжийн баталгаажуулалт батлагдаагүй байна.</string>
-    <string name="max_ai_profile_adjusted">Хяналтын хавтгайгаар тохируулна. Бүртгэгдсэн үр дүнг шалгана уу.</string>
-    <string name="max_ai_profile_blocked">Дулааны аюулгүй байдлын улмаас хаагдсан. Амжилттай гэж мэдэгдээгүй.</string>
-    <string name="max_ai_profile_skipped">Хүсэлтийг алгассан. Шинэ профайл батлагдаагүй байна.</string>
-    <string name="max_ai_profile_failed">Хүсэлт амжилтгүй боллоо. Дахин оролдохын өмнө шийдвэрийн тэмдэглэлийг шалгана уу.</string>
     <string name="max_live_plan_snapshot">Хамгийн сүүлд үнэлэгдсэн төлөвлөгөө, одоогийн үйл ажиллагаа биш</string>
     <string name="max_ai_learning_coverage">Сургалтын хамрах хүрээ %1$d%%</string>
     <string name="max_ai_cycle_running">Төхөөрөмжийг үнэлж байна</string>

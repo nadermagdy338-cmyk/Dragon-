@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">પ્રદર્શન</string>
     <string name="max_ai_objective_pick_balanced">સંતુલિત</string>
     <string name="max_ai_objective_pick_battery">બેટરી</string>
-    <string name="max_ai_profile_row_desc">બેઝ પ્રોફાઇલ્સ મેન્યુઅલ રહે છે અને તરત જ લાગુ થાય છે; તેઓ AI knobs નથી.</string>
     <string name="max_ai_refresh">હવે એક સાયકલ ચલાવો</string>
     <string name="max_ai_refresh_desc">30 ના ચક્રની રાહ જોવાને બદલે એકવાર માપો, યોજના બનાવો અને કાર્ય કરો.</string>
     <string name="max_ai_counters">નિર્ણયો %1$d · ચકાસાયેલ %2$d · સમાયોજિત %3$d · સલામતી માટે અવરોધિત %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d નોબ્સ માપેલ ચુકાદો ધરાવે છે · %2$d કુલ ક્રમાંકિત નમૂનાઓ.</string>
     <string name="max_ai_deck_decisions">નિર્ણય રેકોર્ડ</string>
     <string name="max_ai_deck_live_summary">ઘડિયાળ હેઠળ %1$d નોબ્સ અને %2$d માલિકીની — ચાલી રહેલ લૂપનો એનિમેટેડ વ્યૂ ખોલો.</string>
-    <string name="max_ai_section_profiles">આધાર પ્રોફાઇલ્સ</string>
-    <string name="max_ai_profile_active">લાગુ</string>
     <string name="max_ai_safety_engaged_title">થર્મલ સલામતી રોકાયેલ છે</string>
     <string name="max_ai_safety_critical_title">જટિલ તાપમાન</string>
     <string name="max_ai_safety_detail">ઇન્સ્ટોલ કર્યા પછી %1$s, %2$d હસ્તક્ષેપો માપવામાં આવ્યા.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">રેકોર્ડ કરેલ એપ્લિકેશન સંદર્ભ</string>
     <string name="max_ai_journal_all_contexts">બધા સંદર્ભો</string>
     <string name="max_ai_exploration_inactive">કોઈ વર્તમાન સંશોધન મંજૂરી નથી: AI બંધ છે અથવા નવા મૂલ્યાંકન ચક્રની રાહ જોઈ રહ્યું છે.</string>
-    <string name="max_ai_profile_request">નવીનતમ પ્રોફાઇલ વિનંતી</string>
-    <string name="max_ai_profile_applying">પ્રોફાઇલ લાગુ કરી રહ્યા છીએ. બીજી વિનંતી મોકલતા પહેલા પરિણામની રાહ જુઓ.</string>
-    <string name="max_ai_profile_verified">લાગુ અને ચકાસાયેલ.</string>
-    <string name="max_ai_profile_executed">આદેશ પૂર્ણ; હાર્ડવેર ચકાસણી પુષ્ટિ થયેલ નથી.</string>
-    <string name="max_ai_profile_adjusted">નિયંત્રણ વિમાન દ્વારા સમાયોજિત. રેકોર્ડ કરેલ પરિણામ તપાસો.</string>
-    <string name="max_ai_profile_blocked">થર્મલ સલામતી દ્વારા અવરોધિત. કોઈ સફળતાનો દાવો નથી.</string>
-    <string name="max_ai_profile_skipped">વિનંતી છોડી દીધી. કોઈ નવી પ્રોફાઇલની પુષ્ટિ થઈ નથી.</string>
-    <string name="max_ai_profile_failed">વિનંતી નિષ્ફળ ગઈ. ફરી પ્રયાસ કરતા પહેલા નિર્ણય રેકોર્ડની તપાસ કરો.</string>
     <string name="max_live_plan_snapshot">છેલ્લી મૂલ્યાંકન કરેલ યોજના, વર્તમાન પ્રવૃત્તિ નહીં</string>
     <string name="max_ai_learning_coverage">શીખવાનું કવરેજ %1$d%%</string>
     <string name="max_ai_cycle_running">ઉપકરણનું મૂલ્યાંકન</string>

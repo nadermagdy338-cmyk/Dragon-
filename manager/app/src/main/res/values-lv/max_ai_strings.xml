@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Performance</string>
     <string name="max_ai_objective_pick_balanced">Līdzsvarots</string>
     <string name="max_ai_objective_pick_battery">Akumulators</string>
-    <string name="max_ai_profile_row_desc">Pamatprofili paliek manuāli un tiek piemēroti nekavējoties; tās nav AI pogas.</string>
     <string name="max_ai_refresh">Palaidiet ciklu tūlīt</string>
     <string name="max_ai_refresh_desc">Izmēriet, plānojiet un rīkojieties vienreiz, nevis gaidiet 30. gadu ciklu.</string>
     <string name="max_ai_counters">Lēmumi %1$d · pārbaudīti %2$d · pielāgoti %3$d · bloķēti drošībai %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d pogām ir izmērīts spriedums · %2$d šķiroti paraugi kopā.</string>
     <string name="max_ai_deck_decisions">Lēmuma ieraksts</string>
     <string name="max_ai_deck_live_summary">%1$d pogas zem skatīšanās un %2$d pieder — atveriet skriešanas cilpas animēto skatu.</string>
-    <string name="max_ai_section_profiles">Pamata profili</string>
-    <string name="max_ai_profile_active">Pielietots</string>
     <string name="max_ai_safety_engaged_title">Ieslēgta termiskā drošība</string>
     <string name="max_ai_safety_critical_title">Kritiskā temperatūra</string>
     <string name="max_ai_safety_detail">Izmērītas %1$s, %2$d iejaukšanās kopš instalēšanas.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Ierakstīts lietotnes konteksts</string>
     <string name="max_ai_journal_all_contexts">Visi konteksti</string>
     <string name="max_ai_exploration_inactive">Nav pašreizēja izpētes apstiprinājuma: AI ir izslēgts vai gaida jaunu novērtēto ciklu.</string>
-    <string name="max_ai_profile_request">Jaunākais profila pieprasījums</string>
-    <string name="max_ai_profile_applying">Profila pielietošana. Pirms cita pieprasījuma nosūtīšanas pagaidiet rezultātu.</string>
-    <string name="max_ai_profile_verified">Pielietots un pārbaudīts.</string>
-    <string name="max_ai_profile_executed">Komanda izpildīta; aparatūras pārbaude nav apstiprināta.</string>
-    <string name="max_ai_profile_adjusted">Pielāgo vadības plakne. Pārbaudiet ierakstīto rezultātu.</string>
-    <string name="max_ai_profile_blocked">Bloķēja termiskā drošība. Par panākumiem netiek apgalvots.</string>
-    <string name="max_ai_profile_skipped">Pieprasījums izlaists. Jauns profils netika apstiprināts.</string>
-    <string name="max_ai_profile_failed">Pieprasījums neizdevās. Pirms atkārtotas mēģinājuma pārbaudiet lēmuma ierakstu.</string>
     <string name="max_live_plan_snapshot">Pēdējais novērtētais plāns, nevis pašreizējā darbība</string>
     <string name="max_ai_learning_coverage">Mācību pārklājums %1$d%%</string>
     <string name="max_ai_cycle_running">Ierīces novērtēšana</string>

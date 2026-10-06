@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Výkon</string>
     <string name="max_ai_objective_pick_balanced">Vyvážený</string>
     <string name="max_ai_objective_pick_battery">Batéria</string>
-    <string name="max_ai_profile_row_desc">Základné profily zostávajú manuálne a aplikujú sa okamžite; nie sú to gombíky AI.</string>
     <string name="max_ai_refresh">Teraz spustite cyklus</string>
     <string name="max_ai_refresh_desc">Merajte, plánujte a konajte raz namiesto čakania na cyklus 30 rokov.</string>
     <string name="max_ai_counters">Rozhodnutia %1$d · overené %2$d · upravené %3$d · zablokované pre bezpečnosť %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d gombíky nesú meraný verdikt · %2$d celkovo hodnotených vzoriek.</string>
     <string name="max_ai_deck_decisions">Záznam o rozhodnutí</string>
     <string name="max_ai_deck_live_summary">%1$d gombíky pod hodinkami a %2$d vlastnené — otvorte animované zobrazenie bežiacej slučky.</string>
-    <string name="max_ai_section_profiles">Základné profily</string>
-    <string name="max_ai_profile_active">Aplikované</string>
     <string name="max_ai_safety_engaged_title">Zapojená tepelná bezpečnosť</string>
     <string name="max_ai_safety_critical_title">Kritická teplota</string>
     <string name="max_ai_safety_detail">Namerané %1$s, %2$d zásahy od inštalácie.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Zaznamenaný kontext aplikácie</string>
     <string name="max_ai_journal_all_contexts">Všetky súvislosti</string>
     <string name="max_ai_exploration_inactive">Žiadne aktuálne schválenie prieskumu: AI je vypnutá alebo čaká na nový vyhodnotený cyklus.</string>
-    <string name="max_ai_profile_request">Najnovšia žiadosť o profil</string>
-    <string name="max_ai_profile_applying">Aplikácia profilu. Pred odoslaním ďalšej žiadosti počkajte na výsledok.</string>
-    <string name="max_ai_profile_verified">Aplikované a overené.</string>
-    <string name="max_ai_profile_executed">Príkaz dokončený; overenie hardvéru nie je potvrdené.</string>
-    <string name="max_ai_profile_adjusted">Upravené riadiacou rovinou. Skontrolujte zaznamenaný výsledok.</string>
-    <string name="max_ai_profile_blocked">Blokované tepelnou bezpečnosťou. Žiadny úspech sa netvrdí.</string>
-    <string name="max_ai_profile_skipped">Žiadosť bola preskočená. Žiadny nový profil nebol potvrdený.</string>
-    <string name="max_ai_profile_failed">Žiadosť zlyhala. Pred opätovným pokusom skontrolujte záznam o rozhodnutí.</string>
     <string name="max_live_plan_snapshot">Posledný hodnotený plán, nie aktuálna činnosť</string>
     <string name="max_ai_learning_coverage">Pokrytie vzdelávania %1$d%%</string>
     <string name="max_ai_cycle_running">Hodnotenie zariadenia</string>

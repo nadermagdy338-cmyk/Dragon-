@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Performanţă</string>
     <string name="max_ai_objective_pick_balanced">Echilibrat</string>
     <string name="max_ai_objective_pick_battery">Baterie</string>
-    <string name="max_ai_profile_row_desc">Profilele de bază rămân manuale și se aplică imediat; nu sunt butoane AI.</string>
     <string name="max_ai_refresh">Rulați un ciclu acum</string>
     <string name="max_ai_refresh_desc">Măsurați, planificați și acționați o dată în loc să așteptați ciclul de 30 de ani.</string>
     <string name="max_ai_counters">Decizii %1$d · verificate %2$d · ajustate %3$d · blocate pentru siguranță %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">Butoanele %1$d poartă un verdict măsurat · %2$d eșantioane gradate în total.</string>
     <string name="max_ai_deck_decisions">Dosarul deciziei</string>
     <string name="max_ai_deck_live_summary">Butoanele %1$d sub supraveghere și %2$d deținute — deschideți vizualizarea animată a buclei de rulare.</string>
-    <string name="max_ai_section_profiles">Profiluri de bază</string>
-    <string name="max_ai_profile_active">Aplicat</string>
     <string name="max_ai_safety_engaged_title">Siguranta termica activata</string>
     <string name="max_ai_safety_critical_title">Temperatura critică</string>
     <string name="max_ai_safety_detail">Intervenții măsurate %1$s, %2$d de la instalare.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Contextul aplicației înregistrate</string>
     <string name="max_ai_journal_all_contexts">Toate contextele</string>
     <string name="max_ai_exploration_inactive">Nicio aprobare de explorare actuală: AI este oprită sau așteaptă un nou ciclu de evaluare.</string>
-    <string name="max_ai_profile_request">Ultima cerere de profil</string>
-    <string name="max_ai_profile_applying">Aplicarea unui profil. Așteptați rezultatul înainte de a trimite o altă solicitare.</string>
-    <string name="max_ai_profile_verified">Aplicat și verificat.</string>
-    <string name="max_ai_profile_executed">Comanda finalizată; verificarea hardware nu este confirmată.</string>
-    <string name="max_ai_profile_adjusted">Ajustat de planul de control. Verificați rezultatul înregistrat.</string>
-    <string name="max_ai_profile_blocked">Blocat de siguranta termica. Nu se pretinde niciun succes.</string>
-    <string name="max_ai_profile_skipped">Solicitarea a fost omisă. Niciun profil nou nu a fost confirmat.</string>
-    <string name="max_ai_profile_failed">Solicitarea a eșuat. Inspectați înregistrarea deciziei înainte de a reîncerca.</string>
     <string name="max_live_plan_snapshot">Ultimul plan evaluat, nu activitatea curentă</string>
     <string name="max_ai_learning_coverage">Acoperire de învățare %1$d%%</string>
     <string name="max_ai_cycle_running">Evaluarea dispozitivului</string>

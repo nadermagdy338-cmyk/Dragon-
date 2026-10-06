@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">ការសម្តែង</string>
     <string name="max_ai_objective_pick_balanced">មានតុល្យភាព</string>
     <string name="max_ai_objective_pick_battery">ថ្ម</string>
-    <string name="max_ai_profile_row_desc">ទម្រង់មូលដ្ឋានរក្សាដោយដៃ ហើយត្រូវបានអនុវត្តភ្លាមៗ។ ពួកគេមិនមែនជា AI knobs ទេ។</string>
     <string name="max_ai_refresh">រត់​រង្វង់​មួយ​ឥឡូវ​នេះ។</string>
     <string name="max_ai_refresh_desc">វាស់វែង រៀបចំផែនការ និងធ្វើសកម្មភាពម្តង ជំនួសឱ្យការរង់ចាំវដ្ត 30s ។</string>
     <string name="max_ai_counters">ការសម្រេចចិត្ត %1$d · បានផ្ទៀងផ្ទាត់ %2$d · កែសម្រួល %3$d · ទប់ស្កាត់សុវត្ថិភាព %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knobs អនុវត្តសាលក្រមវាស់វែង · %2$d គំរូដែលបានដាក់ពិន្ទុសរុប។</string>
     <string name="max_ai_deck_decisions">កំណត់ត្រាការសម្រេចចិត្ត</string>
     <string name="max_ai_deck_live_summary">ប៊ូតុង %1$d នៅក្រោមនាឡិកា និង %2$d ជាកម្មសិទ្ធិ — បើកទិដ្ឋភាពមានចលនានៃរង្វិលជុំដែលកំពុងដំណើរការ។</string>
-    <string name="max_ai_section_profiles">ទម្រង់មូលដ្ឋាន</string>
-    <string name="max_ai_profile_active">បានអនុវត្ត</string>
     <string name="max_ai_safety_engaged_title">សុវត្ថិភាពកម្ដៅបានចូលរួម</string>
     <string name="max_ai_safety_critical_title">សីតុណ្ហភាពសំខាន់</string>
     <string name="max_ai_safety_detail">បានវាស់វែង %1$s, %2$d អន្តរាគមន៍ចាប់តាំងពីដំឡើង។</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">បរិបទកម្មវិធីដែលបានកត់ត្រា</string>
     <string name="max_ai_journal_all_contexts">បរិបទទាំងអស់។</string>
     <string name="max_ai_exploration_inactive">គ្មានការយល់ព្រមលើការរុករកបច្ចុប្បន្នទេ៖ AI ត្រូវបានបិទ ឬកំពុងរង់ចាំវដ្តនៃការវាយតម្លៃថ្មី។</string>
-    <string name="max_ai_profile_request">សំណើប្រវត្តិរូបចុងក្រោយ</string>
-    <string name="max_ai_profile_applying">ការអនុវត្តទម្រង់។ រង់ចាំលទ្ធផលមុនពេលផ្ញើសំណើផ្សេងទៀត។</string>
-    <string name="max_ai_profile_verified">បានអនុវត្ត និងផ្ទៀងផ្ទាត់។</string>
-    <string name="max_ai_profile_executed">ពាក្យបញ្ជាបានបញ្ចប់; ការផ្ទៀងផ្ទាត់ផ្នែករឹងមិនត្រូវបានបញ្ជាក់ទេ។</string>
-    <string name="max_ai_profile_adjusted">លៃតម្រូវដោយយន្តហោះគ្រប់គ្រង។ ពិនិត្យលទ្ធផលដែលបានកត់ត្រា។</string>
-    <string name="max_ai_profile_blocked">រារាំងដោយសុវត្ថិភាពកម្ដៅ។ គ្មានជោគជ័យត្រូវបានទាមទារទេ។</string>
-    <string name="max_ai_profile_skipped">សំណើត្រូវបានរំលង។ មិនមានប្រវត្តិរូបថ្មីត្រូវបានបញ្ជាក់ទេ។</string>
-    <string name="max_ai_profile_failed">សំណើបានបរាជ័យ។ ពិនិត្យកំណត់ត្រាការសម្រេចចិត្តមុនពេលព្យាយាមម្តងទៀត។</string>
     <string name="max_live_plan_snapshot">ផែនការដែលបានវាយតម្លៃចុងក្រោយ មិនមែនជាសកម្មភាពបច្ចុប្បន្នទេ។</string>
     <string name="max_ai_learning_coverage">ការគ្របដណ្តប់លើការសិក្សា %1$d%%</string>
     <string name="max_ai_cycle_running">ការវាយតម្លៃឧបករណ៍</string>

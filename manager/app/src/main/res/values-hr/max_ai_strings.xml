@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Performanse</string>
     <string name="max_ai_objective_pick_balanced">Uravnotežen</string>
     <string name="max_ai_objective_pick_battery">Baterija</string>
-    <string name="max_ai_profile_row_desc">Osnovni profili ostaju ručni i nanose se odmah; nisu AI gumbi.</string>
     <string name="max_ai_refresh">Sada pokrenite ciklus</string>
     <string name="max_ai_refresh_desc">Mjerite, planirajte i djelujte jednom umjesto da čekate ciklus 30-ih.</string>
     <string name="max_ai_counters">Odluke %1$d · potvrđeno %2$d · prilagođeno %3$d · blokirano radi sigurnosti %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d gumbi nose izmjerenu ocjenu · %2$d ukupno ocijenjeni uzorci.</string>
     <string name="max_ai_deck_decisions">Zapisnik odluke</string>
     <string name="max_ai_deck_live_summary">%1$d gumbi pod nadzorom i %2$d u vlasništvu — otvorite animirani prikaz trkačke petlje.</string>
-    <string name="max_ai_section_profiles">Osnovni profili</string>
-    <string name="max_ai_profile_active">Primijenjeno</string>
     <string name="max_ai_safety_engaged_title">Uključena toplinska sigurnost</string>
     <string name="max_ai_safety_critical_title">Kritična temperatura</string>
     <string name="max_ai_safety_detail">Izmjereno %1$s, %2$d intervencija od instalacije.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Snimljeni kontekst aplikacije</string>
     <string name="max_ai_journal_all_contexts">Svi konteksti</string>
     <string name="max_ai_exploration_inactive">Nema trenutačnog odobrenja za istraživanje: AI je isključen ili čeka novi ciklus procjene.</string>
-    <string name="max_ai_profile_request">Najnoviji zahtjev za profil</string>
-    <string name="max_ai_profile_applying">Primjena profila. Pričekajte rezultat prije slanja novog zahtjeva.</string>
-    <string name="max_ai_profile_verified">Primijenjeno i provjereno.</string>
-    <string name="max_ai_profile_executed">Naredba izvršena; provjera hardvera nije potvrđena.</string>
-    <string name="max_ai_profile_adjusted">Podešavanje kontrolnom ravninom. Provjerite snimljeni rezultat.</string>
-    <string name="max_ai_profile_blocked">Blokiran toplinskom sigurnošću. Ne tvrdi se uspjeh.</string>
-    <string name="max_ai_profile_skipped">Zahtjev preskočen. Nijedan novi profil nije potvrđen.</string>
-    <string name="max_ai_profile_failed">Zahtjev nije uspio. Provjerite zapis odluke prije ponovnog pokušaja.</string>
     <string name="max_live_plan_snapshot">Zadnji procijenjeni plan, a ne trenutna aktivnost</string>
     <string name="max_ai_learning_coverage">Pokrivenost učenja %1$d%%</string>
     <string name="max_ai_cycle_running">Ocjenjivanje uređaja</string>

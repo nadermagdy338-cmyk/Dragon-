@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Hiệu suất</string>
     <string name="max_ai_objective_pick_balanced">Cân bằng</string>
     <string name="max_ai_objective_pick_battery">Ắc quy</string>
-    <string name="max_ai_profile_row_desc">Hồ sơ cơ sở vẫn được hướng dẫn thủ công và được áp dụng ngay lập tức; chúng không phải là nút bấm AI.</string>
     <string name="max_ai_refresh">Chạy một chu kỳ bây giờ</string>
     <string name="max_ai_refresh_desc">Đo lường, lập kế hoạch và hành động một lần thay vì chờ đợi chu kỳ 30s.</string>
     <string name="max_ai_counters">Quyết định %1$d · đã xác minh %2$d · đã điều chỉnh %3$d · bị chặn vì an toàn %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d các nút mang kết quả đo được · Tổng cộng có %2$d mẫu được phân loại.</string>
     <string name="max_ai_deck_decisions">Hồ sơ quyết định</string>
     <string name="max_ai_deck_live_summary">%1$d các nút bên dưới đồng hồ và %2$d sở hữu — mở chế độ xem hoạt hình của vòng lặp đang chạy.</string>
-    <string name="max_ai_section_profiles">Hồ sơ cơ sở</string>
-    <string name="max_ai_profile_active">Đã áp dụng</string>
     <string name="max_ai_safety_engaged_title">An toàn nhiệt tham gia</string>
     <string name="max_ai_safety_critical_title">Nhiệt độ tới hạn</string>
     <string name="max_ai_safety_detail">Đã đo lường các biện pháp can thiệp %1$s, %2$d kể từ khi cài đặt.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Ngữ cảnh ứng dụng đã ghi</string>
     <string name="max_ai_journal_all_contexts">Tất cả bối cảnh</string>
     <string name="max_ai_exploration_inactive">Hiện tại không có phê duyệt thăm dò: AI đã tắt hoặc đang chờ chu kỳ đánh giá mới.</string>
-    <string name="max_ai_profile_request">Yêu cầu hồ sơ mới nhất</string>
-    <string name="max_ai_profile_applying">Áp dụng một hồ sơ. Chờ kết quả trước khi gửi yêu cầu khác.</string>
-    <string name="max_ai_profile_verified">Đã áp dụng và xác minh.</string>
-    <string name="max_ai_profile_executed">Lệnh hoàn thành; xác minh phần cứng không được xác nhận.</string>
-    <string name="max_ai_profile_adjusted">Điều chỉnh bằng mặt phẳng điều khiển. Kiểm tra kết quả đã ghi.</string>
-    <string name="max_ai_profile_blocked">Bị chặn bởi an toàn nhiệt. Không có thành công được tuyên bố.</string>
-    <string name="max_ai_profile_skipped">Yêu cầu bị bỏ qua. Không có hồ sơ mới nào được xác nhận.</string>
-    <string name="max_ai_profile_failed">Yêu cầu không thành công. Kiểm tra hồ sơ quyết định trước khi thử lại.</string>
     <string name="max_live_plan_snapshot">Kế hoạch được đánh giá lần cuối, không phải hoạt động hiện tại</string>
     <string name="max_ai_learning_coverage">Phạm vi học tập %1$d%%</string>
     <string name="max_ai_cycle_running">Đánh giá thiết bị</string>

@@ -135,7 +135,6 @@
     <string name="max_ai_objective_pick_performance">প্ৰদৰ্শন</string>
     <string name="max_ai_objective_pick_balanced">সুষম</string>
     <string name="max_ai_objective_pick_battery">বেটাৰি</string>
-    <string name="max_ai_profile_row_desc">ভিত্তি আলেখ্যনসমূহ হাতৰ দ্বাৰা থাকে আৰু তৎক্ষণাত প্ৰয়োগ কৰা হয়; সেইবোৰ এআই নব নহয়।</string>
     <string name="max_ai_refresh">এতিয়াই এটা চাইকেল চলাওক</string>
     <string name="max_ai_refresh_desc">৩০ৰ দশকৰ চক্ৰলৈ অপেক্ষা কৰাৰ পৰিৱৰ্তে এবাৰ জোখ-মাখ, পৰিকল্পনা কৰক আৰু কাম কৰক।</string>
     <string name="max_ai_counters">সিদ্ধান্তসমূহ %1$d · পৰীক্ষা কৰা হৈছে %2$d · সামঞ্জস্য কৰা হৈছে %3$d · সুৰক্ষাৰ বাবে ব্লক কৰা হৈছে %4$d</string>
@@ -145,8 +144,6 @@
     <string name="max_ai_deck_learning_row">%1$d নববোৰে এটা জুখি উলিওৱা ৰায়দান কঢ়িয়াই লৈ ফুৰে · মুঠতে %2$d গ্ৰেড কৰা নমুনা।</string>
     <string name="max_ai_deck_decisions">সিদ্ধান্তৰ অভিলেখ</string>
     <string name="max_ai_deck_live_summary">%1$d নবসমূহ ঘড়ীৰ অধীনত আৰু %2$d মালিকানাধীন — চলি থকা লুপৰ এনিমেটেড দৃশ্য খোলক।</string>
-    <string name="max_ai_section_profiles">ভিত্তি আলেখ্যনসমূহ</string>
-    <string name="max_ai_profile_active">প্ৰয়োগ কৰা হৈছে</string>
     <string name="max_ai_safety_engaged_title">তাপীয় সুৰক্ষা নিয়োজিত</string>
     <string name="max_ai_safety_critical_title">জটিল উষ্ণতা</string>
     <string name="max_ai_safety_detail">ইনষ্টল কৰাৰ পিছত %1$s, %2$d হস্তক্ষেপ জুখিব পাৰি।</string>
@@ -264,14 +261,6 @@
     <string name="max_ai_journal_context">ৰেকৰ্ড কৰা এপ প্ৰসংগ</string>
     <string name="max_ai_journal_all_contexts">সকলো প্ৰসংগ</string>
     <string name="max_ai_exploration_inactive">বৰ্তমানৰ কোনো অন্বেষণৰ অনুমোদন নাই: AI বন্ধ বা সতেজ মূল্যায়ন কৰা চক্ৰৰ বাবে অপেক্ষা কৰি আছে।</string>
-    <string name="max_ai_profile_request">শেহতীয়া প্ৰ\'ফাইল অনুৰোধ</string>
-    <string name="max_ai_profile_applying">এটা প্ৰফাইল প্ৰয়োগ কৰা। আন এটা অনুৰোধ পঠোৱাৰ আগতে ফলাফলৰ বাবে অপেক্ষা কৰক।</string>
-    <string name="max_ai_profile_verified">প্ৰয়োগ আৰু পৰীক্ষা কৰা হৈছে।</string>
-    <string name="max_ai_profile_executed">আদেশ সম্পূৰ্ণ হৈছে; হাৰ্ডৱেৰ সত্যাপন নিশ্চিত কৰা হোৱা নাই।</string>
-    <string name="max_ai_profile_adjusted">নিয়ন্ত্ৰণ সমতলৰ দ্বাৰা সামঞ্জস্য কৰা হয়। ৰেকৰ্ড কৰা ফলাফল পৰীক্ষা কৰক।</string>
-    <string name="max_ai_profile_blocked">তাপীয় সুৰক্ষাৰ দ্বাৰা বাধাপ্ৰাপ্ত। কোনো সফলতাৰ দাবী কৰা হোৱা নাই।</string>
-    <string name="max_ai_profile_skipped">অনুৰোধ এৰি দিয়া হৈছে। কোনো নতুন প্ৰফাইল নিশ্চিত কৰা হোৱা নাছিল।</string>
-    <string name="max_ai_profile_failed">অনুৰোধ বিফল হ’ল। পুনৰ চেষ্টা কৰাৰ আগতে সিদ্ধান্তৰ ৰেকৰ্ড পৰীক্ষা কৰক।</string>
     <string name="max_live_plan_snapshot">শেষৰ মূল্যায়ন কৰা পৰিকল্পনা, বৰ্তমানৰ কাৰ্যকলাপ নহয়</string>
     <string name="max_ai_learning_coverage">শিক্ষণ কভাৰেজ %1$d%%</string>
     <string name="max_ai_cycle_running">ডিভাইচটোৰ মূল্যায়ন কৰা</string>

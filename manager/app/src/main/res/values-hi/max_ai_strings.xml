@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">प्रदर्शन</string>
     <string name="max_ai_objective_pick_balanced">संतुलित</string>
     <string name="max_ai_objective_pick_battery">बैटरी</string>
-    <string name="max_ai_profile_row_desc">बेस प्रोफाइल मैनुअल रहते हैं और तुरंत लागू होते हैं; वे एआई नॉब नहीं हैं।</string>
     <string name="max_ai_refresh">अब एक चक्र चलाओ</string>
     <string name="max_ai_refresh_desc">30 के चक्र की प्रतीक्षा करने के बजाय एक बार मापें, योजना बनाएं और कार्य करें।</string>
     <string name="max_ai_counters">निर्णय %1$d · सत्यापित %2$d · समायोजित %3$d · सुरक्षा के लिए अवरुद्ध %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d नॉब्स एक मापा निर्णय लेते हैं · %2$d कुल मिलाकर वर्गीकृत नमूने।</string>
     <string name="max_ai_deck_decisions">निर्णय अभिलेख</string>
     <string name="max_ai_deck_live_summary">निगरानी के तहत %1$d नॉब और %2$d स्वामित्व - रनिंग लूप का एनिमेटेड दृश्य खोलें।</string>
-    <string name="max_ai_section_profiles">आधार प्रोफाइल</string>
-    <string name="max_ai_profile_active">लागू</string>
     <string name="max_ai_safety_engaged_title">थर्मल सुरक्षा लगी हुई है</string>
     <string name="max_ai_safety_critical_title">गंभीर तापमान</string>
     <string name="max_ai_safety_detail">स्थापना के बाद से मापे गए %1$s, %2$d हस्तक्षेप।</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">रिकॉर्ड किया गया ऐप संदर्भ</string>
     <string name="max_ai_journal_all_contexts">सभी प्रसंग</string>
     <string name="max_ai_exploration_inactive">कोई वर्तमान अन्वेषण अनुमोदन नहीं: एआई बंद है या नए मूल्यांकन चक्र की प्रतीक्षा कर रहा है।</string>
-    <string name="max_ai_profile_request">नवीनतम प्रोफ़ाइल अनुरोध</string>
-    <string name="max_ai_profile_applying">प्रोफ़ाइल लागू करना. दूसरा अनुरोध भेजने से पहले परिणाम की प्रतीक्षा करें।</string>
-    <string name="max_ai_profile_verified">लागू और सत्यापित.</string>
-    <string name="max_ai_profile_executed">आदेश पूरा हुआ; हार्डवेयर सत्यापन की पुष्टि नहीं हुई है.</string>
-    <string name="max_ai_profile_adjusted">नियंत्रण विमान द्वारा समायोजित. रिकॉर्ड किए गए परिणाम की जाँच करें.</string>
-    <string name="max_ai_profile_blocked">थर्मल सुरक्षा द्वारा अवरुद्ध. किसी सफलता का दावा नहीं किया गया है.</string>
-    <string name="max_ai_profile_skipped">अनुरोध छोड़ दिया गया. किसी नई प्रोफ़ाइल की पुष्टि नहीं की गई.</string>
-    <string name="max_ai_profile_failed">अनुरोध विफल रहा. पुनः प्रयास करने से पहले निर्णय रिकॉर्ड का निरीक्षण करें।</string>
     <string name="max_live_plan_snapshot">अंतिम मूल्यांकन योजना, वर्तमान गतिविधि नहीं</string>
     <string name="max_ai_learning_coverage">सीखने का कवरेज %1$d%%</string>
     <string name="max_ai_cycle_running">डिवाइस का मूल्यांकन</string>

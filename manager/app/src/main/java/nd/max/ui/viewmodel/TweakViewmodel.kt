@@ -41,6 +41,7 @@ import nd.max.core.hardware.RootFileAccess
 import nd.max.core.jni.ProbeBridge
 import nd.max.ui.util.BackupManager
 import nd.max.ui.util.ConfigBackupInventory
+import nd.max.ui.util.HardwareChoice
 import nd.max.ui.util.MaxPrefsBundle
 import nd.max.core.platform.PropertyUtils
 
@@ -63,26 +64,23 @@ class TweakViewModel : ViewModel() {
 
 
     var liteState by mutableStateOf<Boolean?>(null)
+    // ── اختيار واحد لكل مقبض (شاشة الحكام) ────────────────────────────────────
+    // كان لكل مقبض ثلاثة فهارس (متوازن/أداء/توفير) فيُقرأ ثلاثة أرقام لحقيقة واحدة،
+    // وصار فهرس واحد **من النواة** لكل مقبض؛ والكتابة تذهب للملامح الثلاثة معًا
+    // ثم تُطبَّق فورًا — فلا يعيد تبديلُ الملف العام قيمةً اختارها المستخدم.
     var availableGovernors by mutableStateOf<List<String>?>(null)
-    var defaultGovIndex by mutableStateOf<Int?>(null)
-    var powersaveGovIndex by mutableStateOf<Int?>(null)
-    var performanceGovIndex by mutableStateOf<Int?>(null)
+    var cpuGovIndex by mutableStateOf<Int?>(null)
     var freqOffsetIndex by mutableStateOf<Float?>(null)
     val offsetLabels = listOf("Disabled", "90%", "80%", "70%", "60%", "50%", "40%") // These are used as values for PropertyUtils, so we should keep them as is or map them
 
 
     var availableIOSchedulers by mutableStateOf<List<String>?>(null)
-    var balancedIOIndex by mutableStateOf<Int?>(null)
-    var performanceIOIndex by mutableStateOf<Int?>(null)
-    var powersaveIOIndex by mutableStateOf<Int?>(null)
-    
+    var ioSchedulerIndex by mutableStateOf<Int?>(null)
 
     var isMaliGpuAvailable by mutableStateOf<Boolean?>(null)
     var availableMaliGovernors by mutableStateOf<List<String>?>(null)
-    var balancedMaliGovIndex by mutableStateOf<Int?>(null)
-    var performanceMaliGovIndex by mutableStateOf<Int?>(null)
-    var powersaveMaliGovIndex by mutableStateOf<Int?>(null)
-    
+    var maliGovIndex by mutableStateOf<Int?>(null)
+
 
 
     var preloadState by mutableStateOf<Boolean?>(null)
@@ -354,31 +352,23 @@ class TweakViewModel : ViewModel() {
         }
     }
 
-    /**
-     * المعرّف الرقمي للملف الشخصي المطبَّق الآن (ملفٌ يقرأه الخادم ويكتبه).
-     *
-     * وهذه العقدة الواحدة تُقرأ **تسع مرّات** في هذا الملف (عند كل تغيير حاكم/جدولة)، وكانت
-     * كل قراءة صدفة كاملة (`cat`) — صارت قراءةً واحدة عبر الطبقة الموحّدة:
-     * قارئ أصلي ← IPC الجذر ← ملف ← صدفة.
-     */
-    private fun currentProfileId(): String? =
-        RootFileAccess.read("/data/adb/.config/MaxManager/API/current_profile")
+    // قراءة `API/current_profile` أُزيلت من هنا مع إزالة شرط «هل الملف الساري هو هذا
+    // الملف؟»: الشاشة لم تعد تكتب قيمة لملف بعينه، فلم يبقَ قارئ لها في هذا الملف.
 
     private fun loadGovernorsInternal() {
         val govs = RootFileAccess.read("/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors")
             ?.split("\\s+".toRegex())
             .orEmpty()
         if (govs.isNotEmpty()) {
-            val currentDefault = PropertyUtils.get(MaxManagerProps.Governor.CPU_CUSTOM_DEFAULT).ifEmpty {
+            // الحيّ من السياسة الأولى (العنقود الأدنى يكتبه النظام على البقية عند التغيير)،
+            // والخصيصة بديل مصرَّح قبل افتراض الأول.
+            val live = RootFileAccess.read("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor")
+            val saved = PropertyUtils.get(MaxManagerProps.Governor.CPU_CUSTOM_DEFAULT).ifEmpty {
                 PropertyUtils.get(MaxManagerProps.Governor.CPU_DEFAULT)
             }
-            val currentPowersave = PropertyUtils.get(MaxManagerProps.Governor.CPU_CUSTOM_POWERSAVE)
-            val currentPerformance = PropertyUtils.get(MaxManagerProps.Governor.CPU_CUSTOM_PERFORMANCE)
 
             availableGovernors = govs
-            defaultGovIndex = govs.indexOf(currentDefault).coerceAtLeast(0)
-            powersaveGovIndex = govs.indexOf(currentPowersave).coerceAtLeast(0)
-            performanceGovIndex = govs.indexOf(currentPerformance).coerceAtLeast(0)
+            cpuGovIndex = HardwareChoice.indexOf(govs, live, saved)
         } else {
             availableGovernors = emptyList()
         }
@@ -397,17 +387,17 @@ class TweakViewModel : ViewModel() {
             val rawOut = RootFileAccess.read("/sys/block/$validBlock/queue/scheduler")
             if (rawOut != null) {
                 val schedulers = rawOut.replace("[", "").replace("]", "").trim().split("\\s+".toRegex())
-
-                val currentBal = PropertyUtils.get(MaxManagerProps.Governor.IO_CUSTOM_DEFAULT).ifEmpty {
-                    PropertyUtils.get(MaxManagerProps.Governor.IO_DEFAULT)
-                }
-                val currentPerf = PropertyUtils.get(MaxManagerProps.Governor.IO_CUSTOM_PERFORMANCE)
-                val currentEco = PropertyUtils.get(MaxManagerProps.Governor.IO_CUSTOM_POWERSAVE)
+                // السارية هي ما بين قوسين في العقدة نفسها — نفس نصّ النواة لا خصيصة قد تكون قديمة.
+                val live = HardwareChoice.bracketed(rawOut)
+                    .orEmpty()
+                    .ifEmpty { PropertyUtils.get(MaxManagerProps.Governor.IO_CUSTOM_DEFAULT) }
 
                 availableIOSchedulers = schedulers
-                balancedIOIndex = schedulers.indexOf(currentBal).coerceAtLeast(0)
-                performanceIOIndex = schedulers.indexOf(currentPerf).coerceAtLeast(0)
-                powersaveIOIndex = schedulers.indexOf(currentEco).coerceAtLeast(0)
+                ioSchedulerIndex = HardwareChoice.indexOf(
+                    schedulers,
+                    live,
+                    PropertyUtils.get(MaxManagerProps.Governor.IO_DEFAULT),
+                )
             } else {
                 availableIOSchedulers = emptyList()
             }
@@ -433,12 +423,30 @@ class TweakViewModel : ViewModel() {
             .filterNot { it.startsWith("apu", ignoreCase = true) }
     }
 
+    /**
+     * الحاكم **الحيّ** لـmali من عقدة `governor` للمجلد نفسه الذي تُقرأ منه القائمة.
+     * و`null` = «لا جواب» (لا مسار، أو لا تُقرأ العقدة) — فيُصرَّح بالبديل في المتصل.
+     */
+    private fun nativeMaliLive(): String? {
+        val dirs = ProbeBridge.listNames("/sys/class/devfreq")?.filter { it.endsWith(".mali") }
+        if (dirs.isNullOrEmpty()) return null
+        val readings = ProbeBridge.readMany(dirs.map { "/sys/class/devfreq/$it/governor" }) ?: return null
+        return readings.firstOrNull { !it.isNullOrBlank() }?.trim()
+    }
+
     /** الاحتياطي المصرَّح: صدفة `cat` مع glob — و`null` عند فشلها (دلالة `isSuccess` القديمة). */
     private fun legacyMaliGovernors(): List<String>? {
         val govResult = Shell.cmd("cat /sys/class/devfreq/*.mali/available_governors").exec()
         if (!govResult.isSuccess) return null
         return govResult.out.firstOrNull()?.trim()?.split("\\s+".toRegex())
             ?.filterNot { it.startsWith("apu", ignoreCase = true) } ?: emptyList()
+    }
+
+    /** الاحتياطي المصرَّح للحيّ: نفس صدفة القراءة بالمجلدات — و`null` عند أي فشل. */
+    private fun legacyMaliLive(): String? {
+        val result = Shell.cmd("cat /sys/class/devfreq/*.mali/governor").exec()
+        if (!result.isSuccess) return null
+        return result.out.firstOrNull { it.isNotBlank() }?.trim()
     }
 
     private fun loadMaliGovernorsInternal() {
@@ -455,16 +463,13 @@ class TweakViewModel : ViewModel() {
             val govs = nativeMaliGovernors() ?: legacyMaliGovernors()
 
             if (govs != null) {
-                val currentBal = PropertyUtils.get(MaxManagerProps.Governor.MALIGPU_CUSTOM_DEFAULT).ifEmpty {
+                val live = nativeMaliLive() ?: legacyMaliLive()
+                val saved = PropertyUtils.get(MaxManagerProps.Governor.MALIGPU_CUSTOM_DEFAULT).ifEmpty {
                     PropertyUtils.get(MaxManagerProps.Governor.MALIGPU_DEFAULT)
                 }
-                val currentPerf = PropertyUtils.get(MaxManagerProps.Governor.MALIGPU_CUSTOM_PERFORMANCE)
-                val currentEco = PropertyUtils.get(MaxManagerProps.Governor.MALIGPU_CUSTOM_POWERSAVE)
 
                 availableMaliGovernors = govs
-                balancedMaliGovIndex = govs.indexOf(currentBal).coerceAtLeast(0)
-                performanceMaliGovIndex = govs.indexOf(currentPerf).coerceAtLeast(0)
-                powersaveMaliGovIndex = govs.indexOf(currentEco).coerceAtLeast(0)
+                maliGovIndex = HardwareChoice.indexOf(govs, live, saved)
             } else {
                 // نفس مسار `cat` الفاشل تمامًا: القائمة تُصفَّر، والفهارس لا تُمسّ.
                 availableMaliGovernors = emptyList()
@@ -483,39 +488,26 @@ class TweakViewModel : ViewModel() {
         }
     }
 
-    fun updateDefaultGovernor(index: Int) {
-        defaultGovIndex = index
+    /**
+     * حاكم المعالج: **قيمة واحدة** تُكتب للملامح الثلاثة ثم تُطبَّق فورًا.
+     *
+     * ولماذا الثلاثة معًا: الشاشة لم تعد تسأل «أيّ حاكم لملف كذا»، فلو كُتبت قيمة
+     * واحدة فقط لعاد المستخدم إلى الشاشة بعد تبديل الملف فيجد قيمةً لم يخترها — وهو
+     * نفس ما تشكو منه الإشعارات (حالة تُنسب لغير من اختارها). فالقيمة واحدة للملامح
+     * كلها، وتبديل الملف العام لا يغيّرها.
+     *
+     * والـ`if (currentProfile == …)` سقط عمدًا: كان التطبيق الفوري مشروطًا بأن يكون
+     * الملف الساري هو نفسه الملف الذي يملك الحقل — فمن اختار قيمة في غير ملفه الساري
+     * كان يراها محفوظة ولا أثر لها (شكوى «يظهر ولا يغيّر شيئًا»). الآن كل اختيار فعل.
+     */
+    fun updateCpuGovernor(index: Int) {
         val selectedGov = availableGovernors?.getOrNull(index) ?: return
+        cpuGovIndex = index
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.CPU_CUSTOM_DEFAULT, selectedGov)
-            val currentProfile = currentProfileId()
-            if (currentProfile == "2") {
-                Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsgov $selectedGov").exec()
-            }
-        }
-    }
-
-    fun updatePowersaveGovernor(index: Int) {
-        powersaveGovIndex = index
-        val selectedGov = availableGovernors?.getOrNull(index) ?: return
-        viewModelScope.launch(Dispatchers.IO) {
-            PropertyUtils.set(MaxManagerProps.Governor.CPU_CUSTOM_POWERSAVE, selectedGov)
-            val currentProfile = currentProfileId()
-            if (currentProfile == "3") {
-                Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsgov $selectedGov").exec()
-            }
-        }
-    }
-    
-    fun updatePerformanceGovernor(index: Int) {
-        performanceGovIndex = index
-        val selectedGov = availableGovernors?.getOrNull(index) ?: return
-        viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.CPU_CUSTOM_PERFORMANCE, selectedGov)
-            val currentProfile = currentProfileId()
-            if (currentProfile == "3") {
-                Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsgov $selectedGov").exec()
-            }
+            PropertyUtils.set(MaxManagerProps.Governor.CPU_CUSTOM_POWERSAVE, selectedGov)
+            Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsgov $selectedGov").exec()
         }
     }
 
@@ -529,76 +521,27 @@ class TweakViewModel : ViewModel() {
         }
     }
 
-    fun updateBalancedIO(index: Int) {
-        balancedIOIndex = index
+    /** جدولة الإدخال/الإخراج: قيمة واحدة للملامح الثلاثة، وتُكتب على أجهزة الكتل فورًا. */
+    fun updateIoScheduler(index: Int) {
         val selectedIO = availableIOSchedulers?.getOrNull(index) ?: return
+        ioSchedulerIndex = index
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.IO_CUSTOM_DEFAULT, selectedIO)
-            val currentProfile = currentProfileId()
-            if (currentProfile == "2") {
-                Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsIO $selectedIO").exec()
-            }
-        }
-    }
-
-    fun updatePerformanceIO(index: Int) {
-        performanceIOIndex = index
-        val selectedIO = availableIOSchedulers?.getOrNull(index) ?: return
-        viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.IO_CUSTOM_PERFORMANCE, selectedIO)
-            val currentProfile = currentProfileId()
-            if (currentProfile == "1") {
-                Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsIO $selectedIO").exec()
-            }
-        }
-    }
-
-    fun updatePowersaveIO(index: Int) {
-        powersaveIOIndex = index
-        val selectedIO = availableIOSchedulers?.getOrNull(index) ?: return
-        viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.IO_CUSTOM_POWERSAVE, selectedIO)
-            val currentProfile = currentProfileId()
-            if (currentProfile == "3") {
-                Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsIO $selectedIO").exec()
-            }
+            Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsIO $selectedIO").exec()
         }
     }
     
-    fun updateBalancedMaliGov(index: Int) {
-        balancedMaliGovIndex = index
+    /** حاكم رسوم Mali: قيمة واحدة للملامح الثلاثة، وتُكتب على عقدة devfreq فورًا. */
+    fun updateMaliGovernor(index: Int) {
         val selectedGov = availableMaliGovernors?.getOrNull(index) ?: return
+        maliGovIndex = index
         viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.MALIGPU_CUSTOM_DEFAULT, selectedGov)
-
-            val currentProfile = currentProfileId()
-            if (currentProfile == "2") {
-                Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsMaliGov $selectedGov").exec()
-            }
-        }
-    }
-
-    fun updatePerformanceMaliGov(index: Int) {
-        performanceMaliGovIndex = index
-        val selectedGov = availableMaliGovernors?.getOrNull(index) ?: return
-        viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.MALIGPU_CUSTOM_PERFORMANCE, selectedGov)
-            val currentProfile = currentProfileId()
-            if (currentProfile == "1") {
-                Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsMaliGov $selectedGov").exec()
-            }
-        }
-    }
-
-    fun updatePowersaveMaliGov(index: Int) {
-        powersaveMaliGovIndex = index
-        val selectedGov = availableMaliGovernors?.getOrNull(index) ?: return
-        viewModelScope.launch(Dispatchers.IO) {
             PropertyUtils.set(MaxManagerProps.Governor.MALIGPU_CUSTOM_POWERSAVE, selectedGov)
-            val currentProfile = currentProfileId()
-            if (currentProfile == "3") {
-                Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsMaliGov $selectedGov").exec()
-            }
+            Shell.cmd("/data/adb/modules/MaxManager/system/bin/sys.maxmanager-utilityconf setsMaliGov $selectedGov").exec()
         }
     }
 

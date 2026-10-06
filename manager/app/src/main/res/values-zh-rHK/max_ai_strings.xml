@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">表現</string>
     <string name="max_ai_objective_pick_balanced">均衡</string>
     <string name="max_ai_objective_pick_battery">電池</string>
-    <string name="max_ai_profile_row_desc">基本設定檔保持手動並立即應用；它們不是人工智慧旋鈕。</string>
     <string name="max_ai_refresh">現在運行一個循環</string>
     <string name="max_ai_refresh_desc">測量、計劃和行動一次，而不是等待 30 秒的週期。</string>
     <string name="max_ai_counters">決定 %1$d · 驗證 %2$d · 調整 %3$d · 為了安全而封鎖 %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d 旋鈕攜帶測量結果 · 總共 %2$d 分級樣本。</string>
     <string name="max_ai_deck_decisions">決策記錄</string>
     <string name="max_ai_deck_live_summary">手錶下的 %1$d 旋鈕和擁有的 %2$d 旋鈕 — 開啟運行循環的動畫視圖。</string>
-    <string name="max_ai_section_profiles">基本型材</string>
-    <string name="max_ai_profile_active">應用</string>
     <string name="max_ai_safety_engaged_title">熱安全已啟用</string>
     <string name="max_ai_safety_critical_title">臨界溫度</string>
     <string name="max_ai_safety_detail">自安裝以來測量了%1$s、%2$d介入。</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">記錄的應用程式上下文</string>
     <string name="max_ai_journal_all_contexts">所有上下文</string>
     <string name="max_ai_exploration_inactive">目前沒有勘探批准：人工智慧已關閉或正在等待新的評估週期。</string>
-    <string name="max_ai_profile_request">最新個人資料請求</string>
-    <string name="max_ai_profile_applying">應用設定檔。在發送另一個請求之前等待結果。</string>
-    <string name="max_ai_profile_verified">已應用並驗證。</string>
-    <string name="max_ai_profile_executed">命令完成；硬體驗證未確認。</string>
-    <string name="max_ai_profile_adjusted">由控制平面調整。檢查記錄的結果。</string>
-    <string name="max_ai_profile_blocked">被熱安全阻止。沒有聲稱成功。</string>
-    <string name="max_ai_profile_skipped">請求被跳過。沒有確認新的個人資料。</string>
-    <string name="max_ai_profile_failed">請求失敗。重試之前檢查決策記錄。</string>
     <string name="max_live_plan_snapshot">最後評估的計劃，而不是目前的活動</string>
     <string name="max_ai_learning_coverage">學習覆蓋率%1$d%%</string>
     <string name="max_ai_cycle_running">評估設備</string>

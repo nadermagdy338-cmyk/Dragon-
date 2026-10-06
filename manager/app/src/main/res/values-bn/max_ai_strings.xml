@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">কর্মক্ষমতা</string>
     <string name="max_ai_objective_pick_balanced">সুষম</string>
     <string name="max_ai_objective_pick_battery">ব্যাটারি</string>
-    <string name="max_ai_profile_row_desc">বেস প্রোফাইল ম্যানুয়াল থাকে এবং অবিলম্বে প্রয়োগ করা হয়; তারা AI knobs নয়।</string>
     <string name="max_ai_refresh">এখন একটি চক্র চালান</string>
     <string name="max_ai_refresh_desc">30 এর চক্রের জন্য অপেক্ষা করার পরিবর্তে একবার পরিমাপ করুন, পরিকল্পনা করুন এবং কাজ করুন।</string>
     <string name="max_ai_counters">সিদ্ধান্ত %1$d · যাচাইকৃত %2$d · সমন্বয় করা হয়েছে %3$d · নিরাপত্তার জন্য অবরুদ্ধ %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knobs একটি পরিমাপ রায় বহন করে · %2$d মোট গ্রেডেড নমুনা।</string>
     <string name="max_ai_deck_decisions">সিদ্ধান্ত রেকর্ড</string>
     <string name="max_ai_deck_live_summary">%1$d ঘড়ির নিচে নব এবং %2$d মালিকানাধীন — চলমান লুপের অ্যানিমেটেড ভিউ খুলুন।</string>
-    <string name="max_ai_section_profiles">বেস প্রোফাইল</string>
-    <string name="max_ai_profile_active">প্রয়োগ করা হয়েছে</string>
     <string name="max_ai_safety_engaged_title">নিযুক্ত তাপ নিরাপত্তা</string>
     <string name="max_ai_safety_critical_title">ক্রিটিক্যাল তাপমাত্রা</string>
     <string name="max_ai_safety_detail">ইনস্টল করার পর থেকে পরিমাপ করা %1$s, %2$d হস্তক্ষেপ।</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">রেকর্ড করা অ্যাপ প্রসঙ্গ</string>
     <string name="max_ai_journal_all_contexts">সমস্ত প্রসঙ্গ</string>
     <string name="max_ai_exploration_inactive">কোনো বর্তমান অনুসন্ধান অনুমোদন নেই: AI বন্ধ বা একটি নতুন মূল্যায়ন চক্রের জন্য অপেক্ষা করছে।</string>
-    <string name="max_ai_profile_request">সর্বশেষ প্রোফাইল অনুরোধ</string>
-    <string name="max_ai_profile_applying">একটি প্রোফাইল আবেদন. অন্য অনুরোধ পাঠানোর আগে ফলাফলের জন্য অপেক্ষা করুন।</string>
-    <string name="max_ai_profile_verified">প্রয়োগ এবং যাচাই করা হয়েছে.</string>
-    <string name="max_ai_profile_executed">আদেশ সম্পন্ন; হার্ডওয়্যার যাচাইকরণ নিশ্চিত করা হয়নি।</string>
-    <string name="max_ai_profile_adjusted">নিয়ন্ত্রণ সমতল দ্বারা সামঞ্জস্য. রেকর্ড করা ফলাফল পরীক্ষা করুন.</string>
-    <string name="max_ai_profile_blocked">তাপ নিরাপত্তা দ্বারা অবরুদ্ধ. কোন সাফল্য দাবি করা হয় না.</string>
-    <string name="max_ai_profile_skipped">অনুরোধ এড়িয়ে গেছে। কোন নতুন প্রোফাইল নিশ্চিত করা হয়নি.</string>
-    <string name="max_ai_profile_failed">অনুরোধ ব্যর্থ হয়েছে. পুনরায় চেষ্টা করার আগে সিদ্ধান্তের রেকর্ড পরিদর্শন করুন।</string>
     <string name="max_live_plan_snapshot">সর্বশেষ মূল্যায়ন করা পরিকল্পনা, বর্তমান কার্যকলাপ নয়</string>
     <string name="max_ai_learning_coverage">শেখার কভারেজ %1$d%%</string>
     <string name="max_ai_cycle_running">ডিভাইস মূল্যায়ন</string>

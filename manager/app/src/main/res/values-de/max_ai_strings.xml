@@ -46,14 +46,6 @@
     <string name="max_ai_journal_context">Aufgezeichneter App-Kontext</string>
     <string name="max_ai_journal_all_contexts">Alle Kontexte</string>
     <string name="max_ai_exploration_inactive">Keine aktuelle Erkundungsgenehmigung: Die KI ist aus oder wartet auf einen frisch ausgewerteten Zyklus.</string>
-    <string name="max_ai_profile_request">Letzte Profil-Anfrage</string>
-    <string name="max_ai_profile_applying">Ein Profil wird angewendet. Warte auf das Ergebnis, bevor du eine weitere Anfrage sendest.</string>
-    <string name="max_ai_profile_verified">Angewendet und verifiziert.</string>
-    <string name="max_ai_profile_executed">Befehl abgeschlossen; die Hardware-Verifizierung ist nicht bestätigt.</string>
-    <string name="max_ai_profile_adjusted">Von der Steuerebene angepasst. Prüfe das aufgezeichnete Ergebnis.</string>
-    <string name="max_ai_profile_blocked">Von der Thermosicherung blockiert. Kein Erfolg wird behauptet.</string>
-    <string name="max_ai_profile_skipped">Anfrage übersprungen. Kein neues Profil wurde bestätigt.</string>
-    <string name="max_ai_profile_failed">Die Anfrage ist fehlgeschlagen. Prüfe den Entscheidungseintrag, bevor du es erneut versuchst.</string>
     <string name="max_live_plan_snapshot">Zuletzt ausgewerteter Plan, nicht aktuelle Aktivität</string>
     <string name="max_ai_learning_coverage">Lernabdeckung %1$d%%</string>
     <string name="max_ai_cycle_running">Gerät wird ausgewertet</string>
@@ -198,7 +190,6 @@
     <string name="max_ai_objective_pick_performance">Leistung</string>
     <string name="max_ai_objective_pick_balanced">Ausgewogen</string>
     <string name="max_ai_objective_pick_battery">Akku</string>
-    <string name="max_ai_profile_row_desc">Basisprofile bleiben manuell und werden sofort angewendet; sie sind keine KI-Regler.</string>
     <string name="max_ai_refresh">Jetzt einen Zyklus ausführen</string>
     <string name="max_ai_refresh_desc">Einmal messen, planen und handeln, statt auf den 30-s-Zyklus zu warten.</string>
     <string name="max_ai_counters">Entscheidungen %1$d · verifiziert %2$d · angepasst %3$d · aus Sicherheit blockiert %4$d</string>
@@ -208,8 +199,6 @@
     <string name="max_ai_deck_learning_row">%1$d Regler tragen einen gemessenen Befund · insgesamt %2$d bewertete Stichproben.</string>
     <string name="max_ai_deck_decisions">Entscheidungsnachweis</string>
     <string name="max_ai_deck_live_summary">%1$d Regler unter Beobachtung und %2$d besessen — öffne die animierte Ansicht der laufenden Schleife.</string>
-    <string name="max_ai_section_profiles">Basisprofile</string>
-    <string name="max_ai_profile_active">Angewendet</string>
     <string name="max_ai_safety_engaged_title">Thermosicherung aktiv</string>
     <string name="max_ai_safety_critical_title">Kritische Temperatur</string>
     <string name="max_ai_safety_detail">Gemessen %1$s, %2$d Eingriffe seit Installation.</string>

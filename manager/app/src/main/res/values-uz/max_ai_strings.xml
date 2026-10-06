@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Ishlash</string>
     <string name="max_ai_objective_pick_balanced">Balanslangan</string>
     <string name="max_ai_objective_pick_battery">Batareya</string>
-    <string name="max_ai_profile_row_desc">Asosiy profillar qo\'lda qoladi va darhol qo\'llaniladi; ular AI tugmalari emas.</string>
     <string name="max_ai_refresh">Hozir tsiklni boshqaring</string>
     <string name="max_ai_refresh_desc">30-yillarning tsiklini kutish o\'rniga bir marta o\'lchang, rejalashtiring va harakat qiling.</string>
     <string name="max_ai_counters">Qarorlar %1$d · tasdiqlangan %2$d · sozlangan %3$d · xavfsizlik uchun bloklangan %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d tugmalari o\'lchangan hukmni olib yuradi · %2$d jami baholangan namunalar.</string>
     <string name="max_ai_deck_decisions">Qaror qaydnomasi</string>
     <string name="max_ai_deck_live_summary">Soat ostidagi %1$d tugmalari va %2$d egalari — yugurish siklining animatsion koʻrinishini oching.</string>
-    <string name="max_ai_section_profiles">Asosiy profillar</string>
-    <string name="max_ai_profile_active">Qo\'llaniladi</string>
     <string name="max_ai_safety_engaged_title">Issiqlik xavfsizligi yoqilgan</string>
     <string name="max_ai_safety_critical_title">Kritik harorat</string>
     <string name="max_ai_safety_detail">O\'rnatishdan beri o\'lchangan %1$s, %2$d aralashuvlar.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Yozib olingan ilova konteksti</string>
     <string name="max_ai_journal_all_contexts">Barcha kontekstlar</string>
     <string name="max_ai_exploration_inactive">Joriy tadqiqot tasdiqlanmagan: AI o\'chirilgan yoki yangi baholangan tsiklni kutmoqda.</string>
-    <string name="max_ai_profile_request">So\'nggi profil so\'rovi</string>
-    <string name="max_ai_profile_applying">Profilni qo\'llash. Boshqa so\'rov yuborishdan oldin natijani kuting.</string>
-    <string name="max_ai_profile_verified">Amalga oshirilgan va tasdiqlangan.</string>
-    <string name="max_ai_profile_executed">Buyruq bajarildi; apparat tekshiruvi tasdiqlanmagan.</string>
-    <string name="max_ai_profile_adjusted">Tekshirish tekisligi tomonidan sozlangan. Yozilgan natijani tekshiring.</string>
-    <string name="max_ai_profile_blocked">Termal xavfsizlik bilan bloklangan. Hech qanday muvaffaqiyat da\'vo qilinmaydi.</string>
-    <string name="max_ai_profile_skipped">So‘rov o‘tkazib yuborildi. Hech qanday yangi profil tasdiqlanmadi.</string>
-    <string name="max_ai_profile_failed">So‘rov bajarilmadi. Qayta urinishdan oldin qaror yozuvini tekshiring.</string>
     <string name="max_live_plan_snapshot">Joriy faoliyat emas, oxirgi baholangan reja</string>
     <string name="max_ai_learning_coverage">Ta\'lim qamrovi %1$d%%</string>
     <string name="max_ai_cycle_running">Qurilmani baholash</string>

@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">ການປະຕິບັດ</string>
     <string name="max_ai_objective_pick_balanced">ດຸ່ນດ່ຽງ</string>
     <string name="max_ai_objective_pick_battery">ແບັດເຕີຣີ</string>
-    <string name="max_ai_profile_row_desc">ໂປຼໄຟລ໌ພື້ນຖານຢູ່ຄູ່ມືແລະຖືກນໍາໃຊ້ທັນທີ; ພວກມັນບໍ່ແມ່ນລູກບິດ AI.</string>
     <string name="max_ai_refresh">ແລ່ນຮອບວຽນດຽວນີ້</string>
     <string name="max_ai_refresh_desc">ວັດແທກ, ວາງແຜນແລະປະຕິບັດຫນຶ່ງຄັ້ງແທນທີ່ຈະລໍຖ້າຮອບວຽນ 30s.</string>
     <string name="max_ai_counters">ການຕັດສິນໃຈ %1$d · ຢັ້ງຢືນ %2$d · ປັບ %3$d · ບລັອກເພື່ອຄວາມປອດໄພ %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d ລູກບິດປະຕິບັດຄໍາຕັດສິນທີ່ວັດແທກໄດ້ · %2$d ຄະແນນຕົວຢ່າງທັງໝົດ.</string>
     <string name="max_ai_deck_decisions">ບັນທຶກການຕັດສິນໃຈ</string>
     <string name="max_ai_deck_live_summary">%1$d knobs ພາຍໃຕ້ໂມງແລະ%2$dເປັນເຈົ້າຂອງ — ເປີດທັດສະນະເຄື່ອນໄຫວຂອງ loop ແລ່ນ.</string>
-    <string name="max_ai_section_profiles">ພື້ນຖານໂປຣໄຟລ໌</string>
-    <string name="max_ai_profile_active">ນຳໃຊ້ແລ້ວ</string>
     <string name="max_ai_safety_engaged_title">ຄວາມປອດໄພດ້ານຄວາມຮ້ອນມີສ່ວນຮ່ວມ</string>
     <string name="max_ai_safety_critical_title">ອຸນ​ຫະ​ພູມ​ທີ່​ສໍາ​ຄັນ​</string>
     <string name="max_ai_safety_detail">ວັດແທກ %1$s, %2$d ການແຊກແຊງນັບຕັ້ງແຕ່ການຕິດຕັ້ງ.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">ບັນທຶກເນື້ອຫາຂອງແອັບຯ</string>
     <string name="max_ai_journal_all_contexts">ສະພາບການທັງໝົດ</string>
     <string name="max_ai_exploration_inactive">ບໍ່ມີການອະນຸມັດການສຳຫຼວດໃນປັດຈຸບັນ: AI ຖືກປິດ ຫຼືລໍຖ້າການປະເມີນຮອບໃໝ່.</string>
-    <string name="max_ai_profile_request">ຄຳຮ້ອງຂໍໂປຣໄຟລ໌ຫຼ້າສຸດ</string>
-    <string name="max_ai_profile_applying">ກຳລັງນຳໃຊ້ໂປຣໄຟລ໌. ລໍຖ້າຜົນໄດ້ຮັບກ່ອນທີ່ຈະສົ່ງຄໍາຮ້ອງຂໍອື່ນ.</string>
-    <string name="max_ai_profile_verified">ນຳໃຊ້ ແລະ ຢັ້ງຢືນແລ້ວ.</string>
-    <string name="max_ai_profile_executed">ຄໍາສັ່ງສໍາເລັດ; ການຢັ້ງຢືນຮາດແວບໍ່ໄດ້ຖືກຢືນຢັນ.</string>
-    <string name="max_ai_profile_adjusted">ປັບໂດຍຍົນຄວບຄຸມ. ກວດເບິ່ງຜົນໄດ້ຮັບທີ່ບັນທຶກໄວ້.</string>
-    <string name="max_ai_profile_blocked">ຖືກບລັອກໂດຍຄວາມປອດໄພດ້ານຄວາມຮ້ອນ. ບໍ່ມີການອ້າງເອົາຜົນສໍາເລັດ.</string>
-    <string name="max_ai_profile_skipped">ຂ້າມຄຳຮ້ອງຂໍແລ້ວ. ບໍ່ມີການຢືນຢັນໂປຣໄຟລ໌ໃໝ່.</string>
-    <string name="max_ai_profile_failed">ການຮ້ອງຂໍລົ້ມເຫລວ. ກວດເບິ່ງບັນທຶກການຕັດສິນໃຈກ່ອນທີ່ຈະລອງອີກຄັ້ງ.</string>
     <string name="max_live_plan_snapshot">ແຜນການປະເມີນຫຼ້າສຸດ, ບໍ່ແມ່ນກິດຈະກໍາໃນປະຈຸບັນ</string>
     <string name="max_ai_learning_coverage">ການຄຸ້ມຄອງການຮຽນຮູ້ %1$d%%</string>
     <string name="max_ai_cycle_running">ການປະເມີນອຸປະກອນ</string>

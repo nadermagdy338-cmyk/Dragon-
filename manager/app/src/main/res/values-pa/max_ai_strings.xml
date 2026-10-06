@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">ਪ੍ਰਦਰਸ਼ਨ</string>
     <string name="max_ai_objective_pick_balanced">ਸੰਤੁਲਿਤ</string>
     <string name="max_ai_objective_pick_battery">ਬੈਟਰੀ</string>
-    <string name="max_ai_profile_row_desc">ਬੇਸ ਪ੍ਰੋਫਾਈਲ ਮੈਨੂਅਲ ਰਹਿੰਦੇ ਹਨ ਅਤੇ ਤੁਰੰਤ ਲਾਗੂ ਕੀਤੇ ਜਾਂਦੇ ਹਨ; ਉਹ AI knobs ਨਹੀਂ ਹਨ।</string>
     <string name="max_ai_refresh">ਹੁਣ ਇੱਕ ਚੱਕਰ ਚਲਾਓ</string>
     <string name="max_ai_refresh_desc">30 ਦੇ ਚੱਕਰ ਦੀ ਉਡੀਕ ਕਰਨ ਦੀ ਬਜਾਏ ਇੱਕ ਵਾਰ ਮਾਪੋ, ਯੋਜਨਾ ਬਣਾਓ ਅਤੇ ਕੰਮ ਕਰੋ।</string>
     <string name="max_ai_counters">ਫੈਸਲੇ %1$d · ਪ੍ਰਮਾਣਿਤ %2$d · ਵਿਵਸਥਿਤ %3$d · ਸੁਰੱਖਿਆ ਲਈ ਬਲੌਕ ਕੀਤਾ ਗਿਆ %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knobs ਇੱਕ ਮਾਪਿਆ ਫੈਸਲਾ ਲੈ ਕੇ ਜਾਂਦੇ ਹਨ · %2$d ਕੁੱਲ ਮਿਲਾ ਕੇ ਗ੍ਰੇਡ ਕੀਤੇ ਨਮੂਨੇ।</string>
     <string name="max_ai_deck_decisions">ਫੈਸਲੇ ਦਾ ਰਿਕਾਰਡ</string>
     <string name="max_ai_deck_live_summary">%1$d ਘੜੀ ਦੇ ਹੇਠਾਂ ਨੌਬਸ ਅਤੇ %2$d ਮਲਕੀਅਤ — ਚੱਲ ਰਹੇ ਲੂਪ ਦਾ ਐਨੀਮੇਟਡ ਦ੍ਰਿਸ਼ ਖੋਲ੍ਹੋ।</string>
-    <string name="max_ai_section_profiles">ਬੇਸ ਪ੍ਰੋਫਾਈਲ</string>
-    <string name="max_ai_profile_active">ਲਾਗੂ ਕੀਤਾ</string>
     <string name="max_ai_safety_engaged_title">ਥਰਮਲ ਸੁਰੱਖਿਆ ਵਿੱਚ ਲੱਗੇ ਹੋਏ ਹਨ</string>
     <string name="max_ai_safety_critical_title">ਨਾਜ਼ੁਕ ਤਾਪਮਾਨ</string>
     <string name="max_ai_safety_detail">ਸਥਾਪਿਤ ਹੋਣ ਤੋਂ ਬਾਅਦ ਮਾਪਿਆ ਗਿਆ %1$s, %2$d ਦਖਲ।</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">ਰਿਕਾਰਡ ਕੀਤਾ ਐਪ ਸੰਦਰਭ</string>
     <string name="max_ai_journal_all_contexts">ਸਾਰੇ ਪ੍ਰਸੰਗ</string>
     <string name="max_ai_exploration_inactive">ਕੋਈ ਮੌਜੂਦਾ ਖੋਜ ਦੀ ਮਨਜ਼ੂਰੀ ਨਹੀਂ: AI ਬੰਦ ਹੈ ਜਾਂ ਨਵੇਂ ਮੁਲਾਂਕਣ ਕੀਤੇ ਚੱਕਰ ਦੀ ਉਡੀਕ ਕਰ ਰਿਹਾ ਹੈ।</string>
-    <string name="max_ai_profile_request">ਨਵੀਨਤਮ ਪ੍ਰੋਫਾਈਲ ਬੇਨਤੀ</string>
-    <string name="max_ai_profile_applying">ਇੱਕ ਪ੍ਰੋਫਾਈਲ ਲਾਗੂ ਕਰਨਾ. ਇੱਕ ਹੋਰ ਬੇਨਤੀ ਭੇਜਣ ਤੋਂ ਪਹਿਲਾਂ ਨਤੀਜੇ ਦੀ ਉਡੀਕ ਕਰੋ।</string>
-    <string name="max_ai_profile_verified">ਲਾਗੂ ਅਤੇ ਤਸਦੀਕ.</string>
-    <string name="max_ai_profile_executed">ਹੁਕਮ ਪੂਰਾ ਹੋਇਆ; ਹਾਰਡਵੇਅਰ ਤਸਦੀਕ ਦੀ ਪੁਸ਼ਟੀ ਨਹੀਂ ਹੋਈ ਹੈ।</string>
-    <string name="max_ai_profile_adjusted">ਕੰਟਰੋਲ ਪਲੇਨ ਦੁਆਰਾ ਵਿਵਸਥਿਤ. ਰਿਕਾਰਡ ਕੀਤੇ ਨਤੀਜੇ ਦੀ ਜਾਂਚ ਕਰੋ।</string>
-    <string name="max_ai_profile_blocked">ਥਰਮਲ ਸੁਰੱਖਿਆ ਦੁਆਰਾ ਬਲੌਕ ਕੀਤਾ ਗਿਆ ਹੈ. ਕੋਈ ਸਫਲਤਾ ਦਾ ਦਾਅਵਾ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ।</string>
-    <string name="max_ai_profile_skipped">ਬੇਨਤੀ ਛੱਡ ਦਿੱਤੀ ਗਈ। ਕਿਸੇ ਨਵੇਂ ਪ੍ਰੋਫਾਈਲ ਦੀ ਪੁਸ਼ਟੀ ਨਹੀਂ ਹੋਈ।</string>
-    <string name="max_ai_profile_failed">ਬੇਨਤੀ ਅਸਫਲ ਰਹੀ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਫੈਸਲੇ ਦੇ ਰਿਕਾਰਡ ਦੀ ਜਾਂਚ ਕਰੋ।</string>
     <string name="max_live_plan_snapshot">ਆਖਰੀ ਮੁਲਾਂਕਣ ਕੀਤੀ ਯੋਜਨਾ, ਮੌਜੂਦਾ ਗਤੀਵਿਧੀ ਨਹੀਂ</string>
     <string name="max_ai_learning_coverage">ਸਿਖਲਾਈ ਕਵਰੇਜ %1$d%%</string>
     <string name="max_ai_cycle_running">ਡਿਵਾਈਸ ਦਾ ਮੁਲਾਂਕਣ ਕਰ ਰਿਹਾ ਹੈ</string>

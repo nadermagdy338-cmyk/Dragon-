@@ -81,13 +81,6 @@ class MaxAiViewModel @Inject constructor(
         engine.setAiEnabled(enabled)
     }
 
-    /** اختيار ملف أساس يدوي يُطبَّق فورًا عبر حد التوافق الخارجي. */
-    fun requestProfile(profileId: String, label: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            engine.requestManualProfile(profileId, label)
-        }
-    }
-
     /** إجبار دورة محرك فورية لتحديث الحالة المعروضة بلا انتطار. */
     fun refresh() {
         if (refreshJob?.isActive == true) return

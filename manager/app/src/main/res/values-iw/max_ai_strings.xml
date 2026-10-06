@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">ביצועים</string>
     <string name="max_ai_objective_pick_balanced">מְאוּזָן</string>
     <string name="max_ai_objective_pick_battery">סוֹלְלָה</string>
-    <string name="max_ai_profile_row_desc">פרופילי הבסיס נשארים ידניים ומוחלים באופן מיידי; הם לא ידיות AI.</string>
     <string name="max_ai_refresh">הפעל מחזור עכשיו</string>
     <string name="max_ai_refresh_desc">מדוד, תכנן ופעל פעם אחת במקום לחכות למחזור שנות ה-30.</string>
     <string name="max_ai_counters">החלטות %1$d · מאומתות %2$d · מותאמת %3$d · חסומות לבטיחות %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d כפתורים נושאים פסק דין מדוד · %2$d דגימות מדורגות בסך הכל.</string>
     <string name="max_ai_deck_decisions">תיעוד החלטות</string>
     <string name="max_ai_deck_live_summary">%1$d כפתורים תחת מעקב ו%2$d בבעלות - פתח את התצוגה המונפשת של לולאת הריצה.</string>
-    <string name="max_ai_section_profiles">פרופילי בסיס</string>
-    <string name="max_ai_profile_active">הוחל</string>
     <string name="max_ai_safety_engaged_title">בטיחות תרמית מופעלת</string>
     <string name="max_ai_safety_critical_title">טמפרטורה קריטית</string>
     <string name="max_ai_safety_detail">נמדדו התערבויות של %1$s, %2$d מאז ההתקנה.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">ההקשר של האפליקציה מתועד</string>
     <string name="max_ai_journal_all_contexts">כל ההקשרים</string>
     <string name="max_ai_exploration_inactive">אין אישור חקר נוכחי: AI כבוי או ממתין למחזור מוערך חדש.</string>
-    <string name="max_ai_profile_request">בקשת הפרופיל האחרונה</string>
-    <string name="max_ai_profile_applying">החלת פרופיל. המתן לתוצאה לפני שליחת בקשה נוספת.</string>
-    <string name="max_ai_profile_verified">הוחל ומאומת.</string>
-    <string name="max_ai_profile_executed">הפקודה הושלמה; אימות החומרה אינו מאושר.</string>
-    <string name="max_ai_profile_adjusted">מותאם על ידי מישור הבקרה. בדוק את התוצאה המוקלטת.</string>
-    <string name="max_ai_profile_blocked">חסום על ידי בטיחות תרמית. לא טוענים להצלחה.</string>
-    <string name="max_ai_profile_skipped">הבקשה דילגה. לא אושר פרופיל חדש.</string>
-    <string name="max_ai_profile_failed">הבקשה נכשלה. בדוק את רשומת ההחלטה לפני שתנסה שוב.</string>
     <string name="max_live_plan_snapshot">תוכנית מוערכת אחרונה, לא פעילות נוכחית</string>
     <string name="max_ai_learning_coverage">כיסוי למידה %1$d%%</string>
     <string name="max_ai_cycle_running">הערכת המכשיר</string>

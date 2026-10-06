@@ -136,7 +136,6 @@
     <string name="max_ai_objective_pick_performance">Performance</string>
     <string name="max_ai_objective_pick_balanced">салмактуу</string>
     <string name="max_ai_objective_pick_battery">Батарея</string>
-    <string name="max_ai_profile_row_desc">Негизги профилдер кол менен калат жана дароо колдонулат; алар AI баскычтары эмес.</string>
     <string name="max_ai_refresh">Азыр циклди иштетиңиз</string>
     <string name="max_ai_refresh_desc">30-жылдардын циклин күтпөстөн, өлчөө, пландоо жана бир жолу аракет кылуу.</string>
     <string name="max_ai_counters">Чечимдер %1$d · текшерилген %2$d · туураланган %3$d · коопсуздук үчүн бөгөттөлгөн %4$d</string>
@@ -146,8 +145,6 @@
     <string name="max_ai_deck_learning_row">%1$d баскычтар өлчөнгөн өкүмдү алып жүрүшөт · %2$d бааланган үлгүлөрдү жалпысынан.</string>
     <string name="max_ai_deck_decisions">Чечим жазуу</string>
     <string name="max_ai_deck_live_summary">Саат астындагы %1$d баскычтар жана %2$d таандык — чуркоо циклинин анимацияланган көрүнүшүн ачыңыз.</string>
-    <string name="max_ai_section_profiles">Негизги профилдер</string>
-    <string name="max_ai_profile_active">Колдонулган</string>
     <string name="max_ai_safety_engaged_title">Жылуулук коопсуздугу орнотулган</string>
     <string name="max_ai_safety_critical_title">Критикалык температура</string>
     <string name="max_ai_safety_detail">Орнотуудан бери ченелген %1$s, %2$d кийлигишүүлөр.</string>
@@ -265,14 +262,6 @@
     <string name="max_ai_journal_context">Жазылган колдонмо контексти</string>
     <string name="max_ai_journal_all_contexts">Бардык контексттер</string>
     <string name="max_ai_exploration_inactive">Учурда чалгындоо иштерине уруксат жок: AI өчүк же жаңы бааланган циклди күтүп жатат.</string>
-    <string name="max_ai_profile_request">Акыркы профиль сурамы</string>
-    <string name="max_ai_profile_applying">Профиль колдонулууда. Башка сурам жөнөтүүдөн мурун жыйынтыкты күтүңүз.</string>
-    <string name="max_ai_profile_verified">Колдонулган жана текшерилген.</string>
-    <string name="max_ai_profile_executed">Команда аткарылды; аппараттык текшерүү тастыкталган эмес.</string>
-    <string name="max_ai_profile_adjusted">Башкаруучу тегиздик менен жөнгө салынат. Жазылган натыйжаны текшерүү.</string>
-    <string name="max_ai_profile_blocked">Термикалык коопсуздук менен бөгөттөлгөн. Эч кандай ийгилик талап кылынбайт.</string>
-    <string name="max_ai_profile_skipped">Өтүнүч өткөрүлүп жиберилди. Жаңы профиль тастыкталган жок.</string>
-    <string name="max_ai_profile_failed">Сурам ишке ашкан жок. Кайра аракет кылуудан мурун чечим жазуусун текшериңиз.</string>
     <string name="max_live_plan_snapshot">Акыркы бааланган план, учурдагы иш эмес</string>
     <string name="max_ai_learning_coverage">Окууну камтуу %1$d%%</string>
     <string name="max_ai_cycle_running">Аппаратты баалоо</string>

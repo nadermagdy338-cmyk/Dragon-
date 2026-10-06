@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">प्रदर्शन</string>
     <string name="max_ai_objective_pick_balanced">सन्तुलित</string>
     <string name="max_ai_objective_pick_battery">ब्याट्री</string>
-    <string name="max_ai_profile_row_desc">आधार प्रोफाइलहरू म्यानुअल रहन्छन् र तुरुन्तै लागू हुन्छन्; तिनीहरू AI knobs होइनन्।</string>
     <string name="max_ai_refresh">अब साइकल चलाउनुहोस्</string>
     <string name="max_ai_refresh_desc">30s चक्रको लागि पर्खनुको सट्टा एक पटक मापन गर्नुहोस्, योजना गर्नुहोस् र कार्य गर्नुहोस्।</string>
     <string name="max_ai_counters">निर्णयहरू %1$d · प्रमाणित %2$d · समायोजित %3$d · सुरक्षाको लागि अवरुद्ध %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knobs मापन गरिएको निर्णय हो · %2$d कुलमा वर्गीकृत नमूनाहरू।</string>
     <string name="max_ai_deck_decisions">निर्णय रेकर्ड</string>
     <string name="max_ai_deck_live_summary">%1$d घडी अन्तर्गत knobs र %2$d स्वामित्वमा — चलिरहेको लूपको एनिमेटेड दृश्य खोल्नुहोस्।</string>
-    <string name="max_ai_section_profiles">आधार प्रोफाइलहरू</string>
-    <string name="max_ai_profile_active">लागू गरियो</string>
     <string name="max_ai_safety_engaged_title">थर्मल सुरक्षा संलग्न</string>
     <string name="max_ai_safety_critical_title">क्रिटिकल तापमान</string>
     <string name="max_ai_safety_detail">मापन गरिएको %1$s, %2$d हस्तक्षेपहरू स्थापना पछि।</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">रेकर्ड गरिएको एप सन्दर्भ</string>
     <string name="max_ai_journal_all_contexts">सबै सन्दर्भहरू</string>
     <string name="max_ai_exploration_inactive">कुनै हालको अन्वेषण अनुमोदन छैन: AI बन्द छ वा नयाँ मूल्याङ्कन चक्र पर्खिरहेको छ।</string>
-    <string name="max_ai_profile_request">नवीनतम प्रोफाइल अनुरोध</string>
-    <string name="max_ai_profile_applying">प्रोफाइल लागू गर्दै। अर्को अनुरोध पठाउनु अघि परिणामको लागि पर्खनुहोस्।</string>
-    <string name="max_ai_profile_verified">लागू र प्रमाणित।</string>
-    <string name="max_ai_profile_executed">आदेश पूरा भयो; हार्डवेयर प्रमाणिकरण पुष्टि भएको छैन।</string>
-    <string name="max_ai_profile_adjusted">नियन्त्रण विमान द्वारा समायोजित। रेकर्ड परिणाम जाँच गर्नुहोस्।</string>
-    <string name="max_ai_profile_blocked">थर्मल सुरक्षा द्वारा अवरुद्ध। कुनै सफलताको दाबी गरिएको छैन।</string>
-    <string name="max_ai_profile_skipped">अनुरोध छोडियो। कुनै नयाँ प्रोफाइल पुष्टि भएन।</string>
-    <string name="max_ai_profile_failed">अनुरोध असफल भयो। पुन: प्रयास गर्नु अघि निर्णय रेकर्ड निरीक्षण गर्नुहोस्।</string>
     <string name="max_live_plan_snapshot">पछिल्लो मूल्याङ्कन गरिएको योजना, हालको गतिविधि होइन</string>
     <string name="max_ai_learning_coverage">सिक्ने कवरेज %1$d%%</string>
     <string name="max_ai_cycle_running">यन्त्रको मूल्याङ्कन गर्दै</string>

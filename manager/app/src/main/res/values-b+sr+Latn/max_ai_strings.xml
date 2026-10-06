@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Перформансе</string>
     <string name="max_ai_objective_pick_balanced">Баланцед</string>
     <string name="max_ai_objective_pick_battery">Батерија</string>
-    <string name="max_ai_profile_row_desc">Основни профили остају ручни и одмах се примењују; нису АИ дугмад.</string>
     <string name="max_ai_refresh">Покрените циклус сада</string>
     <string name="max_ai_refresh_desc">Измерите, планирајте и делујте једном уместо да чекате циклус од 30-их.</string>
     <string name="max_ai_counters">Одлуке %1$d · верификоване %2$d · прилагођене %3$d · блокиране ради безбедности %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d дугмад носе одмерену пресуду · %2$d оцењени узорци укупно.</string>
     <string name="max_ai_deck_decisions">Записник о одлуци</string>
     <string name="max_ai_deck_live_summary">%1$d дугмад испод сата и %2$d у власништву — отворите анимирани приказ петље за трчање.</string>
-    <string name="max_ai_section_profiles">Основни профили</string>
-    <string name="max_ai_profile_active">Примењено</string>
     <string name="max_ai_safety_engaged_title">Термичка сигурност укључена</string>
     <string name="max_ai_safety_critical_title">Критична температура</string>
     <string name="max_ai_safety_detail">Измерено %1$s, %2$d интервенција од инсталирања.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Контекст снимљене апликације</string>
     <string name="max_ai_journal_all_contexts">Сви контексти</string>
     <string name="max_ai_exploration_inactive">Нема тренутног одобрења за истраживање: АИ је искључен или чека нови циклус процене.</string>
-    <string name="max_ai_profile_request">Најновији захтев за профил</string>
-    <string name="max_ai_profile_applying">Примена профила. Сачекајте резултат пре него што пошаљете други захтев.</string>
-    <string name="max_ai_profile_verified">Примењено и проверено.</string>
-    <string name="max_ai_profile_executed">Команда завршена; верификација хардвера није потврђена.</string>
-    <string name="max_ai_profile_adjusted">Подешава се контролном равнином. Проверите снимљени резултат.</string>
-    <string name="max_ai_profile_blocked">Блокирано термичком безбедношћу. Нема успеха.</string>
-    <string name="max_ai_profile_skipped">Захтев је прескочен. Ниједан нови профил није потврђен.</string>
-    <string name="max_ai_profile_failed">Захтев није успео. Прегледајте записник одлуке пре поновног покушаја.</string>
     <string name="max_live_plan_snapshot">Последњи процењени план, а не тренутна активност</string>
     <string name="max_ai_learning_coverage">Покривеност учењем %1$d%%</string>
     <string name="max_ai_cycle_running">Процена уређаја</string>

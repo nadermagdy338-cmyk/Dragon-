@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">کارکردگی</string>
     <string name="max_ai_objective_pick_balanced">متوازن</string>
     <string name="max_ai_objective_pick_battery">بیٹری</string>
-    <string name="max_ai_profile_row_desc">بیس پروفائلز دستی رہتے ہیں اور فوری طور پر لاگو ہوتے ہیں۔ وہ AI knobs نہیں ہیں۔</string>
     <string name="max_ai_refresh">اب ایک سائیکل چلائیں۔</string>
     <string name="max_ai_refresh_desc">30s سائیکل کا انتظار کرنے کے بجائے ایک بار پیمائش کریں، منصوبہ بنائیں اور عمل کریں۔</string>
     <string name="max_ai_counters">فیصلے %1$d · تصدیق شدہ %2$d · ایڈجسٹ %3$d · حفاظت کے لیے مسدود %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d knobs میں پیمائش شدہ فیصلہ ہوتا ہے · %2$d مجموعی طور پر درجہ بندی کے نمونے۔</string>
     <string name="max_ai_deck_decisions">فیصلے کا ریکارڈ</string>
     <string name="max_ai_deck_live_summary">%1$d گھڑی کے نیچے knobs اور %2$d ملکیت — رننگ لوپ کا متحرک منظر کھولیں۔</string>
-    <string name="max_ai_section_profiles">بیس پروفائلز</string>
-    <string name="max_ai_profile_active">لاگو</string>
     <string name="max_ai_safety_engaged_title">تھرمل سیفٹی مصروف ہے۔</string>
     <string name="max_ai_safety_critical_title">نازک درجہ حرارت</string>
     <string name="max_ai_safety_detail">انسٹال ہونے کے بعد سے ماپا گیا %1$s، %2$d مداخلتیں۔</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">ریکارڈ شدہ ایپ سیاق و سباق</string>
     <string name="max_ai_journal_all_contexts">تمام سیاق و سباق</string>
     <string name="max_ai_exploration_inactive">کوئی موجودہ ایکسپلوریشن کی منظوری نہیں: AI بند ہے یا ایک تازہ تشخیص شدہ سائیکل کا انتظار کر رہا ہے۔</string>
-    <string name="max_ai_profile_request">تازہ ترین پروفائل کی درخواست</string>
-    <string name="max_ai_profile_applying">پروفائل کا اطلاق کرنا۔ دوسری درخواست بھیجنے سے پہلے نتیجہ کا انتظار کریں۔</string>
-    <string name="max_ai_profile_verified">لاگو اور تصدیق شدہ۔</string>
-    <string name="max_ai_profile_executed">کمانڈ مکمل؛ ہارڈ ویئر کی تصدیق کی تصدیق نہیں ہوئی ہے۔</string>
-    <string name="max_ai_profile_adjusted">کنٹرول ہوائی جہاز کی طرف سے ایڈجسٹ. ریکارڈ شدہ نتیجہ چیک کریں۔</string>
-    <string name="max_ai_profile_blocked">تھرمل سیفٹی کی طرف سے مسدود. کامیابی کا دعویٰ نہیں کیا جاتا۔</string>
-    <string name="max_ai_profile_skipped">درخواست چھوڑ دی گئی۔ کسی نئے پروفائل کی تصدیق نہیں ہوئی۔</string>
-    <string name="max_ai_profile_failed">درخواست ناکام ہوگئی۔ دوبارہ کوشش کرنے سے پہلے فیصلے کے ریکارڈ کا معائنہ کریں۔</string>
     <string name="max_live_plan_snapshot">آخری جائزہ شدہ منصوبہ، موجودہ سرگرمی نہیں۔</string>
     <string name="max_ai_learning_coverage">سیکھنے کی کوریج %1$d%%</string>
     <string name="max_ai_cycle_running">ڈیوائس کا اندازہ لگانا</string>

@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Производительность</string>
     <string name="max_ai_objective_pick_balanced">Сбалансированный</string>
     <string name="max_ai_objective_pick_battery">Батарея</string>
-    <string name="max_ai_profile_row_desc">Базовые профили остаются ручными и применяются немедленно; это не ручки AI.</string>
     <string name="max_ai_refresh">Запустите цикл сейчас</string>
     <string name="max_ai_refresh_desc">Измеряйте, планируйте и действуйте один раз, вместо того, чтобы ждать 30-летнего цикла.</string>
     <string name="max_ai_counters">Решения %1$d · проверено %2$d · скорректировано %3$d · заблокировано в целях безопасности %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">Ручки %1$d выносят взвешенный вердикт · Всего образцов с оценкой %2$d.</string>
     <string name="max_ai_deck_decisions">Запись решения</string>
     <string name="max_ai_deck_live_summary">Ручки %1$d под часами и %2$d в собственности — открывают анимированное представление текущего цикла.</string>
-    <string name="max_ai_section_profiles">Базовые профили</string>
-    <string name="max_ai_profile_active">Применяемый</string>
     <string name="max_ai_safety_engaged_title">Включена тепловая безопасность</string>
     <string name="max_ai_safety_critical_title">Критическая температура</string>
     <string name="max_ai_safety_detail">Измерено %1$s, %2$d вмешательств с момента установки.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Записанный контекст приложения</string>
     <string name="max_ai_journal_all_contexts">Все контексты</string>
     <string name="max_ai_exploration_inactive">Нет текущего разрешения на разведку: ИИ выключен или ожидает нового цикла оценки.</string>
-    <string name="max_ai_profile_request">Последний запрос профиля</string>
-    <string name="max_ai_profile_applying">Применение профиля. Дождитесь результата, прежде чем отправлять еще один запрос.</string>
-    <string name="max_ai_profile_verified">Применено и проверено.</string>
-    <string name="max_ai_profile_executed">Команда выполнена; аппаратная проверка не подтверждена.</string>
-    <string name="max_ai_profile_adjusted">Регулируется плоскостью управления. Проверьте записанный результат.</string>
-    <string name="max_ai_profile_blocked">Блокировано термобезопасностью. Никакого успеха не заявлено.</string>
-    <string name="max_ai_profile_skipped">Запрос пропущен. Ни один новый профиль не был подтвержден.</string>
-    <string name="max_ai_profile_failed">Запрос не удался. Прежде чем повторить попытку, проверьте запись решения.</string>
     <string name="max_live_plan_snapshot">Последний оцененный план, а не текущая деятельность</string>
     <string name="max_ai_learning_coverage">Охват обучением %1$d%%</string>
     <string name="max_ai_cycle_running">Оценка устройства</string>

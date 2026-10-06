@@ -21,6 +21,41 @@ internal fun sampleFreshness(sampleAtMs: Long, nowMs: Long): SampleFreshness = w
     else -> SampleFreshness.Stale
 }
 
+/**
+ * الهدف **الفاعل** كما يقاس من الأوزان المنشورة، لا كما اختاره المستخدم.
+ *
+ * ولماذا هو مطلوب: قسم «ما يوازنه الآن» كان يعرض تفضيل المستخدم وحده، بينما المحرك يختار
+ * هدفًا آخر حين تكون الشاشة مطفأة أو حين يتقدّم التعلّم على التفضيل (`MaxAiEngine.cycle`).
+ * فالقارئ كان يرى اختياره ويظنّه ما يجري. والاشتقاق من `Objective.labelFor` **نفس** الدالة
+ * التي يستعملها المحرك لحفظ التفضيل — فلا تعريف ثانٍ ينحرف عن الأول.
+ */
+internal enum class ObjectiveTone { Performance, Balanced, Battery }
+
+/**
+ * رموز الهدف كما يُخرجها المحرك ([nd.max.core.maxai.Objective.labelFor]) — عقد في مكان واحد.
+ *
+ * ووُجدت كثوابت لأن الواجهة تقرأ الرمز ولا تُنشئ هدفًا: تمريرها عبر `String` يجعل المُسند
+ * **خالصًا وقابلًا للقياس بلا أندرويد**، وعقد التقاطع مع المصدر يُفرض في اختبار الوحدة.
+ */
+internal object ObjectiveLabels {
+    const val PERFORMANCE = "performance"
+    const val BALANCED = "balanced"
+    const val BATTERY = "battery"
+}
+
+/**
+ * الوسم المعروض للهدف الذي **يقيسه المحرك الآن** (من `Objective.labelFor(weights)`).
+ *
+ * ورمز لا نعرفه يُعرض «متوازن» لا صفرًا ولا فراغًا: أوزان لا تُطابق الثلاثة المعروفة لا
+ * تعني هدفًا رابعًا بل عقدًا تغيّر، والوسط أصدق تسمية من لا شيء.
+ */
+internal fun activeObjective(label: String?): ObjectiveTone? = when (label) {
+    null -> null
+    ObjectiveLabels.PERFORMANCE -> ObjectiveTone.Performance
+    ObjectiveLabels.BATTERY -> ObjectiveTone.Battery
+    else -> ObjectiveTone.Balanced
+}
+
 /** Preserve the selected app when contexts are re-ranked by new evidence. */
 internal fun selectedLearningContext(selected: String?, contexts: List<String>): String? =
     selected?.takeIf { it in contexts } ?: contexts.firstOrNull()

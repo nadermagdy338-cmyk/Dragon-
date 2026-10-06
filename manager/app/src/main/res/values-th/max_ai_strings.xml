@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">ผลงาน</string>
     <string name="max_ai_objective_pick_balanced">สมดุล</string>
     <string name="max_ai_objective_pick_battery">แบตเตอรี่</string>
-    <string name="max_ai_profile_row_desc">โปรไฟล์ฐานยังคงเป็นแบบแมนนวลและนำไปใช้ทันที พวกมันไม่ใช่ปุ่ม AI</string>
     <string name="max_ai_refresh">วิ่งวงจรตอนนี้</string>
     <string name="max_ai_refresh_desc">วัดผล วางแผน และดำเนินการเพียงครั้งเดียว แทนที่จะรอถึงรอบ 30 ปี</string>
     <string name="max_ai_counters">การตัดสินใจ %1$d · ตรวจสอบแล้ว %2$d · ปรับ %3$d · ถูกบล็อกเพื่อความปลอดภัย %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d ปุ่มหมุนมีคำตัดสินที่วัดได้ · %2$d ตัวอย่างที่ให้คะแนนทั้งหมด</string>
     <string name="max_ai_deck_decisions">บันทึกการตัดสินใจ</string>
     <string name="max_ai_deck_live_summary">%1$d ปุ่มใต้นาฬิกาและ %2$d เป็นเจ้าของ — เปิดมุมมองแบบเคลื่อนไหวของลูปที่กำลังวิ่ง</string>
-    <string name="max_ai_section_profiles">โปรไฟล์พื้นฐาน</string>
-    <string name="max_ai_profile_active">สมัครแล้ว</string>
     <string name="max_ai_safety_engaged_title">ความปลอดภัยทางความร้อนมีส่วนร่วม</string>
     <string name="max_ai_safety_critical_title">อุณหภูมิวิกฤต</string>
     <string name="max_ai_safety_detail">วัด %1$s, %2$d การแทรกแซงตั้งแต่การติดตั้ง</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">บริบทแอปที่บันทึกไว้</string>
     <string name="max_ai_journal_all_contexts">บริบททั้งหมด</string>
     <string name="max_ai_exploration_inactive">ไม่มีการอนุมัติการสำรวจในปัจจุบัน: AI ปิดอยู่หรือกำลังรอรอบการประเมินใหม่</string>
-    <string name="max_ai_profile_request">คำขอโปรไฟล์ล่าสุด</string>
-    <string name="max_ai_profile_applying">การใช้โปรไฟล์ รอผลก่อนที่จะส่งคำขออื่น</string>
-    <string name="max_ai_profile_verified">ใช้และตรวจสอบแล้ว</string>
-    <string name="max_ai_profile_executed">คำสั่งเสร็จสิ้น การตรวจสอบฮาร์ดแวร์ไม่ได้รับการยืนยัน</string>
-    <string name="max_ai_profile_adjusted">ปรับโดยระนาบควบคุม ตรวจสอบผลลัพธ์ที่บันทึกไว้</string>
-    <string name="max_ai_profile_blocked">ถูกปิดกั้นโดยความปลอดภัยด้านความร้อน ไม่มีการอ้างความสำเร็จใด ๆ</string>
-    <string name="max_ai_profile_skipped">คำขอถูกข้าม ไม่มีการยืนยันโปรไฟล์ใหม่</string>
-    <string name="max_ai_profile_failed">คำขอล้มเหลว ตรวจสอบบันทึกการตัดสินใจก่อนที่จะลองอีกครั้ง</string>
     <string name="max_live_plan_snapshot">แผนการประเมินล่าสุด ไม่ใช่กิจกรรมปัจจุบัน</string>
     <string name="max_ai_learning_coverage">ความครอบคลุมการเรียนรู้ %1$d%%</string>
     <string name="max_ai_cycle_running">การประเมินอุปกรณ์</string>

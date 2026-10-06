@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Ukusebenza</string>
     <string name="max_ai_objective_pick_balanced">Ibhalansile</string>
     <string name="max_ai_objective_pick_battery">Ibhethri</string>
-    <string name="max_ai_profile_row_desc">Amaphrofayili ayisisekelo ahlala ebhukwana futhi asetshenziswa ngokushesha; awawona amaknobho e-AI.</string>
     <string name="max_ai_refresh">Yenza umjikelezo manje</string>
     <string name="max_ai_refresh_desc">Linganisa, hlela futhi wenze kanye esikhundleni sokulinda umjikelezo wama-30s.</string>
     <string name="max_ai_counters">Izinqumo %1$d · ziqinisekisiwe %2$d · zilungisiwe %3$d · zivinjelwe ukuphepha %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d ama-knob aphethe isinqumo esilinganisiwe · %2$d amasampula ahlelwe esewonke.</string>
     <string name="max_ai_deck_decisions">Irekhodi lesinqumo</string>
     <string name="max_ai_deck_live_summary">%1$d amaknobho angaphansi kwewashi kanye nokuthi %2$d okuphethwe — vula ukubuka okugqwayizayo kweluphu egijimayo.</string>
-    <string name="max_ai_section_profiles">Amaphrofayili ayisisekelo</string>
-    <string name="max_ai_profile_active">Kusetshenzisiwe</string>
     <string name="max_ai_safety_engaged_title">Ukuphepha okushisayo kuhileleke</string>
     <string name="max_ai_safety_critical_title">Izinga lokushisa elibalulekile</string>
     <string name="max_ai_safety_detail">Kukalwe %1$s, %2$d ukungenelela kusukela ekufakweni.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Okuqukethwe kohlelo lokusebenza olurekhodiwe</string>
     <string name="max_ai_journal_all_contexts">Zonke izimo</string>
     <string name="max_ai_exploration_inactive">Akukho ukugunyazwa kokuhlola kwamanje: I-AI ivaliwe noma ilinde umjikelezo omusha wokuhlola.</string>
-    <string name="max_ai_profile_request">Isicelo sephrofayela sakamuva</string>
-    <string name="max_ai_profile_applying">Ukusebenzisa iphrofayela. Linda umphumela ngaphambi kokuthumela esinye isicelo.</string>
-    <string name="max_ai_profile_verified">Kusetshenziswe futhi kwaqinisekiswa.</string>
-    <string name="max_ai_profile_executed">Umyalo uqediwe; ukuqinisekiswa kwehadiwe akuqinisekisiwe.</string>
-    <string name="max_ai_profile_adjusted">Kulungiswe indiza yokulawula. Hlola umphumela orekhodiwe.</string>
-    <string name="max_ai_profile_blocked">Ivinjwe ukuphepha okushisayo. Ayikho impumelelo efunwayo.</string>
-    <string name="max_ai_profile_skipped">Isicelo seqiwe. Ayikho iphrofayela entsha eqinisekisiwe.</string>
-    <string name="max_ai_profile_failed">Isicelo sihlulekile. Hlola irekhodi lesinqumo ngaphambi kokuthi uzame futhi.</string>
     <string name="max_live_plan_snapshot">Uhlelo olugcine ukubuyekezwa, hhayi umsebenzi wamanje</string>
     <string name="max_ai_learning_coverage">Ukufakwa kokufunda %1$d%%</string>
     <string name="max_ai_cycle_running">Ihlola idivayisi</string>

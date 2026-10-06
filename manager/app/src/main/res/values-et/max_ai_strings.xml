@@ -123,7 +123,6 @@
     <string name="max_ai_objective_pick_performance">Esitus</string>
     <string name="max_ai_objective_pick_balanced">Tasakaalustatud</string>
     <string name="max_ai_objective_pick_battery">Aku</string>
-    <string name="max_ai_profile_row_desc">Alusprofiilid jäävad käsitsi ja rakendatakse kohe; need ei ole AI nupud.</string>
     <string name="max_ai_refresh">Jookse nüüd tsükkel</string>
     <string name="max_ai_refresh_desc">Mõõtke, planeerige ja tegutsege üks kord, selle asemel, et oodata 30ndate tsüklit.</string>
     <string name="max_ai_counters">Otsused %1$d · kontrollitud %2$d · kohandatud %3$d · ohutuse tagamiseks blokeeritud %4$d</string>
@@ -133,8 +132,6 @@
     <string name="max_ai_deck_learning_row">%1$d nupud kannavad mõõdetud hinnangut · %2$d sorteeritud proovid kokku.</string>
     <string name="max_ai_deck_decisions">Otsuse protokoll</string>
     <string name="max_ai_deck_live_summary">%1$d nupud vaatamise all ja %2$d kuuluvad – avage jooksutsükli animeeritud vaade.</string>
-    <string name="max_ai_section_profiles">Alusprofiilid</string>
-    <string name="max_ai_profile_active">Rakendatud</string>
     <string name="max_ai_safety_engaged_title">Termoohutus on sisse lülitatud</string>
     <string name="max_ai_safety_critical_title">Kriitiline temperatuur</string>
     <string name="max_ai_safety_detail">Mõõdetud %1$s, %2$d sekkumisi alates installimisest.</string>
@@ -244,14 +241,6 @@
     <string name="max_ai_journal_context">Salvestatud rakenduse kontekst</string>
     <string name="max_ai_journal_all_contexts">Kõik kontekstid</string>
     <string name="max_ai_exploration_inactive">Praegu pole uurimise heakskiitu: AI on välja lülitatud või ootab uut hinnatud tsüklit.</string>
-    <string name="max_ai_profile_request">Viimane profiilitaotlus</string>
-    <string name="max_ai_profile_applying">Profiili rakendamine. Enne uue päringu saatmist oodake tulemust.</string>
-    <string name="max_ai_profile_verified">Rakendatud ja kontrollitud.</string>
-    <string name="max_ai_profile_executed">Käsk on täidetud; riistvara kinnitust ei kinnitata.</string>
-    <string name="max_ai_profile_adjusted">Reguleeritud juhttasandiga. Kontrollige salvestatud tulemust.</string>
-    <string name="max_ai_profile_blocked">Blokeeritud termilise ohutuse tõttu. Edu ei väideta.</string>
-    <string name="max_ai_profile_skipped">Taotlus jäeti vahele. Uut profiili ei kinnitatud.</string>
-    <string name="max_ai_profile_failed">Taotlus ebaõnnestus. Enne uuesti proovimist kontrollige otsuse kirjet.</string>
     <string name="max_live_plan_snapshot">Viimati hinnatud plaan, mitte praegune tegevus</string>
     <string name="max_ai_learning_coverage">Õppe katvus %1$d%%</string>
     <string name="max_ai_cycle_running">Seadme hindamine</string>

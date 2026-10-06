@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">შესრულება</string>
     <string name="max_ai_objective_pick_balanced">დაბალანსებული</string>
     <string name="max_ai_objective_pick_battery">ბატარეა</string>
-    <string name="max_ai_profile_row_desc">ბაზის პროფილები რჩება სახელმძღვანელო და გამოიყენება დაუყოვნებლივ; ისინი არ არიან AI ღილაკები.</string>
     <string name="max_ai_refresh">აწარმოე ციკლი ახლავე</string>
     <string name="max_ai_refresh_desc">გაზომეთ, დაგეგმეთ და იმოქმედეთ ერთხელ, ნაცვლად იმისა, რომ დაელოდოთ 30-იანი წლების ციკლს.</string>
     <string name="max_ai_counters">გადაწყვეტილებები %1$d · დამოწმებული %2$d · მორგებული %3$d · დაბლოკილია უსაფრთხოებისთვის %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d ღილაკებს აქვთ გაზომილი ვერდიქტი · %2$d ფასდაკლებული ნიმუშები ჯამში.</string>
     <string name="max_ai_deck_decisions">გადაწყვეტილების ჩანაწერი</string>
     <string name="max_ai_deck_live_summary">%1$d სახელურები სათვალთვალო და %2$d საკუთრებაში — გახსენით გაშვებული მარყუჟის ანიმაციური ხედი.</string>
-    <string name="max_ai_section_profiles">ბაზის პროფილები</string>
-    <string name="max_ai_profile_active">მიმართა</string>
     <string name="max_ai_safety_engaged_title">ჩართულია თერმული უსაფრთხოება</string>
     <string name="max_ai_safety_critical_title">კრიტიკული ტემპერატურა</string>
     <string name="max_ai_safety_detail">გაზომილი %1$s, %2$d ინტერვენცია ინსტალაციის შემდეგ.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">ჩაწერილი აპლიკაციის კონტექსტი</string>
     <string name="max_ai_journal_all_contexts">ყველა კონტექსტი</string>
     <string name="max_ai_exploration_inactive">ძიების მიმდინარე დამტკიცება არ არის: AI გამორთულია ან ელოდება ახალ შეფასებულ ციკლს.</string>
-    <string name="max_ai_profile_request">უახლესი პროფილის მოთხოვნა</string>
-    <string name="max_ai_profile_applying">პროფილის გამოყენება. დაელოდეთ შედეგს სხვა მოთხოვნის გაგზავნამდე.</string>
-    <string name="max_ai_profile_verified">გამოყენებული და დამოწმებული.</string>
-    <string name="max_ai_profile_executed">ბრძანება დასრულებულია; ტექნიკის დადასტურება არ არის დადასტურებული.</string>
-    <string name="max_ai_profile_adjusted">რეგულირდება საკონტროლო თვითმფრინავით. შეამოწმეთ ჩაწერილი შედეგი.</string>
-    <string name="max_ai_profile_blocked">დაბლოკილია თერმული უსაფრთხოებით. წარმატებას არ ამტკიცებენ.</string>
-    <string name="max_ai_profile_skipped">მოთხოვნა გამოტოვებულია. ახალი პროფილი არ დადასტურებულა.</string>
-    <string name="max_ai_profile_failed">მოთხოვნა ვერ მოხერხდა. ხელახლა ცდამდე შეამოწმეთ გადაწყვეტილების ჩანაწერი.</string>
     <string name="max_live_plan_snapshot">ბოლო შეფასებული გეგმა და არა მიმდინარე აქტივობა</string>
     <string name="max_ai_learning_coverage">სწავლის გაშუქება %1$d%%</string>
     <string name="max_ai_cycle_running">მოწყობილობის შეფასება</string>

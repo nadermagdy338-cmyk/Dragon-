@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Suorituskyky</string>
     <string name="max_ai_objective_pick_balanced">Tasapainoinen</string>
     <string name="max_ai_objective_pick_battery">Akku</string>
-    <string name="max_ai_profile_row_desc">Pohjaprofiilit pysyvät manuaalisina ja ne asennetaan välittömästi; ne eivät ole AI-nuppeja.</string>
     <string name="max_ai_refresh">Suorita sykli nyt</string>
     <string name="max_ai_refresh_desc">Mittaa, suunnittele ja toimi kerran sen sijaan, että odotat 30-luvun sykliä.</string>
     <string name="max_ai_counters">Päätökset %1$d · vahvistettu %2$d · korjattu %3$d · estetty turvallisuuden vuoksi %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d nupit sisältävät mitatun tuomion · %2$d arvosteltuja näytteitä yhteensä.</string>
     <string name="max_ai_deck_decisions">Päätöspöytäkirja</string>
     <string name="max_ai_deck_live_summary">%1$d nupit katselun alla ja %2$d omistuksessa — avaa juoksusilmukan animoitu näkymä.</string>
-    <string name="max_ai_section_profiles">Pohjaprofiilit</string>
-    <string name="max_ai_profile_active">Sovellettu</string>
     <string name="max_ai_safety_engaged_title">Lämpöturva kytkettynä</string>
     <string name="max_ai_safety_critical_title">Kriittinen lämpötila</string>
     <string name="max_ai_safety_detail">Mitattu %1$s, %2$d toimenpiteitä asennuksen jälkeen.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Tallennettu sovelluskonteksti</string>
     <string name="max_ai_journal_all_contexts">Kaikki kontekstit</string>
     <string name="max_ai_exploration_inactive">Ei nykyistä etsintähyväksyntää: AI on pois päältä tai odottaa uutta arvioitua sykliä.</string>
-    <string name="max_ai_profile_request">Viimeisin profiilipyyntö</string>
-    <string name="max_ai_profile_applying">Profiilin käyttäminen. Odota tulosta ennen kuin lähetät uuden pyynnön.</string>
-    <string name="max_ai_profile_verified">Sovellettu ja vahvistettu.</string>
-    <string name="max_ai_profile_executed">Komento suoritettu; laitteiston vahvistusta ei ole vahvistettu.</string>
-    <string name="max_ai_profile_adjusted">Säädetty ohjaustason mukaan. Tarkista tallennettu tulos.</string>
-    <string name="max_ai_profile_blocked">Lämpöturvallisuuden esto. Menestystä ei väitetä.</string>
-    <string name="max_ai_profile_skipped">Pyyntö ohitettu. Uutta profiilia ei vahvistettu.</string>
-    <string name="max_ai_profile_failed">Pyyntö epäonnistui. Tarkista päätöstietue ennen kuin yrität uudelleen.</string>
     <string name="max_live_plan_snapshot">Viimeisin arvioitu suunnitelma, ei nykyinen toiminta</string>
     <string name="max_ai_learning_coverage">Oppimisen kattavuus %1$d%%</string>
     <string name="max_ai_cycle_running">Laitteen arviointi</string>

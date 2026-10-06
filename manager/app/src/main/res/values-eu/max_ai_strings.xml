@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Errendimendua</string>
     <string name="max_ai_objective_pick_balanced">Orekatua</string>
     <string name="max_ai_objective_pick_battery">Bateria</string>
-    <string name="max_ai_profile_row_desc">Oinarrizko profilak eskuz geratzen dira eta berehala aplikatzen dira; ez dira AI botoiak.</string>
     <string name="max_ai_refresh">Exekutatu ziklo bat orain</string>
     <string name="max_ai_refresh_desc">Neurtu, planifikatu eta ekin ezazu behin 30eko hamarkadaren zikloari itxaron beharrean.</string>
     <string name="max_ai_counters">Erabakiak %1$d · egiaztatuak %2$d · egokituak %3$d · blokeatuta segurtasunagatik %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d eskutokiek epai neurtua daramate · %2$d lagin mailakatuak guztira.</string>
     <string name="max_ai_deck_decisions">Erabakien erregistroa</string>
     <string name="max_ai_deck_live_summary">%1$d kontrolpean dauden eta %2$d jabeak - ireki exekutatzen ari den begiztaren ikuspegi animatua.</string>
-    <string name="max_ai_section_profiles">Oinarrizko profilak</string>
-    <string name="max_ai_profile_active">Aplikatua</string>
     <string name="max_ai_safety_engaged_title">Segurtasun termikoa aktibatuta</string>
     <string name="max_ai_safety_critical_title">Tenperatura kritikoa</string>
     <string name="max_ai_safety_detail">Instalatu zenetik %1$s, %2$d esku-hartzeak neurtuta.</string>
@@ -265,14 +262,6 @@
     <string name="max_ai_journal_context">Grabatutako aplikazioaren testuingurua</string>
     <string name="max_ai_journal_all_contexts">Testuinguru guztiak</string>
     <string name="max_ai_exploration_inactive">Oraingo esplorazio-onarpenik ez: AI itzalita dago edo ebaluatutako ziklo berri baten zain dago.</string>
-    <string name="max_ai_profile_request">Azken profilaren eskaera</string>
-    <string name="max_ai_profile_applying">Profil bat aplikatzea. Itxaron emaitzari beste eskaera bat bidali aurretik.</string>
-    <string name="max_ai_profile_verified">Aplikatua eta egiaztatua.</string>
-    <string name="max_ai_profile_executed">Agindua osatuta; hardwarearen egiaztapena ez dago baieztatuta.</string>
-    <string name="max_ai_profile_adjusted">Kontrol-planoaren bidez egokitua. Egiaztatu grabatutako emaitza.</string>
-    <string name="max_ai_profile_blocked">Segurtasun termikoak blokeatuta. Ez da arrakastarik aldarrikatzen.</string>
-    <string name="max_ai_profile_skipped">Saltatu egin da eskaera. Ez da profil berririk baieztatu.</string>
-    <string name="max_ai_profile_failed">Eskaerak huts egin du. Ikuskatu erabakiaren erregistroa berriro saiatu aurretik.</string>
     <string name="max_live_plan_snapshot">Ebaluatutako azken plana, ez oraingo jarduera</string>
     <string name="max_ai_learning_coverage">Ikaskuntza-estaldura %1$d%%</string>
     <string name="max_ai_cycle_running">Gailua ebaluatzea</string>

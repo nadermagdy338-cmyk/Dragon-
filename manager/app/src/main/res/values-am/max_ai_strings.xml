@@ -135,7 +135,6 @@
     <string name="max_ai_objective_pick_performance">አፈጻጸም</string>
     <string name="max_ai_objective_pick_balanced">ሚዛናዊ</string>
     <string name="max_ai_objective_pick_battery">ባትሪ</string>
-    <string name="max_ai_profile_row_desc">የመሠረት መገለጫዎች በእጅ ይቆያሉ እና ወዲያውኑ ይተገበራሉ; እነሱ AI knobs አይደሉም.</string>
     <string name="max_ai_refresh">አሁን ዑደት አሂድ</string>
     <string name="max_ai_refresh_desc">የ30ዎቹን ዑደት ከመጠበቅ ይልቅ አንድ ጊዜ ይለኩ፣ ያቅዱ እና እርምጃ ይውሰዱ።</string>
     <string name="max_ai_deck_title">የመርከቧ መቆጣጠሪያ</string>
@@ -144,8 +143,6 @@
     <string name="max_ai_deck_learning_row">%1$d ማዞሪያዎች የሚለካ ፍርድ ይሰጣሉ · %2$d በአጠቃላይ ደረጃ የተሰጣቸው ናሙናዎች።</string>
     <string name="max_ai_deck_decisions">የውሳኔ መዝገብ</string>
     <string name="max_ai_deck_live_summary">%1$d ጉብታዎች በመመልከት ላይ እና %2$d በባለቤትነት የተያዙ - የሩጫ loopን የታነመ እይታ ይክፈቱ።</string>
-    <string name="max_ai_section_profiles">የመሠረት መገለጫዎች</string>
-    <string name="max_ai_profile_active">ተተግብሯል</string>
     <string name="max_ai_safety_engaged_title">የሙቀት ደህንነት ተካቷል</string>
     <string name="max_ai_safety_critical_title">ወሳኝ የሙቀት መጠን</string>
     <string name="max_ai_safety_detail">የሚለካው %1$s፣ %2$d ከተጫነ በኋላ የተደረጉ ጣልቃ ገብነቶች።</string>
@@ -263,14 +260,6 @@
     <string name="max_ai_journal_context">የተቀዳ መተግበሪያ አውድ</string>
     <string name="max_ai_journal_all_contexts">ሁሉም አውዶች</string>
     <string name="max_ai_exploration_inactive">ምንም የአሁኑ የአሰሳ ማረጋገጫ የለም፡ AI ጠፍቷል ወይም አዲስ የተገመገመ ዑደት እየጠበቀ ነው።</string>
-    <string name="max_ai_profile_request">የቅርብ ጊዜ የመገለጫ ጥያቄ</string>
-    <string name="max_ai_profile_applying">መገለጫን በመተግበር ላይ። ሌላ ጥያቄ ከመላክዎ በፊት ውጤቱን ይጠብቁ።</string>
-    <string name="max_ai_profile_verified">ተተግብሯል እና ተረጋግጧል.</string>
-    <string name="max_ai_profile_executed">ትዕዛዝ ተጠናቀቀ; የሃርድዌር ማረጋገጫ አልተረጋገጠም።</string>
-    <string name="max_ai_profile_adjusted">በመቆጣጠሪያው አውሮፕላን ተስተካክሏል. የተመዘገበውን ውጤት ያረጋግጡ.</string>
-    <string name="max_ai_profile_blocked">በሙቀት ደህንነት ታግዷል። ምንም ስኬት የይገባኛል ጥያቄ የለም።</string>
-    <string name="max_ai_profile_skipped">ጥያቄ ተዘልሏል። ምንም አዲስ መገለጫ አልተረጋገጠም።</string>
-    <string name="max_ai_profile_failed">ጥያቄው አልተሳካም። እንደገና ከመሞከርዎ በፊት የውሳኔውን መዝገብ ይፈትሹ.</string>
     <string name="max_live_plan_snapshot">ለመጨረሻ ጊዜ የተገመገመ እቅድ እንጂ የአሁኑ እንቅስቃሴ አይደለም።</string>
     <string name="max_ai_learning_coverage">የመማር ሽፋን %1$d%%</string>
     <string name="max_ai_cycle_running">መሣሪያውን መገምገም</string>

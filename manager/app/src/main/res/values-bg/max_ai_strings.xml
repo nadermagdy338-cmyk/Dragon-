@@ -137,7 +137,6 @@
     <string name="max_ai_objective_pick_performance">Изпълнение</string>
     <string name="max_ai_objective_pick_balanced">Балансиран</string>
     <string name="max_ai_objective_pick_battery">Батерия</string>
-    <string name="max_ai_profile_row_desc">Базовите профили остават ръчни и се прилагат веднага; те не са AI копчета.</string>
     <string name="max_ai_refresh">Изпълнете цикъл сега</string>
     <string name="max_ai_refresh_desc">Измервайте, планирайте и действайте веднъж, вместо да чакате цикъла на 30-те.</string>
     <string name="max_ai_counters">Решения %1$d · проверени %2$d · коригирани %3$d · блокирани за безопасност %4$d</string>
@@ -147,8 +146,6 @@
     <string name="max_ai_deck_learning_row">%1$d копчета носят измерена оценка · %2$d общо оценени проби.</string>
     <string name="max_ai_deck_decisions">Запис на решението</string>
     <string name="max_ai_deck_live_summary">%1$d копчета под наблюдение и %2$d притежавани — отворете анимирания изглед на цикъла за бягане.</string>
-    <string name="max_ai_section_profiles">Базови профили</string>
-    <string name="max_ai_profile_active">Приложено</string>
     <string name="max_ai_safety_engaged_title">Включена термична защита</string>
     <string name="max_ai_safety_critical_title">Критична температура</string>
     <string name="max_ai_safety_detail">Измерени %1$s, %2$d интервенции след инсталирането.</string>
@@ -266,14 +263,6 @@
     <string name="max_ai_journal_context">Записан контекст на приложението</string>
     <string name="max_ai_journal_all_contexts">Всички контексти</string>
     <string name="max_ai_exploration_inactive">Няма текущо одобрение за проучване: AI е изключен или чака нов цикъл на оценка.</string>
-    <string name="max_ai_profile_request">Последна заявка за профил</string>
-    <string name="max_ai_profile_applying">Прилагане на профил. Изчакайте резултата, преди да изпратите нова заявка.</string>
-    <string name="max_ai_profile_verified">Приложен и проверен.</string>
-    <string name="max_ai_profile_executed">Командата е изпълнена; хардуерната проверка не е потвърдена.</string>
-    <string name="max_ai_profile_adjusted">Регулиран от контролната равнина. Проверете записания резултат.</string>
-    <string name="max_ai_profile_blocked">Блокиран от термична безопасност. Не се твърди успех.</string>
-    <string name="max_ai_profile_skipped">Заявката е пропусната. Няма потвърден нов профил.</string>
-    <string name="max_ai_profile_failed">Заявката е неуспешна. Проверете записа на решението, преди да опитате отново.</string>
     <string name="max_live_plan_snapshot">Последно оценен план, а не текуща дейност</string>
     <string name="max_ai_learning_coverage">Обхват на обучение %1$d%%</string>
     <string name="max_ai_cycle_running">Оценяване на устройството</string>
