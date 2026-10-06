@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.Role
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.delay
 import nd.max.R
 import nd.max.ui.component.*
 import nd.max.ui.design.MaxAlpha
@@ -50,6 +51,7 @@ import nd.max.ui.design.MaxBullets
 import nd.max.ui.design.MaxCardShell
 import nd.max.ui.design.MaxCondition
 import nd.max.ui.design.MaxConditionKind
+import nd.max.ui.design.FloatingNoticeDwellMillis
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxHelpAction
@@ -113,12 +115,31 @@ fun CpuCoreControlScreen(
         else -> null
     }
 
-    // Transient apply/verify feedback belongs in the scaffold banner slot,
-    // not in a dismissible card wedged between two control sections.
+    // **نتيجة الإجراء عائمة في أسفل الشاشة لا شريطًا في أوّلها.** الزرّ الذي يُنشئ النتيجة
+    // («تطبيق» · «استعادة») في أسفل الصفحة، وكان الإشعار يعرض في `item(key = "max_banner")`
+    // — أوّل عنصر قبل الرأس — فيظهر التأكيد على بُعد شاشة من العين التي طلبتها. والعرض الآن
+    // نافذة عائمة تُركَّب فوق أسفل القائمة، والصفحة تحجز لها فراغها بارتفاعها المقيس فلا
+    // يُغطّى صفّ (انظر `MaxFloatingNoticeHost`).
     //
-    // The kind comes from the action's own outcome code, never from the wording:
-    // a deferred write says "saved, not applied" and must not be green.
-    val banner = viewModel.actionNotice?.let { notice -> cpuActionBanner(notice, viewModel::consumeActionNotice) }
+    // والحالة تأتي من رمز نتيجة الإجراء نفسه، لا من صياغة النصّ: كتابة مؤجّلة تقول
+    // «محفوظ ولم يُطبَّق» ولا يجوز أن تكون خضراء.
+    val actionNotice = viewModel.actionNotice
+    val floatingNotice = actionNotice?.let { notice ->
+        cpuActionNotice(notice, viewModel::consumeActionNotice)
+    }
+
+    // **تأكيد النجاح يزول من نفسه، وما يحتاج إقرارًا لا.** النافذة العائمة لا تحجب شيئًا،
+    // لكنها تحجز فراغًا في أسفل الصفحة؛ وتأكيد النجاح خبرٌ انتهى أمره — الحقيقة كاملة في
+    // صفوف العنقود أعلاه (الحدود الحيّة وسطور التحقّق)، فمهلته [FloatingNoticeDwellMillis]
+    // ولا معلومة تُفقد بزواله. أمّا الفشل والانتظار و«غير مدعوم» فتبقى حتى يغلقها القارئ
+    // بنفسه، فلا يمرّ عطب بصريًّا في ومضة. والإغلاق هو إجراء الإشعار نفسه (زرّ الإغلاق في
+    // النافذة والزرّ الذي مرّرته الشاشة نداء واحد)، فلا سلوك ثانٍ يُبنى لهذه الحالة.
+    LaunchedEffect(actionNotice) {
+        if (actionNotice != null && cpuActionKind(actionNotice.reason) == MaxConditionKind.Applied) {
+            delay(FloatingNoticeDwellMillis)
+            viewModel.consumeActionNotice()
+        }
+    }
 
     ScreenAccentProvider(accent) {
         MaxListScreen(
@@ -128,7 +149,7 @@ fun CpuCoreControlScreen(
             accentIcon = Icons.Outlined.Memory,
             accent = accent,
             condition = condition,
-            banner = banner,
+            floatingNotice = floatingNotice,
             actions = {
                 MaxHelpAction(
                     title = screenTitle,
@@ -264,37 +285,49 @@ fun CpuCoreControlScreen(
 }
 
 /**
- * The action banner, built from the outcome code rather than from the wording.
+ * رمز النتيجة → نوع الحالة.
+ *
+ * ودالّة مستقلّة لأن السؤال عنها يُسأل **مرّتين**: أيّ بطاقة تُعرض ([cpuActionNotice]) وهل
+ * يزول الإشعار من نفسه (مهلة التأكيد في [CpuCoreControlScreen]). وسؤالان يُجابان من منطق
+ * واحد، لا من نسختين تفترقان عند أوّل رمز جديد يُضاف.
+ */
+private fun cpuActionKind(reason: CpuActionReason): MaxConditionKind = when (reason) {
+    CpuActionReason.AppliedVerified,
+    CpuActionReason.HardwareRangeRestored,
+    CpuActionReason.Restored,
+    CpuActionReason.PresetApplied,
+    -> MaxConditionKind.Applied
+
+    CpuActionReason.DeferredSafety,
+    CpuActionReason.DeferredOwner,
+    CpuActionReason.NoManualIntents,
+    -> MaxConditionKind.Applying
+
+    CpuActionReason.PresetRefused,
+    CpuActionReason.CoresUnreadable,
+    CpuActionReason.UnknownClusterTopology,
+    -> MaxConditionKind.Unsupported
+
+    CpuActionReason.NotVerified,
+    CpuActionReason.UnknownNode,
+    CpuActionReason.HardwareRangeUnknown,
+    CpuActionReason.PartialRestore,
+    -> MaxConditionKind.Failed
+}
+
+/**
+ * The action notice, built from the outcome code rather than from the wording.
  *
  * `Deferred*` is shown as *waiting*, not as success: the write was accepted and
  * stored, but it is not in effect, and saying otherwise is the exact mistake this
  * screen used to make.
+ *
+ * ويُغذّي هذه البطاقة **النافذة العائمة** لا شريط أوّل الشاشة (انظر نداءها في
+ * [CpuCoreControlScreen]) — والاسم صار على ما تفعله لا على موضعها القديم.
  */
 @Composable
-private fun cpuActionBanner(notice: CpuActionNotice, onDismiss: () -> Unit): MaxCondition {
-    val kind = when (notice.reason) {
-        CpuActionReason.AppliedVerified,
-        CpuActionReason.HardwareRangeRestored,
-        CpuActionReason.Restored,
-        CpuActionReason.PresetApplied,
-        -> MaxConditionKind.Applied
-
-        CpuActionReason.DeferredSafety,
-        CpuActionReason.DeferredOwner,
-        CpuActionReason.NoManualIntents,
-        -> MaxConditionKind.Applying
-
-        CpuActionReason.PresetRefused,
-        CpuActionReason.CoresUnreadable,
-        CpuActionReason.UnknownClusterTopology,
-        -> MaxConditionKind.Unsupported
-
-        CpuActionReason.NotVerified,
-        CpuActionReason.UnknownNode,
-        CpuActionReason.HardwareRangeUnknown,
-        CpuActionReason.PartialRestore,
-        -> MaxConditionKind.Failed
-    }
+private fun cpuActionNotice(notice: CpuActionNotice, onDismiss: () -> Unit): MaxCondition {
+    val kind = cpuActionKind(notice.reason)
 
     val titleRes = when (kind) {
         MaxConditionKind.Applied -> R.string.cpu_freq_action_applied

@@ -46,7 +46,11 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -284,6 +288,13 @@ fun MaxSplitScreen(
  * Long, data-heavy screens (apps, processes, logs, thermal zones) must stay
  * lazy: building 300 rows eagerly inside a scrolling Column is the main reason
  * the old list screens dropped frames while telemetry was updating.
+ *
+ * @param floatingNotice an action outcome shown as a floating card pinned to the bottom of
+ *        the viewport ([MaxFloatingNotice]) instead of a `banner` at the very top of a long
+ *        list. A row at the top of a screen is where the user *is not* after pressing a
+ *        button at the bottom — and it is scrolled away by the next flick. The card floats
+ *        over space this shell reserves for it (its measured height is added to the list's
+ *        bottom content padding), so it never covers a row; see [MaxFloatingNoticeHost].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -296,6 +307,7 @@ fun MaxListScreen(
     accent: Color = MaterialTheme.colorScheme.primary,
     condition: MaxCondition? = null,
     banner: MaxCondition? = null,
+    floatingNotice: MaxCondition? = null,
     snackbarHostState: SnackbarHostState? = null,
     actions: @Composable RowScope.() -> Unit = {},
     floatingAction: (@Composable () -> Unit)? = null,
@@ -310,6 +322,14 @@ fun MaxListScreen(
     val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
         .calculateBottomPadding()
     val bottomPadding = floatingBottomBarPadding(MaxSpace.pageBottom + navigationBarPadding)
+    // ارتفاع النافذة العائمة المقيس (`0.dp` حين لا نافذة). حالة واحدة تُقرأ في **موضعين** معًا:
+    // جسم القائمة (ليحجز الفراغ الذي تطفو فوقه) وخانة الزرّ العائم (لئلّا يتراكب زرّان في
+    // موضع واحد). وحالة واحدة لا حالتان، فلا تختلف الأرقام بين الموضعين يومًا.
+    var floatingNoticeHeight by remember { mutableStateOf(0.dp) }
+    // رفع النافذة عن أسفل منطقة المحتوى: شريط التنقّل العائم إن كان على هذه الصفحة (صفر على
+    // الشاشات الفرعية) + فاصل صغير. يُحسب من [floatingBottomBarPadding] نفسه الذي تمرّ منه
+    // أجسام الصفحات، فلا يصير للارتفاع الواحد حسابان.
+    val floatingLift = floatingBottomBarPadding(0.dp) + MaxSpace.md
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -345,57 +365,76 @@ fun MaxListScreen(
             // العودة إلى أعلى القائمة — تُركَّب في خانة الزرّ العائم **فوق** الزرّ الذي تمرّره الشاشة
             // إن مرّرت واحدًا، فلا يُزاح صفّ ولا يُغطّى نصّ. وهي لا تُبنى أبدًا قبل عبور الحدّ،
             // فالشرط (`rememberListTopControl`) هو ما يجعلها معلومة لا زينة.
+            //
+            // **ولا تظهر وفي الشاشة نافذة عائمة:** كلتاهما تسكن أسفل النهاية، فظهورهما معًا
+            // يغطّي أحدهما الآخر — وهو نقض الشرط نفسه (لا يُغطّى شيء). والشرط مربوط بارتفاع
+            // النافذة المحجوز لا بحالتها اللحظية، فلا يعود الزرّ قبل اكتمال حركة خروجها.
             val scope = rememberCoroutineScope()
             ScrollToTopSlot(
-                visible = rememberListTopControl(scrollState),
+                visible = floatingNoticeHeight == 0.dp && rememberListTopControl(scrollState),
                 onTop = { scope.launch { scrollState.animateScrollToItem(0) } }
             ) { floatingAction?.invoke() }
         }
     ) { scaffoldPadding ->
-        if (condition != null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(scaffoldPadding)
-                    .padding(top = BodyTopGap)
-                    .maxAdaptiveContentWidth()
-                    .padding(horizontal = MaxSpace.gutter)
-            ) {
-                MaxConditionPanel(condition)
-            }
-        } else {
-            LazyColumn(
-                state = scrollState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(scaffoldPadding)
-                    .maxAdaptiveContentWidth(),
-                contentPadding = PaddingValues(
-                    start = MaxSpace.gutter,
-                    end = MaxSpace.gutter,
-                    // أوّل عنصر كان يبدأ عند حافة الشريط بالضبط (صفر فاصل) — وهو عطب كلّ
-                    // صفحة قائمة في التطبيق، لا شاشة واحدة.
-                    top = BodyTopGap,
-                    bottom = bottomPadding
-                ),
-                verticalArrangement = Arrangement.spacedBy(MaxSpace.row)
-            ) {
-                if (banner != null) {
-                    item(key = "max_banner") {
-                        MaxConditionNotice(banner, modifier = Modifier.fillMaxWidth())
-                    }
+        // **الحاوية التي تجعل «عائمة بلا تغطية» ممكنة:** جسم الصفحة كما كان تمامًا، والنافذة
+        // تُركَّب **فوقه** في الـ`Box` نفسه — فهي لا تخرج مع التمرير (ليست داخل `LazyColumn`)
+        // ولا تزيح صفًّا. والفراغ الذي تطفو فوقه محجوز لها أدناه في `contentPadding.bottom`
+        // بمقدار ارتفاعها المقيس.
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (condition != null) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(scaffoldPadding)
+                        .padding(top = BodyTopGap)
+                        .maxAdaptiveContentWidth()
+                        .padding(horizontal = MaxSpace.gutter)
+                ) {
+                    MaxConditionPanel(condition)
                 }
-                if (header != null) {
-                    item(key = "max_header") {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(MaxSpace.md),
-                            content = header
-                        )
+            } else {
+                LazyColumn(
+                    state = scrollState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(scaffoldPadding)
+                        .maxAdaptiveContentWidth(),
+                    contentPadding = PaddingValues(
+                        start = MaxSpace.gutter,
+                        end = MaxSpace.gutter,
+                        // أوّل عنصر كان يبدأ عند حافة الشريط بالضبط (صفر فاصل) — وهو عطب كلّ
+                        // صفحة قائمة في التطبيق، لا شاشة واحدة.
+                        top = BodyTopGap,
+                        // الحشوة القائمة + النافذة العائمة ورفعها: فآخر عنصر ينتهي عند حافة
+                        // النافذة العلوية بالضبط ويظلّ قابلًا للتمرير إلى ما فوقها.
+                        bottom = bottomPadding + floatingNoticeHeight + floatingLift
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(MaxSpace.row)
+                ) {
+                    if (banner != null) {
+                        item(key = "max_banner") {
+                            MaxConditionNotice(banner, modifier = Modifier.fillMaxWidth())
+                        }
                     }
+                    if (header != null) {
+                        item(key = "max_header") {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(MaxSpace.md),
+                                content = header
+                            )
+                        }
+                    }
+                    content()
                 }
-                content()
             }
+            MaxFloatingNoticeHost(
+                // حالة حاجبة (جذر مفقود · معالج غير مدعوم) تعني أن الشاشة كلها معطّلة ولا
+                // إجراء وقع أصلًا — فلا تُركَّب معها نافذة إجراء.
+                condition = if (condition == null) floatingNotice else null,
+                bottomGap = navigationBarPadding + floatingLift,
+                onReservedHeightChange = { floatingNoticeHeight = it }
+            )
         }
     }
 }
