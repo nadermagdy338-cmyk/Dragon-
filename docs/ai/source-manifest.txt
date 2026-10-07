@@ -2059,7 +2059,7 @@ bd4834bb90d36230bc188e0b0e6f3f6cbec38b7b0a89fb4927d12bf557c915b4  manager/app/sr
 69c8ee78fa4086f3e3a6ab5e33e48d254a41e7bae635c39827875e502f244147  manager/app/src/test/java/nd/max/core/hardware/AtlasRouteMemoryWiringTest.kt
 873daa5672827dd1ee10ee41ca0a27a90d36f757be932bf3a90c449dd456eb04  manager/app/src/test/java/nd/max/core/hardware/CeilingRaiseTest.kt
 9107940f9e2a5272ec5e850d83e7bd32fc69f28a1c62e6f599d05e20097a9336  manager/app/src/test/java/nd/max/core/hardware/ChargingHardwareBackendTest.kt
-0e6aedfe810d7ed135d3be05cf78ac600b8d64f5f30e65304b31a827fc638c48  manager/app/src/test/java/nd/max/core/hardware/ControlPlaneArchitectureTest.kt
+62ea4885b8392d266d14ec7a59b356be8257ad50c469799880e64d9c3de41b5e  manager/app/src/test/java/nd/max/core/hardware/ControlPlaneArchitectureTest.kt
 966a747f55b0c5580477077f23a9e0bd1c3ac476ce9616726ff075c76094688d  manager/app/src/test/java/nd/max/core/hardware/CpuAvailableFrequencySnapTest.kt
 feed70dda6204175d2e45260fd1150980da2ce8bc9fa5ca45b604fe1b8277036  manager/app/src/test/java/nd/max/core/hardware/CpuProvenRangeTest.kt
 ce4eba90c5e4fa881bc4d57121836cfd577df8f088a33d3c651668950605fcaf  manager/app/src/test/java/nd/max/core/hardware/GpuCeilingPolicyTest.kt

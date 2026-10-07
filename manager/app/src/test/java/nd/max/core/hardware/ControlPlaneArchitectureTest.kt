@@ -69,9 +69,25 @@ class ControlPlaneArchitectureTest {
     fun hostileProcessKillsAreGoneForGood() {
         // The old mind could run `am kill-all`, an irreversible action against the
         // user's own apps with no rollback possible.
+        //
+        // The single declared exception is the user's own "Boost" button
+        // (ui/util/MemoryBoostEngine.kt): a manual, one-tap action that stops cached
+        // background processes only and reports the measured memory gain. INV-7 forbids
+        // the *autonomous* layers from doing this, so the exception stays valid only
+        // while nothing under core/ (policy, arbiter, daemon, AI) can reach the engine.
+        val boostEngine = "MemoryBoostEngine"
         assertTrue(
-            "am kill-all is retired and must not return",
-            offenders("kill-all").isEmpty(),
+            "am kill-all is retired and must not return (only $boostEngine.kt may name it)",
+            offenders("kill-all", skip = setOf("$boostEngine.kt")).isEmpty(),
+        )
+        val autonomousCallers = File(sourceRoot, "core").walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .filter { contents(it).contains(boostEngine) }
+            .map { it.name }
+            .toList()
+        assertTrue(
+            "$boostEngine runs `am kill-all`, so autonomous code under core/ must never call it: $autonomousCallers",
+            autonomousCallers.isEmpty(),
         )
     }
 
