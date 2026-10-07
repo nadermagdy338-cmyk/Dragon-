@@ -68,6 +68,8 @@ import nd.max.ui.design.MaxSwitchRow
 import nd.max.ui.design.MaxTone
 import nd.max.ui.mainscreens.IconBadge
 import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.util.CoreClockMath
+import nd.max.ui.util.CoreClockState
 import nd.max.ui.util.CpuTopologyUtil
 import nd.max.ui.viewmodel.CpuActionNotice
 import nd.max.ui.viewmodel.CpuActionReason
@@ -420,27 +422,13 @@ private fun ClusterCoreSummary(
     )
 }
 
-/**
- * سقف النواة المعلن — سقف عنقودها من `cpuinfo_max_freq`.
- *
- * **وهو المواصفة لا القياس الحيّ:** لو قسمنا على أعلى عيّنة رأيناها لصار الرقم يتغيّر من
- * نفسه (٠٫٦ ثم ٠٫٨ لأن نواة أخرى صعدت)، ولو قسمنا على `scaling_max_freq` الحيّ لصار حدّ الخنق
- * الحراري «١٠٠٪». والسقف المعلن هو المقام الوحيد الذي لا يتحرّك — وهو نفسه الذي تعرضه بقية
- * الشاشة في حدود التردد.
+/*
+ * والحساب انتقل من هنا إلى `nd.max.ui.util.CoreClockMath`، مع سببٍ مقيس: كان السقف والنسبة
+ * دالّتين **خاصّتين** في ملفّ Compose، فلا يُقاس حكم §12 (المرحلة ٣) إلا بعين على هاتف:
+ * «نواة offline ≠ 0 MHz» و«نواة بلا max = MHz بلا %». وصار الحكم الآن في دالّة نقيّة تحرسها
+ * `CoreClockMathTest` في JVM. **ولم يتغيّر رقم:** السقف من `cpuinfo_max_freq` كما هو، والنسبة
+ * `التردّد ÷ السقف` كما هي، و`null` لا تُكتب «٠٪» كما كانت.
  */
-private fun coreCeilingMhz(row: CpuCoreRow, clusterMaxFreqMhz: Map<String, Int>): Int =
-    clusterMaxFreqMhz[row.cluster.policyPath] ?: 0
-
-/**
- * نسبة النواة من سقفها: `التردد الجاري ÷ أقصاها`.
- *
- * **و`null` ليست صفرًا:** نواة تخفي `cpufreq` لا تُقاس، ونواة مطفأة لا تردّد لها أصلًا؛
- * وكلتاهما تُنتج `null` فتُكتب حالةٌ لا «٠٪» (وهو نصّ خطة المستوى §8.2 حرفيًّا).
- */
-private fun coreSharePercent(freqMhz: Int?, ceilingMhz: Int): Int? {
-    if (freqMhz == null || freqMhz <= 0 || ceilingMhz <= 0) return null
-    return ((freqMhz.toFloat() / ceilingMhz) * 100f).toInt().coerceIn(0, 100)
-}
 
 /**
  * بطل الشاشة: **متوسط · الأعلى الآن · عدد الأنوية** (`MAX-MANAGER-LEVEL-UP.md` §8.1).
@@ -460,9 +448,12 @@ private fun CpuLiveClockHero(
 ) {
     val p = neuralPalette()
     val shares = coreRows.mapNotNull { row ->
-        coreSharePercent(coreFreqMhz[row.cpu], coreCeilingMhz(row, clusterMaxFreqMhz))
+        CoreClockMath.sharePercent(
+            coreFreqMhz[row.cpu],
+            CoreClockMath.ceilingMhz(row.cluster.policyPath, clusterMaxFreqMhz),
+        )
     }
-    val average = shares.takeIf { it.isNotEmpty() }?.let { it.sum() / it.size }
+    val average = CoreClockMath.averagePercent(shares)
     val highestMhz = coreRows.mapNotNull { coreFreqMhz[it.cpu]?.takeIf { frequency -> frequency > 0 } }
         .maxOrNull()
     val online = coreRows.count { it.online }
@@ -517,7 +508,7 @@ private fun CpuLiveClockGrid(
     clusters.forEach { cluster ->
         val rows = coreRows.filter { it.cluster.policyPath == cluster.policyPath }
         if (rows.isEmpty()) return@forEach
-        val ceiling = clusterMaxFreqMhz[cluster.policyPath] ?: 0
+        val ceiling = CoreClockMath.ceilingMhz(cluster.policyPath, clusterMaxFreqMhz)
         MaxSection(
             title = stringResource(
                 R.string.cpu_live_cluster_range,
@@ -536,7 +527,7 @@ private fun CpuLiveClockGrid(
                     CoreClockTile(
                         row = row,
                         freqMhz = coreFreqMhz[row.cpu],
-                        ceilingMhz = clusterMaxFreqMhz[row.cluster.policyPath] ?: 0,
+                        ceilingMhz = CoreClockMath.ceilingMhz(row.cluster.policyPath, clusterMaxFreqMhz),
                         history = coreFreqHistory[row.cpu].orEmpty(),
                         accent = if (row.online) clusterAccent(row.cluster) else scheme.outline,
                         modifier = Modifier.weight(1f),
@@ -553,8 +544,9 @@ private fun CpuLiveClockGrid(
  * **وترتيب القراءة مقصود:** الرقم الكبير هو التردد لا النسبة، لأن المالك طلب صراحةً أن يرى
  * «التردد الحقيقي والديناميكي» — والنسبة سطرٌ صغير بجانب الاسم يشرح موضع الرقم من سقفه.
  *
- * **وحالات ثلاث لا رقم واحد:** مطفأة تكتب «متوقفة»، وذاكرة تُخفي `cpufreq` تكتب «النواة تخفي
- * `cpufreq`»، والمقروءة تكتب تردّدها. ولا تُعرض ٠ ميغاهرتز في أيّ منها.
+ * **وأربع حالات لا رقم واحد:** مطفأةٌ تكتب «متوقفة»، ومخفيّةٌ تكتب «النواة تخفي `cpufreq`»،
+ * ومسكّنةٌ (قراءة صفر) تكتب «مسكّنة»، والمقروءة تكتب تردّدها. ولا تُعرض «0 MHz» في واحدة منها
+ * (`CoreClockState`)، والحكم محروس بـ`CoreClockMathTest`.
  */
 @Composable
 private fun CoreClockTile(
@@ -566,8 +558,9 @@ private fun CoreClockTile(
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
-    val share = coreSharePercent(freqMhz, ceilingMhz)
-    val live = row.online && freqMhz != null && freqMhz > 0
+    val clock = CoreClockMath.reading(row.online, freqMhz, ceilingMhz)
+    val share = clock.percent
+    val live = clock.state == CoreClockState.LIVE
     val tileShape = RoundedCornerShape(MaxRadius.row)
     Column(
         modifier
@@ -598,10 +591,14 @@ private fun CoreClockTile(
             )
         }
         Text(
-            text = when {
-                !row.online -> stringResource(R.string.cpu_live_offline)
-                freqMhz == null -> stringResource(R.string.cpu_live_hidden)
-                else -> formatCpuFrequency(freqMhz.toLong() * 1000L)
+            text = when (clock.state) {
+                CoreClockState.OFFLINE -> stringResource(R.string.cpu_live_offline)
+                CoreClockState.HIDDEN -> stringResource(R.string.cpu_live_hidden)
+                // **وحالة ثالثة كانت تُكتب «0 MHz»:** `scaling_cur_freq` يردّ صفرًا لنواة مسكّنة،
+                // و«0 MHz» تقول للقارئ إن النواة تعمل بأدنى تردّد بدل أن تقول إنها مطفأة.
+                CoreClockState.PARKED -> stringResource(R.string.cpu_live_parked)
+                CoreClockState.LIVE ->
+                    freqMhz?.let { formatCpuFrequency(it.toLong() * 1000L) } ?: "\u2014"
             },
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
@@ -1031,7 +1028,7 @@ private fun CpuCoresSection(
                     modifier = Modifier.weight(1f, fill = true),
                     cluster = cluster,
                     rows = coreRows.filter { it.cluster.policyPath == cluster.policyPath },
-                    maxFreqMhz = clusterMaxFreqMhz[cluster.policyPath] ?: 0
+                    maxFreqMhz = CoreClockMath.ceilingMhz(cluster.policyPath, clusterMaxFreqMhz)
                 )
             }
         }

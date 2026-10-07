@@ -2934,6 +2934,7 @@
     <string name="cpu_live_share">%1$d%% of %2$s</string>
     <string name="cpu_live_hidden">Kernel hides cpufreq</string>
     <string name="cpu_live_offline">Offline</string>
+    <string name="cpu_live_parked">Parked</string>
     <string name="cpu_live_disclaimer">Android hides true utilisation. Every number here is a core clock as a share of its own maximum.</string>
     <string name="cpu_live_identity_map">Cluster map</string>
     <string name="cpu_live_advanced">Limits, presets and manual cores</string>

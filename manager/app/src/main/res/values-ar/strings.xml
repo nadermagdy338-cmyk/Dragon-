@@ -2890,6 +2890,7 @@
     <string name="cpu_live_share">%1$d%% من %2$s</string>
     <string name="cpu_live_hidden">النواة تخفي cpufreq</string>
     <string name="cpu_live_offline">متوقفة</string>
+    <string name="cpu_live_parked">مسكّنة</string>
     <string name="cpu_live_disclaimer">أندرويد يخفي الاستخدام الحقيقي. كل رقم هنا = تردد النواة ÷ أقصاها.</string>
     <string name="cpu_live_identity_map">خريطة العناقيد</string>
     <string name="cpu_live_advanced">الحدود والإعدادات والأنوية اليدوية</string>
