@@ -10,12 +10,12 @@
 
 | المقياس | العدد |
 | --- | --- |
-| ملفات متعقّبة | 2803 |
+| ملفات متعقّبة | 2825 |
 | ملفات مشتقّة من GPL | **0** |
 | منها داخل مسار الإصدار | **0** |
 | ملفات مجهولة الترخيص | 0 |
-| ملفات مملوكة (MaxManager) | 2351 |
-| ملفات برخصة طرف ثالث حُرّة | 452 |
+| ملفات مملوكة (MaxManager) | 2369 |
+| ملفات برخصة طرف ثالث حُرّة | 456 |
 | تبعيات Gradle | 43 |
 | صناديق Cargo | 108 |
 | ثغرات ABI | 0 |
@@ -48,7 +48,7 @@
 
 ## ج) ملفات بلا أصل خارجي مُعلَن
 
-العدد: **2320** ملفًا (موارد، أيقونات، خطوط، بيانات، ومصادر بترويسة ملكية داخلية بلا ذكر أصل خارجي). وتفصيلها الكامل في `build/license-report.json`.
+العدد: **2336** ملفًا (موارد، أيقونات، خطوط، بيانات، ومصادر بترويسة ملكية داخلية بلا ذكر أصل خارجي). وتفصيلها الكامل في `build/license-report.json`.
 
 ## د) التبعيات الخارجية
 
@@ -514,9 +514,11 @@
 | `manager/app/src/main/java/nd/max/core/maxai/ResponseModel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/maxai/SafetyEngine.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/maxai/SafetyGovernor.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/maxai/ThermalCapDistribution.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/maxai/TrustModel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/platform/AppStatusProtocol.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/platform/ChipsetIdentity.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/platform/ChipsetMatcher.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/platform/EventLog.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/core/platform/ForegroundAppResolver.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/platform/FpsMonitorUtil.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -534,6 +536,7 @@
 | `manager/app/src/main/java/nd/max/core/recommendation/RecommendationModels.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/recommendation/RecommendationTextClassifier.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/CopgTag.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/spoof/PerAppDeviceModel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SampleDevice.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofApplyBackend.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofApplyEngine.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -545,6 +548,7 @@
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofCopgContract.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofDeviceCatalog.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofEngineAdapter.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/core/spoof/SpoofEngineGate.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofEngineRegistry.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofExistingPerApp.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/core/spoof/SpoofFileTransaction.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -610,6 +614,7 @@
 | `manager/app/src/main/java/nd/max/ui/component/NeuralClockWave.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/component/NeuralDashboardKit.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/component/NeuralPill.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/component/NeuralSparkline.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/component/PowerCoreCard.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/component/PrivilegePanel.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/component/ProcessSurface.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -638,6 +643,7 @@
 | `manager/app/src/main/java/nd/max/ui/design/MaxDialogs.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/design/MaxDomainCard.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/design/MaxDrawer.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/design/MaxFloatingNotice.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/design/MaxHelp.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/design/MaxMetric.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/design/MaxProgressStrip.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
@@ -656,11 +662,14 @@
 | `manager/app/src/main/java/nd/max/ui/mainscreens/ControlScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/DiagnosticsScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/GetStartedScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/mainscreens/HomeCapacityCards.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/HomeCommandDeck.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/HomeDashboardComponents.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/HomeDeckModel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/HomeDeckSettingsSheet.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/HomeFormat.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/mainscreens/HomeGuideBanners.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/mainscreens/HomeGuideModel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/HomeScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/LegacyTweakComponents.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/mainscreens/LegendaryHomeDashboard.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -689,7 +698,6 @@
 | `manager/app/src/main/java/nd/max/ui/subscreens/AboutScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/AppSettingsScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/AppSpoofSection.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
-| `manager/app/src/main/java/nd/max/ui/subscreens/AppSpoofTagsSection.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/BypassChargeScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/BypassCheckScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/ChargingScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
@@ -745,13 +753,11 @@
 | `manager/app/src/main/java/nd/max/ui/subscreens/PrivilegeScreen.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/ProcessManagerScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/ResolutionScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
-| `manager/app/src/main/java/nd/max/ui/subscreens/SampleDevicePickerDialog.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/SetEditScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
-| `manager/app/src/main/java/nd/max/ui/subscreens/SpoofProfileEditor.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
-| `manager/app/src/main/java/nd/max/ui/subscreens/SpoofSurfaceSections.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/StorageDetailScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/ThermalDetailScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/TouchBoostScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/subscreens/UltraCleanerScreen.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/ZramManagerScreen.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/subscreens/audio/AudioBackendSection.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/subscreens/audio/AudioCapabilitySection.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -784,6 +790,7 @@
 | `manager/app/src/main/java/nd/max/ui/util/ClockMeterModel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/ClockWaveModel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/ConfigBackupInventory.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/util/CoreClockMath.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/CpuTopologyUtil.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/CrashLogUtil.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/DebloatFreezeUtil.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -813,6 +820,7 @@
 | `manager/app/src/main/java/nd/max/ui/util/FileWindowModel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/FpsOverlayPrefs.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/GamePanelPrefs.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/util/HardwareChoice.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/util/HomeActivityModel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/HomeDeckStore.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/util/InstallSourceUtil.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
@@ -832,6 +840,7 @@
 | `manager/app/src/main/java/nd/max/ui/util/MaxBackupSystemModel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/MaxPrefsBundle.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/MaxSearch.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/main/java/nd/max/ui/util/MemoryBoostEngine.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/MemoryLedger.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/ModuleHealthUtil.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/ModuleInventory.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -858,6 +867,8 @@
 | `manager/app/src/main/java/nd/max/ui/util/StorageUtil.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/StoryboardSources.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/util/ThermalModel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/util/UltraCleanEngine.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/util/UltraCleanModel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/VersionIdentity.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/WallpaperUtil.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/util/XiaomiVendorHalUtil.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
@@ -889,6 +900,7 @@
 | `manager/app/src/main/java/nd/max/ui/viewmodel/SpoofStudioViewModel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/viewmodel/TouchBoostViewModel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/main/java/nd/max/ui/viewmodel/TweakViewmodel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/main/java/nd/max/ui/viewmodel/UltraCleanerViewModel.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/main/java/nd/max/ui/viewmodel/ZramViewModel.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/test/java/nd/max/architecture/LayeringArchitectureTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/contract/AppStatusProtocolContractTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -1020,17 +1032,21 @@
 | `manager/app/src/test/java/nd/max/core/maxai/MinimalPlannerTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/maxai/ObjectiveTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/maxai/ResponseModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/maxai/ThermalCapDistributionTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/platform/ChipsetIdentityTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/platform/ChipsetPartCodeLineTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/platform/ForegroundAppResolverTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/platform/HudSessionTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/platform/ProcessFeedTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/recommendation/RecommendationTextClassifierTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/CopgTagTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/spoof/PerAppDeviceModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofApplyBackendTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofCapabilityMatrixTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofCopgContractTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofDeviceCatalogTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofEngineAdapterTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/core/spoof/SpoofEngineGateTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofEngineRegistryTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofExistingPerAppTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/core/spoof/SpoofFileTransactionTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -1043,6 +1059,7 @@
 | `manager/app/src/test/java/nd/max/ui/design/MaxCardSizeTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/design/MaxViewMenuContractTest.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/test/java/nd/max/ui/design/OutcomeFromCodeNotWordingTest.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/test/java/nd/max/ui/mainscreens/ActiveObjectiveTest.kt` | MaxManager app | Proprietary (All rights reserved) | REPO_DEFAULT | ADD_COPYRIGHT_HEADER |
 | `manager/app/src/test/java/nd/max/ui/mainscreens/ApplistPresentationArchitectureTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/mainscreens/ControlLayoutModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/mainscreens/HomeDeckModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -1073,6 +1090,7 @@
 | `manager/app/src/test/java/nd/max/ui/util/ClockMeterModelTest.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/test/java/nd/max/ui/util/ClockWaveTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/util/ConfigBackupInventoryTest.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
+| `manager/app/src/test/java/nd/max/ui/util/CoreClockMathTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/util/CrashLogUtilTest.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/test/java/nd/max/ui/util/EventLogResultTest.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/test/java/nd/max/ui/util/FileActionModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
@@ -1095,6 +1113,7 @@
 | `manager/app/src/test/java/nd/max/ui/util/FileWindowModelTest.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/test/java/nd/max/ui/util/FpsMonitorParseTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/util/GpuCeilingChoiceTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/ui/util/HardwareChoiceTest.kt` | MaxManager app | Proprietary (All rights reserved) | REPO_DEFAULT | ADD_COPYRIGHT_HEADER |
 | `manager/app/src/test/java/nd/max/ui/util/HealthParsersTest.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/test/java/nd/max/ui/util/HomeActivityModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/util/InstallSourceUtilTest.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
@@ -1124,6 +1143,7 @@
 | `manager/app/src/test/java/nd/max/ui/util/StorageScanNativeMappingTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/util/ThermalModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/util/ThermalZoneBatchTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
+| `manager/app/src/test/java/nd/max/ui/util/UltraCleanModelTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
 | `manager/app/src/test/java/nd/max/ui/util/VersionIdentityTest.kt` | Zexshia | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/test/java/nd/max/ui/util/ZramPlatformUtilTest.kt` | MaxManager contributors | Apache-2.0 | APACHE_HEADER_RETAINED | REVIEW |
 | `manager/app/src/test/java/nd/max/ui/viewmodel/AtlasPresentationTest.kt` | MaxManager app | Proprietary (All rights reserved) | NO_HEADER | KEEP |
