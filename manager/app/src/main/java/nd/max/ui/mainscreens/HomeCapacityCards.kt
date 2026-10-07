@@ -17,9 +17,7 @@
 package nd.max.ui.mainscreens
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,12 +25,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.CleaningServices
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,20 +49,18 @@ import nd.max.core.privilege.PrivilegeLevel
 import nd.max.ui.component.NeuralCaption
 import nd.max.ui.component.NeuralPalette
 import nd.max.ui.component.NeuralPanel
-import nd.max.ui.component.NeuralPill
+import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.NeuralTile
 import nd.max.ui.component.NeuralTrack
 import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
-import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.subscreens.BUSY_FRACTION
 import nd.max.ui.subscreens.DANGER_FRACTION
 import nd.max.ui.theme.MonoValueStyleSmall
 import nd.max.ui.viewmodel.DashboardState
-import nd.max.ui.viewmodel.MemoryBoostState
 
 /*
  * رموز طبقة الوصول — ثلاثة رموز لكل شيء، فلا نصّ محليّ مكتوب في الرسم.
@@ -100,12 +96,16 @@ internal fun accessAccent(level: PrivilegeLevel, p: NeuralPalette) = when (level
 }
 
 /**
- * بطاقة التنظيف في الرئيسية — سعة + باب (عقد §6.1).
+ * بطاقة التنظيف في الرئيسية — سعة + باب + زرّ فعل (عقد §6.1).
+ *
+ * **شكلها:** رأس (أيقونة · الاسم · `98% used` بلون السعة) ثم شريط **سميك** يُقرأ من بعيد، ثم
+ * سطر «المستخدَم من الإجمالي · المتاح»، ثم جملة الصدق (**الكاش أولًا، ملفاتك فقط إذا أشّرت**)،
+ * ثم زرّ `Clean` بعرض البطاقة. وكان الزرّ حبّة صغيرة في آخر البطاقة، فلا تُقرأ كفعل.
  *
  * **وهي لا تقيس شيئًا هنا، عن قصد:** قياس الفئات (كاش التطبيقات والصور المصغّرة وسجلات النظام)
  * مسحٌ يطول ويحتاج صلاحية، والخطة تنصّ أنه يجري **عند فتح الشاشة** («عند فتح الشاشة: مسح خلفي
- * يقيس البايتات»). فالبطاقة تعرض ما هو مقروء الآن في هذه اللحظة — سعة القرص — وتفتح الباب؛
- * ولو عرضت رقمًا لم تُقس بعد لكان ذلك تقديرًا في المكان الذي وُعد بأنه قياس.
+ * يقيس البايتات»). فالبطاقة تعرض ما هو مقروء الآن في هذه اللحظة — سعة القرص — وزرّها لا يحمل رقم
+ * «يمكن تحريره» لم يُقس بعد، فلا تقدير في المكان الذي وُعد بأنه قياس.
  *
  * **وعتبتا اللون مستعارتان من مالك السعة** (`DANGER_FRACTION`/`BUSY_FRACTION` في
  * `StorageDetailScreen`) لا مكتوبتان هنا: سعةٌ واحدة بحكمان تفترق يومًا.
@@ -124,62 +124,85 @@ internal fun UltraCleanerHomeCard(dashboard: DashboardState, onNavigate: (String
         fraction >= BUSY_FRACTION -> p.warn
         else -> p.accent
     }
+    val open = { onNavigate(MaxDestination.UltraCleaner.route) }
 
-    NeuralPanel(accent = accent, onClick = { onNavigate(MaxDestination.UltraCleaner.route) }) {
-        NeuralSectionHeader(
-            title = stringResource(R.string.ultra_cleaner_title),
-            caption = stringResource(R.string.ultra_cleaner_intro),
-            accent = accent,
-        )
-        if (fraction == null || percent == null) {
+    NeuralPanel(accent = accent, onClick = open, verticalSpacing = MaxSpace.md) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            NeuralIconChip(Icons.Rounded.CleaningServices, accent, size = 40.dp)
+            Spacer(Modifier.width(MaxSpace.md))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)) {
+                Text(
+                    stringResource(R.string.ultra_cleaner_title),
+                    color = p.text,
+                    fontSize = 17.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                NeuralCaption(stringResource(R.string.ultra_cleaner_tagline))
+            }
+            if (percent != null) {
+                Spacer(Modifier.width(MaxSpace.sm))
+                Text(
+                    stringResource(R.string.home_cleaner_percent_used, percent),
+                    color = accent,
+                    fontSize = 14.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                )
+            }
+        }
+        if (fraction == null) {
             // مجهول لا صفر: شريط فارغ مع «0%» يُقرأ «القرص فارغ» وهو عكس الخبر أصلًا.
             Text(
                 stringResource(R.string.max_home_unavailable),
                 color = p.muted,
-                fontSize = 11.sp,
-                lineHeight = 15.sp,
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
             )
         } else {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
-                NeuralValue(
-                    "$percent%",
-                    style = MonoValueStyleSmall.copy(
-                        fontSize = 30.sp,
-                        lineHeight = 33.sp,
-                        fontWeight = FontWeight.Bold,
+            NeuralTrack(fraction, accent, height = 10.dp)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                NeuralCaption(
+                    stringResource(
+                        R.string.ultra_cleaner_used_of,
+                        "${used.oneDecimal()} GB",
+                        "${total.oneDecimal()} GB",
                     ),
-                    color = p.text,
+                    modifier = Modifier.weight(1f),
                 )
-                Spacer(Modifier.width(MaxSpace.sm))
-                Column(
-                    Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(1.dp),
-                ) {
-                    NeuralCaption(
-                        stringResource(
-                            R.string.ultra_cleaner_used_of,
-                            "${used.oneDecimal()} GB",
-                            "${total.oneDecimal()} GB",
-                        ),
-                        color = p.muted,
-                    )
-                    NeuralCaption(stringResource(R.string.ultra_cleaner_free, "${free.oneDecimal()} GB"), color = accent)
-                }
+                NeuralCaption(
+                    stringResource(R.string.ultra_cleaner_free, "${free.oneDecimal()} GB"),
+                    color = accent,
+                )
             }
-            NeuralTrack(fraction, accent)
         }
-        NeuralPill(
+        Text(
+            stringResource(R.string.ultra_cleaner_intro),
+            color = p.muted,
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
+        )
+        HomeActionButton(
             text = stringResource(R.string.home_cleaner_action),
-            accent = accent,
+            icon = Icons.Rounded.CleaningServices,
             filled = true,
-            navigates = true,
-            onClick = { onNavigate(MaxDestination.UltraCleaner.route) },
+            accent = accent,
+            onClick = open,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
 
 /**
  * مصفوفة الذاكرة — سعة RAM وZRAM والتخزين الداخلي في بطاقة واحدة.
+ *
+ * **والفعل ليس هنا:** كان للبطاقة صفّ Boost يُنفّذ ويقيس، ثم صار زرّ **Boost** مالكَه الوحيد في
+ * `HomeActionRow` فوق — فبقاء الزرّ في الموضعين كان سيرسم فعلًا واحدًا مرّتين على شاشة واحدة.
+ * وكل صفّ هنا بابٌ إلى شاشة مالكة (مركز الذاكرة · مدير ZRAM · تفصيل التخزين)، وبطاقة التنظيف
+ * تحتها فعل التخزين. ونتيجة آخر Boost تُكتب تحت زرّها لا هنا.
  *
  * **ما هي وما ليست:** تعرض **حقائق سعة** (المستخدَم من الإجمالي، والمتاح)، ولا تُصدر حُكم ضغط.
  * وهذا ليس تحفّظًا شكليًّا: `ADR-34` يقرّر أن ضغط الذاكرة يُقاس بPSI لا بنسبة الامتلاء،
@@ -201,8 +224,6 @@ internal fun UltraCleanerHomeCard(dashboard: DashboardState, onNavigate: (String
 internal fun MemoryMatrixCard(
     dashboard: DashboardState,
     onNavigate: (String) -> Unit,
-    boost: MemoryBoostState,
-    onBoost: () -> Unit,
 ) {
     val p = neuralPalette()
     val ramTotal = dashboard.ramTotalMb
@@ -276,45 +297,6 @@ internal fun MemoryMatrixCard(
             accent = p.ok,
             onClick = { onNavigate(MaxDestination.StorageDetail.route) },
         )
-
-        /*
-         * **الفعل الظاهر (عقد §7.1-5): البطاقة لم تعد للقراءة فقط.**
-         *
-         * والزرّ واحد، والباقي **جملة حالة** تحته تتغيّر مع ما جرى فعلًا: يُنفَّذ · حرّر رقمًا ·
-         * لم يجد ما يستحق · لم يُنفَّذ لنقص صلاحية. وهذا أفضل من زرّين وعلمين: كل ما تحتاجه
-         * هذه البطاقة أن تقول ما حدث، والقارئ لا يقرأ إلا سطرًا واحدًا.
-         *
-         * **والزرّ لا يختفي عند بطلان الصلاحية** (نصّ §10.3): يُعرض ويُقال له ما ينقصه. وهذا
-         * مقصود: من لا يرى الزرّ لا يعرف أن الميزة موجودة أصلًا، فيقرأ التطبيق كأنه بلا Boost.
-         */
-        // والحصيلة تُقبض في قيمة محلية: `when` بلا موضوع لا يُضيّق النوع داخل فرعه في كل
-        // إعدادات المترجم، والقيمة المحلية تجعل الفرع صريحًا بلا اعتماد على ذلك.
-        val freedMb = boost.outcome?.freedMb
-        val boostMessage = when {
-            boost.running -> stringResource(R.string.home_memory_boost_running)
-            boost.blocked -> stringResource(R.string.home_memory_boost_blocked)
-            freedMb != null -> stringResource(R.string.home_memory_boost_freed, "$freedMb MB")
-            boost.outcome != null -> stringResource(R.string.home_memory_boost_none)
-            else -> stringResource(R.string.home_memory_boost_desc)
-        }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralPill(
-                text = stringResource(R.string.home_memory_boost),
-                accent = if (boost.blocked) p.muted else p.accentAlt,
-                filled = !boost.blocked,
-                onClick = onBoost,
-            )
-            Spacer(Modifier.width(MaxSpace.sm))
-            Text(
-                boostMessage,
-                color = p.muted,
-                fontSize = 11.sp,
-                lineHeight = 15.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-        }
     }
 }
 

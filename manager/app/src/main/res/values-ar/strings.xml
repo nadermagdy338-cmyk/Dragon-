@@ -2839,6 +2839,19 @@
     <string name="home_banner_done">تم</string>
     <string name="home_banner_dismiss">إغلاق الجولة</string>
     <string name="home_banner_restore">إظهار الجولة مجددًا</string>
+    <string name="home_vital_cpu">تردد المعالج</string>
+    <string name="home_vital_cpu_ceiling">%1$d%% من سقفه</string>
+    <string name="home_vital_cpu_live">تردد حيّ</string>
+    <string name="home_vital_ram_free">الذاكرة المتاحة</string>
+    <string name="home_vital_ram_used_of">%1$s من %2$s مستخدمة</string>
+    <string name="home_vital_temperature">الحرارة</string>
+    <string name="home_vital_temp_cool">باردة</string>
+    <string name="home_vital_temp_warm">دافئة</string>
+    <string name="home_vital_temp_hot">ساخنة</string>
+    <string name="home_vital_charging">قيد الشحن</string>
+    <string name="home_vital_on_battery">على البطارية</string>
+    <string name="home_cleaner_percent_used">مستخدم %1$d%%</string>
+    <string name="home_hero_uptime">يعمل منذ %1$s</string>
 
     <string name="home_memory_boost">تعزيز</string>
     <string name="home_memory_boost_desc">يوقف التطبيقات المخبأة ثم يعرض الذاكرة التي حُرّرت فعلًا.</string>

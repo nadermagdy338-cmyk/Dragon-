@@ -13,15 +13,17 @@ import org.junit.Test
 import java.io.File
 
 /**
- * طلبان بنسبة مئويّة — **يُقاسان بقراءة الرقم لا بلقطة**: «اجعل أوّل بطاقة في الشاشة الرئيسية
- * أصغر بنسبة ٥٪» و«وزر معلومات الجهاز أكبر بنسبة ٤٪».
+ * طلب بنسبة مئويّة — **يُقاس بقراءة الرقم لا بلقطة**: «وزر معلومات الجهاز أكبر بنسبة ٤٪».
  *
- * **ولماذا اختبار نصّيّ لا اختبار رسم:** النسبة نفسها رقمٌ في الكود (`PULSE_SCALE` ·
- * `COMPACT_SCALE`)، وهذا ما يُرسّخه الحارس: ألّا يُمحى الرقم بضغطة عابرة، وأن يبقى **مطبَّقًا على
- * كل** ما وُعد به لا على زاوية واحدة منه.
+ * (وكان معه «أوّل بطاقة أصغر بنسبة ٥٪»؛ سقط حارسه لأن تلك البطاقة — `PulsePanel` — استُبدلت
+ * بـ`HomeHeroCard` المضغوطة أصلًا، وبقاء الحارس كان سيحرس سطورًا لم تعد في الكود.
+ * وحرّاس الشكل الجديد في `HomeShapeContractTest`.)
  *
- * **وحدّه المُعلَن:** هل تُقرأ البطاقة أصغر فعلًا، وهل يبدو الزرّ أكبر — **يحتاج جهازًا**. المقيس
- * هنا: الرقم، ومواضع تطبيقه، وأنّ **حدّ اللمس ٤٨dp لم يُمسّ** (وهو ما كانت النسبة تستطيع سحقه).
+ * **ولماذا اختبار نصّيّ لا اختبار رسم:** النسبة نفسها رقمٌ في الكود (`COMPACT_SCALE`)، وهذا ما
+ * يُرسّخه الحارس: ألّا يُمحى الرقم بضغطة عابرة، وأن يبقى **مطبَّقًا على كل** ما وُعد به.
+ *
+ * **وحدّه المُعلَن:** هل يبدو الزرّ أكبر — **يحتاج جهازًا**. المقيس هنا: الرقم، ومواضع تطبيقه،
+ * وأنّ **حدّ اللمس ٤٨dp لم يُمسّ** (وهو ما كانت النسبة تستطيع سحقه).
  */
 class UserScaleRequestsTest {
 
@@ -79,56 +81,5 @@ class UserScaleRequestsTest {
             "ولا يُضرب المعامل في حدّ اللمس — الحدّ سياسة (§١٣) لا ذوق",
             pill.contains("minTouchTarget *"),
         )
-    }
-
-    @Test
-    fun `the first home card is lowered by exactly five percent, on its own numbers`() {
-        val home = read("ui/mainscreens/LegendaryHomeDashboard.kt")
-        assertTrue("‏−٥٪ رقم واحد مسمّى", home.contains("const val PULSE_SCALE = 0.95f"))
-        listOf(
-            "contentPadding = PaddingValues(18.dp * PULSE_SCALE)",
-            "verticalSpacing = 16.dp * PULSE_SCALE",
-            "size = 40.dp * PULSE_SCALE",
-            "fontSize = 16.sp * PULSE_SCALE",
-            "fontSize = 11.sp * PULSE_SCALE",
-            "fontSize = 44.sp * PULSE_SCALE",
-            "lineHeight = 48.sp * PULSE_SCALE",
-            "spacedBy(8.dp * PULSE_SCALE)",
-        ).forEach { applied ->
-            assertTrue("لم يُطبَّق: $applied", home.contains(applied))
-        }
-    }
-
-    @Test
-    fun `the five percent stops at the card's own numbers and never shaves a shared component`() {
-        // المكوّنات المشتركة (زرّ Max AI · حبّة معلومات الجهاز) لها صندوق لمس ٤٨dp ومستعملون
-        // آخرون: لو دخلها المعامل لتغيّر مكوّن بحكم بطاقةٍ لا يملكه.
-        val pulse = read("ui/mainscreens/LegendaryHomeDashboard.kt")
-            .substringAfter("private fun PulsePanel(")
-            .substringBefore("Shown only when a real problem exists")
-
-        val maxAiCall = pulse.substringAfter("MaxAiEntryButton(").substringBefore("onMaxAi")
-        assertFalse("المعامل تسرّب إلى زرّ Max AI", maxAiCall.contains("PULSE_SCALE"))
-
-        /*
-         * **والمَعلَم تغيّر بعد جولة المستوى:** كانت هذه أوّل `NeuralPill(` في البطل، ودخلت
-         * قبله حبّة **وضع الوصول** (`accessLabelRes`) في صفّ الهوية. وأخذُ أوّل حبّة صار يقيس
-         * حبّة الدولة لا حبّة الجهاز — أي يقيس شيئًا آخر ويقول «تسرّب» أو «لم يتسرّب» عنه.
-         * فالمَعلَم صار ما يميّز الحبّة المقصودة فعلًا: **نصّها من سجلّ الوجهة** (`DeviceInfo.titleRes`)
-         * — وهي نفسها قاعدة ADR-02 (الاسم من السجلّ لا نصًّا مكتوبًا).
-         */
-        val pillCall = pulse.substringAfter("MaxDestination.DeviceInfo.titleRes")
-            .substringBefore("onOverview")
-        assertFalse("المعامل تسرّب إلى حبّة معلومات الجهاز", pillCall.contains("PULSE_SCALE"))
-        assertTrue(
-            "والحبّة المقيسة هي حبّة الجهاز لا حبّة وضع الوصول",
-            pillCall.contains("compact = true"),
-        )
-
-        assertTrue(
-            "وحدّ اللمس ٤٨dp لزرّ Max AI قائم في موضعه",
-            read("ui/component/MaxAiEntryButton.kt").contains("minimumInteractiveComponentSize()"),
-        )
-
     }
 }

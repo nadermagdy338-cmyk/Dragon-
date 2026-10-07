@@ -2880,6 +2880,19 @@
     <string name="home_banner_done">Done</string>
     <string name="home_banner_dismiss">Close the guide</string>
     <string name="home_banner_restore">Show the guide again</string>
+    <string name="home_vital_cpu">CPU clock</string>
+    <string name="home_vital_cpu_ceiling">%1$d%% of its ceiling</string>
+    <string name="home_vital_cpu_live">Live clock</string>
+    <string name="home_vital_ram_free">RAM free</string>
+    <string name="home_vital_ram_used_of">%1$s of %2$s used</string>
+    <string name="home_vital_temperature">Temperature</string>
+    <string name="home_vital_temp_cool">Cool</string>
+    <string name="home_vital_temp_warm">Warm</string>
+    <string name="home_vital_temp_hot">Hot</string>
+    <string name="home_vital_charging">Charging</string>
+    <string name="home_vital_on_battery">On battery</string>
+    <string name="home_cleaner_percent_used">%1$d%% used</string>
+    <string name="home_hero_uptime">Up %1$s</string>
 
     <!-- Memory card: the two actions are the point of the redesign. -->
     <string name="home_memory_boost">Boost</string>
