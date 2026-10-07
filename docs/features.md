@@ -1,6 +1,6 @@
 # Features
 
-MaxManager's surface is 56 screens across ten control domains, plus a small set of tools. This page
+MaxManager's surface is 60 screens across ten control domains, plus a small set of tools. This page
 explains what each part is *for* — not just that it exists.
 
 A rule that shapes everything below: **a control that your device does not expose is not shown as a
