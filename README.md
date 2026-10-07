@@ -90,7 +90,7 @@ Two doors in, depending on who you are:
 | **I want to use it** | **I build ROMs** |
 | --- | --- |
 | [What it looks like](#what-it-looks-like) · [What you can control](#what-you-can-control) · [Install](#install) | [For ROM developers](#for-rom-developers) — the integration kit in `android/aosp/` |
-| 59 screens across ten control domains, plus a tools shelf | Soong files, an init service, a sepolicy domain, a privileged-permission allowlist |
+| 60 screens across ten control domains, plus a tools shelf | Soong files, an init service, a sepolicy domain, a privileged-permission allowlist |
 | [Requirements](#requirements): Android 10+, root (or Shizuku for part of it) | Permission-first: proprietary software, written permission required |
 
 <p align="right"><sub><a href="#top">↑ Back to top</a></sub></p>
