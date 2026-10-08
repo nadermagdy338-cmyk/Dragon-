@@ -103,7 +103,7 @@ class StoryboardModelTest {
         // المفتاح من `HardwareControlKey` نفسه: سطر المُختار وسطر العتاد يجب أن يتكلّما عن المقبض
         // ذاته، وإلا ظهر المقبض مرتين (أو لم يُربط أحدهما بالآخر أبدًا).
         assertEquals(listOf(HardwareControlKey.cpuLimits("policy0")), lines.map { it.knob })
-        assertEquals("range 300 MHz \u2192 1.10 GHz", lines.single().to)
+        assertEquals("range 300 MHz \u2013 1.10 GHz", lines.single().to)
     }
 
     @Test

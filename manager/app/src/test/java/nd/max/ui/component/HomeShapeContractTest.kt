@@ -149,7 +149,7 @@ class HomeShapeContractTest {
 
     @Test
     fun `the poll loop measures its cost and reads storage on a slower beat`() {
-        val vm = read("HomeDashboardViewModel.kt")
+        val vm = File(sourceRoot, "ui/viewmodel/HomeDashboardViewModel.kt").readText()
         assertTrue("كلفة النبضة تُكتب في السجلّ", vm.contains("recordPollCost(fastMs, slowMs)"))
         assertTrue("التخزين بإيقاع بطيء", vm.contains("storageForCycle(SystemClock.elapsedRealtime())"))
     }

@@ -17,6 +17,7 @@
  */
 package nd.max.ui.mainscreens
 
+import nd.max.core.hardware.HardwareControlKey
 import nd.max.ui.navigation.MaxDestination
 
 /** الملف الشخصي للطاقة بمفتاحه الثابت، لا بنصّه المترجم. */
@@ -68,7 +69,7 @@ internal object ActivityFormat {
 
     /** الشاشة التي تضبط المقبض، أو null حين لا شاشة معروفة له (فلا يُكتب باب وهمي). */
     fun routeFor(knob: String): String? = when {
-        knob.startsWith("cpu_limits:") || knob == "cpu_boost" || knob == "cpu_governor" ->
+        HardwareControlKey.isCpuLimits(knob) || knob == "cpu_boost" || knob == "cpu_governor" ->
             MaxDestination.CpuCoreControl.route
         knob.startsWith("gpu_") -> MaxDestination.GpuStudio.route
         knob == "thermal" -> MaxDestination.ThermalDetail.route
