@@ -326,7 +326,7 @@ object StoryboardModel {
         return when {
             min == max -> min
             minKHz <= 0L -> max
-            else -> "$min \u2192 $max"
+            else -> "$min \u2013 $max"
         }
     }
 

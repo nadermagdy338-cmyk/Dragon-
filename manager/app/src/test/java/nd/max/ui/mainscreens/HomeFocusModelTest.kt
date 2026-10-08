@@ -35,7 +35,7 @@ class HomeFocusModelTest {
         assertFalse(HomeFocusModel.clearsHide(HomeStorageState.FULL))
     }
     @Test
-    fun `one rule chooses the warning and whether it rises: heat, then storage, then memory`() {
+    fun `one rule chooses the warning and whether it rises - heat, then storage, then memory`() {
         assertEquals(HomeFocusKind.HEAT, HomeFocusModel.focusKind(46, 0.95f, storageVisible = true))
         assertEquals(HomeFocusKind.STORAGE, HomeFocusModel.focusKind(30, 0.95f, storageVisible = true))
         assertEquals(HomeFocusKind.MEMORY, HomeFocusModel.focusKind(30, 0.95f, storageVisible = false))

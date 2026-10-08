@@ -39,7 +39,7 @@ class HomeShapeContractTest {
     @Test
     fun `the dashboard order puts identity banners vitals and actions first`() {
         val body = read("LegendaryHomeDashboard.kt").substringAfter("internal fun LegendaryHomeDashboard(")
-        val order = listOf("HomeHeader(", "HomeHeroCard(", "HardwarePulseCards(", "HomeActionRow(", "HomeVitalsGrid(", "MemoryMatrixCard(", "UltraCleanerHomeCard(", "CommandDeck(", "UnifiedActivityCard(")
+        val order = listOf("HomeHeader(", "HomeHeroCard(", "HardwarePulseCards(", "UnifiedActivityCard(", "HomeActionRow(", "HomeVitalsGrid(", "MemoryMatrixCard(", "UltraCleanerHomeCard(", "CommandDeck(")
             .map { body.indexOf(it) }
         assertTrue("كتلة مفقودة من الرئيسية", order.all { it >= 0 })
         assertTrue("ترتيب الكتل الأولى تغيّر", order == order.sorted())
@@ -140,7 +140,7 @@ class HomeShapeContractTest {
     }
 
     @Test
-    fun `storage has one owner: the memory matrix carries no storage number of its own`() {
+    fun `storage has one owner - the memory matrix carries no storage number of its own`() {
         val capacity = read("HomeCapacityCards.kt")
         val matrix = capacity.substringAfter("internal fun MemoryMatrixCard(").substringBefore("private fun MemoryFactRow(")
         assertFalse("لا رقم للتخزين داخل المصفوفة", matrix.contains("storageUsedGb"))

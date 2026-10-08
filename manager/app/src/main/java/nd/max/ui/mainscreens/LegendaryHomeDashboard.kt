@@ -94,7 +94,8 @@ import kotlin.math.roundToInt
  *  6. memory   — RAM, ZRAM and storage capacity, each row a door.
  *  7. cleaner  — storage fullness and the Ultra Cleaner action.
  *  8. deck     — the control platform: the destinations people reach for, in compact rows.
- *  9. activity — what your choices are doing right now; last, and only when it has verified outcomes.
+ *  2b. activity — what your settings are doing now, right under CPU and GPU: a plain summary, the changes,
+ *      and one door per row. It always shows something: an empty state says the device runs on defaults.
  *
  * **بلا حركة على البطاقات:** لا بانرات متحركة ولا دخول متتابع ولا تبديل مشهد بانزلاق.
  *
@@ -159,6 +160,7 @@ internal fun LegendaryHomeDashboard(
                 onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
             )
         }
+        UnifiedActivityCard(maxAi = maxAi, onNavigate = onNavigate)
         Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
             NeuralSectionHeader(title = stringResource(R.string.home_section_actions))
             Box(Modifier.homeTourTarget(HomeTourTarget.Actions, tourTargets)) {
@@ -201,7 +203,6 @@ internal fun LegendaryHomeDashboard(
         Box(Modifier.homeTourTarget(HomeTourTarget.Deck, tourTargets)) {
             CommandDeck(entries = deckEntries, onOpen = onOpenDeck, onConfigure = onConfigureDeck)
         }
-        UnifiedActivityCard(maxAi = maxAi)
     }
 }
 
@@ -232,11 +233,9 @@ private fun HomeHeader(
                 letterSpacing = 1.4.sp
             )
         }
-        NeuralPill(
+        HomeStatusChip(
             text = stringResource(if (online) R.string.home_active else R.string.home_idle),
             accent = if (online) p.ok else p.danger,
-            filled = true,
-            dot = true
         )
         // **`?` قبل الزرّين بأمر §5.1:** الجولة تُطلب من الرأس لا من داخل البطاقة، ومن
         // أتمّها ثم أرادها يعود إلى هنا — فلا بحث في الشاشة عن مفتاح إعادة العرض.
@@ -537,5 +536,28 @@ private fun FocusCard(
                 )
             }
         }
+    }
+}
+
+/**
+ * حالة المحرّك في الرأس: بهندسة أزرار الرأس نفسها (٣٨dp، نصف القطر ذاته، حدّ بالعرض ذاته)، فلا تطفو
+ * كبسولة قصيرة بين مربعات مستديرة. اللون يحمل الحالة، والكلمة تحملها أيضًا.
+ */
+@Composable
+private fun HomeStatusChip(text: String, accent: Color) {
+    val p = neuralPalette()
+    val shape = RoundedCornerShape(MaxRadius.control)
+    Row(
+        Modifier
+            .height(38.dp)
+            .clip(shape)
+            .background(accent.copy(alpha = .14f))
+            .border(BorderStroke(1.dp, accent.copy(alpha = .40f)), shape)
+            .padding(horizontal = MaxSpace.md),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(MaxSpace.sm).clip(CircleShape).background(accent))
+        Spacer(Modifier.width(MaxSpace.xs))
+        Text(text, color = p.text, style = MaterialTheme.typography.labelMedium, maxLines = 1)
     }
 }
