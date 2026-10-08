@@ -45,7 +45,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nd.max.R
 import nd.max.ui.component.neuralClickable
@@ -56,7 +55,7 @@ import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.viewmodel.MemoryBoostState
 
-private val ActionHeight = 52.dp
+private val ActionHeight = MaxSize.minTouchTarget
 
 @Composable
 internal fun HomeActionRow(

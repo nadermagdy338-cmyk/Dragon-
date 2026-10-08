@@ -48,6 +48,7 @@ import nd.max.ui.design.MaxSpace
 import nd.max.R
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.privilege.PrivilegeLevel
+import nd.max.ui.component.NeuralSectionHeader
 import nd.max.ui.component.MaxReveal
 import nd.max.ui.component.NeuralSparkline
 import nd.max.ui.component.NeuralIconChip
@@ -118,9 +119,11 @@ internal fun LegendaryHomeDashboard(
     onBoost: () -> Unit,
     /** `?` في الرأس: يعيد جولة البانرات بطلب صريح (`HomeGuideModel`). */
     onShowGuide: () -> Unit,
+    /** مراسي جولة أول فتح (`HomeTourOverlay`)؛ `null` في المعاينات التي لا جولة فيها. */
+    tourTargets: HomeTourTargets? = null,
 ) {
     val online = ui.rootStatus && ui.moduleInstalled
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(MaxSpace.lg)) {
         /*
          * الدخول المتتابع (عقد §5.4-أ): الرقم **مشتقّ من الموضع** (`slot`) لا مكتوب لكل كتلة،
          * و`MaxReveal` يقصّ التأخير عند حدّه ويحترم إيقاف الحركة في النظام.
@@ -130,18 +133,20 @@ internal fun LegendaryHomeDashboard(
             HomeHeader(online, onSettings, onReboot, onShowGuide)
         }
         MaxReveal(delayMillis = RevealStep * slot++) {
-            HomeHeroCard(
-                deviceName = deviceName,
-                chipsetName = dashboard.chipsetName,
-                uptimeMinutes = dashboard.uptimeMinutes,
-                accessLevel = accessLevel,
-                // من مسارها الحقيقي (`MaxAiState.aiEnabled`) لا مخمَّنة من وجود الشاشة.
-                aiEnabled = maxAi.aiEnabled,
-                // معلومات الجهاز: المالك الوحيد لفكرة «نظرة على الجهاز» (طلب المالك).
-                onOverview = { onNavigate(MaxDestination.DeviceInfo.route) },
-                // مدخل Max AI من أول بطاقة (طلب المالك): كان مقعدًا في الشريط السفلي.
-                onMaxAi = { onNavigate(MaxDestination.MaxAi.route) },
-            )
+            Box(Modifier.homeTourTarget(HomeTourTarget.Hero, tourTargets)) {
+                HomeHeroCard(
+                    deviceName = deviceName,
+                    chipsetName = dashboard.chipsetName,
+                    uptimeMinutes = dashboard.uptimeMinutes,
+                    accessLevel = accessLevel,
+                    // من مسارها الحقيقي (`MaxAiState.aiEnabled`) لا مخمَّنة من وجود الشاشة.
+                    aiEnabled = maxAi.aiEnabled,
+                    // معلومات الجهاز: المالك الوحيد لفكرة «نظرة على الجهاز» (طلب المالك).
+                    onOverview = { onNavigate(MaxDestination.DeviceInfo.route) },
+                    // مدخل Max AI من أول بطاقة (طلب المالك): كان مقعدًا في الشريط السفلي.
+                    onMaxAi = { onNavigate(MaxDestination.MaxAi.route) },
+                )
+            }
         }
         // من أتمّ البانرات لا تُحجز لها خانة، وإلا بقي فراغ بين كتلتين بلا محتوى.
         if (HomeGuideModel.visible(guideFinished)) {
@@ -150,33 +155,54 @@ internal fun LegendaryHomeDashboard(
             }
         }
         MaxReveal(delayMillis = RevealStep * slot++) {
-            HomeVitalsGrid(dashboard = dashboard, onNavigate = onNavigate)
+            Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
+                NeuralSectionHeader(
+                    title = stringResource(R.string.home_section_live),
+                    caption = stringResource(R.string.home_section_live_caption),
+                )
+                Box(Modifier.homeTourTarget(HomeTourTarget.Vitals, tourTargets)) {
+                    HomeVitalsGrid(dashboard = dashboard, onNavigate = onNavigate)
+                }
+            }
         }
         MaxReveal(delayMillis = RevealStep * slot++) {
-            HomeActionRow(
-                boost = boost,
-                onBoost = onBoost,
-                onControl = { onNavigate(MaxDestination.Control.route) },
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
+                NeuralSectionHeader(title = stringResource(R.string.home_section_actions))
+                Box(Modifier.homeTourTarget(HomeTourTarget.Actions, tourTargets)) {
+                    HomeActionRow(
+                        boost = boost,
+                        onBoost = onBoost,
+                        onControl = { onNavigate(MaxDestination.Control.route) },
+                    )
+                }
+            }
         }
         MaxReveal(delayMillis = RevealStep * slot++) {
-            HardwarePulseCards(
-                dashboard = dashboard,
-                onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
-                onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
-            )
+            Box(Modifier.homeTourTarget(HomeTourTarget.Pulse, tourTargets)) {
+                HardwarePulseCards(
+                    dashboard = dashboard,
+                    onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
+                    onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
+                )
+            }
         }
         MaxReveal(delayMillis = RevealStep * slot++) { UnifiedActivityCard(maxAi = maxAi) }
         MaxReveal(delayMillis = RevealStep * slot++) { FocusCard(dashboard, onNavigate) }
         // السعة ثم الفعل: من قرأ «كم بقي» يجد تحته «ما أستطيع تحريره».
         MaxReveal(delayMillis = RevealStep * slot++) {
-            MemoryMatrixCard(dashboard = dashboard, onNavigate = onNavigate)
+            Box(Modifier.homeTourTarget(HomeTourTarget.Memory, tourTargets)) {
+                MemoryMatrixCard(dashboard = dashboard, onNavigate = onNavigate)
+            }
         }
         MaxReveal(delayMillis = RevealStep * slot++) {
-            UltraCleanerHomeCard(dashboard = dashboard, onNavigate = onNavigate)
+            Box(Modifier.homeTourTarget(HomeTourTarget.Cleaner, tourTargets)) {
+                UltraCleanerHomeCard(dashboard = dashboard, onNavigate = onNavigate)
+            }
         }
         MaxReveal(delayMillis = RevealStep * slot++) {
-            CommandDeck(entries = deckEntries, onOpen = onOpenDeck, onConfigure = onConfigureDeck)
+            Box(Modifier.homeTourTarget(HomeTourTarget.Deck, tourTargets)) {
+                CommandDeck(entries = deckEntries, onOpen = onOpenDeck, onConfigure = onConfigureDeck)
+            }
         }
     }
 }

@@ -73,4 +73,38 @@ class HomeShapeContractTest {
         assertTrue("الإيقاف يجب أن يلتقط السحب", banners.contains("collectIsDraggedAsState"))
         assertFalse("isScrollInProgress يرتفع في الانتقال التلقائي نفسه", banners.contains("isScrollInProgress"))
     }
+
+    @Test
+    fun `every tour step lights something that exists and the question mark restarts it`() {
+        val model = read("HomeTourModel.kt")
+        val dashboard = read("LegendaryHomeDashboard.kt")
+        val targets = model.substringAfter("enum class HomeTourTarget {").substringBefore("}")
+            .split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        assertTrue("لا أهداف في الجولة", targets.isNotEmpty())
+        targets.forEach { target ->
+            assertTrue("هدف بلا مرساة في الرئيسية: $target", dashboard.contains("HomeTourTarget.$target,"))
+            assertTrue("هدف بلا خطوة: $target", model.contains("(HomeTourTarget.$target,"))
+        }
+        assertTrue("`?` يجب أن يعيد الجولة مع البانرات", read("HomeGuideModel.kt").contains("tourFinished = false"))
+        assertTrue("الغطاء يجب أن يبتلع اللمس", read("HomeTourOverlay.kt").contains("detectTapGestures"))
+        assertFalse(
+            "boundsInWindow تقصّ العنصر خارج الشاشة فلا يُعرف كم نمرّر",
+            read("HomeTourOverlay.kt").lines().any { it.contains("boundsInWindow()") && !it.trimStart().startsWith("*") },
+        )
+    }
+
+    @Test
+    fun `the live readings use the design headline token and never a literal font size`() {
+        val grid = read("HomeVitalsGrid.kt")
+        assertTrue("القراءة الرئيسية تأخذ رمز الخط، لا حجمًا مكتوبًا", grid.contains("MonoValueStyleLarge"))
+        assertFalse("حجم خط مكتوب بيد داخل الشبكة", grid.contains("fontSize = "))
+    }
+
+    @Test
+    fun `the two live blocks carry the shared section title and the rest of the page keeps its order`() {
+        val dashboard = read("LegendaryHomeDashboard.kt")
+        assertTrue("الترويسة المشتركة للقسم غائبة", dashboard.contains("NeuralSectionHeader("))
+        assertTrue("القراءات بلا ترويسة", dashboard.indexOf("home_section_live") in 0 until dashboard.indexOf("HomeVitalsGrid("))
+        assertTrue("الإجراءات بلا ترويسة", dashboard.indexOf("home_section_actions") in 0 until dashboard.indexOf("HomeActionRow("))
+    }
 }

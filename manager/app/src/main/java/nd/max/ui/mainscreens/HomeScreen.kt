@@ -89,11 +89,26 @@ fun HomeScreen(
     // تُعرض كحالة في البطل، فتُجمَع كما تُجمَع حالة Max AI (نفس الأسلوب، نفس المصدر).
     val privilege by nd.max.core.privilege.PrivilegeManager.snapshot.collectAsStateWithLifecycle()
     val boost by dashboardViewModel.memoryBoost.collectAsStateWithLifecycle()
+    // **والطبقة تُحدَّث عند ظهور الرئيسية** (`HOME-ACCESS-REFRESH-01`): كانت الرئيسية تقرأ
+    // `snapshot` ولا تُحدّثه، و`refresh()` لا يُستدعى إلا من الإعدادات وشاشة البداية — فيبقى
+    // الافتراضيّ (`NONE` = «أساسي») على هاتفٍ جذره ممنوح فعلًا (لقطتا المالك: Moha «Root» وMax
+    // «لا روت ولا شيزوكو» على الجهاز نفسه). و`refresh()` قراءة لا طلب: `cachedRootGranted()` لا تُظهر
+    // نافذة صلاحية. ويُعاد عند تغيّر `rootStatus` لأن أول فحصٍ للجذر يملأ الصدفة المخبّأة التي يقرؤها.
+    LaunchedEffect(isVisible, ui.rootStatus) {
+        if (isVisible) {
+            withContext(Dispatchers.IO) {
+                nd.max.core.privilege.PrivilegeManager.refresh()
+            }
+        }
+    }
 
     // **وجولة الرئيسية** (`HomeGuideModel`): هل أُتمّت؟ والسجلّ على الجهاز وحده، والقراءة عند
     // التركيب لا في كل إطار. و`?` في الرأس يعيدها بطلب صريح.
     val guideStore = remember(context) { HomeGuideStore.of(context) }
     var guideFinished by remember { mutableStateOf(guideStore.finished) }
+    // **وجولة أول فتح** (`HomeTourModel`): سجلّها مستقلّ عن البانرات، وتُعرض ما دامت الشاشة ظاهرة
+    // فقط — فالرئيسية تبقى مركّبة خلف شاشات أخرى، ولا يُرسم تعتيمها فوق غيرها.
+    var tourFinished by remember { mutableStateOf(guideStore.tourFinished) }
 
     val deckStore = remember(context) { HomeDeckStore.of(context) }
     val usageStore = remember(context) { ScreenUsageStore.of(context) }
@@ -131,7 +146,13 @@ fun HomeScreen(
             },
             onShowGuide = {
                 guideFinished = false
+                tourFinished = false
                 guideStore.restart()
+            },
+            tourActive = !tourFinished && isVisible,
+            onTourFinish = {
+                tourFinished = true
+                guideStore.tourFinished = true
             },
             boost = boost,
             onBoost = dashboardViewModel::boostMemory,
@@ -193,8 +214,13 @@ fun HomeDashboardContent(
     onShowGuide: () -> Unit = {},
     boost: nd.max.ui.viewmodel.MemoryBoostState = nd.max.ui.viewmodel.MemoryBoostState(),
     onBoost: () -> Unit = {},
+    tourActive: Boolean = false,
+    onTourFinish: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
+    // القائمة ترتفع إلى هنا لأن غطاء الجولة يمرّرها إلى العنصر المشروح، والسجلّ يُنشأ مرّة واحدة.
+    val listState = rememberLazyListState()
+    val tourTargets = remember { HomeTourTargets() }
     val backdrop = remember(colors.background, colors.primary, colors.tertiary) {
         Brush.radialGradient(
             listOf(colors.primary.copy(alpha = .14f), colors.tertiary.copy(alpha = .05f), Color.Transparent),
@@ -205,7 +231,7 @@ fun HomeDashboardContent(
     Box(Modifier.fillMaxSize().background(colors.background).background(backdrop)) {
         TechnicalBackdrop()
         LazyColumn(
-            state = rememberLazyListState(),
+            state = listState,
             modifier = Modifier.maxAdaptiveContentWidth(),
             contentPadding = PaddingValues(
                 start = 18.dp,
@@ -241,11 +267,15 @@ fun HomeDashboardContent(
                     onGuideFinish = onGuideFinish,
                     onShowGuide = onShowGuide,
                     boost = boost,
-                    onBoost = onBoost
+                    onBoost = onBoost,
+                    tourTargets = tourTargets,
                 )
             }
         }
         EdgeScrim(colors.background, true, Modifier.align(Alignment.TopCenter))
+        if (tourActive) {
+            HomeTourOverlay(targets = tourTargets, listState = listState, onFinish = onTourFinish)
+        }
         // Only the top edge is scrimmed: the dashboard scrolls underneath the floating
         // navigation bar now, and a bottom fade would erase the very content that is
         // supposed to be seen travelling through the bar's translucent surface.

@@ -2852,6 +2852,26 @@
     <string name="home_vital_on_battery">على البطارية</string>
     <string name="home_cleaner_percent_used">مستخدم %1$d%%</string>
     <string name="home_hero_uptime">يعمل منذ %1$s</string>
+    <string name="home_section_live">قراءات حيّة</string>
+    <string name="home_section_live_caption">تُقرأ من أندرويد نفسه، وتتحدّث ما دامت الشاشة مفتوحة.</string>
+    <string name="home_section_actions">إجراءات سريعة</string>
+    <string name="home_tour_step">الخطوة %1$d من %2$d</string>
+    <string name="home_tour_back">السابق</string>
+    <string name="home_tour_next">التالي</string>
+    <string name="home_tour_identity_title">هاتفك وصلاحيتك</string>
+    <string name="home_tour_identity_body">الاسم والشريحة والوصول الذي يملكه Max فعلًا: Root أو Shizuku أو أساسي. وكل ما هو مقفل يقول ما ينقصه.</string>
+    <string name="home_tour_vitals_title">قراءات حيّة</string>
+    <string name="home_tour_vitals_body">تردد المعالج والذاكرة المتاحة والحرارة والبطارية تُقرأ من النظام نفسه. اضغط أي خلية لتفتح شاشتها.</string>
+    <string name="home_tour_actions_title">التعزيز والتحكم</string>
+    <string name="home_tour_actions_body">التعزيز يوقف التطبيقات المخبّأة ويعرض الذاكرة التي تحرّرت فعلًا. والتحكم يفتح كل إعداد يستطيع Max تغييره.</string>
+    <string name="home_tour_pulse_title">تاريخ التردد</string>
+    <string name="home_tour_pulse_body">تردد المعالج والرسوم عبر الزمن. اضغط أيًّا منهما لتضبطه.</string>
+    <string name="home_tour_memory_title">سعة لا تخمين</string>
+    <string name="home_tour_memory_body">الذاكرة وZRAM والتخزين كما هي الآن. كل صف يفتح شاشته.</string>
+    <string name="home_tour_cleaner_title">التنظيف الفائق</string>
+    <string name="home_tour_cleaner_body">الكاش والمخلفات أولًا. ملفاتك لا تُحذف إلا إذا أشّرت عليها.</string>
+    <string name="home_tour_deck_title">اختصاراتك</string>
+    <string name="home_tour_deck_body">الشاشات التي تفتحها أكثر. تستطيع اختيارها بنفسك من إعدادات هذه البطاقة.</string>
 
     <string name="home_memory_boost">تعزيز</string>
     <string name="home_memory_boost_desc">يوقف التطبيقات المخبأة ثم يعرض الذاكرة التي حُرّرت فعلًا.</string>

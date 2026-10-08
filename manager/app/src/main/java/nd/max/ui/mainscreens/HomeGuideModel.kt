@@ -121,14 +121,26 @@ class HomeGuideStore(private val prefs: SharedPreferences) {
             prefs.edit().putBoolean(KEY_FINISHED, value).apply()
         }
 
-    /** `?` في الرأس: يُعاد العرض بطلب صريح. */
+    /**
+     * هل أُتمّت **جولة أول فتح** (`HomeTourModel`)؟ سجلّها مستقلّ عن البانرات: من تخطّى الجولة
+     * لا يفقد البانرات، ومن أتمّ البانرات لا تُمحى عنه الجولة التي لم يرها.
+     */
+    var tourFinished: Boolean
+        get() = prefs.getBoolean(KEY_TOUR_FINISHED, false)
+        set(value) {
+            prefs.edit().putBoolean(KEY_TOUR_FINISHED, value).apply()
+        }
+
+    /** `?` في الرأس: يُعاد العرض بطلب صريح — البانرات **والجولة** معًا. */
     fun restart() {
         finished = false
+        tourFinished = false
     }
 
     companion object {
         private const val PREFS = "max_home_guide"
         private const val KEY_FINISHED = "finished"
+        private const val KEY_TOUR_FINISHED = "tour_finished"
 
         fun of(context: Context): HomeGuideStore =
             HomeGuideStore(context.getSharedPreferences(PREFS, Context.MODE_PRIVATE))

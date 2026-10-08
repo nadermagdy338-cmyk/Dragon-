@@ -20029,3 +20029,79 @@ LIMITS: **لا Gradle في هذه البيئة** (aapt2/aidl x86-64 على aarch
 5. **البناء على الهيكل لا النسخ:** البنية (هوية/بانر/شبكة/فعل/تنظيف) من عقد §5 الذي طلبه المالك، **والأكواد والألوان والأيقونات والرسم والنصوص من لغة Max** — لا سطر ولا أصل من Moha (AGENTS §0.4).
 
 **NEXT:** (١) `./gradlew :app:compileDebugKotlin :app:testDebugUnitTest`؛ (٢) لقطة للرئيسية على الجهاز بالعربية والإنجليزية وخط كبير؛ (٣) قرار المالك في الخطوتين غير المنفّذتين (٣).
+
+## تكملة ٢٤٧ — **جولة أول فتح بثقب مضيء** (HOME-TOUR-01)
+
+**TASK:** طلب المالك «طريقة التقديم عند فتح التطبيق لأول مرة مثل Moha» (لقطات Step 2/3/4 of 10: تعتيم + ثقب حول العنصر + بطاقة شرح بـ Skip/Back/Next).
+
+**ما أُضيف:** `HomeTourModel.kt` (٧ خطوات صافية: الهوية · القراءات · الفعل · تاريخ التردد · الذاكرة · التنظيف · الاختصارات) · `HomeTourOverlay.kt` (سجلّ مراسٍ + غطاء `BlendMode.Clear` داخل طبقة Offscreen + بطاقة شرح + تمرير تلقائي إلى العنصر عبر `snapshotFlow`) · `HomeGuideStore.tourFinished` (سجلّ مستقلّ عن البانرات، و`restart()` يعيد الاثنين) · ربط `HomeScreen` (`tourActive = !tourFinished && isVisible`) · ٧ مراسٍ في `LegendaryHomeDashboard` · ١٧ مفتاحًا (en+ar) · حارس جديد في `HomeShapeContractTest`.
+
+**الحارس يقيس:** كل هدف في النموذج له مرساة في الرئيسية وخطوة، و`?` يعيد الجولة، والغطاء يبتلع اللمس، ولا استعمال لـ`boundsInWindow()` (يقصّ العنصر خارج الإطار).
+
+**GATES:** `kt_balance` 0 · `design_tokens` المجموع 266/300 · `i18n --assert` 0 · `rtl_guard` نظيف · `code_health` نظيفة · `kotlinc` صفر خطأ بناء جملة.
+
+**BUILD: لا** (لا Android SDK هنا). **LIMITS:** (١) الجولة تعتمد على قياس مواضع حقيقية والتمرير إلى ١٦٪ من الارتفاع — **لم تُرَ على جهاز**؛ قد يلزم تعديل `ScrollAnchor`. (٢) ٧ خطوات لا ١٠: الخطوات الثلاث الباقية عند Moha تقع على شاشات أخرى (Optimize/Games/Tools) ولم تُبنَ. (٣) البطاقة قد تغطي جزءًا من عنصر طويل جدًّا إن وقع في منتصف الشاشة.
+
+## تكملة ٢٤٨ — **«أساسي» على هاتف جذره ممنوح** (HOME-ACCESS-REFRESH-01)
+
+**العَرَض (لقطتا المالك على الجهاز نفسه):** Moha «ROOT · Root granted» وMax «أساسي · لا روت ولا شيزوكو بعد»، والحرارة ومدّة التشغيل `—`.
+
+**السبب من الكود (لا من جهاز):** `PrivilegeManager.refresh()` هو الذي يحدّث `snapshot`، ولا يُستدعى إلا من `SettingsScreen` و`GetStartedScreen` و`PrivilegePanel`. `HomeScreen` يقرأ `snapshot` فقط، والافتراضيّ `NONE`. و`cachedRootGranted()` تقرأ الصدفة المخبّأة بلا طلب، فتُرجع `false` ما لم يكن غيرها قد خزّن صدفة جذر.
+
+**التصحيح:** `LaunchedEffect(isVisible, ui.rootStatus)` في `HomeScreen` يستدعي `refresh()` على `Dispatchers.IO` عند ظهور الرئيسية وعند تغيّر `rootStatus`. قراءة لا طلب: لا نافذة صلاحية.
+
+**LIMITS:** (١) **تشخيص من الكود لا من جهاز** — إن بقي «أساسي» بعد التصحيح فالصدفة لا تُخبَّأ أصلًا في مسار الرئيسية، والخطوة التالية استدعاء `PrivilegeManager.start()` أو طلب الجذر صراحةً عند أول فتح. (٢) لم تُستدعَ `start()` (مستمعو Shizuku) لأن من يستدعي `stop()` غير واضح فتسرّب المستمعين محتمل. (٣) لم يُنشأ اختبار: الدالة تعتمد `libsu` الأصلي ولا تُقاس على JVM.
+
+## تكملة ٢٤٩ — **تحقّق ساكن + تصحيح تشخيص الجذر** (HOME-VERIFY-02)
+
+**ما فُحص بالقراءة لا بالبناء (لا Android SDK هنا):**
+- حقول `DashboardState` وأنواعها (`batteryTempC: Float` و`cpuTempC: Int` و`storageUsedGb: Float` و`uptimeMinutes: Long` …): كل الاستعمالات متطابقة.
+- توقيعات `NeuralPanel` و`NeuralTrack` و`NeuralPill` و`NeuralIconChip` و`NeuralCaption` و`NeuralValue` و`neuralClickable` و`MaxAiEntryButton`: كل استدعاء مطابق.
+- رموز `MaxSpace` و`MaxSize` و`MaxRadius` و`MaxAlpha`، وحقول `NeuralPalette`: موجودة بأسمائها.
+- الوجهات `CpuCoreControl` `MemoryHub` `ThermalDetail` `Charging` `UltraCleaner` `GpuStudio` `DeviceInfo` `MaxAi` `Control` مع `icon`/`titleRes`: موجودة.
+- الدوال المساعدة `accessAccent` `accessLabelRes` `accessNoteRes` `temperatureAccent` `compactUptime` `compactFrequency` `gigabytes` `fractionOf` `Float.oneDecimal`: كلها `internal` (لا `private`). `UnifiedActivityCard` في `StoryboardHome.kt`، و`CommandDeck` في `HomeCommandDeck.kt`.
+- استدعاءات كل ما تغيّر توقيعه (`MemoryMatrixCard` `UltraCleanerHomeCard` `HomeGuideStrip` `LegendaryHomeDashboard` `HomeDashboardContent` `HomeActionButton` `HomeTourOverlay`): متطابقة، وتشمل `StudioPreviews` (debug) الذي يستدعي `HomeDashboardContent` بمعاملاته الإلزامية نفسها.
+- مفاتيح `max_nav_max_ai` و`max_privilege_level_root` موجودة في `values*/max_navigation_strings.xml` و`max_screen_strings.xml` (لا في `strings.xml`): لا خلل.
+- واجهات Compose مؤكدة من مصدر androidx-main: `PagerState.interactionSource` و`settledPage` و`scrollToPage` و`animateScrollToPage(page, pageOffsetFraction, animationSpec)`، و`ScrollableState.animateScrollBy(value, animationSpec)` و`ScrollableState.scrollBy(value)` في `ScrollExtensions.kt`.
+- اختبارات تقرأ `HomeScreen.kt` نصيًّا (`ScreenOpenLatencyTest` و`LaunchRouteTest` و`ScreenUsageLedgerTest`): كل ما تحرسه ما زال موجودًا (`fallbackDeviceName()` · `withContext(Dispatchers.IO)` · `navActions::navigateRoute` · `homeDeckUsage(usageStore.counts())`).
+- `UserScaleRequestsTest`: حُذف حارسا «−٥٪ للبطاقة الأولى» فقط (كانا السطرين ٨٥ و١٠٣ من الأصل)، والاثنان الباقيان سليمان.
+- `kotlinc` على الملفات العشرة بعد آخر تعديل: **صفر خطأ بناء جملة**. الأخطاء الباقية كلها «unresolved reference» لرموز تعيش في ملفات لم تُضمَّن في الفحص (`MaxSpace` و`NeuralPill` و`gigabytes` …)، وقد تحققتُ منها بالقراءة أعلاه.
+
+**تصحيح ١ — لامدا مُلتبسة:** `onNext` في `HomeTourOverlay` كانت `{ if (last) onFinish() else index = … }`، وصارت كتلًا صريحة. تعمل في Kotlin على الأرجح، لكن التصريح أأمن.
+
+**تصحيح ٢ — تشخيص «أساسي» (HOME-ACCESS-REFRESH-01) كان ناقصًا:**
+- `MaxManagerApplication` يستدعي `Shell.getShell {}` عند بدء التطبيق، فالصدفة تُخبَّأ في العملية.
+- `HomeViewmodel` يحسب `rootStatus` عبر `RootUtil` الذي يقرأ `Shell.getCachedShell()` ثم `Shell.getShell().isRoot`.
+- شاشة الرئيسية كانت تقرأ `PrivilegeManager.snapshot` دون أن تستدعي `refresh()`، فيبقى الافتراضيّ `NONE` = «أساسي». لقطة Max تؤكد ذلك: «نشط» في الرأس (يعني `rootStatus=true`) مع «أساسي» في البطل.
+- الإصلاح صحيح: `LaunchedEffect(isVisible, ui.rootStatus)` يعيد القراءة حين يتغيّر `rootStatus`.
+
+**لم يُثبَت بعد:** البناء، وتشغيل الجولة، وشكل الشاشة على جهاز. خطر واحد معروف في الجولة: أول انتقال قد ينحرف بضعة بكسلات إن التُقط موضع العنصر أثناء حركة دخول `MaxReveal`.
+
+**NEXT:** (١) `./gradlew :app:compileDebugKotlin :app:testDebugUnitTest`؛ (٢) على الجهاز: الجولة ولقطة الرئيسية بالعربية والإنجليزية؛ (٣) قرار المالك في البنود ٣–٥ (Performance check · Active tweaks · رقم Clean).
+
+## تكملة ٢٥٠ — **تحسين جمالي للرئيسية ضمن DESIGN.md** (HOME-POLISH-03)
+
+**TASK (المالك):** «حسّن الشاشة الرئيسية أكثر لتكون أجمل».
+
+**القيد الحاكم:** `DESIGN.md` يمنع الأرقام المكتوبة بيد (كل مسافة وحجم وشفافية يُقرأ من `MaxTokens`) ويحدّد «القراءة الرئيسية» بـ`MonoValueStyleLarge` (34sp)، وترويسة قسم واحدة، وبلا ظلال. فالتحسين بالتنسيق والطباعة لا بالزخرفة.
+
+**ما تغيّر:**
+1. `HomeVitalsGrid.kt` أُعيد كتابته: الرقم الكبير بـ`MonoValueStyleLarge` بدل 26sp مكتوبة، ووحدته تسمية بجانبه (`labelMedium`)، والتسمية بحروف كبيرة (`labelSmall`) للّاتينية فقط، والشريط `MaxSize.barHeight`، والنقطة `MaxSpace.sm`، والضغط `neuralClickable` بدل `clickable` الخام. المعالج يُقرأ بوحدته (`frequencyParts`: GHz من 1000 MHz فصاعدًا).
+2. `HomeHeroCard.kt`: اسم الجهاز بـ`headlineSmall` وسطران (حدّ عنوان البطاقة)، والأيقونة بـ`MaxSize.iconContainer` (40dp) بدل 44dp مكتوبة، ومدّة التشغيل تسمية `labelSmall`، والجملة `bodySmall`.
+3. `LegendaryHomeDashboard.kt`: ترويستان من `NeuralSectionHeader` (الترويسة المشتركة الوحيدة في DESIGN.md): «قراءات حيّة» مع سطر توضيح، و«إجراءات سريعة». والمسافة بين الكتل `MaxSpace.lg` بدل `md`.
+4. `HomeActionRow.kt`: ارتفاع الزر من 52dp مكتوبة إلى `MaxSize.minTouchTarget` (48dp).
+5. النصوص: `home_section_live` · `home_section_live_caption` · `home_section_actions` (إنجليزي + عربي).
+6. الحراس: اثنان في `HomeShapeContractTest` — لا `fontSize =` داخل الشبكة، وترويسات القراءات والإجراءات قبل كتلتيهما.
+
+**لماذا لا عدّادات دائرية كلقطات Moha:** فكّرتُ فيها، لكن DESIGN.md يمنع أحجامًا جديدة، والقراءة الرئيسية بـ34sp لا تتسع داخل حلقة بقطر لائق. فبقيتُ على الأشرطة.
+
+**GATES:** `kt_balance` عوائق 0 · `design_tokens` 266/300 (بلا زيادة) · `i18n` عوائق 0 · `rtl_guard` نظيف · `code_health` نظيفة · `kotlinc` على الملفات المتغيّرة: **صفر خطأ بناء جملة**.
+
+**BUILD: لا** (لا Android SDK هنا).
+
+**LIMITS:**
+1. لم تُرَ على جهاز. عرض الخلية (~128dp بعد الحشوة) يتسع لـ«1.50 GHz» بوحدته حسابيًّا، والتحقق بالعين مطلوب.
+2. النصوص الثلاثة الجديدة بالإنجليزية والعربية فقط؛ بقية اللغات تسقط إلى الإنجليزية حتى تُترجم.
+3. التحويل إلى حروف كبيرة يقع على اللاتينية فقط، والعربية لا تتأثر.
+
+**NEXT:** (١) `./gradlew :app:compileDebugKotlin :app:testDebugUnitTest`؛ (٢) لقطة للرئيسية على الجهاز بالعربية والإنجليزية وبخط كبير؛ (٣) قرار المالك في البنود ٣–٥ من قائمة التحسينات.
