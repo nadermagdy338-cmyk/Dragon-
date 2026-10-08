@@ -3008,7 +3008,7 @@
     <string name="emu_shelf_count">%1$d items</string>
     <string name="emu_shelf_loading">Reading your shelf…</string>
     <string name="emu_shelf_empty">No files yet. Add a folder to index it, or add single files.</string>
-    <string name="emu_shelf_empty_known">Nothing found in the sources you granted. The folder may be empty or hold no known extension.</string>
+    <string name="emu_shelf_empty_known">Nothing found in the sources you granted. The folder may be empty or hold no known extension. Folders are indexed for known ROM extensions only.</string>
     <string name="emu_shelf_no_access">Access to a source was lost. Grant the folder again — a restart can drop a stored permission.</string>
     <string name="emu_shelf_truncated">The scan hit its limit: the list is partial, not the whole shelf.</string>
     <string name="emu_shelf_failed">Could not read the sources. Nothing was changed.</string>

@@ -143,9 +143,17 @@ fun EmulatorHubScreen(
                     }
                 }
             }
-            if (message != 0) {
+            // الإضافة الفاشلة تُعلَن هنا لا في منطقة القائمة: الرفّ الممتلئ يُخفي [hubEmptyText]
+            // فيصير رفض الصلاحية أو الحفظ صامتًا — وهو أسوأ من رسالة.
+            val notice = when {
+                state.outcome == RomLibraryAccess.ScanOutcome.NO_ACCESS -> R.string.emu_shelf_no_access
+                state.outcome == RomLibraryAccess.ScanOutcome.FAILED -> R.string.emu_shelf_failed
+                message != 0 -> message
+                else -> 0
+            }
+            if (notice != 0) {
                 Text(
-                    text = stringResource(message),
+                    text = stringResource(notice),
                     color = LobbyPalette.Muted,
                     fontSize = 13.sp,
                     modifier = Modifier.padding(horizontal = MaxSpace.gutter, vertical = MaxSpace.sm),
@@ -226,7 +234,7 @@ private fun HubSources(onAddFolder: () -> Unit, onAddFiles: () -> Unit) {
     }
 }
 
-/** سطر حالة أسفل الشاشة — لا شيء يُعرض كأنه نتيجة. */
+/** سطر الحالة أسفل الشاشة — لا شيء يُعرض كأنه نتيجة. */
 private fun hubEmptyText(
     outcome: RomLibraryAccess.ScanOutcome,
     hasFolders: Boolean,

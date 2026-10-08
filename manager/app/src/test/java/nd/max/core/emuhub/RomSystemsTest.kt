@@ -9,7 +9,7 @@ import org.junit.Test
 
 class RomSystemsTest {
     private fun file(name: String, parent: String = "root", size: Long? = 1024L) =
-        RomFile("uri:$parent/$name", name, parent, size, 1L)
+        RomFile("uri:$parent/$name", name, parent, size)
 
     // ───────────────────────────── جدول الأنظمة ─────────────────────────────
 
@@ -36,6 +36,17 @@ class RomSystemsTest {
             assertNull(name, RomSystems.systemFor(name))
         }
         assertFalse(RomSystems.isAmbiguous("a.gba"))
+    }
+
+    @Test fun onlyKnownOrAmbiguousExtensionsAreIndexed() {
+        // المعروف والملتبس يُفهرسان…
+        for (name in listOf("a.nes", "a.gba", "a.z64", "a.bin", "a.iso", "a.cue", "a.chd")) {
+            assertTrue(name, RomSystems.isCandidate(name))
+        }
+        // …وما ليس لعبة لا يزحم الرفّ ولا يأكل سقف العناصر.
+        for (name in listOf("photo.jpg", "song.mp3", "doc.pdf", "notes.txt", "noextension", "")) {
+            assertFalse(name, RomSystems.isCandidate(name))
+        }
     }
 
     @Test fun baseNameStripsExtensionAndPath() {
@@ -126,9 +137,9 @@ class RomSystemsTest {
     // ───────────────────────────── مخزن الفهرس ─────────────────────────────
 
     @Test fun aStoredFileSurvivesEncodeAndDecodeWithoutInventingNumbers() {
-        val original = RomFile("content://x/1", "Game.bin", "content://x", 2048L, 99L)
+        val original = RomFile("content://x/1", "Game.bin", "content://x", 2048L)
         assertEquals(original, RomIndexStore.decode(RomIndexStore.encode(original)))
-        val unknown = RomFile("content://x/2", "Weird.xyz", "content://x", null, null)
+        val unknown = RomFile("content://x/2", "Weird.xyz", "content://x", null)
         assertEquals(unknown, RomIndexStore.decode(RomIndexStore.encode(unknown)))
     }
 

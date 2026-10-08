@@ -17,13 +17,18 @@ package nd.max.core.emuhub
  *    تحوّل `null` إلى «—» لا إلى صفر (ADR-07).
  */
 
-/** ملفّ واحد كما قرأه المفهرس: لا محتوى ولا بايتات — اسم ووصف وحجم وختم فقط. */
+/**
+ * ملفّ واحد كما قرأه المفهرس: لا محتوى ولا بايتات — رابط واسم ومجلّد وحجم.
+ *
+ * **ولا ختم زمنيّ:** كان فيه `lastModified`، وحُذف لأنه **لا يُقرأ في أيّ عرض** بعد أن أُزيل
+ * تجاوز المسح (الأختام على SAF غير موثوقة: مزوّدات كثيرة تُرجع `0` للمجلّد فيتجمّد الرفّ).
+ * وحقلٌ يُكتب ويُفكّ ولا يُرى ثِقلٌ بلا مقابل — أقلّ ما فيه أنه يُنقل ويُخزَّن بلا سبب.
+ */
 data class RomFile(
     val uri: String,
     val name: String,
     val parent: String,
     val sizeBytes: Long?,
-    val lastModified: Long?,
 )
 
 /**
@@ -43,8 +48,6 @@ data class RomEntry(
 
     /** مجموع الأحجام المعروفة، أو `null` إن لم يُقرأ حجم أيّ جزء (لا صفر كاذب). */
     val sizeBytes: Long? get() = parts.mapNotNull { it.sizeBytes }.takeIf { it.isNotEmpty() }?.sum()
-
-    val lastModified: Long? get() = parts.mapNotNull { it.lastModified }.maxOrNull()
 }
 
 /**

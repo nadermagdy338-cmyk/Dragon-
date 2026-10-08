@@ -38,11 +38,16 @@ enum class RomSystem {
     N3DS,
 }
 
-/** نظام واحد: امتداداته، وهل هو قرص (يحتاج `.cue` غالبًا) فلا يُعرض إلا بعنصر واحد. */
+/**
+ * نظام واحد وامتداداته.
+ *
+ * **ولا حقل «قرصيّ»:** كان فيه `discBased`، وحُذف لأنه **كُتب ولا يُقرأ في أيّ منطق** — تمييز
+ * مجموعة الأقراص يقع في [groupDiscSets] بالقرينة (`.cue` مع `.bin`) لا بعَلَم على النظام.
+ * وعَلَم بلا قارئ يكذب: يوهم أنّ سلوكًا ما يعتمد عليه.
+ */
 data class RomSystemSpec(
     val system: RomSystem,
     val extensions: Set<String>,
-    val discBased: Boolean = false,
 )
 
 object RomSystems {
@@ -61,16 +66,16 @@ object RomSystems {
         RomSystemSpec(RomSystem.GBA, setOf("gba")),
         RomSystemSpec(RomSystem.NDS, setOf("nds")),
         RomSystemSpec(RomSystem.N64, setOf("z64", "n64", "v64")),
-        RomSystemSpec(RomSystem.GENESIS, setOf("md", "gen", "smd"), discBased = true),
+        RomSystemSpec(RomSystem.GENESIS, setOf("md", "gen", "smd")),
         RomSystemSpec(RomSystem.SMS, setOf("sms")),
         RomSystemSpec(RomSystem.GG, setOf("gg")),
-        RomSystemSpec(RomSystem.PSX, setOf("pbp"), discBased = true),
-        RomSystemSpec(RomSystem.PSP, setOf("cso"), discBased = true),
+        RomSystemSpec(RomSystem.PSX, setOf("pbp")),
+        RomSystemSpec(RomSystem.PSP, setOf("cso")),
         RomSystemSpec(RomSystem.ARCADE, setOf("fba", "fbneo")),
         RomSystemSpec(RomSystem.PCE, setOf("pce", "sgx")),
         RomSystemSpec(RomSystem.NGP, setOf("ngp", "ngc")),
         RomSystemSpec(RomSystem.WS, setOf("ws", "wsc")),
-        RomSystemSpec(RomSystem.N3DS, setOf("3ds", "cia"), discBased = true),
+        RomSystemSpec(RomSystem.N3DS, setOf("3ds", "cia")),
     )
 
     private val byExtension: Map<String, RomSystem> =
@@ -89,6 +94,18 @@ object RomSystems {
 
     /** هل الامتداد يحمل أكثر من نظام؟ يُعرض «ملتبس» بنصّه بدل نسبة كاذبة. */
     fun isAmbiguous(name: String): Boolean = extensionOf(name) in AMBIGUOUS_EXTENSIONS
+
+    /**
+     * هل يُفهرس هذا الملفّ أصلًا؟ — امتداد نعرفه أو امتداد ملتبس.
+     *
+     * **ولماذا هذا الشرط ضروريّ:** مجلد يختاره المستخدم قد يكون مجلد صور أو تنزيلات، فيُفهرس كلّ
+     * `.jpg` و`.mp3` بطاقةً «مجهولة» تزحم الرفّ وتأكل سقف العناصر فيُقطع الرفّ الحقيقي. والمطابقة
+     * بالامتداد هي نصّ الخطة §٣.١ («مسح، مطابقة امتدادات، تجميع حسب النظام»).
+     *
+     * **ولا يخالف «لا يُخفي ملفًّا موجودًا» (§٣.٢):** ذلك الحكم على **لعبة** لا يملك المستخدم
+     * محاكيًا لها، وهذه تُعرض ولا تُخفى. أمّا ملفّ ليس لعبة أصلًا فلا موضع له على رفّ الألعاب.
+     */
+    fun isCandidate(name: String): Boolean = systemFor(name) != null || isAmbiguous(name)
 
     /**
      * الاسم بلا امتداد — مفتاح تجميع مجموعات الأقراص (`Final Fantasy VII.cue` و`Final Fantasy VII.bin`

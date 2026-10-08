@@ -35,7 +35,6 @@ class EmulatorHubViewModel @Inject constructor(
         val hasFolders: Boolean = false,
         val hasDocuments: Boolean = false,
         val loading: Boolean = true,
-        val folderLimitReached: Boolean = false,
     )
 
     private val mutable = MutableStateFlow(State())
@@ -81,57 +80,43 @@ class EmulatorHubViewModel @Inject constructor(
         }
     }
 
-    /** يضيف مجلدًا ممنوحًا ويحتفظ بصلاحيته. الرفض **يُعلَن** ([folderLimitReached] أو نتيجة المسح). */
+    /**
+     * يضيف مجلدًا ممنوحًا ويحتفظ بصلاحيته.
+     *
+     * **والرفض يُعلَن ولا يُمسح:** كان `refresh()` يُنادى بعد كل عودة، و`refresh()` يبني `State`
+     * جديدًا كاملًا ⇒ يمحو النتيجة المضبوطة فورًا، فيصير الرفض صامتًا. لذلك لا يُعاد المسح إلّا
+     * بعد نجاح الحفظ.
+     */
     fun addFolder(uri: Uri) = viewModelScope.launch {
-        withContext(Dispatchers.IO) {
+        val added = withContext(Dispatchers.IO) {
             val folders = RomLibraryAccess.folders(context)
-            if (folders.size >= RomIndexStoreLimit) {
-                mutable.value = mutable.value.copy(folderLimitReached = true)
-                return@withContext
-            }
             if (!RomLibraryAccess.keep(context, uri)) {
                 mutable.value = mutable.value.copy(outcome = RomLibraryAccess.ScanOutcome.NO_ACCESS)
-                return@withContext
+                return@withContext false
             }
-            val next = folders + uri.toString()
-            if (!RomLibraryAccess.saveSources(context, next, RomLibraryAccess.documents(context))) {
+            if (!RomLibraryAccess.saveSources(context, folders + uri.toString(), RomLibraryAccess.documents(context))) {
                 mutable.value = mutable.value.copy(outcome = RomLibraryAccess.ScanOutcome.FAILED)
-                return@withContext
+                return@withContext false
             }
-            mutable.value = mutable.value.copy(folderLimitReached = false)
+            true
         }
-        refresh()
+        if (added) refresh()
     }
 
-    /** يضيف ملفّات مفردة. `null` تعني أن رابطًا لم يُمنح صلاحية مستمرّة ⇒ لا يُحفظ نصفها. */
+    /** يضيف ملفّات مفردة. ونصف الحفظ مرفوض: رابط بلا صلاحية مستمرّة لا يُخزَّن. */
     fun addDocuments(uris: List<Uri>) = viewModelScope.launch {
-        withContext(Dispatchers.IO) {
+        val added = withContext(Dispatchers.IO) {
             val kept = uris.filter { RomLibraryAccess.keep(context, it) }.map(Uri::toString)
             if (kept.size != uris.size) {
                 mutable.value = mutable.value.copy(outcome = RomLibraryAccess.ScanOutcome.NO_ACCESS)
-                return@withContext
+                return@withContext false
             }
-            val next = RomLibraryAccess.documents(context) + kept
-            if (!RomLibraryAccess.saveSources(context, RomLibraryAccess.folders(context), next)) {
+            if (!RomLibraryAccess.saveSources(context, RomLibraryAccess.folders(context), RomLibraryAccess.documents(context) + kept)) {
                 mutable.value = mutable.value.copy(outcome = RomLibraryAccess.ScanOutcome.FAILED)
+                return@withContext false
             }
+            true
         }
-        refresh()
-    }
-
-    /** إزالة مصدر: الرابط يُنسى ولا يُحذف ملفّه أبدًا. */
-    fun forgetFolder(uri: String) = viewModelScope.launch {
-        withContext(Dispatchers.IO) {
-            RomLibraryAccess.saveSources(
-                context,
-                RomLibraryAccess.folders(context) - uri,
-                RomLibraryAccess.documents(context),
-            )
-        }
-        refresh()
-    }
-
-    private companion object {
-        val RomIndexStoreLimit = RomIndexStore.MAX_FOLDERS
+        if (added) refresh()
     }
 }

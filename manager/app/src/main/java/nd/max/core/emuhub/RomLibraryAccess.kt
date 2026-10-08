@@ -56,7 +56,7 @@ object RomLibraryAccess {
     /** حفظ المجلّدات والروابط في معاملة واحدة: لا تُحفظ نصف نيّة. */
     fun saveSources(context: Context, folders: Set<String>, documents: Set<String>): Boolean = runCatching {
         prefs(context).edit()
-            .putStringSet(KEY_FOLDERS, folders.take(RomIndexStore.MAX_FOLDERS).toSet())
+            .putStringSet(KEY_FOLDERS, folders.toSet())
             .putStringSet(KEY_DOCUMENTS, documents.take(RomIndexStore.MAX_FILES).toSet())
             .commit()
     }.getOrDefault(false)
@@ -97,15 +97,19 @@ object RomLibraryAccess {
         }
 
         // ملفّات مفردة أضافها المستخدم: تُفهرس بلا مشي، وحجمها من المزوّد.
-        for (uri in documents(context)) {
+        //
+        // **والفلترة تُطبَّق هنا أيضًا:** اختيار المستخدم الصريح يبرّر تجاوز سقف المجلّدات لا تجاوز
+        // شرط الامتداد — وإلّا صار منتقي الملفّات طريقًا خلفيًّا يُدخل صورًا على رفّ الألعاب.
+        val picked = documents(context)
+        for (uri in picked) {
             if (found.size >= RomIndexStore.MAX_FILES) { truncated = true; break }
             if (found.any { it.uri == uri }) continue
             if (!granted(context, uri)) { denied = true; continue }
-            describe(context, resolver, uri)?.let { found += it }
+            describe(context, resolver, uri)?.takeIf { RomSystems.isCandidate(it.name) }?.let { found += it }
         }
 
         val outcome = when {
-            folders.isEmpty() && documents(context).isEmpty() -> ScanOutcome.EMPTY
+            folders.isEmpty() && picked.isEmpty() -> ScanOutcome.EMPTY
             truncated -> ScanOutcome.TRUNCATED
             denied && found.isEmpty() -> ScanOutcome.NO_ACCESS
             found.isEmpty() -> ScanOutcome.EMPTY
@@ -126,13 +130,12 @@ object RomLibraryAccess {
                 child.isDirectory -> walk(child, child.uri.toString(), depth + 1, out, onTruncated)
                 child.isFile -> {
                     val name = child.name ?: continue
-                    if (RomSystems.extensionOf(name).isEmpty()) continue
+                    if (!RomSystems.isCandidate(name)) continue
                     out += RomFile(
                         uri = child.uri.toString(),
                         name = name,
                         parent = parent,
                         sizeBytes = child.length().takeIf { it > 0 },
-                        lastModified = child.lastModified().takeIf { it > 0 },
                     )
                 }
             }
@@ -152,7 +155,6 @@ object RomLibraryAccess {
             name = name,
             parent = "",
             sizeBytes = file?.length()?.takeIf { it > 0 },
-            lastModified = file?.lastModified()?.takeIf { it > 0 },
         )
     }
 

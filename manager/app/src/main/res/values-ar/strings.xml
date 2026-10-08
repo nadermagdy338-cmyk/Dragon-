@@ -2961,7 +2961,7 @@
     <string name="emu_shelf_count">%1$d عنصر</string>
     <string name="emu_shelf_loading">نقرأ رفّك…</string>
     <string name="emu_shelf_empty">لا ملفّات بعد. أضف مجلدًا ليُفهرس، أو أضف ملفّات مفردة.</string>
-    <string name="emu_shelf_empty_known">لا شيء في المصادر التي منحتها. قد يكون المجلد فارغًا أو بلا امتداد معروف.</string>
+    <string name="emu_shelf_empty_known">لا شيء في المصادر التي منحتها. قد يكون المجلد فارغًا أو بلا امتداد معروف. المجلدات تُفهرس بامتدادات الألعاب المعروفة فقط.</string>
     <string name="emu_shelf_no_access">فُقد الوصول إلى مصدر. أعد منح المجلد — إعادة التشغيل قد تُسقط صلاحية محفوظة.</string>
     <string name="emu_shelf_truncated">بلغ المسح حدّه: القائمة جزئية لا كلّ الرفّ.</string>
     <string name="emu_shelf_failed">تعذّرت قراءة المصادر. لم يُغيَّر شيء.</string>
