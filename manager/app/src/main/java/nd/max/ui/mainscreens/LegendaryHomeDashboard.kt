@@ -13,7 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 
 import nd.max.ui.theme.MonoValueStyleSmall
 
-import nd.max.ui.theme.MonoValueStyleMedium
+import nd.max.ui.theme.MonoValueStyleFrequency
 
 import nd.max.ui.theme.MonoValueStyleLarge
 
@@ -412,7 +412,7 @@ private fun FrequencyMetricCard(
             }
             NeuralValue(
                 formatHardwareFrequency(topMhz?.takeIf { it > 0 } ?: current),
-                style = MonoValueStyleMedium,
+                style = MonoValueStyleFrequency,
                 color = p.text,
                 maxLines = 1,
             )
@@ -423,7 +423,7 @@ private fun FrequencyMetricCard(
             samples = graph,
             accent = accent,
             floorFraction = floorFraction,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().height(40.dp),
         )
         // المدى: الأرضية يسارًا والسقف يمينًا بالخط الأحادي، وكلٌّ يُكتب إن أُعلن فقط.
         if (floor != null || rangeMax != null) {

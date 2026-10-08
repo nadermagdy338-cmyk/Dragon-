@@ -170,3 +170,32 @@ val MonoValueStyleSmall = TextStyle(
     lineHeight = 16.sp,
     letterSpacing = 0.sp
 )
+
+/**
+ * Home-dashboard sizes that sit beside the shared scale above, so the reference
+ * "Now" layout can be tuned without moving the tokens every other screen reads.
+ * The hero's device name steps a notch under headlineSmall (one line for most
+ * models), the hero value tiles and the CPU/GPU clock readouts step down a little.
+ * Only the home screen uses these.
+ */
+val HeroTitleStyle = TextStyle(
+    fontFamily = DisplayFontFamily,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 19.sp,
+    lineHeight = 25.sp,
+    letterSpacing = 0.sp
+)
+val MonoValueStyleHero = TextStyle(
+    fontFamily = MonoFontFamily,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 15.sp,
+    lineHeight = 19.sp,
+    letterSpacing = 0.sp
+)
+val MonoValueStyleFrequency = TextStyle(
+    fontFamily = MonoFontFamily,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 14.sp,
+    lineHeight = 18.sp,
+    letterSpacing = 0.sp
+)

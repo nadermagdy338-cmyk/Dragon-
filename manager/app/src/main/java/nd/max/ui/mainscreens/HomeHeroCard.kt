@@ -49,8 +49,9 @@ import nd.max.ui.component.neuralPalette
 import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.theme.HeroTitleStyle
 import nd.max.ui.theme.MonoFontFamily
-import nd.max.ui.theme.MonoValueStyleMedium
+import nd.max.ui.theme.MonoValueStyleHero
 import nd.max.ui.viewmodel.DashboardState
 
 @Composable
@@ -90,7 +91,7 @@ internal fun HomeHeroCard(
             dot = true,
         )
 
-        // الجهاز: الأيقونة ثم الاسم بعنوان الصفحة (سطران كحدّ البطاقة)، ثم الشريحة.
+        // الجهاز: الأيقونة ثم الاسم بنمط `HeroTitleStyle` (سطران كحدّ البطاقة، وسطر واحد غالبًا)، ثم الشريحة.
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             NeuralIconChip(Icons.Rounded.PhoneAndroid, p.accent, size = MaxSize.iconContainer)
             Spacer(Modifier.width(MaxSpace.md))
@@ -98,7 +99,7 @@ internal fun HomeHeroCard(
                 Text(
                     deviceName,
                     color = p.text,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = HeroTitleStyle,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -209,6 +210,6 @@ private fun HeroTile(label: String, value: String, accent: Color, modifier: Modi
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-        NeuralValue(value, style = MonoValueStyleMedium, color = p.text, maxLines = 1)
+        NeuralValue(value, style = MonoValueStyleHero, color = p.text, maxLines = 1)
     }
 }
