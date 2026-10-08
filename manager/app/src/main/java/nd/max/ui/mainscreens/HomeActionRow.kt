@@ -17,6 +17,18 @@
  */
 package nd.max.ui.mainscreens
 
+import nd.max.ui.theme.MonoValueStyleMedium
+
+import nd.max.ui.component.NeuralValue
+
+import nd.max.ui.component.NeuralTile
+
+import nd.max.ui.component.NeuralIconChip
+
+import androidx.compose.foundation.layout.fillMaxHeight
+
+import androidx.compose.foundation.layout.IntrinsicSize
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -64,50 +76,81 @@ internal fun HomeActionRow(
     onControl: () -> Unit,
 ) {
     val p = neuralPalette()
-    // الحصيلة تُقبض في قيمة محلية: `when` بلا موضوع لا يُضيّق النوع داخل فرعه في كل الإعدادات.
-    val freedMb = boost.outcome?.freedMb
-    val message: String? = when {
-        // أثناء التنفيذ يقول الزرّ نفسه «جارٍ…»، فلا سطر ثانٍ يكرّر.
-        boost.running -> null
-        boost.blocked -> stringResource(R.string.home_memory_boost_blocked)
-        freedMb != null -> stringResource(R.string.home_memory_boost_freed, "$freedMb MB")
-        boost.outcome != null -> stringResource(R.string.home_memory_boost_none)
-        else -> null
+    // ما حرّره «تعزيز» فعلًا يظهر رقمًا على بلاطته، والحالة تُقال بالنص لا باللون وحده.
+    val freedMb = boost.outcome?.freedMb?.takeIf { it > 0 }
+    val boostAccent = when {
+        boost.blocked -> p.warn
+        freedMb != null -> p.ok
+        else -> p.accent
     }
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(MaxSpace.md),
-        ) {
-            HomeActionButton(
-                text = stringResource(
-                    if (boost.running) R.string.home_memory_boost_running else R.string.home_memory_boost,
-                ),
-                icon = Icons.Rounded.Memory,
-                filled = !boost.blocked,
-                accent = p.muted,
-                onClick = onBoost,
-                modifier = Modifier.weight(1f),
-            )
-            HomeActionButton(
-                text = stringResource(MaxDestination.Control.titleRes),
-                icon = MaxDestination.Control.icon,
-                filled = false,
-                accent = p.accent,
-                onClick = onControl,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        if (message != null) {
+    val boostSupport = when {
+        boost.running -> stringResource(R.string.home_memory_boost_running)
+        boost.blocked -> stringResource(R.string.home_memory_boost_blocked)
+        boost.outcome != null && freedMb == null -> stringResource(R.string.home_memory_boost_none)
+        else -> stringResource(R.string.home_memory_boost_desc)
+    }
+    Row(
+        Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
+    ) {
+        QuickActionTile(
+            title = stringResource(R.string.home_memory_boost),
+            icon = Icons.Rounded.Memory,
+            accent = boostAccent,
+            value = freedMb?.let { "+$it MB" },
+            support = boostSupport,
+            onClick = onBoost,
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+        )
+        QuickActionTile(
+            title = stringResource(MaxDestination.Control.titleRes),
+            icon = MaxDestination.Control.icon,
+            accent = p.accentAlt,
+            value = null,
+            support = stringResource(R.string.max_home_control_desc),
+            onClick = onControl,
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+        )
+    }
+}
+
+/**
+ * بلاطة فعل: أيقونة وعنوان، ورقم حين يوجد (ما حرّره التعزيز)، وسطر شرح. الارتفاع يأتي من الصفّ
+ * نفسه (`IntrinsicSize.Min`) فالبلاطتان بارتفاع واحد مهما اختلف طول شرحهما.
+ */
+@Composable
+private fun QuickActionTile(
+    title: String,
+    icon: ImageVector,
+    accent: Color,
+    value: String?,
+    support: String,
+    onClick: () -> Unit,
+    modifier: Modifier,
+) {
+    val p = neuralPalette()
+    NeuralTile(modifier = modifier, accent = accent, onClick = onClick, verticalSpacing = MaxSpace.sm) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            NeuralIconChip(icon, accent, size = MaxSize.rowIconContainer)
+            Spacer(Modifier.width(MaxSpace.sm))
             Text(
-                message,
-                color = if (freedMb != null && !boost.blocked) p.ok else p.muted,
-                fontSize = 12.sp,
-                lineHeight = 16.sp,
-                maxLines = 2,
+                title,
+                color = p.text,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
         }
+        if (value != null) {
+            NeuralValue(value, style = MonoValueStyleMedium, color = accent, maxLines = 1)
+        }
+        Text(
+            support,
+            color = p.muted,
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

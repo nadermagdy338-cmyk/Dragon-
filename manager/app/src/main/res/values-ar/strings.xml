@@ -2853,6 +2853,9 @@
     <string name="home_cleaner_percent_used">مستخدم %1$d%%</string>
     <string name="home_hero_uptime">يعمل منذ %1$s</string>
     <string name="home_hero_open_overview">فتح نظرة على الجهاز</string>
+    <string name="home_vital_cpu_temp">حرارة المعالج</string>
+    <string name="home_vital_skin_temp">حرارة السطح</string>
+    <string name="home_vital_net_up">الرفع %1$s</string>
     <string name="home_focus_hide">إخفاء</string>
     <string name="home_section_live">قراءات حيّة</string>
     <string name="home_section_live_caption">تُقرأ من أندرويد نفسه، وتتحدّث ما دامت الشاشة مفتوحة.</string>
@@ -2863,7 +2866,7 @@
     <string name="home_tour_identity_title">هاتفك وصلاحيتك</string>
     <string name="home_tour_identity_body">الاسم والشريحة والوصول الذي يملكه Max فعلًا: Root أو Shizuku أو أساسي. وكل ما هو مقفل يقول ما ينقصه.</string>
     <string name="home_tour_vitals_title">قراءات حيّة</string>
-    <string name="home_tour_vitals_body">تردد المعالج والذاكرة المتاحة والحرارة والبطارية تُقرأ من النظام نفسه. اضغط أي خلية لتفتح شاشتها.</string>
+    <string name="home_tour_vitals_body">حرارة السطح والمعالج والرسوم، وسرعة التنزيل الحيّة. اضغط أي خلية لتفتح شاشتها.</string>
     <string name="home_tour_actions_title">التعزيز والتحكم</string>
     <string name="home_tour_actions_body">التعزيز يوقف التطبيقات المخبّأة ويعرض الذاكرة التي تحرّرت فعلًا. والتحكم يفتح كل إعداد يستطيع Max تغييره.</string>
     <string name="home_tour_pulse_title">تاريخ التردد</string>

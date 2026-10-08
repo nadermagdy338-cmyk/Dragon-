@@ -23,6 +23,9 @@
  * تقنية تُقرأ بترتيبها اللاتيني في كل لغة.
  */
 package nd.max.ui.mainscreens
+import kotlin.math.roundToInt
+import nd.max.R
+import nd.max.ui.viewmodel.DashboardState
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -70,3 +73,19 @@ internal fun temperatureAccent(value: Int?): Color {
         else -> p.ok
     }
 }
+
+/** حرارة الجهاز للبطاقة الأولى: حسّاس البطارية أولًا ثم المعالج. والصفر = غير مقروء. */
+internal fun deviceHeatC(dashboard: DashboardState): Int? =
+    dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt()
+        ?: dashboard.cpuTempC.takeIf { it > 0 }
+
+/** كلمة حكم الحرارة، بالعتبات التي يطابقها لونها `temperatureAccent` حرفيًّا. */
+internal fun heatWordRes(heat: Int?): Int = when {
+    heat == null -> R.string.max_home_unavailable
+    heat >= HEAT_HOT_C -> R.string.home_vital_temp_hot
+    heat >= HEAT_WARM_C -> R.string.home_vital_temp_warm
+    else -> R.string.home_vital_temp_cool
+}
+
+private const val HEAT_HOT_C = 45
+private const val HEAT_WARM_C = 40

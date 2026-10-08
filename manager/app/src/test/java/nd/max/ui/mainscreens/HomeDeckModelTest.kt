@@ -248,14 +248,12 @@ class HomeDeckModelTest {
     }
 
     @Test
-    fun `the deck asks for the medium card size instead of carrying numbers of its own`() {
+    fun `the deck tiles are the design system row tiles and carry no numbers of their own`() {
         val deck = read("ui/mainscreens/HomeCommandDeck.kt")
-        assertTrue(
-            "المقاس يُمرَّر من طبقة الرموز لا يُنسخ في الشاشة",
-            deck.contains("size = MaxCardSize.Medium"),
-        )
-        assertFalse("ولا حشو بطاقة مكتوب بيد في الرسم", deck.contains("padding = MaxSpace.md"))
-        assertFalse("ولا حاوية أيقونة مكتوبة بيد", deck.contains("iconContainer ="))
+        assertTrue("البلاطة صفّ بحشوة الصفوف من الرموز", deck.contains("MaxSpace.rowPaddingHorizontal"))
+        assertTrue("وأيقونتها بحاوية الصفوف", deck.contains("MaxSize.rowIconContainer"))
+        assertFalse("ولا حجم بطاقة مكتوب بيد", deck.contains("size = MaxCardSize."))
+        assertFalse("ولا حشو مكتوب بيد", deck.contains("padding = MaxSpace.md"))
     }
 
     // ── (٤) والعدّاد من السجلّ الواحد بالمسار (الجولة ٢٠٣) ─────────────────

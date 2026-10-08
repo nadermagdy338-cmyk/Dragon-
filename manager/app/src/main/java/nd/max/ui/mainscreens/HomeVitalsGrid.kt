@@ -4,22 +4,21 @@
  * without prior written permission from the copyright holder.
  */
 /*
- * شبكة الحيوية ٢×٢ — **أربع قراءات حيّة في لمحة، كلٌّ منها باب إلى شاشتها** (عقد §5.3).
+ * قراءات حيّة في الرئيسية — **ما لا يُعرض في موضع آخر من الشاشة** (طلب المالك: غير مكرّرة).
  *
- * | خلية      | الرقم الكبير (خط `MonoValueStyleLarge`) | وحدته (تسمية)   | تحته               | الباب            |
- * | --------- | --------------------------------------- | --------------- | ------------------ | ---------------- |
- * | تردد CPU  | أعلى نواة حيّة                          | GHz / MHz       | نسبتها من سقفها    | `CpuCoreControl` |
- * | الذاكرة   | **المتاح** (سؤال المستخدم)              | GB              | المستخدَم/الإجمالي | `MemoryHub`      |
- * | الحرارة   | درجة الحرارة                            | °C              | هادئة · دافئة · ساخنة | `ThermalDetail` |
- * | البطارية  | النسبة                                  | %               | الشحن + واط إن قُرئ | `Charging`      |
+ * استُبعد من هنا كل ما تعرضه البطاقة الأولى (الحرارة الأساسية · البطارية · الطاقة · مدة التشغيل)، وكل ما
+ * تعرضه بطاقتا CPU/GPU (النسبة والتردد والمدى)، وكل ما تعرضه مصفوفة الذاكرة والتخزين. وما بقي أربع قراءات
+ * لا تظهر إلا هنا:
  *
- * **تصميم بمقياس `DESIGN.md`:** الرقم هو القراءة الرئيسية في البطاقة (`MonoValueStyleLarge`) بلا
- * تضخيم بحجم يدويّ، والوحدة تسمية بجانبه بالخط اللاتيني/العربي العادي (الخط الأحادي للأرقام وحدها)،
- * والشريط كسرٌ بارتفاع `MaxSize.barHeight`. والتسمية بحروف كبيرة في اللاتينية، فتُقرأ كعنوان عدادٍ
- * لا كجملة.
+ * | خلية      | القراءة                                          | الباب           |
+ * | --------- | ------------------------------------------------ | --------------- |
+ * | المعالج   | حرارة المعالج الداخلية                            | `ThermalDetail` |
+ * | الرسوم    | حرارة وحدة الرسوم                                 | `ThermalDetail` |
+ * | السطح     | حرارة الهاتف الذي تلمسه                           | `ThermalDetail` |
+ * | التنزيل   | سرعة التنزيل الحيّة، والرفع تحتها                  | `NetworkHub`    |
  *
- * **ولماذا لا تكرّر ما حولها:** بطاقة CPU/GPU تحتها تعرض **تاريخًا**، وهذه الشبكة تعرض **اللحظة**.
- * **والمجهول لا يُصفَّر** (ADR-07): كل قيمة غائبة تُكتب `—` بلا وحدة وبلا شريط.
+ * **والمجهول شرطة** (ADR-07): صفر الحرارة غير مقروء. والشبكة تُقاس بين عيّنتين، فقبل أول عيّنة
+ * (`readingsAtMs = 0`) لا قراءة وتُكتب شرطة، لا صفرًا يُقرأ كأن الشبكة خاملة.
  */
 package nd.max.ui.mainscreens
 
@@ -51,7 +50,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import java.util.Locale
-import kotlin.math.roundToInt
 import nd.max.R
 import nd.max.ui.component.NeuralTrack
 import nd.max.ui.component.NeuralValue
@@ -67,26 +65,6 @@ import nd.max.ui.viewmodel.DashboardState
 /** سقف مقياس عرض الحرارة (°م). مقياس رسم فقط — لا يقول إن الجهاز يُخنق عنده. */
 private const val HEAT_SCALE_MAX_C = 60f
 
-/** عتبتا حكم الحرارة: تطابقان `temperatureAccent` حرفيًّا، فلا لونان يخالف أحدهما كلمة الآخر. */
-private const val HEAT_HOT_C = 45
-private const val HEAT_WARM_C = 40
-
-/**
- * حرارة الجهاز: حسّاس البطارية أولًا ثم المعالج. الواحدة نفسها للبطاقة الأولى والشبكة، فلا رقمان
- * يختلفان على الشاشة نفسها. والصفر = غير مقروء.
- */
-internal fun deviceHeatC(dashboard: DashboardState): Int? =
-    dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt()
-        ?: dashboard.cpuTempC.takeIf { it > 0 }
-
-/** كلمة حكم الحرارة، بالعتبات التي يطابقها لونها `temperatureAccent` حرفيًّا. */
-internal fun heatWordRes(heat: Int?): Int = when {
-    heat == null -> R.string.max_home_unavailable
-    heat >= HEAT_HOT_C -> R.string.home_vital_temp_hot
-    heat >= HEAT_WARM_C -> R.string.home_vital_temp_warm
-    else -> R.string.home_vital_temp_cool
-}
-
 @Composable
 internal fun HomeVitalsGrid(
     dashboard: DashboardState,
@@ -94,52 +72,22 @@ internal fun HomeVitalsGrid(
 ) {
     val p = neuralPalette()
     val shape = RoundedCornerShape(MaxRadius.group)
+    val unknown = stringResource(R.string.max_home_unavailable)
+    val celsius = stringResource(R.string.home_unit_celsius)
 
-    // ---- CPU: أعلى نواة حيّة، ونسبتها من سقفها المعلن إن أُعلن.
-    val topMhz = dashboard.cpuTopCoreMhz.takeIf { it > 0 }
-    val ceilingMhz = dashboard.cpuCeilingMhz.takeIf { it > 0 }
-    val cpuFraction = if (topMhz != null && ceilingMhz != null) {
-        (topMhz.toFloat() / ceilingMhz).coerceIn(0f, 1f)
-    } else {
-        null
-    }
-    val cpuDetail = when {
-        topMhz == null -> stringResource(R.string.max_home_unavailable)
-        cpuFraction != null -> stringResource(
-            R.string.home_vital_cpu_ceiling,
-            (cpuFraction * 100f).roundToInt(),
-        )
-        else -> stringResource(R.string.home_vital_cpu_live)
-    }
-    val (cpuValue, cpuUnit) = frequencyParts(topMhz)
+    // ---- حرارات السطح والمعالج والرسوم: كلٌّ بقراءته، وصفرها غير مقروء.
+    val cpuC = dashboard.cpuTempC.takeIf { it > 0 }
+    val gpuC = dashboard.gpuTempC.takeIf { it > 0 }
+    val skinC = dashboard.skinTempC.takeIf { it > 0 }
+    val cpuAccent = temperatureAccent(cpuC)
+    val gpuAccent = temperatureAccent(gpuC)
+    val skinAccent = temperatureAccent(skinC)
 
-    // ---- RAM: المتاح هو الرقم الأبرز، والمستخدَم/الإجمالي تحته.
-    val ramTotal = dashboard.ramTotalMb
-    val ramUsed = dashboard.ramUsedMb
-    val ramKnown = ramTotal > 0
-    val ramFreeGb = (ramTotal - ramUsed).coerceAtLeast(0) / 1024f
-    val ramValue = if (ramKnown) ramFreeGb.oneDecimal() else "\u2014"
-
-    // ---- الحرارة: حسّاس البطارية أولًا ثم المعالج، كما كان البطل يفعل.
-    val heat = deviceHeatC(dashboard)
-    val heatAccent = temperatureAccent(heat)
-    val heatWord = stringResource(heatWordRes(heat))
-
-    // ---- البطارية: النسبة، وحالة الشحن، والواط إن قُرئ (الصفر = غير مقروء لا «لا استهلاك»).
-    val battery = dashboard.batteryPercent.takeIf { it > 0 }
-    val batteryState = stringResource(
-        if (dashboard.isCharging) R.string.home_vital_charging else R.string.home_vital_on_battery,
-    )
-    val batteryDetail = if (dashboard.powerWatt > 0.05f) {
-        "$batteryState · ${dashboard.powerWatt.oneDecimal()} W"
-    } else {
-        batteryState
-    }
-    val batteryAccent = when {
-        dashboard.isCharging -> p.ok
-        battery != null && battery <= 20 -> p.warn
-        else -> p.accent
-    }
+    // ---- الشبكة: عدّاد يُقاس بين عيّنتين، فقبل أول عيّنة لا قراءة.
+    val measured = dashboard.readingsAtMs > 0L
+    val down = if (measured) speedParts(dashboard.downloadSpeedKbps) else null
+    val up = if (measured) speedParts(dashboard.uploadSpeedKbps) else null
+    val upDetail = up?.let { stringResource(R.string.home_vital_net_up, "${it.first} ${it.second}") } ?: unknown
 
     Column(
         Modifier
@@ -150,74 +98,71 @@ internal fun HomeVitalsGrid(
     ) {
         Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
             VitalCell(
-                label = stringResource(R.string.home_vital_cpu),
-                value = cpuValue,
-                unit = cpuUnit,
-                accent = p.accent,
-                fraction = cpuFraction,
-                detail = cpuDetail,
-                detailColor = p.muted,
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                onClick = { onNavigate(MaxDestination.CpuCoreControl.route) },
-            )
-            VitalDividerVertical()
-            VitalCell(
-                label = stringResource(R.string.home_vital_ram_free),
-                value = ramValue,
-                unit = if (ramKnown) "GB" else null,
-                accent = p.accentAlt,
-                fraction = if (ramKnown) fractionOf(ramUsed, ramTotal) else null,
-                detail = if (ramKnown) {
-                    stringResource(R.string.home_vital_ram_used_of, gigabytes(ramUsed), gigabytes(ramTotal))
-                } else {
-                    stringResource(R.string.max_home_unavailable)
-                },
-                detailColor = p.muted,
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                onClick = { onNavigate(MaxDestination.MemoryHub.route) },
-            )
-        }
-        VitalDividerHorizontal()
-        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-            VitalCell(
-                label = stringResource(R.string.home_vital_temperature),
-                value = heat?.toString() ?: "\u2014",
-                unit = heat?.let { "\u00b0C" },
-                accent = heatAccent,
-                fraction = heat?.let { (it / HEAT_SCALE_MAX_C).coerceIn(0f, 1f) },
-                detail = heatWord,
-                detailColor = heatAccent,
+                label = stringResource(R.string.home_vital_cpu_temp),
+                value = cpuC?.toString() ?: unknown,
+                unit = cpuC?.let { celsius },
+                accent = cpuAccent,
+                fraction = cpuC?.let { (it / HEAT_SCALE_MAX_C).coerceIn(0f, 1f) },
+                detail = stringResource(heatWordRes(cpuC)),
+                detailColor = cpuAccent,
                 modifier = Modifier.weight(1f).fillMaxHeight(),
                 onClick = { onNavigate(MaxDestination.ThermalDetail.route) },
             )
             VitalDividerVertical()
             VitalCell(
-                label = stringResource(R.string.max_home_battery),
-                value = battery?.toString() ?: "\u2014",
-                unit = battery?.let { "%" },
-                accent = batteryAccent,
-                fraction = battery?.let { it / 100f },
-                detail = batteryDetail,
-                detailColor = if (dashboard.isCharging) p.ok else p.muted,
+                label = stringResource(R.string.max_gpu_temp_label),
+                value = gpuC?.toString() ?: unknown,
+                unit = gpuC?.let { celsius },
+                accent = gpuAccent,
+                fraction = gpuC?.let { (it / HEAT_SCALE_MAX_C).coerceIn(0f, 1f) },
+                detail = stringResource(heatWordRes(gpuC)),
+                detailColor = gpuAccent,
                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                onClick = { onNavigate(MaxDestination.Charging.route) },
+                onClick = { onNavigate(MaxDestination.ThermalDetail.route) },
+            )
+        }
+        VitalDividerHorizontal()
+        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+            VitalCell(
+                label = stringResource(R.string.home_vital_skin_temp),
+                value = skinC?.toString() ?: unknown,
+                unit = skinC?.let { celsius },
+                accent = skinAccent,
+                fraction = skinC?.let { (it / HEAT_SCALE_MAX_C).coerceIn(0f, 1f) },
+                detail = stringResource(heatWordRes(skinC)),
+                detailColor = skinAccent,
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                onClick = { onNavigate(MaxDestination.ThermalDetail.route) },
+            )
+            VitalDividerVertical()
+            VitalCell(
+                label = stringResource(R.string.detail_download),
+                value = down?.first ?: unknown,
+                unit = down?.second,
+                accent = p.accent,
+                fraction = null,
+                detail = upDetail,
+                detailColor = p.muted,
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                onClick = { onNavigate(MaxDestination.NetworkHub.route) },
             )
         }
     }
 }
 
 /**
- * المعالج بوحدته: GHz من ألف MHz فصاعدًا، وإلا MHz. والمجهول شرطة بلا وحدة (ADR-07).
- * الزوج يفصل الرقم عن وحدته، فتُكتب الوحدة تسمية بجانب الرقم الكبير لا جزءًا منه.
+ * سرعة بوحدتها: الحقل بالكيلوبايت لكل ثانية (`readNetwork` يقسم فرق البايتات على 2048 لعيّنة كل
+ * ثانيتين)، ومن ١٠٢٤ فصاعدًا تُعرض ميغابايت. والرقم والوحدة زوج منفصل، فالوحدة تسمية لا جزء من الرقم.
  */
-private fun frequencyParts(mhz: Int?): Pair<String, String?> = when {
-    mhz == null -> "\u2014" to null
-    mhz >= 1000 -> String.format(Locale.US, "%.2f", mhz / 1000f) to "GHz"
-    else -> mhz.toString() to "MHz"
-}
+private fun speedParts(kbPerSec: Long): Pair<String, String> =
+    if (kbPerSec >= 1024L) {
+        String.format(Locale.US, "%.1f", kbPerSec / 1024f) to "MB/s"
+    } else {
+        kbPerSec.toString() to "KB/s"
+    }
 
 /**
- * خلية واحدة: تسمية بحروف كبيرة بنقطة لونها، والرقم الكبير ووحدته بجانبه على خط واحد، وشريط كسر،
+ * خلية واحدة: تسمية بحروف كبيرة بنقطة لونها، والرقم الكبير ووحدته على خط واحد، وشريط كسر،
  * وسطر حالة. والشريط غائب عند غياب القياس ويُحجز مكانه كي لا تنزاح الخلية المجاورة.
  */
 @Composable

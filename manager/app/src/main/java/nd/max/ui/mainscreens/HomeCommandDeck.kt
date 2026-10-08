@@ -4,55 +4,53 @@
  * without prior written permission from the copyright holder.
  */
 /*
- * «منصة التحكم» — بطاقات الرئيسية التي تُفتح بضغطة.
+ * «منصة التحكم» — بطاقات الرئيسية التي تُفتح بضغطة (طلب المالك: تحسين التصميم وتصغير الأقسام).
  *
- * أُخرجت من `LegendaryHomeDashboard.kt` لسقف حجم الملفّ (`tools/code_health.py`).
- *
- * **وصارت بيانات لا أربع بطاقات مكتوبة (أمر المالك، الجولة ٢٠٢):** «عناصر التحكم هنخليها ٤
- * خيارات ثابتين لو لسه مستخدم جديد، ونضيف زرّ إعداد في نفس البطاقة: خيار بيضع أكثر ما يستخدمه
- * المستخدم تلقائيًّا، وخيار يدوي يختار فيه — إلى ٦ خيارات أقصى شيء، والافتراضي ٤ وتلقائي».
- *
- * فالملفّ صار **رسمًا فقط**: البطاقات تأتيه من [homeDeckSelection] (‏٤ إلى ٦، بترتيب
- * الأكثر استعمالًا أو باختيار المستخدم)، وزرّ الإعداد في **رأس هذا القسم نفسه** لا في شريط
- * الشاشة: من يريد تغيير ما يعرضه هذا القسم يجده فيه، وهذا نصّ الأمر («في نفس البطاقة»).
- *
- * **وقرارات سابقة باقية كما هي** (ولا تُنقض بالأمر الجديد):
- * - «ملف الأداء» أُزيل بأمر المالك — والمُزال كان **مدخلًا مكرّرًا** لا قدرة: تبديل الملف قائم
- *   في بلاطة الإعدادات السريعة، وكان قسم Max AI (`ProfilesSection`) مدخلًا ثالثًا فأُزيل
- *   أيضًا (`MAXAI-CONTROLS-TRIM-01`). وكان يبقى له مدخلٌ ثالث في لوحة الحكم بالرئيسية
- *   (`VerdictPanel` ← `profileRequest`) — **وقد حُذفت اللوحة كلها** (`HOME-STORY-TRIM-01`)،
- *   فلم يبقَ للتبديل إلا موضعه الحقيقي.
- * - **والافتراضيّ تحرّك بعد جولة المستوى** (`MAX-MANAGER-LEVEL-UP.md` §5.5): صار
- *   التنظيف الفائق · الحرارة · الطاقة · العرض، وخرج «تحكّم متقدّم» إلى البركة (وجهته بابٌ في
- *   الشريط السفلي فلا تحتاج بطاقة). والقاعدة لم تتغيّر: من لم يستعمل شيئًا يرى الأربعة،
- *   ومن استعمل يتقدّم عنده ما استعمل — والترتيب في اليدويّ بترتيب البركة لا بترتيب النقر.
- * - وكانت أربع بطاقات في صفّين مستقلّين بلا عقد ارتفاع، فاختلفت مواضع العناوين بينها؛ وهي الآن
- *   شبكة واحدة بارتفاع واحد لكل صفّ، وعمودان لا أربعة (`maxColumns = 2`) بأمر المالك.
- * - ونصوص البطاقات **نصوص الشاشات نفسها** (`display_studio_title` · `max_hub_*` · `home_action_*`)
- *   لا نصوص ثانية لها: اسم واحد للشيء الواحد، والتغطية في ٨٤ لغة قائمة.
- *
- * **وبمقاس متوسّط بأمر المالك (الجولة ٢٠٧):** «اجعل بطاقة منصة التحكم بحجم متوسّط ليست كبيرة
- * وليست صغيرة بل مناسب أكثر». والقرار **وسيط يُمرَّر** (`size = MaxCardSize.Medium`) لا أرقام
- * تُكتب هنا: الأربعة القابلة للتبدّل (الحشو، حاوية الأيقونة، الأيقونة، أرضية الارتفاع) تعيش في
- * `MaxCardMetrics` وحده، والمقاس يختار مجموعةً منها — فلو نُسخت هنا لصارت للبطاقة نسختان.
- * **والمتوسّط لا يمسّ العقد** الذي بُني لأجله هذا الملفّ: عمودان، وارتفاع واحد للصفّ، وسطران
- * محجوزان للعنوان — فالنصّ لا يُقصّ بحجة أن الشبكة صغرت.
+ * الرسم فقط: البطاقات تأتيه من `homeDeckSelection` (٤ إلى ٦)، وزرّ الإعداد في رأس القسم نفسه.
+ * والقسم بلاطة **صفّ** من نظام التصميم (`DESIGN.md` · «Rows and list items»): أيقونة بحاوية
+ * الصفوف `MaxSize.rowIconContainer`، وعنوان واحد، وحشوة الصفوف `MaxSpace.rowPaddingHorizontal/Vertical`.
+ * فلا وصف يضخّم البلاطة، ولا رقم مكتوب بيد. ولونها من نغمتها `MaxTone.content()` لا من النظام الديناميكي.
  */
 package nd.max.ui.mainscreens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import nd.max.R
+import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralSectionHeader
+import nd.max.ui.component.neuralClickable
 import nd.max.ui.component.neuralPalette
-import nd.max.ui.design.MaxCardData
-import nd.max.ui.design.MaxCardGrid
-import nd.max.ui.design.MaxCardSize
+import nd.max.ui.design.MaxAlpha
+import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSize
+import nd.max.ui.design.MaxSpace
+import nd.max.ui.design.content
 
 @Composable
 internal fun CommandDeck(
@@ -76,22 +74,57 @@ internal fun CommandDeck(
                 }
             },
         )
-        // شبكة واحدة لا صفوف مستقلّة: عقد ارتفاع واحد، وتُقلَّص الأعمدة بدل أن يُقصّ نصّ.
-        MaxCardGrid(
-            cards = entries.map { entry ->
-                MaxCardData(
-                    title = stringResource(entry.titleRes),
-                    icon = entry.icon,
-                    description = stringResource(entry.descriptionRes),
-                    tone = entry.tone,
-                    onClick = { onOpen(entry) },
-                )
-            },
-            maxColumns = 2,
-            minColumns = 2,
-            // «متوسّط» بأمر المالك: بطاقة بعنوان ووصف قصيرين لا تحتاج مقاس الشاشات الكاملة
-            // (حشوة ١٦ وحاوية أيقونة ٤٠ وأرضية ٩٢) — وهي أرقامها في `MaxCardMetrics.Medium`.
-            size = MaxCardSize.Medium,
+        // صفوف من بلاطتين بارتفاع واحد: `IntrinsicSize.Min` يعطي الصفّ ارتفاع أطوله، و`fillMaxHeight`
+        // يمدّ البلاطة إليه. والصفّ المنفرد يترك خانة فارغة بالعرض نفسه فلا تتمدّد بلاطته.
+        entries.chunked(2).forEach { pair ->
+            Row(
+                Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
+            ) {
+                pair.forEach { entry ->
+                    DeckRowTile(
+                        icon = entry.icon,
+                        title = stringResource(entry.titleRes),
+                        accent = entry.tone.content(),
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        onClick = { onOpen(entry) },
+                    )
+                }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+/** بلاطة صفّ: أيقونة وعنوان، على لون البلاطة بحدّ شعريّ بلون نغمتها. */
+@Composable
+private fun DeckRowTile(
+    icon: ImageVector,
+    title: String,
+    accent: Color,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
+    val p = neuralPalette()
+    val shape = RoundedCornerShape(MaxRadius.row)
+    Row(
+        modifier
+            .neuralClickable(onClick, role = Role.Button)
+            .clip(shape)
+            .background(p.tile)
+            .border(MaxSize.hairlineBorder, accent.copy(alpha = MaxAlpha.border), shape)
+            .padding(horizontal = MaxSpace.rowPaddingHorizontal, vertical = MaxSpace.rowPaddingVertical),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        NeuralIconChip(icon, accent, size = MaxSize.rowIconContainer)
+        Spacer(Modifier.width(MaxSpace.sm))
+        Text(
+            title,
+            color = p.text,
+            style = MaterialTheme.typography.titleSmall,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
         )
     }
 }

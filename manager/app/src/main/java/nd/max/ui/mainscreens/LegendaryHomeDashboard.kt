@@ -5,6 +5,24 @@
  */
 package nd.max.ui.mainscreens
 
+import nd.max.ui.design.MaxSize
+
+import androidx.compose.material3.MaterialTheme
+
+import androidx.compose.foundation.shape.CircleShape
+
+import nd.max.ui.theme.MonoValueStyleSmall
+
+import nd.max.ui.theme.MonoValueStyleMedium
+
+import nd.max.ui.theme.MonoValueStyleLarge
+
+import nd.max.ui.design.MaxAlpha
+
+import nd.max.ui.component.neuralClickable
+
+import nd.max.ui.component.NeuralValue
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -64,22 +82,21 @@ import kotlin.math.roundToInt
 /**
  * The MAX "Now" dashboard.
  *
- * Question the screen answers: how is the device right now, and what can I do about it in
- * one tap? Reading order, each block earning its place exactly once (`MAX-MANAGER-LEVEL-UP.md` §5.1):
+ * Question the screen answers: how is the device right now, and what can I do about it in one tap?
+ * Reading order (طلب المالك): every block earns its place once, and nothing repeats another block.
  *
  *  0. header   — brand, engine state, guide, power and settings.
- *  1. hero     — the first card: access chip, device, temperature, three tiles, device overview.
- *  2. vitals   — CPU clock · RAM free · heat · battery as a 2×2 grid, each a door (`HomeVitalsGrid`).
- *  3. actions  — Boost (measured before/after) and Control (`HomeActionRow`).
- *  4. pulse    — GPU | CPU as frequency history.
- *  5. activity — what your choices are doing right now (verified outcomes only).
- *  6. focus    — appears only when something is actually wrong; the storage warning can be hidden.
- *  7. memory   — RAM, ZRAM and storage capacity, each row a door.
- *  8. cleaner  — storage fullness and the Ultra Cleaner action.
- *  9. deck     — destinations people actually reach for.
+ *  1. hero     — the first card, unchanged: access chip, device, temperature, three tiles, device overview.
+ *  2. pulse    — CPU and GPU: load, clock and the frequency history beneath them.
+ *  3. actions  — Boost (measured before/after) and Control, side by side.
+ *  4. vitals   — the readings no other block shows: CPU, GPU and surface temperature, and network speed.
+ *  5. focus    — storage almost full (hideable), or heat / memory when those are the real problem.
+ *  6. memory   — RAM, ZRAM and storage capacity, each row a door.
+ *  7. cleaner  — storage fullness and the Ultra Cleaner action.
+ *  8. deck     — the control platform: the destinations people reach for, in compact rows.
+ *  9. activity — what your choices are doing right now; last, and only when it has verified outcomes.
  *
- * **بلا حركة على البطاقات (طلب المالك):** لا بانرات متحركة، ولا دخول متتابع، ولا تبديل مشهد بانزلاق.
- * القراءات الحيّة تحدّث أرقامها في مكانها فقط. وانكماش اللمس الخفيف ردّ على الضغط لا حركة للبطاقة.
+ * **بلا حركة على البطاقات:** لا بانرات متحركة ولا دخول متتابع ولا تبديل مشهد بانزلاق.
  *
  * Every color comes from MaterialTheme through neuralPalette(), so the Settings theme drives the entire screen.
  */
@@ -99,7 +116,7 @@ internal fun LegendaryHomeDashboard(
     onSettings: () -> Unit,
     /** طبقة الامتياز المكتشفة — من `PrivilegeManager` الموجود لا من قراءة ثانية. */
     accessLevel: PrivilegeLevel,
-    /** حالة «تعزيز الذاكرة» الأخيرة، تُعرض تحت زرّ Boost. */
+    /** حالة «تعزيز الذاكرة» الأخيرة، تُعرض على بلاطته. */
     boost: MemoryBoostState,
     onBoost: () -> Unit,
     /** `?` في الرأس: يعيد جولة أول فتح بطلب صريح. */
@@ -125,14 +142,12 @@ internal fun LegendaryHomeDashboard(
                 onMaxAi = { onNavigate(MaxDestination.MaxAi.route) },
             )
         }
-        Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
-            NeuralSectionHeader(
-                title = stringResource(R.string.home_section_live),
-                caption = stringResource(R.string.home_section_live_caption),
+        Box(Modifier.homeTourTarget(HomeTourTarget.Pulse, tourTargets)) {
+            HardwarePulseCards(
+                dashboard = dashboard,
+                onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
+                onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
             )
-            Box(Modifier.homeTourTarget(HomeTourTarget.Vitals, tourTargets)) {
-                HomeVitalsGrid(dashboard = dashboard, onNavigate = onNavigate)
-            }
         }
         Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
             NeuralSectionHeader(title = stringResource(R.string.home_section_actions))
@@ -144,14 +159,15 @@ internal fun LegendaryHomeDashboard(
                 )
             }
         }
-        Box(Modifier.homeTourTarget(HomeTourTarget.Pulse, tourTargets)) {
-            HardwarePulseCards(
-                dashboard = dashboard,
-                onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
-                onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
+        Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
+            NeuralSectionHeader(
+                title = stringResource(R.string.home_section_live),
+                caption = stringResource(R.string.home_section_live_caption),
             )
+            Box(Modifier.homeTourTarget(HomeTourTarget.Vitals, tourTargets)) {
+                HomeVitalsGrid(dashboard = dashboard, onNavigate = onNavigate)
+            }
         }
-        UnifiedActivityCard(maxAi = maxAi)
         FocusCard(dashboard, onNavigate, storageCardVisible, onHideStorage)
         Box(Modifier.homeTourTarget(HomeTourTarget.Memory, tourTargets)) {
             MemoryMatrixCard(dashboard = dashboard, onNavigate = onNavigate)
@@ -162,8 +178,10 @@ internal fun LegendaryHomeDashboard(
         Box(Modifier.homeTourTarget(HomeTourTarget.Deck, tourTargets)) {
             CommandDeck(entries = deckEntries, onOpen = onOpenDeck, onConfigure = onConfigureDeck)
         }
+        UnifiedActivityCard(maxAi = maxAi)
     }
 }
+
 
 
 /**
@@ -299,13 +317,6 @@ private fun FrequencyMetricCard(
     accent: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    /*
-     * فتحتا العرض اللتان تختلف البطاقتان في ملئهما لا في قراءتهما — والفارق رقمٌ حقيقيّ
-     * لا تسمية: صدر بطاقة GPU يعرض **السقف الحيّ** (`max_freq` المسموح به الآن، مثل 754)
-     * بتسميته «Max freq»، وأقصى اليمين **أقصى ما تُعلنه الدرجات** (مثل 1300) — وهما
-     * اثنان لا يُخلط بينهما بعد اليوم (كانت البطاقة تعرض الجاري في صدرها). وبلا تعبئة
-     * يبقى سلوك CPU كما هو: الصدر = التردد الجاري بلا تسمية، واليمين = السقف.
-     */
     topMhz: Int? = null,
     topLabel: String? = null,
     rangeMaxMhz: Int? = null,
@@ -316,14 +327,7 @@ private fun FrequencyMetricCard(
         val value = if (isGpu) sample.gpuMhz else sample.cpuMhz
         value?.takeIf { it > 0 }?.toFloat()
     }
-    /*
-     * مقياس الرسم = المدى الحقيقي المتحلّى، وما رصدناه كاحتياط.
-     *
-     * ولا يجوز أن يكون **الصفر** سقفًا: الرسوم كانت تُبنى من المدى المعلن وحده، فجهاز لا تُعلن
-     * نواته سقفًا (أو تُعلنه بوحدة غير موثوقة) كان يحصل على `graphCeiling = 0`، أي رسم فارغ
-     * — بينما تردّداته المقيسة موجودة في العيّنات. والاحتياط هنا `max(ceiling, current,
-     * observed)` لا سقفًا مصنوعًا: كل حدّ فيه رقم مقيس أو معلن، فلا يُخترع مدى.
-     */
+    // مقياس الرسم = المدى المقيس أو المعلن، لا صفر مصنوع (انظر التعليق في `HardwarePulseCards`).
     val rangeCeiling = max(
         ceilingMhz?.takeIf { it > 0 }?.toFloat() ?: 0f,
         max(current?.toFloat() ?: 0f, history.maxOrNull() ?: 0f)
@@ -336,94 +340,83 @@ private fun FrequencyMetricCard(
     } else emptyList()
     val floor = floorMhz?.takeIf { it > 0 }
     val floorFraction = floor?.toFloat()?.div(rangeCeiling)?.takeIf { it.isFinite() }?.coerceIn(0f, 1f)
+    val rangeMax = rangeMaxMhz?.takeIf { it > 0 } ?: ceilingMhz?.takeIf { it > 0 }
+    val shape = RoundedCornerShape(MaxRadius.group)
+    val unknown = "\u2014"
 
     Column(
         modifier
-            .clip(RoundedCornerShape(MaxRadius.group))
+            .clip(shape)
             .background(p.tile.copy(alpha = .92f))
-            .border(BorderStroke(1.dp, accent.copy(alpha = .26f)), RoundedCornerShape(MaxRadius.group))
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .border(MaxSize.hairlineBorder, accent.copy(alpha = MaxAlpha.borderStrong), shape)
+            .neuralClickable(onClick, role = Role.Button)
+            .padding(MaxSpace.lg),
+        verticalArrangement = Arrangement.spacedBy(MaxSpace.sm),
     ) {
+        // الرأس: النقطة والاسم وسهم الباب، والنسبة الكبيرة (القراءة الرئيسية للبطاقة) على اليمين.
         Row(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier.size(7.dp).clip(RoundedCornerShape(50)).background(accent)
-                )
-                Spacer(Modifier.width(7.dp))
-                Text(
-                    title,
-                    color = p.muted,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                // سهمُ الباب بعد الاسم لا قبله (نفس عُرف `NeuralPill(navigates)` وصفوف
-                // مصفوفة الذاكرة): البطاقتان تقودان فعلًا إلى شاشتيهما (`GpuStudio` من
-                // `onGpu` · `CpuCoreControl` من `onCpu`) — وكانتا تُقرآن بيانًا لا بابًا.
-                // وهذا آخر موضعٍ من صنف عطب المالك («لا يدل على أنه سيدخلك إلى شاشة أخرى»)
-                // في هذه الشاشة. وحجم السهم 13.dp لا 14.dp كسهم الوسوم: عنوان هذه البطاقة
-                // `11.sp` بوزن `Medium` (اسمٌ رماديّ صغير)، فسهمٌ أكبر منه كان سيصير أبرزَ من الاسم.
-                Spacer(Modifier.width(4.dp))
+                Box(Modifier.size(MaxSpace.sm).clip(CircleShape).background(accent))
+                Spacer(Modifier.width(MaxSpace.xs))
+                Text(title, color = p.muted, style = MaterialTheme.typography.labelMedium)
+                Spacer(Modifier.width(MaxSpace.xs))
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     null,
-                    Modifier.size(13.dp),
+                    Modifier.size(MaxSize.iconGlyphSmall),
                     tint = accent,
                 )
             }
-            Text(
-                "${percent?.coerceIn(0, 100) ?: 0}%",
+            NeuralValue(
+                percent?.coerceIn(0, 100)?.let { "$it%" } ?: unknown,
+                style = MonoValueStyleLarge,
                 color = p.text,
-                fontSize = 25.sp,
-                lineHeight = 28.sp,
-                fontWeight = FontWeight.Bold
             )
         }
-
-        Text(
-            // صدر البطاقة: للـGPU السقف الحيّ بتسميته («Max freq 754 MHz»)، ولـCPU التردد
-            // الجاري كما كان — فتحةٌ واحدة لا تتغيّر إلا في ملئها.
-            (topLabel?.let { "$it " } ?: "") +
+        // سطر التردد: الصدر (السقف الحيّ للـGPU بتسميته، أو الجاري للـCPU) — تسمية صغيرة ثم رقم أحادي.
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+            if (topLabel != null) {
+                Text(
+                    topLabel.uppercase(),
+                    color = p.muted,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                )
+                Spacer(Modifier.width(MaxSpace.xs))
+            }
+            NeuralValue(
                 formatHardwareFrequency(topMhz?.takeIf { it > 0 } ?: current),
-            color = p.muted,
-            fontSize = 12.sp,
-            lineHeight = 16.sp
-        )
-
-        // والموجة من الكومبوننت المشترك (`NeuralSparkline`) لا من نسخة محليّة: شاشة CPU
-        // ترسم الموجة نفسها لكل نواة، ونسختان تفترقان عند أوّل تعديل.
+                style = MonoValueStyleMedium,
+                color = p.text,
+                maxLines = 1,
+            )
+        }
+        // فاصل شعريّ يفصل القراءة عن الرسم.
+        Box(Modifier.fillMaxWidth().height(MaxSize.hairlineBorder).background(p.border))
         NeuralSparkline(
             samples = graph,
             accent = accent,
             floorFraction = floorFraction,
-            modifier = Modifier.fillMaxWidth().height(48.dp)
+            modifier = Modifier.fillMaxWidth().height(48.dp),
         )
-
-        // حدّا المدى تحت الرسم، كلُّ حدٍّ تحت المستوى الذي يمثّله فعلًا: الأرضية خطُّ إسناد
-        // مرسوم داخل الرسم، والسقف أعلاه. ولمّا يُعلن أيّهما لا يُكتب شيء — فسطر «— —»
-        // ليس مدى، وقد يُقرأ كصفر.
-        val rangeMax = rangeMaxMhz?.takeIf { it > 0 } ?: ceilingMhz?.takeIf { it > 0 }
+        // المدى: الأرضية يسارًا والسقف يمينًا بالخط الأحادي، وكلٌّ يُكتب إن أُعلن فقط.
         if (floor != null || rangeMax != null) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                NeuralValue(
                     formatHardwareFrequency(floor),
-                    color = p.muted.copy(alpha = .75f),
-                    fontSize = 10.sp,
-                    lineHeight = 13.sp
+                    style = MonoValueStyleSmall,
+                    color = p.muted,
+                    maxLines = 1,
                 )
-                Text(
+                NeuralValue(
                     formatHardwareFrequency(rangeMax),
-                    color = p.muted.copy(alpha = .75f),
-                    fontSize = 10.sp,
-                    lineHeight = 13.sp
+                    style = MonoValueStyleSmall,
+                    color = p.muted,
+                    maxLines = 1,
                 )
             }
         }

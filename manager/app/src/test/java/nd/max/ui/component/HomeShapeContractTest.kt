@@ -39,7 +39,7 @@ class HomeShapeContractTest {
     @Test
     fun `the dashboard order puts identity banners vitals and actions first`() {
         val body = read("LegendaryHomeDashboard.kt").substringAfter("internal fun LegendaryHomeDashboard(")
-        val order = listOf("HomeHeader(", "HomeHeroCard(", "HomeVitalsGrid(", "HomeActionRow(")
+        val order = listOf("HomeHeader(", "HomeHeroCard(", "HardwarePulseCards(", "HomeActionRow(", "HomeVitalsGrid(", "FocusCard(", "MemoryMatrixCard(", "UltraCleanerHomeCard(", "CommandDeck(", "UnifiedActivityCard(")
             .map { body.indexOf(it) }
         assertTrue("كتلة مفقودة من الرئيسية", order.all { it >= 0 })
         assertTrue("ترتيب الكتل الأولى تغيّر", order == order.sorted())
@@ -47,13 +47,20 @@ class HomeShapeContractTest {
     }
 
     @Test
-    fun `the vitals grid has four doors to four owner screens`() {
+    fun `the live readings open their owner screens and never repeat what the screen already shows`() {
         val grid = read("HomeVitalsGrid.kt")
-        listOf("CpuCoreControl", "MemoryHub", "ThermalDetail", "Charging").forEach { door ->
+        listOf("ThermalDetail", "NetworkHub").forEach { door ->
             assertTrue("خلية بلا باب: $door", grid.contains("MaxDestination.$door.route"))
         }
         // المجهول يُكتب شرطة لا صفرًا (ADR-07).
         assertTrue(grid.contains("takeIf { it > 0 }"))
+        // لا تكرار: ما تعرضه البطاقة الأولى والنبض والذاكرة والتخزين لا يُعاد هنا (طلب المالك).
+        listOf(
+            "batteryPercent", "batteryTempC", "powerWatt", "cpuTopCoreMhz", "ramUsedMb",
+            "cpuLoadPercent", "gpuLoadPercent", "gpuFreqMhz", "storageUsedGb", "swapUsedMb",
+        ).forEach { shown ->
+            assertFalse("قراءة مكرّرة في الحيّ: $shown", grid.contains(shown))
+        }
     }
 
     @Test
