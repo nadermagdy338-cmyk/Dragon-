@@ -1,0 +1,78 @@
+/*
+ * Copyright (C) 2026 Nader Magdy. All rights reserved.
+ *
+ * MaxManager proprietary source. See LICENSE at the repository root: this file is
+ * MaxManager-owned and carries no third-party licence obligations.
+ */
+
+package nd.max.core.emuhub
+
+/**
+ * فهرس المكتبة على القرص — **قراءة/كتابة مجموعة نصوص فقط**، والترميز/الفكّ دالتان نقيّتان.
+ *
+ * **لماذا لا ملفّ JSON ولا `filesDir`:** المفهرس يخزّن اسمًا ووصفًا وحجمًا وختمًا لكل ملفّ، وهي
+ * حقول سطريّة قصيرة. فمخزن `SharedPreferences` القائم (المفتاح `settings` نفسه الذي يستعمله
+ * التطبيق) يكفي ويكلّف صفر بنية جديدة: لا `AtomicFile`، ولا صيغة إصدار، ولا كاتب ثانٍ. وهذا هو
+ * «حقل واحد ⇒ كاتب واحد»: `emulator_documents` للملفّات المفردة، و`emulator_folders` للمجلّدات،
+ * و`emulator_index`/`emulator_stamps` للفهرس — أربعة حقول، كلٌّ بكاتب واحد.
+ *
+ * **وحدّان مُعلنان:** عدد الملفّات (`MAX_FILES`) وعدد المجلّدات (`MAX_FOLDERS`)؛ وتجاوزهما **يُعلَن
+ * نقصًا** لا يُطوى، لأن مكتبة ناقصة تُقرأ كأنها كلّ المكتبة.
+ */
+object RomIndexStore {
+    const val MAX_FILES = 5000
+    const val MAX_FOLDERS = 32
+
+    /** عمق المشي الأقصى داخل المجلد — يمنع شجرة عميقة بلا نهاية من تعليق الفهرسة. */
+    const val MAX_DEPTH = 8
+
+    private const val FIELD = '\u0001'
+
+    /**
+     * سطر واحد لكل ملفّ: `uri ␁ parent ␁ name ␁ size ␁ modified`.
+     *
+     * الحقول المفصولة بحرف تحكّم لا يظهر في مسار ولا في اسم: اسم ملفّ فيه `|` شائع، وفيه `\u0001`
+     * لا يكون. والحقول الغائبة تُكتب فارغة وتُقرأ `null` — فلا صفر كاذب لحجم لم يُقرأ.
+     */
+    fun encode(file: RomFile): String = listOf(
+        file.uri,
+        file.parent,
+        file.name,
+        file.sizeBytes?.toString().orEmpty(),
+        file.lastModified?.toString().orEmpty(),
+    ).joinToString(FIELD.toString())
+
+    /** `null` لسطر معطوب أو لمفتاح مفقود — السطر التالف يُسقَط ولا يُفسد بقية الفهرس. */
+    fun decode(line: String): RomFile? {
+        val parts = line.split(FIELD)
+        if (parts.size != 5) return null
+        val uri = parts[0]
+        val name = parts[2]
+        if (uri.isEmpty() || name.isEmpty()) return null
+        return RomFile(
+            uri = uri,
+            name = name,
+            parent = parts[1],
+            sizeBytes = parts[3].toLongOrNull()?.takeIf { it >= 0 },
+            lastModified = parts[4].toLongOrNull()?.takeIf { it >= 0 },
+        )
+    }
+
+    /** فكّ مجموعة كاملة، مع سقف يُطبَّق بعد الترتيب ليكون الحكم حتميًّا لا تابعًا لترتيب المجموعة. */
+    fun decodeAll(lines: Set<String>): List<RomFile> =
+        lines.mapNotNull(::decode).distinctBy { it.uri }.sortedBy { it.uri }.take(MAX_FILES)
+
+    /** ختم مجلّد: `uri ␁ stamp`. */
+    fun encodeStamp(folder: String, stamp: Long): String = "$folder$FIELD$stamp"
+
+    fun decodeStamp(line: String): Pair<String, Long>? {
+        val at = line.lastIndexOf(FIELD)
+        if (at <= 0) return null
+        val stamp = line.substring(at + 1).toLongOrNull() ?: return null
+        return line.substring(0, at) to stamp
+    }
+
+    fun decodeStamps(lines: Set<String>): Map<String, Long> =
+        lines.mapNotNull(::decodeStamp).toMap().entries.sortedBy { it.key }.take(MAX_FOLDERS)
+            .associate { it.key to it.value }
+}
