@@ -2853,6 +2853,16 @@
     <string name="home_cleaner_percent_used">مستخدم %1$d%%</string>
     <string name="home_hero_uptime">يعمل منذ %1$s</string>
     <string name="home_hero_open_overview">فتح نظرة على الجهاز</string>
+    <string name="home_storage_see_cleaner">الأرقام في بطاقة التنظيف بالأسفل</string>
+    <string name="home_hidden_storage">بطاقة التخزين مخفية</string>
+    <string name="home_show_hidden_storage">إظهار</string>
+    <string name="home_trend_up">يرتفع</string>
+    <string name="home_trend_down">ينخفض</string>
+    <string name="home_trend_steady">مستقرة</string>
+    <string name="home_detail_with_trend">%1$s · %2$s</string>
+    <string name="home_vital_a11y">%1$s: %2$s%3$s. %4$s</string>
+    <string name="home_time_left">الوقت المتبقي تقديرًا: ≈ %1$s</string>
+    <string name="home_duration_hm">%1$d س %2$d د</string>
     <string name="home_vital_cpu_temp">حرارة المعالج</string>
     <string name="home_vital_skin_temp">حرارة السطح</string>
     <string name="home_vital_net_up">الرفع %1$s</string>

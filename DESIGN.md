@@ -70,8 +70,8 @@ typography:
     fontWeight: Bold
   live-value-large:
     fontFamily: monospace
-    fontSize: 34sp
-    lineHeight: 38sp
+    fontSize: 28sp
+    lineHeight: 32sp
   live-value-medium:
     fontFamily: monospace
     fontSize: 16sp
@@ -296,7 +296,7 @@ Three faces, each with one job:
 | `labelLarge` | 14sp | SemiBold | 20sp | 0.4sp | Buttons and prominent chips |
 | `labelMedium` | 12sp | SemiBold | 16sp | 0.5sp | Badges |
 | `labelSmall` | 11sp | Bold | 16sp | 0.6sp | The "console eyebrow" — status labels |
-| mono `live-value-large` | 34sp | SemiBold | 38sp | 0 | The headline reading on a metric card |
+| mono `live-value-large` | 28sp | SemiBold | 32sp | 0 | The headline reading on a metric card |
 | mono `live-value-medium` | 16sp | SemiBold | 20sp | 0 | In-row readings |
 | mono `live-value-small` | 12sp | Medium | 16sp | 0 | Dense tables |
 
@@ -550,7 +550,7 @@ Measured, and stated rather than implied.
 
 1. **`MaxMetricType` is dead.** `MaxMetricType` (`valueLarge` 34sp, `valueMedium` 22sp, `valueSmall`
    16sp) appears exactly once in the repository: its own definition. The scale actually in use is
-   `MonoValueStyle*` (`theme/Type.kt` — 34sp / 16sp / 12sp), referenced from 18 files in 60 call sites.
+   `MonoValueStyle*` (`theme/Type.kt` — 28sp / 16sp / 12sp), referenced from 18 files in 60 call sites.
    So the metric scale has two spellings, one of them unused, and `valueMedium` disagrees with its live
    counterpart (22sp against 16sp). Not removed here: deleting a token object is a code change that
    belongs in its own reviewed task, and the honest first step is to say so.

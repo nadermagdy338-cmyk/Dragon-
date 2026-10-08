@@ -1,5 +1,7 @@
 package nd.max.ui.mainscreens
 
+import org.junit.Assert.assertNull
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -32,4 +34,12 @@ class HomeFocusModelTest {
         assertFalse(HomeFocusModel.clearsHide(HomeStorageState.UNKNOWN))
         assertFalse(HomeFocusModel.clearsHide(HomeStorageState.FULL))
     }
+    @Test
+    fun `one rule chooses the warning and whether it rises: heat, then storage, then memory`() {
+        assertEquals(HomeFocusKind.HEAT, HomeFocusModel.focusKind(46, 0.95f, storageVisible = true))
+        assertEquals(HomeFocusKind.STORAGE, HomeFocusModel.focusKind(30, 0.95f, storageVisible = true))
+        assertEquals(HomeFocusKind.MEMORY, HomeFocusModel.focusKind(30, 0.95f, storageVisible = false))
+        assertNull(HomeFocusModel.focusKind(30, 0.50f, storageVisible = false))
+    }
+
 }

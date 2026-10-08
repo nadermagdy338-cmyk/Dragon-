@@ -14,6 +14,7 @@ import android.os.BatteryManager
 import android.os.StatFs
 import android.os.SystemClock
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.WindowManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -216,6 +217,11 @@ private const val HISTORY_SAVE_INTERVAL_MS = 30_000L
  * والسرعة جاءت من التوازي وكاش الاحتياط الثقيل (تكملة ٢٠٥) لا من سؤال العتاد أكثر.
  */
 private const val POLL_INTERVAL_MS = 2_000L
+/** كل كم نبضة يُكتب سطر كلفة الحلقة في السجلّ (`adb logcat -s MaxPoll`). */
+private const val POLL_LOG_EVERY = 15L
+private const val POLL_TAG = "MaxPoll"
+/** التخزين يتغيّر بالدقائق لا بالثواني: يُقرأ بهذا الإيقاع والقيمة السابقة تبقى بينهما. */
+private const val STORAGE_REFRESH_MS = 30_000L
 
 class HomeDashboardViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -286,6 +292,28 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
      * ما قيس في الجلسة السابقة ويقع داخل نافذة الصلاحية يُعاد إلى الطيف كما هو — بلا
      * إعادة ترتيب ولا تصنيع: `LoadHistoryCodec` هو من يقرّر ما يُقبل (انظر `LoadHistoryTest`).
      */
+    // ---- قياس الحلقة وإيقاع التخزين: الكلفة تُكتب بالمللي ثانية، والتخزين يُقرأ كل ثلاثين ثانية.
+    private var pollCycles = 0L
+    private var storageReadAtMs = 0L
+    private var cachedStorage: FloatArray = floatArrayOf(0f, 0f)
+
+    /** التخزين: تُجدَّد القراءة كل `STORAGE_REFRESH_MS` والقيمة السابقة تبقى بين القراءتين. */
+    private fun storageForCycle(nowMs: Long): FloatArray {
+        if (storageReadAtMs == 0L || nowMs - storageReadAtMs >= STORAGE_REFRESH_MS) {
+            cachedStorage = readStorage()
+            storageReadAtMs = nowMs
+        }
+        return cachedStorage
+    }
+
+    /** كلفة النبضة: السريعة والبطيئة بالمللي ثانية، تُكتب كل `POLL_LOG_EVERY` نبضة. */
+    private fun recordPollCost(fastMs: Long, slowMs: Long) {
+        pollCycles++
+        if (pollCycles % POLL_LOG_EVERY == 0L) {
+            Log.d(POLL_TAG, "cycle=$pollCycles fast=${fastMs}ms slow=${slowMs}ms")
+        }
+    }
+
     private fun restoreLoadHistory() {
         // الشرط الثاني ليس زينة: لو سبقتنا دورة قياس حيّة فلا نستبدل عيّنةً قيست الآن
         // بعيّنة من الجلسة السابقة — الاسترجاع يملأ فراغًا، لا يُزاحم قياسًا فعلًا.
@@ -372,6 +400,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 // **ولماذا هذان تجميعان لا أحد عشر مهمّة حرّة:** كل مجموعة تحمل قارئها المتتابع
                 // بالأثر الحسّاس، فلا يتنافس قارئان على الكاش الداخلي نفسه (`coreTopology` ·
                 // كاش عقدة الرسوم · كاش مناطق الحرارة) — توازٍ بلا سباق.
+                val cycleStartMs = SystemClock.elapsedRealtime()
                 val fast = coroutineScope {
                     val ram = async { FpsMonitorUtil.getRamInfo(context) }
                     val cpuLoad = async { FpsMonitorUtil.getCpuLoad() }
@@ -382,7 +411,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                             ?.toLongOrNull()?.div(1000)?.toInt() ?: 0
                     }
                     val battery = async { readBattery() }
-                    val storage = async { readStorage() }
+                    val storage = async { storageForCycle(SystemClock.elapsedRealtime()) }
                     val network = async { readNetwork() }
                     FastReadings(
                         ram = ram.await(),
@@ -394,6 +423,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     )
                 }
                 publishFastReadings(fast)
+                val fastMs = SystemClock.elapsedRealtime() - cycleStartMs
                 // والأسماء نفسها التي يستعملها ما بعدها: النشر الكامل يقرأ من المجموعة السريعة
                 // كما كان يقرأ من قراءاتها المتتابعة — **قيمة واحدة من قارئ واحد**، لا نسخة ثانية.
                 val ram = fast.ram
@@ -417,6 +447,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                         batteryTemp = batteryTemp.await(),
                     )
                 }
+                val slowMs = SystemClock.elapsedRealtime() - cycleStartMs - fastMs
                 val thermal = slow.thermal
                 val cores = slow.cores
                 val gpu = slow.gpu
@@ -486,6 +517,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     // «يُقرأ الآن» و«غير مقروء» (تكملة ٢٠٥).
                     readingsAtMs = System.currentTimeMillis()
                 )
+                recordPollCost(fastMs, slowMs)
                 delay(POLL_INTERVAL_MS)
             }
         }.also { job ->

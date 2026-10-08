@@ -2894,6 +2894,16 @@
     <string name="home_cleaner_percent_used">%1$d%% used</string>
     <string name="home_hero_uptime">Up %1$s</string>
     <string name="home_hero_open_overview">Open device overview</string>
+    <string name="home_storage_see_cleaner">Its numbers are in the cleaner card below</string>
+    <string name="home_hidden_storage">Storage card is hidden</string>
+    <string name="home_show_hidden_storage">Show</string>
+    <string name="home_trend_up">rising</string>
+    <string name="home_trend_down">falling</string>
+    <string name="home_trend_steady">steady</string>
+    <string name="home_detail_with_trend">%1$s · %2$s</string>
+    <string name="home_vital_a11y">%1$s: %2$s%3$s. %4$s</string>
+    <string name="home_time_left">Estimated time left: ≈ %1$s</string>
+    <string name="home_duration_hm">%1$d h %2$d m</string>
     <string name="home_vital_cpu_temp">CPU temperature</string>
     <string name="home_vital_skin_temp">Surface temperature</string>
     <string name="home_vital_net_up">Upload %1$s</string>

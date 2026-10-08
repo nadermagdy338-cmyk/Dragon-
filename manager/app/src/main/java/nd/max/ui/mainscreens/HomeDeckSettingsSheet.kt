@@ -32,6 +32,12 @@
  */
 package nd.max.ui.mainscreens
 
+import androidx.compose.material3.TextButton
+
+import androidx.compose.ui.Alignment
+
+import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -64,6 +70,9 @@ fun HomeDeckSettingsSheet(
     onModeChange: (HomeDeckMode) -> Unit,
     onManualChange: (List<String>) -> Unit,
     onDismiss: () -> Unit,
+    /** بطاقة التخزين مخفية الآن؟ إن كانت، يظهر هنا سطر يعيدها بنقرة (لا إخفاء بلا استرجاع). */
+    storageHidden: Boolean = false,
+    onShowStorage: () -> Unit = {},
 ) {
     // ما تعرضه المنصة الآن بالوضع القائم — منه يبدأ الاختيار اليدويّ، وفيه يرى المستخدم
     // أثر «التلقائي» قبل أن يتركه.
@@ -85,6 +94,22 @@ fun HomeDeckSettingsSheet(
             modifier = Modifier.padding(horizontal = MaxSpace.xl, vertical = MaxSpace.xs),
         )
 
+        if (storageHidden) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = MaxSpace.xl, vertical = MaxSpace.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.home_hidden_storage),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = onShowStorage) {
+                    Text(stringResource(R.string.home_show_hidden_storage))
+                }
+            }
+        }
         MaxSegmented(
             options = listOf(
                 stringResource(R.string.home_deck_mode_auto),

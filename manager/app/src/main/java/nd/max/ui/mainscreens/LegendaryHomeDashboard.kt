@@ -102,6 +102,7 @@ import kotlin.math.roundToInt
  */
 @Composable
 internal fun LegendaryHomeDashboard(
+    timeLeftMinutes: Int? = null,
     ui: HomeUiState,
     dashboard: DashboardState,
     maxAi: MaxAiState,
@@ -128,6 +129,12 @@ internal fun LegendaryHomeDashboard(
     onHideStorage: () -> Unit = {},
 ) {
     val online = ui.rootStatus && ui.moduleInstalled
+    // ترتيب حسب الخطورة: بطاقة الخلل الحقيقي تصعد تحت البطل، وإلا تبقى في موضعها المحدّد.
+    val focusFirst = HomeFocusModel.focusKind(
+        heatC = deviceHeatC(dashboard) ?: 0,
+        ramFraction = fractionOf(dashboard.ramUsedMb, dashboard.ramTotalMb),
+        storageVisible = storageCardVisible,
+    ) != null
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(MaxSpace.lg)) {
         HomeHeader(online, onSettings, onReboot, onShowGuide)
         Box(Modifier.homeTourTarget(HomeTourTarget.Hero, tourTargets)) {
@@ -141,6 +148,9 @@ internal fun LegendaryHomeDashboard(
                 onOverview = { onNavigate(MaxDestination.DeviceInfo.route) },
                 onMaxAi = { onNavigate(MaxDestination.MaxAi.route) },
             )
+        }
+        if (focusFirst) {
+            FocusCard(dashboard, onNavigate, storageCardVisible, onHideStorage)
         }
         Box(Modifier.homeTourTarget(HomeTourTarget.Pulse, tourTargets)) {
             HardwarePulseCards(
@@ -167,8 +177,21 @@ internal fun LegendaryHomeDashboard(
             Box(Modifier.homeTourTarget(HomeTourTarget.Vitals, tourTargets)) {
                 HomeVitalsGrid(dashboard = dashboard, onNavigate = onNavigate)
             }
+            timeLeftMinutes?.let { minutes ->
+                Text(
+                    stringResource(
+                        R.string.home_time_left,
+                        stringResource(R.string.home_duration_hm, minutes / 60, minutes % 60),
+                    ),
+                    color = neuralPalette().muted,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                )
+            }
         }
-        FocusCard(dashboard, onNavigate, storageCardVisible, onHideStorage)
+        if (!focusFirst) {
+            FocusCard(dashboard, onNavigate, storageCardVisible, onHideStorage)
+        }
         Box(Modifier.homeTourTarget(HomeTourTarget.Memory, tourTargets)) {
             MemoryMatrixCard(dashboard = dashboard, onNavigate = onNavigate)
         }
@@ -436,8 +459,8 @@ private fun formatHardwareFrequency(mhz: Int?): String {
 /**
  * لا تظهر إلا حين توجد مشكلة حقيقية، فحضورها نفسه يعني شيئًا.
  *
- * **الإخفاء لبطاقة التخزين وحدها** (طلب المالك): الحرارة والذاكرة تبقيان على حالهما. وتظهر بطاقة التخزين
- * حين تستحقّها `HomeFocusModel` ولم يُخفِها المستخدم، ويأتي زرّ «إخفاء» في نهاية سطرها.
+ * **الفرز كله في `HomeFocusModel.focusKind`:** اختيار الخلل وموضع البطاقة (تحت البطل أم في موضعها) يقرآن القاعدة
+ * نفسها، فلا تقول البطاقة شيئًا والترتيب شيئًا آخر. والإخفاء لبطاقة التخزين وحدها.
  */
 @Composable
 private fun FocusCard(
@@ -447,8 +470,9 @@ private fun FocusCard(
     onHideStorage: () -> Unit,
 ) {
     val p = neuralPalette()
-    val heat = dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt() ?: dashboard.cpuTempC
+    val heat = deviceHeatC(dashboard) ?: 0
     val ram = fractionOf(dashboard.ramUsedMb, dashboard.ramTotalMb)
+    val kind = HomeFocusModel.focusKind(heat, ram, storageVisible) ?: return
 
     val title: String
     val body: String
@@ -456,8 +480,8 @@ private fun FocusCard(
     val icon: ImageVector
     val route: String
     val hideAction: (() -> Unit)?
-    when {
-        heat >= 45 -> {
+    when (kind) {
+        HomeFocusKind.HEAT -> {
             title = stringResource(R.string.home_focus_heat)
             body = stringResource(R.string.home_focus_heat_desc)
             accent = p.danger
@@ -465,7 +489,7 @@ private fun FocusCard(
             route = MaxDestination.ThermalDetail.route
             hideAction = null
         }
-        storageVisible -> {
+        HomeFocusKind.STORAGE -> {
             title = stringResource(R.string.home_focus_storage)
             body = stringResource(R.string.home_focus_storage_desc)
             accent = p.warn
@@ -473,7 +497,7 @@ private fun FocusCard(
             route = MaxDestination.StorageDetail.route
             hideAction = onHideStorage
         }
-        ram >= 0.90f -> {
+        HomeFocusKind.MEMORY -> {
             title = stringResource(R.string.home_focus_memory)
             body = stringResource(R.string.home_focus_memory_desc)
             accent = p.accentAlt
@@ -481,29 +505,26 @@ private fun FocusCard(
             route = MaxDestination.ZramManager.route
             hideAction = null
         }
-        else -> return
     }
-    NeuralPanel(accent = accent, onClick = { onNavigate(route) }, verticalSpacing = 8.dp) {
+    NeuralPanel(accent = accent, onClick = { onNavigate(route) }, verticalSpacing = MaxSpace.sm) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralIconChip(icon, accent, size = 34.dp)
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            NeuralIconChip(icon, accent, size = MaxSize.rowIconContainer)
+            Spacer(Modifier.width(MaxSpace.md))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)) {
                 Text(
                     title,
                     color = p.text,
-                    fontSize = 14.sp,
-                    lineHeight = 18.sp,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     body,
                     color = p.muted,
-                    fontSize = 11.sp,
-                    lineHeight = 15.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             if (hideAction != null) {

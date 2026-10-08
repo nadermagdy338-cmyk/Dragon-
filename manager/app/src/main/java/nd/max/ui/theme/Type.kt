@@ -152,8 +152,8 @@ val Typography = Typography(
 val MonoValueStyleLarge = TextStyle(
     fontFamily = MonoFontFamily,
     fontWeight = FontWeight.SemiBold,
-    fontSize = 34.sp,
-    lineHeight = 38.sp,
+    fontSize = 28.sp,
+    lineHeight = 32.sp,
     letterSpacing = 0.sp
 )
 val MonoValueStyleMedium = TextStyle(

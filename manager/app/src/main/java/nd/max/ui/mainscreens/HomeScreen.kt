@@ -6,6 +6,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package nd.max.ui.mainscreens
+
+import androidx.compose.runtime.produceState
+
+import nd.max.ui.util.BatteryHealthUtil
 import nd.max.ui.design.floatingBottomBarPadding
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
@@ -106,6 +110,13 @@ fun HomeScreen(
     // التركيب لا في كل إطار. و`?` في الرأس يعيدها بطلب صريح.
     val guideStore = remember(context) { HomeGuideStore.of(context) }
     val focusStore = remember(context) { HomeFocusStore.of(context) }
+    // سعة التصميم تُقرأ مرة واحدة من الملف الثابت للنظام، لا في كل نبضة (لا تتغيّر أثناء الاستعمال).
+    val designUah by produceState<Long?>(initialValue = null) {
+        value = withContext(Dispatchers.IO) { runCatching { BatteryHealthUtil.read().designUah }.getOrNull() }
+    }
+    val timeLeftMinutes = HomeTimeLeftModel.minutesLeft(
+        dashboard.batteryPercent, designUah, dashboard.batteryCurrentMa, dashboard.isCharging,
+    )
     var storageHidden by remember { mutableStateOf(focusStore.storageHidden) }
     val storageState = HomeFocusModel.storageState(dashboard.storageTotalGb, dashboard.storageUsedGb)
     val storageVisible = HomeFocusModel.storageCardVisible(storageState, storageHidden)
@@ -149,6 +160,7 @@ fun HomeScreen(
             onOpenDeck = { entry -> navActions.navigateRoute(entry.destination.route) },
             onConfigureDeck = { showDeckSettings = true },
             accessLevel = privilege.level,
+            timeLeftMinutes = timeLeftMinutes,
             storageCardVisible = storageVisible,
             onHideStorage = {
                 storageHidden = true
@@ -193,6 +205,11 @@ fun HomeScreen(
                 deckManual = next
                 deckStore.manualKeys = next
             },
+            storageHidden = storageHidden,
+            onShowStorage = {
+                storageHidden = false
+                focusStore.storageHidden = false
+            },
             onDismiss = { showDeckSettings = false },
         )
     }
@@ -206,6 +223,7 @@ fun HomeScreen(
 
 @Composable
 fun HomeDashboardContent(
+    timeLeftMinutes: Int? = null,
     ui: HomeUiState,
     dashboard: DashboardState,
     maxAi: MaxAiState,
@@ -272,6 +290,7 @@ fun HomeDashboardContent(
                     onOpenDeck = onOpenDeck,
                     onConfigureDeck = onConfigureDeck,
                     accessLevel = accessLevel,
+                    timeLeftMinutes = timeLeftMinutes,
                     storageCardVisible = storageCardVisible,
                     onHideStorage = onHideStorage,
                     onShowGuide = onShowGuide,

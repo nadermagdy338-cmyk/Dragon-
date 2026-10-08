@@ -200,11 +200,13 @@ internal fun HomeHeroCard(
 private fun HeroTile(label: String, value: String, accent: Color, modifier: Modifier) {
     val p = neuralPalette()
     NeuralTile(modifier = modifier, accent = accent, verticalSpacing = MaxSpace.xs) {
+        // سطران محجوزان لكل تسمية: الاسم الطويل يلتفّ ولا يُقطع، فتبقى القيم على خط أفقي واحد عبر البلاطات.
         Text(
             label,
             color = accent,
             style = MaterialTheme.typography.labelMedium,
-            maxLines = 1,
+            minLines = 2,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
         NeuralValue(value, style = MonoValueStyleMedium, color = p.text, maxLines = 1)

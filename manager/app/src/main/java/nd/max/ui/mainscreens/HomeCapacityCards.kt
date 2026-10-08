@@ -16,6 +16,10 @@
  */
 package nd.max.ui.mainscreens
 
+import nd.max.ui.design.MaxSize
+
+import androidx.compose.material3.MaterialTheme
+
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -151,7 +155,7 @@ internal fun UltraCleanerHomeCard(dashboard: DashboardState, onNavigate: (String
                 lineHeight = 16.sp,
             )
         } else {
-            NeuralTrack(fraction, accent, height = 10.dp)
+            NeuralTrack(fraction, accent, height = MaxSize.barHeight)
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 NeuralCaption(
                     stringResource(
@@ -218,8 +222,6 @@ internal fun MemoryMatrixCard(
     val ramUsed = dashboard.ramUsedMb
     val swapTotal = dashboard.swapTotalMb
     val swapUsed = dashboard.swapUsedMb
-    val storageTotal = dashboard.storageTotalGb
-    val storageFree = (storageTotal - dashboard.storageUsedGb).coerceAtLeast(0f)
 
     NeuralPanel(accent = p.accent) {
         NeuralSectionHeader(
@@ -265,23 +267,12 @@ internal fun MemoryMatrixCard(
             onClick = { onNavigate(MaxDestination.ZramManager.route) },
         )
 
+        // التخزين له مالك واحد: بطاقة التنظيف تعرض أرقامه. هنا بابٌ بلا رقم حتى لا تتكرر القراءة.
         MemoryFactRow(
             label = stringResource(R.string.home_internal_storage),
-            detail = if (storageTotal > 0f) {
-                "${dashboard.storageUsedGb.oneDecimal()} / ${storageTotal.oneDecimal()} GB"
-            } else {
-                null
-            },
-            status = if (storageTotal > 0f) {
-                stringResource(R.string.home_available_storage, storageFree.oneDecimal())
-            } else {
-                stringResource(R.string.max_home_unavailable)
-            },
-            fraction = if (storageTotal > 0f) {
-                (dashboard.storageUsedGb / storageTotal).coerceIn(0f, 1f)
-            } else {
-                null
-            },
+            detail = null,
+            status = stringResource(R.string.home_storage_see_cleaner),
+            fraction = null,
             accent = p.ok,
             onClick = { onNavigate(MaxDestination.StorageDetail.route) },
         )
@@ -307,35 +298,31 @@ private fun MemoryFactRow(
     NeuralTile(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
-        verticalSpacing = 6.dp,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+        verticalSpacing = MaxSpace.xs,
+        contentPadding = PaddingValues(
+            horizontal = MaxSpace.rowPaddingHorizontal,
+            vertical = MaxSpace.rowPaddingVertical,
+        ),
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(7.dp).clip(RoundedCornerShape(50)).background(accent))
-                Spacer(Modifier.width(7.dp))
+                Box(Modifier.size(MaxSpace.sm).clip(RoundedCornerShape(50)).background(accent))
+                Spacer(Modifier.width(MaxSpace.sm))
                 NeuralCaption(label)
             }
             if (detail != null) {
-                NeuralValue(
-                    detail,
-                    style = MonoValueStyleSmall.copy(fontSize = 12.sp),
-                    color = p.text
-                )
+                NeuralValue(detail, style = MonoValueStyleSmall, color = p.text)
             }
-            // السهم في نهاية السطر: هذا الصفّ **بابٌ** لا بيان (`NeuralTile(onClick)` يقود
-            // إلى وجهة مختلفة لكل صفّ: مركز الذاكرة · مدير ZRAM · تفصيل التخزين) — وكان
-            // يُقرأ رقمًا وبطاقة فحسب، وهو نفس العطب الذي أبلغ عنه المالك في وسم Max AI
-            // («لا يدل على أنه سيدخلك إلى شاشة أخرى»)، مُقاسًا هنا في ثلاثة صفوف معًا.
-            Spacer(Modifier.width(6.dp))
+            // السهم في نهاية الصفّ: هذا الصفّ بابٌ إلى شاشته، لا بيان.
+            Spacer(Modifier.width(MaxSpace.xs))
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 null,
-                Modifier.size(15.dp),
+                Modifier.size(MaxSize.iconGlyphSmall),
                 tint = accent,
             )
         }
-        Text(status, color = accent, fontSize = 11.sp, lineHeight = 15.sp)
-        fraction?.let { NeuralTrack(it, accent.copy(alpha = .85f), height = 5.dp) }
+        Text(status, color = accent, style = MaterialTheme.typography.bodySmall)
+        fraction?.let { NeuralTrack(it, accent.copy(alpha = .85f), height = MaxSize.barHeight) }
     }
 }

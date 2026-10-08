@@ -97,7 +97,7 @@ internal fun HomeActionRow(
             title = stringResource(R.string.home_memory_boost),
             icon = Icons.Rounded.Memory,
             accent = boostAccent,
-            value = freedMb?.let { "+$it MB" },
+            value = freedMb?.let { stringResource(R.string.home_memory_boost_freed, "$it MB") },
             support = boostSupport,
             onClick = onBoost,
             modifier = Modifier.weight(1f).fillMaxHeight(),

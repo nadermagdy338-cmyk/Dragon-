@@ -18,6 +18,9 @@ import android.content.SharedPreferences
 /** حالة القرص لهذه البطاقة: مجهولة (لا قياس بعد) · سليمة · يكاد يمتلئ. */
 enum class HomeStorageState { UNKNOWN, HEALTHY, FULL }
 
+/** الخلل الذي تُظهره بطاقة الرئيسية الواحدة: حرارة، أو تخزين، أو ذاكرة. */
+enum class HomeFocusKind { HEAT, STORAGE, MEMORY }
+
 object HomeFocusModel {
 
     /** أقلّ نسبة حرّة تبقى سليمة؛ دونها «يكاد يمتلئ». */
@@ -33,6 +36,23 @@ object HomeFocusModel {
     /** البطاقة تظهر حين يكاد القرص يمتلئ ولم يُخفِها المستخدم. */
     fun storageCardVisible(state: HomeStorageState, hidden: Boolean): Boolean =
         state == HomeStorageState.FULL && !hidden
+
+    /** حرارة تبلغ هذا الحدّ فأعلى تُعدّ خللًا (مطابقة لحدّ الساخنة في `heatWordRes`). */
+    const val HEAT_ALERT_C = 45
+
+    /** امتلاء الذاكرة من هذه النسبة فأعلى يُعدّ خللًا. */
+    const val RAM_ALERT_FRACTION = 0.90f
+
+    /**
+     * الخلل الذي تُظهره البطاقة، بالأولوية: حرارة، ثم تخزين (إن كان مُعرَّضًا ولم يُخفَ)، ثم ذاكرة.
+     * هذه القاعدة وحدها تقرّر الاختيار **والترتيب** معًا، فلا تقول البطاقة شيئًا والترتيب شيئًا آخر.
+     */
+    fun focusKind(heatC: Int, ramFraction: Float, storageVisible: Boolean): HomeFocusKind? = when {
+        heatC >= HEAT_ALERT_C -> HomeFocusKind.HEAT
+        storageVisible -> HomeFocusKind.STORAGE
+        ramFraction >= RAM_ALERT_FRACTION -> HomeFocusKind.MEMORY
+        else -> null
+    }
 
     /** الإخفاء يُمسح حين يُقاس القرص سليمًا فقط. */
     fun clearsHide(state: HomeStorageState): Boolean = state == HomeStorageState.HEALTHY

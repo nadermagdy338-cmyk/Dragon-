@@ -39,7 +39,7 @@ class HomeShapeContractTest {
     @Test
     fun `the dashboard order puts identity banners vitals and actions first`() {
         val body = read("LegendaryHomeDashboard.kt").substringAfter("internal fun LegendaryHomeDashboard(")
-        val order = listOf("HomeHeader(", "HomeHeroCard(", "HardwarePulseCards(", "HomeActionRow(", "HomeVitalsGrid(", "FocusCard(", "MemoryMatrixCard(", "UltraCleanerHomeCard(", "CommandDeck(", "UnifiedActivityCard(")
+        val order = listOf("HomeHeader(", "HomeHeroCard(", "HardwarePulseCards(", "HomeActionRow(", "HomeVitalsGrid(", "MemoryMatrixCard(", "UltraCleanerHomeCard(", "CommandDeck(", "UnifiedActivityCard(")
             .map { body.indexOf(it) }
         assertTrue("كتلة مفقودة من الرئيسية", order.all { it >= 0 })
         assertTrue("ترتيب الكتل الأولى تغيّر", order == order.sorted())
@@ -123,4 +123,35 @@ class HomeShapeContractTest {
         assertTrue("القراءات بلا ترويسة", dashboard.indexOf("home_section_live") in 0 until dashboard.indexOf("HomeVitalsGrid("))
         assertTrue("الإجراءات بلا ترويسة", dashboard.indexOf("home_section_actions") in 0 until dashboard.indexOf("HomeActionRow("))
     }
+
+    @Test
+    fun `the focus card rises under the hero only for a real problem, and sits in its place otherwise`() {
+        val dashboard = read("LegendaryHomeDashboard.kt")
+        assertTrue("الرفع مرتبط بقاعدة واحدة", dashboard.contains("HomeFocusModel.focusKind("))
+        assertTrue("بطاقة الخلل تُعرض مرة واحدة في كل حالة", dashboard.contains("if (focusFirst)") && dashboard.contains("if (!focusFirst)"))
+    }
+
+    @Test
+    fun `the live readings state their trend and read as one sentence`() {
+        val grid = read("HomeVitalsGrid.kt")
+        assertTrue("الخلية جملة واحدة لقارئ الشاشة", grid.contains("mergeDescendants = true"))
+        assertTrue("الاتجاه من نافذة الدقيقة", grid.contains("HomeTrendModel.direction("))
+        assertTrue("الاتجاه يُكتب بكلمة لا بالسهم وحده", grid.contains("home_detail_with_trend"))
+    }
+
+    @Test
+    fun `storage has one owner: the memory matrix carries no storage number of its own`() {
+        val capacity = read("HomeCapacityCards.kt")
+        val matrix = capacity.substringAfter("internal fun MemoryMatrixCard(").substringBefore("private fun MemoryFactRow(")
+        assertFalse("لا رقم للتخزين داخل المصفوفة", matrix.contains("storageUsedGb"))
+        assertTrue("الصف باب إلى بطاقة التنظيف", matrix.contains("home_storage_see_cleaner"))
+    }
+
+    @Test
+    fun `the poll loop measures its cost and reads storage on a slower beat`() {
+        val vm = read("HomeDashboardViewModel.kt")
+        assertTrue("كلفة النبضة تُكتب في السجلّ", vm.contains("recordPollCost(fastMs, slowMs)"))
+        assertTrue("التخزين بإيقاع بطيء", vm.contains("storageForCycle(SystemClock.elapsedRealtime())"))
+    }
+
 }
