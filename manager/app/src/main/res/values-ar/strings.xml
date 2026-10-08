@@ -2852,6 +2852,8 @@
     <string name="home_vital_on_battery">على البطارية</string>
     <string name="home_cleaner_percent_used">مستخدم %1$d%%</string>
     <string name="home_hero_uptime">يعمل منذ %1$s</string>
+    <string name="home_hero_open_overview">فتح نظرة على الجهاز</string>
+    <string name="home_focus_hide">إخفاء</string>
     <string name="home_section_live">قراءات حيّة</string>
     <string name="home_section_live_caption">تُقرأ من أندرويد نفسه، وتتحدّث ما دامت الشاشة مفتوحة.</string>
     <string name="home_section_actions">إجراءات سريعة</string>

@@ -105,7 +105,17 @@ fun HomeScreen(
     // **وجولة الرئيسية** (`HomeGuideModel`): هل أُتمّت؟ والسجلّ على الجهاز وحده، والقراءة عند
     // التركيب لا في كل إطار. و`?` في الرأس يعيدها بطلب صريح.
     val guideStore = remember(context) { HomeGuideStore.of(context) }
-    var guideFinished by remember { mutableStateOf(guideStore.finished) }
+    val focusStore = remember(context) { HomeFocusStore.of(context) }
+    var storageHidden by remember { mutableStateOf(focusStore.storageHidden) }
+    val storageState = HomeFocusModel.storageState(dashboard.storageTotalGb, dashboard.storageUsedGb)
+    val storageVisible = HomeFocusModel.storageCardVisible(storageState, storageHidden)
+    LaunchedEffect(storageState) {
+        // الإخفاء يُمسح حين يُقاس القرص سليمًا، فيعود إن امتلأ من جديد. المجهول لا يمسحه (ADR-07).
+        if (HomeFocusModel.clearsHide(storageState) && storageHidden) {
+            storageHidden = false
+            focusStore.storageHidden = false
+        }
+    }
     // **وجولة أول فتح** (`HomeTourModel`): سجلّها مستقلّ عن البانرات، وتُعرض ما دامت الشاشة ظاهرة
     // فقط — فالرئيسية تبقى مركّبة خلف شاشات أخرى، ولا يُرسم تعتيمها فوق غيرها.
     var tourFinished by remember { mutableStateOf(guideStore.tourFinished) }
@@ -139,13 +149,12 @@ fun HomeScreen(
             onOpenDeck = { entry -> navActions.navigateRoute(entry.destination.route) },
             onConfigureDeck = { showDeckSettings = true },
             accessLevel = privilege.level,
-            guideFinished = guideFinished,
-            onGuideFinish = {
-                guideFinished = true
-                guideStore.finished = true
+            storageCardVisible = storageVisible,
+            onHideStorage = {
+                storageHidden = true
+                focusStore.storageHidden = true
             },
             onShowGuide = {
-                guideFinished = false
                 tourFinished = false
                 guideStore.restart()
             },
@@ -209,8 +218,8 @@ fun HomeDashboardContent(
     onReboot: () -> Unit,
     onSettings: () -> Unit,
     accessLevel: nd.max.core.privilege.PrivilegeLevel = nd.max.core.privilege.PrivilegeLevel.NONE,
-    guideFinished: Boolean = true,
-    onGuideFinish: () -> Unit = {},
+    storageCardVisible: Boolean = false,
+    onHideStorage: () -> Unit = {},
     onShowGuide: () -> Unit = {},
     boost: nd.max.ui.viewmodel.MemoryBoostState = nd.max.ui.viewmodel.MemoryBoostState(),
     onBoost: () -> Unit = {},
@@ -263,8 +272,8 @@ fun HomeDashboardContent(
                     onOpenDeck = onOpenDeck,
                     onConfigureDeck = onConfigureDeck,
                     accessLevel = accessLevel,
-                    guideFinished = guideFinished,
-                    onGuideFinish = onGuideFinish,
+                    storageCardVisible = storageCardVisible,
+                    onHideStorage = onHideStorage,
                     onShowGuide = onShowGuide,
                     boost = boost,
                     onBoost = onBoost,

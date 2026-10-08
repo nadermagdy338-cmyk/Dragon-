@@ -49,7 +49,6 @@ import nd.max.R
 import nd.max.core.maxai.MaxAiState
 import nd.max.core.privilege.PrivilegeLevel
 import nd.max.ui.component.NeuralSectionHeader
-import nd.max.ui.component.MaxReveal
 import nd.max.ui.component.NeuralSparkline
 import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralPanel
@@ -66,35 +65,24 @@ import kotlin.math.roundToInt
  * The MAX "Now" dashboard.
  *
  * Question the screen answers: how is the device right now, and what can I do about it in
- * one tap? Reading order, each block earning its place exactly once
- * (`MAX-MANAGER-LEVEL-UP.md` §5.1):
+ * one tap? Reading order, each block earning its place exactly once (`MAX-MANAGER-LEVEL-UP.md` §5.1):
  *
  *  0. header   — brand, engine state, guide, power and settings.
- *  1. hero     — device identity, access mode with its honest sentence, MAX AI and Device Info
- *                doors (`HomeHeroCard`).
- *  2. banners  — wide cards that move on their own and stop when touched (`HomeGuideStrip`).
- *  3. vitals   — CPU clock · RAM free · heat · battery as a 2×2 grid, each a door
- *                (`HomeVitalsGrid`).
- *  4. actions  — Boost (measured before/after) and Control (`HomeActionRow`).
- *  5. pulse    — GPU | CPU as frequency *history*; the grid above is the *moment*.
- *  6. activity — what your choices are doing right now (verified outcomes only).
- *  7. focus    — appears only when something is actually wrong.
- *  8. memory   — RAM, ZRAM and storage capacity, each row a door.
- *  9. cleaner  — storage fullness and the Ultra Cleaner action.
- * 10. deck     — destinations people actually reach for.
+ *  1. hero     — the first card: access chip, device, temperature, three tiles, device overview.
+ *  2. vitals   — CPU clock · RAM free · heat · battery as a 2×2 grid, each a door (`HomeVitalsGrid`).
+ *  3. actions  — Boost (measured before/after) and Control (`HomeActionRow`).
+ *  4. pulse    — GPU | CPU as frequency history.
+ *  5. activity — what your choices are doing right now (verified outcomes only).
+ *  6. focus    — appears only when something is actually wrong; the storage warning can be hidden.
+ *  7. memory   — RAM, ZRAM and storage capacity, each row a door.
+ *  8. cleaner  — storage fullness and the Ultra Cleaner action.
+ *  9. deck     — destinations people actually reach for.
  *
- * **الجولة الثانية (شكل الرئيسية):** الأولى أسقطت شبكة الحيوية ٢×٢ بحجّة أن ما فيها معروض،
- * فبقيت الشاشة كتلًا مكدّسة وبطلًا ضخمًا يحمل رقمًا واحدًا هو `—`. والعلاج ليس الحذف بل **تقسيم
- * الأدوار**: الشبكة = اللحظة، وبطاقة CPU/GPU = التاريخ، والبطل = الهوية فقط. فلا رقم يُرسم مرّتين
- * بالحجم نفسه: الحرارة والبطارية ومدّة التشغيل خرجت من البطل. و`VerdictPanel` تبقى محذوفة
- * (`HOME-STORY-TRIM-01`)، والحُكم الباقي `FocusCard` عند عطل حقيقي فقط.
+ * **بلا حركة على البطاقات (طلب المالك):** لا بانرات متحركة، ولا دخول متتابع، ولا تبديل مشهد بانزلاق.
+ * القراءات الحيّة تحدّث أرقامها في مكانها فقط. وانكماش اللمس الخفيف ردّ على الضغط لا حركة للبطاقة.
  *
- * **وADR-34 قائم:** مصفوفة الذاكرة تعرض سعة لا حُكم ضغط، وخلية RAM تعرض المتاح بلا لون إنذار.
- *
- * Every color comes from MaterialTheme through neuralPalette(), so the Settings theme
- * drives the entire screen.
+ * Every color comes from MaterialTheme through neuralPalette(), so the Settings theme drives the entire screen.
  */
-
 @Composable
 internal fun LegendaryHomeDashboard(
     ui: HomeUiState,
@@ -111,109 +99,72 @@ internal fun LegendaryHomeDashboard(
     onSettings: () -> Unit,
     /** طبقة الامتياز المكتشفة — من `PrivilegeManager` الموجود لا من قراءة ثانية. */
     accessLevel: PrivilegeLevel,
-    /** هل أُتمّت جولة البانرات؟ (سجلّ الجهاز — `HomeGuideStore`). */
-    guideFinished: Boolean,
-    onGuideFinish: () -> Unit,
     /** حالة «تعزيز الذاكرة» الأخيرة، تُعرض تحت زرّ Boost. */
     boost: MemoryBoostState,
     onBoost: () -> Unit,
-    /** `?` في الرأس: يعيد جولة البانرات بطلب صريح (`HomeGuideModel`). */
+    /** `?` في الرأس: يعيد جولة أول فتح بطلب صريح. */
     onShowGuide: () -> Unit,
     /** مراسي جولة أول فتح (`HomeTourOverlay`)؛ `null` في المعاينات التي لا جولة فيها. */
     tourTargets: HomeTourTargets? = null,
+    /** بطاقة «التخزين يكاد يمتلئ»: تظهر حين تُستحقّ ولم يُخفِها المستخدم (`HomeFocusModel`). */
+    storageCardVisible: Boolean = false,
+    onHideStorage: () -> Unit = {},
 ) {
     val online = ui.rootStatus && ui.moduleInstalled
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(MaxSpace.lg)) {
-        /*
-         * الدخول المتتابع (عقد §5.4-أ): الرقم **مشتقّ من الموضع** (`slot`) لا مكتوب لكل كتلة،
-         * و`MaxReveal` يقصّ التأخير عند حدّه ويحترم إيقاف الحركة في النظام.
-         */
-        var slot = 0
-        MaxReveal(delayMillis = RevealStep * slot++) {
-            HomeHeader(online, onSettings, onReboot, onShowGuide)
+        HomeHeader(online, onSettings, onReboot, onShowGuide)
+        Box(Modifier.homeTourTarget(HomeTourTarget.Hero, tourTargets)) {
+            HomeHeroCard(
+                deviceName = deviceName,
+                dashboard = dashboard,
+                accessLevel = accessLevel,
+                // من مسارها الحقيقي (`MaxAiState.aiEnabled`) لا مخمَّنة من وجود الشاشة.
+                aiEnabled = maxAi.aiEnabled,
+                // نظرة الجهاز: المالك الوحيد لفكرة «نظرة على الجهاز» (طلب المالك).
+                onOverview = { onNavigate(MaxDestination.DeviceInfo.route) },
+                onMaxAi = { onNavigate(MaxDestination.MaxAi.route) },
+            )
         }
-        MaxReveal(delayMillis = RevealStep * slot++) {
-            Box(Modifier.homeTourTarget(HomeTourTarget.Hero, tourTargets)) {
-                HomeHeroCard(
-                    deviceName = deviceName,
-                    chipsetName = dashboard.chipsetName,
-                    uptimeMinutes = dashboard.uptimeMinutes,
-                    accessLevel = accessLevel,
-                    // من مسارها الحقيقي (`MaxAiState.aiEnabled`) لا مخمَّنة من وجود الشاشة.
-                    aiEnabled = maxAi.aiEnabled,
-                    // معلومات الجهاز: المالك الوحيد لفكرة «نظرة على الجهاز» (طلب المالك).
-                    onOverview = { onNavigate(MaxDestination.DeviceInfo.route) },
-                    // مدخل Max AI من أول بطاقة (طلب المالك): كان مقعدًا في الشريط السفلي.
-                    onMaxAi = { onNavigate(MaxDestination.MaxAi.route) },
+        Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
+            NeuralSectionHeader(
+                title = stringResource(R.string.home_section_live),
+                caption = stringResource(R.string.home_section_live_caption),
+            )
+            Box(Modifier.homeTourTarget(HomeTourTarget.Vitals, tourTargets)) {
+                HomeVitalsGrid(dashboard = dashboard, onNavigate = onNavigate)
+            }
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
+            NeuralSectionHeader(title = stringResource(R.string.home_section_actions))
+            Box(Modifier.homeTourTarget(HomeTourTarget.Actions, tourTargets)) {
+                HomeActionRow(
+                    boost = boost,
+                    onBoost = onBoost,
+                    onControl = { onNavigate(MaxDestination.Control.route) },
                 )
             }
         }
-        // من أتمّ البانرات لا تُحجز لها خانة، وإلا بقي فراغ بين كتلتين بلا محتوى.
-        if (HomeGuideModel.visible(guideFinished)) {
-            MaxReveal(delayMillis = RevealStep * slot++) {
-                HomeGuideStrip(finished = guideFinished, onFinish = onGuideFinish)
-            }
+        Box(Modifier.homeTourTarget(HomeTourTarget.Pulse, tourTargets)) {
+            HardwarePulseCards(
+                dashboard = dashboard,
+                onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
+                onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
+            )
         }
-        MaxReveal(delayMillis = RevealStep * slot++) {
-            Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
-                NeuralSectionHeader(
-                    title = stringResource(R.string.home_section_live),
-                    caption = stringResource(R.string.home_section_live_caption),
-                )
-                Box(Modifier.homeTourTarget(HomeTourTarget.Vitals, tourTargets)) {
-                    HomeVitalsGrid(dashboard = dashboard, onNavigate = onNavigate)
-                }
-            }
+        UnifiedActivityCard(maxAi = maxAi)
+        FocusCard(dashboard, onNavigate, storageCardVisible, onHideStorage)
+        Box(Modifier.homeTourTarget(HomeTourTarget.Memory, tourTargets)) {
+            MemoryMatrixCard(dashboard = dashboard, onNavigate = onNavigate)
         }
-        MaxReveal(delayMillis = RevealStep * slot++) {
-            Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
-                NeuralSectionHeader(title = stringResource(R.string.home_section_actions))
-                Box(Modifier.homeTourTarget(HomeTourTarget.Actions, tourTargets)) {
-                    HomeActionRow(
-                        boost = boost,
-                        onBoost = onBoost,
-                        onControl = { onNavigate(MaxDestination.Control.route) },
-                    )
-                }
-            }
+        Box(Modifier.homeTourTarget(HomeTourTarget.Cleaner, tourTargets)) {
+            UltraCleanerHomeCard(dashboard = dashboard, onNavigate = onNavigate)
         }
-        MaxReveal(delayMillis = RevealStep * slot++) {
-            Box(Modifier.homeTourTarget(HomeTourTarget.Pulse, tourTargets)) {
-                HardwarePulseCards(
-                    dashboard = dashboard,
-                    onCpu = { onNavigate(MaxDestination.CpuCoreControl.route) },
-                    onGpu = { onNavigate(MaxDestination.GpuStudio.route) },
-                )
-            }
-        }
-        MaxReveal(delayMillis = RevealStep * slot++) { UnifiedActivityCard(maxAi = maxAi) }
-        MaxReveal(delayMillis = RevealStep * slot++) { FocusCard(dashboard, onNavigate) }
-        // السعة ثم الفعل: من قرأ «كم بقي» يجد تحته «ما أستطيع تحريره».
-        MaxReveal(delayMillis = RevealStep * slot++) {
-            Box(Modifier.homeTourTarget(HomeTourTarget.Memory, tourTargets)) {
-                MemoryMatrixCard(dashboard = dashboard, onNavigate = onNavigate)
-            }
-        }
-        MaxReveal(delayMillis = RevealStep * slot++) {
-            Box(Modifier.homeTourTarget(HomeTourTarget.Cleaner, tourTargets)) {
-                UltraCleanerHomeCard(dashboard = dashboard, onNavigate = onNavigate)
-            }
-        }
-        MaxReveal(delayMillis = RevealStep * slot++) {
-            Box(Modifier.homeTourTarget(HomeTourTarget.Deck, tourTargets)) {
-                CommandDeck(entries = deckEntries, onOpen = onOpenDeck, onConfigure = onConfigureDeck)
-            }
+        Box(Modifier.homeTourTarget(HomeTourTarget.Deck, tourTargets)) {
+            CommandDeck(entries = deckEntries, onOpen = onOpenDeck, onConfigure = onConfigureDeck)
         }
     }
 }
 
-/**
- * إيقاع الدخول بين كتلتين متجاورتين.
- *
- * و`MaxReveal` يقصّ التأخير عنده حده (160ms) فلا يتجاوز آخر بلوك سقف الحركة، والرقم هنا
- * **ثابت واحد** يُضرب في الموضع — لا جدول تأخيرات مكتوب بيد يتخلّف عن التخطيط عند أول تعديل.
- */
-private const val RevealStep = 40
 
 /**
  * Brand, one state, two actions. The engine state is said once: it used to be a pill
@@ -489,20 +440,29 @@ private fun formatHardwareFrequency(mhz: Int?): String {
 }
 
 
-/** Shown only when a real problem exists, so its presence itself means something. */
+/**
+ * لا تظهر إلا حين توجد مشكلة حقيقية، فحضورها نفسه يعني شيئًا.
+ *
+ * **الإخفاء لبطاقة التخزين وحدها** (طلب المالك): الحرارة والذاكرة تبقيان على حالهما. وتظهر بطاقة التخزين
+ * حين تستحقّها `HomeFocusModel` ولم يُخفِها المستخدم، ويأتي زرّ «إخفاء» في نهاية سطرها.
+ */
 @Composable
-private fun FocusCard(dashboard: DashboardState, onNavigate: (String) -> Unit) {
+private fun FocusCard(
+    dashboard: DashboardState,
+    onNavigate: (String) -> Unit,
+    storageVisible: Boolean,
+    onHideStorage: () -> Unit,
+) {
     val p = neuralPalette()
     val heat = dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt() ?: dashboard.cpuTempC
     val ram = fractionOf(dashboard.ramUsedMb, dashboard.ramTotalMb)
-    val storageFree = if (dashboard.storageTotalGb <= 0f) 1f else
-        ((dashboard.storageTotalGb - dashboard.storageUsedGb) / dashboard.storageTotalGb).coerceIn(0f, 1f)
 
     val title: String
     val body: String
     val accent: Color
     val icon: ImageVector
     val route: String
+    val hideAction: (() -> Unit)?
     when {
         heat >= 45 -> {
             title = stringResource(R.string.home_focus_heat)
@@ -510,13 +470,15 @@ private fun FocusCard(dashboard: DashboardState, onNavigate: (String) -> Unit) {
             accent = p.danger
             icon = Icons.Rounded.Thermostat
             route = MaxDestination.ThermalDetail.route
+            hideAction = null
         }
-        storageFree < 0.10f -> {
+        storageVisible -> {
             title = stringResource(R.string.home_focus_storage)
             body = stringResource(R.string.home_focus_storage_desc)
             accent = p.warn
             icon = Icons.Rounded.Storage
             route = MaxDestination.StorageDetail.route
+            hideAction = onHideStorage
         }
         ram >= 0.90f -> {
             title = stringResource(R.string.home_focus_memory)
@@ -524,6 +486,7 @@ private fun FocusCard(dashboard: DashboardState, onNavigate: (String) -> Unit) {
             accent = p.accentAlt
             icon = Icons.Rounded.Speed
             route = MaxDestination.ZramManager.route
+            hideAction = null
         }
         else -> return
     }
@@ -548,6 +511,15 @@ private fun FocusCard(dashboard: DashboardState, onNavigate: (String) -> Unit) {
                     lineHeight = 15.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
+                )
+            }
+            if (hideAction != null) {
+                Spacer(Modifier.width(MaxSpace.sm))
+                NeuralPill(
+                    text = stringResource(R.string.home_focus_hide),
+                    accent = p.muted,
+                    compact = true,
+                    onClick = hideAction,
                 )
             }
         }

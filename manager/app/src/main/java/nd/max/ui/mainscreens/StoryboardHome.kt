@@ -5,11 +5,6 @@
  */
 package nd.max.ui.mainscreens
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -89,8 +84,7 @@ private const val STORYBOARD_REFRESH_MS = 10_000L
  * وقراءة هذا الملف تُظهر النيّة بلا تجميل: لا يظهر صفّ «تمّ» لشيء لم يُقس، والاختيار يُكتب
  * بلا «من/إلى» لأنه ليس تغييرًا داخل قيمة قائمة — والقرار نفسه مُقاس في `StoryboardModel`.
  *
- * والحركة مقصودة: تبديل المشهد ينزلق (`AnimatedContent`) ليُقرأ كأنه يروي، لكن **القراءة لا
- * تعتمد عليها**: النصّ كامل في الحالتين (من يستعمل إعدادات تقليل الحركة يرى المحتوى نفسه).
+ * بلا حركة (طلب المالك): تبديل المشهد فوري، والنصّ كاملًا هو القراءة نفسها.
  *
  * وسياسة الأسطر (أيّها يُعرض، وبلا تكرار، وبأي حدّ) ليست هنا بل في [UnifiedActivityModel]:
  * فالقرار يُقاس في JVM، وهذه الدالة ترسم ما يعود منها وحدها. وكانت السياسة مكتوبة هنا مرّة
@@ -129,26 +123,13 @@ internal fun UnifiedActivityCard(
     val palette = neuralPalette()
     val scheme = MaterialTheme.colorScheme
     val scene = model.scenes.first()
-    val duration = state.options.motion.enterMs
     NeuralPanel(modifier = modifier.fillMaxWidth(), accent = palette.accent) {
         NeuralSectionHeader(
             title = stringResource(R.string.home_activity_title),
             caption = stringResource(R.string.storyboard_title),
             accent = palette.accent,
         )
-        // «الحركة موقوفة» تُلغي `AnimatedContent` نفسه لا مدّته فقط: صفر مدّة مع عنصر رسوم
-        // متحرّكة يبقى عنصرًا يشارك في إطار الرسم، والإيقاف الحقيقي هو عدم استخدامه.
-        if (duration <= 0) {
-            SceneBody(model, scene, scheme, palette)
-        } else {
-            AnimatedContent(
-                targetState = scene,
-                transitionSpec = { fadeIn(tween(duration)) togetherWith fadeOut(tween(duration / 2)) },
-                label = "unified-activity-scene",
-            ) { current ->
-                SceneBody(model, current, scheme, palette)
-            }
-        }
+        SceneBody(model, scene, scheme, palette)
         // ما تبقّى: مُرشَّح سلفًا (لا تكرار مع المشهد الأول)، ومحدود برصيد البطاقة، وبشكله.
         val rest = model.scenes.drop(1)
         when (model.style) {

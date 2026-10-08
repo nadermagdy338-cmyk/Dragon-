@@ -4,16 +4,19 @@
  * without prior written permission from the copyright holder.
  */
 /*
- * بطاقة الهوية في الرئيسية — **ما هذا الجهاز، وبأي صلاحية أعمل عليه، ومن يقرّر فيه.**
+ * البطاقة الأولى في الرئيسية — **الشكل القديم المعتمد بتحسين، لا بتغيير** (طلب المالك).
  *
- * ثلاثة أسطر بترتيب القراءة (`MAX-MANAGER-LEVEL-UP.md` §5.2):
- *  1. الجهاز: اسمه بعنوان الصفحة (`headlineSmall`، سطران كحدّ البطاقة)، ثم الشريحة، ثم مدّة التشغيل
- *     تسمية صغيرة بحروف كبيرة.
- *  2. وضع الوصول حالةً (Root / Shizuku / Basic) وجملة صدق واحدة تقول ما يُفتح وما يبقى مقفلاً.
- *  3. الباب إلى Max AI (حالته تحملها ألوانه) والباب إلى معلومات الجهاز.
+ * ترتيب القراءة كما في اللقطة المعتمدة: الجهاز أولًا (اسمه وشريحته)، ثم الحرارة قراءةً رئيسية
+ * بجانبها Max AI، ثم ثلاث بلاطات قراءة (مدة التشغيل · البطارية · استهلاك الطاقة)، ثم باب إلى نظرة
+ * الجهاز.
  *
- * **والأيقونة بحاوية `MaxSize.iconContainer`** كما كل بطاقة في التطبيق، لا بمقاس مكتوب بيد.
- * **والتوهّج** بلون الوصول من `NeuralPanel` نفسها: اللون يقول الحالة، لا زخرفة.
+ * ما أُضيف على الشكل القديم، ولماذا:
+ *  - **شارة الوصول** فوق الاسم: الحالة (جذر / شيزوكو / أساسي) تُقرأ قبل أي رقم.
+ *  - **كلمة الحكم بجانب الحرارة** بلونها: اللون وحده لا يحمل المعنى (DESIGN.md).
+ *  - **الغياب شرطة** (ADR-07): لا `0%` ولا `0 W` لقيمة لم تُقرأ.
+ *
+ * وتستعمل البطاقة الرموز لا الأرقام: المسافات من `MaxSpace`، والحجم من `MaxSize`، والخطوط من
+ * سلّم الطباعة و`MonoFontFamily`، والبلاطات من `NeuralTile` بلونها.
  */
 package nd.max.ui.mainscreens
 
@@ -30,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,36 +43,58 @@ import nd.max.ui.component.MaxAiEntryButton
 import nd.max.ui.component.NeuralIconChip
 import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
+import nd.max.ui.component.NeuralTile
+import nd.max.ui.component.NeuralValue
 import nd.max.ui.component.neuralPalette
 import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.theme.MonoFontFamily
+import nd.max.ui.theme.MonoValueStyleMedium
+import nd.max.ui.viewmodel.DashboardState
 
 @Composable
 internal fun HomeHeroCard(
     deviceName: String,
-    chipsetName: String,
-    uptimeMinutes: Long,
+    dashboard: DashboardState,
     /** طبقة الامتياز المكتشفة — من `PrivilegeManager` لا من قراءة ثانية. */
     accessLevel: PrivilegeLevel,
-    /** حالة Max AI الحقيقية (`MaxAiState.aiEnabled`) — تُعلّم الزرّ بلونه بلا سطر يشرح. */
+    /** حالة Max AI الحقيقية (`MaxAiState.aiEnabled`) — تُعلّم الزرّ بلونه. */
     aiEnabled: Boolean,
-    /** الباب إلى `Device Info`: المالك الوحيد لفكرة «نظرة على الجهاز» بأقسامها. */
+    /** الباب إلى نظرة الجهاز: المالك الوحيد لفكرة «نظرة على الجهاز» بأقسامها. */
     onOverview: () -> Unit,
     onMaxAi: () -> Unit,
 ) {
     val p = neuralPalette()
     val access = accessAccent(accessLevel, p)
+
+    // الحرارة: الواحدة نفسها التي تقرؤها الشبكة (`deviceHeatC`)، وكلمة حكمها بلونها.
+    val heat = deviceHeatC(dashboard)
+    val heatAccent = temperatureAccent(heat)
+
+    // البطارية والطاقة: الصفر غير مقروء، فيُكتب شرطة لا رقمًا كاذبًا.
+    val battery = dashboard.batteryPercent.takeIf { it > 0 }
+    val batteryAccent = when {
+        dashboard.isCharging -> p.ok
+        battery != null && battery <= 20 -> p.warn
+        else -> p.accentAlt
+    }
+    val power = dashboard.powerWatt.takeIf { it > 0.05f }
+
     NeuralPanel(accent = access, verticalSpacing = MaxSpace.md) {
+        // الحالة قبل الاسم: شارة الوصول (جذر · شيزوكو · أساسي).
+        NeuralPill(
+            text = stringResource(accessLabelRes(accessLevel)),
+            accent = access,
+            filled = true,
+            dot = true,
+        )
+
+        // الجهاز: الأيقونة ثم الاسم بعنوان الصفحة (سطران كحدّ البطاقة)، ثم الشريحة.
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             NeuralIconChip(Icons.Rounded.PhoneAndroid, p.accent, size = MaxSize.iconContainer)
             Spacer(Modifier.width(MaxSpace.md))
-            Column(
-                Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(MaxSpace.xs),
-            ) {
-                // الاسم بعنوان الصفحة، وسطران هما حدّ عنوان البطاقة (`MaxCardSpec.titleLines`)، فلا
-                // يُقطع اسم طويل بثلاث نقاط عند أوّل قراءة.
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
                 Text(
                     deviceName,
                     color = p.text,
@@ -78,56 +104,109 @@ internal fun HomeHeroCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    chipsetName,
+                    dashboard.chipsetName,
                     color = p.muted,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                // مدّة التشغيل تسمية لا قيمة: حروف كبيرة بخط الأسماء الصغيرة، وتسقط حين لا تُقرأ.
-                if (uptimeMinutes > 0) {
+            }
+        }
+
+        // الحرارة قراءةً رئيسية: كلمة الحكم بلونها فوق الرقم الكبير بالخط الأحادي، والوحدة بجانبه،
+        // و`Max AI` في الطرف المقابل كما كان في الشكل القديم.
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        stringResource(R.string.home_hero_uptime, compactUptime(uptimeMinutes)).uppercase(),
+                        stringResource(R.string.home_temperature_short).uppercase(),
                         color = p.muted,
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                     )
+                    if (heat != null) {
+                        Spacer(Modifier.width(MaxSpace.sm))
+                        Text(
+                            stringResource(heatWordRes(heat)),
+                            color = heatAccent,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                        )
+                    }
+                }
+                Row(verticalAlignment = Alignment.Bottom) {
+                    NeuralValue(
+                        heat?.toString() ?: "\u2014",
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            fontFamily = MonoFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        color = p.text,
+                    )
+                    if (heat != null) {
+                        Spacer(Modifier.width(MaxSpace.xs))
+                        Text(
+                            stringResource(R.string.home_unit_celsius),
+                            color = p.muted,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
-        }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            NeuralPill(
-                text = stringResource(accessLabelRes(accessLevel)),
-                accent = access,
-                filled = true,
-                dot = true,
-            )
-            Spacer(Modifier.width(MaxSpace.sm))
-            Text(
-                stringResource(accessNoteRes(accessLevel)),
-                color = p.muted,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             MaxAiEntryButton(
                 text = stringResource(R.string.max_nav_max_ai),
                 active = aiEnabled,
                 onClick = onMaxAi,
             )
-            Spacer(Modifier.weight(1f))
-            // الاسم من سجلّ الوجهات (`DeviceInfo.titleRes`) لا نصًّا مكتوبًا بيد (ADR-02).
-            NeuralPill(
-                text = stringResource(MaxDestination.DeviceInfo.titleRes),
-                accent = p.muted,
-                navigates = true,
-                compact = true,
-                onClick = onOverview,
+        }
+
+        // ثلاث بلاطات قراءة بألوانها: مدة التشغيل · البطارية · استهلاك الطاقة.
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
+            HeroTile(
+                label = stringResource(R.string.max_home_uptime),
+                value = compactUptime(dashboard.uptimeMinutes),
+                accent = p.accent,
+                modifier = Modifier.weight(1f),
+            )
+            HeroTile(
+                label = stringResource(R.string.max_home_battery),
+                value = battery?.let { "$it%" } ?: "\u2014",
+                accent = batteryAccent,
+                modifier = Modifier.weight(1f),
+            )
+            HeroTile(
+                label = stringResource(R.string.home_power_draw),
+                value = power?.let { "${it.oneDecimal()} W" } ?: "\u2014",
+                accent = p.accentAlt,
+                modifier = Modifier.weight(1f),
             )
         }
+
+        // باب إلى نظرة الجهاز بزرّ مستطيل بحواف المجموعة، لا حبّة: الحبّة للحالة فقط (DESIGN.md).
+        HomeActionButton(
+            text = stringResource(R.string.home_hero_open_overview),
+            icon = MaxDestination.DeviceInfo.icon,
+            filled = false,
+            accent = p.accent,
+            onClick = onOverview,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+/** بلاطة قراءة في البطاقة الأولى: تسمية بلونها، وقيمة بالخط الأحادي، على لون البلاطة نفسه. */
+@Composable
+private fun HeroTile(label: String, value: String, accent: Color, modifier: Modifier) {
+    val p = neuralPalette()
+    NeuralTile(modifier = modifier, accent = accent, verticalSpacing = MaxSpace.xs) {
+        Text(
+            label,
+            color = accent,
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        NeuralValue(value, style = MonoValueStyleMedium, color = p.text, maxLines = 1)
     }
 }

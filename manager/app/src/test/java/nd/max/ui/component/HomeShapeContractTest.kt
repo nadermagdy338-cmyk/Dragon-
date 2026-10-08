@@ -39,7 +39,7 @@ class HomeShapeContractTest {
     @Test
     fun `the dashboard order puts identity banners vitals and actions first`() {
         val body = read("LegendaryHomeDashboard.kt").substringAfter("internal fun LegendaryHomeDashboard(")
-        val order = listOf("HomeHeader(", "HomeHeroCard(", "HomeGuideStrip(", "HomeVitalsGrid(", "HomeActionRow(")
+        val order = listOf("HomeHeader(", "HomeHeroCard(", "HomeVitalsGrid(", "HomeActionRow(")
             .map { body.indexOf(it) }
         assertTrue("كتلة مفقودة من الرئيسية", order.all { it >= 0 })
         assertTrue("ترتيب الكتل الأولى تغيّر", order == order.sorted())
@@ -57,21 +57,30 @@ class HomeShapeContractTest {
     }
 
     @Test
-    fun `the hero stays identity only and does not redraw the vitals`() {
+    fun `the first card keeps the approved shape and every number on it is a token`() {
         val hero = read("HomeHeroCard.kt")
-        assertFalse("الحرارة عادت إلى البطل", hero.contains("batteryTempC"))
-        assertFalse("البطارية عادت إلى البطل", hero.contains("batteryPercent"))
-        assertTrue(hero.contains("MaxDestination.DeviceInfo.titleRes"))
-        assertTrue(hero.contains("accessLabelRes(accessLevel)"))
+        assertTrue("شارة الوصول غائبة", hero.contains("accessLabelRes(accessLevel)"))
+        assertTrue("الحرارة بالرقم الرئيسي غائبة", hero.contains("displayMedium"))
+        assertTrue("الخط الأحادي للحرارة غائب", hero.contains("MonoFontFamily"))
+        assertTrue("ثلاث بلاطات قراءة لم تُبنَ", hero.contains("NeuralTile(") && hero.contains("MonoValueStyleMedium"))
+        assertTrue("زر Max AI غائب", hero.contains("MaxAiEntryButton("))
+        assertTrue("باب نظرة الجهاز غائب", hero.contains("home_hero_open_overview") && hero.contains("MaxDestination.DeviceInfo.icon"))
+        assertFalse("حجم خط مكتوب بيد في البطاقة", hero.contains("fontSize = "))
     }
 
     @Test
-    fun `boost has one owner and the banners pause on touch not on motion`() {
+    fun `boost has one owner and the home screen carries no moving card`() {
         assertFalse("زرّ Boost عاد إلى مصفوفة الذاكرة", read("HomeCapacityCards.kt").contains("onBoost"))
         assertTrue(read("HomeActionRow.kt").contains("onBoost"))
-        val banners = read("HomeGuideBanners.kt")
-        assertTrue("الإيقاف يجب أن يلتقط السحب", banners.contains("collectIsDraggedAsState"))
-        assertFalse("isScrollInProgress يرتفع في الانتقال التلقائي نفسه", banners.contains("isScrollInProgress"))
+        assertFalse(
+            "البانرات المتحركة عادت (طلب المالك: إزالتها كليًّا)",
+            File(sourceRoot, "ui/mainscreens/HomeGuideBanners.kt").exists(),
+        )
+        val dashboard = read("LegendaryHomeDashboard.kt")
+        assertFalse("الدخول المتتابع عاد إلى الرئيسية", dashboard.contains("MaxReveal("))
+        assertFalse("شريط متحرك عاد إلى الرئيسية", dashboard.contains("HomeGuideStrip("))
+        val activity = read("StoryboardHome.kt").substringAfter("fun UnifiedActivityCard(").substringBefore("\n}\n")
+        assertFalse("تبديل مشهد بطاقة النشاط عاد بانزلاق", activity.contains("AnimatedContent("))
     }
 
     @Test

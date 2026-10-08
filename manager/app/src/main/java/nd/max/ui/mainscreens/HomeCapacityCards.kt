@@ -76,18 +76,6 @@ internal fun accessLabelRes(level: PrivilegeLevel): Int = when (level) {
     PrivilegeLevel.NONE -> R.string.home_access_basic
 }
 
-/**
- * وما يُفتح عند كل طبقة — جملة واحدة لكل طبقة، مكتوبة بصدق المقياس لا بالتحبيب:
- * «أساسي» يقول ما يبقى مقفلاً، وشيزوكو يقول إن الكتابة المباشرة على العتاد تحتاج جذرًا
- * (وهو نصّ `PrivilegeCatalog`: حدود التردد والحرارة وZRAM كلها `PrivilegeTier.ROOT`).
- */
-@StringRes
-internal fun accessNoteRes(level: PrivilegeLevel): Int = when (level) {
-    PrivilegeLevel.ROOT -> R.string.home_access_note_root
-    PrivilegeLevel.SHIZUKU -> R.string.home_access_note_shizuku
-    PrivilegeLevel.NONE -> R.string.home_access_note_none
-}
-
 /** لون الشارة: الإيجابي للجذر، والأكسنت البديل لشيزوكو، والرمادي للأساسي. */
 internal fun accessAccent(level: PrivilegeLevel, p: NeuralPalette) = when (level) {
     PrivilegeLevel.ROOT -> p.ok

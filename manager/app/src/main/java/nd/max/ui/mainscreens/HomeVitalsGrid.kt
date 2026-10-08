@@ -71,6 +71,22 @@ private const val HEAT_SCALE_MAX_C = 60f
 private const val HEAT_HOT_C = 45
 private const val HEAT_WARM_C = 40
 
+/**
+ * حرارة الجهاز: حسّاس البطارية أولًا ثم المعالج. الواحدة نفسها للبطاقة الأولى والشبكة، فلا رقمان
+ * يختلفان على الشاشة نفسها. والصفر = غير مقروء.
+ */
+internal fun deviceHeatC(dashboard: DashboardState): Int? =
+    dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt()
+        ?: dashboard.cpuTempC.takeIf { it > 0 }
+
+/** كلمة حكم الحرارة، بالعتبات التي يطابقها لونها `temperatureAccent` حرفيًّا. */
+internal fun heatWordRes(heat: Int?): Int = when {
+    heat == null -> R.string.max_home_unavailable
+    heat >= HEAT_HOT_C -> R.string.home_vital_temp_hot
+    heat >= HEAT_WARM_C -> R.string.home_vital_temp_warm
+    else -> R.string.home_vital_temp_cool
+}
+
 @Composable
 internal fun HomeVitalsGrid(
     dashboard: DashboardState,
@@ -105,15 +121,9 @@ internal fun HomeVitalsGrid(
     val ramValue = if (ramKnown) ramFreeGb.oneDecimal() else "\u2014"
 
     // ---- الحرارة: حسّاس البطارية أولًا ثم المعالج، كما كان البطل يفعل.
-    val heat = dashboard.batteryTempC.takeIf { it > 0f }?.roundToInt()
-        ?: dashboard.cpuTempC.takeIf { it > 0 }
+    val heat = deviceHeatC(dashboard)
     val heatAccent = temperatureAccent(heat)
-    val heatWord = when {
-        heat == null -> stringResource(R.string.max_home_unavailable)
-        heat >= HEAT_HOT_C -> stringResource(R.string.home_vital_temp_hot)
-        heat >= HEAT_WARM_C -> stringResource(R.string.home_vital_temp_warm)
-        else -> stringResource(R.string.home_vital_temp_cool)
-    }
+    val heatWord = stringResource(heatWordRes(heat))
 
     // ---- البطارية: النسبة، وحالة الشحن، والواط إن قُرئ (الصفر = غير مقروء لا «لا استهلاك»).
     val battery = dashboard.batteryPercent.takeIf { it > 0 }

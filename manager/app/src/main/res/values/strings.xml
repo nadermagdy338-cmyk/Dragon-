@@ -2893,6 +2893,9 @@
     <string name="home_vital_on_battery">On battery</string>
     <string name="home_cleaner_percent_used">%1$d%% used</string>
     <string name="home_hero_uptime">Up %1$s</string>
+    <string name="home_hero_open_overview">Open device overview</string>
+    <string name="home_focus_hide">Hide</string>
+    <string name="home_unit_celsius" translatable="false">°C</string>
     <string name="home_section_live">Live readings</string>
     <string name="home_section_live_caption">Read from Android itself, refreshed while this screen is open.</string>
     <string name="home_section_actions">Quick actions</string>
