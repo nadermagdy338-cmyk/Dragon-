@@ -291,15 +291,14 @@ class OverlayWindow(
         val (screenW, screenH) = bounds()
         val width = view.width.takeIf { it > 0 } ?: 0
         val height = view.height.takeIf { it > 0 } ?: 0
-        params.x = params.x.coerceIn(0, (screenW - width).coerceAtLeast(0))
-        params.y = params.y.coerceIn(0, (screenH - height).coerceAtLeast(0))
+        params.x = OverlayGeometry.clamp(params.x, screenW, width)
+        params.y = OverlayGeometry.clamp(params.y, screenH, height)
     }
 
     private fun snapToNearestEdge(view: View) {
         val (screenW, _) = bounds()
         val width = view.width.takeIf { it > 0 } ?: return
-        val far = (screenW - width).coerceAtLeast(0)
-        val target = if (params.x + width / 2 < screenW / 2) 0 else far
+        val target = OverlayGeometry.snapTarget(params.x, screenW, width)
         if (target == params.x) return
         snapAnimator?.cancel()
         snapAnimator = ValueAnimator.ofInt(params.x, target).apply {

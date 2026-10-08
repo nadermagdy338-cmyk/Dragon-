@@ -16,7 +16,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import nd.max.core.emuhub.RomEntry
-import nd.max.core.emuhub.RomIndexStore
 import nd.max.core.emuhub.RomLibraryAccess
 import nd.max.core.emuhub.groupDiscSets
 import javax.inject.Inject
