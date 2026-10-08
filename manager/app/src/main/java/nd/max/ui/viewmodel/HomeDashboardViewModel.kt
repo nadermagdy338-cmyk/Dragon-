@@ -19,7 +19,11 @@ import android.view.WindowManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.topjohnwu.superuser.Shell
+import nd.max.core.hardware.MemoryPressureReader
 import nd.max.core.hardware.RootFileAccess
+import nd.max.core.maxai.MemoryStall
+import nd.max.ui.util.HomeLiveReadings
+import nd.max.ui.util.NO_THROTTLE_HEADROOM
 import nd.max.core.jni.ProbeBridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -183,7 +187,11 @@ data class DashboardState(
     val powerWatt: Float = 0f,
     /** ZRAM/swap usage in MB, or null when the device has no swap configured. */
     val swapUsedMb: Int? = null,
-    val swapTotalMb: Int? = null
+    val swapTotalMb: Int? = null,
+    /** أقرب مسافة (°م) إلى نقطة تخفيف الحرارة بين مناطق المعالج والرسوم؛ سالبة حين تجاوزتها. `null` إن لم تُقرأ أي نقطة. */
+    val throttleHeadroomC: Int? = null,
+    /** ضغط الذاكرة من PSI؛ `UNSUPPORTED` حين لا تُصدّره النواة، فلا يُعرض صفر مزيّف. */
+    val memoryStall: MemoryStall.Sample = MemoryStall.UNSUPPORTED,
 )
 
 /*
@@ -341,6 +349,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
         val gpu: Pair<Int?, Int?>,
         val swap: Pair<Int, Int>?,
         val batteryTemp: Float,
+        val memoryStall: MemoryStall.Sample,
     )
 
     /**
@@ -439,12 +448,14 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     val gpu = async { readGpu() }
                     val swap = async { readSwap() }
                     val batteryTemp = async { ThermalUtil.readBatteryTemperatureC(context) }
+                    val memoryStall = async { MemoryPressureReader.read() }
                     SlowReadings(
                         thermal = thermal.await(),
                         cores = cores.await(),
                         gpu = gpu.await(),
                         swap = swap.await(),
                         batteryTemp = batteryTemp.await(),
+                        memoryStall = memoryStall.await(),
                     )
                 }
                 val slowMs = SystemClock.elapsedRealtime() - cycleStartMs - fastMs
@@ -453,6 +464,7 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                 val gpu = slow.gpu
                 val swap = slow.swap
                 val batteryTemp = slow.batteryTemp
+                val memoryStall = slow.memoryStall
                 val onlineCores = cores.filter { it.online }
                 val cpuTopCoreMhz = onlineCores.maxOfOrNull { it.freqMhz } ?: 0
                 val cpuCeilingMhz = cores.maxOfOrNull { it.maxFreqMhz } ?: 0
@@ -509,6 +521,8 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     powerWatt = powerWatt,
                     swapUsedMb = swap?.first, swapTotalMb = swap?.second,
                     cpuTempC = thermal[0], gpuTempC = thermal[1], skinTempC = thermal[2],
+                    throttleHeadroomC = thermal[3].takeIf { it != NO_THROTTLE_HEADROOM },
+                    memoryStall = memoryStall,
                     storageUsedGb = storage[0], storageTotalGb = storage[1],
                     downloadSpeedKbps = network[0], uploadSpeedKbps = network[1],
                     uptimeMinutes = SystemClock.elapsedRealtime() / 60_000L,
@@ -890,9 +904,9 @@ class HomeDashboardViewModel(application: Application) : AndroidViewModel(applic
                     .filter { it.temperatureC > 0 && it.category !in setOf("Battery", "Skin", "Charger", "GPU") }
                     .maxOfOrNull { it.temperatureC } ?: 0
             }
-            intArrayOf(cpu, gpu, skin)
+            intArrayOf(cpu, gpu, skin, HomeLiveReadings.throttleHeadroomOf(zones))
         } catch (_: Exception) {
-            intArrayOf(0, 0, 0)
+            intArrayOf(0, 0, 0, NO_THROTTLE_HEADROOM)
         }
     }
 

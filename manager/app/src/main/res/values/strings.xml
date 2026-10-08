@@ -2921,10 +2921,20 @@
     <string name="home_time_left">Estimated time left: ≈ %1$s</string>
     <string name="home_duration_hm">%1$d h %2$d m</string>
     <string name="home_vital_cpu_temp">CPU temperature</string>
-    <string name="home_vital_skin_temp">Surface temperature</string>
+    <string name="home_vital_headroom">Throttle headroom</string>
+    <string name="home_headroom_now">Throttling now</string>
+    <string name="home_headroom_near">Near the throttle point</string>
+    <string name="home_headroom_far">Well below the throttle point</string>
+    <string name="home_vital_memory_pressure">Memory pressure</string>
+    <string name="home_pressure_calm">Calm</string>
+    <string name="home_pressure_stalling">Stalling</string>
+    <string name="home_pressure_unsupported">Not reported by the kernel</string>
+    <string name="home_refresh_detail">The rate the panel runs at right now</string>
     <string name="home_vital_net_up">Upload %1$s</string>
     <string name="home_focus_hide">Hide</string>
     <string name="home_unit_celsius" translatable="false">°C</string>
+    <string name="home_unit_percent" translatable="false">%</string>
+    <string name="home_unit_hz" translatable="false">Hz</string>
     <string name="home_section_live">Live readings</string>
     <string name="home_section_live_caption">Read from Android itself, refreshed while this screen is open.</string>
     <string name="home_section_actions">Quick actions</string>
@@ -2934,7 +2944,7 @@
     <string name="home_tour_identity_title">Your phone and your access</string>
     <string name="home_tour_identity_body">Name, chip and the access Max really has: Root, Shizuku or Basic. Anything locked says what it needs.</string>
     <string name="home_tour_vitals_title">Live readings</string>
-    <string name="home_tour_vitals_body">Surface, CPU and GPU temperatures, plus live download speed. Tap any cell to open its screen.</string>
+    <string name="home_tour_vitals_body">CPU and GPU temperatures, throttle headroom, memory pressure, download speed and the panel refresh rate. Tap any cell to open its screen.</string>
     <string name="home_tour_actions_title">Boost and Control</string>
     <string name="home_tour_actions_body">Boost stops cached apps and shows the RAM it actually freed. Control opens every setting Max can change.</string>
     <string name="home_tour_pulse_title">Frequency history</string>

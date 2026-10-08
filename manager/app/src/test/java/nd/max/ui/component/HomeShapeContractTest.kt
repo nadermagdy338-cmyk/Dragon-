@@ -69,7 +69,7 @@ class HomeShapeContractTest {
         assertTrue("شارة الوصول غائبة", hero.contains("accessLabelRes(accessLevel)"))
         assertTrue("الحرارة بالرقم الرئيسي غائبة", hero.contains("displayMedium"))
         assertTrue("الخط الأحادي للحرارة غائب", hero.contains("MonoFontFamily"))
-        assertTrue("ثلاث بلاطات قراءة لم تُبنَ", hero.contains("NeuralTile(") && hero.contains("MonoValueStyleMedium"))
+        assertTrue("ثلاث بلاطات قراءة لم تُبنَ", hero.contains("NeuralTile(") && hero.contains("MonoValueStyleHero"))
         assertTrue("زر Max AI غائب", hero.contains("MaxAiEntryButton("))
         assertTrue("باب نظرة الجهاز غائب", hero.contains("home_hero_open_overview") && hero.contains("MaxDestination.DeviceInfo.icon"))
         assertFalse("حجم خط مكتوب بيد في البطاقة", hero.contains("fontSize = "))
