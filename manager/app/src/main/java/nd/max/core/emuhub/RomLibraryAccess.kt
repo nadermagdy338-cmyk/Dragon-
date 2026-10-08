@@ -29,7 +29,6 @@ object RomLibraryAccess {
     private const val KEY_FOLDERS = "emulator_folders"
     private const val KEY_DOCUMENTS = "emulator_documents"
     private const val KEY_INDEX = "emulator_index"
-    private const val KEY_STAMPS = "emulator_stamps"
 
     /** ما انتهى إليه المسح — النقص يُعلَن بحالته لا يُطوى. */
     enum class ScanOutcome { OK, EMPTY, NO_ACCESS, TRUNCATED, FAILED }
@@ -37,7 +36,6 @@ object RomLibraryAccess {
     data class ScanResult(
         val outcome: ScanOutcome,
         val files: List<RomFile>,
-        val stamps: Map<String, Long>,
     )
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -63,16 +61,13 @@ object RomLibraryAccess {
             .commit()
     }.getOrDefault(false)
 
+    /** آخر فهرس محفوظ — يُرسم به الرفّ فورًا عند الفتح، ثم يُستبدل بنتيجة مسح طازج. */
     fun index(context: Context): List<RomFile> =
         RomIndexStore.decodeAll(prefs(context).getStringSet(KEY_INDEX, emptySet()).orEmpty())
 
-    fun stamps(context: Context): Map<String, Long> =
-        RomIndexStore.decodeStamps(prefs(context).getStringSet(KEY_STAMPS, emptySet()).orEmpty())
-
-    fun saveIndex(context: Context, files: List<RomFile>, stamps: Map<String, Long>): Boolean = runCatching {
+    fun saveIndex(context: Context, files: List<RomFile>): Boolean = runCatching {
         prefs(context).edit()
             .putStringSet(KEY_INDEX, files.take(RomIndexStore.MAX_FILES).map(RomIndexStore::encode).toSet())
-            .putStringSet(KEY_STAMPS, stamps.map { RomIndexStore.encodeStamp(it.key, it.value) }.toSet())
             .commit()
     }.getOrDefault(false)
 
@@ -85,7 +80,6 @@ object RomLibraryAccess {
     fun scan(context: Context, folders: Set<String>): ScanResult {
         val resolver = context.contentResolver
         val found = mutableListOf<RomFile>()
-        val stamps = mutableMapOf<String, Long>()
         var truncated = false
         var denied = false
 
@@ -99,7 +93,6 @@ object RomLibraryAccess {
                 denied = true
                 continue
             }
-            stamps[folder] = root.lastModified()
             walk(root, folder, 0, found) { truncated = true }
         }
 
@@ -119,8 +112,8 @@ object RomLibraryAccess {
             else -> ScanOutcome.OK
         }
         val files = found.distinctBy { it.uri }.take(RomIndexStore.MAX_FILES)
-        saveIndex(context, files, stamps)
-        return ScanResult(outcome, files, stamps)
+        saveIndex(context, files)
+        return ScanResult(outcome, files)
     }
 
     /** مشي شجرة بعمق محدود. [onTruncated] تُنادى مرة عند بلوغ السقف — والنقص يُعلَن لا يُطوى. */

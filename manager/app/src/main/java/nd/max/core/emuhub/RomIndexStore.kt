@@ -10,11 +10,15 @@ package nd.max.core.emuhub
 /**
  * فهرس المكتبة على القرص — **قراءة/كتابة مجموعة نصوص فقط**، والترميز/الفكّ دالتان نقيّتان.
  *
- * **لماذا لا ملفّ JSON ولا `filesDir`:** المفهرس يخزّن اسمًا ووصفًا وحجمًا وختمًا لكل ملفّ، وهي
- * حقول سطريّة قصيرة. فمخزن `SharedPreferences` القائم (المفتاح `settings` نفسه الذي يستعمله
- * التطبيق) يكفي ويكلّف صفر بنية جديدة: لا `AtomicFile`، ولا صيغة إصدار، ولا كاتب ثانٍ. وهذا هو
- * «حقل واحد ⇒ كاتب واحد»: `emulator_documents` للملفّات المفردة، و`emulator_folders` للمجلّدات،
- * و`emulator_index`/`emulator_stamps` للفهرس — أربعة حقول، كلٌّ بكاتب واحد.
+ * **لماذا لا ملفّ JSON ولا `filesDir`:** المفهرس يخزّن اسمًا وحجمًا لكل ملفّ، وهي حقول سطريّة
+ * قصيرة. فمخزن `SharedPreferences` القائم (المفتاح `settings` نفسه الذي يستعمله التطبيق) يكفي
+ * ويكلّف صفر بنية جديدة: لا `AtomicFile`، ولا صيغة إصدار، ولا كاتب ثانٍ. وهذا هو «حقل واحد ⇒ كاتب
+ * واحد»: `emulator_documents` للملفّات المفردة، و`emulator_folders` للمجلّدات، و`emulator_index`
+ * للفهرس — ثلاثة حقول، كلٌّ بكاتب واحد.
+ *
+ * **ووظيفته الوحيدة:** رسم الرفّ فورًا من آخر فهرس عند فتح الشاشة، ثم يُستبدل بنتيجة مسح طازج.
+ * **وليس تجاوزًا للمسح:** الأختام الزمنيّة لشجرة SAF كثيرًا ما تُرجع `0` من المزوّد، فبناء تجاوز
+ * عليها كان سيُجمّد الرفّ على فهرس قديم إلى الأبد. الفهرس هنا **ذاكرة عرض لا حكم**.
  *
  * **وحدّان مُعلنان:** عدد الملفّات (`MAX_FILES`) وعدد المجلّدات (`MAX_FOLDERS`)؛ وتجاوزهما **يُعلَن
  * نقصًا** لا يُطوى، لأن مكتبة ناقصة تُقرأ كأنها كلّ المكتبة.
@@ -61,18 +65,4 @@ object RomIndexStore {
     /** فكّ مجموعة كاملة، مع سقف يُطبَّق بعد الترتيب ليكون الحكم حتميًّا لا تابعًا لترتيب المجموعة. */
     fun decodeAll(lines: Set<String>): List<RomFile> =
         lines.mapNotNull(::decode).distinctBy { it.uri }.sortedBy { it.uri }.take(MAX_FILES)
-
-    /** ختم مجلّد: `uri ␁ stamp`. */
-    fun encodeStamp(folder: String, stamp: Long): String = "$folder$FIELD$stamp"
-
-    fun decodeStamp(line: String): Pair<String, Long>? {
-        val at = line.lastIndexOf(FIELD)
-        if (at <= 0) return null
-        val stamp = line.substring(at + 1).toLongOrNull() ?: return null
-        return line.substring(0, at) to stamp
-    }
-
-    fun decodeStamps(lines: Set<String>): Map<String, Long> =
-        lines.mapNotNull(::decodeStamp).toMap().entries.sortedBy { it.key }.take(MAX_FOLDERS)
-            .associate { it.key to it.value }
 }

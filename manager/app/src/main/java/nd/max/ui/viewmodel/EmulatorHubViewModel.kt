@@ -42,12 +42,22 @@ class EmulatorHubViewModel @Inject constructor(
     val state = mutable.asStateFlow()
     private val mutex = Mutex()
 
-    init { refresh() }
+    init {
+        // الرفّ يُرسم فورًا من آخر فهرس، والمسح الطازج يستبدله — فلا شاشة فارغة عند كل فتح.
+        viewModelScope.launch {
+            val cached = withContext(Dispatchers.IO) { RomLibraryAccess.index(context) }
+            if (cached.isNotEmpty()) {
+                mutable.value = mutable.value.copy(entries = groupDiscSets(cached), loading = false)
+            }
+            refresh()
+        }
+    }
 
     fun refresh() = viewModelScope.launch {
         mutex.withLock {
             withContext(Dispatchers.IO) {
-                mutable.value = mutable.value.copy(loading = true)
+                // «تحميل» لا تُعرض إلا حين لا شيء يُرسم: الفهرس المحفوظ يبقى ظاهرًا حتى يصل الطازج.
+                mutable.value = mutable.value.copy(loading = mutable.value.entries.isEmpty())
                 try {
                     val folders = RomLibraryAccess.folders(context)
                     val documents = RomLibraryAccess.documents(context)

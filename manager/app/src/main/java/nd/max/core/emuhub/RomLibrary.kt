@@ -94,14 +94,3 @@ fun shelfRows(entries: List<RomEntry>, system: RomSystem?, query: String): List<
 /** عدد العناصر لكل نظام — تبني شرائح الأنظمة من **ما وُجد فعلًا** لا من جدول ثابت. */
 fun systemCounts(entries: List<RomEntry>): Map<RomSystem, Int> =
     entries.mapNotNull { it.system }.groupingBy { it }.eachCount()
-
-/**
- * هل يُعاد المسح؟ ختم زمنيّ محفوظ مقابل ختم المجلد الآن.
- *
- * **الغائب يُعيد المسح لا يُوقف الفهرسة:** `null` في أيّ من الطرفين يعني «لا نعرف» — وقراءة
- * مجهولة لا تُبنى عليها قائمة قديمة قد تكون ناقصة. هذا هو تجاوز المسح المنصوص عليه في معيار
- * قبول EH-01، وحدّه مُعلَن: التغيير **داخل** المجلد لا يحرّك ختم المجلد على كل مزوّد، فيبقى
- * زرّ التحديث اليدوي هو الطريق المضمون.
- */
-fun shouldRescan(storedStamp: Long?, currentStamp: Long?): Boolean =
-    storedStamp == null || currentStamp == null || currentStamp != storedStamp

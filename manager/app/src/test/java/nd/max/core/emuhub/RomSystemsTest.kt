@@ -123,19 +123,6 @@ class RomSystemsTest {
         assertNull(counts[RomSystem.N64])
     }
 
-    // ───────────────────────────── تجاوز المسح ─────────────────────────────
-
-    @Test fun anUnknownStampAlwaysRescans() {
-        assertTrue(shouldRescan(null, 5L))
-        assertTrue(shouldRescan(5L, null))
-        assertTrue(shouldRescan(null, null))
-    }
-
-    @Test fun anUnchangedFolderIsNotRescannedAndAChangedOneIs() {
-        assertFalse(shouldRescan(7L, 7L))
-        assertTrue(shouldRescan(7L, 8L))
-    }
-
     // ───────────────────────────── مخزن الفهرس ─────────────────────────────
 
     @Test fun aStoredFileSurvivesEncodeAndDecodeWithoutInventingNumbers() {
@@ -151,12 +138,6 @@ class RomSystemsTest {
         assertNull(RomIndexStore.decode("\u0001\u0001\u0001\u0001"))
         val lines = setOf(RomIndexStore.encode(file("A.gba")), "garbage")
         assertEquals(1, RomIndexStore.decodeAll(lines).size)
-    }
-
-    @Test fun aFolderNameContainingTheSeparatorIsNotSplitInTheWrongPlace() {
-        val folder = "content://tree/primary:roms\u0001odd"
-        val decoded = RomIndexStore.decodeStamp(RomIndexStore.encodeStamp(folder, 42L))
-        assertEquals(folder to 42L, decoded)
     }
 
     @Test fun duplicateUrisCollapseToTheLastWrittenOne() {
