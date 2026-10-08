@@ -27,18 +27,6 @@ fun validGamePackages(packages: Set<String>): Set<String> {
     return packages.toSet()
 }
 
-/** Extension is a hint, never proof of the platform or of a launch contract. */
-fun romSystemHint(name: String): String? = when (name.substringAfterLast('.', "").lowercase()) {
-    "nes" -> "NES"
-    "sfc", "smc" -> "SNES"
-    "gb", "gbc" -> "GB/GBC"
-    "gba" -> "GBA"
-    "nds" -> "NDS"
-    "iso", "cso", "bin", "chd", "cue", "zip", "7z", "m3u" -> "AMBIGUOUS"
-    "exe" -> "PC"
-    else -> null
-}
-
 enum class VisibilityChange { NO_BASELINE, LOWER, SAME, HIGHER, INCOMPARABLE }
 fun compareVisibility(baseline: Int?, current: Int?): VisibilityChange = when {
     current == null || (baseline != null && baseline < 0) || current < 0 -> VisibilityChange.INCOMPARABLE

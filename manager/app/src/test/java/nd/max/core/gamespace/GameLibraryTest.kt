@@ -2,7 +2,6 @@
 package nd.max.core.gamespace
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -46,15 +45,8 @@ class GameLibraryTest {
         val app = GameApp("com.a", "A", true)
         assertEquals(listOf(app), gameLibrary(listOf(app, app), emptySet()))
     }
-    @Test fun sharedDiscFormatsAreNeverGuessed() {
-        for (name in listOf("a.bin", "a.iso", "a.chd", "a.zip", "a.m3u")) assertEquals("AMBIGUOUS", romSystemHint(name))
-    }
-    @Test fun extensionIsCaseInsensitiveAndUnknownStaysUnknown() {
-        assertEquals("GBA", romSystemHint("العاب.GBA"))
-        assertEquals("PC", romSystemHint("a.exe"))
-        assertNull(romSystemHint("a.txt"))
-        assertNull(romSystemHint("noextension"))
-    }
+    // جدول الامتدادات انتقل إلى `nd.max.core.emuhub.RomSystems` (مصدر حقيقة واحد)،
+    // وتغطيته هناك في `RomSystemsTest` — أوسع: ١٧ نظامًا بدل ٦، وبنفس قاعدتَي الالتباس والمجهول.
     @Test fun failedReadIsNotZero() {
         assertEquals(VisibilityChange.INCOMPARABLE, compareVisibility(10, null))
         assertEquals(VisibilityChange.NO_BASELINE, compareVisibility(null, 10))

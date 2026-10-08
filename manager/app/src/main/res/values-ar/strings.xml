@@ -2966,4 +2966,23 @@
     <string name="cpu_live_disclaimer">أندرويد يخفي الاستخدام الحقيقي. كل رقم هنا = تردد النواة ÷ أقصاها.</string>
     <string name="cpu_live_identity_map">خريطة العناقيد</string>
     <string name="cpu_live_advanced">الحدود والإعدادات والأنوية اليدوية</string>
+    <string name="emu_shelf_all">الكل</string>
+    <string name="emu_shelf_search">ابحث في رفّك باسم الملفّ</string>
+    <string name="emu_shelf_count">%1$d عنصر</string>
+    <string name="emu_shelf_loading">نقرأ رفّك…</string>
+    <string name="emu_shelf_empty">لا ملفّات بعد. أضف مجلدًا ليُفهرس، أو أضف ملفّات مفردة.</string>
+    <string name="emu_shelf_empty_known">لا شيء في المصادر التي منحتها. قد يكون المجلد فارغًا أو بلا امتداد معروف.</string>
+    <string name="emu_shelf_no_access">فُقد الوصول إلى مصدر. أعد منح المجلد — إعادة التشغيل قد تُسقط صلاحية محفوظة.</string>
+    <string name="emu_shelf_truncated">بلغ المسح حدّه: القائمة جزئية لا كلّ الرفّ.</string>
+    <string name="emu_shelf_failed">تعذّرت قراءة المصادر. لم يُغيَّر شيء.</string>
+    <string name="emu_shelf_no_match">لا عنصر يطابق هذه التصفية أو البحث.</string>
+    <string name="emu_shelf_ambiguous">ملتبس</string>
+    <string name="emu_shelf_unknown">مجهول</string>
+    <string name="emu_shelf_disc_set">مجموعة أقراص (%1$d ملفّات)</string>
+    <string name="emu_shelf_add_folder">أضف مجلدًا</string>
+    <string name="emu_shelf_open">افتح بمحاكٍ</string>
+    <string name="emu_shelf_requested">طُلب منتقي النظام. هذا لا يثبت بدء اللعبة.</string>
+    <string name="emu_shelf_open_failed">لا تطبيق يقبل هذا الملفّ.</string>
+    <string name="emu_shelf_refresh">أعد مسح المصادر</string>
+    <string name="emu_shelf_back">رجوع</string>
 </resources>
