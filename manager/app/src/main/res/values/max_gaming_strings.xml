@@ -165,4 +165,21 @@
     <string name="game_panel_auto_locked">Auto mode is managing the profile</string>
     <string name="game_panel_view_list">List view</string>
     <string name="game_panel_view_grid">Grid view</string>
+
+    <!-- لوحة اللعبة: بروفايل الحرارة (الستة) والقوائم المنسدلة -->
+    <string name="game_panel_thermal_title">Thermal profile</string>
+    <string name="game_panel_thermal_tile">Thermal</string>
+    <string name="game_panel_mode_title">System mode</string>
+    <string name="game_panel_notify_title">Notifications</string>
+    <string name="game_panel_thermal_default_sub">No override</string>
+    <string name="game_panel_thermal_applying">Applying…</string>
+    <string name="game_panel_thermal_pending">Saved · waiting for engine</string>
+    <string name="game_panel_thermal_failed_sub">Not applied</string>
+    <string name="game_panel_thermal_msg_applied">%1$s profile applied</string>
+    <string name="game_panel_thermal_msg_pending">Saved — it applies as soon as the engine responds</string>
+    <string name="game_panel_thermal_msg_failed">Not applied: %1$s</string>
+    <string name="game_panel_thermal_reason_unsupported">this device exposes no GPU control</string>
+    <string name="game_panel_thermal_reason_held">the system is holding the ceiling</string>
+    <string name="game_panel_thermal_reason_save">the profile could not be saved</string>
+    <string name="game_panel_thermal_reason_generic">the engine rejected it</string>
 </resources>

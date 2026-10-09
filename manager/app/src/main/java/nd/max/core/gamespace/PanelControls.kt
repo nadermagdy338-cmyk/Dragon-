@@ -36,8 +36,12 @@ object PanelControls {
     }
 
     /** يرفض صراحةً حين يملك الذكاء الملف؛ يعيد true فقط إن نجحت الخدمة فعلًا. */
-    fun applyProfile(id: String): Boolean {
-        if (read().auto) return false
+    /**
+     * @param autoKnown حالة «تلقائي» إن كان المنادي يعرفها لتوّه (اللوحة تعرضها كل دورة): فلا تُعاد
+     *   قراءتها بنداءين `getprop` وقراءة جذرية قبل كل تبديل — وهي بالضبط ما كان يؤخّر أول لحظة.
+     */
+    fun applyProfile(id: String, autoKnown: Boolean? = null): Boolean {
+        if (autoKnown ?: read().auto) return false
         return ProfileApplier.apply(id)
     }
 

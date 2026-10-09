@@ -165,4 +165,21 @@
     <string name="game_panel_auto_locked">الوضع التلقائي يدير البروفايل</string>
     <string name="game_panel_view_list">عرض قائمة</string>
     <string name="game_panel_view_grid">عرض شبكة</string>
+
+    <!-- لوحة اللعبة: بروفايل الحرارة (الستة) والقوائم المنسدلة -->
+    <string name="game_panel_thermal_title">بروفايل الحرارة</string>
+    <string name="game_panel_thermal_tile">الحرارة</string>
+    <string name="game_panel_mode_title">وضع النظام</string>
+    <string name="game_panel_notify_title">الإشعارات</string>
+    <string name="game_panel_thermal_default_sub">بلا تعديل</string>
+    <string name="game_panel_thermal_applying">جارٍ التطبيق…</string>
+    <string name="game_panel_thermal_pending">محفوظ · بانتظار المحرّك</string>
+    <string name="game_panel_thermal_failed_sub">لم يُطبَّق</string>
+    <string name="game_panel_thermal_msg_applied">طُبِّق بروفايل %1$s</string>
+    <string name="game_panel_thermal_msg_pending">حُفظ — سيُطبَّق فور ردّ المحرّك</string>
+    <string name="game_panel_thermal_msg_failed">تعذّر التطبيق: %1$s</string>
+    <string name="game_panel_thermal_reason_unsupported">الجهاز لا يتيح التحكم بالـGPU</string>
+    <string name="game_panel_thermal_reason_held">النظام يمسك السقف</string>
+    <string name="game_panel_thermal_reason_save">تعذّر حفظ البروفايل</string>
+    <string name="game_panel_thermal_reason_generic">رفضه المحرّك</string>
 </resources>

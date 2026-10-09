@@ -17,13 +17,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nd.max.R
 import nd.max.core.gamespace.GameLibraryAccess
+import nd.max.core.gamespace.GameProfileRepository
+import nd.max.core.gamespace.GameThermalProfiles
 import nd.max.core.gamespace.GamePanelMode
 import nd.max.core.gamespace.BypassState
 import nd.max.core.gamespace.PanelClockReader
@@ -33,6 +37,10 @@ import nd.max.core.gamespace.PanelClocks
 import nd.max.core.gamespace.GamePanelState
 import nd.max.core.gamespace.PanelSide
 import nd.max.core.gamespace.PanelSubject
+import nd.max.core.gamespace.ThermalPanelState
+import nd.max.core.gamespace.ThermalPhase
+import nd.max.core.gamespace.ThermalSave
+import nd.max.core.gamespace.ThermalVerdict
 import nd.max.core.gamespace.PANEL_REFRESH_CHOICES
 import nd.max.core.gamespace.PanelSessionClock
 import nd.max.core.gamespace.PanelLifetime
@@ -122,6 +130,9 @@ class GamePanelService : LifecycleService() {
          * فالانتظار يُبقيها حتى تُفتح اللعبة)، ونيّة قديمة بلا لعبة (فلا تبقى خدمة أمامية أبدًا).
          */
         private const val IDLE_LIMIT = 40
+
+        /** أقصى ما يُحتفظ فيه بوضع النظام المختار قبل أن يُعاد الحكم للقراءة الحقيقية. */
+        private const val PROFILE_HOLD_MS = 6_000L
     }
 
     private lateinit var window: OverlayWindow
@@ -136,6 +147,14 @@ class GamePanelService : LifecycleService() {
     private var refreshRateHz: Int? = null
     private var clocks by mutableStateOf(PanelClocks())
     private var controls by mutableStateOf(PanelControlState())
+
+    /** بروفايل الحرارة للّعبة الأمامية: الاختيار المعروض فورًا، وأين وصل تنفيذه فعلًا. */
+    private var thermal by mutableStateOf(ThermalPanelState())
+    private var thermalPkg = ""
+    private var thermalJob: Job? = null
+
+    /** حتى هذه اللحظة يُعرض وضع النظام المختار كما لُمس، ولا يُرجعه الاستطلاع إلى القديم قبل أن تنتهي الخدمة. */
+    @Volatile private var profileHoldUntil = 0L
     private lateinit var silk: SilkDragController
     private var handleY = -1f
     private var dockAt: Pair<Int, Int>? = null
@@ -249,7 +268,13 @@ class GamePanelService : LifecycleService() {
             if (!silk.busy) handleY = prefs.handleY
             if (state.mode == GamePanelMode.Open) {
                 clocks = withContext(Dispatchers.IO) { runCatching { PanelClockReader.read() }.getOrDefault(PanelClocks()) }
-                controls = withContext(Dispatchers.IO) { runCatching { PanelControls.read() }.getOrDefault(controls) }
+                val fresh = withContext(Dispatchers.IO) { runCatching { PanelControls.read() }.getOrDefault(controls) }
+                controls = if (android.os.SystemClock.uptimeMillis() < profileHoldUntil) {
+                    fresh.copy(profile = controls.profile)
+                } else {
+                    fresh
+                }
+                (subject as? PanelSubject.Tracked)?.let { runCatching { syncThermal(it.packageName) } }
             }
             placeWindow()
 
@@ -298,9 +323,69 @@ class GamePanelService : LifecycleService() {
 
     /** تسجيل الجلسة: الحائز القائم `HudRecorder` — لا سجلّ ثانٍ ولا ملفّ جديد. */
     private fun selectProfile(id: String) {
+        if (controls.auto) return
+        // فوري: الوسم واللون يتبعان اللمسة قبل أن تنتهي الخدمة (كانت اللوحة تنتظر الخدمة كلها
+        // ثم تقرأ فتتغيّر)، ثم تصحّح القراءة الحقيقية ما عُرض إن رُفض التطبيق.
+        profileHoldUntil = android.os.SystemClock.uptimeMillis() + PROFILE_HOLD_MS
+        controls = controls.copy(profile = id)
         lifecycleScope.launch(Dispatchers.IO) {
-            PanelControls.applyProfile(id)
+            PanelControls.applyProfile(id, autoKnown = false)
+            profileHoldUntil = 0L
             controls = PanelControls.read()
+        }
+    }
+
+    /**
+     * مزامنة بروفايل الحرارة مع اللعبة الأمامية: لعبة جديدة تُحمَّل لها ترددات البروفايلات
+     * (من قدرة الجهاز نفسها) ويُقرأ اختيارها المحفوظ؛ وما دام هناك تنفيذ جارٍ لا يُستبدل المعروض.
+     */
+    private suspend fun syncThermal(pkg: String) {
+        if (pkg != thermalPkg) {
+            thermalJob?.cancel()
+            thermalPkg = pkg
+            thermal = ThermalPanelState()
+            runCatching { GameProfileRepository.load() }
+            thermal = thermal.copy(targetsMhz = GameThermalProfiles.loadTargets(applicationContext))
+        }
+        if (thermal.phase == ThermalPhase.Applying) return
+        val saved = GameThermalProfiles.savedSelection(pkg)
+        if (saved != thermal.selected) thermal = thermal.copy(selected = saved)
+    }
+
+    /**
+     * تبديل بروفايل الحرارة: **الواجهة أولًا** ثم الحفظ ثم التأكيد.
+     *
+     *  ١. لحظة اللمس: يُعرض الاختيار وحالة «جارٍ» (لا انتظار على شيء).
+     *  ٢. يُحفظ في إعداد اللعبة بالمستودع نفسه الذي تكتب به شاشة الإعدادات.
+     *  ٣. `AppMonitor` يلتقط التغيير خلال أجزاء من الثانية ويعيد مقبض الـGPU وحده، وتقرأ اللوحة
+     *     سجلّ نتيجته حتى يردّ، فيُعرض «طُبِّق · ٦٥٠ MHz» أو السبب الحقيقي للرفض.
+     *
+     * والكاتب الوحيد لعقدة الـGPU يبقى `AppMonitor` (ADR-11): اللوحة لا تكتب فيها أبدًا.
+     */
+    private fun selectThermal(id: String) {
+        val pkg = thermalPkg
+        if (pkg.isBlank()) return
+        val target = GameThermalProfiles.normalize(id)
+        val requestedAt = System.currentTimeMillis()
+        thermal = thermal.copy(
+            selected = target, phase = ThermalPhase.Applying, reason = "", liveMhz = null, requestedAt = requestedAt
+        )
+        thermalJob?.cancel()
+        thermalJob = lifecycleScope.launch {
+            val verdict = try {
+                when (GameThermalProfiles.persist(pkg, target)) {
+                    ThermalSave.Failed -> ThermalVerdict(ThermalPhase.Failed, "save-failed")
+                    ThermalSave.Unchanged -> ThermalVerdict(ThermalPhase.Applied)
+                    ThermalSave.Changed -> GameThermalProfiles.awaitApplied(pkg, requestedAt)
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                ThermalVerdict(ThermalPhase.Failed, "save-failed")
+            }
+            if (pkg == thermalPkg) {
+                thermal = thermal.copy(phase = verdict.phase, reason = verdict.reason, liveMhz = verdict.liveMhz)
+            }
         }
     }
 
@@ -412,6 +497,8 @@ class GamePanelService : LifecycleService() {
             onOpenControls = { openAppSettings() },
             onSelectProfile = { id -> selectProfile(id) },
             onToggleBypass = { toggleBypass() },
+            thermal = thermal,
+            onSelectThermal = { id -> selectThermal(id) },
             handleFx = silk.fx,
             origin = openOrigin
         )

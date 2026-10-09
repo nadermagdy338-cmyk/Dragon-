@@ -71,6 +71,7 @@ import nd.max.core.gamespace.BypassState
 import nd.max.core.gamespace.PanelClocks
 import nd.max.core.gamespace.PanelControlState
 import nd.max.core.gamespace.PanelSide
+import nd.max.core.gamespace.ThermalPanelState
 import nd.max.core.platform.HudField
 import nd.max.core.platform.HudReading
 import nd.max.core.platform.HudTally
@@ -129,6 +130,8 @@ fun GamePanelSurface(
     onOpenControls: () -> Unit,
     onSelectProfile: (String) -> Unit,
     onToggleBypass: () -> Unit,
+    thermal: ThermalPanelState = ThermalPanelState(),
+    onSelectThermal: (String) -> Unit = {},
     handleFx: HandleFx? = null,
     origin: Offset = Offset(1f, 0.5f)
 ) {
@@ -165,6 +168,8 @@ fun GamePanelSurface(
                 onOpenControls = onOpenControls,
                 onSelectProfile = onSelectProfile,
                 onToggleBypass = onToggleBypass,
+                thermal = thermal,
+                onSelectThermal = onSelectThermal,
                 origin = origin
             )
         }

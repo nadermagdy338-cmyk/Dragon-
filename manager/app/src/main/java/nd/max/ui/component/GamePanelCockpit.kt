@@ -7,19 +7,16 @@
 
 package nd.max.ui.component
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -30,40 +27,46 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
-import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.BatteryFull
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.DoNotDisturbOn
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.FiberManualRecord
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Language
-import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.PowerSettingsNew
+import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material.icons.rounded.ScreenLockRotation
 import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.SportsEsports
 import androidx.compose.material.icons.rounded.Stop
+import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Videocam
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.VisibilityOff
+import androidx.compose.material.icons.rounded.Waves
 import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material.icons.rounded.Wifi
 import androidx.compose.material3.Icon
@@ -76,38 +79,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -116,6 +107,8 @@ import kotlinx.coroutines.withContext
 import nd.max.R
 import nd.max.core.gamespace.BypassState
 import nd.max.core.gamespace.CockpitModel
+import nd.max.core.gamespace.CubeLayoutMath
+import nd.max.core.gamespace.GameThermalProfiles
 import nd.max.core.gamespace.PanelClocks
 import nd.max.core.gamespace.PanelControlState
 import nd.max.core.gamespace.PanelDevice
@@ -126,55 +119,36 @@ import nd.max.core.gamespace.PanelSessionClock
 import nd.max.core.gamespace.PanelSide
 import nd.max.core.gamespace.PanelToggles
 import nd.max.core.gamespace.QuickApp
+import nd.max.core.gamespace.ThermalPanelState
+import nd.max.core.gamespace.ThermalPhase
 import nd.max.core.platform.HudField
 import nd.max.core.platform.HudReading
 import nd.max.core.platform.HudTally
 import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
 import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxSpace
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.spring
-import kotlin.math.hypot
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.rememberUpdatedState
 
 /*
- * لوحة اللعبة المفتوحة بتصميم «Energy Cube»: عمودان مائلان من مقاطع (CPU يسارًا، GPU يمينًا)
- * يضيء منهما بقدر التردد الحيّ، وأرقام كبيرة بأقراص متوهجة وحبوب سداسية، ومقياسا السطوع والصوت،
- * وقائمة بطاقات يسارًا وشبكة بلاطات يمينًا. اللون يتبع البروفايل: أحمر=أداء، كهرماني=متوازن،
- * أخضر=توفير، أزرق=تلقائي. وكل بلاطة تكتب بالروت فعلًا ثم تُعيد اللوحة قراءة الحالة الحقيقية.
+ * لوحة اللعبة المفتوحة بتصميم «Energy Cube»، على هيئة المرجع:
+ *
+ *   • صفّ دوائر في الأعلى (رئيسية · تحرير · طيّ) وتطبيقات سريعة، يفصلهما عن الجسم خطّ.
+ *   • يسارًا: بروفايلات الحرارة الستة (افتراضي · موفّر · متوازن · ألعاب · أداء · مخصّص) كبطاقات
+ *     قائمة/شبكة — لمسة واحدة تبدّل فورًا، ويُرى التنفيذ الفعلي (جارٍ ← طُبِّق ‏٦٥٠ MHz).
+ *   • عمودا CPU / GPU بأرقام كبيرة وأقراص متوهجة وحبّتين: وضع النظام (CPU) والإشعارات (GPU)،
+ *     وكلتاهما تفتح قائمة منسدلة بدل دورة عمياء.
+ *   • شريطان مائلان من ١٦ مقطعًا يضيئان بقدر التردد الحيّ، بينهما نافذة على اللعبة.
+ *   • يمينًا: شبكة بلاطات (كلها تكتب فعلًا) بتمرير متلاشٍ، وأسفل الوسط: الحالة وسطر الرسائل.
+ *
+ * اللون يتبع وضع النظام: أحمر=أداء، كهرماني=متوازن، أخضر=توفير، أزرق=تلقائي.
+ * وكل مقاس من [CubeLayoutMath] فلا تتراكب الأعمدة ولا تُقطع النصوص (انظر `CubeLayoutTest`).
  */
-private const val BAR_BLOCKS = 16
-private const val BAR_BLOCKS_UP = 5
-private const val METER_BARS = 14
-private const val ENTER_MS = 560
 private const val LEAVE_MS = 240
 private const val HOT_CPU = 90
 private const val HOT_HEAT_C = 42f
 
-private val CubeInk = Color(0xFFF4F5F7)
-private val CubeDim = Color(0xFFB4B8BF)
-private val CubeTile = Color(0xE63A3B3F)
-private val CubeBlockOff = Color(0xCC24252A)
-private val CubeGlass = Color(0x66000000)
-private val ModeRed = Color(0xFFFF4D5E)
-private val ModeAmber = Color(0xFFFFC53D)
-private val ModeGreen = Color(0xFF3DDC97)
-private val ModeAuto = Color(0xFF4DD0FF)
-
 private typealias Enter = Animatable<Float, AnimationVector1D>
 
-/** حبّة سداسية الطرفين (سهمية) كما في زرّ الوضع في المكعّب. */
-private val PillShape = GenericShape { size, _ ->
-    val t = size.height * 0.42f
-    moveTo(0f, size.height / 2f)
-    lineTo(t, 0f)
-    lineTo(size.width - t, 0f)
-    lineTo(size.width, size.height / 2f)
-    lineTo(size.width - t, size.height)
-    lineTo(t, size.height)
-    close()
-}
+private enum class CubeMenu { None, System, Notify, Thermal }
 
 private fun modeAccent(controls: PanelControlState, fallback: Color): Color = when {
     controls.auto -> ModeAuto
@@ -184,15 +158,39 @@ private fun modeAccent(controls: PanelControlState, fallback: Color): Color = wh
     else -> fallback
 }
 
+private fun thermalIcon(id: String): ImageVector = when (id) {
+    "power" -> Icons.Rounded.BatteryFull
+    "balanced" -> Icons.Rounded.Waves
+    "gaming" -> Icons.Rounded.SportsEsports
+    "performance" -> Icons.Rounded.Bolt
+    "custom" -> Icons.Rounded.Tune
+    else -> Icons.Rounded.Restore
+}
+
+/** ألوان البروفايلات كما في شاشة الإعدادات (أخضر · أزرق · برتقالي · أحمر) ليتّفق ما يراه المستخدم. */
+private fun thermalColor(id: String): Color = when (id) {
+    "power" -> Color(0xFF36C77B)
+    "balanced" -> Color(0xFF3D8EFF)
+    "gaming" -> Color(0xFFFF9800)
+    "performance" -> Color(0xFFFF4444)
+    "custom" -> Color(0xFFB07CFF)
+    else -> Color(0xFFB4B8BF)
+}
+
 private class CubeProbe(
     val wifi: Boolean, val mobile: Boolean, val dnd: Boolean,
     val touch: Boolean, val rec: Boolean, val minutes: Int
 )
 
-private class CubeTileSpec(
-    val icon: ImageVector?, val text: String?, val label: String,
-    val active: Boolean, val onClick: () -> Unit
-)
+private fun batteryText(pct: Int?, charging: Boolean): String =
+    (pct?.let { "$it%" } ?: "--") + if (charging) " ⚡" else ""
+
+private fun Modifier.enterFrom(enter: Enter, dx: Float, dy: Float, delay: Float): Modifier = graphicsLayer {
+    val p = ((enter.value - delay) / (1f - delay)).coerceAtLeast(0f)
+    alpha = p.coerceIn(0f, 1f)
+    translationX = (1f - p) * dx * density
+    translationY = (1f - p) * dy * density
+}
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -215,9 +213,12 @@ fun GamePanelCockpit(
     onOpenControls: () -> Unit,
     onSelectProfile: (String) -> Unit,
     onToggleBypass: () -> Unit,
+    thermal: ThermalPanelState = ThermalPanelState(),
+    onSelectThermal: (String) -> Unit = {},
     origin: Offset = Offset(1f, 0.5f)
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current.density
     val device = remember { PanelDevice(context) }
     val scope = rememberCoroutineScope()
     val enter = remember { Animatable(0f) }
@@ -240,6 +241,14 @@ fun GamePanelCockpit(
     var listView by remember { mutableStateOf(true) }
     var details by remember { mutableStateOf(false) }
     var appsOpen by remember { mutableStateOf(false) }
+    var menu by remember { mutableStateOf(CubeMenu.None) }
+    var cpuPill by remember { mutableStateOf(Rect.Zero) }
+    var gpuPill by remember { mutableStateOf(Rect.Zero) }
+    var thermalTile by remember { mutableStateOf(Rect.Zero) }
+    // الحلقات الطويلة تقرأ آخر حالة لا لقطة لحظة إطلاقها.
+    val thermalNow by rememberUpdatedState(thermal)
+    val leftScroll = rememberScrollState()
+    val gridScroll = rememberScrollState()
     val notes = remember { mutableStateListOf<String>() }
     val hasCellular = remember { PanelToggles.hasCellular(context) }
     val touchAvailable by produceState(false) { value = withContext(Dispatchers.IO) { PanelToggles.touchAvailable() } }
@@ -277,6 +286,30 @@ fun GamePanelCockpit(
     val cdGrid = stringResource(R.string.game_panel_view_grid)
     val cdCollapse = stringResource(R.string.game_panel_collapse_cd)
     val cdSide = stringResource(R.string.game_panel_drawer_cd)
+    val lHint = stringResource(R.string.game_panel_dismiss_hint)
+    val lThermalTitle = stringResource(R.string.game_panel_thermal_title)
+    val lThermalTile = stringResource(R.string.game_panel_thermal_tile)
+    val lModeTitle = stringResource(R.string.game_panel_mode_title)
+    val lNotifyTitle = stringResource(R.string.game_panel_notify_title)
+    val sNoOverride = stringResource(R.string.game_panel_thermal_default_sub)
+    val sApplying = stringResource(R.string.game_panel_thermal_applying)
+    val sPending = stringResource(R.string.game_panel_thermal_pending)
+    val sNotApplied = stringResource(R.string.game_panel_thermal_failed_sub)
+    val fmtThermalApplied = stringResource(R.string.game_panel_thermal_msg_applied)
+    val msgThermalPending = stringResource(R.string.game_panel_thermal_msg_pending)
+    val fmtThermalFailed = stringResource(R.string.game_panel_thermal_msg_failed)
+    val rUnsupported = stringResource(R.string.game_panel_thermal_reason_unsupported)
+    val rHeld = stringResource(R.string.game_panel_thermal_reason_held)
+    val rSave = stringResource(R.string.game_panel_thermal_reason_save)
+    val rGeneric = stringResource(R.string.game_panel_thermal_reason_generic)
+    val thermalLabels = mapOf(
+        "default" to stringResource(R.string.default_label),
+        "power" to stringResource(R.string.profile_label_power),
+        "balanced" to stringResource(R.string.Profile_Balanced),
+        "gaming" to stringResource(R.string.profile_label_gaming),
+        "performance" to stringResource(R.string.Profile_Performance),
+        "custom" to stringResource(R.string.profile_label_custom)
+    )
 
     val wave = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
@@ -312,7 +345,10 @@ fun GamePanelCockpit(
     LaunchedEffect(Unit) {
         while (true) {
             delay(1000)
-            if (CockpitModel.shouldCollapseIdle(android.os.SystemClock.uptimeMillis(), activeAt)) {
+            // قائمة مفتوحة أو تنفيذ جارٍ = المستخدم يعمل؛ لا طيّ تحت يده.
+            if (menu == CubeMenu.None && thermalNow.phase != ThermalPhase.Applying &&
+                CockpitModel.shouldCollapseIdle(android.os.SystemClock.uptimeMillis(), activeAt)
+            ) {
                 if (!leaving) {
                     leaving = true
                     enter.animateTo(0f, tween(LEAVE_MS))
@@ -354,10 +390,24 @@ fun GamePanelCockpit(
         if (CockpitModel.segmentOf(new, METER_BARS) != CockpitModel.segmentOf(old, METER_BARS)) write(new)
     }
 
-    fun cycleProfile() {
-        if (controls.auto) { say(msgAuto); return }
-        val order = listOf("1", "2", "3")
-        onSelectProfile(order[(order.indexOf(controls.profile) + 1).mod(order.size)])
+    fun reasonText(reason: String): String = when {
+        reason == "save-failed" -> rSave
+        reason.contains("no-gpu-provider") || reason.contains("not-writable") || reason.contains("unsupported") -> rUnsupported
+        reason.contains("held") || reason.contains("suppress") || reason.contains("blocked") || reason.contains("lock") -> rHeld
+        else -> rGeneric
+    }
+
+    // نتيجة تبديل البروفايل تُقال مرّة عند وصولها (لا كل إعادة تركيب).
+    LaunchedEffect(thermal.phase, thermal.requestedAt) {
+        val name = thermalLabels[thermal.selected] ?: thermal.selected
+        when (thermal.phase) {
+            ThermalPhase.Applied -> say(
+                String.format(fmtThermalApplied, name) + (thermal.liveMhz?.let { " · $it MHz" } ?: "")
+            )
+            ThermalPhase.Pending -> say(msgThermalPending)
+            ThermalPhase.Failed -> say(String.format(fmtThermalFailed, reasonText(thermal.reason)))
+            else -> Unit
+        }
     }
 
     val heat = reading?.heat ?: 0f
@@ -375,9 +425,31 @@ fun GamePanelCockpit(
     }
     var dragged = 0f
 
+    // بطاقات/خيارات بروفايل الحرارة: الاسم، وتحته التردد المتوقّع أو حالة التنفيذ للمختار.
+    val thermalOptions = GameThermalProfiles.ids.map { id ->
+        val chosen = id == thermal.selected
+        val sub = when {
+            chosen && thermal.phase == ThermalPhase.Applying -> sApplying
+            chosen && thermal.phase == ThermalPhase.Pending -> sPending
+            chosen && thermal.phase == ThermalPhase.Failed -> sNotApplied
+            chosen && thermal.phase == ThermalPhase.Applied && thermal.liveMhz != null -> "${thermal.liveMhz} MHz"
+            id == GameThermalProfiles.DEFAULT -> sNoOverride
+            else -> thermal.targetsMhz[id]?.let { "$it MHz" } ?: ""
+        }
+        CubeOption(
+            id = id, label = thermalLabels[id] ?: id, sub = sub,
+            icon = thermalIcon(id), color = thermalColor(id),
+            subColor = if (chosen && thermal.phase == ThermalPhase.Failed) ModeRed else CubeDim
+        )
+    }
+    val thermalBusy = if (thermal.phase == ThermalPhase.Applying) thermal.selected else null
+    fun pickThermal(id: String) {
+        if (id == thermal.selected && thermal.phase != ThermalPhase.Failed && thermal.phase != ThermalPhase.Pending) return
+        onSelectThermal(id)
+    }
+
     BoxWithConstraints(
         Modifier.fillMaxSize().graphicsLayer { alpha = enter.value.coerceIn(0f, 1f) }
-            .background(Brush.horizontalGradient(listOf(Color(0xD9000000), Color(0x8C000000), Color(0x8C000000), Color(0xD9000000))))
             .pointerInput(Unit) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
@@ -395,22 +467,17 @@ fun GamePanelCockpit(
     ) {
         val w = maxWidth
         val h = maxHeight
-        val v = h.value / 100f
-        val u = minOf(v, w.value / 180f)
         val compact = CockpitModel.isCompact(w.value)
         var leftOpen by remember(compact) { mutableStateOf(!compact) }
-        val btn = maxOf(40f, u * 7.6f).dp
-        val tile = maxOf(44f, u * 8.2f).dp
-        val colW = tile + 22.dp
-        val columns = if (compact) 1 else 2
-        val gridW = colW * columns + 6.dp * (columns - 1)
-        val gaugeW = if (compact) w * 0.30f else (w.value * 0.17f).coerceIn(120f, 200f).dp
-        val cpuX = if (compact) 0.30f else 0.25f
-        val gpuX = if (compact) 0.62f else 0.75f
-        val listW = if (details) 176.dp else (w.value * 0.15f).coerceIn(124f, 170f).dp
-        val topPad = (v * 2.2f).dp
-        val bodyTop = (v * 12.5f).dp
+        val layout = remember(w.value, h.value, leftOpen, details) {
+            CubeLayoutMath.of(w.value, h.value, leftOpen, details)
+        }
+        val bottomPad = (h.value - layout.bodyBottom).coerceAtLeast(0f).dp
 
+        Canvas(Modifier.fillMaxSize()) {
+            cubeScrims(enter.value)
+            cubeRules(layout.edge.dp.toPx(), layout.dividerY.dp.toPx(), enter.value)
+        }
         Canvas(Modifier.fillMaxSize()) { cubeWave(origin, wave.value, tint) }
         Canvas(Modifier.fillMaxSize()) {
             val sweep = enter.value
@@ -420,21 +487,22 @@ fun GamePanelCockpit(
 
         // ── أعلى اليسار: الرئيسية / تحرير القائمة / شعار المكعّب (طيّ)
         Row(
-            Modifier.align(Alignment.TopStart).padding(start = 12.dp, top = topPad).enterFrom(enter, -24f, 0f, 0f),
+            Modifier.align(Alignment.TopStart).padding(start = layout.edge.dp, top = layout.topPad.dp).enterFrom(enter, -24f, 0f, 0f),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            CubeCircle(btn, lApp, { onOpenControls(); leave(onCollapse) }) {
-                Icon(Icons.Rounded.Home, null, tint = CubeInk, modifier = Modifier.size(btn * 0.5f))
+            CubeCircle(layout.btn.dp, lApp, { onOpenControls(); leave(onCollapse) }) {
+                Icon(Icons.Rounded.Home, null, tint = CubeInk, modifier = Modifier.size((layout.btn * 0.5f).dp))
             }
-            CubeCircle(btn, cdSide, { leftOpen = !leftOpen }, active = leftOpen, tint = tint) {
-                Icon(Icons.Rounded.Edit, null, tint = CubeInk, modifier = Modifier.size(btn * 0.5f))
+            CubeCircle(layout.btn.dp, cdSide, { leftOpen = !leftOpen }, active = leftOpen, tint = tint) {
+                Icon(Icons.Rounded.Edit, null, tint = CubeInk, modifier = Modifier.size((layout.btn * 0.5f).dp))
             }
-            CubeCircle(btn, cdCollapse, { leave(onCollapse) }) { CubeLogo(Modifier.size(btn * 0.54f)) }
+            CubeCircle(layout.btn.dp, cdCollapse, { leave(onCollapse) }) { CubeLogo(Modifier.size((layout.btn * 0.54f).dp)) }
         }
 
         // ── أعلى الوسط: إطارات/شبكة/بطارية/مدّة اللعب
         Row(
-            Modifier.align(Alignment.TopCenter).padding(top = (v * 6.8f).dp).clip(RoundedCornerShape(MaxRadius.row))
+            Modifier.align(Alignment.TopCenter).padding(top = (layout.topPad + (layout.btn - 28f) / 2f).coerceAtLeast(layout.topPad).dp)
+                .clip(RoundedCornerShape(MaxRadius.row))
                 .background(CubeGlass).padding(horizontal = MaxSpace.rowPaddingHorizontal, vertical = 6.dp).swallowTaps()
                 .enterFrom(enter, 0f, -24f, 0f),
             horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically
@@ -449,41 +517,61 @@ fun GamePanelCockpit(
         // ── أعلى اليمين: تطبيقات سريعة (مثبّتة فعلًا) + سهم التوسيع
         if (quickApps.isNotEmpty()) {
             Row(
-                Modifier.align(Alignment.TopEnd).padding(end = 12.dp, top = topPad).enterFrom(enter, 24f, 0f, 0f),
+                Modifier.align(Alignment.TopEnd).padding(end = layout.edge.dp, top = layout.topPad.dp).enterFrom(enter, 24f, 0f, 0f),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 quickApps.take(if (appsOpen) 6 else 3).forEach { app ->
                     Image(
                         bitmap = app.icon.asImageBitmap(), contentDescription = app.label,
-                        modifier = Modifier.size(btn).clip(CircleShape)
+                        modifier = Modifier.size(layout.btn.dp).clip(CircleShape)
                             .clickable(role = Role.Button) { PanelQuickApps.launch(context, app.pkg); leave(onCollapse) }
                     )
                 }
                 if (quickApps.size > 3) {
-                    CubeCircle(btn, cdSide, { appsOpen = !appsOpen }) {
-                        Icon(Icons.Rounded.KeyboardArrowDown, null, tint = CubeInk, modifier = Modifier.size(btn * 0.55f).graphicsLayer { rotationZ = if (appsOpen) 180f else 0f })
+                    CubeCircle(layout.btn.dp, cdSide, { appsOpen = !appsOpen }) {
+                        Icon(
+                            Icons.Rounded.KeyboardArrowDown, null, tint = CubeInk,
+                            modifier = Modifier.size((layout.btn * 0.55f).dp).graphicsLayer { rotationZ = if (appsOpen) 180f else 0f }
+                        )
                     }
                 }
             }
         }
 
-        // ── اليسار: بطاقات (وضع القائمة/الشبكة)
+        // ── اليسار: بروفايلات الحرارة (قائمة/شبكة) ثم بطاقات المعلومات
         if (leftOpen) {
             Column(
-                Modifier.align(Alignment.TopStart).padding(start = 12.dp, top = bodyTop, bottom = 12.dp).width(listW)
+                Modifier.align(Alignment.TopStart)
+                    .padding(start = layout.edge.dp, top = layout.bodyTop.dp, bottom = bottomPad)
+                    .width(layout.leftW.dp).fillMaxHeight()
                     .swallowTaps().enterFrom(enter, -80f, 0f, 0.05f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                ViewToggle(listView, tint, cdList, cdGrid, { listView = true }, { listView = false })
-                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val modes = listOf(
-                        Triple("1", lPerf, Icons.Rounded.RocketLaunch),
-                        Triple("2", lBal, Icons.Rounded.Speed),
-                        Triple("3", lSave, Icons.Rounded.BatteryChargingFull)
-                    )
-                    modes.forEach { (id, name, icon) ->
-                        AssistCard(icon, name, !controls.auto && controls.profile == id, tint, !listView) {
-                            if (controls.auto) say(msgAuto) else if (controls.profile != id) onSelectProfile(id)
+                ViewToggle(listView, tint, layout.toggleH.dp, cdList, cdGrid, { listView = true }, { listView = false })
+                SectionCaption(Icons.Rounded.Thermostat, lThermalTitle)
+                FadeScroll(Modifier.weight(1f), leftScroll, 6.dp) {
+                    if (listView) {
+                        thermalOptions.forEach { option ->
+                            OptionRow(
+                                option = option, selected = option.id == thermal.selected, busy = option.id == thermalBusy,
+                                tint = tint, height = layout.cardH.dp, card = true, onClick = { pickThermal(option.id) }
+                            )
+                        }
+                    } else {
+                        val cell = ((layout.leftW - 6f) / 2f)
+                        thermalOptions.chunked(2).forEach { pair ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                pair.forEach { option ->
+                                    CubeTileView(
+                                        spec = CubeTileSpec(
+                                            icon = option.icon, text = null, label = option.label,
+                                            active = option.id == thermal.selected, iconTint = option.color,
+                                            onClick = { pickThermal(option.id) }
+                                        ),
+                                        tile = (cell - 10f).dp, colW = cell.dp, tint = tint, labelSp = 10f
+                                    )
+                                }
+                            }
                         }
                     }
                     InfoCard { FrameGraph(history = frames, accent = tint) }
@@ -498,7 +586,9 @@ fun GamePanelCockpit(
         // ── عمودا CPU / GPU
         CubeGauge(
             value = clocks.cpuMhz?.let { "%.2f".format(Locale.US, it / 1000f) } ?: MAX_VALUE_UNAVAILABLE,
-            unit = "GHz", label = "CPU", tint = tint, pill = modeName, onPill = { cycleProfile() },
+            unit = "GHz", label = "CPU", tint = tint, pill = modeName, pillBusy = false, pillOpen = menu == CubeMenu.System,
+            onPill = { menu = if (menu == CubeMenu.System) CubeMenu.None else CubeMenu.System },
+            onPillBounds = { cpuPill = it },
             meter = brightness, meterIcon = Icons.Rounded.WbSunny, meterAlpha = if (brightnessAllowed) 1f else 0.45f,
             onMeter = { value ->
                 if (brightnessAllowed) {
@@ -509,56 +599,70 @@ fun GamePanelCockpit(
                     touchedAt = android.os.SystemClock.uptimeMillis()
                 }
             },
-            outerLeft = true, boxW = gaugeW, u = u,
-            modifier = Modifier.align(Alignment.TopStart).offset(x = w * cpuX - gaugeW / 2, y = (v * 19f).dp)
+            outerLeft = true, layout = layout,
+            modifier = Modifier.align(Alignment.TopStart)
+                .offset(x = (layout.cpuX - layout.gaugeW / 2f).dp, y = layout.gaugeTop.dp)
                 .enterFrom(enter, -60f, 0f, 0.1f)
         )
         CubeGauge(
             value = clocks.gpuMhz?.toString() ?: MAX_VALUE_UNAVAILABLE,
-            unit = "MHz", label = "GPU", tint = tint, pill = if (dnd) lDnd else lNormal,
-            onPill = { flip(lDnd, dnd, { dnd = it }) { PanelToggles.setDnd(it) } },
+            unit = "MHz", label = "GPU", tint = tint, pill = if (dnd) lDnd else lNormal, pillBusy = false,
+            pillOpen = menu == CubeMenu.Notify,
+            onPill = { menu = if (menu == CubeMenu.Notify) CubeMenu.None else CubeMenu.Notify },
+            onPillBounds = { gpuPill = it },
             meter = volume, meterIcon = Icons.AutoMirrored.Rounded.VolumeUp, meterAlpha = 1f,
             onMeter = { value -> slide(volume, value) { device.setVolume(it) }; volume = value },
-            outerLeft = false, boxW = gaugeW, u = u,
-            modifier = Modifier.align(Alignment.TopStart).offset(x = w * gpuX - gaugeW / 2, y = (v * 19f).dp)
+            outerLeft = false, layout = layout,
+            modifier = Modifier.align(Alignment.TopStart)
+                .offset(x = (layout.gpuX - layout.gaugeW / 2f).dp, y = layout.gaugeTop.dp)
                 .enterFrom(enter, 60f, 0f, 0.1f)
         )
 
-        // ── وسط: رسائل نتيجة البلاطات
+        // ── أسفل الوسط: اللعبة · الوقت · البطارية · الشبكة، وتحتها سطر الحالة/الرسائل
         Column(
-            Modifier.align(Alignment.Center).offset(y = (v * 8f).dp),
-            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)
+            Modifier.align(Alignment.BottomCenter).padding(bottom = bottomPad).enterFrom(enter, 0f, 20f, 0.3f),
+            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            notes.forEach { note ->
-                Text(
-                    note, color = CubeInk, fontSize = (u * 3.2f).coerceAtLeast(12f).sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.clip(RoundedCornerShape(MaxRadius.chip)).background(CubeGlass).padding(horizontal = MaxSpace.md, vertical = 4.dp)
+            Row(
+                Modifier.clip(RoundedCornerShape(MaxRadius.row))
+                    .background(CubeGlass).padding(horizontal = MaxSpace.rowPaddingHorizontal, vertical = 5.dp).swallowTaps(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically
+            ) {
+                FitText(
+                    title, CubeInk, maxSp = 12f, minSp = 9f, weight = FontWeight.Bold, align = TextAlign.Left,
+                    modifier = Modifier.widthIn(max = 150.dp)
                 )
+                StatusBit(null, status.time)
+                StatusBit(Icons.Rounded.BatteryChargingFull, batteryText(status.batteryPct, status.charging))
+                StatusBit(Icons.Rounded.Language, CockpitModel.speedText(status.netBytes))
             }
-        }
-
-        // ── أسفل الوسط: اللعبة · الوقت · البطارية · الشبكة
-        Row(
-            Modifier.align(Alignment.BottomCenter).padding(bottom = (v * 2.6f).dp).clip(RoundedCornerShape(MaxRadius.row))
-                .background(CubeGlass).padding(horizontal = MaxSpace.rowPaddingHorizontal, vertical = 5.dp).swallowTaps()
-                .enterFrom(enter, 0f, 20f, 0.3f),
-            horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(title, color = CubeInk, fontSize = (u * 2.6f).coerceAtLeast(11f).sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(minOf((u * 30f).dp, 150.dp)))
-            StatusBit(null, status.time)
-            StatusBit(Icons.Rounded.BatteryChargingFull, batteryText(status.batteryPct, status.charging))
-            StatusBit(Icons.Rounded.Language, CockpitModel.speedText(status.netBytes))
+            Box(
+                Modifier.width(layout.statusW.dp).height(22.dp).clip(CircleShape).background(CubeGlass).swallowTaps(),
+                contentAlignment = Alignment.Center
+            ) {
+                Crossfade(targetState = notes.lastOrNull() ?: lHint, label = "status") { text ->
+                    FitText(text, CubeDim, maxSp = 11f, minSp = 8f, modifier = Modifier.padding(horizontal = 12.dp))
+                }
+            }
         }
 
         // ── اليمين: شبكة البلاطات (كلها تكتب فعلًا)
         val bypassOn = controls.bypass == BypassState.On
         val tiles = buildList {
-            add(CubeTileSpec(Icons.Rounded.Wifi, null, lWifi, wifi) { flip(lWifi, wifi, { wifi = it }) { PanelToggles.setWifi(it) } })
-            if (hasCellular) add(CubeTileSpec(Icons.Rounded.Language, null, lData, mobile) { flip(lData, mobile, { mobile = it }) { PanelToggles.setData(it) } })
-            add(CubeTileSpec(null, refreshRateHz?.toString() ?: "Hz", refreshRateHz?.let { "$it Hz" } ?: lDefault, refreshRateHz != null, onCycleRefresh))
-            add(CubeTileSpec(Icons.Rounded.Info, null, lInfo, details) { details = !details; if (details) leftOpen = true })
-            add(CubeTileSpec(if (recording) Icons.Rounded.Stop else Icons.Rounded.FiberManualRecord, null, if (recording) lRecording else lRecord, recording, onToggleRecording))
-            add(CubeTileSpec(Icons.Rounded.Videocam, null, if (screenRec) lScreenOn else lScreen, screenRec) {
+            add(CubeTileSpec(Icons.Rounded.Wifi, null, lWifi, wifi, onClick = { flip(lWifi, wifi, { wifi = it }) { PanelToggles.setWifi(it) } }))
+            if (hasCellular) add(CubeTileSpec(Icons.Rounded.Language, null, lData, mobile, onClick = { flip(lData, mobile, { mobile = it }) { PanelToggles.setData(it) } }))
+            add(CubeTileSpec(null, refreshRateHz?.toString() ?: "Hz", refreshRateHz?.let { "$it Hz" } ?: lDefault, refreshRateHz != null, onClick = onCycleRefresh))
+            add(CubeTileSpec(Icons.Rounded.DoNotDisturbOn, null, lDnd, dnd, onClick = { flip(lDnd, dnd, { dnd = it }) { PanelToggles.setDnd(it) } }))
+            if (!leftOpen) {
+                add(CubeTileSpec(
+                    thermalIcon(thermal.selected), null, thermalLabels[thermal.selected] ?: lThermalTile,
+                    thermal.selected != GameThermalProfiles.DEFAULT, onBounds = { thermalTile = it },
+                    onClick = { menu = if (menu == CubeMenu.Thermal) CubeMenu.None else CubeMenu.Thermal }
+                ))
+            }
+            add(CubeTileSpec(Icons.Rounded.Info, null, lInfo, details, onClick = { details = !details; if (details) leftOpen = true }))
+            add(CubeTileSpec(if (recording) Icons.Rounded.Stop else Icons.Rounded.FiberManualRecord, null, if (recording) lRecording else lRecord, recording, onClick = onToggleRecording))
+            add(CubeTileSpec(Icons.Rounded.Videocam, null, if (screenRec) lScreenOn else lScreen, screenRec, onClick = {
                 hold()
                 if (screenRec) {
                     screenRec = false
@@ -570,12 +674,12 @@ fun GamePanelCockpit(
                     PanelToggles.async { PanelScreenRecorder.start() }
                     scope.launch { delay(900); leave(onCollapse) }
                 }
-            })
-            add(CubeTileSpec(if (rotationLocked) Icons.Rounded.ScreenLockRotation else Icons.Rounded.ScreenRotation, null, lRotation, rotationLocked) {
+            }))
+            add(CubeTileSpec(if (rotationLocked) Icons.Rounded.ScreenLockRotation else Icons.Rounded.ScreenRotation, null, lRotation, rotationLocked, onClick = {
                 rotationLocked = !rotationLocked
                 device.setRotationLock(rotationLocked)
-            })
-            add(CubeTileSpec(Icons.Rounded.RocketLaunch, null, if (optimizing) "…" else lOptimize, optimizing) {
+            }))
+            add(CubeTileSpec(Icons.Rounded.RocketLaunch, null, if (optimizing) "…" else lOptimize, optimizing, onClick = {
                 if (!optimizing) {
                     optimizing = true
                     scope.launch {
@@ -584,360 +688,72 @@ fun GamePanelCockpit(
                         say(String.format(fmtFreed, freed))
                     }
                 }
-            })
-            if (touchAvailable) add(CubeTileSpec(Icons.Rounded.TouchApp, null, lTouch, touch) { flip(lTouch, touch, { touch = it }) { PanelToggles.setTouch(it) } })
-            if (controls.bypass != BypassState.Unsupported) add(CubeTileSpec(Icons.Rounded.BatteryChargingFull, null, lBypass, bypassOn, onToggleBypass))
-            add(CubeTileSpec(Icons.Rounded.Timer, null, if (reminderMin > 0) "${reminderMin}m" else lReminder, reminderMin > 0) {
+            }))
+            if (touchAvailable) add(CubeTileSpec(Icons.Rounded.TouchApp, null, lTouch, touch, onClick = { flip(lTouch, touch, { touch = it }) { PanelToggles.setTouch(it) } }))
+            if (controls.bypass != BypassState.Unsupported) add(CubeTileSpec(Icons.Rounded.BatteryChargingFull, null, lBypass, bypassOn, onClick = onToggleBypass))
+            add(CubeTileSpec(Icons.Rounded.Timer, null, if (reminderMin > 0) "${reminderMin}m" else lReminder, reminderMin > 0, onClick = {
                 hold()
                 val minutes = PanelReminder.cycle(context, msgDone)
                 reminderMin = minutes
                 say(if (minutes > 0) String.format(fmtReminder, minutes) else String.format(fmtOff, lReminder))
-            })
-            add(CubeTileSpec(Icons.Rounded.Tune, null, lApp, false) { onOpenControls(); leave(onCollapse) })
-            add(CubeTileSpec(Icons.Rounded.PowerSettingsNew, null, lClose, false) { leave(onClose) })
+            }))
+            add(CubeTileSpec(Icons.Rounded.PowerSettingsNew, null, lClose, false, onClick = { leave(onClose) }))
         }
-        Column(
-            Modifier.align(Alignment.TopEnd).padding(top = bodyTop, end = 10.dp, bottom = 8.dp).width(gridW)
-                .swallowTaps().enterFrom(enter, 60f, 0f, 0.1f).verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy((v * 1.4f).dp)
+        FadeScroll(
+            Modifier.align(Alignment.TopEnd)
+                .padding(top = layout.bodyTop.dp, end = layout.edge.dp, bottom = bottomPad)
+                .width(layout.gridW.dp).fillMaxHeight()
+                .swallowTaps().enterFrom(enter, 60f, 0f, 0.1f),
+            gridScroll, layout.rowGap.dp
         ) {
-            tiles.chunked(columns).forEach { row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    row.forEach { CubeTileView(it, tile, colW, tint, u) }
+            tiles.chunked(layout.columns).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(layout.colGap.dp)) {
+                    row.forEach { CubeTileView(it, layout.tile.dp, layout.colW.dp, tint, 11f) }
                 }
             }
         }
-    }
-}
 
-private fun batteryText(pct: Int?, charging: Boolean): String =
-    (pct?.let { "$it%" } ?: "--") + if (charging) " ⚡" else ""
-
-private fun Modifier.swallowTaps(): Modifier = pointerInput(Unit) { detectTapGestures { } }
-
-private fun Modifier.enterFrom(enter: Enter, dx: Float, dy: Float, delay: Float): Modifier = graphicsLayer {
-    val p = ((enter.value - delay) / (1f - delay)).coerceAtLeast(0f)
-    alpha = p.coerceIn(0f, 1f)
-    translationX = (1f - p) * dx * density
-    translationY = (1f - p) * dy * density
-}
-
-/** موجة صدمة من موضع المقبض: حلقات متتابعة تتّسع وتخبو، ووميض شعاعي عند نقطة الانطلاق. */
-private fun DrawScope.cubeWave(origin: Offset, t: Float, tint: Color) {
-    if (t <= 0f || t >= 1f) return
-    val c = Offset(origin.x * size.width, origin.y * size.height)
-    val reach = hypot(size.width, size.height)
-    for (k in 0..2) {
-        val p = ((t - k * 0.11f) / (1f - k * 0.11f)).coerceIn(0f, 1f)
-        if (p <= 0f || p >= 1f) continue
-        val r = reach * (1f - (1f - p) * (1f - p))
-        val fade = (1f - p) * (1f - p)
-        drawCircle(tint.copy(alpha = fade * (0.10f - k * 0.02f)), r, c, style = Stroke((26f - k * 6f).dp.toPx() * (1f - p) + 2.dp.toPx()))
-        drawCircle(tint.copy(alpha = fade * (0.55f - k * 0.14f)), r, c, style = Stroke((2.4f - k * 0.4f).dp.toPx()))
-    }
-    val flash = (1f - t / 0.4f).coerceIn(0f, 1f)
-    if (flash > 0f) {
-        val fr = size.height * 0.7f
-        drawCircle(Brush.radialGradient(listOf(tint.copy(alpha = 0.5f * flash), Color.Transparent), center = c, radius = fr), fr, c)
-    }
-}
-
-/** عمود مائل من 16 مقطعًا: يضيء من القاع بقدر `lit`، أفتح قرب القمة وأعمق عند القاع. */
-private fun DrawScope.cubeBar(left: Boolean, lit: Float, tint: Color, sweep: Float) {
-    val w = size.width
-    val h = size.height
-    fun m(x: Float) = (if (left) x else 1f - x) * w
-    val x0 = m(0.285f)
-    val x1 = m(0.395f)
-    val x2 = m(0.185f)
-    val yTip = 0.31f * h
-    val half = 0.03f * w
-    val gap = 0.008f * h
-    fun xAt(y: Float) = if (y <= yTip) x0 + (x1 - x0) * (y / yTip) else x1 + (x2 - x1) * ((y - yTip) / (h - yTip))
-    val s = sweep.coerceIn(0f, 1f)
-    val litBlocks = lit.coerceIn(0f, 1f) * BAR_BLOCKS * s
-    val down = BAR_BLOCKS - BAR_BLOCKS_UP
-    for (i in 0 until BAR_BLOCKS) {
-        val top: Float
-        val bottom: Float
-        if (i < BAR_BLOCKS_UP) {
-            val s = yTip / BAR_BLOCKS_UP
-            top = i * s; bottom = (i + 1) * s
-        } else {
-            val s = (h - yTip) / down
-            top = yTip + (i - BAR_BLOCKS_UP) * s; bottom = yTip + (i - BAR_BLOCKS_UP + 1) * s
-        }
-        val a = top + gap / 2f
-        val b = bottom - gap / 2f
-        val path = Path().apply {
-            moveTo(xAt(a) - half, a); lineTo(xAt(a) + half, a)
-            lineTo(xAt(b) + half, b); lineTo(xAt(b) - half, b); close()
-        }
-        val j = BAR_BLOCKS - 1 - i
-        val on = (litBlocks - j).coerceIn(0f, 1f)
-        if (on > 0f) {
-            val base = lerp(lerp(tint, Color.Black, 0.22f), lerp(tint, Color.White, 0.38f), j / (BAR_BLOCKS - 1f))
-            val front = s < 0.995f && j == (litBlocks - 0.001f).toInt()
-            val c = if (front) lerp(base, Color.White, 0.7f) else base
-            drawPath(path, c.copy(alpha = (if (front) 0.5f else 0.22f) * on), style = Stroke(width = (if (front) 12f else 7f).dp.toPx()))
-            drawPath(path, c.copy(alpha = on))
-        } else {
-            drawPath(path, CubeBlockOff)
-            drawPath(path, Color.White.copy(alpha = 0.10f), style = Stroke(1.dp.toPx()))
-        }
-    }
-}
-
-@Composable
-private fun CubeGauge(
-    value: String, unit: String, label: String, tint: Color,
-    pill: String, onPill: () -> Unit,
-    meter: Float, meterIcon: ImageVector, meterAlpha: Float, onMeter: (Float) -> Unit,
-    outerLeft: Boolean, boxW: Dp, u: Float, modifier: Modifier
-) {
-    Column(modifier.width(boxW), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            value, color = CubeInk, fontSize = (u * 5.6f).coerceAtLeast(22f).sp, lineHeight = (u * 6.4f).coerceAtLeast(26f).sp,
-            maxLines = 1, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic
-        )
-        Box(Modifier.fillMaxWidth().height((u * 11f).dp), contentAlignment = Alignment.BottomCenter) {
-            CubeOrb(tint, Modifier.size(boxW * 0.86f, (u * 9.2f).dp))
-            Text(unit, color = CubeDim, fontSize = (u * 2.5f).coerceAtLeast(10f).sp, modifier = Modifier.align(Alignment.TopCenter))
-        }
-        Text(
-            label, color = tint, fontSize = (u * 2.8f).coerceAtLeast(11f).sp,
-            fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic
-        )
-        Spacer(Modifier.height((u * 2.2f).dp))
-        CubePill(pill, tint, u, onPill)
-        Icon(Icons.Rounded.KeyboardArrowDown, null, tint = CubeDim, modifier = Modifier.size((u * 3.4f).coerceAtLeast(14f).dp))
-        Spacer(Modifier.height((u * 2.2f).dp))
-        Box(
-            Modifier.fillMaxWidth().padding(horizontal = boxW * 0.2f).graphicsLayer { alpha = meterAlpha },
-            contentAlignment = if (outerLeft) Alignment.CenterStart else Alignment.CenterEnd
-        ) { CubeMeter(meter, meterIcon, outerLeft, onMeter, u, Modifier) }
-    }
-}
-
-/** قرص متوهّج: إهليلجات متداخلة بتوهّج شعاعي وأقواس تدور. */
-@Composable
-private fun CubeOrb(tint: Color, modifier: Modifier) {
-    val spin by rememberInfiniteTransition(label = "orb").animateFloat(
-        initialValue = 0f, targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(4200, easing = LinearEasing)), label = "orbSpin"
-    )
-    Canvas(modifier) {
-        val cx = size.width / 2f
-        val cy = size.height / 2f
-        drawOval(
-            Brush.radialGradient(listOf(tint.copy(alpha = 0.40f), Color.Transparent), center = Offset(cx, cy), radius = size.width / 2f),
-            topLeft = Offset.Zero, size = size
-        )
-        for (ring in 0..2) {
-            val f = 1f - ring * 0.2f
-            val rw = size.width * f
-            val rh = size.height * f
-            val topLeft = Offset(cx - rw / 2f, cy - rh / 2f)
-            drawOval(tint.copy(alpha = 0.30f - ring * 0.07f), topLeft, Size(rw, rh), style = Stroke(1.dp.toPx()))
-            drawArc(
-                tint.copy(alpha = 0.95f - ring * 0.2f), spin * (if (ring % 2 == 0) 1f else -1f) + ring * 70f, 90f, false,
-                topLeft, Size(rw, rh), style = Stroke(2.dp.toPx(), cap = StrokeCap.Round)
+        // ── القوائم المنسدلة: آخر ما يُرسم، فتعلو كل شيء ولمسة خارجها تغلقها وحدها
+        when (menu) {
+            CubeMenu.System -> CubeDropdown(
+                title = lModeTitle,
+                options = buildList {
+                    if (controls.auto) add(CubeOption("auto", lAuto, "", Icons.Rounded.AutoAwesome, ModeAuto, enabled = false))
+                    add(CubeOption("1", lPerf, "", Icons.Rounded.RocketLaunch, ModeRed))
+                    add(CubeOption("2", lBal, "", Icons.Rounded.Speed, ModeAmber))
+                    add(CubeOption("3", lSave, "", Icons.Rounded.BatteryChargingFull, ModeGreen))
+                },
+                selectedId = if (controls.auto) "auto" else controls.profile ?: "",
+                busyId = null, tint = tint, anchor = cpuPill, screenW = w, screenH = h,
+                topLimit = layout.bodyTop.dp, density = density,
+                onSelect = { id ->
+                    menu = CubeMenu.None
+                    if (controls.auto) say(msgAuto) else if (controls.profile != id) onSelectProfile(id)
+                },
+                onDismiss = { menu = CubeMenu.None }
             )
+            CubeMenu.Notify -> CubeDropdown(
+                title = lNotifyTitle,
+                options = listOf(
+                    CubeOption("normal", lNormal, "", Icons.Rounded.Visibility, ModeGreen),
+                    CubeOption("dnd", lDnd, "", Icons.Rounded.VisibilityOff, ModeRed)
+                ),
+                selectedId = if (dnd) "dnd" else "normal", busyId = null, tint = tint,
+                anchor = gpuPill, screenW = w, screenH = h, topLimit = layout.bodyTop.dp, density = density,
+                onSelect = { id ->
+                    menu = CubeMenu.None
+                    val want = id == "dnd"
+                    if (want != dnd) flip(lDnd, dnd, { dnd = it }) { PanelToggles.setDnd(it) }
+                },
+                onDismiss = { menu = CubeMenu.None }
+            )
+            CubeMenu.Thermal -> CubeDropdown(
+                title = lThermalTitle, options = thermalOptions, selectedId = thermal.selected, busyId = thermalBusy,
+                tint = tint, anchor = thermalTile, screenW = w, screenH = h, topLimit = layout.bodyTop.dp, density = density,
+                onSelect = { id -> menu = CubeMenu.None; pickThermal(id) },
+                onDismiss = { menu = CubeMenu.None }
+            )
+            CubeMenu.None -> Unit
         }
-    }
-}
-
-@Composable
-private fun CubePill(text: String, tint: Color, u: Float, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val haptic = LocalHapticFeedback.current
-    Box(
-        modifier.width((u * 24f).coerceIn(92f, 150f).dp).height(maxOf(30f, u * 5.4f).dp)
-            .clip(PillShape)
-            .background(Brush.verticalGradient(listOf(lerp(tint, Color.Black, 0.55f), lerp(tint, Color.Black, 0.82f))))
-            .border(1.5.dp, tint, PillShape)
-            .clickable(role = Role.Button) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text, color = CubeInk, fontSize = (u * 3.0f).coerceAtLeast(11f).sp, fontWeight = FontWeight.Bold, maxLines = 1,
-            overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = MaxSpace.rowPaddingHorizontal)
-        )
-    }
-}
-
-/** مقياس مقاطع يتّسع نحو الأعلى؛ الحافة الخارجية مستقيمة. السحب محلي (لا إعادة تركيب للّوحة) والكتابة عند تبدّل المقطع فقط. */
-@Composable
-private fun CubeMeter(
-    value: Float, icon: ImageVector, startAnchored: Boolean, onChange: (Float) -> Unit, u: Float, modifier: Modifier
-) {
-    val change by rememberUpdatedState(onChange)
-    var live by remember { mutableFloatStateOf(value) }
-    var grabbed by remember { mutableStateOf(false) }
-    LaunchedEffect(value) { if (!grabbed) live = value }
-    val shown = animateFloatAsState(live, spring(dampingRatio = 1f, stiffness = 900f), label = "meter")
-    Column(
-        modifier, horizontalAlignment = if (startAnchored) Alignment.Start else Alignment.End,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Canvas(
-            Modifier.width(maxOf(48f, u * 11f).dp).height(maxOf(84f, u * 16.7f).dp).pointerInput(Unit) {
-                awaitEachGesture {
-                    val down = awaitFirstDown()
-                    grabbed = true
-                    var segment = -1
-                    fun push(y: Float) {
-                        val v = (1f - y / size.height).coerceIn(0f, 1f)
-                        live = v
-                        val seg = CockpitModel.segmentOf(v, METER_BARS)
-                        if (seg != segment) {
-                            segment = seg
-                            change(v)
-                        }
-                    }
-                    push(down.position.y)
-                    down.consume()
-                    while (true) {
-                        val move = awaitPointerEvent().changes.firstOrNull() ?: break
-                        if (!move.pressed) break
-                        push(move.position.y)
-                        move.consume()
-                    }
-                    grabbed = false
-                }
-            }
-        ) {
-            val bar = size.height / (2f * METER_BARS - 1f)
-            val level = shown.value.coerceIn(0f, 1f) * METER_BARS
-            val full = level.toInt()
-            val frac = level - full
-            for (k in 0 until METER_BARS) {
-                val bw = size.width * (1f - 0.65f * k / (METER_BARS - 1f))
-                val x = if (startAnchored) 0f else size.width - bw
-                val m2 = METER_BARS - 1 - k
-                val a2 = if (m2 < full) 0.95f else if (m2 == full) 0.22f + 0.73f * frac else 0.22f
-                drawRect(Color.White.copy(alpha = a2), Offset(x, k * 2f * bar), Size(bw, bar))
-            }
-        }
-        Icon(icon, contentDescription = null, tint = CubeDim, modifier = Modifier.size(18.dp))
-    }
-}
-
-@Composable
-private fun CubeCircle(
-    size: Dp, description: String, onClick: () -> Unit,
-    active: Boolean = false, tint: Color = Color.Transparent, content: @Composable () -> Unit
-) {
-    val haptic = LocalHapticFeedback.current
-    Box(
-        Modifier.size(size).clip(CircleShape)
-            .background(if (active) lerp(tint, Color.Black, 0.5f) else CubeTile)
-            .clickable(role = Role.Button) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onClick() }
-            .semantics { contentDescription = description },
-        contentAlignment = Alignment.Center
-    ) { content() }
-}
-
-/** شعار المكعّب: سداسيّ بثلاثة أضلاع داخلية (منظور متساوي القياس). */
-@Composable
-private fun CubeLogo(modifier: Modifier) {
-    Canvas(modifier) {
-        val c = Offset(size.width / 2f, size.height / 2f)
-        val r = size.minDimension / 2f
-        fun p(deg: Float) = Offset(
-            c.x + r * kotlin.math.cos(Math.toRadians(deg.toDouble())).toFloat(),
-            c.y + r * kotlin.math.sin(Math.toRadians(deg.toDouble())).toFloat()
-        )
-        val hex = Path().apply {
-            moveTo(p(-90f).x, p(-90f).y)
-            listOf(-30f, 30f, 90f, 150f, 210f).forEach { lineTo(p(it).x, p(it).y) }
-            close()
-        }
-        val stroke = Stroke(2.dp.toPx())
-        drawPath(hex, CubeInk, style = stroke)
-        listOf(-30f, 90f, 210f).forEach { drawLine(CubeInk, c, p(it), 2.dp.toPx()) }
-    }
-}
-
-@Composable
-private fun StatusBit(icon: ImageVector?, text: String) {
-    Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-        if (icon != null) Icon(icon, null, tint = CubeDim, modifier = Modifier.size(13.dp))
-        Text(text, color = CubeInk, fontSize = 12.sp, maxLines = 1)
-    }
-}
-
-@Composable
-private fun ViewToggle(
-    listView: Boolean, tint: Color, cdList: String, cdGrid: String, onList: () -> Unit, onGrid: () -> Unit
-) {
-    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(MaxRadius.chip)).background(CubeTile)) {
-        listOf(true to Icons.Rounded.Menu, false to Icons.Rounded.Apps).forEach { (isList, icon) ->
-            Box(
-                Modifier.weight(1f).height(34.dp)
-                    .background(if (listView == isList) lerp(tint, Color.Black, 0.5f) else Color.Transparent)
-                    .clickable(role = Role.RadioButton) { if (isList) onList() else onGrid() }
-                    .semantics { contentDescription = if (isList) cdList else cdGrid },
-                contentAlignment = Alignment.Center
-            ) { Icon(icon, null, tint = CubeInk, modifier = Modifier.size(20.dp)) }
-        }
-    }
-}
-
-@Composable
-private fun AssistCard(icon: ImageVector, title: String, active: Boolean, tint: Color, grid: Boolean, onClick: () -> Unit) {
-    val haptic = LocalHapticFeedback.current
-    val shape = RoundedCornerShape(MaxRadius.control)
-    val fill = if (active) Brush.verticalGradient(listOf(lerp(tint, Color.Black, 0.35f), lerp(tint, Color.Black, 0.6f))) else SolidColor(CubeTile)
-    Box(
-        Modifier.fillMaxWidth().clip(shape).background(fill, shape)
-            .clickable(role = Role.Button) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onClick() }
-            .padding(MaxSpace.sm)
-    ) {
-        val disc: @Composable () -> Unit = {
-            Box(Modifier.size(30.dp).clip(CircleShape).background(CubeGlass), contentAlignment = Alignment.Center) {
-                Icon(icon, null, tint = CubeInk, modifier = Modifier.size(18.dp))
-            }
-        }
-        if (grid) {
-            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                disc()
-                Text(title, color = CubeInk, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-        } else {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                disc()
-                Text(title, color = CubeInk, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-        }
-    }
-}
-
-@Composable
-private fun InfoCard(content: @Composable () -> Unit) {
-    Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(MaxRadius.control)).background(CubeTile).padding(MaxSpace.sm)) { content() }
-}
-
-@Composable
-private fun CubeTileView(spec: CubeTileSpec, tile: Dp, colW: Dp, tint: Color, u: Float) {
-    val haptic = LocalHapticFeedback.current
-    val shape = RoundedCornerShape(MaxRadius.control)
-    val fill = if (spec.active) Brush.verticalGradient(listOf(lerp(tint, Color.Black, 0.35f), lerp(tint, Color.Black, 0.6f))) else SolidColor(CubeTile)
-    Column(Modifier.width(colW), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        Box(
-            Modifier.size(tile).clip(shape).background(fill, shape)
-                .clickable(role = Role.Button) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); spec.onClick() }
-                .semantics { contentDescription = spec.label },
-            contentAlignment = Alignment.Center
-        ) {
-            if (spec.icon != null) {
-                Icon(spec.icon, null, tint = if (spec.active) Color.White else Color(0xFFD0D3D8), modifier = Modifier.size(tile * 0.5f))
-            } else {
-                Text(
-                    spec.text ?: "", color = if (spec.active) Color.White else Color(0xFFD0D3D8),
-                    fontSize = (u * 3.6f).coerceIn(13f, 20f).sp, fontWeight = FontWeight.Black, maxLines = 1
-                )
-            }
-        }
-        Text(spec.label, color = CubeInk, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
