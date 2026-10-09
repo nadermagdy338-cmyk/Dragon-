@@ -318,6 +318,16 @@ object MaxSize {
     val hairlineBorder: Dp = 1.dp
 
     /**
+     * حدّ أثقل من [hairlineBorder] بقليل (١٫٥dp) للعنصر الذي يحمل لونه **وحده** بلا حشو يميّزه.
+     *
+     * أُضيف مع دمج لوحة «المكعّب» (`CUBE-OVERLAY-MERGE-01`): الحبّة السداسية (وضع النظام /
+     * الإشعارات / الحرارة) كانت تُرسم بـ`1.5.dp` حرفيًّا في `CubeParts.kt` — وهو **رقم المصمّم** —
+     * فشُرب إلى الطبقة بقيمته بدل تخفيفه إلى الشعري، لأن `design_tokens --assert` كان يسقط على
+     * تجاوز سقف `border` (‏٢٣ > ٢٢). القيمة **محفوظة كما هي**: صفر تغيير بصريّ.
+     */
+    val emphasisBorder: Dp = 1.5.dp
+
+    /**
      * Border width of the one element on a split page that owns the next action.
      *
      * Added for the file manager's two panes: with two identical columns the user has

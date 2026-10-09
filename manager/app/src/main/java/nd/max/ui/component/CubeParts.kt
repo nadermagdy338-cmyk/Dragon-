@@ -95,6 +95,7 @@ import kotlin.math.roundToInt
 import nd.max.core.gamespace.CockpitModel
 import nd.max.core.gamespace.CubeLayout
 import nd.max.ui.design.MaxRadius
+import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 
 /*
@@ -284,7 +285,7 @@ internal fun CubePill(
             .onGloballyPositioned { onBounds(it.boundsInRoot()) }
             .clip(PillShape)
             .background(Brush.verticalGradient(listOf(lerp(tint, Color.Black, 0.55f), lerp(tint, Color.Black, 0.82f))))
-            .border(1.5.dp, tint, PillShape)
+            .border(MaxSize.emphasisBorder, tint, PillShape)
             .clickable(role = Role.Button) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -542,7 +543,7 @@ internal fun CubeDropdown(
                     scaleY = 0.94f + 0.06f * appear.value
                     transformOrigin = TransformOrigin(0.5f, 0f)
                 }
-                .clip(shape).background(CubeMenuBg).border(1.dp, tint.copy(alpha = 0.55f), shape)
+                .clip(shape).background(CubeMenuBg).border(MaxSize.hairlineBorder, tint.copy(alpha = 0.55f), shape)
                 .swallowTaps().padding(pad.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
