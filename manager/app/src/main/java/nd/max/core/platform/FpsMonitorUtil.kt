@@ -227,6 +227,28 @@ object FpsMonitorUtil {
         return (((dTotal - dIdle) * 100 / dTotal).toInt()).coerceIn(0, 100)
     }
 
+    /**
+     * مُقدِّر حمل معالج بنافذته الخاصة (تكملة ٢٦١). كل مستدعٍ يحمل عيّنته، فلا يسرق نداءٌ من حلقة أخرى
+     * الفترةَ التي تقيسها هذه: `getCpuLoad` تشارك حالة واحدة بين حلقات مختلفة الإيقاع، فالفرق بين عيّنتين
+     * قد يغطي أجزاء من الثانية، فتقفز النسبة بلا معنى.
+     */
+    class CpuLoadMeter {
+        private var lastTotal = 0L
+        private var lastIdle = 0L
+
+        @Synchronized
+        fun sample(): Int {
+            val line = runCatching { RootFileAccess.read("/proc/stat") }.getOrNull()
+                ?.lineSequence()?.firstOrNull()?.takeIf { it.isNotBlank() }
+                ?: return 0
+            val current = FpsMonitorUtil.parseStatSample(line) ?: return 0
+            val previous = if (lastTotal == 0L) null else FpsMonitorUtil.CpuSample(lastTotal, lastIdle)
+            lastTotal = current.total
+            lastIdle = current.idle
+            return previous?.let { FpsMonitorUtil.loadPercent(it, current) } ?: 0
+        }
+    }
+
     @Synchronized
     fun getCpuLoad(): Int {
         // **قراءة مباشرة لا صدفة:** `cat /proc/stat` كانت تولّد صدفة جذر لكل نداء، والدالة

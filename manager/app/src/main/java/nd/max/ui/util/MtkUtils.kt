@@ -59,6 +59,47 @@ object MtkUtils {
     /** العقدة الحيّة للتردّد على أنظمة GED. */
     private const val GED_LIVE_FREQ = "$GED_HAL/current_freqency"
 
+    /** صلاحية نتيجة الاستقصاء: دقيقة. الغياب يُحفظ كالوجود (انظر [Memo]). */
+    private const val PROBE_TTL_MS = 60_000L
+
+    /** عقدة الحمل المُحلّة: إمّا عقدة الخمول (تُعكس)، أو عقدة النسبة الجاهزة. */
+    private data class LoadNode(val path: String, val idle: Boolean)
+
+    /** عقدة الحمل تُستقصى مرة في الدقيقة، لا في كل نبضة قياس. */
+    private val loadNodeProbe = Memo<LoadNode?>(PROBE_TTL_MS) {
+        if (RootFileAccess.exists(GPU_IDLE_NODE)) {
+            LoadNode(GPU_IDLE_NODE, idle = true)
+        } else {
+            RootFileAccess.firstExisting(GPU_LOAD_NODES) { it }?.let { LoadNode(it, idle = false) }
+        }
+    }
+
+    private val gedLiveFreqProbe = Memo<Boolean>(PROBE_TTL_MS) { RootFileAccess.exists(GED_LIVE_FREQ) }
+
+    private val devfreqNodeProbe = Memo<String?>(PROBE_TTL_MS) { resolveGpuDevfreqNode() }
+
+    /**
+     * نتيجة استقصاء محفوظة لمدة [ttlMs]. **الغياب يُحفظ كالوجود:** العقدة التي لا توجد على جهاز لا تُسأل
+     * عنها الصدفة في كل نبضة قياس — كان كل `exists` لمسار غائب يُنفّذ `test -e` عبر صدفة الجذر، فتتراكم
+     * الرحلات المتسلسلة داخل الحلقة الرئيسية وتبطئ كل ما ينتظرها.
+     */
+    private class Memo<T>(private val ttlMs: Long, private val resolve: () -> T) {
+        private var resolved = false
+        private var resolvedAtMs = 0L
+        private var value: T? = null
+
+        @Synchronized
+        fun get(): T? {
+            val now = System.currentTimeMillis()
+            if (!resolved || now - resolvedAtMs >= ttlMs) {
+                value = resolve()
+                resolved = true
+                resolvedAtMs = now
+            }
+            return value
+        }
+    }
+
     // ── رمز القيم ───────────────────────────────────────────────────────────────
 
     private val INTEGER = Regex("-?\\d+")
@@ -72,7 +113,9 @@ object MtkUtils {
      * يُحلّ مرة واحدة عند المستدعي ويُحفظ (كالرئيسية تفعل)؛ فالاستقصاء هنا ليس مجّانيًّا على جهاز
      * بلا خدمة جذر مربوطة: كل نداء قد ينتهي بصدفة.
      */
-    fun getGpuDevfreqNode(): String? {
+    fun getGpuDevfreqNode(): String? = devfreqNodeProbe.get()
+
+    private fun resolveGpuDevfreqNode(): String? {
         val named = RootFileAccess.firstExisting(NAMED_GPU_NODES) { it }
         if (named != null) return named
 
@@ -91,12 +134,12 @@ object MtkUtils {
      * ويُؤخذ أوّل رقم منها (النصّ يتغيّر بين نواة وأخرى، والرقم لا).
      */
     fun getGpuLoad(): String {
-        if (RootFileAccess.exists(GPU_IDLE_NODE)) {
-            val idle = readInt(GPU_IDLE_NODE) ?: 100
+        val node = loadNodeProbe.get() ?: return "N/A"
+        if (node.idle) {
+            val idle = readInt(node.path) ?: 100
             return "${(100 - idle).coerceIn(0, 100)}%"
         }
-        val node = RootFileAccess.firstExisting(GPU_LOAD_NODES) { it } ?: return "N/A"
-        val percent = readInt(node) ?: return "N/A"
+        val percent = readInt(node.path) ?: return "N/A"
         return "${percent.coerceIn(0, 100)}%"
     }
 
@@ -108,7 +151,7 @@ object MtkUtils {
      * علامة تدلّ عليها، فالحكم بالمقدار — وهو مقيس: ١_٣٠٠ ميجاهرتز تفصل بين الصيغتين.
      */
     fun getCurrentGpuFreq(): String {
-        if (RootFileAccess.exists(GED_LIVE_FREQ)) {
+        if (gedLiveFreqProbe.get() == true) {
             val raw = RootFileAccess.read(GED_LIVE_FREQ).orEmpty()
             // آخر رقم في السطر: الأوّل قد يكون رقم OPP لا التردّد.
             val value = INTEGER.findAll(raw).lastOrNull()?.value?.toLongOrNull()
