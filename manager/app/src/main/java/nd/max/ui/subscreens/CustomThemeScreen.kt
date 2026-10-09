@@ -306,7 +306,7 @@ fun ColorPaletteScreen(navController: NavController) {
                             .maxBleed(start = 0.dp, end = MaxSpace.gutter),
                         // الهيكل يحجز أسفل الشاشة أصلًا (`floatingBottomBarPadding`)، فـ16dp هنا
                         // تُضاف فوق الحجز فتبقى فراغًا لا يراه أحد. والباقي بخطوة الرموز.
-                        contentPadding = PaddingValues(horizontal = MaxSpace.gutter, top = MaxSpace.md, bottom = MaxSpace.sm),
+                        contentPadding = PaddingValues(start = MaxSpace.gutter, top = MaxSpace.md, end = MaxSpace.gutter, bottom = MaxSpace.sm),
                         verticalArrangement = Arrangement.spacedBy(MaxSectionSpec.spaceBefore)
                     ) {
                         item {
@@ -351,7 +351,7 @@ fun ColorPaletteScreen(navController: NavController) {
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth().maxBleed().weight(1f),
-                    contentPadding = PaddingValues(horizontal = MaxSpace.gutter, top = MaxSpace.md, bottom = MaxSpace.sm),
+                    contentPadding = PaddingValues(start = MaxSpace.gutter, top = MaxSpace.md, end = MaxSpace.gutter, bottom = MaxSpace.sm),
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     item {

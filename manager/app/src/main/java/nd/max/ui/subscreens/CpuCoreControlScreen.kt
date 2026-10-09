@@ -75,6 +75,7 @@ import nd.max.ui.viewmodel.CpuActionNotice
 import nd.max.ui.viewmodel.CpuActionReason
 import nd.max.ui.viewmodel.CpuCoreControlViewModel
 import nd.max.ui.viewmodel.CpuCoreRow
+import nd.max.ui.theme.MonoValueStyleFrequency
 import nd.max.ui.viewmodel.CpuFrequencyControlState
 
 /** Nodes this screen reads; shown as machine truth on condition panels. */
@@ -170,7 +171,7 @@ fun CpuCoreControlScreen(
              *
              * وكان الأوّل خريطةَ ألقاب (`CPU0 Efficiency…`) بلا رقم واحد حيّ — وهي تجيب سؤالًا
              * لم يسأله أحد عند فتح الشاشة. والبطل الآن يجيب السؤال المفروض: «ما تردد كل نواة الآن؟»
-             * — ولا تُحذف الخريطة، بل تنتقل إلى ما بعد الترددات (خريطة هويّة لا بطلًا).
+             * — وخريطة النوى حُذفت بطلب من المالك، وتردّد كل عنقود صار فوق بطاقة تحكّمه.
              */
             item {
                 CpuLiveClockHero(
@@ -181,19 +182,8 @@ fun CpuCoreControlScreen(
             }
 
             item {
-                CpuLiveClockGrid(
-                    clusters = viewModel.clusters,
-                    coreRows = viewModel.coreRows,
-                    coreFreqMhz = viewModel.coreFreqMhz,
-                    coreFreqHistory = viewModel.coreFreqHistory,
-                    clusterMaxFreqMhz = viewModel.clusterMaxFreqMhz,
-                )
-            }
-
-            item {
                 CpuHeroCard(
                     chipsetName = viewModel.chipsetName,
-                    coreRows = viewModel.coreRows,
                     trailing = {
                         // وبطاقة المعالج بلا حاوية تحشوها (عمودٌ على الصفحة)، فحاشية الباب
                         // صفر ويُحاذى على حاشية الصفحة كبقيّة محتواها.
@@ -209,6 +199,10 @@ fun CpuCoreControlScreen(
             item {
                 CpuFrequencyControlSection(
                     clusters = viewModel.clusters,
+                    coreRows = viewModel.coreRows,
+                    coreFreqMhz = viewModel.coreFreqMhz,
+                    coreFreqHistory = viewModel.coreFreqHistory,
+                    clusterMaxFreqMhz = viewModel.clusterMaxFreqMhz,
                     controls = viewModel.frequencyControls,
                     hasSessionChanges = viewModel.hasSessionFrequencyChanges,
                     onApply = viewModel::applyFrequencyLimits,
@@ -490,49 +484,50 @@ private fun CpuLiveClockHero(
 }
 
 /**
- * بلاطات النواة الحيّة، **مجموعة حسب العنقود** — وهذا ما يفرّقها فعلًا.
+ * قراءات أنوية عنقود واحد، **تحت عنوانه مباشرةً** وفوق بطاقة حدوده في «حدود التردد».
  *
- * والتجميع ليس تجميلًا: على big.LITTLE كل نوى العنقود تشترك في سياسة تردّد واحدة، فعنوان
- * «الأنوية ٠–٣ · حتى 2.1 GHz» يقول للقارئ لماذا تشترك الأربع في سقف — وهو المعنى الذي كانت
- * خريطة الأسماء تقوله بلا رقم.
+ * والتجميع بالعنقود ليس تجميلًا: على big.LITTLE كل نوى العنقود تشترك في سياسة تردّد واحدة،
+ * فعنوان «الأنوية ٠–٣ · حتى 2.1 GHz» يقول للقارئ لماذا تشترك الأربع في سقف. وكان العنوان ونواته
+ * في قسم منفصل فوق كل الحدود؛ والآن كل عنقود قسم واحد: عنوانه، ثم بلاطات نواته، ثم بطاقة تحكّمه.
+ *
+ * الصفّ بلاطتان، إلا عنقود الثلاث نوى فتصطفّ الثلاث، والنواة المفردة بعرض الصفّ كاملًا.
  */
 @Composable
-private fun CpuLiveClockGrid(
-    clusters: List<CpuTopologyUtil.CpuCluster>,
-    coreRows: List<CpuCoreRow>,
+private fun CpuClusterCoreTiles(
+    cluster: CpuTopologyUtil.CpuCluster,
+    rows: List<CpuCoreRow>,
     coreFreqMhz: Map<Int, Int?>,
     coreFreqHistory: Map<Int, List<Int>>,
     clusterMaxFreqMhz: Map<String, Int>,
 ) {
+    if (rows.isEmpty()) return
     val scheme = MaterialTheme.colorScheme
-    clusters.forEach { cluster ->
-        val rows = coreRows.filter { it.cluster.policyPath == cluster.policyPath }
-        if (rows.isEmpty()) return@forEach
-        val ceiling = CoreClockMath.ceilingMhz(cluster.policyPath, clusterMaxFreqMhz)
-        MaxSection(
-            title = stringResource(
-                R.string.cpu_live_cluster_range,
-                rows.minOf { it.cpu },
-                rows.maxOf { it.cpu },
-                formatCpuFrequency(ceiling.toLong() * 1000L),
-            )
-        ) {
-            FlowRow(
+    val accent = clusterAccent(cluster)
+    val ceiling = CoreClockMath.ceilingMhz(cluster.policyPath, clusterMaxFreqMhz)
+    val perLine = when (rows.size) {
+        1 -> 1
+        3 -> 3
+        else -> 2
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
+        rows.chunked(perLine).forEach { line ->
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
-                verticalArrangement = Arrangement.spacedBy(MaxSpace.sm),
-                maxItemsInEachRow = 2,
+                horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
             ) {
-                rows.forEach { row ->
+                line.forEach { row ->
                     CoreClockTile(
                         row = row,
                         freqMhz = coreFreqMhz[row.cpu],
-                        ceilingMhz = CoreClockMath.ceilingMhz(row.cluster.policyPath, clusterMaxFreqMhz),
+                        ceilingMhz = ceiling,
                         history = coreFreqHistory[row.cpu].orEmpty(),
-                        accent = if (row.online) clusterAccent(row.cluster) else scheme.outline,
-                        modifier = Modifier.weight(1f),
+                        accent = if (row.online) accent else scheme.outline,
+                        modifier = Modifier.weight(1f)
                     )
                 }
+                // الخانات الناقصة في آخر صفّ تُملأ بمسافة بعرض خانة، فتبقى البلاطات على شبكة واحدة.
+                repeat(perLine - line.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
@@ -561,7 +556,7 @@ private fun CoreClockTile(
     val clock = CoreClockMath.reading(row.online, freqMhz, ceilingMhz)
     val share = clock.percent
     val live = clock.state == CoreClockState.LIVE
-    val tileShape = RoundedCornerShape(MaxRadius.row)
+    val tileShape = RoundedCornerShape(MaxRadius.tile)
     Column(
         modifier
             .clip(tileShape)
@@ -573,7 +568,7 @@ private fun CoreClockTile(
                 color = accent.copy(alpha = if (row.online) MaxAlpha.borderStrong else MaxAlpha.border),
                 shape = tileShape,
             )
-            .padding(vertical = MaxSpace.sm, horizontal = MaxSpace.xs),
+            .padding(vertical = MaxSpace.xs, horizontal = MaxSpace.sm),
         verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline),
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -590,22 +585,33 @@ private fun CoreClockTile(
                 color = accent,
             )
         }
-        Text(
-            text = when (clock.state) {
-                CoreClockState.OFFLINE -> stringResource(R.string.cpu_live_offline)
-                CoreClockState.HIDDEN -> stringResource(R.string.cpu_live_hidden)
-                // **وحالة ثالثة كانت تُكتب «0 MHz»:** `scaling_cur_freq` يردّ صفرًا لنواة مسكّنة،
-                // و«0 MHz» تقول للقارئ إن النواة تعمل بأدنى تردّد بدل أن تقول إنها مطفأة.
-                CoreClockState.PARKED -> stringResource(R.string.cpu_live_parked)
-                CoreClockState.LIVE ->
-                    freqMhz?.let { formatCpuFrequency(it.toLong() * 1000L) } ?: "\u2014"
-            },
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = if (live) scheme.onSurface else scheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        val reading = when (clock.state) {
+            CoreClockState.OFFLINE -> stringResource(R.string.cpu_live_offline)
+            CoreClockState.HIDDEN -> stringResource(R.string.cpu_live_hidden)
+            // **وحالة ثالثة كانت تُكتب «0 MHz»:** `scaling_cur_freq` يردّ صفرًا لنواة مسكّنة،
+            // و«0 MHz» تقول للقارئ إن النواة تعمل بأدنى تردّد بدل أن تقول إنها مطفأة.
+            CoreClockState.PARKED -> stringResource(R.string.cpu_live_parked)
+            CoreClockState.LIVE ->
+                freqMhz?.let { formatCpuFrequency(it.toLong() * 1000L) } ?: "\u2014"
+        }
+        if (live) {
+            // الرقم الحيّ بخطّ أرقام ثابت العرض، فتتراصّ الأرقام عمودًا بين البلاطات.
+            NeuralValue(
+                text = reading,
+                style = MonoValueStyleFrequency,
+                color = scheme.onSurface,
+                maxLines = 1,
+            )
+        } else {
+            Text(
+                text = reading,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = scheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         // والموجة **تاريخ هذه النواة وحدها** (§8.2): موجة العنقود كانت سترسم لكل نوى
         // العنقود الشكل نفسه، فتُقرأ الأربع كأنها تعمل وتتوقف معًا.
         NeuralSparkline(
@@ -615,7 +621,7 @@ private fun CoreClockTile(
                 emptyList()
             },
             accent = accent,
-            modifier = Modifier.fillMaxWidth().height(MaxSpace.xxl),
+            modifier = Modifier.fillMaxWidth().height(MaxSize.sparklineHeight),
         )
     }
 }
@@ -623,18 +629,13 @@ private fun CoreClockTile(
 @Composable
 private fun CpuHeroCard(
     chipsetName: String,
-    coreRows: List<CpuCoreRow>,
     trailing: (@Composable () -> Unit)? = null
 ) {
     val scheme = MaterialTheme.colorScheme
 
     /*
-     * **ومع سقوط «كم نواة متصلة» من هنا:** الرقم صار في [CpuLiveClockHero] مرّة واحدة، وكان
-     * مكرّرًا في موضعين (سطر هنا · وعدّاد في الخريطة). والقاعدة في هذا المشروع لا تُكرّر قياسًا
-     * على سطح واحد — وهذا هو نفس الحذف الذي وقع في الرئيسية بحرفيّته.
-     *
-     * فالمنزلة الجديدة لهذه البطاقة **خريطة هويّة**: الشريحة، وأيّ نواة إلى أيّ عنقود تنتمي.
-     * وهي معلومة ثابتة لا قياس متغيّر، ولذلك يجوز أن تُقرأ مرّة.
+     * **البطاقة هويّة فقط: الشريحة وحدها.** خريطة النوى حُذفت بطلب المالك،
+     * وترددات كل عنقود صارت فوق بطاقة تحكّمه في «حدود التردد». والمعلومة الثابتة هنا تُقرأ مرّة.
      */
     Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.md)) {
         Row(
@@ -643,114 +644,53 @@ private fun CpuHeroCard(
             horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)
         ) {
             IconBadge(icon = Icons.Outlined.Memory, tint = scheme.secondary, size = 40)
-            Column(
+            Text(
+                text = chipsetName.ifBlank { stringResource(R.string.cpu_core_chipset_unknown) },
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)
-            ) {
-                Text(
-                    text = chipsetName.ifBlank { stringResource(R.string.cpu_core_chipset_unknown) },
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = scheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = stringResource(R.string.cpu_live_identity_map),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurfaceVariant
-                )
-            }
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = scheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
-        CoreGridMap(coreRows = coreRows)
         // وباب قسم المعالج في «معلومات الجهاز» آخر بطاقة الشريحة: من عمل على سقوف التردّد هنا
         // يصل بضغطة إلى ما تُعلنه النواة عن الأنوية والعناقيد. وبخطّ فاصل قبله لأن ما فوقه
-        // **محتوى** (شريحة ونواة وقراءة) وما تحته **إجراء على البطاقة** — والحدّ يُقرأ بأول نظرة.
+        // **محتوى** (الشريحة) وما تحته **إجراء على البطاقة** — والحدّ يُقرأ بأول نظرة.
         MaxGroupDivider(inset = false)
         trailing?.invoke()
     }
 }
 
 /**
- * The grid this screen is named after: one tile per CPU, tinted by its cluster
- * while online and dropped to the outline tone once the kernel parks it.
- */
-@Composable
-private fun CoreGridMap(coreRows: List<CpuCoreRow>) {
-    val scheme = MaterialTheme.colorScheme
-    val cpuLabel = stringResource(R.string.cpu_label)
-    val offLabel = stringResource(R.string.cpu_core_row_offline)
-
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
-        verticalArrangement = Arrangement.spacedBy(MaxSpace.sm),
-        maxItemsInEachRow = 4
-    ) {
-        coreRows.forEach { row ->
-            val accent = if (row.online) clusterAccent(row.cluster) else scheme.outline
-            val tileShape = RoundedCornerShape(MaxRadius.row)
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(tileShape)
-                    .background(
-                        accent.copy(
-                            alpha = if (row.online) MaxAlpha.toneContainerStrong else MaxAlpha.toneContainer
-                        )
-                    )
-                    .border(
-                        width = MaxSize.hairlineBorder,
-                        color = accent.copy(
-                            alpha = if (row.online) MaxAlpha.borderStrong else MaxAlpha.border
-                        ),
-                        shape = tileShape
-                    )
-                    .padding(vertical = MaxSpace.sm, horizontal = MaxSpace.xs),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)
-            ) {
-                Text(
-                    text = "$cpuLabel$LTR_MARK${row.cpu}",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = scheme.onSurface
-                )
-                Text(
-                    text = if (row.online) clusterShortName(row.cluster) else offLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = accent,
-                    maxLines = 1
-                )
-            }
-        }
-    }
-}
-
-/**
- * Frequency limits: one group per controllable cluster.
+ * Frequency limits, one block per cluster: the cluster's own cores first, then its limit group.
  *
  * The old section stacked a description paragraph, a restore card, a gradient
  * card per cluster, a metric strip, a verification card and a conflict card:
  * six surfaces for one idea. The same facts now live in rows inside a single
  * hairline group, and the copy comes from resources instead of the source.
+ *
+ * A cluster whose limits cannot be written keeps its cores as a read-only block.
  */
 @Composable
 private fun CpuFrequencyControlSection(
     clusters: List<CpuTopologyUtil.CpuCluster>,
+    coreRows: List<CpuCoreRow>,
+    coreFreqMhz: Map<Int, Int?>,
+    coreFreqHistory: Map<Int, List<Int>>,
+    clusterMaxFreqMhz: Map<String, Int>,
     controls: Map<String, CpuFrequencyControlState>,
     hasSessionChanges: Boolean,
     onApply: (String, Long, Long) -> Unit,
     onRestore: (String) -> Unit,
     onRestoreSession: () -> Unit
 ) {
-    val controllable = clusters.filter { controls[it.policyPath]?.canControl == true }
-    if (controllable.isEmpty()) return
+    if (clusters.isEmpty()) return
+    val anyControllable = clusters.any { controls[it.policyPath]?.canControl == true }
 
     MaxSection(
         title = stringResource(R.string.cpu_freq_section_title),
-        description = stringResource(R.string.cpu_freq_section_desc)
+        description = if (anyControllable) stringResource(R.string.cpu_freq_section_desc) else null
     ) {
         if (hasSessionChanges) {
             MaxGroup {
@@ -764,13 +704,41 @@ private fun CpuFrequencyControlSection(
             }
         }
 
-        controllable.forEach { cluster ->
-            CpuFrequencyControlGroup(
-                cluster = cluster,
-                control = controls.getValue(cluster.policyPath),
-                onApply = { min, max -> onApply(cluster.policyPath, min, max) },
-                onRestore = { onRestore(cluster.policyPath) }
-            )
+        clusters.forEach { cluster ->
+            val rows = coreRows.filter { it.cluster.policyPath == cluster.policyPath }
+            val control = controls[cluster.policyPath]?.takeIf { it.canControl }
+            if (rows.isEmpty() && control == null) return@forEach
+            val ceiling = CoreClockMath.ceilingMhz(cluster.policyPath, clusterMaxFreqMhz)
+            MaxSection(
+                title = if (rows.isEmpty()) {
+                    clusterDisplayName(cluster)
+                } else {
+                    stringResource(
+                        R.string.cpu_live_cluster_range,
+                        rows.minOf { it.cpu },
+                        rows.maxOf { it.cpu },
+                        formatCpuFrequency(ceiling.toLong() * 1000L)
+                    )
+                }
+            ) {
+                if (rows.isNotEmpty()) {
+                    CpuClusterCoreTiles(
+                        cluster = cluster,
+                        rows = rows,
+                        coreFreqMhz = coreFreqMhz,
+                        coreFreqHistory = coreFreqHistory,
+                        clusterMaxFreqMhz = clusterMaxFreqMhz,
+                    )
+                }
+                if (control != null) {
+                    CpuFrequencyControlGroup(
+                        cluster = cluster,
+                        control = control,
+                        onApply = { min, max -> onApply(cluster.policyPath, min, max) },
+                        onRestore = { onRestore(cluster.policyPath) }
+                    )
+                }
+            }
         }
     }
 }
@@ -784,11 +752,12 @@ private fun CpuFrequencyControlGroup(
 ) {
     val lower = control.hardwareMinKHz ?: control.minKHz ?: 0L
     val upper = control.hardwareMaxKHz ?: control.maxKHz ?: lower
-    // Edit state is deliberately keyed on the policy only: the 3s live poll
-    // updates control.minKHz/maxKHz, and keying remember() on those values
-    // reset the sliders mid-drag (the old "hard to use" behavior).
-    var editMin by remember(control.policyPath) { mutableStateOf(control.minKHz ?: lower) }
-    var editMax by remember(control.policyPath) { mutableStateOf(control.maxKHz ?: upper) }
+    // Edit state is keyed on the policy and on resetTick, never on the live values: the 3s live
+    // poll updates control.minKHz/maxKHz, and keying remember() on those reset the sliders
+    // mid-drag (the old "hard to use" behavior). A finished restore bumps resetTick instead, so
+    // the sliders take the limits the hardware now holds, without leaving and re-entering the screen.
+    var editMin by remember(control.policyPath, control.resetTick) { mutableStateOf(control.minKHz ?: lower) }
+    var editMax by remember(control.policyPath, control.resetTick) { mutableStateOf(control.maxKHz ?: upper) }
     val allowed = remember(control.availableFrequenciesKHz, lower, upper) {
         control.availableFrequenciesKHz.filter { it in lower..upper }.ifEmpty {
             listOf(lower, upper).distinct().sorted()
@@ -799,7 +768,7 @@ private fun CpuFrequencyControlGroup(
     val activeMax = editMax.coerceIn(activeMin, upper)
     val isModified = activeMin != control.minKHz || activeMax != control.maxKHz
     var pinned by remember(control.policyPath) { mutableStateOf(false) }
-    var pinSelection by remember(control.policyPath) { mutableStateOf<Long?>(null) }
+    var pinSelection by remember(control.policyPath, control.resetTick) { mutableStateOf<Long?>(null) }
     val effectivePin = pinSelection ?: activeMax
     val pinModified = pinned && (effectivePin != control.maxKHz || effectivePin != control.minKHz)
     val tableMissing = stringResource(R.string.cpu_freq_table_missing)

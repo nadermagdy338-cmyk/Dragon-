@@ -113,6 +113,9 @@ data class CpuFrequencyControlState(
     val externalConflict: Boolean = false,
     /** True while a manual session owns this policy's limits. */
     val sessionOwned: Boolean = false,
+    /** Counts finished restores on this policy. The sliders re-read the live limits when it moves;
+     *  the 3s poll never moves it, so an unapplied drag survives the poll. */
+    val resetTick: Int = 0,
 ) {
     val canControl: Boolean get() = minKHz != null || maxKHz != null
 }
@@ -272,6 +275,13 @@ class CpuCoreControlViewModel @Inject constructor(
     /** Re-assertions already spent defending each policy against external overwrites. */
     private var reassertionsSpent: Map<String, Int> = emptyMap()
 
+    /** policyPath -> finished restores on it; see [CpuFrequencyControlState.resetTick]. */
+    private var limitResetTicks: Map<String, Int> = emptyMap()
+
+    private fun bumpResetTick(policyPath: String) {
+        limitResetTicks = limitResetTicks + (policyPath to ((limitResetTicks[policyPath] ?: 0) + 1))
+    }
+
     private fun setManualSessionProp(enabled: Boolean) {
         runCatching {
             PropertyUtils.set(MaxManagerProps.CoreControl.MANUAL_FREQ_SESSION, if (enabled) "1" else "0")
@@ -419,6 +429,7 @@ class CpuCoreControlViewModel @Inject constructor(
                 verification = lastFrequencyVerification[path],
                 externalConflict = drifting && exhausted,
                 sessionOwned = desired != null,
+                resetTick = limitResetTicks[path] ?: 0,
             )
         }
         frequencyControls = next
@@ -537,6 +548,7 @@ class CpuCoreControlViewModel @Inject constructor(
         minKHz: Long,
         maxKHz: Long,
         successReason: CpuActionReason,
+        resyncSliders: Boolean = false,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val key = controlKeyFor(policyPath)
@@ -583,6 +595,10 @@ class CpuCoreControlViewModel @Inject constructor(
                 reassertionsSpent -= policyPath
                 refreshManualSessionProp()
             }
+            // A restore that finished, verified or not, moves the sliders to what the hardware
+            // now holds. Bumped before the refresh so the new controls carry the live limits and
+            // the new tick in one state update.
+            if (resyncSliders) bumpResetTick(policyPath)
             refreshFrequencyControls()
             withContext(Dispatchers.Main) {
                 // Outcome first, wording second. The old banner decided success by
@@ -624,6 +640,7 @@ class CpuCoreControlViewModel @Inject constructor(
                 // restored here — it must not be reported as a failed restore.
                 val result = arbiter.release(key, manualToken(key), restore = true) ?: return@forEach
                 attempted++
+                bumpResetTick(path)
                 allVerified = allVerified && result.verified
                 val actual = CpuHardwareBackend.policies().firstOrNull { it.path == path }
                 lastFrequencyVerification = lastFrequencyVerification + (path to CpuFrequencyVerification(
@@ -678,6 +695,7 @@ class CpuCoreControlViewModel @Inject constructor(
                 minKHz = min,
                 maxKHz = max,
                 successReason = CpuActionReason.HardwareRangeRestored,
+                resyncSliders = true,
             )
         }
     }

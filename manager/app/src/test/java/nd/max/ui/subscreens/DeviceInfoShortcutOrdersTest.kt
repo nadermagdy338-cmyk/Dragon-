@@ -248,11 +248,16 @@ class DeviceInfoShortcutOrdersTest {
 
     @Test
     fun `the hero cards render the door after their own content`() {
-        // بطاقة المعالج: الباب بعد شبكة الأنوية — لا في صفّ الشريحة والعنوان.
+        // بطاقة المعالج: الباب بعد الشريحة وخطّها الفاصل — لا في صفّ الشريحة والعنوان.
+        // (خريطة النوى حُذفت من البطاقة، فصار المرساة اسم الشريحة لا الخريطة.)
         val cpu = read("ui/subscreens/CpuCoreControlScreen.kt")
         assertTrue(
             "بطاقة المعالج ترسم بابها قبل محتواها",
-            cpu.indexOf("trailing?.invoke()") > cpu.indexOf("CoreGridMap("),
+            cpu.indexOf("trailing?.invoke()") > cpu.indexOf("chipsetName.ifBlank"),
+        )
+        assertTrue(
+            "والخطّ الفاصل قبل الباب في بطاقة المعالج: ما فوقه محتوى وما تحته إجراء",
+            cpu.contains("MaxGroupDivider(inset = false)\n        trailing?.invoke()"),
         )
         // وبطاقة العرض: الباب بعد بيانات العرض.
         val display = read("ui/subscreens/DisplayStudioScreen.kt")
