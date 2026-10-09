@@ -155,16 +155,16 @@ def _objects(text: str) -> list[tuple[str, str]]:
 
 def _resolve(expr: str, known: dict[str, tuple[float, str]]):
     expr = expr.split("//")[0].strip()
-    m = re.fullmatch(r"(-?[\d.]+)\.?(dp|sp)?", expr)
+    # الرقم: صحيح أو عشري بجزء كسري إلزامي بعد النقطة. كان النمط `[\d.]+` الشرِه يبتلع نقطة
+    # الوحدة في `1.5.dp` فيعود `'1.5.'` ويسقط `float()` — فصار الرقم محدَّدًا والنقطة الفاصلة
+    # قبل الوحدة اختيارية خارج المجموعة.
+    num = r"-?(?:\d+(?:\.\d+)?|\.\d+)"
+    m = re.fullmatch(rf"({num})\.?(dp|sp)?", expr)
     if m:
-        unit = m.group(2) or ("" if "." not in m.group(1) else "")
-        return float(m.group(1)), unit
-    m = re.fullmatch(r"(-?[\d.]+)f", expr)
+        return float(m.group(1)), m.group(2) or ""
+    m = re.fullmatch(rf"({num})f", expr)
     if m:
         return float(m.group(1)), "f"
-    m = re.fullmatch(r"(-?[\d.]+)", expr)
-    if m:
-        return float(m.group(1)), ""
     if expr.count("+") == 1:
         left, right = [p.strip() for p in expr.split("+")]
         a = known.get(left) or _resolve(left, known)
@@ -396,7 +396,7 @@ def self_test() -> int:
 
         open(os.path.join(tmp, TOKENS_KT), "w", encoding="utf-8").write(
             "package nd.max.ui.design\n"
-            "object MaxSpace {\n    val gutter: Dp = 20.dp\n    val lg: Dp = 16.dp\n}\n"
+            "object MaxSpace {\n    val gutter: Dp = 20.dp\n    val lg: Dp = 16.dp\n    val hair: Dp = 1.5.dp\n}\n"
             "object MaxRadius {\n    val group: Dp = 22.dp\n}\n"
             "object MaxCardSpec {\n    val radius: Dp = MaxRadius.group\n"
             "    val titleLines: Int = 2\n    val pad: Dp = MaxSpace.lg + 2.dp\n}\n"
@@ -422,6 +422,7 @@ def self_test() -> int:
         good = ("# وثيقة\n\n"
                 "| الرمز | القيمة |\n| --- | --- |\n"
                 "| `MaxSpace.gutter` | 20dp |\n"
+                "| `MaxSpace.hair` | 1.5dp |\n"
                 "| `MaxAlpha.border` | 0.16f |\n"
                 "| `MaxDuration.instant` | 90ms |\n\n"
                 "`MaxCardSpec.titleLines` = 2 · `MaxCardSpec.pad` (18dp) · `MaxCardSpec.radius`\n"
