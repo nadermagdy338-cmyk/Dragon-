@@ -4,37 +4,52 @@
  * without prior written permission from the copyright holder.
  */
 /*
- * البطاقة الأولى في الرئيسية — **الشكل القديم المعتمد بتحسين، لا بتغيير** (طلب المالك).
+ * البطاقة الأولى في الرئيسية — **الشكل المدمج** (طلب المالك بلقطة «الصورة الثانية»).
  *
- * ترتيب القراءة كما في اللقطة المعتمدة: الجهاز أولًا (اسمه وشريحته)، ثم الحرارة قراءةً رئيسية
- * بجانبها Max AI، ثم ثلاث بلاطات قراءة (مدة التشغيل · البطارية · استهلاك الطاقة)، ثم باب إلى نظرة
- * الجهاز.
+ * ترتيب القراءة: الجهاز (أيقونته واسمه وشريحته)، ثم صفّ الوصول (الشارة، وبجانبها شرح الغياب حين لا
+ * جذر ولا شيزوكو)، ثم الحرارة قراءةً رئيسية مع Max AI، ثم ثلاث بلاطات قراءة **على سطر واحد** لكل منها،
+ * ثم باب إلى نظرة الجهاز بزرّ مدمج في طرف الصف.
  *
- * ما أُضيف على الشكل القديم، ولماذا:
- *  - **شارة الوصول** فوق الاسم: الحالة (جذر / شيزوكو / أساسي) تُقرأ قبل أي رقم.
- *  - **كلمة الحكم بجانب الحرارة** بلونها: اللون وحده لا يحمل المعنى (DESIGN.md).
- *  - **الغياب شرطة** (ADR-07): لا `0%` ولا `0 W` لقيمة لم تُقرأ.
+ * ما تغيّر عن الشكل الطويل، ولماذا:
+ *  - البلاطات كانت تحجز سطرين لكل تسمية فتطول البطاقة بلا قراءة إضافية. الآن سطر واحد للتسمية وقيمة
+ *    واحدة، فتُقرأ البلاطات الثلاث أفقيًّا وبجانب بعضها.
+ *  - باب نظرة الجهاز كان زرًّا بعرض البطاقة كلها. الآن زرّ مدمج في طرف الصف، والصندوق اللمسي يبقى ٤٨dp
+ *    (`MaxSize.minTouchTarget`) كما تفرضه سياسة اللمس، فالمرئي أصغر والمساحة اللمسية كما هي.
+ *  - شارة الوصول انتقلت إلى صفّ الشرح تحت الجهاز، فالحالة تُقرأ بجانب سببها.
  *
- * وتستعمل البطاقة الرموز لا الأرقام: المسافات من `MaxSpace`، والحجم من `MaxSize`، والخطوط من
- * سلّم الطباعة و`MonoFontFamily`، والبلاطات من `NeuralTile` بلونها.
+ * ما بقي كما هو: الحرارة بكلمة حكمها بلونها، والغياب شرطة (ADR-07). ولا رقم حرفيًّا هنا: المسافات من
+ * `MaxSpace`، والحجم من `MaxSize`، والنصف قطر من `MaxRadius`.
  */
 package nd.max.ui.mainscreens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import nd.max.R
@@ -45,7 +60,9 @@ import nd.max.ui.component.NeuralPanel
 import nd.max.ui.component.NeuralPill
 import nd.max.ui.component.NeuralTile
 import nd.max.ui.component.NeuralValue
+import nd.max.ui.component.neuralClickable
 import nd.max.ui.component.neuralPalette
+import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.navigation.MaxDestination
@@ -83,15 +100,7 @@ internal fun HomeHeroCard(
     val power = dashboard.powerWatt.takeIf { it > 0.05f }
 
     NeuralPanel(accent = access, verticalSpacing = MaxSpace.md) {
-        // الحالة قبل الاسم: شارة الوصول (جذر · شيزوكو · أساسي).
-        NeuralPill(
-            text = stringResource(accessLabelRes(accessLevel)),
-            accent = access,
-            filled = true,
-            dot = true,
-        )
-
-        // الجهاز: الأيقونة ثم الاسم بنمط `HeroTitleStyle` (سطران كحدّ البطاقة، وسطر واحد غالبًا)، ثم الشريحة.
+        // 1 — الجهاز: الأيقونة ثم الاسم بنمط `HeroTitleStyle`، ثم الشريحة.
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             NeuralIconChip(Icons.Rounded.PhoneAndroid, p.accent, size = MaxSize.iconContainer)
             Spacer(Modifier.width(MaxSpace.md))
@@ -114,8 +123,32 @@ internal fun HomeHeroCard(
             }
         }
 
-        // الحرارة قراءةً رئيسية: كلمة الحكم بلونها فوق الرقم الكبير بالخط الأحادي، والوحدة بجانبه،
-        // و`Max AI` في الطرف المقابل كما كان في الشكل القديم.
+        // 2 — الوصول: الشارة (جذر · شيزوكو · أساسي)، وبجانبها شرح الغياب حين لا جذر ولا شيزوكو.
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaxSpace.md),
+        ) {
+            NeuralPill(
+                text = stringResource(accessLabelRes(accessLevel)),
+                accent = access,
+                filled = true,
+                dot = true,
+            )
+            if (accessLevel == PrivilegeLevel.NONE) {
+                Text(
+                    stringResource(R.string.home_access_note_none),
+                    color = p.muted,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+
+        // 3 — الحرارة قراءةً رئيسية: كلمة الحكم بلونها فوق الرقم الكبير بالخط الأحادي، والوحدة بجانبه،
+        // و`Max AI` في الطرف المقابل.
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MaxSpace.xs)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -162,7 +195,7 @@ internal fun HomeHeroCard(
             )
         }
 
-        // ثلاث بلاطات قراءة بألوانها: مدة التشغيل · البطارية · استهلاك الطاقة.
+        // 4 — ثلاث بلاطات قراءة على سطر واحد: مدة التشغيل · البطارية · استهلاك الطاقة.
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)) {
             HeroTile(
                 label = stringResource(R.string.max_home_uptime),
@@ -184,32 +217,85 @@ internal fun HomeHeroCard(
             )
         }
 
-        // باب إلى نظرة الجهاز بزرّ مستطيل بحواف المجموعة، لا حبّة: الحبّة للحالة فقط (DESIGN.md).
-        HomeActionButton(
-            text = stringResource(R.string.home_hero_open_overview),
-            icon = MaxDestination.DeviceInfo.icon,
-            filled = false,
-            accent = p.accent,
-            onClick = onOverview,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        // 5 — باب نظرة الجهاز: زرّ مدمج في طرف الصف، لا بعرض البطاقة كلها.
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
+            HeroDoorButton(
+                text = stringResource(R.string.home_hero_open_overview),
+                icon = MaxDestination.DeviceInfo.icon,
+                accent = p.accent,
+                onClick = onOverview,
+            )
+        }
     }
 }
 
-/** بلاطة قراءة في البطاقة الأولى: تسمية بلونها، وقيمة بالخط الأحادي، على لون البلاطة نفسه. */
+/**
+ * بلاطة قراءة في البطاقة الأولى: تسمية بسطر واحد بلونها، وقيمة بالخط الأحادي على لون البلاطة نفسه.
+ * الحشو مضغوط بالرموز، والتسمية الطويلة تُقصّ بنقاط عند الضيق بدل أن تحجز سطرًا ثانيًا لا يُقرأ.
+ */
 @Composable
 private fun HeroTile(label: String, value: String, accent: Color, modifier: Modifier) {
     val p = neuralPalette()
-    NeuralTile(modifier = modifier, accent = accent, verticalSpacing = MaxSpace.xs) {
-        // سطران محجوزان لكل تسمية: الاسم الطويل يلتفّ ولا يُقطع، فتبقى القيم على خط أفقي واحد عبر البلاطات.
+    NeuralTile(
+        modifier = modifier,
+        accent = accent,
+        contentPadding = PaddingValues(horizontal = MaxSpace.sm, vertical = MaxSpace.sm),
+        verticalSpacing = MaxSpace.xs,
+    ) {
         Text(
             label,
             color = accent,
-            style = MaterialTheme.typography.labelMedium,
-            minLines = 2,
-            maxLines = 2,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
         NeuralValue(value, style = MonoValueStyleHero, color = p.text, maxLines = 1)
+    }
+}
+
+/**
+ * باب نظرة الجهاز: زرّ مدمج بحواف المجموعة، في طرف الصف لا بعرض البطاقة كلها. الشكل المرئي أصغر من
+ * صندوق اللمس، والصندوق نفسه `MaxSize.minTouchTarget` كما تفرضه سياسة اللمس.
+ */
+@Composable
+private fun HeroDoorButton(
+    text: String,
+    icon: ImageVector,
+    accent: Color,
+    onClick: () -> Unit,
+) {
+    val p = neuralPalette()
+    val shape = RoundedCornerShape(MaxRadius.control)
+    Box(
+        Modifier
+            .heightIn(min = MaxSize.minTouchTarget)
+            .neuralClickable(onClick, role = Role.Button),
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            Modifier
+                .clip(shape)
+                .background(p.tile)
+                .border(MaxSize.hairlineBorder, accent.copy(alpha = .32f), shape)
+                .padding(horizontal = MaxSpace.md, vertical = MaxSpace.xs),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(icon, null, Modifier.size(MaxSize.iconGlyphSmall), tint = accent)
+            Spacer(Modifier.width(MaxSpace.xs))
+            Text(
+                text,
+                color = p.text,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.width(MaxSpace.xs))
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                null,
+                Modifier.size(MaxSize.iconGlyphSmall),
+                tint = accent,
+            )
+        }
     }
 }

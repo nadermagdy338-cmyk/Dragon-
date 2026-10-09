@@ -16,6 +16,8 @@ import nd.max.core.spoof.SampleDevice
 import nd.max.core.spoof.SpoofApplyEngine
 import nd.max.core.spoof.SpoofConfigurationRepository
 import nd.max.core.spoof.SpoofField
+import nd.max.core.spoof.PerAppDeviceModel
+import nd.max.core.spoof.SpoofImpersonation
 import nd.max.core.spoof.SpoofInheritanceMode
 import nd.max.core.spoof.SpoofProfile
 import nd.max.core.spoof.SpoofProfileValidation
@@ -59,7 +61,9 @@ class SpoofStudioViewModel @Inject constructor(
         SpoofField.FINGERPRINT to Build.FINGERPRINT, SpoofField.SDK_INT to Build.VERSION.SDK_INT.toString(),
     )
 
-    init { viewModelScope.launch { repository.load(); engine.refresh() } }
+    // لا قراءة للجذر هنا: هذا الـViewModel يُنشأ مع كل صفحة إعدادات تطبيق (لتعديلات COPG)، فالقراءة
+    // تُطلَب عند فتح تبويب التزييف نفسه (AppSpoofSection) بدل كل فتح لصفحة أي تطبيق.
+    init { viewModelScope.launch { repository.load() } }
     fun acknowledge(pkg: String, accepted: Boolean) {
         EventLog.userTriggered(SCREEN, if (accepted) "acknowledge" else "revoke", pkg)
         viewModelScope.launch { repository.acknowledge(pkg, accepted) }
@@ -116,6 +120,36 @@ class SpoofStudioViewModel @Inject constructor(
         latest.setAppPolicy(pkg, policy.copy(tags = if (enabled) kept + rendered else kept))
     }
     fun setPolicy(pkg: String, policy: AppSpoofProfile) = change { it.setAppPolicy(pkg, policy) }
+
+    /**
+     * انتحال معالج لهذا التطبيق (`cpu=<key>`)، أو محوه بـ`null`. يُشترط جهاز فعّال كما يفرضه المحرّك،
+     * ويُلغى حظر المعالج المتعارض تلقائيًا (انظر [SpoofImpersonation]).
+     */
+    fun setCpuForApp(pkg: String, model: String?) = change { latest ->
+        if (PerAppDeviceModel.effective(latest, pkg) == null) return@change latest
+        val policy = latest.appPolicy(pkg)
+        latest.setAppPolicy(pkg, policy.copy(tags = SpoofImpersonation.withCpu(policy.tags, model)))
+    }
+
+    /** حظر انتحال المعالج لهذا التطبيق. يُشترط جهاز فعّال، وتفعيله يلغي انتحال المعالج المتعارض. */
+    fun setBlockCpuForApp(pkg: String, blocked: Boolean) = change { latest ->
+        if (PerAppDeviceModel.effective(latest, pkg) == null) return@change latest
+        val policy = latest.appPolicy(pkg)
+        latest.setAppPolicy(pkg, policy.copy(tags = SpoofImpersonation.withBlock(policy.tags, blocked)))
+    }
+
+    /**
+     * جهاز مخصّص يُحفظ ويُربط بهذا التطبيق في **معاملة واحدة**. حفظٌ ثم ربطٌ منفصلان قد يتسابقان، فيُرفض
+     * الربط لأن الملف لم يُحفظ بعد. الحدّ (100 ملفًّا) يُحترم للملفات الجديدة فقط.
+     */
+    fun saveCustomDeviceForApp(pkg: String, profile: SpoofProfile) {
+        if (!SpoofProfileValidation.valid(profile)) { mutableSaved.value = false; return }
+        change { latest ->
+            val exists = latest.profiles.any { it.id == profile.id }
+            if (!exists && latest.profiles.size >= 100) return@change latest
+            latest.upsert(profile).bind(pkg, profile.id)
+        }
+    }
     fun importWorkspace(incoming: SpoofWorkspace) = change { planSpoofImport(it, incoming).workspace }
     fun refresh() { viewModelScope.launch { engine.refresh() } }
     fun apply(global: Boolean = false, clear: Boolean = false, expectedRevision: Long = configuration.value.revision) {

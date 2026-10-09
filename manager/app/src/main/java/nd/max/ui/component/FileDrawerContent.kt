@@ -28,8 +28,8 @@
  */
 package nd.max.ui.component
 
+import nd.max.ui.design.MaxScrollRow
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,7 +37,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkAdd
@@ -91,12 +90,7 @@ fun FileDrawerContent(
 
         // ── المسار الحالي، شرائح تُلمس ──────────────────────────────────────
         Section(title = stringResource(R.string.max_files_drawer_places)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
-            ) {
+            MaxScrollRow(bleed = MaxSpace.lg, edge = MaxSpace.lg, spacing = MaxSpace.sm) {
                 crumbs.forEach { crumb ->
                     AssistChip(
                         onClick = { onNavigate(crumb.path) },

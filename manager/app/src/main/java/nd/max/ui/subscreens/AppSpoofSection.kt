@@ -6,15 +6,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Block
+import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -30,17 +32,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nd.max.R
 import nd.max.core.spoof.PerAppDeviceModel
-import nd.max.core.spoof.SampleDevice
 import nd.max.core.spoof.SampleDeviceCatalog
-import nd.max.core.spoof.SampleDeviceSearch
+import nd.max.core.spoof.SpoofCpuCatalog
+import nd.max.core.spoof.SpoofCpuCatalogParser
+import nd.max.core.spoof.SpoofCustomDevice
 import nd.max.core.spoof.SpoofDeviceCatalog
 import nd.max.core.spoof.SpoofEngineReason
+import nd.max.core.spoof.SpoofImpersonation
 import nd.max.ui.component.MaxInfoStrip
 import nd.max.ui.component.MaxStatusPill
 import nd.max.ui.design.MaxGroup
 import nd.max.ui.design.MaxGroupDivider
 import nd.max.ui.design.MaxRow
-import nd.max.ui.design.MaxSearchField
 import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxTone
@@ -48,25 +51,18 @@ import nd.max.ui.design.content
 import nd.max.ui.viewmodel.SpoofStudioViewModel
 
 /**
- * «تزييف هذا التطبيق» — **أُعيد تصميمه من الصفر** بعد أن رُفض مرتين: مرّة لأنه بدأ بسياسة محرّك COPG
- * (عام/مخصّص/متوقّف)، ومرّة لأن طبقاتها (الأنماط · الفئات · الوسوم · الملفّات المحفوظة · النسخة المستقلة ·
- * «متقدّم») جعلت الفعل الوحيد المطلوب — «هذا التطبيق يرى ذلك الجهاز» — مدفونًا بينها.
+ * «تزييف هذا التطبيق» — محتوى تبويب «تزييف» داخل إعدادات التطبيق. التطبيق المفتوح هو الهدف دائمًا،
+ * فلا حقل لاسم حزمة. ثلاثة أقسام من الأعلى إلى الأسفل:
  *
- * ### الفكرة: فعل واحد، صريح، بلا طبقات
- * 1. **بطاقة واحدة** تقول ما يراه هذا التطبيق الآن (جهازك الحقيقي أو جهاز من الكتالوج) وحالته.
- * 2. **بحث + قائمة** بأجهزة الكتالوج (15 جهازًا): **نقرة واحدة تمنح هذا التطبيق ذلك الجهاز**.
- * 3. **زرّان فقط**: «تجهيز» (يكتب عبر المحكّم مع قراءة بعد الكتابة) و«إرجاع» (يحذف ربط هذا التطبيق).
- * 4. **حوار التجهيز يحمل الإقرار**: نصّ المخاطر يُقرأ فيه، وتأكيده هو الإقرار نفسه — فلا قسم منفصل،
- *    ولا يُكتب شيء بلا فعل صريح من المستخدم (ADR-16: الأدوات عالية الخطأ مُبوَّبة لا معروضة).
- *
- * ### ما لم يعد يُعرض (بقرار المالك: «أزل ما لا يفيد ولا يعمل»)
- * سياسة الوراثة والفئات والوسوم، والملفّات المحفوظة ومحرّر الحقول، و«النسخة المستقلة»، ومقارنة
- * «المرصود مقابل الهدف»، وأهداف معدّل الإطار، ومفاتيح per-app الأخرى، وقسم مسح التطبيق. الطبقة
- * الجوهرية المُختبَرة باقية كما هي (ADR-18)، لكنّ الواجهة لا تعرضها.
+ * 1. **نوع الجهاز الآن**: بطاقة واحدة. نقرها يفتح نافذة بكل أجهزة الكتالوج، وآخرها «معلومات جهاز مخصص».
+ * 2. **الانتحال**: مطوٍ ومغلق افتراضيًا، ويضم **الخيارات المجانية فقط** من مجموعة COPG (انتحال المعالج
+ *    وحظره). خيارات PRO (COW وAndroid ID) لا تُنقل. وتعديلات COPG الأخرى ليست هنا، بل في تبويبات
+ *    الأداء والعرض حيث تعمل.
+ * 3. **تجهيز / إرجاع**: كتابة ملفّ محرّك COPG مع قراءة بعدها، كما كانت.
  *
  * ### الصدق (ADR-07)
- * «مُتحقَّق» تعني **ملفّ المحرّك كُتب وقُرئ بعد الكتابة** — لا «التطبيق يرى ذلك الجهاز»؛ ولا ادّعاء
- * أثر في عملية الهدف بلا رصد. وأي رفض من المحرّك يُعرض باسمه، ويُسجَّل في السجلّ التشخيصي.
+ * «مُتحقَّق» تعني أن ملفّ المحرّك كُتب وقُرئ بعد الكتابة، لا أن التطبيق يرى ذلك الجهاز. وأي رفض من
+ * المحرّك يُعرض باسمه.
  */
 @Composable
 internal fun AppSpoofSection(
@@ -80,16 +76,26 @@ internal fun AppSpoofSection(
     val engineConfig by viewModel.engineConfig.collectAsStateWithLifecycle()
     val verifiedRevision by viewModel.verifiedRevision.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    // يُقرأ الأصل مرّة واحدة هنا — قراءتان لنفس الملفّ لا تفيدان أحدًا.
+    // الكتالوجان مشحونان مع التطبيق، ويُقرآن من الأصول مرّة واحدة لكل شاشة.
     val catalog by produceState<SampleDeviceCatalog?>(null, context) {
         value = withContext(Dispatchers.IO) {
             runCatching { context.assets.open("spoof/device_catalog.json").bufferedReader().use { it.readText() } }
                 .getOrNull()?.let(SpoofDeviceCatalog::parse)
         }
     }
-    var query by rememberSaveable(packageName) { mutableStateOf("") }
+    val cpuCatalog by produceState<SpoofCpuCatalog?>(null, context) {
+        value = withContext(Dispatchers.IO) {
+            runCatching { context.assets.open("spoof/cpu_catalog.json").bufferedReader().use { it.readText() } }
+                .getOrNull()?.let(SpoofCpuCatalogParser::parse)
+        }
+    }
+    // قراءة حالة المحرّك عند ظهور هذا التبويب فقط (كانت تحدث عند إنشاء الـViewModel).
+    LaunchedEffect(Unit) { viewModel.refresh() }
     var confirmApply by remember(packageName) { mutableStateOf(false) }
     var confirmRestore by remember(packageName) { mutableStateOf(false) }
+    var devicePickerOpen by rememberSaveable(packageName) { mutableStateOf(false) }
+    var customOpen by rememberSaveable(packageName) { mutableStateOf(false) }
+    var cpuPickerOpen by rememberSaveable(packageName) { mutableStateOf(false) }
 
     val workspace = configuration.workspace
     if (workspace == null) {
@@ -98,83 +104,92 @@ internal fun AppSpoofSection(
     }
     val device = PerAppDeviceModel.effective(workspace, packageName)
     // «مُتحقَّق» = كتابة نجحت **ولم يُعدَّل شيء بعدها**؛ فأي نقرة جهاز أو تعديل يُبطل الوسم حتى تجهيز جديد.
-    // ولذلك لا تقول الواجهة إنّ جهازًا اختير للتوّ «مُتحقَّق» — وهو العطب الذي كان قائمًا.
     val stale = lastWrite?.applied == true && verifiedRevision != configuration.revision
     val verified = device != null && lastWrite?.applied == true && !stale
     val canAdd = workspace.profiles.size < 100
+    val tags = workspace.appPolicy(packageName).tags
+    val cpuKey = SpoofImpersonation.cpuKey(tags)
+    val cpuName = cpuKey?.let { key -> cpuCatalog?.models?.firstOrNull { it.key == key }?.name ?: key }
+    val blocksCpu = SpoofImpersonation.blocksCpu(tags)
+    // لا يُعاد استعمال ملف مخصّص إلا إن كان مربوطًا بهذا التطبيق وحده، فلا يتغيّر تطبيق آخر بالخطأ.
+    val reusableCustomId = device?.id?.takeIf { id ->
+        id.startsWith(SpoofCustomDevice.PROFILE_PREFIX) && workspace.bindings[packageName] == id &&
+            workspace.bindings.values.count { it == id } == 1
+    }
+    val impersonationSummary = when {
+        device == null -> stringResource(R.string.spoof_impersonation_needs_device)
+        cpuName != null -> stringResource(R.string.spoof_impersonation_summary_cpu, cpuName)
+        blocksCpu -> stringResource(R.string.spoof_cpu_block)
+        else -> stringResource(R.string.spoof_cpu_real)
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(MaxSpace.lg)) {
-        // 1 — ما يراه هذا التطبيق الآن. أوّل سطر، وأصدق سطر.
-        MaxGroup {
-            MaxRow(
-                title = device?.name ?: stringResource(R.string.spoof_ui_real_device),
-                subtitle = listOfNotNull(device?.brand, device?.model).joinToString(" · ")
-                    .ifEmpty { stringResource(R.string.spoof_device_real_hint) },
-                icon = Icons.Rounded.PhoneAndroid,
-                iconTone = if (device != null) MaxTone.Accent else MaxTone.Neutral,
-                trailing = {
-                    MaxStatusPill(
-                        text = stringResource(when {
-                            device == null -> R.string.spoof_ui_pill_off
-                            verified -> R.string.spoof_ui_pill_verified
-                            else -> R.string.spoof_ui_pill_unverified
-                        }),
-                        active = verified,
-                    )
-                },
-            )
-        }
-
-        // 1.5 — حال المحرّك تُقال **قبل** الفعل لا بعده. تصدير ٢٠٢٦-١٠-٠٦ حمل `apply refused:
-        // ENGINE_UNAVAILABLE` بعد أن نقر المستخدم «تجهيز»: فالمستخدم دفع ثمن الفشل ليعرف السبب.
-        // والآن يُقاس السبب باسمه هنا، ونصّه يقول ما يُفعل به (تفعيل/إقلاع/إعادة تثبيت).
-        engineConfig?.unavailableReason?.let { reason ->
-            MaxInfoStrip(text = engineRefusalText(reason), accent = MaxTone.Caution.content())
-        }
-
-        // 2 — الجهاز المطلوب: بحث + قائمة، نقرة واحدة = اختيار لهذا التطبيق. بلا تمرير داخلي
-        // (الشاشة تُستضاف داخل LazyColumn، وقائمة كسولة/تمرير متداخل داخلها يُسقط القياس).
+        // 1 — نوع الجهاز الآن. البطاقة نفسها تفتح نافذة الأجهزة الكاملة.
         MaxSection(
             title = stringResource(R.string.spoof_device_for_app),
             description = stringResource(R.string.spoof_device_pick),
         ) {
-            MaxSearchField(
-                value = query,
-                onValueChange = { query = it },
-                placeholder = stringResource(R.string.sample_search),
-                modifier = Modifier.padding(horizontal = MaxSpace.lg, vertical = MaxSpace.sm),
-            )
-            val devices = catalog?.devices.orEmpty()
-            if (catalog == null) {
-                Text(
-                    stringResource(R.string.sample_unavailable),
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(horizontal = MaxSpace.lg, vertical = MaxSpace.sm),
+            MaxGroup {
+                MaxRow(
+                    title = device?.name ?: stringResource(R.string.spoof_ui_real_device),
+                    subtitle = listOfNotNull(device?.brand, device?.model).joinToString(" · ")
+                        .ifEmpty { stringResource(R.string.spoof_device_real_hint) },
+                    icon = Icons.Rounded.PhoneAndroid,
+                    iconTone = if (device != null) MaxTone.Accent else MaxTone.Neutral,
+                    enabled = !busy,
+                    onClick = { devicePickerOpen = true },
+                    trailing = {
+                        MaxStatusPill(
+                            text = stringResource(
+                                when {
+                                    device == null -> R.string.spoof_ui_pill_off
+                                    verified -> R.string.spoof_ui_pill_verified
+                                    else -> R.string.spoof_ui_pill_unverified
+                                }
+                            ),
+                            active = verified,
+                        )
+                    },
                 )
-            } else {
-                val shown = remember(devices, query) { SampleDeviceSearch.search(devices, query) }
-                if (shown.isEmpty()) {
-                    Text(
-                        stringResource(R.string.sample_empty),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = MaxSpace.lg, vertical = MaxSpace.sm),
-                    )
-                }
-                shown.forEach { sample ->
-                    DeviceChoiceRow(
-                        device = sample,
-                        selected = sample.key == PerAppDeviceModel.sampleKey(device?.id),
-                        enabled = !busy && canAdd,
-                        onClick = { viewModel.applySample(sample, packageName) },
-                    )
-                }
-                if (!canAdd) {
-                    Text(
-                        stringResource(R.string.sample_limit),
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(horizontal = MaxSpace.lg, vertical = MaxSpace.sm),
-                    )
-                }
+            }
+        }
+
+        // حال المحرّك تُقال قبل الفعل لا بعده (انظر تعليق الإصدار السابق: الرفض يُعرض باسمه).
+        engineConfig?.unavailableReason?.let { reason ->
+            MaxInfoStrip(text = engineRefusalText(reason), accent = MaxTone.Caution.content())
+        }
+
+        // 2 — الانتحال: مطوٍ ومغلق افتراضيًا. الخيارات المجانية فقط.
+        MaxSection(
+            title = stringResource(R.string.spoof_impersonation_title),
+            description = stringResource(R.string.spoof_impersonation_desc),
+            collapsible = true,
+            summary = impersonationSummary,
+        ) {
+            MaxGroup {
+                MaxRow(
+                    title = stringResource(R.string.spoof_cpu_spoof),
+                    subtitle = cpuName ?: stringResource(R.string.spoof_cpu_real),
+                    icon = Icons.Rounded.Memory,
+                    iconTone = if (cpuKey != null) MaxTone.Accent else MaxTone.Neutral,
+                    enabled = device != null && !busy,
+                    onClick = { cpuPickerOpen = true },
+                )
+                MaxGroupDivider()
+                MaxRow(
+                    title = stringResource(R.string.spoof_cpu_block),
+                    subtitle = stringResource(R.string.spoof_cpu_block_desc),
+                    icon = Icons.Rounded.Block,
+                    iconTone = if (blocksCpu) MaxTone.Accent else MaxTone.Neutral,
+                    enabled = device != null && !busy,
+                    trailing = {
+                        Switch(
+                            checked = blocksCpu,
+                            enabled = device != null && !busy,
+                            onCheckedChange = { viewModel.setBlockCpuForApp(packageName, it) },
+                        )
+                    },
+                )
             }
         }
 
@@ -228,6 +243,50 @@ internal fun AppSpoofSection(
                 modifier = Modifier.padding(horizontal = MaxSpace.lg),
             )
         }
+    }
+
+    // نوافذ الأجهزة والمعالجات. تُغلق قبل تنفيذ الفعل حتى لا تبقى نافذة فوق حالة قديمة.
+    if (devicePickerOpen) {
+        SpoofDevicePickerDialog(
+            devices = catalog?.devices.orEmpty(),
+            catalogReady = catalog != null,
+            currentKey = PerAppDeviceModel.sampleKey(device?.id),
+            canAdd = canAdd,
+            enabled = !busy,
+            onPick = { sample ->
+                devicePickerOpen = false
+                viewModel.applySample(sample, packageName)
+            },
+            onCustom = {
+                devicePickerOpen = false
+                customOpen = true
+            },
+            onDismiss = { devicePickerOpen = false },
+        )
+    }
+    if (customOpen) {
+        SpoofCustomDeviceDialog(
+            initial = device,
+            reusableId = reusableCustomId,
+            canAdd = canAdd,
+            onSave = { profile ->
+                customOpen = false
+                viewModel.saveCustomDeviceForApp(packageName, profile)
+            },
+            onDismiss = { customOpen = false },
+        )
+    }
+    if (cpuPickerOpen) {
+        SpoofCpuPickerDialog(
+            models = cpuCatalog?.models.orEmpty(),
+            currentKey = cpuKey,
+            enabled = device != null && !busy,
+            onPick = { key ->
+                cpuPickerOpen = false
+                viewModel.setCpuForApp(packageName, key)
+            },
+            onDismiss = { cpuPickerOpen = false },
+        )
     }
 
     // حوار التجهيز = الإقرار نفسه: نصّ المخاطر يُقرأ هنا، ثم صراحةً «أقرّ وجهّز».
@@ -296,32 +355,3 @@ private fun engineRefusalText(reason: SpoofEngineReason): String {
     else stringResource(R.string.spoof_ui_apply_reason, reason.name)
 }
 
-/** صفّ جهاز واحد: الاسم + إصدار أندرويد والطراز + علامة الاختيار. لا شيء آخر. */
-@Composable
-private fun DeviceChoiceRow(
-    device: SampleDevice,
-    selected: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
-    val release = device.androidRelease
-    MaxRow(
-        title = device.name,
-        subtitle = if (release != null) stringResource(R.string.sample_row_sub, release, device.model)
-        else stringResource(R.string.sample_row_sub_plain, device.model),
-        icon = Icons.Rounded.PhoneAndroid,
-        iconTone = if (selected) MaxTone.Accent else MaxTone.Neutral,
-        enabled = enabled,
-        onClick = onClick,
-        trailing = {
-            if (selected) {
-                Icon(
-                    Icons.Rounded.CheckCircle,
-                    contentDescription = stringResource(R.string.spoof_device_in_use),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-        },
-    )
-    MaxGroupDivider()
-}

@@ -19,7 +19,7 @@ class SpoofDeviceCatalogTest {
         // المصدر 15 مدخلًا؛ خمسة منها تحمل اسمًا تسويقيًّا في خانة كود الجهاز داخل بصمتها نفسها
         // (‏BLACK_SHARK_4 · INFINIX_GT_50_PRO · LEGION_Y700 · ROG_PHONE_6D · XIAOMI_11T_PRO)
         // فترفضها SpoofProfileValidation ولا تُعرض — فلا يُعرض جهاز لا يصير ملفًا محفوظًا صالحًا.
-        assertEquals(10, c.devices.size)
+        assertEquals(15, c.devices.size)
         assertEquals("Apache-2.0", c.license)
         assertTrue(c.sourceRef.startsWith("JSON@e1d7da6"))
     }

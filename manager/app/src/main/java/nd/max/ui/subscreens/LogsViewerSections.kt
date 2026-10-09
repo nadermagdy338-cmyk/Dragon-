@@ -23,11 +23,10 @@
  */
 package nd.max.ui.subscreens
 
+import nd.max.ui.design.MaxScrollRow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -457,10 +456,7 @@ internal fun LogsViewerSettingsSheet(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(Modifier.height(6.dp))
-                        Row(
-                            modifier = Modifier.horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
+                        MaxScrollRow(bleed = MaxSpace.lg, edge = MaxSpace.lg, spacing = MaxSpace.sm) {
                             LOG_MAX_KB_CHOICES.forEach { kb ->
                                 FilterChip(
                                     selected = viewModel.logMaxKb == kb,
@@ -478,10 +474,7 @@ internal fun LogsViewerSettingsSheet(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(Modifier.height(6.dp))
-                        Row(
-                            modifier = Modifier.horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
+                        MaxScrollRow(bleed = MaxSpace.lg, edge = MaxSpace.lg, spacing = MaxSpace.sm) {
                             LogsViewerViewModel.UnifiedLogLevel.entries.forEachIndexed { index, level ->
                                 FilterChip(
                                     selected = viewModel.logMinLevel == index,

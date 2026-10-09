@@ -11,6 +11,7 @@
 
 package nd.max.ui.subscreens
 
+import nd.max.ui.design.MaxScrollRow
 import android.content.Intent
 import java.io.File
 import androidx.compose.animation.AnimatedVisibility
@@ -225,12 +226,7 @@ fun LogsViewerScreen(
                                 .padding(vertical = MaxSpace.sm)
                         )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
-                        ) {
+                        MaxScrollRow(spacing = MaxSpace.sm) {
                             LogsViewerViewModel.LogLevel.entries.forEach { level ->
                                 val selected = level in viewModel.selectedLevels
                                 // Resolved here, not inside `semantics {}`: a composable call is not
@@ -330,12 +326,7 @@ fun LogsViewerScreen(
                                 .padding(vertical = MaxSpace.sm)
                         )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
-                        ) {
+                        MaxScrollRow(spacing = MaxSpace.sm) {
                             LogsViewerViewModel.LogSource.entries.forEach { source ->
                                 val selected = source in viewModel.selectedSources
                                 FilterChip(
@@ -348,12 +339,7 @@ fun LogsViewerScreen(
 
                         Spacer(Modifier.height(8.dp))
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm)
-                        ) {
+                        MaxScrollRow(spacing = MaxSpace.sm) {
                             LogsViewerViewModel.UnifiedLogLevel.entries.forEach { level ->
                                 val selected = level in viewModel.selectedUnifiedLevels
                                 FilterChip(

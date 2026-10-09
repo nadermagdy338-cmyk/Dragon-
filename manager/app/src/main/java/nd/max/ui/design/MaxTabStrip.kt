@@ -71,6 +71,9 @@ data class MaxTab(
 /**
  * شريط تبويبات قابل للتمرير الأفقي، بلا حدّ أعلى لعدد التبويبات.
  *
+ * **الحواف:** يمتدّ إلى حافة الشاشة ويُظلّل طرفيه بالمكوّن المشترك [maxEdgeFade]، والمقطع
+ * الأول يرتاح عند هامش الصفحة، فلا يُقصّ مقطع عند حدّ الهامش.
+ *
  * ولا يُوصف على أنه `TabRow`: محتوى المقطع يُقاس بعرضه الطبيعي، فالشريط يتجاوز الشاشة
  * ويمرّ بدل أن يضغط عناصره.
  */
@@ -95,12 +98,12 @@ fun MaxTabStrip(
     }
 
     LazyRow(
-        modifier = modifier.fillMaxWidth(),
+        // يمتدّ إلى حافة الشاشة ويُظلّل طرفيه (`maxBleed` و`maxEdgeFade`)، والمقطع الأول يرتاح عند هامش
+        // الصفحة نفسه: بلا امتداد يُقصّ المقطع المتجاوز عند حدّ الهامش، وهو العطب الذي أبلغ عنه المالك.
+        modifier = modifier.fillMaxWidth().maxBleed().maxEdgeFade(),
         state = listState,
         horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
-        // الحشو داخل الشريط لا خارجه: المقطع الأول والأخير يبقيان قابلين للقراءة عند حافة
-        // الشاشة، والحافة نفسها تأتي من هيكل الصفحة فلا تُضاعَف.
-        contentPadding = PaddingValues(vertical = MaxSpace.xs),
+        contentPadding = PaddingValues(horizontal = MaxSpace.gutter, vertical = MaxSpace.xs),
     ) {
         items(
             count = tabs.size,

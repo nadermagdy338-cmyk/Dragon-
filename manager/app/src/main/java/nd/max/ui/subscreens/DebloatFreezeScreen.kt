@@ -10,6 +10,9 @@
 
 package nd.max.ui.subscreens
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import nd.max.ui.design.maxEdgeFade
+import nd.max.ui.design.maxBleed
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.foundation.Image
@@ -168,8 +171,10 @@ private fun DebloatTabRow(
     )
     val colorScheme = MaterialTheme.colorScheme
     ScrollableTabRow(
+        // يمتدّ إلى حافة الشاشة ويُظلّل طرفيه؛ أوّل مقطع يرتاح عند هامش الصفحة نفسه.
+        modifier = Modifier.fillMaxWidth().maxBleed().maxEdgeFade(),
         selectedTabIndex = tabs.indexOfFirst { it.first == selectedTab }.coerceAtLeast(0),
-        edgePadding = 16.dp,
+        edgePadding = MaxSpace.gutter,
         containerColor = Color.Transparent,
         divider = {}
     ) {

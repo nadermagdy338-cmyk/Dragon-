@@ -81,6 +81,12 @@ import nd.max.ui.util.PerAppKernelUtil
 import nd.max.ui.util.ProfilePresetStore
 import nd.max.ui.util.ProfileSharing
 import nd.max.ui.util.customizedFieldCount
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import nd.max.core.spoof.CopgTag
+import nd.max.core.spoof.PerAppDeviceModel
+import nd.max.core.spoof.SpoofWorkspace
+import nd.max.ui.viewmodel.SpoofStudioViewModel
 import nd.max.ui.viewmodel.AppSettingsViewModel
 import nd.max.ui.viewmodel.ApplistViewmodel
 import nd.max.ui.mainscreens.LabelText
@@ -142,17 +148,27 @@ fun AppSettingsScreen(
     val cfgForTabs = config ?: AppConfig()
     var selectedTab by remember(packageName) { mutableStateOf(0) }
 
+    // تعديلات COPG (تعطيل التسجيل، السطوع التلقائي، إبقاء الشاشة) وسوم لكل تطبيق في حالة التزييف نفسها.
+    // لا تُكتب إلا بجهاز فعّال لهذا التطبيق، كما يفرض المحرّك، وتُكتب للمحرّك بزر «مراجعة وتطبيق».
+    val spoofVm: SpoofStudioViewModel = hiltViewModel()
+    val spoofState by spoofVm.configuration.collectAsStateWithLifecycle()
+    val copgWorkspace = spoofState.workspace
+    val copgTags = packageName?.takeIf(SpoofWorkspace::validPackage)?.let { copgWorkspace?.appPolicy(it)?.tags }.orEmpty()
+    val copgHasDevice = packageName != null && copgWorkspace != null &&
+        PerAppDeviceModel.effective(copgWorkspace, packageName) != null
+
     // CPU/GPU governors are now regular per-app controls; their lists are detected from the live kernel.
     val appTabs = listOf(
         MaxTab(
             label = stringResource(R.string.app_tab_performance),
             icon = Icons.Filled.Speed,
-            badgeCount = cfgForTabs.performanceCustomizedCount()
+            badgeCount = cfgForTabs.performanceCustomizedCount() + listOf(CopgTag.NoLog).count { it.render() in copgTags }
         ),
         MaxTab(
             label = stringResource(R.string.app_tab_display),
             icon = Icons.Filled.Monitor,
-            badgeCount = cfgForTabs.displayCustomizedCount(isGameApp)
+            badgeCount = cfgForTabs.displayCustomizedCount(isGameApp) +
+                listOf(CopgTag.DisableAutoBrightness, CopgTag.KeepScreenOn).count { it.render() in copgTags }
         ),
         MaxTab(
             label = stringResource(R.string.app_tab_spoof),
@@ -365,6 +381,24 @@ fun AppSettingsScreen(
                                 }
                             )
 
+                            // ══ تعديلات COPG (وسوم لكل تطبيق، تُكتب من تبويب التزييف) ══
+                            SettingsSectionTitle(Icons.Filled.Speed, stringResource(R.string.copg_tweaks_section), colorScheme.secondary)
+                            ExpressiveList(
+                                modifier = Modifier,
+                                content = buildList {
+                                    add {
+                                        ExpressiveSwitchItem(
+                                            icon = Icons.Filled.Speed,
+                                            title = stringResource(R.string.copg_tweak_nolog_title),
+                                            summary = if (copgHasDevice) stringResource(R.string.copg_tweak_nolog_desc) else stringResource(R.string.copg_tweak_needs_device),
+                                            checked = CopgTag.NoLog.render() in copgTags,
+                                            enabled = copgHasDevice,
+                                            onCheckedChange = { value -> packageName?.let { spoofVm.setTag(it, CopgTag.NoLog, value) } }
+                                        )
+                                    }
+                                }
+                            )
+
                             // ══ GPU / GOVERNOR CONTROL ══════════════════════════
                             SettingsSectionTitle(Icons.Filled.Thermostat, stringResource(R.string.app_settings_section_thermal_gpu), colorScheme.error)
                             Text(
@@ -563,6 +597,34 @@ fun AppSettingsScreen(
                                     }
                                 )
                             }
+
+                            // ══ تعديلات COPG (وسوم لكل تطبيق، تُكتب من تبويب التزييف) ══
+                            SettingsSectionTitle(Icons.Filled.Monitor, stringResource(R.string.copg_tweaks_section), colorScheme.secondary)
+                            ExpressiveList(
+                                modifier = Modifier,
+                                content = buildList {
+                                    add {
+                                        ExpressiveSwitchItem(
+                                            icon = Icons.Filled.Monitor,
+                                            title = stringResource(R.string.copg_tweak_dab_title),
+                                            summary = if (copgHasDevice) stringResource(R.string.copg_tweak_dab_desc) else stringResource(R.string.copg_tweak_needs_device),
+                                            checked = CopgTag.DisableAutoBrightness.render() in copgTags,
+                                            enabled = copgHasDevice,
+                                            onCheckedChange = { value -> packageName?.let { spoofVm.setTag(it, CopgTag.DisableAutoBrightness, value) } }
+                                        )
+                                    }
+                                    add {
+                                        ExpressiveSwitchItem(
+                                            icon = Icons.Filled.Monitor,
+                                            title = stringResource(R.string.copg_tweak_kso_title),
+                                            summary = if (copgHasDevice) stringResource(R.string.copg_tweak_kso_desc) else stringResource(R.string.copg_tweak_needs_device),
+                                            checked = CopgTag.KeepScreenOn.render() in copgTags,
+                                            enabled = copgHasDevice,
+                                            onCheckedChange = { value -> packageName?.let { spoofVm.setTag(it, CopgTag.KeepScreenOn, value) } }
+                                        )
+                                    }
+                                }
+                            )
 
                             } // end tab 1: Display
                             3 -> {

@@ -19,6 +19,10 @@
 package nd.max.ui.subscreens
 
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.foundation.layout.PaddingValues
+import nd.max.ui.design.maxEdgeFade
+import nd.max.ui.design.maxBleed
 import android.app.Activity
 import android.content.Context
 import android.media.MediaMetadataRetriever
@@ -49,7 +53,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
@@ -295,12 +298,15 @@ fun ColorPaletteScreen(navController: NavController) {
                     }
 
                     LazyColumn(
+                        // اللوحة اليمنى تمتدّ إلى حافة الشاشة وحدها، فالسوابح في داخلها تمتدّ معها دون أن تغطّي
+                        // اللوحة المعاينة على اليسار.
                         modifier = Modifier
                             .weight(0.6f)
-                            .fillMaxHeight(),
+                            .fillMaxHeight()
+                            .maxBleed(start = 0.dp, end = MaxSpace.gutter),
                         // الهيكل يحجز أسفل الشاشة أصلًا (`floatingBottomBarPadding`)، فـ16dp هنا
                         // تُضاف فوق الحجز فتبقى فراغًا لا يراه أحد. والباقي بخطوة الرموز.
-                        contentPadding = PaddingValues(top = MaxSpace.md, bottom = MaxSpace.sm),
+                        contentPadding = PaddingValues(horizontal = MaxSpace.gutter, top = MaxSpace.md, bottom = MaxSpace.sm),
                         verticalArrangement = Arrangement.spacedBy(MaxSectionSpec.spaceBefore)
                     ) {
                         item {
@@ -311,6 +317,7 @@ fun ColorPaletteScreen(navController: NavController) {
                             )
                         }
                         themeSettingsItems(
+                            swatchStartBleed = 0.dp,
                             currentColorMode = currentColorMode,
                             currentKeyColor = currentKeyColor,
                             currentColorSpec = currentColorSpec,
@@ -343,8 +350,8 @@ fun ColorPaletteScreen(navController: NavController) {
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    contentPadding = PaddingValues(top = MaxSpace.md, bottom = MaxSpace.sm),
+                    modifier = Modifier.fillMaxWidth().maxBleed().weight(1f),
+                    contentPadding = PaddingValues(horizontal = MaxSpace.gutter, top = MaxSpace.md, bottom = MaxSpace.sm),
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     item {
@@ -394,6 +401,7 @@ fun ColorPaletteScreen(navController: NavController) {
 
 // ─── Lazy list items ──────────────────────────────────────────────────────────
 private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
+    swatchStartBleed: Dp = MaxSpace.gutter,
     currentColorMode: ColorMode,
     currentKeyColor: Int,
     currentColorSpec: ColorSpec.SpecVersion,
@@ -434,24 +442,14 @@ private fun androidx.compose.foundation.lazy.LazyListScope.themeSettingsItems(
     item {
         // Horizontally scrollable color swatches with edge fade
         LazyRow(
+            // يمتدّ إلى حافة الشاشة ويُظلّل طرفيه، والسوابح ترتاح عند هامش الصفحة نفسه: موضع العنوان فوقها
+            // لا يتغيّر، ولا يُقصّ سوار عند حدّ الصفحة.
             modifier = Modifier
                 .fillMaxWidth()
-                .graphicsLayer { alpha = 0.99f }
-                .drawWithContent {
-                    drawContent()
-                    drawRect(
-                        brush = Brush.horizontalGradient(
-                            0.0f to Color.Transparent,
-                            0.06f to Color.Black,
-                            0.94f to Color.Black,
-                            1.0f to Color.Transparent
-                        ),
-                        blendMode = BlendMode.DstIn
-                    )
-                },
+                .maxBleed(start = swatchStartBleed, end = MaxSpace.gutter)
+                .maxEdgeFade(),
             horizontalArrangement = Arrangement.spacedBy(MaxSpace.sm),
-            // لا حشو أفقي هنا: الهيكل يمنح الصفحة هامشها (`MaxSpace.gutter`)، وكانت
-            // `20.dp` تُضاف فوقه فتبدأ السوابح عند 40dp بينما عنوان القسم فوقها عند 20dp.
+            contentPadding = PaddingValues(horizontal = MaxSpace.gutter),
         ) {
             // "Dynamic / Wallpaper" swatch
             item {

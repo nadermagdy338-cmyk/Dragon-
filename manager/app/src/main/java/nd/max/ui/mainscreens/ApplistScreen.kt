@@ -6,6 +6,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 
 package nd.max.ui.mainscreens
+import nd.max.ui.design.MaxScrollRow
 import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxSpace
 import nd.max.ui.design.MaxGroup
@@ -19,7 +20,6 @@ import nd.max.ui.navigation.MaxNavActions
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +38,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -337,12 +336,7 @@ private fun AppFilterRow(
             Triple(ApplistViewmodel.AppFilter.SYSTEM, R.string.applist_filter_system, system)
         )
     }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    MaxScrollRow(bleed = MaxSpace.lg, edge = MaxSpace.lg, spacing = MaxSpace.sm) {
         entries.forEach { (filter, labelRes, count) ->
             FilterChip(
                 selected = selected == filter,

@@ -86,7 +86,7 @@ import kotlin.math.roundToInt
  * Reading order (طلب المالك): every block earns its place once, and nothing repeats another block.
  *
  *  0. header   — brand, engine state, guide, power and settings.
- *  1. hero     — the first card, unchanged: access chip, device, temperature, three tiles, device overview.
+ *  1. hero     — the first card, compact: device, access row, temperature, three one-line tiles, device overview.
  *  2. pulse    — CPU and GPU: load, clock and the frequency history beneath them.
  *  3. actions  — Boost (measured before/after) and Control, side by side.
  *  4. vitals   — the readings no other block shows: CPU, GPU and surface temperature, and network speed.
