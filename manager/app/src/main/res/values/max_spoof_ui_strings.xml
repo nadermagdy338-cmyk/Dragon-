@@ -12,7 +12,7 @@
     <string name="spoof_ui_apply_title">Apply for this app</string>
     <string name="spoof_ui_apply_action">Review and apply</string>
     <string name="spoof_ui_apply_confirm_title">Apply this app only?</string>
-    <string name="spoof_ui_apply_confirm_text">Only this app is prepared; other apps are untouched. Restart the target app afterwards, not the system. A later edit cancels this confirmation.</string>
+    <string name="spoof_ui_apply_confirm_text">Only this app is prepared; other apps are untouched. Restart the target app afterwards, not the system. A later edit cancels this confirmation. If COPG already lists this app, your device takes priority and the COPG line stays as it is.</string>
     <string name="spoof_ui_apply_confirm">Apply</string>
     <string name="spoof_ui_apply_reason">Engine refusal: %1$s</string>
     <string name="spoof_engine_absent">The engine module is not readable. Confirm a module whose module.prop says id=COPG, install or reinstall it, then reopen this screen.</string>

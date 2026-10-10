@@ -116,7 +116,9 @@ class MaxLivePresentationArchitectureTest {
         assertTrue(plan.contains("R.string.max_ai_learning_coverage"))
         assertFalse(plan.contains("R.string.max_live_confidence"))
         assertTrue(Regex("if\\s*\\(plan\\.mode\\s*!=\\s*\"Safety guard\"\\)").containsMatchIn(plan))
-        assertTrue(function("LiveForecastSection").contains("R.string.max_trust_snapshot"))
+        val forecast = function("LiveForecastSection")
+        assertTrue(forecast.contains("R.string.max_trust_stale"))
+        assertFalse(forecast.contains("R.string.max_trust_snapshot"))
     }
 
     @Test

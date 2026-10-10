@@ -12,7 +12,7 @@
  *     `/data/adb/modules/COPG/controller`؛ و`module/COPG.json` هو الافتراضيّ المشحون).
  *   - مفتاح جهاز: `PACKAGES_<KEY>` ⇒ قائمة أسماء حزم (`"com.x"` بلا وسم = تطبيق بيانات الجهاز)،
  *     و`PACKAGES_<KEY>_DEVICE` ⇒ كائن `{ BRAND, DEVICE, MODEL, PRODUCT, FINGERPRINT?, SDK_INT? … }`.
- *   - الحفظ يحفظ **ترتيب المفاتيح** ويضيف الجديد في الذيل، ويضع `chmod 644` + `chcon system_file`.
+ *   - الحفظ يحفظ **ترتيب المفاتيح** ويضيف الجديد في الرأس، ويضع `chmod 644` + `chcon system_file`.
  *
  * **وحدّ ما لم يُقرأ بعد:** مصدر المحرّك الأصليّ (`src/spoof_module.cpp`) **ليس في المستودع العام**
  * (الوحدة تشحن ثنائيات مبنيّة)، فـ«القارئ» موثَّقٌ بواجهة المحرّك الرسميّة لا بقراءة شفرته. ولذلك يبقى
@@ -108,7 +108,7 @@ object SpoofCopgContract {
      *
      * - ملفٌ موجود لا يُحلَّل ⇒ [SpoofCopgRefusal.CONFIG_UNPARSEABLE] (لا نكتب فوق ما لا نقرؤه).
      * - نمطٌ بلا حزم مرتبطة **لا يُكتب له مفتاح** (لا نُلوّث الملفّ بمدخلات فارغة).
-     * - مفاتيحنا القديمة تُحذَف وتُعاد كتابتها في الذيل — فالرابط المحذوف لا يبقى حيًّا في المحرّك.
+     * - مفاتيحنا القديمة تُحذَف وتُعاد كتابتها في الرأس — فالرابط المحذوف لا يبقى حيًّا في المحرّك.
      * - `null` = الملفّ غير موجود أصلًا؛ ويُبنى من الصفر (وحدة مثبَّتة بلا إعداد بعد).
      */
     fun plan(existing: String?, workspace: SpoofWorkspace, moduleVersion: String? = null): SpoofCopgPlanResult {
@@ -162,22 +162,36 @@ object SpoofCopgContract {
             return SpoofCopgPlanResult.Refused(SpoofCopgRefusal.KEY_COLLISION)
         }
         // الوسوم: فقط لتطبيقٍ له جهاز فعّال، وبنحوٍ يسمح به الإصدار المثبّت — وإلا فشل مغلق.
-        val tagsByPackage = effectiveBindings.keys.associateWith { pkg ->
-            workspace.appPolicies[pkg]?.tags.orEmpty().sorted().map(CopgTag::parse)
-        }.filterValues { it.isNotEmpty() }
-        val (_, refusedTags) = CopgGrammarGate.partition(tagsByPackage.values.flatten(), moduleVersion)
-        if (refusedTags.isNotEmpty()) return SpoofCopgPlanResult.Refused(SpoofCopgRefusal.UNSUPPORTED_TAG)
-        val materialized = SpoofWorkspace(effectiveProfiles.distinctBy { it.id }, effectiveBindings)
-        // COPG searches foreign package arrays in insertion order. A duplicate can defeat our override.
-        val foreignPackages = previous.filterKeys { !it.startsWith(PROFILE_PREFIX) }
-            .filterKeys { it.startsWith("PACKAGES_") && !it.endsWith(DEVICE_SUFFIX) }.values
-            .filterIsInstance<JsonArray>().flatMap { array -> array.mapNotNull { (it as? JsonPrimitive)?.content?.substringBefore(':') } }
+        // COPG's own tags for a package travel with our entry (blocked, cpu=, gpu=, cow ...), so choosing
+        // a device never silently drops a CPU setting COPG already had for that app.
+        val foreignTags = HashMap<String, MutableList<CopgTag>>()
+        previous.filterKeys { !it.startsWith(PROFILE_PREFIX) }
+            .filterKeys { it.startsWith("PACKAGES_") && !it.endsWith(DEVICE_SUFFIX) }
+            .values.filterIsInstance<JsonArray>()
+            .forEach { array ->
+                array.mapNotNull { (it as? JsonPrimitive)?.content }.forEach { raw ->
+                    val entry = CopgPackageEntry.parse(raw)
+                    foreignTags.getOrPut(entry.packageName) { mutableListOf() }.addAll(entry.tags)
+                }
+            }
+        // COPG's cpu_spoof lists are a separate feature; a package listed there still fails closed.
         val cpu = previous["cpu_spoof"] as? JsonObject
         val cpuPackages = cpu?.values?.filterIsInstance<JsonArray>().orEmpty()
             .flatMap { array -> array.mapNotNull { (it as? JsonPrimitive)?.content?.substringBefore(':') } }
-        if ((foreignPackages + cpuPackages).any { it in effectiveBindings }) {
+        if (cpuPackages.any { it in effectiveBindings }) {
             return SpoofCopgPlanResult.Refused(SpoofCopgRefusal.FOREIGN_PACKAGE_CONFLICT)
         }
+        val tagsByPackage = effectiveBindings.keys.associateWith { pkg ->
+            (workspace.appPolicies[pkg]?.tags.orEmpty().sorted().map(CopgTag::parse) + foreignTags[pkg].orEmpty())
+                .distinctBy { it.render() }
+        }.filterValues { it.isNotEmpty() }
+        // Contradictory tags (for example cpu= together with blocked) fail closed instead of merging silently.
+        if (tagsByPackage.values.any { tags -> CopgTagRules.conflicts(tags.map { it.render() }).isNotEmpty() }) {
+            return SpoofCopgPlanResult.Refused(SpoofCopgRefusal.UNSUPPORTED_TAG)
+        }
+        val (_, refusedTags) = CopgGrammarGate.partition(tagsByPackage.values.flatten(), moduleVersion)
+        if (refusedTags.isNotEmpty()) return SpoofCopgPlanResult.Refused(SpoofCopgRefusal.UNSUPPORTED_TAG)
+        val materialized = SpoofWorkspace(effectiveProfiles.distinctBy { it.id }, effectiveBindings)
         val byProfile = packagesByProfile(materialized)
         val writeable = materialized.profiles.filter { byProfile[it.id].orEmpty().isNotEmpty() }
         val keys = writeable.map { packageKey(it.id) }
@@ -185,9 +199,10 @@ object SpoofCopgContract {
             return SpoofCopgPlanResult.Refused(SpoofCopgRefusal.KEY_COLLISION)
         }
 
-        // الترتيب: كل ما ليس لنا يُبقى في موضعه بالحرف؛ ثم مفاتيحنا في الذيل (حزم ← جهاز).
+        // Our keys go FIRST. COPG reads its keys in insertion order and takes the first list that names a
+        // package, so the per-app choice wins over a COPG list further down. COPG's own keys are not
+        // removed, reordered or edited, so undoing our binding leaves its file exactly as it was.
         val merged = LinkedHashMap<String, kotlinx.serialization.json.JsonElement>()
-        previous.forEach { (key, value) -> if (!key.startsWith(PROFILE_PREFIX)) merged[key] = value }
         writeable.forEach { profile ->
             val pkgKey = packageKey(profile.id)
             merged[pkgKey] = buildJsonArray {
@@ -196,6 +211,9 @@ object SpoofCopgContract {
                 }
             }
             merged[deviceKey(pkgKey)] = deviceObject(profile)
+        }
+        previous.forEach { (key, value) ->
+            if (!key.startsWith(PROFILE_PREFIX)) merged[key] = value
         }
 
         val json = pretty.encodeToString(JsonObject.serializer(), JsonObject(merged)) + "\n"

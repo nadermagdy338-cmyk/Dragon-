@@ -271,7 +271,8 @@ private fun LiveForecastSection(state: MaxAiState, freshness: SampleFreshness) {
         }
 
         if (freshness == SampleFreshness.Stale) {
-            MaxCapsule(text = stringResource(R.string.max_trust_snapshot), tone = MaxTone.Caution)
+            // Stale is labelled "Last sample". It must stay visible even though Snapshot is hidden.
+            MaxCapsule(text = stringResource(R.string.max_trust_stale), tone = MaxTone.Caution)
         }
 
         val firstMeasured = points.firstOrNull { it.actualC != null }

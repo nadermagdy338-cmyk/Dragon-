@@ -38,8 +38,8 @@ class SpoofCopgContractTest {
             }
         """.trimIndent()
         val merged = parse(ready(existing, SpoofWorkspace(listOf(profile()), mapOf("com.game" to "p1"))).json)
-        assertEquals(listOf("cpu_spoof", "PACKAGES_REDMAGIC_9_PRO", "PACKAGES_REDMAGIC_9_PRO_DEVICE",
-            "PACKAGES_MAXMANAGER_P1", "PACKAGES_MAXMANAGER_P1_DEVICE"), merged.keys.toList())
+        assertEquals(listOf("PACKAGES_MAXMANAGER_P1", "PACKAGES_MAXMANAGER_P1_DEVICE", "cpu_spoof",
+            "PACKAGES_REDMAGIC_9_PRO", "PACKAGES_REDMAGIC_9_PRO_DEVICE"), merged.keys.toList())
         assertEquals("nubia",
             merged["PACKAGES_REDMAGIC_9_PRO_DEVICE"]!!.jsonObject["BRAND"]!!.jsonPrimitive.content)
         assertEquals("com.bbl.mobilebanking",
@@ -119,5 +119,36 @@ class SpoofCopgContractTest {
         val json = ready(null, SpoofWorkspace(listOf(weird), mapOf("com.game" to "p1"))).json
         assertEquals("a;rm -rf /",
             parse(json).getValue("PACKAGES_MAXMANAGER_P1_DEVICE").jsonObject["BRAND"]!!.jsonPrimitive.content)
+    }
+
+    @Test fun aPackageCopgAlreadyListsIsOverriddenFirstAndCopgsLineIsLeftAlone() {
+        val existing = """{ "PACKAGES_REDMAGIC_9_PRO": [ "com.supercell.brawlstars:blocked" ] }"""
+        val workspace = SpoofWorkspace(listOf(profile()), mapOf("com.supercell.brawlstars" to "p1"))
+        val json = parse((SpoofCopgContract.plan(existing, workspace, "7.5.1") as SpoofCopgPlanResult.Ready).plan.json)
+        assertEquals(listOf("PACKAGES_MAXMANAGER_P1", "PACKAGES_MAXMANAGER_P1_DEVICE", "PACKAGES_REDMAGIC_9_PRO"),
+            json.keys.toList())
+        assertEquals(listOf("com.supercell.brawlstars:blocked"),
+            json.getValue("PACKAGES_MAXMANAGER_P1").jsonArray.map { it.jsonPrimitive.content })
+        assertEquals(listOf("com.supercell.brawlstars:blocked"),
+            json.getValue("PACKAGES_REDMAGIC_9_PRO").jsonArray.map { it.jsonPrimitive.content })
+    }
+
+    @Test fun clearingOurBindingPutsCopgsFileBackExactly() {
+        val existing = """{ "PACKAGES_REDMAGIC_9_PRO": [ "com.supercell.brawlstars:blocked" ], "keep": 1 }"""
+        val applied = (SpoofCopgContract.plan(existing,
+            SpoofWorkspace(listOf(profile()), mapOf("com.supercell.brawlstars" to "p1")), "7.5.1")
+            as SpoofCopgPlanResult.Ready).plan.json
+        val cleared = (SpoofCopgContract.plan(applied, SpoofWorkspace(), "7.5.1") as SpoofCopgPlanResult.Ready).plan.json
+        assertEquals(parse(existing), parse(cleared))
+        assertEquals(listOf("PACKAGES_REDMAGIC_9_PRO", "keep"), parse(cleared).keys.toList())
+    }
+
+    @Test fun aPolicyTagThatContradictsCopgsBlockedTagFailsClosed() {
+        val existing = """{ "PACKAGES_REDMAGIC_9_PRO": [ "com.supercell.brawlstars:blocked" ] }"""
+        val workspace = SpoofWorkspace(listOf(profile()), mapOf("com.supercell.brawlstars" to "p1"),
+            appPolicies = mapOf("com.supercell.brawlstars" to AppSpoofProfile(SpoofInheritanceMode.CUSTOM,
+                tags = setOf("cpu=sd8elite"))))
+        assertEquals(SpoofCopgRefusal.UNSUPPORTED_TAG,
+            (SpoofCopgContract.plan(existing, workspace, "7.5.1") as SpoofCopgPlanResult.Refused).reason)
     }
 }

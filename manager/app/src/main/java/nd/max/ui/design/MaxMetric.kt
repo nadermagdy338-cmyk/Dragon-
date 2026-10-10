@@ -107,6 +107,8 @@ fun MaxTrustChip(
     trust: MaxDataTrust,
     modifier: Modifier = Modifier
 ) {
+    // Same gate as the caption line: a Snapshot chip is shown only under Advanced Mode.
+    if (!provenanceVisible(trust)) return
     val tone = trust.visual().tone
     val content = tone.content()
     val icon = trustIcon(trust)
@@ -170,6 +172,7 @@ fun MaxMetricProvenance(
     metric: MaxMetric,
     modifier: Modifier = Modifier
 ) {
+    if (!provenanceVisible(metric.trust)) return
     val separator = stringResource(R.string.max_provenance_separator)
     val updatedLabel = stringResource(R.string.max_updated_label)
     val sourceLabel = stringResource(R.string.max_source_label)
@@ -213,6 +216,7 @@ fun MaxMetricReadout(
     val valueText = if (showsValue) metric.value.orEmpty() else MAX_VALUE_UNAVAILABLE
     val unavailableA11y = stringResource(R.string.max_value_unavailable_a11y)
     val trustText = maxTrustLabel(metric.trust)
+    val trustAudible = provenanceVisible(metric.trust)
 
     val valueStyle = when (size) {
         MaxMetricSize.Large -> MonoValueStyleLarge
@@ -234,9 +238,11 @@ fun MaxMetricReadout(
         } else {
             append(unavailableA11y)
         }
-        append(", ")
-        append(trustText)
-        metric.age?.takeIf { it.isNotBlank() }?.let { append(", ").append(it) }
+        if (trustAudible) {
+            append(", ")
+            append(trustText)
+            metric.age?.takeIf { it.isNotBlank() }?.let { append(", ").append(it) }
+        }
         metric.note?.takeIf { it.isNotBlank() }?.let { append(". ").append(it) }
     }
 
@@ -320,6 +326,7 @@ fun MaxMetricLine(
     val valueText = if (showsValue) metric.value.orEmpty() else MAX_VALUE_UNAVAILABLE
     val unavailableA11y = stringResource(R.string.max_value_unavailable_a11y)
     val trustText = maxTrustLabel(metric.trust)
+    val trustAudible = provenanceVisible(metric.trust)
 
     val spoken = buildString {
         append(metric.label)
@@ -330,7 +337,7 @@ fun MaxMetricLine(
         } else {
             append(unavailableA11y)
         }
-        if (metric.trust != MaxDataTrust.Live) {
+        if (metric.trust != MaxDataTrust.Live && trustAudible) {
             append(", ")
             append(trustText)
         }

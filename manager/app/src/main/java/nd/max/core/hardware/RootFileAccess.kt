@@ -268,6 +268,21 @@ object RootFileAccess {
         result.isSuccess
     }.getOrDefault(false)
 
+    /**
+     * Overwrites the file itself, the way COPG's own WebUI saves COPG.json (`echo > file`): the inode and
+     * its SELinux label survive, so a watcher on the file or on its directory sees the change. The content
+     * is staged in a temp file first, so the target is truncated only once the full text is ready.
+     */
+    fun writeTextInPlace(path: String, content: String): Boolean = runCatching {
+        val tmp = "$path.tmp"
+        val encoded = android.util.Base64.encodeToString(content.toByteArray(Charsets.UTF_8), android.util.Base64.NO_WRAP)
+        val parent = File(path).parent
+        if (!parent.isNullOrBlank()) Shell.cmd("mkdir -p ${quote(parent)}").exec()
+        Shell.cmd(
+            "printf '%s' ${quote(encoded)} | base64 -d > ${quote(tmp)} && cat ${quote(tmp)} > ${quote(path)} && rm -f ${quote(tmp)}"
+        ).exec().isSuccess
+    }.getOrDefault(false)
+
     private fun shellTest(path: String): Boolean = Shell.cmd("test -e ${quote(path)}").exec().isSuccess
 
     private fun shellRead(path: String): String? = runCatching {

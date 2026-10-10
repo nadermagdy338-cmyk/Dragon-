@@ -22,7 +22,10 @@ class SpoofConfigTransaction @Inject constructor(
             override fun read(engine: String) = RootFileAccess.read(path(engine))
             override fun write(engine: String, text: String): Boolean {
                 val file = path(engine)
-                return RootFileAccess.atomicWriteText(file, text) && RootFileAccess.exec("chmod 644 $file") == 0 &&
+                // COPG's own WebUI rewrites COPG.json in place; the per-app engine gets the same write.
+                val wrote = if (engine == SpoofCopgContract.MODULE_ID) RootFileAccess.writeTextInPlace(file, text)
+                    else RootFileAccess.atomicWriteText(file, text)
+                return wrote && RootFileAccess.exec("chmod 644 $file") == 0 &&
                     RootFileAccess.exec("chcon u:object_r:system_file:s0 $file 2>/dev/null") == 0
             }
         },

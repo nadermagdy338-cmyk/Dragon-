@@ -159,7 +159,7 @@ ad7749284a56511156d2bb0005fa160ba0add508541ec39a8e71ea2a82d8dc22  manager/app/sr
 0a7886d6167a2cac82ed51fe29e1c47f4c3caf8dab2d94f1b7875bc6a9cb8194  manager/app/src/main/java/nd/max/core/hardware/PredictiveSafety.kt
 864dcd2b890d59c717769555b91bb33c349ede728a175bb887d9f8e9833451b9  manager/app/src/main/java/nd/max/core/hardware/ProfileApplier.kt
 2b1c71a77a126d946b32d8179c00c30d2a4d58a33ea01a62790a3af58e8d4e0f  manager/app/src/main/java/nd/max/core/hardware/ReadOnlyProbeAccess.kt
-5da2ac79d8726ef90b9d322cdd2ca0e1073144a4f81e8293fac2eae60a72852a  manager/app/src/main/java/nd/max/core/hardware/RootFileAccess.kt
+37862abc65f474f78fa462a1852ee8d56a86b04c0cffc6edc2647190763a0ba9  manager/app/src/main/java/nd/max/core/hardware/RootFileAccess.kt
 cc0c2c9b8725cef844c104220473db6010a6e1fb20541e2c3bc97ed231c5296e  manager/app/src/main/java/nd/max/core/hardware/RouteEvidenceFacts.kt
 82b26493da08429d9bec8d7238ca44ffac2f86b52f9bc03a50188ebd48d3af79  manager/app/src/main/java/nd/max/core/hardware/SharedControlStorage.kt
 aa2722ff3b66a6e25d6f6e07dbf4209f7d29b877d17775aac424cf29ca096fb0  manager/app/src/main/java/nd/max/core/hardware/SharedHardwareOwnershipStore.kt
@@ -230,10 +230,10 @@ b3033d99f6e42eb88e2b3dbf0fe8ea451e2a96b9d7c319003f78f9b286c3043f  manager/app/sr
 b46e40aa2bc074e0bc589891989d83f3dacff4ac53cb77125f0c3021904da440  manager/app/src/main/java/nd/max/core/spoof/SpoofApplyEngine.kt
 d8dbf3258007ce3da9fa0e96913b930403bf3820b3f8339c75fb8cbc697b7ed3  manager/app/src/main/java/nd/max/core/spoof/SpoofBarrierStore.kt
 516f66aafa38f6efd676d342b70af8d4caf8b356f7750365a5001d41a835df8e  manager/app/src/main/java/nd/max/core/spoof/SpoofCapabilityMatrix.kt
-99d2a4456c9abdfbcbae3bd64c9bb6a6ad1cc7d9716a24b5139639aa2a81a104  manager/app/src/main/java/nd/max/core/spoof/SpoofConfigTransaction.kt
+3e6e0bb8c02697c4abf6ba60089ec3d17dfed9d900b467f0398c5f2e7396930d  manager/app/src/main/java/nd/max/core/spoof/SpoofConfigTransaction.kt
 63beab70901a4bf5f81c393813e2bf64c9cdd8bbc1d0dca28c5659f7ebcf2e30  manager/app/src/main/java/nd/max/core/spoof/SpoofConfigurationRepository.kt
 126a4124a933e2184e093c364c67a12ac7ee0a8205c4993534b93d50b2fb0f9e  manager/app/src/main/java/nd/max/core/spoof/SpoofCopgBackend.kt
-d8fa9b3e3ff4baf2542b0be58d59fc8a432e41d7c2937b7dd7ecf83e99ce7f11  manager/app/src/main/java/nd/max/core/spoof/SpoofCopgContract.kt
+a143a68c238f12a633667aa035d88be50b26ef43907228d223cbe390274fa7e8  manager/app/src/main/java/nd/max/core/spoof/SpoofCopgContract.kt
 e18e002177bbc7f426742cc62c965bca3325c8d327eb426a3c7d350ed81dff62  manager/app/src/main/java/nd/max/core/spoof/SpoofCpuCatalog.kt
 57d3492526bb3d20d6a83f809b637cf30941147d1902817aad1979a04e740c57  manager/app/src/main/java/nd/max/core/spoof/SpoofCustomDevice.kt
 9212766a80b0af0f45504127d58cbeeb33d09031688347bc9fa1e0fff02da1aa  manager/app/src/main/java/nd/max/core/spoof/SpoofDeviceCatalog.kt
@@ -342,7 +342,7 @@ f3721ed7b98568581a55e3a7b76404709b4d6f3566bda46f0eb32d258d573a0e  manager/app/sr
 403ae1d6a2a76b4685b02348dd287e975d1c5959edaa069cf67921a7f5eb489e  manager/app/src/main/java/nd/max/ui/design/MaxEdgeFade.kt
 7c146fc1cb772b77514960e909c746584cac20a4b31f4a68e46c3a8d5a0834da  manager/app/src/main/java/nd/max/ui/design/MaxFloatingNotice.kt
 6e4b2e8791149531b1ab465f428f5543abbd81900aa8656dec619aca614e0be3  manager/app/src/main/java/nd/max/ui/design/MaxHelp.kt
-3ca767497e59c44abe9831d8405346d93f873f8e69ec8b13189fd364b59e1178  manager/app/src/main/java/nd/max/ui/design/MaxMetric.kt
+814543081d51a77f07b276bc34d2bddd18092d3cdbd163a57efd3eee420a12de  manager/app/src/main/java/nd/max/ui/design/MaxMetric.kt
 a7b9954c280d0fe19c114e1e4820244514e95a1f91949fc6187f1731957f25a0  manager/app/src/main/java/nd/max/ui/design/MaxProgressStrip.kt
 b35b7fb1babb57e447a088939df0d7638a6f8e044eec3fe21df8952900dbcb53  manager/app/src/main/java/nd/max/ui/design/MaxScreenScaffold.kt
 77deca8fd00d74ad51c8656735cc213edf9a03088bb7bc2892c8f3ca3d5a6274  manager/app/src/main/java/nd/max/ui/design/MaxScrollToTop.kt
@@ -381,7 +381,7 @@ bd80872a2d06f377ff696a2c7d01bf03015c8313941aab3c8f268716f0988704  manager/app/sr
 5a3817580cab8bc6a78e4c77eda13428c4c81f78f0c43b7cc7d6cb6ce2bef44a  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiPresentation.kt
 05f44b56bffe527350cbca5f11eb41e40f4173b85bdc6bc1b2cc0bb708b7a65a  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiRuntimeStatus.kt
 30d9968c0611a23fc9290b0dcdb4fcd6cd469123207938c69979a887d3d01f3a  manager/app/src/main/java/nd/max/ui/mainscreens/MaxAiScreen.kt
-2ac09ccc8533dab31b1d9f7cc1ffea39e7bf24f05a34351abeea1da498a09868  manager/app/src/main/java/nd/max/ui/mainscreens/MaxLiveScreen.kt
+25930c3c11306bec8e50150ddb5beceb121d085787931e29b0d014ad8c5ed747  manager/app/src/main/java/nd/max/ui/mainscreens/MaxLiveScreen.kt
 172eb277e58296d68bc26c16d96d3608af909116b8d7efeaab08b3670398d9a6  manager/app/src/main/java/nd/max/ui/mainscreens/ScreenFinderModel.kt
 0e8576a54a01a814477a53d3a98003a012834fa471268e8114820d5ea0d04477  manager/app/src/main/java/nd/max/ui/mainscreens/ScreenFinderSheet.kt
 700d9261563a42a6650fc707fe2a8af36c53629436ad9496e11f917c83755c95  manager/app/src/main/java/nd/max/ui/mainscreens/SettingsScreen.kt
@@ -422,7 +422,7 @@ f93a34010f506d67a7ab8899de95c6b82f7d3cc4f6d9dcf49baeaecb73fc78d3  manager/app/sr
 3babd4d489923bbb46081e4cab8a7caf6b09c541068c0e4ca6f10e70c66cd3cc  manager/app/src/main/java/nd/max/ui/subscreens/DeviceInfoHero.kt
 32d4b8d60dff64ec69a8ecca2fccc5caa1a68f019564835e6f0c36e699bd0445  manager/app/src/main/java/nd/max/ui/subscreens/DeviceInfoHeroModel.kt
 cd55499efd291fe4f8d9316c28451eb2eeff0c8a7cdfdd5632d4b18ea8fa5d3e  manager/app/src/main/java/nd/max/ui/subscreens/DeviceInfoModel.kt
-a67a6e5d4a4370df0633a4e2d0cc7ca8415b4f86334d722c090f8df9001e6a62  manager/app/src/main/java/nd/max/ui/subscreens/DeviceInfoScreen.kt
+734f04333e927fe2f197f14d406c6f931ab09c083743d51726fce710301fffce  manager/app/src/main/java/nd/max/ui/subscreens/DeviceInfoScreen.kt
 4d9359e4977651624968653aeda4adf8026ce25a59465e323707b0b09788cedc  manager/app/src/main/java/nd/max/ui/subscreens/Dex2oatScreen.kt
 d2df1ea2fd625224dc521dca76820583dd64f7797f0035ea2ccec55227b9f7be  manager/app/src/main/java/nd/max/ui/subscreens/DisplayStudioScreen.kt
 f1ee3cf2779e9615e8d5a8b22b13eb36dfdae1054a29c942b6c7b9402b44f80e  manager/app/src/main/java/nd/max/ui/subscreens/DozeModeScreen.kt
@@ -677,8 +677,8 @@ fd0b5f6c5c9fc45d173aa8ccfcc8667c28ad67de34785d563164066c9d2ca417  manager/app/sr
 c69cb065dfd12c4f8a38d95921bea03f12c42cf8b81530d69a5ac77873e247a7  manager/app/src/main/res/values-ar/max_sched_strings.xml
 ceeb28435a625e7229ed50e07b9c354cb2a8043a2192047067a2f283536396f8  manager/app/src/main/res/values-ar/max_screen_strings.xml
 5c447ebd64f28a27799f5abb05b208399c20c83b72bf4c280dac0d9aa25d9d44  manager/app/src/main/res/values-ar/max_sensor_strings.xml
-e335006a36f94aa446396f7f9e3777fe197e1ee712901a3b7900b3eb4ff5bb7e  manager/app/src/main/res/values-ar/max_spoof_ui_strings.xml
-fbde1a65d805ba2998a38d6b722e9daf38c43ad02e693f7ea97c2f114eb3b733  manager/app/src/main/res/values-ar/strings.xml
+be6a91f19efe0e5b285257185a5929fae6d231e652e4b10ed22ad809693e7821  manager/app/src/main/res/values-ar/max_spoof_ui_strings.xml
+9b05917b8cfa92074f5c9bba39b1431464223697851ccbd82e7770ed227a719c  manager/app/src/main/res/values-ar/strings.xml
 cb44377d2b81f433e3e50af4102ede64afb05d637a6d3ff8a4f6ed970a5f0321  manager/app/src/main/res/values-ar/studio_strings.xml
 955fb6c4315d8a33f80b78529dcebf697478986b3ee145c362e55da07c425eb2  manager/app/src/main/res/values-as/max_ai_strings.xml
 e593acfdbeaded534084439d402e176d46f01316e69bbcb7cf2dc956e80a6879  manager/app/src/main/res/values-as/max_backup_strings.xml
@@ -1985,7 +1985,7 @@ ccc31a0f6cb0c3a0a03e89c7f439d5a241ea3a78f97fb5cc37a7d09e74bc5505  manager/app/sr
 1f4dbbd6dfc2dca07c19c78747da80bb63eb7f33d5883a294b3dd260580fee43  manager/app/src/main/res/values/max_design_strings.xml
 4d3fb5f2e37d5d34ea287f72c8bdcc88ca67086fb9c328c650b9e31291e5aab2  manager/app/src/main/res/values/max_files_strings.xml
 ac478b19e3bb5d9305dd4ddda89f7acc45c5bf6513ea96cd766c0ac4c8af6ea9  manager/app/src/main/res/values/max_gaming_strings.xml
-2468ce6c2141ea9cc7384697518e0ca32a66cd41f99594c6a2f4e0c8456a8f92  manager/app/src/main/res/values/max_gpu_strings.xml
+ff91702d963a90ce663f3a4ba62197e8b1c0c445f2411496ed90a3c7264439af  manager/app/src/main/res/values/max_gpu_strings.xml
 b084df58b7a575efb73a5180ca1a1e016694b246e7e1af3f3c68afe56bc1ab7e  manager/app/src/main/res/values/max_identity_strings.xml
 974a0cea2bf72a4610b91cfdb7aad27d9fbebcca541c67887af6dbbe70e20a58  manager/app/src/main/res/values/max_launcher_strings.xml
 1d61865ba600bfca6892c6caf875a289fdf01c86a1ab744a946ea2cb73e82d78  manager/app/src/main/res/values/max_log_strings.xml
@@ -1996,8 +1996,8 @@ b7b5b6be965323a2afd465af86180d60f7c647f72e653eafa51a5e111f7e4f71  manager/app/sr
 7b5b5771f7c821c7bdd3732ed27324c181782c3dc385b97a03d23ffb49e91caa  manager/app/src/main/res/values/max_sched_strings.xml
 49cf5692569f59491464e968f6363424c0a9dfa1472751d21a09ac81e9c9e49e  manager/app/src/main/res/values/max_screen_strings.xml
 696d2ff53fe3cd46571385fe4b1bd02d64e8044686598c81d581d3fea4fcceb5  manager/app/src/main/res/values/max_sensor_strings.xml
-763295942d8e18f2b269d9841519b42f5469dd60f897dc22acdf66ff686b2289  manager/app/src/main/res/values/max_spoof_ui_strings.xml
-03ceb9fe1a2fe84fb8e115154fcf74ed0a5bc758071248046baa6bf5a57db2d5  manager/app/src/main/res/values/strings.xml
+d3093d83e021c5befaf1dee061d5966bb754938feb610d17a32e3573839a4ab6  manager/app/src/main/res/values/max_spoof_ui_strings.xml
+957391c8714d5aa7d1a4f5316ebc64300082b63df80635b21385fa8b369776fd  manager/app/src/main/res/values/strings.xml
 1c0f3d09f5018791ca809d3dfce10a7722d90ceb1197b1efc61de0c72d022b08  manager/app/src/main/res/values/studio_strings.xml
 c7f2ac8a930155886545fcb5a1867036867471b288f582cdf560b0eab0ba0f32  manager/app/src/main/res/values/themes.xml
 e28559422064b162676827d7912ccbb6cd529507b704b562d4db01338b344d82  manager/app/src/main/res/xml/file_paths.xml
@@ -2146,7 +2146,7 @@ d6fcc9776d56e827e3d103ec48e014a352018870c70afba0c9ed3be8f7a38d6d  manager/app/sr
 e07a52f1bff2d89f4dc8157e39185f692ff7a2dcf6fbe6ed8d0ec2a57feb8c14  manager/app/src/test/java/nd/max/core/spoof/PerAppDeviceModelTest.kt
 aa5d86f5f9053d8cbfa5231e19584bc49812be7fc33526e9f4df7047785100ee  manager/app/src/test/java/nd/max/core/spoof/SpoofApplyBackendTest.kt
 f76c9c51667ffb56f3990ec04dd862aa0c12efad65f08d4adebaf42f96132447  manager/app/src/test/java/nd/max/core/spoof/SpoofCapabilityMatrixTest.kt
-bde68d0329ea202b4f28d12cae1fb57b3b8ffad9a4a6378f04aed26d3a498bfe  manager/app/src/test/java/nd/max/core/spoof/SpoofCopgContractTest.kt
+69eee265124969a8d27be704f68feb3a262c2fce35df9195fb42113d3fd8997f  manager/app/src/test/java/nd/max/core/spoof/SpoofCopgContractTest.kt
 ea476792259c1fe88f4830e6270e4f5c34e0d28321f73b6b9bf8e44f5382ba85  manager/app/src/test/java/nd/max/core/spoof/SpoofCustomDeviceTest.kt
 2cfd9ddf7655678784611312540fdd3ebfdc21f63c9567d83cf545e9e94e7cca  manager/app/src/test/java/nd/max/core/spoof/SpoofDeviceCatalogTest.kt
 2a2f94227d409ed78ceb40eadbaee6a37bfbd50d8fd9ad2f2b18b14e49942122  manager/app/src/test/java/nd/max/core/spoof/SpoofEngineAdapterTest.kt
@@ -2155,7 +2155,7 @@ ea476792259c1fe88f4830e6270e4f5c34e0d28321f73b6b9bf8e44f5382ba85  manager/app/sr
 3689f25df2f49b47c6db64e0aaf007665c79a41924bc2dc5a5b06a4259a8f111  manager/app/src/test/java/nd/max/core/spoof/SpoofExistingPerAppTest.kt
 de72720308fd93149fae37c5760a4e930fe685e9cfb255fcfda7fc6f1e99dafd  manager/app/src/test/java/nd/max/core/spoof/SpoofFileTransactionTest.kt
 a93f970887db7f59cdd30e0535369a8644b1c472ab476abb7a39af15020e0bc3  manager/app/src/test/java/nd/max/core/spoof/SpoofFpsTargetsTest.kt
-a888a661e8c1df1cae6ec8717b41ef1787e42a445b9e29a3ab786f3b08ba5e85  manager/app/src/test/java/nd/max/core/spoof/SpoofIdentityModelTest.kt
+1be233ccd44734c836be75e563f751b7937e20d12009820d501704261165645d  manager/app/src/test/java/nd/max/core/spoof/SpoofIdentityModelTest.kt
 68bb623212f00b257c98c63431065f324de8e099a28b626d033f8c974c2752f8  manager/app/src/test/java/nd/max/core/spoof/SpoofImpersonationTest.kt
 2ab03924df4a0b2b9315e16af156723bf67efe939aa88adac3310796a9f561ae  manager/app/src/test/java/nd/max/core/spoof/SpoofProfileTest.kt
 9b2f02132f27435f9bb57ad8ddf053d2d96a3446f70461f3f18e25acb38da51e  manager/app/src/test/java/nd/max/core/spoof/SpoofRecoveryModelTest.kt
@@ -2164,6 +2164,7 @@ d0d07e4eb45a6a19ddf2f9eb9350ae5a4a976288d513b7119c5dbfd38d66e644  manager/app/sr
 8807745e9d1113fadb9fb42b5dc3bc3affd681b01bd8c6911ecf1f95e32d1873  manager/app/src/test/java/nd/max/ui/component/UserScaleRequestsTest.kt
 43997cbf2d95dbebbae836b76b295560fc4a7c5bac4f8787e14d4efb193054b0  manager/app/src/test/java/nd/max/ui/design/MaxCardSizeTest.kt
 84f3a3c790f8b082306e4607b0316e8d3ee20d1c4d8257e06ed40c33b80c2d42  manager/app/src/test/java/nd/max/ui/design/MaxEdgeFadeContractTest.kt
+60e4bf6a13c06b2fb1f3b16e67a214fd7cb2f29b5b507bd8502dc5bf392373e4  manager/app/src/test/java/nd/max/ui/design/MaxProvenanceGateTest.kt
 995f8c813010147ea386fdb292dbee5a2f70f9e642ea485b189fc4d75d087468  manager/app/src/test/java/nd/max/ui/design/MaxViewMenuContractTest.kt
 1ac2a4e9b77543bd1614d6f47e7bcdbc870b9c9221fc42b6e8a49f9496b4d306  manager/app/src/test/java/nd/max/ui/design/OutcomeFromCodeNotWordingTest.kt
 6f7a4807652d9c8cfaf71594f4803b6decdf3d5788541705fb5341ba61869b9c  manager/app/src/test/java/nd/max/ui/mainscreens/ActiveObjectiveTest.kt
@@ -2176,7 +2177,7 @@ acbb58a0ed3f31fc14904275ca1a0ae574eaee2a017cc0dd8e58b0845b26dd79  manager/app/sr
 8d180ec815c540f738cf4988b7a1dec3e1ef5e1fc983d2696e984d228e8d5fac  manager/app/src/test/java/nd/max/ui/mainscreens/HomeTrendModelTest.kt
 f980cf99961a319b0e23c80667cc88b611b87f21a799c8f0ff94aa826a9feb98  manager/app/src/test/java/nd/max/ui/mainscreens/MaxAiPresentationTest.kt
 c80040d4c708e91e1dbec0c6ee272fb7af8851e07f5ad4f6f82d63f4f67386f9  manager/app/src/test/java/nd/max/ui/mainscreens/MaxAiTimelineFilterTest.kt
-a4c3ec1e046fea70145af21eef85470b727e19283c552d8d3045c8dcff48a8ac  manager/app/src/test/java/nd/max/ui/mainscreens/MaxLivePresentationArchitectureTest.kt
+6ff4d8ec1dbffc23735d2a477a8b2a2a2016b48a214aacb29ebba8d4848b230e  manager/app/src/test/java/nd/max/ui/mainscreens/MaxLivePresentationArchitectureTest.kt
 b62f1ca5b25bd6d1388fb944663d31c305653e01ca279712ae893279432b3b11  manager/app/src/test/java/nd/max/ui/mainscreens/ScreenFinderTest.kt
 06771fcb3e3b3ea8c6862e547067e0429795ba86ef24cf39e9f1149ed121a930  manager/app/src/test/java/nd/max/ui/mainscreens/ScreenUsageLedgerTest.kt
 729314bc24a6ae490f862971dd74da9aa04f7b3190196920da982162c895539c  manager/app/src/test/java/nd/max/ui/mainscreens/StoryboardModelTest.kt

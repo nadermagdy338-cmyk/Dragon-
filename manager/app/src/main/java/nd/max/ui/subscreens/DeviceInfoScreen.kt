@@ -212,6 +212,9 @@ fun DeviceInfoScreen(
     // (`DashboardState.readingsAtMs`)، وصفر تعني «لم تُقرأ بعد» — وهي الحالة التي رآها
     // المالك مكتوبةً «لا قراءة» دقيقةً كاملة قبل أن تظهر الأرقام.
     val pendingReadings = dashboard.readingsAtMs == 0L
+    // The Snapshot label is advanced-only (AdvancedMode.kt). The help text names it, so the default
+    // text drops that clause rather than describe a label the user cannot see.
+    val advancedHelp = rememberAdvancedMode()
 
     MaxListScreen(
         title = stringResource(R.string.device_info),
@@ -221,7 +224,9 @@ fun DeviceInfoScreen(
         actions = {
             MaxHelpAction(
                 title = stringResource(R.string.devinfo_help_title),
-                body = stringResource(R.string.devinfo_help_desc),
+                body = stringResource(
+                    if (advancedHelp) R.string.devinfo_help_desc else R.string.devinfo_help_desc_basic,
+                ),
             )
         },
         header = {

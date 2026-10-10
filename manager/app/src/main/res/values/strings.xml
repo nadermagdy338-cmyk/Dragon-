@@ -1896,6 +1896,7 @@
     <string name="devinfo_subtitle">What your device declares about itself, with the source of every line.</string>
     <string name="devinfo_help_title">Where do these numbers come from?</string>
     <string name="devinfo_help_desc">Every field carries its source. A value read from a hardware node is marked live, a build constant is marked snapshot, and anything that could not be read says so instead of printing a zero. Capabilities your device does not have are reported as unsupported rather than invented.</string>
+    <string name="devinfo_help_desc_basic">A value read from a hardware node is marked live, and anything that could not be read says so instead of printing a zero. Capabilities your device does not have are reported as unsupported rather than invented.</string>
     <!-- Device Info — round 225: identity, build, DRM, camera and capability fields. -->
     <string name="devinfo_brand">Brand</string>
     <string name="devinfo_model">Model</string>
@@ -2270,7 +2271,7 @@
     <string name="audio_presets_detected_output">Detected output: %1$s · active playback route not verified</string>
     <string name="audio_presets_audible_unverified">An enabled effect or matching settings do not prove that playback is processed.</string>
     <string name="audio_presets_diagnose">Check why I hear no difference</string>
-    <string name="audio_presets_diagnostic_snapshot">Read-only snapshot · tap again to refresh</string>
+    <string name="audio_presets_diagnostic_snapshot">Read-only · tap again to refresh</string>
     <string name="audio_presets_diagnostic_row">Enabled: %1$s · control owned: %2$s\nReadable: %3$s · matches saved plan: %4$s</string>
     <string name="audio_presets_not_attached">No attached session. Review the engine reason in advanced controls.</string>
     <string name="audio_presets_check_yes">Yes</string>
@@ -2474,7 +2475,7 @@
     <string name="max_audio_spectrum_bands">%1$d bands</string>
 
     <string name="max_audio_profiles_title">Profiles</string>
-    <string name="max_audio_profiles_description">Numbered snapshots of what a control can actually take, written to a text file you can export</string>
+    <string name="max_audio_profiles_description">Numbered records of what a control can actually take, written to a text file you can export</string>
     <string name="max_audio_profiles_save">Save current state</string>
     <string name="max_audio_profiles_save_note">Only values that came from a read on this device are kept</string>
     <string name="max_audio_profiles_export">Export</string>

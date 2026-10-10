@@ -92,7 +92,7 @@
     <string name="max_gpu_notice_provider_changed_title">The GPU provider changed</string>
     <string name="max_gpu_notice_provider_changed_detail">A different devfreq node is answering now, so the staged session was reset rather than carried over to another node.</string>
     <string name="max_gpu_notice_drifted_title">The live state moved</string>
-    <string name="max_gpu_notice_drifted_detail">Something outside this screen changed the values, so the previously verified snapshot is no longer offered for saving.</string>
+    <string name="max_gpu_notice_drifted_detail">Something outside this screen changed the values, so the previously verified state is no longer offered for saving.</string>
     <string name="max_gpu_notice_rollback_failed_detail">Read the live values below; nothing else is attempted from here.</string>
     <string name="max_gpu_notice_rolled_back_detail">A write that does not read back as requested is treated as a failure, not as success.</string>
     <string name="max_gpu_notice_verified_detail">The values now read match what was requested.</string>

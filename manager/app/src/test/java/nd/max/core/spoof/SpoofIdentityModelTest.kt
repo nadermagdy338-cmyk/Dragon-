@@ -161,13 +161,20 @@ class SpoofIdentityModelTest {
         assertFalse(SpoofProfileValidation.valid(global.copy(fingerprint = "wrong/pixel/pixel:15/ID/1:user/release-keys")))
         assertTrue(SpoofProfileValidation.valid(global.copy(fingerprint = "google/pixel/pixel:15/ID/1:user/release-keys")))
     }
-    @Test fun foreignDeviceAndCpuPackageTagsBlockOurAssignment() {
+    @Test fun aForeignDeviceListEntryIsOverriddenByOurFirstKeyAndItsTagsTravel() {
         val data = SpoofWorkspace(listOf(custom), mapOf("com.example.app" to custom.id))
-        assertEquals(SpoofCopgRefusal.FOREIGN_PACKAGE_CONFLICT, refusal(data,
-            """{"PACKAGES_OTHER":["com.example.app:cow"]}"""))
+        val ready = (SpoofCopgContract.plan("""{"PACKAGES_OTHER":["com.example.app:cow"]}""", data, "7.5.1")
+            as SpoofCopgPlanResult.Ready).plan.json
+        assertTrue(ready.indexOf("PACKAGES_MAXMANAGER_CUSTOM") < ready.indexOf("PACKAGES_OTHER"))
+        assertTrue(ready.contains("\"com.example.app:cow\""))
+    }
+
+    @Test fun aPackageInCopgsCpuSpoofListsStillFailsClosed() {
+        val data = SpoofWorkspace(listOf(custom), mapOf("com.example.app" to custom.id))
         assertEquals(SpoofCopgRefusal.FOREIGN_PACKAGE_CONFLICT, refusal(data,
             """{"cpu_spoof":{"blacklist":["com.example.app"]}}"""))
     }
+
     @Test fun disabledWithoutGlobalRemovesOnlyOwnedAssignments() {
         val data = SpoofWorkspace(listOf(custom), mapOf("com.example.app" to custom.id))
             .setAppPolicy("com.example.app", AppSpoofProfile(SpoofInheritanceMode.DISABLED))

@@ -1860,6 +1860,7 @@
     <string name="devinfo_subtitle">ما يُعلنه جهازك عن نفسه، ومعه مصدر كل سطر.</string>
     <string name="devinfo_help_title">من أين تأتي هذه الأرقام؟</string>
     <string name="devinfo_help_desc">كل حقل يحمل مصدره: ما قُرِئ من عقدة عتاد يُوسم حيًّا، وما هو خاصية بناء يُوسم لقطةً، وما تعذّرت قراءته يقول ذلك ولا يُكتب مكانه صفر. وما لا يملكه جهازك يُقال «غير مدعوم» ولا يُخترع له دعم.</string>
+    <string name="devinfo_help_desc_basic">ما قُرِئ من عقدة عتاد يُوسم حيًّا، وما تعذّرت قراءته يقول ذلك ولا يُكتب مكانه صفر. وما لا يملكه جهازك يُقال «غير مدعوم» ولا يُخترع له دعم.</string>
     <!-- معلومات الجهاز — تكملة ٢٢٥: حقول الهوية والبناء و DRM والكاميرا والقدرات. -->
     <string name="devinfo_brand">العلامة التجارية</string>
     <string name="devinfo_model">الطراز</string>
@@ -2124,7 +2125,7 @@
     <string name="audio_presets_detected_output">مخرج مكتشف: %1$s · مسار التشغيل النشط غير متحقّق</string>
     <string name="audio_presets_audible_unverified">تمكين المؤثّر أو تطابق إعداداته لا يثبت معالجة الصوت الجاري.</string>
     <string name="audio_presets_diagnose">افحص لماذا لا أسمع فرقًا</string>
-    <string name="audio_presets_diagnostic_snapshot">لقطة قراءة فقط · اضغط مجددًا لتحديثها</string>
+    <string name="audio_presets_diagnostic_snapshot">قراءة فقط · اضغط مجددًا لتحديثها</string>
     <string name="audio_presets_diagnostic_row">مُمكّن: %1$s · نملك التحكّم: %2$s\nالإعدادات مقروءة: %3$s · تطابق الخطة المحفوظة: %4$s</string>
     <string name="audio_presets_not_attached">لا جلسة متصلة. راجع سبب المحرّك في التحكّم المتقدّم.</string>
     <string name="audio_presets_check_yes">نعم</string>
@@ -2437,7 +2438,7 @@
     <string name="max_audio_spectrum_bands">%1$d نطاقًا</string>
 
     <string name="max_audio_profiles_title">البصمات</string>
-    <string name="max_audio_profiles_description">لقطات مرقّمة لما يقبله المقبض فعلًا، مكتوبة في ملفّ نصّيّ يمكنك تصديره</string>
+    <string name="max_audio_profiles_description">سجلّات مرقّمة لما يقبله المقبض فعلًا، مكتوبة في ملفّ نصّيّ يمكنك تصديره</string>
     <string name="max_audio_profiles_save">احفظ الحالة الحالية</string>
     <string name="max_audio_profiles_save_note">لا تُحفظ إلا القيم التي جاءت من قراءة على هذا الجهاز</string>
     <string name="max_audio_profiles_export">تصدير</string>
