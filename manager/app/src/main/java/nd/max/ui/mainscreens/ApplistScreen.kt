@@ -17,6 +17,13 @@ import nd.max.ui.design.MaxHelpAction
 import nd.max.ui.design.MaxSection
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
+import nd.max.ui.component.rememberAnimationsEnabled
+import nd.max.ui.component.maxPressMotion
+import nd.max.ui.component.maxLiDARScan
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -183,6 +190,7 @@ fun ApplistScreen(navController: NavHostController) {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
+                        .maxLiDARScan(active = viewModel.isRefreshing)
                 ) {
                     LazyColumn(
                         state = listState,
@@ -429,11 +437,23 @@ private val ApplistViewmodel.AppSort.labelRes: Int
 @Composable
 private fun ApplistItem(app: ApplistViewmodel.AppInfo, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val animationsEnabled = rememberAnimationsEnabled()
+    val borderColor by animateColorAsState(
+        targetValue = if (isPressed && animationsEnabled) colors.primary else colors.outlineVariant.copy(alpha = .42f),
+        animationSpec = tween(120),
+        label = "appItemBorder"
+    )
+
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (animationsEnabled) Modifier.maxPressMotion(interactionSource, pressedScale = 0.985f) else Modifier),
         shape = RoundedCornerShape(MaxRadius.tile),
         color = colors.surfaceContainerLow,
-        border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = .42f)),
+        border = BorderStroke(1.dp, borderColor),
+        interactionSource = interactionSource,
         onClick = onClick
     ) {
         Row(

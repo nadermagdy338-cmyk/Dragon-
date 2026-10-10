@@ -266,17 +266,27 @@ fun NeuralValue(
     align: TextAlign? = null,
 ) {
     val p = neuralPalette()
+    val animationsEnabled = rememberAnimationsEnabled()
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Text(
-            text,
-            modifier,
-            color = color ?: p.text,
-            style = style,
-            maxLines = maxLines,
-            overflow = TextOverflow.Ellipsis,
-            softWrap = false,
-            textAlign = align,
-        )
+        if (animationsEnabled && text.any { it.isDigit() }) {
+            MaxRollingTicker(
+                value = text,
+                modifier = modifier,
+                style = style,
+                color = color ?: p.text
+            )
+        } else {
+            Text(
+                text,
+                modifier,
+                color = color ?: p.text,
+                style = style,
+                maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis,
+                softWrap = false,
+                textAlign = align,
+            )
+        }
     }
 }
 

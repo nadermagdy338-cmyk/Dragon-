@@ -16,6 +16,12 @@
  */
 package nd.max.ui.component
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -44,6 +50,20 @@ fun NeuralSparkline(
     val p = neuralPalette()
     val grid = p.muted.copy(alpha = .07f)
     val floorLine = p.muted.copy(alpha = .22f)
+    val animationsEnabled = rememberAnimationsEnabled()
+    val beaconPulse: Float = if (animationsEnabled) {
+        val transition = rememberInfiniteTransition(label = "sparklineBeacon")
+        transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1400, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "beaconPulse"
+        ).value
+    } else 0f
+
     Canvas(modifier) {
         if (samples.size < 2) return@Canvas
         val w = size.width
@@ -98,6 +118,12 @@ fun NeuralSparkline(
                 join = StrokeJoin.Round
             )
         )
-        drawCircle(accent, radius = 3.dp.toPx(), center = points.last())
+        val lastPoint = points.last()
+        if (animationsEnabled && beaconPulse > 0f) {
+            val haloRadius = 3.dp.toPx() + beaconPulse * 5.dp.toPx()
+            val haloAlpha = (1f - beaconPulse) * 0.45f
+            drawCircle(accent.copy(alpha = haloAlpha), radius = haloRadius, center = lastPoint)
+        }
+        drawCircle(accent, radius = 3.dp.toPx(), center = lastPoint)
     }
 }

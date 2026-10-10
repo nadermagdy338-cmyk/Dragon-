@@ -33,6 +33,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import android.provider.Settings
@@ -173,3 +184,55 @@ fun Modifier.maxValueMotion(scale: Float = 1f, alpha: Float = 1f): Modifier =
         scaleY = scale
         this.alpha = alpha
     }
+
+/**
+ * شعاع مسح ليزري راداري (LiDAR / Telemetry Laser Beam) للأسطح التي تجري فيها عمليات فحص أو تحديث نشطة.
+ *
+ * يرسم مسحاً أفقياً ناعماً بتوهج نيون يتلاشى للأعلى مع خط ليزري رئيسي، متوافقاً مع [rememberAnimationsEnabled].
+ */
+@Composable
+fun Modifier.maxLiDARScan(
+    active: Boolean,
+    accent: Color = MaterialTheme.colorScheme.primary,
+    durationMillis: Int = 1800
+): Modifier {
+    if (!active || !rememberAnimationsEnabled()) return this
+
+    val transition = rememberInfiniteTransition(label = "lidarScan")
+    val progress: Float = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "lidarProgress"
+    ).value
+
+    return this.drawWithContent {
+        drawContent()
+        val y = size.height * progress
+        val beamHeight = 28.dp.toPx()
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color.Transparent,
+                    accent.copy(alpha = 0.06f),
+                    accent.copy(alpha = 0.25f),
+                    accent.copy(alpha = 0.65f)
+                ),
+                startY = (y - beamHeight).coerceAtLeast(0f),
+                endY = y
+            ),
+            topLeft = Offset(0f, (y - beamHeight).coerceAtLeast(0f)),
+            size = Size(size.width, beamHeight.coerceAtMost(y))
+        )
+        drawLine(
+            color = accent,
+            start = Offset(0f, y),
+            end = Offset(size.width, y),
+            strokeWidth = 1.5.dp.toPx()
+        )
+    }
+}
+

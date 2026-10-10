@@ -60,17 +60,21 @@ MaxManager has a strong engine and a fragmented surface. `core/maxai` + `core/ha
 
 ## Executor log
 
-### UI-ANIMATIONS-VISUAL-EFFECTS-02 — الساعة الرملية الحركية لشاشة التطبيقات وعداد الأرقام المتدحرج — 2026-10-10 · DONE
+### UI-ANIMATIONS-VISUAL-EFFECTS-02 — الساعة الرملية الحركية وعداد الأرقام المتدحرج وشعاع LiDAR ونبضة الفوسفور — 2026-10-10 · DONE
 
-TASK: «اريد مزيد من الأفكار الرائعة كمثال صغير ان يتحرك الساعة الرملية في شاشة التطبيقات الخاصة بي تحميل التطبيقات». تنفيذ حركة الساعة الرملية الحركية (Kinetic Flipping Hourglass) لحالة التحميل النشطة في شاشة التطبيقات وكافة شاشات التطبيق عبر `MaxLoadingState`، وإضافة مكوّن العداد الرقمي المتدحرج للأرقام الحية (`MaxRollingTicker`)، وتقديم باقة الأفكار البصرية المتقدمة المتوافقة مع هوية MaxManager.
-FILES: `manager/app/src/main/java/nd/max/ui/component/ContentStateComponents.kt`؛ `manager/app/src/main/java/nd/max/ui/component/MaxRollingTicker.kt` (جديد).
+TASK: «اريد مزيد من الأفكار الرائعة كمثال صغير ان يتحرك الساعة الرملية في شاشة التطبيقات الخاصة بي تحميل التطبيقات» + «هل لديك افكار اسطوري تعمق» + «نفذ افكارك». تنفيذ حركة الساعة الرملية الحركية (Kinetic Flipping Hourglass) لشاشات التحميل، وإضافة مكوّن العداد الرقمي المتدحرج للأرقام الحية (`MaxRollingTicker`)، ودمجه في قراءات التيليمتري (`NeuralValue`)، وشعاع المسح الليزري الراداري (`maxLiDARScan`) عند التحديث في شاشة التطبيقات، واستجابة اللمس التفاعلية لكروت التطبيقات (`ApplistItem`)، ونبضة الفوسفور الرادارية في موجات `NeuralSparkline`.
+FILES: `manager/app/src/main/java/nd/max/ui/component/ContentStateComponents.kt`؛ `manager/app/src/main/java/nd/max/ui/component/NeuralSparkline.kt`؛ `manager/app/src/main/java/nd/max/ui/component/MaxRollingTicker.kt` (جديد)؛ `manager/app/src/main/java/nd/max/ui/component/MaxMotion.kt`؛ `manager/app/src/main/java/nd/max/ui/component/NeuralDashboardKit.kt`؛ `manager/app/src/main/java/nd/max/ui/mainscreens/ApplistScreen.kt`.
 GATES: kt_balance **2264/0**؛ code_health **0 عيوب والدَّين ثابت (0/0)**؛ i18n_coverage **0 عوائق (3429 مفتاحًا)**؛ resource_compile **0 عيوب (1047 ملف XML)**.
 BUILD: لا طلب بناء من المالك (§0.1)؛ compilation unverified in this environment للمسار الكامل، وفحوصات السلامة البنيوية والتوازن والصحة والرموز اجتازت 100%.
 ما نُفّذ:
 1. MaxAnimatedHourglass: حركة فيزيائية ناعمة تقلب الساعة 180 درجة بانعطاف فيزيائي ورفع scale مجسم خفيف (1.16x) عند منتصف الدوران لمحاكاة رفع الساعة وقلبها، مع ثبات بين الانقلابات وهالة نبض ضوئي هادئ لوعاء الأيقونة (Glow Halo) تتنفس بين 0.10 و 0.22 ألفا. تحترم إعداد Reduce Motion في النظام (rememberAnimationsEnabled) بدقة.
 2. MaxContentState: تم تزويدها بـ overload يقبل محتوى أيقونة مرن (iconContent: @Composable () -> Unit) مع الحفاظ التام على التوقيع القائم للتوافق الكامل.
 3. MaxLoadingState: تم ربطها بـ MaxAnimatedHourglass مباشرة، مما يجعل شاشة التطبيقات (ApplistScreen) وكافة شاشات النظام تستفيد تلقائياً من الحركة الحية عند التحميل.
-4. MaxRollingTicker: مكوّن مخصص لعرض البيانات العتادية الحية المتغيرة (CPU MHz, RAM, Temp, FPS) بحركة تدحرج أودوميتر رقمي سريع الخانات المتغيرة فقط، يحاكي عدادات أجهزة القياس الرقمية الاحترافية.
+4. MaxRollingTicker: مكوّن مخصص لعرض البيانات العتادية الحية المتغيرة (CPU MHz, RAM, Temp, FPS) بحركة تدحرج أودوميتر رقمي سريع الخانات المتغيرة فقط، يحاكي عدادات أجهزة القياس الرقمية الاحترافية (وتم تصحيح محاذاة Row إلى Alignment.CenterVertically لتطابق النوع المطلوب بدقة).
+5. NeuralValue Live Rolling: ربط NeuralValue بـ MaxRollingTicker تلقائياً عندما تحتوي القيمة على أرقام وحركات النظام مفعّلة، لتتدحرج كافة قراءات التيليمتري على الواجهة الرئيسية كأودوميتر رقمي فائق السلاسة.
+6. Modifier.maxLiDARScan: معدّل جديد في MaxMotion يرسم شعاع مسح ليزري أفقي ناعم يمر عمودياً مع توهج نيون متلاشٍ أثناء عمليات التحديث والفحص النشطة.
+7. ApplistScreen Enhancements: إضافة maxLiDARScan لـ PullToRefreshBox أثناء تحديث التطبيقات، وإضافة استجابة اللمس التفاعلية maxPressMotion والحدود الضوئية المتحركة لجميع كروت ApplistItem.
+8. NeuralSparkline Phosphor Beacon: إضافة هالة نبضية متوسعة ناعمة (Expanding Radar Halo) للنقطة الحية (points.last()) على موجات التردد في شاشة الرئيسية والأنوية تحاكي نبضات راسمات الإشارات الفوسفورية (Oscilloscope).
 
 ### UI-ANIMATIONS-VISUAL-EFFECTS-01 — حركات تفاعلية وانتقالات ملاحية وانسيابية بصرية — 2026-10-10 · DONE
 

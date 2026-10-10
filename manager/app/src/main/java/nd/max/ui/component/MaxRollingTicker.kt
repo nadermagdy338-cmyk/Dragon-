@@ -50,7 +50,7 @@ fun MaxRollingTicker(
 
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterHorizontally
+        verticalAlignment = Alignment.CenterVertically
     ) {
         value.forEachIndexed { index, char ->
             if (char.isDigit()) {
