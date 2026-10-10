@@ -173,13 +173,32 @@ object MemoryLedger {
     }
 
     /**
-     * يسجّل لقطة لتطبيقنا **بلا امتياز** — وهذا المسار الموثوق.
-     * @return التقرير بعد التسجيل، أو `null` إن تعذّرت القراءة.
+     * يقيس PSS لتطبيقنا **بلا امتياز** — وهذا المسار الموثوق.
+     *
+     * @param persist `true`: يُضاف القياس إلى الدفتر، وهي شاشة التشخيص (**المكان الوحيد الذي
+     *   يُسجَّل منه**). و`false`: **يُقاس ويُقارَن بلا كتابة**، لمن يعرض الدفتر عرضًا فقط
+     *   (معلومات الجهاز · Kernel Facts): فتح شاشة للقراءة لا يجوز أن يُضيف لقطة فتُزحزح نافذة
+     *   [MAX_SNAPSHOTS_PER_KEY] وتُغيّر «القراءات المحفوظة» التي يعرضها — أي أن العرض كان
+     *   يُغيّر ما يعرضه.
+     * @return التقرير، أو `null` إن تعذّرت القراءة.
      */
-    fun observeOwn(context: Context, atMs: Long = System.currentTimeMillis()): Report? {
+    fun observeOwn(
+        context: Context,
+        atMs: Long = System.currentTimeMillis(),
+        persist: Boolean = true,
+    ): Report? {
         val pss = readOwnPssKb(context) ?: return null
         val key = context.packageName
-        return record(context, MemorySnapshot(key, pss, atMs, Method.OWN_PROCESS))
+        val snapshot = MemorySnapshot(key, pss, atMs, Method.OWN_PROCESS)
+        if (persist) return record(context, snapshot)
+
+        // بلا كتابة: القائمة هي المحفوظة فعلًا، والفرق مقابل آخر محفوظة **من النوع نفسه**
+        // (و`delta` هي التي ترفض المقارنة إن اختلفت الطريقة — فلا يُعاد حكمها هنا).
+        val stored = decode(
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_SNAPSHOTS, null)
+        )
+        val previous = stored.filter { it.key == key }.sortedBy { it.atMs }.lastOrNull()
+        return Report(snapshots = stored, current = snapshot, delta = delta(previous, snapshot))
     }
 
     /**

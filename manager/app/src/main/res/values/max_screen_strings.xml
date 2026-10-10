@@ -165,6 +165,7 @@
     <string name="max_dex_empty_detail">Clear the search or switch scope to see more apps.</string>
     <string name="max_memory_ledger_title">Memory ledger (this app)</string>
     <string name="max_memory_ledger_desc">A reading is taken each time you open this screen and compared with the one before it. Measured through the system API without any privilege; a figure from dumpsys is labelled separately and never compared with it.</string>
+    <string name="max_memory_ledger_view_desc">Read-only: this screen measures but stores nothing new; the comparison is against the last reading put on record.</string>
     <string name="max_memory_current">Current PSS</string>
     <string name="max_memory_method">Measured via</string>
     <string name="max_memory_method_own">System API, no privilege</string>

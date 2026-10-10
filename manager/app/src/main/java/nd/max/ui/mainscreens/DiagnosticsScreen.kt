@@ -85,7 +85,7 @@ import nd.max.ui.util.ChargeVerdict
 import nd.max.ui.util.CrashLogSummary
 import nd.max.ui.util.CrashLogUtil
 import nd.max.ui.component.SensorInventoryCard
-import nd.max.ui.util.MemoryLedger
+import nd.max.ui.component.rememberMemoryLedgerFields
 import nd.max.ui.util.ZramPlatformState
 import nd.max.ui.util.ZramPlatformUtil
 import nd.max.ui.util.StorageHealthUtil
@@ -774,14 +774,6 @@ private fun ChargeLedgerCard() {
  */
 @Composable
 private fun MemoryLedgerCard() {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    var report by remember { mutableStateOf<MemoryLedger.Report?>(null) }
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        report = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            MemoryLedger.observeOwn(context)
-        }
-    }
-
     MaxSurface(modifier = Modifier.padding(top = 22.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -802,56 +794,12 @@ private fun MemoryLedgerCard() {
         )
         Spacer(Modifier.height(10.dp))
 
-        val current = report
-        when {
-            current == null || current.current == null ->
-                DetailRow(stringResource(R.string.max_memory_reading), null)
-            else -> {
-                DetailRow(
-                    stringResource(R.string.max_memory_current),
-                    stringResource(R.string.max_memory_kb_format, current.current.totalPssKb.toString())
-                )
-                DetailRow(
-                    stringResource(R.string.max_memory_method),
-                    when (current.current.method) {
-                        MemoryLedger.Method.OWN_PROCESS -> stringResource(R.string.max_memory_method_own)
-                        MemoryLedger.Method.DUMPSYS -> stringResource(R.string.max_memory_method_dumpsys)
-                    }
-                )
-                DetailRow(
-                    stringResource(R.string.max_memory_snapshots),
-                    current.snapshots.count { it.key == current.current.key }.toString()
-                )
-                when (val delta = current.delta) {
-                    MemoryLedger.MemoryDelta.Insufficient -> DetailRow(
-                        stringResource(R.string.max_memory_trend),
-                        stringResource(R.string.max_memory_trend_insufficient)
-                    )
-                    is MemoryLedger.MemoryDelta.Stable -> DetailRow(
-                        stringResource(R.string.max_memory_trend),
-                        stringResource(
-                            R.string.max_memory_trend_stable,
-                            delta.previousKb.toString()
-                        )
-                    )
-                    is MemoryLedger.MemoryDelta.Changed -> DetailRow(
-                        stringResource(R.string.max_memory_trend),
-                        if (delta.deltaKb > 0) {
-                            stringResource(
-                                R.string.max_memory_trend_grew,
-                                delta.percent.toString(),
-                                delta.deltaKb.toString()
-                            )
-                        } else {
-                            stringResource(
-                                R.string.max_memory_trend_shrank,
-                                delta.percent.toString(),
-                                (-delta.deltaKb).toString()
-                            )
-                        }
-                    )
-                }
-            }
+        // **والحقول من مصدر واحد:** تحويل التقرير إلى (عنوان، قيمة) كان مكتوبًا هنا، وصار في
+        // `rememberMemoryLedgerFields()` لأن الشاشتين الأخريين تعرضان الصفوف نفسها — ونسختان
+        // لنفس الصياغة تتباعدان. وهذا الموضع **الوحيد** الذي يمرّر `persist = true`: هنا يُقاس
+        // ويُسجَّل في الدفتر، وفي غيره يُعرض بلا كتابة.
+        rememberMemoryLedgerFields(persist = true).forEach { field ->
+            DetailRow(field.label, field.value)
         }
     }
 }

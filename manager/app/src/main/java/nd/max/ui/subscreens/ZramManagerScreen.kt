@@ -60,7 +60,9 @@ import nd.max.ui.design.MaxSection
 import nd.max.ui.design.MaxSliderRow
 import nd.max.ui.design.MaxTone
 import nd.max.ui.component.MaxDeviceInfoShortcut
+import nd.max.ui.component.rememberMemoryLedgerFields
 import nd.max.ui.navigation.MaxDestination
+import nd.max.ui.settings.rememberAdvancedMode
 import nd.max.ui.viewmodel.ZramOpKind
 import nd.max.ui.viewmodel.ZramOperation
 import nd.max.ui.viewmodel.ZramSizePreset
@@ -126,6 +128,11 @@ fun ZramManagerScreen(
 
     // Kernel facts are secondary diagnosis, so they stay folded until asked for.
     var showKernelFacts by remember { mutableStateOf(false) }
+
+    // **ودفتر الذاكرة (تكملة ٢٦٣)** يشارك الكشف مع «Kernel Facts»، لكنه لا يظهر إلا بالوضع
+    // المتقدّم — أمر المالك: «وتظهر memory من شاشة Kernel Facts و devic info عند الضغط على
+    // Advanced Mode». وهو **عرض لا يقيس ويُسجّل**: القياس يُسجَّل في شاشة التشخيص وحدها.
+    val advanced = rememberAdvancedMode()
 
     val sysfsSource = stringResource(R.string.max_zram_source_sysfs)
     val swapsSource = stringResource(R.string.max_zram_source_swaps)
@@ -469,6 +476,20 @@ fun ZramManagerScreen(
                         source = sysfsSource
                     )
                 )
+                // ---- ودفتر الذاكرة (`AR-24`): صفوفٌ في المجموعة نفسها، بالوضع المتقدّم وحده.
+                // وبعرضٍ لا كتابة: القيم من مصدر واحد (`rememberMemoryLedgerFields`) الذي
+                // يقيس PSS الحالي بلا امتياز ويقارنه بآخر ما سُجّل، ولا يُضيف لقطة.
+                if (advanced) {
+                    MaxGroupDivider()
+                    MaxRow(
+                        title = stringResource(R.string.max_memory_ledger_title),
+                        subtitle = stringResource(R.string.max_memory_ledger_view_desc),
+                    )
+                    rememberMemoryLedgerFields().forEach { field ->
+                        MaxGroupDivider()
+                        MaxRow(title = field.label, subtitle = field.value)
+                    }
+                }
             }
         }
     }

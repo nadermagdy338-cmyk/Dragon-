@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import nd.max.R
+import nd.max.ui.settings.rememberAdvancedMode
 import nd.max.ui.theme.MonoValueStyleLarge
 import nd.max.ui.theme.MonoValueStyleMedium
 import nd.max.ui.theme.MonoValueStyleSmall
@@ -143,6 +144,25 @@ fun MaxTrustChip(
         }
     }
 }
+
+/**
+ * هل يُطبع سطر المنشأ لهذه الثقة؟
+ *
+ * **«Snapshot» يُخفى افتراضيًّا ويظهر بالوضع المتقدّم وحده (أمر المالك):** القيمة المقروءة مرّة
+ * (ثابت بناء، لقطة إقلاع) كان سطرها `Snapshot · Source Build` تفصيلًا عن **مصدرها** لا عن قيمتها،
+ * فيقرأ المستخدم صفوف القيم كتقرير مطوّرين. وهو ما قاله المالك نصًّا: «أخفِ Snapshot من التطبيق
+ * بأكمله مثل SnapshotSource Build … وتظهر عند الضغط على Advanced Mode».
+ *
+ * **وما ليس Snapshot يبقى ظاهرًا في الحالتين — وهو خروجٌ مُعلَن عن «كل القيم غير الحيّة»**
+ * (جواب المالك على سؤال النطاق): سطر `Loading · Unreadable · Unsupported` هو **التفسير الوحيد**
+ * لقيمة لا تُطبع (شرطة)، وإخفاؤه يجعل الفراغ بلا معنى — وهو ما يمنعه `ADR-07`؛ وسطر
+ * `Stale` («آخر عيّنة») تحذيرٌ بأن الرقم قديم، فكتمانه يجعل القديم يبدو حيًّا وهو **عين** ما
+ * يمنعه `ADR-07` وروح هذا الملف. فقُدّمت الجودة على الحرف، والتعارض مُعلَن لا مسكوت عنه
+ * (نقدّم الجودة على الحرف ونُعلن التعارض — أمر المالك §0).
+ */
+@Composable
+private fun provenanceVisible(trust: MaxDataTrust): Boolean =
+    trust != MaxDataTrust.Snapshot || rememberAdvancedMode()
 
 /** Caption line: trust · updated · source. Only prints what it actually knows. */
 @Composable
@@ -278,7 +298,7 @@ fun MaxMetricReadout(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            if (showProvenance) {
+            if (showProvenance && provenanceVisible(metric.trust)) {
                 MaxMetricProvenance(metric)
             }
         }
@@ -359,7 +379,7 @@ fun MaxMetricLine(
                 }
             )
         }
-        if (metric.trust != MaxDataTrust.Live) {
+        if (metric.trust != MaxDataTrust.Live && provenanceVisible(metric.trust)) {
             MaxMetricProvenance(metric)
         }
     }

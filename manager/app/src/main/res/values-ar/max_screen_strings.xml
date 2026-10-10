@@ -168,6 +168,7 @@
     <string name="max_dex_empty_detail">امسح البحث أو بدّل النطاق لرؤية تطبيقات أكثر.</string>
     <string name="max_memory_ledger_title">دفتر ذاكرة التطبيق</string>
     <string name="max_memory_ledger_desc">تُؤخذ قراءة في كل مرّة تفتح فيها هذه الشاشة وتُقارَن بالتي قبلها. القياس عبر واجهة النظام بلا أي امتياز، والرقم الآتي من dumpsys يُوسَم منفصلًا ولا يُقارَن به.</string>
+    <string name="max_memory_ledger_view_desc">للقراءة فقط: تقيس هذه الشاشة ولا تحفظ شيئًا جديدًا؛ والمقارنة مع آخر قراءة سُجّلت.</string>
     <string name="max_memory_current">PSS الحالي</string>
     <string name="max_memory_method">طريقة القياس</string>
     <string name="max_memory_method_own">واجهة النظام، بلا امتياز</string>

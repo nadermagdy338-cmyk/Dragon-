@@ -60,6 +60,7 @@ import nd.max.R
 import nd.max.core.platform.SensorInventory
 import nd.max.core.platform.SensorMonitorUtil
 import nd.max.core.platform.ThermalUtil
+import nd.max.ui.component.rememberMemoryLedgerFields
 import nd.max.ui.component.sensorKindText
 import nd.max.ui.design.MAX_VALUE_UNAVAILABLE
 import nd.max.ui.design.MaxDataTrust
@@ -77,6 +78,7 @@ import nd.max.ui.design.MaxTabStrip
 import nd.max.ui.mainscreens.SectionLoadingIndicator
 import nd.max.ui.navigation.MaxDestination
 import nd.max.ui.navigation.MaxNavActions
+import nd.max.ui.settings.rememberAdvancedMode
 import nd.max.ui.viewmodel.HomeDashboardViewModel
 
 @Composable
@@ -274,6 +276,11 @@ private fun DeviceInfoPage(section: DeviceInfoSectionModel?, pending: Boolean) {
         return
     }
 
+    // **والوضع المتقدّم (تكملة ٢٦٣):** هو الذي يفتح دفتر الذاكرة في قسم الذاكرة أدناه — أمر
+    // المالك: «وتظهر memory من شاشة Kernel Facts و devic info عند الضغط على Advanced Mode».
+    // ويُقرأ من مصدره الواحد (`rememberAdvancedMode`) فلا يُكرَّر في شاشة ويغيب في أخرى.
+    val advanced = rememberAdvancedMode()
+
     // **والفراغ السفلي لا يُضاف هنا:** القائمة الحاوية (`MaxListScreen`) تحمل أدناه
     // `pageBottom + شريط التنقّل` بعد هذا العنصر نفسه، فإضافة مثله داخل الصفحة كانت تجعل
     // آخر صفّ يبتعد عن أسفل الشاشة بفراغين — أي قاعدة واحدة لفراغ واحد، كسابقتها.
@@ -293,6 +300,28 @@ private fun DeviceInfoPage(section: DeviceInfoSectionModel?, pending: Boolean) {
                 rows = section.rows,
                 pending = pending,
             )
+        }
+        // **ودفتر الذاكرة (`AR-24`) بطاقةً في قسمه — والوضع المتقدّم شرطه (تكملة ٢٦٣):**
+        // والقيم هي نفسها التي تعرضها شاشة التشخيص، بكلماتها نفسها، من مصدر واحد
+        // (`rememberMemoryLedgerFields`) — ولكن **بعرضٍ فقط**: لا تُسجَّل لقطة من هنا، إذ
+        // المكان الوحيد الذي يسجّل هو بطاقة التشخيص. (وقد كانت `observeOwn` تسجّل في كل نداء،
+        // فكان فتح شاشةٍ للعرض يُزحزح نافذة اللقطات المحفوظة ويُغيّر الرقم الذي يعرضه.)
+        if (advanced && section.section == DeviceInfoSection.Memory) {
+            item(key = "devinfo_memory_ledger") {
+                MaxSection(
+                    title = stringResource(R.string.max_memory_ledger_title),
+                    description = stringResource(R.string.max_memory_ledger_view_desc),
+                ) {
+                    MaxGroup {
+                        rememberMemoryLedgerFields().forEachIndexed { position, field ->
+                            if (position > 0) MaxGroupDivider()
+                            // و`MaxRow` لا `MaxMetricLine`: القيمة هنا نصّ شديد الطول في الترجمة
+                            // («لا مقارنة — …»)، والوصف يلتفّ في `subtitle` بدل أن يُقتطع.
+                            MaxRow(title = field.label, subtitle = field.value)
+                        }
+                    }
+                }
+            }
         }
         // وشرائح القدرات (الشبكة): حكم المنصّة لكل خاصية — لا كسطور قيم مُسطّحة.
         if (section.chips.isNotEmpty()) {
