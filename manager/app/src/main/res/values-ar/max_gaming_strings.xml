@@ -73,6 +73,7 @@
     <string name="lobby_tile_profile_value">%1$d تعديل</string>
     <string name="lobby_tile_profile_none">افتراضي</string>
     <string name="lobby_manage_games">إدارة الألعاب</string>
+    <string name="lobby_more">خيارات إضافية</string>
     <string name="lobby_favorites_filter">المفضلة فقط</string>
     <string name="lobby_state_on">تشغيل</string>
     <string name="lobby_state_off">إيقاف</string>

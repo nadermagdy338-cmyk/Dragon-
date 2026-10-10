@@ -73,6 +73,7 @@
     <string name="lobby_tile_profile_value">%1$d tweaks</string>
     <string name="lobby_tile_profile_none">Default</string>
     <string name="lobby_manage_games">Manage games</string>
+    <string name="lobby_more">More options</string>
     <string name="lobby_favorites_filter">Favorites only</string>
     <string name="lobby_state_on">On</string>
     <string name="lobby_state_off">Off</string>

@@ -74,6 +74,18 @@ object LobbyPalette {
     /** سيان — للبيانات الحيّة فقط (حافة البطاقة، قراءات الجاهزية)، ولا يُستعمل لزرّ إجراء. */
     val Cyan = Color(0xFF3DD9FF)
 
+    /**
+     * ألوان مسرح اللوبي (الشكل العرضيّ ذو الأجنحة): كحليّ داكن للأرضية، ووردي-أحمر نيون وأزرق ملكيّ
+     * للحافة المتوهّجة والأزرار، وفولاذيّ باهت للأجنحة والخلايا السداسية الزخرفية. ثوابت السطح وحده.
+     */
+    val Navy = Color(0xFF060B1A)
+    val NavyGlow = Color(0xFF14337F)
+    val Neon = Color(0xFFFF2D55)
+    val Blue = Color(0xFF2F7BFF)
+    val BlueBright = Color(0xFF6FA8FF)
+    val BlueDeep = Color(0xFF0B1B45)
+    val Steel = Color(0xFF9AA6C0)
+
     /** نفس `Positive` في `DESIGN.md` على الداكن (تباين ١٠٫٢٣). */
     val Positive = Color(0xFF5FD9AC)
 
@@ -113,13 +125,37 @@ val LobbyAngledShape = GenericShape { size, _ ->
     close()
 }
 
-/** شبه منحرف أعرض عند الأعلى — شريط التبويب العلويّ المعلَّق. */
+/**
+ * شبه منحرف أعرض عند الأعلى بكتفين منحنيين — شريط التبويب العلويّ المعلَّق: الضلعان ينحدران بحدّة
+ * قرب السقف ثم يلتفّان نحو الحافة السفلى الأضيق.
+ */
 val LobbyStripShape = GenericShape { size, _ ->
-    val s = size.height * 0.45f
+    val w = size.width
+    val h = size.height
+    val inset = h * 0.85f
+    val shoulder = h * 0.25f
     moveTo(0f, 0f)
-    lineTo(size.width, 0f)
-    lineTo(size.width - s, size.height)
-    lineTo(s, size.height)
+    lineTo(w, 0f)
+    quadraticBezierTo(w - shoulder, h * 0.55f, w - inset, h)
+    lineTo(inset, h)
+    quadraticBezierTo(shoulder, h * 0.55f, 0f, 0f)
+    close()
+}
+
+/**
+ * سداسيّ مفلطح مدبَّب الجانبين بحافتين مائلتين ٤٥° — أزرار الصفّ السفليّ. القطع [k] نصف الارتفاع
+ * (وبحدّ أقصى ٣٠٪ من العرض) فتبقى الزاويتان متماثلتين مهما اختلف عرض الزرّ.
+ */
+val LobbyHexButtonShape = GenericShape { size, _ ->
+    val w = size.width
+    val h = size.height
+    val k = minOf(h * 0.5f, w * 0.30f)
+    moveTo(k, 0f)
+    lineTo(w - k, 0f)
+    lineTo(w, h / 2f)
+    lineTo(w - k, h)
+    lineTo(k, h)
+    lineTo(0f, h / 2f)
     close()
 }
 

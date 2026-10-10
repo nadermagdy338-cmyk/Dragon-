@@ -21,10 +21,10 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -32,6 +32,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarBorder
@@ -56,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -67,6 +69,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -79,31 +82,31 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nd.max.core.gamespace.LobbyModel
 import nd.max.ui.design.MaxDuration
-import nd.max.ui.design.MaxRadius
 import nd.max.ui.design.MaxSize
 import nd.max.ui.design.MaxSpace
 
 /*
- * لوبي بطاقات Carousel بعمق: البطاقة المحدَّدة كبيرة بإطار متوهّج، وجارتاها أصغر ومائلتان
- * وخافتتان. كل التحويل (مقياس · ميل · شفافية · انزلاق) يُحسب في **مرحلة الطبقة** من إزاحة
- * الصفحة، فلا إعادة تركيب أثناء السحب. وكل الرسم بالكود؛ الصور الوحيدة أيقونات التطبيقات.
+ * لوبي بطاقات Carousel بعمق: البطاقة المحدَّدة كبيرة بإطار نيون متدرّج (وردي-أحمر ← أزرق) وتوهّج
+ * خارجيّ، وجارتاها أضيق ومائلتان بمنظور قويّ وخافتتان. كل التحويل (مقياس · ميل · شفافية · انزلاق)
+ * يُحسب في **مرحلة الطبقة** من إزاحة الصفحة، فلا إعادة تركيب أثناء السحب. وكل الرسم بالكود؛
+ * الصور الوحيدة أيقونات التطبيقات.
  *
- * **غير مُتحقَّق على جهاز:** اتجاه ميل الجارتين (يُفترض أن حافتيهما الخارجيّتين أقرب للمشاهد،
- * أي «شاشة منحنية»)، وسلوك `blur` تحت API 31 (لا أثر له هناك فتبقى الأيقونة المكبَّرة مموَّهة
- * بالترشيح فقط وتحجبها القاعدة السوداء المتدرّجة).
+ * اتجاه الميل: الحافة الخارجية لكل جارة أقرب للمشاهد وأطول، والداخلية أبعد وأقصر («شاشة منحنية»)،
+ * وهذا ما تُظهره اللقطة المرجعية. **غير مُتحقَّق على جهاز:** سلوك `blur` تحت API 31 (لا أثر له
+ * هناك فتبقى الأيقونة المكبَّرة مموَّهة بالترشيح فقط وتحجبها القاعدة السوداء المتدرّجة).
  */
 
-/** مقياس الجارتين مقابل المركزية. */
-private const val SIDE_SCALE = 0.78f
+/** مقياس الجارتين مقابل المركزية (مع الميل تضيق الجارة إلى نحو ٧٣٪ من عرض المركزية). */
+private const val SIDE_SCALE = 0.90f
 
 /** شفافية الجارتين. */
 private const val SIDE_ALPHA = 0.60f
 
 /** ميل الجارتين بالدرجات حول المحور الرأسيّ. */
-private const val SIDE_TILT_DEG = 20f
+private const val SIDE_TILT_DEG = 36f
 
-/** كم تُسحب الجارتان نحو المركز (نسبة من عرض البطاقة) لتعويض صِغرهما. */
-private const val SIDE_TUCK = 0.12f
+/** كم تُسحب الجارتان نحو المركز (نسبة من عرض البطاقة): تُبقي بين الحافتين فجوة ضيقة كما في المرجع. */
+private const val SIDE_TUCK = 0.08f
 
 /** مسافة الكاميرا (× الكثافة): أصغر منها يشتدّ المنظور. */
 private const val CAMERA_DISTANCE = 14f
@@ -111,12 +114,26 @@ private const val CAMERA_DISTANCE = 14f
 /** هامش رأسيّ حول البطاقة يتّسع للتوهّج، لأن الـPager يقصّ ما يخرج عن ارتفاعه. تحسبه الشاشة أيضًا لحجم البطاقة. */
 internal val LobbyGlowPad = MaxSpace.xl
 
-private val CardCut = MaxRadius.control
-private val AvatarSize = 56.dp
-private val GlowWide = 12.dp
-private val GlowNear = 6.dp
-private val ArtBlur = 24.dp
+private val CardCut = MaxSpace.sm
+private val GlowWide = 18.dp
+private val GlowMid = 10.dp
+private val GlowNear = 5.dp
+private val ArtBlur = 16.dp
 private val UnderlineHeight = 2.dp
+private val TabSlotMin = 112.dp
+private val StripPad = MaxSpace.xxl + MaxSpace.sm
+
+/** أجزاء من ارتفاع البطاقة تُشتقّ منها أحجام الصورة الدائرية والشارة والنصوص، فتتناسب مع أي مقاس. */
+private const val AVATAR_SHARE = 0.27f
+private const val BADGE_SHARE = 0.17f
+private const val TITLE_SHARE = 0.088f
+private const val META_SHARE = 0.068f
+/** ظلّ خفيف خلف نصّ البطاقة ليبقى مقروءًا فوق أي غلاف فاتح. */
+private val TextShadow = Shadow(color = Color.Black.copy(alpha = 0.65f), offset = Offset(0f, 2f), blurRadius = 6f)
+private val AvatarMin = 40.dp
+private val AvatarMax = 64.dp
+private val BadgeMin = 26.dp
+private val BadgeMax = 34.dp
 
 /** أيقونات صغيرة بحجم ثابت تكفي لاستخراج اللون وكخلفية مموَّهة. */
 private val IconRaster = 128.dp
@@ -175,8 +192,11 @@ fun rememberLobbyTone(packageName: String?): Color {
 
 /**
  * بطاقة لعبة واحدة. [emphasis] دالة (لا قيمة) كي تُقرأ في مرحلة الرسم فقط: 1 للمركزية و0 للبعيدة.
+ * التخطيط: خلفية من أيقونة اللعبة، وفي الأسفل صورة دائرية + العنوان + سطر البيانات، وفي الزاوية
+ * العليا شارة دائرية داكنة تحمل نجمة المفضّلة.
  *
- * @param starEnabled زرّ المفضّلة يعمل للمركزية وحدها؛ في الجارتين لا يُرسم ولا يُلمس.
+ * @param starEnabled زرّ المفضّلة يعمل للمركزية وحدها؛ في الجارتين تُرسم الشارة حالةً (نجمة ممتلئة إن
+ *   كانت اللعبة مفضّلة) ولا تُلمس، فنقرة الجارة تنقلك إليها.
  * @param positionDescription وصف الإتاحة، مثل «Race Master، ٣ من ٧».
  */
 @Composable
@@ -194,10 +214,9 @@ fun LobbyGameCard(
     modifier: Modifier = Modifier
 ) {
     val shape = remember { LobbyChamferShape(CardCut) }
-    val avatarShape = remember { LobbyChamferShape(MaxSpace.sm) }
     val icon by rememberLobbyIcon(packageName)
     val tone = rememberLobbyTone(packageName)
-    Box(
+    BoxWithConstraints(
         modifier
             .fillMaxSize()
             .semantics { contentDescription = positionDescription }
@@ -212,6 +231,10 @@ fun LobbyGameCard(
                 drawRim(outlinePath(shape), emphasis())
             }
     ) {
+        val avatar = (maxHeight * AVATAR_SHARE).coerceIn(AvatarMin, AvatarMax)
+        val badge = (maxHeight * BADGE_SHARE).coerceIn(BadgeMin, BadgeMax)
+        val titleSize = (maxHeight.value * TITLE_SHARE).coerceIn(13f, 18f).sp
+        val metaSize = (maxHeight.value * META_SHARE).coerceIn(11f, 14f).sp
         val art = icon
         if (art != null) {
             Image(
@@ -224,10 +247,16 @@ fun LobbyGameCard(
                     .graphicsLayer {
                         scaleX = 1.5f
                         scaleY = 1.5f
-                        alpha = 0.45f
+                        alpha = 0.55f
                     }
             )
         }
+        // لمعة قطرية خفيفة من الزاوية العليا تُعطي الغلاف سطحًا لامعًا بدل لون مسطّح.
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Brush.linearGradient(0f to Color.White.copy(alpha = 0.14f), 0.45f to Color.Transparent))
+        )
         Box(
             Modifier
                 .fillMaxSize()
@@ -243,25 +272,26 @@ fun LobbyGameCard(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .fillMaxWidth()
-                .padding(MaxSpace.lg),
+                .padding(horizontal = MaxSpace.lg, vertical = MaxSpace.md),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MaxSpace.md)
         ) {
             Box(
                 Modifier
-                    .size(AvatarSize)
-                    .clip(avatarShape)
-                    .border(MaxSize.hairlineBorder, LobbyPalette.Hairline, avatarShape)
+                    .size(avatar)
+                    .clip(CircleShape)
+                    .border(MaxSize.hairlineBorder, LobbyPalette.Ink.copy(alpha = 0.55f), CircleShape)
             ) {
-                AppIconImage(packageName = packageName, size = AvatarSize, contentDescription = null)
+                AppIconImage(packageName = packageName, size = avatar, contentDescription = null)
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MaxSpace.hairline)) {
                 Text(
                     text = title,
                     color = LobbyPalette.Ink,
-                    fontSize = 18.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = titleSize,
+                    lineHeight = titleSize * 1.2f,
+                    fontWeight = FontWeight.Medium,
+                    style = TextStyle(shadow = TextShadow),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -269,8 +299,9 @@ fun LobbyGameCard(
                     Text(
                         text = meta,
                         color = LobbyPalette.Muted,
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp,
+                        fontSize = metaSize,
+                        lineHeight = metaSize * 1.25f,
+                        style = TextStyle(shadow = TextShadow),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -280,8 +311,8 @@ fun LobbyGameCard(
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
+                .padding(MaxSpace.xs)
                 .size(MaxSize.minTouchTarget)
-                .graphicsLayer { alpha = emphasis() }
                 .then(
                     if (starEnabled) {
                         Modifier.clickable(role = Role.Button, onClickLabel = favoriteDescription, onClick = onToggleFavorite)
@@ -291,11 +322,20 @@ fun LobbyGameCard(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = if (favorite) Icons.Rounded.Star else Icons.Rounded.StarBorder,
-                contentDescription = null,
-                tint = if (favorite) LobbyPalette.RedBright else LobbyPalette.Ink
-            )
+            Box(
+                Modifier
+                    .size(badge)
+                    .clip(CircleShape)
+                    .background(LobbyPalette.Black.copy(alpha = 0.55f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (favorite) Icons.Rounded.Star else Icons.Rounded.StarBorder,
+                    contentDescription = null,
+                    tint = if (favorite) LobbyPalette.RedBright else LobbyPalette.Ink,
+                    modifier = Modifier.size(badge * 0.62f)
+                )
+            }
         }
     }
 }
@@ -305,25 +345,35 @@ private fun DrawScope.outlinePath(shape: LobbyChamferShape): Path =
     (shape.createOutline(size, layoutDirection, this) as? Outline.Generic)?.path
         ?: Path().apply { addRect(Rect(Offset.Zero, size)) }
 
-/** توهّج الإطار: خطّان عريضان شفّافان خارج البطاقة، بلا `blur` حيّ. يتنفّس مع [alpha]. */
+/**
+ * فرشاة النيون: وردي-أحمر عند الأعلى والبداية يستقرّ حتى ٤٠٪ ثم ينتقل إلى الأزرق الملكيّ عند النهاية
+ * والأسفل — الحافتان العليا واليسرى حمراوان والسفلى واليمنى زرقاوان.
+ */
+private fun DrawScope.neonBrush(): Brush = Brush.linearGradient(
+    0f to LobbyPalette.Neon,
+    0.40f to LobbyPalette.Neon,
+    0.62f to LobbyPalette.Blue,
+    1f to LobbyPalette.Blue,
+    start = Offset.Zero,
+    end = Offset(size.width, size.height)
+)
+
+/** توهّج الإطار: ثلاثة خطوط عريضة شفّافة بالتدرّج نفسه خارج البطاقة، بلا `blur` حيّ. يتنفّس مع [alpha]. */
 private fun DrawScope.drawGlow(path: Path, alpha: Float) {
-    drawPath(path, LobbyPalette.Red.copy(alpha = 0.10f * alpha), style = Stroke(width = GlowWide.toPx(), join = StrokeJoin.Round))
-    drawPath(path, LobbyPalette.Red.copy(alpha = 0.22f * alpha), style = Stroke(width = GlowNear.toPx(), join = StrokeJoin.Round))
+    val brush = neonBrush()
+    drawPath(path, brush, alpha = 0.10f * alpha, style = Stroke(width = GlowWide.toPx(), join = StrokeJoin.Round))
+    drawPath(path, brush, alpha = 0.20f * alpha, style = Stroke(width = GlowMid.toPx(), join = StrokeJoin.Round))
+    drawPath(path, brush, alpha = 0.34f * alpha, style = Stroke(width = GlowNear.toPx(), join = StrokeJoin.Round))
 }
 
 /**
- * الحافّة الحادّة: تدرّج أحمر → سيان. تُرسم بضعف العرض لأن نصفها الخارجيّ يقصّه قصّ الشكل،
+ * الحافّة الحادّة بتدرّج النيون. تُرسم بضعف العرض لأن نصفها الخارجيّ يقصّه قصّ الشكل،
  * فيبقى المرئيّ بعرض [MaxSize.activeRing].
  */
 private fun DrawScope.drawRim(path: Path, emphasis: Float) {
-    val brush = Brush.linearGradient(
-        colors = listOf(LobbyPalette.RedBright, LobbyPalette.Red, LobbyPalette.Cyan.copy(alpha = 0.85f)),
-        start = Offset.Zero,
-        end = Offset(size.width, size.height)
-    )
     drawPath(
         path = path,
-        brush = brush,
+        brush = neonBrush(),
         alpha = 0.30f + 0.70f * emphasis,
         style = Stroke(width = MaxSize.activeRing.toPx() * 2f, join = StrokeJoin.Round)
     )
@@ -405,9 +455,11 @@ fun LobbyCardPager(
 // ───────────────────────────── شريط التبويب العلويّ ─────────────────────────────
 
 /**
- * شريط تبويب مائل معلَّق. تبويباته **مرشِّحات حقيقية** للقائمة نفسها (الكل · المفضّلة)، لا
- * وجهات بلا شاشة خلفها — أي تبويب لا تقف خلفه ميزة جاهزة لا يُرسم.
+ * شريط تبويب معلَّق: شبه منحرف أعرض عند الأعلى بكتفين منحنيين وحدّ فولاذيّ خافت على الحافة السفلى.
+ * التبويب المحدَّد نصّه أحمر وتحته خطّ أحمر متوهّج. تبويباته **مرشِّحات حقيقية** للقائمة نفسها
+ * (الكل · المفضّلة)، لا وجهات بلا شاشة خلفها — أي تبويب لا تقف خلفه ميزة جاهزة لا يُرسم.
  *
+ * ارتفاع الشريط يضعه المستدعي في [modifier]؛ والتبويبات تملأ ارتفاعه فيقع الخطّ على حافته السفلى.
  * [descriptions] وصف الإتاحة لكل تبويب (أطول من النص المرئيّ حيث يلزم، مثل «المفضّلة فقط»).
  */
 @Composable
@@ -425,10 +477,15 @@ fun LobbyTabStrip(
             .clip(LobbyStripShape)
             .background(
                 Brush.verticalGradient(
-                    listOf(LobbyPalette.PanelRaised.copy(alpha = 0.55f), LobbyPalette.Surface.copy(alpha = 0.85f))
+                    listOf(LobbyPalette.PanelRaised.copy(alpha = 0.55f), LobbyPalette.Surface.copy(alpha = 0.90f))
                 )
             )
-            .padding(horizontal = MaxSpace.xl),
+            .border(
+                MaxSize.hairlineBorder,
+                Brush.verticalGradient(listOf(Color.Transparent, LobbyPalette.Steel.copy(alpha = 0.55f))),
+                LobbyStripShape
+            )
+            .padding(horizontal = StripPad),
         horizontalArrangement = Arrangement.spacedBy(MaxSpace.xs),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -441,8 +498,8 @@ fun LobbyTabStrip(
             )
             Box(
                 modifier = Modifier
-                    .heightIn(min = MaxSize.minTouchTarget)
-                    .widthIn(min = MaxSize.minTouchTarget)
+                    .fillMaxHeight()
+                    .widthIn(min = TabSlotMin)
                     .semantics { contentDescription = descriptions.getOrElse(index) { label } }
                     .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(index) })
                     .drawBehind {
@@ -461,13 +518,13 @@ fun LobbyTabStrip(
                             )
                         }
                     }
-                    .padding(horizontal = MaxSpace.lg),
+                    .padding(horizontal = MaxSpace.md),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = label,
-                    color = if (isSelected) LobbyPalette.Ink else LobbyPalette.Muted,
-                    fontSize = 14.sp,
+                    color = if (isSelected) LobbyPalette.RedBright else LobbyPalette.Ink.copy(alpha = 0.85f),
+                    fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     maxLines = 1
                 )
