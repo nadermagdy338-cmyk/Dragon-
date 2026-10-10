@@ -32,11 +32,14 @@
  */
 package nd.max.ui.design
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -56,6 +59,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +68,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import kotlin.math.floor
+import nd.max.ui.component.maxPressMotion
+import nd.max.ui.component.rememberAnimationsEnabled
 
 /**
  * One card's content, as data rather than as a layout.
@@ -140,12 +146,21 @@ private fun MaxCardSurface(
     val content = tone.content()
     val shape = RoundedCornerShape(MaxCardSpec.radius)
     val interaction = remember { MutableInteractionSource() }
+    val isPressed by interaction.collectIsPressedAsState()
+    val animationsEnabled = rememberAnimationsEnabled()
+
+    val borderColor by animateColorAsState(
+        targetValue = if (isPressed && onClick != null) content.copy(alpha = MaxAlpha.borderStrong) else content.copy(alpha = MaxAlpha.border),
+        animationSpec = tween(MaxDuration.quick),
+        label = "maxCardBorder"
+    )
 
     var surface = modifier
         .defaultMinSize(minHeight = metrics.minHeight)
+        .then(if (onClick != null && animationsEnabled) Modifier.maxPressMotion(interaction, pressedScale = 0.985f) else Modifier)
         .clip(shape)
         .background(scheme.surfaceContainerLow)
-        .border(MaxCardSpec.borderWidth, content.copy(alpha = MaxAlpha.border), shape)
+        .border(MaxCardSpec.borderWidth, if (animationsEnabled) borderColor else content.copy(alpha = MaxAlpha.border), shape)
 
     if (onClick != null) {
         surface = surface.clickable(

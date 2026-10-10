@@ -23,6 +23,8 @@
  */
 package nd.max.ui.design
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import nd.max.ui.design.MaxCardSpec
 import androidx.compose.foundation.LocalIndication
@@ -30,6 +32,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -38,12 +41,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
+import nd.max.ui.component.maxPressMotion
+import nd.max.ui.component.rememberAnimationsEnabled
 
 /**
  * قشرة بطاقة واحدة: شكل واحد، وحدّ واحد، وخلفية واحدة، وحشو واحد.
@@ -73,14 +79,26 @@ fun MaxCardShell(
 ) {
     val shape = RoundedCornerShape(MaxCardSpec.radius)
     val interaction = remember { MutableInteractionSource() }
-    val stroke = if (accent != null) {
-        accent.copy(alpha = MaxAlpha.edgeLight)
+    val isPressed by interaction.collectIsPressedAsState()
+    val animationsEnabled = rememberAnimationsEnabled()
+
+    val targetStroke = if (accent != null) {
+        if (isPressed && onClick != null) accent.copy(alpha = MaxAlpha.borderStrong)
+        else accent.copy(alpha = MaxAlpha.edgeLight)
     } else {
-        borderColor
+        if (isPressed && onClick != null) MaterialTheme.colorScheme.outlineVariant
+        else borderColor
     }
+    val animatedStroke by animateColorAsState(
+        targetValue = targetStroke,
+        animationSpec = tween(MaxDuration.quick),
+        label = "cardShellStroke"
+    )
+    val stroke = if (animationsEnabled) animatedStroke else targetStroke
 
     var surface = modifier
         .then(if (minHeight != null) Modifier.defaultMinSize(minHeight = minHeight) else Modifier)
+        .then(if (onClick != null && animationsEnabled) Modifier.maxPressMotion(interaction, pressedScale = 0.985f) else Modifier)
         .clip(shape)
         .background(container)
         .border(BorderStroke(MaxCardSpec.borderWidth, stroke), shape)

@@ -262,7 +262,7 @@ private fun HeaderButton(icon: ImageVector, description: String, onClick: () -> 
             .clip(shape)
             .background(p.tile)
             .border(BorderStroke(1.dp, p.border), shape)
-            .clickable(role = Role.Button, onClick = onClick),
+            .neuralClickable(onClick, role = Role.Button),
         contentAlignment = Alignment.Center
     ) {
         Icon(icon, description, Modifier.size(18.dp), tint = p.muted)

@@ -26,6 +26,10 @@
  */
 package nd.max.ui.design
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -37,12 +41,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import nd.max.ui.component.rememberAnimationsEnabled
 
 @Composable
 fun MaxUsageBar(
@@ -53,8 +59,22 @@ fun MaxUsageBar(
     height: Dp = MaxSize.barHeight
 ) {
     val safeFraction = if (fraction.isFinite()) fraction.coerceIn(0f, 1f) else 0f
+    val animationsEnabled = rememberAnimationsEnabled()
+    val animatedFraction by animateFloatAsState(
+        targetValue = safeFraction,
+        animationSpec = tween(durationMillis = MaxDuration.standard, easing = FastOutSlowInEasing),
+        label = "usageBarFraction"
+    )
+    val displayFraction = if (animationsEnabled) animatedFraction else safeFraction
+
     val track = MaterialTheme.colorScheme.surfaceContainerHighest
-    val fill = tone.content()
+    val targetFill = tone.content()
+    val animatedFill by animateColorAsState(
+        targetValue = targetFill,
+        animationSpec = tween(durationMillis = MaxDuration.quick),
+        label = "usageBarFill"
+    )
+    val fill = if (animationsEnabled) animatedFill else targetFill
     val markerColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     BoxWithConstraints(
@@ -69,7 +89,7 @@ fun MaxUsageBar(
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(available * safeFraction)
+                .width(available * displayFraction)
                 .background(fill)
         )
         marker?.takeIf { it.isFinite() }?.let {

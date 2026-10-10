@@ -60,6 +60,22 @@ MaxManager has a strong engine and a fragmented surface. `core/maxai` + `core/ha
 
 ## Executor log
 
+### UI-ANIMATIONS-VISUAL-EFFECTS-01 — حركات تفاعلية وانتقالات ملاحية وانسيابية بصرية — 2026-10-10 · DONE
+
+TASK: «اريد انيمشن في تطبيقي وتؤثيرات بصرية افعل افضل ما لديك». إضافة حركات تفاعلية ميكروية وانتقالات ملاحية هرمية وتحريك انسيابي لأشرطة المقاييس والتبويبات والطي مع احترام صارم للائحة التصميم (DESIGN.md) وميزانية الحركة (MaxDuration <= 360ms) ودون حلقات استهلاك طاقة.
+FILES: `manager/app/src/main/java/nd/max/MainActivity.kt`؛ `manager/app/src/main/java/nd/max/ui/design/MaxBar.kt`؛ `manager/app/src/main/java/nd/max/ui/design/MaxCard.kt`؛ `manager/app/src/main/java/nd/max/ui/design/MaxCardShell.kt`؛ `manager/app/src/main/java/nd/max/ui/design/MaxStructure.kt`؛ `manager/app/src/main/java/nd/max/ui/design/MaxTabStrip.kt`؛ `manager/app/src/main/java/nd/max/ui/mainscreens/LegendaryHomeDashboard.kt`.
+GATES: kt_balance **2263/0**؛ code_health **0 عيوب والدَّين ثابت**؛ i18n_coverage **0 عوائق**؛ resource_compile **0 عيوب**؛ design_doc **exit 0**؛ design_tokens **exit 0**؛ rtl_guard **exit 0**؛ bundle_contract **exit 0**.
+BUILD: لا طلب بناء من المالك (تطبيقاً لـ §0.1)؛ compilation unverified in this environment للمسار الكامل، وفحوصات السلامة البنيوية والتوازن والصحة والرموز اجتازت 100%.
+ما نُفّذ:
+1. MaxUsageBar: تحريك انسيابي ذكي للنسبة المئوية (animatedFraction) وألوان الحالة (animatedFill) بدلاً من القفز الفوري المفاجئ.
+2. MaxCard & MaxCardShell: تفعيل ارتداد اللمس الفيزيائي التفاعلي (maxPressMotion) مع وميض دقيق للحدود عند الضغط.
+3. MaxStructure: تحريك سلس لسهم الطي والفتح بدوران 180 درجة عبر animateFloatAsState وتوسيع/طي المحتوى بحركة AnimatedVisibility انسيابية؛ إضافة maxPressMotion لصفوف MaxRow عند قابليتها للنقر.
+4. MaxTabStrip: تفاعل ارتداد لمسي لكل تبويب، مع رفع فيزيائي للأيقونة (spring lift)، وتحريك انسيابي لألوان الحدود والخلفية.
+5. LegendaryHomeDashboard: إضافة استجابة اللمس neuralClickable لأزرار الترويسة (HeaderButton).
+6. MainActivity: ترقية انتقالات NavHost الملاحية إلى حركة هرمية متناسقة (slideInVertically مع scaleIn خفيف وتلاشي fadeIn للدخول، وslideOutVertically مع scaleOut وتلاشي للخروج، وانتقال سريع فائق السلاسة بين التبويبات الأربعة الرئيسية).
+
+
+
 ### GAME-SPACE-LANDSCAPE-PANEL-01 — لوبي ألعاب بعرضيّ + لوحة جانبية لا تغطّي اللعبة — 2026-10-03 · DONE_WITH_CONCERNS للدفعة
 
 TASK: «اريد game space بالعرض احترافي زي red magic … Overlay لم يغطّ العبة تبقى قائمة جانبية مثل … بنفس التصميم وتبقا مصقولة وحقيقة وليست شكل ضعيف وواهن، وايضا يستخدم المشروع ده GameCore وابحث عن مشاريع اخري». إعادة تصميم سطح مساحة الألعاب + لوحة جانبية ملتصقة بالحافة. لا إغلاق مواصفة ولا مراجعة مستقلة مُدعاة.

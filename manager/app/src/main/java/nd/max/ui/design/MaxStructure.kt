@@ -18,8 +18,17 @@
  */
 package nd.max.ui.design
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +50,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,6 +63,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import nd.max.ui.component.maxPressMotion
+import nd.max.ui.component.rememberAnimationsEnabled
 
 /**
  * A titled band of a page.
@@ -81,6 +93,12 @@ fun MaxSection(
 ) {
     var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
     val open = !collapsible || expanded
+    val animationsEnabled = rememberAnimationsEnabled()
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(MaxDuration.quick),
+        label = "sectionExpandRotation"
+    )
     // والوصف **يتبدّل بالحالة لا يُحذف:** المطويّ يعرض السطر الذي يكفي ليُقرأ دون فتح.
     val descriptionText = if (collapsible && !expanded) summary ?: description else description
     Column(
@@ -124,15 +142,26 @@ fun MaxSection(
                     imageVector = Icons.Rounded.ExpandMore,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.rotate(if (expanded) 180f else 0f),
+                    modifier = Modifier.rotate(if (animationsEnabled) rotation else (if (expanded) 180f else 0f)),
                 )
             }
         }
-        // **والمحتوى المطويّ يُزال من التخطيط فلا يأخذ بكسلًا واحدًا** — وهذا هو ثمن التوفير
-        // مُعلنًا: ما يُبنى داخله **يُعاد بناؤه عند الفتح**، فالحالة التي يجب أن تنجو من الطيّ
-        // تُخزَّن في `rememberSaveable` لا في `remember`.
-        if (open) {
-            content()
+        if (collapsible && animationsEnabled) {
+            AnimatedVisibility(
+                visible = open,
+                enter = expandVertically(tween(MaxDuration.standard)) + fadeIn(tween(MaxDuration.standard)),
+                exit = shrinkVertically(tween(MaxDuration.quick)) + fadeOut(tween(MaxDuration.quick)),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(MaxSpace.md),
+                    content = content
+                )
+            }
+        } else {
+            if (open) {
+                content()
+            }
         }
     }
 }
@@ -185,6 +214,12 @@ fun MaxCollapsibleGroup(
     content: @Composable ColumnScope.() -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
+    val animationsEnabled = rememberAnimationsEnabled()
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(MaxDuration.quick),
+        label = "collapsibleGroupRotation"
+    )
     MaxCardShell(
         modifier = modifier.fillMaxWidth(),
         borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = MaxAlpha.border),
@@ -203,15 +238,28 @@ fun MaxCollapsibleGroup(
                         imageVector = Icons.Rounded.ExpandMore,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.rotate(if (expanded) 180f else 0f),
+                        modifier = Modifier.rotate(if (animationsEnabled) rotation else (if (expanded) 180f else 0f)),
                     )
                 },
             )
-            if (expanded) {
-                Column(
-                    modifier = Modifier.padding(vertical = MaxSpace.groupPadding),
-                    content = content,
-                )
+            if (animationsEnabled) {
+                AnimatedVisibility(
+                    visible = expanded,
+                    enter = expandVertically(tween(MaxDuration.standard)) + fadeIn(tween(MaxDuration.standard)),
+                    exit = shrinkVertically(tween(MaxDuration.quick)) + fadeOut(tween(MaxDuration.quick)),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(vertical = MaxSpace.groupPadding),
+                        content = content,
+                    )
+                }
+            } else {
+                if (expanded) {
+                    Column(
+                        modifier = Modifier.padding(vertical = MaxSpace.groupPadding),
+                        content = content,
+                    )
+                }
             }
         }
     }
@@ -249,8 +297,17 @@ fun MaxRow(
     onClick: (() -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null
 ) {
+    val interaction = remember { MutableInteractionSource() }
+    val animationsEnabled = rememberAnimationsEnabled()
     val clickModifier = if (onClick != null && enabled) {
-        Modifier.clickable(role = Role.Button, onClick = onClick)
+        Modifier
+            .then(if (animationsEnabled) Modifier.maxPressMotion(interaction, pressedScale = 0.985f) else Modifier)
+            .clickable(
+                interactionSource = interaction,
+                indication = LocalIndication.current,
+                role = Role.Button,
+                onClick = onClick,
+            )
     } else {
         Modifier
     }

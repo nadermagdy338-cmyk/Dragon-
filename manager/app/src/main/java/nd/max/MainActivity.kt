@@ -389,12 +389,16 @@ fun MainScreen(fromTileType: String? = null) {
                             fadeIn(animationSpec = tween(700))
                         } else if (targetState.destination.route !in primaryRoutes) {
                             fadeIn(animationSpec = tween(260, easing = FastOutSlowInEasing)) +
+                                slideInVertically(
+                                    initialOffsetY = { it / 10 },
+                                    animationSpec = tween(260, easing = FastOutSlowInEasing)
+                                ) +
                                 scaleIn(initialScale = 0.98f, animationSpec = tween(260, easing = FastOutSlowInEasing))
                         } else {
-                            fadeIn(animationSpec = tween(220, easing = LinearOutSlowInEasing)) +
+                            fadeIn(animationSpec = tween(180, easing = LinearOutSlowInEasing)) +
                                 scaleIn(
-                                    initialScale = 0.96f,
-                                    animationSpec = tween(220, easing = FastOutSlowInEasing),
+                                    initialScale = 0.985f,
+                                    animationSpec = tween(180, easing = FastOutSlowInEasing),
                                 )
                         }
                     },
@@ -402,30 +406,34 @@ fun MainScreen(fromTileType: String? = null) {
                         if (initialState.destination.route == MaxDestination.GetStarted.route && targetState.destination.route in primaryRoutes) {
                             fadeOut(animationSpec = tween(700))
                         } else if (initialState.destination.route in primaryRoutes && targetState.destination.route !in primaryRoutes) {
-                            fadeOut(animationSpec = tween(200, easing = FastOutSlowInEasing)) +
-                                scaleOut(targetScale = 0.98f, animationSpec = tween(200, easing = FastOutSlowInEasing))
+                            fadeOut(animationSpec = tween(180, easing = FastOutSlowInEasing)) +
+                                scaleOut(targetScale = 0.985f, animationSpec = tween(180, easing = FastOutSlowInEasing))
                         } else {
-                            fadeOut(animationSpec = tween(150))
+                            fadeOut(animationSpec = tween(120))
                         }
                     },
                     popEnterTransition = {
                         if (initialState.destination.route !in primaryRoutes && targetState.destination.route in primaryRoutes) {
-                            fadeIn(animationSpec = tween(260, easing = FastOutSlowInEasing)) +
-                                scaleIn(initialScale = 0.98f, animationSpec = tween(260, easing = FastOutSlowInEasing))
+                            fadeIn(animationSpec = tween(220, easing = FastOutSlowInEasing)) +
+                                scaleIn(initialScale = 0.985f, animationSpec = tween(220, easing = FastOutSlowInEasing))
                         } else {
-                            fadeIn(animationSpec = tween(220, easing = LinearOutSlowInEasing)) +
+                            fadeIn(animationSpec = tween(180, easing = LinearOutSlowInEasing)) +
                                 scaleIn(
-                                    initialScale = 0.96f,
-                                    animationSpec = tween(220, easing = FastOutSlowInEasing),
+                                    initialScale = 0.985f,
+                                    animationSpec = tween(180, easing = FastOutSlowInEasing),
                                 )
                         }
                     },
                     popExitTransition = {
                         if (initialState.destination.route !in primaryRoutes) {
                             fadeOut(animationSpec = tween(200, easing = FastOutSlowInEasing)) +
+                                slideOutVertically(
+                                    targetOffsetY = { it / 12 },
+                                    animationSpec = tween(200, easing = FastOutSlowInEasing)
+                                ) +
                                 scaleOut(targetScale = 0.98f, animationSpec = tween(200, easing = FastOutSlowInEasing))
                         } else {
-                            fadeOut(animationSpec = tween(150))
+                            fadeOut(animationSpec = tween(120))
                         }
                     },
                 ) {

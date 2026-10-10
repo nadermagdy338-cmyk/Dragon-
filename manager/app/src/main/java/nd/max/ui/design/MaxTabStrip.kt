@@ -27,8 +27,13 @@
 package nd.max.ui.design
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -53,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -60,6 +66,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import nd.max.ui.component.MaxMotion
+import nd.max.ui.component.maxPressMotion
+import nd.max.ui.component.rememberAnimationsEnabled
 
 /** تبويب واحد: ليبل لا يُقصّ، وأيقونة اختيارية، وعدّاد اختياري. */
 data class MaxTab(
@@ -134,6 +143,10 @@ private fun MaxTabItem(
     onSelect: () -> Unit,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val interaction = remember { MutableInteractionSource() }
+    val animationsEnabled = rememberAnimationsEnabled()
+    val isPressed by interaction.collectIsPressedAsState()
+
     val container by animateColorAsState(
         targetValue = if (selected) accent.copy(alpha = MaxAlpha.toneContainerStrong) else scheme.surfaceContainerHigh,
         label = "maxTabContainer",
@@ -142,18 +155,37 @@ private fun MaxTabItem(
         targetValue = if (selected) accent else scheme.onSurfaceVariant,
         label = "maxTabContent",
     )
+    val lift by animateFloatAsState(
+        targetValue = if (selected) 1.06f else 1f,
+        animationSpec = MaxMotion.controlSpring,
+        label = "maxTabIconLift",
+    )
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) accent.copy(alpha = MaxAlpha.borderStrong)
+                      else if (isPressed) scheme.outline
+                      else scheme.outlineVariant,
+        animationSpec = tween(MaxDuration.quick),
+        label = "maxTabBorder",
+    )
 
     Row(
         modifier = Modifier
             .heightIn(min = MaxSize.minTouchTarget)
+            .then(if (animationsEnabled) Modifier.maxPressMotion(interaction, pressedScale = 0.97f) else Modifier)
             .clip(RoundedCornerShape(MaxRadius.pill))
             .background(container)
             .border(
                 width = MaxSize.hairlineBorder,
-                color = if (selected) accent.copy(alpha = MaxAlpha.borderStrong) else scheme.outlineVariant,
+                color = if (animationsEnabled) borderColor else (if (selected) accent.copy(alpha = MaxAlpha.borderStrong) else scheme.outlineVariant),
                 shape = RoundedCornerShape(MaxRadius.pill),
             )
-            .selectable(selected = selected, role = Role.Tab, onClick = onSelect)
+            .selectable(
+                selected = selected,
+                role = Role.Tab,
+                interactionSource = interaction,
+                indication = LocalIndication.current,
+                onClick = onSelect,
+            )
             .padding(horizontal = MaxSpace.lg),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -162,7 +194,14 @@ private fun MaxTabItem(
                 imageVector = glyph,
                 contentDescription = null,
                 tint = content,
-                modifier = Modifier.size(MaxSize.iconGlyphSmall),
+                modifier = Modifier
+                    .size(MaxSize.iconGlyphSmall)
+                    .graphicsLayer {
+                        if (animationsEnabled) {
+                            scaleX = lift
+                            scaleY = lift
+                        }
+                    },
             )
             Spacer(Modifier.width(MaxSpace.sm))
         }
